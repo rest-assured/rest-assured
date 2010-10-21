@@ -1,0 +1,125 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>5</version>
+    </parent>
+    <groupId>com.jayway.restassured</groupId>
+    <artifactId>rest-assured-parent</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+    <url>http://code.google.com/p/rest-assured</url>
+    <name>REST Assured Parent POM</name>
+    <description>Groovy DSL for super easy testing of REST services</description>
+    <inceptionYear>2010</inceptionYear>
+    <issueManagement>
+        <system>GitHub Issue Tracking</system>
+        <url />
+    </issueManagement>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>LICENSE.txt</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Johan Haleby</name>
+            <id>johan.haleby</id>
+            <organization>Jayway</organization>
+            <organizationUrl>http://www.jayway.com</organizationUrl>
+            <email>johan.haleby at jayway.com</email>
+            <timezone>+1</timezone>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>kalle.stenflo</id>
+            <name>Kalle Stenflo</name>
+            <organization>Jayway</organization>
+            <organizationUrl>http://www.jayway.com</organizationUrl>
+            <email>kalle.stenflo at jayway.com</email>
+            <timezone>+1</timezone>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+    <properties>
+        <scm.branch>master</scm.branch>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <groovy.version>1.7.5</groovy.version>
+        <gmaven.version>1.2</gmaven.version>
+    </properties>
+    <scm>
+        <url>http://github.com/jayway/rest-assured/tree/${scm.branch}</url>
+        <connection>scm:git:git://github.com/jayway/rest-assured.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/jayway/rest-assured.git</developerConnection>
+    </scm>
+    <mailingLists>
+        <mailingList>
+            <name>rest-assured mailing-list</name>
+            <archive>http://groups.google.com/group/rest-assured/topics</archive>
+        </mailingList>
+    </mailingLists>
+    <modules>
+        <module>rest-assured</module>
+        <module>examples</module>
+    </modules>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.gmaven</groupId>
+                    <artifactId>gmaven-plugin</artifactId>
+                    <version>${gmaven.version}</version>
+                    <configuration>
+                        <providerSelection>1.7</providerSelection>
+                        <source />
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.codehaus.gmaven.runtime</groupId>
+                            <artifactId>gmaven-runtime-1.7</artifactId>
+                            <version>${gmaven.version}</version>
+                            <exclusions>
+                                <exclusion>
+                                    <groupId>org.codehaus.groovy</groupId>
+                                    <artifactId>groovy-all</artifactId>
+                                </exclusion>
+                            </exclusions>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.codehaus.groovy</groupId>
+                            <artifactId>groovy-all</artifactId>
+                            <version>${groovy.version}</version>
+                        </dependency>
+                    </dependencies>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>generateStubs</goal>
+                                <goal>compile</goal>
+                                <goal>generateTestStubs</goal>
+                                <goal>testCompile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.5</source>
+                    <target>1.5</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
