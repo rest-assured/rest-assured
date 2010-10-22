@@ -24,7 +24,6 @@ class RequestBuilder {
   }
 
   private def sendRequest(path, method, query, successHandler, failureHandler) {
-    System.out.println("$baseUri:$port");
     def http = new HTTPBuilder("$baseUri:$port")
     if(POST.equals(method)) {
       try {

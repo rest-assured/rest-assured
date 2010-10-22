@@ -11,6 +11,7 @@
     <groupId>com.jayway.restassured.examples</groupId>
     <artifactId>example-parent</artifactId>
     <packaging>pom</packaging>
+    <name>REST Assured Examples</name>
     <modules>
         <module>scalatra-webapp</module>
         <module>rest-assured-itest</module>

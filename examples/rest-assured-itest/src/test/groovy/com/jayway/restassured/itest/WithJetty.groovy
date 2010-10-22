@@ -17,9 +17,10 @@ class WithJetty {
     WebAppContext wac = new WebAppContext();
     wac.setContextPath("/");
     def canonicalPath = new File(".").getCanonicalPath()
-    def udsPath = "/examples/scalatra-webapp";
+    def scalatraPath = "/examples/scalatra-webapp";
+    def itestPath = "/examples/rest-assured-itest";
     def webAppPath = "/src/main/webapp";
-    def path = canonicalPath.contains(udsPath) ? canonicalPath+webAppPath : canonicalPath+udsPath+webAppPath;
+    def path = canonicalPath.contains(itestPath) ? new File("../../.").getCanonicalPath()+scalatraPath+webAppPath : canonicalPath+scalatraPath+webAppPath;
     wac.setWar(path);
     wac.setServer(server)
 
