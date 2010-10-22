@@ -2,6 +2,7 @@ package com.jayway.restassured
 
 import groovyx.net.http.Method
 import static groovyx.net.http.Method.POST
+import static groovyx.net.http.Method.GET
 
 class RestAssured {
 
@@ -11,12 +12,19 @@ class RestAssured {
 
 
   def static RequestBuilder post() {
-    return new RequestBuilder(path: "")
-
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: "", port: port, method: POST)
   }
 
   def static RequestBuilder post(String path) {
     return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: POST)
+  }
+
+  def static RequestBuilder get() {
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: "", port: port, method: GET)
+  }
+
+  def static RequestBuilder get(String path) {
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: GET)
   }
 
 

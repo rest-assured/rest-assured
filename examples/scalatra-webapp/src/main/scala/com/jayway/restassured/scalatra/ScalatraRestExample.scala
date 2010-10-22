@@ -3,6 +3,7 @@ package com.jayway.restassured.scalatra
 import org.scalatra.ScalatraServlet
 import net.liftweb.json.JsonAST
 import net.liftweb.json.JsonDSL._
+import java.lang.String
 
 
 /**
@@ -30,11 +31,11 @@ class ScalatraRestExample extends ScalatraServlet {
    }
 
 
-  get("/:key/:value") {
-    val key = {params("key")}
-    val value = {params("value")}
-    System.out.println(key+" "+value)
-    val json = ("name" -> "joe") ~ ("age" -> 35)
+  get("/:firstName/:lastName") {
+    val firstName = {params("firstName")}
+    val lastName = {params("lastName")}
+    val fullName: String = firstName + " " + lastName
+    val json = ("firstName" -> firstName) ~ ("lastName" -> lastName) ~ ("fullName" -> fullName)
     compact(JsonAST.render(json))
   }
 

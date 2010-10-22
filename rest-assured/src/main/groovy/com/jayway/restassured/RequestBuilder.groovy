@@ -23,6 +23,11 @@ class RequestBuilder {
     });
   }
 
+  def withParameters(Map map) {
+   return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: POST, query: map) 
+  }
+
+
   private def sendRequest(path, method, query, successHandler, failureHandler) {
     def http = new HTTPBuilder("$baseUri:$port")
     if(POST.equals(method)) {
