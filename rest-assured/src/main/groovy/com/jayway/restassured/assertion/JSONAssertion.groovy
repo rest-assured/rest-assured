@@ -1,5 +1,7 @@
 package com.jayway.restassured.assertion
 
+import net.sf.json.JSONArray
+
 /**
  * Created by IntelliJ IDEA.
  * User: johan
@@ -15,7 +17,9 @@ class JSONAssertion implements Assertion {
     Object current = object;
     def keys = key.split("\\.");
     keys.each { key ->
-      if(current.has(key)) {
+     if(current instanceof JSONArray) {
+        current = current.getAt(key)
+     } else if(current.has(key)) {
         current = current.get(key)
       } else {
         throw new IllegalArgumentException("$object doesn't contain key $key")

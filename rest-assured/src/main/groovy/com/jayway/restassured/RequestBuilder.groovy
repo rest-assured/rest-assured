@@ -42,7 +42,7 @@ class RequestBuilder {
     });
   }
 
-  def withParameters(Map map) {
+  def withParameters(Map<String, String> map) {
     return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: POST, query: map)
   }
 

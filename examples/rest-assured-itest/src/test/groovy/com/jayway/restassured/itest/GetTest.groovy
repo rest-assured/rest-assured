@@ -26,15 +26,19 @@ class GetTest extends WithJetty  {
 
   @Test
   public void ognlJSONAndHamcrestMatcher() throws Exception {
-    get("/lotto").andAssertThat("lotto.lotto-id", equalTo(5));
+    get("/lotto").andAssertThat("lotto.lottoId", equalTo(5));
   }
 
   @Test
   public void ognlAndPlainGroovy() throws Exception {
-    get ("/lotto").then {response, json -> assertEquals 5, json.lotto."lotto-id" }
+    get ("/lotto").then {response, json -> assertEquals 5, json.lotto.lottoId }
+  }
+
+  @Test
+  public void ognlReturningArrayAndPlainGroovy() throws Exception {
+    get ("/lotto").then {response, json -> assertEquals([23, 54], json.lotto.winners.winnerId)}
   }
   
-
   @Test
   @Ignore
   public void getWithQueryParameters() throws Exception {

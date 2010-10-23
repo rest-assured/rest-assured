@@ -5,15 +5,6 @@ import net.liftweb.json.JsonAST
 import net.liftweb.json.JsonDSL._
 import java.lang.String
 
-
-/**
- * Created by IntelliJ IDEA.
- * User: johan
- * Date: Oct 8, 2010
- * Time: 6:42:09 PM
- * To change this template use File | Settings | File Templates.
- */
-
 class ScalatraRestExample extends ScalatraServlet {
 
   case class Winner(id: Long, numbers: List[Int])
@@ -37,11 +28,11 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/lotto") {
-    val json = ("lotto" -> ("lotto-id" -> lotto.id) ~
+    val json = ("lotto" -> ("lottoId" -> lotto.id) ~
             ("winning-numbers" -> lotto.winningNumbers) ~
-            ("draw-date" -> lotto.drawDate.map(_.toString)) ~
+            ("drawDate" -> lotto.drawDate.map(_.toString)) ~
             ("winners" -> lotto.winners.map { w =>
-              (("winner-id" -> w.id) ~ ("numbers" -> w.numbers))}))
+              (("winnerId" -> w.id) ~ ("numbers" -> w.numbers))}))
     compact(JsonAST.render(json))
   }
 
