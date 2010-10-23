@@ -8,6 +8,9 @@ import static groovyx.net.http.ContentType.URLENC
 import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
 import groovyx.net.http.Method
+import org.hamcrest.Matcher
+import com.jayway.restassured.assertion.Assertion
+import com.jayway.restassured.assertion.JSONAssertion
 
 class RequestBuilder {
 
@@ -16,6 +19,16 @@ class RequestBuilder {
   String port
   Method method;
   Map query
+
+  private Assertion assertion;
+
+  def thenAssertThat(String key, Matcher<?> matcher) {
+    assertion = new JSONAssertion(key: key)
+    def assertionClosure = { response, json -> matcher.matches(assertion.getResult(json)) }
+    sendRequest(path, method, query, assertionClosure, { resp ->
+      throw new RuntimeException("Unexpected error: ${resp.statusLine.statusCode} : ${resp.statusLine.reasonPhrase}")
+    });
+  }
 
   def then(Closure assertionClosure) {
     sendRequest(path, method, query, assertionClosure, { resp ->

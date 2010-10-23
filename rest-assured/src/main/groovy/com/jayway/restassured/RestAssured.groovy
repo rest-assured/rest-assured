@@ -3,13 +3,14 @@ package com.jayway.restassured
 import groovyx.net.http.Method
 import static groovyx.net.http.Method.POST
 import static groovyx.net.http.Method.GET
+import com.jayway.restassured.assertion.Assertion
+import com.jayway.restassured.assertion.JSONAssertion
 
 class RestAssured {
 
   public static String baseURI = "http://localhost";
 
   public static int port = 8080;
-
 
   def static RequestBuilder post() {
     return new RequestBuilder(baseUri: RestAssured.baseURI, path: "", port: port, method: POST)

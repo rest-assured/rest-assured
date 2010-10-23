@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.jayway.restassured.examples</groupId>
-    <artifactId>rest-assured-itest</artifactId>
+    <artifactId>rest-assured-itest-java</artifactId>
     <name>rest-assured-itest</name>
 
     <build>
@@ -27,10 +27,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
@@ -59,9 +55,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.jayway.restassured.examples</groupId>
-            <artifactId>rest-assured-itest-support</artifactId>
-            <version>${project.version}</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
         </dependency>
     </dependencies>
 </project>
