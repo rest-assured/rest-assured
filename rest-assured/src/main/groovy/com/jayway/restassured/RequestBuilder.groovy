@@ -11,6 +11,7 @@ import groovyx.net.http.Method
 import org.hamcrest.Matcher
 import com.jayway.restassured.assertion.Assertion
 import com.jayway.restassured.assertion.JSONAssertion
+import com.jayway.restassured.exception.AssertionFailedException
 
 class RequestBuilder {
 
@@ -24,20 +25,25 @@ class RequestBuilder {
 
   def thenAssertThat(String key, Matcher<?> matcher) {
     assertion = new JSONAssertion(key: key)
-    def assertionClosure = { response, json -> matcher.matches(assertion.getResult(json)) }
+    def assertionClosure = { response, json ->
+      def result = assertion.getResult(json)
+      if(!matcher.matches(result)) {
+        throw new AssertionFailedException(String.format("%s %s doesn't match %s, was <%s>.", assertion.description(), key, matcher.toString(), result))
+      }
+    }
     sendRequest(path, method, query, assertionClosure, { resp ->
-      throw new RuntimeException("Unexpected error: ${resp.statusLine.statusCode} : ${resp.statusLine.reasonPhrase}")
+      throw new AssertionFailedException("Unexpected error: ${resp.statusLine.statusCode} : ${resp.statusLine.reasonPhrase}")
     });
   }
 
   def then(Closure assertionClosure) {
     sendRequest(path, method, query, assertionClosure, { resp ->
-      throw new RuntimeException("Unexpected error: ${resp.statusLine.statusCode} : ${resp.statusLine.reasonPhrase}")
+      throw new AssertionFailedException("Unexpected error: ${resp.statusLine.statusCode} : ${resp.statusLine.reasonPhrase}")
     });
   }
 
   def withParameters(Map map) {
-   return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: POST, query: map) 
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: POST, query: map)
   }
 
 

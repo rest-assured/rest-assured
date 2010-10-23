@@ -1,7 +1,5 @@
 package com.jayway.restassured.assertion
 
-import org.hamcrest.Matcher
-
 /**
  * Created by IntelliJ IDEA.
  * User: johan
@@ -11,7 +9,22 @@ import org.hamcrest.Matcher
  */
 class JSONAssertion implements Assertion {
   String key;
+
+
   def Object getResult(Object object) {
-    return object.get(key);
+    Object current = object;
+    def keys = key.split("\\.");
+    keys.each { key ->
+      if(current.has(key)) {
+        current = current.get(key)
+      } else {
+        throw new IllegalArgumentException("$object doesn't contain key $key")
+      }
+    }
+    return current;
+  }
+
+  def String description() {
+    return "JSON element"
   }
 }

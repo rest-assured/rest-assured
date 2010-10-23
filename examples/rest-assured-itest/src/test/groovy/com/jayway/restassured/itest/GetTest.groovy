@@ -8,6 +8,7 @@ import static groovy.util.GroovyTestCase.assertEquals
 import static org.hamcrest.Matchers.equalTo
 
 class GetTest extends WithJetty  {
+
   @Test
   public void withoutParameters() throws Exception {
     get ("/hello").then {response, json -> assertEquals "Hello Scalatra", json.hello }
@@ -23,6 +24,16 @@ class GetTest extends WithJetty  {
     get ("/hello").thenAssertThat("hello", equalTo("Hello Scalatra"))
   }
 
+  @Test
+  public void ognlJSONAndHamcrestMatcher() throws Exception {
+    get("/lotto").thenAssertThat("lotto.lotto-id", equalTo(5));
+  }
+
+  @Test
+  public void ognlAndPlainGroovy() throws Exception {
+    get ("/lotto").then {response, json -> assertEquals 5, json.lotto."lotto-id" }
+  }
+  
 
   @Test
   @Ignore

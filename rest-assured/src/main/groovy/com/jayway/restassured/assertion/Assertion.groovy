@@ -4,4 +4,6 @@ public interface Assertion {
 
   Object getResult(Object object);
 
+  String description();
+
 }

@@ -11,7 +11,7 @@
 
     <groupId>com.jayway.restassured.examples</groupId>
     <artifactId>rest-assured-itest-support</artifactId>
-    <name>rest-assured-itest</name>
+    <name>rest-assured-itest-support</name>
 
     <dependencies>
        <dependency>
