@@ -23,7 +23,7 @@ class RequestBuilder {
 
   private Assertion assertion;
 
-  def thenAssertThat(String key, Matcher<?> matcher) {
+  def andAssertThat(String key, Matcher<?> matcher) {
     assertion = new JSONAssertion(key: key)
     def assertionClosure = { response, json ->
       def result = assertion.getResult(json)

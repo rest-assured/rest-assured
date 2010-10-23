@@ -16,11 +16,11 @@ public class GetITest extends WithJetty {
 
     @Test
     public void simpleJSONAndHamcrestMatcher() throws Exception {
-        get("/hello").thenAssertThat("hello", equalTo("Hello Scalatra"));
+        get("/hello").andAssertThat("hello", equalTo("Hello Scalatra"));
     }
 
     @Test
     public void ognlJSONAndHamcrestMatcher() throws Exception {
-        get("/lotto").thenAssertThat("lotto.lotto-id", equalTo(5));
+        get("/lotto").andAssertThat("lotto.lotto-id", equalTo(5));
     }
 }
