@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.map;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
@@ -45,6 +44,6 @@ public class GetITest extends WithJetty {
 
     @Test
     public void parameterSupportWithMapBuilder() throws Exception {
-        get("/greet").with().parameters(map("firstName", "John", "lastName", "Doe")).andAssertThat("greeting", equalTo("Greetings John Doe"));
+        get("/greet").with().parameters("firstName", "John", "lastName", "Doe").andAssertThat("greeting", equalTo("Greetings John Doe"));
     }
 }

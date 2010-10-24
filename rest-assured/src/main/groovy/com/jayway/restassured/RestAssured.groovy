@@ -12,20 +12,6 @@ class RestAssured {
 
   public static int port = 8080;
 
-  def static Map<String, Object> map(Object...parameters) {
-    if(parameters == null || parameters.length < 2) {
-      throw new IllegalArgumentException("You must supply at least one key and one value.");
-    } else if(parameters.length % 2 != 0) {
-      throw new IllegalArgumentException("You must supply the same number of keys as values.")
-    }
-
-    Map<String, Object> map = new HashMap<String,Object>();
-    for (int i = 0; i < parameters.length; i+=2) {
-      map.put(parameters[i], parameters[i+1]);
-    }
-    return map;
-  }
-
   def static RequestBuilder with() {
       return new RequestBuilder(baseUri: RestAssured.baseURI, path: "", port: port, method: GET)    
   }

@@ -1,17 +1,16 @@
 package com.jayway.restassured
 
-import groovyx.net.http.HttpResponseException
+import com.jayway.restassured.assertion.Assertion
+import com.jayway.restassured.assertion.JSONAssertion
+import com.jayway.restassured.exception.AssertionFailedException
 import groovyx.net.http.HTTPBuilder
-
+import groovyx.net.http.HttpResponseException
+import groovyx.net.http.Method
+import org.hamcrest.Matcher
 import static groovyx.net.http.ContentType.JSON
 import static groovyx.net.http.ContentType.URLENC
 import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
-import groovyx.net.http.Method
-import org.hamcrest.Matcher
-import com.jayway.restassured.assertion.Assertion
-import com.jayway.restassured.assertion.JSONAssertion
-import com.jayway.restassured.exception.AssertionFailedException
 
 class RequestBuilder {
 
@@ -42,20 +41,34 @@ class RequestBuilder {
     });
   }
 
+  def RequestBuilder parameters(Object...parameters) {
+    if(parameters == null || parameters.length < 2) {
+      throw new IllegalArgumentException("You must supply at least one key and one value.");
+    } else if(parameters.length % 2 != 0) {
+      throw new IllegalArgumentException("You must supply the same number of keys as values.")
+    }
+
+    Map<String, Object> map = new HashMap<String,Object>();
+    for (int i = 0; i < parameters.length; i+=2) {
+      map.put(parameters[i], parameters[i+1]);
+    }
+    return this.parameters(map)
+  }
+
   def RequestBuilder parameters(Map<String, Object> map) {
     return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: map)
   }
 
   def RequestBuilder and() {
-     return this;
+    return this;
   }
-  
+
   def RequestBuilder with() {
-     return this;
+    return this;
   }
 
   def RequestBuilder port(int port) {
-     return new RequestBuilder(baseUri: baseUri, path: path, port: port, method: method)    
+    return new RequestBuilder(baseUri: baseUri, path: path, port: port, method: method)
   }
 
   private def sendRequest(path, method, query, successHandler, failureHandler) {
