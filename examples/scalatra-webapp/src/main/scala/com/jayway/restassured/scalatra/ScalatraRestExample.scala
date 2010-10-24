@@ -45,9 +45,15 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(JsonAST.render(json))
   }
 
-  get("/parameterHello") {
-    val name = {params("firstName")} + " " + {params("lastName")}
-    val json = ("name" -> name)
+  get("/greet") {
+    val name = "Greetings " + {params("firstName")} + " " + {params("lastName")}
+    val json = ("greeting" -> name)
+    compact(JsonAST.render(json))
+  }
+
+  post("/greet") {
+        val name = "Greetings " + {params("firstName")} + " " + {params("lastName")}
+    val json = ("greeting" -> name)
     compact(JsonAST.render(json))
   }
 

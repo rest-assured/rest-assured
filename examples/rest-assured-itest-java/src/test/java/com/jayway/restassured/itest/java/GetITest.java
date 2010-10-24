@@ -40,11 +40,11 @@ public class GetITest extends WithJetty {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("firstName", "John");
         parameters.put("lastName", "Doe");
-        get("/parameterHello").with().parameters(parameters).andAssertThat("name", equalTo("John Doe"));
+        get("/greet").with().parameters(parameters).andAssertThat("greeting", equalTo("Greetings John Doe"));
     }
 
     @Test
     public void parameterSupportWithMapBuilder() throws Exception {
-        get("/parameterHello").with().parameters(map("firstName", "John", "lastName", "Doe")).andAssertThat("name", equalTo("John Doe"));
+        get("/greet").with().parameters(map("firstName", "John", "lastName", "Doe")).andAssertThat("greeting", equalTo("Greetings John Doe"));
     }
 }
