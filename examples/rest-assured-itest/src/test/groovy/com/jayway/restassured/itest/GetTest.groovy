@@ -40,8 +40,7 @@ class GetTest extends WithJetty  {
   }
   
   @Test
-  @Ignore
   public void getWithQueryParameters() throws Exception {
-    get ("/hello").withParameters([key: "key", value: "value"]). then { response, json -> assertEquals "Hello Scalatra", json.hello }
+    get ("/parameterHello").with().parameters([firstName: "John", lastName: "Doe"]).and().then { response, json -> assertEquals "John Doe", json.name }
   }
 }

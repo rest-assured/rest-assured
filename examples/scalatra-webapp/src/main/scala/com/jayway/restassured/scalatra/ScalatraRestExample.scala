@@ -45,6 +45,12 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(JsonAST.render(json))
   }
 
+  get("/parameterHello") {
+    val name = {params("firstName")} + " " + {params("lastName")}
+    val json = ("name" -> name)
+    compact(JsonAST.render(json))
+  }
+
   notFound {
     response.setStatus(404)
     "Not found"

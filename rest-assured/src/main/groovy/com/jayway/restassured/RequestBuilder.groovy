@@ -17,8 +17,8 @@ class RequestBuilder {
 
   String baseUri
   String path
-  String port
-  Method method;
+  int port
+  Method method
   Map query
 
   private Assertion assertion;
@@ -42,13 +42,28 @@ class RequestBuilder {
     });
   }
 
-  def withParameters(Map<String, String> map) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: POST, query: map)
+  def RequestBuilder parameters(Map<String, Object> map) {
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: map)
   }
 
+  def RequestBuilder and() {
+     return this;
+  }
+  
+  def RequestBuilder with() {
+     return this;
+  }
+
+  def RequestBuilder port(int port) {
+     return new RequestBuilder(baseUri: baseUri, path: path, port: port, method: method)    
+  }
 
   private def sendRequest(path, method, query, successHandler, failureHandler) {
-    def http = new HTTPBuilder("$baseUri:$port")
+    if(port <= 0) {
+      throw new IllegalArgumentException("Port must be greater than 0")
+    }
+    def url = baseUri.startsWith("http://") ? baseUri : "http://"+baseUri
+    def http = new HTTPBuilder("$url:$port")
     if(POST.equals(method)) {
       try {
         http.post( path: path, body: query,

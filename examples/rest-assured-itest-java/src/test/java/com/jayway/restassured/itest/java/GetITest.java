@@ -5,7 +5,11 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.map;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
@@ -29,5 +33,18 @@ public class GetITest extends WithJetty {
     @Test
     public void ognlAssertionWithHamcrestMatcherAndJSONResturnsArray() throws Exception {
         get("/lotto").andAssertThat("lotto.winners.winnerId", hasItems(23, 54));
+    }
+
+    @Test
+    public void parameterSupportWithStandardHashMap() throws Exception {
+        Map<String, Object> parameters = new HashMap<String, Object>();
+        parameters.put("firstName", "John");
+        parameters.put("lastName", "Doe");
+        get("/parameterHello").with().parameters(parameters).andAssertThat("name", equalTo("John Doe"));
+    }
+
+    @Test
+    public void parameterSupportWithMapBuilder() throws Exception {
+        get("/parameterHello").with().parameters(map("firstName", "John", "lastName", "Doe")).andAssertThat("name", equalTo("John Doe"));
     }
 }
