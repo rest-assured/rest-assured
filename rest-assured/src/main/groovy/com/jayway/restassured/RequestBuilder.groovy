@@ -25,6 +25,15 @@ class RequestBuilder {
 
   private Assertion assertion;
 
+  def andAssertThatContent(Matcher<?> matcher) {
+    def assertionClosure = { response, content ->
+      if(!matcher.matches(response.getData())) {
+        throw new AssertionFailedException(String.format("<%s> doesn't match %s.", response.data, matcher.toString()))
+      }
+    }
+    sendRequest(path, method, query, assertionClosure);
+  }
+
   def andAssertThat(String key, Matcher<?> matcher) {
     def assertionClosure = { response, content ->
       switch(response.contentType.toString().toLowerCase()) {

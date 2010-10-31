@@ -2,6 +2,7 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.support.WithJetty;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.get;
@@ -38,5 +39,11 @@ public class XMLGetITest extends WithJetty {
     @Test
     public void xmlNestedElements2() throws Exception {
         get("/anotherGreetXML").with().parameters("firstName", "John", "lastName", "Doe").andAssertThat("greeting.name.firstName", equalTo("John"));
+    }
+
+    @Test
+    @Ignore("not implemented yet")
+    public void xmlWithContentAssertion() throws Exception {
+        get("/anotherGreetXML").with().parameters("firstName", "John", "lastName", "Doe").andAssertThatContent(equalTo("John"));
     }
 }
