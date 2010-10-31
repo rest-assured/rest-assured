@@ -2,6 +2,7 @@ package com.jayway.restassured.itest.support;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
@@ -14,7 +15,7 @@ public class WithJetty {
     @BeforeClass
     public static void startJetty() throws Exception {
         server = new Server();
-        org.mortbay.jetty.Connector connector = new SelectChannelConnector();
+        Connector connector = new SelectChannelConnector();
         connector.setPort(8080);
         server.addConnector(connector);
 

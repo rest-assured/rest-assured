@@ -1,11 +1,8 @@
 package com.jayway.restassured
 
-
-import org.junit.Test;
-import static com.jayway.restassured.RestAssured.map
-import static groovy.util.GroovyTestCase.assertEquals
-import static org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Test
+import static groovy.util.GroovyTestCase.assertEquals
 
 class ParameterMapBuilderTest {
   private RequestBuilder requestBuilder;

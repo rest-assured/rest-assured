@@ -1,6 +1,7 @@
 package com.jayway.restassured.assertion
 
 import net.sf.json.JSONArray
+import groovy.util.slurpersupport.Node
 
 /**
  * Created by IntelliJ IDEA.

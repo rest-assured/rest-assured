@@ -30,6 +30,16 @@ class ScalatraRestExample extends ScalatraServlet {
     </greeting>
   }
 
+  get("/anotherGreetXML") {
+    contentType = "application/xml"
+    <greeting>
+      <name>
+        <firstName>{params("firstName")}</firstName>
+        <lastName>{params("lastName")}</lastName>
+      </name>
+    </greeting>
+  }
+
   get("/hello") {
     val json = ("hello" -> "Hello Scalatra")
     compact(JsonAST.render(json))

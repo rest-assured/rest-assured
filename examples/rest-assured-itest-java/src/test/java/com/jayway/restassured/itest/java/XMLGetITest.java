@@ -29,4 +29,14 @@ public class XMLGetITest extends WithJetty {
     public void xmlWithLists() throws Exception {
         get("/greetXML").with().parameters("firstName", "John", "lastName", "Doe").andAssertThat("greeting", hasItems("John", "Doe"));
     }
+
+    @Test
+    public void xmlNestedElements() throws Exception {
+        get("/anotherGreetXML").with().parameters("firstName", "John", "lastName", "Doe").andAssertThat("greeting.name", hasItems("John", "Doe"));
+    }
+
+    @Test
+    public void xmlNestedElements2() throws Exception {
+        get("/anotherGreetXML").with().parameters("firstName", "John", "lastName", "Doe").andAssertThat("greeting.name.firstName", equalTo("John"));
+    }
 }
