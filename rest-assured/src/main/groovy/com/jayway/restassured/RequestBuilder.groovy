@@ -8,9 +8,12 @@ import groovyx.net.http.HttpResponseException
 import groovyx.net.http.Method
 import org.hamcrest.Matcher
 import static groovyx.net.http.ContentType.ANY
+import static groovyx.net.http.ContentType.JSON
+import static groovyx.net.http.ContentType.XML
 import static groovyx.net.http.ContentType.URLENC
 import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
+import com.jayway.restassured.assertion.XMLAssertion
 
 class RequestBuilder {
 
@@ -23,9 +26,16 @@ class RequestBuilder {
   private Assertion assertion;
 
   def andAssertThat(String key, Matcher<?> matcher) {
-    assertion = new JSONAssertion(key: key)
-    def assertionClosure = { response, json ->
-      def result = assertion.getResult(json)
+    def assertionClosure = { response, content ->
+      switch(response.contentType.toString().toLowerCase()) {
+        case JSON.toString().toLowerCase():
+          assertion = new JSONAssertion(key: key)
+          break
+        case XML.toString().toLowerCase():
+          assertion = new XMLAssertion(key: key)
+          break;
+      }
+      def result = assertion.getResult(content)
       if(!matcher.matches(result)) {
         throw new AssertionFailedException(String.format("%s %s doesn't match %s, was <%s>.", assertion.description(), key, matcher.toString(), result))
       }

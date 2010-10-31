@@ -12,11 +12,11 @@ import static com.jayway.restassured.RestAssured.get;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
-public class GetITest extends WithJetty {
+public class JSONGetITest extends WithJetty {
 
     @BeforeClass
     public static void setupJetty() throws Exception {
-        WithJetty.itestPath = "/examples/rest-assured-itest/java";
+        WithJetty.itestPath = "/examples/rest-assured-itest";
     }
 
     @Test
