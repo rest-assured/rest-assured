@@ -24,7 +24,6 @@ public class WithJetty {
         String scalatraPath = "/examples/scalatra-webapp";
         String webAppPath = "/src/main/webapp";
         String path = canonicalPath.contains(itestPath) ? new File("../../.").getCanonicalPath()+scalatraPath+webAppPath : canonicalPath+scalatraPath+webAppPath;
-        System.out.println("canonicalPath = "+canonicalPath+", contains = "+canonicalPath.contains(itestPath)+", itestPath = "+itestPath+", path = "+path);
         wac.setWar(path);
         wac.setServer(server);
 
