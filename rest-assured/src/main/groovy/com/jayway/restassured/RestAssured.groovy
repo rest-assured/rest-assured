@@ -12,6 +12,10 @@ class RestAssured {
 
   public static int port = 8080;
 
+  def static RequestBuilder expect() {
+      return new RequestBuilder(baseUri: RestAssured.baseURI, path: "", port: port, method: GET)    
+  }
+
   def static RequestBuilder with() {
       return new RequestBuilder(baseUri: RestAssured.baseURI, path: "", port: port, method: GET)    
   }

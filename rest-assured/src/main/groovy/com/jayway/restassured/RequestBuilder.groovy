@@ -22,8 +22,21 @@ class RequestBuilder {
   int port
   Method method
   Map query
+  Closure assertionClosure;
 
   private Assertion assertion;
+
+  def RequestBuilder content(String key, Matcher<?> matcher) {
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: getAssertionClosure(key, matcher))
+  }
+
+  def RequestBuilder when() {
+    return this;
+  }
+
+  def get(String path) {
+     sendRequest(path, method, query, assertionClosure);
+  }
 
   def andAssertThatContent(Matcher<?> matcher) {
     def assertionClosure = { response, content ->
@@ -35,21 +48,7 @@ class RequestBuilder {
   }
 
   def andAssertThat(String key, Matcher<?> matcher) {
-    def assertionClosure = { response, content ->
-      switch(response.contentType.toString().toLowerCase()) {
-        case JSON.toString().toLowerCase():
-          assertion = new JSONAssertion(key: key)
-          break
-        case XML.toString().toLowerCase():
-          assertion = new XMLAssertion(key: key)
-          break;
-      }
-      def result = assertion.getResult(content)
-      if(!matcher.matches(result)) {
-        throw new AssertionFailedException(String.format("%s %s doesn't match %s, was <%s>.", assertion.description(), key, matcher.toString(), result))
-      }
-    }
-    sendRequest(path, method, query, assertionClosure);
+    sendRequest(path, method, query, getAssertionClosure(key, matcher));
   }
 
   def then(Closure assertionClosure) {
@@ -71,7 +70,7 @@ class RequestBuilder {
   }
 
   def RequestBuilder parameters(Map<String, Object> map) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: map)
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: map, assertionClosure: assertionClosure)
   }
 
   def RequestBuilder and() {
@@ -121,6 +120,23 @@ class RequestBuilder {
       }
     } else {
       throw new IllegalArgumentException("Only GET and POST supported")
+    }
+  }
+
+  private Closure getAssertionClosure(String key, Matcher<?> matcher) {
+    return { response, content ->
+      switch (response.contentType.toString().toLowerCase()) {
+        case JSON.toString().toLowerCase():
+          assertion = new JSONAssertion(key: key)
+          break
+        case XML.toString().toLowerCase():
+          assertion = new XMLAssertion(key: key)
+          break;
+      }
+      def result = assertion.getResult(content)
+      if (!matcher.matches(result)) {
+        throw new AssertionFailedException(String.format("%s %s doesn't match %s, was <%s>.", assertion.description(), key, matcher.toString(), result))
+      }
     }
   }
 }

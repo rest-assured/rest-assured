@@ -2,12 +2,12 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.support.WithJetty;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.get;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
@@ -45,5 +45,15 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void parameterSupportWithMapBuilder() throws Exception {
         get("/greet").with().parameters("firstName", "John", "lastName", "Doe").andAssertThat("greeting", equalTo("Greetings John Doe"));
+    }
+
+    @Test
+    public void newSyntax() throws Exception {
+        expect().content("lotto.lottoId", equalTo(5)).when().get("lotto");
+    }
+
+    @Test
+    public void newSyntaxWithParameters() throws Exception {
+        expect().content("greeting", equalTo("Greetings John Doe")).with().parameters("firstName", "John", "lastName", "Doe").when().get("/greet");
     }
 }
