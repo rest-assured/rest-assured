@@ -25,7 +25,7 @@ class ScalatraRestExample extends ScalatraServlet {
   get("/greetXML") {
     contentType = "application/xml"
     <greeting>
-      <firstName>{params("firstName")}</firstName> 
+      <firstName>{params("firstName")}</firstName>
       <lastName>{params("lastName")}</lastName>
     </greeting>
   }

@@ -14,12 +14,15 @@ import static groovyx.net.http.ContentType.URLENC
 import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
 import com.jayway.restassured.assertion.XMLAssertion
+import static org.hamcrest.Matchers.equalTo
 
 class RequestBuilder {
 
   String baseUri
   String path
   int port
+  Matcher<Integer> expectedStatusCode;
+  Matcher<String> expectedStatusLine;
   Method method
   Map query
   Closure assertionClosure;
@@ -27,7 +30,30 @@ class RequestBuilder {
   private Assertion assertion;
 
   def RequestBuilder content(String key, Matcher<?> matcher) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: getAssertionClosure(key, matcher))
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: getAssertionClosure(key, matcher), expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
+  }
+  def RequestBuilder statusCode(Matcher<Integer> expectedStatusCode) {
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
+  }
+
+  def RequestBuilder statusCode(int expectedStatusCode) {
+    return statusCode(equalTo(expectedStatusCode));
+  }
+
+  def RequestBuilder statusLine(Matcher<String> expectedStatusLine) {
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
+  }
+
+  def RequestBuilder statusLine(String expectedStatusLine) {
+    return statusLine(equalTo(expectedStatusLine))
+  }
+
+  def RequestBuilder body(String key, Matcher<?> matcher) {
+    return content(key, matcher);
+  }
+
+  def RequestBuilder response() {
+    return this;
   }
 
   def RequestBuilder when() {
@@ -35,7 +61,7 @@ class RequestBuilder {
   }
 
   def get(String path) {
-     sendRequest(path, method, query, assertionClosure);
+    sendRequest(path, method, query, assertionClosure);
   }
 
   def andAssertThatContent(Matcher<?> matcher) {
@@ -70,7 +96,7 @@ class RequestBuilder {
   }
 
   def RequestBuilder parameters(Map<String, Object> map) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: map, assertionClosure: assertionClosure)
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: map, assertionClosure: assertionClosure, expectedStatusCode: expectedStatusCode, expectedStatusLine: expectedStatusLine)
   }
 
   def RequestBuilder and() {
@@ -82,7 +108,7 @@ class RequestBuilder {
   }
 
   def RequestBuilder port(int port) {
-    return new RequestBuilder(baseUri: baseUri, path: path, port: port, method: method)
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
   }
 
   private def sendRequest(path, method, query, responseHandler) {
@@ -125,6 +151,20 @@ class RequestBuilder {
 
   private Closure getAssertionClosure(String key, Matcher<?> matcher) {
     return { response, content ->
+      def headers = response.headers
+      if(expectedStatusCode != null) {
+        def actualStatusCode = response.statusLine.statusCode
+        if(!expectedStatusCode.matches(actualStatusCode)) {
+          throw new AssertionFailedException(String.format("Expected status code %s doesn't match actual status code <%s>.", expectedStatusCode.toString(), actualStatusCode));
+        }
+      }
+
+      if(expectedStatusLine != null) {
+        def actualStatusLine = response.statusLine.toString()
+        if(!expectedStatusLine.matches(actualStatusLine)) {
+          throw new AssertionFailedException(String.format("Expected status line %s doesn't match actual status line \"%s\".", expectedStatusLine.toString(), actualStatusLine));
+        }
+      }
       switch (response.contentType.toString().toLowerCase()) {
         case JSON.toString().toLowerCase():
           assertion = new JSONAssertion(key: key)

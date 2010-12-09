@@ -1,10 +1,7 @@
 package com.jayway.restassured
 
-import groovyx.net.http.Method
 import static groovyx.net.http.Method.POST
 import static groovyx.net.http.Method.GET
-import com.jayway.restassured.assertion.Assertion
-import com.jayway.restassured.assertion.JSONAssertion
 
 class RestAssured {
 
@@ -46,7 +43,7 @@ class RestAssured {
 
   private static def test(path,method, query, successHandler) {
     performTest(path, method, query, successHandler, { resp ->
-      throw new RuntimeException("Unexpected error: ${resp.statusLine.statusCode} : ${resp.statusLine.reasonPhrase}")
+      throw new RuntimeException("Unexpected error: ${resp.statusLine.expectedStatusCode} : ${resp.statusLine.reasonPhrase}")
     });
   }
 
