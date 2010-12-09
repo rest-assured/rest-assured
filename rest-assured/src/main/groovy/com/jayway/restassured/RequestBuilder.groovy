@@ -48,6 +48,10 @@ class RequestBuilder {
     return statusLine(equalTo(expectedStatusLine))
   }
 
+  def RequestBuilder body(Matcher<?> matcher) {
+    return content(null, matcher);
+  }
+
   def RequestBuilder body(String key, Matcher<?> matcher) {
     return content(key, matcher);
   }
@@ -165,17 +169,25 @@ class RequestBuilder {
           throw new AssertionFailedException(String.format("Expected status line %s doesn't match actual status line \"%s\".", expectedStatusLine.toString(), actualStatusLine));
         }
       }
-      switch (response.contentType.toString().toLowerCase()) {
-        case JSON.toString().toLowerCase():
-          assertion = new JSONAssertion(key: key)
-          break
-        case XML.toString().toLowerCase():
-          assertion = new XMLAssertion(key: key)
-          break;
-      }
-      def result = assertion.getResult(content)
-      if (!matcher.matches(result)) {
-        throw new AssertionFailedException(String.format("%s %s doesn't match %s, was <%s>.", assertion.description(), key, matcher.toString(), result))
+      def result
+      if(key == null) {
+        result = content.toString()
+        if (!matcher.matches(result)) {
+          throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))
+        }
+      }  else {
+        switch (response.contentType.toString().toLowerCase()) {
+          case JSON.toString().toLowerCase():
+            assertion = new JSONAssertion(key: key)
+            break
+          case XML.toString().toLowerCase():
+            assertion = new XMLAssertion(key: key)
+            break;
+        }
+        result = assertion.getResult(content)
+        if (!matcher.matches(result)) {
+          throw new AssertionFailedException(String.format("%s %s doesn't match %s, was <%s>.", assertion.description(), key, matcher.toString(), result))
+        }
       }
     }
   }

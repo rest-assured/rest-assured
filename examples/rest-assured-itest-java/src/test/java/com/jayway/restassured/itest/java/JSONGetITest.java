@@ -101,4 +101,10 @@ public class JSONGetITest extends WithJetty {
     public void newSyntaxWithCorrectStatusLineUsingStringMatching() throws Exception {
         expect().statusLine("HTTP/1.1 200 OK").and().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
     }
+
+    @Test
+    public void newSyntaxWithHamcrestEqualBody() throws Exception {
+        final String expectedBody = "{\"lotto\":{\"lottoId\":5,\"winning-numbers\":[2,45,34,23,7,5,3],\"winners\":[{\"winnerId\":23,\"numbers\":[2,45,34,23,3,5]},{\"winnerId\":54,\"numbers\":[52,3,12,11,18,22]}]}}";
+        expect().body(equalTo(expectedBody)).when().get("/lotto");
+    }
 }

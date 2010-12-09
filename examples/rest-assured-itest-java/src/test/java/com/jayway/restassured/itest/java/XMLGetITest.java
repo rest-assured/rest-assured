@@ -8,6 +8,8 @@ import org.junit.Test;
 import static com.jayway.restassured.RestAssured.get;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
+import static com.jayway.restassured.RestAssured.expect;
+import static org.hamcrest.xml.HasXPath.hasXPath;
 
 public class XMLGetITest extends WithJetty {
 
@@ -45,5 +47,11 @@ public class XMLGetITest extends WithJetty {
     @Ignore("not implemented yet")
     public void xmlWithContentAssertion() throws Exception {
         get("/anotherGreetXML").with().parameters("firstName", "John", "lastName", "Doe").andAssertThatContent(equalTo("John"));
+    }
+
+    @Ignore("not implemented yet")
+    @Test
+    public void newSyntaxWithXPath() throws Exception {
+        expect().body(hasXPath("/greeting/name/firstName")).with().parameters("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
     }
 }
