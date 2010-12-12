@@ -49,9 +49,8 @@ public class XMLGetITest extends WithJetty {
         get("/anotherGreetXML").with().parameters("firstName", "John", "lastName", "Doe").andAssertThatContent(equalTo("John"));
     }
 
-    @Ignore("not implemented yet")
     @Test
     public void newSyntaxWithXPath() throws Exception {
-        expect().body(hasXPath("/greeting/name/firstName")).with().parameters("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
+        expect().body(hasXPath("/greeting/name/firstName", equalTo("John"))).with().parameters("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
     }
 }

@@ -8,6 +8,7 @@ import groovyx.net.http.HttpResponseException
 import groovyx.net.http.Method
 import org.hamcrest.Matcher
 import static groovyx.net.http.ContentType.ANY
+import static groovyx.net.http.ContentType.TEXT
 import static groovyx.net.http.ContentType.JSON
 import static groovyx.net.http.ContentType.XML
 import static groovyx.net.http.ContentType.URLENC
@@ -15,6 +16,7 @@ import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
 import com.jayway.restassured.assertion.XMLAssertion
 import static org.hamcrest.Matchers.equalTo
+import groovyx.net.http.RESTClient
 
 class RequestBuilder {
 
@@ -137,7 +139,8 @@ class RequestBuilder {
         }
       }
     } else if(GET.equals(method)) {
-      http.request(method, ANY ) {
+      http.request(method, TEXT) {
+        headers =  [Accept : 'application/xml'] 
         uri.path = path
         if(query != null) {
           uri.query = query
@@ -154,7 +157,7 @@ class RequestBuilder {
   }
 
   private Closure getAssertionClosure(String key, Matcher<?> matcher) {
-    return { response, content ->
+    return { response, InputStreamReader content ->
       def headers = response.headers
       if(expectedStatusCode != null) {
         def actualStatusCode = response.statusLine.statusCode
@@ -171,7 +174,7 @@ class RequestBuilder {
       }
       def result
       if(key == null) {
-        result = content.toString()
+        result = content.readLines().join().toString()
         if (!matcher.matches(result)) {
           throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))
         }
