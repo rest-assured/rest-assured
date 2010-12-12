@@ -16,7 +16,8 @@ import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
 import com.jayway.restassured.assertion.XMLAssertion
 import static org.hamcrest.Matchers.equalTo
-import groovyx.net.http.RESTClient
+import javax.xml.parsers.DocumentBuilderFactory
+import org.w3c.dom.Element
 
 class RequestBuilder {
 
@@ -140,7 +141,7 @@ class RequestBuilder {
       }
     } else if(GET.equals(method)) {
       http.request(method, TEXT) {
-        headers =  [Accept : 'application/xml'] 
+        headers =  [Accept : 'application/xml']
         uri.path = path
         if(query != null) {
           uri.query = query
@@ -175,7 +176,8 @@ class RequestBuilder {
       def result
       if(key == null) {
         result = content.readLines().join().toString()
-        if (!matcher.matches(result)) {
+        Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(new String(result).getBytes())).getDocumentElement();
+        if (matcher.matches(node) == false) {
           throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))
         }
       }  else {

@@ -6,10 +6,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.get;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
 import static com.jayway.restassured.RestAssured.expect;
-import static org.hamcrest.xml.HasXPath.hasXPath;
+import static org.hamcrest.Matchers.*;
 
 public class XMLGetITest extends WithJetty {
 
@@ -51,6 +49,11 @@ public class XMLGetITest extends WithJetty {
 
     @Test
     public void newSyntaxWithXPath() throws Exception {
-        expect().body(hasXPath("/greeting/name/firstName", equalTo("John"))).with().parameters("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
+        expect().body(hasXPath("/greeting/name/firstName[text()='John']")).with().parameters("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
+    }
+
+    @Test
+    public void newSyntaxWithXPathWithContainsMatcher() throws Exception {
+        expect().body(hasXPath("/greeting/name/firstName", containsString("Jo"))).with().parameters("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
     }
 }
