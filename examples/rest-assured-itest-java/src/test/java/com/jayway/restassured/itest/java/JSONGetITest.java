@@ -1,6 +1,5 @@
 package com.jayway.restassured.itest.java;
 
-import com.jayway.restassured.RequestBuilder;
 import com.jayway.restassured.exception.AssertionFailedException;
 import com.jayway.restassured.itest.support.WithJetty;
 import org.junit.BeforeClass;
@@ -11,10 +10,7 @@ import org.junit.rules.ExpectedException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.with;
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
 public class JSONGetITest extends WithJetty {

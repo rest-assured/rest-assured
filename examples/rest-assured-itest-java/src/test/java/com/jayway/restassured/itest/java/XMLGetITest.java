@@ -2,12 +2,10 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.support.WithJetty;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.with;
 import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.with;
 import static org.hamcrest.Matchers.*;
 
 public class XMLGetITest extends WithJetty {
@@ -43,9 +41,9 @@ public class XMLGetITest extends WithJetty {
     }
 
     @Test
-    @Ignore("not implemented yet")
     public void xmlWithContentAssertion() throws Exception {
-        with().parameters("firstName", "John", "lastName", "Doe").expect().body(equalTo("John")).when().get("/anotherGreetXML");
+        String expectedBody = "<greeting>      <name>        <firstName>John</firstName>        <lastName>Doe</lastName>      </name>    </greeting>";
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body(equalTo(expectedBody)).when().get("/anotherGreetXML");
     }
 
     @Test

@@ -65,7 +65,7 @@ class RequestBuilder {
   }
 
   def get(String path) {
-    sendRequest(path, method, query, assertionClosure.getClosure());
+    sendRequest(path, method, query, assertionClosure);
   }
 
   def then(Closure assertionClosure) {
@@ -132,17 +132,19 @@ class RequestBuilder {
         }
       }
     } else if(GET.equals(method)) {
-      def contentType = assertionClosure.isXPathMatcher() ? TEXT : ANY
+      def contentType = assertionClosure.isRawBodyMatcher() ? TEXT : ANY
       http.request(method, contentType) {
         uri.path = path
         if(query != null) {
           uri.query = query
         }
+
+        Closure closure = assertionClosure.getClosure()
         // response handler for a success response code:
-        response.success = assertionClosure.getClosure()
+        response.success = closure
 
         // handler for any failure status code:
-        response.failure = assertionClosure.getClosure()
+        response.failure = closure
       }
     } else {
       throw new IllegalArgumentException("Only GET and POST supported")
@@ -157,7 +159,7 @@ class RequestBuilder {
       this.closure = closure
     }
 
-    boolean isXPathMatcher() {
+    boolean isRawBodyMatcher() {
       return false;
     }
 
@@ -170,13 +172,13 @@ class RequestBuilder {
     }
 
     def getClosure() {
-        closure
+      closure
     }
   }
 
   class HamcrestAssertionClosure {
-    Matcher matcher;
-    String key;
+    private Matcher matcher;
+    private String key;
 
     HamcrestAssertionClosure(String key, Matcher matcher) {
       this.key = key
@@ -193,6 +195,10 @@ class RequestBuilder {
 
     boolean isXPathMatcher() {
       matcher instanceof HasXPath
+    }
+
+    boolean isRawBodyMatcher() {
+      isXPathMatcher() || key == null
     }
 
     def getClosure() {
@@ -217,6 +223,15 @@ class RequestBuilder {
             result = content.readLines().join().toString()
             Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(new String(result).getBytes())).getDocumentElement();
             if (matcher.matches(node) == false) {
+              throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))
+            }
+          } else {
+            if(content instanceof InputStreamReader) {
+              result = content.readLines().join()
+            } else {
+              result = content.toString()
+            }
+            if (!matcher.matches(result)) {
               throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))
             }
           }
