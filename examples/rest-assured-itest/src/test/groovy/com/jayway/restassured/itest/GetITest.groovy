@@ -6,6 +6,7 @@ import org.junit.Test
 import static com.jayway.restassured.RestAssured.get
 import static groovy.util.GroovyTestCase.assertEquals
 import static org.hamcrest.Matchers.equalTo
+import org.junit.BeforeClass
 
 class GetITest extends WithJetty  {
 
@@ -28,7 +29,7 @@ class GetITest extends WithJetty  {
   public void ognlReturningArrayAndPlainGroovy() throws Exception {
     get ("/lotto").then {response, json -> assertEquals([23, 54], json.lotto.winners.winnerId)}
   }
-  
+
   @Test
   public void getWithQueryParameters() throws Exception {
     get ("/greet").with().parameters([firstName: "John", lastName: "Doe"]).and().then { response, json -> assertEquals "Greetings John Doe", json.greeting }

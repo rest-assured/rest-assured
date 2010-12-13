@@ -4,6 +4,7 @@ import org.scalatra.ScalatraServlet
 import net.liftweb.json.JsonAST
 import net.liftweb.json.JsonDSL._
 import java.lang.String
+import xml.Elem
 
 class ScalatraRestExample extends ScalatraServlet {
 
@@ -23,21 +24,19 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/greetXML") {
-    contentType = "application/xml"
-    <greeting>
-      <firstName>{params("firstName")}</firstName>
-      <lastName>{params("lastName")}</lastName>
-    </greeting>
+    greetXML
+  }
+
+  post("/greetXML") {
+    greetXML
   }
 
   get("/anotherGreetXML") {
-    contentType = "application/xml"
-    <greeting>
-      <name>
-        <firstName>{params("firstName")}</firstName>
-        <lastName>{params("lastName")}</lastName>
-      </name>
-    </greeting>
+    anotherGreetXML
+  }
+
+  post("/anotherGreetXML") {
+    anotherGreetXML
   }
 
   get("/hello") {
@@ -70,7 +69,7 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   post("/greet") {
-        val name = "Greetings " + {params("firstName")} + " " + {params("lastName")}
+    val name = "Greetings " + {params("firstName")} + " " + {params("lastName")}
     val json = ("greeting" -> name)
     compact(JsonAST.render(json))
   }
@@ -79,4 +78,23 @@ class ScalatraRestExample extends ScalatraServlet {
     response.setStatus(404)
     "Not found"
   }
+
+  def greetXML: Elem = {
+    contentType = "application/xml"
+    <greeting>
+      <firstName>{params("firstName")}</firstName>
+      <lastName>{params("lastName")}</lastName>
+    </greeting>
+  }
+
+  def anotherGreetXML: Elem = {
+    contentType = "application/xml"
+    <greeting>
+      <name>
+        <firstName>{params("firstName")}</firstName>
+        <lastName>{params("lastName")}</lastName>
+      </name>
+    </greeting>
+  }
+
 }

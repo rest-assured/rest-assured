@@ -4,6 +4,7 @@ import com.jayway.restassured.itest.support.WithJetty
 import org.junit.Test
 import static com.jayway.restassured.RestAssured.get
 import static groovy.util.GroovyTestCase.assertEquals
+import org.junit.BeforeClass
 
 class ErrorITest extends WithJetty  {
 

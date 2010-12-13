@@ -2,7 +2,6 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.exception.AssertionFailedException;
 import com.jayway.restassured.itest.support.WithJetty;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -17,11 +16,6 @@ public class JSONGetITest extends WithJetty {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
-
-    @BeforeClass
-    public static void setupJetty() throws Exception {
-        WithJetty.itestPath = "/examples/rest-assured-itest";
-    }
 
     @Test
     public void simpleJSONAndHamcrestMatcher() throws Exception {

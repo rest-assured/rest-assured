@@ -65,7 +65,11 @@ class RequestBuilder {
   }
 
   def get(String path) {
-    sendRequest(path, method, query, assertionClosure);
+    sendRequest(path, GET, query, assertionClosure);
+  }
+
+  def post(String path) {
+    sendRequest(path, POST, query, assertionClosure);
   }
 
   def then(Closure assertionClosure) {
@@ -116,10 +120,11 @@ class RequestBuilder {
     }
     def url = baseUri.startsWith("http://") ? baseUri : "http://"+baseUri
     def http = new HTTPBuilder("$url:$port")
+    def contentType = assertionClosure.isRawBodyMatcher() ? TEXT : ANY
     if(POST.equals(method)) {
       try {
         http.post( path: path, body: query,
-                requestContentType: URLENC ) { response, content ->
+                requestContentType: URLENC, contentType: contentType) { response, content ->
           if(assertionClosure != null) {
             assertionClosure.call (response, content)
           }
@@ -132,7 +137,6 @@ class RequestBuilder {
         }
       }
     } else if(GET.equals(method)) {
-      def contentType = assertionClosure.isRawBodyMatcher() ? TEXT : ANY
       http.request(method, contentType) {
         uri.path = path
         if(query != null) {
@@ -190,7 +194,7 @@ class RequestBuilder {
     }
 
     def call(response) {
-      return getClosure().call(response)
+      return getClosure().call(response, null)
     }
 
     boolean isXPathMatcher() {
@@ -220,7 +224,7 @@ class RequestBuilder {
         def result
         if(key == null) {
           if(isXPathMatcher()) {
-            result = content.readLines().join().toString()
+            result = content.readLines().join()
             Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(new String(result).getBytes())).getDocumentElement();
             if (matcher.matches(node) == false) {
               throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))

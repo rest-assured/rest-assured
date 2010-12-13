@@ -10,11 +10,6 @@ import static org.hamcrest.Matchers.*;
 
 public class XMLGetITest extends WithJetty {
 
-    @BeforeClass
-    public static void setupJetty() throws Exception {
-        WithJetty.itestPath = "/examples/rest-assured-itest";
-    }
-
     @Test
     public void xmlParameterSupport() throws Exception {
         with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().get("/greetXML");
