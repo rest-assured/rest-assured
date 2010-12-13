@@ -43,7 +43,7 @@ public class XMLGetITest extends WithJetty {
 
     @Test
     public void newSyntaxWithXPath() throws Exception {
-        expect().body(hasXPath("/greeting/name/firstName[text()='John']")).with().parameters("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body(hasXPath("/greeting/name/firstName[text()='John']")).get("/anotherGreetXML");
     }
 
     @Test

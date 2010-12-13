@@ -76,7 +76,7 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void newSyntaxWithWrongStatusLine() throws Exception {
+    public void wrongStatusLineThrowsAssertionFailedException() throws Exception {
         // Given
         exception.expect(AssertionFailedException.class);
         exception.expectMessage(equalTo("Expected status line \"300\" doesn't match actual status line \"HTTP/1.1 200 OK\"."));
@@ -96,8 +96,18 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void newSyntaxWithHamcrestEqualBody() throws Exception {
+    public void bodyHamcrestMatcher() throws Exception {
         final String expectedBody = "{\"lotto\":{\"lottoId\":5,\"winning-numbers\":[2,45,34,23,7,5,3],\"winners\":[{\"winnerId\":23,\"numbers\":[2,45,34,23,3,5]},{\"winnerId\":54,\"numbers\":[52,3,12,11,18,22]}]}}";
         expect().body(equalTo(expectedBody)).when().get("/lotto");
+    }
+
+    @Test
+    public void xpath() throws Exception {
+        expect().body(hasXPath("/lotto")).when().get("/lotto");
+    }
+
+    @Test
+    public void xpathWithEqualToMatcher() throws Exception {
+        expect().body(hasXPath("/lotto/lottoId", equalTo("5"))).when().get("/lotto");
     }
 }

@@ -1,20 +1,21 @@
 package com.jayway.restassured
 
 import com.jayway.restassured.assertion.Assertion
-import com.jayway.restassured.assertion.JSONAssertion
-import com.jayway.restassured.assertion.XMLAssertion
-import com.jayway.restassured.exception.AssertionFailedException
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HttpResponseException
 import groovyx.net.http.Method
-import javax.xml.parsers.DocumentBuilderFactory
 import org.hamcrest.Matcher
-import org.hamcrest.xml.HasXPath
-import org.w3c.dom.Element
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
 import static org.hamcrest.Matchers.equalTo
+import com.jayway.restassured.exception.AssertionFailedException
+import org.hamcrest.xml.HasXPath
+import org.w3c.dom.Element
+import javax.xml.parsers.DocumentBuilderFactory
+import com.jayway.restassured.assertion.XMLAssertion
+import com.jayway.restassured.assertion.JSONAssertion
+import com.jayway.restassured.assertion.HamcrestAssertionClosure
 
 class RequestBuilder {
 
@@ -25,7 +26,7 @@ class RequestBuilder {
   Matcher<String> expectedStatusLine;
   Method method
   Map query
-  HamcrestAssertionClosure assertionClosure;
+  def HamcrestAssertionClosure assertionClosure;
 
   private Assertion assertion;
 
@@ -177,83 +178,6 @@ class RequestBuilder {
 
     def getClosure() {
       closure
-    }
-  }
-
-  class HamcrestAssertionClosure {
-    private Matcher matcher;
-    private String key;
-
-    HamcrestAssertionClosure(String key, Matcher matcher) {
-      this.key = key
-      this.matcher = matcher
-    }
-
-    def call(response, content) {
-      return getClosure().call(response, content)
-    }
-
-    def call(response) {
-      return getClosure().call(response, null)
-    }
-
-    boolean isXPathMatcher() {
-      matcher instanceof HasXPath
-    }
-
-    boolean isRawBodyMatcher() {
-      isXPathMatcher() || key == null
-    }
-
-    def getClosure() {
-      return { response, content ->
-        def headers = response.headers
-        if(expectedStatusCode != null) {
-          def actualStatusCode = response.statusLine.statusCode
-          if(!expectedStatusCode.matches(actualStatusCode)) {
-            throw new AssertionFailedException(String.format("Expected status code %s doesn't match actual status code <%s>.", expectedStatusCode.toString(), actualStatusCode));
-          }
-        }
-
-        if(expectedStatusLine != null) {
-          def actualStatusLine = response.statusLine.toString()
-          if(!expectedStatusLine.matches(actualStatusLine)) {
-            throw new AssertionFailedException(String.format("Expected status line %s doesn't match actual status line \"%s\".", expectedStatusLine.toString(), actualStatusLine));
-          }
-        }
-        def result
-        if(key == null) {
-          if(isXPathMatcher()) {
-            result = content.readLines().join()
-            Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(new String(result).getBytes())).getDocumentElement();
-            if (matcher.matches(node) == false) {
-              throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))
-            }
-          } else {
-            if(content instanceof InputStreamReader) {
-              result = content.readLines().join()
-            } else {
-              result = content.toString()
-            }
-            if (!matcher.matches(result)) {
-              throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))
-            }
-          }
-        }  else {
-          switch (response.contentType.toString().toLowerCase()) {
-            case JSON.toString().toLowerCase():
-              assertion = new JSONAssertion(key: key)
-              break
-            case XML.toString().toLowerCase():
-              assertion = new XMLAssertion(key: key)
-              break;
-          }
-          result = assertion.getResult(content)
-          if (!matcher.matches(result)) {
-            throw new AssertionFailedException(String.format("%s %s doesn't match %s, was <%s>.", assertion.description(), key, matcher.toString(), result))
-          }
-        }
-      }
     }
   }
 }
