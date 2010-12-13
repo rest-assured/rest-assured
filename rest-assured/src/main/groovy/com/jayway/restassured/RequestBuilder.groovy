@@ -2,22 +2,19 @@ package com.jayway.restassured
 
 import com.jayway.restassured.assertion.Assertion
 import com.jayway.restassured.assertion.JSONAssertion
+import com.jayway.restassured.assertion.XMLAssertion
 import com.jayway.restassured.exception.AssertionFailedException
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HttpResponseException
 import groovyx.net.http.Method
+import javax.xml.parsers.DocumentBuilderFactory
 import org.hamcrest.Matcher
-import static groovyx.net.http.ContentType.ANY
-import static groovyx.net.http.ContentType.TEXT
-import static groovyx.net.http.ContentType.JSON
-import static groovyx.net.http.ContentType.XML
-import static groovyx.net.http.ContentType.URLENC
+import org.hamcrest.xml.HasXPath
+import org.w3c.dom.Element
+import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
-import com.jayway.restassured.assertion.XMLAssertion
 import static org.hamcrest.Matchers.equalTo
-import javax.xml.parsers.DocumentBuilderFactory
-import org.w3c.dom.Element
 
 class RequestBuilder {
 
@@ -28,12 +25,12 @@ class RequestBuilder {
   Matcher<String> expectedStatusLine;
   Method method
   Map query
-  Closure assertionClosure;
+  HamcrestAssertionClosure assertionClosure;
 
   private Assertion assertion;
 
   def RequestBuilder content(String key, Matcher<?> matcher) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: getAssertionClosure(key, matcher), expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: new HamcrestAssertionClosure(key, matcher), expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
   }
   def RequestBuilder statusCode(Matcher<Integer> expectedStatusCode) {
     return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
@@ -68,24 +65,11 @@ class RequestBuilder {
   }
 
   def get(String path) {
-    sendRequest(path, method, query, assertionClosure);
-  }
-
-  def andAssertThatContent(Matcher<?> matcher) {
-    def assertionClosure = { response, content ->
-      if(!matcher.matches(response.getData())) {
-        throw new AssertionFailedException(String.format("<%s> doesn't match %s.", response.data, matcher.toString()))
-      }
-    }
-    sendRequest(path, method, query, assertionClosure);
-  }
-
-  def andAssertThat(String key, Matcher<?> matcher) {
-    sendRequest(path, method, query, getAssertionClosure(key, matcher));
+    sendRequest(path, method, query, assertionClosure.getClosure());
   }
 
   def then(Closure assertionClosure) {
-    sendRequest(path, method, query, assertionClosure);
+    sendRequest(path, method, query, new GroovyAssertionClosure(assertionClosure));
   }
 
   def RequestBuilder parameters(Object...parameters) {
@@ -114,11 +98,19 @@ class RequestBuilder {
     return this;
   }
 
+  def RequestBuilder then() {
+    return this;
+  }
+
+  def RequestBuilder expect() {
+    return this;
+  }
+
   def RequestBuilder port(int port) {
     return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
   }
 
-  private def sendRequest(path, method, query, responseHandler) {
+  private def sendRequest(path, method, query, assertionClosure) {
     if(port <= 0) {
       throw new IllegalArgumentException("Port must be greater than 0")
     }
@@ -127,71 +119,120 @@ class RequestBuilder {
     if(POST.equals(method)) {
       try {
         http.post( path: path, body: query,
-                requestContentType: URLENC ) { response, json ->
-          if(responseHandler != null) {
-            responseHandler.call (response, json)
+                requestContentType: URLENC ) { response, content ->
+          if(assertionClosure != null) {
+            assertionClosure.call (response, content)
           }
         }
       } catch(HttpResponseException e) {
-        if(responseHandler != null) {
-          responseHandler.call(e.getResponse())
+        if(assertionClosure != null) {
+          assertionClosure.call(e.getResponse())
         } else {
           throw e;
         }
       }
     } else if(GET.equals(method)) {
-      http.request(method, TEXT) {
-        headers =  [Accept : 'application/xml']
+      def contentType = assertionClosure.isXPathMatcher() ? TEXT : ANY
+      http.request(method, contentType) {
         uri.path = path
         if(query != null) {
           uri.query = query
         }
         // response handler for a success response code:
-        response.success = responseHandler
+        response.success = assertionClosure.getClosure()
 
         // handler for any failure status code:
-        response.failure = responseHandler
+        response.failure = assertionClosure.getClosure()
       }
     } else {
       throw new IllegalArgumentException("Only GET and POST supported")
     }
   }
 
-  private Closure getAssertionClosure(String key, Matcher<?> matcher) {
-    return { response, InputStreamReader content ->
-      def headers = response.headers
-      if(expectedStatusCode != null) {
-        def actualStatusCode = response.statusLine.statusCode
-        if(!expectedStatusCode.matches(actualStatusCode)) {
-          throw new AssertionFailedException(String.format("Expected status code %s doesn't match actual status code <%s>.", expectedStatusCode.toString(), actualStatusCode));
-        }
-      }
+  class GroovyAssertionClosure {
 
-      if(expectedStatusLine != null) {
-        def actualStatusLine = response.statusLine.toString()
-        if(!expectedStatusLine.matches(actualStatusLine)) {
-          throw new AssertionFailedException(String.format("Expected status line %s doesn't match actual status line \"%s\".", expectedStatusLine.toString(), actualStatusLine));
+    Closure closure;
+
+    GroovyAssertionClosure(Closure closure) {
+      this.closure = closure
+    }
+
+    boolean isXPathMatcher() {
+      return false;
+    }
+
+    def call(response, content) {
+      return getClosure().call(response, content)
+    }
+
+    def call(response) {
+      return getClosure().call(response)
+    }
+
+    def getClosure() {
+        closure
+    }
+  }
+
+  class HamcrestAssertionClosure {
+    Matcher matcher;
+    String key;
+
+    HamcrestAssertionClosure(String key, Matcher matcher) {
+      this.key = key
+      this.matcher = matcher
+    }
+
+    def call(response, content) {
+      return getClosure().call(response, content)
+    }
+
+    def call(response) {
+      return getClosure().call(response)
+    }
+
+    boolean isXPathMatcher() {
+      matcher instanceof HasXPath
+    }
+
+    def getClosure() {
+      return { response, content ->
+        def headers = response.headers
+        if(expectedStatusCode != null) {
+          def actualStatusCode = response.statusLine.statusCode
+          if(!expectedStatusCode.matches(actualStatusCode)) {
+            throw new AssertionFailedException(String.format("Expected status code %s doesn't match actual status code <%s>.", expectedStatusCode.toString(), actualStatusCode));
+          }
         }
-      }
-      def result
-      if(key == null) {
-        result = content.readLines().join().toString()
-        Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(new String(result).getBytes())).getDocumentElement();
-        if (matcher.matches(node) == false) {
-          throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))
+
+        if(expectedStatusLine != null) {
+          def actualStatusLine = response.statusLine.toString()
+          if(!expectedStatusLine.matches(actualStatusLine)) {
+            throw new AssertionFailedException(String.format("Expected status line %s doesn't match actual status line \"%s\".", expectedStatusLine.toString(), actualStatusLine));
+          }
         }
-      }  else {
-        switch (response.contentType.toString().toLowerCase()) {
-          case JSON.toString().toLowerCase():
-            assertion = new JSONAssertion(key: key)
-            break
-          case XML.toString().toLowerCase():
-            assertion = new XMLAssertion(key: key)
-            break;
-        }
-        result = assertion.getResult(content)
-        if (!matcher.matches(result)) {
-          throw new AssertionFailedException(String.format("%s %s doesn't match %s, was <%s>.", assertion.description(), key, matcher.toString(), result))
+        def result
+        if(key == null) {
+          if(isXPathMatcher()) {
+            result = content.readLines().join().toString()
+            Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(new String(result).getBytes())).getDocumentElement();
+            if (matcher.matches(node) == false) {
+              throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))
+            }
+          }
+        }  else {
+          switch (response.contentType.toString().toLowerCase()) {
+            case JSON.toString().toLowerCase():
+              assertion = new JSONAssertion(key: key)
+              break
+            case XML.toString().toLowerCase():
+              assertion = new XMLAssertion(key: key)
+              break;
+          }
+          result = assertion.getResult(content)
+          if (!matcher.matches(result)) {
+            throw new AssertionFailedException(String.format("%s %s doesn't match %s, was <%s>.", assertion.description(), key, matcher.toString(), result))
+          }
         }
       }
     }

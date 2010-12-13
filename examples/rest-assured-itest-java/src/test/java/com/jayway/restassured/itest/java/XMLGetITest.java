@@ -6,6 +6,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.with;
 import static com.jayway.restassured.RestAssured.expect;
 import static org.hamcrest.Matchers.*;
 
@@ -18,33 +19,33 @@ public class XMLGetITest extends WithJetty {
 
     @Test
     public void xmlParameterSupport() throws Exception {
-        get("/greetXML").with().parameters("firstName", "John", "lastName", "Doe").andAssertThat("greeting.firstName", equalTo("John"));
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().get("/greetXML");
     }
 
     @Test
     public void xmlParameterSupportWithAnotherAssertion() throws Exception {
-        get("/greetXML").with().parameters("firstName", "John", "lastName", "Doe").andAssertThat("greeting.lastName", equalTo("Doe"));
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).get("/greetXML");
     }
 
     @Test
     public void xmlWithLists() throws Exception {
-        get("/greetXML").with().parameters("firstName", "John", "lastName", "Doe").andAssertThat("greeting", hasItems("John", "Doe"));
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting", hasItems("John", "Doe")).get("/greetXML");
     }
 
     @Test
     public void xmlNestedElements() throws Exception {
-        get("/anotherGreetXML").with().parameters("firstName", "John", "lastName", "Doe").andAssertThat("greeting.name", hasItems("John", "Doe"));
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name", hasItems("John", "Doe")).get("/anotherGreetXML");
     }
 
     @Test
     public void xmlNestedElements2() throws Exception {
-        get("/anotherGreetXML").with().parameters("firstName", "John", "lastName", "Doe").andAssertThat("greeting.name.firstName", equalTo("John"));
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.firstName", equalTo("John")).get("/anotherGreetXML");
     }
 
     @Test
     @Ignore("not implemented yet")
     public void xmlWithContentAssertion() throws Exception {
-        get("/anotherGreetXML").with().parameters("firstName", "John", "lastName", "Doe").andAssertThatContent(equalTo("John"));
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body(equalTo("John")).when().get("/anotherGreetXML");
     }
 
     @Test

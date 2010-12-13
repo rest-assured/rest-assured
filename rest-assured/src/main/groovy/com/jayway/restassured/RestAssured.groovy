@@ -14,7 +14,7 @@ class RestAssured {
   }
 
   def static RequestBuilder with() {
-      return new RequestBuilder(baseUri: RestAssured.baseURI, path: "", port: port, method: GET)    
+      return given()
   }
 
   def static RequestBuilder given() {
@@ -36,24 +36,4 @@ class RestAssured {
   def static RequestBuilder get(String path) {
     return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: GET)
   }
-
-  private static def test(path,method, successHandler) {
-    test(path, method, null, successHandler)
-  }
-
-  private static def test(path,method, query, successHandler) {
-    performTest(path, method, query, successHandler, { resp ->
-      throw new RuntimeException("Unexpected error: ${resp.statusLine.expectedStatusCode} : ${resp.statusLine.reasonPhrase}")
-    });
-  }
-
-  private static def testFailure(path, method, failureHandler) {
-    testFailure(path, method, null, failureHandler);
-  }
-
-  private static def testFailure(path, method, query, failureHandler) {
-    performTest(path, method, query,  { response, json ->   fail String.format("Test didn't fail. Got response %s and JSON %s.", response, json) }, failureHandler)
-  }
-
-  
 }

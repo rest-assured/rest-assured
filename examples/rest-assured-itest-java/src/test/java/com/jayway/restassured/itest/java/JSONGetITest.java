@@ -1,5 +1,6 @@
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RequestBuilder;
 import com.jayway.restassured.exception.AssertionFailedException;
 import com.jayway.restassured.itest.support.WithJetty;
 import org.junit.BeforeClass;
@@ -11,7 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.with;
 import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
 public class JSONGetITest extends WithJetty {
@@ -26,17 +29,17 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void simpleJSONAndHamcrestMatcher() throws Exception {
-        get("/hello").andAssertThat("hello", equalTo("Hello Scalatra"));
+        expect().body("hello", equalTo("Hello Scalatra")).when().get("/hello");
     }
 
     @Test
     public void ognlJSONAndHamcrestMatcher() throws Exception {
-        get("/lotto").andAssertThat("lotto.lottoId", equalTo(5));
+        expect().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
     }
 
     @Test
     public void ognlAssertionWithHamcrestMatcherAndJSONResturnsArray() throws Exception {
-        get("/lotto").andAssertThat("lotto.winners.winnerId", hasItems(23, 54));
+        expect().body("lotto.winners.winnerId", hasItems(23, 54)).when().get("/lotto");
     }
 
     @Test
@@ -44,12 +47,12 @@ public class JSONGetITest extends WithJetty {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("firstName", "John");
         parameters.put("lastName", "Doe");
-        get("/greet").with().parameters(parameters).andAssertThat("greeting", equalTo("Greetings John Doe"));
+        given().parameters(parameters).then().expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
 
     @Test
     public void parameterSupportWithMapBuilder() throws Exception {
-        get("/greet").with().parameters("firstName", "John", "lastName", "Doe").andAssertThat("greeting", equalTo("Greetings John Doe"));
+      with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
 
     @Test

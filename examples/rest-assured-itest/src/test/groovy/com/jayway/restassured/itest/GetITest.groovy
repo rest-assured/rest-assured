@@ -20,16 +20,6 @@ class GetITest extends WithJetty  {
   }
 
   @Test
-  public void usingHamcrestFromGroovy() throws Exception {
-    get ("/hello").andAssertThat("hello", equalTo("Hello Scalatra"))
-  }
-
-  @Test
-  public void ognlJSONAndHamcrestMatcher() throws Exception {
-    get("/lotto").andAssertThat("lotto.lottoId", equalTo(5));
-  }
-
-  @Test
   public void ognlAndPlainGroovy() throws Exception {
     get ("/lotto").then {response, json -> assertEquals 5, json.lotto.lottoId }
   }
