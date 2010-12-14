@@ -15,6 +15,8 @@ import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
 import static org.hamcrest.Matchers.equalTo
+import com.jayway.restassured.assertion.HeaderMatcher
+import static org.hamcrest.Matchers.anything
 
 class RequestBuilder {
 
@@ -25,15 +27,18 @@ class RequestBuilder {
   Matcher<String> expectedStatusLine;
   Method method
   Map parameters
-  HamcrestAssertionClosure assertionClosure;
+  HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure(null, anything());
+  List headerAssertions = []
 
   private Assertion assertion;
 
   def RequestBuilder content(String key, Matcher<?> matcher) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, parameters: parameters, assertionClosure: new HamcrestAssertionClosure(key, matcher), expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
+    assertionClosure = new HamcrestAssertionClosure(key, matcher)
+    return this
   }
   def RequestBuilder statusCode(Matcher<Integer> expectedStatusCode) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, parameters: parameters, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
+    this.expectedStatusCode = expectedStatusCode
+    return this
   }
 
   def RequestBuilder statusCode(int expectedStatusCode) {
@@ -41,7 +46,33 @@ class RequestBuilder {
   }
 
   def RequestBuilder statusLine(Matcher<String> expectedStatusLine) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, parameters: parameters, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
+    this.expectedStatusLine = expectedStatusLine
+    return this
+  }
+
+  def RequestBuilder headers(Map<String, Object> expectedHeaders){
+    expectedHeaders.each { headerName, matcher ->
+      headerAssertions << new HeaderMatcher(headerName: headerName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
+    }
+    return this
+  }
+
+  /**
+   * @param expectedHeaders
+   * @return
+   */
+  def RequestBuilder headers(String firstExpectedHeaderName, Object...expectedHeaders) {
+    def params = createArgumentArray(firstExpectedHeaderName, expectedHeaders)
+    return headers(createMapFromStrings(params))
+  }
+
+  def RequestBuilder header(String headerName, Matcher<String> expectedValueMatcher) {
+    assertNotNull(headerName, expectedValueMatcher)
+    headerAssertions << new HeaderMatcher(headerName: headerName, matcher: expectedValueMatcher)
+    this;
+  }
+  def RequestBuilder header(String headerName, String expectedValue) {
+    return header(headerName, equalTo(expectedValue))
   }
 
   def RequestBuilder statusLine(String expectedStatusLine) {
@@ -56,18 +87,20 @@ class RequestBuilder {
     return content(key, matcher);
   }
 
-  def RequestBuilder response() {
-    return this;
-  }
-
   def RequestBuilder when() {
     return this;
   }
 
+  def RequestBuilder response() {
+    return this;
+  }
+
+  // TODO Return response
   def get(String path) {
     sendRequest(path, GET, parameters, assertionClosure);
   }
 
+  // TODO Return response
   def post(String path) {
     sendRequest(path, POST, parameters, assertionClosure);
   }
@@ -76,18 +109,8 @@ class RequestBuilder {
     sendRequest(path, method, parameters, new GroovyAssertionClosure(assertionClosure));
   }
 
-  def RequestBuilder parameters(Object...parameters) {
-    if(parameters == null || parameters.length < 2) {
-      throw new IllegalArgumentException("You must supply at least one key and one value.");
-    } else if(parameters.length % 2 != 0) {
-      throw new IllegalArgumentException("You must supply the same number of keys as values.")
-    }
-
-    Map<String, Object> map = new HashMap<String,Object>();
-    for (int i = 0; i < parameters.length; i+=2) {
-      map.put(parameters[i], parameters[i+1]);
-    }
-    return this.parameters(map)
+  def RequestBuilder parameters(String...parameters) {
+    return this.parameters(createMapFromStrings(parameters))
   }
 
   def RequestBuilder parameters(Map<String, Object> map) {
@@ -220,7 +243,9 @@ class RequestBuilder {
 
     def getClosure() {
       return { response, content ->
-        def headers = response.headers
+        headerAssertions.each { matcher ->
+          matcher.containsHeader(response.headers)
+        }
         if(expectedStatusCode != null) {
           def actualStatusCode = response.statusLine.statusCode
           if(!expectedStatusCode.matches(actualStatusCode)) {
@@ -268,5 +293,36 @@ class RequestBuilder {
         }
       }
     }
+  }
+
+
+  private def assertNotNull(Object ... objects) {
+    objects.each {
+      if(it == null) {
+        throw new IllegalArgumentException("Argument cannot be null")
+      }
+    }
+  }
+
+  private def Map<String, Object> createMapFromStrings(... parameters) {
+    if(parameters == null || parameters.length < 2) {
+      throw new IllegalArgumentException("You must supply at least one key and one value.");
+    } else if(parameters.length % 2 != 0) {
+      throw new IllegalArgumentException("You must supply the same number of keys as values.")
+    }
+
+    Map<String, Object> map = new HashMap<String, Object>();
+    for (int i = 0; i < parameters.length; i+=2) {
+      map.put(parameters[i], parameters[i+1]);
+    }
+    return map;
+  }
+
+  private Object[] createArgumentArray(String firstExpectedHeaderName, Object... expectedHeaders) {
+    def params = [firstExpectedHeaderName]
+    expectedHeaders.each {
+      params << it
+    }
+    return params as Object[]
   }
 }

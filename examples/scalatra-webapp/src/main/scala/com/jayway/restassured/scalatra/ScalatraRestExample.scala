@@ -5,6 +5,7 @@ import net.liftweb.json.JsonAST
 import net.liftweb.json.JsonDSL._
 import java.lang.String
 import xml.Elem
+import text.Document
 
 class ScalatraRestExample extends ScalatraServlet {
 
@@ -50,7 +51,8 @@ class ScalatraRestExample extends ScalatraServlet {
             ("drawDate" -> lotto.drawDate.map(_.toString)) ~
             ("winners" -> lotto.winners.map { w =>
               (("winnerId" -> w.id) ~ ("numbers" -> w.numbers))}))
-    compact(JsonAST.render(json))
+    val jsonDocument: Document = JsonAST.render(json)
+    compact(jsonDocument)
   }
 
 
