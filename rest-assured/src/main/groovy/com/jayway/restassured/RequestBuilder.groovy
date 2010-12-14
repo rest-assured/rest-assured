@@ -20,16 +20,15 @@ import static org.hamcrest.Matchers.anything
 
 class RequestBuilder {
 
-  String baseUri
-  String path
-  int port
-  Matcher<Integer> expectedStatusCode;
-  Matcher<String> expectedStatusLine;
-  Method method
-  Map parameters
-  HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure(null, anything());
-  List headerAssertions = []
-
+  private String baseUri
+  private String path
+  private int port
+  private Matcher<Integer> expectedStatusCode;
+  private   Matcher<String> expectedStatusLine;
+  private Method method
+  private Map parameters
+  private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure(null, anything());
+  private List headerAssertions = []
   private Assertion assertion;
 
   def RequestBuilder content(String key, Matcher<?> matcher) {
@@ -109,8 +108,8 @@ class RequestBuilder {
     sendRequest(path, method, parameters, new GroovyAssertionClosure(assertionClosure));
   }
 
-  def RequestBuilder parameters(String...parameters) {
-    return this.parameters(createMapFromStrings(parameters))
+  def RequestBuilder parameters(String parameter, ...parameters) {
+    return this.parameters(createMapFromStrings(createArgumentArray(parameter, parameters)))
   }
 
   def RequestBuilder parameters(Map<String, Object> map) {

@@ -13,11 +13,6 @@ class ParameterMapBuilderTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  def void mapThrowIAEWhenNoKeyValuePairsAreSupplied() throws Exception {
-    requestBuilder.parameters();
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   def void mapThrowIAEWhenNoValuesAreSupplied() throws Exception {
     requestBuilder.parameters("key");
   }
