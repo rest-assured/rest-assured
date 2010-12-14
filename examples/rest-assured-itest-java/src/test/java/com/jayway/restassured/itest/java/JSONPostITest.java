@@ -27,8 +27,7 @@ public class JSONPostITest extends WithJetty {
     }
 
     @Test
-    @Ignore("Not yet supported")
-    public void bodyHamcrestMatchingWhenPost() throws Exception {
-        expect().body(containsString("winning-numbers")).when().post("/lotto");
+    public void uriNotFoundTWhenPost() throws Exception {
+        expect().statusCode(404).and().body(equalTo("null")).when().post("/lotto");
     }
 }

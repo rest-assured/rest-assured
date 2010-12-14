@@ -27,7 +27,7 @@ class BodyMatcher {
           result = content.toString()
         }
         if (!matcher.matches(result)) {
-          throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))
+          throw new AssertionFailedException("Body doesn't match.\nExpected:\n$matcher\nActual:\n$result")
         }
       }
     }  else {
