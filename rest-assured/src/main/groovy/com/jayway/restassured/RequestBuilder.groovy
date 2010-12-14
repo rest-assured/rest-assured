@@ -24,16 +24,16 @@ class RequestBuilder {
   Matcher<Integer> expectedStatusCode;
   Matcher<String> expectedStatusLine;
   Method method
-  Map query
+  Map parameters
   HamcrestAssertionClosure assertionClosure;
 
   private Assertion assertion;
 
   def RequestBuilder content(String key, Matcher<?> matcher) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: new HamcrestAssertionClosure(key, matcher), expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, parameters: parameters, assertionClosure: new HamcrestAssertionClosure(key, matcher), expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
   }
   def RequestBuilder statusCode(Matcher<Integer> expectedStatusCode) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, parameters: parameters, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
   }
 
   def RequestBuilder statusCode(int expectedStatusCode) {
@@ -41,7 +41,7 @@ class RequestBuilder {
   }
 
   def RequestBuilder statusLine(Matcher<String> expectedStatusLine) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, parameters: parameters, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
   }
 
   def RequestBuilder statusLine(String expectedStatusLine) {
@@ -65,15 +65,15 @@ class RequestBuilder {
   }
 
   def get(String path) {
-    sendRequest(path, GET, query, assertionClosure);
+    sendRequest(path, GET, parameters, assertionClosure);
   }
 
   def post(String path) {
-    sendRequest(path, POST, query, assertionClosure);
+    sendRequest(path, POST, parameters, assertionClosure);
   }
 
   def then(Closure assertionClosure) {
-    sendRequest(path, method, query, new GroovyAssertionClosure(assertionClosure));
+    sendRequest(path, method, parameters, new GroovyAssertionClosure(assertionClosure));
   }
 
   def RequestBuilder parameters(Object...parameters) {
@@ -91,7 +91,7 @@ class RequestBuilder {
   }
 
   def RequestBuilder parameters(Map<String, Object> map) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: map, assertionClosure: assertionClosure, expectedStatusCode: expectedStatusCode, expectedStatusLine: expectedStatusLine)
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, parameters: map, assertionClosure: assertionClosure, expectedStatusCode: expectedStatusCode, expectedStatusLine: expectedStatusLine)
   }
 
   def RequestBuilder and() {
@@ -111,19 +111,15 @@ class RequestBuilder {
   }
 
   def RequestBuilder port(int port) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, query: query, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
+    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, parameters: parameters, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
   }
 
-  private def sendRequest(path, method, query, assertionClosure) {
-    if(port <= 0) {
-      throw new IllegalArgumentException("Port must be greater than 0")
-    }
-    def url = baseUri.startsWith("http://") ? baseUri : "http://"+baseUri
-    def http = new HTTPBuilder("$url:$port")
+  private def sendRequest(path, method, parameters, assertionClosure) {
+    def http = new HTTPBuilder(getTargetURI(path))
     def contentType = assertionClosure.isRawBodyMatcher() ? TEXT : ANY
     if(POST.equals(method)) {
       try {
-        http.post( path: path, body: query,
+        http.post( path: path, body: parameters,
                 requestContentType: URLENC, contentType: contentType) { response, content ->
           if(assertionClosure != null) {
             assertionClosure.call (response, content)
@@ -139,8 +135,8 @@ class RequestBuilder {
     } else if(GET.equals(method)) {
       http.request(method, contentType) {
         uri.path = path
-        if(query != null) {
-          uri.query = query
+        if(parameters != null) {
+          uri.query = parameters
         }
 
         Closure closure = assertionClosure.getClosure()
@@ -153,6 +149,20 @@ class RequestBuilder {
     } else {
       throw new IllegalArgumentException("Only GET and POST supported")
     }
+  }
+
+  private String getTargetURI(String path) {
+    if(port <= 0) {
+      throw new IllegalArgumentException("Port must be greater than 0")
+    }
+    def uri
+    def hasScheme = path.contains("://")
+    if(hasScheme) {
+      uri = path;
+    } else {
+      uri = "$baseUri:$port"
+    }
+    return uri
   }
 
   class GroovyAssertionClosure {
@@ -181,6 +191,9 @@ class RequestBuilder {
   }
 
   class HamcrestAssertionClosure {
+
+    def expectationMatchers =  []
+
     private Matcher matcher;
     private String key;
 
