@@ -108,7 +108,7 @@ class RequestBuilder {
     sendRequest(path, method, parameters, new GroovyAssertionClosure(assertionClosure));
   }
 
-  def RequestBuilder parameters(String parameter, ...parameters) {
+  def RequestBuilder parameters(String parameter, Object...parameters) {
     return this.parameters(createMapFromStrings(createArgumentArray(parameter, parameters)))
   }
 
