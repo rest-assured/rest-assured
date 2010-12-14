@@ -28,7 +28,7 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void ognlAssertionWithHamcrestMatcherAndJSONResturnsArray() throws Exception {
+    public void ognlAssertionWithHamcrestMatcherAndJSONReturnsArray() throws Exception {
         expect().body("lotto.winners.winnerId", hasItems(23, 54)).when().get("/lotto");
     }
 
@@ -176,5 +176,17 @@ public class JSONGetITest extends WithJetty {
                 "Server: Jetty(6.1.14)"));
 
         expect().response().header("Not-Defined", "160").when().get("/lotto");
+    }
+
+    @Test
+    public void whenMixingBodyMatchersRequiringContentTypeTextAndContentTypeAnyThenAnIllegalStateExceptionIsThrown() throws Exception {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage(equalTo("Currently you cannot mix body expectations that require different content types for matching.\n" +
+                "For example XPath and full body matching requires TEXT content and JSON/XML matching requires JSON/XML/ANY mapping. " +
+                "You need to split conflicting matchers into two tests. Your matchers are:\n" +
+                "Body containing expression \"lotto\" must match \"something\" which cannot be 'TEXT'\n" +
+                "Body must match \"somethingElse\" which requires 'TEXT'"));
+
+        expect().response().body("lotto", equalTo("something")).and().body(equalTo("somethingElse")).when().get("/lotto");
     }
 }

@@ -1,22 +1,16 @@
 package com.jayway.restassured
 
-import com.jayway.restassured.assertion.Assertion
-import com.jayway.restassured.assertion.JSONAssertion
-import com.jayway.restassured.assertion.XMLAssertion
+import com.jayway.restassured.assertion.HeaderMatcher
 import com.jayway.restassured.exception.AssertionFailedException
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HttpResponseException
 import groovyx.net.http.Method
-import javax.xml.parsers.DocumentBuilderFactory
 import org.hamcrest.Matcher
-import org.hamcrest.xml.HasXPath
-import org.w3c.dom.Element
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
 import static org.hamcrest.Matchers.equalTo
-import com.jayway.restassured.assertion.HeaderMatcher
-import static org.hamcrest.Matchers.anything
+import com.jayway.restassured.assertion.BodyMatcher
 
 class RequestBuilder {
 
@@ -24,15 +18,15 @@ class RequestBuilder {
   private String path
   private int port
   private Matcher<Integer> expectedStatusCode;
-  private   Matcher<String> expectedStatusLine;
+  private Matcher<String> expectedStatusLine;
   private Method method
   private Map parameters
-  private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure(null, anything());
+  private List bodyAssertions = []
+  private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure();
   private List headerAssertions = []
-  private Assertion assertion;
 
   def RequestBuilder content(String key, Matcher<?> matcher) {
-    assertionClosure = new HamcrestAssertionClosure(key, matcher)
+    bodyAssertions << new BodyMatcher(key: key, matcher: matcher)
     return this
   }
   def RequestBuilder statusCode(Matcher<Integer> expectedStatusCode) {
@@ -138,7 +132,7 @@ class RequestBuilder {
 
   private def sendRequest(path, method, parameters, assertionClosure) {
     def http = new HTTPBuilder(getTargetURI(path))
-    def contentType = assertionClosure.isRawBodyMatcher() ? TEXT : ANY
+    def contentType = assertionClosure.requiresContentTypeText() ? TEXT : ANY
     if(POST.equals(method)) {
       try {
         http.post( path: path, body: parameters,
@@ -195,7 +189,7 @@ class RequestBuilder {
       this.closure = closure
     }
 
-    boolean isRawBodyMatcher() {
+    boolean requiresContentTypeText() {
       return false;
     }
 
@@ -213,17 +207,6 @@ class RequestBuilder {
   }
 
   class HamcrestAssertionClosure {
-
-    def expectationMatchers =  []
-
-    private Matcher matcher;
-    private String key;
-
-    HamcrestAssertionClosure(String key, Matcher matcher) {
-      this.key = key
-      this.matcher = matcher
-    }
-
     def call(response, content) {
       return getClosure().call(response, content)
     }
@@ -232,12 +215,19 @@ class RequestBuilder {
       return getClosure().call(response, null)
     }
 
-    boolean isXPathMatcher() {
-      matcher instanceof HasXPath
-    }
+    boolean requiresContentTypeText() {
+      def numberOfRequires = 0
+      def numberOfNonRequires = 0
+      bodyAssertions.each { matcher ->
+        if(matcher.requiresContentTypeText()) {
+          numberOfRequires++
+        } else {
+          numberOfNonRequires++
+        }
+      }
+      throwExceptionIfIllegalBodyAssertionCombinations(numberOfRequires, numberOfNonRequires)
 
-    boolean isRawBodyMatcher() {
-      isXPathMatcher() || key == null
+      return numberOfRequires != 0
     }
 
     def getClosure() {
@@ -258,37 +248,9 @@ class RequestBuilder {
             throw new AssertionFailedException(String.format("Expected status line %s doesn't match actual status line \"%s\".", expectedStatusLine.toString(), actualStatusLine));
           }
         }
-        def result
-        if(key == null) {
-          if(isXPathMatcher()) {
-            result = content.readLines().join()
-            Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(new String(result).getBytes())).getDocumentElement();
-            if (matcher.matches(node) == false) {
-              throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))
-            }
-          } else {
-            if(content instanceof InputStreamReader) {
-              result = content.readLines().join()
-            } else {
-              result = content.toString()
-            }
-            if (!matcher.matches(result)) {
-              throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))
-            }
-          }
-        }  else {
-          switch (response.contentType.toString().toLowerCase()) {
-            case JSON.toString().toLowerCase():
-              assertion = new JSONAssertion(key: key)
-              break
-            case XML.toString().toLowerCase():
-              assertion = new XMLAssertion(key: key)
-              break;
-          }
-          result = assertion.getResult(content)
-          if (!matcher.matches(result)) {
-            throw new AssertionFailedException(String.format("%s %s doesn't match %s, was <%s>.", assertion.description(), key, matcher.toString(), result))
-          }
+
+        bodyAssertions.each { matcher ->
+          matcher.isFulfilled(response, content)
         }
       }
     }
@@ -324,4 +286,22 @@ class RequestBuilder {
     }
     return params as Object[]
   }
+
+  private def throwExceptionIfIllegalBodyAssertionCombinations(int numberOfRequires, int numberOfNonRequires) {
+    if (numberOfRequires > 0 && numberOfNonRequires > 0) {
+      String matcherDescription = "";
+      bodyAssertions.each { matcher ->
+        def String hamcrestDescription = matcher.getDescription()
+        matcherDescription += "\n$hamcrestDescription "
+        if (matcher.requiresContentTypeText()) {
+          matcherDescription += "which requires 'TEXT'"
+        } else {
+          matcherDescription += "which cannot be 'TEXT'"
+        }
+      }
+      throw new IllegalStateException("""Currently you cannot mix body expectations that require different content types for matching.
+For example XPath and full body matching requires TEXT content and JSON/XML matching requires JSON/XML/ANY mapping. You need to split conflicting matchers into two tests. Your matchers are:$matcherDescription""")
+    }
+  }
+
 }

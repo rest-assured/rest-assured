@@ -27,8 +27,8 @@ public class JSONPostITest extends WithJetty {
     }
 
     @Test
-    @Ignore("not implemented yet")
-    public void bodyXPathWhenPost() throws Exception {
-        expect().body(equalTo(null)).when().get("/lotto");
+    @Ignore("Not yet supported")
+    public void bodyHamcrestMatchingWhenPost() throws Exception {
+        expect().body(containsString("winning-numbers")).when().post("/lotto");
     }
 }
