@@ -157,7 +157,7 @@ class RequestBuilder {
   }
 
   def AuthenticationBuilder auth() {
-    return new AuthenticationBuilder(requestBuilder: this);
+    return new AuthenticationBuilder(this);
   }
 
   def AuthenticationBuilder authentication() {
