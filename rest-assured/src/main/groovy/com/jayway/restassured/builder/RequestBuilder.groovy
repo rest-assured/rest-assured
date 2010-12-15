@@ -1,4 +1,4 @@
-package com.jayway.restassured
+package com.jayway.restassured.builder
 
 import com.jayway.restassured.assertion.HeaderMatcher
 import com.jayway.restassured.exception.AssertionFailedException
@@ -12,6 +12,8 @@ import static groovyx.net.http.Method.POST
 import static org.hamcrest.Matchers.equalTo
 import com.jayway.restassured.assertion.BodyMatcher
 import com.jayway.restassured.assertion.BodyMatcherGroup
+import com.jayway.restassured.authentication.AuthenticationScheme
+import com.jayway.restassured.authentication.NoAuthScheme
 
 class RequestBuilder {
 
@@ -25,6 +27,7 @@ class RequestBuilder {
   private BodyMatcherGroup bodyMatchers = new BodyMatcherGroup()
   private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure();
   private List headerAssertions = []
+  private AuthenticationScheme authenticationScheme = new NoAuthScheme()
 
   def RequestBuilder content(Matcher<?> matcher, Matcher<?>...additionalMatchers) {
     assertNotNull(matcher)
@@ -153,6 +156,14 @@ class RequestBuilder {
     return this;
   }
 
+  def AuthenticationBuilder auth() {
+    return new AuthenticationBuilder(requestBuilder: this);
+  }
+
+  def AuthenticationBuilder authentication() {
+    return auth();
+  }
+
   def RequestBuilder port(int port) {
     this.port = port
     return this
@@ -161,6 +172,7 @@ class RequestBuilder {
   private def sendRequest(path, method, parameters, assertionClosure) {
     def http = new HTTPBuilder(getTargetURI(path))
     def contentType = assertionClosure.requiresContentTypeText() ? TEXT : ANY
+    authenticationScheme.authenticate(http)
     if(POST.equals(method)) {
       try {
         http.post( path: path, body: parameters,

@@ -2,6 +2,7 @@ package com.jayway.restassured
 
 import static groovyx.net.http.Method.POST
 import static groovyx.net.http.Method.GET
+import com.jayway.restassured.builder.RequestBuilder
 
 class RestAssured {
 

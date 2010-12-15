@@ -32,7 +32,10 @@ class BodyMatcher {
           assertion = new XMLAssertion(key: key)
           break;
       }
-      def result = assertion.getResult(content)
+      def result = null
+      if(content != null) {
+        result = assertion.getResult(content)
+      }
       if (!matcher.matches(result)) {
         if(result instanceof Object[]) {
           result = result.join(",")

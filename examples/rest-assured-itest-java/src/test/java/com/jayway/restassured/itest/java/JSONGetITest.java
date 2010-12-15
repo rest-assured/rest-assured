@@ -237,4 +237,9 @@ public class JSONGetITest extends WithJetty {
 
         expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItemInArray(43)).when().get("/lotto");
     }
+
+    @Test
+    public void basicAuthentication() throws Exception {
+        given().auth().basic("jetty", "jetty").expect().statusCode(200).when().get("/secured/hello");
+    }
 }
