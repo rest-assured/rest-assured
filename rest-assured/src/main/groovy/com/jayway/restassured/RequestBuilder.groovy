@@ -102,12 +102,13 @@ class RequestBuilder {
     sendRequest(path, method, parameters, new GroovyAssertionClosure(assertionClosure));
   }
 
-  def RequestBuilder parameters(String parameter, Object...parameters) {
+  def RequestBuilder parameters(String parameter, String...parameters) {
     return this.parameters(createMapFromStrings(createArgumentArray(parameter, parameters)))
   }
 
-  def RequestBuilder parameters(Map<String, Object> map) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, parameters: map, assertionClosure: assertionClosure, expectedStatusCode: expectedStatusCode, expectedStatusLine: expectedStatusLine)
+  def RequestBuilder parameters(Map<String, String> parametersMap) {
+    this.parameters = Collections.unmodifiableMap(parametersMap)
+    return this
   }
 
   def RequestBuilder and() {
@@ -127,7 +128,8 @@ class RequestBuilder {
   }
 
   def RequestBuilder port(int port) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: method, parameters: parameters, assertionClosure: assertionClosure, expectedStatusCode : expectedStatusCode, expectedStatusLine: expectedStatusLine)
+    this.port = port
+    return this
   }
 
   private def sendRequest(path, method, parameters, assertionClosure) {

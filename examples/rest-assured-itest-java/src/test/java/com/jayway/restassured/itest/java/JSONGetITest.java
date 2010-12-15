@@ -34,7 +34,7 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void parameterSupportWithStandardHashMap() throws Exception {
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, String> parameters = new HashMap<String, String>();
         parameters.put("firstName", "John");
         parameters.put("lastName", "Doe");
         given().parameters(parameters).then().expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");

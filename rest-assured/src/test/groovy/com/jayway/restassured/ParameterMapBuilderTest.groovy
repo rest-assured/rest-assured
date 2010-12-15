@@ -24,10 +24,10 @@ class ParameterMapBuilderTest {
 
   @Test
   def void mapBuildsAMapBasedOnTheSuppliedKeysAndValues() throws Exception {
-    def map = requestBuilder.parameters("key1", "value1", "key2", 3).parameters;
+    def map = requestBuilder.parameters("key1", "value1", "key2", "3").parameters;
 
     assertEquals 2, map.size()
     assertEquals "value1", map.get("key1")
-    assertEquals 3, map.get("key2")
+    assertEquals "3", map.get("key2")
   }
 }
