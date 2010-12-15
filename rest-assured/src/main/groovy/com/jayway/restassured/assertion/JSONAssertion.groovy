@@ -17,15 +17,23 @@ class JSONAssertion implements Assertion {
     Object current = object;
     def keys = key.split("\\.");
     keys.each { key ->
-     if(current instanceof JSONArray) {
-        current = current.getAt(key)
-     } else if(current.has(key)) {
+      if(current instanceof JSONArray) {
+        current = current?.getAt(key)
+      } else if(current?.has(key)) {
         current = current.get(key)
       } else {
         throw new IllegalArgumentException("$object doesn't contain key $key")
       }
     }
-    return current;
+
+    return convertToJavaArrayIfNeeded(current);
+  }
+
+  private Object convertToJavaArrayIfNeeded(current) {
+    if (current instanceof JSONArray) {
+      current = current.toArray()
+    }
+    return current
   }
 
   def String description() {

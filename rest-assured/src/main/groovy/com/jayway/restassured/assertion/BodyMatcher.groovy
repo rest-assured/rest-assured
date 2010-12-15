@@ -6,31 +6,23 @@ import javax.xml.parsers.DocumentBuilderFactory
 import com.jayway.restassured.exception.AssertionFailedException
 import static groovyx.net.http.ContentType.*
 import org.hamcrest.xml.HasXPath
+import java.lang.reflect.Array
 
 class BodyMatcher {
   def key
   def Matcher matcher
 
   def isFulfilled(response, content) {
-    def result
     if(key == null) {
       if(isXPathMatcher()) {
-        result = content.readLines().join()
-        Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(new String(result).getBytes())).getDocumentElement();
+        Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(new String(content).getBytes())).getDocumentElement();
         if (matcher.matches(node) == false) {
-          throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), result))
+          throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), content))
         }
-      } else {
-        if(content instanceof InputStreamReader) {
-          result = content.readLines().join()
-        } else {
-          result = content.toString()
-        }
-        if (!matcher.matches(result)) {
-          throw new AssertionFailedException("Body doesn't match.\nExpected:\n$matcher\nActual:\n$result")
-        }
+      } else if (!matcher.matches(content)) {
+        throw new AssertionFailedException("Body doesn't match.\nExpected:\n$matcher\nActual:\n$content")
       }
-    }  else {
+    } else {
       def assertion;
       switch (response.contentType.toString().toLowerCase()) {
         case JSON.toString().toLowerCase():
@@ -40,8 +32,11 @@ class BodyMatcher {
           assertion = new XMLAssertion(key: key)
           break;
       }
-      result = assertion.getResult(content)
+      def result = assertion.getResult(content)
       if (!matcher.matches(result)) {
+        if(result instanceof Object[]) {
+          result = result.join(",")
+        }
         throw new AssertionFailedException(String.format("%s %s doesn't match %s, was <%s>.", assertion.description(), key, matcher.toString(), result))
       }
     }
@@ -52,7 +47,7 @@ class BodyMatcher {
   }
 
   def boolean requiresContentTypeText() {
-      isXPathMatcher() || key == null
+    isXPathMatcher() || key == null
   }
 
   def String getDescription() {

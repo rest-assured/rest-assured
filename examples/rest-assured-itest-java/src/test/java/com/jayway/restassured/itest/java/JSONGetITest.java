@@ -189,4 +189,52 @@ public class JSONGetITest extends WithJetty {
 
         expect().response().body("lotto", equalTo("something")).and().body(equalTo("somethingElse")).when().get("/lotto");
     }
+
+    @Test
+    public void multipleBodyHamcrestMatchersShortVersion() throws Exception {
+        expect().body(containsString("winning-numbers"), containsString("winners")).when().get("/lotto");
+    }
+
+    @Test
+    public void multipleBodyHamcrestMatchersLongVersion() throws Exception {
+        expect().body(containsString("winning-numbers")).and().body(containsString("winners")).when().get("/lotto");
+    }
+
+    @Test
+    public void multipleBodyJsonStringMatchersAndHamcrestMatchersShortVersion() throws Exception {
+        expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+    }
+
+    @Test
+    public void multipleBodyJsonStringMatchersAndHamcrestMatchersLongVersion() throws Exception {
+        expect().that().body("lotto.lottoId", greaterThan(2)).and().that().body("lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+    }
+
+    @Test
+    public void multipleContentHamcrestMatchersShortVersion() throws Exception {
+        expect().body(containsString("winning-numbers"), containsString("winners")).when().get("/lotto");
+    }
+
+    @Test
+    public void multipleContentHamcrestMatchersLongVersion() throws Exception {
+        expect().body(containsString("winning-numbers")).and().body(containsString("winners")).when().get("/lotto");
+    }
+
+    @Test
+    public void multipleContentJsonStringMatchersAndHamcrestMatchersShortVersion() throws Exception {
+        expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+    }
+
+    @Test
+    public void multipleContentJsonStringMatchersAndHamcrestMatchersLongVersion() throws Exception {
+        expect().that().body("lotto.lottoId", greaterThan(2)).and().that().body("lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+    }
+
+    @Test
+    public void hasItemInArrayHamcrestMatchingThrowsGoodErrorMessagesWhenExpectedItemNotFoundInArray() throws Exception {
+        exception.expect(AssertionFailedException.class);
+        exception.expectMessage(equalTo("JSON element lotto.winning-numbers doesn't match an array containing <43>, was <2,45,34,23,7,5,3>."));
+
+        expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItemInArray(43)).when().get("/lotto");
+    }
 }

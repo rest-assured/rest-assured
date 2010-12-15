@@ -11,6 +11,7 @@ import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
 import static org.hamcrest.Matchers.equalTo
 import com.jayway.restassured.assertion.BodyMatcher
+import com.jayway.restassured.assertion.BodyMatcherGroup
 
 class RequestBuilder {
 
@@ -21,14 +22,31 @@ class RequestBuilder {
   private Matcher<String> expectedStatusLine;
   private Method method
   private Map parameters
-  private List bodyAssertions = []
+  private BodyMatcherGroup bodyMatchers = new BodyMatcherGroup()
   private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure();
   private List headerAssertions = []
 
-  def RequestBuilder content(String key, Matcher<?> matcher) {
-    bodyAssertions << new BodyMatcher(key: key, matcher: matcher)
+  def RequestBuilder content(Matcher<?> matcher, Matcher<?>...additionalMatchers) {
+    assertNotNull(matcher)
+    bodyMatchers << new BodyMatcher(key: null, matcher: matcher)
+    additionalMatchers?.each { hamcrestMatcher ->
+      bodyMatchers << new BodyMatcher(key: null, matcher: hamcrestMatcher)
+    }
     return this
   }
+
+  def RequestBuilder content(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs) {
+    assertNotNull(key, matcher)
+    bodyMatchers << new BodyMatcher(key: key, matcher: matcher)
+    if(additionalKeyMatcherPairs?.length > 0) {
+      def pairs = createMapFromStrings(additionalKeyMatcherPairs)
+      pairs.each { matchingKey, hamcrestMatcher ->
+        bodyMatchers << new BodyMatcher(key: matchingKey, matcher: hamcrestMatcher)
+      }
+    }
+    return this
+  }
+
   def RequestBuilder statusCode(Matcher<Integer> expectedStatusCode) {
     this.expectedStatusCode = expectedStatusCode
     return this
@@ -72,15 +90,23 @@ class RequestBuilder {
     return statusLine(equalTo(expectedStatusLine))
   }
 
-  def RequestBuilder body(Matcher<?> matcher) {
-    return content(null, matcher);
+  def RequestBuilder body(Matcher<?> matcher, Matcher<?>...additionalMatchers) {
+    return content(matcher, additionalMatchers);
   }
 
-  def RequestBuilder body(String key, Matcher<?> matcher) {
-    return content(key, matcher);
+  def RequestBuilder body(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs) {
+    return content(key, matcher, additionalKeyMatcherPairs);
   }
 
   def RequestBuilder when() {
+    return this;
+  }
+
+  def RequestBuilder given() {
+    return this;
+  }
+
+  def RequestBuilder that() {
     return this;
   }
 
@@ -218,18 +244,7 @@ class RequestBuilder {
     }
 
     boolean requiresContentTypeText() {
-      def numberOfRequires = 0
-      def numberOfNonRequires = 0
-      bodyAssertions.each { matcher ->
-        if(matcher.requiresContentTypeText()) {
-          numberOfRequires++
-        } else {
-          numberOfNonRequires++
-        }
-      }
-      throwExceptionIfIllegalBodyAssertionCombinations(numberOfRequires, numberOfNonRequires)
-
-      return numberOfRequires != 0
+      return bodyMatchers.requiresContentTypeText()
     }
 
     def getClosure() {
@@ -251,9 +266,7 @@ class RequestBuilder {
           }
         }
 
-        bodyAssertions.each { matcher ->
-          matcher.isFulfilled(response, content)
-        }
+        bodyMatchers.isFulfilled(response, content)
       }
     }
   }
@@ -288,22 +301,4 @@ class RequestBuilder {
     }
     return params as Object[]
   }
-
-  private def throwExceptionIfIllegalBodyAssertionCombinations(int numberOfRequires, int numberOfNonRequires) {
-    if (numberOfRequires > 0 && numberOfNonRequires > 0) {
-      String matcherDescription = "";
-      bodyAssertions.each { matcher ->
-        def String hamcrestDescription = matcher.getDescription()
-        matcherDescription += "\n$hamcrestDescription "
-        if (matcher.requiresContentTypeText()) {
-          matcherDescription += "which requires 'TEXT'"
-        } else {
-          matcherDescription += "which cannot be 'TEXT'"
-        }
-      }
-      throw new IllegalStateException("""Currently you cannot mix body expectations that require different content types for matching.
-For example XPath and full body matching requires TEXT content and JSON/XML matching requires JSON/XML/ANY mapping. You need to split conflicting matchers into two tests. Your matchers are:$matcherDescription""")
-    }
-  }
-
 }
