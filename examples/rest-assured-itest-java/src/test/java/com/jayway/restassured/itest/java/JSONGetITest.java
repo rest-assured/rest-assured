@@ -262,7 +262,7 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void requestSpecificationAllowsSpecifyingHeaders() throws Exception {
-        given().headers("MyHeader", "Something").and().expect().body("hello", equalTo("Hello Scalatra")).when().get("/hello");
+        given().headers("MyHeader", "Something").and().expect().body(containsString("MyHeader")).when().get("/header");
     }
 
     @Test
@@ -277,4 +277,6 @@ public class JSONGetITest extends WithJetty {
         cookies.put("token", "1234");
         given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
     }
+
+
 }

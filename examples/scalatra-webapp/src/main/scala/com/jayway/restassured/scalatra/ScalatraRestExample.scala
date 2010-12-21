@@ -6,8 +6,7 @@ import java.lang.String
 import xml.Elem
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.{DefaultFormats, JsonParser}
-import java.util.Enumeration
-
+import collection.mutable.ListBuffer
 
 class ScalatraRestExample extends ScalatraServlet {
   // To allow for json extract
@@ -99,6 +98,14 @@ class ScalatraRestExample extends ScalatraServlet {
     (json \  "message").extract[String]
   }
 
+   post("/header") {
+    getHeaders
+  }
+
+  get("/header") {
+    getHeaders
+  }
+
   post("/cookie") {
     getCookies
   }
@@ -113,6 +120,17 @@ class ScalatraRestExample extends ScalatraServlet {
 
   delete("/cookie") {
     getCookies
+  }
+
+   def getHeaders: String = {
+    contentType = "text/plain"
+     val headerNames = request.getHeaderNames()
+     val names = ListBuffer[String]()
+     while(headerNames.hasMoreElements()) {
+       val name = headerNames.nextElement.toString
+       names.append(name)
+     }
+     names.mkString(", ")
   }
 
   def getCookies: String = {

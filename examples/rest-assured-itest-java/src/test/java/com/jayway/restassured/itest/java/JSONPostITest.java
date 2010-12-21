@@ -43,7 +43,7 @@ public class JSONPostITest extends WithJetty {
 
     @Test
     public void requestSpecificationAllowsSpecifyingHeaders() throws Exception {
-        given().headers("MyHeader", "Something").and().expect().body("hello", equalTo("Hello Scalatra")).when().post("/hello");
+        given().headers("MyHeader", "Something").and().expect().body(containsString("MyHeader")).when().post("/header");
     }
 
     @Test
