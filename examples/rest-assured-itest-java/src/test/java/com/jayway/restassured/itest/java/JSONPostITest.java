@@ -9,6 +9,7 @@ import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static groovyx.net.http.ContentType.JSON;
 import static groovyx.net.http.ContentType.URLENC;
+import static groovyx.net.http.ContentType.TEXT;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -44,5 +45,15 @@ public class JSONPostITest extends WithJetty {
     @Test
     public void requestSpecificationAllowsSpecifyingHeaders() throws Exception {
         given().headers("MyHeader", "Something").and().expect().body("hello", equalTo("Hello Scalatra")).when().post("/hello");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingStringBodyForPost() throws Exception {
+        given().request().body("some body").then().expect().response().body(equalTo("some body")).when().post("/body");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingJsonBodyForPost() throws Exception {
+        given().body("{ \"message\" : \"hello world\"}").with().contentType(JSON).then().expect().body(equalTo("hello world")).when().post("/jsonBody");
     }
 }

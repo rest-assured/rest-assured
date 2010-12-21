@@ -10,6 +10,7 @@ import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HttpResponseException
 import static groovyx.net.http.ContentType.ANY
 import static groovyx.net.http.ContentType.URLENC
+import static groovyx.net.http.ContentType.TEXT
 import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
 
@@ -23,6 +24,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   private ResponseSpecification responseSpecification;
   private ContentType requestContentType;
   private Map<String, String> requestHeaders = [:]
+  private Object requestBody;
 
   def RequestSpecification when() {
     return this;
@@ -90,6 +92,11 @@ class RequestSpecificationImpl implements RequestSpecification {
     return this
   }
 
+  def RequestSpecification body(String body) {
+    this.requestBody = body;
+    return this;
+  }
+
   RequestSpecification contentType(ContentType contentType) {
     this.requestContentType = contentType
     return  this
@@ -111,8 +118,12 @@ class RequestSpecificationImpl implements RequestSpecification {
     authenticationScheme.authenticate(http)
     if(POST.equals(method)) {
       try {
-        http.post( path: path, body: parameters,
-                requestContentType: requestContentType ?: URLENC,
+        if(parameters != null && requestBody != null) {
+          throw new IllegalStateException("You can either send parameters OR body content in the POST, not both!");
+        }
+        def bodyContent = parameters ?: requestBody
+        http.post( path: path, body: bodyContent,
+                requestContentType: requestContentType ?: requestBody == null ? URLENC : TEXT,
                 contentType: responseContentType) { response, content ->
           if(assertionClosure != null) {
             assertionClosure.call (response, content)
@@ -126,6 +137,9 @@ class RequestSpecificationImpl implements RequestSpecification {
         }
       }
     } else {
+      if(requestBody != null) {
+        throw new IllegalStateException("Can't send a "+method+" request with a request body. Use parameters instead.");
+      }
       http.request(method, responseContentType) {
         uri.path = path
         if(parameters != null) {

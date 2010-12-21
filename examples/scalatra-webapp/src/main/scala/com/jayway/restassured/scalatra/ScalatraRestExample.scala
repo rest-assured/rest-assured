@@ -1,13 +1,20 @@
 package com.jayway.restassured.scalatra
 
 import org.scalatra.ScalatraServlet
-import net.liftweb.json.JsonAST
 import net.liftweb.json.JsonDSL._
 import java.lang.String
 import xml.Elem
 import text.Document
+import javax.servlet.ServletInputStream
+import io.Source
+import net.liftweb.json.JsonAST.JValue
+import net.liftweb.json.JsonAST._
+import net.liftweb.json.{DefaultFormats, JsonParser, JsonAST}
+
 
 class ScalatraRestExample extends ScalatraServlet {
+  // To allow for json extract
+  implicit val formats = DefaultFormats
 
   case class Winner(id: Long, numbers: List[Int])
   case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[java.util.Date])
@@ -21,7 +28,7 @@ class ScalatraRestExample extends ScalatraServlet {
 
   post("/hello") {
     val json = ("hello" -> "Hello Scalatra")
-    compact(JsonAST.render(json))
+    compact(render(json))
   }
 
   get("/greetXML") {
@@ -42,7 +49,7 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/hello") {
     val json = ("hello" -> "Hello Scalatra")
-    compact(JsonAST.render(json))
+    compact(render(json))
   }
 
   get("/lotto") {
@@ -51,8 +58,7 @@ class ScalatraRestExample extends ScalatraServlet {
             ("drawDate" -> lotto.drawDate.map(_.toString)) ~
             ("winners" -> lotto.winners.map { w =>
               (("winnerId" -> w.id) ~ ("numbers" -> w.numbers))}))
-    val jsonDocument: Document = JsonAST.render(json)
-    compact(jsonDocument)
+    compact(render(json))
   }
 
 
@@ -61,19 +67,30 @@ class ScalatraRestExample extends ScalatraServlet {
     val lastName = {params("lastName")}
     val fullName: String = firstName + " " + lastName
     val json = ("firstName" -> firstName) ~ ("lastName" -> lastName) ~ ("fullName" -> fullName)
-    compact(JsonAST.render(json))
+    compact(render(json))
   }
 
   get("/greet") {
     val name = "Greetings " + {params("firstName")} + " " + {params("lastName")}
     val json = ("greeting" -> name)
-    compact(JsonAST.render(json))
+    compact(render(json))
   }
 
   post("/greet") {
     val name = "Greetings " + {params("firstName")} + " " + {params("lastName")}
     val json = ("greeting" -> name)
-    compact(JsonAST.render(json))
+    compact(render(json))
+  }
+
+  post("/body") {
+    contentType = "text/plain";
+    request.body
+  }
+
+  post("/jsonBody") {
+    contentType = "text/plain";
+    val json = JsonParser.parse(request.body)
+    (json \  "message").extract[String]
   }
 
   notFound {
