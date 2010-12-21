@@ -41,5 +41,7 @@ public interface RequestSpecification extends RequestSender {
 
   RequestSpecification port(int port);
 
+  RequestSpecification headers(Map<String, String> headers);
 
+  RequestSpecification headers(String headerName, String ... headerNameValuePairs);
 }

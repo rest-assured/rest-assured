@@ -40,4 +40,9 @@ public class JSONPostITest extends WithJetty {
     public void uriNotFoundTWhenPost() throws Exception {
         expect().statusCode(404).and().body(equalTo(null)).when().post("/lotto");
     }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingHeaders() throws Exception {
+        given().headers("MyHeader", "Something").and().expect().body("hello", equalTo("Hello Scalatra")).when().post("/hello");
+    }
 }

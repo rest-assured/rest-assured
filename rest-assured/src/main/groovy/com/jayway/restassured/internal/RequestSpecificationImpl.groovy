@@ -22,7 +22,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   private AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private ResponseSpecification responseSpecification;
   private ContentType requestContentType;
-  private Map<String, String> requestHeaders;
+  private Map<String, String> requestHeaders = [:]
 
   def RequestSpecification when() {
     return this;
@@ -100,12 +100,13 @@ class RequestSpecificationImpl implements RequestSpecification {
     return this;
   }
 
-  RequestSpecification headers(String headerName, String headerValue, String ... additionalHeaderPairs) {
-    return headers(MapCreator.createMapFromObjects(headerName, headerValue, additionalHeaderPairs))
+  RequestSpecification headers(String headerName, String ... headerNameValueParis) {
+    return headers(MapCreator.createMapFromStrings(headerName, headerNameValueParis))
   }
 
   private def sendRequest(path, method, parameters, assertionClosure) {
     def http = new HTTPBuilder(getTargetURI(path))
+    http.getHeaders() << requestHeaders
     def responseContentType =  assertionClosure.getResponseContentType()
     authenticationScheme.authenticate(http)
     if(POST.equals(method)) {
@@ -163,5 +164,4 @@ class RequestSpecificationImpl implements RequestSpecification {
       }
     }
   }
-
 }

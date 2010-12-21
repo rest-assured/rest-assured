@@ -254,9 +254,14 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void requestContentType() throws Exception {
+    public void contentTypeSpecification() throws Exception {
         final RequestSpecification requestSpecification = given().contentType(ContentType.TEXT).with().parameters("firstName", "John", "lastName", "Doe");
         final ResponseSpecification responseSpecification = expect().contentType(ContentType.JSON).and().body("greeting", equalTo("Greetings John Doe"));
         given(requestSpecification, responseSpecification).get("/greet");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingHeaders() throws Exception {
+        given().headers("MyHeader", "Something").and().expect().body("hello", equalTo("Hello Scalatra")).when().get("/hello");
     }
 }
