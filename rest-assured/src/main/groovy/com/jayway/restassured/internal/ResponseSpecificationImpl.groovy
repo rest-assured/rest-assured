@@ -11,6 +11,7 @@ import org.hamcrest.Matcher
 import static groovyx.net.http.ContentType.ANY
 import static groovyx.net.http.ContentType.TEXT
 import static org.hamcrest.Matchers.equalTo
+import org.apache.commons.collections.MapUtils
 
 class ResponseSpecificationImpl implements ResponseSpecification {
 
@@ -35,7 +36,7 @@ class ResponseSpecificationImpl implements ResponseSpecification {
     assertNotNull(key, matcher)
     bodyMatchers << new BodyMatcher(key: key, matcher: matcher)
     if(additionalKeyMatcherPairs?.length > 0) {
-      def pairs = createMapFromStrings(additionalKeyMatcherPairs)
+      def pairs = MapCreator.createMapFromStrings(additionalKeyMatcherPairs)
       pairs.each { matchingKey, hamcrestMatcher ->
         bodyMatchers << new BodyMatcher(key: matchingKey, matcher: hamcrestMatcher)
       }
@@ -69,8 +70,7 @@ class ResponseSpecificationImpl implements ResponseSpecification {
    * @return
    */
   def ResponseSpecification headers(String firstExpectedHeaderName, Object...expectedHeaders) {
-    def params = createArgumentArray(firstExpectedHeaderName, expectedHeaders)
-    return headers(createMapFromStrings(params))
+    return headers(MapCreator.createMapFromStrings(firstExpectedHeaderName, expectedHeaders))
   }
 
   def ResponseSpecification header(String headerName, Matcher<String> expectedValueMatcher) {
@@ -192,28 +192,6 @@ class ResponseSpecificationImpl implements ResponseSpecification {
         throw new IllegalArgumentException("Argument cannot be null")
       }
     }
-  }
-
-  private def Map<String, Object> createMapFromStrings(... parameters) {
-    if(parameters == null || parameters.length < 2) {
-      throw new IllegalArgumentException("You must supply at least one key and one value.");
-    } else if(parameters.length % 2 != 0) {
-      throw new IllegalArgumentException("You must supply the same number of keys as values.")
-    }
-
-    Map<String, Object> map = new HashMap<String, Object>();
-    for (int i = 0; i < parameters.length; i+=2) {
-      map.put(parameters[i], parameters[i+1]);
-    }
-    return map;
-  }
-
-  private Object[] createArgumentArray(String firstExpectedHeaderName, Object... expectedHeaders) {
-    def params = [firstExpectedHeaderName]
-    expectedHeaders.each {
-      params << it
-    }
-    return params as Object[]
   }
 }
 

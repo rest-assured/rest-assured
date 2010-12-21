@@ -22,6 +22,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   private AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private ResponseSpecification responseSpecification;
   private ContentType requestContentType;
+  private Map<String, String> requestHeaders;
 
   def RequestSpecification when() {
     return this;
@@ -48,7 +49,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   def RequestSpecification parameters(String parameter, String...parameters) {
-    return this.parameters(createMapFromStrings(createArgumentArray(parameter, parameters)))
+    return this.parameters(MapCreator.createMapFromStrings(parameter, parameters))
   }
 
   def RequestSpecification parameters(Map<String, String> parametersMap) {
@@ -92,6 +93,15 @@ class RequestSpecificationImpl implements RequestSpecification {
   RequestSpecification contentType(ContentType contentType) {
     this.requestContentType = contentType
     return  this
+  }
+
+  RequestSpecification headers(Map<String, String> headers) {
+    this.requestHeaders = headers;
+    return this;
+  }
+
+  RequestSpecification headers(String headerName, String headerValue, String ... additionalHeaderPairs) {
+    return headers(MapCreator.createMapFromStrings(headerName, headerValue, additionalHeaderPairs))
   }
 
   private def sendRequest(path, method, parameters, assertionClosure) {
@@ -154,29 +164,4 @@ class RequestSpecificationImpl implements RequestSpecification {
     }
   }
 
-  private def Map<String, Object> createMapFromStrings(... parameters) {
-    if(parameters == null || parameters.length < 2) {
-      throw new IllegalArgumentException("You must supply at least one key and one value.");
-    } else if(parameters.length % 2 != 0) {
-      throw new IllegalArgumentException("You must supply the same number of keys as values.")
-    }
-
-    Map<String, Object> map = new HashMap<String, Object>();
-    for (int i = 0; i < parameters.length; i+=2) {
-      map.put(parameters[i], parameters[i+1]);
-    }
-    return map;
-  }
-
-  private Object[] createArgumentArray(String firstExpectedHeaderName, Object... expectedHeaders) {
-    def params = [firstExpectedHeaderName]
-    expectedHeaders.each {
-      params << it
-    }
-    return params as Object[]
-  }
-
-  Closure getResponseValidator() {
-
-  }
 }
