@@ -11,7 +11,6 @@ import org.hamcrest.Matcher
 import static groovyx.net.http.ContentType.ANY
 import static groovyx.net.http.ContentType.TEXT
 import static org.hamcrest.Matchers.equalTo
-import org.apache.commons.collections.MapUtils
 
 class ResponseSpecificationImpl implements ResponseSpecification {
 
@@ -36,7 +35,7 @@ class ResponseSpecificationImpl implements ResponseSpecification {
     assertNotNull(key, matcher)
     bodyMatchers << new BodyMatcher(key: key, matcher: matcher)
     if(additionalKeyMatcherPairs?.length > 0) {
-      def pairs = MapCreator.createMapFromStrings(additionalKeyMatcherPairs)
+      def pairs = MapCreator.createMapFromObjects(additionalKeyMatcherPairs)
       pairs.each { matchingKey, hamcrestMatcher ->
         bodyMatchers << new BodyMatcher(key: matchingKey, matcher: hamcrestMatcher)
       }

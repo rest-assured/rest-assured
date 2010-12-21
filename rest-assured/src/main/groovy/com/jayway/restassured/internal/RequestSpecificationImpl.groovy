@@ -101,7 +101,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   RequestSpecification headers(String headerName, String headerValue, String ... additionalHeaderPairs) {
-    return headers(MapCreator.createMapFromStrings(headerName, headerValue, additionalHeaderPairs))
+    return headers(MapCreator.createMapFromObjects(headerName, headerValue, additionalHeaderPairs))
   }
 
   private def sendRequest(path, method, parameters, assertionClosure) {
