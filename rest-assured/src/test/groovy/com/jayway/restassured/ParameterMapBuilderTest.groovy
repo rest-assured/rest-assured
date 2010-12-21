@@ -3,14 +3,14 @@ package com.jayway.restassured
 import org.junit.Before
 import org.junit.Test
 import static groovy.util.GroovyTestCase.assertEquals
-import com.jayway.restassured.builder.RequestBuilder
+import com.jayway.restassured.internal.RequestSpecificationImpl
 
 class ParameterMapBuilderTest {
-  private RequestBuilder requestBuilder;
+  private RequestSpecificationImpl requestBuilder;
 
   @Before
   public void setup() throws Exception {
-    requestBuilder = new RequestBuilder();
+    requestBuilder = new RequestSpecificationImpl();
   }
 
   @Test(expected = IllegalArgumentException.class)

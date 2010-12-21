@@ -1,27 +1,28 @@
-package com.jayway.restassured.builder
+package com.jayway.restassured.specification
 
 import com.jayway.restassured.authentication.BasicAuthScheme
 import com.jayway.restassured.authentication.CertAuthScheme
 import com.jayway.restassured.authentication.OAuthScheme
+import com.jayway.restassured.internal.RequestSpecificationImpl
 
-class AuthenticationBuilder {
-  private RequestBuilder requestBuilder;
+class AuthenticationSpecification {
+  private RequestSpecificationImpl requestBuilder;
 
-  AuthenticationBuilder(RequestBuilder requestBuilder) {
+  AuthenticationSpecification(RequestSpecificationImpl requestBuilder) {
     this.requestBuilder = requestBuilder
   }
 
-  def RequestBuilder basic(String userName, String password) {
+  def RequestSpecificationImpl basic(String userName, String password) {
     requestBuilder.authenticationScheme = new BasicAuthScheme(userName: userName, password: password)
     return requestBuilder
   }
 
-  def RequestBuilder certificate(String certURL, String password) {
+  def RequestSpecificationImpl certificate(String certURL, String password) {
     requestBuilder.authenticationScheme = new CertAuthScheme(certURL: certURL, password: password)
     return requestBuilder
   }
 
-  def RequestBuilder oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken) {
+  def RequestSpecificationImpl oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken) {
     requestBuilder.authenticationScheme = new OAuthScheme(consumerKey: consumerKey, consumerSecret: consumerSecret, accessToken: accessToken, secretToken: secretToken)
     return requestBuilder
   }

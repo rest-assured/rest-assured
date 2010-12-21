@@ -1,40 +1,40 @@
 package com.jayway.restassured
 
-import static groovyx.net.http.Method.POST
+
+import com.jayway.restassured.internal.RequestSpecificationImpl
+import com.jayway.restassured.specification.RequestSpecification
 import static groovyx.net.http.Method.GET
-import com.jayway.restassured.builder.RequestBuilder
+import static groovyx.net.http.Method.POST
+import com.jayway.restassured.specification.ResponseSpecification
+import com.jayway.restassured.internal.ResponseSpecificationImpl
+import com.jayway.restassured.internal.TestSpecification
 
 class RestAssured {
 
-  public static String baseURI = "http://localhost";
+  public static final String defaultURI = "http://localhost"
+  public static final int defaultPort = 8080
 
-  public static int port = 8080;
+  public static String baseURI = defaultURI
+  public static int port = defaultPort;
 
-  def static RequestBuilder expect() {
-      return new RequestBuilder(baseUri: RestAssured.baseURI, path: "", port: port, method: GET)    
+  def static ResponseSpecification expect() {
+    createTestSpecification().responseSpecification
   }
 
-  def static RequestBuilder with() {
-      return given()
+  private static TestSpecification createTestSpecification() {
+    return new TestSpecification(new RequestSpecificationImpl(baseUri: baseURI, path: "", port: port), new ResponseSpecificationImpl())
   }
 
-  def static RequestBuilder given() {
-      return new RequestBuilder(baseUri: RestAssured.baseURI, path: "", port: port, method: GET)
+  def static RequestSpecification with() {
+    return given()
   }
 
-  def static RequestBuilder post() {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: "", port: port, method: POST)
+  def static RequestSpecification given() {
+    return createTestSpecification().requestSpecification
   }
 
-  def static RequestBuilder post(String path) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: POST)
-  }
-
-  def static RequestBuilder get() {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: "", port: port, method: GET)
-  }
-
-  def static RequestBuilder get(String path) {
-    return new RequestBuilder(baseUri: RestAssured.baseURI, path: path, port: port, method: GET)
+  def static void reset() {
+    baseURI = defaultURI
+    port = defaultPort
   }
 }
