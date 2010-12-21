@@ -1,9 +1,9 @@
 package com.jayway.restassured
 
+import com.jayway.restassured.internal.RequestSpecificationImpl
 import org.junit.Before
 import org.junit.Test
 import static groovy.util.GroovyTestCase.assertEquals
-import com.jayway.restassured.internal.RequestSpecificationImpl
 
 class ParameterMapBuilderTest {
   private RequestSpecificationImpl requestBuilder;

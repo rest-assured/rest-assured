@@ -1,7 +1,7 @@
 package com.jayway.restassured.authentication
 
-import groovyx.net.http.AuthConfig
 import groovyx.net.http.HTTPBuilder
+
 /**
  * Created by IntelliJ IDEA.
  * User: johan

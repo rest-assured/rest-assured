@@ -1,7 +1,6 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.support.WithJetty;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;

@@ -1,12 +1,12 @@
 package com.jayway.restassured.assertion
 
-import org.hamcrest.Matcher
-import org.w3c.dom.Element
-import javax.xml.parsers.DocumentBuilderFactory
 import com.jayway.restassured.exception.AssertionFailedException
-import static groovyx.net.http.ContentType.*
+import javax.xml.parsers.DocumentBuilderFactory
+import org.hamcrest.Matcher
 import org.hamcrest.xml.HasXPath
-import java.lang.reflect.Array
+import org.w3c.dom.Element
+import static groovyx.net.http.ContentType.JSON
+import static groovyx.net.http.ContentType.XML
 
 class BodyMatcher {
   def key

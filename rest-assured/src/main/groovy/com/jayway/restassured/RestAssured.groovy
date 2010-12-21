@@ -1,11 +1,9 @@
 package com.jayway.restassured
 
-
 import com.jayway.restassured.internal.RequestSpecificationImpl
-import com.jayway.restassured.specification.RequestSpecification
-
-import com.jayway.restassured.specification.ResponseSpecification
 import com.jayway.restassured.internal.ResponseSpecificationImpl
+import com.jayway.restassured.specification.RequestSpecification
+import com.jayway.restassured.specification.ResponseSpecification
 import com.jayway.restassured.specification.TestSpecification
 
 class RestAssured {

@@ -1,17 +1,16 @@
 package com.jayway.restassured.internal
 
-import com.jayway.restassured.assertion.HeaderMatcher
-import com.jayway.restassured.exception.AssertionFailedException
-
-import org.hamcrest.Matcher
-
-import static org.hamcrest.Matchers.equalTo
 import com.jayway.restassured.assertion.BodyMatcher
 import com.jayway.restassured.assertion.BodyMatcherGroup
-import com.jayway.restassured.specification.ResponseSpecification
+import com.jayway.restassured.assertion.HeaderMatcher
+import com.jayway.restassured.exception.AssertionFailedException
 import com.jayway.restassured.specification.RequestSpecification
+import com.jayway.restassured.specification.ResponseSpecification
 import groovyx.net.http.ContentType
-import static groovyx.net.http.ContentType.*
+import org.hamcrest.Matcher
+import static groovyx.net.http.ContentType.ANY
+import static groovyx.net.http.ContentType.TEXT
+import static org.hamcrest.Matchers.equalTo
 
 class ResponseSpecificationImpl implements ResponseSpecification {
 

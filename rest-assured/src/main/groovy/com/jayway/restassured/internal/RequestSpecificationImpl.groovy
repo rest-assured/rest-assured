@@ -8,8 +8,8 @@ import com.jayway.restassured.specification.ResponseSpecification
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HttpResponseException
-import static groovyx.net.http.ContentType.URLENC
 import static groovyx.net.http.ContentType.ANY
+import static groovyx.net.http.ContentType.URLENC
 import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
 

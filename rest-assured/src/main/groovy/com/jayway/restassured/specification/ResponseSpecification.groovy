@@ -1,7 +1,7 @@
 package com.jayway.restassured.specification
 
-import org.hamcrest.Matcher
 import groovyx.net.http.ContentType
+import org.hamcrest.Matcher
 
 /**
  * Created by IntelliJ IDEA.

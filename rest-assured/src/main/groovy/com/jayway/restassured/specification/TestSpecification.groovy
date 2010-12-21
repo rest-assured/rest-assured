@@ -1,10 +1,5 @@
 package com.jayway.restassured.specification
 
-import com.jayway.restassured.exception.AssertionFailedException
-import com.jayway.restassured.specification.RequestSpecification
-import com.jayway.restassured.specification.ResponseSpecification
-import com.jayway.restassured.specification.RequestSender
-
 /**
  * Created by IntelliJ IDEA.
  * User: johan

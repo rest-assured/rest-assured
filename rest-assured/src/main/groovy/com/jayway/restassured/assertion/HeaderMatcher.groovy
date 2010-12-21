@@ -1,8 +1,7 @@
 package com.jayway.restassured.assertion
 
-import org.hamcrest.Matcher
-
 import com.jayway.restassured.exception.AssertionFailedException
+import org.hamcrest.Matcher
 
 class HeaderMatcher {
 
