@@ -11,6 +11,7 @@ import groovyx.net.http.HttpResponseException
 import static groovyx.net.http.ContentType.ANY
 import static groovyx.net.http.ContentType.URLENC
 import static groovyx.net.http.ContentType.TEXT
+import static groovyx.net.http.ContentType.BINARY
 import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
 
@@ -101,6 +102,15 @@ class RequestSpecificationImpl implements RequestSpecification {
     return body(body);
   }
 
+  def RequestSpecification body(byte[] body) {
+    this.requestBody = body;
+    return this;
+  }
+
+  RequestSpecification content(byte[] body) {
+    return body(body);
+  }
+
   RequestSpecification contentType(ContentType contentType) {
     this.requestContentType = contentType
     return  this
@@ -127,7 +137,7 @@ class RequestSpecificationImpl implements RequestSpecification {
         }
         def bodyContent = parameters ?: requestBody
         http.post( path: path, body: bodyContent,
-                requestContentType: requestContentType ?: requestBody == null ? URLENC : TEXT,
+                requestContentType: defineRequestContentType(),
                 contentType: responseContentType) { response, content ->
           if(assertionClosure != null) {
             assertionClosure.call (response, content)
@@ -159,6 +169,19 @@ class RequestSpecificationImpl implements RequestSpecification {
         response.failure = closure
       }
     }
+  }
+
+  private def defineRequestContentType() {
+    if (requestContentType == null) {
+      if (requestBody == null) {
+        requestContentType = URLENC
+      } else if (requestBody instanceof byte[]) {
+        requestContentType = BINARY
+      } else {
+        requestContentType = TEXT
+      }
+    }
+    requestContentType
   }
 
   private String getTargetURI(String path) {

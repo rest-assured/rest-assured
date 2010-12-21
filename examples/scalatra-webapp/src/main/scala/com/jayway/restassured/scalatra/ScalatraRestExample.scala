@@ -89,7 +89,7 @@ class ScalatraRestExample extends ScalatraServlet {
 
   post("/binaryBody") {
     contentType = "text/plain";
-    "ok"
+    Stream.continually(request.getInputStream().read).takeWhile(_ != -1).map(_.toByte).toList.mkString(", ")
   }
 
   post("/jsonBody") {
