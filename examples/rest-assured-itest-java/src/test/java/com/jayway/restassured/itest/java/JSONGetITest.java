@@ -264,4 +264,17 @@ public class JSONGetITest extends WithJetty {
     public void requestSpecificationAllowsSpecifyingHeaders() throws Exception {
         given().headers("MyHeader", "Something").and().expect().body("hello", equalTo("Hello Scalatra")).when().get("/hello");
     }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingCookie() throws Exception {
+        given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().get("/cookie");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingCookieUsingMap() throws Exception {
+        Map<String, String> cookies = new HashMap<String, String>();
+        cookies.put("username", "John");
+        cookies.put("token", "1234");
+        given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
+    }
 }

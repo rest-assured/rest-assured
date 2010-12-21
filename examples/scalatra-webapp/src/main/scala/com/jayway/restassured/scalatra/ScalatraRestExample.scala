@@ -4,12 +4,9 @@ import org.scalatra.ScalatraServlet
 import net.liftweb.json.JsonDSL._
 import java.lang.String
 import xml.Elem
-import text.Document
-import javax.servlet.ServletInputStream
-import io.Source
-import net.liftweb.json.JsonAST.JValue
 import net.liftweb.json.JsonAST._
-import net.liftweb.json.{DefaultFormats, JsonParser, JsonAST}
+import net.liftweb.json.{DefaultFormats, JsonParser}
+import java.util.Enumeration
 
 
 class ScalatraRestExample extends ScalatraServlet {
@@ -96,6 +93,19 @@ class ScalatraRestExample extends ScalatraServlet {
     contentType = "text/plain";
     val json = JsonParser.parse(request.body)
     (json \  "message").extract[String]
+  }
+
+  post("/cookie") {
+    getCookies
+  }
+
+  get("/cookie") {
+    getCookies
+  }
+
+  def getCookies: String = {
+    contentType = "text/plain"
+    request.getCookies().map(_.getName).mkString(", ")
   }
 
   notFound {

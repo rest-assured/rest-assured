@@ -9,7 +9,6 @@ import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static groovyx.net.http.ContentType.JSON;
 import static groovyx.net.http.ContentType.URLENC;
-import static groovyx.net.http.ContentType.TEXT;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -61,5 +60,10 @@ public class JSONPostITest extends WithJetty {
     public void requestSpecificationAllowsSpecifyingBinaryBodyForPost() throws Exception {
         byte[] body = { 23, 42, 127, 123};
         given().body(body).then().expect().body(equalTo("23, 42, 127, 123")).when().post("/binaryBody");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingCookie() throws Exception {
+        given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().post("/cookie");
     }
 }

@@ -25,6 +25,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   private ResponseSpecification responseSpecification;
   private ContentType requestContentType;
   private Map<String, String> requestHeaders = [:]
+  private Map<String, String> cookies = [:]
   private Object requestBody;
 
   def RequestSpecification when() {
@@ -125,9 +126,22 @@ class RequestSpecificationImpl implements RequestSpecification {
     return headers(MapCreator.createMapFromStrings(headerName, headerNameValueParis))
   }
 
+  RequestSpecification cookies(String cookieName, String... cookieNameValuePairs) {
+    return cookies(MapCreator.createMapFromStrings(cookieName, cookieNameValuePairs))
+    return this;
+  }
+
+  RequestSpecification cookies(Map<String, String> cookies) {
+    this.cookies = cookies;
+    return this;
+  }
+
   private def sendRequest(path, method, parameters, assertionClosure) {
     def http = new HTTPBuilder(getTargetURI(path))
     http.getHeaders() << requestHeaders
+    if(!cookies.isEmpty()) {
+      http.getHeaders() << [Cookie : cookies.collect{it.key+"="+it.value}.join("; ")]
+    }
     def responseContentType =  assertionClosure.getResponseContentType()
     authenticationScheme.authenticate(http)
     if(POST.equals(method)) {

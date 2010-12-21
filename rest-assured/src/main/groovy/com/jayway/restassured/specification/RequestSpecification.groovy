@@ -29,6 +29,10 @@ public interface RequestSpecification extends RequestSender {
 
   RequestSpecification request();
 
+  RequestSpecification cookies(String cookieName, String...cookieNameValuePairs);
+
+  RequestSpecification cookies(Map<String, String> cookies);
+
   RequestSpecification parameters(String parameter, String...parameters);
 
   RequestSpecification parameters(Map<String, String> parametersMap);
