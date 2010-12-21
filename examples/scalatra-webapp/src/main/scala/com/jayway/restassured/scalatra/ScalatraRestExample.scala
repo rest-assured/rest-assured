@@ -67,16 +67,20 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(render(json))
   }
 
+  put("/greet") {
+    greetJson
+  }
+
+  delete("/greet") {
+    greetJson
+  }
+
   get("/greet") {
-    val name = "Greetings " + {params("firstName")} + " " + {params("lastName")}
-    val json = ("greeting" -> name)
-    compact(render(json))
+    greetJson
   }
 
   post("/greet") {
-    val name = "Greetings " + {params("firstName")} + " " + {params("lastName")}
-    val json = ("greeting" -> name)
-    compact(render(json))
+    greetJson
   }
 
   post("/body") {
@@ -103,6 +107,14 @@ class ScalatraRestExample extends ScalatraServlet {
     getCookies
   }
 
+  put("/cookie") {
+    getCookies
+  }
+
+  delete("/cookie") {
+    getCookies
+  }
+
   def getCookies: String = {
     contentType = "text/plain"
     request.getCookies().map(_.getName).mkString(", ")
@@ -111,6 +123,16 @@ class ScalatraRestExample extends ScalatraServlet {
   notFound {
     response.setStatus(404)
     "Not found"
+  }
+
+  def greetJson: String = {
+    val name = "Greetings " + {
+      params("firstName")
+    } + " " + {
+      params("lastName")
+    }
+    val json = ("greeting" -> name)
+    compact(render(json))
   }
 
   def greetXML: Elem = {
@@ -130,5 +152,4 @@ class ScalatraRestExample extends ScalatraServlet {
       </name>
     </greeting>
   }
-
 }

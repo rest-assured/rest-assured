@@ -19,13 +19,19 @@ class TestSpecification implements RequestSender {
     requestSpecification.responseSpecification = responseSpecification
   }
 
-  @Override
   void get(String path) {
     requestSpecification.get path
   }
 
-  @Override
   void post(String path) {
     requestSpecification.post path
+  }
+
+  void put(String path) {
+    requestSpecification.put path
+  }
+
+  void delete(String path) {
+    requestSpecification.delete path
   }
 }

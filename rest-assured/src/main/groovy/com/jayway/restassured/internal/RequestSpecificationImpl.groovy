@@ -14,6 +14,8 @@ import static groovyx.net.http.ContentType.TEXT
 import static groovyx.net.http.ContentType.BINARY
 import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
+import static groovyx.net.http.Method.PUT
+import static groovyx.net.http.Method.DELETE
 
 class RequestSpecificationImpl implements RequestSpecification {
 
@@ -50,6 +52,14 @@ class RequestSpecificationImpl implements RequestSpecification {
 
   def void post(String path) {
     sendRequest(path, POST, parameters, responseSpecification.assertionClosure);
+  }
+
+  def void put(String path) {
+     sendRequest(path, PUT, parameters, responseSpecification.assertionClosure);
+  }
+
+  def void delete(String path) {
+    sendRequest(path, DELETE, parameters, responseSpecification.assertionClosure);
   }
 
   def RequestSpecification parameters(String parameter, String...parameters) {

@@ -11,4 +11,8 @@ public interface RequestSender {
   void get(String path);
 
   void post(String path);
+
+  void put(String path);
+
+  void delete(String path);
 }
