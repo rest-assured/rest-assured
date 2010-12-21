@@ -34,4 +34,8 @@ class TestSpecification implements RequestSender {
   void delete(String path) {
     requestSpecification.delete path
   }
+
+  void head(String path) {
+    requestSpecification.head path
+  }
 }

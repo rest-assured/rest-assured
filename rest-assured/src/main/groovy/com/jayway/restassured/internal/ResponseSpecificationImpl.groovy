@@ -122,11 +122,15 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   }
 
   void put(String path) {
-     requestSpecification.put(path);
+    requestSpecification.put(path);
   }
 
   void delete(String path) {
-     requestSpecification.delete(path);
+    requestSpecification.delete(path);
+  }
+
+  def void head(String path) {
+    requestSpecification.head(path);
   }
 
   def ResponseSpecification and() {

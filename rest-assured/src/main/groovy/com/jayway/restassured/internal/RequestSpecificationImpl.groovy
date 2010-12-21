@@ -57,6 +57,10 @@ class RequestSpecificationImpl implements RequestSpecification {
     sendRequest(path, DELETE, parameters, responseSpecification.assertionClosure);
   }
 
+  def void head(String path) {
+    sendRequest(path, HEAD, parameters, responseSpecification.assertionClosure);
+  }
+
   def RequestSpecification parameters(String parameter, String...parameters) {
     return this.parameters(MapCreator.createMapFromStrings(parameter, parameters))
   }
