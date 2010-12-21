@@ -19,6 +19,8 @@ public interface RequestSpecification extends RequestSender {
 
   RequestSpecification body(String body);
 
+  RequestSpecification content(String body);
+
   ResponseSpecification response();
 
   RequestSpecification request();

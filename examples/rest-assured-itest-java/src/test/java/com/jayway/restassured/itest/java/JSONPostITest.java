@@ -56,4 +56,9 @@ public class JSONPostITest extends WithJetty {
     public void requestSpecificationAllowsSpecifyingJsonBodyForPost() throws Exception {
         given().body("{ \"message\" : \"hello world\"}").with().contentType(JSON).then().expect().body(equalTo("hello world")).when().post("/jsonBody");
     }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingBinaryBodyForPost() throws Exception {
+        given().body("{ \"message\" : \"hello world\"}").with().contentType(JSON).then().expect().body(equalTo("hello world")).when().post("/jsonBody");
+    }
 }

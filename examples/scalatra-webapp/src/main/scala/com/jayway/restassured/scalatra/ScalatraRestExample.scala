@@ -87,6 +87,11 @@ class ScalatraRestExample extends ScalatraServlet {
     request.body
   }
 
+  post("/binaryBody") {
+    contentType = "text/plain";
+    "ok"
+  }
+
   post("/jsonBody") {
     contentType = "text/plain";
     val json = JsonParser.parse(request.body)

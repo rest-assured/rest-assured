@@ -97,6 +97,10 @@ class RequestSpecificationImpl implements RequestSpecification {
     return this;
   }
 
+  RequestSpecification content(String body) {
+    return body(body);
+  }
+
   RequestSpecification contentType(ContentType contentType) {
     this.requestContentType = contentType
     return  this
