@@ -82,8 +82,8 @@ class RequestSpecificationImpl implements RequestSpecification {
     return this;
   }
 
-  def RequestSpecification then() {
-    return this;
+  def ResponseSpecification then() {
+    return responseSpecification;
   }
 
   def ResponseSpecification expect() {

@@ -41,7 +41,7 @@ public interface RequestSpecification extends RequestSender {
 
   RequestSpecification with();
 
-  RequestSpecification then();
+  ResponseSpecification then();
 
   ResponseSpecification expect();
 
