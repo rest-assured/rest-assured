@@ -6,23 +6,23 @@ import com.jayway.restassured.authentication.OAuthScheme
 import com.jayway.restassured.internal.RequestSpecificationImpl
 
 class AuthenticationSpecification {
-  private RequestSpecificationImpl requestBuilder;
+  private RequestSpecification requestBuilder;
 
-  AuthenticationSpecification(RequestSpecificationImpl requestBuilder) {
+  AuthenticationSpecification(RequestSpecification requestBuilder) {
     this.requestBuilder = requestBuilder
   }
 
-  def RequestSpecificationImpl basic(String userName, String password) {
+  def RequestSpecification basic(String userName, String password) {
     requestBuilder.authenticationScheme = new BasicAuthScheme(userName: userName, password: password)
     return requestBuilder
   }
 
-  def RequestSpecificationImpl certificate(String certURL, String password) {
+  def RequestSpecification certificate(String certURL, String password) {
     requestBuilder.authenticationScheme = new CertAuthScheme(certURL: certURL, password: password)
     return requestBuilder
   }
 
-  def RequestSpecificationImpl oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken) {
+  def RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken) {
     requestBuilder.authenticationScheme = new OAuthScheme(consumerKey: consumerKey, consumerSecret: consumerSecret, accessToken: accessToken, secretToken: secretToken)
     return requestBuilder
   }
