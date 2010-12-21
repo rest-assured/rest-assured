@@ -8,14 +8,9 @@ import com.jayway.restassured.specification.ResponseSpecification
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HttpResponseException
-import static groovyx.net.http.ContentType.ANY
-import static groovyx.net.http.ContentType.URLENC
-import static groovyx.net.http.ContentType.TEXT
-import static groovyx.net.http.ContentType.BINARY
-import static groovyx.net.http.Method.GET
-import static groovyx.net.http.Method.POST
-import static groovyx.net.http.Method.PUT
-import static groovyx.net.http.Method.DELETE
+import groovyx.net.http.Method
+import static groovyx.net.http.ContentType.*
+import static groovyx.net.http.Method.*
 
 class RequestSpecificationImpl implements RequestSpecification {
 
@@ -55,7 +50,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   def void put(String path) {
-     sendRequest(path, PUT, parameters, responseSpecification.assertionClosure);
+    sendRequest(path, PUT, parameters, responseSpecification.assertionClosure);
   }
 
   def void delete(String path) {
@@ -161,7 +156,7 @@ class RequestSpecificationImpl implements RequestSpecification {
         }
         def bodyContent = parameters ?: requestBody
         http.post( path: path, body: bodyContent,
-                requestContentType: defineRequestContentType(),
+                requestContentType: defineRequestContentType(POST),
                 contentType: responseContentType) { response, content ->
           if(assertionClosure != null) {
             assertionClosure.call (response, content)
@@ -175,15 +170,17 @@ class RequestSpecificationImpl implements RequestSpecification {
         }
       }
     } else {
-      if(requestBody != null) {
-        throw new IllegalStateException("Can't send a "+method+" request with a request body. Use parameters instead.");
-      }
       http.request(method, responseContentType) {
         uri.path = path
+
+        if(requestBody != null) {
+          body = requestBody
+        }
+
         if(parameters != null) {
           uri.query = parameters
         }
-        requestContentType: requestContentType ?: ANY
+        requestContentType: defineRequestContentType(method)
 
         Closure closure = assertionClosure.getClosure()
         // response handler for a success response code:
@@ -195,11 +192,14 @@ class RequestSpecificationImpl implements RequestSpecification {
     }
   }
 
-  private def defineRequestContentType() {
+  private def defineRequestContentType(Method method) {
     if (requestContentType == null) {
       if (requestBody == null) {
-        requestContentType = URLENC
+        requestContentType = method == POST ? URLENC : ANY
       } else if (requestBody instanceof byte[]) {
+        if(method != POST) {
+          throw new IllegalStateException("$method doesn't support binary request data.");
+        }
         requestContentType = BINARY
       } else {
         requestContentType = TEXT

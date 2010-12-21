@@ -278,5 +278,11 @@ public class JSONGetITest extends WithJetty {
         given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
     }
 
+    @Test
+    public void getDoesntSupportsStringBody() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Cannot set a request body for a GET method");
 
+        given().body("a body").expect().body(equalTo("a body")).when().get("/body");
+    }
 }

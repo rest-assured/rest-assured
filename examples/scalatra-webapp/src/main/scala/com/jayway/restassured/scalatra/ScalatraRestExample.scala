@@ -83,13 +83,15 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   post("/body") {
-    contentType = "text/plain";
-    request.body
+    getStringBody
+  }
+
+  put("/body") {
+    getStringBody
   }
 
   post("/binaryBody") {
-    contentType = "text/plain";
-    Stream.continually(request.getInputStream().read).takeWhile(_ != -1).map(_.toByte).toList.mkString(", ")
+    getBinaryBodyResponse
   }
 
   post("/jsonBody") {
@@ -98,7 +100,7 @@ class ScalatraRestExample extends ScalatraServlet {
     (json \  "message").extract[String]
   }
 
-   post("/header") {
+  post("/header") {
     getHeaders
   }
 
@@ -122,15 +124,25 @@ class ScalatraRestExample extends ScalatraServlet {
     getCookies
   }
 
-   def getHeaders: String = {
+  def getBinaryBodyResponse: String = {
+    contentType = "text/plain";
+    Stream.continually(request.getInputStream().read).takeWhile(_ != -1).map(_.toByte).toList.mkString(", ")
+  }
+
+  def getHeaders: String = {
     contentType = "text/plain"
-     val headerNames = request.getHeaderNames()
-     val names = ListBuffer[String]()
-     while(headerNames.hasMoreElements()) {
-       val name = headerNames.nextElement.toString
-       names.append(name)
-     }
-     names.mkString(", ")
+    val headerNames = request.getHeaderNames()
+    val names = ListBuffer[String]()
+    while(headerNames.hasMoreElements()) {
+      val name = headerNames.nextElement.toString
+      names.append(name)
+    }
+    names.mkString(", ")
+  }
+
+  def getStringBody: String = {
+    contentType = "text/plain";
+    request.body
   }
 
   def getCookies: String = {
