@@ -5,9 +5,11 @@ import com.jayway.restassured.authentication.NoAuthScheme
 import com.jayway.restassured.specification.AuthenticationSpecification
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.specification.ResponseSpecification
+import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HttpResponseException
-import static groovyx.net.http.ContentType.*
+import static groovyx.net.http.ContentType.URLENC
+import static groovyx.net.http.ContentType.ANY
 import static groovyx.net.http.Method.GET
 import static groovyx.net.http.Method.POST
 
@@ -19,6 +21,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   private Map parameters
   private AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private ResponseSpecification responseSpecification;
+  private ContentType requestContentType;
 
   def RequestSpecification when() {
     return this;
@@ -36,12 +39,10 @@ class RequestSpecificationImpl implements RequestSpecification {
     return responseSpecification;
   }
 
-  // TODO Return response
   def void get(String path) {
     sendRequest(path, GET, parameters, responseSpecification.assertionClosure);
   }
 
-  // TODO Return response
   def void post(String path) {
     sendRequest(path, POST, parameters, responseSpecification.assertionClosure);
   }
@@ -88,14 +89,20 @@ class RequestSpecificationImpl implements RequestSpecification {
     return this
   }
 
+  RequestSpecification contentType(ContentType contentType) {
+    this.requestContentType = contentType
+    return  this
+  }
+
   private def sendRequest(path, method, parameters, assertionClosure) {
     def http = new HTTPBuilder(getTargetURI(path))
-    def contentType = assertionClosure.requiresContentTypeText() ? TEXT : ANY
+    def responseContentType =  assertionClosure.getResponseContentType()
     authenticationScheme.authenticate(http)
     if(POST.equals(method)) {
       try {
         http.post( path: path, body: parameters,
-                requestContentType: URLENC, contentType: contentType) { response, content ->
+                requestContentType: requestContentType ?: URLENC,
+                contentType: responseContentType) { response, content ->
           if(assertionClosure != null) {
             assertionClosure.call (response, content)
           }
@@ -108,11 +115,12 @@ class RequestSpecificationImpl implements RequestSpecification {
         }
       }
     } else {
-      http.request(method, contentType) {
+      http.request(method, responseContentType) {
         uri.path = path
         if(parameters != null) {
           uri.query = parameters
         }
+        requestContentType: requestContentType ?: ANY
 
         Closure closure = assertionClosure.getClosure()
         // response handler for a success response code:

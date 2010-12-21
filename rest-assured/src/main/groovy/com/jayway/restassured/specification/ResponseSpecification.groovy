@@ -1,6 +1,7 @@
 package com.jayway.restassured.specification
 
 import org.hamcrest.Matcher
+import groovyx.net.http.ContentType
 
 /**
  * Created by IntelliJ IDEA.
@@ -9,7 +10,7 @@ import org.hamcrest.Matcher
  * Time: 10:20 AM
  * To change this template use File | Settings | File Templates.
  */
-public interface ResponseSpecification {
+public interface ResponseSpecification extends RequestSender {
   ResponseSpecification content(Matcher<?> matcher, Matcher<?>...additionalMatchers);
 
   ResponseSpecification content(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs);
@@ -27,6 +28,8 @@ public interface ResponseSpecification {
   ResponseSpecification header(String headerName, Matcher<String> expectedValueMatcher);
 
   ResponseSpecification header(String headerName, String expectedValue);
+
+  ResponseSpecification contentType(ContentType contentType);
 
   ResponseSpecification statusLine(String expectedStatusLine);
 
@@ -51,8 +54,4 @@ public interface ResponseSpecification {
   ResponseSpecification then();
 
   ResponseSpecification expect();
-
-  void get(String path);
-
-  void post(String path);
 }

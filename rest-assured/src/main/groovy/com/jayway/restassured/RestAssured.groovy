@@ -3,11 +3,10 @@ package com.jayway.restassured
 
 import com.jayway.restassured.internal.RequestSpecificationImpl
 import com.jayway.restassured.specification.RequestSpecification
-import static groovyx.net.http.Method.GET
-import static groovyx.net.http.Method.POST
+
 import com.jayway.restassured.specification.ResponseSpecification
 import com.jayway.restassured.internal.ResponseSpecificationImpl
-import com.jayway.restassured.internal.TestSpecification
+import com.jayway.restassured.specification.TestSpecification
 
 class RestAssured {
 
@@ -31,6 +30,11 @@ class RestAssured {
 
   def static RequestSpecification given() {
     return createTestSpecification().requestSpecification
+  }
+
+
+  def static TestSpecification given(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
+    return new TestSpecification(requestSpecification, responseSpecification);
   }
 
   def static void reset() {

@@ -1,8 +1,9 @@
-package com.jayway.restassured.internal
+package com.jayway.restassured.specification
 
 import com.jayway.restassured.exception.AssertionFailedException
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.specification.ResponseSpecification
+import com.jayway.restassured.specification.RequestSender
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,7 +12,7 @@ import com.jayway.restassured.specification.ResponseSpecification
  * Time: 10:15 AM
  * To change this template use File | Settings | File Templates.
  */
-class TestSpecification {
+class TestSpecification implements RequestSender {
   def final RequestSpecification requestSpecification
   def final ResponseSpecification responseSpecification
 
@@ -21,5 +22,15 @@ class TestSpecification {
     this.responseSpecification = responseSpecification;
     responseSpecification.requestSpecification = requestSpecification
     requestSpecification.responseSpecification = responseSpecification
+  }
+
+  @Override
+  void get(String path) {
+    requestSpecification.get path
+  }
+
+  @Override
+  void post(String path) {
+    requestSpecification.post path
   }
 }

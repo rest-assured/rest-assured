@@ -10,6 +10,8 @@ import com.jayway.restassured.assertion.BodyMatcher
 import com.jayway.restassured.assertion.BodyMatcherGroup
 import com.jayway.restassured.specification.ResponseSpecification
 import com.jayway.restassured.specification.RequestSpecification
+import groovyx.net.http.ContentType
+import static groovyx.net.http.ContentType.*
 
 class ResponseSpecificationImpl implements ResponseSpecification {
 
@@ -19,6 +21,7 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure();
   private List headerAssertions = []
   private RequestSpecification requestSpecification;
+  private ContentType contentType;
 
   def ResponseSpecification content(Matcher<?> matcher, Matcher<?>...additionalMatchers) {
     assertNotNull(matcher)
@@ -136,6 +139,11 @@ class ResponseSpecificationImpl implements ResponseSpecification {
     return this;
   }
 
+  ResponseSpecification contentType(ContentType contentType) {
+    this.contentType = contentType
+    return this
+  }
+
   class HamcrestAssertionClosure {
     def call(response, content) {
       return getClosure().call(response, content)
@@ -145,7 +153,12 @@ class ResponseSpecificationImpl implements ResponseSpecification {
       return getClosure().call(response, null)
     }
 
-    boolean requiresContentTypeText() {
+    ContentType getResponseContentType() {
+      return contentType ?: bodyMatchers.requiresContentTypeText() ?  TEXT : ANY;
+    }
+
+
+    private boolean requiresContentTypeText() {
       return bodyMatchers.requiresContentTypeText()
     }
 

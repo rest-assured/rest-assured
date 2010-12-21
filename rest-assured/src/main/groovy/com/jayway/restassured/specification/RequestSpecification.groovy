@@ -1,5 +1,7 @@
 package com.jayway.restassured.specification
 
+import groovyx.net.http.ContentType
+
 /**
  * Created by IntelliJ IDEA.
  * User: johan
@@ -7,7 +9,7 @@ package com.jayway.restassured.specification
  * Time: 10:20 AM
  * To change this template use File | Settings | File Templates.
  */
-public interface RequestSpecification {
+public interface RequestSpecification extends RequestSender {
 
   RequestSpecification when();
 
@@ -18,10 +20,6 @@ public interface RequestSpecification {
   ResponseSpecification response();
 
   RequestSpecification request();
-
-  void get(String path);
-
-  void post(String path);
 
   RequestSpecification parameters(String parameter, String...parameters);
 
@@ -35,9 +33,13 @@ public interface RequestSpecification {
 
   ResponseSpecification expect();
 
+  RequestSpecification contentType(ContentType contentType);
+
   AuthenticationSpecification auth();
 
   AuthenticationSpecification authentication();
 
   RequestSpecification port(int port);
+
+
 }

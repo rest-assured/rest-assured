@@ -2,6 +2,9 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.exception.AssertionFailedException;
 import com.jayway.restassured.itest.support.WithJetty;
+import com.jayway.restassured.specification.RequestSpecification;
+import com.jayway.restassured.specification.ResponseSpecification;
+import groovyx.net.http.ContentType;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -241,5 +244,19 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void basicAuthentication() throws Exception {
         given().auth().basic("jetty", "jetty").expect().statusCode(200).when().get("/secured/hello");
+    }
+
+    @Test
+    public void specificationSyntax() throws Exception {
+        final RequestSpecification requestSpecification = with().parameters("firstName", "John", "lastName", "Doe");
+        final ResponseSpecification responseSpecification = expect().body("greeting", equalTo("Greetings John Doe"));
+        given(requestSpecification, responseSpecification).get("/greet");
+    }
+
+    @Test
+    public void requestContentType() throws Exception {
+        final RequestSpecification requestSpecification = given().contentType(ContentType.TEXT).with().parameters("firstName", "John", "lastName", "Doe");
+        final ResponseSpecification responseSpecification = expect().contentType(ContentType.JSON).and().body("greeting", equalTo("Greetings John Doe"));
+        given(requestSpecification, responseSpecification).get("/greet");
     }
 }
