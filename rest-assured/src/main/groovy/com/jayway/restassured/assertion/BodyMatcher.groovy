@@ -31,6 +31,9 @@ class BodyMatcher {
         case XML.toString().toLowerCase():
           assertion = new XMLAssertion(key: key)
           break;
+        default:
+        throw new IllegalStateException("Expected response to have JSON or XML content type but got "+response.contentType+ ". Content was:\n$content\n")
+        break;
       }
       def result = null
       if(content != null) {
