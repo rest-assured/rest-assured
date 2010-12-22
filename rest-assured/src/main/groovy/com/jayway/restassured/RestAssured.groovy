@@ -50,7 +50,7 @@ import com.jayway.restassured.specification.TestSpecification
  * </pre>
  *
  * i.e. it sends back a greeting based on the <tt>firstName</tt> and <tt>lastName</tt> parameter sent in the request.
- * You can easily perform and verify e.g. the <tt>firstName</tt> with REST assured:*
+ * You can easily perform and verify e.g. the <tt>firstName</tt> with REST assured:
  * <pre>
  * with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
  * </pre>
@@ -154,6 +154,26 @@ import com.jayway.restassured.specification.TestSpecification
  * given().auth().basic("username", "password").expect().statusCode(200).when().get("/secured/hello");
  * </pre>
  * Other supported schemes are OAuth and certificate authentication.
+ * </li>
+ * <li>
+ * By default REST assured assumes host localhost and port 8080 when doing a request. If you want a different port you can do:
+ * <pre>
+ * given().port(80). ..
+ * </pre>
+ * or simply:
+ * <pre>
+ * .. when().get("http://myhost.org:80/doSomething");
+ * </pre>
+ * You can also change the default base URI and port for all subsequent requests:
+ * <pre>
+ * RestAssured.baseURI = "http://myhost.org";
+ * RestAssured.port = 80;
+ * </pre>
+ * This means that a request like e.g. <code>get("/hello")</code> goes to: <tt>http://myhost.org:8080/hello</tt><br>
+ * You can reset to the standard baseURI (localhost) and standard port (8080) using:
+ * <pre>
+ * RestAssured.reset();
+ * </pre>
  * </li>
  * </ol>
  */
