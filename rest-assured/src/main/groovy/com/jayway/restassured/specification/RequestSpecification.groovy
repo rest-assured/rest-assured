@@ -57,5 +57,7 @@ public interface RequestSpecification extends RequestSender {
 
   RequestSpecification headers(Map<String, String> headers);
 
+  RequestSpecification header(String key, String value);
+
   RequestSpecification headers(String headerName, String ... headerNameValuePairs);
 }

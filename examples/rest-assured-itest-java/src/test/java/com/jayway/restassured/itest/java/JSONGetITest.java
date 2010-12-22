@@ -45,7 +45,7 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void parameterSupportWithMapBuilder() throws Exception {
-      with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
 
     @Test
@@ -261,8 +261,20 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
+    public void requestSpecificationAllowsSpecifyingHeader() throws Exception {
+        given().header("MyHeader", "Something").and().expect().body(containsString("MyHeader")).when().get("/header");
+    }
+
+    @Test
     public void requestSpecificationAllowsSpecifyingHeaders() throws Exception {
         given().headers("MyHeader", "Something").and().expect().body(containsString("MyHeader")).when().get("/header");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingMultipleHeaders() throws Exception {
+        given().header("MyHeader", "Something").and().headers("MyHeader2", "Something else", "MyHeader3", "H").and().
+                expect().body(containsString("MyHeader"), containsString("MyHeader2"), containsString("MyHeader3")).when()
+                .get("/header");
     }
 
     @Test

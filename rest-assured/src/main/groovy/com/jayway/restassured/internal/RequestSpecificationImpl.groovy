@@ -127,8 +127,13 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   RequestSpecification headers(Map<String, String> headers) {
-    this.requestHeaders = headers;
+    this.requestHeaders += headers;
     return this;
+  }
+
+  RequestSpecification header(String key, String value) {
+    requestHeaders.put(key, value);
+    return this
   }
 
   RequestSpecification headers(String headerName, String ... headerNameValueParis) {
