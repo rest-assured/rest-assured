@@ -11,6 +11,7 @@ import org.hamcrest.Matcher
 import static groovyx.net.http.ContentType.ANY
 import static groovyx.net.http.ContentType.TEXT
 import static org.hamcrest.Matchers.equalTo
+import com.jayway.restassured.assertion.CookieMatcher
 
 class ResponseSpecificationImpl implements ResponseSpecification {
 
@@ -19,6 +20,7 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   private BodyMatcherGroup bodyMatchers = new BodyMatcherGroup()
   private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure();
   private List headerAssertions = []
+  private List cookieAssertions = []
   private RequestSpecification requestSpecification;
   private ContentType contentType;
 
@@ -64,10 +66,6 @@ class ResponseSpecificationImpl implements ResponseSpecification {
     return this
   }
 
-  /**
-   * @param expectedHeaders
-   * @return
-   */
   def ResponseSpecification headers(String firstExpectedHeaderName, Object...expectedHeaders) {
     return headers(MapCreator.createMapFromStrings(firstExpectedHeaderName, expectedHeaders))
   }
@@ -79,6 +77,27 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   }
   def ResponseSpecification header(String headerName, String expectedValue) {
     return header(headerName, equalTo(expectedValue))
+  }
+
+  def ResponseSpecification cookies(Map<String, Object> expectedCookies) {
+    expectedCookies.each { cookieName, matcher ->
+      cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
+    }
+    return this
+  }
+
+  def ResponseSpecification cookies(String firstExpectedCookieName, Object... expectedCookieNameValuePairs) {
+     return cookies(MapCreator.createMapFromStrings(firstExpectedCookieName, expectedCookieNameValuePairs))
+  }
+
+  def ResponseSpecification cookie(String cookieName, Matcher<String> expectedValueMatcher) {
+    assertNotNull(cookieName, expectedValueMatcher)
+    cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: expectedValueMatcher)
+    this;
+  }
+
+  def ResponseSpecification cookie(String cookieName, String expectedValue) {
+    return cookie(cookieName, equalTo(expectedValue))
   }
 
   def ResponseSpecification statusLine(String expectedStatusLine) {
@@ -177,6 +196,11 @@ class ResponseSpecificationImpl implements ResponseSpecification {
         headerAssertions.each { matcher ->
           matcher.containsHeader(response.headers)
         }
+
+        cookieAssertions.each { matcher ->
+          matcher.containsCookie(response.headers.'Set-Cookie')
+        }
+
         if(expectedStatusCode != null) {
           def actualStatusCode = response.statusLine.statusCode
           if(!expectedStatusCode.matches(actualStatusCode)) {

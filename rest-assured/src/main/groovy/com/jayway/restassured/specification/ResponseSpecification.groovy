@@ -29,6 +29,14 @@ public interface ResponseSpecification extends RequestSender {
 
   ResponseSpecification header(String headerName, String expectedValue);
 
+  ResponseSpecification cookies(Map<String, Object> expectedCookies);
+
+  ResponseSpecification cookies(String firstExpectedCookieName, Object...expectedCookieNameValuePairs);
+
+  ResponseSpecification cookie(String cookieName, Matcher<String> expectedValueMatcher);
+
+  ResponseSpecification cookie(String cookieName, String expectedValue);
+
   ResponseSpecification contentType(ContentType contentType);
 
   ResponseSpecification statusLine(String expectedStatusLine);

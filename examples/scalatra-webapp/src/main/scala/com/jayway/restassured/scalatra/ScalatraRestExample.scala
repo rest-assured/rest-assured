@@ -100,6 +100,10 @@ class ScalatraRestExample extends ScalatraServlet {
     (json \  "message").extract[String]
   }
 
+  get("/setCookies") {
+    setCookies
+  }
+
   post("/header") {
     getHeaders
   }
@@ -148,6 +152,12 @@ class ScalatraRestExample extends ScalatraServlet {
   def getCookies: String = {
     contentType = "text/plain"
     request.getCookies().map(_.getName).mkString(", ")
+  }
+
+  def setCookies: String = {
+    contentType = "text/plain"
+    response.setHeader("Set-Cookie", " key1=value1 ; key2= value2;key3 = value3")
+    "ok"
   }
 
   notFound {

@@ -285,4 +285,76 @@ public class JSONGetITest extends WithJetty {
 
         given().body("a body").expect().body(equalTo("a body")).when().get("/body");
     }
+
+
+    @Test
+    public void supportsCookieStringMatching() throws Exception {
+        expect().response().cookie("key1", "value1").when().get("/setCookies");
+    }
+
+    @Test
+    public void multipleCookieStatementsAreConcatenated() throws Exception {
+        expect().response().cookie("key1", "value1").and().cookie("key2", "value2").when().get("/setCookies");
+    }
+
+    @Test
+    public void multipleCookiesShortVersionUsingPlainStrings() throws Exception {
+        expect().response().cookies("key1", "value1", "key3", "value3").when().get("/setCookies");
+    }
+
+    @Test
+    public void multipleCookiesShortVersionUsingHamcrestMatching() throws Exception {
+        expect().response().cookies("key2", containsString("2"), "key3", equalTo("value3")).when().get("/setCookies");
+    }
+
+    @Test
+    public void multipleCookiesShortVersionUsingMixOfHamcrestMatchingAndStringMatching() throws Exception {
+        expect().response().cookies("key1", containsString("1"), "key2", "value2").when().get("/setCookies");
+    }
+
+    @Test
+    public void multipleCookiesUsingMap() throws Exception {
+        Map expectedCookies = new HashMap();
+        expectedCookies.put("key1", "value1");
+        expectedCookies.put("key2", "value2");
+
+        expect().response().cookies(expectedCookies).when().get("/setCookies");
+    }
+
+    @Test
+    public void multipleCookiesUsingMapWithHamcrestMatcher() throws Exception {
+        Map expectedCookies = new HashMap();
+        expectedCookies.put("key1", containsString("1"));
+        expectedCookies.put("key3", equalTo("value3"));
+
+        expect().response().cookies(expectedCookies).when().get("/setCookies");
+    }
+
+    @Test
+    public void multipleCookiesUsingMapWithMixOfStringAndHamcrestMatcher() throws Exception {
+        Map expectedCookies = new HashMap();
+        expectedCookies.put("key1", containsString("1"));
+        expectedCookies.put("key2", "value2");
+
+        expect().response().cookies(expectedCookies).when().get("/setCookies");
+    }
+
+    @Test
+    public void whenExpectedCookieDoesntMatchAnAssertionThenAssertionFailedExceptionIsThrown() throws Exception {
+        exception.expect(AssertionFailedException.class);
+        exception.expectMessage(equalTo("Expected cookie \"key1\" was not \"value2\", was \"value1\"."));
+
+        expect().response().cookie("key1", "value2").when().get("/setCookies");
+    }
+
+    @Test
+    public void whenExpectedCookieIsNotFoundThenAnAssertionFailedExceptionIsThrown() throws Exception {
+        exception.expect(AssertionFailedException.class);
+        exception.expectMessage(equalTo("Cookie \"Not-Defined\" was not defined in the response. Cookies are: \n" +
+                "key1 = value1\n" +
+                "key2 = value2\n" +
+                "key3 = value3"));
+
+        expect().response().cookie("Not-Defined", "something").when().get("/setCookies");
+    }
 }
