@@ -267,6 +267,11 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void requestSpecificationAllowsSpecifyingCookie() throws Exception {
+        given().cookie("username", "John").then().expect().body(equalTo("username")).when().get("/cookie");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingCookies() throws Exception {
         given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().get("/cookie");
     }
 
@@ -276,6 +281,14 @@ public class JSONGetITest extends WithJetty {
         cookies.put("username", "John");
         cookies.put("token", "1234");
         given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingMultiple() throws Exception {
+        Map<String, String> cookies = new HashMap<String, String>();
+        cookies.put("username", "John");
+        cookies.put("token", "1234");
+        given().cookies(cookies).and().cookies("key1", "value1").then().expect().body(equalTo("username, token, key1")).when().get("/cookie");
     }
 
     @Test

@@ -137,12 +137,16 @@ class RequestSpecificationImpl implements RequestSpecification {
 
   RequestSpecification cookies(String cookieName, String... cookieNameValuePairs) {
     return cookies(MapCreator.createMapFromStrings(cookieName, cookieNameValuePairs))
-    return this;
   }
 
   RequestSpecification cookies(Map<String, String> cookies) {
-    this.cookies = cookies;
+    this.cookies += cookies;
     return this;
+  }
+
+  RequestSpecification cookie(String key, String value) {
+    cookies.put(key, value)
+    return this
   }
 
   private def sendRequest(path, method, parameters, assertionClosure) {

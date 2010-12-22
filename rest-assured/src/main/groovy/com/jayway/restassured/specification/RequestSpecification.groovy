@@ -33,6 +33,8 @@ public interface RequestSpecification extends RequestSender {
 
   RequestSpecification cookies(Map<String, String> cookies);
 
+  RequestSpecification cookie(String key, String value);
+
   RequestSpecification parameters(String parameter, String...parameters);
 
   RequestSpecification parameters(Map<String, String> parametersMap);
