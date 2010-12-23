@@ -7,8 +7,8 @@ import com.jayway.restassured.specification.ResponseSpecification
 import com.jayway.restassured.specification.TestSpecification
 
 /**
- * REST Assured is a Java DSL for simplifying testing of REST based services. It supports making POST, GET, PUT, DELETE and HEAD
- * requests and verify the response. Usage examples:
+ * REST Assured is a Java DSL for simplifying testing of REST based services. It supports POST, GET, PUT, DELETE and HEAD
+ * requests and verify its response. Usage examples:
  *<ol>
  * <li>
  * Assume that the GET request (to <tt>http://localhost:8080/lotto</tt>) returns JSON as:
@@ -68,7 +68,7 @@ import com.jayway.restassured.specification.TestSpecification
  * <li>
  * You can also verify XML responses using x-path. For example:
  * <pre>
- * expect().body(hasXPath("/greeting/firstName", containsString("Jo"))).given().parameters("firstName", "John", "lastName", "Doe").when().get("/greetXML");
+ * expect().body(hasXPath("/greeting/firstName", containsString("Jo"))).given().parameters("firstName", "John", "lastName", "Doe").when().post("/greetXML");
  * </pre>
  * or
  * <pre>
@@ -140,7 +140,7 @@ import com.jayway.restassured.specification.TestSpecification
  * </pre>
  * </li>
  * <li>
- * Fully body/content matching:
+ * Full body/content matching:
  * <pre>
  * expect().body(equalsTo("something")). ..
  * expect().content(equalsTo("something")). .. // Same as above
@@ -176,38 +176,110 @@ import com.jayway.restassured.specification.TestSpecification
  * </pre>
  * </li>
  * </ol>
+ * <p>
+ * In order to use REST assured effectively it's recommended to statically import
+ * methods from the following classes:
+ * <ul>
+ * <li>com.jayway.restassured.RestAssured.*</li>
+ * <li>org.hamcrest.Matchers.*</li>
+ * </ul>
+ * </p>
  */
 class RestAssured {
 
-  public static final String defaultURI = "http://localhost"
-  public static final int defaultPort = 8080
+  public static final String DEFAULT_URI = "http://localhost"
+  public static final int DEFAULT_PORT = 8080
 
-  public static String baseURI = defaultURI
-  public static int port = defaultPort;
+  /**
+   * The base URI that's used by REST assured when making requests if a non-fully qualified URI is used in the request.
+   * Default value is {@value #DEFAULT_URI}.
+   */
+  public static String baseURI = DEFAULT_URI
+  /**
+   * The port that's used by REST assured when is left out of the specified URI when making a request.
+   * Default value is {@value #DEFAULT_PORT}.
+   */
+  public static int port = DEFAULT_PORT;
 
+  /**
+   * Start building the response part of the test specification. E.g.
+   *
+   * <pre>
+   * expect().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
+   * </pre>
+   *
+   * will expect that the response body for the GET request to "/lotto" should
+   * contain JSON or XML which has a lottoId equal to 5.
+   *
+   * @return A response specification.
+   */
   def static ResponseSpecification expect() {
     createTestSpecification().responseSpecification
   }
 
-  private static TestSpecification createTestSpecification() {
-    return new TestSpecification(new RequestSpecificationImpl(baseUri: baseURI, path: "", port: port), new ResponseSpecificationImpl())
-  }
-
+  /**
+   * Start building the request part of the test specification. E.g.
+   *
+   * <pre>
+   * with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
+   * </pre>
+   *
+   * will send a POST request to "/greetXML" with request parameters <tt>firstName=John</tt> and <tt>lastName=Doe</tt> and
+   * expect that the response body containing JSON or XML firstName equal to John.
+   *
+   * The only difference between {@link #with()} and {@link #given()} is syntactical.
+   *
+   * @return A request specification.
+   */
   def static RequestSpecification with() {
     return given()
   }
 
+  /**
+   * Start building the request part of the test specification. E.g.
+   *
+   * <pre>
+   * given().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
+   * </pre>
+   *
+   * will send a POST request to "/greetXML" with request parameters <tt>firstName=John</tt> and <tt>lastName=Doe</tt> and
+   * expect that the response body containing JSON or XML firstName equal to John.
+   *
+   * The only difference between {@link #with()} and {@link #given()} is syntactical.
+   *
+   * @return A request specification.
+   */
   def static RequestSpecification given() {
     return createTestSpecification().requestSpecification
   }
 
-
+  /**
+   * When you have long specifications it can be better to split up the definition of response and request specifications in multiple lines.
+   * You can then pass the response and request specifications to this method. E.g.
+   *
+   * <pre>
+   * RequestSpecification requestSpecification = with().parameters("firstName", "John", "lastName", "Doe");
+   * ResponseSpecification responseSpecification = expect().body("greeting", equalTo("Greetings John Doe"));
+   * given(requestSpecification, responseSpecification).get("/greet");
+   * </pre>
+   *
+   * This will perform a GET request to "/greet" and verify it according to the <code>responseSpecification</code>.
+   *
+   * @return A test specification.
+   */
   def static TestSpecification given(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
     return new TestSpecification(requestSpecification, responseSpecification);
   }
 
+  /**
+   * Reset the {@link #baseURI} and {@link #port} to their default values of {@value #DEFAULT_URI} and {@value #DEFAULT_PORT}.
+   */
   def static void reset() {
-    baseURI = defaultURI
-    port = defaultPort
+    baseURI = DEFAULT_URI
+    port = DEFAULT_PORT
+  }
+
+  private static TestSpecification createTestSpecification() {
+    return new TestSpecification(new RequestSpecificationImpl(baseUri: baseURI, path: "", port: port), new ResponseSpecificationImpl())
   }
 }
