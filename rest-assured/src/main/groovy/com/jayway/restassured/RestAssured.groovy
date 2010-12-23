@@ -23,8 +23,10 @@ import com.jayway.restassured.specification.ResponseSpecification
 import com.jayway.restassured.specification.TestSpecification
 
 /**
- * REST Assured is a Java DSL for simplifying testing of REST based services. It supports POST, GET, PUT, DELETE and HEAD
- * requests and verify its response. Usage examples:
+ * REST Assured is a Java DSL for simplifying testing of REST based services built on top of
+ * <a href="http://groovy.codehaus.org/modules/http-builder/">HTTP Builder</a>.
+ * It supports POST, GET, PUT, DELETE and HEAD
+ * requests and to verify the response of these requests. Usage examples:
  *<ol>
  * <li>
  * Assume that the GET request (to <tt>http://localhost:8080/lotto</tt>) returns JSON as:

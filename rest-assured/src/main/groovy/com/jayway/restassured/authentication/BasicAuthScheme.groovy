@@ -18,6 +18,9 @@ package com.jayway.restassured.authentication
 
 import groovyx.net.http.HTTPBuilder
 
+/**
+ * Used for basic and digest authentication
+ */
 class BasicAuthScheme implements AuthenticationScheme {
   def String userName
   def String password
