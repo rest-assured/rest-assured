@@ -17,7 +17,15 @@
 package com.jayway.restassured.specification
 
 /**
+ * A test specification contains a {@link ResponseSpecification} and a {@link RequestSpecification}. It's
+ * mainly used when you have long specifications, e.g.
+ * <pre>
+ * RequestSpecification requestSpecification = with().parameters("firstName", "John", "lastName", "Doe");
+ * ResponseSpecification responseSpecification = expect().body("greeting", equalTo("Greetings John Doe"));
+ *  given(requestSpecification, responseSpecification).get("/greet");
+ * </pre>
  *
+ * This will perform a GET request to "/greet" and verify it according to the <code>responseSpecification</code>.
  */
 class TestSpecification implements RequestSender {
   def final RequestSpecification requestSpecification
@@ -31,22 +39,37 @@ class TestSpecification implements RequestSender {
     requestSpecification.responseSpecification = responseSpecification
   }
 
+  /**
+   * {@inheritDoc}
+   */
   void get(String path) {
     requestSpecification.get path
   }
 
+  /**
+   * {@inheritDoc}
+   */
   void post(String path) {
     requestSpecification.post path
   }
 
+  /**
+   * {@inheritDoc}
+   */
   void put(String path) {
     requestSpecification.put path
   }
 
+  /**
+   * {@inheritDoc}
+   */
   void delete(String path) {
     requestSpecification.delete path
   }
 
+  /**
+   * {@inheritDoc}
+   */
   void head(String path) {
     requestSpecification.head path
   }

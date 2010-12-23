@@ -17,13 +17,43 @@
 package com.jayway.restassured.specification
 
 public interface RequestSender {
+  /**
+   * Perform a GET request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+   * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+   *
+   * @param path The path to send the request to.
+   */
   void get(String path);
 
+  /**
+   * Perform a POST request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+   * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+   *
+   * @param path The path to send the request to.
+   */
   void post(String path);
 
+  /**
+   * Perform a PUT request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+   * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+   *
+   * @param path The path to send the request to.
+   */
   void put(String path);
 
+  /**
+   * Perform a DELETE request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+   * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+   *
+   * @param path The path to send the request to.
+   */
   void delete(String path);
 
+  /**
+   * Perform a HEAD request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+   * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+   *
+   * @param path The path to send the request to.
+   */
   void head(String path);
 }
