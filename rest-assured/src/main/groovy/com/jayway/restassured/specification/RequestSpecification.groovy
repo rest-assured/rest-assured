@@ -161,16 +161,103 @@ public interface RequestSpecification extends RequestSender {
    * </pre>
    * </p>
    *
-   * @see {@link #cookies(String, String[])} for an alternative for specifying multiple cookies.
+   * @see #cookies(String, String[])
    * @param key The cookie key
    * @param value The cookie value
    * @return The request specification
    */
   RequestSpecification cookie(String key, String value);
 
-  RequestSpecification parameters(String parameter, String...parameters);
-
+  /**
+   * Specify the parameters that'll be sent with the request. This is done by specifying the parameters in name-value pairs, e.g:
+   * <pre>
+   * given().parameters("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().get("/parameters");
+   * </pre>
+   *
+   * This will send a GET request to "/parameters" with two parameters:
+   * <ol>
+   *   <li>username=John</li>
+   *   <li>token=1234</li>
+   * </ol>
+   * and expect that the response body is equal to "username, token".
+   *
+   * @param parameterName The name of the first parameter
+   * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+   * @return The request specification
+   */
+  RequestSpecification parameters(String parameterName, String...parameterNameValuePairs);
+  /**
+   * Specify the parameters that'll be sent with the request as Map e.g:
+   * <pre>
+   * Map&lt;String, String&gt; parameters = new HashMap&lt;String, String&gt;();
+   * parameters.put("username", "John");
+   * parameters.put("token", "1234");
+   * given().parameters(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
+   * </pre>
+   *
+   * This will send a GET request to "/cookie" with two parameters:
+   * <ol>
+   *   <li>username=John</li>
+   *   <li>token=1234</li>
+   * </ol>
+   * and expect that the response body is equal to "username, token".
+   *
+   * @param parametersMap The Map containing the parameter names and their values to send with the request.
+   * @return The request specification
+   */
   RequestSpecification parameters(Map<String, String> parametersMap);
+
+  /**
+   * Specify a parameter that'll be sent with the request e.g:
+   * <p>
+   * <pre>
+   * given().parameter("username", "John").and().expect().body(equalTo("username")).when().get("/cookie");
+   * </pre>
+   * This will set the parameter <code>username=John</code> in the GET request to "/cookie".
+   * </p>
+   *
+   * <p>
+   * You can also specify several parameters like this:
+   * <pre>
+   * given().parameter("username", "John").and().parameter("password", "1234").and().expect().body(equalTo("username")).when().get("/cookie");
+   * </pre>
+   * </p>
+   *
+   * @see #parameters(String, String[]) for an alternative for specifying multiple parameters.
+   * @param parameterName The parameter key
+   * @param parameterValue The parameter value
+   * @return The request specification
+   */
+  RequestSpecification parameter(String parameterName, String parameterValue);
+
+  /**
+   * A slightly shorter version of {@link #parameters(String, String[])}.
+   *
+   * @see #parameters(String, String[])
+   * @param parameterName The name of the first parameter
+   * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+   * @return The request specification
+   */
+  RequestSpecification params(String parameterName, String...parameterNameValuePairs);
+
+  /**
+   * A slightly shorter version of {@link #parameters(Map)}.
+   *
+   * @see #parameters(Map)
+   * @param parametersMap The Map containing the parameter names and their values to send with the request.
+   * @return The request specification
+   */
+  RequestSpecification params(Map<String, String> parametersMap);
+
+  /**
+   * A slightly shorter version of {@link #parameter(String, String) }.
+   *
+   * @see #parameter(String, String)
+   * @param parameterName The parameter key
+   * @param parameterValue The parameter value
+   * @return The request specification
+   */
+  RequestSpecification param(String parameterName, String parameterValue);
 
   RequestSpecification contentType(ContentType contentType);
 
@@ -184,9 +271,9 @@ public interface RequestSpecification extends RequestSender {
 
   RequestSpecification headers(Map<String, String> headers);
 
-  RequestSpecification header(String key, String value);
-
   RequestSpecification headers(String headerName, String ... headerNameValuePairs);
+
+  RequestSpecification header(String key, String value);
 
   RequestSpecification and();
 

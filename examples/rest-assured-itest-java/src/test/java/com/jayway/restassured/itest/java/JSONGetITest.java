@@ -60,8 +60,36 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
+    public void paramSupportWithStandardHashMap() throws Exception {
+        Map<String, String> parameters = new HashMap<String, String>();
+        parameters.put("firstName", "John");
+        parameters.put("lastName", "Doe");
+        given().params(parameters).then().expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    }
+
+    @Test
     public void parameterSupportWithMapBuilder() throws Exception {
         with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    }
+
+    @Test
+    public void multipleParametersAreConcatenated() throws Exception {
+        with().parameters("firstName", "John").and().parameters("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    }
+
+    @Test
+    public void multipleSingleParametersAreConcatenated() throws Exception {
+        with().parameter("firstName", "John").and().parameter("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    }
+
+    @Test
+    public void mixingSingleAndMultipleParametersConcatenatesThem() throws Exception {
+        with().parameters("firstName", "John").and().parameter("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    }
+
+    @Test
+    public void mixingSingleAndMultipleParamsConcatenatesThem() throws Exception {
+        with().params("firstName", "John").and().param("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
 
     @Test

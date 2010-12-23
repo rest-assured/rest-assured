@@ -27,6 +27,7 @@ import groovyx.net.http.HttpResponseException
 import groovyx.net.http.Method
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
+import org.apache.commons.lang.Validate
 
 class RequestSpecificationImpl implements RequestSpecification {
 
@@ -77,12 +78,29 @@ class RequestSpecificationImpl implements RequestSpecification {
     sendRequest(path, HEAD, parameters, responseSpecification.assertionClosure);
   }
 
-  def RequestSpecification parameters(String parameter, String...parameters) {
-    return this.parameters(MapCreator.createMapFromStrings(parameter, parameters))
+  def RequestSpecification parameters(String parameterName, String... parameterNameValuePairs) {
+    return this.parameters(MapCreator.createMapFromStrings(parameterName, parameterNameValuePairs))
   }
 
   def RequestSpecification parameters(Map<String, String> parametersMap) {
     this.parameters += Collections.unmodifiableMap(parametersMap)
+    return this
+  }
+
+  def RequestSpecification params(String parameterName, String... parameterNameValuePairs) {
+    return parameters(parameterName, parameterNameValuePairs)
+  }
+
+  def RequestSpecification params(Map<String, String> parametersMap) {
+    return parameters(parametersMap)
+  }
+
+  def RequestSpecification param(String parameterName, String parameterValue) {
+    return parameter(parameterName, parameterValue)
+  }
+
+  def RequestSpecification parameter(String parameterName, String parameterValue) {
+    this.parameters.put(parameterName, parameterValue);
     return this
   }
 
