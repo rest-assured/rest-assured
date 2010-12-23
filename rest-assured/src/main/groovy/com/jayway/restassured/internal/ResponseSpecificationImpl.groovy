@@ -28,6 +28,7 @@ import org.hamcrest.Matcher
 import static groovyx.net.http.ContentType.ANY
 import static groovyx.net.http.ContentType.TEXT
 import static org.hamcrest.Matchers.equalTo
+import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 class ResponseSpecificationImpl implements ResponseSpecification {
 
@@ -41,7 +42,7 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   private ContentType contentType;
 
   def ResponseSpecification content(Matcher<?> matcher, Matcher<?>...additionalMatchers) {
-    assertNotNull(matcher)
+    notNull(matcher, "matcher")
     bodyMatchers << new BodyMatcher(key: null, matcher: matcher)
     additionalMatchers?.each { hamcrestMatcher ->
       bodyMatchers << new BodyMatcher(key: null, matcher: hamcrestMatcher)
@@ -50,7 +51,9 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   }
 
   def ResponseSpecification content(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs) {
-    assertNotNull(key, matcher)
+    notNull(key, "key")
+    notNull(matcher, "matcher")
+
     bodyMatchers << new BodyMatcher(key: key, matcher: matcher)
     if(additionalKeyMatcherPairs?.length > 0) {
       def pairs = MapCreator.createMapFromObjects(additionalKeyMatcherPairs)
@@ -62,20 +65,25 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   }
 
   def ResponseSpecification statusCode(Matcher<Integer> expectedStatusCode) {
+    notNull(expectedStatusCode, "expectedStatusCode")
     this.expectedStatusCode = expectedStatusCode
     return this
   }
 
   def ResponseSpecification statusCode(int expectedStatusCode) {
+    notNull(expectedStatusCode, "expectedStatusCode")
     return statusCode(equalTo(expectedStatusCode));
   }
 
   def ResponseSpecification statusLine(Matcher<String> expectedStatusLine) {
+    notNull(expectedStatusLine, "expectedStatusLine")
     this.expectedStatusLine = expectedStatusLine
     return this
   }
 
   def ResponseSpecification headers(Map<String, Object> expectedHeaders){
+    notNull(expectedHeaders, "expectedHeaders")
+
     expectedHeaders.each { headerName, matcher ->
       headerAssertions << new HeaderMatcher(headerName: headerName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
     }
@@ -83,11 +91,14 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   }
 
   def ResponseSpecification headers(String firstExpectedHeaderName, Object...expectedHeaders) {
+    notNull firstExpectedHeaderName, "firstExpectedHeaderName"
     return headers(MapCreator.createMapFromStrings(firstExpectedHeaderName, expectedHeaders))
   }
 
   def ResponseSpecification header(String headerName, Matcher<String> expectedValueMatcher) {
-    assertNotNull(headerName, expectedValueMatcher)
+    notNull headerName, "headerName"
+    notNull expectedValueMatcher, "expectedValueMatcher"
+
     headerAssertions << new HeaderMatcher(headerName: headerName, matcher: expectedValueMatcher)
     this;
   }
@@ -96,6 +107,8 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   }
 
   def ResponseSpecification cookies(Map<String, Object> expectedCookies) {
+    notNull expectedCookies, "expectedCookies"
+
     expectedCookies.each { cookieName, matcher ->
       cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
     }
@@ -103,11 +116,15 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   }
 
   def ResponseSpecification cookies(String firstExpectedCookieName, Object... expectedCookieNameValuePairs) {
-     return cookies(MapCreator.createMapFromStrings(firstExpectedCookieName, expectedCookieNameValuePairs))
+    notNull firstExpectedCookieName, "firstExpectedCookieName"
+    notNull expectedCookieNameValuePairs, "expectedCookieNameValuePairs"
+
+    return cookies(MapCreator.createMapFromStrings(firstExpectedCookieName, expectedCookieNameValuePairs))
   }
 
   def ResponseSpecification cookie(String cookieName, Matcher<String> expectedValueMatcher) {
-    assertNotNull(cookieName, expectedValueMatcher)
+    notNull cookieName,"cookieName"
+    notNull expectedValueMatcher,"expectedValueMatcher"
     cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: expectedValueMatcher)
     this;
   }
@@ -185,6 +202,7 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   }
 
   ResponseSpecification contentType(ContentType contentType) {
+    notNull contentType, "contentType"
     this.contentType = contentType
     return this
   }
@@ -235,15 +253,4 @@ class ResponseSpecificationImpl implements ResponseSpecification {
       }
     }
   }
-
-
-  private def assertNotNull(Object ... objects) {
-    objects.each {
-      if(it == null) {
-        throw new IllegalArgumentException("Argument cannot be null")
-      }
-    }
-  }
 }
-
-

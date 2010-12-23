@@ -27,13 +27,14 @@ import groovyx.net.http.HttpResponseException
 import groovyx.net.http.Method
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
+import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 class RequestSpecificationImpl implements RequestSpecification {
 
   private String baseUri
   private String path
   private int port
-  private Map<String, String> parameters = [:]
+  private Map<String, String> requestParameters = [:]
   private AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private ResponseSpecification responseSpecification;
   private ContentType requestContentType;
@@ -58,31 +59,38 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   def void get(String path) {
+    notNull path, "path"
     sendRequest(path, GET, responseSpecification.assertionClosure);
   }
 
   def void post(String path) {
+    notNull path, "path"
     sendRequest(path, POST, responseSpecification.assertionClosure);
   }
 
   def void put(String path) {
+    notNull path, "path"
     sendRequest(path, PUT, responseSpecification.assertionClosure);
   }
 
   def void delete(String path) {
+    notNull path, "path"
     sendRequest(path, DELETE, responseSpecification.assertionClosure);
   }
 
   def void head(String path) {
+    notNull path, "path"
     sendRequest(path, HEAD, responseSpecification.assertionClosure);
   }
 
   def RequestSpecification parameters(String parameterName, String... parameterNameValuePairs) {
-    return this.parameters(MapCreator.createMapFromStrings(parameterName, parameterNameValuePairs))
+    notNull parameterName, "parameterName"
+    return parameters(MapCreator.createMapFromStrings(parameterName, parameterNameValuePairs))
   }
 
   def RequestSpecification parameters(Map<String, String> parametersMap) {
-    this.parameters += Collections.unmodifiableMap(parametersMap)
+    notNull parametersMap, "parametersMap"
+    this.requestParameters += Collections.unmodifiableMap(parametersMap)
     return this
   }
 
@@ -99,7 +107,9 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   def RequestSpecification parameter(String parameterName, String parameterValue) {
-    this.parameters.put(parameterName, parameterValue);
+    notNull parameterName, "parameterName"
+    notNull parameterValue, "parameterValue"
+    this.requestParameters.put(parameterName, parameterValue);
     return this
   }
 
@@ -132,39 +142,50 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   def RequestSpecification port(int port) {
+    if(port < 1) {
+      throw new IllegalArgumentException("Port must be greater than 0")
+    }
     this.port = port
     return this
   }
 
   def RequestSpecification body(String body) {
+    notNull body, "body"
     this.requestBody = body;
     return this;
   }
 
   RequestSpecification content(String content) {
+    notNull content, "content"
     return content(content);
   }
 
   def RequestSpecification body(byte[] body) {
+    notNull body, "body"
     this.requestBody = body;
     return this;
   }
 
   RequestSpecification content(byte[] content) {
+    notNull content, "content"
     return content(content);
   }
 
   RequestSpecification contentType(ContentType contentType) {
+    notNull contentType, "contentType"
     this.requestContentType = contentType
     return  this
   }
 
   RequestSpecification headers(Map<String, String> headers) {
+    notNull headers, "headers"
     this.requestHeaders += headers;
     return this;
   }
 
   RequestSpecification header(String headerName, String headerValue) {
+    notNull headerName, "headerName"
+    notNull headerValue, "headerValue"
     requestHeaders.put(headerName, headerValue);
     return this
   }
@@ -178,11 +199,14 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   RequestSpecification cookies(Map<String, String> cookies) {
+    notNull cookies, "cookies"
     this.cookies += cookies;
     return this;
   }
 
   RequestSpecification cookie(String key, String value) {
+    notNull key, "key"
+    notNull value, "value"
     cookies.put(key, value)
     return this
   }
@@ -197,10 +221,10 @@ class RequestSpecificationImpl implements RequestSpecification {
     authenticationScheme.authenticate(http)
     if(POST.equals(method)) {
       try {
-        if(!parameters.isEmpty() && requestBody != null) {
+        if(!requestParameters.isEmpty() && requestBody != null) {
           throw new IllegalStateException("You can either send parameters OR body content in the POST, not both!");
         }
-        def bodyContent = parameters.isEmpty() ? requestBody : parameters
+        def bodyContent = requestParameters.isEmpty() ? requestBody : requestParameters
         http.post( path: path, body: bodyContent,
                 requestContentType: defineRequestContentType(POST),
                 contentType: responseContentType) { response, content ->
@@ -223,8 +247,8 @@ class RequestSpecificationImpl implements RequestSpecification {
           body = requestBody
         }
 
-        if(parameters != null) {
-          uri.query = parameters
+        if(requestParameters != null) {
+          uri.query = requestParameters
         }
         requestContentType: defineRequestContentType(method)
 
@@ -266,13 +290,5 @@ class RequestSpecificationImpl implements RequestSpecification {
       uri = "$baseUri:$port"
     }
     return uri
-  }
-
-  private def assertNotNull(Object ... objects) {
-    objects.each {
-      if(it == null) {
-        throw new IllegalArgumentException("Argument cannot be null")
-      }
-    }
   }
 }

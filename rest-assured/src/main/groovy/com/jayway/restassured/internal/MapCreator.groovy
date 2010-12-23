@@ -16,6 +16,8 @@
 
 package com.jayway.restassured.internal
 
+import static com.jayway.restassured.assertion.AssertParameter.notNull
+
 /**
  * Created by IntelliJ IDEA.
  * User: johan
@@ -44,6 +46,7 @@ class MapCreator {
   }
 
   private static Object[] createArgumentArray(String firstArgument, Object... additionalArguments) {
+    notNull firstArgument, "firstArgument"
     def params = [firstArgument]
     additionalArguments.each {
       params << it

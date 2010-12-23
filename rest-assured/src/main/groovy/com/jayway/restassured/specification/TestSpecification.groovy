@@ -16,6 +16,8 @@
 
 package com.jayway.restassured.specification
 
+import com.jayway.restassured.assertion.AssertParameter
+
 /**
  * A test specification contains a {@link ResponseSpecification} and a {@link RequestSpecification}. It's
  * mainly used when you have long specifications, e.g.
@@ -33,6 +35,9 @@ class TestSpecification implements RequestSender {
 
 
   TestSpecification(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
+    AssertParameter.notNull requestSpecification, "requestSpecification"
+    AssertParameter.notNull responseSpecification, "responseSpecification"
+
     this.requestSpecification = requestSpecification
     this.responseSpecification = responseSpecification;
     responseSpecification.requestSpecification = requestSpecification

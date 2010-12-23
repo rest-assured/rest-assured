@@ -19,6 +19,7 @@ package com.jayway.restassured.specification
 import com.jayway.restassured.authentication.BasicAuthScheme
 import com.jayway.restassured.authentication.CertAuthScheme
 import com.jayway.restassured.authentication.OAuthScheme
+import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 /**
  * Specify an authentication scheme to use when sending a request.
@@ -38,6 +39,9 @@ class AuthenticationSpecification {
    * @return The request builder
    */
   def RequestSpecification basic(String userName, String password) {
+    notNull userName, "userName"
+    notNull password, "password"
+
     requestBuilder.authenticationScheme = new BasicAuthScheme(userName: userName, password: password)
     return requestBuilder
   }
@@ -50,6 +54,9 @@ class AuthenticationSpecification {
    * @return The request builder
    */
   def RequestSpecification digest(String userName, String password) {
+    notNull userName, "userName"
+    notNull password, "password"
+
     requestBuilder.authenticationScheme = new BasicAuthScheme(userName: userName, password: password)
     return requestBuilder
   }
@@ -63,6 +70,9 @@ class AuthenticationSpecification {
    * @return The request specification
    */
   def RequestSpecification certificate(String certURL, String password) {
+    notNull certURL, "certURL"
+    notNull password, "password"
+
     requestBuilder.authenticationScheme = new CertAuthScheme(certURL: certURL, password: password)
     return requestBuilder
   }
@@ -81,6 +91,11 @@ class AuthenticationSpecification {
    * @return The request specification
    */
   def RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken) {
+    notNull consumerKey, "consumerKey"
+    notNull consumerSecret, "consumerSecret"
+    notNull accessToken, "accessToken"
+    notNull secretToken, "secretToken"
+
     requestBuilder.authenticationScheme = new OAuthScheme(consumerKey: consumerKey, consumerSecret: consumerSecret, accessToken: accessToken, secretToken: secretToken)
     return requestBuilder
   }
