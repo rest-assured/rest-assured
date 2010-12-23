@@ -28,7 +28,8 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>rest-assured</name>
+    <name>REST Assured</name>
+    <description>Java DSL for easy testing of REST services</description>
     <url>http://maven.apache.org</url>
 
     <build>
