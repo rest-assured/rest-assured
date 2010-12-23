@@ -19,7 +19,6 @@ package com.jayway.restassured.specification
 import com.jayway.restassured.authentication.BasicAuthScheme
 import com.jayway.restassured.authentication.CertAuthScheme
 import com.jayway.restassured.authentication.OAuthScheme
-import com.jayway.restassured.internal.RequestSpecificationImpl
 
 class AuthenticationSpecification {
   private RequestSpecification requestBuilder;
