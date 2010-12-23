@@ -27,7 +27,8 @@
 
     <groupId>com.jayway.restassured.examples</groupId>
     <artifactId>rest-assured-itest-support</artifactId>
-    <name>rest-assured-itest-support</name>
+    <name>REST Assured integration test support</name>
+    <description>Contains support classes for integration testing rest-assured</description>
 
     <dependencies>
        <dependency>

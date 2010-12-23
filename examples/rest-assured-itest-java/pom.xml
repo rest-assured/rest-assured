@@ -27,7 +27,8 @@
 
     <groupId>com.jayway.restassured.examples</groupId>
     <artifactId>rest-assured-itest-java</artifactId>
-    <name>rest-assured-itest-java</name>
+    <name>REST Assured Java integration tests</name>
+    <description>REST Assured Java integration tests. Here you'll find various examples of how to use rest-assured.</description>
 
     <build>
         <plugins>
