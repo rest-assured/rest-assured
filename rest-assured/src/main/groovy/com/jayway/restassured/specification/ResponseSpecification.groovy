@@ -538,7 +538,7 @@ public interface ResponseSpecification extends RequestSender {
   /**
    * Syntactic sugar, e.g.
    * <pre>
-   * expect().response()..body(containsString("OK")).when().get("/something");
+   * expect().response().body(containsString("OK")).when().get("/something");
    * </pre>
    *
    * is that same as:

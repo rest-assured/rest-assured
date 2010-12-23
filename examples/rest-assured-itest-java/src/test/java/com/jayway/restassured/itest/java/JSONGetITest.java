@@ -94,7 +94,7 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void newSyntax() throws Exception {
-        expect().content("lotto.lottoId", equalTo(5)).when().get("lotto");
+        expect().content("lotto.lottoId", equalTo(5)).when().get("/lotto");
     }
 
     @Test

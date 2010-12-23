@@ -27,7 +27,6 @@ import groovyx.net.http.HttpResponseException
 import groovyx.net.http.Method
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
-import org.apache.commons.lang.Validate
 
 class RequestSpecificationImpl implements RequestSpecification {
 
@@ -59,23 +58,23 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   def void get(String path) {
-    sendRequest(path, GET, parameters, responseSpecification.assertionClosure);
+    sendRequest(path, GET, responseSpecification.assertionClosure);
   }
 
   def void post(String path) {
-    sendRequest(path, POST, parameters, responseSpecification.assertionClosure);
+    sendRequest(path, POST, responseSpecification.assertionClosure);
   }
 
   def void put(String path) {
-    sendRequest(path, PUT, parameters, responseSpecification.assertionClosure);
+    sendRequest(path, PUT, responseSpecification.assertionClosure);
   }
 
   def void delete(String path) {
-    sendRequest(path, DELETE, parameters, responseSpecification.assertionClosure);
+    sendRequest(path, DELETE, responseSpecification.assertionClosure);
   }
 
   def void head(String path) {
-    sendRequest(path, HEAD, parameters, responseSpecification.assertionClosure);
+    sendRequest(path, HEAD, responseSpecification.assertionClosure);
   }
 
   def RequestSpecification parameters(String parameterName, String... parameterNameValuePairs) {
@@ -165,8 +164,8 @@ class RequestSpecificationImpl implements RequestSpecification {
     return this;
   }
 
-  RequestSpecification header(String key, String value) {
-    requestHeaders.put(key, value);
+  RequestSpecification header(String headerName, String headerValue) {
+    requestHeaders.put(headerName, headerValue);
     return this
   }
 
@@ -188,7 +187,7 @@ class RequestSpecificationImpl implements RequestSpecification {
     return this
   }
 
-  private def sendRequest(path, method, parameters, assertionClosure) {
+  private def sendRequest(path, method, assertionClosure) {
     def http = new HTTPBuilder(getTargetURI(path))
     http.getHeaders() << requestHeaders
     if(!cookies.isEmpty()) {
@@ -198,10 +197,10 @@ class RequestSpecificationImpl implements RequestSpecification {
     authenticationScheme.authenticate(http)
     if(POST.equals(method)) {
       try {
-        if(parameters != null && requestBody != null) {
+        if(!parameters.isEmpty() && requestBody != null) {
           throw new IllegalStateException("You can either send parameters OR body content in the POST, not both!");
         }
-        def bodyContent = parameters ?: requestBody
+        def bodyContent = parameters.isEmpty() ? requestBody : parameters
         http.post( path: path, body: bodyContent,
                 requestContentType: defineRequestContentType(POST),
                 contentType: responseContentType) { response, content ->
