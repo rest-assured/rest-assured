@@ -33,7 +33,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   private String baseUri
   private String path
   private int port
-  private Map parameters
+  private Map<String, String> parameters = [:]
   private AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private ResponseSpecification responseSpecification;
   private ContentType requestContentType;
@@ -82,7 +82,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   def RequestSpecification parameters(Map<String, String> parametersMap) {
-    this.parameters = Collections.unmodifiableMap(parametersMap)
+    this.parameters += Collections.unmodifiableMap(parametersMap)
     return this
   }
 
@@ -124,8 +124,8 @@ class RequestSpecificationImpl implements RequestSpecification {
     return this;
   }
 
-  RequestSpecification content(String body) {
-    return body(body);
+  RequestSpecification content(String content) {
+    return content(content);
   }
 
   def RequestSpecification body(byte[] body) {
@@ -133,8 +133,8 @@ class RequestSpecificationImpl implements RequestSpecification {
     return this;
   }
 
-  RequestSpecification content(byte[] body) {
-    return body(body);
+  RequestSpecification content(byte[] content) {
+    return content(content);
   }
 
   RequestSpecification contentType(ContentType contentType) {
