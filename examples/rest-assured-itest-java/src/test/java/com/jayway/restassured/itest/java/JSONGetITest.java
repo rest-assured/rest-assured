@@ -17,7 +17,6 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.exception.AssertionFailedException;
-import com.jayway.restassured.itest.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
@@ -31,7 +30,7 @@ import java.util.Map;
 import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
-public class JSONGetITest extends WithJetty {
+public class JSONGetITest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -220,7 +219,7 @@ public class JSONGetITest extends WithJetty {
         exception.expectMessage(equalTo("Header \"Not-Defined\" was not defined in the response. Headers are: \n" +
                 "Content-Type: application/json; charset=UTF-8\n" +
                 "Content-Length: 160\n" +
-                "Server: Jetty(6.1.14)"));
+                "Server: Jetty(6.1.26)"));
 
         expect().response().header("Not-Defined", "160").when().get("/lotto");
     }

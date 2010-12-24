@@ -12,9 +12,6 @@
     <name>REST Assured Examples</name>
     <modules>
         <module>scalatra-webapp</module>
-        <module>rest-assured-itest-java</module>
-        <module>rest-assured-itest-support</module>
+        <module>rest-assured-itest-java</module>   
     </modules>
-
-
 </project>

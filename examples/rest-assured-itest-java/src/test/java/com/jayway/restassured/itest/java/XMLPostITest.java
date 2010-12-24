@@ -16,14 +16,13 @@
 
 package com.jayway.restassured.itest.java;
 
-import com.jayway.restassured.itest.support.WithJetty;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.with;
 import static org.hamcrest.Matchers.*;
 
-public class XMLPostITest extends WithJetty {
+public class XMLPostITest {
 
     @Test
     public void xmlParameterSupport() throws Exception {

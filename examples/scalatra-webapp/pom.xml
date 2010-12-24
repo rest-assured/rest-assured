@@ -54,13 +54,6 @@
                     </args>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.mortbay.jetty</groupId>
-                <artifactId>maven-jetty-plugin</artifactId>
-                <configuration>
-                    <scanIntervalSeconds>10</scanIntervalSeconds>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
