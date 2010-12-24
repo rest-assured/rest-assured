@@ -52,12 +52,14 @@
             <artifactId>scalatra-webapp</artifactId>
             <version>${project.version}</version>
             <type>war</type>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.jayway.restassured.examples</groupId>
             <artifactId>scalatra-webapp</artifactId>
             <version>${project.version}</version>
             <type>warpath</type>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.jayway.restassured.examples</groupId>
