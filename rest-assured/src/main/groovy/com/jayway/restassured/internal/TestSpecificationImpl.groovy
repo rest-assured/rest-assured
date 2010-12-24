@@ -14,9 +14,15 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.specification
+
+
+package com.jayway.restassured.internal;
+
 
 import com.jayway.restassured.assertion.AssertParameter
+import com.jayway.restassured.specification.RequestSender
+import com.jayway.restassured.specification.RequestSpecification
+import com.jayway.restassured.specification.ResponseSpecification
 
 /**
  * A test specification contains a {@link ResponseSpecification} and a {@link RequestSpecification}. It's
@@ -29,12 +35,12 @@ import com.jayway.restassured.assertion.AssertParameter
  *
  * This will perform a GET request to "/greet" and verify it according to the <code>responseSpecification</code>.
  */
-class TestSpecification implements RequestSender {
+class TestSpecificationImpl implements RequestSender {
   def final RequestSpecification requestSpecification
   def final ResponseSpecification responseSpecification
 
 
-  TestSpecification(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
+  TestSpecificationImpl(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
     AssertParameter.notNull requestSpecification, "requestSpecification"
     AssertParameter.notNull responseSpecification, "responseSpecification"
 
@@ -77,5 +83,13 @@ class TestSpecification implements RequestSender {
    */
   void head(String path) {
     requestSpecification.head path
+  }
+
+  def RequestSpecification getRequestSpecification() {
+    requestSpecification
+  }
+
+  def ResponseSpecification getResponseSpecification() {
+    responseSpecification
   }
 }

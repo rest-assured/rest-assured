@@ -25,14 +25,14 @@ import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HttpResponseException
 import groovyx.net.http.Method
+import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
-import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 class RequestSpecificationImpl implements RequestSpecification {
 
   private String baseUri
-  private String path
+  private String path  = ""
   private int port
   private Map<String, String> requestParameters = [:]
   private AuthenticationScheme authenticationScheme = new NoAuthScheme()
@@ -41,6 +41,12 @@ class RequestSpecificationImpl implements RequestSpecification {
   private Map<String, String> requestHeaders = [:]
   private Map<String, String> cookies = [:]
   private Object requestBody;
+
+  public RequestSpecificationImpl (String baseURI, int requestPort) {
+    notNull(baseURI, "baseURI");
+    this.baseUri = baseURI
+    port(requestPort)
+  }
 
   def RequestSpecification when() {
     return this;
@@ -290,5 +296,9 @@ class RequestSpecificationImpl implements RequestSpecification {
       uri = "$baseUri:$port"
     }
     return uri
+  }
+
+  def void setResponseSpecification(ResponseSpecification responseSpecification) {
+    this.responseSpecification = responseSpecification
   }
 }

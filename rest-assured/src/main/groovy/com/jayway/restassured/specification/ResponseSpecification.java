@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.specification
+package com.jayway.restassured.specification;
 
-import groovyx.net.http.ContentType
-import org.hamcrest.Matcher
+import groovyx.net.http.ContentType;
+import org.hamcrest.Matcher;
+
+import java.util.Map;
 
 /**
  * Allows you to specify how the expected response must look like in order for a test to pass.
@@ -114,7 +116,7 @@ public interface ResponseSpecification extends RequestSender {
    * </p>
    *
    * @param matcher The hamcrest matcher that must response content must match.
-   * @param additionalMatchers Optionally additional hamcrest matchers that must return <code>true</code>.
+   * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
    * @return The response specification
    */
   ResponseSpecification content(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs);
@@ -243,7 +245,7 @@ public interface ResponseSpecification extends RequestSender {
    * <pre>
    * expect().header("Pragma", equalsTo("no-cache")),and().header("Content-Encoding", containsString("zip")).when().get("/something");
    * </pre>
-   * Also take a look at {@link #headers(String, Object[]))} for a short version of passing multiple headers.
+   * Also take a look at {@link #headers(String, Object...))} for a short version of passing multiple headers.
    * </p>
    *
    * @param headerName The name of the expected header
@@ -266,7 +268,7 @@ public interface ResponseSpecification extends RequestSender {
    * <pre>
    * expect().header("Pragma", "no-cache"),and().header("Content-Encoding", "gzip").when().get("/something");
    * </pre>
-   * Also take a look at {@link #headers(String, Object[]))} for a short version of passing multiple headers.
+   * Also take a look at {@link #headers(String, Object...))} for a short version of passing multiple headers.
    * </p>
    *
    * @param headerName The name of the expected header
@@ -346,7 +348,7 @@ public interface ResponseSpecification extends RequestSender {
    * <pre>
    * expect().cookie("cookieName1", equalsTo("cookieValue1")),and().cookie("cookieName2", containsString("Value2")).when().get("/something");
    * </pre>
-   * Also take a look at {@link #cookies(String, Object[]))} for a short version of passing multiple cookies.
+   * Also take a look at {@link #cookies(String, Object...))} for a short version of passing multiple cookies.
    * </p>
    *
    * @param cookieName The name of the expected cookie
@@ -369,7 +371,7 @@ public interface ResponseSpecification extends RequestSender {
    * <pre>
    * expect().cookie("cookieName1", "cookieValue1"),and().cookie("cookieName2", "cookieValue2").when().get("/something");
    * </pre>
-   * Also take a look at {@link #cookies(String, Object[]))} for a short version of passing multiple cookies.
+   * Also take a look at {@link #cookies(String, Object...))} for a short version of passing multiple cookies.
    * </p>
    *
    * @param cookieName The name of the expected cookie
@@ -381,7 +383,7 @@ public interface ResponseSpecification extends RequestSender {
   /**
    * Set the response content type to be <code>contentType</code>.
    * <p>Note that this will affect the way the response is decoded.
-   * E,g. if you can't use JSON/XML matching (see e.g. {@link #body(String, Matcher<?>, Object[])}) if you specify a
+   * E,g. if you can't use JSON/XML matching (see e.g. {@link #body(String, Matcher, Object...)}) if you specify a
    * content-type of "text/plain". If you don't specify the response content type REST Assured will automatically try to
    * figure out which content type to use.</p>
    *
@@ -480,7 +482,7 @@ public interface ResponseSpecification extends RequestSender {
    * </p>
    *
    * @param matcher The hamcrest matcher that must response body must match.
-   * @param additionalMatchers Optionally additional hamcrest matchers that must return <code>true</code>.
+   * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
    * @return The response specification
    */
   ResponseSpecification body(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs);

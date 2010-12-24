@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.specification
+package com.jayway.restassured.specification;
 
 public interface RequestSender {
   /**

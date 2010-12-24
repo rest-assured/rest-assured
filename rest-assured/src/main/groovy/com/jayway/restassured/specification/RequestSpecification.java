@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.specification
+package com.jayway.restassured.specification;
 
-import groovyx.net.http.ContentType
+import groovyx.net.http.ContentType;
+
+import java.util.Map;
 
 /**
  * Allows you to specify how the request will look like.
@@ -161,7 +163,7 @@ public interface RequestSpecification extends RequestSender {
    * </pre>
    * </p>
    *
-   * @see #cookies(String, String[])
+   * @see #cookies(String, String...)
    * @param key The cookie key
    * @param value The cookie value
    * @return The request specification
@@ -223,7 +225,7 @@ public interface RequestSpecification extends RequestSender {
    * </pre>
    * </p>
    *
-   * @see #parameters(String, String[]) for an alternative for specifying multiple parameters.
+   * @see #parameters(String, String...)
    * @param parameterName The parameter key
    * @param parameterValue The parameter value
    * @return The request specification
@@ -231,9 +233,9 @@ public interface RequestSpecification extends RequestSender {
   RequestSpecification parameter(String parameterName, String parameterValue);
 
   /**
-   * A slightly shorter version of {@link #parameters(String, String[])}.
+   * A slightly shorter version of {@link #parameters(String, String...)}.
    *
-   * @see #parameters(String, String[])
+   * @see #parameters(String, String...)
    * @param parameterName The name of the first parameter
    * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
    * @return The request specification
@@ -315,7 +317,7 @@ public interface RequestSpecification extends RequestSender {
    * </pre>
    * </p>
    *
-   * @see #headers(String, String[])
+   * @see #headers(String, String...)
    * @param headerName The header name
    * @param headerValue The header value
    * @return The request specification

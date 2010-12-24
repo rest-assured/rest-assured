@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured
+package com.jayway.restassured;
 
-import com.jayway.restassured.internal.RequestSpecificationImpl
-import com.jayway.restassured.internal.ResponseSpecificationImpl
-import com.jayway.restassured.specification.RequestSpecification
-import com.jayway.restassured.specification.ResponseSpecification
-import com.jayway.restassured.specification.TestSpecification
+import com.jayway.restassured.internal.RequestSpecificationImpl;
+import com.jayway.restassured.internal.ResponseSpecificationImpl;
+import com.jayway.restassured.internal.TestSpecificationImpl;
+import com.jayway.restassured.specification.RequestSender;
+import com.jayway.restassured.specification.RequestSpecification;
+import com.jayway.restassured.specification.ResponseSpecification;
 
 /**
  * REST Assured is a Java DSL for simplifying testing of REST based services built on top of
@@ -203,16 +204,16 @@ import com.jayway.restassured.specification.TestSpecification
  * </ul>
  * </p>
  */
-class RestAssured {
+public class RestAssured {
 
-  public static final String DEFAULT_URI = "http://localhost"
-  public static final int DEFAULT_PORT = 8080
+  public static final String DEFAULT_URI = "http://localhost";
+  public static final int DEFAULT_PORT = 8080;
 
   /**
    * The base URI that's used by REST assured when making requests if a non-fully qualified URI is used in the request.
    * Default value is {@value #DEFAULT_URI}.
    */
-  public static String baseURI = DEFAULT_URI
+  public static String baseURI = DEFAULT_URI;
   /**
    * The port that's used by REST assured when is left out of the specified URI when making a request.
    * Default value is {@value #DEFAULT_PORT}.
@@ -231,8 +232,8 @@ class RestAssured {
    *
    * @return A response specification.
    */
-  def static ResponseSpecification expect() {
-    createTestSpecification().responseSpecification
+  public static ResponseSpecification expect() {
+    return createTestSpecification().getResponseSpecification();
   }
 
   /**
@@ -249,8 +250,8 @@ class RestAssured {
    *
    * @return A request specification.
    */
-  def static RequestSpecification with() {
-    return given()
+  public static RequestSpecification with() {
+    return given();
   }
 
   /**
@@ -267,8 +268,8 @@ class RestAssured {
    *
    * @return A request specification.
    */
-  def static RequestSpecification given() {
-    return createTestSpecification().requestSpecification
+  public static RequestSpecification given() {
+    return createTestSpecification().getRequestSpecification();
   }
 
   /**
@@ -285,19 +286,19 @@ class RestAssured {
    *
    * @return A test specification.
    */
-  def static TestSpecification given(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
-    return new TestSpecification(requestSpecification, responseSpecification);
+  public static RequestSender given(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
+    return new TestSpecificationImpl(requestSpecification, responseSpecification);
   }
 
   /**
    * Reset the {@link #baseURI} and {@link #port} to their default values of {@value #DEFAULT_URI} and {@value #DEFAULT_PORT}.
    */
-  def static void reset() {
-    baseURI = DEFAULT_URI
-    port = DEFAULT_PORT
+  public static void reset() {
+    baseURI = DEFAULT_URI;
+    port = DEFAULT_PORT;
   }
 
-  private static TestSpecification createTestSpecification() {
-    return new TestSpecification(new RequestSpecificationImpl(baseUri: baseURI, path: "", port: port), new ResponseSpecificationImpl())
+  private static TestSpecificationImpl createTestSpecification() {
+    return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port), new ResponseSpecificationImpl());
   }
 }

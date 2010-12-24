@@ -25,10 +25,10 @@ import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.specification.ResponseSpecification
 import groovyx.net.http.ContentType
 import org.hamcrest.Matcher
+import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.ANY
 import static groovyx.net.http.ContentType.TEXT
 import static org.hamcrest.Matchers.equalTo
-import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 class ResponseSpecificationImpl implements ResponseSpecification {
 
@@ -41,7 +41,7 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   private RequestSpecification requestSpecification;
   private ContentType contentType;
 
-  def ResponseSpecification content(Matcher<?> matcher, Matcher<?>...additionalMatchers) {
+  def ResponseSpecification content(Matcher matcher, Matcher...additionalMatchers) {
     notNull(matcher, "matcher")
     bodyMatchers << new BodyMatcher(key: null, matcher: matcher)
     additionalMatchers?.each { hamcrestMatcher ->
@@ -50,7 +50,7 @@ class ResponseSpecificationImpl implements ResponseSpecification {
     return this
   }
 
-  def ResponseSpecification content(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs) {
+  def ResponseSpecification content(String key, Matcher matcher, Object...additionalKeyMatcherPairs) {
     notNull(key, "key")
     notNull(matcher, "matcher")
 
@@ -137,11 +137,11 @@ class ResponseSpecificationImpl implements ResponseSpecification {
     return statusLine(equalTo(expectedStatusLine))
   }
 
-  def ResponseSpecification body(Matcher<?> matcher, Matcher<?>...additionalMatchers) {
+  def ResponseSpecification body(Matcher matcher, Matcher...additionalMatchers) {
     return content(matcher, additionalMatchers);
   }
 
-  def ResponseSpecification body(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs) {
+  public ResponseSpecification body(String key, Matcher matcher, Object...additionalKeyMatcherPairs) {
     return content(key, matcher, additionalKeyMatcherPairs);
   }
 
@@ -252,5 +252,9 @@ class ResponseSpecificationImpl implements ResponseSpecification {
         bodyMatchers.isFulfilled(response, content)
       }
     }
+  }
+
+  def void setRequestSpec(RequestSpecification requestSpecification) {
+    this.requestSpecification = requestSpecification
   }
 }

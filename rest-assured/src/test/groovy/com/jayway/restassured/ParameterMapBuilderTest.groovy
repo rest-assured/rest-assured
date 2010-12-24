@@ -26,7 +26,7 @@ class ParameterMapBuilderTest {
 
   @Before
   public void setup() throws Exception {
-    requestBuilder = new RequestSpecificationImpl();
+    requestBuilder = new RequestSpecificationImpl("baseURI", 20);
   }
 
   @Test(expected = IllegalArgumentException.class)
