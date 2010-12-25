@@ -264,7 +264,7 @@ public interface RequestSpecification extends RequestSender {
   /**
    * Specify the headers that'll be sent with the request. This is done by specifying the headers in name-value pairs, e.g:
    * <pre>
-   * given().parameters("headerName1", "headerValue1", "headerName2", "headerValue2").then().expect().body(equalTo("something")).when().get("/headers");
+   * given().headers("headerName1", "headerValue1", "headerName2", "headerValue2").then().expect().body(equalTo("something")).when().get("/headers");
    * </pre>
    *
    * This will send a GET request to "/headers" with two headers:
