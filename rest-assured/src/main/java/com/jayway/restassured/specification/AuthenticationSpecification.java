@@ -44,7 +44,7 @@ public interface AuthenticationSpecification {
      *
      * @param certURL URL to a JKS keystore where the certificate is stored.
      * @param password  password to decrypt the keystore
-     * @return The request specification
+     * @return The request com.jayway.restassured.specification
      */
     RequestSpecification certificate(String certURL, String password);
 
@@ -59,7 +59,7 @@ public interface AuthenticationSpecification {
      * @param consumerSecret
      * @param accessToken
      * @param secretToken
-     * @return The request specification
+     * @return The request com.jayway.restassured.specification
      */
     RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken);
 }

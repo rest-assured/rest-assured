@@ -25,7 +25,7 @@ import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.specification.ResponseSpecification
 
 /**
- * A test specification contains a {@link ResponseSpecification} and a {@link RequestSpecification}. It's
+ * A test com.jayway.restassured.specification contains a {@link ResponseSpecification} and a {@link RequestSpecification}. It's
  * mainly used when you have long specifications, e.g.
  * <pre>
  * RequestSpecification requestSpecification = with().parameters("firstName", "John", "lastName", "Doe");

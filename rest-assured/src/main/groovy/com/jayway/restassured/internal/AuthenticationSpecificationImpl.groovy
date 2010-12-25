@@ -21,9 +21,9 @@ package com.jayway.restassured.internal
 import com.jayway.restassured.authentication.BasicAuthScheme
 import com.jayway.restassured.authentication.CertAuthScheme
 import com.jayway.restassured.authentication.OAuthScheme
-import static com.jayway.restassured.assertion.AssertParameter.notNull
-import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.specification.AuthenticationSpecification
+import com.jayway.restassured.specification.RequestSpecification
+import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 /**
  * Specify an authentication scheme to use when sending a request.
@@ -71,7 +71,7 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
    *
    * @param certURL URL to a JKS keystore where the certificate is stored.
    * @param password  password to decrypt the keystore
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   def RequestSpecification certificate(String certURL, String password) {
     notNull certURL, "certURL"
@@ -92,7 +92,7 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
    * @param consumerSecret
    * @param accessToken
    * @param secretToken
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   def RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken) {
     notNull consumerKey, "consumerKey"

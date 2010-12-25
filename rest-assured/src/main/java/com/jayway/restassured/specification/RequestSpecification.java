@@ -41,7 +41,7 @@ public interface RequestSpecification extends RequestSender {
    * </p>
    *
    * @param body The body to send.
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification body(String body);
 
@@ -62,7 +62,7 @@ public interface RequestSpecification extends RequestSender {
    * </p>
    *
    * @param body The body to send.
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification body(byte[] body);
 
@@ -82,7 +82,7 @@ public interface RequestSpecification extends RequestSender {
    * </p>
    *
    * @param content The content to send.
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification content(String content);
 
@@ -103,7 +103,7 @@ public interface RequestSpecification extends RequestSender {
    * </p>
    *
    * @param content The content to send.
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification content(byte[] content);
 
@@ -122,7 +122,7 @@ public interface RequestSpecification extends RequestSender {
    *
    * @param cookieName The name of the first cookie
    * @param cookieNameValuePairs The value of the first cookie followed by additional cookies in name-value pairs.
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification cookies(String cookieName, String...cookieNameValuePairs);
 
@@ -143,7 +143,7 @@ public interface RequestSpecification extends RequestSender {
    * and expect that the response body is equal to "username, token".
    *
    * @param cookies The Map containing the cookie names and their values to set in the request.
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification cookies(Map<String, String> cookies);
 
@@ -166,7 +166,7 @@ public interface RequestSpecification extends RequestSender {
    * @see #cookies(String, String...)
    * @param key The cookie key
    * @param value The cookie value
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification cookie(String key, String value);
 
@@ -185,7 +185,7 @@ public interface RequestSpecification extends RequestSender {
    *
    * @param parameterName The name of the first parameter
    * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification parameters(String parameterName, String...parameterNameValuePairs);
   /**
@@ -205,7 +205,7 @@ public interface RequestSpecification extends RequestSender {
    * and expect that the response body is equal to "username, token".
    *
    * @param parametersMap The Map containing the parameter names and their values to send with the request.
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification parameters(Map<String, String> parametersMap);
 
@@ -228,7 +228,7 @@ public interface RequestSpecification extends RequestSender {
    * @see #parameters(String, String...)
    * @param parameterName The parameter key
    * @param parameterValue The parameter value
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification parameter(String parameterName, String parameterValue);
 
@@ -238,7 +238,7 @@ public interface RequestSpecification extends RequestSender {
    * @see #parameters(String, String...)
    * @param parameterName The name of the first parameter
    * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification params(String parameterName, String...parameterNameValuePairs);
 
@@ -247,7 +247,7 @@ public interface RequestSpecification extends RequestSender {
    *
    * @see #parameters(Map)
    * @param parametersMap The Map containing the parameter names and their values to send with the request.
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification params(Map<String, String> parametersMap);
 
@@ -257,7 +257,7 @@ public interface RequestSpecification extends RequestSender {
    * @see #parameter(String, String)
    * @param parameterName The parameter key
    * @param parameterValue The parameter value
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification param(String parameterName, String parameterValue);
 
@@ -276,7 +276,7 @@ public interface RequestSpecification extends RequestSender {
    *
    * @param headerName The name of the first header
    * @param headerNameValuePairs The value of the first header followed by additional headers in name-value pairs.
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification headers(String headerName, String ... headerNameValuePairs);
 
@@ -297,7 +297,7 @@ public interface RequestSpecification extends RequestSender {
    * and expect that the response body is equal to "something".
    *
    * @param headers The Map containing the header names and their values to send with the request.
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification headers(Map<String, String> headers);
 
@@ -320,7 +320,7 @@ public interface RequestSpecification extends RequestSender {
    * @see #headers(String, String...)
    * @param headerName The header name
    * @param headerValue The header value
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification header(String headerName, String headerValue);
 
@@ -329,7 +329,7 @@ public interface RequestSpecification extends RequestSender {
    *
    * @see ContentType
    * @param contentType The content type of the request
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification contentType(ContentType contentType);
 
@@ -337,7 +337,7 @@ public interface RequestSpecification extends RequestSender {
    * If you need to specify some credentials when performing a request.
    *
    * @see com.jayway.restassured.internal.AuthenticationSpecification
-   * @return The authentication specification
+   * @return The authentication com.jayway.restassured.specification
    */
   AuthenticationSpecification authentication();
 
@@ -346,7 +346,7 @@ public interface RequestSpecification extends RequestSender {
    *
    * @see #authentication()
    * @see com.jayway.restassured.internal.AuthenticationSpecification
-   * @return The authentication specification
+   * @return The authentication com.jayway.restassured.specification
    */
   AuthenticationSpecification auth();
 
@@ -367,17 +367,17 @@ public interface RequestSpecification extends RequestSender {
    * </p>
    *
    * @param port The port of URI
-   * @return The request specification
+   * @return The request com.jayway.restassured.specification
    */
   RequestSpecification port(int port);
 
   /**
-   * Returns the response specification so that you can setup the expectations on the response. E.g.
+   * Returns the response com.jayway.restassured.specification so that you can setup the expectations on the response. E.g.
    * <pre>
    * given().param("name", "value").then().response().body(equalTo("something")).when().get("/something");
    * </pre>
    *
-   * @return the response specification
+   * @return the response com.jayway.restassured.specification
    */
   ResponseSpecification response();
 
@@ -392,7 +392,7 @@ public interface RequestSpecification extends RequestSender {
    * expect().body(containsString("OK")).body(containsString("something else")).when().get("/something");
    * </pre>
    *
-   * @return the request specification
+   * @return the request com.jayway.restassured.specification
    */
   RequestSpecification and();
 
@@ -407,27 +407,27 @@ public interface RequestSpecification extends RequestSender {
    * expect().body(containsString("OK")).and().request().parameters("param1", "value1").get("/something");
    * </pre>
    *
-   * @return the request specification
+   * @return the request com.jayway.restassured.specification
    */
   RequestSpecification with();
 
   /**
-   * Returns the response specification so that you can setup the expectations on the response. E.g.
+   * Returns the response com.jayway.restassured.specification so that you can setup the expectations on the response. E.g.
    * <pre>
    * given().param("name", "value").then().body(equalTo("something")).when().get("/something");
    * </pre>
    *
-   * @return the response specification
+   * @return the response com.jayway.restassured.specification
    */
   ResponseSpecification then();
 
   /**
-   * Returns the response specification so that you can setup the expectations on the response. E.g.
+   * Returns the response com.jayway.restassured.specification so that you can setup the expectations on the response. E.g.
    * <pre>
    * given().param("name", "value").and().expect().body(equalTo("something")).when().get("/something");
    * </pre>
    *
-   * @return the response specification
+   * @return the response com.jayway.restassured.specification
    */
   ResponseSpecification expect();
 
@@ -442,7 +442,7 @@ public interface RequestSpecification extends RequestSender {
    * expect().body(containsString("OK")).get("/something");
    * </pre>
    *
-   * @return the request specification
+   * @return the request com.jayway.restassured.specification
    */
   RequestSpecification when();
 
@@ -457,7 +457,7 @@ public interface RequestSpecification extends RequestSender {
    * given().param("name1", "value1").and().param("name2", "value2").when().get("/something");
    * </pre>
    *
-   * @return the request specification
+   * @return the request com.jayway.restassured.specification
    */
   RequestSpecification given();
 
@@ -472,7 +472,7 @@ public interface RequestSpecification extends RequestSender {
    * expect().body(containsString("OK")).get("/something");
    * </pre>
    *
-   * @return the request specification
+   * @return the request com.jayway.restassured.specification
    */
   RequestSpecification that();
 
@@ -487,7 +487,7 @@ public interface RequestSpecification extends RequestSender {
    * given().param("name", "John").then().expect().body(containsString("OK")).when().get("/something");
    * </pre>
    *
-   * @return the request specification
+   * @return the request com.jayway.restassured.specification
    */
   RequestSpecification request();
 }

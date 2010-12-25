@@ -17,7 +17,7 @@
 package com.jayway.restassured.exception;
 
 /**
- * Thrown when an assertion defined in a response specification has failed.
+ * Thrown when an assertion defined in a response com.jayway.restassured.specification has failed.
  */
 public class AssertionFailedException extends RuntimeException {
     public AssertionFailedException(String message) {

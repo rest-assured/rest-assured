@@ -221,7 +221,7 @@ public class RestAssured {
   public static int port = DEFAULT_PORT;
 
   /**
-   * Start building the response part of the test specification. E.g.
+   * Start building the response part of the test com.jayway.restassured.specification. E.g.
    *
    * <pre>
    * expect().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
@@ -230,14 +230,14 @@ public class RestAssured {
    * will expect that the response body for the GET request to "/lotto" should
    * contain JSON or XML which has a lottoId equal to 5.
    *
-   * @return A response specification.
+   * @return A response com.jayway.restassured.specification.
    */
   public static ResponseSpecification expect() {
     return createTestSpecification().getResponseSpecification();
   }
 
   /**
-   * Start building the request part of the test specification. E.g.
+   * Start building the request part of the test com.jayway.restassured.specification. E.g.
    *
    * <pre>
    * with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
@@ -248,14 +248,14 @@ public class RestAssured {
    *
    * The only difference between {@link #with()} and {@link #given()} is syntactical.
    *
-   * @return A request specification.
+   * @return A request com.jayway.restassured.specification.
    */
   public static RequestSpecification with() {
     return given();
   }
 
   /**
-   * Start building the request part of the test specification. E.g.
+   * Start building the request part of the test com.jayway.restassured.specification. E.g.
    *
    * <pre>
    * given().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
@@ -266,7 +266,7 @@ public class RestAssured {
    *
    * The only difference between {@link #with()} and {@link #given()} is syntactical.
    *
-   * @return A request specification.
+   * @return A request com.jayway.restassured.specification.
    */
   public static RequestSpecification given() {
     return createTestSpecification().getRequestSpecification();
@@ -284,7 +284,7 @@ public class RestAssured {
    *
    * This will perform a GET request to "/greet" and verify it according to the <code>responseSpecification</code>.
    *
-   * @return A test specification.
+   * @return A test com.jayway.restassured.specification.
    */
   public static RequestSender given(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
     return new TestSpecificationImpl(requestSpecification, responseSpecification);

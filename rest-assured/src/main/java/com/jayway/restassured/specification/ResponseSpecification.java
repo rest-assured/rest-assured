@@ -37,7 +37,7 @@ public interface ResponseSpecification extends RequestSender {
    * </pre>
    * @param matcher The hamcrest matcher that must response content must match.
    * @param additionalMatchers Optionally additional hamcrest matchers that must return <code>true</code>.
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification content(Matcher<?> matcher, Matcher<?>...additionalMatchers);
 
@@ -117,7 +117,7 @@ public interface ResponseSpecification extends RequestSender {
    *
    * @param matcher The hamcrest matcher that must response content must match.
    * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification content(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs);
 
@@ -128,7 +128,7 @@ public interface ResponseSpecification extends RequestSender {
    * </pre>
    *
    * @param expectedStatusCode The expected status code matcher.
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification statusCode(Matcher<Integer> expectedStatusCode);
 
@@ -143,7 +143,7 @@ public interface ResponseSpecification extends RequestSender {
    * expect().statusCode(equalTo(200)).when().get("/something");
    * </pre>
    * @param expectedStatusCode The expected status code.
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification statusCode(int expectedStatusCode);
 
@@ -154,7 +154,7 @@ public interface ResponseSpecification extends RequestSender {
    * </pre>
    *
    * @param expectedStatusLine The expected status line matcher.
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification statusLine(Matcher<String> expectedStatusLine);
 
@@ -170,7 +170,7 @@ public interface ResponseSpecification extends RequestSender {
    * </pre>
    *
    * @param expectedStatusLine The expected status line.
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification statusLine(String expectedStatusLine);
 
@@ -200,7 +200,7 @@ public interface ResponseSpecification extends RequestSender {
    * </p>
    *
    * @param expectedHeaders The Map of expected response headers
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification headers(Map<String, Object> expectedHeaders);
 
@@ -227,7 +227,7 @@ public interface ResponseSpecification extends RequestSender {
    * </p>
    *
    * @param expectedHeaders A list of expected "header name" - "header value" pairs.
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification headers(String firstExpectedHeaderName, Object...expectedHeaders);
 
@@ -250,7 +250,7 @@ public interface ResponseSpecification extends RequestSender {
    *
    * @param headerName The name of the expected header
    * @param expectedValueMatcher The Hamcrest matcher that must conform to the value
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification header(String headerName, Matcher<String> expectedValueMatcher);
 
@@ -273,7 +273,7 @@ public interface ResponseSpecification extends RequestSender {
    *
    * @param headerName The name of the expected header
    * @param expectedValue The value of the expected header
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification header(String headerName, String expectedValue);
 
@@ -303,7 +303,7 @@ public interface ResponseSpecification extends RequestSender {
    * </p>
    *
    * @param expectedCookies A Map of expected response cookies
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification cookies(Map<String, Object> expectedCookies);
 
@@ -330,7 +330,7 @@ public interface ResponseSpecification extends RequestSender {
    * </p>
    *
    * @param expectedCookieNameValuePairs A list of expected "cookie name" - "cookie value" pairs.
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification cookies(String firstExpectedCookieName, Object...expectedCookieNameValuePairs);
 
@@ -353,7 +353,7 @@ public interface ResponseSpecification extends RequestSender {
    *
    * @param cookieName The name of the expected cookie
    * @param expectedValueMatcher The Hamcrest matcher that must conform to the value
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification cookie(String cookieName, Matcher<String> expectedValueMatcher);
 
@@ -376,7 +376,7 @@ public interface ResponseSpecification extends RequestSender {
    *
    * @param cookieName The name of the expected cookie
    * @param expectedValue The value of the expected cookie
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification cookie(String cookieName, String expectedValue);
 
@@ -388,7 +388,7 @@ public interface ResponseSpecification extends RequestSender {
    * figure out which content type to use.</p>
    *
    * @param contentType The content type of the response.
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification contentType(ContentType contentType);
 
@@ -403,7 +403,7 @@ public interface ResponseSpecification extends RequestSender {
    * </pre>
    * @param matcher The hamcrest matcher that must response body must match.
    * @param additionalMatchers Optionally additional hamcrest matchers that must return <code>true</code>.
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification body(Matcher<?> matcher, Matcher<?>...additionalMatchers);
 
@@ -483,7 +483,7 @@ public interface ResponseSpecification extends RequestSender {
    *
    * @param matcher The hamcrest matcher that must response body must match.
    * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
-   * @return The response specification
+   * @return The response com.jayway.restassured.specification
    */
   ResponseSpecification body(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs);
 
@@ -498,17 +498,17 @@ public interface ResponseSpecification extends RequestSender {
    * expect().body(containsString("OK")).get("/something");
    * </pre>
    *
-   * @return the response specification
+   * @return the response com.jayway.restassured.specification
    */
   ResponseSpecification when();
 
   /**
-   * Returns the request specification so that you can define the properties of the request.
+   * Returns the request com.jayway.restassured.specification so that you can define the properties of the request.
    * <pre>
    * expect().body(containsString("OK")).given().parameters("param1", "value1").when().get("/something");
    * </pre>
    *
-   * @return the request specification
+   * @return the request com.jayway.restassured.specification
    */
   RequestSpecification given();
 
@@ -523,17 +523,17 @@ public interface ResponseSpecification extends RequestSender {
    * expect().body(containsString("OK")).get("/something");
    * </pre>
    *
-   * @return the response specification
+   * @return the response com.jayway.restassured.specification
    */
   ResponseSpecification that();
 
   /**
-   * Returns the request specification so that you can define the properties of the request.
+   * Returns the request com.jayway.restassured.specification so that you can define the properties of the request.
    * <pre>
    * expect().body(containsString("OK")).and().request().parameters("param1", "value1").when().get("/something");
    * </pre>
    *
-   * @return the request specification
+   * @return the request com.jayway.restassured.specification
    */
   RequestSpecification request();
 
@@ -548,7 +548,7 @@ public interface ResponseSpecification extends RequestSender {
    * expect().body(containsString("OK")).get("/something");
    * </pre>
    *
-   * @return the response specification
+   * @return the response com.jayway.restassured.specification
    */
   ResponseSpecification response();
 
@@ -563,17 +563,17 @@ public interface ResponseSpecification extends RequestSender {
    * expect().body(containsString("OK")).body(containsString("something else")).when().get("/something");
    * </pre>
    *
-   * @return the response specification
+   * @return the response com.jayway.restassured.specification
    */
   ResponseSpecification and();
 
   /**
-   * Returns the request specification so that you can define the properties of the request.
+   * Returns the request com.jayway.restassured.specification so that you can define the properties of the request.
    * <pre>
    * expect().body(containsString("OK")).and().with().request().parameters("param1", "value1").get("/something");
    * </pre>
    *
-   * @return the request specification
+   * @return the request com.jayway.restassured.specification
    */
   RequestSpecification with();
 
@@ -588,7 +588,7 @@ public interface ResponseSpecification extends RequestSender {
    * expect().body(containsString("OK")).get("/something");
    * </pre>
    *
-   * @return the response specification
+   * @return the response com.jayway.restassured.specification
    */
   ResponseSpecification then();
 
@@ -603,7 +603,7 @@ public interface ResponseSpecification extends RequestSender {
    * * expect().body(containsString("OK")).and().body(containsString("something else")).when().get("/something");
    * </pre>
    *
-   * @return the response specification
+   * @return the response com.jayway.restassured.specification
    */
   ResponseSpecification expect();
 }
