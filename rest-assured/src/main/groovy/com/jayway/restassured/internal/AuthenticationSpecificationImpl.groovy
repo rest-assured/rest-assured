@@ -14,20 +14,24 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.specification
+
+
+package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.BasicAuthScheme
 import com.jayway.restassured.authentication.CertAuthScheme
 import com.jayway.restassured.authentication.OAuthScheme
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import com.jayway.restassured.specification.RequestSpecification
+import com.jayway.restassured.specification.AuthenticationSpecification
 
 /**
  * Specify an authentication scheme to use when sending a request.
  */
-class AuthenticationSpecification {
+class AuthenticationSpecificationImpl implements AuthenticationSpecification {
   private RequestSpecification requestBuilder;
 
-  AuthenticationSpecification(RequestSpecification requestBuilder) {
+  AuthenticationSpecificationImpl(RequestSpecification requestBuilder) {
     this.requestBuilder = requestBuilder
   }
 

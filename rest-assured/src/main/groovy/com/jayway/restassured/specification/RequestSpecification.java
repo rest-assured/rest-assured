@@ -336,7 +336,7 @@ public interface RequestSpecification extends RequestSender {
   /**
    * If you need to specify some credentials when performing a request.
    *
-   * @see AuthenticationSpecification
+   * @see com.jayway.restassured.internal.AuthenticationSpecification
    * @return The authentication specification
    */
   AuthenticationSpecification authentication();
@@ -345,7 +345,7 @@ public interface RequestSpecification extends RequestSender {
    * A slightly short version of {@link #authentication()}.
    *
    * @see #authentication()
-   * @see AuthenticationSpecification
+   * @see com.jayway.restassured.internal.AuthenticationSpecification
    * @return The authentication specification
    */
   AuthenticationSpecification auth();

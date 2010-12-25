@@ -140,7 +140,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   def AuthenticationSpecification auth() {
-    return new AuthenticationSpecification(this);
+    return new AuthenticationSpecificationImpl(this);
   }
 
   def AuthenticationSpecification authentication() {
