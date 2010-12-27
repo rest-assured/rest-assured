@@ -1,0 +1,3 @@
+Change log 1.0.1 (2010-12-27)
+-----------------------------
+* Refactored AuthenticationSpecification to be a Java interface in order to avoid Groovy methods being exposed and to allow for Javadoc.
