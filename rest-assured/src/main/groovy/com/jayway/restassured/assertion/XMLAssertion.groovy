@@ -16,8 +16,11 @@
 
 package com.jayway.restassured.assertion
 
+import groovy.util.slurpersupport.NodeChild
+
 class XMLAssertion implements Assertion {
   String key;
+  boolean ignoreCase;
 
 
   def Object getResult(Object object) {
@@ -26,13 +29,13 @@ class XMLAssertion implements Assertion {
     keys.each { key ->
       if(current instanceof List) {
         current.each { node ->
-          if(node.name.equals(key)) {
+          if(nodeEquals(node, key)) {
             current = node.children
           }
         }
       } else {
         current.nodeIterator().each { node ->
-          if(node.name.equals(key)) {
+          if(nodeEquals(node, key)) {
             current = node.children
           }
         }
@@ -53,7 +56,12 @@ class XMLAssertion implements Assertion {
         current = temp;
       }
     }
+
     return current;
+  }
+
+  private boolean nodeEquals(node, currentKey) {
+    return ignoreCase ? node.name.equalsIgnoreCase(currentKey) : node.name.equals(currentKey)
   }
 
   def String description() {

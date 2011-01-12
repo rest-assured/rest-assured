@@ -148,6 +148,19 @@ class ScalatraRestExample extends ScalatraServlet {
     <xml>something</xml>
   }
 
+  get("/textHTML") {
+    contentType ="text/html"
+    <html>
+      <head>
+        <title>my title</title>
+      </head>
+      <body>
+        <p>paragraph 1</p>
+        <p>paragraph 2</p>
+      </body>
+    </html>
+  }
+
   def getBinaryBodyResponse: String = {
     contentType = "text/plain";
     Stream.continually(request.getInputStream().read).takeWhile(_ != -1).map(_.toByte).toList.mkString(", ")

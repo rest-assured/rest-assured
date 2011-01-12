@@ -69,4 +69,14 @@ public class XMLGetITest {
     public void xmlWithContentTypeTextXML() throws Exception {
         expect().body("xml", equalTo("something")).when().get("/textXML");
     }
+
+    @Test
+    public void xmlWithContentTypeHTML() throws Exception {
+        expect().body("html.head.title", equalTo("my title")).when().get("/textHTML");
+    }
+
+    @Test
+    public void htmlVerification() throws Exception {
+        expect().body("html.body", hasItems("paragraph 1", "paragraph 2")).when().get("/textHTML");
+    }
 }

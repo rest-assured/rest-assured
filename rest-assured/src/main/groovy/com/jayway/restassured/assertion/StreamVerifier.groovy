@@ -12,8 +12,10 @@ class StreamVerifier {
     def assertion
     if(contentTypeMatch(JSON, contentType) ) {
       assertion = new JSONAssertion(key: key)
-    } else if(contentTypeMatch(XML, contentType) || contentTypeMatch(HTML, contentType)) {
+    } else if(contentTypeMatch(XML, contentType)) {
       assertion = new XMLAssertion(key: key)
+    } else if(contentTypeMatch(HTML, contentType)) {
+      assertion = new XMLAssertion(key: key, ignoreCase: true)
     } else {
       throw new IllegalStateException("Expected response to have JSON or XML content but got "+response.contentType+ ". Content was:\n$content\n")
     }
