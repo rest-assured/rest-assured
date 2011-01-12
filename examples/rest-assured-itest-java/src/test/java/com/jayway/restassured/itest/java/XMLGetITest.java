@@ -79,4 +79,9 @@ public class XMLGetITest {
     public void htmlVerification() throws Exception {
         expect().body("html.body", hasItems("paragraph 1", "paragraph 2")).when().get("/textHTML");
     }
+
+    @Test
+    public void rssVerification() throws Exception {
+        expect().body("rss.item.title", equalTo("rss title")).when().get("/rss");
+    }
 }

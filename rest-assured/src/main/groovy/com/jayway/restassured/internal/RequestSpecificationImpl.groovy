@@ -219,6 +219,8 @@ class RequestSpecificationImpl implements RequestSpecification {
 
   private def sendRequest(path, method, assertionClosure) {
     def http = new HTTPBuilder(getTargetURI(path))
+    // Allow RSS content type to be parsed using XML
+    http.parser.'application/rss+xml' = http.parser.'application/xml'
     http.getHeaders() << requestHeaders
     if(!cookies.isEmpty()) {
       http.getHeaders() << [Cookie : cookies.collect{it.key+"="+it.value}.join("; ")]

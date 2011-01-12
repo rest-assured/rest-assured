@@ -16,6 +16,8 @@ class StreamVerifier {
       assertion = new XMLAssertion(key: key)
     } else if(contentTypeMatch(HTML, contentType)) {
       assertion = new XMLAssertion(key: key, ignoreCase: true)
+    } else if("application/rss+xml" == contentType) {
+        assertion = new XMLAssertion(key: key)
     } else {
       throw new IllegalStateException("Expected response to have JSON or XML content but got "+response.contentType+ ". Content was:\n$content\n")
     }
