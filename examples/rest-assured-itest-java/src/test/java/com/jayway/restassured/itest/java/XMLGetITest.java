@@ -64,4 +64,9 @@ public class XMLGetITest {
     public void newSyntaxWithXPathWithContainsMatcher() throws Exception {
         expect().body(hasXPath("/greeting/name/firstName", containsString("Jo"))).given().parameters("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
     }
+
+    @Test
+    public void xmlWithContentTypeTextXML() throws Exception {
+        expect().body("xml", equalTo("something")).when().get("/textXML");
+    }
 }

@@ -219,7 +219,7 @@ public class JSONGetITest {
         exception.expectMessage(equalTo("Header \"Not-Defined\" was not defined in the response. Headers are: \n" +
                 "Content-Type: application/json; charset=UTF-8\n" +
                 "Content-Length: 160\n" +
-                "Server: Jetty(6.1.26)"));
+                "Server: Jetty(6.1.25)"));
 
         expect().response().header("Not-Defined", "160").when().get("/lotto");
     }

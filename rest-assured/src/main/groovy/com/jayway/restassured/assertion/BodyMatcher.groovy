@@ -23,6 +23,7 @@ import org.hamcrest.xml.HasXPath
 import org.w3c.dom.Element
 import static groovyx.net.http.ContentType.JSON
 import static groovyx.net.http.ContentType.XML
+import static groovyx.net.http.ContentType.HTML
 
 class BodyMatcher {
   def key
@@ -39,18 +40,7 @@ class BodyMatcher {
         throw new AssertionFailedException("Body doesn't match.\nExpected:\n$matcher\nActual:\n$content")
       }
     } else {
-      def assertion;
-      switch (response.contentType.toString().toLowerCase()) {
-        case JSON.toString().toLowerCase():
-          assertion = new JSONAssertion(key: key)
-          break
-        case XML.toString().toLowerCase():
-          assertion = new XMLAssertion(key: key)
-          break;
-        default:
-        throw new IllegalStateException("Expected response to have JSON or XML content type but got "+response.contentType+ ". Content was:\n$content\n")
-        break;
-      }
+      def assertion = StreamVerifier.newAssertion(response, key, content)
       def result = null
       if(content != null) {
         result = assertion.getResult(content)

@@ -1,3 +1,7 @@
+Change log 1.0.2 (next version)
+-------------------------------
+* JSON and XML matching now supports many more content types than before. Before you could only use XML matching for content type application/xml and JSON for application/json.
+
 Change log 1.0.1 (2010-12-27)
 -----------------------------
 * Refactored AuthenticationSpecification to be a Java interface in order to avoid Groovy methods being exposed and to allow for Javadoc.

@@ -143,6 +143,11 @@ class ScalatraRestExample extends ScalatraServlet {
     getCookies
   }
 
+  get("/textXML") {
+    contentType ="text/xml"
+    <xml>something</xml>
+  }
+
   def getBinaryBodyResponse: String = {
     contentType = "text/plain";
     Stream.continually(request.getInputStream().read).takeWhile(_ != -1).map(_.toByte).toList.mkString(", ")
