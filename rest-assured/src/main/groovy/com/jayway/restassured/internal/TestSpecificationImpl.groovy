@@ -23,6 +23,7 @@ import com.jayway.restassured.assertion.AssertParameter
 import com.jayway.restassured.specification.RequestSender
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.specification.ResponseSpecification
+import com.jayway.restassured.response.Response
 
 /**
  * A test com.jayway.restassured.specification contains a {@link ResponseSpecification} and a {@link RequestSpecification}. It's
@@ -53,35 +54,35 @@ class TestSpecificationImpl implements RequestSender {
   /**
    * {@inheritDoc}
    */
-  void get(String path) {
+  Response get(String path) {
     requestSpecification.get path
   }
 
   /**
    * {@inheritDoc}
    */
-  void post(String path) {
+  Response post(String path) {
     requestSpecification.post path
   }
 
   /**
    * {@inheritDoc}
    */
-  void put(String path) {
+  Response put(String path) {
     requestSpecification.put path
   }
 
   /**
    * {@inheritDoc}
    */
-  void delete(String path) {
+  Response delete(String path) {
     requestSpecification.delete path
   }
 
   /**
    * {@inheritDoc}
    */
-  void head(String path) {
+  Response head(String path) {
     requestSpecification.head path
   }
 

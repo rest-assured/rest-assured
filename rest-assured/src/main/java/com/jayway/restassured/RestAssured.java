@@ -19,6 +19,7 @@ package com.jayway.restassured;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.ResponseSpecificationImpl;
 import com.jayway.restassured.internal.TestSpecificationImpl;
+import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSender;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
@@ -206,99 +207,154 @@ import com.jayway.restassured.specification.ResponseSpecification;
  */
 public class RestAssured {
 
-  public static final String DEFAULT_URI = "http://localhost";
-  public static final int DEFAULT_PORT = 8080;
+    public static final String DEFAULT_URI = "http://localhost";
+    public static final int DEFAULT_PORT = 8080;
 
-  /**
-   * The base URI that's used by REST assured when making requests if a non-fully qualified URI is used in the request.
-   * Default value is {@value #DEFAULT_URI}.
-   */
-  public static String baseURI = DEFAULT_URI;
-  /**
-   * The port that's used by REST assured when is left out of the specified URI when making a request.
-   * Default value is {@value #DEFAULT_PORT}.
-   */
-  public static int port = DEFAULT_PORT;
+    /**
+     * The base URI that's used by REST assured when making requests if a non-fully qualified URI is used in the request.
+     * Default value is {@value #DEFAULT_URI}.
+     */
+    public static String baseURI = DEFAULT_URI;
+    /**
+     * The port that's used by REST assured when is left out of the specified URI when making a request.
+     * Default value is {@value #DEFAULT_PORT}.
+     */
+    public static int port = DEFAULT_PORT;
 
-  /**
-   * Start building the response part of the test com.jayway.restassured.specification. E.g.
-   *
-   * <pre>
-   * expect().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
-   * </pre>
-   *
-   * will expect that the response body for the GET request to "/lotto" should
-   * contain JSON or XML which has a lottoId equal to 5.
-   *
-   * @return A response com.jayway.restassured.specification.
-   */
-  public static ResponseSpecification expect() {
-    return createTestSpecification().getResponseSpecification();
-  }
+    /**
+     * Start building the response part of the test com.jayway.restassured.specification. E.g.
+     *
+     * <pre>
+     * expect().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
+     * </pre>
+     *
+     * will expect that the response body for the GET request to "/lotto" should
+     * contain JSON or XML which has a lottoId equal to 5.
+     *
+     * @return A response com.jayway.restassured.specification.
+     */
+    public static ResponseSpecification expect() {
+        return createTestSpecification().getResponseSpecification();
+    }
 
-  /**
-   * Start building the request part of the test com.jayway.restassured.specification. E.g.
-   *
-   * <pre>
-   * with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
-   * </pre>
-   *
-   * will send a POST request to "/greetXML" with request parameters <tt>firstName=John</tt> and <tt>lastName=Doe</tt> and
-   * expect that the response body containing JSON or XML firstName equal to John.
-   *
-   * The only difference between {@link #with()} and {@link #given()} is syntactical.
-   *
-   * @return A request com.jayway.restassured.specification.
-   */
-  public static RequestSpecification with() {
-    return given();
-  }
+    /**
+     * Start building the request part of the test com.jayway.restassured.specification. E.g.
+     *
+     * <pre>
+     * with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
+     * </pre>
+     *
+     * will send a POST request to "/greetXML" with request parameters <tt>firstName=John</tt> and <tt>lastName=Doe</tt> and
+     * expect that the response body containing JSON or XML firstName equal to John.
+     *
+     * The only difference between {@link #with()} and {@link #given()} is syntactical.
+     *
+     * @return A request com.jayway.restassured.specification.
+     */
+    public static RequestSpecification with() {
+        return given();
+    }
 
-  /**
-   * Start building the request part of the test com.jayway.restassured.specification. E.g.
-   *
-   * <pre>
-   * given().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
-   * </pre>
-   *
-   * will send a POST request to "/greetXML" with request parameters <tt>firstName=John</tt> and <tt>lastName=Doe</tt> and
-   * expect that the response body containing JSON or XML firstName equal to John.
-   *
-   * The only difference between {@link #with()} and {@link #given()} is syntactical.
-   *
-   * @return A request com.jayway.restassured.specification.
-   */
-  public static RequestSpecification given() {
-    return createTestSpecification().getRequestSpecification();
-  }
+    /**
+     * Start building the request part of the test com.jayway.restassured.specification. E.g.
+     *
+     * <pre>
+     * given().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
+     * </pre>
+     *
+     * will send a POST request to "/greetXML" with request parameters <tt>firstName=John</tt> and <tt>lastName=Doe</tt> and
+     * expect that the response body containing JSON or XML firstName equal to John.
+     *
+     * The only difference between {@link #with()} and {@link #given()} is syntactical.
+     *
+     * @return A request com.jayway.restassured.specification.
+     */
+    public static RequestSpecification given() {
+        return createTestSpecification().getRequestSpecification();
+    }
 
-  /**
-   * When you have long specifications it can be better to split up the definition of response and request specifications in multiple lines.
-   * You can then pass the response and request specifications to this method. E.g.
-   *
-   * <pre>
-   * RequestSpecification requestSpecification = with().parameters("firstName", "John", "lastName", "Doe");
-   * ResponseSpecification responseSpecification = expect().body("greeting", equalTo("Greetings John Doe"));
-   * given(requestSpecification, responseSpecification).get("/greet");
-   * </pre>
-   *
-   * This will perform a GET request to "/greet" and verify it according to the <code>responseSpecification</code>.
-   *
-   * @return A test com.jayway.restassured.specification.
-   */
-  public static RequestSender given(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
-    return new TestSpecificationImpl(requestSpecification, responseSpecification);
-  }
+    /**
+     * When you have long specifications it can be better to split up the definition of response and request specifications in multiple lines.
+     * You can then pass the response and request specifications to this method. E.g.
+     *
+     * <pre>
+     * RequestSpecification requestSpecification = with().parameters("firstName", "John", "lastName", "Doe");
+     * ResponseSpecification responseSpecification = expect().body("greeting", equalTo("Greetings John Doe"));
+     * given(requestSpecification, responseSpecification).get("/greet");
+     * </pre>
+     *
+     * This will perform a GET request to "/greet" and verify it according to the <code>responseSpecification</code>.
+     *
+     * @return A test com.jayway.restassured.specification.
+     */
+    public static RequestSender given(RequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
+        return new TestSpecificationImpl(requestSpecification, responseSpecification);
+    }
 
-  /**
-   * Reset the {@link #baseURI} and {@link #port} to their default values of {@value #DEFAULT_URI} and {@value #DEFAULT_PORT}.
-   */
-  public static void reset() {
-    baseURI = DEFAULT_URI;
-    port = DEFAULT_PORT;
-  }
+    /**
+     * Perform a GET request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path The path to send the request to.
+     * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response get(String path) {
+        return given().get(path);
+    }
 
-  private static TestSpecificationImpl createTestSpecification() {
-    return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port), new ResponseSpecificationImpl());
-  }
+    /**
+     * Perform a POST request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path The path to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response post(String path) {
+        return given().post(path);
+    }
+
+    /**
+     * Perform a PUT request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path The path to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response put(String path) {
+        return given().put(path);
+    }
+
+    /**
+     * Perform a DELETE request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path The path to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response delete(String path) {
+        return given().delete(path);
+    }
+
+    /**
+     * Perform a HEAD request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path The path to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response head(String path) {
+        return given().head(path);
+    }
+
+    /**
+     * Reset the {@link #baseURI} and {@link #port} to their default values of {@value #DEFAULT_URI} and {@value #DEFAULT_PORT}.
+     */
+    public static void reset() {
+        baseURI = DEFAULT_URI;
+        port = DEFAULT_PORT;
+    }
+
+    private static TestSpecificationImpl createTestSpecification() {
+        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port), new ResponseSpecificationImpl());
+    }
 }

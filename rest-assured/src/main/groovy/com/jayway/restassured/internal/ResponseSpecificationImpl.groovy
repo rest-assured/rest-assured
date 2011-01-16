@@ -21,6 +21,7 @@ import com.jayway.restassured.assertion.BodyMatcherGroup
 import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.assertion.HeaderMatcher
 import com.jayway.restassured.exception.AssertionFailedException
+import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.specification.ResponseSpecification
 import groovyx.net.http.ContentType
@@ -40,6 +41,7 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   private List cookieAssertions = []
   private RequestSpecification requestSpecification;
   private ContentType contentType;
+  private Response restAssuredResponse;
 
   def ResponseSpecification content(Matcher matcher, Matcher...additionalMatchers) {
     notNull(matcher, "matcher")
@@ -165,23 +167,23 @@ class ResponseSpecificationImpl implements ResponseSpecification {
     return requestSpecification;
   }
 
-  void get(String path) {
+  Response get(String path) {
     requestSpecification.get(path);
   }
 
-  void post(String path) {
+  Response post(String path) {
     requestSpecification.post(path);
   }
 
-  void put(String path) {
+  Response put(String path) {
     requestSpecification.put(path);
   }
 
-  void delete(String path) {
+  Response delete(String path) {
     requestSpecification.delete(path);
   }
 
-  def void head(String path) {
+  def Response head(String path) {
     requestSpecification.head(path);
   }
 
@@ -199,6 +201,11 @@ class ResponseSpecificationImpl implements ResponseSpecification {
 
   def ResponseSpecification expect() {
     return this;
+  }
+
+  def boolean hasAssertionsDefined() {
+    return bodyMatchers.containsMatchers() || !headerAssertions.isEmpty() ||
+      !cookieAssertions.isEmpty() || expectedStatusCode != null || expectedStatusLine != null
   }
 
   ResponseSpecification contentType(ContentType contentType) {
@@ -220,36 +227,42 @@ class ResponseSpecificationImpl implements ResponseSpecification {
       return contentType ?: bodyMatchers.requiresContentTypeText() ?  TEXT : ANY;
     }
 
-
     private boolean requiresContentTypeText() {
       return bodyMatchers.requiresContentTypeText()
     }
 
     def getClosure() {
       return { response, content ->
-        headerAssertions.each { matcher ->
-          matcher.containsHeader(response.headers)
+        if(hasAssertionsDefined()) {
+          validateHeadersAndCookies(response)
+          bodyMatchers.isFulfilled(response, content)
+        } else {
+          restAssuredResponse.parseResponse( content )
         }
+      }
+    }
 
-        cookieAssertions.each { matcher ->
-          matcher.containsCookie(response.headers.'Set-Cookie')
+    private def validateHeadersAndCookies(response) {
+      headerAssertions.each { matcher ->
+        matcher.containsHeader(response.headers)
+      }
+
+      cookieAssertions.each { matcher ->
+        matcher.containsCookie(response.headers.'Set-Cookie')
+      }
+
+      if (expectedStatusCode != null) {
+        def actualStatusCode = response.statusLine.statusCode
+        if (!expectedStatusCode.matches(actualStatusCode)) {
+          throw new AssertionFailedException(String.format("Expected status code %s doesn't match actual status code <%s>.", expectedStatusCode.toString(), actualStatusCode));
         }
+      }
 
-        if(expectedStatusCode != null) {
-          def actualStatusCode = response.statusLine.statusCode
-          if(!expectedStatusCode.matches(actualStatusCode)) {
-            throw new AssertionFailedException(String.format("Expected status code %s doesn't match actual status code <%s>.", expectedStatusCode.toString(), actualStatusCode));
-          }
+      if (expectedStatusLine != null) {
+        def actualStatusLine = response.statusLine.toString()
+        if (!expectedStatusLine.matches(actualStatusLine)) {
+          throw new AssertionFailedException(String.format("Expected status line %s doesn't match actual status line \"%s\".", expectedStatusLine.toString(), actualStatusLine));
         }
-
-        if(expectedStatusLine != null) {
-          def actualStatusLine = response.statusLine.toString()
-          if(!expectedStatusLine.matches(actualStatusLine)) {
-            throw new AssertionFailedException(String.format("Expected status line %s doesn't match actual status line \"%s\".", expectedStatusLine.toString(), actualStatusLine));
-          }
-        }
-
-        bodyMatchers.isFulfilled(response, content)
       }
     }
   }

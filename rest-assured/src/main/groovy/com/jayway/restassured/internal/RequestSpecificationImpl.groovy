@@ -29,6 +29,10 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 
+import com.jayway.restassured.response.Response
+import groovyx.net.http.ParserRegistry
+import org.codehaus.groovy.runtime.MethodClosure
+
 class RequestSpecificationImpl implements RequestSpecification {
 
   private String baseUri
@@ -64,27 +68,27 @@ class RequestSpecificationImpl implements RequestSpecification {
     return responseSpecification;
   }
 
-  def void get(String path) {
+  def Response get(String path) {
     notNull path, "path"
     sendRequest(path, GET, responseSpecification.assertionClosure);
   }
 
-  def void post(String path) {
+  def Response post(String path) {
     notNull path, "path"
     sendRequest(path, POST, responseSpecification.assertionClosure);
   }
 
-  def void put(String path) {
+  def Response put(String path) {
     notNull path, "path"
     sendRequest(path, PUT, responseSpecification.assertionClosure);
   }
 
-  def void delete(String path) {
+  def Response delete(String path) {
     notNull path, "path"
     sendRequest(path, DELETE, responseSpecification.assertionClosure);
   }
 
-  def void head(String path) {
+  def Response head(String path) {
     notNull path, "path"
     sendRequest(path, HEAD, responseSpecification.assertionClosure);
   }
@@ -217,14 +221,20 @@ class RequestSpecificationImpl implements RequestSpecification {
     return this
   }
 
-  private def sendRequest(path, method, assertionClosure) {
-    def http = new HTTPBuilder(getTargetURI(path))
+  private def Response sendRequest(path, method, assertionClosure) {
+    def http = new HTTPBuilder(getTargetURI(path));
+    RestAssuredParserRegistry.responseSpecification = responseSpecification
+    http.setParserRegistry(new RestAssuredParserRegistry())
     // Allow RSS content type to be parsed using XML
     http.parser.'application/rss+xml' = http.parser.'application/xml'
     http.getHeaders() << requestHeaders
     if(!cookies.isEmpty()) {
       http.getHeaders() << [Cookie : cookies.collect{it.key+"="+it.value}.join("; ")]
     }
+
+    // Allow returning a the response
+    def restAssuredResponse = new RestAssuredResponseImpl()
+    responseSpecification.restAssuredResponse = restAssuredResponse
     def responseContentType =  assertionClosure.getResponseContentType()
     authenticationScheme.authenticate(http)
     if(POST.equals(method)) {
@@ -268,6 +278,7 @@ class RequestSpecificationImpl implements RequestSpecification {
         response.failure = closure
       }
     }
+    return restAssuredResponse
   }
 
   private def defineRequestContentType(Method method) {

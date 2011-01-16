@@ -31,23 +31,27 @@ class BodyMatcherGroup {
     }
 
     bodyAssertions.each { assertion ->
-        assertion.isFulfilled(response, treatedContent)
+      assertion.isFulfilled(response, treatedContent)
     }
+  }
+
+  public boolean containsMatchers() {
+    !bodyAssertions.isEmpty()
   }
 
   def boolean requiresContentTypeText() {
     def numberOfRequires = 0
-      def numberOfNonRequires = 0
-      bodyAssertions.each { matcher ->
-        if(matcher.requiresContentTypeText()) {
-          numberOfRequires++
-        } else {
-          numberOfNonRequires++
-        }
+    def numberOfNonRequires = 0
+    bodyAssertions.each { matcher ->
+      if(matcher.requiresContentTypeText()) {
+        numberOfRequires++
+      } else {
+        numberOfNonRequires++
       }
-      throwExceptionIfIllegalBodyAssertionCombinations(numberOfRequires, numberOfNonRequires)
+    }
+    throwExceptionIfIllegalBodyAssertionCombinations(numberOfRequires, numberOfNonRequires)
 
-      return numberOfRequires != 0
+    return numberOfRequires != 0
   }
 
   def String getDescriptions() {
