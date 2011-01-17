@@ -17,6 +17,7 @@
 package com.jayway.restassured.assertion
 
 import net.sf.json.JSONArray
+import net.sf.json.JSONNull
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,6 +28,7 @@ import net.sf.json.JSONArray
  */
 class JSONAssertion implements Assertion {
   String key;
+  def getPattern = ~/get\(\d+\)/
 
 
   def Object getResult(Object object) {
@@ -37,7 +39,12 @@ class JSONAssertion implements Assertion {
         current = current?.getAt(key)
       } else if(current instanceof List) {
         current = JSONArray.fromObject(current)
-        current = current?.getAt(key)
+        if(getPattern.matcher(key).matches()) {
+          def index = Integer.parseInt(key.substring(4, key.length() - 1));
+          current = current?.get(index)
+        } else {
+          current = current?.getAt(key)
+        }
       } else if(current?.has(key)) {
         current = current.get(key)
       } else {
@@ -52,7 +59,16 @@ class JSONAssertion implements Assertion {
     if (current instanceof JSONArray) {
       current = current.toArray()
     }
+    if(current.getClass().isArray()) {
+      for(int i = 0; i < current.length; i++) {
+        if(current[i] instanceof JSONNull) {
+          current[i] = null
+        }
+      }
+    }
     return current
+
+
   }
 
   def String description() {

@@ -1,6 +1,9 @@
-Change log next version
------------------------
+Change 1.0.3 (2011-01-17)
+-------------------------
 * Fixed a bug in the JSON parsing which prevent parsing of nested arrays (issue 15)
+* Added support for getting an index in a JSON array. E.g. expect().body("items.get(0)", equalTo("firstIndex")).when().get("/something");. Assuming that "items" is an array then "items.get(0)" returns the first element in that array.
+* Fixed so that you can expect on null values in JSON arrays.
+* Request senders can now return the body as byte array or string. E.g. get("/something").asString() makes GET request to "/something" and returns the response body as a string. This is useful if you want to debug the response while creating your test or if you want to use third-party tools to validate the response. Note that it only works if you don't specify any expectations before making the request.
 
 Change log 1.0.2 (2011-01-12)
 -----------------------------
