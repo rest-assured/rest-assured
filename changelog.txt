@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Fixed a bug in the JSON parsing which prevent parsing of nested arrays (issue 15)
+
 Change log 1.0.2 (2011-01-12)
 -----------------------------
 * JSON and XML matching now supports many more content types than before. Before you could only use XML matching for content type application/xml and JSON for application/json.

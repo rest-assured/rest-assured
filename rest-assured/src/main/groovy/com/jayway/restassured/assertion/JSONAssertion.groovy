@@ -35,6 +35,9 @@ class JSONAssertion implements Assertion {
     keys.each { key ->
       if(current instanceof JSONArray) {
         current = current?.getAt(key)
+      } else if(current instanceof List) {
+        current = JSONArray.fromObject(current)
+        current = current?.getAt(key)
       } else if(current?.has(key)) {
         current = current.get(key)
       } else {
