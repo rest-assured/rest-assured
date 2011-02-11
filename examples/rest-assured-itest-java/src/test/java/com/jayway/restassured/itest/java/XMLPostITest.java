@@ -36,7 +36,7 @@ public class XMLPostITest {
 
     @Test
     public void xmlWithLists() throws Exception {
-        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting", hasItems("John", "Doe")).post("/greetXML");
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.children()", hasItems("John", "Doe")).post("/greetXML");
     }
 
     @Test

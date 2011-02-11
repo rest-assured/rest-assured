@@ -16,13 +16,11 @@
 
 package com.jayway.restassured.itest.java;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.with;
 import static org.hamcrest.Matchers.*;
 
@@ -42,13 +40,13 @@ public class XMLGetITest {
     }
 
     @Test
-    public void xmlWithLists() throws Exception {
-        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting", hasItems("John", "Doe")).get("/greetXML");
+    public void childrenElements() throws Exception {
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.children()", hasItems("John", "Doe")).get("/anotherGreetXML");
     }
 
     @Test
-    public void xmlNestedElements() throws Exception {
-        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name", hasItems("John", "Doe")).get("/anotherGreetXML");
+    public void childrenElementsSize() throws Exception {
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.children().size()", equalTo(2)).get("/anotherGreetXML");
     }
 
     @Test
@@ -84,12 +82,27 @@ public class XMLGetITest {
 
     @Test
     public void htmlVerification() throws Exception {
-        expect().body("html.body", hasItems("paragraph 1", "paragraph 2")).when().get("/textHTML");
+        expect().body("html.body.children()", hasItems("paragraph 1", "paragraph 2")).when().get("/textHTML");
+    }
+
+    @Test
+    public void htmlChildElementSize() throws Exception {
+        expect().body("html.body.children().size()", equalTo(2)).when().get("/textHTML");
+    }
+
+    @Test
+    public void htmlBodySize() throws Exception {
+        expect().body("html.body.size()", equalTo(1)).when().get("/textHTML");
     }
 
     @Test
     public void rssVerification() throws Exception {
         expect().body("rss.item.title", equalTo("rss title")).when().get("/rss");
+    }
+
+    @Test
+    public void nestedListsAreConvertedToJavaLists() throws Exception {
+        expect().body("rss.channel.item.size()", equalTo(2)).when().get("/bigRss");
     }
 
     @Test
@@ -111,5 +124,10 @@ public class XMLGetITest {
     @Test
     public void supportsGettingAllAttributesFromAList() throws Exception {
         expect().body("shopping.category.@type", hasItems("groceries", "supplies", "present")).when().get("/shopping");
+    }
+
+    @Test
+    public void whenReturningANonCollectionAndNonArrayThenSizeIsOne() throws Exception {
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName.size()", equalTo(1)).when().get("/greetXML");
     }
 }

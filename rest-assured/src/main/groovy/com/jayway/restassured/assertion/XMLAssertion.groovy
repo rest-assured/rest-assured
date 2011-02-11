@@ -17,6 +17,9 @@
 package com.jayway.restassured.assertion
 
 import groovy.util.slurpersupport.Attributes
+import groovy.util.slurpersupport.NodeChild
+import groovy.util.slurpersupport.NodeChildren
+import org.apache.commons.lang.StringUtils
 
 class XMLAssertion implements Assertion {
   String key;
@@ -29,7 +32,13 @@ class XMLAssertion implements Assertion {
     def evaluationString
     if (indexOfDot > 0) {
       if(toUpperCase) {
-        key = key.toUpperCase();
+        def pathFragments = key.split("\\.");
+        for(int i = 0; i < pathFragments.length; i++) {
+          if(StringUtils.isAlpha(pathFragments[i])) {
+            pathFragments[i] = pathFragments[i].toUpperCase();
+          }
+        }
+        key = pathFragments.join(".")
       }
       evaluationString = key.substring(indexOfDot);
       baseString = key.substring(0, indexOfDot)
@@ -37,6 +46,7 @@ class XMLAssertion implements Assertion {
       evaluationString = "";
       baseString = key;
     }
+
     def result;
     try {
       result = Eval.me(baseString, object, "$baseString$evaluationString")
@@ -47,33 +57,47 @@ class XMLAssertion implements Assertion {
   }
 
   private def convertToJavaObject(result) {
+    def returnValue;
     if(result.getClass().getName().equals(Attributes.class.getName())) {
-      return toJavaObject(result)
+      returnValue = toJavaObject(result, true)
+    } else if(result instanceof NodeChild || result.getClass().getName().equals(NodeChildren.class.getName())) {
+      returnValue = toJavaObject(result, false)
+    } else {
+      returnValue = result;
     }
-
-    def nodes = []
-    result.childNodes().each {
-      nodes << it;
-    }
-    if(nodes.isEmpty()) {
-      return result.toString()
-    }
-    return toJavaObject(nodes)
+    return returnValue
   }
 
-  private def toJavaObject(nodes) {
-    if (nodes.size() == 1) {
-      return nodes.toString()
+  private def toJavaObject(nodes, isAttributes) {
+    if (nodes.size() == 1 && !hasChildren(nodes, isAttributes)) {
+      return nodes.text()
     } else {
-      def temp = []
+      return toJavaList(nodes, isAttributes)
+    }
+  }
+
+  private boolean hasChildren(nodes, isAttributes) {
+    if(isAttributes) {
+      return false;
+    }
+    return !nodes.children().isEmpty()
+  }
+
+  private List toJavaList(nodes, isAttributes) {
+    def temp = []
+    if(isAttributes) {
       nodes.each {
         CharArrayWriter caw = new CharArrayWriter();
         it.writeTo(caw);
         caw.close();
         temp << caw.toString()
       }
-      return temp
+    } else {
+      nodes.nodeIterator().each {
+        temp << it.text()
+      }
     }
+    return temp
   }
 
   def String description() {
@@ -85,4 +109,3 @@ class XmlEntity {
   def children
   def attributes
 }
-

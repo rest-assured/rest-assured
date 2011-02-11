@@ -194,6 +194,36 @@ class ScalatraRestExample extends ScalatraServlet {
     </rss>
   }
 
+  get("/bigRss") {
+    contentType ="application/rss+xml"
+    <rss xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+      <channel>
+        <title>something</title>
+        <link>http://www.someone.com</link>
+        <description>something RSS</description>
+        <dc:creator>someone</dc:creator>
+        <item>
+          <title>A title</title>
+          <link>http://www.something.com/link/1</link>
+          <description>Description 1</description>
+            <enclosure url="http://www.someone.com/somejpg.jpg" length="2721" type="image/jpg" />
+          <pubDate>Mon, 10 Jan 2011 19:31:46 GMT</pubDate>
+          <guid isPermaLink="false">http://www.something.com/link/1</guid>
+          <dc:date>2011-01-10T19:31:46Z</dc:date>
+        </item>
+        <item>
+          <title>Title 2</title>
+          <link>http://www.something.com/link/2</link>
+          <description>Description 2</description>
+            <enclosure url="http://www.someone.com/someotherjpg.jpg" length="2721" type="image/jpg" />
+          <pubDate>Mon, 10 Jan 2011 19:41:46 GMT</pubDate>
+          <guid isPermaLink="false">http://www.something.com/link/2</guid>
+          <dc:date>2011-01-10T19:42:46Z</dc:date>
+        </item>
+      </channel>
+    </rss>
+  }
+
   def getBinaryBodyResponse: String = {
     contentType = "text/plain";
     Stream.continually(request.getInputStream().read).takeWhile(_ != -1).map(_.toByte).toList.mkString(", ")
