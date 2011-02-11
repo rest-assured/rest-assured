@@ -18,6 +18,7 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.AuthenticationScheme
 import com.jayway.restassured.authentication.NoAuthScheme
+import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.AuthenticationSpecification
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.specification.ResponseSpecification
@@ -29,14 +30,11 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 
-import com.jayway.restassured.response.Response
-import groovyx.net.http.ParserRegistry
-import org.codehaus.groovy.runtime.MethodClosure
-
 class RequestSpecificationImpl implements RequestSpecification {
 
   private String baseUri
   private String path  = ""
+  private String basePath
   private int port
   private Map<String, String> requestParameters = [:]
   private AuthenticationScheme authenticationScheme = new NoAuthScheme()
@@ -46,9 +44,10 @@ class RequestSpecificationImpl implements RequestSpecification {
   private Map<String, String> cookies = [:]
   private Object requestBody;
 
-  public RequestSpecificationImpl (String baseURI, int requestPort) {
+  public RequestSpecificationImpl (String baseURI, int requestPort, String basePath) {
     notNull(baseURI, "baseURI");
     this.baseUri = baseURI
+    this.basePath = basePath
     port(requestPort)
   }
 
@@ -304,9 +303,9 @@ class RequestSpecificationImpl implements RequestSpecification {
     def uri
     def hasScheme = path.contains("://")
     if(hasScheme) {
-      uri = path;
+      uri = "$path:$basePath";
     } else {
-      uri = "$baseUri:$port"
+      uri = "$baseUri:$port$basePath"
     }
     return uri
   }

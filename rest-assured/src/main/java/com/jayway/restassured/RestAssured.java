@@ -184,13 +184,14 @@ import com.jayway.restassured.specification.ResponseSpecification;
  * <pre>
  * .. when().get("http://myhost.org:80/doSomething");
  * </pre>
- * You can also change the default base URI and port for all subsequent requests:
+ * You can also change the default base URI, base path and port for all subsequent requests:
  * <pre>
  * RestAssured.baseURI = "http://myhost.org";
  * RestAssured.port = 80;
+ * RestAssured.basePath = "/resource";
  * </pre>
- * This means that a request like e.g. <code>get("/hello")</code> goes to: <tt>http://myhost.org:8080/hello</tt><br>
- * You can reset to the standard baseURI (localhost) and standard port (8080) using:
+ * This means that a request like e.g. <code>get("/hello")</code> goes to: <tt>http://myhost.org:8080/resource/hello</tt><br>
+ * You can reset to the standard baseURI (localhost), basePath (empty), and standard port (8080) using:
  * <pre>
  * RestAssured.reset();
  * </pre>
@@ -209,17 +210,33 @@ public class RestAssured {
 
     public static final String DEFAULT_URI = "http://localhost";
     public static final int DEFAULT_PORT = 8080;
+    public static final String DEFAULT_PATH = "";
 
     /**
      * The base URI that's used by REST assured when making requests if a non-fully qualified URI is used in the request.
      * Default value is {@value #DEFAULT_URI}.
      */
     public static String baseURI = DEFAULT_URI;
+
     /**
      * The port that's used by REST assured when is left out of the specified URI when making a request.
      * Default value is {@value #DEFAULT_PORT}.
      */
     public static int port = DEFAULT_PORT;
+
+    /**
+     * A base path that's added to the {@link #baseURI} by REST assured when making requests. E.g. let's say that
+     * the {@link #baseURI} is <code>http://localhost</code> and <code>basePath</code> is <code>/resource</code>
+     * then
+     *
+     * <pre>
+     * ..when().get("/something");
+     * </pre>
+     *
+     * will make a request to <code>http://localhost/resource</code>.
+     * Default <code>basePath</code> value is empty.
+     */
+    public static String basePath = DEFAULT_PATH;
 
     /**
      * Start building the response part of the test com.jayway.restassured.specification. E.g.
@@ -347,14 +364,15 @@ public class RestAssured {
     }
 
     /**
-     * Reset the {@link #baseURI} and {@link #port} to their default values of {@value #DEFAULT_URI} and {@value #DEFAULT_PORT}.
+     * Resets the {@link #baseURI}, {@link #basePath} and {@link #port} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH} and {@value #DEFAULT_PORT}.
      */
     public static void reset() {
         baseURI = DEFAULT_URI;
         port = DEFAULT_PORT;
+        basePath = DEFAULT_PATH;
     }
 
     private static TestSpecificationImpl createTestSpecification() {
-        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port), new ResponseSpecificationImpl());
+        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port, basePath), new ResponseSpecificationImpl());
     }
 }

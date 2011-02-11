@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.exception.AssertionFailedException;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
@@ -289,6 +290,16 @@ public class JSONGetITest {
     @Test
     public void basicAuthentication() throws Exception {
         given().auth().basic("jetty", "jetty").expect().statusCode(200).when().get("/secured/hello");
+    }
+
+    @Test
+    public void basicAuthenticationWithBasePath() throws Exception {
+        RestAssured.basePath = "/secured";
+        try {
+            given().auth().basic("jetty", "jetty").expect().statusCode(200).when().get("/hello");
+        } finally {
+            RestAssured.reset();
+        }
     }
 
     @Test

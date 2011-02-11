@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Added support for specifying base path using "RestAssured.basePath = /resource". E.g. let's say that the base URI is http://localhost and base path is "/resource" will make create a request to "http://localhost/resource/something" when doing a 'get("/something")'. Default value is empty. (issue 13)
+
 Change 1.0.3 (2011-01-17)
 -------------------------
 * Fixed a bug in the JSON parsing which prevent parsing of nested arrays (issue 15)
