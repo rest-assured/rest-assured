@@ -107,4 +107,9 @@ public class XMLGetITest {
 
         expect().body("greeting.€4324'21", equalTo("rss title")).when().get("/rss");
     }
+
+    @Test
+    public void supportsGettingAllAttributesFromAList() throws Exception {
+        expect().body("shopping.category.@type", hasItems("groceries", "supplies", "present")).when().get("/shopping");
+    }
 }

@@ -6,7 +6,6 @@ Change log next version
 * Major improvements to XML expecations. It now uses Groovy evaluation of the expectation string to allow for much better expectations.
 * Support for expecting on XML attributes, e.g. expect().body("greeting.name.@firstName", equalTo("John")).when().get("/greetXMLAttribute?firstName=John&lastName=Doe");
 
-
 Change 1.0.3 (2011-01-17)
 -------------------------
 * Fixed a bug in the JSON parsing which prevent parsing of nested arrays (issue 15)

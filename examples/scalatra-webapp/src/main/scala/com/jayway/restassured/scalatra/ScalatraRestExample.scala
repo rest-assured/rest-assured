@@ -49,8 +49,25 @@ class ScalatraRestExample extends ScalatraServlet {
   get("/greetXMLAttribute") {
     contentType = "application/xml"
     <greeting>
-      <name firstName={params("firstName")} lastName={params("lastName")} />
+        <name firstName={params("firstName")} lastName={params("lastName")} />
     </greeting>
+  }
+
+  get("/shopping") {
+    contentType = "application/xml"
+    <shopping>
+      <category type="groceries">
+        <item>Chocolate</item>
+        <item>Coffee</item>
+      </category>
+      <category type="supplies">
+        <item>Paper</item>
+        <item quantity="4">Pens</item>
+      </category>
+      <category type="present">
+        <item when="Aug 10">Kathryn's Birthday</item>
+      </category>
+    </shopping>
   }
 
   post("/greetXML") {

@@ -48,7 +48,7 @@ class XMLAssertion implements Assertion {
 
   private def convertToJavaObject(result) {
     if(result.getClass().getName().equals(Attributes.class.getName())) {
-      return result.toString()
+      return toJavaObject(result)
     }
 
     def nodes = []
@@ -57,8 +57,13 @@ class XMLAssertion implements Assertion {
     }
     if(nodes.isEmpty()) {
       return result.toString()
-    } else if (nodes.size() == 1) {
-      result = result.toString()
+    }
+    return toJavaObject(nodes)
+  }
+
+  private def toJavaObject(nodes) {
+    if (nodes.size() == 1) {
+      return nodes.toString()
     } else {
       def temp = []
       nodes.each {
@@ -67,12 +72,9 @@ class XMLAssertion implements Assertion {
         caw.close();
         temp << caw.toString()
       }
-      result = temp;
+      return temp
     }
-    return result
   }
-
-
 
   def String description() {
     return "XML element"
