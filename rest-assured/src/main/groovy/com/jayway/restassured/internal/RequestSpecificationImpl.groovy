@@ -29,6 +29,7 @@ import groovyx.net.http.Method
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
+import org.apache.commons.lang.StringUtils
 
 class RequestSpecificationImpl implements RequestSpecification {
 
@@ -221,6 +222,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   private def Response sendRequest(path, method, assertionClosure) {
+    path = extractRequestParamsIfNeeded(path);
     def http = new HTTPBuilder(getTargetURI(path));
     RestAssuredParserRegistry.responseSpecification = responseSpecification
     http.setParserRegistry(new RestAssuredParserRegistry())
@@ -278,6 +280,23 @@ class RequestSpecificationImpl implements RequestSpecification {
       }
     }
     return restAssuredResponse
+  }
+
+  private String extractRequestParamsIfNeeded(String path) {
+    if(path.contains("?")) {
+      def indexOfQuestionMark = path.indexOf("?")
+      String allParamAsString = path.substring(indexOfQuestionMark+1);
+      def keyValueParams = allParamAsString.split("&");
+      keyValueParams.each {
+        def keyValue = it.split("=")
+        if(keyValue.length != 2) {
+          throw new IllegalArgumentException("Illegal parameters passed to REST Assured. Parameters was: $keyValueParams")
+        }
+        param(keyValue[0], keyValue[1]);
+      };
+      path = path.substring(0, indexOfQuestionMark);
+    }
+    return path;
   }
 
   private def defineRequestContentType(Method method) {

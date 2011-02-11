@@ -40,6 +40,11 @@ public class JSONPostITest {
     }
 
     @Test
+    public void bodyWithSingleHamcrestMatchingUsingPathParams() throws Exception {
+        expect().body(containsString("greeting")).when().post("/greet?firstName=John&lastName=Doe");
+    }
+
+    @Test
     public void bodyHamcrestMatcherWithoutKey() throws Exception {
         given().parameters("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().post("/greet");
     }
