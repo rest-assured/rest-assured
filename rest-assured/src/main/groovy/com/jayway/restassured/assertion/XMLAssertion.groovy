@@ -16,6 +16,8 @@
 
 package com.jayway.restassured.assertion
 
+import groovy.util.slurpersupport.Attributes
+
 class XMLAssertion implements Assertion {
   String key;
   boolean toUpperCase;
@@ -45,6 +47,10 @@ class XMLAssertion implements Assertion {
   }
 
   private def convertToJavaObject(result) {
+    if(result.getClass().getName().equals(Attributes.class.getName())) {
+      return result.toString()
+    }
+
     def nodes = []
     result.childNodes().each {
       nodes << it;

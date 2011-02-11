@@ -93,9 +93,11 @@ public class XMLGetITest {
     }
 
     @Test
-    @Ignore
     public void supportsParsingXmlAttributes() throws Exception {
-        expect().body("greeting.name.firstName", equalTo("John")).when().get("/greetXMLAttribute?firstName=John&lastName=Doe");
+        expect().
+                body("greeting.name.@firstName", equalTo("John")).
+                body("greeting.name.@lastName", equalTo("Doe")).
+        when().get("/greetXMLAttribute?firstName=John&lastName=Doe");
     }
 
     @Test

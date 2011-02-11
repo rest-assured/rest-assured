@@ -3,6 +3,8 @@ Change log next version
 * Added support for specifying base path using "RestAssured.basePath = /resource". E.g. let's say that the base URI is http://localhost and base path is "/resource" will make create a request to "http://localhost/resource/something" when doing a 'get("/something")'. Default value is empty. (issue 13)
 * Support for specifying request/query parameters in the url, e.g. get("/something?param1=first&param2=second"). (issue 23)
 * Fixed a bug in RestAssuredResponse parser that caused a NPE when the input stream was null. (issue 25)
+* Major improvements to XML expecations. It now uses Groovy evaluation of the expectation string to allow for much better expectations.
+* Support for expecting on XML attributes, e.g. expect().body("greeting.name.@firstName", equalTo("John")).when().get("/greetXMLAttribute?firstName=John&lastName=Doe");
 
 
 Change 1.0.3 (2011-01-17)
