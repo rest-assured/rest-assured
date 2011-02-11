@@ -70,6 +70,10 @@ class RestAssuredResponseImpl implements Response {
   }
 
   private String convertToString(Reader reader) {
+    if(reader == null) {
+      return "";
+    }
+
     Writer writer = new StringWriter();
     char[] buffer = new char[1024];
     try {
