@@ -15,7 +15,7 @@ class StreamVerifier {
     } else if(contentTypeMatch(XML, contentType)) {
       assertion = new XMLAssertion(key: key)
     } else if(contentTypeMatch(HTML, contentType)) {
-      assertion = new XMLAssertion(key: key, ignoreCase: true)
+      assertion = new XMLAssertion(key: key, toUpperCase: true)
     } else if("application/rss+xml" == contentType) {
         assertion = new XMLAssertion(key: key)
     } else {

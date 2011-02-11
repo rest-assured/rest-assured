@@ -16,55 +16,65 @@
 
 package com.jayway.restassured.assertion
 
-import groovy.util.slurpersupport.NodeChild
-
 class XMLAssertion implements Assertion {
   String key;
-  boolean ignoreCase;
+  boolean toUpperCase;
 
 
   def Object getResult(Object object) {
-    Object current = object;
-    def keys = key.split("\\.");
-    keys.each { key ->
-      if(current instanceof List) {
-        current.each { node ->
-          if(nodeEquals(node, key)) {
-            current = node.children
-          }
-        }
-      } else {
-        current.nodeIterator().each { node ->
-          if(nodeEquals(node, key)) {
-            current = node.children
-          }
-        }
+    def indexOfDot = key.indexOf(".")
+    def baseString
+    def evaluationString
+    if (indexOfDot > 0) {
+      if(toUpperCase) {
+        key = key.toUpperCase();
       }
+      evaluationString = key.substring(indexOfDot);
+      baseString = key.substring(0, indexOfDot)
+    } else {
+      evaluationString = "";
+      baseString = key;
     }
-
-    if(current instanceof List) {
-      if(current.size() == 1) {
-        current = current.get(0)
-      } else {
-        def temp = []
-        current.each {
-          CharArrayWriter caw = new CharArrayWriter();
-          it.writeTo(caw);
-          caw.close();
-          temp << caw.toString()
-        }
-        current = temp;
-      }
+    def result;
+    try {
+      result = Eval.me(baseString, object, "$baseString$evaluationString")
+    } catch (Exception e) {
+      throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid XML expression:"));
     }
-
-    return current;
+    return convertToJavaObject(result)
   }
 
-  private boolean nodeEquals(node, currentKey) {
-    return ignoreCase ? node.name.equalsIgnoreCase(currentKey) : node.name.equals(currentKey)
+  private def convertToJavaObject(result) {
+    def nodes = []
+    result.childNodes().each {
+      nodes << it;
+    }
+    if(nodes.isEmpty()) {
+      return result.toString()
+    } else if (nodes.size() == 1) {
+      result = result.toString()
+    } else {
+      def temp = []
+      nodes.each {
+        CharArrayWriter caw = new CharArrayWriter();
+        it.writeTo(caw);
+        caw.close();
+        temp << caw.toString()
+      }
+      result = temp;
+    }
+    return result
   }
+
+
 
   def String description() {
     return "XML element"
   }
 }
+
+class XmlEntity {
+  def children
+  def attributes
+}
+

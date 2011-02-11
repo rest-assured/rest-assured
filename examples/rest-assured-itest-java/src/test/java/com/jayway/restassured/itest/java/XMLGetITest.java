@@ -16,13 +16,20 @@
 
 package com.jayway.restassured.itest.java;
 
+import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.with;
 import static org.hamcrest.Matchers.*;
 
 public class XMLGetITest {
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void xmlParameterSupport() throws Exception {
@@ -83,5 +90,19 @@ public class XMLGetITest {
     @Test
     public void rssVerification() throws Exception {
         expect().body("rss.item.title", equalTo("rss title")).when().get("/rss");
+    }
+
+    @Test
+    @Ignore
+    public void supportsParsingXmlAttributes() throws Exception {
+        expect().body("greeting.name.firstName", equalTo("John")).when().get("/greetXMLAttribute?firstName=John&lastName=Doe");
+    }
+
+    @Test
+    public void throwsIAEOnIllegalXmlExpression() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("greeting.€4324'21");
+
+        expect().body("greeting.€4324'21", equalTo("rss title")).when().get("/rss");
     }
 }
