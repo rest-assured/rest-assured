@@ -325,9 +325,9 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void basicAuthenticationWithBasePath() throws Exception {
-        RestAssured.basePath = "/secured";
+        RestAssured.basePath = "/secured/hello";
         try {
-            given().auth().basic("jetty", "jetty").expect().statusCode(200).when().get("/hello");
+            given().auth().basic("jetty", "jetty").expect().statusCode(200).when().get("");
         } finally {
             RestAssured.reset();
         }

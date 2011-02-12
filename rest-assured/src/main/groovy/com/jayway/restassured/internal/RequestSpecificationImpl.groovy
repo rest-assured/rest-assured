@@ -255,7 +255,7 @@ class RequestSpecificationImpl implements RequestSpecification {
           throw new IllegalStateException("You can either send parameters OR body content in the POST, not both!");
         }
         def bodyContent = requestParameters.isEmpty() ? requestBody : requestParameters
-        http.post( path: path, body: bodyContent,
+        http.post( path: "$basePath$path", body: bodyContent,
                 requestContentType: defineRequestContentType(POST),
                 contentType: responseContentType) { response, content ->
           if(assertionClosure != null) {
@@ -271,7 +271,7 @@ class RequestSpecificationImpl implements RequestSpecification {
       }
     } else {
       http.request(method, responseContentType) {
-        uri.path = path
+        uri.path = "$basePath$path"
 
         setRequestContentType(defineRequestContentTypeAsString(method))
 
@@ -338,9 +338,9 @@ class RequestSpecificationImpl implements RequestSpecification {
     def uri
     def hasScheme = path.contains("://")
     if(hasScheme) {
-      uri = "$path:$basePath";
+      uri = "$path";
     } else {
-      uri = "$baseUri:$port$basePath"
+      uri = "$baseUri:$port"
     }
     return uri
   }
