@@ -19,6 +19,7 @@ package com.jayway.restassured.assertion
 import groovy.util.slurpersupport.Attributes
 import groovy.util.slurpersupport.NodeChild
 import groovy.util.slurpersupport.NodeChildren
+import static com.jayway.restassured.assertion.AssertionSupport.escapeMinus
 
 class XMLAssertion implements Assertion {
   String key;
@@ -28,6 +29,7 @@ class XMLAssertion implements Assertion {
   private def isInvocationFragment = ~/.*\(\d*\)/
 
   def Object getResult(Object object) {
+    key = escapeMinus(key);
     def indexOfDot = key.indexOf(".")
     def baseString
     def evaluationString
@@ -49,10 +51,11 @@ class XMLAssertion implements Assertion {
     }
 
     def result;
+    def rootObject = "restAssuredXmlRootObject"
     try {
-      result = Eval.me(baseString, object, "$baseString$evaluationString")
+      result = Eval.me(rootObject, object, "$rootObject$evaluationString")
     } catch (Exception e) {
-      throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid XML expression:"));
+      throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid XML expression:").replace(rootObject, baseString));
     }
     return convertToJavaObject(result)
   }

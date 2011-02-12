@@ -145,4 +145,19 @@ public class XMLGetITest {
     public void whenReturningANonCollectionAndNonArrayThenSizeIsOne() throws Exception {
         with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName.size()", equalTo(1)).when().get("/greetXML");
     }
+
+    @Test
+    public void supportBodyExpectationsWithMinusInRootObject() throws Exception {
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("a-greeting.firstName", equalTo("John")).when().get("/xmlWithMinusInRoot");
+    }
+
+    @Test
+    public void supportBodyExpectationsWithMinusInChildObject() throws Exception {
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.your-firstName", equalTo("John")).when().get("/xmlWithMinusInChild");
+    }
+
+    @Test
+    public void supportBodyExpectationsWithUnderscoreInChildObject() throws Exception {
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.your_firstName", equalTo("John")).when().get("/xmlWithUnderscoreInChild");
+    }
 }

@@ -117,6 +117,27 @@ class ScalatraRestExample extends ScalatraServlet {
     greetJson
   }
 
+  get("/xmlWithMinusInRoot") {
+    contentType = "application/xml"
+    <a-greeting><firstName>{params("firstName")}</firstName>
+      <lastName>{params("lastName")}</lastName>
+    </a-greeting>
+  }
+
+  get("/xmlWithMinusInChild") {
+    contentType = "application/xml"
+    <greeting><your-firstName>{params("firstName")}</your-firstName>
+      <your-lastName>{params("lastName")}</your-lastName>
+    </greeting>
+  }
+
+  get("/xmlWithUnderscoreInChild") {
+    contentType = "application/xml"
+    <greeting><your_firstName>{params("firstName")}</your_firstName>
+      <your_lastName>{params("lastName")}</your_lastName>
+    </greeting>
+  }
+
   post("/greet") {
     greetJson
   }

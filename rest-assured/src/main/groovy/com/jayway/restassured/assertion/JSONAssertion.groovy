@@ -19,19 +19,13 @@ package com.jayway.restassured.assertion
 import net.sf.json.JSONArray
 import net.sf.json.JSONNull
 import static java.util.Arrays.asList
+import static com.jayway.restassured.assertion.AssertionSupport.escapeMinus
 
 class JSONAssertion implements Assertion {
   String key;
 
   def Object getResult(Object object) {
-    def pathFragments = key.split("\\.")
-    for(int i = 0; i < pathFragments.length; i++) {
-      if(pathFragments[i].contains('-')) {
-        pathFragments[i] = "'"+pathFragments[i]+"'"
-      }
-    }
-    key = pathFragments.join(".")
-
+    key = escapeMinus(key);
     def result;
     try {
       result = Eval.me('restAssuredJsonRootObject', object, "restAssuredJsonRootObject.$key")
