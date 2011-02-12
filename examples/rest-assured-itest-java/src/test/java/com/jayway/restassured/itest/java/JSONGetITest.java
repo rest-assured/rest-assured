@@ -279,12 +279,12 @@ public class JSONGetITest {
 
     @Test
     public void multipleBodyJsonStringMatchersAndHamcrestMatchersShortVersion() throws Exception {
-        expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+        expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItem(45)).when().get("/lotto");
     }
 
     @Test
     public void multipleBodyJsonStringMatchersAndHamcrestMatchersLongVersion() throws Exception {
-        expect().that().body("lotto.lottoId", greaterThan(2)).and().that().body("lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+        expect().that().body("lotto.lottoId", greaterThan(2)).and().that().body("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
     }
 
     @Test
@@ -299,20 +299,20 @@ public class JSONGetITest {
 
     @Test
     public void multipleContentJsonStringMatchersAndHamcrestMatchersShortVersion() throws Exception {
-        expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+        expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItem(45)).when().get("/lotto");
     }
 
     @Test
     public void multipleContentJsonStringMatchersAndHamcrestMatchersLongVersion() throws Exception {
-        expect().that().body("lotto.lottoId", greaterThan(2)).and().that().body("lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+        expect().that().body("lotto.lottoId", greaterThan(2)).and().that().body("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
     }
 
     @Test
-    public void hasItemInArrayHamcrestMatchingThrowsGoodErrorMessagesWhenExpectedItemNotFoundInArray() throws Exception {
+    public void hasItemHamcrestMatchingThrowsGoodErrorMessagesWhenExpectedItemNotFoundInArray() throws Exception {
         exception.expect(AssertionFailedException.class);
-        exception.expectMessage(equalTo("JSON element lotto.winning-numbers doesn't match an array containing <43>, was <2,45,34,23,7,5,3>."));
+        exception.expectMessage(equalTo("JSON element lotto.winning-numbers doesn't match a collection containing <43>, was <[2, 45, 34, 23, 7, 5, 3]>."));
 
-        expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItemInArray(43)).when().get("/lotto");
+        expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItem(43)).when().get("/lotto");
     }
 
     @Test

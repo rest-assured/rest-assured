@@ -18,51 +18,38 @@ package com.jayway.restassured.assertion
 
 import net.sf.json.JSONArray
 import net.sf.json.JSONNull
+import static java.util.Arrays.asList
 
-/**
- * Created by IntelliJ IDEA.
- * User: johan
- * Date: Oct 23, 2010
- * Time: 2:27:27 PM
- * To change this template use File | Settings | File Templates.
- */
 class JSONAssertion implements Assertion {
   String key;
-  def getPattern = ~/get\(\d+\)/
-
 
   def Object getResult(Object object) {
-    Object current = object;
-    def keys = key.split("\\.");
-    keys.each { key ->
-      if(current instanceof JSONArray) {
-        current = current?.getAt(key)
-      } else if(current instanceof List) {
-        current = JSONArray.fromObject(current)
-        if(getPattern.matcher(key).matches()) {
-          def index = Integer.parseInt(key.substring(4, key.length() - 1));
-          current = current?.get(index)
-        } else {
-          current = current?.getAt(key)
-        }
-      } else if(current?.has(key)) {
-        current = current.get(key)
-      } else {
-        throw new IllegalArgumentException("$object doesn't contain key $key")
+    def pathFragments = key.split("\\.")
+    for(int i = 0; i < pathFragments.length; i++) {
+      if(pathFragments[i].contains('-')) {
+        pathFragments[i] = "'"+pathFragments[i]+"'"
       }
     }
+    key = pathFragments.join(".")
 
-    return convertToJavaArrayIfNeeded(current);
+    def result;
+    try {
+      result = Eval.me('restAssuredJsonRootObject', object, "restAssuredJsonRootObject.$key")
+    } catch (Exception e) {
+      throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid JSON expression:"));
+    }
+
+    return convertToJavaArrayIfNeeded(result);
   }
 
   private Object convertToJavaArrayIfNeeded(current) {
     if (current instanceof JSONArray) {
-      current = current.toArray()
+      current = asList(current.toArray());
     }
-    if(current.getClass().isArray()) {
-      for(int i = 0; i < current.length; i++) {
-        if(current[i] instanceof JSONNull) {
-          current[i] = null
+    if(current instanceof List) {
+      for(int i = 0; i < current.size(); i++) {
+        if(current.get(i) instanceof JSONNull) {
+          current.set(i, null);
         }
       }
     }
