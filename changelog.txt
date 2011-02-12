@@ -15,6 +15,8 @@ Change log next version
   But this also means that you can do:
         expect().body("greeting.size()", equalsTo(2))..
 * Support for expecting on XML attributes, e.g. expect().body("greeting.name.@firstName", equalTo("John")).when().get("/greetXMLAttribute?firstName=John&lastName=Doe");
+* When forcing plain text verification for e.g. JSON or XML responses the response content type is no longer changed. Before this could cause Jersey to refuse to refuse the return a response. (issue 10)
+* PUT requests now supports specifying binary a request body
 
 Change 1.0.3 (2011-01-17)
 -------------------------

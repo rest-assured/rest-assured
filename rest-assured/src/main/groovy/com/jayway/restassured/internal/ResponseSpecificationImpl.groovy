@@ -28,7 +28,6 @@ import groovyx.net.http.ContentType
 import org.hamcrest.Matcher
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.ANY
-import static groovyx.net.http.ContentType.TEXT
 import static org.hamcrest.Matchers.equalTo
 
 class ResponseSpecificationImpl implements ResponseSpecification {
@@ -224,11 +223,11 @@ class ResponseSpecificationImpl implements ResponseSpecification {
     }
 
     ContentType getResponseContentType() {
-      return contentType ?: bodyMatchers.requiresContentTypeText() ?  TEXT : ANY;
+      return contentType ?: ANY;
     }
 
-    private boolean requiresContentTypeText() {
-      return bodyMatchers.requiresContentTypeText()
+    private boolean requiresTextParsing() {
+      return bodyMatchers.requiresTextParsing()
     }
 
     def getClosure() {

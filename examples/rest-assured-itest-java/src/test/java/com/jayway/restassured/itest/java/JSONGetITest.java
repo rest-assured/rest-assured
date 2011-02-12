@@ -21,7 +21,6 @@ import com.jayway.restassured.exception.AssertionFailedException;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,7 +30,6 @@ import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
 
 public class JSONGetITest {
 

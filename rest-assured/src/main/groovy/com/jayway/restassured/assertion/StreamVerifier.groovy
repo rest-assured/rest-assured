@@ -1,9 +1,7 @@
 package com.jayway.restassured.assertion
 
-import static groovyx.net.http.ContentType.XML
-import static groovyx.net.http.ContentType.HTML
-import static groovyx.net.http.ContentType.JSON
 import groovyx.net.http.ContentType
+import static groovyx.net.http.ContentType.*
 
 class StreamVerifier {
 

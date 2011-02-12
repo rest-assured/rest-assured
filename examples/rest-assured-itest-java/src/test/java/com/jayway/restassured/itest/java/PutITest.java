@@ -39,12 +39,9 @@ public class PutITest {
     }
 
     @Test
-    public void putDoesntSupportsBinaryBody() throws Exception {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("PUT doesn't support binary request data.");
-
+    public void putSupportsBinaryBody() throws Exception {
         final byte[] body = "a body".getBytes("UTF-8");
-        given().body(body).expect().body(equalTo("34, 126, 18")).when().put("/binaryBody");
+        given().body(body).expect().body(equalTo("97, 32, 98, 111, 100, 121")).when().put("/binaryBody");
     }
 
     @Test

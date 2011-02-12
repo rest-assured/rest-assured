@@ -29,7 +29,6 @@ import groovyx.net.http.Method
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
-import org.apache.commons.lang.StringUtils
 
 class RequestSpecificationImpl implements RequestSpecification {
 
@@ -226,10 +225,16 @@ class RequestSpecificationImpl implements RequestSpecification {
     def http = new HTTPBuilder(getTargetURI(path));
     RestAssuredParserRegistry.responseSpecification = responseSpecification
     http.setParserRegistry(new RestAssuredParserRegistry())
-    // Allow RSS content type to be parsed using XML
-    http.parser.'application/rss+xml' = http.parser.'application/xml'
-    http.parser.'application/xhtml+xml' = http.parser.'text/html'
+    if(assertionClosure.requiresTextParsing()) {
+      new ResponseParserRegistrar(forceTextParsing: true).registerParsers(http)
+    } else {
+      // Allow RSS content type to be parsed using XML
+      http.parser.'application/rss+xml' = http.parser.'application/xml'
+      http.parser.'application/xhtml+xml' = http.parser.'text/html'
+    }
+
     http.getHeaders() << requestHeaders
+
     if(!cookies.isEmpty()) {
       http.getHeaders() << [Cookie : cookies.collect{it.key+"="+it.value}.join("; ")]
     }
@@ -263,6 +268,8 @@ class RequestSpecificationImpl implements RequestSpecification {
       http.request(method, responseContentType) {
         uri.path = path
 
+        setRequestContentType(defineRequestContentTypeAsString(method))
+
         if(requestBody != null) {
           body = requestBody
         }
@@ -270,7 +277,6 @@ class RequestSpecificationImpl implements RequestSpecification {
         if(requestParameters != null) {
           uri.query = requestParameters
         }
-        requestContentType: defineRequestContentType(method)
 
         Closure closure = assertionClosure.getClosure()
         // response handler for a success response code:
@@ -300,12 +306,16 @@ class RequestSpecificationImpl implements RequestSpecification {
     return path;
   }
 
+  private def defineRequestContentTypeAsString(Method method) {
+    return defineRequestContentType(method).toString()
+  }
+
   private def defineRequestContentType(Method method) {
     if (requestContentType == null) {
       if (requestBody == null) {
         requestContentType = method == POST ? URLENC : ANY
       } else if (requestBody instanceof byte[]) {
-        if(method != POST) {
+        if(method != POST && method != PUT) {
           throw new IllegalStateException("$method doesn't support binary request data.");
         }
         requestContentType = BINARY

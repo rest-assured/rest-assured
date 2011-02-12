@@ -21,9 +21,6 @@ import javax.xml.parsers.DocumentBuilderFactory
 import org.hamcrest.Matcher
 import org.hamcrest.xml.HasXPath
 import org.w3c.dom.Element
-import static groovyx.net.http.ContentType.JSON
-import static groovyx.net.http.ContentType.XML
-import static groovyx.net.http.ContentType.HTML
 
 class BodyMatcher {
   def key
@@ -58,7 +55,7 @@ class BodyMatcher {
     matcher instanceof HasXPath
   }
 
-  def boolean requiresContentTypeText() {
+  def boolean requiresTextParsing() {
     isXPathMatcher() || key == null
   }
 

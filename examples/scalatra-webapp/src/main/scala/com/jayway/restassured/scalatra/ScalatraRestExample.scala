@@ -129,6 +129,10 @@ class ScalatraRestExample extends ScalatraServlet {
     getStringBody
   }
 
+  put("/binaryBody") {
+    getBinaryBodyResponse
+  }
+
   post("/binaryBody") {
     getBinaryBodyResponse
   }

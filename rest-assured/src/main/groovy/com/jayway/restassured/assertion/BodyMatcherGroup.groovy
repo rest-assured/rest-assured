@@ -39,11 +39,11 @@ class BodyMatcherGroup {
     !bodyAssertions.isEmpty()
   }
 
-  def boolean requiresContentTypeText() {
+  def boolean requiresTextParsing() {
     def numberOfRequires = 0
     def numberOfNonRequires = 0
     bodyAssertions.each { matcher ->
-      if(matcher.requiresContentTypeText()) {
+      if(matcher.requiresTextParsing()) {
         numberOfRequires++
       } else {
         numberOfNonRequires++
@@ -68,7 +68,7 @@ class BodyMatcherGroup {
       bodyAssertions.each { matcher ->
         def String hamcrestDescription = matcher.getDescription()
         matcherDescription += "\n$hamcrestDescription "
-        if (matcher.requiresContentTypeText()) {
+        if (matcher.requiresTextParsing()) {
           matcherDescription += "which requires 'TEXT'"
         } else {
           matcherDescription += "which cannot be 'TEXT'"

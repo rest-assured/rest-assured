@@ -20,10 +20,10 @@ package com.jayway.restassured.internal;
 
 
 import com.jayway.restassured.assertion.AssertParameter
+import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.RequestSender
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.specification.ResponseSpecification
-import com.jayway.restassured.response.Response
 
 /**
  * A test com.jayway.restassured.specification contains a {@link ResponseSpecification} and a {@link RequestSpecification}. It's
