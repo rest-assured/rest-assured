@@ -74,10 +74,9 @@ public class ResponseITest {
     }
 
     @Test
-    @Ignore("Cannot set body without specifying expectations!")
     public void whenNoExpectationsDefinedThenPutWithBodyCanReturnBodyAsString() throws Exception {
         final String body = given().body("a body").when().put("/body").andReturn().body().asString();
-        assertEquals("ikk", body);
+        assertEquals("a body", body);
     }
 
     @Test

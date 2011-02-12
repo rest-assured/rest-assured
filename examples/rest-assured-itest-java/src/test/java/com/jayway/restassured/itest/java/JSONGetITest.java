@@ -466,4 +466,24 @@ public class JSONGetITest {
 
         expect().response().cookie("Not-Defined", "something").when().get("/setCookies");
     }
+
+    @Test
+    public void supportsGettingListSize() throws Exception {
+        expect().body("store.book.category.size()", equalTo(4)).when().get("/jsonStore");
+    }
+
+    @Test
+    public void supportsGettingListItemInArrayStyle() throws Exception {
+        expect().body("store.book[0].author", equalTo("Nigel Rees")).when().get("/jsonStore");
+    }
+
+    @Test
+    public void supportsGettingListItemInNonArrayStyle() throws Exception {
+        expect().body("store.book.getAt(0).author", equalTo("Nigel Rees")).when().get("/jsonStore");
+    }
+
+    @Test
+    public void supportsGettingSingleFloat() throws Exception {
+        expect().body("store.book[0].price", equalTo(8.95)).when().get("/jsonStore");
+    }
 }

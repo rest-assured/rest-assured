@@ -160,4 +160,19 @@ public class XMLGetITest {
     public void supportBodyExpectationsWithUnderscoreInChildObject() throws Exception {
         with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.your_firstName", equalTo("John")).when().get("/xmlWithUnderscoreInChild");
     }
+
+    @Test
+    public void xmlChildListSize() throws Exception {
+        expect().body("shopping.category.item.size()", equalTo(5)).when().get("/shopping");
+    }
+
+    @Test
+    public void supportsGettingSpecificItemFromAListArrayStyle() throws Exception {
+        expect().body("shopping.category[0].@type", equalTo("groceries")).when().get("/shopping");
+    }
+
+    @Test
+    public void supportsGettingSpecificItemFromAListNonArrayStyle() throws Exception {
+        expect().body("shopping.category.getAt(0).@type", equalTo("groceries")).when().get("/shopping");
+    }
 }
