@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package com.jayway.restassured.internal
 
 import groovyx.net.http.ContentType
@@ -24,17 +26,22 @@ import static groovyx.net.http.ContentType.*
  * preparing for forced text parsing when applicable.
  */
 class ResponseParserRegistrar {
-  private final additional = ['application/rss+xml' : 'application/xml', 'application/xhtml+xml' : 'text/html']
+  private static final Map<String, String> additional = ['application/rss+xml' : 'application/xml', 'atom+xml' : 'application/xml',
+          'xop+xml' : 'application/xml', 'xslt+xml' : 'application/xml', 'rdf+xml' : 'application/xml',
+          'atomcat+xml' : 'application/xml', 'atomsvc+xml' : 'application/xml', 'auth-policy+xml' : 'application/xml']
 
-  def forceTextParsing
 
-  def void registerParsers(http) {
+  def static void registerParsers(http, forceTextParsing) {
     if(forceTextParsing) {
       parseResponsesWithBodyParser(http)
+    } else {
+      additional.each { type, value ->
+        http.parser.putAt(type, http.parser.getAt(value))
+      }
     }
   }
 
-  private def void parseResponsesWithBodyParser(http) {
+  private static def void parseResponsesWithBodyParser(http) {
     def plainText = http.parser.'text/plain'
     registerContentTypeToParsedAs(http, XML, plainText)
     registerContentTypeToParsedAs(http, HTML, plainText)
@@ -43,7 +50,7 @@ class ResponseParserRegistrar {
     registerAllAdditionalContentTypesToBeParsedAs(http, plainText)
   }
 
-  void registerAllAdditionalContentTypesToBeParsedAs(http, toBeParsedAsContentType) {
+  private static void registerAllAdditionalContentTypesToBeParsedAs(http, toBeParsedAsContentType) {
     additional.each { type, value ->
       http.parser.putAt(type, toBeParsedAsContentType)
     }

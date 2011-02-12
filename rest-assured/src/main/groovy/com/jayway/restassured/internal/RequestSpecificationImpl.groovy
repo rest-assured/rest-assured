@@ -229,14 +229,7 @@ class RequestSpecificationImpl implements RequestSpecification {
     def http = new HTTPBuilder(getTargetURI(path));
     RestAssuredParserRegistry.responseSpecification = responseSpecification
     http.setParserRegistry(new RestAssuredParserRegistry())
-    if(assertionClosure.requiresTextParsing()) {
-      new ResponseParserRegistrar(forceTextParsing: true).registerParsers(http)
-    } else {
-      // Allow RSS content type to be parsed using XML
-      http.parser.'application/rss+xml' = http.parser.'application/xml'
-      http.parser.'application/xhtml+xml' = http.parser.'text/html'
-    }
-
+    ResponseParserRegistrar.registerParsers(http, assertionClosure.requiresTextParsing())
     http.getHeaders() << requestHeaders
 
     if(!cookies.isEmpty()) {
