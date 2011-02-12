@@ -18,7 +18,9 @@
 
 package com.jayway.restassured.internal
 
+import com.jayway.restassured.parsing.Parser
 import groovyx.net.http.ContentType
+import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.*
 
 /**
@@ -30,6 +32,21 @@ class ResponseParserRegistrar {
           'xop+xml' : 'application/xml', 'xslt+xml' : 'application/xml', 'rdf+xml' : 'application/xml',
           'atomcat+xml' : 'application/xml', 'atomsvc+xml' : 'application/xml', 'auth-policy+xml' : 'application/xml']
 
+  def static Parser getParser(String mimeType) {
+    def parserAsString = additional.get(mimeType)
+    parserAsString == null ? null : Parser.fromMimeType(parserAsString)
+  }
+
+  def static void registerParser(String mimeType, Parser parser) {
+    notNull(parser, "Parser")
+    notNull(mimeType, "mimeType")
+    additional.put(mimeType, parser.getMimeType())
+  }
+
+  def static void unregisterParser(String mimeType) {
+    notNull(mimeType, "mimeType")
+    additional.remove(mimeType)
+  }
 
   def static void registerParsers(http, forceTextParsing) {
     if(forceTextParsing) {

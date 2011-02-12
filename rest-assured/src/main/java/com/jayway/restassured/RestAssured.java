@@ -18,8 +18,10 @@ package com.jayway.restassured;
 
 import com.jayway.restassured.authentication.*;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
+import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.ResponseSpecificationImpl;
 import com.jayway.restassured.internal.TestSpecificationImpl;
+import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSender;
 import com.jayway.restassured.specification.RequestSpecification;
@@ -439,6 +441,34 @@ public class RestAssured {
         scheme.setAccessToken(accessToken);
         scheme.setSecretToken(secretToken);
         return scheme;
+    }
+
+    /**
+     * Register a custom mime-type to be parsed using a predefined parser. E.g. let's say you want parse
+     * mime-type <tt>application/vnd.uoml+xml</tt> with the XML parser to be able to verify the response using the XML dot notations:
+     * <pre>
+     * expect().body("document.child", equalsTo("something"))..
+     * </pre>
+     * Since <tt>application/vnd.uoml+xml</tt> is not registered to be processed by the XML parser by default you need to explicitly
+     * tell REST Assured to use this parser before making the request:
+     * <pre>
+     * RestAssured.registerParser("application/vnd.uoml+xml, Parser.XML");
+     * </pre>
+     *
+     * @param mimeType The mime-type to register
+     * @param parser The parser to use when verifying the response.
+     */
+    public static void registerParser(String mimeType, Parser parser) {
+        ResponseParserRegistrar.registerParser(mimeType, parser);
+    }
+
+    /**
+     * Unregister the parser associated with the provided mime-type
+     *
+     * @param mimeType The mime-type associated with the parser to unregister.
+     */
+    public static void unregisterParser(String mimeType) {
+        ResponseParserRegistrar.unregisterParser(mimeType);
     }
 
     /**

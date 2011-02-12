@@ -172,6 +172,13 @@ class ScalatraRestExample extends ScalatraServlet {
     </greeting>
   }
 
+  get("/customMimeType") {
+    contentType = "application/vnd.uoml+xml"
+    <body>
+      <message>Custom mime-type</message>
+    </body>
+  }
+
   post("/greet") {
     greetJson
   }

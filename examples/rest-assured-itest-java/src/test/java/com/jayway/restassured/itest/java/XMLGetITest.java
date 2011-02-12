@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Rule;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import org.junit.rules.ExpectedException;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.with;
+import static com.jayway.restassured.parsing.Parser.XML;
 import static org.hamcrest.Matchers.*;
 
 public class XMLGetITest extends WithJetty {
@@ -180,5 +182,16 @@ public class XMLGetITest extends WithJetty {
     @Test
     public void supportsFindingElements() throws Exception {
         expect().body("shopping.category.findAll { it.@type == 'groceries' }.size()", equalTo(1)).when().get("/shopping");
+    }
+
+    @Test
+    public void supportsRegisteringCustomParserForAGivenMimeType() throws Exception {
+        final String mimeType = "application/vnd.uoml+xml";
+        RestAssured.registerParser(mimeType, XML);
+        try {
+            expect().body("body.message", equalTo("Custom mime-type")).when().get("/customMimeType");
+        } finally {
+            RestAssured.unregisterParser(mimeType);
+        }
     }
 }

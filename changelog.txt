@@ -22,6 +22,7 @@ Change log next version
   - JSON lists are always returned as Java lists which means that you should use the hasItem(..) hamcrest matcher and not hasItemsInArray(..) hamcrest matcher.
   - get(x) does no longer work to get a specific item from a list. E.g. you should now do expect().body("somelist[0]", equalTo(..)).. or expect().body("somelist.getAt(0)", equalTo(..)).. . Before you did expect().body("somelist.get(0)", equalTo(..)).
 * Added support for specifying default authentication scheme. E.g. use RestAssured.authentication = basic("username", "password") will cause all subsequent request to use basic authentication. You can reset to no authentication using RestAssured.reset(); (issue 20)
+* Added support for registering a predefined parser for unsupported mime-types by using RestAssured.registerParser(<mime-type>, <parser>). E.g. to register that mime-type 'application/vnd.uoml+xml' should be parsed using the XML parser do: RestAssured.registerParser("application/vnd.uoml+xml", Parser.XML);. You can also unregister a parser using RestAssured.unregisterParser("application/vnd.uoml+xml");. (issue 8)
 
 Change 1.0.3 (2011-01-17)
 -------------------------
