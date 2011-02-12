@@ -50,6 +50,11 @@ public class XMLGetITest {
     }
 
     @Test
+    public void childrenElementsIsEmpty() throws Exception {
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.notDefined.children().isEmpty()", equalTo(true)).get("/anotherGreetXML");
+    }
+
+    @Test
     public void xmlNestedElements2() throws Exception {
         with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.firstName", equalTo("John")).get("/anotherGreetXML");
     }
