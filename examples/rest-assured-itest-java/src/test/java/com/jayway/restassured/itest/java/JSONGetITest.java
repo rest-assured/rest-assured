@@ -486,4 +486,9 @@ public class JSONGetITest {
     public void supportsGettingSingleFloat() throws Exception {
         expect().body("store.book[0].price", equalTo(8.95)).when().get("/jsonStore");
     }
+
+    @Test
+    public void supportsGettingMap() throws Exception {
+        expect().body("store.book", hasItem(hasEntry("category", "reference"))).when().get("/jsonStore");
+    }
 }
