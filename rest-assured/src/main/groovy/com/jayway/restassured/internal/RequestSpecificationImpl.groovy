@@ -248,7 +248,7 @@ class RequestSpecificationImpl implements RequestSpecification {
     responseSpecification.restAssuredResponse = restAssuredResponse
     def responseContentType =  assertionClosure.getResponseContentType()
 
-    if(authenticationScheme instanceof NoAuthScheme && !defaultAuthScheme instanceof NoAuthScheme) {
+    if(authenticationScheme instanceof NoAuthScheme && !(defaultAuthScheme instanceof NoAuthScheme)) {
         // Use default auth scheme
       authenticationScheme = defaultAuthScheme
     }

@@ -521,11 +521,20 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    @Ignore
-    public void basicAuthenticationUseDefault() throws Exception {
+    public void basicAuthenticationUsingDefault() throws Exception {
         authentication = basic("jetty", "jetty");
         try {
             expect().statusCode(200).when().get("/secured/hello");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void explicitExcludeOfBasicAuthenticationWhenUsingDefault() throws Exception {
+        authentication = basic("jetty", "jetty");
+        try {
+            given().auth().none().and().expect().statusCode(401).when().get("/secured/hello");
         } finally {
             RestAssured.reset();
         }
