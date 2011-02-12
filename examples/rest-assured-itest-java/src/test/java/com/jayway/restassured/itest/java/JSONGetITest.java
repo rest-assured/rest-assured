@@ -18,9 +18,11 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.exception.AssertionFailedException;
+import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -32,7 +34,7 @@ import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.RestAssured.authentication;
 import static org.hamcrest.Matchers.*;
 
-public class JSONGetITest {
+public class JSONGetITest extends WithJetty {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -251,7 +253,7 @@ public class JSONGetITest {
         exception.expectMessage(equalTo("Header \"Not-Defined\" was not defined in the response. Headers are: \n" +
                 "Content-Type: application/json; charset=UTF-8\n" +
                 "Content-Length: 160\n" +
-                "Server: Jetty(6.1.26)"));
+                "Server: Jetty(6.1.14)"));
 
         expect().response().header("Not-Defined", "160").when().get("/lotto");
     }
@@ -519,6 +521,7 @@ public class JSONGetITest {
     }
 
     @Test
+    @Ignore
     public void basicAuthenticationUseDefault() throws Exception {
         authentication = basic("jetty", "jetty");
         try {

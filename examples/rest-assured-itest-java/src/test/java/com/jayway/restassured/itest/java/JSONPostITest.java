@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.junit.Test;
@@ -27,7 +28,7 @@ import static groovyx.net.http.ContentType.URLENC;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
-public class JSONPostITest {
+public class JSONPostITest extends WithJetty {
 
     @Test
     public void simpleJSONAndHamcrestMatcher() throws Exception {

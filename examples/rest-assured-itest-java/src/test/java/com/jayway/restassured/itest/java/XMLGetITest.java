@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -24,7 +25,7 @@ import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.with;
 import static org.hamcrest.Matchers.*;
 
-public class XMLGetITest {
+public class XMLGetITest extends WithJetty {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
