@@ -18,18 +18,48 @@ package com.jayway.restassured.assertion
 
 class AssertionSupport {
 
+  private static def closureFragment = '{'
+  private static def listGetterFragment = '('
+  private static def listIndexFragment = '['
+
   def static escapeMinus(key) {
     def pathFragments = key.split("\\.")
     for(int i = 0; i < pathFragments.length; i++) {
-      def pathFragment = pathFragments[i]
-      if(pathFragment.contains('-') && !isGroovyClosureFragment(pathFragment)) {
+      String pathFragment = pathFragments[i]
+      if(pathFragment.contains('-') && !containsAny(pathFragment, [closureFragment, listGetterFragment, listIndexFragment])) {
         pathFragments[i] = "'"+pathFragments[i]+"'"
       }
     }
     pathFragments.join(".")
   }
 
-  private static def isGroovyClosureFragment(pathFragment) {
-    pathFragment.contains("{")
+  def static String generateWhitespace(int number) {
+    if(number < 1) {
+      ""
+    }
+    StringBuilder builder = new StringBuilder();
+    for(int i = 0; i<number; i++) {
+      builder.append(' ');
+    }
+    return builder.toString();
+  }
+
+
+  /**
+   * Copied from Apache commons lang (String utils)
+   */
+  private static boolean containsAny(String str, searchChars) {
+    if (str == null || str.length() == 0 || searchChars == null || searchChars.isEmpty()) {
+      return false;
+    }
+    for (int i = 0; i < str.length(); i++) {
+      char ch = str.charAt(i);
+      for (int j = 0; j < searchChars.size(); j++) {
+        if (searchChars[j] == ch) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }

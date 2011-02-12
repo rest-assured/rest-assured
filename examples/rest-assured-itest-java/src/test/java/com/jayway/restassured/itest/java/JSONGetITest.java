@@ -496,4 +496,24 @@ public class JSONGetITest {
     public void findAllBooksWithPriceGreaterThanTen() throws Exception {
         expect().body("store.book.findAll { book -> book.price > 10 }.size()", equalTo(2)).when().get("/jsonStore");
     }
+
+    @Test
+    public void getLastElementInList() throws Exception {
+        expect().body("store.book[-1].title", equalTo("The Lord of the Rings")).when().get("/jsonStore");
+    }
+
+    @Test
+    public void getFirstTwoElementsInList() throws Exception {
+        expect().body("store.book[0,1].title", hasItems("Sayings of the Century", "Sword of Honour")).when().get("/jsonStore");
+    }
+
+    @Test
+    public void getFirstAndLastElementsInList() throws Exception {
+        expect().body("store.book[0,-1].title", hasItems("Sayings of the Century", "The Lord of the Rings")).when().get("/jsonStore");
+    }
+
+    @Test
+    public void getRangeInList() throws Exception {
+        expect().body("store.book[0..2].size()", equalTo(3)).when().get("/jsonStore");
+    }
 }

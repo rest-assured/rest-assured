@@ -20,6 +20,7 @@ import groovy.util.slurpersupport.Attributes
 import groovy.util.slurpersupport.NodeChild
 import groovy.util.slurpersupport.NodeChildren
 import static com.jayway.restassured.assertion.AssertionSupport.escapeMinus
+import static com.jayway.restassured.assertion.AssertionSupport.generateWhitespace
 
 class XMLAssertion implements Assertion {
   String key;
@@ -55,7 +56,7 @@ class XMLAssertion implements Assertion {
     try {
       result = Eval.me(rootObject, object, "$rootObject$evaluationString")
     } catch (Exception e) {
-      throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid XML expression:").replace(rootObject, baseString));
+      throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid XML expression:").replace(rootObject, generateWhitespace(rootObject.length()-baseString.length())+baseString));
     }
     return convertToJavaObject(result)
   }

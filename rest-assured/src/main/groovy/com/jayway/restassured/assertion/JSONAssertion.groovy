@@ -20,6 +20,7 @@ import net.sf.json.JSONArray
 import net.sf.json.JSONNull
 import static java.util.Arrays.asList
 import static com.jayway.restassured.assertion.AssertionSupport.escapeMinus
+import static com.jayway.restassured.assertion.AssertionSupport.generateWhitespace
 
 class JSONAssertion implements Assertion {
   String key;
@@ -27,10 +28,11 @@ class JSONAssertion implements Assertion {
   def Object getResult(Object object) {
     key = escapeMinus(key);
     def result;
+    def root = 'restAssuredJsonRootObject'
     try {
-      result = Eval.me('restAssuredJsonRootObject', object, "restAssuredJsonRootObject.$key")
+      result = Eval.me(root, object, "$root.$key")
     } catch (Exception e) {
-      throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid JSON expression:"));
+      throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid JSON expression:").replace("$root.", generateWhitespace(root.length())));
     }
 
     return convertToJavaArrayIfNeeded(result);

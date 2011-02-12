@@ -175,4 +175,9 @@ public class XMLGetITest {
     public void supportsGettingSpecificItemFromAListNonArrayStyle() throws Exception {
         expect().body("shopping.category.getAt(0).@type", equalTo("groceries")).when().get("/shopping");
     }
+
+    @Test
+    public void supportsFindingElements() throws Exception {
+        expect().body("shopping.category.findAll { it.@type == 'groceries' }.size()", equalTo(1)).when().get("/shopping");
+    }
 }
