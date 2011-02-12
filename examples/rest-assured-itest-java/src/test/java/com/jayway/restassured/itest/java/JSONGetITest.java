@@ -491,4 +491,9 @@ public class JSONGetITest {
     public void supportsGettingMap() throws Exception {
         expect().body("store.book", hasItem(hasEntry("category", "reference"))).when().get("/jsonStore");
     }
+
+    @Test
+    public void findAllBooksWithPriceGreaterThanTen() throws Exception {
+        expect().body("store.book.findAll { book -> book.price > 10 }.size()", equalTo(2)).when().get("/jsonStore");
+    }
 }

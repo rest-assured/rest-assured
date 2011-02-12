@@ -21,10 +21,15 @@ class AssertionSupport {
   def static escapeMinus(key) {
     def pathFragments = key.split("\\.")
     for(int i = 0; i < pathFragments.length; i++) {
-      if(pathFragments[i].contains('-')) {
+      def pathFragment = pathFragments[i]
+      if(pathFragment.contains('-') && !isGroovyClosureFragment(pathFragment)) {
         pathFragments[i] = "'"+pathFragments[i]+"'"
       }
     }
     pathFragments.join(".")
+  }
+
+  private static def isGroovyClosureFragment(pathFragment) {
+    pathFragment.contains("{")
   }
 }
