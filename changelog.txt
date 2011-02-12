@@ -14,12 +14,14 @@ Change log next version
         expect().body("greeting.children()", hasItems("John", "Doe"))..
   But this also means that you can do:
         expect().body("greeting.size()", equalsTo(2))..
+  See http://groovy.codehaus.org/Updating+XML+with+XmlSlurper for more info.
 * Support for expecting on XML attributes, e.g. expect().body("greeting.name.@firstName", equalTo("John")).when().get("/greetXMLAttribute?firstName=John&lastName=Doe");
 * When forcing plain text verification for e.g. JSON or XML responses the response content type is no longer changed. Before this could cause Jersey to refuse to refuse the return a response. (issue 10)
 * PUT requests now supports specifying binary a request body
 * Major improvenets to JSON expectations. It now uses Groovy syntax for the expectation string to allow for much better expectations! Note that this fix will break backward compatibility on some expectations.
   - JSON lists are always returned as Java lists which means that you should use the hasItem(..) hamcrest matcher and not hasItemsInArray(..) hamcrest matcher.
   - get(x) does no longer work to get a specific item from a list. E.g. you should now do expect().body("somelist[0]", equalTo(..)).. or expect().body("somelist.getAt(0)", equalTo(..)).. . Before you did expect().body("somelist.get(0)", equalTo(..)).
+* Added support for specifying default authentication scheme. E.g. use RestAssured.authentication = basic("username", "password") will cause all subsequent request to use basic authentication. You can reset to no authentication using RestAssured.reset(); (issue 20)
 
 Change 1.0.3 (2011-01-17)
 -------------------------

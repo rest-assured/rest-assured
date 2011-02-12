@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.RestAssured.authentication;
 import static org.hamcrest.Matchers.*;
 
 public class JSONGetITest {
@@ -515,5 +516,15 @@ public class JSONGetITest {
     @Test
     public void getRangeInList() throws Exception {
         expect().body("store.book[0..2].size()", equalTo(3)).when().get("/jsonStore");
+    }
+
+    @Test
+    public void basicAuthenticationUseDefault() throws Exception {
+        authentication = basic("jetty", "jetty");
+        try {
+            expect().statusCode(200).when().get("/secured/hello");
+        } finally {
+            RestAssured.reset();
+        }
     }
 }

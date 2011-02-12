@@ -20,10 +20,12 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.BasicAuthScheme
 import com.jayway.restassured.authentication.CertAuthScheme
+import com.jayway.restassured.authentication.NoAuthScheme
 import com.jayway.restassured.authentication.OAuthScheme
 import com.jayway.restassured.specification.AuthenticationSpecification
 import com.jayway.restassured.specification.RequestSpecification
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import com.jayway.restassured.authentication.ExplicitNoAuthScheme
 
 /**
  * Specify an authentication scheme to use when sending a request.
@@ -101,6 +103,11 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
     notNull secretToken, "secretToken"
 
     requestBuilder.authenticationScheme = new OAuthScheme(consumerKey: consumerKey, consumerSecret: consumerSecret, accessToken: accessToken, secretToken: secretToken)
+    return requestBuilder
+  }
+
+  def RequestSpecification none() {
+    requestBuilder.authenticationScheme = new ExplicitNoAuthScheme();
     return requestBuilder
   }
 }

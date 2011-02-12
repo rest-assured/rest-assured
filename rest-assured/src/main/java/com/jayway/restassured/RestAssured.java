@@ -16,6 +16,7 @@
 
 package com.jayway.restassured;
 
+import com.jayway.restassured.authentication.*;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.ResponseSpecificationImpl;
 import com.jayway.restassured.internal.TestSpecificationImpl;
@@ -184,14 +185,16 @@ import com.jayway.restassured.specification.ResponseSpecification;
  * <pre>
  * .. when().get("http://myhost.org:80/doSomething");
  * </pre>
- * You can also change the default base URI, base path and port for all subsequent requests:
+ * You can also change the default base URI, base path, port and authentication scehme for all subsequent requests:
  * <pre>
  * RestAssured.baseURI = "http://myhost.org";
  * RestAssured.port = 80;
  * RestAssured.basePath = "/resource";
+ * RestAssured.authentication = basic("username", "password");
  * </pre>
- * This means that a request like e.g. <code>get("/hello")</code> goes to: <tt>http://myhost.org:8080/resource/hello</tt><br>
- * You can reset to the standard baseURI (localhost), basePath (empty), and standard port (8080) using:
+ * This means that a request like e.g. <code>get("/hello")</code> goes to: <tt>http://myhost.org:8080/resource/hello</tt>
+ * which basic authentication credentials "username" and "password".<br>
+ * You can reset to the standard baseURI (localhost), basePath (empty), standard port (8080) and default authentication scheme (none) using:
  * <pre>
  * RestAssured.reset();
  * </pre>
@@ -211,6 +214,7 @@ public class RestAssured {
     public static final String DEFAULT_URI = "http://localhost";
     public static final int DEFAULT_PORT = 8080;
     public static final String DEFAULT_PATH = "";
+    public static final AuthenticationScheme DEFAULT_AUTH = new NoAuthScheme();
 
     /**
      * The base URI that's used by REST assured when making requests if a non-fully qualified URI is used in the request.
@@ -237,6 +241,18 @@ public class RestAssured {
      * Default <code>basePath</code> value is empty.
      */
     public static String basePath = DEFAULT_PATH;
+
+    /**
+     * Set an authentication scheme that should be used for each request. By default no authentication is used.
+     * If you have specified an authentication scheme and wish to override it for a single request then
+     * you can do this using:
+     *
+     * <pre>
+     *     given().auth().none()..
+     * </pre>
+     *
+     */
+    public static AuthenticationScheme authentication = DEFAULT_AUTH;
 
     /**
      * Start building the response part of the test com.jayway.restassured.specification. E.g.
@@ -364,15 +380,79 @@ public class RestAssured {
     }
 
     /**
-     * Resets the {@link #baseURI}, {@link #basePath} and {@link #port} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH} and {@value #DEFAULT_PORT}.
+     * Create a http basic authentication scheme.
+     *
+     * @param userName The user name.
+     * @param password The password.
+     * @return The authentication scheme
+     */
+    public static AuthenticationScheme basic(String userName, String password) {
+        final BasicAuthScheme scheme = new BasicAuthScheme();
+        scheme.setUserName(userName);
+        scheme.setPassword(password);
+        return scheme;
+    }
+
+    /**
+     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)}
+     * for how to get a URL from a resource on the classpath.
+     *
+     * @param certURL URL to a JKS keystore where the certificate is stored.
+     * @param password  password to decrypt the keystore
+     * @return The authentication scheme
+     */
+    public static AuthenticationScheme certificate(String certURL, String password) {
+        final CertAuthScheme scheme = new CertAuthScheme();
+        scheme.setCertURL(certURL);
+        scheme.setPassword(password);
+        return scheme;
+    }
+
+    /**
+     * Use http digest authentication.
+     *
+     * @param userName The user name.
+     * @param password The password.
+     * @return The authentication scheme
+     */
+    public static AuthenticationScheme digest(String userName, String password) {
+        return basic(userName, password);
+    }
+
+    /**
+     * Excerpt from the HttpBuilder docs:<br>
+     * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
+     * All requests to all domains will be signed for this instance.
+     * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
+     * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+     *
+     * @param consumerKey
+     * @param consumerSecret
+     * @param accessToken
+     * @param secretToken
+     * @return The authentication scheme
+     */
+    public static AuthenticationScheme oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken) {
+        OAuthScheme scheme = new OAuthScheme();
+        scheme.setConsumerKey(consumerKey);
+        scheme.setConsumerSecret(consumerSecret);
+        scheme.setAccessToken(accessToken);
+        scheme.setSecretToken(secretToken);
+        return scheme;
+    }
+
+    /**
+     * Resets the {@link #baseURI}, {@link #basePath}, {@link #port} and {@link #authentication} to their default values of
+     * {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT} and <code>no authentication</code>.
      */
     public static void reset() {
         baseURI = DEFAULT_URI;
         port = DEFAULT_PORT;
         basePath = DEFAULT_PATH;
+        authentication = DEFAULT_AUTH;
     }
 
     private static TestSpecificationImpl createTestSpecification() {
-        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port, basePath), new ResponseSpecificationImpl());
+        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port, basePath, authentication), new ResponseSpecificationImpl());
     }
 }

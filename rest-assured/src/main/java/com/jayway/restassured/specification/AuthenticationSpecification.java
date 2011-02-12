@@ -25,7 +25,7 @@ public interface AuthenticationSpecification {
      *
      * @param userName The user name.
      * @param password The password.
-     * @return The request builder
+     * @return The Request specification
      */
     RequestSpecification basic(String userName, String password);
 
@@ -34,7 +34,7 @@ public interface AuthenticationSpecification {
      *
      * @param userName The user name.
      * @param password The password.
-     * @return The request builder
+     * @return The Request specification
      */
     RequestSpecification digest(String userName, String password);
 
@@ -44,7 +44,7 @@ public interface AuthenticationSpecification {
      *
      * @param certURL URL to a JKS keystore where the certificate is stored.
      * @param password  password to decrypt the keystore
-     * @return The request com.jayway.restassured.specification
+     * @return Request specification
      */
     RequestSpecification certificate(String certURL, String password);
 
@@ -62,4 +62,11 @@ public interface AuthenticationSpecification {
      * @return The request com.jayway.restassured.specification
      */
     RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken);
+
+    /**
+     * Explicitly state that you don't which to use any authentication in this request. This is useful only in cases where you've
+     * specified a default authentication scheme and you wish to override it for a single request.
+     * @return The Request specification
+     */
+    RequestSpecification none();
 }

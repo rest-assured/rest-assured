@@ -35,6 +35,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   private String baseUri
   private String path  = ""
   private String basePath
+  private AuthenticationScheme defaultAuthScheme
   private int port
   private Map<String, String> requestParameters = [:]
   private AuthenticationScheme authenticationScheme = new NoAuthScheme()
@@ -44,10 +45,13 @@ class RequestSpecificationImpl implements RequestSpecification {
   private Map<String, String> cookies = [:]
   private Object requestBody;
 
-  public RequestSpecificationImpl (String baseURI, int requestPort, String basePath) {
+  public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme) {
     notNull(baseURI, "baseURI");
+    notNull(basePath, "basePath");
+    notNull(defaultAuthScheme, "defaultAuthScheme");
     this.baseUri = baseURI
     this.basePath = basePath
+    this.defaultAuthScheme = defaultAuthScheme
     port(requestPort)
   }
 
@@ -243,7 +247,15 @@ class RequestSpecificationImpl implements RequestSpecification {
     def restAssuredResponse = new RestAssuredResponseImpl()
     responseSpecification.restAssuredResponse = restAssuredResponse
     def responseContentType =  assertionClosure.getResponseContentType()
+
+    if(authenticationScheme instanceof NoAuthScheme && !defaultAuthScheme instanceof NoAuthScheme) {
+        // Use default auth scheme
+      authenticationScheme = defaultAuthScheme
+    }
+
     authenticationScheme.authenticate(http)
+
+
     if(POST.equals(method)) {
       try {
         if(!requestParameters.isEmpty() && requestBody != null) {
