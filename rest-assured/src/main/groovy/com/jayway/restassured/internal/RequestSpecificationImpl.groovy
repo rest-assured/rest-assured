@@ -228,6 +228,7 @@ class RequestSpecificationImpl implements RequestSpecification {
     http.setParserRegistry(new RestAssuredParserRegistry())
     // Allow RSS content type to be parsed using XML
     http.parser.'application/rss+xml' = http.parser.'application/xml'
+    http.parser.'application/xhtml+xml' = http.parser.'text/html'
     http.getHeaders() << requestHeaders
     if(!cookies.isEmpty()) {
       http.getHeaders() << [Cookie : cookies.collect{it.key+"="+it.value}.join("; ")]

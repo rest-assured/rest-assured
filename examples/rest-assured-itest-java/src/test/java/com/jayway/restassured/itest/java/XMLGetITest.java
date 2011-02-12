@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.with;
 import static org.hamcrest.Matchers.*;
 
@@ -96,6 +97,16 @@ public class XMLGetITest {
     }
 
     @Test
+    public void canGetSpecificEntityFromListHtmlDocument() throws Exception {
+        expect().body("html.body.p[0]", equalTo("paragraph 1")).when().get("/textHTML");
+    }
+
+    @Test
+    public void canGetSpecificEntityFromListHtmlDocumentUsingGetAt() throws Exception {
+        expect().body("html.body.p.getAt(0)", equalTo("paragraph 1")).when().get("/textHTML");
+    }
+
+    @Test
     public void rssVerification() throws Exception {
         expect().body("rss.item.title", equalTo("rss title")).when().get("/rss");
     }
@@ -110,7 +121,7 @@ public class XMLGetITest {
         expect().
                 body("greeting.name.@firstName", equalTo("John")).
                 body("greeting.name.@lastName", equalTo("Doe")).
-        when().get("/greetXMLAttribute?firstName=John&lastName=Doe");
+                when().get("/greetXMLAttribute?firstName=John&lastName=Doe");
     }
 
     @Test

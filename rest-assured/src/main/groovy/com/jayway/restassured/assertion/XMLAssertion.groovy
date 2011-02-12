@@ -19,12 +19,13 @@ package com.jayway.restassured.assertion
 import groovy.util.slurpersupport.Attributes
 import groovy.util.slurpersupport.NodeChild
 import groovy.util.slurpersupport.NodeChildren
-import org.apache.commons.lang.StringUtils
 
 class XMLAssertion implements Assertion {
   String key;
   boolean toUpperCase;
 
+  /* Matches fragment such as children() or size(2) */
+  private def isInvocationFragment = ~/.*\(\d*\)/
 
   def Object getResult(Object object) {
     def indexOfDot = key.indexOf(".")
@@ -34,7 +35,7 @@ class XMLAssertion implements Assertion {
       if(toUpperCase) {
         def pathFragments = key.split("\\.");
         for(int i = 0; i < pathFragments.length; i++) {
-          if(StringUtils.isAlpha(pathFragments[i])) {
+          if(isPathFragment(pathFragments[i])) {
             pathFragments[i] = pathFragments[i].toUpperCase();
           }
         }
@@ -54,6 +55,10 @@ class XMLAssertion implements Assertion {
       throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid XML expression:"));
     }
     return convertToJavaObject(result)
+  }
+
+  boolean isPathFragment(String fragment) {
+    return !isInvocationFragment.matcher(fragment).matches()
   }
 
   private def convertToJavaObject(result) {
