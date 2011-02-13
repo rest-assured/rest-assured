@@ -21,6 +21,7 @@ import groovy.util.slurpersupport.NodeChild
 import groovy.util.slurpersupport.NodeChildren
 import static com.jayway.restassured.assertion.AssertionSupport.escapeMinus
 import static com.jayway.restassured.assertion.AssertionSupport.generateWhitespace
+import groovy.util.slurpersupport.GPathResult
 
 class XMLAssertion implements Assertion {
   String key;
@@ -56,7 +57,7 @@ class XMLAssertion implements Assertion {
     try {
       result = Eval.me(rootObject, object, "$rootObject$evaluationString")
     } catch (Exception e) {
-      throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid XML expression:").replace(rootObject, generateWhitespace(rootObject.length()-baseString.length())+baseString));
+      throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid path:").replace(rootObject, generateWhitespace(rootObject.length()-baseString.length())+baseString));
     }
     return convertToJavaObject(result)
   }
@@ -69,7 +70,7 @@ class XMLAssertion implements Assertion {
     def returnValue;
     if(result.getClass().getName().equals(Attributes.class.getName())) {
       returnValue = toJavaObject(result, true)
-    } else if(result instanceof NodeChild || result.getClass().getName().equals(NodeChildren.class.getName())) {
+    } else if(result instanceof GPathResult) {
       returnValue = toJavaObject(result, false)
     } else {
       returnValue = result;

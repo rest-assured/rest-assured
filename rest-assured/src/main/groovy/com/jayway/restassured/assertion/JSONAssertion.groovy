@@ -35,10 +35,10 @@ class JSONAssertion implements Assertion {
       throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid JSON expression:").replace("$root.", generateWhitespace(root.length())));
     }
 
-    return convertToJavaArrayIfNeeded(result);
+    return convertToJavaListIfNeeded(result);
   }
 
-  private Object convertToJavaArrayIfNeeded(current) {
+  private Object convertToJavaListIfNeeded(current) {
     if (current instanceof JSONArray) {
       current = asList(current.toArray());
     }
