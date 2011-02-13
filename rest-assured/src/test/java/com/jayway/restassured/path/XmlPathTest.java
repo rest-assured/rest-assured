@@ -16,7 +16,6 @@
 
 package com.jayway.restassured.path;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -93,12 +92,11 @@ public class XmlPathTest {
     @Test
     public void itemsWithPriceBetweenTenAndTwenty() throws Exception {
         final List<Map<String, Object>> itemsBetweenTenAndTwenty = with(XML).get("shopping.category.item.findAll { item -> def price = Float.parseFloat(item.price.text()); price >= 10 && price <= 20 }");
-        System.out.println("RESULT = "+itemsBetweenTenAndTwenty);
+        System.out.println(itemsBetweenTenAndTwenty);
         assertThat(itemsBetweenTenAndTwenty.size(), equalTo(3));
 
         final Map<String, Object> stringFloatMap = itemsBetweenTenAndTwenty.get(0);
-//        assertThat((String) stringFloatMap.get("name"), equalTo("Chocolate"));
-        System.out.println(itemsBetweenTenAndTwenty);
+        assertThat((String) stringFloatMap.get("name"), equalTo("Chocolate"));
     }
 
     @Test
@@ -124,15 +122,15 @@ public class XmlPathTest {
 
     @Test
     public void convertsNonRootObjectGraphToJavaObjects() throws Exception {
-        List<Map<String, Object>> map = with(XML).get("shopping.category");
-        assertThat(map.toString(), equalTo("[{item={name=Coffee, price=20}}, {item={name=Pens, price=15.5}}, {item={name=Kathryn's Birthday, price=200}}]"));
+        List<Map<String, Object>> objects = with(XML).get("shopping.category");
+        assertThat(objects.size(), equalTo(3));
+        assertThat(objects.toString(), equalTo("[[{item={name=Chocolate, price=10}}, {item={name=Coffee, price=20}}], [{item={name=Paper, price=5}}, {item={name=Pens, price=15.5}}], [{item={name=Kathryn's Birthday, price=200}}]]"));
     }
 
     @Test
-    @Ignore
     public void convertsRootObjectGraphToJavaObjects() throws Exception {
-        List<Map<String, Object>> map = with(XML).get("shopping");
-        System.out.println(map);
+        List<Map<String, Object>> objects = with(XML).get("shopping");
+
     }
 
     @Test

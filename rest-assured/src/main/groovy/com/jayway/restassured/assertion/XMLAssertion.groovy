@@ -17,10 +17,10 @@
 package com.jayway.restassured.assertion
 
 import groovy.util.slurpersupport.Attributes
-import static com.jayway.restassured.assertion.AssertionSupport.escapeMinus
-import static com.jayway.restassured.assertion.AssertionSupport.generateWhitespace
 import groovy.util.slurpersupport.GPathResult
 import groovy.util.slurpersupport.Node
+import static com.jayway.restassured.assertion.AssertionSupport.escapeMinus
+import static com.jayway.restassured.assertion.AssertionSupport.generateWhitespace
 
 class XMLAssertion implements Assertion {
   String key;
@@ -34,7 +34,8 @@ class XMLAssertion implements Assertion {
     def indexOfDot = key.indexOf(".")
     def baseString
     def evaluationString
-    if (indexOfDot > 0) {
+    def isRootOnly = indexOfDot < 0
+    if (!isRootOnly) {
       if(toUpperCase) {
         def pathFragments = key.split("\\.");
         for(int i = 0; i < pathFragments.length; i++) {
@@ -58,7 +59,11 @@ class XMLAssertion implements Assertion {
     } catch (Exception e) {
       throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid path:").replace(rootObject, generateWhitespace(rootObject.length()-baseString.length())+baseString));
     }
-    return convertToJavaObject(result)
+    def javaObject = convertToJavaObject(result)
+    if(javaObject instanceof List && javaObject.size() == 1) {
+      javaObject = javaObject.get(0)
+    }
+    return javaObject
   }
 
   boolean isPathFragment(String fragment) {
@@ -78,6 +83,7 @@ class XMLAssertion implements Assertion {
     } else {
       returnValue = result;
     }
+
     return returnValue
   }
 
@@ -89,20 +95,34 @@ class XMLAssertion implements Assertion {
         result.set(i, convertToJavaObject(result.get(i)))
       }
     }
+
     result
   }
 
   private def nodeToJavaObject(Node node) {
+    def list = []
     def map = [:]
     for(Object child : node.children()) {
       if(child instanceof Node) {
         def name = child.name()
-        map.put(name, convertToJavaObject(child))
+        def object = convertToJavaObject(child)
+        if(shouldBeTreatedAsList(child)) {
+          map = [:]
+          map.put(name, object)
+          list << map
+        } else {
+          map.put(name, object)
+        }
       } else {
         return child
       }
     }
-    map
+    list.isEmpty() ? map : list
+  }
+
+  private boolean shouldBeTreatedAsList(child) {
+    def firstGrandChild = child.children().get(0);
+    return firstGrandChild instanceof Node;
   }
 
   private def toJavaObject(nodes, isAttributes) {
@@ -120,7 +140,7 @@ class XMLAssertion implements Assertion {
     return !nodes.children().isEmpty()
   }
 
-  private List toJavaList(nodes, isAttributes) {
+  private def toJavaList(nodes, isAttributes) {
     def temp = []
     if(isAttributes) {
       nodes.each {
