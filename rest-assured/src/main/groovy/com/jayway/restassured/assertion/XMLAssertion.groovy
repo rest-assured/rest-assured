@@ -104,7 +104,7 @@ class XMLAssertion implements Assertion {
   }
 
   private def nodeToJavaObject(Node node) {
-    def list = []
+    def children = []
     def map = [:]
     for(Object child : node.children()) {
       if(child instanceof Node) {
@@ -113,7 +113,7 @@ class XMLAssertion implements Assertion {
         if(shouldBeTreatedAsList(child)) {
           map = [:]
           map.put(name, object)
-          list << map
+          children << map
         } else {
           map.put(name, object)
         }
@@ -121,7 +121,28 @@ class XMLAssertion implements Assertion {
         return child
       }
     }
-    list.isEmpty() ? map : list
+
+    if(children.isEmpty()) {
+      addAttributes(map, node)
+    } else {
+      addAttributes(children, node)
+    }
+  }
+
+  private def addAttributes(object, Node node) {
+    def attributes = node.attributes();
+    if(object instanceof List) {
+      attributes.each { key, value ->
+        def map = [:]
+        map.put("@"+key, value)
+        object << map
+      }
+    } else {
+      attributes.each { key, value ->
+        object.put("@" + key, value);
+      }
+    }
+    object
   }
 
   private boolean shouldBeTreatedAsList(child) {

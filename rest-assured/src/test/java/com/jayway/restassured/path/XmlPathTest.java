@@ -125,13 +125,20 @@ public class XmlPathTest {
     public void convertsNonRootObjectGraphToJavaObjects() throws Exception {
         List<Map<String, Object>> objects = with(XML).get("shopping.category");
         assertThat(objects.size(), equalTo(3));
-        assertThat(objects.toString(), equalTo("[[{item={name=Chocolate, price=10}}, {item={name=Coffee, price=20}}], [{item={name=Paper, price=5}}, {item={name=Pens, price=15.5}}], [{item={name=Kathryn's Birthday, price=200}}]]"));
+        assertThat(objects.toString(), equalTo("[[{@type=groceries, item={name=Chocolate, price=10}}, {@type=groceries, item={name=Coffee, price=20}}], [{@type=supplies, item={name=Paper, price=5}}, {@type=supplies, item={@quantity=4, name=Pens, price=15.5}}], [{@type=present, item={@when=Aug 10, name=Kathryn's Birthday, price=200}}]]"));
     }
 
     @Test
     public void convertsRootObjectGraphToJavaObjects() throws Exception {
         List<Map<String, Object>> objects = with(XML).get("shopping");
-        assertThat(objects.toString(), equalTo("[{category=[{item={name=Chocolate, price=10}}, {item={name=Coffee, price=20}}]}, {category=[{item={name=Paper, price=5}}, {item={name=Pens, price=15.5}}]}, {category=[{item={name=Kathryn's Birthday, price=200}}]}]"));
+        assertThat(objects.toString(), equalTo("[{category=[{@type=groceries, item={name=Chocolate, price=10}}, {@type=groceries, item={name=Coffee, price=20}}]}, {category=[{@type=supplies, item={name=Paper, price=5}}, {@type=supplies, item={@quantity=4, name=Pens, price=15.5}}]}, {category=[{@type=present, item={@when=Aug 10, name=Kathryn's Birthday, price=200}}]}]"));
+    }
+
+    @Test
+    public void firstCategoryAttributeFromJava() throws Exception {
+        System.out.println(with(XML).get("shopping.category[0]"));
+        List<Map<String, Object>> objects = with(XML).get("shopping.category[0]");
+        System.out.println(objects);
 
     }
 
