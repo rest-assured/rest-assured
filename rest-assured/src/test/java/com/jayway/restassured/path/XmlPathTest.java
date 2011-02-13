@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.path;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.List;
@@ -139,5 +140,12 @@ public class XmlPathTest {
         final String name = with(XML).get("shopping.category.item[0].name");
         assertThat(name, equalTo("Chocolate"));
         assertThat(with(XML).getString("shopping.category.item[0].name"), equalTo("Chocolate"));
+    }
+
+    @Test
+    public void getSingleAttributes() throws Exception {
+        final Map<String, String> categoryAttributes = with(XML).get("shopping.category[0].attributes()");
+        assertThat(categoryAttributes.size(), equalTo(1));
+        assertThat(categoryAttributes.get("type"), equalTo("groceries"));
     }
 }

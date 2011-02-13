@@ -22,11 +22,13 @@ import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
 import org.xml.sax.InputSource;
 
+import java.awt.image.Kernel;
 import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
 
@@ -115,6 +117,14 @@ public class XmlPath {
     }
 
     public <T> List<T> getList(String path) {
+        return get(path);
+    }
+
+    public <K,V> Map<K, V> getMap(String path) {
+        return get(path);
+    }
+
+    public <K,V> Map<K, V> getMap(String path, Class<K> keyType, Class<V> valueType) {
         return get(path);
     }
 
