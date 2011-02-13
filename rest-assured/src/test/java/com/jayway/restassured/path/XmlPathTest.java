@@ -91,9 +91,9 @@ public class XmlPathTest {
     }
 
     @Test
-    @Ignore
     public void itemsWithPriceBetweenTenAndTwenty() throws Exception {
         final List<Map<String, Object>> itemsBetweenTenAndTwenty = with(XML).get("shopping.category.item.findAll { item -> def price = Float.parseFloat(item.price.text()); price >= 10 && price <= 20 }");
+        System.out.println("RESULT = "+itemsBetweenTenAndTwenty);
         assertThat(itemsBetweenTenAndTwenty.size(), equalTo(3));
 
         final Map<String, Object> stringFloatMap = itemsBetweenTenAndTwenty.get(0);
@@ -120,6 +120,12 @@ public class XmlPathTest {
         final XmlPath xmlPath = new XmlPath(XML).setRoot("shopping.category.item.");
         assertThat(xmlPath.getInt("size()"), equalTo(5));
         assertThat(xmlPath.getList("children()", String.class), hasItem("Pens"));
+    }
+
+    @Test
+    public void nested() throws Exception {
+        List<Map<String, Object>> map = with(XML).get("shopping.category");
+        System.out.println(map);
     }
 
     @Test

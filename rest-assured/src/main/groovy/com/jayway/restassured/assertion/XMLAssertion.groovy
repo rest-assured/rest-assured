@@ -17,11 +17,10 @@
 package com.jayway.restassured.assertion
 
 import groovy.util.slurpersupport.Attributes
-import groovy.util.slurpersupport.NodeChild
-import groovy.util.slurpersupport.NodeChildren
 import static com.jayway.restassured.assertion.AssertionSupport.escapeMinus
 import static com.jayway.restassured.assertion.AssertionSupport.generateWhitespace
 import groovy.util.slurpersupport.GPathResult
+import groovy.util.slurpersupport.Node
 
 class XMLAssertion implements Assertion {
   String key;
@@ -70,12 +69,40 @@ class XMLAssertion implements Assertion {
     def returnValue;
     if(result.getClass().getName().equals(Attributes.class.getName())) {
       returnValue = toJavaObject(result, true)
+    } else if(result instanceof Node) {
+      returnValue = nodeToJavaObject(result)
     } else if(result instanceof GPathResult) {
       returnValue = toJavaObject(result, false)
+    } else if(result instanceof List) {
+      returnValue = handleList(result)
     } else {
       returnValue = result;
     }
     return returnValue
+  }
+
+  private def handleList(List result) {
+    if (result.size() == 1) {
+      return convertToJavaObject(result.get(0))
+    } else {
+      for(int i = 0; i < result.size(); i++) {
+        result.set(i, convertToJavaObject(result.get(i)))
+      }
+    }
+    result
+  }
+
+  private def nodeToJavaObject(Node node) {
+    def map = [:]
+    for(Object child : node.children()) {
+      if(child instanceof Node) {
+        def name = child.name()
+        map.put(name, convertToJavaObject(child.children()))
+      } else {
+        return child
+      }
+    }
+    map
   }
 
   private def toJavaObject(nodes, isAttributes) {
@@ -104,7 +131,7 @@ class XMLAssertion implements Assertion {
       }
     } else {
       nodes.nodeIterator().each {
-        temp << it.text()
+        temp << convertToJavaObject(it)
       }
     }
     return temp
