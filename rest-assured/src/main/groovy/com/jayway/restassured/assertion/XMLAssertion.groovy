@@ -60,7 +60,11 @@ class XMLAssertion implements Assertion {
       throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid path:").replace(rootObject, generateWhitespace(rootObject.length()-baseString.length())+baseString));
     }
     def javaObject = convertToJavaObject(result)
-    if(javaObject instanceof List && javaObject.size() == 1) {
+    return preventTreatingRootObjectAsAList(javaObject)
+  }
+
+  private def preventTreatingRootObjectAsAList(javaObject) {
+    if (javaObject instanceof List && javaObject.size() == 1) {
       javaObject = javaObject.get(0)
     }
     return javaObject

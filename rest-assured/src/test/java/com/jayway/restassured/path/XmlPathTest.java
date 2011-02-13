@@ -130,6 +130,7 @@ public class XmlPathTest {
     @Test
     public void convertsRootObjectGraphToJavaObjects() throws Exception {
         List<Map<String, Object>> objects = with(XML).get("shopping");
+        assertThat(objects.toString(), equalTo("[{category=[{item={name=Chocolate, price=10}}, {item={name=Coffee, price=20}}]}, {category=[{item={name=Paper, price=5}}, {item={name=Pens, price=15.5}}]}, {category=[{item={name=Kathryn's Birthday, price=200}}]}]"));
 
     }
 
