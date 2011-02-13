@@ -123,8 +123,15 @@ public class XmlPathTest {
     }
 
     @Test
-    public void nested() throws Exception {
+    public void convertsNonRootObjectGraphToJavaObjects() throws Exception {
         List<Map<String, Object>> map = with(XML).get("shopping.category");
+        assertThat(map.toString(), equalTo("[{item={name=Coffee, price=20}}, {item={name=Pens, price=15.5}}, {item={name=Kathryn's Birthday, price=200}}]"));
+    }
+
+    @Test
+    @Ignore
+    public void convertsRootObjectGraphToJavaObjects() throws Exception {
+        List<Map<String, Object>> map = with(XML).get("shopping");
         System.out.println(map);
     }
 

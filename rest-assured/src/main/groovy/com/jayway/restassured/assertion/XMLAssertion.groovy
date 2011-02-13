@@ -97,7 +97,7 @@ class XMLAssertion implements Assertion {
     for(Object child : node.children()) {
       if(child instanceof Node) {
         def name = child.name()
-        map.put(name, convertToJavaObject(child.children()))
+        map.put(name, convertToJavaObject(child))
       } else {
         return child
       }
