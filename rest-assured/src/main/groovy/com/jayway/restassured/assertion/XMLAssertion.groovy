@@ -106,43 +106,30 @@ class XMLAssertion implements Assertion {
   private def nodeToJavaObject(Node node) {
     def children = []
     def map = [:]
+    addAttributes(map, node)
+    map.put("children", children)
     for(Object child : node.children()) {
       if(child instanceof Node) {
+        def childMap = [:]
         def name = child.name()
         def object = convertToJavaObject(child)
-        if(shouldBeTreatedAsList(child)) {
-          map = [:]
-          map.put(name, object)
-          children << map
-        } else {
-          map.put(name, object)
-        }
+        children << name
+        childMap.put(name, object)
+        children << childMap
       } else {
-        return child
+        map.put("value", child)
       }
     }
-
-    if(children.isEmpty()) {
-      addAttributes(map, node)
-    } else {
-      addAttributes(children, node)
-    }
+    map
   }
 
-  private def addAttributes(object, Node node) {
+  private def addAttributes(map, Node node) {
     def attributes = node.attributes();
-    if(object instanceof List) {
-      attributes.each { key, value ->
-        def map = [:]
-        map.put("@"+key, value)
-        object << map
-      }
-    } else {
-      attributes.each { key, value ->
-        object.put("@" + key, value);
-      }
+    map.put("attributes", convertToJavaObject(attributes))
+    attributes.each { key, value ->
+      map.put("@" + key, value);
     }
-    object
+    map
   }
 
   private boolean shouldBeTreatedAsList(child) {
@@ -176,7 +163,13 @@ class XMLAssertion implements Assertion {
       }
     } else {
       nodes.nodeIterator().each {
-        temp << convertToJavaObject(it)
+        def object = convertToJavaObject(it)
+        temp << object
+        if(object instanceof Map) {
+           if(object.containsKey("value")) {
+             temp << object.get("value")
+           }
+        }
       }
     }
     return temp
