@@ -24,8 +24,7 @@ import java.util.Map;
 import static com.jayway.restassured.path.XmlPath.given;
 import static com.jayway.restassured.path.XmlPath.with;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class XmlPathTest {
@@ -61,7 +60,7 @@ public class XmlPathTest {
 
     @Test
     public void initializeUsingCtorAndGetList() throws Exception {
-        final List<String> categories = new XmlPath(XML).get("shopping.category");
+        final NodeChildren categories = new XmlPath(XML).get("shopping.category");
         assertThat(categories.size(), equalTo(3));
     }
 
@@ -73,70 +72,88 @@ public class XmlPathTest {
 
     @Test
     public void initializeUsingWithAndGetList() throws Exception {
-        final List<String> categories = with(XML).get("shopping.category");
+        final NodeChildren categories = with(XML).get("shopping.category");
         assertThat(categories.size(), equalTo(3));
     }
 
     @Test
     public void initializeUsingWithAndGetChildren() throws Exception {
-        final List<String> categories = with(XML).get("shopping.category.item.name");
+        final List<String> categories = with(XML).get("shopping.category.item.name.list()");
         assertThat(categories, hasItems("Chocolate", "Coffee", "Paper", "Pens", "Kathryn's Birthday"));
     }
 
     @Test
     public void returnItems() throws Exception {
-        final List<String> categories = with(XML).get("shopping.category.item.children()");
+        final List<String> categories = with(XML).get("shopping.category.item.children().list()");
         assertThat(categories, hasItems("Chocolate", "Coffee", "Paper", "Pens", "Kathryn's Birthday"));
     }
 
     @Test
     public void itemsWithPriceBetweenTenAndTwenty() throws Exception {
-        final List<Map<String, List<String>>> itemsBetweenTenAndTwenty = with(XML).get("shopping.category.item.findAll { item -> def price = Float.parseFloat(item.price.text()); price >= 10 && price <= 20 }");
+        final NodeChildren itemsBetweenTenAndTwenty = with(XML).get("shopping.category.item.findAll { item -> def price = item.price.toFloat(); price >= 10 && price <= 20 }");
         assertThat(itemsBetweenTenAndTwenty.size(), equalTo(3));
 
-        final Map<String, List<String>> category1 = itemsBetweenTenAndTwenty.get(0);
-        final List<String> categoryChildren = category1.get("children");
-        assertThat(categoryChildren, hasItems("name", "price"));
+        final Node category1 = itemsBetweenTenAndTwenty.get(0);
+        final NodeChildren categoryChildren = category1.children();
+        assertThat(categoryChildren, hasItems("Chocolate", "10"));
+
+        for (Node item : categoryChildren.nodeIterable()) {
+            assertThat(item.name(), anyOf(equalTo("name"), equalTo("price")));
+        }
     }
 
     @Test
     public void multipleGetsWithOneInstanceOfXmlPath() throws Exception {
         final XmlPath xmlPath = new XmlPath(XML);
         assertThat(xmlPath.getInt("shopping.category.item.size()"), equalTo(5));
-        assertThat(xmlPath.getList("shopping.category.item.children()", String.class), hasItem("Pens"));
+        assertThat(xmlPath.getList("shopping.category.item.children().list()", String.class), hasItem("Pens"));
     }
 
     @Test
     public void rootPathNotEndingWithDot() throws Exception {
         final XmlPath xmlPath = new XmlPath(XML).setRoot("shopping.category.item");
         assertThat(xmlPath.getInt("size()"), equalTo(5));
-        assertThat(xmlPath.getList("children()", String.class), hasItem("Pens"));
+        assertThat(xmlPath.getList("children().list()", String.class), hasItem("Pens"));
     }
 
     @Test
     public void rootPathEndingWithDot() throws Exception {
         final XmlPath xmlPath = new XmlPath(XML).setRoot("shopping.category.item.");
         assertThat(xmlPath.getInt("size()"), equalTo(5));
-        assertThat(xmlPath.getList("children()", String.class), hasItem("Pens"));
+        assertThat(xmlPath.getList("children().list()", String.class), hasItem("Pens"));
     }
 
     @Test
     public void convertsNonRootObjectGraphToJavaObjects() throws Exception {
-        List<Map<String, Object>> objects = with(XML).get("shopping.category");
-        assertThat(objects.size(), equalTo(3));
-        assertThat(objects.toString(), equalTo("[{attributes={type=groceries}, @type=groceries, children=[item, {item={attributes={}, children=[name, {name={attributes={}, children=[], value=Chocolate}}, price, {price={attributes={}, children=[], value=10}}]}}, item, {item={attributes={}, children=[name, {name={attributes={}, children=[], value=Coffee}}, price, {price={attributes={}, children=[], value=20}}]}}]}, {attributes={type=supplies}, @type=supplies, children=[item, {item={attributes={}, children=[name, {name={attributes={}, children=[], value=Paper}}, price, {price={attributes={}, children=[], value=5}}]}}, item, {item={attributes={quantity=4}, @quantity=4, children=[name, {name={attributes={}, children=[], value=Pens}}, price, {price={attributes={}, children=[], value=15.5}}]}}]}, {attributes={type=present}, @type=present, children=[item, {item={attributes={when=Aug 10}, @when=Aug 10, children=[name, {name={attributes={}, children=[], value=Kathryn's Birthday}}, price, {price={attributes={}, children=[], value=200}}]}}]}]"));
+        NodeChildren categories = with(XML).get("shopping.category");
+        assertThat(categories.size(), equalTo(3));
+        assertThat(categories.toString(), equalTo("Chocolate10Coffee20Paper5Pens15.5Kathryn's Birthday200"));
     }
 
     @Test
     public void convertsRootObjectGraphToJavaObjects() throws Exception {
-        Map<String, Object> objects = with(XML).get("shopping");
-        assertThat(objects.toString(), equalTo("{attributes={}, children=[category, {category={attributes={type=groceries}, @type=groceries, children=[item, {item={attributes={}, children=[name, {name={attributes={}, children=[], value=Chocolate}}, price, {price={attributes={}, children=[], value=10}}]}}, item, {item={attributes={}, children=[name, {name={attributes={}, children=[], value=Coffee}}, price, {price={attributes={}, children=[], value=20}}]}}]}}, category, {category={attributes={type=supplies}, @type=supplies, children=[item, {item={attributes={}, children=[name, {name={attributes={}, children=[], value=Paper}}, price, {price={attributes={}, children=[], value=5}}]}}, item, {item={attributes={quantity=4}, @quantity=4, children=[name, {name={attributes={}, children=[], value=Pens}}, price, {price={attributes={}, children=[], value=15.5}}]}}]}}, category, {category={attributes={type=present}, @type=present, children=[item, {item={attributes={when=Aug 10}, @when=Aug 10, children=[name, {name={attributes={}, children=[], value=Kathryn's Birthday}}, price, {price={attributes={}, children=[], value=200}}]}}]}}]}"));
+        Node objects = with(XML).get("shopping");
+        assertThat(objects.toString(), equalTo("Chocolate10Coffee20Paper5Pens15.5Kathryn's Birthday200"));
     }
 
     @Test
     public void firstCategoryAttributeFromJava() throws Exception {
-        Map<String, String> objects = with(XML).get("shopping.category[0]");
-        assertThat(objects.get("@type"), equalTo("groceries"));
+        Node objects = with(XML).get("shopping.category[0]");
+        assertThat(objects.getString("@type"), equalTo("groceries"));
+    }
+
+    @Test
+    public void gettingChildrenFromJava() throws Exception {
+        Node category = with(XML).get("shopping.category[0]");
+        final NodeChildren categoryChildren = category.children();
+        assertThat(categoryChildren.size(), equalTo(2));
+        for (Node item : categoryChildren.nodeIterable()) {
+            assertThat(item.children().size(), equalTo(2));
+            final Node name = item.get("name");
+            final Node price = item.get("price");
+            assertThat(name.value(), anyOf(equalTo("Chocolate"), equalTo("Coffee")));
+            assertThat(price.value(), anyOf(equalTo("10"), equalTo("20")));
+        }
     }
 
     @Test

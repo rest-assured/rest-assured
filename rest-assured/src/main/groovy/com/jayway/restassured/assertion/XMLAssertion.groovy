@@ -21,6 +21,10 @@ import groovy.util.slurpersupport.GPathResult
 import groovy.util.slurpersupport.Node
 import static com.jayway.restassured.assertion.AssertionSupport.escapeMinus
 import static com.jayway.restassured.assertion.AssertionSupport.generateWhitespace
+import com.jayway.restassured.internal.path.xml.NodeChildrenImpl
+import com.jayway.restassured.internal.path.xml.NodeImpl
+import groovy.util.slurpersupport.NodeChild
+import com.jayway.restassured.path.NodeChildren
 
 class XMLAssertion implements Assertion {
   String key;
@@ -80,6 +84,13 @@ class XMLAssertion implements Assertion {
       returnValue = toJavaObject(result, true)
     } else if(result instanceof Node) {
       returnValue = nodeToJavaObject(result)
+    } else if(result instanceof NodeChild) {
+      def object = toJavaObject(result, false)
+      if(object instanceof NodeChildren) {
+        returnValue = object.get(0)
+      } else {
+        returnValue = object
+      }
     } else if(result instanceof GPathResult) {
       returnValue = toJavaObject(result, false)
     } else if(result instanceof List) {
@@ -103,33 +114,23 @@ class XMLAssertion implements Assertion {
     result
   }
 
-  private def nodeToJavaObject(Node node) {
-    def children = []
-    def map = [:]
-    addAttributes(map, node)
-    map.put("children", children)
+  private def nodeToJavaObject(node) {
+    def nodeImpl = new NodeImpl(name: node.name())
+    addAttributes(nodeImpl, node)
     for(Object child : node.children()) {
       if(child instanceof Node) {
-        def childMap = [:]
-        def name = child.name()
         def object = convertToJavaObject(child)
-        children << name
-        childMap.put(name, object)
-        children << childMap
+        nodeImpl.children << object
       } else {
-        map.put("value", child)
+        nodeImpl.value = child
       }
     }
-    map
+    nodeImpl
   }
 
-  private def addAttributes(map, Node node) {
+  private def addAttributes(nodeImpl, node) {
     def attributes = node.attributes();
-    map.put("attributes", convertToJavaObject(attributes))
-    attributes.each { key, value ->
-      map.put("@" + key, value);
-    }
-    map
+    nodeImpl.attributes = convertToJavaObject(attributes)
   }
 
   private boolean shouldBeTreatedAsList(child) {
@@ -153,26 +154,23 @@ class XMLAssertion implements Assertion {
   }
 
   private def toJavaList(nodes, isAttributes) {
-    def temp = []
+    def NodeChildrenImpl nodeList = new NodeChildrenImpl()
     if(isAttributes) {
+      def temp = []
       nodes.each {
         CharArrayWriter caw = new CharArrayWriter();
         it.writeTo(caw);
         caw.close();
         temp << caw.toString()
       }
+      return temp
     } else {
       nodes.nodeIterator().each {
         def object = convertToJavaObject(it)
-        temp << object
-        if(object instanceof Map) {
-           if(object.containsKey("value")) {
-             temp << object.get("value")
-           }
-        }
+        nodeList << object
       }
     }
-    return temp
+    nodeList
   }
 
   def String description() {

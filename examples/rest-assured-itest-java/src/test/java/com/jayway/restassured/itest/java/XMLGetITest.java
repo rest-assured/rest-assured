@@ -95,6 +95,11 @@ public class XMLGetITest extends WithJetty {
     }
 
     @Test
+    public void htmlValueVerification() throws Exception {
+        expect().body("html.body.p.list()", hasItems("paragraph 1", "paragraph 2")).when().get("/textHTML");
+    }
+
+    @Test
     public void htmlChildElementSize() throws Exception {
         expect().body("html.body.children().size()", equalTo(2)).when().get("/textHTML");
     }
