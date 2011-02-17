@@ -16,8 +16,8 @@
 
 package com.jayway.restassured.internal.path.xml
 
-import com.jayway.restassured.path.Node
-import com.jayway.restassured.path.NodeChildren
+import com.jayway.restassured.path.xml.element.Node
+import com.jayway.restassured.path.xml.element.NodeChildren
 
 class NodeImpl extends NodeBase implements Node {
 
@@ -48,7 +48,7 @@ class NodeImpl extends NodeBase implements Node {
   public String toString () {
     def builder = new StringBuilder()
     if(children.isEmpty()) {
-        builder.append(value)
+      builder.append(value)
     } else {
       def iterator = children.iterator()
       while(iterator.hasNext()) {
@@ -63,17 +63,58 @@ class NodeImpl extends NodeBase implements Node {
     return children
   }
 
+  String getAttribute(String name) {
+    return get(name)
+  }
+
+  float getFloat(String name) {
+    return get(name)
+  }
+
+  double getDouble(String name) {
+    return get(name)
+  }
+
+  char getChar(String name) {
+    return get(name)
+  }
+
+  boolean getBoolean(String name) {
+    return get(name)
+  }
+
+  long getLong(String name) {
+    return get(name)
+  }
+
+  int getInt(String name) {
+    return get(name)
+  }
+
+  short getShort(String name) {
+    return get(name)
+  }
+
+  byte getByte(String name) {
+    return get(name)
+  }
+
   public <T> T get(String name) {
     if(name.startsWith("@")) {
       return attributes.get(name.substring(1))
     }
-    return get(name, children.nodeIterator())
+    return get(name, children.nodeIterator(), false)
   }
 
   @Override
   String value() {
     return value
   }
+
+  @Override def <T> List<T> getList(String name) {
+    return get(name, children.nodeIterator(), true)
+  }
+
 
   class ValueIterator implements Iterator<String> {
     def hasNext = true
@@ -90,6 +131,7 @@ class NodeImpl extends NodeBase implements Node {
 
     @Override
     void remove() {
+      throw new UnsupportedOperationException();
     }
   }
 }

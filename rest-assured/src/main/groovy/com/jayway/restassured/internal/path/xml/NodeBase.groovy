@@ -16,13 +16,15 @@
 
 package com.jayway.restassured.internal.path.xml
 
-import com.jayway.restassured.path.Node
+import com.jayway.restassured.path.xml.element.Node
 
 abstract class NodeBase {
 
   abstract <T> T get(String name)
 
-  public <T> T get(String name, iterator) {
+  abstract <T> List<T> getList(String name)
+
+  protected <T> T get(String name, iterator, boolean forceList) {
     def found = []
     while(iterator.hasNext()) {
       def next = iterator.next();
@@ -30,10 +32,22 @@ abstract class NodeBase {
         found << next
       }
     }
-    found.size() == 1 ? found.get(0) : Collections.unmodifiableList(found)
+    if(forceList) {
+      Collections.unmodifiableList(found)
+    } else if(found.size() == 1) {
+      found.get(0)
+    } else if(found.isEmpty()) {
+      null
+    } else {
+      Collections.unmodifiableList(found)
+    }
   }
 
-  String getString(String name) {
+  public Node getNode(String name) {
     return get(name)
+  }
+
+  public List<Node> getNodes(String name) {
+    return getList(name)
   }
 }

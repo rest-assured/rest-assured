@@ -14,17 +14,46 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.path;
+package com.jayway.restassured.path.xml.element;
 
 import java.util.Iterator;
 import java.util.List;
 
+/**
+ * Represent the children of a Node in an XML document.
+ */
 public interface NodeChildren extends PathElement {
 
+    /**
+     * The the Node on the nth index
+     *
+     * @param index The index of the node the get
+     * @return The node
+     */
     Node get(int index);
+
+    /**
+     * @return The number of children
+     */
     int size();
+
+    /**
+     * @return <code>true</code> if there are no children, <code>false</code> otherwise.
+     */
     boolean isEmpty();
+
+    /**
+     * @return An iterable of all nodes
+     */
     Iterable<Node> nodeIterable();
+
+    /**
+     * @return An iterator of all nodes.
+     */
     Iterator<Node> nodeIterator();
+
+    /**
+     * @return The child nodes as a list
+     */
     List<Node> list();
 }

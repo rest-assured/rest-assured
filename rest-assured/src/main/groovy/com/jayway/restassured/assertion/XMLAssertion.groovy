@@ -24,7 +24,7 @@ import static com.jayway.restassured.assertion.AssertionSupport.generateWhitespa
 import com.jayway.restassured.internal.path.xml.NodeChildrenImpl
 import com.jayway.restassured.internal.path.xml.NodeImpl
 import groovy.util.slurpersupport.NodeChild
-import com.jayway.restassured.path.NodeChildren
+import com.jayway.restassured.path.xml.element.NodeChildren
 
 class XMLAssertion implements Assertion {
   String key;

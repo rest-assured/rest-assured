@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.path;
+package com.jayway.restassured.path.xml;
 
+import com.jayway.restassured.path.xml.element.Node;
+import com.jayway.restassured.path.xml.element.NodeChildren;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import static com.jayway.restassured.path.XmlPath.given;
-import static com.jayway.restassured.path.XmlPath.with;
+import static com.jayway.restassured.path.xml.XmlPath.given;
+import static com.jayway.restassured.path.xml.XmlPath.with;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -33,7 +35,10 @@ public class XmlPathTest {
             "      <category type=\"groceries\">\n" +
             "        <item>\n" +
             "\t   <name>Chocolate</name>\n" +
-            "           <price>10</price>\n" +
+            "           <price>10</" +
+            "price>\n" +
+            "" +
+            "   " +
             "\t</item>\n" +
             "        <item>\n" +
             "\t   <name>Coffee</name>\n" +
@@ -139,7 +144,7 @@ public class XmlPathTest {
     @Test
     public void firstCategoryAttributeFromJava() throws Exception {
         Node objects = with(XML).get("shopping.category[0]");
-        assertThat(objects.getString("@type"), equalTo("groceries"));
+        assertThat(objects.getAttribute("@type"), equalTo("groceries"));
     }
 
     @Test

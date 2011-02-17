@@ -16,8 +16,8 @@
 
 package com.jayway.restassured.internal.path.xml
 
-import com.jayway.restassured.path.Node
-import com.jayway.restassured.path.NodeChildren
+import com.jayway.restassured.path.xml.element.Node
+import com.jayway.restassured.path.xml.element.NodeChildren
 
 class NodeChildrenImpl extends NodeBase implements NodeChildren {
   def nodeList = []
@@ -56,7 +56,7 @@ class NodeChildrenImpl extends NodeBase implements NodeChildren {
   }
 
   public <T> T get(String name) {
-    return get(name, nodeList.iterator())
+    return get(name, nodeList.iterator(), false)
   }
 
   @Override
@@ -67,6 +67,10 @@ class NodeChildrenImpl extends NodeBase implements NodeChildren {
   @Override
   List<Node> list() {
     return Collections.unmodifiableList(nodeList)
+  }
+
+  @Override def <T> List<T> getList(String name) {
+    return get(name, nodeList.iterator(), true)
   }
 
   class NodeListIterator implements Iterator<String> {
@@ -84,6 +88,7 @@ class NodeChildrenImpl extends NodeBase implements NodeChildren {
 
     @Override
     void remove() {
+      throw new UnsupportedOperationException()
     }
   }
 }
