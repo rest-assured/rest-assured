@@ -5,16 +5,18 @@ Change log next version
 * Fixed a bug in RestAssuredResponse parser that caused a NPE when the input stream was null. (issue 25)
 * Major improvements to XML expecations. It now uses Groovy syntax for the expectation string to allow for much better expectations! Note that this fix will break backward compatibility on some expectations. E.g. given
         <greeting>
+	    <name>
                 <firstName>John</firstName>
                 <lastName>Doe</lastName>
+            </name>
         </greeting>
   you used to do:
-        expect().body("greeting", hasItems("John", "Doe"))..
+        expect().body("greeting.name", hasItems("John", "Doe"))..
   Now this will not work, instead you have to do:
-        expect().body("greeting.children()", hasItems("John", "Doe"))..
+        expect().body("greeting.name.children()", hasItems("John", "Doe"))..
   But this also means that you can do:
-        expect().body("greeting.size()", equalsTo(2))..
-  See http://groovy.codehaus.org/Updating+XML+with+XmlSlurper for more info.
+        expect().body("greeting.name.size()", equalsTo(2))..
+  See http://groovy.codehaus.org/Updating+XML+with+XmlSlurper for more info about the syntax.
 * Support for expecting on XML attributes, e.g. expect().body("greeting.name.@firstName", equalTo("John")).when().get("/greetXMLAttribute?firstName=John&lastName=Doe");
 * When forcing plain text verification for e.g. JSON or XML responses the response content type is no longer changed. Before this could cause Jersey to refuse to refuse the return a response. (issue 10)
 * PUT requests now supports specifying binary a request body

@@ -39,6 +39,11 @@ public class XMLGetITest extends WithJetty {
     }
 
     @Test
+    public void xmlHasItems() throws Exception {
+        expect().body("greeting", hasItems("John", "Doe")).when().get("/greetXML?firstName=John&lastName=Doe");
+    }
+
+    @Test
     public void xmlParameterSupportWithAnotherAssertion() throws Exception {
         with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).get("/greetXML");
     }
