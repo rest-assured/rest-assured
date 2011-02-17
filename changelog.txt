@@ -25,7 +25,11 @@ Change log next version
 * Added XmlPath object which allows you to parse an XML response from a request easily. E.g.
   String xml = post("/gretting").asString();
   String firstName = with(xml).get("greeting.firstName");
-  For more information refer to the javadoc of XmlPath
+  For more information refer to the javadoc of com.jayway.restassured.path.xml.XmlPath
+* Added JsonPath object which allows you to parse an JSON response from a request easily. E.g.
+  String json = post("/gretting").asString();
+  String firstName = with(json).get("greeting.firstName");
+  For more information refer to the javadoc of com.jayway.restassured.path.json.JsonPath
 
 Change 1.0.3 (2011-01-17)
 -------------------------

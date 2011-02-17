@@ -32,7 +32,7 @@ import java.util.Map;
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
 
 /**
- * XmlPath is an alternative to using XPath for easily getting values in an XML file. It follows the Groovy syntax
+ * XmlPath is an alternative to using XPath for easily getting values from an XML document. It follows the Groovy syntax
  * described <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">here</a>. <br>Let's say we have an XML defined as;
  * <pre>
  * &lt;shopping&gt;
@@ -431,6 +431,14 @@ public class XmlPath {
         return new XmlPath(uri);
     }
 
+    private GPathResult parseText(final String text)  {
+        return new ExceptionCatcher() {
+            protected GPathResult method(XmlSlurper slurper) throws Exception {
+                return slurper.parseText(text);
+            }
+        }.invoke();
+    }
+
     /**
      * Set the root path of the document so that you don't need to write the entire path. E.g.
      * <pre>
@@ -445,14 +453,6 @@ public class XmlPath {
         notNull(rootPath, "Root path");
         this.rootPath = rootPath;
         return this;
-    }
-
-    private GPathResult parseText(final String text)  {
-        return new ExceptionCatcher() {
-            protected GPathResult method(XmlSlurper slurper) throws Exception {
-                return slurper.parseText(text);
-            }
-        }.invoke();
     }
 
     private GPathResult parseInputStream(final InputStream stream)  {
@@ -503,7 +503,7 @@ public class XmlPath {
             try {
                 return method(new XmlSlurper());
             } catch(Exception e) {
-                throw new ParsePathException("Failed to parse the xml", e);
+                throw new ParsePathException("Failed to parse the XML document", e);
             }
         }
     }
