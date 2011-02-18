@@ -187,7 +187,47 @@ import com.jayway.restassured.specification.ResponseSpecification;
  * <pre>
  * .. when().get("http://myhost.org:80/doSomething");
  * </pre>
- * You can also change the default base URI, base path, port and authentication scehme for all subsequent requests:
+ * </li>
+ * <li>
+ * Parameters can also be set directly on the url:
+ * <pre>
+ * ..when().get("/name?firstName=John&lastName=Doe");
+ * </pre>
+ * </li>
+ * <li>
+ * You can use the {@link com.jayway.restassured.path.xml.XmlPath} or {@link com.jayway.restassured.path.json.JsonPath} to
+ * easily parse XML or JSON data from a response.
+ *    <ol>
+ *        <li>XML example:
+ *        <pre>
+ *            String xml = post("/greetXML?firstName=John&lastName=Doe").andReturn().asString();
+ *            // Now use XmlPath to get the first and last name
+ *            String firstName = with(xml).get("greeting.firstName");
+ *            String lastName = with(xml).get("greeting.firstName");
+ *
+ *            // or a bit more efficiently:
+ *            XmlPath xmlPath = new XmlPath(xml).setRoot("greeting");
+ *            String firstName = xmlPath.get("firstName");
+ *            String lastName = xmlPath.get("lastName");
+ *        </pre>
+ *        </li>
+ *        <li>JSON example:
+ *        <pre>
+ *            String json = get("/lotto").asString();
+ *            // Now use JsonPath to get data out of the JSON body
+ *            int lottoId = with(json).getInt("lotto.lottoId);
+ *            List<Integer> winnerIds = with(json).get("lotto.winners.winnerId");
+ *
+ *            // or a bit more efficiently:
+ *            JsonPath jsonPath = new JsonPath(json).setRoot("lotto");
+ *            int lottoId = jsonPath.getInt("lottoId");
+ *            List<Integer> winnderIds = jsonPath.get("winnders.winnderId");
+ *        </pre>
+ *        </li>
+ *    </ol>
+ * </li>
+ * <li>
+ * You can also change the default base URI, base path, port and authentication scheme for all subsequent requests:
  * <pre>
  * RestAssured.baseURI = "http://myhost.org";
  * RestAssured.port = 80;

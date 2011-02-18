@@ -63,6 +63,10 @@ public class XmlPathTest {
             "      </category>\n" +
             "</shopping>";
 
+    private static final String GREETING = "<greeting><firstName>John</firstName>\n" +
+            "      <lastName>Doe</lastName>\n" +
+            "    </greeting>";
+
     @Test
     public void initializeUsingCtorAndGetList() throws Exception {
         final NodeChildren categories = new XmlPath(XML).get("shopping.category");
@@ -173,5 +177,14 @@ public class XmlPathTest {
         final Map<String, String> categoryAttributes = with(XML).get("shopping.category[0].attributes()");
         assertThat(categoryAttributes.size(), equalTo(1));
         assertThat(categoryAttributes.get("type"), equalTo("groceries"));
+    }
+
+    @Test
+    public void gettingLeafReturnsValueInsteadOfNode() throws Exception {
+        String firstName = with(GREETING).get("greeting.firstName");
+        String lastName = with(GREETING).get("greeting.lastName");
+
+        assertThat(firstName, equalTo("John"));
+        assertThat(lastName, equalTo("Doe"));
     }
 }
