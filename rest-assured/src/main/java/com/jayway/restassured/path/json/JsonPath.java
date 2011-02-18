@@ -69,7 +69,7 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull;
  * </pre>
  * To get a list of all book categories:
  * <pre>
- * List<String> categories = with(JSON).get("store.book.category");
+ * List&lt;String&gt; categories = with(JSON).get("store.book.category");
  * </pre>
  *
  * Get the first book category:
@@ -84,7 +84,7 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull;
  *
  * Get all books with price between 5 and 15:
  * <pre>
- * List<Map>> books = with(JSON).get("store.book.findAll { book -> book.price >= 5 && book.price <= 15 }");
+ * List&lt;Map&gt; books = with(JSON).get("store.book.findAll { book -> book.price >= 5 && book.price <= 15 }");
  * </pre>
  *
  */
