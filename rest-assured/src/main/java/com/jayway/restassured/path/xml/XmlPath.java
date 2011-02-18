@@ -87,7 +87,7 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull;
  *
  * Get all items with price greater than or equal to 10 and less than or equal to 20:
  * <pre>
- * NodeChildren itemsBetweenTenAndTwenty = with(XML).get("shopping.category.item.findAll { item -> def price = item.price.toFloat(); price >= 10 && price <= 20 }");
+ * List<Node> itemsBetweenTenAndTwenty = with(XML).get("shopping.category.item.findAll { item -> def price = item.price.toFloat(); price >= 10 && price <= 20 }");
  * </pre>
  *
  *

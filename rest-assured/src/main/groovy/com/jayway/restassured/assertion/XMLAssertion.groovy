@@ -25,6 +25,7 @@ import com.jayway.restassured.internal.path.xml.NodeChildrenImpl
 import com.jayway.restassured.internal.path.xml.NodeImpl
 import groovy.util.slurpersupport.NodeChild
 import com.jayway.restassured.path.xml.element.NodeChildren
+import groovy.util.slurpersupport.FilteredNodeChildren
 
 class XMLAssertion implements Assertion {
   String key;
@@ -81,18 +82,20 @@ class XMLAssertion implements Assertion {
   private def convertToJavaObject(result) {
     def returnValue;
     if(result.getClass().getName().equals(Attributes.class.getName())) {
-      returnValue = toJavaObject(result, true)
+      returnValue = toJavaObject(result, true, false)
     } else if(result instanceof Node) {
       returnValue = nodeToJavaObject(result)
+    } else if(result instanceof FilteredNodeChildren) {
+       returnValue = toJavaObject(result, false, true)
     } else if(result instanceof NodeChild) {
-      def object = toJavaObject(result, false)
+      def object = toJavaObject(result, false, false)
       if(object instanceof NodeChildren) {
         returnValue = object.get(0)
       } else {
         returnValue = object
       }
     } else if(result instanceof GPathResult) {
-      returnValue = toJavaObject(result, false)
+      returnValue = toJavaObject(result, false, false)
     } else if(result instanceof List) {
       returnValue = handleList(result)
     } else {
@@ -138,11 +141,11 @@ class XMLAssertion implements Assertion {
     return firstGrandChild instanceof Node;
   }
 
-  private def toJavaObject(nodes, isAttributes) {
+  private def toJavaObject(nodes, isAttributes, forceList) {
     if (nodes.size() == 1 && !hasChildren(nodes, isAttributes)) {
       return nodes.text()
     } else {
-      return toJavaList(nodes, isAttributes)
+      return toJavaList(nodes, isAttributes, forceList)
     }
   }
 
@@ -153,8 +156,8 @@ class XMLAssertion implements Assertion {
     return !nodes.children().isEmpty()
   }
 
-  private def toJavaList(nodes, isAttributes) {
-    def NodeChildrenImpl nodeList = new NodeChildrenImpl()
+  private def toJavaList(nodes, isAttributes, forceList) {
+    def nodeList = forceList ? [] : new NodeChildrenImpl()
     if(isAttributes) {
       def temp = []
       nodes.each {
@@ -181,4 +184,5 @@ class XMLAssertion implements Assertion {
 class XmlEntity {
   def children
   def attributes
+
 }

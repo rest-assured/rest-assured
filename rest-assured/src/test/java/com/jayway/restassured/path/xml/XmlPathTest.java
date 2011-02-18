@@ -95,7 +95,7 @@ public class XmlPathTest {
 
     @Test
     public void itemsWithPriceBetweenTenAndTwenty() throws Exception {
-        final NodeChildren itemsBetweenTenAndTwenty = with(XML).get("shopping.category.item.findAll { item -> def price = item.price.toFloat(); price >= 10 && price <= 20 }");
+        final List<Node> itemsBetweenTenAndTwenty = with(XML).get("shopping.category.item.findAll { item -> def price = item.price.toFloat(); price >= 10 && price <= 20 }");
         assertThat(itemsBetweenTenAndTwenty.size(), equalTo(3));
 
         final Node category1 = itemsBetweenTenAndTwenty.get(0);
