@@ -227,6 +227,20 @@ import com.jayway.restassured.specification.ResponseSpecification;
  *    </ol>
  * </li>
  * <li>
+ *  REST Assured providers predefined parsers for e.g. HTML, XML and JSON. But you can parse other kinds of content by registering a predefined parser for unsupported mime-types by using:
+ * <pre>
+ * RestAssured.registerParser(&lt;mime-type&gt;, &lt;parser&gt;);
+ * </pre>
+ * E.g. to register that mime-type <code>'application/vnd.uoml+xml'</code> should be parsed using the XML parser do:
+ * <pre>
+ * RestAssured.registerParser("application/vnd.uoml+xml", Parser.XML);
+ * </pre>
+ * You can also unregister a parser using:
+ * <pre>
+ * RestAssured.unregisterParser("application/vnd.uoml+xml");
+ * </pre>
+ * </li>
+ * <li>
  * You can also change the default base URI, base path, port and authentication scheme for all subsequent requests:
  * <pre>
  * RestAssured.baseURI = "http://myhost.org";
