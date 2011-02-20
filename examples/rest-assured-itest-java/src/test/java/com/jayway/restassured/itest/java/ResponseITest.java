@@ -17,14 +17,17 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Response;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static com.jayway.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class ResponseITest extends WithJetty {
 
@@ -83,5 +86,23 @@ public class ResponseITest extends WithJetty {
     public void whenNoExpectationsDefinedThenDeleteWithBodyCanReturnBodyAsString() throws Exception {
         final String actual = given().parameters("firstName", "John", "lastName", "Doe").then().delete("/greet").thenReturn().asString();
         assertEquals("{\"greeting\":\"Greetings John Doe\"}", actual);
+    }
+
+    @Test
+    public void responseSupportGettingCookies() throws Exception {
+        final Response response = get("/setCookies");
+        assertEquals(3, response.getCookies().size());
+        assertEquals(3, response.cookies().size());
+        assertEquals("value1", response.getCookie("key1"));
+        assertEquals("value2", response.cookie("key2"));
+    }
+
+    @Test
+    public void responseSupportGettingHeaders() throws Exception {
+        final Response response = get("/setCookies");
+        assertEquals(4, response.getHeaders().size());
+        assertEquals(4, response.headers().size());
+        assertEquals("text/plain; charset=utf-8", response.getHeader("Content-Type"));
+        assertThat(response.header("Server"), containsString("Jetty"));
     }
 }

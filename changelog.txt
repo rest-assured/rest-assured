@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Added support for getting headers and cookies from the Response, e.g. String headerValue = get("/something").andReturn().header("headerName"); (issue 27)
+
 Change log 1.1 ((2011-02-18)
 ----------------------------
 * Added support for specifying base path using "RestAssured.basePath = /resource". E.g. let's say that the base URI is http://localhost and base path is "/resource" will make create a request to "http://localhost/resource/something" when doing a 'get("/something")'. Default value is empty. (issue 13)

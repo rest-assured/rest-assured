@@ -16,6 +16,8 @@
 
 package com.jayway.restassured.response;
 
+import java.util.Map;
+
 /**
  * The response of a request made by REST Assured.
  * <p>
@@ -27,7 +29,7 @@ package com.jayway.restassured.response;
  *
  * </p>
  */
-public interface Response {
+public interface Response extends ResponseBody {
 
     /**
      * Syntactic sugar, simply returns the same response instance.
@@ -44,23 +46,72 @@ public interface Response {
     Response thenReturn();
 
     /**
-     * Syntactic sugar, simply returns the same response instance.
+     * Returns the response body
      *
-     * @return The same response instance.
+     * @return The response body.
      */
-    Response body();
+    ResponseBody body();
 
     /**
-     * Get the body as a string. You can only do this if you've used REST Assured response expectations.
+     * Returns the response body
      *
-     * @return The body as a string.
+     * @return The response body.
      */
-    String asString();
+    ResponseBody getBody();
 
     /**
-     * Get the body as a byte array. You can only do this if you've used REST Assured response expectations.
+     * The response headers.
      *
-     * @return The body as a array.
+     * @return The response headers.
      */
-    byte[] asByteArray();
+    Map<String, String> headers();
+
+    /**
+     * The response headers.
+     *
+     * @return The response headers.
+     */
+    Map<String, String> getHeaders();
+
+    /**
+     * Get a single header value associated with the given name.
+     *
+     * @return The header value or <code>null</code> if value was not found.
+     */
+    String header(String name);
+
+    /**
+     * Get a single header value associated with the given name.
+     *
+     * @return The header value or <code>null</code> if value was not found.
+     */
+    String getHeader(String name);
+
+    /**
+     * The response cookies.
+     *
+     * @return The response cookies.
+     */
+    Map<String, String> cookies();
+
+    /**
+     * The response cookies.
+     *
+     * @return The response cookies.
+     */
+    Map<String, String> getCookies();
+
+    /**
+     * Get a single cookie value associated with the given name.
+     *
+     * @return The cookie value or <code>null</code> if value was not found.
+     */
+    String cookie(String name);
+
+    /**
+     * Get a single cookie value associated with the given name.
+     *
+     * @return The cookie value or <code>null</code> if value was not found.
+     */
+    String getCookie(String name);
 }

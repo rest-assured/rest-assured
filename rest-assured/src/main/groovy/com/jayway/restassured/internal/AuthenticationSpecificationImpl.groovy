@@ -20,12 +20,11 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.BasicAuthScheme
 import com.jayway.restassured.authentication.CertAuthScheme
-import com.jayway.restassured.authentication.NoAuthScheme
+import com.jayway.restassured.authentication.ExplicitNoAuthScheme
 import com.jayway.restassured.authentication.OAuthScheme
 import com.jayway.restassured.specification.AuthenticationSpecification
 import com.jayway.restassured.specification.RequestSpecification
 import static com.jayway.restassured.assertion.AssertParameter.notNull
-import com.jayway.restassured.authentication.ExplicitNoAuthScheme
 
 /**
  * Specify an authentication scheme to use when sending a request.

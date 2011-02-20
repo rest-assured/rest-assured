@@ -18,9 +18,9 @@ package com.jayway.restassured.assertion
 
 import net.sf.json.JSONArray
 import net.sf.json.JSONNull
-import static java.util.Arrays.asList
 import static com.jayway.restassured.assertion.AssertionSupport.escapeMinus
 import static com.jayway.restassured.assertion.AssertionSupport.generateWhitespace
+import static java.util.Arrays.asList
 
 class JSONAssertion implements Assertion {
   String key;

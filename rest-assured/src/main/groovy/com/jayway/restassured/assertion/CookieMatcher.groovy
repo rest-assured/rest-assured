@@ -32,13 +32,7 @@ class CookieMatcher {
   }
 
   private def getCookieValueOrThrowExceptionIfCookieIsMissing(cookieName,String cookies) {
-    def cookieStrings = cookies.split(";");
-    def cookieMap = [:]
-    cookieStrings.each {
-        def singleCookie = it.split("=")
-        cookieMap.put singleCookie[0].trim(), singleCookie[1].trim()
-    }
-
+    def cookieMap = getCookieMap(cookies)
     def cookie = cookieMap.get(cookieName)
     if (cookie == null) {
       String cookiesAsString = "";
@@ -49,5 +43,14 @@ class CookieMatcher {
 
   }
 
+  public static Map<String, String> getCookieMap(String cookies) {
+    def cookieStrings = cookies.split(";");
+    def cookieMap = [:]
+    cookieStrings.each {
+        def singleCookie = it.split("=")
+        cookieMap.put singleCookie[0].trim(), singleCookie[1].trim()
+    }
+    return cookieMap
+  }
 
 }

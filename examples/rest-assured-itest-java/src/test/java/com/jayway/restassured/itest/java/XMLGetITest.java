@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.with;
 import static com.jayway.restassured.parsing.Parser.XML;
 import static org.hamcrest.Matchers.*;

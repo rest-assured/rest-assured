@@ -236,7 +236,7 @@ class ResponseSpecificationImpl implements ResponseSpecification {
           validateHeadersAndCookies(response)
           bodyMatchers.isFulfilled(response, content)
         } else {
-          restAssuredResponse.parseResponse( content )
+          restAssuredResponse.parseResponse( response, content )
         }
       }
     }
