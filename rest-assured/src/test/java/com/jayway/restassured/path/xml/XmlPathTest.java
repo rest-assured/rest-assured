@@ -147,8 +147,10 @@ public class XmlPathTest {
 
     @Test
     public void firstCategoryAttributeFromJava() throws Exception {
-        Node objects = with(XML).get("shopping.category[0]");
-        assertThat(objects.getAttribute("@type"), equalTo("groceries"));
+        Node node = with(XML).get("shopping.category[0]");
+        assertThat(node.getAttribute("@type"), equalTo("groceries"));
+        assertThat(node.getAttribute("type"), equalTo("groceries"));
+        assertThat((String) node.get("@type"), equalTo("groceries"));
     }
 
     @Test

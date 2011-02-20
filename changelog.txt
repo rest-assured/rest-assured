@@ -1,6 +1,7 @@
 Change log next version
 -----------------------
 * Added support for getting headers and cookies from the Response, e.g. String headerValue = get("/something").andReturn().header("headerName"); (issue 27)
+* Fixed so that you don't need to add a "@" when calling getAttribute(..) on Node in XmlPath (issue 34)
 
 Change log 1.1 ((2011-02-18)
 ----------------------------

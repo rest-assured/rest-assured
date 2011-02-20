@@ -18,6 +18,8 @@ package com.jayway.restassured.internal.path.xml
 
 import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.path.xml.element.NodeChildren
+import com.jayway.restassured.assertion.AssertionSupport
+import com.jayway.restassured.assertion.AssertParameter
 
 class NodeImpl extends NodeBase implements Node {
 
@@ -64,6 +66,10 @@ class NodeImpl extends NodeBase implements Node {
   }
 
   String getAttribute(String name) {
+    AssertParameter.notNull(name, "name")
+    if(!name.startsWith("@")) {
+      name = "@"+name
+    }
     return get(name)
   }
 
