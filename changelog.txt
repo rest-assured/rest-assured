@@ -2,8 +2,8 @@ Change log next version
 -----------------------
 * Added support for getting headers and cookies from the Response, e.g. String headerValue = get("/something").andReturn().header("headerName"); (issue 27)
 * Fixed so that you don't need to add a "@" when calling getAttribute(..) on Node in XmlPath (issue 34)
-* Added support for validating XML body using XSD e.g. "expect().body(matchesXsd(xsd)).when().get("/carRecords");" where matchesXsd(..) is a REST-Assured Hamcrest matcher located in com.jayway.restassured.matcher.RestAssuredMatchers and "xsd" can be either a String, InputStream, Reader or File.
-* Added support for validating XML body using DTD e.g. "expect().body(matchesDtd(dtd)).when().get("/videos");" where matchesDtd(..) is a REST-Assured Hamcrest matcher located in com.jayway.restassured.matcher.RestAssuredMatchers and "dtd" can be either a String, InputStream or File.
+* Added support for validating XML body using XSD e.g. "expect().body(matchesXsd(xsd)).when().get("/carRecords");" where matchesXsd(..) is a REST-Assured Hamcrest matcher located in com.jayway.restassured.matcher.RestAssuredMatchers and "xsd" can be either a String, InputStream, Reader, URL or File.
+* Added support for validating XML body using DTD e.g. "expect().body(matchesDtd(dtd)).when().get("/videos");" where matchesDtd(..) is a REST-Assured Hamcrest matcher located in com.jayway.restassured.matcher.RestAssuredMatchers and "dtd" can be either a String, InputStream, URL or File.
 
 
 Change log 1.1 ((2011-02-18)

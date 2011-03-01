@@ -79,27 +79,9 @@ class XmlDtdMatcher extends BaseMatcher<Boolean> {
       StreamResult result = new StreamResult(writer);
       transformer.transform(source, result);
 
-      // finally parse the result.
-      // this will throw an exception if the doc is invalid
       factory.setValidating(true);
       db = factory.newDocumentBuilder();
-      db.setErrorHandler(new ErrorHandler() {
-        @Override
-        void warning(SAXParseException exception) {
-          throw exception;
-        }
-
-        @Override
-        void error(SAXParseException exception) {
-          throw exception;
-        }
-
-        @Override
-        void fatalError(SAXParseException exception) {
-          throw exception;
-        }
-
-      });
+      db.setErrorHandler(new ExceptionThrowingErrorHandler());
       db.parse(new InputSource(new StringReader(writer.toString())));
     } finally {
       file.delete();
@@ -143,5 +125,22 @@ class XmlDtdMatcher extends BaseMatcher<Boolean> {
 
   private static ByteArrayInputStream toInputStream(String dtd) {
     return new ByteArrayInputStream(dtd.getBytes())
+  }
+
+  private static class ExceptionThrowingErrorHandler implements ErrorHandler {
+    @Override
+    void warning(SAXParseException exception) {
+      throw exception;
+    }
+
+    @Override
+    void error(SAXParseException exception) {
+      throw exception;
+    }
+
+    @Override
+    void fatalError(SAXParseException exception) {
+      throw exception;
+    }
   }
 }
