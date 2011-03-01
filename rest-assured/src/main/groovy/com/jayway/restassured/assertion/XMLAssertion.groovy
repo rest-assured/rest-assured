@@ -58,7 +58,13 @@ class XMLAssertion implements Assertion {
     try {
       result = Eval.me(rootObject, object, "$rootObject$evaluationString")
     } catch (Exception e) {
-      throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid path:").replace(rootObject, generateWhitespace(rootObject.length()-baseString.length())+baseString));
+      def errorMessage = e.getMessage();
+      if(errorMessage.startsWith("No signature of method:")) {
+        errorMessage = "Path $key is invalid."
+      } else {
+        errorMessage = e.getMessage().replace("startup failed:", "Invalid path:").replace(rootObject, generateWhitespace(rootObject.length() - baseString.length()) + baseString)
+      }
+      throw new IllegalArgumentException(errorMessage);
     }
     def javaObject = convertToJavaObject(result)
     return preventTreatingRootObjectAsAList(javaObject)

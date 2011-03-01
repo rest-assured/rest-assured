@@ -204,4 +204,12 @@ public class XMLGetITest extends WithJetty {
             RestAssured.unregisterParser(mimeType);
         }
     }
+
+      @Test
+    public void throwsNiceErrorMessageWhenIllegalPath() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Path shopping.unknown.get(0) is invalid.");
+
+        expect().body("shopping.unknown.get(0)", hasItems("none")).when().get("/shopping");
+    }
 }

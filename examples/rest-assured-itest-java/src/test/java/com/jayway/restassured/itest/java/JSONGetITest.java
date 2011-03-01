@@ -537,4 +537,12 @@ public class JSONGetITest extends WithJetty {
             RestAssured.reset();
         }
     }
+
+    @Test
+    public void throwsNiceErrorMessageWhenIllegalPath() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Cannot get property 'unknown' on null object");
+
+        expect().body("store.unknown.unknown.get(0)", hasItems("none")).when().get("/jsonStore");
+    }
 }
