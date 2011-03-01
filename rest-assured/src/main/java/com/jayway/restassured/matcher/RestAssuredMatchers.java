@@ -16,12 +16,14 @@
 
 package com.jayway.restassured.matcher;
 
+import com.jayway.restassured.internal.matcher.xml.XmlDtdMatcher;
 import com.jayway.restassured.internal.matcher.xml.XmlXsdMatcher;
 import org.hamcrest.Matcher;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
+import java.net.URL;
 
 public class RestAssuredMatchers {
 
@@ -39,5 +41,21 @@ public class RestAssuredMatchers {
 
     public static Matcher<Boolean> matchesXsd(File xsd) {
         return XmlXsdMatcher.matchesXsd(xsd);
+    }
+
+    public static Matcher<Boolean> matchesDtd(String dtd) {
+        return XmlDtdMatcher.matchesDtd(dtd);
+    }
+
+    public static Matcher<Boolean> matchesDtd(InputStream dtd) {
+        return XmlDtdMatcher.matchesDtd(dtd);
+    }
+
+    public static Matcher<Boolean> matchesDtd(File dtd) {
+        return XmlDtdMatcher.matchesDtd(dtd);
+    }
+
+    public static Matcher<Boolean> matchesDtd(URL url) {
+        return XmlDtdMatcher.matchesDtd(url);
     }
 }

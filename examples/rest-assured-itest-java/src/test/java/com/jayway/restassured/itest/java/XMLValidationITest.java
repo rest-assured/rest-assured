@@ -25,6 +25,7 @@ import org.xml.sax.SAXParseException;
 import java.io.InputStream;
 
 import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.matcher.RestAssuredMatchers.matchesDtd;
 import static com.jayway.restassured.matcher.RestAssuredMatchers.matchesXsd;
 
 public class XMLValidationITest extends WithJetty {
@@ -47,6 +48,23 @@ public class XMLValidationITest extends WithJetty {
         final InputStream xsd = getClass().getResourceAsStream("/car-records.xsd");
 
         expect().body(matchesXsd(xsd)).when().get("/shopping");
+    }
+
+    @Test
+    public void validatesDtdInputStream() throws Exception {
+        final InputStream dtd = getClass().getResourceAsStream("/videos.dtd");
+
+        expect().body(matchesDtd(dtd)).when().get("/videos");
+    }
+
+    @Test
+    public void throwsExceptionWhenDtdValidationFails() throws Exception {
+        exception.expect(SAXParseException.class);
+        exception.expectMessage("Element type \"shopping\" must be declared.");
+
+        final InputStream dtd = getClass().getResourceAsStream("/videos.dtd");
+
+        expect().body(matchesDtd(dtd)).when().get("/shopping");
     }
 
 

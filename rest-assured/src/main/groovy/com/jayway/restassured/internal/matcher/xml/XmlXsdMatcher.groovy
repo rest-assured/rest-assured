@@ -35,25 +35,33 @@ class XmlXsdMatcher extends BaseMatcher<Boolean> {
 
   public static Matcher<Boolean> matchesXsd(String xsd) {
     notNull(xsd, "xsd")
-    return new XmlXsdMatcher(new StringReader(xsd.trim()))
+    return new XmlXsdMatcher(new StreamSource(new StringReader(xsd.trim())))
   }
 
   public static Matcher<Boolean> matchesXsd(InputStream xsd) {
-    return new XmlXsdMatcher(xsd)
+    notNull(xsd, "xsd")
+    return new XmlXsdMatcher(new StreamSource(xsd))
   }
 
   public static Matcher<Boolean> matchesXsd(Reader xsd) {
-    return new XmlXsdMatcher(xsd)
+    notNull(xsd, "xsd")
+    return new XmlXsdMatcher(new StreamSource(xsd))
   }
 
   public static Matcher<Boolean> matchesXsd(File xsd) {
+    notNull(xsd, "xsd")
     return new XmlXsdMatcher(xsd)
+  }
+
+  public static Matcher<Boolean> matchesXsd(URL url) {
+    notNull(url, "url")
+    return new XmlXsdMatcher(url)
   }
 
   @Override
   boolean matches(Object item) {
     def factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
-    def schema = factory.newSchema(new StreamSource(xsd))
+    def schema = factory.newSchema(xsd)
     def validator = schema.newValidator()
     return validator.validate(new StreamSource(new StringReader(item))) == null
   }

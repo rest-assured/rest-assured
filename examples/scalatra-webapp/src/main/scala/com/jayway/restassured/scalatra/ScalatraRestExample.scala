@@ -104,6 +104,21 @@ class ScalatraRestExample extends ScalatraServlet {
     </shopping>
   }
 
+  get("/videos") {
+    contentType = "application/xml"
+    <videos>
+      <music>
+        <title>Video Title 1 </title>
+        <artist>Artist 1</artist>
+      </music>
+      <music >
+        <title>Video Title 2</title>
+        <artist>Artist 2</artist>
+        <artist>Artist 3</artist>
+      </music>
+    </videos>
+  }
+
   post("/greetXML") {
     greetXML
   }
