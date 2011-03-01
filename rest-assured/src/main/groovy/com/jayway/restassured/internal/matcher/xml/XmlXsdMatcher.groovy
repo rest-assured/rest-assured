@@ -24,7 +24,7 @@ import org.hamcrest.Description
 import org.hamcrest.Matcher
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 
-class XmlXsdMatcher extends BaseMatcher<Boolean> {
+class XmlXsdMatcher extends BaseMatcher<String> {
 
   def xsd;
 
@@ -33,27 +33,27 @@ class XmlXsdMatcher extends BaseMatcher<Boolean> {
     this.xsd = xsd
   }
 
-  public static Matcher<Boolean> matchesXsd(String xsd) {
+  public static Matcher<String> matchesXsd(String xsd) {
     notNull(xsd, "xsd")
     return new XmlXsdMatcher(new StreamSource(new StringReader(xsd.trim())))
   }
 
-  public static Matcher<Boolean> matchesXsd(InputStream xsd) {
+  public static Matcher<String> matchesXsd(InputStream xsd) {
     notNull(xsd, "xsd")
     return new XmlXsdMatcher(new StreamSource(xsd))
   }
 
-  public static Matcher<Boolean> matchesXsd(Reader xsd) {
+  public static Matcher<String> matchesXsd(Reader xsd) {
     notNull(xsd, "xsd")
     return new XmlXsdMatcher(new StreamSource(xsd))
   }
 
-  public static Matcher<Boolean> matchesXsd(File xsd) {
+  public static Matcher<String> matchesXsd(File xsd) {
     notNull(xsd, "xsd")
     return new XmlXsdMatcher(xsd)
   }
 
-  public static Matcher<Boolean> matchesXsd(URL url) {
+  public static Matcher<String> matchesXsd(URL url) {
     notNull(url, "url")
     return new XmlXsdMatcher(url)
   }

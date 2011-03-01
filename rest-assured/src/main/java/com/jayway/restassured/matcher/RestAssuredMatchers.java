@@ -25,37 +25,88 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
 
+/**
+ * Providers Hamcrest matchers that may be useful when validating a response.
+ */
 public class RestAssuredMatchers {
 
-    public static Matcher<Boolean> matchesXsd(String xsd) {
+    /**
+     * Evaluates to true if an XML string matches the supplied XSD (Xml Schema).
+     *
+     * @param xsd The XSD to match
+     * @return The XSD matcher
+     */
+    public static Matcher<String> matchesXsd(String xsd) {
         return XmlXsdMatcher.matchesXsd(xsd);
     }
 
-    public static Matcher<Boolean> matchesXsd(InputStream xsd) {
+    /**
+     * Evaluates to true if an XML string matches the supplied XSD (Xml Schema).
+     *
+     * @param xsd The XSD to match
+     * @return The XSD matcher
+     */
+    public static Matcher<String> matchesXsd(InputStream xsd) {
         return XmlXsdMatcher.matchesXsd(xsd);
     }
 
-    public static Matcher<Boolean> matchesXsd(Reader xsd) {
+    /**
+     * Evaluates to true if an XML string matches the supplied XSD (Xml Schema).
+     *
+     * @param xsd The XSD to match
+     * @return The XSD matcher
+     */
+    public static Matcher<String> matchesXsd(Reader xsd) {
         return XmlXsdMatcher.matchesXsd(xsd);
     }
 
-    public static Matcher<Boolean> matchesXsd(File xsd) {
+    /**
+     * Evaluates to true if an XML string matches the supplied XSD (Xml Schema).
+     *
+     * @param xsd The XSD to match
+     * @return The XSD matcher
+     */
+    public static Matcher<String> matchesXsd(File xsd) {
         return XmlXsdMatcher.matchesXsd(xsd);
     }
 
-    public static Matcher<Boolean> matchesDtd(String dtd) {
+    /**
+     * Evaluates to true if an XML string matches the supplied DTD.
+     *
+     * @param dtd The DTD to match
+     * @return The DTD matcher
+     */
+    public static Matcher<String> matchesDtd(String dtd) {
         return XmlDtdMatcher.matchesDtd(dtd);
     }
 
-    public static Matcher<Boolean> matchesDtd(InputStream dtd) {
+    /**
+     * Evaluates to true if an XML string matches the supplied DTD.
+     *
+     * @param dtd The DTD to match
+     * @return The DTD matcher
+     */
+    public static Matcher<String> matchesDtd(InputStream dtd) {
         return XmlDtdMatcher.matchesDtd(dtd);
     }
 
-    public static Matcher<Boolean> matchesDtd(File dtd) {
+    /**
+     * Evaluates to true if an XML string matches the supplied DTD.
+     *
+     * @param dtd The DTD to match
+     * @return The DTD matcher
+     */
+    public static Matcher<String> matchesDtd(File dtd) {
         return XmlDtdMatcher.matchesDtd(dtd);
     }
 
-    public static Matcher<Boolean> matchesDtd(URL url) {
+    /**
+     * Evaluates to true if an XML string matches the supplied DTD.
+     *
+     * @param dtd The DTD to match
+     * @return The DTD matcher
+     */
+    public static Matcher<String> matchesDtd(URL url) {
         return XmlDtdMatcher.matchesDtd(url);
     }
 }

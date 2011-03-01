@@ -27,35 +27,33 @@ import org.hamcrest.BaseMatcher
 import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.w3c.dom.Document
-import org.xml.sax.InputSource
-import static com.jayway.restassured.assertion.AssertParameter.notNull
-import com.jayway.restassured.exception.AssertionFailedException
 import org.xml.sax.ErrorHandler
+import org.xml.sax.InputSource
 import org.xml.sax.SAXParseException
+import static com.jayway.restassured.assertion.AssertParameter.notNull
 
-class XmlDtdMatcher extends BaseMatcher<Boolean> {
+class XmlDtdMatcher extends BaseMatcher<String> {
   def dtd
-
 
   private XmlDtdMatcher(dtd) {
     notNull(dtd, "dtd")
     this.dtd = dtd
   }
 
-  public static Matcher<Boolean> matchesDtd(String dtd) {
+  public static Matcher<String> matchesDtd(String dtd) {
     notNull(dtd, "dtd")
     return new XmlDtdMatcher(toInputStream(dtd))
   }
 
-  public static Matcher<Boolean> matchesDtd(InputStream dtd) {
+  public static Matcher<String> matchesDtd(InputStream dtd) {
     return new XmlDtdMatcher(dtd);
   }
 
-  public static Matcher<Boolean> matchesDtd(File dtd) {
+  public static Matcher<String> matchesDtd(File dtd) {
     notNull(dtd, "file")
     return new XmlDtdMatcher(new FileInputStream(dtd))
   }
-  public static Matcher<Boolean> matchesDtd(URL url) {
+  public static Matcher<String> matchesDtd(URL url) {
     notNull(url, "url")
     return new XmlDtdMatcher(url.toString())
   }

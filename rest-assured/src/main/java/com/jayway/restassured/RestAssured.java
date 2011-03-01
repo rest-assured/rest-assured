@@ -99,6 +99,17 @@ import com.jayway.restassured.specification.ResponseSpecification;
  * </pre>
  * </li>
  * <li>
+ * XML response bodies can also be verified against an XML Schema (XSD) or DTD. <br>XSD example:
+ * <pre>
+ * expect().body(matchesXsd(xsd)).when().get("/carRecords");
+ * </pre>
+ * DTD example:
+ * <pre>
+ * expect().body(matchesDtd(dtd)).when().get("/videos");
+ * </pre>
+ * <code>matchesXsd</code> and <code>matchesDtd</code> are Hamcrest matchers which you can import from {@link com.jayway.restassured.matcher.RestAssuredMatchers}.
+ * </li>
+ * <li>
  * Besides specifying request parameters you can also specify headers, cookies, body and content type.<br>
  * <ul>
  * <li>
@@ -261,6 +272,7 @@ import com.jayway.restassured.specification.ResponseSpecification;
  * methods from the following classes:
  * <ul>
  * <li>com.jayway.restassured.RestAssured.*</li>
+ * <li>com.jayway.restassured.matcher.RestAssuredMatchers.*</li>
  * <li>org.hamcrest.Matchers.*</li>
  * </ul>
  * </p>
