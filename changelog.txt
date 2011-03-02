@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 1.1.1 (2011-03-02)
+-----------------------------
 * Added support for getting headers and cookies from the Response, e.g. String headerValue = get("/something").andReturn().header("headerName"); (issue 27)
 * Fixed so that you don't need to add a "@" when calling getAttribute(..) on Node in XmlPath (issue 34)
 * Added support for validating XML body using XSD e.g. "expect().body(matchesXsd(xsd)).when().get("/carRecords");" where matchesXsd(..) is a REST-Assured Hamcrest matcher located in com.jayway.restassured.matcher.RestAssuredMatchers and "xsd" can be either a String, InputStream, Reader, URL or File (issue 29).
