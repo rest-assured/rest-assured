@@ -29,6 +29,9 @@ import groovyx.net.http.Method
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
+import groovyx.net.http.HTTPBuilder.RequestConfigDelegate
+import org.apache.http.client.methods.HttpPost
+import groovyx.net.http.Status
 
 class RequestSpecificationImpl implements RequestSpecification {
 
@@ -226,7 +229,22 @@ class RequestSpecificationImpl implements RequestSpecification {
 
   private def Response sendRequest(path, method, assertionClosure) {
     path = extractRequestParamsIfNeeded(path);
-    def http = new HTTPBuilder(getTargetURI(path));
+    def http = new HTTPBuilder(getTargetURI(path)) {
+      @Override protected Object doRequest(RequestConfigDelegate delegate) {
+        // When doing POST we must add the failure handler here
+        // in order to be able to return the response when doing
+        // e.g. post("/ikk"); when an error occurs.
+        if(delegate.getRequest() instanceof HttpPost) {
+          if (assertionClosure != null ) {
+            delegate.getResponse().put(
+                    Status.FAILURE.toString(), { response, content ->
+                      assertionClosure.call (response, content)
+                    });
+          }
+        }
+        return super.doRequest(delegate)    //To change body of overridden methods use File | Settings | File Templates.
+      }
+    };
     RestAssuredParserRegistry.responseSpecification = responseSpecification
     http.setParserRegistry(new RestAssuredParserRegistry())
     ResponseParserRegistrar.registerParsers(http, assertionClosure.requiresTextParsing())
@@ -242,7 +260,7 @@ class RequestSpecificationImpl implements RequestSpecification {
     def responseContentType =  assertionClosure.getResponseContentType()
 
     if(authenticationScheme instanceof NoAuthScheme && !(defaultAuthScheme instanceof NoAuthScheme)) {
-        // Use default auth scheme
+      // Use default auth scheme
       authenticationScheme = defaultAuthScheme
     }
 
@@ -250,23 +268,15 @@ class RequestSpecificationImpl implements RequestSpecification {
 
 
     if(POST.equals(method)) {
-      try {
-        if(!requestParameters.isEmpty() && requestBody != null) {
-          throw new IllegalStateException("You can either send parameters OR body content in the POST, not both!");
-        }
-        def bodyContent = requestParameters.isEmpty() ? requestBody : requestParameters
-        http.post( path: "$basePath$path", body: bodyContent,
-                requestContentType: defineRequestContentType(POST),
-                contentType: responseContentType) { response, content ->
-          if(assertionClosure != null) {
-            assertionClosure.call (response, content)
-          }
-        }
-      } catch(HttpResponseException e) {
+      if(!requestParameters.isEmpty() && requestBody != null) {
+        throw new IllegalStateException("You can either send parameters OR body content in the POST, not both!");
+      }
+      def bodyContent = requestParameters.isEmpty() ? requestBody : requestParameters
+      http.post( path: "$basePath$path", body: bodyContent,
+              requestContentType: defineRequestContentType(POST),
+              contentType: responseContentType) { response, content ->
         if(assertionClosure != null) {
-          assertionClosure.call(e.getResponse())
-        } else {
-          throw e;
+          assertionClosure.call (response, content)
         }
       }
     } else {

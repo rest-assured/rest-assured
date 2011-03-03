@@ -19,6 +19,7 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.exception.AssertionFailedException;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
@@ -31,6 +32,7 @@ import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class JSONGetITest extends WithJetty {
 
@@ -536,6 +538,13 @@ public class JSONGetITest extends WithJetty {
         } finally {
             RestAssured.reset();
         }
+    }
+
+    @Test
+    public void supportsGettingResponseBodyWhenStatusCodeIs401() throws Exception {
+        final Response response = get("/secured/hello");
+
+        assertThat(response.getBody().asString(), containsString("401 UNAUTHORIZED"));
     }
 
     @Test

@@ -18,13 +18,12 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.path.json.JsonPath;
+import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.junit.Test;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.with;
+import static com.jayway.restassured.RestAssured.*;
 import static groovyx.net.http.ContentType.JSON;
 import static groovyx.net.http.ContentType.URLENC;
 import static org.hamcrest.Matchers.containsString;
@@ -62,7 +61,7 @@ public class JSONPostITest extends WithJetty {
 
     @Test
     public void uriNotFoundTWhenPost() throws Exception {
-        expect().statusCode(404).and().body(equalTo(null)).when().post("/lotto");
+        expect().statusCode(404).and().body(equalTo("Not found")).when().post("/lotto");
     }
 
     @Test
@@ -86,6 +85,13 @@ public class JSONPostITest extends WithJetty {
 
         final JsonPath jsonPath = new JsonPath(body);
         assertThat(jsonPath.getString("greeting"), equalTo("Greetings John Doe"));
+    }
+
+    @Test
+    public void supportsGettingResponseBodyWhenStatusCodeIs401() throws Exception {
+        final Response response = post("/secured/hello");
+
+        assertThat(response.getBody().asString(), containsString("401 UNAUTHORIZED"));
     }
 
     @Test
