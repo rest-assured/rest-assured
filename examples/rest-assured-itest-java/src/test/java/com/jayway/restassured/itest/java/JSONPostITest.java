@@ -17,16 +17,19 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.with;
 import static groovyx.net.http.ContentType.JSON;
 import static groovyx.net.http.ContentType.URLENC;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class JSONPostITest extends WithJetty {
 
@@ -75,6 +78,14 @@ public class JSONPostITest extends WithJetty {
     @Test
     public void requestSpecificationAllowsSpecifyingJsonBodyForPost() throws Exception {
         given().body("{ \"message\" : \"hello world\"}").with().contentType(JSON).then().expect().body(equalTo("hello world")).when().post("/jsonBody");
+    }
+
+    @Test
+    public void supportsReturningPostBody() throws Exception {
+        final String body = with().parameters("firstName", "John", "lastName", "Doe").when().post("/greet").asString();
+
+        final JsonPath jsonPath = new JsonPath(body);
+        assertThat(jsonPath.getString("greeting"), equalTo("Greetings John Doe"));
     }
 
     @Test
