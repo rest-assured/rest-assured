@@ -548,6 +548,11 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
+    public void supportsExpectingStatusCodeWhenAuthenticationError() throws Exception {
+        given().auth().basic("abcd", "abCD1").expect().statusCode(401).when().get("/secured/hello");
+    }
+
+    @Test
     public void throwsNiceErrorMessageWhenIllegalPath() throws Exception {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Cannot get property 'unknown' on null object");
