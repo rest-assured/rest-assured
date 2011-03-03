@@ -21,9 +21,17 @@ import java.util.Map;
 /**
  * The response of a request made by REST Assured.
  * <p>
+ * Usage example:
+ * <pre>
+ * Response response = get("/lotto");
+ * String body = response.getBody().asString();
+ * String headerValue = response.getHeader("headerName");
+ * String cookieValue = response.getCookie("cookieName");
+ * </pre>
+ * <p>
  * The response can only be returned if you don't use any expectations on the body. E.g.
  * <pre>
- *   expect().body(equalTo("my body")).when().get("/something").asString()
+ * expect().body(equalTo("my body")).when().get("/something").asString()
  * </pre>
  * will throw an {@link IllegalStateException} because of the <code>body</code> expectation matcher.
  *
