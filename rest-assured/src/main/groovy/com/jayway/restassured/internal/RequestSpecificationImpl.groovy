@@ -242,7 +242,7 @@ class RequestSpecificationImpl implements RequestSpecification {
                     });
           }
         }
-        return super.doRequest(delegate)    //To change body of overridden methods use File | Settings | File Templates.
+        return super.doRequest(delegate)
       }
     };
     RestAssuredParserRegistry.responseSpecification = responseSpecification
