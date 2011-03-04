@@ -1,6 +1,9 @@
 Change log next version
 -----------------------
 * Fixed so that POST requests can return a response (e.g. Response response = post("/somewhere");) when an error occurred (status code 400 to 999). (issue 37).
+* You can now get the status line and status code from the Response (issue 40). E.g
+      Response" response = get("/something"); 
+      String statusLine = response.getStatusLine();"
 
 Change log 1.1.1 (2011-03-02)
 -----------------------------

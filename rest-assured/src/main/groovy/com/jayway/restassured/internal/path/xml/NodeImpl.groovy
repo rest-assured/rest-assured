@@ -16,10 +16,9 @@
 
 package com.jayway.restassured.internal.path.xml
 
+import com.jayway.restassured.assertion.AssertParameter
 import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.path.xml.element.NodeChildren
-import com.jayway.restassured.assertion.AssertionSupport
-import com.jayway.restassured.assertion.AssertParameter
 
 class NodeImpl extends NodeBase implements Node {
 

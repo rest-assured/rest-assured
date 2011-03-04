@@ -24,14 +24,13 @@ import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.specification.ResponseSpecification
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
-import groovyx.net.http.HttpResponseException
+import groovyx.net.http.HTTPBuilder.RequestConfigDelegate
 import groovyx.net.http.Method
+import groovyx.net.http.Status
+import org.apache.http.client.methods.HttpPost
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
-import groovyx.net.http.HTTPBuilder.RequestConfigDelegate
-import org.apache.http.client.methods.HttpPost
-import groovyx.net.http.Status
 
 class RequestSpecificationImpl implements RequestSpecification {
 

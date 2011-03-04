@@ -23,7 +23,6 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Map;
 
-import static com.jayway.restassured.matcher.RestAssuredMatchers.matchesXsd;
 import static com.jayway.restassured.path.xml.XmlPath.given;
 import static com.jayway.restassured.path.xml.XmlPath.with;
 import static org.hamcrest.CoreMatchers.equalTo;

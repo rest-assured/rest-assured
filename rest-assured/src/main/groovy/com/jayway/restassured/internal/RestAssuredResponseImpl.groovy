@@ -26,11 +26,20 @@ class RestAssuredResponseImpl implements Response {
   def responseHeaders = [:]
   def cookies = [:]
   def content
+  def statusLine
+  def statusCode
 
   public void parseResponse(httpResponse, content) {
     parseHeaders(httpResponse)
     parseCookies()
+    parseStatus(httpResponse)
     parseContent(content)
+  }
+
+  def parseStatus(httpResponse) {
+    statusLine = httpResponse.statusLine.toString()
+    statusCode = httpResponse.statusLine.statusCode
+
   }
 
   def parseCookies() {
@@ -115,6 +124,22 @@ class RestAssuredResponseImpl implements Response {
 
   String getCookie(String name) {
     return cookie(name)
+  }
+
+  String statusLine() {
+    return statusLine
+  }
+
+  int statusCode() {
+    return statusCode
+  }
+
+  String getStatusLine() {
+    return statusLine()
+  }
+
+  int getStatusCode() {
+    return statusCode()
   }
 
   private convertToByteArray(InputStream stream) {

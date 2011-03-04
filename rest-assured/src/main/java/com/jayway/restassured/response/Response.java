@@ -122,4 +122,32 @@ public interface Response extends ResponseBody {
      * @return The cookie value or <code>null</code> if value was not found.
      */
     String getCookie(String name);
+
+    /**
+     * Get the status line of the response.
+     *
+     * @return The status line of the response.
+     */
+    String statusLine();
+
+    /**
+     * Get the status line of the response.
+     *
+     * @return The status line of the response.
+     */
+    String getStatusLine();
+
+    /**
+     * Get the status code of the response.
+     *
+     * @return The status code of the response.
+     */
+    int statusCode();
+
+    /**
+     * Get the status code of the response.
+     *
+     * @return The status code of the response.
+     */
+    int getStatusCode();
 }

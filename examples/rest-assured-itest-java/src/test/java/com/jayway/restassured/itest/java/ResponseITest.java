@@ -25,9 +25,7 @@ import org.junit.rules.ExpectedException;
 import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class ResponseITest extends WithJetty {
 
@@ -89,7 +87,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void responseSupportGettingCookies() throws Exception {
+    public void responseSupportsGettingCookies() throws Exception {
         final Response response = get("/setCookies");
         assertEquals(3, response.getCookies().size());
         assertEquals(3, response.cookies().size());
@@ -98,11 +96,27 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void responseSupportGettingHeaders() throws Exception {
+    public void responseSupportsGettingHeaders() throws Exception {
         final Response response = get("/setCookies");
         assertEquals(4, response.getHeaders().size());
         assertEquals(4, response.headers().size());
         assertEquals("text/plain; charset=utf-8", response.getHeader("Content-Type"));
         assertThat(response.header("Server"), containsString("Jetty"));
+    }
+
+    @Test
+    public void responseSupportsGettingStatusLine() throws Exception {
+        final Response response = get("/hello");
+
+        assertThat(response.statusLine(), equalTo("HTTP/1.1 200 OK"));
+        assertThat(response.getStatusLine(), equalTo("HTTP/1.1 200 OK"));
+    }
+
+    @Test
+    public void responseSupportsGettingStatusCode() throws Exception {
+        final Response response = get("/hello");
+
+        assertThat(response.statusCode(), equalTo(200));
+        assertThat(response.getStatusCode(), equalTo(200));
     }
 }
