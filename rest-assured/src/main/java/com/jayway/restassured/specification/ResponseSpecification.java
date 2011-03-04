@@ -67,17 +67,17 @@ public interface ResponseSpecification extends RequestSender {
    *
    * You can also verify that e.g. one of the the winning numbers is 45.
    * <pre>
-   * expect().content("lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+   * expect().content("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
    * </pre>
    *
    * Or both at the same time:
    * <pre>
-   * expect().content("lotto.lottoId", equalTo(5)).and().content("lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+   * expect().content("lotto.lottoId", equalTo(5)).and().content("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
    * </pre>
    *
    * or a slightly short version:
    * <pre>
-   * expect().content("lotto.lottoId", equalTo(5), "lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+   * expect().content("lotto.lottoId", equalTo(5), "lotto.winning-numbers", hasItem(45)).when().get("/lotto");
    * </pre>
    * </p>
    * <h3>XML example</h3>
@@ -433,17 +433,17 @@ public interface ResponseSpecification extends RequestSender {
    *
    * You can also verify that e.g. one of the the winning numbers is 45.
    * <pre>
-   * expect().body("lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+   * expect().body("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
    * </pre>
    *
    * Or both at the same time:
    * <pre>
-   * expect().body("lotto.lottoId", equalTo(5)).and().body("lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+   * expect().body("lotto.lottoId", equalTo(5)).and().body("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
    * </pre>
    *
    * or a slightly short version:
    * <pre>
-   * expect().body("lotto.lottoId", equalTo(5), "lotto.winning-numbers", hasItemInArray(45)).when().get("/lotto");
+   * expect().body("lotto.lottoId", equalTo(5), "lotto.winning-numbers", hasItem(45)).when().get("/lotto");
    * </pre>
    * </p>
    * <h3>XML example</h3>
