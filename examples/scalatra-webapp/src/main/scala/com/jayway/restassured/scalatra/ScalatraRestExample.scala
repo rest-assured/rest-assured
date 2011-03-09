@@ -119,6 +119,14 @@ class ScalatraRestExample extends ScalatraServlet {
     </videos>
   }
 
+  get("/greetJSON") {
+    "{ \"greeting\" : { \n" +
+                "                \"firstName\" : \""+{params("firstName")}+"\", \n" +
+                "                \"lastName\" : \""+{params("lastName")}+"\" \n" +
+                "               }\n" +
+                "}"
+  }
+
   post("/greetXML") {
     greetXML
   }
