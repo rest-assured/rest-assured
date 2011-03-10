@@ -283,6 +283,12 @@ class ScalatraRestExample extends ScalatraServlet {
     </rss>
   }
 
+
+  get("/jsonp") {
+    contentType ="application/javascript"
+    params("callback")+"("+greetJson+");"
+  }
+
   get("/bigRss") {
     contentType ="application/rss+xml"
     <rss xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
