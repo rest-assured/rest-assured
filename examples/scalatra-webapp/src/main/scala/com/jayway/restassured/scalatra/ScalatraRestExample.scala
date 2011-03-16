@@ -256,6 +256,17 @@ class ScalatraRestExample extends ScalatraServlet {
     getCookies
   }
 
+  get("/jsonList") {
+          """[
+           { "name" : "Anders",
+             "address" : "Spangatan"
+           },
+           { "name" : "Sven",
+             "address" : "Skolgatan"
+           }
+          ]"""
+  }
+
   get("/textXML") {
     contentType ="text/xml"
     <xml>something</xml>

@@ -559,4 +559,9 @@ public class JSONGetITest extends WithJetty {
 
         expect().body("store.unknown.unknown.get(0)", hasItems("none")).when().get("/jsonStore");
     }
+
+    @Test
+    public void supportsParsingJsonLists() throws Exception {
+        expect().body("address[0]", equalTo("Spangatan")).when().get("/jsonList");
+    }
 }
