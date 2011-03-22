@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.authentication
-
-import groovyx.net.http.HTTPBuilder
+package com.jayway.restassured.specification;
 
 /**
- * Authentication scheme that doesn't do any authentication.
- * This is different from NoAuthScheme because it's used to indicate
- * that a user has explicitly requested for no authentication
- * to override a default authentication scheme.
+ * Specify a preemptive authentication scheme to use when sending a request.
  */
-class ExplicitNoAuthScheme implements AuthenticationScheme {
-  @Override void authenticate(HTTPBuilder httpBuilder) {
-  }
+public interface PreemptiveAuthSpec {
+    /**
+     * Use preemptive http basic authentication. This means that the authentication details are sent in the request
+     * header regardless if the server has challenged for authentication or not.
+     *
+     * @param userName The user name.
+     * @param password The password.
+     *
+     * @return The Request specification
+     */
+    RequestSpecification basic(String userName, String password);
 }

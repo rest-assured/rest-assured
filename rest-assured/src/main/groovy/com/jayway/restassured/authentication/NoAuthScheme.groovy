@@ -22,6 +22,6 @@ import groovyx.net.http.HTTPBuilder
  * Authentication scheme that doesn't do any authentication
  */
 class NoAuthScheme implements AuthenticationScheme {
-  @Override def authenticate(HTTPBuilder httpBuilder) {
+  @Override void authenticate(HTTPBuilder httpBuilder) {
   }
 }

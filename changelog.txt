@@ -1,3 +1,8 @@
+Change log next version
+-----------------------
+* Added suport for preemptive basic authentication. E.g. given().auth().preemptive().basic("username", "password").when().get("/secured");. You can also set preemptive basic authentication as default authentication scheme using:
+  RestAssured.authentication = preemptive().basic("username", "password"); (issue 45)
+
 Change log 1.1.2 (2011-03-04)
 -----------------------------
 * Fixed so that POST requests can return a response (e.g. Response response = post("/somewhere");) when an error occurred (status code 400 to 999). (issue 37).

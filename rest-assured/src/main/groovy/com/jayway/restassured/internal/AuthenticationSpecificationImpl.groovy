@@ -25,15 +25,16 @@ import com.jayway.restassured.authentication.OAuthScheme
 import com.jayway.restassured.specification.AuthenticationSpecification
 import com.jayway.restassured.specification.RequestSpecification
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import com.jayway.restassured.specification.PreemptiveAuthSpec
 
 /**
  * Specify an authentication scheme to use when sending a request.
  */
 class AuthenticationSpecificationImpl implements AuthenticationSpecification {
-  private RequestSpecification requestBuilder;
+  private RequestSpecification requestSpecification;
 
-  AuthenticationSpecificationImpl(RequestSpecification requestBuilder) {
-    this.requestBuilder = requestBuilder
+  AuthenticationSpecificationImpl(RequestSpecification requestSpecification) {
+    this.requestSpecification = requestSpecification
   }
 
   /**
@@ -47,8 +48,8 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
     notNull userName, "userName"
     notNull password, "password"
 
-    requestBuilder.authenticationScheme = new BasicAuthScheme(userName: userName, password: password)
-    return requestBuilder
+    requestSpecification.authenticationScheme = new BasicAuthScheme(userName: userName, password: password)
+    return requestSpecification
   }
 
   /**
@@ -62,8 +63,8 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
     notNull userName, "userName"
     notNull password, "password"
 
-    requestBuilder.authenticationScheme = new BasicAuthScheme(userName: userName, password: password)
-    return requestBuilder
+    requestSpecification.authenticationScheme = new BasicAuthScheme(userName: userName, password: password)
+    return requestSpecification
   }
 
   /**
@@ -78,8 +79,8 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
     notNull certURL, "certURL"
     notNull password, "password"
 
-    requestBuilder.authenticationScheme = new CertAuthScheme(certURL: certURL, password: password)
-    return requestBuilder
+    requestSpecification.authenticationScheme = new CertAuthScheme(certURL: certURL, password: password)
+    return requestSpecification
   }
 
   /**
@@ -101,12 +102,16 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
     notNull accessToken, "accessToken"
     notNull secretToken, "secretToken"
 
-    requestBuilder.authenticationScheme = new OAuthScheme(consumerKey: consumerKey, consumerSecret: consumerSecret, accessToken: accessToken, secretToken: secretToken)
-    return requestBuilder
+    requestSpecification.authenticationScheme = new OAuthScheme(consumerKey: consumerKey, consumerSecret: consumerSecret, accessToken: accessToken, secretToken: secretToken)
+    return requestSpecification
   }
 
   def RequestSpecification none() {
-    requestBuilder.authenticationScheme = new ExplicitNoAuthScheme();
-    return requestBuilder
+    requestSpecification.authenticationScheme = new ExplicitNoAuthScheme();
+    return requestSpecification
+  }
+
+  def PreemptiveAuthSpec preemptive() {
+    return new PreemptiveAuthSpecImpl(requestSpecification)
   }
 }

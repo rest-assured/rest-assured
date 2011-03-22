@@ -319,21 +319,6 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void basicAuthentication() throws Exception {
-        given().auth().basic("jetty", "jetty").expect().statusCode(200).when().get("/secured/hello");
-    }
-
-    @Test
-    public void basicAuthenticationWithBasePath() throws Exception {
-        RestAssured.basePath = "/secured/hello";
-        try {
-            given().auth().basic("jetty", "jetty").expect().statusCode(200).when().get("");
-        } finally {
-            RestAssured.reset();
-        }
-    }
-
-    @Test
     public void specificationSyntax() throws Exception {
         final RequestSpecification requestSpecification = with().parameters("firstName", "John", "lastName", "Doe");
         final ResponseSpecification responseSpecification = expect().body("greeting", equalTo("Greetings John Doe"));
@@ -521,36 +506,12 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void basicAuthenticationUsingDefault() throws Exception {
-        authentication = basic("jetty", "jetty");
-        try {
-            expect().statusCode(200).when().get("/secured/hello");
-        } finally {
-            RestAssured.reset();
-        }
-    }
-
-    @Test
-    public void explicitExcludeOfBasicAuthenticationWhenUsingDefault() throws Exception {
-        authentication = basic("jetty", "jetty");
-        try {
-            given().auth().none().and().expect().statusCode(401).when().get("/secured/hello");
-        } finally {
-            RestAssured.reset();
-        }
-    }
-
-    @Test
     public void supportsGettingResponseBodyWhenStatusCodeIs401() throws Exception {
         final Response response = get("/secured/hello");
 
         assertThat(response.getBody().asString(), containsString("401 UNAUTHORIZED"));
     }
 
-    @Test
-    public void supportsExpectingStatusCodeWhenAuthenticationError() throws Exception {
-        given().auth().basic("abcd", "abCD1").expect().statusCode(401).when().get("/secured/hello");
-    }
 
     @Test
     public void throwsNiceErrorMessageWhenIllegalPath() throws Exception {

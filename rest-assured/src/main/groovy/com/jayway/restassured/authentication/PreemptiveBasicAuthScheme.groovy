@@ -19,12 +19,19 @@ package com.jayway.restassured.authentication
 import groovyx.net.http.HTTPBuilder
 
 /**
- * Authentication scheme that doesn't do any authentication.
- * This is different from NoAuthScheme because it's used to indicate
- * that a user has explicitly requested for no authentication
- * to override a default authentication scheme.
+ * Used for basic and digest authentication
  */
-class ExplicitNoAuthScheme implements AuthenticationScheme {
+class PreemptiveBasicAuthScheme implements AuthenticationScheme {
+  private static final String AUTH_ENCODING = 'iso-8859-1'
+
+  def String userName
+  def String password
+
   @Override void authenticate(HTTPBuilder httpBuilder) {
+      httpBuilder.headers[ 'Authorization' ] =  generateAuthToken()
+  }
+
+  public String generateAuthToken() {
+    "$userName:$password".getBytes(AUTH_ENCODING).encodeBase64().toString()
   }
 }

@@ -64,6 +64,14 @@ public interface AuthenticationSpecification {
     RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken);
 
     /**
+     * Returns the preemptive authentication view. This means that the authentication details are sent in the request
+     * header regardless if the server has challenged for authentication or not.
+     *
+     * @return The preemptive authentication specification.
+     */
+    PreemptiveAuthSpec preemptive();
+
+    /**
      * Explicitly state that you don't which to use any authentication in this request. This is useful only in cases where you've
      * specified a default authentication scheme and you wish to override it for a single request.
      * @return The Request specification

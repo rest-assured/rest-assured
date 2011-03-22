@@ -22,7 +22,7 @@ class CertAuthScheme implements AuthenticationScheme {
   def String certURL
   def String password
 
-  @Override def authenticate(HTTPBuilder httpBuilder) {
-    return httpBuilder.auth.certificate(certURL, password)
+  @Override void authenticate(HTTPBuilder httpBuilder) {
+     httpBuilder.auth.certificate(certURL, password)
   }
 }

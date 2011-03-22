@@ -461,6 +461,18 @@ public class RestAssured {
         return scheme;
     }
 
+
+    /**
+     * Return the http preemptive authentication specification for setting up preemptive authentication requests.
+     * This means that the authentication details are sent in the request header regardless if the server challenged
+     * for authentication or not.
+     *
+     * @return The authentication scheme
+     */
+    public static PreemptiveAuthProvider preemptive() {
+        return new PreemptiveAuthProvider();
+    }
+
     /**
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)}
      * for how to get a URL from a resource on the classpath.
