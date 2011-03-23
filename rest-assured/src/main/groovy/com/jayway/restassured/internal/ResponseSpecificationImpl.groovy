@@ -32,6 +32,7 @@ import static org.hamcrest.Matchers.equalTo
 
 class ResponseSpecificationImpl implements ResponseSpecification {
 
+  private static final String DEFAULT_BODY_ROOT_PATH = ""
   private Matcher<Integer> expectedStatusCode;
   private Matcher<String> expectedStatusLine;
   private BodyMatcherGroup bodyMatchers = new BodyMatcherGroup()
@@ -41,6 +42,11 @@ class ResponseSpecificationImpl implements ResponseSpecification {
   private RequestSpecification requestSpecification;
   private ContentType contentType;
   private Response restAssuredResponse;
+  private String bodyRootPath;
+
+  ResponseSpecificationImpl(String bodyRootPath) {
+    rootPath(bodyRootPath)
+  }
 
   def ResponseSpecification content(Matcher matcher, Matcher...additionalMatchers) {
     notNull(matcher, "matcher")
@@ -55,11 +61,12 @@ class ResponseSpecificationImpl implements ResponseSpecification {
     notNull(key, "key")
     notNull(matcher, "matcher")
 
-    bodyMatchers << new BodyMatcher(key: key, matcher: matcher)
+    bodyMatchers << new BodyMatcher(key: bodyRootPath + key, matcher: matcher)
     if(additionalKeyMatcherPairs?.length > 0) {
       def pairs = MapCreator.createMapFromObjects(additionalKeyMatcherPairs)
       pairs.each { matchingKey, hamcrestMatcher ->
-        bodyMatchers << new BodyMatcher(key: matchingKey, matcher: hamcrestMatcher)
+        def keyWithRoot = bodyRootPath + matchingKey
+        bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: hamcrestMatcher)
       }
     }
     return this
@@ -200,6 +207,16 @@ class ResponseSpecificationImpl implements ResponseSpecification {
 
   def ResponseSpecification expect() {
     return this;
+  }
+
+  def ResponseSpecification rootPath(String rootPath) {
+    notNull rootPath, "Root path"
+    this.bodyRootPath = rootPath.equals(DEFAULT_BODY_ROOT_PATH) ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + "."
+    return this
+  }
+
+  def ResponseSpecification root(String rootPath) {
+    return this.rootPath(rootPath);
   }
 
   def boolean hasAssertionsDefined() {

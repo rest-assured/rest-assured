@@ -2,6 +2,24 @@ Change log next version
 -----------------------
 * Added suport for preemptive basic authentication. E.g. given().auth().preemptive().basic("username", "password").when().get("/secured");. You can also set preemptive basic authentication as default authentication scheme using:
   RestAssured.authentication = preemptive().basic("username", "password"); (issue 45)
+* Added support for specifying a root path. E.g. instead of writing:
+  expect().
+           body("x.y.firstName", is(..)).
+           body("x.y.lastName", is(..)).
+           body("x.y.age", is(..)).
+           body("x.y.gender", is(..)).
+  when().
+           get("/something");
+  you can use a root path and do:
+  expect().
+           rootPath("x.y").
+           body("firstName", is(..)).
+           body("lastName", is(..)).
+           body("age", is(..)).
+           body("gender", is(..)).
+  when().
+          get("/somethin");
+  You can also set a default root path using: RestAssured.rootPath = "x.y"; (issue 47)
 
 Change log 1.1.2 (2011-03-04)
 -----------------------------

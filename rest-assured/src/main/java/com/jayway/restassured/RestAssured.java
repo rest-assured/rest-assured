@@ -252,16 +252,17 @@ import com.jayway.restassured.specification.ResponseSpecification;
  * </pre>
  * </li>
  * <li>
- * You can also change the default base URI, base path, port and authentication scheme for all subsequent requests:
+ * You can also change the default base URI, base path, port, authentication scheme and root path for all subsequent requests:
  * <pre>
  * RestAssured.baseURI = "http://myhost.org";
  * RestAssured.port = 80;
  * RestAssured.basePath = "/resource";
  * RestAssured.authentication = basic("username", "password");
+ * RestAssured.rootPath = "store.book";
  * </pre>
  * This means that a request like e.g. <code>get("/hello")</code> goes to: <tt>http://myhost.org:8080/resource/hello</tt>
- * which basic authentication credentials "username" and "password".<br>
- * You can reset to the standard baseURI (localhost), basePath (empty), standard port (8080) and default authentication scheme (none) using:
+ * which basic authentication credentials "username" and "password". See {@link #rootPath} for more info about setting the root paths.<br>
+ * You can reset to the standard baseURI (localhost), basePath (empty), standard port (8080), default authentication scheme (none) and default root path (empty string) using:
  * <pre>
  * RestAssured.reset();
  * </pre>
@@ -280,6 +281,7 @@ import com.jayway.restassured.specification.ResponseSpecification;
 public class RestAssured {
 
     public static final String DEFAULT_URI = "http://localhost";
+    public static final String DEFAULT_BODY_ROOT_PATH = "";
     public static final int DEFAULT_PORT = 8080;
     public static final String DEFAULT_PATH = "";
     public static final AuthenticationScheme DEFAULT_AUTH = new NoAuthScheme();
@@ -321,6 +323,34 @@ public class RestAssured {
      *
      */
     public static AuthenticationScheme authentication = DEFAULT_AUTH;
+
+    /**
+     * Set the default root path of the response body so that you don't need to write the entire path for each expectation.
+     * E.g. instead of writing:
+     *
+     * <pre>
+     * expect().
+     *          body("x.y.firstName", is(..)).
+     *          body("x.y.lastName", is(..)).
+     *          body("x.y.age", is(..)).
+     *          body("x.y.gender", is(..)).
+     * when().
+     *          get(..);
+     *</pre>
+     *
+     * you can use a root and do:
+     * <pre>
+     * RestAssured.rootPath = "x.y";
+     * expect().
+     *          body("firstName", is(..)).
+     *          body("lastName", is(..)).
+     *          body("age", is(..)).
+     *          body("gender", is(..)).
+     * when().
+     *          get(..);
+     * </pre>
+     */
+    public static String rootPath = DEFAULT_BODY_ROOT_PATH;
 
     /**
      * Start building the response part of the test com.jayway.restassured.specification. E.g.
@@ -550,17 +580,18 @@ public class RestAssured {
     }
 
     /**
-     * Resets the {@link #baseURI}, {@link #basePath}, {@link #port} and {@link #authentication} to their default values of
-     * {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT} and <code>no authentication</code>.
+     * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath} to their default values of
+     * {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code> and "".
      */
     public static void reset() {
         baseURI = DEFAULT_URI;
         port = DEFAULT_PORT;
         basePath = DEFAULT_PATH;
         authentication = DEFAULT_AUTH;
+        rootPath = DEFAULT_BODY_ROOT_PATH;
     }
 
     private static TestSpecificationImpl createTestSpecification() {
-        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port, basePath, authentication), new ResponseSpecificationImpl());
+        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port, basePath, authentication), new ResponseSpecificationImpl(rootPath));
     }
 }
