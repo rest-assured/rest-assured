@@ -22,6 +22,10 @@ class BodyMatcherGroup {
     bodyAssertions << bodyMatcher
   }
 
+  def size() {
+    bodyAssertions.size()
+  }
+
   def isFulfilled(response, content) {
     def treatedContent
     if(content instanceof InputStreamReader) {

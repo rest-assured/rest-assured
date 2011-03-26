@@ -141,6 +141,15 @@ class ResponseSpecificationImpl implements ResponseSpecification {
     return cookie(cookieName, equalTo(expectedValue))
   }
 
+  def ResponseSpecification spec(ResponseSpecification responseSpecificationToMerge) {
+    SpecificationMerger.merge(this, responseSpecificationToMerge);
+    return this
+  }
+
+  def ResponseSpecification specification(ResponseSpecification responseSpecificationToMerge) {
+    return spec(responseSpecificationToMerge)
+  }
+
   def ResponseSpecification statusLine(String expectedStatusLine) {
     return statusLine(equalTo(expectedStatusLine))
   }
@@ -221,7 +230,7 @@ class ResponseSpecificationImpl implements ResponseSpecification {
 
   def boolean hasAssertionsDefined() {
     return bodyMatchers.containsMatchers() || !headerAssertions.isEmpty() ||
-      !cookieAssertions.isEmpty() || expectedStatusCode != null || expectedStatusLine != null
+            !cookieAssertions.isEmpty() || expectedStatusCode != null || expectedStatusLine != null
   }
 
   ResponseSpecification contentType(ContentType contentType) {

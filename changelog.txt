@@ -20,7 +20,16 @@ Change log next version
   when().
           get("/somethin");
   You can also set a default root path using: RestAssured.rootPath = "x.y"; (issue 47)
+* It's now possible to reuse specifications accross different tests. E.g. 
+  ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).expectBody("x.y.size(), is(2)).build();
+ 
+  expect().
+         spec(responseSpec).
+         body("x.y.z", equalTo("something")).
+  when().
+         get("/something");
 
+  The "responseSpec" can now be reused in a completely different test without having to duplicate the expecations in the "responseSpec" for each test.
 Change log 1.1.2 (2011-03-04)
 -----------------------------
 * Fixed so that POST requests can return a response (e.g. Response response = post("/somewhere");) when an error occurred (status code 400 to 999). (issue 37).
