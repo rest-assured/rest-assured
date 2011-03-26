@@ -16,7 +16,6 @@
 
 package com.jayway.restassured.itest.java;
 
-import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.exception.AssertionFailedException;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.response.Response;
@@ -524,5 +523,12 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void supportsParsingJsonLists() throws Exception {
         expect().body("address[0]", equalTo("Spangatan")).when().get("/jsonList");
+    }
+
+    @Test
+    public void supportsGettingEmptyResponseBody() throws Exception {
+        final String body = get("/emptyBody").asString();
+
+        assertThat(body, equalTo(""));
     }
 }

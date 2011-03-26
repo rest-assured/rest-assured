@@ -46,11 +46,10 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void whenExpectationsDefinedThenAsStringReturnsIllegalStateException() throws Exception {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("You cannot use REST Assured expectations and return the response at the same time.");
+    public void whenExpectationsDefinedThenAsStringReturnsCanReturnTheResponseBody() throws Exception {
+        final String body = expect().body(equalTo("{\"hello\":\"Hello Scalatra\"}")).get("/hello").asString();
 
-        expect().body(equalTo("{\"hello\":\"Hello Scalatra\"}")).get("/hello").asString();
+        assertThat(body, containsString("Hello"));
     }
 
     @Test

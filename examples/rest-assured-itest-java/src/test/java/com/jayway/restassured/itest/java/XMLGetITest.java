@@ -18,6 +18,7 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -26,6 +27,7 @@ import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.with;
 import static com.jayway.restassured.parsing.Parser.XML;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class XMLGetITest extends WithJetty {
 
@@ -205,11 +207,18 @@ public class XMLGetITest extends WithJetty {
         }
     }
 
-      @Test
+    @Test
     public void throwsNiceErrorMessageWhenIllegalPath() throws Exception {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Path shopping.unknown.get(0) is invalid.");
 
         expect().body("shopping.unknown.get(0)", hasItems("none")).when().get("/shopping");
+    }
+
+    @Test
+    public void supportsGettingResponseBodyAsStringWhenUsingBodyExpectationsOnRoot() throws Exception {
+        final String body = expect().body("shopping", anything()).when().get("/shopping").asString();
+
+        assertThat(body, containsString("<shopping>"));
     }
 }

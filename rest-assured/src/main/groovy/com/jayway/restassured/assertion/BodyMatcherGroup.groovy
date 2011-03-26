@@ -37,6 +37,7 @@ class BodyMatcherGroup {
     bodyAssertions.each { assertion ->
       assertion.isFulfilled(response, treatedContent)
     }
+    treatedContent
   }
 
   public boolean containsMatchers() {

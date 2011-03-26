@@ -20,9 +20,12 @@ import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.response.ResponseBody
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import net.sf.json.JSONArray
+import groovy.util.slurpersupport.GPathResult
+import groovy.xml.StreamingMarkupBuilder
 
 class RestAssuredResponseImpl implements Response {
-  private static final String CANNOT_PARSE_MSG = "You cannot use REST Assured expectations and return the response at the same time."
+  private static final String CANNOT_PARSE_MSG = "Failed to parse response."
   def responseHeaders = [:]
   def cookies = [:]
   def content
@@ -55,9 +58,16 @@ class RestAssuredResponseImpl implements Response {
   }
 
   private def parseContent(content) {
+    def abstractJsonClass = Class.forName("net.sf.json.AbstractJSON");
     try {
       if (content instanceof InputStream) {
         this.content = convertToByteArray(content)
+      } else if(abstractJsonClass.isAssignableFrom(content.getClass())) {
+        this.content = content.toString(1)
+      } else if(content instanceof Writable) {
+        this.content = toString(content)
+      } else if(content instanceof String) {
+        this.content = content
       } else {
         this.content = convertToString(content)
       }
@@ -66,13 +76,27 @@ class RestAssuredResponseImpl implements Response {
     }
   }
 
+  // TODO: Handle namespaces
+  def toString(Writable node) {
+    def writer = new StringWriter()
+    writer << new StreamingMarkupBuilder().bind {
+      // mkp.declareNamespace('':node[0].namespaceURI())
+        mkp.yield node
+    }
+    return writer.toString();
+}
+
   String asString() {
-    assertNotNull content
+    if(content == null) {
+      return ""
+    }
     return content instanceof String ? content : new String(content)
   }
 
   byte[] asByteArray() {
-    assertNotNull content
+    if(content == null) {
+      return new byte[0];
+    }
     return content instanceof byte[] ? content : content.getBytes()
   }
 
@@ -171,11 +195,5 @@ class RestAssuredResponseImpl implements Response {
       reader.close();
     }
     return writer.toString();
-  }
-
-  private def assertNotNull(resp) {
-    if(!resp) {
-      throw new IllegalStateException(CANNOT_PARSE_MSG)
-    }
   }
 }

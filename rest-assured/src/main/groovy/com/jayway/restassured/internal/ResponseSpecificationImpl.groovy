@@ -260,7 +260,8 @@ class ResponseSpecificationImpl implements ResponseSpecification {
       return { response, content ->
         if(hasAssertionsDefined()) {
           validateHeadersAndCookies(response)
-          bodyMatchers.isFulfilled(response, content)
+          def parsedContent = bodyMatchers.isFulfilled(response, content)
+          restAssuredResponse.parseResponse( response, parsedContent )
         } else {
           restAssuredResponse.parseResponse( response, content )
         }

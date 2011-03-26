@@ -267,6 +267,9 @@ class ScalatraRestExample extends ScalatraServlet {
           ]"""
   }
 
+  get("/emptyBody") {
+  }
+
   get("/textXML") {
     contentType ="text/xml"
     <xml>something</xml>
