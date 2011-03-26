@@ -33,6 +33,7 @@ Change log next version
 * You can now get the response body content when request body is empty (issue 49).
 * Added support for getting response body even when using body expecations. I.e. now this works:
   String body = expect().body("x.y.z", equalTo("something")).when().get("/x").andReturn().body().asString(); (issue 50)
+* Specifying a fully-qualied request url overrides default base path, base uri, and port (issue 41).
 
 Change log 1.1.2 (2011-03-04)
 -----------------------------

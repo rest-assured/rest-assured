@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.exception.AssertionFailedException;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.response.Response;
@@ -530,5 +531,17 @@ public class JSONGetITest extends WithJetty {
         final String body = get("/emptyBody").asString();
 
         assertThat(body, equalTo(""));
+    }
+
+    @Test
+    public void specifyingFullyQualifiedPathOverridesDefaultValues() throws Exception {
+        RestAssured.basePath = "/something";
+        RestAssured.baseURI = "http://www.google.com";
+        RestAssured.port = 80;
+        try {
+            expect().body("store.book[0..2].size()", equalTo(3)).when().get("http://localhost:8080/jsonStore");
+        } finally {
+            RestAssured.reset();
+        }
     }
 }

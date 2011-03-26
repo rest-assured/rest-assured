@@ -228,7 +228,10 @@ class RequestSpecificationImpl implements RequestSpecification {
 
   private def Response sendRequest(path, method, assertionClosure) {
     path = extractRequestParamsIfNeeded(path);
-    def http = new HTTPBuilder(getTargetURI(path)) {
+    def isFullyQualifiedUri = isFullyQualified(path)
+    def targetUri = getTargetURI(path);
+    def targetPath = isFullyQualifiedUri ? new URL(path).getPath() : "$basePath$path"
+    def http = new HTTPBuilder(targetUri) {
       @Override protected Object doRequest(RequestConfigDelegate delegate) {
         // When doing POST we must add the failure handler here
         // in order to be able to return the response when doing
@@ -265,13 +268,13 @@ class RequestSpecificationImpl implements RequestSpecification {
 
     authenticationScheme.authenticate(http)
 
-
     if(POST.equals(method)) {
       if(!requestParameters.isEmpty() && requestBody != null) {
         throw new IllegalStateException("You can either send parameters OR body content in the POST, not both!");
       }
       def bodyContent = requestParameters.isEmpty() ? requestBody : requestParameters
-      http.post( path: "$basePath$path", body: bodyContent,
+
+      http.post( path: targetPath, body: bodyContent,
               requestContentType: defineRequestContentType(POST),
               contentType: responseContentType) { response, content ->
         if(assertionClosure != null) {
@@ -280,7 +283,7 @@ class RequestSpecificationImpl implements RequestSpecification {
       }
     } else {
       http.request(method, responseContentType) {
-        uri.path = "$basePath$path"
+        uri.path = targetPath
 
         setRequestContentType(defineRequestContentTypeAsString(method))
 
@@ -301,6 +304,10 @@ class RequestSpecificationImpl implements RequestSpecification {
       }
     }
     return restAssuredResponse
+  }
+
+  private boolean isFullyQualified(String targetUri) {
+    return targetUri.contains("://")
   }
 
   private String extractRequestParamsIfNeeded(String path) {
@@ -345,9 +352,10 @@ class RequestSpecificationImpl implements RequestSpecification {
       throw new IllegalArgumentException("Port must be greater than 0")
     }
     def uri
-    def hasScheme = path.contains("://")
+    def hasScheme = isFullyQualified(path)
     if(hasScheme) {
-      uri = "$path";
+      def url = new URL(path)
+      uri = url.getProtocol()+"://"+url.getAuthority()
     } else {
       uri = "$baseUri:$port"
     }
