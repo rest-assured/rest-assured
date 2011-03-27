@@ -16,12 +16,12 @@
 
 package com.jayway.restassured
 
-import org.junit.Test
-import com.jayway.restassured.internal.SpecificationMerger
 import com.jayway.restassured.builder.ResponseSpecBuilder
+import com.jayway.restassured.internal.SpecificationMerger
+import groovyx.net.http.ContentType
+import org.junit.Test
 import static groovy.util.GroovyTestCase.assertEquals
 import static org.hamcrest.Matchers.equalTo
-import groovyx.net.http.ContentType
 import static org.junit.Assert.assertTrue
 
 class SpecificationMergerTest {

@@ -35,8 +35,6 @@ class SpecificationMerger {
    *     <li>Cookies</li>
    *     <li>Headers</li>
    * </ul>
-   * @param specification The specification the add.
-   * @return The builder
    */
   def static void merge(ResponseSpecificationImpl thisOne, ResponseSpecificationImpl with) {
     notNull thisOne, "Specification to merge"
@@ -50,4 +48,33 @@ class SpecificationMerger {
     thisOne.expectedStatusLine = with.expectedStatusLine
     thisOne.headerAssertions.addAll(with.headerAssertions)
   }
+
+  /**
+   * Merge this builder with settings from another specification. Note that the supplied specification
+   * can overwrite data in the current specification. The following settings are overwritten:
+   * <ul>
+   *     <li>Port</li>
+   *     <li>Authentication scheme</
+   *     <li>Content type</li>
+   *     <li>Request body</li>
+   * </ul>
+   * The following settings are merged:
+   * <ul>
+   *     <li>Parameters</li>
+   *     <li>Cookies</li>
+   *     <li>Headers</li>
+   * </ul>
+   */
+  def static void merge(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {
+    thisOne.port = with.port
+    thisOne.requestParameters.putAll(with.requestParameters)
+    thisOne.authenticationScheme = with.authenticationScheme
+    thisOne.requestContentType = with.requestContentType
+    thisOne.requestHeaders.putAll(with.requestHeaders)
+    thisOne.cookies.putAll(with.cookies)
+    thisOne.requestBody = with.requestBody
+  }
+
+
+
 }

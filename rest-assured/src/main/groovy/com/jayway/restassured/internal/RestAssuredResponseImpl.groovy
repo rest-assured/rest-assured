@@ -19,10 +19,8 @@ package com.jayway.restassured.internal
 import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.response.ResponseBody
-import static com.jayway.restassured.assertion.AssertParameter.notNull
-import net.sf.json.JSONArray
-import groovy.util.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
+import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 class RestAssuredResponseImpl implements Response {
   private static final String CANNOT_PARSE_MSG = "Failed to parse response."

@@ -18,9 +18,9 @@ Change log next version
            body("age", is(..)).
            body("gender", is(..)).
   when().
-          get("/somethin");
+          get("/something");
   You can also set a default root path using: RestAssured.rootPath = "x.y"; (issue 47)
-* It's now possible to reuse specifications accross different tests. E.g. 
+* It's now possible to reuse specifications accross different tests (issue 46). E.g. 
   ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).expectBody("x.y.size(), is(2)).build();
  
   expect().
@@ -29,7 +29,17 @@ Change log next version
   when().
          get("/something");
 
-  The "responseSpec" can now be reused in a completely different test without having to duplicate the expecations in the "responseSpec" for each test. (issue 46).
+  The "responseSpec" can now be reused in a completely different test without having to duplicate the expecations in the "responseSpec" for each test. 
+
+  The same thing can be achieved for request specifications:
+  RequestSpecification requestSpec = new RequestSpecBuilder().addParameter("parameter1", "value1").build();
+  
+  given().
+          spec(requestSpec).
+  expect().
+          body("x.y.z", equalTo("something")).
+  when().
+          get("/something");
 * You can now get the response body content when request body is empty (issue 49).
 * Added support for getting response body even when using body expecations. I.e. now this works:
   String body = expect().body("x.y.z", equalTo("something")).when().get("/x").andReturn().body().asString(); (issue 50)

@@ -40,7 +40,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   private AuthenticationScheme defaultAuthScheme
   private int port
   private Map<String, String> requestParameters = [:]
-  private AuthenticationScheme authenticationScheme = new NoAuthScheme()
+  def AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private ResponseSpecification responseSpecification;
   private ContentType requestContentType;
   private Map<String, String> requestHeaders = [:]
@@ -224,6 +224,15 @@ class RequestSpecificationImpl implements RequestSpecification {
     notNull value, "value"
     cookies.put(key, value)
     return this
+  }
+
+  RequestSpecification spec(RequestSpecification requestSpecificationToMerge) {
+    SpecificationMerger.merge this, requestSpecificationToMerge
+    return this
+  }
+
+  RequestSpecification specification(RequestSpecification requestSpecificationToMerge) {
+    return spec(requestSpecificationToMerge)
   }
 
   private def Response sendRequest(path, method, assertionClosure) {
