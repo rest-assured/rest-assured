@@ -251,6 +251,21 @@ import com.jayway.restassured.specification.ResponseSpecification;
  * RestAssured.unregisterParser("application/vnd.uoml+xml");
  * </pre>
  * </li>
+ * <li>If you need to re-use a specification in multiple tests or multiple requests you can use the {@link com.jayway.restassured.builder.ResponseSpecBuilder}
+ * and {@link com.jayway.restassured.builder.RequestSpecBuilder} like this:
+ * <pre>
+ * RequestSpecification requestSpec = new RequestSpecBuilder().addParameter("parameter1", "value1").build();
+ * ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).build();
+ *
+ * given().
+ *         spec(requestSpec).
+ * expect().
+ *         spec(responseSpec).
+ *         body("x.y.z", equalTo("something")).
+ * when().
+ *        get("/something");
+ * </pre>
+ * </li>
  * <li>
  * You can also change the default base URI, base path, port, authentication scheme and root path for all subsequent requests:
  * <pre>
