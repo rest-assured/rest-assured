@@ -21,7 +21,7 @@ Change log next version
           get("/something");
   You can also set a default root path using: RestAssured.rootPath = "x.y"; (issue 47)
 * It's now possible to reuse specifications accross different tests (issue 46). E.g. 
-  ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).expectBody("x.y.size(), is(2)).build();
+  ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).expectBody("x.y.size()", is(2)).build();
  
   expect().
          spec(responseSpec).
