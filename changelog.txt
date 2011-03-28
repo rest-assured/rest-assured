@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 1.1.5 (2011-03-28)
+-----------------------------
 * Added suport for preemptive basic authentication. E.g. given().auth().preemptive().basic("username", "password").when().get("/secured");. You can also set preemptive basic authentication as default authentication scheme using:
   RestAssured.authentication = preemptive().basic("username", "password"); (issue 45)
 * Added support for specifying a root path. E.g. instead of writing:
