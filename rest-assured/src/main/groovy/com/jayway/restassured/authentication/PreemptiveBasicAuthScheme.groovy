@@ -32,6 +32,6 @@ class PreemptiveBasicAuthScheme implements AuthenticationScheme {
   }
 
   public String generateAuthToken() {
-    "$userName:$password".getBytes(AUTH_ENCODING).encodeBase64().toString()
+    ("Basic " + "$userName:$password".getBytes(AUTH_ENCODING).encodeBase64()).toString()
   }
 }
