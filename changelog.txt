@@ -1,3 +1,8 @@
+Change log next version
+-----------------------
+* Added support for mixing form and query parameters when using the POST method. E.g. "with().param("firstName", "John").and().queryParam("lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).post("/greetXML");"
+  When using POST the "param" method sets form parameters to the request and "queryParam" sets query parameters of the request.
+
 Change log 1.1.6 (2011-03-29)
 -----------------------------
 * Preemptive basic authentication really works (issue 52).

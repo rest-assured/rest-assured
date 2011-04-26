@@ -49,4 +49,14 @@ public class XMLPostITest extends WithJetty {
     public void postWithXPathContainingHamcrestMatcher() throws Exception {
         expect().body(hasXPath("/greeting/name/firstName", containsString("Jo"))).with().parameters("firstName", "John", "lastName", "Doe").post("/anotherGreetXML");
     }
+
+    @Test
+    public void postWithQueryParams() throws Exception {
+        expect().body("greeting.lastName", equalTo("Doe")).post("/greetXML?firstName=John&lastName=Doe");
+    }
+
+    @Test
+    public void postWithFormParamAndQueryParams() throws Exception {
+        with().param("firstName", "John").and().queryParam("lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).post("/greetXML");
+    }
 }

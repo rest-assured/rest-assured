@@ -544,4 +544,14 @@ public class JSONGetITest extends WithJetty {
             RestAssured.reset();
         }
     }
+
+    @Test
+    public void parametersAndQueryParametersAreConcatenated() throws Exception {
+        with().parameters("firstName", "John").and().queryParameters("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    }
+
+    @Test
+    public void parameterAndQueryParameterAreConcatenated() throws Exception {
+        with().parameter("firstName", "John").and().queryParameter("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    }
 }

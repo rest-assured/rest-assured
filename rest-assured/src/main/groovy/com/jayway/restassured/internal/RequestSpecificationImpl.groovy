@@ -40,6 +40,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   private AuthenticationScheme defaultAuthScheme
   private int port
   private Map<String, String> requestParameters = [:]
+  private Map<String, String> queryParams = [:]
   def AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private ResponseSpecification responseSpecification;
   private ContentType requestContentType;
@@ -126,6 +127,36 @@ class RequestSpecificationImpl implements RequestSpecification {
     notNull parameterValue, "parameterValue"
     this.requestParameters.put(parameterName, parameterValue);
     return this
+  }
+
+  def RequestSpecification queryParameters(String parameterName, String... parameterNameValuePairs) {
+    notNull parameterName, "parameterName"
+    return queryParameters(MapCreator.createMapFromStrings(parameterName, parameterNameValuePairs))
+  }
+
+  def RequestSpecification queryParameters(Map<String, String> parametersMap) {
+    notNull parametersMap, "parametersMap"
+    this.queryParams += Collections.unmodifiableMap(parametersMap)
+    return this
+  }
+
+  def RequestSpecification queryParameter(String parameterName, String parameterValue) {
+    notNull parameterName, "parameterName"
+    notNull parameterValue, "parameterValue"
+    queryParams.put(parameterName, parameterValue);
+    return this;
+  }
+
+  def RequestSpecification queryParams(String parameterName, String... parameterNameValuePairs) {
+    return queryParameters(parameterName, parameterNameValuePairs);
+  }
+
+  def RequestSpecification queryParams(Map<String, String> parametersMap) {
+    return queryParameters(parametersMap)
+  }
+
+  def RequestSpecification queryParam(String parameterName, String parameterValue) {
+    return queryParameter(parameterName, parameterValue)
   }
 
   def RequestSpecification and() {
@@ -236,7 +267,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   private def Response sendRequest(path, method, assertionClosure) {
-    path = extractRequestParamsIfNeeded(path);
+    path = extractRequestParamsIfNeeded(method, path);
     def isFullyQualifiedUri = isFullyQualified(path)
     def targetUri = getTargetURI(path);
     def targetPath = isFullyQualifiedUri ? new URL(path).getPath() : "$basePath$path"
@@ -252,6 +283,7 @@ class RequestSpecificationImpl implements RequestSpecification {
                       assertionClosure.call (response, content)
                     });
           }
+          delegate.uri.query = queryParams
         }
         return super.doRequest(delegate)
       }
@@ -300,9 +332,7 @@ class RequestSpecificationImpl implements RequestSpecification {
           body = requestBody
         }
 
-        if(requestParameters != null) {
-          uri.query = requestParameters
-        }
+        uri.query = requestParameters += queryParams
 
         Closure closure = assertionClosure.getClosure()
         // response handler for a success response code:
@@ -319,7 +349,7 @@ class RequestSpecificationImpl implements RequestSpecification {
     return targetUri.contains("://")
   }
 
-  private String extractRequestParamsIfNeeded(String path) {
+  private String extractRequestParamsIfNeeded(Method method, String path) {
     if(path.contains("?")) {
       def indexOfQuestionMark = path.indexOf("?")
       String allParamAsString = path.substring(indexOfQuestionMark+1);
@@ -329,7 +359,11 @@ class RequestSpecificationImpl implements RequestSpecification {
         if(keyValue.length != 2) {
           throw new IllegalArgumentException("Illegal parameters passed to REST Assured. Parameters was: $keyValueParams")
         }
-        param(keyValue[0], keyValue[1]);
+        if(method == POST) {
+          queryParams.put(keyValue[0], keyValue[1])
+        } else {
+          param(keyValue[0], keyValue[1]);
+        }
       };
       path = path.substring(0, indexOfQuestionMark);
     }

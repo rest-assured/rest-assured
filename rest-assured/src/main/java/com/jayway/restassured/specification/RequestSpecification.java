@@ -262,6 +262,68 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification param(String parameterName, String parameterValue);
 
     /**
+     * Specify the query parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(String, String...)}
+     * for all http methods except for POST where {@link #parameters(String, String...)} sets the form parameters and this method sets the
+     * query parameters.
+     *
+     * @param parameterName The name of the first parameter
+     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     * @return The request com.jayway.restassured.specification
+     */
+    RequestSpecification queryParameters(String parameterName, String...parameterNameValuePairs);
+
+    /**
+     * Specify the query parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(Map)}
+     * for all http methods except for POST where {@link #parameters(Map)} sets the form parameters and this method sets the
+     * query parameters.
+     *
+     * @param parametersMap The Map containing the parameter names and their values to send with the request.
+     * @return The request com.jayway.restassured.specification
+     */
+    RequestSpecification queryParameters(Map<String, String> parametersMap);
+
+    /**
+     * Specify a query parameter that'll be sent with the request. Note that this method is the same as {@link #parameter(String, String)}
+     * for all http methods except for POST where {@link #parameter(String, String)} adds a form parameter and this method sets a
+     * query parameter.
+     *
+     * @see #parameter(String, String)
+     * @param parameterName The parameter key
+     * @param parameterValue The parameter value
+     * @return The request com.jayway.restassured.specification
+     */
+    RequestSpecification queryParameter(String parameterName, String parameterValue);
+
+    /**
+     * A slightly shorter version of {@link #queryParameters(String, String...)}.
+     *
+     * @see #queryParameters(String, String...)
+     * @param parameterName The name of the first parameter
+     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     * @return The request com.jayway.restassured.specification
+     */
+    RequestSpecification queryParams(String parameterName, String...parameterNameValuePairs);
+
+    /**
+     * A slightly shorter version of {@link #queryParams(java.util.Map)}.
+     *
+     * @see #queryParams(java.util.Map)
+     * @param parametersMap The Map containing the parameter names and their values to send with the request.
+     * @return The request com.jayway.restassured.specification
+     */
+    RequestSpecification queryParams(Map<String, String> parametersMap);
+
+    /**
+     * A slightly shorter version of {@link #queryParameter(String, String)}  }.
+     *
+     * @see #parameter(String, String)
+     * @param parameterName The parameter key
+     * @param parameterValue The parameter value
+     * @return The request com.jayway.restassured.specification
+     */
+    RequestSpecification queryParam(String parameterName, String parameterValue);
+
+    /**
      * Specify the headers that'll be sent with the request. This is done by specifying the headers in name-value pairs, e.g:
      * <pre>
      * given().headers("headerName1", "headerValue1", "headerName2", "headerValue2").then().expect().body(equalTo("something")).when().get("/headers");
