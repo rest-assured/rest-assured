@@ -554,4 +554,28 @@ public class JSONGetITest extends WithJetty {
     public void parameterAndQueryParameterAreConcatenated() throws Exception {
         with().parameter("firstName", "John").and().queryParameter("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
+
+    @Test
+    public void multiValueParametersWorks() throws Exception {
+        with().param("list", "1").param("list", "2").param("list", "3").expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+    }
+
+    @Test
+    public void multiValueParametersWorksWhenPassingInMap() throws Exception {
+        final HashMap<String, String> hashMap = new HashMap<String, String>();
+        hashMap.put("list", "3");
+        with().param("list", "1").param("list", "2").parameters(hashMap).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+    }
+
+    @Test
+    public void multiValueQueryParametersWorks() throws Exception {
+        with().queryParam("list", "1").queryParam("list", "2").queryParam("list", "3").expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+    }
+
+    @Test
+    public void multiValueQueryParametersWorksWhenPassingInMap() throws Exception {
+        final HashMap<String, String> hashMap = new HashMap<String, String>();
+        hashMap.put("list", "3");
+        with().queryParam("list", "1").queryParam("list", "2").queryParams(hashMap).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+    }
 }

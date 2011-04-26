@@ -106,7 +106,7 @@ class RequestSpecificationImpl implements RequestSpecification {
 
   def RequestSpecification parameters(Map<String, String> parametersMap) {
     notNull parametersMap, "parametersMap"
-    this.requestParameters += parametersMap
+    appendParameters(parametersMap, requestParameters)
     return this
   }
 
@@ -125,7 +125,7 @@ class RequestSpecificationImpl implements RequestSpecification {
   def RequestSpecification parameter(String parameterName, String parameterValue) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
-    this.requestParameters.put(parameterName, parameterValue);
+    appendParameter(requestParameters, parameterName, parameterValue);
     return this
   }
 
@@ -136,14 +136,14 @@ class RequestSpecificationImpl implements RequestSpecification {
 
   def RequestSpecification queryParameters(Map<String, String> parametersMap) {
     notNull parametersMap, "parametersMap"
-    this.queryParams += Collections.unmodifiableMap(parametersMap)
+    appendParameters(parametersMap, queryParams)
     return this
   }
 
   def RequestSpecification queryParameter(String parameterName, String parameterValue) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
-    queryParams.put(parameterName, parameterValue);
+    appendParameter(queryParams, parameterName, parameterValue)
     return this;
   }
 
@@ -403,6 +403,25 @@ class RequestSpecificationImpl implements RequestSpecification {
       uri = "$baseUri:$port"
     }
     return uri
+  }
+
+  private def appendParameters(Map<String, String> from, Map<String, String> to) {
+    from.each {key, value ->
+      appendParameter(to, key, value)
+    }
+  }
+
+  private def appendParameter(Map<String, String> to, String key, String value) {
+    if (to.containsKey(key)) {
+      def currentValue = to.get(key)
+      if (currentValue instanceof List) {
+        currentValue << value
+      } else {
+        to.put(key, [currentValue, value])
+      }
+    } else {
+      to.put(key, value)
+    }
   }
 
   def void setResponseSpecification(ResponseSpecification responseSpecification) {

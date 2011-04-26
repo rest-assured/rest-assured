@@ -2,6 +2,7 @@ Change log next version
 -----------------------
 * Added support for mixing form and query parameters when using the POST method. E.g. "with().param("firstName", "John").and().queryParam("lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).post("/greetXML");"
   When using POST the "param" method sets form parameters to the request and "queryParam" sets query parameters of the request.
+* Added support for multi-value paramters, e.g. with().param("list", "first").and().param("list", "second").when().get("/something") will now send a GET request to "/something" with parameter list including first and second. (issue 62).
 
 Change log 1.1.6 (2011-03-29)
 -----------------------------
