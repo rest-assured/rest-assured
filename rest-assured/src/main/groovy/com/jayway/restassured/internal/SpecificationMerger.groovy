@@ -61,6 +61,7 @@ class SpecificationMerger {
    * The following settings are merged:
    * <ul>
    *     <li>Parameters</li>
+   *     <li>Query Parameters</li>
    *     <li>Cookies</li>
    *     <li>Headers</li>
    * </ul>
@@ -68,6 +69,7 @@ class SpecificationMerger {
   def static void merge(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {
     thisOne.port = with.port
     thisOne.requestParameters.putAll(with.requestParameters)
+    thisOne.queryParams.putAll(with.queryParams)
     thisOne.authenticationScheme = with.authenticationScheme
     thisOne.requestContentType = with.requestContentType
     thisOne.requestHeaders.putAll(with.requestHeaders)

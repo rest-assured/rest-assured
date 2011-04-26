@@ -100,6 +100,32 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
+    public void supportsSpecifyingQueryParametersInRequestSpecBuilderWhenGet() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().addQueryParameter("firstName", "John").addQueryParam("lastName", "Doe").build();
+
+        given().
+                spec(spec).
+        expect().
+                body("greeting.firstName", equalTo("John")).
+                body("greeting.lastName", equalTo("Doe")).
+        when().
+                get("/greetXML");
+    }
+
+    @Test
+    public void supportsSpecifyingQueryParametersInRequestSpecBuilderWhenPost() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().addQueryParameter("firstName", "John").addQueryParam("lastName", "Doe").build();
+
+        given().
+                spec(spec).
+        expect().
+                body("greeting.firstName", equalTo("John")).
+                body("greeting.lastName", equalTo("Doe")).
+        when().
+                post("/greetXML");
+    }
+
+    @Test
     public void supportsMergesParametersWhenUsingRequestSpecBuilder() throws Exception {
         final RequestSpecification spec = new RequestSpecBuilder().addParameter("firstName", "John").build();
 

@@ -106,7 +106,7 @@ class RequestSpecificationImpl implements RequestSpecification {
 
   def RequestSpecification parameters(Map<String, String> parametersMap) {
     notNull parametersMap, "parametersMap"
-    this.requestParameters += Collections.unmodifiableMap(parametersMap)
+    this.requestParameters += parametersMap
     return this
   }
 

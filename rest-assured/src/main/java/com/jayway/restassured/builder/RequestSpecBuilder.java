@@ -187,6 +187,56 @@ public class RequestSpecBuilder {
     }
 
     /**
+     * Add query parameters to be sent with the request as a Map. This method is the same as {@link #addParameters(java.util.Map)}
+     * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
+
+     * @param parametersMap The Map containing the parameter names and their values to send with the request.
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder addQueryParameters(Map<String, String> parametersMap) {
+        spec.queryParameters(parametersMap);
+        return this;
+    }
+
+    /**
+     * Add a query parameter to be sent with the request. This method is the same as {@link #addParameter(String, String)} )}
+     * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
+     *
+     * @param parameterName The parameter key
+     * @param parameterValue The parameter value
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder addQueryParameter(String parameterName, String parameterValue) {
+        spec.queryParameter(parameterName, parameterValue);
+        return this;
+    }
+
+    /**
+     * A slightly shorter version of {@link #addQueryParameters(Map)}.
+     *
+     * @see #addQueryParameters(java.util.Map)
+     * @param parametersMap The Map containing the parameter names and their values to send with the request.
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder addQueryParams(Map<String, String> parametersMap) {
+        spec.queryParams(parametersMap);
+        return this;
+    }
+
+    /**
+     * A slightly shorter version of {@link #addQueryParameter(String, String)}.
+     *
+     * @see #addQueryParam(String, String)
+     * @param parameterName The parameter key
+     * @param parameterValue The parameter value
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder addQueryParam(String parameterName, String parameterValue) {
+        spec.queryParam(parameterName, parameterValue);
+        return this;
+    }
+
+    /**
      * Add headers to be sent with the request as Map.
      *
      * @param headers The Map containing the header names and their values to send with the request.

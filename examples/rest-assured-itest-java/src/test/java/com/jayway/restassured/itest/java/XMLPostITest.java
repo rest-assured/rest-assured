@@ -59,4 +59,9 @@ public class XMLPostITest extends WithJetty {
     public void postWithFormParamAndQueryParams() throws Exception {
         with().param("firstName", "John").and().queryParam("lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).post("/greetXML");
     }
+
+    @Test
+    public void postWithOnlyQueryParams() throws Exception {
+        with().queryParams("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).post("/greetXML");
+    }
 }
