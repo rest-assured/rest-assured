@@ -18,6 +18,7 @@ package com.jayway.restassured.specification;
 
 import groovyx.net.http.ContentType;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -233,6 +234,21 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification parameter(String parameterName, String parameterValue);
 
     /**
+     * Specify a multi-value parameter that'll be sent with the request e.g:
+     * <p>
+     * <pre>
+     * given().parameter("cars", asList("Volvo", "Saab"))..;
+     * </pre>
+     * This will set the parameter <code>cars=Volvo</code> and <code>cars=Saab</code>.
+     * </p>
+     *
+     * @param parameterName The parameter key
+     * @param parameterValues The parameter values
+     * @return The request com.jayway.restassured.specification
+     */
+    RequestSpecification parameter(String parameterName, List<String> parameterValues);
+
+    /**
      * A slightly shorter version of {@link #parameters(String, String...)}.
      *
      * @see #parameters(String, String...)
@@ -260,6 +276,15 @@ public interface RequestSpecification extends RequestSender {
      * @return The request com.jayway.restassured.specification
      */
     RequestSpecification param(String parameterName, String parameterValue);
+
+    /**
+     * A slightly shorter version of {@link #parameter(String, java.util.List)}  }.
+     *
+     * @param parameterName The parameter key
+     * @param parameterValues The parameter values
+     * @return The request com.jayway.restassured.specification
+     */
+    RequestSpecification param(String parameterName, List<String> parameterValues);
 
     /**
      * Specify the query parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(String, String...)}
@@ -295,6 +320,25 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification queryParameter(String parameterName, String parameterValue);
 
     /**
+     * Specify a multi-value query parameter that'll be sent with the request e.g:
+     * <p>
+     * <pre>
+     * given().queryParameter("cars", asList("Volvo", "Saab"))..;
+     * </pre>
+     * This will set the parameter <code>cars=Volvo</code> and <code>cars=Saab</code>.
+     * </p>
+     *
+     * Note that this method is the same as {@link #parameter(String, java.util.List)}
+     * for all http methods except for POST where {@link #parameter(String, java.util.List)} adds a form parameter and
+     * this method sets a query parameter.
+     *
+     * @param parameterName The parameter key
+     * @param parameterValues The parameter values
+     * @return The request com.jayway.restassured.specification
+     */
+    RequestSpecification queryParameter(String parameterName, List<String> parameterValues);
+
+    /**
      * A slightly shorter version of {@link #queryParameters(String, String...)}.
      *
      * @see #queryParameters(String, String...)
@@ -322,6 +366,16 @@ public interface RequestSpecification extends RequestSender {
      * @return The request com.jayway.restassured.specification
      */
     RequestSpecification queryParam(String parameterName, String parameterValue);
+
+    /**
+     * A slightly shorter version of {@link #queryParameter(String, java.util.List)}.
+     *
+     * @see #queryParam(String, java.util.List)
+     * @param parameterName The parameter key
+     * @param parameterValues The parameter values
+     * @return The request com.jayway.restassured.specification
+     */
+    RequestSpecification queryParam(String parameterName, List<String> parameterValues);
 
     /**
      * Specify the headers that'll be sent with the request. This is done by specifying the headers in name-value pairs, e.g:

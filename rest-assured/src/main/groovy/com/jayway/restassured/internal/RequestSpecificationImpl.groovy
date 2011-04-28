@@ -122,6 +122,22 @@ class RequestSpecificationImpl implements RequestSpecification {
     return parameter(parameterName, parameterValue)
   }
 
+  def RequestSpecification parameter(String parameterName, List<String> parameterValues) {
+    return null
+  }
+
+  def RequestSpecification param(String parameterName, List<String> parameterValues) {
+    return null
+  }
+
+  def RequestSpecification queryParameter(String parameterName, List<String> parameterValues) {
+    return null
+  }
+
+  def RequestSpecification queryParam(String parameterName, List<String> parameterValues) {
+    return null
+  }
+
   def RequestSpecification parameter(String parameterName, String parameterValue) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
