@@ -591,12 +591,17 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void multiValueParametersWorksSupportsAppendingWhenPassingInList() throws Exception {
+    public void multiValueParametersSupportsAppendingWhenPassingInList() throws Exception {
         with().param("list", "1").param("list", asList("2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 
     @Test
-    public void multiValueQueryParametersWorksSupportsAppendingWhenPassingInList() throws Exception {
+    public void multiValueQueryParametersSupportsAppendingWhenPassingInList() throws Exception {
         with().param("list", asList("1")).param("list", asList("2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+    }
+
+    @Test
+    public void paramSupportsMultipleValues() throws Exception {
+        with().param("list", "1", "2", "3").expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 }

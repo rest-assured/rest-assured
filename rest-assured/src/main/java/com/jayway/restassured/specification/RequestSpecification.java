@@ -229,9 +229,10 @@ public interface RequestSpecification extends RequestSender {
      * @see #parameters(String, String...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
+     * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request com.jayway.restassured.specification
      */
-    RequestSpecification parameter(String parameterName, String parameterValue);
+    RequestSpecification parameter(String parameterName, String parameterValue, String... additionalParameterValues);
 
     /**
      * Specify a multi-value parameter that'll be sent with the request e.g:
@@ -268,14 +269,15 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification params(Map<String, String> parametersMap);
 
     /**
-     * A slightly shorter version of {@link #parameter(String, String) }.
+     * A slightly shorter version of {@link #parameter(String, String, String...) }.
      *
-     * @see #parameter(String, String)
+     * @see #parameter(String, String, String...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
+     * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request com.jayway.restassured.specification
      */
-    RequestSpecification param(String parameterName, String parameterValue);
+    RequestSpecification param(String parameterName, String parameterValue, String... additionalParameterValues);
 
     /**
      * A slightly shorter version of {@link #parameter(String, java.util.List)}  }.
@@ -308,16 +310,17 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification queryParameters(Map<String, String> parametersMap);
 
     /**
-     * Specify a query parameter that'll be sent with the request. Note that this method is the same as {@link #parameter(String, String)}
-     * for all http methods except for POST where {@link #parameter(String, String)} adds a form parameter and this method sets a
+     * Specify a query parameter that'll be sent with the request. Note that this method is the same as {@link #parameter(String, String, String...)}
+     * for all http methods except for POST where {@link #parameter(String, String, String...)} adds a form parameter and this method sets a
      * query parameter.
      *
-     * @see #parameter(String, String)
+     * @see #parameter(String, String, String...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
+     * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request com.jayway.restassured.specification
      */
-    RequestSpecification queryParameter(String parameterName, String parameterValue);
+    RequestSpecification queryParameter(String parameterName, String parameterValue, String... additionalParameterValues);
 
     /**
      * Specify a multi-value query parameter that'll be sent with the request e.g:
@@ -358,14 +361,15 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification queryParams(Map<String, String> parametersMap);
 
     /**
-     * A slightly shorter version of {@link #queryParameter(String, String)}  }.
+     * A slightly shorter version of {@link #queryParameter(String, String, String...)}.
      *
-     * @see #parameter(String, String)
+     * @see #parameter(String, String, String...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
+     * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request com.jayway.restassured.specification
      */
-    RequestSpecification queryParam(String parameterName, String parameterValue);
+    RequestSpecification queryParam(String parameterName, String parameterValue, String... additionalParameterValues);
 
     /**
      * A slightly shorter version of {@link #queryParameter(String, java.util.List)}.

@@ -31,6 +31,7 @@ import org.apache.http.client.methods.HttpPost
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
+import static java.util.Arrays.asList
 
 class RequestSpecificationImpl implements RequestSpecification {
 
@@ -118,8 +119,8 @@ class RequestSpecificationImpl implements RequestSpecification {
     return parameters(parametersMap)
   }
 
-  def RequestSpecification param(String parameterName, String parameterValue) {
-    return parameter(parameterName, parameterValue)
+  def RequestSpecification param(String parameterName, String parameterValue, String... additionalParameterValues) {
+    return parameter(parameterName, parameterValue, additionalParameterValues)
   }
 
   def RequestSpecification parameter(String parameterName, List<String> parameterValues) {
@@ -144,10 +145,13 @@ class RequestSpecificationImpl implements RequestSpecification {
     return queryParameter(parameterName, parameterValues)
   }
 
-  def RequestSpecification parameter(String parameterName, String parameterValue) {
+  def RequestSpecification parameter(String parameterName, String parameterValue, String... additionalParameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
     appendParameter(requestParameters, parameterName, parameterValue);
+    if(additionalParameterValues != null) {
+      appendParameter(requestParameters, parameterName, asList(additionalParameterValues))
+    }
     return this
   }
 
@@ -162,11 +166,14 @@ class RequestSpecificationImpl implements RequestSpecification {
     return this
   }
 
-  def RequestSpecification queryParameter(String parameterName, String parameterValue) {
+  def RequestSpecification queryParameter(String parameterName, String parameterValue, String... additionalParameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
     appendParameter(queryParams, parameterName, parameterValue)
-    return this;
+    if(additionalParameterValues != null) {
+      appendParameter(queryParams, parameterName, asList(additionalParameterValues))
+    }
+    return this
   }
 
   def RequestSpecification queryParams(String parameterName, String... parameterNameValuePairs) {
@@ -177,8 +184,8 @@ class RequestSpecificationImpl implements RequestSpecification {
     return queryParameters(parametersMap)
   }
 
-  def RequestSpecification queryParam(String parameterName, String parameterValue) {
-    return queryParameter(parameterName, parameterValue)
+  def RequestSpecification queryParam(String parameterName, String parameterValue, String... additionalParameterValue) {
+    return queryParameter(parameterName, parameterValue, additionalParameterValue)
   }
 
   def RequestSpecification and() {
