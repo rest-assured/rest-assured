@@ -21,11 +21,13 @@ import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.basic;
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsString;
@@ -192,5 +194,53 @@ public class SpecificationBuilderITest extends WithJetty {
                 statusCode(200).
         when().
                 get("/secured/hello");
+    }
+
+    @Test
+    public void supportsMergingMultiValueParametersWhenUsingRequestSpecBuilder() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().addParam("list", "1", "2", "3").build();
+
+        given().
+                spec(spec).
+        expect().
+                body("list", equalTo("1,2,3")).
+        when().
+                get("/multiValueParam");
+    }
+
+    @Test
+    public void supportsMergingMultiValueQueryParametersWhenUsingRequestSpecBuilder() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().addQueryParam("list", "1", "2", "3").build();
+
+        given().
+                spec(spec).
+        expect().
+                body("list", equalTo("1,2,3")).
+        when().
+                get("/multiValueParam");
+    }
+
+    @Test
+    public void supportsMergingMultiValueParametersUsingListWhenUsingRequestSpecBuilder() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().addParam("list", asList("1", "2", "3")).build();
+
+        given().
+                spec(spec).
+        expect().
+                body("list", equalTo("1,2,3")).
+        when().
+                get("/multiValueParam");
+    }
+
+    @Test
+    public void supportsMergingMultiValueQueryParametersUsingListWhenUsingRequestSpecBuilder() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().addQueryParam("list", asList("1", "2", "3")).build();
+
+        given().
+                spec(spec).
+        expect().
+                body("list", equalTo("1,2,3")).
+        when().
+                get("/multiValueParam");
     }
 }

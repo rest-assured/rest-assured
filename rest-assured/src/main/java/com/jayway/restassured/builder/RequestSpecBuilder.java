@@ -22,6 +22,7 @@ import com.jayway.restassured.internal.SpecificationMerger;
 import com.jayway.restassured.specification.RequestSpecification;
 import groovyx.net.http.ContentType;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
@@ -155,10 +156,23 @@ public class RequestSpecBuilder {
      *
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
+     * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification builder
      */
-    public RequestSpecBuilder addParameter(String parameterName, String parameterValue) {
-        spec.parameter(parameterName, parameterValue);
+    public RequestSpecBuilder addParameter(String parameterName, String parameterValue, String... additionalParameterValues) {
+        spec.parameter(parameterName, parameterValue, additionalParameterValues);
+        return this;
+    }
+
+    /**
+     * Add a multi-value parameter to be sent with the request.
+     *
+     * @param parameterName The parameter key
+     * @param parameterValues The parameter values
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder addParameter(String parameterName, List<String> parameterValues) {
+        spec.parameter(parameterName, parameterValues);
         return this;
     }
 
@@ -174,15 +188,29 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * A slightly shorter version of {@link #addParameter(String, String) }.
+     * A slightly shorter version of {@link #addParameter(String, String, String...) }.
      *
-     * @see #addParameter(String, String)
+     * @see #addParameter(String, String, String...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
+     * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification builder
      */
-    public RequestSpecBuilder addParam(String parameterName, String parameterValue) {
-        spec.param(parameterName, parameterValue);
+    public RequestSpecBuilder addParam(String parameterName, String parameterValue, String... additionalParameterValues) {
+        spec.param(parameterName, parameterValue, additionalParameterValues);
+        return this;
+    }
+
+    /**
+     * A slightly shorter version of {@link #addParameter(String, java.util.List)}.
+     *
+     * @see #addParameter(String, String, String...)
+     * @param parameterName The parameter key
+     * @param parameterValues The parameter values
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder addParam(String parameterName, List<String> parameterValues) {
+        spec.param(parameterName, parameterValues);
         return this;
     }
 
@@ -199,15 +227,43 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Add a query parameter to be sent with the request. This method is the same as {@link #addParameter(String, String)} )}
+     * Add a query parameter to be sent with the request. This method is the same as {@link #addParameter(String, String, String...)} )}
      * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
+     *
      *
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
+     * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification builder
      */
-    public RequestSpecBuilder addQueryParameter(String parameterName, String parameterValue) {
-        spec.queryParameter(parameterName, parameterValue);
+    public RequestSpecBuilder addQueryParameter(String parameterName, String parameterValue, String... additionalParameterValues) {
+        spec.queryParameter(parameterName, parameterValue, additionalParameterValues);
+        return this;
+    }
+
+    /**
+     * Add a query parameter to be sent with the request. This method is the same as {@link #addParameter(String, java.util.List)}
+     * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
+     *
+     * @param parameterName The parameter key
+     * @param parameterValues The parameter values
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder addQueryParameter(String parameterName, List<String> parameterValues) {
+        spec.parameter(parameterName, parameterValues);
+        return this;
+    }
+
+      /**
+     * A slightly shorter version of {@link #addQueryParameter(String, java.util.List)}.
+     *
+     * @see #addQueryParam(String, String, String...)
+     * @param parameterName The parameter key
+     * @param parameterValues The parameter values
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder addQueryParam(String parameterName, List<String> parameterValues) {
+        spec.queryParam(parameterName, parameterValues);
         return this;
     }
 
@@ -224,15 +280,16 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * A slightly shorter version of {@link #addQueryParameter(String, String)}.
+     * A slightly shorter version of {@link #addQueryParameter(String, String, String...)}.
      *
-     * @see #addQueryParam(String, String)
+     * @see #addQueryParam(String, String, String...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
+     * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification builder
      */
-    public RequestSpecBuilder addQueryParam(String parameterName, String parameterValue) {
-        spec.queryParam(parameterName, parameterValue);
+    public RequestSpecBuilder addQueryParam(String parameterName, String parameterValue, String... additionalParameterValues) {
+        spec.queryParam(parameterName, parameterValue, additionalParameterValues);
         return this;
     }
 
