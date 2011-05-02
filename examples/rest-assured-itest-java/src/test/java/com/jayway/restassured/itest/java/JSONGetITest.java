@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -577,5 +578,25 @@ public class JSONGetITest extends WithJetty {
         final HashMap<String, String> hashMap = new HashMap<String, String>();
         hashMap.put("list", "3");
         with().queryParam("list", "1").queryParam("list", "2").queryParams(hashMap).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+    }
+
+    @Test
+    public void multiValueParametersWorksWhenPassingInList() throws Exception {
+        with().param("list", asList("1", "2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+    }
+
+    @Test
+    public void multiValueQueryParametersWorksWhenPassingInList() throws Exception {
+        with().queryParam("list", asList("1", "2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+    }
+
+    @Test
+    public void multiValueParametersWorksSupportsAppendingWhenPassingInList() throws Exception {
+        with().param("list", "1").param("list", asList("2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+    }
+
+    @Test
+    public void multiValueQueryParametersWorksSupportsAppendingWhenPassingInList() throws Exception {
+        with().param("list", asList("1")).param("list", asList("2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 }

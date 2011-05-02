@@ -123,19 +123,25 @@ class RequestSpecificationImpl implements RequestSpecification {
   }
 
   def RequestSpecification parameter(String parameterName, List<String> parameterValues) {
-    return null
+    notNull parameterName, "parameterName"
+    notNull parameterValues, "parameterValues"
+    appendParameter(requestParameters, parameterName, parameterValues)
+    return this
   }
 
   def RequestSpecification param(String parameterName, List<String> parameterValues) {
-    return null
+    return parameter(parameterName, parameterValues)
   }
 
   def RequestSpecification queryParameter(String parameterName, List<String> parameterValues) {
-    return null
+    notNull parameterName, "parameterName"
+    notNull parameterValues, "parameterValues"
+    appendParameter(queryParams, parameterName, parameterValues)
+    return this
   }
 
   def RequestSpecification queryParam(String parameterName, List<String> parameterValues) {
-    return null
+    return queryParameter(parameterName, parameterValues)
   }
 
   def RequestSpecification parameter(String parameterName, String parameterValue) {
@@ -424,6 +430,19 @@ class RequestSpecificationImpl implements RequestSpecification {
   private def appendParameters(Map<String, String> from, Map<String, String> to) {
     from.each {key, value ->
       appendParameter(to, key, value)
+    }
+  }
+
+  private def appendParameter(Map<String, String> to, String key, List<String> value) {
+    if (to.containsKey(key)) {
+      def currentValue = to.get(key)
+      if (currentValue instanceof List) {
+        currentValue.addAll(value)
+      } else {
+        to.put(key, [currentValue, value].flatten())
+      }
+    } else {
+      to.put(key, new LinkedList<String>(value))
     }
   }
 

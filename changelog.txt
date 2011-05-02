@@ -1,3 +1,8 @@
+Change log next version
+-----------------------
+* Better support for multi-value parameters. You can now defined them using a List:
+  with().param("list", asList("1", "2", "3)). .. 
+
 Change log 1.1.7 (2011-04-26)
 -----------------------------
 * Added support for mixing form and query parameters when using the POST method. E.g. "with().param("firstName", "John").and().queryParam("lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).post("/greetXML");"
