@@ -18,10 +18,10 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.AuthenticationScheme
 import com.jayway.restassured.authentication.NoAuthScheme
+import com.jayway.restassured.filter.Filter
+import com.jayway.restassured.internal.filter.FilterChainImpl
+import com.jayway.restassured.internal.filter.RootFilter
 import com.jayway.restassured.response.Response
-import com.jayway.restassured.specification.AuthenticationSpecification
-import com.jayway.restassured.specification.RequestSpecification
-import com.jayway.restassured.specification.ResponseSpecification
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HTTPBuilder.RequestConfigDelegate
@@ -29,11 +29,12 @@ import groovyx.net.http.Method
 import groovyx.net.http.Status
 import org.apache.http.client.methods.HttpPost
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import com.jayway.restassured.specification.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
 
-class RequestSpecificationImpl implements RequestSpecification {
+class RequestSpecificationImpl implements ReadableRequestSpecification {
 
   private String baseUri
   private String path  = ""
@@ -43,11 +44,12 @@ class RequestSpecificationImpl implements RequestSpecification {
   private Map<String, String> requestParameters = [:]
   private Map<String, String> queryParams = [:]
   def AuthenticationScheme authenticationScheme = new NoAuthScheme()
-  private ResponseSpecification responseSpecification;
+  private ReadableResponseSpecification responseSpecification;
   private ContentType requestContentType;
   private Map<String, String> requestHeaders = [:]
   private Map<String, String> cookies = [:]
   private Object requestBody;
+  private List<Filter> filters = [];
 
   public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme) {
     notNull(baseURI, "baseURI");
@@ -77,27 +79,27 @@ class RequestSpecificationImpl implements RequestSpecification {
 
   def Response get(String path) {
     notNull path, "path"
-    sendRequest(path, GET, responseSpecification.assertionClosure);
+    invokeFilterChain(path, GET, responseSpecification.assertionClosure)
   }
 
   def Response post(String path) {
     notNull path, "path"
-    sendRequest(path, POST, responseSpecification.assertionClosure);
+    invokeFilterChain(path, POST, responseSpecification.assertionClosure);
   }
 
   def Response put(String path) {
     notNull path, "path"
-    sendRequest(path, PUT, responseSpecification.assertionClosure);
+    invokeFilterChain(path, PUT, responseSpecification.assertionClosure);
   }
 
   def Response delete(String path) {
     notNull path, "path"
-    sendRequest(path, DELETE, responseSpecification.assertionClosure);
+    invokeFilterChain(path, DELETE, responseSpecification.assertionClosure);
   }
 
   def Response head(String path) {
     notNull path, "path"
-    sendRequest(path, HEAD, responseSpecification.assertionClosure);
+    invokeFilterChain(path, HEAD, responseSpecification.assertionClosure);
   }
 
   def RequestSpecification parameters(String parameterName, String... parameterNameValuePairs) {
@@ -295,6 +297,12 @@ class RequestSpecificationImpl implements RequestSpecification {
     return spec(requestSpecificationToMerge)
   }
 
+  def invokeFilterChain(path, method, assertionClosure) {
+    filters << new RootFilter(path: path, method: method, assertionClosure: assertionClosure)
+    def chain = new FilterChainImpl(filters);
+    return chain.next(this, responseSpecification);
+  }
+
   private def Response sendRequest(path, method, assertionClosure) {
     path = extractRequestParamsIfNeeded(method, path);
     def isFullyQualifiedUri = isFullyQualified(path)
@@ -469,4 +477,5 @@ class RequestSpecificationImpl implements RequestSpecification {
   def void setResponseSpecification(ResponseSpecification responseSpecification) {
     this.responseSpecification = responseSpecification
   }
+
 }
