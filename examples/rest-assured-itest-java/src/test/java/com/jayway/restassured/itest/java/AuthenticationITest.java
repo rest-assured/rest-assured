@@ -21,6 +21,7 @@ import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.equalTo;
 
 public class AuthenticationITest extends WithJetty {
 
@@ -85,12 +86,38 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-      public void explicitExcludeOfPreemptiveBasicAuthenticationWhenUsingDefault() throws Exception {
-          authentication = preemptive().basic("jetty", "jetty");
-          try {
-              given().auth().none().and().expect().statusCode(401).when().get("/secured/hello");
-          } finally {
-              RestAssured.reset();
-          }
-      }
+    public void explicitExcludeOfPreemptiveBasicAuthenticationWhenUsingDefault() throws Exception {
+        authentication = preemptive().basic("jetty", "jetty");
+        try {
+            given().auth().none().and().expect().statusCode(401).when().get("/secured/hello");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void formAuthentication() throws Exception {
+        given().
+                auth().form("John", "Doe").
+        expect().
+                statusCode(200).
+                body(equalTo("OK")).
+        when().
+                get("/formAuth");
+    }
+
+    @Test
+    public void formAuthenticationUsingDefault() throws Exception {
+        RestAssured.authentication = form("John", "Doe");
+
+        try {
+        expect().
+                statusCode(200).
+                body(equalTo("OK")).
+        when().
+                get("/formAuth");
+        } finally {
+            RestAssured.reset();
+        }
+    }
 }

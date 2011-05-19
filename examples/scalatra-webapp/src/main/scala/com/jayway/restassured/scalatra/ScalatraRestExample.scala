@@ -22,6 +22,8 @@ import xml.Elem
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import collection.mutable.ListBuffer
+import com.sun.xml.internal.ws.api.message.Header
+import javax.servlet.http.Cookie
 
 class ScalatraRestExample extends ScalatraServlet {
   // To allow for json extract
@@ -121,10 +123,10 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/greetJSON") {
     "{ \"greeting\" : { \n" +
-                "                \"firstName\" : \""+{params("firstName")}+"\", \n" +
-                "                \"lastName\" : \""+{params("lastName")}+"\" \n" +
-                "               }\n" +
-                "}"
+            "                \"firstName\" : \""+{params("firstName")}+"\", \n" +
+            "                \"lastName\" : \""+{params("lastName")}+"\" \n" +
+            "               }\n" +
+            "}"
   }
 
   post("/greetXML") {
@@ -156,7 +158,6 @@ class ScalatraRestExample extends ScalatraServlet {
               (("winnerId" -> w.id) ~ ("numbers" -> w.numbers))}))
     compact(render(json))
   }
-
 
   get("/:firstName/:lastName") {
     val firstName = {params("firstName")}
@@ -204,6 +205,32 @@ class ScalatraRestExample extends ScalatraServlet {
     <body>
       <message>Custom mime-type</message>
     </body>
+  }
+
+
+  post("/j_spring_security_check") {
+    contentType = "text/plain"
+    val userName = params.get("j_username").get
+    val password = params.get("j_password").get
+    if (userName == "John" && password == "Doe") {
+      response.setHeader("Set-Cookie", "jsessionid=1234")
+    } else {
+      "NO"
+    }
+  }
+
+  get("/formAuth") {
+    val cookies: Array[Cookie] = request.getCookies
+    val cookie = cookies.find(_.getName == "jsessionid").get
+    if(cookie == null) {
+      loginPage
+    } else if (cookie.getValue == "1234") {
+      contentType = "text/plain"
+      "OK"
+    } else {
+      contentType = "text/plain"
+      "NOT AUTHORIZED"
+    }
   }
 
   post("/greet") {
@@ -261,14 +288,14 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/jsonList") {
-          """[
-           { "name" : "Anders",
-             "address" : "Spangatan"
-           },
-           { "name" : "Sven",
-             "address" : "Skolgatan"
-           }
-          ]"""
+    """[
+     { "name" : "Anders",
+       "address" : "Spangatan"
+     },
+     { "name" : "Sven",
+       "address" : "Skolgatan"
+     }
+    ]"""
   }
 
   get("/emptyBody") {
@@ -401,6 +428,25 @@ class ScalatraRestExample extends ScalatraServlet {
     }
     val json = ("greeting" -> name)
     compact(render(json))
+  }
+
+  def loginPage {
+    contentType = "text/html"
+    """<html>
+      <head>
+        <title>Login</title>
+      </head>
+
+      <body>
+        <form action="j_spring_security_check" method="POST">
+          <table>
+            <tr><td>User:</td><td><input type='text' name='j_username'/></td></tr>
+            <tr><td>Password:</td><td><input type='password' name='j_password'></td></tr>
+              <tr><td colspan='2'><input name="submit" type="submit"></td></tr>
+           </table>
+            </form>
+          </body>
+     </html>"""
   }
 
   def greetXML: Elem = {

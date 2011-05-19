@@ -16,34 +16,28 @@
 
 package com.jayway.restassured.itest.java;
 
-import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.internal.filter.FormAuthFilter;
+import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.form;
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.equalTo;
 
-public class FilterITest {  // extends WithJetty {
+public class FilterITest extends WithJetty {
 
     @Test
-    @Ignore
-    public void filter() throws Exception {
-        RestAssured.authentication = form("admin", "admin");
-        RestAssured.port = 9090;
-//        given().
-//                auth().form("admin", "admin").
-//        expect().
-//                statusCode(200).
-//                body("countries.name", hasItems("India", "Sweden", "USA")).
-//        when().
-//                get("/backend/admin/countries");
-        expect().statusCode(200).with().param("feedurl", "http://www.google.com").
-                and().queryParam("category", "games").
-                and().param("providerName", "provider name").
-                and().param("titlePrefix", "").
-                and().param("description", "").post("/admin/providers/provider");
+    public void filterWorks() throws Exception {
+        final FormAuthFilter filter = new FormAuthFilter();
+        filter.setUserName("John");
+        filter.setPassword("Doe");
 
+        given().
+                filter(filter).
+        expect().
+                statusCode(200).
+                body(equalTo("OK")).
+        when().
+                get("/formAuth");
     }
 }
