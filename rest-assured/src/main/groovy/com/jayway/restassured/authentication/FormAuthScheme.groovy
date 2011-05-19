@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.specification;
+package com.jayway.restassured.authentication
 
-public interface ReadableResponseSpecification extends ResponseSpecification {
+import groovyx.net.http.HTTPBuilder
+
+/**
+ * Used for form authentication, does nothing.
+ */
+class FormAuthScheme implements AuthenticationScheme {
+  void authenticate(HTTPBuilder httpBuilder) {
+  }
 }

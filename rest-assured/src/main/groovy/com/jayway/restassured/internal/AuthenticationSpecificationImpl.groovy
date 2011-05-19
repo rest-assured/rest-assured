@@ -18,14 +18,13 @@
 
 package com.jayway.restassured.internal
 
-import com.jayway.restassured.authentication.BasicAuthScheme
-import com.jayway.restassured.authentication.CertAuthScheme
-import com.jayway.restassured.authentication.ExplicitNoAuthScheme
-import com.jayway.restassured.authentication.OAuthScheme
+import com.jayway.restassured.internal.filter.AuthFilter
+import com.jayway.restassured.internal.filter.FormAuthFilter
 import com.jayway.restassured.specification.AuthenticationSpecification
 import com.jayway.restassured.specification.PreemptiveAuthSpec
 import com.jayway.restassured.specification.RequestSpecification
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import com.jayway.restassured.authentication.*
 
 /**
  * Specify an authentication scheme to use when sending a request.
@@ -108,10 +107,18 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
 
   def RequestSpecification none() {
     requestSpecification.authenticationScheme = new ExplicitNoAuthScheme();
+    requestSpecification.filters.removeAll { it instanceof AuthFilter }
     return requestSpecification
   }
 
   def PreemptiveAuthSpec preemptive() {
     return new PreemptiveAuthSpecImpl(requestSpecification)
+  }
+
+  @Override
+  RequestSpecification form(String userName, String password) {
+    requestSpecification.authenticationScheme = new FormAuthScheme();
+    requestSpecification.filter(new FormAuthFilter(userName: userName,password: password))
+    return requestSpecification
   }
 }

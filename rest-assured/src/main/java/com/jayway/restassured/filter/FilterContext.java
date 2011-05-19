@@ -19,7 +19,16 @@ package com.jayway.restassured.filter;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
+import com.jayway.restassured.specification.RequestSender;
+import groovyx.net.http.Method;
 
-public interface Filter {
-    Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx);
+public interface FilterContext {
+
+    Response send(RequestSender requestSender);
+
+    Method getRequestMethod();
+
+    String getRequestPath();
+
+    Response next(FilterableRequestSpecification request, FilterableResponseSpecification response);
 }

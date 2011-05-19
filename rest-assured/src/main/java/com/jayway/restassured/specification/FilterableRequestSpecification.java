@@ -16,6 +16,5 @@
 
 package com.jayway.restassured.specification;
 
-public interface ReadableRequestSpecification extends RequestSpecification {
-
+public interface FilterableRequestSpecification extends RequestSpecification {
 }

@@ -19,7 +19,7 @@ package com.jayway.restassured.internal
 import com.jayway.restassured.authentication.AuthenticationScheme
 import com.jayway.restassured.authentication.NoAuthScheme
 import com.jayway.restassured.filter.Filter
-import com.jayway.restassured.internal.filter.FilterChainImpl
+import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.RootFilter
 import com.jayway.restassured.response.Response
 import groovyx.net.http.ContentType
@@ -34,7 +34,7 @@ import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
 
-class RequestSpecificationImpl implements ReadableRequestSpecification {
+class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   private String baseUri
   private String path  = ""
@@ -44,20 +44,22 @@ class RequestSpecificationImpl implements ReadableRequestSpecification {
   private Map<String, String> requestParameters = [:]
   private Map<String, String> queryParams = [:]
   def AuthenticationScheme authenticationScheme = new NoAuthScheme()
-  private ReadableResponseSpecification responseSpecification;
+  private FilterableResponseSpecification responseSpecification;
   private ContentType requestContentType;
   private Map<String, String> requestHeaders = [:]
   private Map<String, String> cookies = [:]
   private Object requestBody;
   private List<Filter> filters = [];
 
-  public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme) {
+  public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters) {
     notNull(baseURI, "baseURI");
     notNull(basePath, "basePath");
     notNull(defaultAuthScheme, "defaultAuthScheme");
+    notNull(filters, "Filters")
     this.baseUri = baseURI
     this.basePath = basePath
     this.defaultAuthScheme = defaultAuthScheme
+    this.filters.addAll(filters)
     port(requestPort)
   }
 
@@ -128,7 +130,7 @@ class RequestSpecificationImpl implements ReadableRequestSpecification {
   def RequestSpecification parameter(String parameterName, List<String> parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
-    appendParameter(requestParameters, parameterName, parameterValues)
+    appendListParameter(requestParameters, parameterName, parameterValues)
     return this
   }
 
@@ -139,7 +141,7 @@ class RequestSpecificationImpl implements ReadableRequestSpecification {
   def RequestSpecification queryParameter(String parameterName, List<String> parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
-    appendParameter(queryParams, parameterName, parameterValues)
+    appendListParameter(queryParams, parameterName, parameterValues)
     return this
   }
 
@@ -150,9 +152,9 @@ class RequestSpecificationImpl implements ReadableRequestSpecification {
   def RequestSpecification parameter(String parameterName, String parameterValue, String... additionalParameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
-    appendParameter(requestParameters, parameterName, parameterValue);
+    appendStringParameter(requestParameters, parameterName, parameterValue);
     if(additionalParameterValues != null) {
-      appendParameter(requestParameters, parameterName, asList(additionalParameterValues))
+      appendListParameter(requestParameters, parameterName, asList(additionalParameterValues))
     }
     return this
   }
@@ -171,9 +173,9 @@ class RequestSpecificationImpl implements ReadableRequestSpecification {
   def RequestSpecification queryParameter(String parameterName, String parameterValue, String... additionalParameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
-    appendParameter(queryParams, parameterName, parameterValue)
+    appendStringParameter(queryParams, parameterName, parameterValue)
     if(additionalParameterValues != null) {
-      appendParameter(queryParams, parameterName, asList(additionalParameterValues))
+      appendListParameter(queryParams, parameterName, asList(additionalParameterValues))
     }
     return this
   }
@@ -188,6 +190,18 @@ class RequestSpecificationImpl implements ReadableRequestSpecification {
 
   def RequestSpecification queryParam(String parameterName, String parameterValue, String... additionalParameterValue) {
     return queryParameter(parameterName, parameterValue, additionalParameterValue)
+  }
+
+  def RequestSpecification filter(Filter filter) {
+    notNull filter, "Filter"
+    filters << filter
+    return this
+  }
+
+  def RequestSpecification filters(List<Filter> filters) {
+    notNull filters, "Filters"
+    this.filters.addAll(filters)
+    return this
   }
 
   def RequestSpecification and() {
@@ -298,9 +312,9 @@ class RequestSpecificationImpl implements ReadableRequestSpecification {
   }
 
   def invokeFilterChain(path, method, assertionClosure) {
-    filters << new RootFilter(path: path, method: method, assertionClosure: assertionClosure)
-    def chain = new FilterChainImpl(filters);
-    return chain.next(this, responseSpecification);
+    filters << new RootFilter()
+    def ctx = new FilterContextImpl(path, method, assertionClosure, filters);
+    return ctx.next(this, responseSpecification);
   }
 
   private def Response sendRequest(path, method, assertionClosure) {
@@ -444,11 +458,11 @@ class RequestSpecificationImpl implements ReadableRequestSpecification {
 
   private def appendParameters(Map<String, String> from, Map<String, String> to) {
     from.each {key, value ->
-      appendParameter(to, key, value)
+      appendStringParameter(to, key, value)
     }
   }
 
-  private def appendParameter(Map<String, String> to, String key, List<String> value) {
+  private def appendListParameter(Map<String, String> to, String key, List<String> value) {
     if (to.containsKey(key)) {
       def currentValue = to.get(key)
       if (currentValue instanceof List) {
@@ -461,7 +475,7 @@ class RequestSpecificationImpl implements ReadableRequestSpecification {
     }
   }
 
-  private def appendParameter(Map<String, String> to, String key, String value) {
+  private def appendStringParameter(Map<String, String> to, String key, String value) {
     if (to.containsKey(key)) {
       def currentValue = to.get(key)
       if (currentValue instanceof List) {
@@ -477,5 +491,4 @@ class RequestSpecificationImpl implements ReadableRequestSpecification {
   def void setResponseSpecification(ResponseSpecification responseSpecification) {
     this.responseSpecification = responseSpecification
   }
-
 }

@@ -17,15 +17,21 @@
 package com.jayway.restassured;
 
 import com.jayway.restassured.authentication.*;
+import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.ResponseSpecificationImpl;
 import com.jayway.restassured.internal.TestSpecificationImpl;
+import com.jayway.restassured.internal.filter.FormAuthFilter;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSender;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * REST Assured is a Java DSL for simplifying testing of REST based services built on top of
@@ -300,7 +306,6 @@ public class RestAssured {
     public static final int DEFAULT_PORT = 8080;
     public static final String DEFAULT_PATH = "";
     public static final AuthenticationScheme DEFAULT_AUTH = new NoAuthScheme();
-
     /**
      * The base URI that's used by REST assured when making requests if a non-fully qualified URI is used in the request.
      * Default value is {@value #DEFAULT_URI}.
@@ -366,6 +371,22 @@ public class RestAssured {
      * </pre>
      */
     public static String rootPath = DEFAULT_BODY_ROOT_PATH;
+
+    private static List<Filter> filters = new LinkedList<Filter>();
+
+    /**
+     * The the default filters to apply to each request.
+     */
+    public static void filters(List<Filter> filters) {
+        RestAssured.filters.addAll(filters);
+    }
+
+    /**
+     * @return The current default filters
+     */
+    public static List<Filter> filters() {
+        return Collections.unmodifiableList(filters);
+    }
 
     /**
      * Start building the response part of the test com.jayway.restassured.specification. E.g.
@@ -506,6 +527,23 @@ public class RestAssured {
         return scheme;
     }
 
+     /**
+     * Use form authentication. Rest Assured will try to parse the response
+     * login page and determine and try find the action, username and password input
+     * field automatically.
+     *
+     * @param userName The user name.
+     * @param password The password.
+     * @return The Request specification
+     */
+    public static AuthenticationScheme form(String userName, String password) {
+        final FormAuthScheme scheme = new FormAuthScheme();
+        final FormAuthFilter authFilter = new FormAuthFilter();
+        authFilter.setUserName(userName);
+        authFilter.setPassword(password);
+        filters.add(authFilter);
+        return scheme;
+    }
 
     /**
      * Return the http preemptive authentication specification for setting up preemptive authentication requests.
@@ -604,9 +642,10 @@ public class RestAssured {
         basePath = DEFAULT_PATH;
         authentication = DEFAULT_AUTH;
         rootPath = DEFAULT_BODY_ROOT_PATH;
+        filters = new LinkedList<Filter>();
     }
 
     private static TestSpecificationImpl createTestSpecification() {
-        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port, basePath, authentication), new ResponseSpecificationImpl(rootPath));
+        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters), new ResponseSpecificationImpl(rootPath));
     }
 }

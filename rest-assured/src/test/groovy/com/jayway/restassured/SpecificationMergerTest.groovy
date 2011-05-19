@@ -16,11 +16,18 @@
 
 package com.jayway.restassured
 
+import com.jayway.restassured.builder.RequestSpecBuilder
 import com.jayway.restassured.builder.ResponseSpecBuilder
+import com.jayway.restassured.filter.Filter
+import com.jayway.restassured.filter.FilterContext
 import com.jayway.restassured.internal.SpecificationMerger
+import com.jayway.restassured.response.Response
+import com.jayway.restassured.specification.FilterableRequestSpecification
+import com.jayway.restassured.specification.FilterableResponseSpecification
 import groovyx.net.http.ContentType
 import org.junit.Test
 import static groovy.util.GroovyTestCase.assertEquals
+import static java.util.Arrays.asList
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertTrue
 
@@ -54,6 +61,16 @@ class SpecificationMergerTest {
     SpecificationMerger.merge(merge, with)
 
     assertEquals merge.bodyMatchers.size(), 2
+  }
+
+  @Test
+  def void mergesFilters() throws Exception {
+    def merge = new RequestSpecBuilder().addFilter(newFilter()).addFilter(newFilter()).build();
+    def with = new RequestSpecBuilder().addFilter(newFilter()).addFilters(asList(newFilter(), newFilter())).build();
+
+    SpecificationMerger.merge(merge, with)
+
+    assertEquals merge.filters.size(), 5
   }
 
   @Test
@@ -94,5 +111,14 @@ class SpecificationMergerTest {
     SpecificationMerger.merge(merge, with)
 
     assertTrue merge.expectedStatusLine.matches("something else")
+  }
+
+  private Filter newFilter() {
+    return new Filter() {
+      @Override
+      Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+        return ctx.next(requestSpec, responseSpec);
+      }
+    };
   }
 }

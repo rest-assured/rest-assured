@@ -39,6 +39,17 @@ public interface AuthenticationSpecification {
     RequestSpecification digest(String userName, String password);
 
     /**
+     * Use form authentication. Rest Assured will try to parse the response
+     * login page and determine and try find the action, username and password input
+     * field automatically.
+     *
+     * @param userName The user name.
+     * @param password The password.
+     * @return The Request specification
+     */
+    RequestSpecification form(String userName, String password);
+
+    /**
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)}
      * for how to get a URL from a resource on the classpath.
      *

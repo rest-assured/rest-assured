@@ -16,15 +16,27 @@
 
 package com.jayway.restassured.internal.filter
 
-import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.filter.FilterContext
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
+import static com.jayway.restassured.RestAssured.given
 
-class RootFilter implements Filter {
+class FormAuthFilter implements AuthFilter {
+  private static final String RESERVED_COOKIE_NAME = "Path"
+  def userName
+  def password
+
   @Override
-  Response filter(FilterableRequestSpecification requestSpecification, FilterableResponseSpecification responseSpecification, FilterContext context) {
-    return requestSpecification.sendRequest(context.getRequestPath(), context.getRequestMethod(), context.assertionClosure)
+  Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+    //    ctx.send(given().spec(requestSpec).auth().none())
+    final Response loginResponse = given().auth().none().params("j_username", userName, "j_password", password).post("/j_spring_security_check")
+    def cookies = [:]
+    cookies.putAll(loginResponse.getCookies())
+    if(cookies.containsKey(RESERVED_COOKIE_NAME)) {
+      cookies.remove(RESERVED_COOKIE_NAME)
+    }
+    requestSpec.cookies(cookies);
+    return ctx.next(requestSpec, responseSpec);
   }
 }

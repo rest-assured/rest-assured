@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.specification;
 
+import com.jayway.restassured.filter.Filter;
 import groovyx.net.http.ContentType;
 
 import java.util.List;
@@ -563,6 +564,22 @@ public interface RequestSpecification extends RequestSender {
      * @return the request specification
      */
     RequestSpecification specification(RequestSpecification requestSpecificationToMerge);
+
+    /**
+     * Add a filter that will be used in the request.
+     *
+     * @param filter The filter to add
+     * @return the request specification
+     */
+    RequestSpecification filter(Filter filter);
+
+    /**
+     * Add filters that will be used in the request.
+     *
+     * @param filters The filters to add
+     * @return the request specification
+     */
+    RequestSpecification filters(List<Filter> filters);
 
     /**
      * Returns the response com.jayway.restassured.specification so that you can setup the expectations on the response. E.g.

@@ -14,12 +14,7 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.filter;
+package com.jayway.restassured.specification;
 
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.FilterableRequestSpecification;
-import com.jayway.restassured.specification.FilterableResponseSpecification;
-
-public interface Filter {
-    Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx);
+public interface FilterableResponseSpecification extends ResponseSpecification {
 }

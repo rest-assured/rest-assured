@@ -64,6 +64,7 @@ class SpecificationMerger {
    *     <li>Query Parameters</li>
    *     <li>Cookies</li>
    *     <li>Headers</li>
+   *     <li>Filters</li>
    * </ul>
    */
   def static void merge(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {
@@ -75,8 +76,6 @@ class SpecificationMerger {
     thisOne.requestHeaders.putAll(with.requestHeaders)
     thisOne.cookies.putAll(with.cookies)
     thisOne.requestBody = with.requestBody
+    thisOne.filters.addAll(with.filters)
   }
-
-
-
 }

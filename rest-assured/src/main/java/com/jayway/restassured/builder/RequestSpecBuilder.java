@@ -17,6 +17,7 @@
 package com.jayway.restassured.builder;
 
 import com.jayway.restassured.authentication.AuthenticationScheme;
+import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.SpecificationMerger;
 import com.jayway.restassured.specification.RequestSpecification;
@@ -53,7 +54,7 @@ public class RequestSpecBuilder {
     private RequestSpecification spec;
 
     public RequestSpecBuilder() {
-        this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication);
+        this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters());
     }
 
     /**
@@ -137,6 +138,28 @@ public class RequestSpecBuilder {
      */
     public RequestSpecBuilder addCookie(String key, String value) {
         spec.cookie(key, value);
+        return this;
+    }
+
+    /**
+     * Add a filter that will be used in the request.
+     *
+     * @param filter The filter to add
+     * @return the request specification builder
+     */
+    public RequestSpecBuilder addFilter(Filter filter) {
+        spec.filter(filter);
+        return this;
+    }
+
+    /**
+     * Add filters that will be used in the request.
+     *
+     * @param filters The filters to add
+     * @return the request specification builder
+     */
+    public RequestSpecBuilder addFilters(List<Filter> filters) {
+        spec.filters(filters);
         return this;
     }
 
@@ -254,7 +277,7 @@ public class RequestSpecBuilder {
         return this;
     }
 
-      /**
+    /**
      * A slightly shorter version of {@link #addQueryParameter(String, java.util.List)}.
      *
      * @see #addQueryParam(String, String, String...)

@@ -22,8 +22,8 @@ import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.assertion.HeaderMatcher
 import com.jayway.restassured.exception.AssertionFailedException
 import com.jayway.restassured.response.Response
-import com.jayway.restassured.specification.ReadableRequestSpecification
-import com.jayway.restassured.specification.ReadableResponseSpecification
+import com.jayway.restassured.specification.FilterableRequestSpecification
+import com.jayway.restassured.specification.FilterableResponseSpecification
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.specification.ResponseSpecification
 import groovyx.net.http.ContentType
@@ -32,7 +32,7 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.ANY
 import static org.hamcrest.Matchers.equalTo
 
-class ResponseSpecificationImpl implements ReadableResponseSpecification {
+class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   private static final String DEFAULT_BODY_ROOT_PATH = ""
   private Matcher<Integer> expectedStatusCode;
@@ -41,7 +41,7 @@ class ResponseSpecificationImpl implements ReadableResponseSpecification {
   private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure();
   private List headerAssertions = []
   private List cookieAssertions = []
-  private ReadableRequestSpecification requestSpecification;
+  private FilterableRequestSpecification requestSpecification;
   private ContentType contentType;
   private Response restAssuredResponse;
   private String bodyRootPath;

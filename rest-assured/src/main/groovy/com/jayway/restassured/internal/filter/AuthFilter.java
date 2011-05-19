@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.filter;
+package com.jayway.restassured.internal.filter;
 
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.ReadableRequestSpecification;
-import com.jayway.restassured.specification.ReadableResponseSpecification;
+import com.jayway.restassured.filter.Filter;
 
-public interface FilterChain {
-
-    Response next(ReadableRequestSpecification request, ReadableResponseSpecification response);
+/**
+ * Marker interface for authentication filters
+ */
+public interface AuthFilter extends Filter {
 }
