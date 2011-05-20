@@ -189,4 +189,11 @@ public class XmlPathTest {
         assertThat(firstName, equalTo("John"));
         assertThat(lastName, equalTo("Doe"));
     }
+
+    @Test
+    public void getAllItemNames() throws Exception {
+        final List<String> items = with(XML).get("shopping.depthFirst().grep { it.name() == 'item' }.name");
+
+        assertThat(items, hasItems("Chocolate", "Coffee", "Paper", "Pens", "Kathryn's Birthday"));
+    }
 }

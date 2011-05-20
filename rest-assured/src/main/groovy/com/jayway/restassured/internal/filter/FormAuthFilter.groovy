@@ -16,21 +16,41 @@
 
 package com.jayway.restassured.internal.filter
 
+import com.jayway.restassured.authentication.FormAuthConfig
 import com.jayway.restassured.filter.FilterContext
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
 import static com.jayway.restassured.RestAssured.given
+import static com.jayway.restassured.path.xml.XmlPath.with
+import static java.lang.String.format
 
 class FormAuthFilter implements AuthFilter {
   private static final String RESERVED_COOKIE_NAME = "Path"
+  private static final String FIND_INPUT_TAG = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }"
+  private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action"
+
   def userName
   def password
+  def FormAuthConfig config
 
   @Override
   Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-    //    ctx.send(given().spec(requestSpec).auth().none())
-    final Response loginResponse = given().auth().none().params("j_username", userName, "j_password", password).post("/j_spring_security_check")
+    final String formAction;
+    final String userNameInputForm;
+    final String passwordInputForm;
+    if(config == null) {
+      def responseBody = ctx.send(given().spec(requestSpec).auth().none()).asString()
+      String tempFormAction = throwIfException { with(responseBody).getString(FIND_FORM_ACTION) }
+      formAction = tempFormAction.startsWith("/") ? tempFormAction : "/"+ tempFormAction
+      userNameInputForm = throwIfException { with(responseBody).getString(format(FIND_INPUT_TAG, "text")) }
+      passwordInputForm = throwIfException { with(responseBody).getString(format(FIND_INPUT_TAG, "password")) }
+    } else {
+      formAction = config.getFormAction()
+      userNameInputForm = config.getUserInputTagName()
+      passwordInputForm = config.getPasswordInputTagName()
+    }
+    final Response loginResponse = given().auth().none().params(userNameInputForm, userName, passwordInputForm, password).post(formAction)
     def cookies = [:]
     cookies.putAll(loginResponse.getCookies())
     if(cookies.containsKey(RESERVED_COOKIE_NAME)) {
@@ -38,5 +58,14 @@ class FormAuthFilter implements AuthFilter {
     }
     requestSpec.cookies(cookies);
     return ctx.next(requestSpec, responseSpec);
+  }
+
+
+  def throwIfException(Closure closure) {
+    try {
+      closure.call()
+    } catch(Exception e) {
+      throw new IllegalArgumentException("Failed to parse login page. Check for errors on the login page or specify FormAuthConfig.". e)
+    }
   }
 }

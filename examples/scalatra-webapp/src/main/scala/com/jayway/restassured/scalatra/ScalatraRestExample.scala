@@ -220,16 +220,19 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/formAuth") {
+    contentType = "text/plain"
     val cookies: Array[Cookie] = request.getCookies
-    val cookie = cookies.find(_.getName == "jsessionid").get
-    if(cookie == null) {
+    if(cookies == null) {
       loginPage
-    } else if (cookie.getValue == "1234") {
-      contentType = "text/plain"
-      "OK"
     } else {
-      contentType = "text/plain"
-      "NOT AUTHORIZED"
+      val cookie = cookies.find(_.getName == "jsessionid").get
+      if(cookie == null) {
+        loginPage
+      } else if (cookie.getValue == "1234") {
+        "OK"
+      } else {
+        "NOT AUTHORIZED"
+      }
     }
   }
 
@@ -430,7 +433,7 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(render(json))
   }
 
-  def loginPage {
+  def loginPage : String = {
     contentType = "text/html"
     """<html>
       <head>
@@ -441,8 +444,8 @@ class ScalatraRestExample extends ScalatraServlet {
         <form action="j_spring_security_check" method="POST">
           <table>
             <tr><td>User:</td><td><input type='text' name='j_username'/></td></tr>
-            <tr><td>Password:</td><td><input type='password' name='j_password'></td></tr>
-              <tr><td colspan='2'><input name="submit" type="submit"></td></tr>
+            <tr><td>Password:</td><td><input type='password' name='j_password' /></td></tr>
+              <tr><td colspan='2'><input name="submit" type="submit"/></td></tr>
            </table>
             </form>
           </body>

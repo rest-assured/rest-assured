@@ -527,20 +527,43 @@ public class RestAssured {
         return scheme;
     }
 
-     /**
+    /**
      * Use form authentication. Rest Assured will try to parse the response
      * login page and determine and try find the action, username and password input
      * field automatically.
+     * <p>
+     * Note that the request will be much faster if you also supply a form auth configuration.
+     * </p>
      *
      * @param userName The user name.
      * @param password The password.
-     * @return The Request specification
+     * @see #form(String, String, com.jayway.restassured.authentication.FormAuthConfig)
+     * @return The authentication scheme
      */
     public static AuthenticationScheme form(String userName, String password) {
+        return form(userName, password, null);
+    }
+
+    /**
+     * Use form authentication with the supplied configuration.
+     *
+     * @param userName The user name.
+     * @param password The password.
+     * @param config The form authentication config
+     * @return The authentication scheme
+     */
+    public static AuthenticationScheme form(String userName, String password, FormAuthConfig config) {
+        if(userName == null) {
+            throw new IllegalArgumentException("Username cannot be null");
+        }
+        if(password == null) {
+            throw new IllegalArgumentException("Password cannot be null");
+        }
         final FormAuthScheme scheme = new FormAuthScheme();
         final FormAuthFilter authFilter = new FormAuthFilter();
         authFilter.setUserName(userName);
         authFilter.setPassword(password);
+        authFilter.setConfig(config);
         filters.add(authFilter);
         return scheme;
     }

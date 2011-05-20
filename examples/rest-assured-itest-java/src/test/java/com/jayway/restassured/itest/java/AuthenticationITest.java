@@ -21,6 +21,7 @@ import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.authentication.FormAuthConfig.springSecurity;
 import static org.hamcrest.Matchers.equalTo;
 
 public class AuthenticationITest extends WithJetty {
@@ -96,7 +97,18 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void formAuthentication() throws Exception {
+    public void formAuthenticationUsingSpringAuthConf() throws Exception {
+        given().
+                auth().form("John", "Doe", springSecurity()).
+        expect().
+                statusCode(200).
+                body(equalTo("OK")).
+        when().
+                get("/formAuth");
+    }
+
+    @Test
+    public void formAuthenticationWithLoginPageParsing() throws Exception {
         given().
                 auth().form("John", "Doe").
         expect().
@@ -107,8 +119,23 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void formAuthenticationUsingDefault() throws Exception {
+    public void formAuthenticationUsingDefaultWithLoginPageParsing() throws Exception {
         RestAssured.authentication = form("John", "Doe");
+
+        try {
+        expect().
+                statusCode(200).
+                body(equalTo("OK")).
+        when().
+                get("/formAuth");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void formAuthenticationUsingDefaultWithSpringAuthConf() throws Exception {
+        RestAssured.authentication = form("John", "Doe", springSecurity());
 
         try {
         expect().

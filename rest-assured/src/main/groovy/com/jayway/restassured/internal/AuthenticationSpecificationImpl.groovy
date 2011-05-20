@@ -115,10 +115,13 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
     return new PreemptiveAuthSpecImpl(requestSpecification)
   }
 
-  @Override
-  RequestSpecification form(String userName, String password) {
+  def RequestSpecification form(String userName, String password) {
+    form(userName, password, null)
+  }
+
+  def RequestSpecification form(String userName, String password, FormAuthConfig config) {
     requestSpecification.authenticationScheme = new FormAuthScheme();
-    requestSpecification.filter(new FormAuthFilter(userName: userName,password: password))
+    requestSpecification.filter(new FormAuthFilter(userName: userName,password: password, config: config))
     return requestSpecification
   }
 }

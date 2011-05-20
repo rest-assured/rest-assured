@@ -16,6 +16,9 @@
 
 package com.jayway.restassured.specification;
 
+import com.jayway.restassured.authentication.AuthenticationScheme;
+import com.jayway.restassured.authentication.FormAuthConfig;
+
 /**
  * Specify an authentication scheme to use when sending a request.
  */
@@ -48,6 +51,16 @@ public interface AuthenticationSpecification {
      * @return The Request specification
      */
     RequestSpecification form(String userName, String password);
+
+    /**
+     * Use form authentication with the supplied configuration.
+     *
+     * @param userName The user name.
+     * @param password The password.
+     * @param config The form authentication config
+     * @return The authentication scheme
+     */
+    RequestSpecification form(String userName, String password, FormAuthConfig config);
 
     /**
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)}
