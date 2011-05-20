@@ -65,7 +65,7 @@ class FormAuthFilter implements AuthFilter {
     try {
       closure.call()
     } catch(Exception e) {
-      throw new IllegalArgumentException("Failed to parse login page. Check for errors on the login page or specify FormAuthConfig.". e)
+      throw new IllegalArgumentException("Failed to parse login page. Check for errors on the login page or specify FormAuthConfig.", e)
     }
   }
 }
