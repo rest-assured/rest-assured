@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.internal.filter;
+package com.jayway.restassured.spi;
 
 import com.jayway.restassured.filter.Filter;
 
 /**
- * Marker interface for authentication filters
+ * Marker interface for authentication filters. Authentication filters are handled a bit specially in Rest Assured
+ * since they're removed from the filter chain when explicitly using:
+ * <pre>
+ *     given().auth().none(). ..
+ * </pre>
+ *
+ * to avoid a default authentication scheme.
  */
 public interface AuthFilter extends Filter {
 }

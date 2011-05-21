@@ -18,7 +18,7 @@
 
 package com.jayway.restassured.internal
 
-import com.jayway.restassured.internal.filter.AuthFilter
+import com.jayway.restassured.spi.AuthFilter
 import com.jayway.restassured.internal.filter.FormAuthFilter
 import com.jayway.restassured.specification.AuthenticationSpecification
 import com.jayway.restassured.specification.PreemptiveAuthSpec
