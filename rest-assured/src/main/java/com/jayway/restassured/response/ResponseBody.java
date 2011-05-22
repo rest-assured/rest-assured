@@ -18,6 +18,13 @@ package com.jayway.restassured.response;
 
 public interface ResponseBody {
     /**
+     * Print the response body and return it as string. Mainly useful for debug purposes when writing tests.
+     *
+     * @return The body as a string.
+     */
+    String print();
+
+    /**
      * Get the body as a string. You can only do this if you've not used REST Assured response expectations.
      *
      * @return The body as a string.

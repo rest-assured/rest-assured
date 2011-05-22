@@ -102,6 +102,11 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
+    public void restAssuredSupportsPrintingResponse() throws Exception {
+        expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe").print();
+    }
+
+    @Test
     public void restAssuredSupportsSpecifyingRequestParamsInGetWhenAlsoSpecifyingBaseUri() throws Exception {
         expect().body("greeting", equalTo("Greetings John Doe")).when().get("http://localhost:8080/greet?firstName=John&lastName=Doe");
     }

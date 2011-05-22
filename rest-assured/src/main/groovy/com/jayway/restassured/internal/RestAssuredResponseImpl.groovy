@@ -84,6 +84,12 @@ class RestAssuredResponseImpl implements Response {
     return writer.toString();
 }
 
+  String print() {
+    def string = asString();
+    println string
+    string
+  }
+
   String asString() {
     if(content == null) {
       return ""
