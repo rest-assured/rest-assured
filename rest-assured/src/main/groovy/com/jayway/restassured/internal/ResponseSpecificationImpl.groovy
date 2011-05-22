@@ -30,7 +30,9 @@ import groovyx.net.http.ContentType
 import org.hamcrest.Matcher
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.ANY
+import static org.hamcrest.Matchers.anything
 import static org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers
 
 class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
@@ -137,6 +139,11 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     notNull expectedValueMatcher,"expectedValueMatcher"
     cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: expectedValueMatcher)
     this;
+  }
+
+  def ResponseSpecification cookie(String cookieName) {
+    notNull cookieName,"cookieName"
+    return cookie(cookieName, Matchers.<String> anything())
   }
 
   def ResponseSpecification cookie(String cookieName, String expectedValue) {

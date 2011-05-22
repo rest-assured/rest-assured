@@ -23,6 +23,7 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
+import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -353,6 +354,16 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void requestSpecificationAllowsSpecifyingCookie() throws Exception {
         given().cookie("username", "John").then().expect().body(equalTo("username")).when().get("/cookie");
+    }
+
+    @Test
+    public void supportsValidatingCookiesWithNoValue() throws Exception {
+        expect().cookie("some_cookie").when().get("/key_only_cookie");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingCookieWithNoValue() throws Exception {
+        given().cookie("some_cookie").expect().body(equalTo("some_cookie")).when().get("/cookie_with_no_value");
     }
 
     @Test

@@ -249,6 +249,17 @@ public class ResponseSpecBuilder {
     }
 
     /**
+     * Expect that a cookie exist in the response, regardless of value (it may have no value at all).
+     *
+     * @param cookieName the cookie to validate that it exists
+     * @return the response specification
+     */
+    public ResponseSpecBuilder expectCookie(String cookieName) {
+        spec.cookie(cookieName);
+        return this;
+    }
+
+    /**
      * Set the root path of the response body so that you don't need to write the entire path for each expectation.
      * E.g. instead of writing:
      *

@@ -44,11 +44,18 @@ class CookieMatcher {
   }
 
   public static Map<String, String> getCookieMap(String cookies) {
+    if(!cookies) {
+      throw new AssertionFailedException("No cookies defined in the response")
+    }
     def cookieStrings = cookies.split(";");
     def cookieMap = [:]
     cookieStrings.each {
+      if(it.contains("=")) {
         def singleCookie = it.split("=")
         cookieMap.put singleCookie[0].trim(), singleCookie[1].trim()
+      } else {
+        cookieMap.put it, ""
+      }
     }
     return cookieMap
   }

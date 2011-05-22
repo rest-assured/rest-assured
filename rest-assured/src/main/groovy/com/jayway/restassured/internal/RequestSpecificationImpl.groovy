@@ -33,8 +33,10 @@ import com.jayway.restassured.specification.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
+import java.util.Map.Entry
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
+  private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
 
   private String baseUri
   private String path  = ""
@@ -295,11 +297,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return this;
   }
 
-  RequestSpecification cookie(String key, String value) {
-    notNull key, "key"
+  RequestSpecification cookie(String cookieName, String value) {
+    notNull cookieName, "cookieName"
     notNull value, "value"
-    cookies.put(key, value)
+    cookies.put(cookieName, value)
     return this
+  }
+
+  def RequestSpecification cookie(String cookieName) {
+    cookie(cookieName, KEY_ONLY_COOKIE_VALUE)
   }
 
   RequestSpecification spec(RequestSpecification requestSpecificationToMerge) {
@@ -345,7 +351,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     http.getHeaders() << requestHeaders
 
     if(!cookies.isEmpty()) {
-      http.getHeaders() << [Cookie : cookies.collect{it.key+"="+it.value}.join("; ")]
+      http.getHeaders() << [Cookie : cookies.collect{ defineRequestCookie(it) }.join("; ")]
     }
 
     // Allow returning a the response
@@ -394,6 +400,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       }
     }
     return restAssuredResponse
+  }
+
+  private def defineRequestCookie(Entry<String, String> it) {
+    if(it.value == KEY_ONLY_COOKIE_VALUE) {
+      return it.key
+    }
+    it.key + "=" + it.value
   }
 
   private boolean isFullyQualified(String targetUri) {

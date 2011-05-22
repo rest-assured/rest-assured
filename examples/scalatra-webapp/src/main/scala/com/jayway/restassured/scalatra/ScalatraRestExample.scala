@@ -22,7 +22,6 @@ import xml.Elem
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import collection.mutable.ListBuffer
-import com.sun.xml.internal.ws.api.message.Header
 import javax.servlet.http.Cookie
 
 class ScalatraRestExample extends ScalatraServlet {
@@ -207,6 +206,18 @@ class ScalatraRestExample extends ScalatraServlet {
     </body>
   }
 
+  get("/cookie_with_no_value") {
+    contentType = "text/plain"
+    val cookies = request.getCookies
+    val name: String = cookies(0).getName
+    name
+  }
+
+  get("/key_only_cookie") {
+    contentType = "text/plain"
+    response.setHeader("Set-Cookie", "some_cookie")
+    "OK"
+  }
 
   post("/j_spring_security_check") {
     contentType = "text/plain"

@@ -142,6 +142,17 @@ public class RequestSpecBuilder {
     }
 
     /**
+     * Add a cookie without value to be sent with the request.
+     *
+     * @param key The cookie key
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder addCookie(String key) {
+        spec.cookie(key);
+        return this;
+    }
+
+    /**
      * Add a filter that will be used in the request.
      *
      * @param filter The filter to add

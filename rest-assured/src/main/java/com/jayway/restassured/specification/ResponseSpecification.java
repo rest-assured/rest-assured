@@ -308,6 +308,14 @@ public interface ResponseSpecification extends RequestSender {
     ResponseSpecification cookies(Map<String, Object> expectedCookies);
 
     /**
+     * Expect that a cookie exist in the response, regardless of value (it may have no value at all).
+     *
+     * @param cookieName the cookie to validate that it exists
+     * @return the response specification
+     */
+    ResponseSpecification cookie(String cookieName);
+
+    /**
      * Expect that response cookies matches the supplied cookie names and values.
      * <p>
      * E.g. expect that the response of the GET request to "/something" contains cookies <tt>cookieName1=cookieValue1</tt>
@@ -379,6 +387,8 @@ public interface ResponseSpecification extends RequestSender {
      * @return the response specification
      */
     ResponseSpecification cookie(String cookieName, String expectedValue);
+
+
 
     /**
      * Set the root path of the response body so that you don't need to write the entire path for each expectation.
@@ -742,5 +752,4 @@ public interface ResponseSpecification extends RequestSender {
      * @return the response specification
      */
     ResponseSpecification specification(ResponseSpecification responseSpecificationToMerge);
-
 }
