@@ -16,5 +16,69 @@
 
 package com.jayway.restassured.specification;
 
+import com.jayway.restassured.authentication.AuthenticationScheme;
+import com.jayway.restassured.filter.Filter;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * A request specification that also supports getting the defined values. Intended for Filters.
+ */
 public interface FilterableRequestSpecification extends RequestSpecification {
+
+    /**
+     * @return The base URI defined in the request
+     */
+    String getBaseUri();
+
+    /**
+     * @return The base path defined in the request
+     */
+    String getBasePath();
+
+    /**
+     * @return The port defined in the request
+     */
+    int getPort();
+
+    /**
+     * @return The request content type defined in the request
+     */
+    String getRequestContentType();
+
+    /**
+     * @return The authentication scheme defined in the request
+     */
+    AuthenticationScheme getAuthenticationScheme();
+
+    /**
+     * @return The request parameters defined in the request
+     */
+    Map<String, String> getRequestParams();
+
+    /**
+     * @return The query parameters defined in the request
+     */
+    Map<String, String> getQueryParams();
+
+    /**
+     * @return The headers defined in the request
+     */
+    Map<String, String> getHeaders();
+
+    /**
+     * @return The cookies defined in the request
+     */
+    Map<String, String> getCookies();
+
+    /**
+     * @return The request body
+     */
+    <T> T getBody();
+
+    /**
+     * @return The filters (unmodifiable)
+     */
+    List<Filter> getDefinedFilters();
 }

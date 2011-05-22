@@ -526,4 +526,44 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   def void setResponseSpecification(ResponseSpecification responseSpecification) {
     this.responseSpecification = responseSpecification
   }
+
+  String getBaseUri() {
+    return baseUri
+  }
+
+  String getBasePath() {
+    return basePath
+  }
+
+  int getPort() {
+    return port
+  }
+
+  Map<String, String> getRequestParams() {
+    return requestParameters
+  }
+
+  Map<String, String> getQueryParams() {
+    return queryParams
+  }
+
+  Map<String, String> getHeaders() {
+    return requestHeaders
+  }
+
+  Map<String, String> getCookies() {
+    return cookies
+  }
+
+  def <T> T getBody() {
+    return requestBody
+  }
+
+  List<Filter> getDefinedFilters() {
+    return Collections.unmodifiableList(filters)
+  }
+
+  String getRequestContentType() {
+    return requestContentType != null ? requestContentType instanceof String ? requestContentType : requestContentType.toString() : ANY.toString()
+  }
 }

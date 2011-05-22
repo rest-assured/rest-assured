@@ -16,5 +16,40 @@
 
 package com.jayway.restassured.specification;
 
+import org.hamcrest.Matcher;
+
+/**
+ * A response specification that also supports getting the defined values. Intended for Filters.
+ */
 public interface FilterableResponseSpecification extends ResponseSpecification {
+
+    /**
+     * @return The Hamcrest matcher that needs to be match the status code (may be <code>null</code>).
+     */
+    Matcher<Integer> getStatusCode();
+
+    /**
+     * @return The Hamcrest matcher that needs to be match the status line (may be <code>null</code>).
+     */
+    Matcher<String> getStatusLine();
+
+    /**
+     * @return <code>true</code> if any header assertions are defined
+     */
+    boolean hasHeaderAssertions();
+
+    /**
+     * @return <code>true</code> if any cookie assertions are defined
+     */
+    boolean hasCookieAssertions();
+
+    /**
+     * @return The response content type
+     */
+    String getResponseContentType();
+
+    /**
+     * @return The body root path when expecting XML or JSON
+     */
+    String getRootPath();
 }

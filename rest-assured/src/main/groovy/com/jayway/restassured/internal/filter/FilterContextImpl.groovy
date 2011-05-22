@@ -30,6 +30,7 @@ class FilterContextImpl implements FilterContext {
   def private path;
   def private Method method;
   def assertionClosure
+  def properties = [:]
 
   FilterContextImpl(String path, Method method, assertionClosure, List<Filter> filterList) {
     this.filters = filterList.iterator()
@@ -55,5 +56,13 @@ class FilterContextImpl implements FilterContext {
 
   Response send(RequestSender requestSender) {
     return ReflectionMethodInvoker.invoke(requestSender, method.toString().toLowerCase(), path)
+  }
+
+  void setValue(String name, Object value) {
+    properties.put(name, value)
+  }
+
+  def getValue(String name) {
+    return properties.get(name)
   }
 }

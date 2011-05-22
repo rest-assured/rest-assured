@@ -327,4 +327,28 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   def void setRequestSpec(RequestSpecification requestSpecification) {
     this.requestSpecification = requestSpecification
   }
+
+  Matcher<Integer> getStatusCode() {
+    return expectedStatusCode
+  }
+
+  Matcher<String> getStatusLine() {
+    return expectedStatusLine
+  }
+
+  boolean hasHeaderAssertions() {
+    return !headerAssertions.isEmpty()
+  }
+
+  boolean hasCookieAssertions() {
+    return !cookieAssertions.isEmpty()
+  }
+
+  String getResponseContentType() {
+    return responseContentType != null ? responseContentType.toString() : ANY.toString()
+  }
+
+  String getRootPath() {
+    return bodyRootPath
+  }
 }
