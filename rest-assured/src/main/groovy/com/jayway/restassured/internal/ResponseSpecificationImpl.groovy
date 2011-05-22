@@ -28,11 +28,10 @@ import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.specification.ResponseSpecification
 import groovyx.net.http.ContentType
 import org.hamcrest.Matcher
+import org.hamcrest.Matchers
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.ANY
-import static org.hamcrest.Matchers.anything
 import static org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers
 
 class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
@@ -48,9 +47,12 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   private Response restAssuredResponse;
   private String bodyRootPath;
 
-  ResponseSpecificationImpl(String bodyRootPath, responseContentType) {
+  ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec) {
     rootPath(bodyRootPath)
     this.contentType = responseContentType
+    if(defaultSpec != null) {
+      spec(defaultSpec)
+    }
   }
 
   def ResponseSpecification content(Matcher matcher, Matcher...additionalMatchers) {

@@ -25,6 +25,7 @@ import org.hamcrest.Matcher;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.responseContentType;
+import static com.jayway.restassured.RestAssured.responseSpecification;
 import static com.jayway.restassured.RestAssured.rootPath;
 
 /**
@@ -51,7 +52,7 @@ public class ResponseSpecBuilder {
     private final ResponseSpecification spec;
 
     public ResponseSpecBuilder() {
-        spec = new ResponseSpecificationImpl(rootPath, responseContentType());
+        spec = new ResponseSpecificationImpl(rootPath, responseContentType(), responseSpecification);
     }
 
     /**

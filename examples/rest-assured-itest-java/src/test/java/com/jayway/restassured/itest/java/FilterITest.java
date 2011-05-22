@@ -42,26 +42,4 @@ public class FilterITest extends WithJetty {
         when().
                 get("/formAuth");
     }
-
-    @Test
-    public void test() throws Exception {
-        String xml = "<html>\n" +
-                "      <head>\n" +
-                "        <title>Login</title>\n" +
-                "      </head>\n" +
-                "\n" +
-                "      <body>\n" +
-                "        <form action=\"j_spring_security_check\" method=\"POST\">\n" +
-                "          <table>\n" +
-                "            <tr><td>User:</td><td><input type='text' name='j_username'/></td></tr>\n" +
-                "            <tr><td>Password:</td><td><input type='password' name='j_password' /></td></tr>\n" +
-                "              <tr><td colspan='2'><input name=\"submit\" type=\"submit\"/></td></tr>\n" +
-                "           </table>\n" +
-                "            </form>\n" +
-                "          </body>\n" +
-                "     </html>";
-        final Object formAction = with(xml).getString("html.depthFirst().grep { it.name() == 'input' && it.@type == 'text' }.collect { it.@name }");
-        with(xml).getString("html.depthFirst().grep { it.name() == 'input' && it.@type == 'text' }.collect { it.@name }");
-        System.out.println(formAction);
-    }
 }

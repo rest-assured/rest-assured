@@ -374,7 +374,28 @@ public class RestAssured {
      */
     public static String rootPath = DEFAULT_BODY_ROOT_PATH;
 
+    /**
+     * Specify a default request specification that will be sent with each request. E,g.
+     * <pre>
+     * RestAssured.requestSpecification = new RequestSpecBuilder().addParameter("parameter1", "value1").build();
+     * </pre>
+     *
+     * means that for each request by Rest Assured "parameter1" will be equal to "value1".
+     */
+    public static RequestSpecification requestSpecification = null;
+
+    /**
+     * Specify a default response specification that will be sent with each request. E,g.
+     * <pre>
+     * RestAssured.responseSpecification = new ResponseSpecBuilder().expectStatusCode(200).build();
+     * </pre>
+     *
+     * means that for each response Rest Assured will assert that the status code is equal to 200.
+     */
+    public static ResponseSpecification responseSpecification = null;
+
     private static Object requestContentType = null;
+
 
     private static Object responseContentType = null;
 
@@ -708,9 +729,9 @@ public class RestAssured {
 
     /**
      * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath}, {@link #requestContentType(groovyx.net.http.ContentType)},
-     * {@link #responseContentType(groovyx.net.http.ContentType)}, {@link #filters(java.util.List)}
-     * to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, "", <code>null</code>, <code>null</code>
-     *  and "empty list".
+     * {@link #responseContentType(groovyx.net.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification} and {@link #responseSpecification}
+     * to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, "", <code>null</code>, <code>null</code>,
+     * "empty list", <code>null</code> and <code>null</code>.
      */
     public static void reset() {
         baseURI = DEFAULT_URI;
@@ -721,9 +742,11 @@ public class RestAssured {
         filters = new LinkedList<Filter>();
         requestContentType = null;
         responseContentType = null;
+        requestSpecification = null;
+        responseSpecification = null;
     }
 
     private static TestSpecificationImpl createTestSpecification() {
-        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, requestContentType), new ResponseSpecificationImpl(rootPath, responseContentType));
+        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, requestContentType, requestSpecification), new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification));
     }
 }

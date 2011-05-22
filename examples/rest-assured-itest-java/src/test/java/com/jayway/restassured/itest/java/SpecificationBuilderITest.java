@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
@@ -46,6 +47,20 @@ public class SpecificationBuilderITest extends WithJetty {
                 body("store.book[0].author", equalTo("Nigel Rees")).
         when().
                 get("/jsonStore");
+    }
+
+    @Test
+    public void supportsSpecifiyingDefaultResponseSpec() throws Exception {
+        RestAssured.responseSpecification = new ResponseSpecBuilder().expectBody("store.book.size()", is(4)).expectStatusCode(200).build();
+
+        try {
+            expect().
+                    body("store.book[0].author", equalTo("Nigel Rees")).
+            when().
+                    get("/jsonStore");
+        } finally {
+            RestAssured.reset();
+        }
     }
 
     @Test
@@ -99,6 +114,20 @@ public class SpecificationBuilderITest extends WithJetty {
                 body("greeting.lastName", equalTo("Doe")).
         when().
                 get("/greetXML");
+    }
+
+    @Test
+    public void supportsSpecifyingDefaultRequestSpec() throws Exception {
+        RestAssured.requestSpecification = new RequestSpecBuilder().addParameter("firstName", "John").addParam("lastName", "Doe").build();
+        try {
+            expect().
+                    body("greeting.firstName", equalTo("John")).
+                    body("greeting.lastName", equalTo("Doe")).
+            when().
+                    get("/greetXML");
+        } finally {
+            RestAssured.reset();
+        }
     }
 
     @Test

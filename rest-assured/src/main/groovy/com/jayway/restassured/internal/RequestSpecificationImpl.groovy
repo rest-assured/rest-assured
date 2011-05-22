@@ -54,7 +54,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private List<Filter> filters = [];
 
   public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
-                                   List<Filter> filters, defaultRequestContentType) {
+                                   List<Filter> filters, defaultRequestContentType, RequestSpecification defaultSpec) {
     notNull(baseURI, "baseURI");
     notNull(basePath, "basePath");
     notNull(defaultAuthScheme, "defaultAuthScheme");
@@ -65,6 +65,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     this.filters.addAll(filters)
     this.requestContentType = defaultRequestContentType
     port(requestPort)
+    if(defaultSpec != null) {
+      spec(defaultSpec)
+    }
   }
 
   def RequestSpecification when() {
