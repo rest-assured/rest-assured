@@ -25,7 +25,7 @@ import java.io.PrintStream;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
- * A filter that'll print the response body if it matches a given status code.
+ * A filter that'll print the response body if the response matches a given status code.
  */
 public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
 
