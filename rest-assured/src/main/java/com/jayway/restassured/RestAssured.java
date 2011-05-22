@@ -273,6 +273,13 @@ import java.util.List;
  *        get("/something");
  * </pre>
  * </li>
+ * <li>You can also create filters and add to the request specification. A filter allows you to inspect and alter a request before it's actually committed and also inspect and alter the
+ * response before it's returned to the expectations. You can regard it as an "around advice" in AOP terms. Filters can be used to implement custom authentication schemes, session management, logging etc. E.g.
+ * <pre>
+ * given().filter(ResponseLoggingFilter.logResponseIfStatusCodeIs(302)). ..
+ * </pre>
+ * will log/print the response body to after each request.
+ * </li>
  * <li>
  * You can also change the default base URI, base path, port, authentication scheme, root path and filters for all subsequent requests:
  * <pre>
