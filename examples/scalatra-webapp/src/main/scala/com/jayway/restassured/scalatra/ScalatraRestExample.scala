@@ -166,6 +166,12 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(render(json))
   }
 
+  get("/409") {
+    contentType = "text/plain"
+    response.setStatus(409)
+    "ERROR"
+  }
+
   put("/greet") {
     greetJson
   }

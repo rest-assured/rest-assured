@@ -16,12 +16,23 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.internal.filter.FormAuthFilter;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
 
+import java.io.PrintStream;
+import java.io.StringWriter;
+
+import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
+import static com.jayway.restassured.filter.log.ErrorLoggingFilter.logErrorsTo;
+import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logResponseTo;
+import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logResponseToIfMatches;
+import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class FilterITest extends WithJetty {
 
@@ -33,10 +44,63 @@ public class FilterITest extends WithJetty {
 
         given().
                 filter(filter).
-        expect().
+                expect().
                 statusCode(200).
                 body(equalTo("OK")).
-        when().
+                when().
                 get("/formAuth");
+    }
+
+    @Test
+    public void errorLoggingFilterWorks() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        given().filter(logErrorsTo(captor)).and().expect().body(equalTo("ERROR")).when().get("/409");
+        assertThat(writer.toString(), containsString("ERROR"));
+    }
+
+    @Test
+    public void loggingFilterLogsErrors() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        given().filter(logResponseTo(captor)).and().expect().body(equalTo("ERROR")).when().get("/409");
+        assertThat(writer.toString(), containsString("ERROR"));
+    }
+
+    @Test
+    public void loggingFilterLogsNonErrors() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        given().filter(logResponseTo(captor)).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
+        assertThat(writer.toString(), containsString("{\"greeting\": \"Greetings John Doe\"}"));
+    }
+
+    @Test
+    public void loggingFilterLogsToSpecifiedWriterWhenMatcherIsFulfilled() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        given().filter(logResponseToIfMatches(captor, equalTo(200))).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
+        assertThat(writer.toString(), containsString("{\"greeting\": \"Greetings John Doe\"}"));
+    }
+
+    @Test
+    public void loggingFilterDoesntLogWhenSpecifiedMatcherIsNotFulfilled() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        given().filter(logResponseToIfMatches(captor, equalTo(400))).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
+        assertThat(writer.toString(), is(""));
+    }
+
+    @Test
+    public void supportsSpecifyingDefaultFilters() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        RestAssured.filters(asList(logErrorsTo(captor), logResponseTo(captor)));
+        try {
+            expect().body(equalTo("ERROR")).when().get("/409");
+        }  finally {
+            RestAssured.reset();
+        }
+        assertThat(writer.toString(), is("ERROR\nERROR\n"));
     }
 }
