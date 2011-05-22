@@ -19,12 +19,9 @@ package com.jayway.restassured.assertion
 import com.jayway.restassured.internal.path.xml.NodeChildrenImpl
 import com.jayway.restassured.internal.path.xml.NodeImpl
 import com.jayway.restassured.path.xml.element.NodeChildren
-import groovy.util.slurpersupport.Attributes
-import groovy.util.slurpersupport.FilteredNodeChildren
-import groovy.util.slurpersupport.GPathResult
-import groovy.util.slurpersupport.NodeChild
 import static com.jayway.restassured.assertion.AssertionSupport.escapeMinus
 import static com.jayway.restassured.assertion.AssertionSupport.generateWhitespace
+import groovy.util.slurpersupport.*
 
 class XMLAssertion implements Assertion {
   String key;
