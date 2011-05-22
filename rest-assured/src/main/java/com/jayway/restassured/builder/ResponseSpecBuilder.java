@@ -24,9 +24,7 @@ import org.hamcrest.Matcher;
 
 import java.util.Map;
 
-import static com.jayway.restassured.RestAssured.responseContentType;
-import static com.jayway.restassured.RestAssured.responseSpecification;
-import static com.jayway.restassured.RestAssured.rootPath;
+import static com.jayway.restassured.RestAssured.*;
 
 /**
  * You can use the builder to construct a response specification. The specification can be used as e.g.

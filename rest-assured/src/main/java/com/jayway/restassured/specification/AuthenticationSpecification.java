@@ -16,7 +16,6 @@
 
 package com.jayway.restassured.specification;
 
-import com.jayway.restassured.authentication.AuthenticationScheme;
 import com.jayway.restassured.authentication.FormAuthConfig;
 
 /**

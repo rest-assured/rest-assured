@@ -21,10 +21,10 @@ import com.jayway.restassured.filter.FilterContext
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
+import com.jayway.restassured.spi.AuthFilter
 import static com.jayway.restassured.RestAssured.given
 import static com.jayway.restassured.path.xml.XmlPath.with
 import static java.lang.String.format
-import com.jayway.restassured.spi.AuthFilter
 
 class FormAuthFilter implements AuthFilter {
   private static final String RESERVED_COOKIE_NAME = "Path"
