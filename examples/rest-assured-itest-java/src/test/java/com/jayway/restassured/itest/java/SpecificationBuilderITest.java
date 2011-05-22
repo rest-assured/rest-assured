@@ -50,7 +50,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsSpecifiyingDefaultResponseSpec() throws Exception {
+    public void supportsSpecifyingDefaultResponseSpec() throws Exception {
         RestAssured.responseSpecification = new ResponseSpecBuilder().expectBody("store.book.size()", is(4)).expectStatusCode(200).build();
 
         try {
