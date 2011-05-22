@@ -11,7 +11,7 @@ Change log next version
 * Support for specifying string content types (issue 72).
 * Support for specifying default request and response specifications (issue 67).
 * Added support for printing response body using filters. E.g. given().filter(ErrorLogger.errorLogger()).. will print the response body if an error occurred (400 <= status code <= 500). You can also use the ResponseLoggingFilter to print response bodies for all status codes: given().filter(ResponseLoggingFilter.loggingFilter()).., or you can make it print only for specific status codes: given().filter(ResponseLoggingFilter.logResponseIfStatusCodeIs(302)).. and you can even use Hamcrest matchers: given().filter(ResponseLoggingFilter.logResponseIfStatusCodeIs(greaterThan(200))).. (issue 66).
-* Added support for easily printing the response after a succesful request, e.g. expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe").print();
+* Added support for easily printing the response after a request (if the expectations pass), e.g. expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe").print();
 
 Change log 1.1.7 (2011-04-26)
 -----------------------------
