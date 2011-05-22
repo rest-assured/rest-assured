@@ -34,6 +34,8 @@ import com.jayway.restassured.specification.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
+import com.jayway.restassured.filter.log.ResponseLoggingFilter
+import com.jayway.restassured.filter.log.ErrorLoggingFilter
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
@@ -209,6 +211,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     notNull filters, "Filters"
     this.filters.addAll(filters)
     return this
+  }
+
+  def RequestSpecification log() {
+    return filter(ResponseLoggingFilter.responseLogger())
+  }
+
+  def RequestSpecification logOnError() {
+    return filter(ErrorLoggingFilter.errorLogger())
   }
 
   def RequestSpecification and() {

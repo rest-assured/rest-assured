@@ -60,6 +60,26 @@ public class FilterITest extends WithJetty {
     }
 
     @Test
+    public void logErrorsUsingRequestSpec() throws Exception {
+        given().logOnError().and().expect().body(equalTo("ERROR")).when().get("/409");
+    }
+
+    @Test
+    public void logErrorsUsingResponseSpec() throws Exception {
+        expect().logOnError().body(equalTo("ERROR")).when().get("/409");
+    }
+
+    @Test
+    public void logUsingRequestSpec() throws Exception {
+        given().log().and().expect().body(equalTo("ERROR")).when().get("/409");
+    }
+
+    @Test
+    public void logUsingResponseSpec() throws Exception {
+        expect().log().body(equalTo("ERROR")).when().get("/409");
+    }
+
+    @Test
     public void loggingFilterLogsErrors() throws Exception {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);

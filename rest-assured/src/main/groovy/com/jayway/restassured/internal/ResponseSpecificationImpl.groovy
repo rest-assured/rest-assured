@@ -174,6 +174,16 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return content(key, matcher, additionalKeyMatcherPairs);
   }
 
+  def ResponseSpecification log() {
+    requestSpecification.log()
+    return this;
+  }
+
+  def ResponseSpecification logOnError() {
+    requestSpecification.logOnError()
+    return this;
+  }
+
   def ResponseSpecification when() {
     return this;
   }
