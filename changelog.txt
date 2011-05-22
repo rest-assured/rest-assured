@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 1.2 (2011-05-22)
+---------------------------
 * Better support for multi-value parameters. You can now defined them using a List:
     with().param("list", asList("1", "2", "3)). .. 
   or with var-args:
