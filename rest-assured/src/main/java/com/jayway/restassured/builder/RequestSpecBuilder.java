@@ -54,7 +54,7 @@ public class RequestSpecBuilder {
     private RequestSpecification spec;
 
     public RequestSpecBuilder() {
-        this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters());
+        this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters(), requestContentType());
     }
 
     /**
@@ -358,6 +358,17 @@ public class RequestSpecBuilder {
      * @return The request specification builder
      */
     public RequestSpecBuilder setContentType(ContentType contentType) {
+        spec.contentType(contentType);
+        return this;
+    }
+
+    /**
+     * Specify the content type of the request as string.
+     *
+     * @param contentType The content type of the request
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder setContentType(String contentType) {
         spec.contentType(contentType);
         return this;
     }

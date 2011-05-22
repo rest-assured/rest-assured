@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
@@ -77,6 +78,61 @@ public class JSONPostITest extends WithJetty {
     @Test
     public void requestSpecificationAllowsSpecifyingJsonBodyForPost() throws Exception {
         given().body("{ \"message\" : \"hello world\"}").with().contentType(JSON).then().expect().body(equalTo("hello world")).when().post("/jsonBody");
+    }
+
+    @Test
+    public void allowsSpecifyingDefaultRequestContentType() throws Exception {
+        RestAssured.requestContentType(JSON);
+        try {
+            given().body("{ \"message\" : \"hello world\"}").then().expect().body(equalTo("hello world")).when().post("/jsonBody");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void allowsSpecifyingDefaultRequestContentTypeAsString() throws Exception {
+        RestAssured.requestContentType("application/json");
+        try {
+            given().body("{ \"message\" : \"hello world\"}").then().expect().body(equalTo("hello world")).when().post("/jsonBody");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingJsonBodyAsStringForPost() throws Exception {
+        given().body("{ \"message\" : \"hello world\"}").with().contentType("application/json").then().expect().body(equalTo("hello world")).when().post("/jsonBody");
+    }
+
+    @Test
+    public void responseSpecificationAllowsSpecifyingJsonBodyForPost() throws Exception {
+        given().body("{ \"message\" : \"hello world\"}").expect().contentType(JSON).and().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
+    }
+
+    @Test
+    public void responseSpecificationAllowsSpecifyingJsonBodyAsStringForPost() throws Exception {
+        given().body("{ \"message\" : \"hello world\"}").expect().contentType("application/json").and().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
+    }
+
+    @Test
+    public void allowsSpecifyingDefaultResponseContentType() throws Exception {
+        RestAssured.responseContentType(JSON);
+        try {
+            given().body("{ \"message\" : \"hello world\"}").expect().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void allowsSpecifyingDefaultResponseContentTypeAsString() throws Exception {
+        RestAssured.responseContentType("application/json");
+        try {
+            given().body("{ \"message\" : \"hello world\"}").expect().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
+        } finally {
+            RestAssured.reset();
+        }
     }
 
     @Test

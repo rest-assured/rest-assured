@@ -44,12 +44,13 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   private List headerAssertions = []
   private List cookieAssertions = []
   private FilterableRequestSpecification requestSpecification;
-  private ContentType contentType;
+  private def contentType;
   private Response restAssuredResponse;
   private String bodyRootPath;
 
-  ResponseSpecificationImpl(String bodyRootPath) {
+  ResponseSpecificationImpl(String bodyRootPath, responseContentType) {
     rootPath(bodyRootPath)
+    this.contentType = responseContentType
   }
 
   def ResponseSpecification content(Matcher matcher, Matcher...additionalMatchers) {
@@ -248,6 +249,12 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return this
   }
 
+  ResponseSpecification contentType(String contentType) {
+    notNull contentType, "contentType"
+    this.contentType = contentType
+    return this
+  }
+
   class HamcrestAssertionClosure {
     def call(response, content) {
       return getClosure().call(response, content)
@@ -257,7 +264,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
       return getClosure().call(response, null)
     }
 
-    ContentType getResponseContentType() {
+    def getResponseContentType() {
       return contentType ?: ANY;
     }
 
@@ -301,6 +308,9 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
       }
     }
   }
+
+
+
 
   def void setRequestSpec(RequestSpecification requestSpecification) {
     this.requestSpecification = requestSpecification

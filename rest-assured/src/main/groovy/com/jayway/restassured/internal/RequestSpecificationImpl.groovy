@@ -27,13 +27,13 @@ import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HTTPBuilder.RequestConfigDelegate
 import groovyx.net.http.Method
 import groovyx.net.http.Status
+import java.util.Map.Entry
 import org.apache.http.client.methods.HttpPost
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.specification.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
-import java.util.Map.Entry
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
@@ -47,13 +47,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private Map<String, String> queryParams = [:]
   def AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private FilterableResponseSpecification responseSpecification;
-  private ContentType requestContentType;
+  private def requestContentType;
   private Map<String, String> requestHeaders = [:]
   private Map<String, String> cookies = [:]
   private Object requestBody;
   private List<Filter> filters = [];
 
-  public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters) {
+  public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
+                                   List<Filter> filters, defaultRequestContentType) {
     notNull(baseURI, "baseURI");
     notNull(basePath, "basePath");
     notNull(defaultAuthScheme, "defaultAuthScheme");
@@ -62,6 +63,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     this.basePath = basePath
     this.defaultAuthScheme = defaultAuthScheme
     this.filters.addAll(filters)
+    this.requestContentType = defaultRequestContentType
     port(requestPort)
   }
 
@@ -265,6 +267,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   RequestSpecification contentType(ContentType contentType) {
+    notNull contentType, "contentType"
+    this.requestContentType = contentType
+    return  this
+  }
+
+  RequestSpecification contentType(String contentType) {
     notNull contentType, "contentType"
     this.requestContentType = contentType
     return  this
@@ -487,6 +495,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       to.put(key, new LinkedList<String>(value))
     }
   }
+
 
   private def appendStringParameter(Map<String, String> to, String key, String value) {
     if (to.containsKey(key)) {

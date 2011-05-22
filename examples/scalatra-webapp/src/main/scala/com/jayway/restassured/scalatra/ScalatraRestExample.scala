@@ -269,8 +269,24 @@ class ScalatraRestExample extends ScalatraServlet {
 
   post("/jsonBody") {
     contentType = "text/plain";
-    val json = JsonParser.parse(request.body)
-    (json \  "message").extract[String]
+    val header: String = request.getHeader("Content-Type")
+    if(!header.contains("application/json")) {
+      "FAILURE"
+    } else {
+      val json = JsonParser.parse(request.body)
+      (json \  "message").extract[String]
+    }
+  }
+
+  post("/jsonBodyAcceptHeader") {
+    contentType = "text/plain";
+    val accept : String = request.getHeader("Accept")
+    if(!accept.contains("application/json")) {
+      "FAILURE"
+    } else {
+      val json = JsonParser.parse(request.body)
+      (json \  "message").extract[String]
+    }
   }
 
   get("/setCookies") {

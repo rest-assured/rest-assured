@@ -28,6 +28,7 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSender;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
+import groovyx.net.http.ContentType;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -273,7 +274,7 @@ import java.util.List;
  * </pre>
  * </li>
  * <li>
- * You can also change the default base URI, base path, port, authentication scheme and root path for all subsequent requests:
+ * You can also change the default base URI, base path, port, authentication scheme, root path and filters for all subsequent requests:
  * <pre>
  * RestAssured.baseURI = "http://myhost.org";
  * RestAssured.port = 80;
@@ -282,7 +283,8 @@ import java.util.List;
  * RestAssured.rootPath = "store.book";
  * </pre>
  * This means that a request like e.g. <code>get("/hello")</code> goes to: <tt>http://myhost.org:8080/resource/hello</tt>
- * which basic authentication credentials "username" and "password". See {@link #rootPath} for more info about setting the root paths.<br>
+ * which basic authentication credentials "username" and "password". See {@link #rootPath} for more info about setting the root paths, {@link #filters(java.util.List)} for setting
+ * default filters.<br>
  * You can reset to the standard baseURI (localhost), basePath (empty), standard port (8080), default authentication scheme (none) and default root path (empty string) using:
  * <pre>
  * RestAssured.reset();
@@ -372,7 +374,12 @@ public class RestAssured {
      */
     public static String rootPath = DEFAULT_BODY_ROOT_PATH;
 
+    private static Object requestContentType = null;
+
+    private static Object responseContentType = null;
+
     private static List<Filter> filters = new LinkedList<Filter>();
+
 
     /**
      * The the default filters to apply to each request.
@@ -386,6 +393,50 @@ public class RestAssured {
      */
     public static List<Filter> filters() {
         return Collections.unmodifiableList(filters);
+    }
+
+    public static Object requestContentType() {
+        return requestContentType;
+    }
+
+    public static Object responseContentType() {
+        return responseContentType;
+    }
+
+    /**
+     * Specify the default content type
+     *
+     * @param contentType The content type
+     */
+    public static void requestContentType(ContentType contentType) {
+        requestContentType = contentType;
+    }
+
+    /**
+     * Specify the default content type
+     *
+     * @param contentType The content type
+     */
+    public static void requestContentType(String contentType) {
+        requestContentType = contentType;
+    }
+
+    /**
+     * Specify the default content type (also sets the accept header).
+     *
+     * @param contentType The content type
+     */
+    public static void responseContentType(ContentType contentType) {
+        responseContentType = contentType;
+    }
+
+    /**
+     * Specify the default content type (also sets the accept header).
+     *
+     * @param contentType The content type
+     */
+    public static void responseContentType(String contentType) {
+        responseContentType = contentType;
     }
 
     /**
@@ -416,7 +467,7 @@ public class RestAssured {
      *
      * The only difference between {@link #with()} and {@link #given()} is syntactical.
      *
-     * @return A request com.jayway.restassured.specification.
+     * @return A request specification.
      */
     public static RequestSpecification with() {
         return given();
@@ -434,7 +485,7 @@ public class RestAssured {
      *
      * The only difference between {@link #with()} and {@link #given()} is syntactical.
      *
-     * @return A request com.jayway.restassured.specification.
+     * @return A request specification.
      */
     public static RequestSpecification given() {
         return createTestSpecification().getRequestSpecification();
@@ -656,8 +707,10 @@ public class RestAssured {
     }
 
     /**
-     * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath} to their default values of
-     * {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code> and "".
+     * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath}, {@link #requestContentType(groovyx.net.http.ContentType)},
+     * {@link #responseContentType(groovyx.net.http.ContentType)}, {@link #filters(java.util.List)}
+     * to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, "", <code>null</code>, <code>null</code>
+     *  and "empty list".
      */
     public static void reset() {
         baseURI = DEFAULT_URI;
@@ -666,9 +719,11 @@ public class RestAssured {
         authentication = DEFAULT_AUTH;
         rootPath = DEFAULT_BODY_ROOT_PATH;
         filters = new LinkedList<Filter>();
+        requestContentType = null;
+        responseContentType = null;
     }
 
     private static TestSpecificationImpl createTestSpecification() {
-        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters), new ResponseSpecificationImpl(rootPath));
+        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, requestContentType), new ResponseSpecificationImpl(rootPath, responseContentType));
     }
 }

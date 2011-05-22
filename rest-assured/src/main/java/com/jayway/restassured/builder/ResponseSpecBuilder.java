@@ -24,6 +24,7 @@ import org.hamcrest.Matcher;
 
 import java.util.Map;
 
+import static com.jayway.restassured.RestAssured.responseContentType;
 import static com.jayway.restassured.RestAssured.rootPath;
 
 /**
@@ -50,7 +51,7 @@ public class ResponseSpecBuilder {
     private final ResponseSpecification spec;
 
     public ResponseSpecBuilder() {
-        spec = new ResponseSpecificationImpl(rootPath);
+        spec = new ResponseSpecificationImpl(rootPath, responseContentType());
     }
 
     /**
@@ -303,6 +304,21 @@ public class ResponseSpecBuilder {
      * @return The builder
      */
     public ResponseSpecBuilder expectContentType(ContentType contentType) {
+        spec.contentType(contentType);
+        return this;
+    }
+
+    /**
+     * Set the response content type to be <code>contentType</code>.
+     * <p>Note that this will affect the way the response is decoded.
+     * E,g. if you can't use JSON/XML matching (see e.g. {@link #expectBody(String, org.hamcrest.Matcher)}) if you specify a
+     * content-type of "text/plain". If you don't specify the response content type REST Assured will automatically try to
+     * figure out which content type to use.</p>
+     *
+     * @param contentType The content type of the response.
+     * @return The builder
+     */
+    public ResponseSpecBuilder expectContentType(String contentType) {
         spec.contentType(contentType);
         return this;
     }

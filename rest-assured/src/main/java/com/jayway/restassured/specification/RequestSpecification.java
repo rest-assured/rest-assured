@@ -470,6 +470,15 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification contentType(ContentType contentType);
 
     /**
+     * Specify the content type of the request.
+     *
+     * @see ContentType
+     * @param contentType The content type of the request
+     * @return The request specification
+     */
+    RequestSpecification contentType(String contentType);
+
+    /**
      * If you need to specify some credentials when performing a request.
      *
      * @see AuthenticationSpecification
