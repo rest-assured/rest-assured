@@ -96,37 +96,37 @@ public class XMLGetITest extends WithJetty {
 
     @Test
     public void xmlWithContentTypeHTML() throws Exception {
-        expect().body("HTML.HEAD.TITLE", equalTo("my title")).when().get("/textHTML");
+        expect().body("html.head.title", equalTo("my title")).when().get("/textHTML");
     }
 
     @Test
     public void htmlVerification() throws Exception {
-        expect().body("HTML.BODY.children()", hasItems("paragraph 1", "paragraph 2")).when().get("/textHTML");
+        expect().body("html.body.children()", hasItems("paragraph 1", "paragraph 2")).when().get("/textHTML");
     }
 
     @Test
     public void htmlValueVerification() throws Exception {
-        expect().body("HTML.BODY.P.list()", hasItems("paragraph 1", "paragraph 2")).when().get("/textHTML");
+        expect().body("html.body.p.list()", hasItems("paragraph 1", "paragraph 2")).when().get("/textHTML");
     }
 
     @Test
     public void htmlChildElementSize() throws Exception {
-        expect().body("HTML.BODY.children().size()", equalTo(2)).when().get("/textHTML");
+        expect().body("html.body.children().size()", equalTo(2)).when().get("/textHTML");
     }
 
     @Test
     public void htmlBodySize() throws Exception {
-        expect().body("HTML.BODY.size()", equalTo(1)).when().get("/textHTML");
+        expect().body("html.body.size()", equalTo(1)).when().get("/textHTML");
     }
 
     @Test
     public void canGetSpecificEntityFromListHtmlDocument() throws Exception {
-        expect().body("HTML.BODY.P[0]", equalTo("paragraph 1")).when().get("/textHTML");
+        expect().body("html.body.p[0]", equalTo("paragraph 1")).when().get("/textHTML");
     }
 
     @Test
     public void canGetSpecificEntityFromListHtmlDocumentUsingGetAt() throws Exception {
-        expect().body("HTML.BODY.P.getAt(0)", equalTo("paragraph 1")).when().get("/textHTML");
+        expect().body("html.body.p.getAt(0)", equalTo("paragraph 1")).when().get("/textHTML");
     }
 
     @Test

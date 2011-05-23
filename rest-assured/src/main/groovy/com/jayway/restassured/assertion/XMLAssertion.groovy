@@ -28,7 +28,7 @@ class XMLAssertion implements Assertion {
   boolean toUpperCase;
 
   /* Matches fragment such as children() or size(2) */
-  private def isInvocationFragment = ~/.*\(\d*\)/
+  private def isInvocationFragment = ~/.*\(\d*\)|.*\{.*/
 
   def Object getResult(Object object) {
     key = escapeMinus(key);
