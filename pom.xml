@@ -24,7 +24,7 @@
     <groupId>com.jayway.restassured</groupId>
     <artifactId>rest-assured-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.2.1</version>
+    <version>1.2.2-SNAPSHOT</version>
     <url>http://code.google.com/p/rest-assured</url>
     <name>REST Assured Parent POM</name>
     <description>Java DSL for easy testing of REST services</description>
