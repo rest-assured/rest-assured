@@ -341,7 +341,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   def invokeFilterChain(path, method, assertionClosure) {
     filters << new RootFilter()
     def ctx = new FilterContextImpl(path, method, assertionClosure, filters);
-    return ctx.next(this, responseSpecification);
+    def response = ctx.next(this, responseSpecification)
+    responseSpecification.assertionClosure.validate(response)
+    return response;
   }
 
   private def Response sendRequest(path, method, assertionClosure) {

@@ -17,6 +17,7 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.exception.AssertionFailedException;
 import com.jayway.restassured.internal.filter.FormAuthFilter;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.output.WriterOutputStream;
@@ -33,6 +34,7 @@ import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logRespons
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 public class FilterITest extends WithJetty {
 
@@ -44,11 +46,11 @@ public class FilterITest extends WithJetty {
 
         given().
                 filter(filter).
-                expect().
+        expect().
                 statusCode(200).
-                body(equalTo("OK")).
+        body(equalTo("OK")).
                 when().
-                get("/formAuth");
+        get("/formAuth");
     }
 
     @Test
@@ -109,6 +111,18 @@ public class FilterITest extends WithJetty {
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseToIfMatches(captor, equalTo(400))).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
         assertThat(writer.toString(), is(""));
+    }
+
+    @Test
+    public void loggingFilterLogsWhenExpectationsFail() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        try {
+            given().filter(logResponseTo(captor)).expect().body("greeting", equalTo("Greetings John Do")).when().get("/greet?firstName=John&lastName=Doe");
+            fail("Should throw exception");
+        } catch (AssertionFailedException e) {
+            assertThat(writer.toString(), containsString("{\"greeting\": \"Greetings John Doe\"}"));
+        }
     }
 
     @Test

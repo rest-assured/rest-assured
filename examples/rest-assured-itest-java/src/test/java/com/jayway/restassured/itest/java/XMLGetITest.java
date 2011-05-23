@@ -70,7 +70,12 @@ public class XMLGetITest extends WithJetty {
 
     @Test
     public void xmlWithContentAssertion() throws Exception {
-        String expectedBody = "<greeting>      <name>        <firstName>John</firstName>        <lastName>Doe</lastName>      </name>    </greeting>";
+        String expectedBody = "<greeting>\n" +
+                "      <name>\n" +
+                "        <firstName>John</firstName>\n" +
+                "        <lastName>Doe</lastName>\n" +
+                "      </name>\n" +
+                "    </greeting>";
         with().parameters("firstName", "John", "lastName", "Doe").expect().body(equalTo(expectedBody)).when().get("/anotherGreetXML");
     }
 

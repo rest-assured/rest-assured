@@ -21,15 +21,17 @@ import javax.xml.parsers.DocumentBuilderFactory
 import org.hamcrest.Matcher
 import org.hamcrest.xml.HasXPath
 import org.w3c.dom.Element
+import com.jayway.restassured.response.Response
 
 class BodyMatcher {
   def key
   def Matcher matcher
 
-  def isFulfilled(response, content) {
+  def isFulfilled(Response response, content) {
+    content = fallbackToResponseBodyIfContentHasAlreadyBeenRead(response, content)
     if(key == null) {
       if(isXPathMatcher()) {
-        Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(new String(content).getBytes())).getDocumentElement();
+        Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(response.asByteArray())).getDocumentElement();
         if (matcher.matches(node) == false) {
           throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), content))
         }
@@ -37,7 +39,7 @@ class BodyMatcher {
         throw new AssertionFailedException("Body doesn't match.\nExpected:\n$matcher\nActual:\n$content")
       }
     } else {
-      def assertion = StreamVerifier.newAssertion(response, key, content)
+      def assertion = StreamVerifier.newAssertion(response, key)
       def result = null
       if(content != null) {
         result = assertion.getResult(content)
@@ -49,6 +51,13 @@ class BodyMatcher {
         throw new AssertionFailedException(String.format("%s %s doesn't match %s, was <%s>.", assertion.description(), key, matcher.toString(), result))
       }
     }
+  }
+
+  def fallbackToResponseBodyIfContentHasAlreadyBeenRead(Response response, content) {
+    if(content instanceof Reader || content instanceof InputStream) {
+      return response.asString()
+    }
+    return  content
   }
 
   private boolean isXPathMatcher() {

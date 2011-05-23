@@ -16,6 +16,8 @@
 
 package com.jayway.restassured.assertion
 
+import com.jayway.restassured.response.Response
+
 class BodyMatcherGroup {
   private List bodyAssertions = []
   def leftShift(Object bodyMatcher) {
@@ -26,18 +28,10 @@ class BodyMatcherGroup {
     bodyAssertions.size()
   }
 
-  def isFulfilled(response, content) {
-    def treatedContent
-    if(content instanceof InputStreamReader) {
-      treatedContent = content.readLines().join()
-    } else {
-      treatedContent = content
-    }
-
+  def isFulfilled(Response response, content) {
     bodyAssertions.each { assertion ->
-      assertion.isFulfilled(response, treatedContent)
+      assertion.isFulfilled(response, content)
     }
-    treatedContent
   }
 
   public boolean containsMatchers() {

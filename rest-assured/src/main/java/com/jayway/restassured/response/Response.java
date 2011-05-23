@@ -124,6 +124,20 @@ public interface Response extends ResponseBody {
     String getCookie(String name);
 
     /**
+     * Get the content type of the response
+     *
+     * @return The content type value or <code>null</code> if not found.
+     */
+    String contentType();
+
+    /**
+     * Get the content type of the response
+     *
+     * @return The content type value or <code>null</code> if not found.
+     */
+    String getContentType();
+
+    /**
      * Get the status line of the response.
      *
      * @return The status line of the response.

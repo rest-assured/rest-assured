@@ -20,11 +20,12 @@ import com.jayway.restassured.internal.ResponseParserRegistrar
 import com.jayway.restassured.parsing.Parser
 import groovyx.net.http.ContentType
 import static groovyx.net.http.ContentType.*
+import com.jayway.restassured.response.Response
 
 class StreamVerifier {
 
-  def static newAssertion(response, key, content) {
-    def contentType = response.contentType.toString().toLowerCase()
+  def static newAssertion(Response response, key) {
+    def contentType = response.getContentType()
     def assertion
     if(contentTypeMatch(JSON, contentType) ) {
       assertion = new JSONAssertion(key: key)
@@ -35,10 +36,10 @@ class StreamVerifier {
     } else if(hasCustomParser(contentType)) {
       assertion = createAssertionForCustomParser(contentType, key)
     } else {
-      def contentTypeAsString = response.contentType.toString()
-      throw new IllegalStateException("""Expected response to be verified as JSON, HTML or XML but mime-type '$contentTypeAsString' is not supported out of the box.
+      def content = response.asString()
+      throw new IllegalStateException("""Expected response to be verified as JSON, HTML or XML but content-type '$contentType' is not supported out of the box.
 Try registering a custom parser using:
-   RestAssured.registerParser(<parser type>, \"$contentTypeAsString\");
+   RestAssured.registerParser(<parser type>, \"$contentType\");
 Content was:\n$content\n""");
     }
     assertion

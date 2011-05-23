@@ -27,11 +27,13 @@ class RestAssuredResponseImpl implements Response {
   def responseHeaders = [:]
   def cookies = [:]
   def content
+  def contentType
   def statusLine
   def statusCode
 
   public void parseResponse(httpResponse, content) {
     parseHeaders(httpResponse)
+    parseContentType(httpResponse)
     parseCookies()
     parseStatus(httpResponse)
     parseContent(content)
@@ -40,7 +42,15 @@ class RestAssuredResponseImpl implements Response {
   def parseStatus(httpResponse) {
     statusLine = httpResponse.statusLine.toString()
     statusCode = httpResponse.statusLine.statusCode
+  }
 
+  def parseContentType(httpResponse) {
+    try {
+      contentType = httpResponse.contentType?.toString()?.toLowerCase()
+    } catch(IllegalArgumentException e) {
+      // No content type was found, set it to empty
+      contentType = ""
+    }
   }
 
   def parseCookies() {
@@ -79,10 +89,10 @@ class RestAssuredResponseImpl implements Response {
     def writer = new StringWriter()
     writer << new StreamingMarkupBuilder().bind {
       // mkp.declareNamespace('':node[0].namespaceURI())
-        mkp.yield node
+      mkp.yield node
     }
     return writer.toString();
-}
+  }
 
   String print() {
     def string = asString();
@@ -152,6 +162,14 @@ class RestAssuredResponseImpl implements Response {
 
   String getCookie(String name) {
     return cookie(name)
+  }
+
+  String contentType() {
+    return contentType
+  }
+
+  String getContentType() {
+    return contentType
   }
 
   String statusLine() {

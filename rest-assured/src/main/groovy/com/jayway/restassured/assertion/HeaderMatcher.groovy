@@ -32,12 +32,12 @@ class HeaderMatcher {
   }
 
   private def getHeaderValueOrThrowExceptionIfHeaderIsMissing(headerName, headers) {
-    def header = headers.getAt(headerName)
+    def header = headers.get(headerName)
     if (header == null) {
       String headersAsString = "";
-      headers.each { headersAsString += "\n$it.name: $it.value" }
+      headers.each { headersAsString += "\n$it.key: $it.value" }
       throw new AssertionFailedException("Header \"$headerName\" was not defined in the response. Headers are: $headersAsString");
     }
-    return header.value
+    return header
   }
 }

@@ -1,6 +1,8 @@
 Change log next version
 -----------------------
 * Fixed an issue when defining default request specifications with form parameters when using POST.
+* Added support for getting the content type in the com.jayway.restassured.response.Response object.
+* Fixed a major issue with filters that caused the response expecations to verified before filter chain was completed.
 
 Change log 1.2 (2011-05-22)
 ---------------------------

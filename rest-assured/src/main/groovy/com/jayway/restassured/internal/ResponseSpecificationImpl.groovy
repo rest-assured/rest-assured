@@ -268,6 +268,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   }
 
   class HamcrestAssertionClosure {
+    private def receivedContent
+
     def call(response, content) {
       return getClosure().call(response, content)
     }
@@ -286,34 +288,34 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
     def getClosure() {
       return { response, content ->
-        if(hasAssertionsDefined()) {
-          validateHeadersAndCookies(response)
-          def parsedContent = bodyMatchers.isFulfilled(response, content)
-          restAssuredResponse.parseResponse( response, parsedContent )
-        } else {
-          restAssuredResponse.parseResponse( response, content )
-        }
+        this.receivedContent = content
+        restAssuredResponse.parseResponse( response, content )
       }
     }
-
-    private def validateHeadersAndCookies(response) {
+    def validate(Response response) {
+      if(hasAssertionsDefined()) {
+        validateHeadersAndCookies(response)
+        bodyMatchers.isFulfilled(response, receivedContent)
+      }
+    }
+    private def validateHeadersAndCookies(Response response) {
       headerAssertions.each { matcher ->
-        matcher.containsHeader(response.headers)
+        matcher.containsHeader(response.getHeaders())
       }
 
       cookieAssertions.each { matcher ->
-        matcher.containsCookie(response.headers.'Set-Cookie')
+        matcher.containsCookie(response.getHeader('Set-Cookie'))
       }
 
       if (expectedStatusCode != null) {
-        def actualStatusCode = response.statusLine.statusCode
+        def actualStatusCode = response.getStatusCode()
         if (!expectedStatusCode.matches(actualStatusCode)) {
           throw new AssertionFailedException(String.format("Expected status code %s doesn't match actual status code <%s>.", expectedStatusCode.toString(), actualStatusCode));
         }
       }
 
       if (expectedStatusLine != null) {
-        def actualStatusLine = response.statusLine.toString()
+        def actualStatusLine = response.getStatusLine()
         if (!expectedStatusLine.matches(actualStatusLine)) {
           throw new AssertionFailedException(String.format("Expected status line %s doesn't match actual status line \"%s\".", expectedStatusLine.toString(), actualStatusLine));
         }
