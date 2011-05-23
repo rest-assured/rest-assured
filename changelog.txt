@@ -1,8 +1,12 @@
-Change log next version
------------------------
+Change log 1.2.1 (2001-05-23)
+-----------------------------
 * Fixed an issue when defining default request specifications with form parameters when using POST.
 * Added support for getting the content type in the com.jayway.restassured.response.Response object.
 * Fixed a major issue with filters that caused the response expecations to verified before filter chain was completed.
+* Added "from" method to XmlPath and JsonPath (issue 60).
+* Parsing HTML requires captial letters in expectations (e.g. before you could do: expect().body("html.head.title", equalTo("title)).. but now you need to do expect().body("HTML.HEAD.TITLE", equalTo("title)). .). The reason is to be compatible with Groovy and Neko.
+* XmlPath now supports parsing HTML by setting CompatibilityMode to HTML, e.g. new XmlPath(CompatibilityMode.HTML, <some xml>);.
+* Form authentication now uses HTML parsing when parsing the login page (before XML parsing was used which was very fragile).
 
 Change log 1.2 (2011-05-22)
 ---------------------------

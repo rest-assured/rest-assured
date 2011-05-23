@@ -32,7 +32,7 @@ class StreamVerifier {
     } else if(contentTypeMatch(XML, contentType)) {
       assertion = new XMLAssertion(key: key)
     } else if(contentTypeMatch(HTML, contentType)) {
-      assertion = new XMLAssertion(key: key, toUpperCase: true)
+      assertion = new XMLAssertion(key: key)
     } else if(hasCustomParser(contentType)) {
       assertion = createAssertionForCustomParser(contentType, key)
     } else {

@@ -25,11 +25,14 @@ import com.jayway.restassured.spi.AuthFilter
 import static com.jayway.restassured.RestAssured.given
 import static com.jayway.restassured.path.xml.XmlPath.with
 import static java.lang.String.format
+import com.jayway.restassured.path.xml.XmlPath
+import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
+import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.HTML
 
 class FormAuthFilter implements AuthFilter {
   private static final String RESERVED_COOKIE_NAME = "Path"
-  private static final String FIND_INPUT_TAG = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }"
-  private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action"
+  private static final String FIND_INPUT_TAG = "html.depthFirst().grep { it.name() == 'INPUT' && it.@type == '%s' }.collect { it.@name }"
+  private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'FORM' }.get(0).@action"
 
   def userName
   def password
@@ -42,10 +45,11 @@ class FormAuthFilter implements AuthFilter {
     final String passwordInputForm;
     if(config == null) {
       def responseBody = ctx.send(given().spec(requestSpec).auth().none()).asString()
-      String tempFormAction = throwIfException { with(responseBody).getString(FIND_FORM_ACTION) }
+      def html = new XmlPath(HTML, responseBody);
+      String tempFormAction = throwIfException { html.getString(FIND_FORM_ACTION) }
       formAction = tempFormAction.startsWith("/") ? tempFormAction : "/"+ tempFormAction
-      userNameInputForm = throwIfException { with(responseBody).getString(format(FIND_INPUT_TAG, "text")) }
-      passwordInputForm = throwIfException { with(responseBody).getString(format(FIND_INPUT_TAG, "password")) }
+      userNameInputForm = throwIfException { html.getString(format(FIND_INPUT_TAG, "text")) }
+      passwordInputForm = throwIfException { html.getString(format(FIND_INPUT_TAG, "password")) }
     } else {
       formAction = config.getFormAction()
       userNameInputForm = config.getUserInputTagName()

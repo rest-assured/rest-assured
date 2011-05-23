@@ -20,6 +20,8 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.exception.AssertionFailedException;
 import com.jayway.restassured.internal.filter.FormAuthFilter;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.path.xml.XmlPath;
+import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
 

@@ -20,7 +20,10 @@ import com.jayway.restassured.assertion.XMLAssertion;
 import com.jayway.restassured.exception.ParsePathException;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
+import groovyx.net.http.ParserRegistry;
+import org.apache.commons.lang.Validate;
 import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
 
 import java.io.File;
 import java.io.InputStream;
@@ -30,38 +33,40 @@ import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
+import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.HTML;
+import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.XML;
 
 /**
  * XmlPath is an alternative to using XPath for easily getting values from an XML document. It follows the Groovy syntax
  * described <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">here</a>. <br>Let's say we have an XML defined as;
  * <pre>
  * &lt;shopping&gt;
-       &lt;category type=&quot;groceries&quot;&gt;
-           &lt;item&gt;
-              &lt;name&gt;Chocolate&lt;/name&gt;
-              &lt;price&gt;10&lt;/price&gt;
-           &lt;/item&gt;
-           &lt;item&gt;
-              &lt;name&gt;Coffee&lt;/name&gt;
-              &lt;price&gt;20&lt;/price&gt;
-           &lt;/item&gt;
-       &lt;/category&gt;
-       &lt;category type=&quot;supplies&quot;&gt;
-           &lt;item&gt;
-               &lt;name&gt;Paper&lt;/name&gt;
-               &lt;price&gt;5&lt;/price&gt;
-           &lt;/item&gt;
-           &lt;item quantity=&quot;4&quot;&gt;
-               &lt;name&gt;Pens&lt;/name&gt;
-               &lt;price&gt;15&lt;/price&gt;
-           &lt;/item&gt;
-       &lt;/category&gt;
-       &lt;category type=&quot;present&quot;&gt;
-           &lt;item when=&quot;Aug 10&quot;&gt;
-               &lt;name&gt;Kathryn&#39;s Birthday&lt;/name&gt;
-               &lt;price&gt;200&lt;/price&gt;
-           &lt;/item&gt;
-     &lt;/category&gt;
+ &lt;category type=&quot;groceries&quot;&gt;
+ &lt;item&gt;
+ &lt;name&gt;Chocolate&lt;/name&gt;
+ &lt;price&gt;10&lt;/price&gt;
+ &lt;/item&gt;
+ &lt;item&gt;
+ &lt;name&gt;Coffee&lt;/name&gt;
+ &lt;price&gt;20&lt;/price&gt;
+ &lt;/item&gt;
+ &lt;/category&gt;
+ &lt;category type=&quot;supplies&quot;&gt;
+ &lt;item&gt;
+ &lt;name&gt;Paper&lt;/name&gt;
+ &lt;price&gt;5&lt;/price&gt;
+ &lt;/item&gt;
+ &lt;item quantity=&quot;4&quot;&gt;
+ &lt;name&gt;Pens&lt;/name&gt;
+ &lt;price&gt;15&lt;/price&gt;
+ &lt;/item&gt;
+ &lt;/category&gt;
+ &lt;category type=&quot;present&quot;&gt;
+ &lt;item when=&quot;Aug 10&quot;&gt;
+ &lt;name&gt;Kathryn&#39;s Birthday&lt;/name&gt;
+ &lt;price&gt;200&lt;/price&gt;
+ &lt;/item&gt;
+ &lt;/category&gt;
  &lt;/shopping&gt;
  * </pre>
  *
@@ -90,10 +95,14 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull;
  * List&lt;Node&gt; itemsBetweenTenAndTwenty = with(XML).get("shopping.category.item.findAll { item -> def price = item.price.toFloat(); price >= 10 && price <= 20 }");
  * </pre>
  *
- *
+ * You can also parse HTML by setting compatibility mode to HTML:
+ * <pre>
+ * XmlPath xmlPath = new XmlPath(CompatibilityMode.HTML,&lt;some html&gt;);
+ * </pre>
  */
 public class XmlPath {
 
+    private final CompatibilityMode mode;
     private final GPathResult input;
 
     private String rootPath = "";
@@ -104,7 +113,7 @@ public class XmlPath {
      * @param text The text containing the XML document
      */
     public XmlPath(String text) {
-        input = parseText(text);
+        this(XML, text);
     }
 
     /**
@@ -113,7 +122,7 @@ public class XmlPath {
      * @param stream The stream containing the XML document
      */
     public XmlPath(InputStream stream) {
-        input = parseInputStream(stream);
+        this(XML, stream);
     }
 
     /**
@@ -122,7 +131,7 @@ public class XmlPath {
      * @param source The source containing the XML document
      */
     public XmlPath(InputSource source) {
-        input = parseInputSource(source);
+        this(XML, source);
     }
 
     /**
@@ -131,7 +140,7 @@ public class XmlPath {
      * @param file The file containing the XML document
      */
     public XmlPath(File file) {
-        input = parseFile(file);
+        this(XML, file);
     }
 
     /**
@@ -140,7 +149,7 @@ public class XmlPath {
      * @param reader The reader containing the XML document
      */
     public XmlPath(Reader reader) {
-        input = parseReader(reader);
+        this(XML, reader);
     }
 
     /**
@@ -149,6 +158,79 @@ public class XmlPath {
      * @param uri The URI containing the XML document
      */
     public XmlPath(URI uri) {
+        this(XML, uri);
+    }
+
+
+    /**
+     * Instantiate a new XmlPath instance.
+     *
+     * @param mode The compatibility mode
+     * @param text The text containing the XML document
+     */
+    public XmlPath(CompatibilityMode mode, String text) {
+        Validate.notNull(mode, "Compatibility mode cannot be null");
+        this.mode = mode;
+        input = parseText(text);
+    }
+
+    /**
+     * Instantiate a new XmlPath instance.
+     *
+     * @param mode The compatibility mode
+     * @param stream The stream containing the XML document
+     */
+    public XmlPath(CompatibilityMode mode, InputStream stream) {
+        Validate.notNull(mode, "Compatibility mode cannot be null");
+        this.mode = mode;
+        input = parseInputStream(stream);
+    }
+
+    /**
+     * Instantiate a new XmlPath instance.
+     *
+     * @param mode The compatibility mode
+     * @param source The source containing the XML document
+     */
+    public XmlPath(CompatibilityMode mode, InputSource source) {
+        Validate.notNull(mode, "Compatibility mode cannot be null");
+        this.mode = mode;
+        input = parseInputSource(source);
+    }
+
+    /**
+     * Instantiate a new XmlPath instance.
+     *
+     * @param mode The compatibility mode
+     * @param file The file containing the XML document
+     */
+    public XmlPath(CompatibilityMode mode, File file) {
+        Validate.notNull(mode, "Compatibility mode cannot be null");
+        this.mode = mode;
+        input = parseFile(file);
+    }
+
+    /**
+     * Instantiate a new XmlPath instance.
+     *
+     * @param mode The compatibility mode
+     * @param reader The reader containing the XML document
+     */
+    public XmlPath(CompatibilityMode mode, Reader reader) {
+        Validate.notNull(mode, "Compatibility mode cannot be null");
+        this.mode = mode;
+        input = parseReader(reader);
+    }
+
+    /**
+     * Instantiate a new XmlPath instance.
+     *
+     * @param mode The compatibility mode
+     * @param uri The URI containing the XML document
+     */
+    public XmlPath(CompatibilityMode mode, URI uri) {
+        Validate.notNull(mode, "Compatibility mode cannot be null");
+        this.mode = mode;
         input = parseURI(uri);
     }
 
@@ -431,6 +513,59 @@ public class XmlPath {
         return new XmlPath(uri);
     }
 
+    /**
+     * Instantiate a new XmlPath instance.
+     *
+     * @param stream The stream containing the XML document
+     */
+    public static XmlPath from(InputStream stream) {
+        return new XmlPath(stream);
+    }
+
+    /**
+     * Instantiate a new XmlPath instance.
+     *
+     * @param text The text containing the XML document
+     */
+    public static XmlPath from(String text) {
+        return new XmlPath(text);
+    }
+
+    /**
+     * Instantiate a new XmlPath instance.
+     *
+     * @param source The source containing the XML document
+     */
+    public static XmlPath from(InputSource source) {
+        return new XmlPath(source);
+    }
+
+    /**
+     * Instantiate a new XmlPath instance.
+     *
+     * @param file The file containing the XML document
+     */
+    public static XmlPath from(File file) {
+        return new XmlPath(file);
+    }
+
+    /**
+     * Instantiate a new XmlPath instance.
+     *
+     * @param reader The reader containing the XML document
+     */
+    public static XmlPath from(Reader reader) {
+        return new XmlPath(reader);
+    }
+    /**
+     * Instantiate a new XmlPath instance.
+     *
+     * @param uri The URI containing the XML document
+     */
+    public static XmlPath from(URI uri) {
+        return new XmlPath(uri);
+    }
+
     private GPathResult parseText(final String text)  {
         return new ExceptionCatcher() {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
@@ -501,10 +636,22 @@ public class XmlPath {
 
         public GPathResult invoke() {
             try {
-                return method(new XmlSlurper());
+                final XmlSlurper slurper;
+                if(mode == XML) {
+                    slurper = new XmlSlurper();
+                } else {
+                    XMLReader p = new org.cyberneko.html.parsers.SAXParser();
+                    p.setEntityResolver(ParserRegistry.getCatalogResolver());
+                    slurper = new XmlSlurper(p);
+                }
+                return method(slurper);
             } catch(Exception e) {
                 throw new ParsePathException("Failed to parse the XML document", e);
             }
         }
+    }
+
+    public static enum CompatibilityMode {
+        XML, HTML
     }
 }

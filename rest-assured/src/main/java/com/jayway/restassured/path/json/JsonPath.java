@@ -350,6 +350,12 @@ public class JsonPath {
     public static JsonPath given(URL url) {
         return new JsonPath(url);
     }
+
+    /**
+     * Instantiate a new JsonPath instance.
+     *
+     * @param stream The stream containing the JSON document
+     */
     public static JsonPath with(InputStream stream) {
         return new JsonPath(stream);
     }
@@ -386,6 +392,50 @@ public class JsonPath {
      * @param url The URI containing the JSON document
      */
     public static JsonPath with(URL url) {
+        return new JsonPath(url);
+    }
+
+    /**
+     * Instantiate a new JsonPath instance.
+     *
+     * @param stream The stream containing the JSON document
+     */
+    public static JsonPath from(InputStream stream) {
+        return new JsonPath(stream);
+    }
+
+    /**
+     * Instantiate a new JsonPath instance.
+     *
+     * @param text The text containing the JSON document
+     */
+    public static JsonPath from(String text) {
+        return new JsonPath(text);
+    }
+
+    /**
+     * Instantiate a new JsonPath instance.
+     *
+     * @param file The file containing the JSON document
+     */
+    public static JsonPath from(File file) {
+        return new JsonPath(file);
+    }
+
+    /**
+     * Instantiate a new JsonPath instance.
+     *
+     * @param reader The reader containing the JSON document
+     */
+    public static JsonPath from(Reader reader) {
+        return new JsonPath(reader);
+    }
+    /**
+     * Instantiate a new JsonPath instance.
+     *
+     * @param url The URI containing the JSON document
+     */
+    public static JsonPath from(URL url) {
         return new JsonPath(url);
     }
 
