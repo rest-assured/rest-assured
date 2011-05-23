@@ -321,9 +321,6 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     }
   }
 
-
-
-
   def void setRequestSpec(RequestSpecification requestSpecification) {
     this.requestSpecification = requestSpecification
   }

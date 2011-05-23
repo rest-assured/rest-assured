@@ -72,7 +72,7 @@ class SpecificationMerger {
     thisOne.requestParameters.putAll(with.requestParameters)
     thisOne.queryParams.putAll(with.queryParams)
     thisOne.authenticationScheme = with.authenticationScheme
-    thisOne.requestContentType = with.requestContentType
+    thisOne.contentType = with.contentType
     thisOne.requestHeaders.putAll(with.requestHeaders)
     thisOne.cookies.putAll(with.cookies)
     thisOne.requestBody = with.requestBody

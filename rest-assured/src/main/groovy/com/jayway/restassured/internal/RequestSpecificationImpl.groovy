@@ -49,7 +49,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private Map<String, String> queryParams = [:]
   def AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private FilterableResponseSpecification responseSpecification;
-  private def requestContentType;
+  private Object contentType;
   private Map<String, String> requestHeaders = [:]
   private Map<String, String> cookies = [:]
   private Object requestBody;
@@ -65,7 +65,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     this.basePath = basePath
     this.defaultAuthScheme = defaultAuthScheme
     this.filters.addAll(filters)
-    this.requestContentType = defaultRequestContentType
+    this.contentType = defaultRequestContentType
     port(requestPort)
     if(defaultSpec != null) {
       spec(defaultSpec)
@@ -281,13 +281,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   RequestSpecification contentType(ContentType contentType) {
     notNull contentType, "contentType"
-    this.requestContentType = contentType
+    this.contentType = contentType
     return  this
   }
 
   RequestSpecification contentType(String contentType) {
     notNull contentType, "contentType"
-    this.requestContentType = contentType
+    this.contentType = contentType
     return  this
   }
 
@@ -460,19 +460,19 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   private def defineRequestContentType(Method method) {
-    if (requestContentType == null) {
+    if (contentType == null) {
       if (requestBody == null) {
-        requestContentType = method == POST ? URLENC : ANY
+        contentType = method == POST ? URLENC : ANY
       } else if (requestBody instanceof byte[]) {
         if(method != POST && method != PUT) {
           throw new IllegalStateException("$method doesn't support binary request data.");
         }
-        requestContentType = BINARY
+        contentType = BINARY
       } else {
-        requestContentType = TEXT
+        contentType = TEXT
       }
     }
-    requestContentType
+    contentType
   }
 
   private String getTargetURI(String path) {
@@ -564,6 +564,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   String getRequestContentType() {
-    return requestContentType != null ? requestContentType instanceof String ? requestContentType : requestContentType.toString() : ANY.toString()
+    return contentType != null ? contentType instanceof String ? contentType : contentType.toString() : ANY.toString()
   }
 }

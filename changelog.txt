@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Fixed an issue when defining default request specifications with form parameters when using POST.
+
 Change log 1.2 (2011-05-22)
 ---------------------------
 * Better support for multi-value parameters. You can now defined them using a List:

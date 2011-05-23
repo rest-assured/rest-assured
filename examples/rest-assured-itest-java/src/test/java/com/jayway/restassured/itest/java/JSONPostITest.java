@@ -17,6 +17,7 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
@@ -51,6 +52,16 @@ public class JSONPostITest extends WithJetty {
     @Test
     public void bodyHamcrestMatcherWithoutKey() throws Exception {
         given().parameters("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().post("/greet");
+    }
+
+    @Test
+    public void usingRequestSpecWithParamsWorksWithPost() throws Exception {
+        RestAssured.requestSpecification = new RequestSpecBuilder().addParam("firstName", "John").addParam("lastName", "Doe").build();
+        try {
+            expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().post("/greet");
+        } finally {
+            RestAssured.reset();
+        }
     }
 
     @Test
