@@ -2,11 +2,11 @@ Change log 1.2.1 (2001-05-23)
 -----------------------------
 * Fixed an issue when defining default request specifications with form parameters when using POST.
 * Added support for getting the content type in the com.jayway.restassured.response.Response object.
-* Fixed a major issue with filters that caused the response expecations to verified before filter chain was completed.
+* Fixed a major issue with filters that caused the response expecations to be verified before filter chain was completed.
 * Added "from" method to XmlPath and JsonPath (issue 60).
-* XmlPath now supports parsing HTML by setting CompatibilityMode to HTML, e.g. new XmlPath(CompatibilityMode.HTML, <some xml>);.
+* XmlPath now supports parsing HTML by setting CompatibilityMode to HTML, e.g. new XmlPath(CompatibilityMode.HTML, <some html>);.
 * Form authentication now uses HTML parsing when parsing the login page (before XML parsing was used which was very fragile).
-* Improved XML parsing with groovy closures
+* Improved HTML parsing with Groovy closures
 
 Change log 1.2 (2011-05-22)
 ---------------------------
