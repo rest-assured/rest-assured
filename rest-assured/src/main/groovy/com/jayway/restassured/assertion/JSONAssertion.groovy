@@ -28,11 +28,15 @@ class JSONAssertion implements Assertion {
   def Object getResult(Object object) {
     key = escapeMinus(key);
     def result;
-    def root = 'restAssuredJsonRootObject'
-    try {
-      result = Eval.me(root, object, "$root.$key")
-    } catch (Exception e) {
-      throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid JSON expression:").replace("$root.", generateWhitespace(root.length())));
+    if(key == "\$" || key == "") {
+      result = object
+    } else {
+      def root = 'restAssuredJsonRootObject'
+      try {
+        result = Eval.me(root, object, "$root.$key")
+      } catch (Exception e) {
+        throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid JSON expression:").replace("$root.", generateWhitespace(root.length())));
+      }
     }
 
     return convertToJavaListIfNeeded(result);

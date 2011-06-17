@@ -1,3 +1,17 @@
+Changelog next version
+----------------------
+* Added support for parsing entire JSON object graph. E.g. let's say you have a JSON snippet like this:
+  [{"email":"name1@mail.com","alias":"name one","phone":"3456789"},
+   {"email":"name2@mail.com","alias":"name two","phone":"1234567"},
+   {"email":"name3@mail.com","alias":"name three","phone":"2345678"}]
+  You can then parse the entire JSON snippet to a List of Map like this:
+     List<Map<String, String>> result = from(json).get("$"); 
+  or
+   List<Map<String, String>> result = from(json).get(""); 
+  (issue 78)
+
+from(json).get("$") or from(json).get("")
+
 Change log 1.2.1 (2001-05-23)
 -----------------------------
 * Fixed an issue when defining default request specifications with form parameters when using POST.

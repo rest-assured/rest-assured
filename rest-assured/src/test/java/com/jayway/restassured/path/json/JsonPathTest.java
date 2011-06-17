@@ -21,6 +21,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Map;
 
+import static com.jayway.restassured.path.json.JsonPath.from;
 import static com.jayway.restassured.path.json.JsonPath.given;
 import static com.jayway.restassured.path.json.JsonPath.with;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -61,6 +62,10 @@ public class JsonPathTest {
             "    }\n" +
             "  }\n" +
             "}";
+
+    private final String JSON2 = "[{\"email\":\"name1@mail.com\",\"alias\":\"name one\",\"phone\":\"3456789\"},\n" +
+            "{\"email\":\"name2@mail.com\",\"alias\":\"name two\",\"phone\":\"1234567\"},\n" +
+            "{\"email\":\"name3@mail.com\",\"alias\":\"name three\",\"phone\":\"2345678\"}]";
 
     @Test
     public void getList() throws Exception {
@@ -117,5 +122,23 @@ public class JsonPathTest {
         assertThat(jsonPath.getInt("size()"), equalTo(4));
         assertThat(jsonPath.getList("author", String.class), hasItem("J. R. R. Tolkien"));
 
+    }
+
+    @Test
+    public void supportsGettingEntireObjectGraphUsingEmptyString() throws Exception {
+        final List<Map<String, String>> object = from(JSON2).get("");
+        assertThat(object.get(0).get("email"), equalTo("name1@mail.com"));
+    }
+
+    @Test
+    public void supportsGettingEntireObjectGraphUsing$() throws Exception {
+        final List<Map<String, String>> object = from(JSON2).get("$");
+        assertThat(object.get(0).get("email"), equalTo("name1@mail.com"));
+    }
+
+    @Test
+    public void getValueFromUnnamedRootObject() throws Exception {
+        final Map<String, String> object = from(JSON2).get("get(0)");
+        assertThat(object.get("email"), equalTo("name1@mail.com"));
     }
 }
