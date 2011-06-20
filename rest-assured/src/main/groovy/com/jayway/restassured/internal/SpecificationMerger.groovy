@@ -62,15 +62,20 @@ class SpecificationMerger {
    * <ul>
    *     <li>Parameters</li>
    *     <li>Query Parameters</li>
+   *     <li>Form Parameters</li>
    *     <li>Cookies</li>
    *     <li>Headers</li>
    *     <li>Filters</li>
    * </ul>
    */
   def static void merge(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {
+    notNull thisOne, "Specification to merge"
+    notNull with, "Specification to merge with"
+
     thisOne.port = with.port
     thisOne.requestParameters.putAll(with.requestParameters)
     thisOne.queryParams.putAll(with.queryParams)
+    thisOne.formParams.putAll(with.formParams)
     thisOne.authenticationScheme = with.authenticationScheme
     thisOne.contentType = with.contentType
     thisOne.requestHeaders.putAll(with.requestHeaders)
