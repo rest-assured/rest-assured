@@ -47,6 +47,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private int port
   private Map<String, String> requestParameters = [:]
   private Map<String, String> queryParams = [:]
+  private Map<String, String> formParams = [:]
   def AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private FilterableResponseSpecification responseSpecification;
   private Object contentType;
@@ -199,6 +200,50 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def RequestSpecification queryParam(String parameterName, String parameterValue, String... additionalParameterValue) {
     return queryParameter(parameterName, parameterValue, additionalParameterValue)
+  }
+
+  def RequestSpecification formParameter(String parameterName, List<String> parameterValues) {
+    notNull parameterName, "parameterName"
+    notNull parameterValues, "parameterValues"
+    appendListParameter(formParams, parameterName, parameterValues)
+    return this
+  }
+
+  def RequestSpecification formParam(String parameterName, List<String> parameterValues) {
+    return queryParameter(parameterName, parameterValues)
+  }
+
+  def RequestSpecification formParameters(String parameterName, String... parameterNameValuePairs) {
+    notNull parameterName, "parameterName"
+    return formParameters(MapCreator.createMapFromStrings(parameterName, parameterNameValuePairs))
+  }
+
+  def RequestSpecification formParameters(Map<String, String> parametersMap) {
+    notNull parametersMap, "parametersMap"
+    appendParameters(parametersMap, formParams)
+    return this
+  }
+
+  def RequestSpecification formParameter(String parameterName, String parameterValue, String... additionalParameterValues) {
+    notNull parameterName, "parameterName"
+    notNull parameterValue, "parameterValue"
+    appendStringParameter(formParams, parameterName, parameterValue)
+    if(additionalParameterValues != null) {
+      appendListParameter(formParams, parameterName, asList(additionalParameterValues))
+    }
+    return this
+  }
+
+  def RequestSpecification formParams(String parameterName, String... parameterNameValuePairs) {
+    return formParameters(parameterName, parameterNameValuePairs);
+  }
+
+  def RequestSpecification formParams(Map<String, String> parametersMap) {
+    return formParameters(parametersMap)
+  }
+
+  def RequestSpecification formParam(String parameterName, String parameterValue, String... additionalParameterValue) {
+    return formParameter(parameterName, parameterValue, additionalParameterValue)
   }
 
   def RequestSpecification filter(Filter filter) {
@@ -389,14 +434,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     authenticationScheme.authenticate(http)
 
-    if(POST.equals(method)) {
-      if(!requestParameters.isEmpty() && requestBody != null) {
-        throw new IllegalStateException("You can either send parameters OR body content in the POST, not both!");
+    if(shouldUrlEncode(method)) {
+      if(hasFormParams() && requestBody != null) {
+        throw new IllegalStateException("You can either send form parameters OR body content in $method, not both!");
       }
-      def bodyContent = requestParameters.isEmpty() ? requestBody : requestParameters
+      def bodyContent = hasFormParams() ? requestParameters += formParams : requestBody
 
       http.post( path: targetPath, body: bodyContent,
-              requestContentType: defineRequestContentType(POST),
+              requestContentType: defineRequestContentType(method),
               contentType: responseContentType) { response, content ->
         if(assertionClosure != null) {
           assertionClosure.call (response, content)
@@ -423,6 +468,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       }
     }
     return restAssuredResponse
+  }
+
+  private boolean hasFormParams() {
+    return !(requestParameters.isEmpty() && formParams.isEmpty())
+  }
+
+  private boolean shouldUrlEncode(method) {
+    return POST.equals(method) || formParams.size() > 0
   }
 
   private def defineRequestCookie(Entry<String, String> it) {
@@ -464,7 +517,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private def defineRequestContentType(Method method) {
     if (contentType == null) {
       if (requestBody == null) {
-        contentType = method == POST ? URLENC : ANY
+        contentType = shouldUrlEncode(method) ? URLENC : ANY
       } else if (requestBody instanceof byte[]) {
         if(method != POST && method != PUT) {
           throw new IllegalStateException("$method doesn't support binary request data.");

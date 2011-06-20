@@ -396,6 +396,99 @@ public interface RequestSpecification extends RequestSender {
      * @return The request specification
      */
     RequestSpecification queryParam(String parameterName, List<String> parameterValues);
+   
+    /**
+     * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(String, String...)}
+     * for all http methods except for PUT where {@link #parameters(String, String...)} sets the query parameters and this method sets the
+     * form parameters.
+     *
+     * @param parameterName The name of the first parameter
+     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     * @return The request specification
+     */
+    RequestSpecification formParameters(String parameterName, String...parameterNameValuePairs);
+
+    /**
+     * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(Map)}
+     * for all http methods except for PUT where {@link #parameters(Map)} sets the query parameters and this method sets the
+     * form parameters.
+     *
+     * @param parametersMap The Map containing the parameter names and their values to send with the request.
+     * @return The request specification
+     */
+    RequestSpecification formParameters(Map<String, String> parametersMap);
+
+    /**
+     * Specify a form parameter that'll be sent with the request. Note that this method is the same as {@link #parameter(String, String, String...)}
+     * for all http methods except for PUT where {@link #parameter(String, String, String...)} adds a query parameter and this method sets a
+     * form parameter.
+     *
+     * @see #parameter(String, String, String...)
+     * @param parameterName The parameter key
+     * @param parameterValue The parameter value
+     * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
+     * @return The request specification
+     */
+    RequestSpecification formParameter(String parameterName, String parameterValue, String... additionalParameterValues);
+
+    /**
+     * Specify a multi-value form parameter that'll be sent with the request e.g:
+     * <p>
+     * <pre>
+     * given().formParameter("cars", asList("Volvo", "Saab"))..;
+     * </pre>
+     * This will set the parameter <code>cars=Volvo</code> and <code>cars=Saab</code>.
+     * </p>
+     *
+     * Note that this method is the same as {@link #parameter(String, java.util.List)}
+     * for all http methods except for PUT where {@link #parameter(String, java.util.List)} adds a query parameter and
+     * this method sets a form parameter.
+     *
+     * @param parameterName The parameter key
+     * @param parameterValues The parameter values
+     * @return The request specification
+     */
+    RequestSpecification formParameter(String parameterName, List<String> parameterValues);
+
+    /**
+     * A slightly shorter version of {@link #formParameters(String, String...)}.
+     *
+     * @see #formParameters(String, String...)
+     * @param parameterName The name of the first parameter
+     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     * @return The request specification
+     */
+    RequestSpecification formParams(String parameterName, String...parameterNameValuePairs);
+
+    /**
+     * A slightly shorter version of {@link #formParams(java.util.Map)}.
+     *
+     * @see #formParams(java.util.Map)
+     * @param parametersMap The Map containing the parameter names and their values to send with the request.
+     * @return The request specification
+     */
+    RequestSpecification formParams(Map<String, String> parametersMap);
+
+    /**
+     * A slightly shorter version of {@link #formParameter(String, String, String...)}.
+     *
+     * @see #parameter(String, String, String...)
+     * @param parameterName The parameter key
+     * @param parameterValue The parameter value
+     * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
+     * @return The request specification
+     */
+    RequestSpecification formParam(String parameterName, String parameterValue, String... additionalParameterValues);
+
+    /**
+     * A slightly shorter version of {@link #formParameter(String, java.util.List)}.
+     *
+     * @see #formParam(String, java.util.List)
+     * @param parameterName The parameter key
+     * @param parameterValues The parameter values
+     * @return The request specification
+     */
+    RequestSpecification formParam(String parameterName, List<String> parameterValues);
 
     /**
      * Specify the headers that'll be sent with the request. This is done by specifying the headers in name-value pairs, e.g:

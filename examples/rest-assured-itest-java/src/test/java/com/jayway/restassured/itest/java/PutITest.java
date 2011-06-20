@@ -49,4 +49,9 @@ public class PutITest extends WithJetty {
     public void putSupportsStringBody() throws Exception {
         given().body("a body").expect().body(equalTo("a body")).when().put("/body");
     }
+
+    @Test
+    public void putWithFormParams() throws Exception {
+        given().formParameters("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().put("/greet");
+    }
 }
