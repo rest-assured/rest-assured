@@ -22,6 +22,7 @@ import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
@@ -247,6 +248,18 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
+    public void supportsMergingMultiValueFormParametersWhenUsingRequestSpecBuilder() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().addFormParam("list", "1", "2", "3").build();
+
+        given().
+                spec(spec).
+        expect().
+                body("list", equalTo("1,2,3")).
+        when().
+                put("/multiValueParam");
+    }
+
+    @Test
     public void supportsMergingMultiValueParametersUsingListWhenUsingRequestSpecBuilder() throws Exception {
         final RequestSpecification spec = new RequestSpecBuilder().addParam("list", asList("1", "2", "3")).build();
 
@@ -268,5 +281,30 @@ public class SpecificationBuilderITest extends WithJetty {
                 body("list", equalTo("1,2,3")).
         when().
                 get("/multiValueParam");
+    }
+
+    @Test
+    public void supportsMergingMultiValueFormParametersUsingListWhenUsingRequestSpecBuilder() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().addFormParam("list", asList("1", "2", "3")).build();
+
+        given().
+                spec(spec).
+        expect().
+                body("list", equalTo("1,2,3")).
+        when().
+                put("/multiValueParam");
+    }
+
+    @Test
+    public void supportsMergingFormParametersWhenUsingRequestSpecBuilder() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().addFormParam("lastName", "Doe").build();
+
+        given().
+                spec(spec).
+                formParameter("firstName", "John").
+        expect().
+                body("greeting", Matchers.equalTo("Greetings John Doe")).
+        when().
+                put("/greet");
     }
 }

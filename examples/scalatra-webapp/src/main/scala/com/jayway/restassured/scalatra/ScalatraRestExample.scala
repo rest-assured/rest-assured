@@ -144,6 +144,10 @@ class ScalatraRestExample extends ScalatraServlet {
     "{ \"list\" : \""+{multiParams("list")}.mkString(",") +"\" }"
   }
 
+  put("/multiValueParam") {
+    "{ \"list\" : \""+{multiParams("list")}.mkString(",") +"\" }"
+  }
+
   get("/hello") {
     val json = ("hello" -> "Hello Scalatra")
     compact(render(json))
