@@ -1,0 +1,71 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.jayway.restassured.itest.java;
+
+import com.jayway.restassured.itest.java.support.WithJetty;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.path.json.JsonPath.from;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+
+public class PathParamITest extends WithJetty {
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
+    @Test
+    public void supportsPassingPathParamsToRequestSpec() throws Exception {
+        expect().body("fullName", equalTo("John Doe")).when().get("/{firstName}/{lastName}", "John", "Doe");
+    }
+
+    @Test
+    public void supportsPassingIntPathParamsToRequestSpec() throws Exception {
+        expect().body("fullName", equalTo("John 42")).when().get("/{firstName}/{lastName}", "John", 42);
+    }
+
+    @Test
+    public void urlEncodesPathParams() throws Exception {
+        expect().body("fullName", equalTo("John%3F%2F%26%25 Doe")).when().get("/{firstName}/{lastName}", "John?/&%", "Doe");
+    }
+
+    @Test
+    public void supportsPassingPathParamsToGet() throws Exception {
+        final String response = get("/{firstName}/{lastName}", "John", "Doe").asString();
+        final String fullName = from(response).getString("fullName");
+        assertThat(fullName, equalTo("John Doe"));
+    }
+
+    @Test
+    public void throwsIAEWhenNumberOfSuppliedPathParamsAreGreaterThanDefinedPathParams() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Illegal number of path parameters. Expected 2, was 3.");
+
+        get("/{firstName}/{lastName}", "John", "Doe", "Real Doe");
+    }
+
+    @Test
+    public void throwsIAEWhenNumberOfSuppliedPathParamsAreLowerThanDefinedPathParams() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("You passed too few (1) path parameters to the request.");
+
+        get("/{firstName}/{lastName}", "John");
+    }
+}

@@ -542,10 +542,11 @@ public class RestAssured {
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
      * @param path The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>get("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response get(String path) {
-        return given().get(path);
+    public static Response get(String path, Object...pathParams) {
+        return given().get(path, pathParams);
     }
 
     /**
@@ -553,10 +554,11 @@ public class RestAssured {
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
      * @param path The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>post("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response post(String path) {
-        return given().post(path);
+    public static Response post(String path, Object...pathParams) {
+        return given().post(path, pathParams);
     }
 
     /**
@@ -564,10 +566,11 @@ public class RestAssured {
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
      * @param path The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>put("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response put(String path) {
-        return given().put(path);
+    public static Response put(String path, Object...pathParams) {
+        return given().put(path, pathParams);
     }
 
     /**
@@ -575,10 +578,11 @@ public class RestAssured {
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
      * @param path The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>delete("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response delete(String path) {
-        return given().delete(path);
+    public static Response delete(String path, Object...pathParams) {
+        return given().delete(path, pathParams);
     }
 
     /**
@@ -586,10 +590,11 @@ public class RestAssured {
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
      * @param path The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response head(String path) {
-        return given().head(path);
+    public static Response head(String path, Object...pathParams) {
+        return given().head(path, pathParams);
     }
 
     /**

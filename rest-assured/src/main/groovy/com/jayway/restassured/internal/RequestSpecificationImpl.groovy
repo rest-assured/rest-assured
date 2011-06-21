@@ -19,6 +19,8 @@ package com.jayway.restassured.internal
 import com.jayway.restassured.authentication.AuthenticationScheme
 import com.jayway.restassured.authentication.NoAuthScheme
 import com.jayway.restassured.filter.Filter
+import com.jayway.restassured.filter.log.ErrorLoggingFilter
+import com.jayway.restassured.filter.log.ResponseLoggingFilter
 import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.RootFilter
 import com.jayway.restassured.response.Response
@@ -34,8 +36,6 @@ import com.jayway.restassured.specification.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
-import com.jayway.restassured.filter.log.ResponseLoggingFilter
-import com.jayway.restassured.filter.log.ErrorLoggingFilter
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
@@ -89,29 +89,24 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return responseSpecification;
   }
 
-  def Response get(String path) {
-    notNull path, "path"
-    invokeFilterChain(path, GET, responseSpecification.assertionClosure)
+  def Response get(String path, Object...pathParams) {
+    applyPathParamsAndInvoke(GET, path, pathParams)
   }
 
-  def Response post(String path) {
-    notNull path, "path"
-    invokeFilterChain(path, POST, responseSpecification.assertionClosure);
+  def Response post(String path, Object...pathParams) {
+    applyPathParamsAndInvoke(POST, path, pathParams)
   }
 
-  def Response put(String path) {
-    notNull path, "path"
-    invokeFilterChain(path, PUT, responseSpecification.assertionClosure);
+  def Response put(String path, Object...pathParams) {
+    applyPathParamsAndInvoke(PUT, path, pathParams)
   }
 
-  def Response delete(String path) {
-    notNull path, "path"
-    invokeFilterChain(path, DELETE, responseSpecification.assertionClosure);
+  def Response delete(String path, Object...pathParams) {
+    applyPathParamsAndInvoke(DELETE, path, pathParams)
   }
 
-  def Response head(String path) {
-    notNull path, "path"
-    invokeFilterChain(path, HEAD, responseSpecification.assertionClosure);
+  def Response head(String path, Object...pathParams) {
+    applyPathParamsAndInvoke(HEAD, path, pathParams)
   }
 
   def RequestSpecification parameters(String parameterName, String... parameterNameValuePairs) {
@@ -577,6 +572,34 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       to.put(key, value)
     }
   }
+
+  private def applyPathParamsAndInvoke(Method method, String path, Object...pathParams) {
+    notNull path, "path"
+    notNull pathParams, "Path params"
+
+    def pathParamSize = pathParams.size()
+    if(pathParams.size() > 0) {
+      def urlEncodedParams = []
+      pathParams.each {
+        urlEncodedParams << URLEncoder.encode(it.toString(), "UTF-8")
+      }
+      def replacePattern = ~/\{\w+\}/
+      def matchPattern = ~/.*\{\w+\}.*/
+      int current = 0;
+      urlEncodedParams.each {
+        if(!path.matches(matchPattern)) {
+          throw new IllegalArgumentException("Illegal number of path parameters. Expected $current, was $pathParamSize.")
+        }
+        current++
+        path = path.replaceFirst(replacePattern, it)
+      }
+      if(path.matches(matchPattern)) {
+        throw new IllegalArgumentException("You passed too few ($pathParamSize) path parameters to the request.")
+      }
+    }
+    invokeFilterChain(path, method, responseSpecification.assertionClosure)
+  }
+
 
   def void setResponseSpecification(ResponseSpecification responseSpecification) {
     this.responseSpecification = responseSpecification

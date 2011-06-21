@@ -204,24 +204,24 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return requestSpecification;
   }
 
-  Response get(String path) {
-    requestSpecification.get(path);
+  Response get(String path, Object...pathParams) {
+    requestSpecification.get(path, pathParams);
   }
 
-  Response post(String path) {
-    requestSpecification.post(path);
+  Response post(String path, Object...pathParams) {
+    requestSpecification.post(path, pathParams);
   }
 
-  Response put(String path) {
-    requestSpecification.put(path);
+  Response put(String path, Object...pathParams) {
+    requestSpecification.put(path, pathParams);
   }
 
-  Response delete(String path) {
-    requestSpecification.delete(path);
+  Response delete(String path, Object...pathParams) {
+    requestSpecification.delete(path, pathParams);
   }
 
-  def Response head(String path) {
-    requestSpecification.head(path);
+  def Response head(String path, Object...pathParams) {
+    requestSpecification.head(path, pathParams);
   }
 
   def ResponseSpecification and() {

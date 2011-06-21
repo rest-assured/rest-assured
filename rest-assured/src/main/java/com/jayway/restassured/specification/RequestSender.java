@@ -24,43 +24,48 @@ public interface RequestSender {
    * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
    *
    * @param path The path to send the request to.
+   * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>get("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
    * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
    */
-  Response get(String path);
+  Response get(String path, Object...pathParams);
 
   /**
    * Perform a POST request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
    * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
    *
    * @param path The path to send the request to.
+   * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>post("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
    * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
    */
-  Response post(String path);
+  Response post(String path, Object...pathParams);
 
   /**
    * Perform a PUT request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
    * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
    *
    * @param path The path to send the request to.
+   * * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>put("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
    * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
    */
-  Response put(String path);
+  Response put(String path, Object...pathParams);
 
   /**
    * Perform a DELETE request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
    * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
    *
    * @param path The path to send the request to.
+   * * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>delete("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
    * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
    */
-  Response delete(String path);
+  Response delete(String path, Object...pathParams);
 
   /**
    * Perform a HEAD request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
    * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
    *
    * @param path The path to send the request to.
+   * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
    * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
    */
-  Response head(String path);
+  Response head(String path, Object...pathParams);
 }

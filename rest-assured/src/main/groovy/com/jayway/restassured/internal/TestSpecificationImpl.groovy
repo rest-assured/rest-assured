@@ -54,35 +54,35 @@ class TestSpecificationImpl implements RequestSender {
   /**
    * {@inheritDoc}
    */
-  Response get(String path) {
+  Response get(String path, Object...pathParams) {
     requestSpecification.get path
   }
 
   /**
    * {@inheritDoc}
    */
-  Response post(String path) {
+  Response post(String path, Object...pathParams) {
     requestSpecification.post path
   }
 
   /**
    * {@inheritDoc}
    */
-  Response put(String path) {
+  Response put(String path, Object...pathParams) {
     requestSpecification.put path
   }
 
   /**
    * {@inheritDoc}
    */
-  Response delete(String path) {
+  Response delete(String path, Object...pathParams) {
     requestSpecification.delete path
   }
 
   /**
    * {@inheritDoc}
    */
-  Response head(String path) {
+  Response head(String path, Object...pathParams) {
     requestSpecification.head path
   }
 
