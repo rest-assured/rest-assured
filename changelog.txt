@@ -9,7 +9,7 @@ Changelog next version
   or
    List<Map<String, String>> result = from(json).get(""); 
   (issue 78)
-* Added support for explicitly specifiying form parameters, e.g. using given().formParam("name", "value"). This is useful e.g. when sending the PUT request with form params and query params in the same request (issue 75).
+* Added support for explicitly specifiying form parameters, e.g. using given().formParam("name", "value"). This is useful e.g. when sending a PUT request with both form params and query params (issue 75).
 * It's now possible to check that a header does NOT exist: expect().header("someheader", nullValue()). (issue 74).
 * Support for path parameters. E.g. get("/{firstName}/{lastName}", "John", "Doe") will send a GET request to "http://localhost:8080/John/Doe" (issue 36).
 
