@@ -18,6 +18,7 @@ package com.jayway.restassured.assertion
 
 import com.jayway.restassured.exception.AssertionFailedException
 import org.hamcrest.Matcher
+import org.hamcrest.core.IsNull
 
 class HeaderMatcher {
 
@@ -26,18 +27,20 @@ class HeaderMatcher {
 
   def containsHeader(headers) {
     def value = getHeaderValueOrThrowExceptionIfHeaderIsMissing(headerName, headers)
-    if(!matcher.matches(value)) {
-      throw new AssertionFailedException("Expected header \"$headerName\" was not $matcher, was \"$value\".")
+    if (!matcher.matches(value)) {
+      String headersAsString = "";
+      headers.each { headersAsString += "\n$it.key: $it.value" }
+      throw new AssertionFailedException("Expected header \"$headerName\" was not $matcher, was \"$value\". Headers are:$headersAsString")
     }
   }
 
+  private def validateHeaderDoesntExists(headers) {
+
+  }
+
+
   private def getHeaderValueOrThrowExceptionIfHeaderIsMissing(headerName, headers) {
     def header = headers.get(headerName)
-    if (header == null) {
-      String headersAsString = "";
-      headers.each { headersAsString += "\n$it.key: $it.value" }
-      throw new AssertionFailedException("Header \"$headerName\" was not defined in the response. Headers are: $headersAsString");
-    }
     return header
   }
 }

@@ -23,6 +23,7 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
+import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -248,7 +249,7 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void whenExpectedHeaderDoesntMatchAnAssertionThenAssertionFailedExceptionIsThrown() throws Exception {
         exception.expect(AssertionFailedException.class);
-        exception.expectMessage(equalTo("Expected header \"Content-Length\" was not \"161\", was \"160\"."));
+        exception.expectMessage(containsString("Expected header \"Content-Length\" was not \"161\", was \"160\". Headers are:"));
 
         expect().response().header("Content-Length", "161").when().get("/lotto");
     }
@@ -256,7 +257,7 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void whenExpectedHeaderIsNotFoundThenAnAssertionFailedExceptionIsThrown() throws Exception {
         exception.expect(AssertionFailedException.class);
-        exception.expectMessage(equalTo("Header \"Not-Defined\" was not defined in the response. Headers are: \n" +
+        exception.expectMessage(equalTo("Expected header \"Not-Defined\" was not \"160\", was \"null\". Headers are:\n" +
                 "Content-Type: application/json; charset=UTF-8\n" +
                 "Content-Length: 160\n" +
                 "Server: Jetty(6.1.14)"));
@@ -618,5 +619,15 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void paramSupportsMultipleValues() throws Exception {
         with().param("list", "1", "2", "3").expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+    }
+
+    @Test
+    public void supportsAssertingThatJsonPathDoesntExist() throws Exception {
+        with().params("firstName", "John", "lastName", "Doe").expect().body("something", nullValue()).when().get("/greet");
+    }
+
+    @Test
+    public void supportsAssertingThatHeaderDoesntExist() throws Exception {
+        with().params("firstName", "John", "lastName", "Doe").expect().header("something", nullValue(String.class)).when().get("/greet");
     }
 }
