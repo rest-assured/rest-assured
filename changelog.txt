@@ -9,6 +9,7 @@ Changelog next version
   or
    List<Map<String, String>> result = from(json).get(""); 
   (issue 78)
+* Added support for explicitly specifiying form parameters, e.g. using given().formParam("name", "value"). This is useful e.g. when sending the PUT request with form params and query params in the same request (issue 75).
 
 Change log 1.2.1 (2001-05-23)
 -----------------------------
