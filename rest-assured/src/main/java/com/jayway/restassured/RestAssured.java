@@ -33,6 +33,7 @@ import groovyx.net.http.ContentType;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST Assured is a Java DSL for simplifying testing of REST based services built on top of
@@ -550,6 +551,18 @@ public class RestAssured {
     }
 
     /**
+     * Perform a GET request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path The path to send the request to.
+     * @param pathParams The path parameters.
+     * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response get(String path, Map<String, Object> pathParams) {
+        return given().get(path, pathParams);
+    }
+
+    /**
      * Perform a POST request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
@@ -558,6 +571,18 @@ public class RestAssured {
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
     public static Response post(String path, Object...pathParams) {
+        return given().post(path, pathParams);
+    }
+
+    /**
+     * Perform a POST request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path The path to send the request to.
+     * @param pathParams The path parameters.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response post(String path, Map<String, Object> pathParams) {
         return given().post(path, pathParams);
     }
 
@@ -586,6 +611,18 @@ public class RestAssured {
     }
 
     /**
+     * Perform a DELETE request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path The path to send the request to.
+     * @param pathParams The path parameters.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response delete(String path, Map<String, Object> pathParams) {
+        return given().delete(path, pathParams);
+    }
+
+    /**
      * Perform a HEAD request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
@@ -594,6 +631,18 @@ public class RestAssured {
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
     public static Response head(String path, Object...pathParams) {
+        return given().head(path, pathParams);
+    }
+
+    /**
+     * Perform a HEAD request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path The path to send the request to.
+     * @param pathParams The path parameters.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response head(String path, Map<String, Object> pathParams) {
         return given().head(path, pathParams);
     }
 

@@ -224,6 +224,26 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     requestSpecification.head(path, pathParams);
   }
 
+  def Response get(String path, Map<String, Object> pathParams) {
+    requestSpecification.get(path, pathParams);
+  }
+
+  def Response post(String path, Map<String, Object> pathParams) {
+    requestSpecification.post(path, pathParams);
+  }
+
+  def Response put(String path, Map<String, Object> pathParams) {
+    requestSpecification.put(path, pathParams);
+  }
+
+  def Response delete(String path, Map<String, Object> pathParams) {
+    requestSpecification.delete(path, pathParams);
+  }
+
+  def Response head(String path, Map<String, Object> pathParams) {
+    requestSpecification.head(path, pathParams);
+  }
+
   def ResponseSpecification and() {
     return this;
   }

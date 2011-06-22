@@ -39,6 +39,14 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
+    public void supportsPassingPathParamsAsMapToRequestSpec() throws Exception {
+        final Map<String, Object> params = new HashMap<String, Object>();
+        params.put("firstName", "John");
+        params.put("lastName", 42);
+        expect().body("fullName", equalTo("John 42")).when().get("/{firstName}/{lastName}", params);
+    }
+
+    @Test
     public void supportsPassingIntPathParamsToRequestSpec() throws Exception {
         expect().body("fullName", equalTo("John 42")).when().get("/{firstName}/{lastName}", "John", 42);
     }
@@ -49,10 +57,30 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
+    public void urlEncodesPathParamsInMap() throws Exception {
+        final Map<String, Object> params = new HashMap<String, Object>();
+        params.put("firstName", "John?/&%");
+        params.put("lastName", "Doe");
+
+        expect().body("fullName", equalTo("John%3F%2F%26%25 Doe")).when().get("/{firstName}/{lastName}", params);
+    }
+
+    @Test
     public void supportsPassingPathParamsToGet() throws Exception {
         final String response = get("/{firstName}/{lastName}", "John", "Doe").asString();
         final String fullName = from(response).getString("fullName");
         assertThat(fullName, equalTo("John Doe"));
+    }
+
+    @Test
+    public void supportsPassingPathParamsAsMapToGet() throws Exception {
+        final Map<String, Object> params = new HashMap<String, Object>();
+        params.put("firstName", "John?/&%");
+        params.put("lastName", "Doe");
+
+        final String response = get("/{firstName}/{lastName}", params).asString();
+        final String fullName = from(response).getString("fullName");
+        assertThat(fullName, equalTo("John%3F%2F%26%25 Doe"));
     }
 
     @Test

@@ -55,35 +55,55 @@ class TestSpecificationImpl implements RequestSender {
    * {@inheritDoc}
    */
   Response get(String path, Object...pathParams) {
-    requestSpecification.get path
+    requestSpecification.get path, pathParams
   }
 
   /**
    * {@inheritDoc}
    */
   Response post(String path, Object...pathParams) {
-    requestSpecification.post path
+    requestSpecification.post path, pathParams
   }
 
   /**
    * {@inheritDoc}
    */
   Response put(String path, Object...pathParams) {
-    requestSpecification.put path
+    requestSpecification.put path, pathParams
   }
 
   /**
    * {@inheritDoc}
    */
   Response delete(String path, Object...pathParams) {
-    requestSpecification.delete path
+    requestSpecification.delete path, pathParams
   }
 
   /**
    * {@inheritDoc}
    */
   Response head(String path, Object...pathParams) {
-    requestSpecification.head path
+    requestSpecification.head path, pathParams
+  }
+
+  Response get(String path, Map<String, Object> pathParams) {
+    requestSpecification.get path, pathParams
+  }
+
+  Response post(String path, Map<String, Object> pathParams) {
+    requestSpecification.post path, pathParams
+  }
+
+  Response put(String path, Map<String, Object> pathParams) {
+    requestSpecification.put path, pathParams
+  }
+
+  Response delete(String path, Map<String, Object> pathParams) {
+    requestSpecification.delete path, pathParams
+  }
+
+  Response head(String path, Map<String, Object> pathParams) {
+    requestSpecification.head path, pathParams
   }
 
   def RequestSpecification getRequestSpecification() {

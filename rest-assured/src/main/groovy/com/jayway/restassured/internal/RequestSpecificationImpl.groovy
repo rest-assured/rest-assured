@@ -30,14 +30,14 @@ import groovyx.net.http.HTTPBuilder.RequestConfigDelegate
 import groovyx.net.http.Method
 import groovyx.net.http.Status
 import java.util.Map.Entry
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 import org.apache.http.client.methods.HttpPost
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.specification.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
@@ -110,6 +110,31 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def Response head(String path, Object...pathParams) {
     applyPathParamsAndSendRequest(HEAD, path, pathParams)
+  }
+
+  def Response get(String path, Map<String, Object> pathParams) {
+    pathParameters(pathParams)
+    applyPathParamsAndSendRequest(GET, path)
+  }
+
+  def Response post(String path, Map<String, Object> pathParams) {
+    pathParameters(pathParams)
+    applyPathParamsAndSendRequest(POST, path)
+  }
+
+  def Response put(String path, Map<String, Object> pathParams) {
+    pathParameters(pathParams)
+    applyPathParamsAndSendRequest(PUT, path)
+  }
+
+  def Response delete(String path, Map<String, Object> pathParams) {
+    pathParameters(pathParams)
+    applyPathParamsAndSendRequest(DELETE, path)
+  }
+
+  def Response head(String path, Map<String, Object> pathParams) {
+    pathParameters(pathParams)
+    applyPathParamsAndSendRequest(HEAD, path)
   }
 
   def RequestSpecification parameters(String parameterName, String... parameterNameValuePairs) {
@@ -577,7 +602,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return uri
   }
 
-  private def appendParameters(Map<String, Object> from, Map<String, ? extends Object> to) {
+  private def appendParameters(Map<String, Object> from, Map<String, Object> to) {
+    notNull from, "Map to copy from"
+    notNull to, "Map to copy to"
     from.each {key, value ->
       appendStandardParameter(to, key, value)
     }
