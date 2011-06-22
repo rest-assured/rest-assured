@@ -307,4 +307,17 @@ public class SpecificationBuilderITest extends WithJetty {
         when().
                 put("/greet");
     }
+
+    @Test
+    public void supportsMergingPathParametersWhenUsingRequestSpecBuilder() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().addPathParam("lastName", "Doe").build();
+
+        given().
+                spec(spec).
+                pathParameter("firstName", "John").
+         expect().
+                body("fullName", equalTo("John Doe")).
+        when().
+               get("/{firstName}/{lastName}");
+    }
 }
