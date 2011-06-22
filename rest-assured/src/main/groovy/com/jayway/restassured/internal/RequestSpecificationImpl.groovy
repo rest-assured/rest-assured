@@ -48,6 +48,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private Map<String, String> requestParameters = [:]
   private Map<String, String> queryParams = [:]
   private Map<String, String> formParams = [:]
+  private Map<String, Object> pathParams = [:]
   def AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private FilterableResponseSpecification responseSpecification;
   private Object contentType;
@@ -157,7 +158,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   def RequestSpecification parameter(String parameterName, String parameterValue, String... additionalParameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
-    appendStringParameter(requestParameters, parameterName, parameterValue);
+    appendStandardParameter(requestParameters, parameterName, parameterValue);
     if(additionalParameterValues != null) {
       appendListParameter(requestParameters, parameterName, asList(additionalParameterValues))
     }
@@ -178,7 +179,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   def RequestSpecification queryParameter(String parameterName, String parameterValue, String... additionalParameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
-    appendStringParameter(queryParams, parameterName, parameterValue)
+    appendStandardParameter(queryParams, parameterName, parameterValue)
     if(additionalParameterValues != null) {
       appendListParameter(queryParams, parameterName, asList(additionalParameterValues))
     }
@@ -222,7 +223,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   def RequestSpecification formParameter(String parameterName, String parameterValue, String... additionalParameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
-    appendStringParameter(formParams, parameterName, parameterValue)
+    appendStandardParameter(formParams, parameterName, parameterValue)
     if(additionalParameterValues != null) {
       appendListParameter(formParams, parameterName, asList(additionalParameterValues))
     }
@@ -239,6 +240,39 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def RequestSpecification formParam(String parameterName, String parameterValue, String... additionalParameterValue) {
     return formParameter(parameterName, parameterValue, additionalParameterValue)
+  }
+
+  def RequestSpecification pathParameter(String parameterName, Object parameterValue) {
+    notNull parameterName, "parameterName"
+    notNull parameterValue, "parameterValue"
+    appendStandardParameter(pathParams, parameterName, parameterValue)
+  }
+
+  def RequestSpecification pathParameters(String parameterName, Object... parameterNameValuePairs) {
+    notNull parameterName, "parameterName"
+    return pathParameters(MapCreator.createMapFromStrings(parameterName, parameterNameValuePairs))
+  }
+
+  def RequestSpecification pathParameters(Map<String, Object> parameterNameValuePairs) {
+    notNull parameterNameValuePairs, "parameterNameValuePairs"
+    def urlEncodedMap = [:]
+    parameterNameValuePairs.each { key, value ->
+      urlEncodedMap.put urlEncode(key), urlEncode(value)
+    }
+    appendParameters(urlEncodedMap, pathParams)
+    return null
+  }
+
+  def RequestSpecification pathParam(String parameterName, Object parameterValue) {
+    return null
+  }
+
+  def RequestSpecification pathParams(String parameterName, Object... parameterNameValuePairs) {
+    return null
+  }
+
+  def RequestSpecification pathParams(Map<String, Object> parameterNameValuePairs) {
+    return null
   }
 
   def RequestSpecification filter(Filter filter) {
@@ -540,9 +574,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return uri
   }
 
-  private def appendParameters(Map<String, String> from, Map<String, String> to) {
+  private def appendParameters(Map<String, Object> from, Map<String, ? extends Object> to) {
     from.each {key, value ->
-      appendStringParameter(to, key, value)
+      appendStandardParameter(to, key, value)
     }
   }
 
@@ -560,7 +594,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
 
-  private def appendStringParameter(Map<String, String> to, String key, String value) {
+  private def appendStandardParameter(Map<String, Object> to, String key, Object value) {
     if (to.containsKey(key)) {
       def currentValue = to.get(key)
       if (currentValue instanceof List) {
@@ -581,7 +615,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     if(pathParams.size() > 0) {
       def urlEncodedParams = []
       pathParams.each {
-        urlEncodedParams << URLEncoder.encode(it.toString(), "UTF-8")
+        urlEncodedParams << urlEncode(it)
       }
       def replacePattern = ~/\{\w+\}/
       def matchPattern = ~/.*\{\w+\}.*/
@@ -598,6 +632,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       }
     }
     invokeFilterChain(path, method, responseSpecification.assertionClosure)
+  }
+
+  private String urlEncode(it) {
+    return URLEncoder.encode(it.toString(), "UTF-8")
   }
 
 

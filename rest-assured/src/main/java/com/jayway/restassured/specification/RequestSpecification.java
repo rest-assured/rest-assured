@@ -491,6 +491,120 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification formParam(String parameterName, List<String> parameterValues);
 
     /**
+     * Specify a path parameter. Path parameters are used to improve readability of the request path. E.g. instead
+     * of writing:
+     * <pre>
+     * expect().statusCode(200).when().get("/item/"+myItem.getItemNumber()+"/buy/"+2);
+     * </pre>
+     * you can write:
+     * <pre>
+     * given().
+     *         pathParameter("itemNumber", myItem.getItemNumber()).
+     *         pathParameter("amount", 2).
+     * expect().
+     *          statusCode(200).
+     * when().
+     *        get("/item/{itemNumber}/buy/{amount}");
+     * </pre>
+     *
+     * which improves readability and allows the path to be reusable in many tests. Another alternative is to use:
+     * <pre>
+     * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
+     * </pre>
+     *
+     * @param parameterName The parameter key
+     * @param parameterValue The parameter value
+     * @return The request specification
+     */
+    RequestSpecification pathParameter(String parameterName, Object parameterValue);
+
+    /**
+     * Specify multiple path parameter name-value pairs. Path parameters are used to improve readability of the request path. E.g. instead
+     * of writing:
+     * <pre>
+     * expect().statusCode(200).when().get("/item/"+myItem.getItemNumber()+"/buy/"+2);
+     * </pre>
+     * you can write:
+     * <pre>
+     * given().
+     *         pathParameters("itemNumber", myItem.getItemNumber(), "amount", 2).
+     * expect().
+     *          statusCode(200).
+     * when().
+     *        get("/item/{itemNumber}/buy/{amount}");
+     * </pre>
+     *
+     * which improves readability and allows the path to be reusable in many tests. Another alternative is to use:
+     * <pre>
+     * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
+     * </pre>
+     *
+     * @param parameterName The parameter key
+     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     * @return The request specification
+     */
+    RequestSpecification pathParameters(String parameterName, Object...parameterNameValuePairs);
+
+    /**
+     * Specify multiple path parameter name-value pairs. Path parameters are used to improve readability of the request path. E.g. instead
+     * of writing:
+     * <pre>
+     * expect().statusCode(200).when().get("/item/"+myItem.getItemNumber()+"/buy/"+2);
+     * </pre>
+     * you can write:
+     * <pre>
+     * Map&lt;String,Object&gt; pathParams = new HashMap&lt;String,Object&gt;();
+     * pathParams.add("itemNumber",myItem.getItemNumber());
+     * pathParams.add("amount",2);
+     *
+     * given().
+     *         pathParameters(pathParams).
+     * expect().
+     *          statusCode(200).
+     * when().
+     *        get("/item/{itemNumber}/buy/{amount}");
+     * </pre>
+     *
+     * which improves readability and allows the path to be reusable in many tests. Another alternative is to use:
+     * <pre>
+     * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
+     * </pre>
+     *
+     * @param parameterNameValuePairs A map containing the path parameters.
+     * @return The request specification
+     */
+    RequestSpecification pathParameters(Map<String, Object> parameterNameValuePairs);
+
+    /**
+     * A slightly shorter version of {@link #pathParameter(String, Object)}.
+     *
+     * @see #pathParameter(String, Object)
+     * @param parameterName The parameter key
+     * @param parameterValue The parameter value
+     * @return The request specification
+     */
+    RequestSpecification pathParam(String parameterName, Object parameterValue);
+
+    /**
+     * A slightly shorter version of {@link #pathParameters(String, Object...)}.
+     *
+     * @see #pathParameters(String, Object...)
+     * @param parameterName The parameter key
+     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     * @return The request specification
+     */
+    RequestSpecification pathParams(String parameterName, Object...parameterNameValuePairs);
+
+    /**
+     * A slightly shorter version of {@link #pathParameters(java.util.Map)}.
+     *
+     * @see #pathParameters(java.util.Map)
+     * @param parameterNameValuePairs A map containing the path parameters.
+     * @return The request specification
+     */
+    RequestSpecification pathParams(Map<String, Object> parameterNameValuePairs);
+
+    /**
      * Specify the headers that'll be sent with the request. This is done by specifying the headers in name-value pairs, e.g:
      * <pre>
      * given().headers("headerName1", "headerValue1", "headerName2", "headerValue2").then().expect().body(equalTo("something")).when().get("/headers");
