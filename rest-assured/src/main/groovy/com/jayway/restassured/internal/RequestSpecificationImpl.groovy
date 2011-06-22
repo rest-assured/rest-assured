@@ -36,6 +36,8 @@ import com.jayway.restassured.specification.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
@@ -91,23 +93,23 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   def Response get(String path, Object...pathParams) {
-    applyPathParamsAndInvoke(GET, path, pathParams)
+    applyPathParamsAndSendRequest(GET, path, pathParams)
   }
 
   def Response post(String path, Object...pathParams) {
-    applyPathParamsAndInvoke(POST, path, pathParams)
+    applyPathParamsAndSendRequest(POST, path, pathParams)
   }
 
   def Response put(String path, Object...pathParams) {
-    applyPathParamsAndInvoke(PUT, path, pathParams)
+    applyPathParamsAndSendRequest(PUT, path, pathParams)
   }
 
   def Response delete(String path, Object...pathParams) {
-    applyPathParamsAndInvoke(DELETE, path, pathParams)
+    applyPathParamsAndSendRequest(DELETE, path, pathParams)
   }
 
   def Response head(String path, Object...pathParams) {
-    applyPathParamsAndInvoke(HEAD, path, pathParams)
+    applyPathParamsAndSendRequest(HEAD, path, pathParams)
   }
 
   def RequestSpecification parameters(String parameterName, String... parameterNameValuePairs) {
@@ -246,6 +248,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
     appendStandardParameter(pathParams, parameterName, parameterValue)
+    return this
   }
 
   def RequestSpecification pathParameters(String parameterName, Object... parameterNameValuePairs) {
@@ -260,19 +263,19 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       urlEncodedMap.put urlEncode(key), urlEncode(value)
     }
     appendParameters(urlEncodedMap, pathParams)
-    return null
+    return this
   }
 
   def RequestSpecification pathParam(String parameterName, Object parameterValue) {
-    return null
+    return pathParameter(parameterName, parameterValue)
   }
 
   def RequestSpecification pathParams(String parameterName, Object... parameterNameValuePairs) {
-    return null
+    return pathParameters(parameterName, parameterNameValuePairs)
   }
 
   def RequestSpecification pathParams(Map<String, Object> parameterNameValuePairs) {
-    return null
+    return pathParameters(parameterNameValuePairs)
   }
 
   def RequestSpecification filter(Filter filter) {
@@ -607,31 +610,55 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
   }
 
-  private def applyPathParamsAndInvoke(Method method, String path, Object...pathParams) {
+  private def applyPathParamsAndSendRequest(Method method, String path, Object...pathParams) {
     notNull path, "path"
     notNull pathParams, "Path params"
 
-    def pathParamSize = pathParams.size()
-    if(pathParams.size() > 0) {
-      def urlEncodedParams = []
-      pathParams.each {
-        urlEncodedParams << urlEncode(it)
-      }
-      def replacePattern = ~/\{\w+\}/
+    path = applyPathParamsIfNeeded(path, pathParams)
+    invokeFilterChain(path, method, responseSpecification.assertionClosure)
+  }
+
+  private def String applyPathParamsIfNeeded(String path, Object... pathParams) {
+    def suppliedPathParamSize = pathParams.size()
+    def fieldPathParamSize = this.pathParams.size()
+    if(suppliedPathParamSize == 0 && fieldPathParamSize == 0) {
+      return path
+    } else if(suppliedPathParamSize > 0 && fieldPathParamSize > 0) {
+      throw new IllegalArgumentException("You cannot specify both named and unnamed path params at the same time")
+    } else {
       def matchPattern = ~/.*\{\w+\}.*/
-      int current = 0;
-      urlEncodedParams.each {
-        if(!path.matches(matchPattern)) {
-          throw new IllegalArgumentException("Illegal number of path parameters. Expected $current, was $pathParamSize.")
+      if (suppliedPathParamSize > 0) {
+        def urlEncodedParams = []
+        pathParams.each {
+          urlEncodedParams << urlEncode(it)
         }
-        current++
-        path = path.replaceFirst(replacePattern, it)
+        def replacePattern = ~/\{\w+\}/
+        int current = 0;
+        urlEncodedParams.each {
+          if (!path.matches(matchPattern)) {
+            throw new IllegalArgumentException("Illegal number of path parameters. Expected $current, was $suppliedPathParamSize.")
+          }
+          current++
+          path = path.replaceFirst(replacePattern, it)
+        }
+      } else {
+        this.pathParams.each { key, value ->
+          def literalizedKey = Matcher.quoteReplacement(key)
+          def replacePattern = Pattern.compile("\\{$literalizedKey\\}")
+          int current = 0;
+          if(path.matches(".*\\{$literalizedKey\\}.*")) {
+            path = path.replaceFirst(replacePattern, value.toString())
+            current++
+          } else {
+            throw new IllegalArgumentException("You specified too many path parameters ($fieldPathParamSize).")
+          }
+        }
       }
-      if(path.matches(matchPattern)) {
-        throw new IllegalArgumentException("You passed too few ($pathParamSize) path parameters to the request.")
+      if (path.matches(matchPattern)) {
+        throw new IllegalArgumentException("You specified too few path parameters to the request.")
       }
     }
-    invokeFilterChain(path, method, responseSpecification.assertionClosure)
+    path
   }
 
   private String urlEncode(it) {

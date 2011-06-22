@@ -21,8 +21,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.get;
+import java.util.Map;
+import java.util.HashMap;
+
+import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -64,8 +66,133 @@ public class PathParamITest extends WithJetty {
     @Test
     public void throwsIAEWhenNumberOfSuppliedPathParamsAreLowerThanDefinedPathParams() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("You passed too few (1) path parameters to the request.");
+        exception.expectMessage("You specified too few path parameters to the request.");
 
         get("/{firstName}/{lastName}", "John");
+    }
+
+    @Test
+    public void supportsPassingPathParamWithGiven() throws Exception {
+        given().
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+        expect().
+                body("fullName", equalTo("John Doe")).
+        when().
+                get("/{firstName}/{lastName}");
+    }
+
+    @Test
+    public void supportsPassingPathParamWithIntWithGiven() throws Exception {
+        given().
+                pathParam("firstName", "John").
+                pathParam("lastName", 42).
+        expect().
+                body("fullName", equalTo("John 42")).
+        when().
+                get("/{firstName}/{lastName}");
+    }
+
+    @Test
+    public void supportsPassingPathParamsWithGiven() throws Exception {
+        given().
+                pathParams("firstName", "John", "lastName", "Doe").
+        expect().
+                body("fullName", equalTo("John Doe")).
+        when().
+                get("/{firstName}/{lastName}");
+    }
+
+    @Test
+    public void supportsPassingPathParamsWithIntWithGiven() throws Exception {
+        given().
+                pathParams("firstName", "John", "lastName", 42).
+        expect().
+                body("fullName", equalTo("John 42")).
+        when().
+                get("/{firstName}/{lastName}");
+    }
+
+    @Test
+    public void supportsPassingPathParamsWithMapWithGiven() throws Exception {
+         final Map<String, Object> params = new HashMap<String, Object>();
+         params.put("firstName", "John");
+         params.put("lastName", "Doe");
+
+         given().
+                 pathParams(params).
+         expect().
+                 body("fullName", equalTo("John Doe")).
+         when().
+                get("/{firstName}/{lastName}");
+    }
+
+    @Test
+    public void supportsPassingPathParamsWithIntWithMapWhenGiven() throws Exception {
+         final Map<String, Object> params = new HashMap<String, Object>();
+         params.put("firstName", "John");
+         params.put("lastName", 42);
+
+         given().
+                 pathParams(params).
+         expect().
+                 body("fullName", equalTo("John 42")).
+         when().
+                get("/{firstName}/{lastName}");
+    }
+
+    @Test
+    public void mergesPathParamsMapWithNonMapWhenGiven() throws Exception {
+         final Map<String, Object> params = new HashMap<String, Object>();
+         params.put("firstName", "John");
+
+         given().
+                 pathParams(params).
+                 pathParam("lastName", "Doe").
+         expect().
+                 body("fullName", equalTo("John Doe")).
+         when().
+                get("/{firstName}/{lastName}");
+    }
+
+    @Test
+    public void usingBothGivenAndRequestPathParamsThrowsIAE() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("You cannot specify both named and unnamed path params at the same time");
+
+        given().
+                pathParam("lastName", "Doe").
+        expect().
+                body("fullName", equalTo("John Doe")).
+        when().
+               get("/{firstName}/{lastName}", "John");
+    }
+
+    @Test
+    public void passingInTwoManyPathParamsWithGivenThrowsIAE() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("You specified too many path parameters (3).");
+
+        given().
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+                pathParam("thirdName", "Not defined").
+        expect().
+                body("fullName", equalTo("John Doe")).
+        when().
+               get("/{firstName}/{lastName}");
+    }
+
+    @Test
+    public void passingInTwoFewPathParamsWithGivenThrowsIAE() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("You specified too few path parameters to the request.");
+
+        given().
+                pathParam("firstName", "John").
+        expect().
+                body("fullName", equalTo("John Doe")).
+        when().
+               get("/{firstName}/{lastName}");
     }
 }
