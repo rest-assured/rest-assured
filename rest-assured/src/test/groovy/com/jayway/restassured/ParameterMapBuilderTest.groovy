@@ -27,7 +27,7 @@ class ParameterMapBuilderTest {
 
   @Before
   public void setup() throws Exception {
-    requestBuilder = new RequestSpecificationImpl("baseURI", 20, "", new NoAuthScheme(), [], null, null);
+    requestBuilder = new RequestSpecificationImpl("baseURI", 20, "", new NoAuthScheme(), [], keyStoreSpec, null, null);
   }
 
   @Test(expected = IllegalArgumentException.class)

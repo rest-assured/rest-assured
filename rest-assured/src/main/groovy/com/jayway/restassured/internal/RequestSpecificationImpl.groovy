@@ -41,6 +41,7 @@ import static java.util.Arrays.asList
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
+  private static final int DEFAULT_HTTPS_PORT = 443
 
   private String baseUri
   private String path  = ""
@@ -58,18 +59,21 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private Map<String, String> cookies = [:]
   private Object requestBody;
   private List<Filter> filters = [];
+  private KeyStoreSpec keyStoreSpec
 
   public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
-                                   List<Filter> filters, defaultRequestContentType, RequestSpecification defaultSpec) {
+                                   List<Filter> filters, KeyStoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec) {
     notNull(baseURI, "baseURI");
     notNull(basePath, "basePath");
     notNull(defaultAuthScheme, "defaultAuthScheme");
     notNull(filters, "Filters")
+    notNull(keyStoreSpec, "Keystore specification")
     this.baseUri = baseURI
     this.basePath = basePath
     this.defaultAuthScheme = defaultAuthScheme
     this.filters.addAll(filters)
     this.contentType = defaultRequestContentType
+    this.keyStoreSpec = keyStoreSpec
     port(requestPort)
     if(defaultSpec != null) {
       spec(defaultSpec)
@@ -490,6 +494,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     authenticationScheme.authenticate(http)
+
+    keyStoreSpec.apply(http, isFullyQualifiedUri == true && port == 8080 ? DEFAULT_HTTPS_PORT : port)
 
     if(shouldUrlEncode(method)) {
       if(hasFormParams() && requestBody != null) {

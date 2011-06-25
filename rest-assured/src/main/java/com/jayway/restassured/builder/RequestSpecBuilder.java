@@ -54,7 +54,7 @@ public class RequestSpecBuilder {
     private RequestSpecification spec;
 
     public RequestSpecBuilder() {
-        this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters(), requestContentType(), requestSpecification);
+        this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters(), keystore(), requestContentType(), requestSpecification);
     }
 
     /**

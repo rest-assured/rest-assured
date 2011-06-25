@@ -18,17 +18,16 @@ package com.jayway.restassured;
 
 import com.jayway.restassured.authentication.*;
 import com.jayway.restassured.filter.Filter;
-import com.jayway.restassured.internal.RequestSpecificationImpl;
-import com.jayway.restassured.internal.ResponseParserRegistrar;
-import com.jayway.restassured.internal.ResponseSpecificationImpl;
-import com.jayway.restassured.internal.TestSpecificationImpl;
+import com.jayway.restassured.internal.*;
 import com.jayway.restassured.internal.filter.FormAuthFilter;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.KeyStoreSpec;
 import com.jayway.restassured.specification.RequestSender;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
+import org.apache.commons.lang.Validate;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -323,7 +322,7 @@ public class RestAssured {
     public static String baseURI = DEFAULT_URI;
 
     /**
-     * The port that's used by REST assured when is left out of the specified URI when making a request.
+     * The port that's used by REST assured when it's left out of the specified URI when making a request.
      * Default value is {@value #DEFAULT_PORT}.
      */
     public static int port = DEFAULT_PORT;
@@ -404,11 +403,73 @@ public class RestAssured {
 
     private static Object requestContentType = null;
 
-
     private static Object responseContentType = null;
+
+    private static KeyStoreSpec keyStoreSpec = new NoKeyStoreSpecImpl();
 
     private static List<Filter> filters = new LinkedList<Filter>();
 
+    /**
+     * The following documentation is taken from <a href="HTTP Builder">http://groovy.codehaus.org/modules/http-builder/doc/ssl.html</a>:
+     * <p>
+     *     <h1>SSL Configuration</h1>
+     *
+     * SSL should, for the most part, "just work." There are a few situations where it is not completely intuitive. You can follow the example below, or see HttpClient's SSLSocketFactory documentation for more information.
+     *
+     * <h1>SSLPeerUnverifiedException</h1>
+     *
+     * If you can't connect to an SSL website, it is likely because the certificate chain is not trusted. This is an Apache HttpClient issue, but explained here for convenience. To correct the untrusted certificate, you need to import a certificate into an SSL truststore.
+     *
+     * First, export a certificate from the website using your browser. For example, if you go to https://dev.java.net in Firefox, you will probably get a warning in your browser. Choose "Add Exception," "Get Certificate," "View," "Details tab." Choose a certificate in the chain and export it as a PEM file. You can view the details of the exported certificate like so:
+     * <pre>
+     * $ keytool -printcert -file EquifaxSecureGlobaleBusinessCA-1.crt
+     * Owner: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Issuer: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Serial number: 1
+     * Valid from: Mon Jun 21 00:00:00 EDT 1999 until: Sun Jun 21 00:00:00 EDT 2020
+     * Certificate fingerprints:
+     * MD5:  8F:5D:77:06:27:C4:98:3C:5B:93:78:E7:D7:7D:9B:CC
+     * SHA1: 7E:78:4A:10:1C:82:65:CC:2D:E1:F1:6D:47:B4:40:CA:D9:0A:19:45
+     * Signature algorithm name: MD5withRSA
+     * Version: 3
+     * ....
+     * </pre>
+     * Now, import that into a Java keystore file:
+     *<pre>
+     * $ keytool -importcert -alias "equifax-ca" -file EquifaxSecureGlobaleBusinessCA-1.crt -keystore truststore.jks -storepass test1234
+     * Owner: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Issuer: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Serial number: 1
+     * Valid from: Mon Jun 21 00:00:00 EDT 1999 until: Sun Jun 21 00:00:00 EDT 2020
+     * Certificate fingerprints:
+     * MD5:  8F:5D:77:06:27:C4:98:3C:5B:93:78:E7:D7:7D:9B:CC
+     * SHA1: 7E:78:4A:10:1C:82:65:CC:2D:E1:F1:6D:47:B4:40:CA:D9:0A:19:45
+     * Signature algorithm name: MD5withRSA
+     * Version: 3
+     * ...
+     * Trust this certificate? [no]:  yes
+     * Certificate was added to keystore
+     * </pre>
+     * Now you want to use this truststore in your client:
+     * <pre>
+     * RestAssured.keystore("/truststore.jks", "test1234");
+     * </pre>
+     * or
+     * <pre>
+     * given().keystore("/truststore.jks", "test1234"). ..
+     * </pre>
+     * </p>
+     * @param pathToJks The path to the JKS
+     * @param password The store pass
+     */
+    public static void keystore(String pathToJks, String password) {
+        Validate.notEmpty(pathToJks, "Path to java keystore cannot be empty");
+        Validate.notEmpty(password, "Password cannot be empty");
+        final KeyStoreSpecImpl spec = new KeyStoreSpecImpl();
+        spec.setPath(pathToJks);
+        spec.setPassword(password);
+        RestAssured.keyStoreSpec = spec;
+    }
 
     /**
      * The the default filters to apply to each request.
@@ -430,6 +491,10 @@ public class RestAssured {
 
     public static Object responseContentType() {
         return responseContentType;
+    }
+
+    public static KeyStoreSpec keystore() {
+        return keyStoreSpec;
     }
 
     /**
@@ -790,9 +855,9 @@ public class RestAssured {
 
     /**
      * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath}, {@link #requestContentType(groovyx.net.http.ContentType)},
-     * {@link #responseContentType(groovyx.net.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification} and {@link #responseSpecification}
+     * {@link #responseContentType(groovyx.net.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification} and {@link #keystore(String, String)}
      * to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, "", <code>null</code>, <code>null</code>,
-     * "empty list", <code>null</code> and <code>null</code>.
+     * "empty list", <code>null</code>, <code>null</code> and <code>none</code>.
      */
     public static void reset() {
         baseURI = DEFAULT_URI;
@@ -805,9 +870,12 @@ public class RestAssured {
         responseContentType = null;
         requestSpecification = null;
         responseSpecification = null;
+        keyStoreSpec = new NoKeyStoreSpecImpl();
     }
 
     private static TestSpecificationImpl createTestSpecification() {
-        return new TestSpecificationImpl(new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, requestContentType, requestSpecification), new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification));
+        return new TestSpecificationImpl(
+                new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keyStoreSpec, requestContentType, requestSpecification),
+                new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification));
     }
 }
