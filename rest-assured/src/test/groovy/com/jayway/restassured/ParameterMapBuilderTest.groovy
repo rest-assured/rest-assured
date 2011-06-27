@@ -21,13 +21,14 @@ import com.jayway.restassured.internal.RequestSpecificationImpl
 import org.junit.Before
 import org.junit.Test
 import static groovy.util.GroovyTestCase.assertEquals
+import com.jayway.restassured.internal.NoKeystoreSpecImpl
 
 class ParameterMapBuilderTest {
   private RequestSpecificationImpl requestBuilder;
 
   @Before
   public void setup() throws Exception {
-    requestBuilder = new RequestSpecificationImpl("baseURI", 20, "", new NoAuthScheme(), [], keyStoreSpec, null, null);
+    requestBuilder = new RequestSpecificationImpl("baseURI", 20, "", new NoAuthScheme(), [], new NoKeystoreSpecImpl(), null, null);
   }
 
   @Test(expected = IllegalArgumentException.class)

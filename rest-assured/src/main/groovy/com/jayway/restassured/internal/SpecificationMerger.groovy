@@ -57,6 +57,7 @@ class SpecificationMerger {
    *     <li>Authentication scheme</
    *     <li>Content type</li>
    *     <li>Request body</li>
+   *     <li>Keystore</li>
    * </ul>
    * The following settings are merged:
    * <ul>
@@ -79,6 +80,7 @@ class SpecificationMerger {
     thisOne.formParams.putAll(with.formParams)
     thisOne.pathParams.putAll(with.pathParams)
     thisOne.authenticationScheme = with.authenticationScheme
+    thisOne.keyStoreSpec = with.keyStoreSpec
     thisOne.contentType = with.contentType
     thisOne.requestHeaders.putAll(with.requestHeaders)
     thisOne.cookies.putAll(with.cookies)

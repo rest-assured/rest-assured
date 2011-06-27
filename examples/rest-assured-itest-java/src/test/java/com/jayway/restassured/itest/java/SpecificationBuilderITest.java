@@ -320,4 +320,16 @@ public class SpecificationBuilderITest extends WithJetty {
         when().
                get("/{firstName}/{lastName}");
     }
+
+    @Test
+    public void supportsSpecifyingKeystore() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/truststore.jks", "test1234").build();
+        given().spec(spec).expect().body(containsString("The Source for Java Technology Collaboration")).get("https://dev.java.net/");
+    }
+
+    @Test
+    public void supportsOverridingKeystore() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/truststore.jks", "wrong pw").build();
+        given().spec(spec).keystore("/truststore.jks", "test1234").expect().body(containsString("The Source for Java Technology Collaboration")).get("https://dev.java.net/");
+    }
 }

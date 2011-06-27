@@ -19,6 +19,9 @@ Changelog next version
           get("/{firstName}/{lastName}");
  (issue 36)
 * Added support for specifiying port in for fully-qualified requests, e.g. get("http://myserver.org:7000");
+* Support for specifying a Java keystore when using SSL. This is useful when you run into e.g. SSLPeerUnverifiedException when the server has an invalid certificate. Usage: 
+  given().keystore("/pathToJksInClassPath", <password>"). ..
+  For more info refer to http://groovy.codehaus.org/modules/http-builder/doc/ssl.html (issue 79).
 
 Change log 1.2.1 (2001-05-23)
 -----------------------------

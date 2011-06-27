@@ -16,7 +16,6 @@
 
 package com.jayway.restassured.internal
 
-import com.jayway.restassured.specification.KeystoreSpec
 import groovyx.net.http.HTTPBuilder
 import java.security.KeyStore
 import org.apache.http.conn.scheme.Scheme

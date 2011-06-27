@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.specification;
+package com.jayway.restassured.internal;
 
 import groovyx.net.http.HTTPBuilder;
 

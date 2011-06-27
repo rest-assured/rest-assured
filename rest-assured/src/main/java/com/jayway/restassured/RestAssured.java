@@ -22,7 +22,7 @@ import com.jayway.restassured.internal.*;
 import com.jayway.restassured.internal.filter.FormAuthFilter;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.KeystoreSpec;
+import com.jayway.restassured.internal.KeystoreSpec;
 import com.jayway.restassured.specification.RequestSender;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
