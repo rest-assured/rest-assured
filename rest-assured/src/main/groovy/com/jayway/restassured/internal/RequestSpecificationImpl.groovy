@@ -32,17 +32,18 @@ import groovyx.net.http.Status
 import java.util.Map.Entry
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import org.apache.commons.lang.Validate
 import org.apache.http.client.methods.HttpPost
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.specification.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
-import org.apache.commons.lang.Validate
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
   private static final int DEFAULT_HTTPS_PORT = 443
+  private static final int DEFAULT_HTTP_PORT = 80
 
   private String baseUri
   private String path  = ""
@@ -610,6 +611,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     if(hasScheme) {
       def url = new URL(path)
       uri = url.getProtocol()+"://"+url.getAuthority()
+      def explicitPort = url.getPort()
+      if(explicitPort != -1) {
+        uri +=":"+explicitPort
+      }
     } else {
       uri = "$baseUri:$port"
     }

@@ -18,6 +18,7 @@ Changelog next version
   when().
           get("/{firstName}/{lastName}");
  (issue 36)
+* Added support for specifiying port in for fully-qualified requests, e.g. get("http://myserver.org:7000");
 
 Change log 1.2.1 (2001-05-23)
 -----------------------------
