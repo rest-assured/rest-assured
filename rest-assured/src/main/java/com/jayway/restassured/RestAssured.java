@@ -291,7 +291,7 @@ import java.util.Map;
  * </pre>
  * This means that a request like e.g. <code>get("/hello")</code> goes to: <tt>http://myhost.org:8080/resource/hello</tt>
  * which basic authentication credentials "username" and "password". See {@link #rootPath} for more info about setting the root paths, {@link #filters(java.util.List)} for setting
- * default filters.<br>
+ * default filters and {@link #keystore(String, String)} for setting the default keystore when using SSL.<br>
  * You can reset to the standard baseURI (localhost), basePath (empty), standard port (8080), default authentication scheme (none) and default root path (empty string) using:
  * <pre>
  * RestAssured.reset();
