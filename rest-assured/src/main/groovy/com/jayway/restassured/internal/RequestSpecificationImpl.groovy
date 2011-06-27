@@ -611,10 +611,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     if(hasScheme) {
       def url = new URL(path)
       uri = url.getProtocol()+"://"+url.getAuthority()
-      def explicitPort = url.getPort()
-      if(explicitPort != -1) {
-        uri +=":"+explicitPort
-      }
     } else {
       uri = "$baseUri:$port"
     }
