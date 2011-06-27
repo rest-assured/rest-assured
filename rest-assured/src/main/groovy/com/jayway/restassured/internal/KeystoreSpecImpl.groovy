@@ -16,14 +16,14 @@
 
 package com.jayway.restassured.internal
 
-import com.jayway.restassured.specification.KeyStoreSpec
+import com.jayway.restassured.specification.KeystoreSpec
 import groovyx.net.http.HTTPBuilder
 import java.security.KeyStore
 import org.apache.http.conn.scheme.Scheme
 import org.apache.http.conn.ssl.SSLSocketFactory
 import org.apache.commons.lang.Validate
 
-class KeyStoreSpecImpl implements KeyStoreSpec {
+class KeystoreSpecImpl implements KeystoreSpec {
 
   def path
   def password

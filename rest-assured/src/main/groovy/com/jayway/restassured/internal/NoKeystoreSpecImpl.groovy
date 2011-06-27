@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.specification;
+package com.jayway.restassured.internal
 
-import groovyx.net.http.HTTPBuilder;
+import groovyx.net.http.HTTPBuilder
+import com.jayway.restassured.specification.KeystoreSpec
 
-/**
- * The key store specification
- */
-public interface KeyStoreSpec {
+class NoKeystoreSpecImpl implements KeystoreSpec {
 
-    /**
-     * Apply the settings
-
-     * @param builder The http builder
-     * @param port The port
-     */
-   void apply(HTTPBuilder builder, int port);
-
+  void apply(HTTPBuilder builder, int port) {
+  }
 }

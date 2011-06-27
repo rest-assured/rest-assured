@@ -23,6 +23,7 @@ import javax.net.ssl.SSLException;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
 
 public class SSLTest {
@@ -33,9 +34,17 @@ public class SSLTest {
     }
 
     @Test
-    public void specifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
+    public void givenKeystoreDefinedStaticallyWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
         RestAssured.keystore("/truststore.jks", "test1234");
+        try {
+            expect().body(containsString("The Source for Java Technology Collaboration")).get("https://dev.java.net/");
+        } finally {
+            RestAssured.reset();
+        }
+    }
 
-        expect().body(containsString("The Source for Java Technology Collaboration")).get("https://dev.java.net/").asString();
+    @Test
+    public void givenKeystoreDefinedUsingGivenWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
+        given().keystore("/truststore.jks", "test1234").then().expect().body(containsString("The Source for Java Technology Collaboration")).get("https://dev.java.net/");
     }
 }

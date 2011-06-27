@@ -22,7 +22,7 @@ import com.jayway.restassured.internal.*;
 import com.jayway.restassured.internal.filter.FormAuthFilter;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.KeyStoreSpec;
+import com.jayway.restassured.specification.KeystoreSpec;
 import com.jayway.restassured.specification.RequestSender;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
@@ -405,7 +405,7 @@ public class RestAssured {
 
     private static Object responseContentType = null;
 
-    private static KeyStoreSpec keyStoreSpec = new NoKeyStoreSpecImpl();
+    private static KeystoreSpec keystoreSpec = new NoKeystoreSpecImpl();
 
     private static List<Filter> filters = new LinkedList<Filter>();
 
@@ -465,10 +465,10 @@ public class RestAssured {
     public static void keystore(String pathToJks, String password) {
         Validate.notEmpty(pathToJks, "Path to java keystore cannot be empty");
         Validate.notEmpty(password, "Password cannot be empty");
-        final KeyStoreSpecImpl spec = new KeyStoreSpecImpl();
+        final KeystoreSpecImpl spec = new KeystoreSpecImpl();
         spec.setPath(pathToJks);
         spec.setPassword(password);
-        RestAssured.keyStoreSpec = spec;
+        RestAssured.keystoreSpec = spec;
     }
 
     /**
@@ -493,8 +493,8 @@ public class RestAssured {
         return responseContentType;
     }
 
-    public static KeyStoreSpec keystore() {
-        return keyStoreSpec;
+    public static KeystoreSpec keystore() {
+        return keystoreSpec;
     }
 
     /**
@@ -870,12 +870,12 @@ public class RestAssured {
         responseContentType = null;
         requestSpecification = null;
         responseSpecification = null;
-        keyStoreSpec = new NoKeyStoreSpecImpl();
+        keystoreSpec = new NoKeystoreSpecImpl();
     }
 
     private static TestSpecificationImpl createTestSpecification() {
         return new TestSpecificationImpl(
-                new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keyStoreSpec, requestContentType, requestSpecification),
+                new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keystoreSpec, requestContentType, requestSpecification),
                 new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification));
     }
 }

@@ -396,7 +396,7 @@ public interface RequestSpecification extends RequestSender {
      * @return The request specification
      */
     RequestSpecification queryParam(String parameterName, List<String> parameterValues);
-   
+
     /**
      * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(String, String...)}
      * for all http methods except for PUT where {@link #parameters(String, String...)} sets the query parameters and this method sets the
@@ -603,6 +603,61 @@ public interface RequestSpecification extends RequestSender {
      * @return The request specification
      */
     RequestSpecification pathParams(Map<String, Object> parameterNameValuePairs);
+
+    /**
+     * The following documentation is taken from <a href="HTTP Builder">http://groovy.codehaus.org/modules/http-builder/doc/ssl.html</a>:
+     * <p>
+     *     <h1>SSL Configuration</h1>
+     *
+     * SSL should, for the most part, "just work." There are a few situations where it is not completely intuitive. You can follow the example below, or see HttpClient's SSLSocketFactory documentation for more information.
+     *
+     * <h1>SSLPeerUnverifiedException</h1>
+     *
+     * If you can't connect to an SSL website, it is likely because the certificate chain is not trusted. This is an Apache HttpClient issue, but explained here for convenience. To correct the untrusted certificate, you need to import a certificate into an SSL truststore.
+     *
+     * First, export a certificate from the website using your browser. For example, if you go to https://dev.java.net in Firefox, you will probably get a warning in your browser. Choose "Add Exception," "Get Certificate," "View," "Details tab." Choose a certificate in the chain and export it as a PEM file. You can view the details of the exported certificate like so:
+     * <pre>
+     * $ keytool -printcert -file EquifaxSecureGlobaleBusinessCA-1.crt
+     * Owner: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Issuer: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Serial number: 1
+     * Valid from: Mon Jun 21 00:00:00 EDT 1999 until: Sun Jun 21 00:00:00 EDT 2020
+     * Certificate fingerprints:
+     * MD5:  8F:5D:77:06:27:C4:98:3C:5B:93:78:E7:D7:7D:9B:CC
+     * SHA1: 7E:78:4A:10:1C:82:65:CC:2D:E1:F1:6D:47:B4:40:CA:D9:0A:19:45
+     * Signature algorithm name: MD5withRSA
+     * Version: 3
+     * ....
+     * </pre>
+     * Now, import that into a Java keystore file:
+     *<pre>
+     * $ keytool -importcert -alias "equifax-ca" -file EquifaxSecureGlobaleBusinessCA-1.crt -keystore truststore.jks -storepass test1234
+     * Owner: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Issuer: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Serial number: 1
+     * Valid from: Mon Jun 21 00:00:00 EDT 1999 until: Sun Jun 21 00:00:00 EDT 2020
+     * Certificate fingerprints:
+     * MD5:  8F:5D:77:06:27:C4:98:3C:5B:93:78:E7:D7:7D:9B:CC
+     * SHA1: 7E:78:4A:10:1C:82:65:CC:2D:E1:F1:6D:47:B4:40:CA:D9:0A:19:45
+     * Signature algorithm name: MD5withRSA
+     * Version: 3
+     * ...
+     * Trust this certificate? [no]:  yes
+     * Certificate was added to keystore
+     * </pre>
+     * Now you want to use this truststore in your client:
+     * <pre>
+     * RestAssured.keystore("/truststore.jks", "test1234");
+     * </pre>
+     * or
+     * <pre>
+     * given().keystore("/truststore.jks", "test1234"). ..
+     * </pre>
+     * </p>
+     * @param pathToJks The path to the JKS
+     * @param password The store pass
+     */
+    RequestSpecification keystore(String pathToJks, String password);
 
     /**
      * Specify the headers that'll be sent with the request. This is done by specifying the headers in name-value pairs, e.g:
@@ -812,7 +867,7 @@ public interface RequestSpecification extends RequestSender {
      */
     RequestSpecification filters(List<Filter> filters);
 
-/**
+    /**
      * Log (i.e. print to system out) the response body to system out. This is mainly useful for debug purposes when writing
      * your tests. A shortcut for:
      * <pre>

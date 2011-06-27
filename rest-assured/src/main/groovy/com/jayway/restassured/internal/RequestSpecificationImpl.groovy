@@ -38,6 +38,7 @@ import com.jayway.restassured.specification.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
+import org.apache.commons.lang.Validate
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
@@ -59,10 +60,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private Map<String, String> cookies = [:]
   private Object requestBody;
   private List<Filter> filters = [];
-  private KeyStoreSpec keyStoreSpec
+  private KeystoreSpec keyStoreSpec
 
   public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
-                                   List<Filter> filters, KeyStoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec) {
+                                   List<Filter> filters, KeystoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec) {
     notNull(baseURI, "baseURI");
     notNull(basePath, "basePath");
     notNull(defaultAuthScheme, "defaultAuthScheme");
@@ -305,6 +306,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def RequestSpecification pathParams(Map<String, Object> parameterNameValuePairs) {
     return pathParameters(parameterNameValuePairs)
+  }
+
+  def RequestSpecification keystore(String pathToJks, String password) {
+    Validate.notEmpty(pathToJks, "Path to java keystore cannot be empty");
+    Validate.notEmpty(password, "Password cannot be empty");
+    this.keyStoreSpec = new KeystoreSpecImpl(path: pathToJks, password: password)
+    this
   }
 
   def RequestSpecification filter(Filter filter) {
