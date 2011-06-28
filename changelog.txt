@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Change log 1.2.2 (2011-06-28)
+-----------------------------
 * Added support for parsing an entire JSON graph. E.g. let's say you have a JSON snippet like this:
   [{"email":"name1@mail.com","alias":"name one","phone":"3456789"},
    {"email":"name2@mail.com","alias":"name two","phone":"1234567"},
@@ -23,7 +23,7 @@ Changelog next version
   For more info refer to http://groovy.codehaus.org/modules/http-builder/doc/ssl.html (issue 79).
 * Fixed an issue that could cause parameters to be treated as lists parameters.
 
-Change log 1.2.1 (2001-05-23)
+Change log 1.2.1 (2011-05-23)
 -----------------------------
 * Fixed an issue when defining default request specifications with form parameters when using POST.
 * Added support for getting the content type in the com.jayway.restassured.response.Response object.
