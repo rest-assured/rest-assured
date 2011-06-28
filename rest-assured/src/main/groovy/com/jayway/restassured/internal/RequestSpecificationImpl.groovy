@@ -511,35 +511,43 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         throw new IllegalStateException("You can either send form parameters OR body content in $method, not both!");
       }
       def bodyContent = hasFormParams() ? requestParameters += formParams : requestBody
-
-      http.post( path: targetPath, body: bodyContent,
-              requestContentType: defineRequestContentType(method),
-              contentType: responseContentType) { response, content ->
-        if(assertionClosure != null) {
-          assertionClosure.call (response, content)
+      if(method == POST) {
+        http.post( path: targetPath, body: bodyContent,
+                requestContentType: defineRequestContentType(method),
+                contentType: responseContentType) { response, content ->
+          if(assertionClosure != null) {
+            assertionClosure.call (response, content)
+          }
         }
+      } else {
+        requestBody = bodyContent instanceof Map ? createFormParamBody(bodyContent) : bodyContent
+        sendHttpRequest(http, method, responseContentType, targetPath, assertionClosure)
       }
     } else {
-      http.request(method, responseContentType) {
-        uri.path = targetPath
-
-        setRequestContentType(defineRequestContentTypeAsString(method))
-
-        if(requestBody != null) {
-          body = requestBody
-        }
-
-        uri.query = requestParameters += queryParams
-
-        Closure closure = assertionClosure.getClosure()
-        // response handler for a success response code:
-        response.success = closure
-
-        // handler for any failure status code:
-        response.failure = closure
-      }
+      sendHttpRequest(http, method, responseContentType, targetPath, assertionClosure)
     }
     return restAssuredResponse
+  }
+
+  private def sendHttpRequest(HTTPBuilder http, method, responseContentType, targetPath, assertionClosure) {
+    http.request(method, responseContentType) {
+      uri.path = targetPath
+
+      setRequestContentType(defineRequestContentTypeAsString(method))
+
+      if (requestBody != null) {
+        body = requestBody
+      }
+
+      uri.query = requestParameters += queryParams
+
+      Closure closure = assertionClosure.getClosure()
+      // response handler for a success response code:
+      response.success = closure
+
+      // handler for any failure status code:
+      response.failure = closure
+    }
   }
 
   private boolean hasFormParams() {
@@ -579,7 +587,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       };
       path = path.substring(0, indexOfQuestionMark);
     }
-    return path;
+    return urlDecode(path);
   }
 
   private def defineRequestContentTypeAsString(Method method) {
@@ -626,6 +634,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   private def appendListParameter(Map<String, String> to, String key, List<String> value) {
+    if(value == null || value.isEmpty()) {
+      return;
+    }
+
     if (to.containsKey(key)) {
       def currentValue = to.get(key)
       if (currentValue instanceof List) {
@@ -705,6 +717,22 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   private String urlEncode(it) {
     return URLEncoder.encode(it.toString(), "UTF-8")
+  }
+
+  private String urlDecode(it) {
+    return URLDecoder.decode(it.toString(), "UTF-8")
+  }
+
+  private String createFormParamBody(Map<String, Object> formParams)  {
+    final StringBuilder body = new StringBuilder();
+    for (Entry<String, Object> entry : formParams.entrySet()) {
+      body.append(entry.getKey()).
+              append("=").
+              append(entry.getValue()).
+              append("&");
+    }
+    body.deleteCharAt(body.length()-1); //Delete last &
+    return body.toString();
   }
 
 

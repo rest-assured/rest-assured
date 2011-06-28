@@ -20,9 +20,11 @@ import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.Map;
+import javax.xml.transform.Source;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.path.json.JsonPath.from;
@@ -53,16 +55,16 @@ public class PathParamITest extends WithJetty {
 
     @Test
     public void urlEncodesPathParams() throws Exception {
-        expect().body("fullName", equalTo("John%3F%2F%26%25 Doe")).when().get("/{firstName}/{lastName}", "John?/&%", "Doe");
+        expect().body("fullName", equalTo("John:() Doe")).when().get("/{firstName}/{lastName}", "John:()", "Doe");
     }
 
     @Test
     public void urlEncodesPathParamsInMap() throws Exception {
         final Map<String, Object> params = new HashMap<String, Object>();
-        params.put("firstName", "John?/&%");
+        params.put("firstName", "John: å");
         params.put("lastName", "Doe");
 
-        expect().body("fullName", equalTo("John%3F%2F%26%25 Doe")).when().get("/{firstName}/{lastName}", params);
+        expect().body("fullName", equalTo("John: å Doe")).when().get("/{firstName}/{lastName}", params);
     }
 
     @Test
@@ -75,12 +77,12 @@ public class PathParamITest extends WithJetty {
     @Test
     public void supportsPassingPathParamsAsMapToGet() throws Exception {
         final Map<String, Object> params = new HashMap<String, Object>();
-        params.put("firstName", "John?/&%");
+        params.put("firstName", "John=me");
         params.put("lastName", "Doe");
 
         final String response = get("/{firstName}/{lastName}", params).asString();
         final String fullName = from(response).getString("fullName");
-        assertThat(fullName, equalTo("John%3F%2F%26%25 Doe"));
+        assertThat(fullName, equalTo("John=me Doe"));
     }
 
     @Test

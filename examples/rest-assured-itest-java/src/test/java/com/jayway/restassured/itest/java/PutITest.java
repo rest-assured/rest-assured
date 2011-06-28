@@ -36,7 +36,7 @@ public class PutITest extends WithJetty {
 
     @Test
     public void bodyHamcrestMatcherWithoutKey() throws Exception {
-        given().parameters("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().put("/greet");
+        given().parameters("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().put("/greetPut");
     }
 
     @Test
@@ -52,6 +52,17 @@ public class PutITest extends WithJetty {
 
     @Test
     public void putWithFormParams() throws Exception {
-        given().formParameters("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().put("/greet");
+        given().formParameters("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().put("/greetPut");
+    }
+
+    @Test
+    public void putWithFormParam() throws Exception {
+        given().
+                formParam("firstName", "John").
+                formParam("lastName", "Doe").
+        expect().
+                body("greeting", equalTo("Greetings John Doe")).
+        when().
+                put("/greetPut");
     }
 }

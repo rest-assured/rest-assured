@@ -305,7 +305,7 @@ public class SpecificationBuilderITest extends WithJetty {
         expect().
                 body("greeting", Matchers.equalTo("Greetings John Doe")).
         when().
-                put("/greet");
+                put("/greetPut");
     }
 
     @Test

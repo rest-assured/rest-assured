@@ -176,7 +176,7 @@ class ScalatraRestExample extends ScalatraServlet {
     "ERROR"
   }
 
-  put("/greet") {
+  put("/greetPut") {
     greetJson
   }
 
