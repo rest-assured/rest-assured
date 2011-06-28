@@ -19,7 +19,7 @@ Change log 1.2.2 (2011-06-28)
           get("/{firstName}/{lastName}");
  (issue 36)
 * Support for specifying a Java keystore when using SSL. This is useful when you run into e.g. SSLPeerUnverifiedException when the server has an invalid certificate. Usage: 
-  given().keystore("/pathToJksInClassPath", <password>")
+  given().keystore("/pathToJksInClassPath", <password>)
   For more info refer to http://groovy.codehaus.org/modules/http-builder/doc/ssl.html (issue 79).
 * Fixed an issue that could cause parameters to be treated as lists parameters.
 
