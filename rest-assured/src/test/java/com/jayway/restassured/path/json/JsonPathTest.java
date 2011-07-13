@@ -59,6 +59,7 @@ public class JsonPathTest {
             "    \"bicycle\": {\n" +
             "      \"color\": \"red\",\n" +
             "      \"price\": 19.95,\n" +
+            "      \"atoms\": "+Long.MAX_VALUE+",\n" +
             "    }\n" +
             "  }\n" +
             "}";
@@ -140,5 +141,24 @@ public class JsonPathTest {
     public void getValueFromUnnamedRootObject() throws Exception {
         final Map<String, String> object = from(JSON2).get("get(0)");
         assertThat(object.get("email"), equalTo("name1@mail.com"));
+    }
+    
+    @Test
+    public void getNumericalValues() {
+        assertThat(with(JSON).getDouble("store.book[0].price"), equalTo(8.95D));
+        assertThat(with(JSON).getFloat("store.book[0].price"), equalTo(8.95F));
+
+        // The price is stored as an integer
+        assertThat(with(JSON).getByte("store.book[1].price"), equalTo((byte)12));
+        assertThat(with(JSON).getShort("store.book[1].price"), equalTo((short)12));
+        assertThat(with(JSON).getInt("store.book[1].price"), equalTo(12));
+        assertThat(with(JSON).getLong("store.book[1].price"), equalTo(12L));
+    
+        // The atoms is stored as a long
+        assertThat(with(JSON).getByte("store.bicycle.atoms"), equalTo((byte)Long.MAX_VALUE));
+        assertThat(with(JSON).getShort("store.bicycle.atoms"), equalTo((short)Long.MAX_VALUE));
+        assertThat(with(JSON).getInt("store.bicycle.atoms"), equalTo((int)Long.MAX_VALUE));
+        assertThat(with(JSON).getLong("store.bicycle.atoms"), equalTo(Long.MAX_VALUE));
+
     }
 }
