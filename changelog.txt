@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Fixed a bug when PUT and multi-value form parameters.
+
 Change log 1.2.2 (2011-06-28)
 -----------------------------
 * Added support for parsing an entire JSON graph. E.g. let's say you have a JSON snippet like this:

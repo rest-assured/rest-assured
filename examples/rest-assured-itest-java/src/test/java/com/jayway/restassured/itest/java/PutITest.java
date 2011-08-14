@@ -65,4 +65,15 @@ public class PutITest extends WithJetty {
         when().
                 put("/greetPut");
     }
+
+    @Test
+    public void putSupportsMultiValueFormParameters() throws Exception {
+        given().
+                formParam("list", "1", "2,3").
+        expect().
+                body("list", equalTo("1,2,3")).
+        when().
+               put("/multiValueParam");
+    }
+
 }

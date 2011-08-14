@@ -728,13 +728,25 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     for (Entry<String, Object> entry : formParams.entrySet()) {
       body.append(entry.getKey()).
               append("=").
-              append(entry.getValue()).
+              append(handleMultiValueParamsIfNeeded(entry)).
               append("&");
     }
     body.deleteCharAt(body.length()-1); //Delete last &
     return body.toString();
   }
 
+  private def handleMultiValueParamsIfNeeded(Entry<String, Object> entry) {
+    def value = entry.getValue()
+    if (value instanceof List) {
+      final StringBuilder multiValueList = new StringBuilder();
+      value.each {
+        multiValueList.append(it.toString()).append("&")
+      }
+      multiValueList.deleteCharAt(multiValueList.length()-1); //Delete last &
+      value = multiValueList.toString()
+    }
+    return value
+  }
 
   def void setResponseSpecification(ResponseSpecification responseSpecification) {
     this.responseSpecification = responseSpecification
