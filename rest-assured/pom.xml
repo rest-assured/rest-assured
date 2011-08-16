@@ -29,7 +29,7 @@
 
     <name>REST Assured</name>
     <description>Java DSL for easy testing of REST services</description>
-    <url>http://maven.apache.org</url>
+    <url>http://code.google.com/p/rest-assured</url>
 
     <build>
         <plugins>
