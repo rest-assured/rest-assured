@@ -708,14 +708,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     path
   }
 
-//  private String urlEncode(it) {
-//    return URLEncoder.encode(it.toString(), "UTF-8")
-//  }
-//
-//  private String urlDecode(it) {
-//    return URLDecoder.decode(it.toString(), "UTF-8")
-//  }
-
   private String createFormParamBody(Map<String, Object> formParams)  {
     final StringBuilder body = new StringBuilder();
     for (Entry<String, Object> entry : formParams.entrySet()) {
