@@ -280,6 +280,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return formParameter(parameterName, parameterValue, additionalParameterValue)
   }
 
+  def RequestSpecification urlEncodingEnabled(boolean isEnabled) {
+    this.urlEncodingEnabled = isEnabled
+    return this
+  }
+
   def RequestSpecification pathParameter(String parameterName, Object parameterValue) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"

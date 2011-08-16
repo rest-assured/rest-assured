@@ -345,8 +345,8 @@ public class RestAssured {
 
     /**
      * Specifies if Rest Assured should url encode the URL automatically. Usually this is a recommended but in some cases
-     * e.g. the query params may already be encoded before you provide them to Rest Assured and in that case you need to turn
-     * url encoding off. For example:
+     * e.g. the query parameters are already be encoded before you provide them to Rest Assured then it's useful to disable
+     * URL encoding. For example:
      * <pre>
      * RestAssured.baseURI = "https://jira.atlassian.com";
      * RestAssured.port = 443;
@@ -873,9 +873,9 @@ public class RestAssured {
 
     /**
      * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath}, {@link #requestContentType(groovyx.net.http.ContentType)},
-     * {@link #responseContentType(groovyx.net.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification} and {@link #keystore(String, String)}
-     * to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, "", <code>null</code>, <code>null</code>,
-     * "empty list", <code>null</code>, <code>null</code> and <code>none</code>.
+     * {@link #responseContentType(groovyx.net.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification}. {@link #keystore(String, String)}
+     * and {@link #urlEncodingEnabled} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, "", <code>null</code>, <code>null</code>,
+     * "empty list", <code>null</code>, <code>null</code>, <code>none</code>, <code>true</code>.
      */
     public static void reset() {
         baseURI = DEFAULT_URI;

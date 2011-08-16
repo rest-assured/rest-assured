@@ -852,6 +852,15 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification specification(RequestSpecification requestSpecificationToMerge);
 
     /**
+     * Specifies if Rest Assured should url encode the URL automatically. Usually this is a recommended but in some cases
+     * e.g. the query parameters are already be encoded before you provide them to Rest Assured then it's useful to disable
+     * URL encoding.
+     * @param isEnabled Specify whether or not URL encoding should be enabled or disabled.
+     * @return the request specification
+     */
+    RequestSpecification urlEncodingEnabled(boolean isEnabled);
+
+    /**
      * Add a filter that will be used in the request.
      *
      * @param filter The filter to add

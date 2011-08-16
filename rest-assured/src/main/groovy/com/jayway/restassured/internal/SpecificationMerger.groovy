@@ -58,6 +58,7 @@ class SpecificationMerger {
    *     <li>Content type</li>
    *     <li>Request body</li>
    *     <li>Keystore</li>
+   *     <li>URL Encoding enabled/disabled</li>
    * </ul>
    * The following settings are merged:
    * <ul>
@@ -86,5 +87,6 @@ class SpecificationMerger {
     thisOne.cookies.putAll(with.cookies)
     thisOne.requestBody = with.requestBody
     thisOne.filters.addAll(with.filters)
+    thisOne.urlEncodingEnabled = with.urlEncodingEnabled
   }
 }

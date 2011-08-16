@@ -674,6 +674,18 @@ public class RequestSpecBuilder {
     }
 
     /**
+     * Specifies if Rest Assured should url encode the URL automatically. Usually this is a recommended but in some cases
+     * e.g. the query parameters are already be encoded before you provide them to Rest Assured then it's useful to disable
+     * URL encoding.
+     * @param isEnabled Specify whether or not URL encoding should be enabled or disabled.
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder setUrlEncodingEnabled(boolean isEnabled) {
+        spec.urlEncodingEnabled(isEnabled);
+        return this;
+    }
+
+    /**
      * Merge this builder with settings from another specification. Note that the supplied specification
      * can overwrite data in the current specification. The following settings are overwritten:
      * <ul>

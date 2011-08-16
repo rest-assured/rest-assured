@@ -3,6 +3,7 @@ Change log next version
 * Fixed a bug when PUT and multi-value form parameters.
 * Improved path parameter support. Rest Assured no longer URL encodes path parameters in order to detect them as query parameters.
 * JsonPath now converts from Groovy primitives to Java primitives correctly (thanks to Erik Hjortsberg)
+* Added support for enabling and disabling URL encoding for parameters. This is useful if the parameters are URL encoded before you supply them to Rest Assured. In cases like this you need to use given().urlEncodingEnabled(false), RestAssured.urlEncodingEnabled = false or specify it using the RequestSpecificationBuilder to avoid double URL encoding (issue 88).
 
 Change log 1.2.2 (2011-06-28)
 -----------------------------

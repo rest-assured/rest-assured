@@ -237,17 +237,4 @@ public class PathParamITest extends WithJetty {
                get("/{firstName}/{lastName}", nonStandardChars, "Last");
 
     }
-
-    @Test
-    public void resttest() {
-        try {
-            RestAssured.baseURI = "https://jira.atlassian.com";
-            RestAssured.port = 443;
-            RestAssured.urlEncodingEnabled = false;
-            String query = "project%20=%20BAM%20AND%20issuetype%20=%20Bug";
-            System.out.println(get("/rest/api/2.0.alpha1/search?jql={q}", query).andReturn().asString());
-        } finally {
-            RestAssured.reset();
-        }
-    }
 }

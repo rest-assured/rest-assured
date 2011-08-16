@@ -30,6 +30,8 @@ import static groovy.util.GroovyTestCase.assertEquals
 import static java.util.Arrays.asList
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertTrue
+import static groovy.util.GroovyTestCase.assertFalse
+import static org.junit.Assert.assertFalse
 
 class SpecificationMergerTest {
 
@@ -111,6 +113,16 @@ class SpecificationMergerTest {
     SpecificationMerger.merge(merge, with)
 
     assertTrue merge.expectedStatusLine.matches("something else")
+  }
+
+  @Test
+  public void overwritesUrlEncodingStatus() throws Exception {
+    def merge = new RequestSpecBuilder().setUrlEncodingEnabled(true).build();
+    def with = new RequestSpecBuilder().setUrlEncodingEnabled(false).build();
+
+    SpecificationMerger.merge(merge, with)
+
+    assertFalse merge.urlEncodingEnabled
   }
 
   private Filter newFilter() {
