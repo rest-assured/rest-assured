@@ -225,4 +225,15 @@ public class PathParamITest extends WithJetty {
         when().
                get("/{firstName}/{lastName}");
     }
+
+    @Test
+    public void canUsePathParamsWithNonStandardChars() throws Exception {
+        final String nonStandardChars = "\\$£@\"){¤$";
+
+        expect().
+                body("fullName", equalTo("\\$£@\"){¤$ Last")).
+        when().
+               get("/{firstName}/{lastName}", nonStandardChars, "Last");
+
+    }
 }

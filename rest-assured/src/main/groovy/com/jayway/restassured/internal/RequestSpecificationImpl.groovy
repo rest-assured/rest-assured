@@ -39,6 +39,7 @@ import com.jayway.restassured.specification.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
+import org.apache.commons.lang.StringUtils
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
@@ -289,11 +290,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def RequestSpecification pathParameters(Map<String, Object> parameterNameValuePairs) {
     notNull parameterNameValuePairs, "parameterNameValuePairs"
-    def urlEncodedMap = [:]
-    parameterNameValuePairs.each { key, value ->
-      urlEncodedMap.put urlEncode(key), urlEncode(value)
-    }
-    appendParameters(urlEncodedMap, pathParams)
+    appendParameters(parameterNameValuePairs, pathParams)
     return this
   }
 
@@ -575,7 +572,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       String allParamAsString = path.substring(indexOfQuestionMark+1);
       def keyValueParams = allParamAsString.split("&");
       keyValueParams.each {
-        def keyValue = it.split("=")
+        def keyValue = StringUtils.split(it, "=", 2)
         if(keyValue.length != 2) {
           throw new IllegalArgumentException("Illegal parameters passed to REST Assured. Parameters was: $keyValueParams")
         }
@@ -587,7 +584,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       };
       path = path.substring(0, indexOfQuestionMark);
     }
-    return urlDecode(path);
+    return path;
   }
 
   private def defineRequestContentTypeAsString(Method method) {
@@ -682,18 +679,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     } else {
       def matchPattern = ~/.*\{\w+\}.*/
       if (suppliedPathParamSize > 0) {
-        def urlEncodedParams = []
-        pathParams.each {
-          urlEncodedParams << urlEncode(it)
-        }
         def replacePattern = ~/\{\w+\}/
         int current = 0;
-        urlEncodedParams.each {
+        pathParams.each {
           if (!path.matches(matchPattern)) {
             throw new IllegalArgumentException("Illegal number of path parameters. Expected $current, was $suppliedPathParamSize.")
           }
           current++
-          path = path.replaceFirst(replacePattern, it)
+          path = path.replaceFirst(replacePattern, Matcher.quoteReplacement(it.toString()))
         }
       } else {
         this.pathParams.each { key, value ->
@@ -715,13 +708,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     path
   }
 
-  private String urlEncode(it) {
-    return URLEncoder.encode(it.toString(), "UTF-8")
-  }
-
-  private String urlDecode(it) {
-    return URLDecoder.decode(it.toString(), "UTF-8")
-  }
+//  private String urlEncode(it) {
+//    return URLEncoder.encode(it.toString(), "UTF-8")
+//  }
+//
+//  private String urlDecode(it) {
+//    return URLDecoder.decode(it.toString(), "UTF-8")
+//  }
 
   private String createFormParamBody(Map<String, Object> formParams)  {
     final StringBuilder body = new StringBuilder();
