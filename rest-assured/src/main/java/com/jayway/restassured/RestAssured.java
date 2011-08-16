@@ -315,6 +315,8 @@ public class RestAssured {
     public static final int DEFAULT_PORT = 8080;
     public static final String DEFAULT_PATH = "";
     public static final AuthenticationScheme DEFAULT_AUTH = new NoAuthScheme();
+    public static final boolean DEFAULT_URL_ENCODING_ENABLED = true;
+
     /**
      * The base URI that's used by REST assured when making requests if a non-fully qualified URI is used in the request.
      * Default value is {@value #DEFAULT_URI}.
@@ -340,6 +342,22 @@ public class RestAssured {
      * Default <code>basePath</code> value is empty.
      */
     public static String basePath = DEFAULT_PATH;
+
+    /**
+     * Specifies if Rest Assured should url encode the URL automatically. Usually this is a recommended but in some cases
+     * e.g. the query params may already be encoded before you provide them to Rest Assured and in that case you need to turn
+     * url encoding off. For example:
+     * <pre>
+     * RestAssured.baseURI = "https://jira.atlassian.com";
+     * RestAssured.port = 443;
+     * RestAssured.urlEncodingEnabled = false; // Because "query" is already url encoded
+     * String query = "project%20=%20BAM%20AND%20issuetype%20=%20Bug";
+     * String response = get("/rest/api/2.0.alpha1/search?jql={q}",query).andReturn().asString();
+     * ...
+     * </pre>
+     * The <code>query</code> is already url encoded so you need to disable Rest Assureds url encoding to prevent double encoding.
+     */
+    public static boolean urlEncodingEnabled = DEFAULT_URL_ENCODING_ENABLED;
 
     /**
      * Set an authentication scheme that should be used for each request. By default no authentication is used.
@@ -871,11 +889,12 @@ public class RestAssured {
         requestSpecification = null;
         responseSpecification = null;
         keystoreSpec = new NoKeystoreSpecImpl();
+        urlEncodingEnabled = DEFAULT_URL_ENCODING_ENABLED;
     }
 
     private static TestSpecificationImpl createTestSpecification() {
         return new TestSpecificationImpl(
-                new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keystoreSpec, requestContentType, requestSpecification),
+                new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keystoreSpec, requestContentType, requestSpecification, urlEncodingEnabled),
                 new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification));
     }
 }

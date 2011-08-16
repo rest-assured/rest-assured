@@ -63,20 +63,24 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private Object requestBody;
   private List<Filter> filters = [];
   private KeystoreSpec keyStoreSpec
+  private boolean urlEncodingEnabled
 
   public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
-                                   List<Filter> filters, KeystoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec) {
+                                   List<Filter> filters, KeystoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec,
+                                   boolean urlEncode) {
     notNull(baseURI, "baseURI");
     notNull(basePath, "basePath");
     notNull(defaultAuthScheme, "defaultAuthScheme");
     notNull(filters, "Filters")
     notNull(keyStoreSpec, "Keystore specification")
+    notNull(urlEncode, "URL Encode query params option")
     this.baseUri = baseURI
     this.basePath = basePath
     this.defaultAuthScheme = defaultAuthScheme
     this.filters.addAll(filters)
     this.contentType = defaultRequestContentType
     this.keyStoreSpec = keyStoreSpec
+    this.urlEncodingEnabled = urlEncode
     port(requestPort)
     if(defaultSpec != null) {
       spec(defaultSpec)
@@ -475,6 +479,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
                       assertionClosure.call (response, content)
                     });
           }
+          delegate.uri.query = queryParams
+        } else if(!urlEncodingEnabled) {
+          // Overwrite the URL encoded query parameters with the original ones
           delegate.uri.query = queryParams
         }
         return super.doRequest(delegate)
