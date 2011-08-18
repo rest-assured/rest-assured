@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 1.2.3 (2011-08-18)
+-----------------------------
 * Fixed a bug when using PUT with multi-value form parameters.
 * Improved path parameter support. Rest Assured no longer URL encodes path parameters in order to detect them as query parameters.
 * JsonPath now converts from Groovy primitives to Java primitives correctly (thanks to Erik Hjortsberg)
@@ -19,7 +19,6 @@ Change log next version
 
   I.e. the indices 0 and 1 was replaced with a "%d" and you then supply the arguments to the path expression using the "withArgs" method located in com.jayway.restassured.RestAssured. You can also use the "withArgs" method without
   using a root-path (issue 17, 80).
-
 
 Change log 1.2.2 (2011-06-28)
 -----------------------------
