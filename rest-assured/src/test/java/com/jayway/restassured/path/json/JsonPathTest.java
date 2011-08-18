@@ -138,6 +138,12 @@ public class JsonPathTest {
     }
 
     @Test
+    public void supportsGettingEntireObjectGraphUsingNoArgumentGet() throws Exception {
+        final List<Map<String, String>> object = from(JSON2).get();
+        assertThat(object.get(0).get("email"), equalTo("name1@mail.com"));
+    }
+
+    @Test
     public void getValueFromUnnamedRootObject() throws Exception {
         final Map<String, String> object = from(JSON2).get("get(0)");
         assertThat(object.get("email"), equalTo("name1@mail.com"));

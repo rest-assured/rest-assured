@@ -18,6 +18,7 @@ package com.jayway.restassured.path.xml;
 
 import com.jayway.restassured.assertion.XMLAssertion;
 import com.jayway.restassured.exception.ParsePathException;
+import com.jayway.restassured.path.xml.element.Node;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
 import groovyx.net.http.ParserRegistry;
@@ -232,6 +233,17 @@ public class XmlPath {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
         input = parseURI(uri);
+    }
+
+    /**
+     * Get the entire XML graph as an Object
+     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     *
+     * @return The XML Node. A {@java.lang.ClassCastException} will be thrown if the object
+     * cannot be casted to the expected type.
+     */
+    public Node get() {
+        return (Node) get("$");
     }
 
     /**

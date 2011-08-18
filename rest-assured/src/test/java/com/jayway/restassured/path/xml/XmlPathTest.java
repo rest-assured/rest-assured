@@ -26,6 +26,7 @@ import java.util.Map;
 import static com.jayway.restassured.path.xml.XmlPath.given;
 import static com.jayway.restassured.path.xml.XmlPath.with;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -195,5 +196,12 @@ public class XmlPathTest {
         final List<String> items = with(XML).get("shopping.depthFirst().grep { it.name() == 'item' }.name");
 
         assertThat(items, hasItems("Chocolate", "Coffee", "Paper", "Pens", "Kathryn's Birthday"));
+    }
+
+    @Test
+    public void getEntireObjectGraph() throws Exception {
+        final Node node = with(XML).get();
+
+        assertThat(node.name(), is("shopping"));
     }
 }

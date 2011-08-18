@@ -138,6 +138,23 @@ public class JsonPath {
         json = parseReader(reader);
     }
 
+    /**
+     * Get a JSON graph with no named root element as a Java object. This is just a short-cut for
+     *
+     * <pre>
+     *     get("");
+     * </pre>
+     * or
+     * <pre>
+     *     get("$");
+     * </pre>
+     *
+     * @return The object matching the JSON graph. This may be any primitive type, a List or a Map.  A {@java.lang.ClassCastException} will be thrown if the object
+     * cannot be casted to the expected type.
+     */
+    public <T> T get() {
+        return get("");
+    }
 
     /**
      * Get the result of an JSON path expression as a boolean.
