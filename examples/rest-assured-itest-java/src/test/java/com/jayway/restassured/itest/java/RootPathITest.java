@@ -20,8 +20,7 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.rootPath;
+import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -70,5 +69,37 @@ public class RootPathITest extends WithJetty {
         RestAssured.reset();
 
         assertThat(rootPath, equalTo(""));
+    }
+
+    @Test
+    public void specifyingRootPathWithBodyArgs() throws Exception {
+        expect().
+                rootPath("store.book.category[%d]").
+                body("", withArgs(0), equalTo("reference")).
+                body("", withArgs(1), equalTo("fiction")).
+        when().
+                get("/jsonStore");
+    }
+
+    @Test
+    public void specifyingRootPathWithMultipleBodyArgs() throws Exception {
+        final String category = "category";
+        expect().
+                rootPath("store.book.%s[%d]").
+                body("", withArgs(category, 0), equalTo("reference")).
+                body("", withArgs(category, 1), equalTo("fiction")).
+        when().
+                get("/jsonStore");
+    }
+
+    @Test
+    public void specifyingRootPathWithMultipleContentArguments() throws Exception {
+        final String category = "category";
+        expect().
+                rootPath("store.book.%s[%d]").
+                content("", withArguments(category, 0), equalTo("reference")).
+                content("", withArguments(category, 1), equalTo("fiction")).
+        when().
+                get("/jsonStore");
     }
 }

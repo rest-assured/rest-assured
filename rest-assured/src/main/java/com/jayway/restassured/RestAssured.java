@@ -22,7 +22,7 @@ import com.jayway.restassured.internal.*;
 import com.jayway.restassured.internal.filter.FormAuthFilter;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.Response;
-import com.jayway.restassured.internal.KeystoreSpec;
+import com.jayway.restassured.specification.Argument;
 import com.jayway.restassured.specification.RequestSender;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
@@ -583,6 +583,50 @@ public class RestAssured {
      */
     public static RequestSpecification with() {
         return given();
+    }
+
+    /**
+     * Create a list of arguments that can be used to create parts of the path in a body/content expression.
+     * This is useful in situations where you have e.g. pre-defined variables that constitutes the key. For example:
+     * <pre>
+     * String someSubPath = "else";
+     * int index = 1;
+     * expect().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
+     * </pre>
+     *
+     * or if you have complex root paths and don't wish to duplicate the path for small variations:
+     * <pre>
+     * expect().
+     *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
+     *          body("", withArgs(0), hasItem("first")).
+     *          body("", withArgs(1), hasItem("second")).
+     *          ..
+     * </pre>
+     *
+     * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     *
+     * @return A list of arguments that can be used to build up the
+     */
+    public static List<Argument> withArguments(Object firstArgument, Object...additionalArguments) {
+        Validate.notNull(firstArgument, "You need to supply at least one argument");
+        final List<Argument> arguments = new LinkedList<Argument>();
+        arguments.add(Argument.arg(firstArgument));
+        if(additionalArguments != null && additionalArguments.length > 0) {
+            for (Object additionalArgument : additionalArguments) {
+                arguments.add(Argument.arg(additionalArgument));
+            }
+        }
+        return Collections.unmodifiableList(arguments);
+    }
+
+    /**
+     * Slightly shorter version of {@link #withArguments(Object, Object...)}.
+     *
+     * @return A list of arguments.
+     * @see #withArguments(Object, Object...)
+     */
+    public static List<Argument> withArgs(Object firstArgument, Object...additionalArguments) {
+        return withArguments(firstArgument, additionalArguments);
     }
 
     /**

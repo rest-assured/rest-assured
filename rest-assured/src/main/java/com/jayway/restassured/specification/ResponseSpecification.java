@@ -19,6 +19,7 @@ package com.jayway.restassured.specification;
 import groovyx.net.http.ContentType;
 import org.hamcrest.Matcher;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -120,6 +121,37 @@ public interface ResponseSpecification extends RequestSender {
      * @return the response specification
      */
     ResponseSpecification content(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs);
+
+    /**
+     * Same as {@link #body(String, org.hamcrest.Matcher, Object...)} expect that you can pass arguments to the key. This
+     * is useful in situations where you have e.g. pre-defined variables that constitutes the key:
+     * <pre>
+     * String someSubPath = "else";
+     * int index = 1;
+     * expect().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
+     * </pre>
+     *
+     * or if you have complex root paths and don't wish to duplicate the path for small variations:
+     * <pre>
+     * expect().
+     *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
+     *          body("", withArgs(0), hasItem("first")).
+     *          body("", withArgs(1), hasItem("second")).
+     *          ..
+     * </pre>
+     *
+     * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * <p>
+     * Note that <code>withArgs</code> can be statically imported from the <code>com.jayway.restassured.RestAssured</code> class.
+     * </p>
+     *
+     * @param key The body key
+     * @param matcher The hamcrest matcher that must response body must match.
+     * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
+     * @see #body(String, org.hamcrest.Matcher, Object...)
+     * @return the response specification
+     */
+    ResponseSpecification body(String key, List<Argument> arguments, Matcher matcher, Object...additionalKeyMatcherPairs);
 
     /**
      * Expect that the response status code matches the given Hamcrest matcher. E.g.
@@ -584,11 +616,43 @@ public interface ResponseSpecification extends RequestSender {
      * The only difference between the <code>content</code> and <code>body</code> methods are of syntactic nature.
      * </p>
      *
+     * @param key The body key
      * @param matcher The hamcrest matcher that must response body must match.
      * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
      * @return the response specification
      */
     ResponseSpecification body(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs);
+
+    /**
+     * Same as {@link #content(String, java.util.List, org.hamcrest.Matcher, Object...)} expect that you can pass arguments to the key. This
+     * is useful in situations where you have e.g. pre-defined variables that constitutes the key:
+     * <pre>
+     * String someSubPath = "else";
+     * int index = 1;
+     * expect().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
+     * </pre>
+     *
+     * or if you have complex root paths and don't wish to duplicate the path for small variations:
+     * <pre>
+     * expect().
+     *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
+     *          body("", withArgs(0), hasItem("first")).
+     *          body("", withArgs(1), hasItem("second")).
+     *          ..
+     * </pre>
+     *
+     * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * <p>
+     * Note that <code>withArgs</code> can be statically imported from the <code>com.jayway.restassured.RestAssured</code> class.
+     * </p>
+     *
+     * @param key The body key
+     * @param matcher The hamcrest matcher that must response body must match.
+     * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
+     * @see #content(String, org.hamcrest.Matcher, Object...)
+     * @return the response specification
+     */
+    ResponseSpecification content(String key, List<Argument> arguments, Matcher matcher, Object...additionalKeyMatcherPairs);
 
     /**
      * Syntactic sugar, e.g.

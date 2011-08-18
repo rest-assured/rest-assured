@@ -30,7 +30,6 @@ import static groovy.util.GroovyTestCase.assertEquals
 import static java.util.Arrays.asList
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertTrue
-import static groovy.util.GroovyTestCase.assertFalse
 import static org.junit.Assert.assertFalse
 
 class SpecificationMergerTest {

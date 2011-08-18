@@ -22,14 +22,11 @@ import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.assertion.HeaderMatcher
 import com.jayway.restassured.exception.AssertionFailedException
 import com.jayway.restassured.response.Response
-import com.jayway.restassured.specification.FilterableRequestSpecification
-import com.jayway.restassured.specification.FilterableResponseSpecification
-import com.jayway.restassured.specification.RequestSpecification
-import com.jayway.restassured.specification.ResponseSpecification
 import groovyx.net.http.ContentType
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import com.jayway.restassured.specification.*
 import static groovyx.net.http.ContentType.ANY
 import static org.hamcrest.Matchers.equalTo
 
@@ -65,18 +62,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   }
 
   def ResponseSpecification content(String key, Matcher matcher, Object...additionalKeyMatcherPairs) {
-    notNull(key, "key")
-    notNull(matcher, "matcher")
-
-    bodyMatchers << new BodyMatcher(key: bodyRootPath + key, matcher: matcher)
-    if(additionalKeyMatcherPairs?.length > 0) {
-      def pairs = MapCreator.createMapFromObjects(additionalKeyMatcherPairs)
-      pairs.each { matchingKey, hamcrestMatcher ->
-        def keyWithRoot = bodyRootPath + matchingKey
-        bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: hamcrestMatcher)
-      }
-    }
-    return this
+    content(key, Collections.emptyList(), matcher, additionalKeyMatcherPairs)
   }
 
   def ResponseSpecification statusCode(Matcher<Integer> expectedStatusCode) {
@@ -171,7 +157,31 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   }
 
   public ResponseSpecification body(String key, Matcher matcher, Object...additionalKeyMatcherPairs) {
-    return content(key, matcher, additionalKeyMatcherPairs);
+    return content(key, Collections.emptyList(), matcher, additionalKeyMatcherPairs);
+  }
+
+  def ResponseSpecification body(String key, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
+    return content(key, arguments, matcher, additionalKeyMatcherPairs)
+  }
+
+  def ResponseSpecification content(String key, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
+    notNull(key, "key")
+    notNull(matcher, "matcher")
+
+    def mergedKey = bodyRootPath + key
+    if(arguments?.size() > 0 ) {
+      mergedKey = String.format(mergedKey, arguments.collect { it.getArgument() }.toArray(new Object[arguments.size()]))
+    }
+    bodyMatchers << new BodyMatcher(key: mergedKey, matcher: matcher)
+    if(additionalKeyMatcherPairs?.length > 0) {
+      def pairs = MapCreator.createMapFromObjects(additionalKeyMatcherPairs)
+      pairs.each { matchingKey, hamcrestMatcher ->
+        def keyWithRoot = bodyRootPath + matchingKey
+        bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: hamcrestMatcher)
+      }
+    }
+    return this
+    return this
   }
 
   def ResponseSpecification log() {

@@ -6,6 +6,20 @@ Change log next version
 * Added support for enabling and disabling URL encoding for parameters. This is useful if the parameters are URL encoded before you supply them to Rest Assured. In cases like this you need to use given().urlEncodingEnabled(false), RestAssured.urlEncodingEnabled = false or specify it using the RequestSpecificationBuilder to avoid double URL encoding (issue 88).
 * Fixed URL to web page in pom.xml (issue 90)
 * Added a no-argument get method to JsonPath and XmlPath to easier parse the entire object graph (issue 91).
+* Better support for re-usable path expressions by using arguments. E.g. let's say you want to expect a complex path like this:
+	  expect().
+		   body("filters.filterConfig[0].filterConfigGroups.find { it.name == 'GroupName' }.includes", hasItem("first")).
+		   body("filters.filterConfig[1].filterConfigGroups.find { it.name == 'GroupName' }.includes", hasItem("second")).
+          ..
+  The only difference between the two body paths is the index of the "filterConfig". A root path wouldn't help since previously you could only append a path to the root path and not supply arguments to it. Now you can do:
+  	  expect().
+		   root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'GroupName' }.includes").
+		   body("", withArgs(0), hasItem("first")).
+		   body("", withArgs(1), hasItem("second")).
+
+  I.e. the indices 0 and 1 was replaced with a "%d" and you then supply the arguments to the path expression using the "withArgs" method located in com.jayway.restassured.RestAssured. You can also use the "withArgs" method without
+  using a root-path (issue 17, 80).
+
 
 Change log 1.2.2 (2011-06-28)
 -----------------------------
