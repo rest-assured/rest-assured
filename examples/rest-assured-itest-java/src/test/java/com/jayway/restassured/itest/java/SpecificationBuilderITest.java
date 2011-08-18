@@ -102,6 +102,28 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
+    public void responseSpecificationCanExpectBodyWithArgs () throws Exception {
+        final ResponseSpecification spec = new ResponseSpecBuilder().rootPath("store.book[%d]").expectBody("author", withArgs(0), equalTo("Nigel Rees")).build();
+
+        expect().
+                spec(spec).
+                body("title", withArgs(1), equalTo("Sword of Honour")).
+        when().
+                get("/jsonStore");
+    }
+
+    @Test
+    public void responseSpecificationCanExpectContentWithArgs () throws Exception {
+        final ResponseSpecification spec = new ResponseSpecBuilder().rootPath("store.book[%d]").expectContent("author", withArgs(0), equalTo("Nigel Rees")).build();
+
+        expect().
+                spec(spec).
+                content("title", withArgs(1), equalTo("Sword of Honour")).
+        when().
+                get("/jsonStore");
+    }
+
+    @Test
     public void supportsSpecifyingParametersInRequestSpecBuilder() throws Exception {
         final RequestSpecification spec = new RequestSpecBuilder().addParameter("firstName", "John").addParam("lastName", "Doe").build();
 
