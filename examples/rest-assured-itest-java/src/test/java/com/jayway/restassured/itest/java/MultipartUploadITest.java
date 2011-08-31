@@ -18,6 +18,7 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import org.apache.commons.io.IOUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -28,6 +29,7 @@ import static com.jayway.restassured.authentication.FormAuthConfig.springSecurit
 public class MultipartUploadITest {
 
     @Test
+    @Ignore
     public void test() throws Exception {
         // Given
         final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
