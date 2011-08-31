@@ -603,8 +603,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         def name = it.name
         entity.addPart(name, body);
       }
-      // For usual String parameters
-      //               entity.addPart( "name", new StringBody( "testTemplate", "text/plain", Charset.forName( "UTF-8" )));
 
       return entity;
     }

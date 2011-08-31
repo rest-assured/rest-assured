@@ -21,6 +21,8 @@ import org.apache.http.entity.mime.content.InputStreamBody
 import org.apache.http.entity.mime.content.StringBody
 
 class MultiPart {
+  private static final String OCTET_STREAM = "application/octet-stream"
+
   def content
   def name
   def fileName
@@ -28,7 +30,7 @@ class MultiPart {
 
   def getContentBody() {
     if(content instanceof File) {
-      returnFileBody()
+      new FileBody(content, mimeType ?: OCTET_STREAM)
     } else if(content instanceof InputStream) {
       returnInputStreamBody()
     } else if(content instanceof byte[]) {
@@ -41,15 +43,7 @@ class MultiPart {
     }
   }
 
-  private def returnFileBody() {
-    if (mimeType == null) {
-      new FileBody(content)
-    } else {
-      new FileBody(content, mimeType)
-    }
-  }
-
   private def returnInputStreamBody() {
-    new InputStreamBody(content, mimeType ?: "application/octet-stream", fileName ?: "file")
+    new InputStreamBody(content, mimeType ?: OCTET_STREAM, fileName ?: "file")
   }
 }
