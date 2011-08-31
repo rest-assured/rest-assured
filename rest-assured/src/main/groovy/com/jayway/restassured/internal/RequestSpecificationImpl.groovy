@@ -181,8 +181,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
     appendListParameter(requestParameters, parameterName, parameterValues)
-    filters.
-            return this
+    return this
   }
 
   def RequestSpecification param(String parameterName, List<String> parameterValues) {
@@ -567,7 +566,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       if(hasFormParams() && requestBody != null) {
         throw new IllegalStateException("You can either send form parameters OR body content in $method, not both!");
       }
-      def bodyContent = hasFormParams() ? requestParameters += formParams : requestBody ?: new byte[0]
+      def bodyContent = hasFormParams() ? requestParameters += formParams : multiParts.isEmpty() ? requestBody : new byte[0]
       if(method == POST) {
         http.post( path: targetPath, body: bodyContent,
                 requestContentType: defineRequestContentType(method),
