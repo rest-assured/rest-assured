@@ -40,11 +40,16 @@ import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
 import org.apache.commons.lang.StringUtils
+import org.apache.http.entity.mime.MultipartEntity
+import org.apache.http.entity.mime.content.FileBody
+
+import org.apache.http.entity.mime.HttpMultipartMode
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
   private static final int DEFAULT_HTTPS_PORT = 443
   private static final int DEFAULT_HTTP_PORT = 80
+  private static final String MULTIPART_FORM_DATA = "multipart/form-data"
 
   private String baseUri
   private String path  = ""
@@ -64,6 +69,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private List<Filter> filters = [];
   private KeystoreSpec keyStoreSpec
   private boolean urlEncodingEnabled
+  private List<Multipart> multiParts = [];
 
   public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
                                    List<Filter> filters, KeystoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec,
@@ -175,7 +181,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
     appendListParameter(requestParameters, parameterName, parameterValues)
-    return this
+    filters.
+            return this
   }
 
   def RequestSpecification param(String parameterName, List<String> parameterValues) {
@@ -459,6 +466,46 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return spec(requestSpecificationToMerge)
   }
 
+  def RequestSpecification multiPart(String name, File file) {
+    multiParts << new Multipart(name: name, content: file)
+    this
+  }
+
+  def RequestSpecification multiPart(File file) {
+    multiParts << new Multipart(name: "file", content: file)
+    this
+  }
+
+  def RequestSpecification multiPart(String name, File file, String mimeType) {
+    multiParts << new Multipart(name: name, content: file, mimeType: mimeType)
+    this
+  }
+
+  def RequestSpecification multiPart(String name, String fileName, byte[] bytes) {
+    multiParts << new Multipart(name: name, content: bytes, fileName: fileName)
+    this
+  }
+
+  def RequestSpecification multiPart(String name, String fileName, byte[] bytes, String mimeType) {
+    multiParts << new Multipart(name: name, content: bytes, mimeType: mimeType, fileName: fileName)
+    this
+  }
+
+  def RequestSpecification multiPart(String name, String fileName, InputStream stream) {
+    multiParts << new Multipart(name: name, content: stream, fileName: fileName)
+    this
+  }
+
+  def RequestSpecification multiPart(String name, String fileName, InputStream stream, String mimeType) {
+    multiParts << new Multipart(name: name, content: stream, mimeType: mimeType, fileName: fileName)
+    this
+  }
+
+  def RequestSpecification multiPart(String name, String contentBody) {
+    multiParts << new Multipart(name: name, content: contentBody)
+    this
+  }
+
   def invokeFilterChain(path, method, assertionClosure) {
     filters << new RootFilter()
     def ctx = new FilterContextImpl(path, method, assertionClosure, filters);
@@ -492,6 +539,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         return super.doRequest(delegate)
       }
     };
+    registerRestAssuredEncoders(http);
     RestAssuredParserRegistry.responseSpecification = responseSpecification
     http.setParserRegistry(new RestAssuredParserRegistry())
     ResponseParserRegistrar.registerParsers(http, assertionClosure.requiresTextParsing())
@@ -519,7 +567,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       if(hasFormParams() && requestBody != null) {
         throw new IllegalStateException("You can either send form parameters OR body content in $method, not both!");
       }
-      def bodyContent = hasFormParams() ? requestParameters += formParams : requestBody
+      def bodyContent = hasFormParams() ? requestParameters += formParams : requestBody ?: new byte[0]
       if(method == POST) {
         http.post( path: targetPath, body: bodyContent,
                 requestContentType: defineRequestContentType(method),
@@ -536,6 +584,27 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       sendHttpRequest(http, method, responseContentType, targetPath, assertionClosure)
     }
     return restAssuredResponse
+  }
+
+  private def registerRestAssuredEncoders(HTTPBuilder http) {
+    // Multipart form-data
+    if(multiParts.isEmpty()) {
+      return;
+    }
+
+    http.encoder.putAt MULTIPART_FORM_DATA, {
+      MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+
+      multiParts.each {
+        def body = it.contentBody
+        def name = it.name
+        entity.addPart(name, body);
+      }
+      // For usual String parameters
+      //               entity.addPart( "name", new StringBody( "testTemplate", "text/plain", Charset.forName( "UTF-8" )));
+
+      return entity;
+    }
   }
 
   private def sendHttpRequest(HTTPBuilder http, method, responseContentType, targetPath, assertionClosure) {
@@ -605,8 +674,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   private def defineRequestContentType(Method method) {
     if (contentType == null) {
-      if (requestBody == null) {
+      if(multiParts.size() > 0) {
+        contentType = MULTIPART_FORM_DATA
+      } else if (requestBody == null) {
         contentType = shouldUrlEncode(method) ? URLENC : ANY
+      } else if(multiParts.size() > 0) {
+
       } else if (requestBody instanceof byte[]) {
         if(method != POST && method != PUT) {
           throw new IllegalStateException("$method doesn't support binary request data.");

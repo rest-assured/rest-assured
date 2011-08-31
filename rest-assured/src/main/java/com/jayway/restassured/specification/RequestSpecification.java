@@ -19,6 +19,8 @@ package com.jayway.restassured.specification;
 import com.jayway.restassured.filter.Filter;
 import groovyx.net.http.ContentType;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -739,6 +741,22 @@ public interface RequestSpecification extends RequestSender {
      * @return The request specification
      */
     RequestSpecification contentType(String contentType);
+
+    RequestSpecification multiPart(File file);
+
+    RequestSpecification multiPart(String name, File file);
+
+    RequestSpecification multiPart(String name, File file, String mimeType);
+
+    RequestSpecification multiPart(String name, String fileName, byte[] bytes);
+
+    RequestSpecification multiPart(String name, String fileName, byte[] bytes, String mimeType);
+
+    RequestSpecification multiPart(String name, String fileName, InputStream stream);
+
+    RequestSpecification multiPart(String name, String fileName, InputStream stream, String mimeType);
+
+    RequestSpecification multiPart(String name, String contentBody);
 
     /**
      * If you need to specify some credentials when performing a request.
