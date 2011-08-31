@@ -21,6 +21,7 @@ import groovyx.net.http.ContentType;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -757,6 +758,8 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification multiPart(String name, String fileName, InputStream stream, String mimeType);
 
     RequestSpecification multiPart(String name, String contentBody);
+
+    RequestSpecification multiPart(String name, String contentBody, String mimeType);
 
     /**
      * If you need to specify some credentials when performing a request.

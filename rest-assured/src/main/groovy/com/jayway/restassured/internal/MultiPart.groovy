@@ -20,7 +20,7 @@ import org.apache.http.entity.mime.content.FileBody
 import org.apache.http.entity.mime.content.InputStreamBody
 import org.apache.http.entity.mime.content.StringBody
 
-class Multipart {
+class MultiPart {
   def content
   def name
   def fileName
@@ -35,7 +35,7 @@ class Multipart {
       content = new ByteArrayInputStream(content)
       returnInputStreamBody()
     } else if(content instanceof String) {
-      new StringBody(content)
+      new StringBody(content, mimeType ?: "text/plain", null)
     } else {
       throw new IllegalArgumentException("Illegal content: $content")
     }

@@ -41,7 +41,6 @@ import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
 import org.apache.commons.lang.StringUtils
 import org.apache.http.entity.mime.MultipartEntity
-import org.apache.http.entity.mime.content.FileBody
 
 import org.apache.http.entity.mime.HttpMultipartMode
 
@@ -69,7 +68,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private List<Filter> filters = [];
   private KeystoreSpec keyStoreSpec
   private boolean urlEncodingEnabled
-  private List<Multipart> multiParts = [];
+  private List<MultiPart> multiParts = [];
 
   public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
                                    List<Filter> filters, KeystoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec,
@@ -466,42 +465,47 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   def RequestSpecification multiPart(String name, File file) {
-    multiParts << new Multipart(name: name, content: file)
+    multiParts << new MultiPart(name: name, content: file)
     this
   }
 
   def RequestSpecification multiPart(File file) {
-    multiParts << new Multipart(name: "file", content: file)
+    multiParts << new MultiPart(name: "file", content: file)
     this
   }
 
   def RequestSpecification multiPart(String name, File file, String mimeType) {
-    multiParts << new Multipart(name: name, content: file, mimeType: mimeType)
+    multiParts << new MultiPart(name: name, content: file, mimeType: mimeType)
     this
   }
 
   def RequestSpecification multiPart(String name, String fileName, byte[] bytes) {
-    multiParts << new Multipart(name: name, content: bytes, fileName: fileName)
+    multiParts << new MultiPart(name: name, content: bytes, fileName: fileName)
     this
   }
 
   def RequestSpecification multiPart(String name, String fileName, byte[] bytes, String mimeType) {
-    multiParts << new Multipart(name: name, content: bytes, mimeType: mimeType, fileName: fileName)
+    multiParts << new MultiPart(name: name, content: bytes, mimeType: mimeType, fileName: fileName)
     this
   }
 
   def RequestSpecification multiPart(String name, String fileName, InputStream stream) {
-    multiParts << new Multipart(name: name, content: stream, fileName: fileName)
+    multiParts << new MultiPart(name: name, content: stream, fileName: fileName)
     this
   }
 
   def RequestSpecification multiPart(String name, String fileName, InputStream stream, String mimeType) {
-    multiParts << new Multipart(name: name, content: stream, mimeType: mimeType, fileName: fileName)
+    multiParts << new MultiPart(name: name, content: stream, mimeType: mimeType, fileName: fileName)
     this
   }
 
   def RequestSpecification multiPart(String name, String contentBody) {
-    multiParts << new Multipart(name: name, content: contentBody)
+    multiParts << new MultiPart(name: name, content: contentBody)
+    this
+  }
+
+  def RequestSpecification multiPart(String name, String contentBody, String mimeType) {
+    multiParts << new MultiPart(name: name, content: contentBody, mimeType: mimeType)
     this
   }
 
