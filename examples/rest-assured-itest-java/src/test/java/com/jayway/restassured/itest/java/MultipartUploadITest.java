@@ -16,7 +16,6 @@
 
 package com.jayway.restassured.itest.java;
 
-import com.jayway.restassured.RestAssured;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -34,12 +33,11 @@ public class MultipartUploadITest {
         // Given
         final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
 
-        RestAssured.port = 9090;
-
         // When
         given().
                 auth().form("admin", "admin", springSecurity()).
                 multiPart("file", new File("/home/johan/Downloads/verizon.rss")).
+                port(9090).
         expect().
                 log().
                 statusCode(200).

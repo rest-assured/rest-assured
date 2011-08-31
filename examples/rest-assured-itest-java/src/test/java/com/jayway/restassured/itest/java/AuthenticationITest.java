@@ -147,4 +147,25 @@ public class AuthenticationITest extends WithJetty {
             RestAssured.reset();
         }
     }
+
+    /**
+     * Asserts that <a href="http://code.google.com/p/rest-assured/issues/detail?id=95">issue 95</a> is resolved.
+     */
+    @Test
+    public void canSpecifyPortWhenUsingFormAuth() throws Exception {
+        RestAssured.port = 8091; // Specify an unused port
+
+        try {
+            given().
+                    auth().form("John", "Doe", springSecurity()).
+                    port(8080).
+            expect().
+                    statusCode(200).
+                    body(equalTo("OK")).
+            when().
+                    get("/formAuth");
+        } finally {
+            RestAssured.port = 8080;
+        }
+    }
 }

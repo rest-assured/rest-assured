@@ -2,6 +2,7 @@ Change log next version
 -----------------------
 * Added support for uploading files, input streams, byte arrays and text using multi-part form upload. You can use the "multiPart" method to specify what to upload. E.g.
   given().multiPart(new File("/home/user/myFile.txt").when().post("/upload"); (issue 93)
+* Request specification details such as port number are now taking into account when using form authentication (issue 95).
 
 Change log 1.2.3 (2011-08-18)
 -----------------------------
