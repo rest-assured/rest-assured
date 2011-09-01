@@ -21,7 +21,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 public class MultiPartUploadITest extends WithJetty {
@@ -75,6 +74,70 @@ public class MultiPartUploadITest extends WithJetty {
         given().
                 multiPart("file", "myFile", bytes).
                 multiPart("text", "Some text").
+        expect().
+                statusCode(200).
+                body(is(new String(bytes)+"Some text")).
+        when().
+                post("/multipart/fileAndText");
+    }
+
+    @Test
+    public void multiPartUploadingWorksForByteArrayAndFormParams() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                multiPart("file", "myFile", bytes).
+                formParam("text", "Some text").
+        expect().
+                statusCode(200).
+                body(is(new String(bytes)+"Some text")).
+        when().
+                post("/multipart/fileAndText");
+    }
+
+    @Test
+    public void multiPartUploadingWorksForFormParamsAndByteArray() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                formParam("text", "Some text").
+                multiPart("file", "myFile", bytes).
+        expect().
+                statusCode(200).
+                body(is(new String(bytes)+"Some text")).
+        when().
+                post("/multipart/fileAndText");
+    }
+
+    @Test
+    public void multiPartUploadingWorksForByteArrayAndParams() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                multiPart("file", "myFile", bytes).
+                param("text", "Some text").
+        expect().
+                statusCode(200).
+                body(is(new String(bytes)+"Some text")).
+        when().
+                post("/multipart/fileAndText");
+    }
+
+    @Test
+    public void multiPartUploadingWorksForParamsAndByteArray() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                param("text", "Some text").
+                multiPart("file", "myFile", bytes).
         expect().
                 statusCode(200).
                 body(is(new String(bytes)+"Some text")).

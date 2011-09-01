@@ -596,6 +596,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       return;
     }
 
+    if(hasFormParams()) {
+      convertFormParamsToMultiPartParams()
+    }
     http.encoder.putAt MULTIPART_FORM_DATA, {
       MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
 
@@ -607,6 +610,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
       return entity;
     }
+  }
+
+  private def convertFormParamsToMultiPartParams() {
+    def allFormParams = requestParameters += formParams
+    allFormParams.each {
+      multiPart(it.key, it.value)
+    }
+    requestParameters.clear()
+    formParams.clear()
   }
 
   private def sendHttpRequest(HTTPBuilder http, method, responseContentType, targetPath, assertionClosure) {
