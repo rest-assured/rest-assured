@@ -18,12 +18,17 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.IOUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.is;
 
 public class MultiPartUploadITest extends WithJetty {
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void multiPartUploadingWorksForByteArrays() throws Exception {
@@ -143,5 +148,16 @@ public class MultiPartUploadITest extends WithJetty {
                 body(is(new String(bytes)+"Some text")).
         when().
                 post("/multipart/fileAndText");
+    }
+
+    @Test
+    public void multiPartUploadingDoesntWorkForPut() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Sorry, multi part form data is only available for POST");
+
+        given().
+                multiPart("text", "sometext").
+        when().
+                put("/multipart/file");
     }
 }

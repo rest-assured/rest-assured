@@ -567,6 +567,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     keyStoreSpec.apply(http, isFullyQualifiedUri == true && port == 8080 ? DEFAULT_HTTPS_PORT : port)
 
+    validateMultiPartForPostOnly(method);
+
     if(shouldUrlEncode(method)) {
       if(hasFormParams() && requestBody != null) {
         throw new IllegalStateException("You can either send form parameters OR body content in $method, not both!");
@@ -588,6 +590,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       sendHttpRequest(http, method, responseContentType, targetPath, assertionClosure)
     }
     return restAssuredResponse
+  }
+
+  private def validateMultiPartForPostOnly(method) {
+    if(multiParts.size() > 0 && method != POST) {
+        throw new IllegalArgumentException("Sorry, multi part form data is only available for "+POST);
+    }
   }
 
   private def registerRestAssuredEncoders(HTTPBuilder http) {
