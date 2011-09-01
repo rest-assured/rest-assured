@@ -55,7 +55,7 @@ class FormAuthFilter implements AuthFilter {
       userNameInputForm = config.getUserInputTagName()
       passwordInputForm = config.getPasswordInputTagName()
     }
-    final Response loginResponse = given().spec(requestSpec).with().auth().none().and().with().params(userNameInputForm, userName, passwordInputForm, password).then().post(formAction)
+    final Response loginResponse = given().port(requestSpec.getPort()).with().auth().none().and().with().params(userNameInputForm, userName, passwordInputForm, password).then().post(formAction)
     def cookies = [:]
     cookies.putAll(loginResponse.getCookies())
     if(cookies.containsKey(RESERVED_COOKIE_NAME)) {

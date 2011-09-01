@@ -464,8 +464,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return spec(requestSpecificationToMerge)
   }
 
-  def RequestSpecification multiPart(String name, File file) {
-    multiParts << new MultiPart(name: name, content: file)
+  def RequestSpecification multiPart(String controlName, File file) {
+    multiParts << new MultiPart(name: controlName, content: file)
     this
   }
 

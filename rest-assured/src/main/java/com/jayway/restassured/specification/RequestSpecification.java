@@ -743,23 +743,40 @@ public interface RequestSpecification extends RequestSender {
      */
     RequestSpecification contentType(String contentType);
 
+    /**
+     * Specify a file to upload to the server using multi-part form data uploading.
+     * It will assume that the control name is <tt>file</tt>. If this is not
+     * what you want please use an overloaded method.
+     *
+     * @param file The file to upload
+     * @return The request specification
+     */
     RequestSpecification multiPart(File file);
 
-    RequestSpecification multiPart(String name, File file);
+    /**
+     * Specify a file to upload to the server using multi-part form data uploading.
+     * It will assume that the input name attribute is <tt>file</tt>. If this is not
+     * what you want please use an overloaded method.
+     *
+     * @param file The file to upload
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @return The request specification
+     */
+    RequestSpecification multiPart(String controlName, File file);
 
-    RequestSpecification multiPart(String name, File file, String mimeType);
+    RequestSpecification multiPart(String controlName, File file, String mimeType);
 
-    RequestSpecification multiPart(String name, String fileName, byte[] bytes);
+    RequestSpecification multiPart(String controlName, String fileName, byte[] bytes);
 
-    RequestSpecification multiPart(String name, String fileName, byte[] bytes, String mimeType);
+    RequestSpecification multiPart(String controlName, String fileName, byte[] bytes, String mimeType);
 
-    RequestSpecification multiPart(String name, String fileName, InputStream stream);
+    RequestSpecification multiPart(String controlName, String fileName, InputStream stream);
 
-    RequestSpecification multiPart(String name, String fileName, InputStream stream, String mimeType);
+    RequestSpecification multiPart(String controlName, String fileName, InputStream stream, String mimeType);
 
-    RequestSpecification multiPart(String name, String contentBody);
+    RequestSpecification multiPart(String controlName, String contentBody);
 
-    RequestSpecification multiPart(String name, String contentBody, String mimeType);
+    RequestSpecification multiPart(String controlName, String contentBody, String mimeType);
 
     /**
      * If you need to specify some credentials when performing a request.
