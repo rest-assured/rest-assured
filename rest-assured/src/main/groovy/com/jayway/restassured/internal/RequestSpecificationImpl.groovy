@@ -391,7 +391,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   RequestSpecification content(String content) {
     notNull content, "content"
-    return content(content);
+    this.requestBody = content;
+    return this
   }
 
   def RequestSpecification body(byte[] body) {

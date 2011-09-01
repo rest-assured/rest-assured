@@ -92,6 +92,11 @@ public class JSONPostITest extends WithJetty {
     }
 
     @Test
+    public void requestSpecificationAllowsSpecifyingJsonContentForPost() throws Exception {
+        given().content("{ \"message\" : \"hello world\"}").with().contentType(JSON).and().expect().body(equalTo("hello world")).when().post("/jsonBody");
+    }
+
+    @Test
     public void allowsSpecifyingDefaultRequestContentType() throws Exception {
         RestAssured.requestContentType(JSON);
         try {
