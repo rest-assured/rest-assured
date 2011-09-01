@@ -30,6 +30,11 @@
         <servlet-class>com.jayway.restassured.scalatra.SecuredScalatraRestExample</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>ScalatraMultiPartExample</servlet-name>
+        <servlet-class>com.jayway.restassured.scalatra.ScalatraMultiPartExample</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>ScalatraRestExample</servlet-name>
         <url-pattern>/*</url-pattern>
@@ -38,5 +43,10 @@
     <servlet-mapping>
         <servlet-name>SecuredScalatraRestExample</servlet-name>
         <url-pattern>/secured/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ScalatraMultiPartExample</servlet-name>
+        <url-pattern>/multipart/*</url-pattern>
     </servlet-mapping>
 </web-app>

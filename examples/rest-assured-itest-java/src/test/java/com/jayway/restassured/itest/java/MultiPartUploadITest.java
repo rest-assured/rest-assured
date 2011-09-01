@@ -16,32 +16,27 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.File;
-
 import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.authentication.FormAuthConfig.springSecurity;
+import static org.hamcrest.Matchers.is;
 
-public class MultipartUploadITest {
+public class MultiPartUploadITest extends WithJetty {
 
     @Test
-    @Ignore
-    public void test() throws Exception {
+    public void multiPartUploadingWorksForByteArrays() throws Exception {
         // Given
         final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
 
         // When
         given().
-                auth().form("admin", "admin", springSecurity()).
-                multiPart("file", new File("/home/johan/Downloads/verizon.rss")).
-                port(9090).
+                multiPart("file", "myFile", bytes).
         expect().
-                log().
                 statusCode(200).
+                body(is(new String(bytes))).
         when().
-                post("/backend/file/upload");
+                post("/multipart/file");
     }
 }
