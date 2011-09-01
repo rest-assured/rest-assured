@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 public class MultiPartUploadITest extends WithJetty {
@@ -38,5 +39,46 @@ public class MultiPartUploadITest extends WithJetty {
                 body(is(new String(bytes))).
         when().
                 post("/multipart/file");
+    }
+
+   @Test
+   public void multiPartUploadingWorksForStrings() throws Exception {
+       // When
+       given().
+               multiPart("text", "Some text").
+       expect().
+               statusCode(200).
+               body(is("Some text")).
+       when().
+               post("/multipart/text");
+    }
+
+   @Test
+   public void multiPartUploadingWorksForMultipleStrings() throws Exception {
+       // When
+       given().
+               multiPart("text", "Some text").
+               multiPart("text", "Some other text").
+       expect().
+               statusCode(200).
+               body(is("Some text,Some other text")).
+       when().
+               post("/multipart/text");
+    }
+
+    @Test
+    public void multiPartUploadingWorksForByteArrayAndStrings() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                multiPart("file", "myFile", bytes).
+                multiPart("text", "Some text").
+        expect().
+                statusCode(200).
+                body(is(new String(bytes)+"Some text")).
+        when().
+                post("/multipart/fileAndText");
     }
 }
