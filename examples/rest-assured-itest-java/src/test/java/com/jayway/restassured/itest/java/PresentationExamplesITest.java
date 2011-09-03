@@ -19,11 +19,12 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class PresentationExamplesITest extends WithJetty {
@@ -74,5 +75,16 @@ public class PresentationExamplesITest extends WithJetty {
 
         assertThat(firstName, equalTo("John"));
         assertThat(lastName, equalTo("Doe"));
+    }
+
+    @Test
+    public void advancedJsonValidation() throws Exception {
+        expect().
+                statusCode(allOf(greaterThanOrEqualTo(200), lessThanOrEqualTo(300))).
+                root("store.book").
+                body("findAll { book -> book.price < 10 }.title", hasItems("Sayings of the Century", "Moby Dick")).
+                body("author.collect { it.length() }.sum()", Matchers.equalTo(53)).
+        when().
+                get("/jsonStore");
     }
 }
