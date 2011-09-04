@@ -5,6 +5,9 @@ Change log next version
 * Request specification details such as port number are now taking into account when using form authentication (issue 95).
 * You can now pass string data to the content method in the RequestSpecification, e.g. given().content("{ \"message\" : \"hello world
 \"}").then().expect().statusCode(200).when().post("/json");
+* Added methods to get NodeChildren and Node to XmlPath class (issue 58).
+* Improved automatic escaping of attributes in cases of ranges. E.g. you can now type "records.car[0..1].@year" when parsing XML instead of having to espace the year attribute: "records.car[0..1].'@year'".
+* Improved escaping of the minus character inside closures when parsing JSON, XML and HTML.
 
 Change log 1.2.3 (2011-08-18)
 -----------------------------

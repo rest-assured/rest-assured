@@ -19,6 +19,7 @@ package com.jayway.restassured.path.xml;
 import com.jayway.restassured.assertion.XMLAssertion;
 import com.jayway.restassured.exception.ParsePathException;
 import com.jayway.restassured.path.xml.element.Node;
+import com.jayway.restassured.path.xml.element.NodeChildren;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
 import groovyx.net.http.ParserRegistry;
@@ -34,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
-import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.HTML;
 import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.XML;
 
 /**
@@ -342,6 +342,30 @@ public class XmlPath {
      */
     public boolean getBoolean(String path) {
         return (Boolean) get(path);
+    }
+
+    /**
+     * Get the result of an XML path expression as a {@link Node}. For syntax details please refer to
+     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     *
+     * @param path The XML path.
+     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * cannot be casted to the expected type.
+     */
+    public Node getNode(String path) {
+        return get(path);
+    }
+
+    /**
+     * Get the result of an XML path expression as a {@link com.jayway.restassured.path.xml.element.NodeChildren}. For syntax details please refer to
+     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     *
+     * @param path The XML path.
+     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * cannot be casted to the expected type.
+     */
+    public NodeChildren getNodeChildren(String path) {
+        return get(path);
     }
 
     /**

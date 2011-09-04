@@ -18,20 +18,36 @@ package com.jayway.restassured.assertion
 
 class AssertionSupport {
 
-  private static def closureFragment = '{'
+  private static def closureStartFragment = '{'
+  private static def closureEndFragment = '}'
   private static def listGetterFragment = '('
   private static def listIndexFragment = '['
 
-  def static escapeMinus(key) {
+  private static def escapePath(key, Closure closure) {
     def pathFragments = key.split("\\.")
     for(int i = 0; i < pathFragments.length; i++) {
       String pathFragment = pathFragments[i]
-      if(pathFragment.contains('-') && !containsAny(pathFragment, [closureFragment, listGetterFragment, listIndexFragment])) {
+      if(closure(pathFragment)) {
         pathFragments[i] = "'"+pathFragments[i]+"'"
       }
     }
     pathFragments.join(".")
   }
+
+  def static escapeMinus(key) {
+    def minus =  { pathFragment ->
+      !pathFragment.startsWith("'") && pathFragment.contains('-') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexFragment])
+    }
+    escapePath(key, minus)
+  }
+
+  def static escapeAttributeGetter(key) {
+    def minus =  { pathFragment ->
+      pathFragment.startsWith("@") && !pathFragment.endsWith("'") && !containsAny(pathFragment, [closureStartFragment, closureEndFragment])
+    }
+    escapePath(key, minus)
+  }
+
 
   def static String generateWhitespace(int number) {
     if(number < 1) {

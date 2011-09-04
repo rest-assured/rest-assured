@@ -23,6 +23,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Map;
 
+import static com.jayway.restassured.path.xml.XmlPath.from;
 import static com.jayway.restassured.path.xml.XmlPath.given;
 import static com.jayway.restassured.path.xml.XmlPath.with;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -67,6 +68,21 @@ public class XmlPathTest {
     private static final String GREETING = "<greeting><firstName>John</firstName>\n" +
             "      <lastName>Doe</lastName>\n" +
             "    </greeting>";
+
+    private static final String RECORDS = "<records>\n" +
+            "      <car name='HSV Maloo' make='Holden' year='2006'>\n" +
+            "        <country>Australia</country>\n" +
+            "        <record type='speed'>Pickup Truck with speed of 271kph</record>\n" +
+            "      </car>\n" +
+            "      <car name='P50' make='Peel' year='1962'>\n" +
+            "        <country>Isle of Man</country>\n" +
+            "        <record type='size'>Street-Legal Car at 99cm wide, 59kg</record>\n" +
+            "      </car>\n" +
+            "      <car name='Royale' make='Bugatti' year='1931'>\n" +
+            "        <country>France</country>\n" +
+            "        <record type='price'>Most Valuable Car at $15 million</record>\n" +
+            "      </car>\n" +
+            "</records>";
 
     @Test
     public void initializeUsingCtorAndGetList() throws Exception {
@@ -203,5 +219,40 @@ public class XmlPathTest {
         final Node node = with(XML).get();
 
         assertThat(node.name(), is("shopping"));
+    }
+
+    @Test
+    public void getLocationOfRecords() throws Exception {
+        final List<String> list = from(RECORDS).getList("records.car.country.list()", String.class);
+
+        assertThat(list, hasItems("Australia", "Isle of Man", "France"));
+    }
+
+    @Test
+    public void getFirstTwoYearsOfRecords() throws Exception {
+        final List<String> list = from(RECORDS).getList("records.car[0..1].@year", String.class);
+
+        assertThat(list, hasItems("2006", "1962"));
+    }
+
+    @Test
+    public void getFirstTwoYearsOfRecordsUsingEscapedAttributeGetter() throws Exception {
+        final List<String> list = from(RECORDS).getList("records.car[0..1].'@year'", String.class);
+
+        assertThat(list, hasItems("2006", "1962"));
+    }
+
+    @Test
+    public void getNameOfLastCountry() throws Exception {
+        final String country = from(RECORDS).getString("records.car[-1].country");
+
+        assertThat(country, equalTo("France"));
+    }
+
+    @Test
+    public void getNameOfFirstCar() throws Exception {
+        final String name = from(RECORDS).getString("records.car[0].@name");
+
+        assertThat(name, equalTo("HSV Maloo"));
     }
 }

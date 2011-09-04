@@ -54,6 +54,12 @@ public class PresentationExamplesITest extends WithJetty {
     }
 
     @Test
+    public void groceriesContainsChocolateAndCoffee() throws Exception {
+        expect().log().body("shopping.category.findAll {it.@type == 'groceries'}.list()", hasItems("Chocolate", "Coffee")).when().get("/shopping");
+
+    }
+
+    @Test
     public void simpleJsonValidationWithJsonPath() throws Exception {
         final String body = get("/greetJSON?firstName=John&lastName=Doe").asString();
 
