@@ -66,7 +66,7 @@ class RestAssuredResponseImpl implements Response {
   }
 
   private def parseContent(content) {
-    def abstractJsonClass = Class.forName("net.sf.json.AbstractJSON");
+    def abstractJsonClass = Class.forName("net.sf.json.AbstractJSON", true, Thread.currentThread().getContextClassLoader());
     try {
       if (content instanceof InputStream) {
         this.content = convertToByteArray(content)
