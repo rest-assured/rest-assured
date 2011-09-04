@@ -82,7 +82,27 @@ public class XmlPathTest {
 
     private static final String ATTR_WITH_MINUS = "<something has-a-name=\"some\" />";
 
-    private static final String XML_WITH_DOT_IN_NAME = "<something><com.mycompany.Filter>Hello</com.mycompany.Filter></something>";
+    private static final String XML_WITH_DOT_IN_NAME = "<something><com.mycompany.Filter>Hello</com.mycompany.Filter><some-value>Some value</some-value></something>";
+
+    private static final String RSS = "<?xml version=\"1.0\"?>\n" +
+            "<rss version=\"2.0\">\n" +
+            "  <channel>\n" +
+            "    <title>Some title</title>\n" +
+            "    <link>http://www.google.com</link>\n" +
+            "    <description>Description</description>\n" +
+            "    <category domain=\"http://mycompany.com/category\">games</category>\n" +
+            "    <item>\n" +
+            "      <title>Item title</title>\n" +
+            "      <link>http://www.somelink.org</link>\n" +
+            "      <description>Some cool game</description>\n" +
+            "      <enclosure length=\"58433\" type=\"image/jpeg\" url=\"https://mycompany.org/some.jpg\"/>\n" +
+            "      <category domain=\"http://mycompany.com/rss/first\">First category</category>\n" +
+            "      <category domain=\"http://mycompany.com/rss/second\">Second category</category>\n" +
+            "      <pubDate>Sun, 04 Sep 2011 15:32:25 GMT</pubDate>\n" +
+            "      <guid>1234</guid>\n" +
+            "    </item>\n" +
+            "  </channel>\n" +
+            "</rss>";
 
     @Test
     public void initializeUsingCtorAndGetList() throws Exception {
@@ -289,5 +309,19 @@ public class XmlPathTest {
         final String message = from(XML_WITH_DOT_IN_NAME).get("something.'com.mycompany.Filter'.text()");
 
         assertThat(message, equalTo("Hello"));
+    }
+
+    @Test
+    public void canParseTagsWithEscapedMinus() throws Exception {
+        final String message = from(XML_WITH_DOT_IN_NAME).getString("something.'some-value'");
+
+        assertThat(message, equalTo("Some value"));
+    }
+
+    @Test
+    public void canParseClosuresWithEscapedDotsInEqualExpression() throws Exception {
+        final String firstCategory = from(RSS).get("rss.**.find { it.@domain == 'http://mycompany.com/rss/first' }");
+
+        assertThat(firstCategory, equalTo("First category"));
     }
 }

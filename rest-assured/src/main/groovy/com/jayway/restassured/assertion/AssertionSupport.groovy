@@ -22,6 +22,7 @@ class AssertionSupport {
   private static def closureEndFragment = '}'
   private static def listGetterFragment = '('
   private static def listIndexFragment = '['
+  private static def space = ' '
 
   def static escapePath(key, Closure... closuresToEscape) {
     def pathFragments = key.split("\\.")
@@ -29,7 +30,7 @@ class AssertionSupport {
       String pathFragment = pathFragments[i]
       for(int j = 0; j < closuresToEscape.length; j++) {
         if(closuresToEscape[j](pathFragment)) {
-          pathFragments[i] = "'"+pathFragments[i]+"'"
+          pathFragments[i] = "'"+pathFragments[i].trim()+"'"
           break;
         }
       }
@@ -45,7 +46,7 @@ class AssertionSupport {
 
   def static attributeGetter() {
     return { pathFragment ->
-      pathFragment.startsWith("@") && !pathFragment.endsWith("'") && !containsAny(pathFragment, [closureStartFragment, closureEndFragment])
+      pathFragment.startsWith("@") && !pathFragment.endsWith("'") && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, space])
     }
   }
 
