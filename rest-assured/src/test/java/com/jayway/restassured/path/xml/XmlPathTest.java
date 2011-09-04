@@ -261,6 +261,15 @@ public class XmlPathTest {
 
     @Test
     public void depthFirstSearchingUsingDoubleStarNotation() throws Exception {
-        final int o = from(XML).getInt("shopping.'**'.find { it.name == 'Chocolate' }.price");
+        final int chocolatePrice = from(XML).getInt("shopping.'**'.find { it.name == 'Chocolate' }.price");
+
+        assertThat(chocolatePrice, equalTo(10));
+    }
+
+    @Test
+    public void depthFirstSearchingUsingUnEscapedDoubleStarNotation() throws Exception {
+        final int chocolatePrice = from(XML).getInt("shopping.**.find { it.name == 'Chocolate' }.price");
+
+        assertThat(chocolatePrice, equalTo(10));
     }
 }

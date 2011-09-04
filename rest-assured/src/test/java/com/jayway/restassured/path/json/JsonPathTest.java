@@ -165,6 +165,5 @@ public class JsonPathTest {
         assertThat(with(JSON).getShort("store.bicycle.atoms"), equalTo((short)Long.MAX_VALUE));
         assertThat(with(JSON).getInt("store.bicycle.atoms"), equalTo((int)Long.MAX_VALUE));
         assertThat(with(JSON).getLong("store.bicycle.atoms"), equalTo(Long.MAX_VALUE));
-
     }
 }

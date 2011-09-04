@@ -55,8 +55,10 @@ public class PresentationExamplesITest extends WithJetty {
 
     @Test
     public void groceriesContainsChocolateAndCoffee() throws Exception {
-        expect().log().body("shopping.category.findAll {it.@type == 'groceries'}.list()", hasItems("Chocolate", "Coffee")).when().get("/shopping");
-
+        expect().
+                body("shopping.category.findAll {it.@type == 'groceries'}.list()", hasItems("Chocolate", "Coffee")).
+        when().
+                get("/shopping");
     }
 
     @Test

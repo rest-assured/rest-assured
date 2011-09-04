@@ -42,12 +42,18 @@ class AssertionSupport {
   }
 
   def static escapeAttributeGetter(key) {
-    def minus =  { pathFragment ->
+    def attributeGetter =  { pathFragment ->
       pathFragment.startsWith("@") && !pathFragment.endsWith("'") && !containsAny(pathFragment, [closureStartFragment, closureEndFragment])
     }
-    escapePath(key, minus)
+    escapePath(key, attributeGetter)
   }
 
+  def static escapeDoubleStar(key) {
+    def doubleStar =  { pathFragment ->
+      pathFragment == "**"
+    }
+    escapePath(key, doubleStar)
+  }
 
   def static String generateWhitespace(int number) {
     if(number < 1) {
