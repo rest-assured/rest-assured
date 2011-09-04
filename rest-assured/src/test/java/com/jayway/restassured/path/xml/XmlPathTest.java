@@ -298,6 +298,34 @@ public class XmlPathTest {
     }
 
     @Test
+    public void rootDepthFirstSearchingWhenUsingDoubeStarNotation() throws Exception {
+        final List<String> groceries = from(XML).getList("**.find { it.@type == 'groceries' }.item.name.list()");
+
+        assertThat(groceries, hasItems("Chocolate", "Coffee"));
+    }
+
+    @Test
+    public void rootDepthFirstSearchingWhenUsingEscapedDoubleStarNotation() throws Exception {
+        final List<String> groceries = from(XML).getList("'**'.find { it.@type == 'groceries' }.item.name.list()");
+
+        assertThat(groceries, hasItems("Chocolate", "Coffee"));
+    }
+
+    @Test
+    public void rootDepthFirstSearchingWhenUsingDoubleStarNotationWhenPathStartsWithDot() throws Exception {
+        final List<String> groceries = from(XML).getList(".**.find { it.@type == 'groceries' }.item.name.list()");
+
+        assertThat(groceries, hasItems("Chocolate", "Coffee"));
+    }
+
+    @Test
+    public void rootDepthFirstMethodSearching() throws Exception {
+        final List<String> groceries = from(XML).getList("depthFirst().find { it.@type == 'groceries' }.item.name.list()");
+
+        assertThat(groceries, hasItems("Chocolate", "Coffee"));
+    }
+
+    @Test
     public void canParsePathWithDoubleEscapeChars() throws Exception {
         final String name = from(ATTR_WITH_MINUS).getString("something.@has-a-name");
 

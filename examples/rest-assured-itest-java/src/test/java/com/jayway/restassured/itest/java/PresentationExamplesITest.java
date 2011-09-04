@@ -54,14 +54,6 @@ public class PresentationExamplesITest extends WithJetty {
     }
 
     @Test
-    public void groceriesContainsChocolateAndCoffee() throws Exception {
-        expect().
-                body("shopping.category.find { it.@type == 'groceries' }", hasItems("Chocolate", "Coffee")).
-        when().
-                get("/shopping");
-    }
-
-    @Test
     public void simpleJsonValidationWithJsonPath() throws Exception {
         final String body = get("/greetJSON?firstName=John&lastName=Doe").asString();
 
@@ -83,6 +75,22 @@ public class PresentationExamplesITest extends WithJetty {
 
         assertThat(firstName, equalTo("John"));
         assertThat(lastName, equalTo("Doe"));
+    }
+
+    @Test
+    public void groceriesContainsChocolateAndCoffee() throws Exception {
+        expect().
+                body("shopping.category.find { it.@type == 'groceries' }", hasItems("Chocolate", "Coffee")).
+        when().
+                get("/shopping");
+    }
+
+    @Test
+    public void groceriesContainsChocolateAndCoffeeUsingDoubleStarNotation() throws Exception {
+        expect().
+                body("**.find { it.@type == 'groceries' }", hasItems("Chocolate", "Coffee")).
+        when().
+                get("/shopping");
     }
 
     @Test
