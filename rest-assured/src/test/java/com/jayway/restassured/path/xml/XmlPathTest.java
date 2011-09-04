@@ -82,6 +82,8 @@ public class XmlPathTest {
 
     private static final String ATTR_WITH_MINUS = "<something has-a-name=\"some\" />";
 
+    private static final String XML_WITH_DOT_IN_NAME = "<something><com.mycompany.Filter>Hello</com.mycompany.Filter></something>";
+
     @Test
     public void initializeUsingCtorAndGetList() throws Exception {
         final NodeChildren categories = new XmlPath(XML).get("shopping.category");
@@ -280,5 +282,12 @@ public class XmlPathTest {
         final String name = from(ATTR_WITH_MINUS).getString("something.@has-a-name");
 
         assertThat(name, equalTo("some"));
+    }
+
+    @Test
+    public void canParseTagsWithDotIfUsingEscaping() throws Exception {
+        final String message = from(XML_WITH_DOT_IN_NAME).get("something.'com.mycompany.Filter'.text()");
+
+        assertThat(message, equalTo("Hello"));
     }
 }

@@ -68,6 +68,7 @@ public class JsonPathTest {
             "{\"email\":\"name2@mail.com\",\"alias\":\"name two\",\"phone\":\"1234567\"},\n" +
             "{\"email\":\"name3@mail.com\",\"alias\":\"name three\",\"phone\":\"2345678\"}]";
 
+
     @Test
     public void getList() throws Exception {
         final List<String> categories = new JsonPath(JSON).get("store.book.category");
