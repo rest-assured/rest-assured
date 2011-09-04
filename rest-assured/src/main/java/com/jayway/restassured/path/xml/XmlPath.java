@@ -96,6 +96,11 @@ import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.XML;
  * List&lt;Node&gt; itemsBetweenTenAndTwenty = with(XML).get("shopping.category.item.findAll { item -> def price = item.price.toFloat(); price >= 10 && price <= 20 }");
  * </pre>
  *
+ * Get the chocolate price:
+ * <pre>
+ * int priceOfChocolate = with(XML).getInt("**.find { it.name == 'Chocolate' }.price"
+ * </pre>
+ *
  * You can also parse HTML by setting compatibility mode to HTML:
  * <pre>
  * XmlPath xmlPath = new XmlPath(CompatibilityMode.HTML,&lt;some html&gt;);
