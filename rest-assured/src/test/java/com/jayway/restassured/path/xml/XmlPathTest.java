@@ -23,11 +23,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Map;
 
-import static com.jayway.restassured.path.xml.XmlPath.from;
-import static com.jayway.restassured.path.xml.XmlPath.given;
-import static com.jayway.restassured.path.xml.XmlPath.with;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
+import static com.jayway.restassured.path.xml.XmlPath.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -254,5 +250,17 @@ public class XmlPathTest {
         final String name = from(RECORDS).getString("records.car[0].@name");
 
         assertThat(name, equalTo("HSV Maloo"));
+    }
+
+    @Test
+    public void getIntParsesAStringResultToInt() throws Exception {
+        final int price = from(XML).getInt("shopping.category[0].item[0].price");
+
+        assertThat(price, equalTo(10));
+    }
+
+    @Test
+    public void depthFirstSearchingUsingDoubleStarNotation() throws Exception {
+        final int o = from(XML).getInt("shopping.'**'.find { it.name == 'Chocolate' }.price");
     }
 }

@@ -8,6 +8,7 @@ Change log next version
 * Added methods to get NodeChildren and Node to XmlPath class (issue 58).
 * Improved automatic escaping of attributes in cases of ranges. E.g. you can now type "records.car[0..1].@year" when parsing XML instead of having to espace the year attribute: "records.car[0..1].'@year'".
 * Improved escaping of the minus character inside closures when parsing JSON, XML and HTML.
+* When using XmlPath and getting primitive values from an XML graph the result is automatically converted to the expected primitive type if needed and possible.
 
 Change log 1.2.3 (2011-08-18)
 -----------------------------

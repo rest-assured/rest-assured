@@ -329,7 +329,11 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public int getInt(String path) {
-        return (Integer) get(path);
+        final Object object = get(path);
+        if(!(object instanceof Integer)) {
+            return Integer.parseInt(object.toString());
+        }
+        return (Integer) object;
     }
 
     /**
@@ -341,7 +345,11 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public boolean getBoolean(String path) {
-        return (Boolean) get(path);
+        Object object = get(path);
+        if(!(object instanceof Boolean)) {
+            return Boolean.parseBoolean(object.toString());
+        }
+        return (Boolean) object;
     }
 
     /**
@@ -377,6 +385,10 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public char getChar(String path) {
+        Object object = get(path);
+        if(!(object == null && object instanceof Character)) {
+            return object.toString().charAt(0);
+        }
         return (Character) get(path);
     }
 
@@ -389,7 +401,11 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public byte getByte(String path) {
-        return (Byte) get(path);
+        Object object = get(path);
+        if(!(object == null && object instanceof Byte)) {
+            return Byte.parseByte(object.toString());
+        }
+        return (Byte) object;
     }
 
     /**
@@ -401,7 +417,11 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public short getShort(String path) {
-        return (Short) get(path);
+        Object object = get(path);
+        if(!(object == null && object instanceof Short)) {
+            return Short.parseShort(object.toString());
+        }
+        return (Short) object;
     }
 
     /**
@@ -413,7 +433,11 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public float getFloat(String path) {
-        return (Float) get(path);
+        Object object = get(path);
+        if(!(object == null && object instanceof Float)) {
+            return Float.parseFloat(object.toString());
+        }
+        return (Float) object;
     }
 
     /**
@@ -425,7 +449,11 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public double getDouble(String path) {
-        return (Double) get(path);
+        Object object = get(path);
+        if(!(object == null && object instanceof Double)) {
+            return Double.parseDouble(object.toString());
+        }
+        return (Double) object;
     }
 
     /**
@@ -437,6 +465,10 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public long getLong(String path) {
+        Object object = get(path);
+        if(!(object == null && object instanceof Long)) {
+            return Long.parseLong(object.toString());
+        }
         return (Long) get(path);
     }
 
@@ -449,7 +481,11 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public String getString(String path) {
-        return get(path);
+        Object object = get(path);
+        if(!(object == null && object instanceof String)) {
+            return object.toString();
+        }
+        return (String) object;
     }
 
     /**
