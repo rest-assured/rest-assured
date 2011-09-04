@@ -18,16 +18,14 @@ package com.jayway.restassured.assertion
 
 import net.sf.json.JSONArray
 import net.sf.json.JSONNull
-import static com.jayway.restassured.assertion.AssertionSupport.escapeMinus
-import static com.jayway.restassured.assertion.AssertionSupport.generateWhitespace
+import static com.jayway.restassured.assertion.AssertionSupport.*
 import static java.util.Arrays.asList
-import static com.jayway.restassured.assertion.AssertionSupport.escapeDoubleStar
 
 class JSONAssertion implements Assertion {
   String key;
 
   def Object getResult(Object object) {
-    key = escapeMinus(key);
+    key = escapePath(key, minus());
     def result;
     if(key == "\$" || key == "") {
       result = object

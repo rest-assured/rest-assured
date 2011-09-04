@@ -19,11 +19,10 @@ package com.jayway.restassured.assertion
 import com.jayway.restassured.internal.path.xml.NodeChildrenImpl
 import com.jayway.restassured.internal.path.xml.NodeImpl
 import com.jayway.restassured.path.xml.element.NodeChildren
-import static com.jayway.restassured.assertion.AssertionSupport.escapeMinus
-import static com.jayway.restassured.assertion.AssertionSupport.generateWhitespace
+import groovy.util.slurpersupport.FilteredNodeChildren
 import groovy.util.slurpersupport.*
-import static com.jayway.restassured.assertion.AssertionSupport.escapeAttributeGetter
-import static com.jayway.restassured.assertion.AssertionSupport.escapeDoubleStar
+import groovy.util.slurpersupport.NodeChild
+import static com.jayway.restassured.assertion.AssertionSupport.*
 
 class XMLAssertion implements Assertion {
   String key;
@@ -33,9 +32,7 @@ class XMLAssertion implements Assertion {
   private def isInvocationFragment = ~/.*\(\d*\)|.*\{.*/
 
   def Object getResult(Object object) {
-    key = escapeMinus(key);
-    key = escapeAttributeGetter(key);
-    key = escapeDoubleStar(key);
+    key = escapePath(key, minus(), attributeGetter(), doubleStar())
     def indexOfDot = key.indexOf(".")
     def baseString
     def evaluationString

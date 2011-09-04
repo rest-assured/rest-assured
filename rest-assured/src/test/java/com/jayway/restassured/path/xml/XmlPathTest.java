@@ -80,6 +80,8 @@ public class XmlPathTest {
             "      </car>\n" +
             "</records>";
 
+    private static final String ATTR_WITH_MINUS = "<something has-a-name=\"some\" />";
+
     @Test
     public void initializeUsingCtorAndGetList() throws Exception {
         final NodeChildren categories = new XmlPath(XML).get("shopping.category");
@@ -271,5 +273,12 @@ public class XmlPathTest {
         final int chocolatePrice = from(XML).getInt("shopping.**.find { it.name == 'Chocolate' }.price");
 
         assertThat(chocolatePrice, equalTo(10));
+    }
+
+    @Test
+    public void canParsePathWithDoubleEscapeChars() throws Exception {
+        final String name = from(ATTR_WITH_MINUS).getString("something.@has-a-name");
+
+        assertThat(name, equalTo("some"));
     }
 }

@@ -23,36 +23,36 @@ class AssertionSupport {
   private static def listGetterFragment = '('
   private static def listIndexFragment = '['
 
-  private static def escapePath(key, Closure closure) {
+  def static escapePath(key, Closure... closuresToEscape) {
     def pathFragments = key.split("\\.")
     for(int i = 0; i < pathFragments.length; i++) {
       String pathFragment = pathFragments[i]
-      if(closure(pathFragment)) {
-        pathFragments[i] = "'"+pathFragments[i]+"'"
+      for(int j = 0; j < closuresToEscape.length; j++) {
+        if(closuresToEscape[j](pathFragment)) {
+          pathFragments[i] = "'"+pathFragments[i]+"'"
+          break;
+        }
       }
     }
     pathFragments.join(".")
   }
 
-  def static escapeMinus(key) {
-    def minus =  { pathFragment ->
+  def static minus() {
+    return { pathFragment ->
       !pathFragment.startsWith("'") && pathFragment.contains('-') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexFragment])
     }
-    escapePath(key, minus)
   }
 
-  def static escapeAttributeGetter(key) {
-    def attributeGetter =  { pathFragment ->
+  def static attributeGetter() {
+    return { pathFragment ->
       pathFragment.startsWith("@") && !pathFragment.endsWith("'") && !containsAny(pathFragment, [closureStartFragment, closureEndFragment])
     }
-    escapePath(key, attributeGetter)
   }
 
-  def static escapeDoubleStar(key) {
-    def doubleStar =  { pathFragment ->
+  def static doubleStar() {
+    return { pathFragment ->
       pathFragment == "**"
     }
-    escapePath(key, doubleStar)
   }
 
   def static String generateWhitespace(int number) {
