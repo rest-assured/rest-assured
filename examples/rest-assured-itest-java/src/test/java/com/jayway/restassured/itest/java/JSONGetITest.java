@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.parsing.Parser.JSON;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -629,5 +630,16 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void supportsAssertingThatHeaderDoesntExist() throws Exception {
         with().params("firstName", "John", "lastName", "Doe").expect().header("something", nullValue(String.class)).when().get("/greet");
+    }
+
+    @Test
+    public void supportsRegisteringJsonParserForAGivenMimeType() throws Exception {
+        final String mimeType = "application/vnd.uoml+json";
+        RestAssured.registerParser(mimeType, JSON);
+        try {
+            expect().body("message", equalTo("It works")).when().get("/customMimeTypeJsonCompatible");
+        } finally {
+            RestAssured.unregisterParser(mimeType);
+        }
     }
 }

@@ -216,6 +216,11 @@ class ScalatraRestExample extends ScalatraServlet {
     </body>
   }
 
+  get("/customMimeTypeJsonCompatible") {
+    contentType = "application/vnd.uoml+json"
+    """{ "message" : "It works" }"""
+  }
+
   get("/cookie_with_no_value") {
     contentType = "text/plain"
     val cookies = request.getCookies
