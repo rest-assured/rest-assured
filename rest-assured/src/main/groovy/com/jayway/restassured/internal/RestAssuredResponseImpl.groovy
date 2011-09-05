@@ -84,7 +84,7 @@ class RestAssuredResponseImpl implements Response {
     }
   }
 
-  // TODO: Handle namespaces
+  // TODO: Handle nachmespaces
   def toString(Writable node) {
     def writer = new StringWriter()
     writer << new StreamingMarkupBuilder().bind {

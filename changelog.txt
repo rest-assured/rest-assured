@@ -1,16 +1,16 @@
 Change log next version
 -----------------------
-* Added support for uploading files, input streams, byte arrays and text using multi-part form upload. You can use the "multiPart" method to specify what to upload. E.g.
+* Added support for uploading files, input streams, byte arrays and text using multi-part form data upload. You can use the "multiPart" method to specify what to upload. E.g.
   given().multiPart(new File("/home/user/myFile.txt").when().post("/upload"); (issue 93)
 * Request specification details such as port number are now taking into account when using form authentication (issue 95).
 * You can now pass string data to the content method in the RequestSpecification, e.g. given().content("{ \"message\" : \"hello world
 \"}").then().expect().statusCode(200).when().post("/json");
-* Added methods to get NodeChildren and Node to XmlPath class (issue 58).
-* Improved automatic escaping of attributes in cases of ranges. E.g. you can now type "records.car[0..1].@year" when parsing XML instead of having to espace the year attribute: "records.car[0..1].'@year'".
+* Added methods to get NodeChildren and Node to XmlPath class (issue 54 and 58).
+* Improved automatic escaping of attributes in cases of ranges. E.g. you can now type "records.car[0..1].@year" when parsing XML instead of having to escape the year attribute like "records.car[0..1].'@year'".
 * Improved escaping of the minus character inside closures when parsing JSON, XML and HTML.
 * When using XmlPath and getting primitive values from an XML graph the result is automatically converted to the expected primitive type if needed and possible.
 * Added support for depth-first parsing of XML using the double-star notation, e.g. "int chocolatePrice = from(XML).getInt("shopping.**.find { it.name == 'Chocolate' }.price");" (issue 94).
-* RestAssured now uses the Theads classloader to load net.sf.json.AbstractJSON instead of root classloader to avoid problems with Groovy Grape (issue 92).
+* RestAssured now uses the threads classloader to load net.sf.json.AbstractJSON instead of root classloader to avoid problems with Groovy Grape (issue 92).
 
 Change log 1.2.3 (2011-08-18)
 -----------------------------
