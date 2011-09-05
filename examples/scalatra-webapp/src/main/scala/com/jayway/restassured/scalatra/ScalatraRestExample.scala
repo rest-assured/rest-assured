@@ -221,6 +221,11 @@ class ScalatraRestExample extends ScalatraServlet {
     """{ "message" : "It works" }"""
   }
 
+  get("/customMimeTypeNonJsonCompatible") {
+    contentType = "application/something+json"
+    "This is not JSON"
+  }
+
   get("/cookie_with_no_value") {
     contentType = "text/plain"
     val cookies = request.getCookies

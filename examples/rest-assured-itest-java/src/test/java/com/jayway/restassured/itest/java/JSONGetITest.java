@@ -23,6 +23,7 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
+import net.sf.json.JSONException;
 import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
@@ -638,6 +639,17 @@ public class JSONGetITest extends WithJetty {
         RestAssured.registerParser(mimeType, JSON);
         try {
             expect().body("message", equalTo("It works")).when().get("/customMimeTypeJsonCompatible");
+        } finally {
+            RestAssured.unregisterParser(mimeType);
+        }
+    }
+
+    @Test(expected = Exception.class)
+    public void registeringJsonParserForAGivenMimeTypeButResponseIsNotJson() throws Exception {
+        final String mimeType = "application/something+json";
+        RestAssured.registerParser(mimeType, JSON);
+        try {
+            expect().body("message", equalTo("It works")).when().get("/customMimeTypeNonJsonCompatible");
         } finally {
             RestAssured.unregisterParser(mimeType);
         }
