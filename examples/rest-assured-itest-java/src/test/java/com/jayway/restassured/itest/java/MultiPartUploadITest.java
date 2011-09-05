@@ -16,7 +16,9 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.specification.RequestSpecification;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -148,6 +150,21 @@ public class MultiPartUploadITest extends WithJetty {
                 body(is(new String(bytes)+"Some text")).
         when().
                 post("/multipart/fileAndText");
+    }
+
+    @Test
+    public void bytesAndFormParamUploadingWorkUsingRequestBuilder() throws Exception {
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+        final RequestSpecification spec = new RequestSpecBuilder().addMultiPart("file", "myFile", bytes).addFormParam("text", "Some text").build();
+
+        // When
+        given().
+                spec(spec).
+        expect().
+                body(is(new String(bytes)+"Some text")).
+        when().
+                post("/multipart/fileAndText");
+
     }
 
     @Test

@@ -23,6 +23,8 @@ import com.jayway.restassured.internal.SpecificationMerger;
 import com.jayway.restassured.specification.RequestSpecification;
 import groovyx.net.http.ContentType;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -335,7 +337,7 @@ public class RequestSpecBuilder {
      * @return The request specification builder
      */
     public RequestSpecBuilder addFormParameters(Map<String, String> parametersMap) {
-        spec.queryParameters(parametersMap);
+        spec.formParameters(parametersMap);
         return this;
     }
 
@@ -350,7 +352,7 @@ public class RequestSpecBuilder {
      * @return The request specification builder
      */
     public RequestSpecBuilder addFormParameter(String parameterName, String parameterValue, String... additionalParameterValues) {
-        spec.queryParameter(parameterName, parameterValue, additionalParameterValues);
+        spec.formParameter(parameterName, parameterValue, additionalParameterValues);
         return this;
     }
 
@@ -363,7 +365,7 @@ public class RequestSpecBuilder {
      * @return The request specification builder
      */
     public RequestSpecBuilder addFormParameter(String parameterName, List<String> parameterValues) {
-        spec.parameter(parameterName, parameterValues);
+        spec.formParam(parameterName, parameterValues);
         return this;
     }
 
@@ -376,7 +378,7 @@ public class RequestSpecBuilder {
      * @return The request specification builder
      */
     public RequestSpecBuilder addFormParam(String parameterName, List<String> parameterValues) {
-        spec.queryParam(parameterName, parameterValues);
+        spec.formParam(parameterName, parameterValues);
         return this;
     }
 
@@ -388,7 +390,7 @@ public class RequestSpecBuilder {
      * @return The request specification builder
      */
     public RequestSpecBuilder addFormParams(Map<String, String> parametersMap) {
-        spec.queryParams(parametersMap);
+        spec.formParams(parametersMap);
         return this;
     }
 
@@ -402,7 +404,7 @@ public class RequestSpecBuilder {
      * @return The request specification builder
      */
     public RequestSpecBuilder addFormParam(String parameterName, String parameterValue, String... additionalParameterValues) {
-        spec.queryParam(parameterName, parameterValue, additionalParameterValues);
+        spec.formParam(parameterName, parameterValue, additionalParameterValues);
         return this;
     }
 
@@ -639,6 +641,129 @@ public class RequestSpecBuilder {
      */
     public RequestSpecBuilder setContentType(String contentType) {
         spec.contentType(contentType);
+        return this;
+    }
+
+    /**
+     * Specify a file to upload to the server using multi-part form data uploading.
+     * It will assume that the control name is <tt>file</tt> and the mime-type is <tt>application/octet-stream</tt>.
+     * If this is not what you want please use an overloaded method.
+     *
+     * @param file The file to upload
+     * @return The request specification
+     */
+    public RequestSpecBuilder addMultiPart(File file) {
+        spec.multiPart(file);
+        return this;
+    }
+
+    /**
+     * Specify a file to upload to the server using multi-part form data uploading with a specific
+     * control name. It will use the mime-type <tt>application/octet-stream</tt>.
+     * If this is not what you want please use an overloaded method.
+     *
+     * @param file The file to upload
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @return The request specification
+     */
+    public RequestSpecBuilder addMultiPart(String controlName, File file) {
+        spec.multiPart(controlName, file);
+        return this;
+    }
+
+    /**
+     * Specify a file to upload to the server using multi-part form data uploading with a specific
+     * control name and mime-type.
+     *
+     * @param file The file to upload
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param mimeType The mime-type
+     * @return The request specification
+     */
+    public RequestSpecBuilder addMultiPart(String controlName, File file, String mimeType) {
+        spec.multiPart(controlName, file, mimeType);
+        return this;
+    }
+
+    /**
+     * Specify a byte-array to upload to the server using multi-part form data.
+     * It will use the mime-type <tt>application/octet-stream</tt>. If this is not what you want please use an overloaded method.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param fileName The name of the content you're uploading
+     * @param bytes The bytes you want to send
+     * @return The request specification
+     */
+    public RequestSpecBuilder addMultiPart(String controlName, String fileName, byte[] bytes) {
+        spec.multiPart(controlName, fileName, bytes);
+        return this;
+    }
+
+    /**
+     * Specify a byte-array to upload to the server using multi-part form data.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param fileName The name of the content you're uploading
+     * @param bytes The bytes you want to send
+     * @param mimeType The mime-type
+     * @return The request specification
+     */
+    public RequestSpecBuilder addMultiPart(String controlName, String fileName, byte[] bytes, String mimeType) {
+        spec.multiPart(controlName, fileName, bytes, mimeType);
+        return this;
+    }
+
+    /**
+     * Specify an inputstream to upload to the server using multi-part form data.
+     * It will use the mime-type <tt>application/octet-stream</tt>. If this is not what you want please use an overloaded method.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param fileName The name of the content you're uploading
+     * @param stream The stream you want to send
+     * @return The request specification
+     */
+    public RequestSpecBuilder addMultiPart(String controlName, String fileName, InputStream stream) {
+        spec.multiPart(controlName, fileName, stream);
+        return this;
+    }
+
+    /**
+     * Specify an inputstream to upload to the server using multi-part form data.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param fileName The name of the content you're uploading
+     * @param stream The stream you want to send
+     * @param mimeType The mime-type
+     * @return The request specification
+     */
+    public RequestSpecBuilder addMultiPart(String controlName, String fileName, InputStream stream, String mimeType) {
+        spec.multiPart(controlName, fileName, stream, mimeType);
+        return this;
+    }
+
+    /**
+     * Specify a string to send to the server using multi-part form data.
+     * It will use the mime-type <tt>text/plain</tt>. If this is not what you want please use an overloaded method.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param contentBody The string to send
+     * @return The request specification
+     */
+    public RequestSpecBuilder addMultiPart(String controlName, String contentBody) {
+        spec.multiPart(controlName, contentBody);
+        return this;
+    }
+
+    /**
+     * Specify a string to send to the server using multi-part form data with a specific mime-type.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param contentBody The string to send
+     * @param mimeType The mime-type
+     * @return The request specification
+     */
+    public RequestSpecBuilder addMultiPart(String controlName, String contentBody, String mimeType) {
+        spec.multiPart(controlName, mimeType);
         return this;
     }
 

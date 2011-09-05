@@ -124,6 +124,17 @@ class SpecificationMergerTest {
     assertFalse merge.urlEncodingEnabled
   }
 
+  @Test
+  public void mergesMultiPartParams() throws Exception {
+    def merge = new RequestSpecBuilder().addMultiPart("controlName1", "fileName1", new byte[0]).build();
+    def with = new RequestSpecBuilder().addMultiPart("controlName2", "fileName2", new byte[0]).build();
+
+    SpecificationMerger.merge(merge, with)
+
+    assertTrue merge.multiParts.size == 2
+  }
+
+
   private Filter newFilter() {
     return new Filter() {
       @Override

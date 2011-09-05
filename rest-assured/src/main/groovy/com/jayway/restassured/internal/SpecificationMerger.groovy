@@ -66,6 +66,7 @@ class SpecificationMerger {
    *     <li>Query Parameters</li>
    *     <li>Form Parameters</li>
    *     <li>Path parameters</li>
+   *     <li>Multi-part form data parameters</li>
    *     <li>Cookies</li>
    *     <li>Headers</li>
    *     <li>Filters</li>
@@ -80,6 +81,7 @@ class SpecificationMerger {
     thisOne.queryParams.putAll(with.queryParams)
     thisOne.formParams.putAll(with.formParams)
     thisOne.pathParams.putAll(with.pathParams)
+    thisOne.multiParts.addAll(with.multiParts)
     thisOne.authenticationScheme = with.authenticationScheme
     thisOne.keyStoreSpec = with.keyStoreSpec
     thisOne.contentType = with.contentType
