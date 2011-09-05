@@ -11,6 +11,7 @@ Change log next version
 * When using XmlPath and getting primitive values from an XML graph the result is automatically converted to the expected primitive type if needed and possible.
 * Added support for depth-first parsing of XML using the double-star notation, e.g. "int chocolatePrice = from(XML).getInt("shopping.**.find { it.name == 'Chocolate' }.price");" (issue 94).
 * RestAssured now uses the threads classloader to load net.sf.json.AbstractJSON instead of root classloader to avoid problems with Groovy Grape (issue 92).
+* When specifying a request body and using a custom/unregistered content-type the body will automatically be URL Encoded. Previously a NPE was thrown because no content encoder was registered to HTTP Builders encoder registry for the specified content type. (issue 96).
 
 Change log 1.2.3 (2011-08-18)
 -----------------------------

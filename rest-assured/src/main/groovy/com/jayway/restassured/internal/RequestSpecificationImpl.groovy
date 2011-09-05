@@ -43,6 +43,7 @@ import org.apache.commons.lang.StringUtils
 import org.apache.http.entity.mime.MultipartEntity
 
 import org.apache.http.entity.mime.HttpMultipartMode
+import com.jayway.restassured.internal.encoderregistry.RestAssuredEncoderRegistry
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
@@ -524,6 +525,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     def targetUri = getTargetURI(path);
     def targetPath = isFullyQualifiedUri ? new URL(path).getPath() : "$basePath$path"
     def http = new HTTPBuilder(targetUri) {
+      {
+        encoderRegistry = new RestAssuredEncoderRegistry();
+      }
+
       @Override protected Object doRequest(RequestConfigDelegate delegate) {
         // When doing POST we must add the failure handler here
         // in order to be able to return the response when doing
