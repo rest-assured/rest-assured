@@ -39,16 +39,6 @@ class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
   post("""/file""") {
     val fileItem = fileParams.get("file").get
     fileItem.getString
-
-    //    multiParams.get("string") foreach { ps: Seq[String] => response.setHeader("string", ps.mkString(";")) }
-    //    fileParams.get("file") foreach { fi => response.setHeader("file", new String(fi.get)) }
-    //    fileParams.get("file-none") foreach { fi => response.setHeader("file-none", new String(fi.get)) }
-    //    fileParams.get("file-multi") foreach { fi => response.setHeader("file-multi", new String(fi.get)) }
-    //    fileMultiParams.get("file-multi") foreach { fis =>
-    //      response.setHeader("file-multi-all", fis.foldLeft(""){ (acc, fi) => acc + new String(fi.get) })
-    //    }
-    //    params.get("file") foreach { response.setHeader("file-as-param", _) }
-    //    params("utf8-string")
   }
 
   post("""/text""") {
