@@ -515,4 +515,25 @@ class ScalatraRestExample extends ScalatraServlet {
       </name>
     </greeting>
   }
+
+  get("/demoRequestSpecification") {
+    val category = params("category")
+    val userName = request.getCookies.filter(_.getName == "user")(0).getValue
+
+    if(category == "books" && userName == "admin") {
+      "Catch 22"
+    } else {
+      "Unknown entity"
+    }
+  }
+
+  get("/demoResponseSpecification") {
+    contentType = "application/json"
+    val fullName = params("name")
+    val firstAndLastName = fullName.split(" ")
+    val firstName = firstAndLastName(0)
+    val lastName = firstAndLastName(1)
+
+    "{ \"firstName\" : \""+firstName+"\",\"lastName\" : \""+lastName+"\", \"responseType\" : \"simple\" }"
+  }
 }
