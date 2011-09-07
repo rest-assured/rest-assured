@@ -22,6 +22,7 @@ import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 
 public class AdvancedValidationITest extends WithJetty {
@@ -48,7 +49,7 @@ public class AdvancedValidationITest extends WithJetty {
                 statusCode(allOf(greaterThanOrEqualTo(200), lessThanOrEqualTo(300))).
                 root("store.book").
                 body("findAll { book -> book.price < 10 }.title", hasItems("Sayings of the Century", "Moby Dick")).
-                body("author.collect { it.length() }.sum()", Matchers.equalTo(53)).
+                body("author.collect { it.length() }.sum()", equalTo(53)).
         when().
                 get("/jsonStore");
     }
