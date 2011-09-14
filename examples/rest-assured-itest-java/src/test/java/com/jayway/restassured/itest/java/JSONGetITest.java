@@ -654,4 +654,9 @@ public class JSONGetITest extends WithJetty {
             RestAssured.unregisterParser(mimeType);
         }
     }
+
+    @Test
+    public void givenNoBodyExpectationsThenNonBodyExpectationsWorkEvenThoughContentTypeAndBodyContentDoesNotMatch() throws Exception {
+        expect().statusCode(200).and().header("Content-Type", notNullValue(String.class)).when().get("/contentTypeJsonButBodyIsNotJson");
+    }
 }

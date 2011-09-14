@@ -30,7 +30,7 @@ class RestAssuredParserRegistry extends ParserRegistry {
 
   @Override
   protected Map<String, Closure> buildDefaultParserMap() {
-    if(responseSpecification == null || !responseSpecification.hasAssertionsDefined()) {
+    if(responseSpecification == null || !responseSpecification.hasBodyAssertionsDefined()) {
       Map<String,Closure> parsers = new HashMap<String,Closure>();
       parsers.put( ContentType.BINARY.toString(), new MethodClosure(this, "parseStream" ) );
       def parseText = new MethodClosure(this, "parseText")

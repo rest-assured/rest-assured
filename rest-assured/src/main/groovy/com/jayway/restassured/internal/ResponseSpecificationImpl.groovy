@@ -280,8 +280,12 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return this.rootPath(rootPath);
   }
 
+  def boolean hasBodyAssertionsDefined() {
+    return bodyMatchers.containsMatchers()
+  }
+
   def boolean hasAssertionsDefined() {
-    return bodyMatchers.containsMatchers() || !headerAssertions.isEmpty() ||
+    return  hasBodyAssertionsDefined() || !headerAssertions.isEmpty() ||
             !cookieAssertions.isEmpty() || expectedStatusCode != null || expectedStatusLine != null
   }
 

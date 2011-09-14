@@ -226,6 +226,11 @@ class ScalatraRestExample extends ScalatraServlet {
     "This is not JSON"
   }
 
+  get("/contentTypeJsonButBodyIsNotJson") {
+    contentType = "application/json"
+    "This is not JSON"
+  }
+
   get("/cookie_with_no_value") {
     contentType = "text/plain"
     val cookies = request.getCookies
