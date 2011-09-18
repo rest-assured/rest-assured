@@ -2,6 +2,7 @@ Change log next version
 -----------------------
 * Fixed a trivial error in the error message that is displayed when no parser is found for a certain content type (issue 103).
 * Fixed a bug that caused the response body to be parsed as JSON if Content-Type of the response was JSON even though no body matchers were specified (issue 102).
+* Improved List parsing with XmlPath. E.g. from(XML).getList("shopping.category.item.price") will now automatically convert the output from NodeChildren to a List. Also from(XML).getList("shopping.category.item.price", Float.class) will automatically convert all list members to floats.
 
 Change log 1.3 (2011-09-05)
 ---------------------------

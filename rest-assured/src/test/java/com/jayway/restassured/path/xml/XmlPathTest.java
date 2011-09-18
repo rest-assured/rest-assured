@@ -298,29 +298,57 @@ public class XmlPathTest {
     }
 
     @Test
-    public void rootDepthFirstSearchingWhenUsingDoubeStarNotation() throws Exception {
-        final List<String> groceries = from(XML).getList("**.find { it.@type == 'groceries' }.item.name.list()");
+    public void getListReturnsListWhenNodeChildrenFound() {
+        final List<String> groceries = from(XML).getList("shopping.category[0].item.name");
+
+        assertThat(groceries, hasItems("Chocolate", "Coffee"));
+    }
+
+    @Test
+    public void getListReturnsListWhenListFound() {
+        final List<String> groceries = from(XML).getList("shopping.category[0].item.name.list()");
+
+        assertThat(groceries, hasItems("Chocolate", "Coffee"));
+    }
+
+    @Test
+    public void getListWhenUsingExplicitTypeConvertsTheListMembersToThatType() {
+        final List<Float> groceries = from(XML).getList("shopping.category.item.price", Float.class);
+
+        assertThat(groceries, hasItems(10.0f, 20.0f, 5.0f, 15.5f, 200.0f));
+    }
+
+    @Test
+    public void getListWhenNotUsingExplicitTypeDoesntConvertTheListMembersToAnyType() {
+        final List<String> groceries = from(XML).getList("shopping.category.item.price");
+
+        assertThat(groceries, hasItems("10", "20", "5", "15.5", "200"));
+    }
+
+    @Test
+    public void rootDepthFirstSearchingWhenUsingDoubleStarNotation() throws Exception {
+        final List<String> groceries = from(XML).getList("**.find { it.@type == 'groceries' }.item.name");
 
         assertThat(groceries, hasItems("Chocolate", "Coffee"));
     }
 
     @Test
     public void rootDepthFirstSearchingWhenUsingEscapedDoubleStarNotation() throws Exception {
-        final List<String> groceries = from(XML).getList("'**'.find { it.@type == 'groceries' }.item.name.list()");
+        final List<String> groceries = from(XML).getList("'**'.find { it.@type == 'groceries' }.item.name");
 
         assertThat(groceries, hasItems("Chocolate", "Coffee"));
     }
 
     @Test
     public void rootDepthFirstSearchingWhenUsingDoubleStarNotationWhenPathStartsWithDot() throws Exception {
-        final List<String> groceries = from(XML).getList(".**.find { it.@type == 'groceries' }.item.name.list()");
+        final List<String> groceries = from(XML).getList(".**.find { it.@type == 'groceries' }.item.name");
 
         assertThat(groceries, hasItems("Chocolate", "Coffee"));
     }
 
     @Test
     public void rootDepthFirstMethodSearching() throws Exception {
-        final List<String> groceries = from(XML).getList("depthFirst().find { it.@type == 'groceries' }.item.name.list()");
+        final List<String> groceries = from(XML).getList("depthFirst().find { it.@type == 'groceries' }.item.name");
 
         assertThat(groceries, hasItems("Chocolate", "Coffee"));
     }
@@ -334,7 +362,7 @@ public class XmlPathTest {
 
     @Test
     public void canParseTagsWithDotIfUsingEscaping() throws Exception {
-        final String message = from(XML_WITH_DOT_IN_NAME).get("something.'com.mycompany.Filter'.text()");
+        final String message = from(XML_WITH_DOT_IN_NAME).get("something.'com.mycompany.Filter'");
 
         assertThat(message, equalTo("Hello"));
     }

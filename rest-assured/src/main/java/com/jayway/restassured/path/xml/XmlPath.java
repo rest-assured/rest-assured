@@ -23,6 +23,8 @@ import com.jayway.restassured.path.xml.element.NodeChildren;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
 import groovyx.net.http.ParserRegistry;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.Validate;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -31,6 +33,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -278,7 +281,7 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path) {
-        return get(path);
+        return getAsList(path);
     }
 
     /**
@@ -292,7 +295,7 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path, Class<T> genericType) {
-        return get(path);
+        return getAsList(path, genericType);
     }
 
     /**
@@ -335,10 +338,7 @@ public class XmlPath {
      */
     public int getInt(String path) {
         final Object object = get(path);
-        if(!(object instanceof Integer)) {
-            return Integer.parseInt(object.toString());
-        }
-        return (Integer) object;
+        return convertObjectTo(object, Integer.class);
     }
 
     /**
@@ -351,10 +351,7 @@ public class XmlPath {
      */
     public boolean getBoolean(String path) {
         Object object = get(path);
-        if(!(object instanceof Boolean)) {
-            return Boolean.parseBoolean(object.toString());
-        }
-        return (Boolean) object;
+        return convertObjectTo(object, Boolean.class);
     }
 
     /**
@@ -366,7 +363,7 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public Node getNode(String path) {
-        return get(path);
+        return convertObjectTo(get(path), Node.class);
     }
 
     /**
@@ -378,7 +375,7 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public NodeChildren getNodeChildren(String path) {
-        return get(path);
+        return convertObjectTo(get(path), NodeChildren.class);
     }
 
     /**
@@ -391,10 +388,7 @@ public class XmlPath {
      */
     public char getChar(String path) {
         Object object = get(path);
-        if(!(object == null && object instanceof Character)) {
-            return object.toString().charAt(0);
-        }
-        return (Character) get(path);
+        return convertObjectTo(object, Character.class);
     }
 
     /**
@@ -407,10 +401,7 @@ public class XmlPath {
      */
     public byte getByte(String path) {
         Object object = get(path);
-        if(!(object == null && object instanceof Byte)) {
-            return Byte.parseByte(object.toString());
-        }
-        return (Byte) object;
+        return convertObjectTo(object, Byte.class);
     }
 
     /**
@@ -423,10 +414,7 @@ public class XmlPath {
      */
     public short getShort(String path) {
         Object object = get(path);
-        if(!(object == null && object instanceof Short)) {
-            return Short.parseShort(object.toString());
-        }
-        return (Short) object;
+        return convertObjectTo(object, Short.class);
     }
 
     /**
@@ -439,10 +427,7 @@ public class XmlPath {
      */
     public float getFloat(String path) {
         Object object = get(path);
-        if(!(object == null && object instanceof Float)) {
-            return Float.parseFloat(object.toString());
-        }
-        return (Float) object;
+        return convertObjectTo(object, Float.class);
     }
 
     /**
@@ -455,10 +440,7 @@ public class XmlPath {
      */
     public double getDouble(String path) {
         Object object = get(path);
-        if(!(object == null && object instanceof Double)) {
-            return Double.parseDouble(object.toString());
-        }
-        return (Double) object;
+        return convertObjectTo(object, Double.class);
     }
 
     /**
@@ -471,10 +453,7 @@ public class XmlPath {
      */
     public long getLong(String path) {
         Object object = get(path);
-        if(!(object == null && object instanceof Long)) {
-            return Long.parseLong(object.toString());
-        }
-        return (Long) get(path);
+        return convertObjectTo(object, Long.class);
     }
 
     /**
@@ -487,10 +466,7 @@ public class XmlPath {
      */
     public String getString(String path) {
         Object object = get(path);
-        if(!(object == null && object instanceof String)) {
-            return object.toString();
-        }
-        return (String) object;
+        return convertObjectTo(object, String.class);
     }
 
     /**
@@ -665,6 +641,59 @@ public class XmlPath {
         notNull(rootPath, "Root path");
         this.rootPath = rootPath;
         return this;
+    }
+
+    private <T> List<T> getAsList(String path) {
+        return getAsList(path, null);
+    }
+
+    private <T> List<T> getAsList(String path, final Class<?> explicitType) {
+        final Object returnObject = get(path);
+        if(returnObject instanceof NodeChildren) {
+            final NodeChildren nodeChildren = (NodeChildren) returnObject;
+            return new ArrayList<T>(CollectionUtils.collect(nodeChildren.list(), new Transformer() {
+                public Object transform(Object input) {
+                    if(explicitType == null) {
+                        return input.toString();
+                    }
+                    return convertObjectTo(input, explicitType);
+                }
+            }));
+        }
+        return (List<T>) returnObject;
+    }
+
+    private <T> T convertObjectTo(Object object, Class<T> explicitType) {
+        Object returnObject;
+        if(object == null) {
+            returnObject = null;
+        } else if(!object.getClass().isAssignableFrom(explicitType)) {
+            final String toString = object.toString();
+            if(explicitType.isAssignableFrom(Integer.class)) {
+                returnObject = Integer.parseInt(toString);
+            } else  if(explicitType.isAssignableFrom(Boolean.class)) {
+                returnObject = Boolean.parseBoolean(toString);
+            } else  if(explicitType.isAssignableFrom(Character.class)) {
+                returnObject = toString.charAt(0);
+            } else  if(explicitType.isAssignableFrom(Byte.class)) {
+                returnObject = Byte.parseByte(toString);
+            } else  if(explicitType.isAssignableFrom(Short.class)) {
+                returnObject = Short.parseShort(toString);
+            } else  if(explicitType.isAssignableFrom(Float.class)) {
+                returnObject = Float.parseFloat(toString);
+            } else  if(explicitType.isAssignableFrom(Double.class)) {
+                returnObject = Double.parseDouble(toString);
+            } else  if(explicitType.isAssignableFrom(Long.class)) {
+                returnObject = Long.parseLong(toString);
+            } else  if(explicitType.isAssignableFrom(String.class)) {
+                returnObject = toString;
+            } else {
+                returnObject = explicitType.cast(object);
+            }
+        } else {
+            returnObject = explicitType.cast(object);
+        }
+        return (T) returnObject;
     }
 
     private GPathResult parseInputStream(final InputStream stream)  {
