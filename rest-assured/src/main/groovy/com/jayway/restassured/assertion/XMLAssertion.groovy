@@ -26,11 +26,14 @@ import static com.jayway.restassured.assertion.AssertionSupport.*
 
 class XMLAssertion implements Assertion {
   private static final String DOT = "."
+  private static final String EXPLICIT_LIST_CONVERSION = 'list()'
   String key;
   boolean toUpperCase;
 
   /* Matches fragment such as children() or size(2) */
   private def isInvocationFragment = ~/.*\(\d*\)|.*(\{|\}).*/
+
+  private def fragments
 
   def Object getResult(Object object) {
     key = escapePath(key, minus(), attributeGetter(), doubleStar())
@@ -39,7 +42,7 @@ class XMLAssertion implements Assertion {
     def evaluationString
     def isRootOnly = indexOfDot < 0
     if (!isRootOnly) {
-      def fragments = key.split("\\.");
+      fragments = key.split("\\.");
       if(toUpperCase) {
         for(int i = 0; i < fragments.length; i++) {
           if(isPathFragment(fragments[i])) {
@@ -85,7 +88,7 @@ class XMLAssertion implements Assertion {
   }
 
   private def preventTreatingRootObjectAsAList(javaObject) {
-    if (javaObject instanceof List && javaObject.size() == 1) {
+    if (javaObject instanceof List && javaObject.size() == 1 && fragments[-1] != EXPLICIT_LIST_CONVERSION) {
       javaObject = javaObject.get(0)
     }
     return javaObject
@@ -122,7 +125,7 @@ class XMLAssertion implements Assertion {
   }
 
   private def handleList(List result) {
-    if (result.size() == 1) {
+    if (result.size() == 1 && fragments[-1] != EXPLICIT_LIST_CONVERSION) {
       return convertToJavaObject(result.get(0))
     } else {
       for(int i = 0; i < result.size(); i++) {

@@ -301,6 +301,9 @@ public class XmlPathTest {
     public void getListReturnsListWhenNodeChildrenFound() {
         final List<String> groceries = from(XML).getList("shopping.category[0].item.name");
 
+        for (String grocery : groceries) {
+            System.out.println(grocery);
+        }
         assertThat(groceries, hasItems("Chocolate", "Coffee"));
     }
 
@@ -323,6 +326,20 @@ public class XmlPathTest {
         final List<String> groceries = from(XML).getList("shopping.category.item.price");
 
         assertThat(groceries, hasItems("10", "20", "5", "15.5", "200"));
+    }
+
+    @Test
+    public void getListAutomaticallyTransformsSingleObjectResultsToAList() {
+        final List<String> groceries = from(XML).getList("shopping.category.item.price[0]");
+
+        assertThat(groceries, hasItems("10"));
+    }
+
+    @Test
+    public void getAutomaticallyTransformsSingleObjectResultsToAListWhenSpecifiedInPath() {
+        final List<String> groceries = from(XML).get("shopping.category.item.price[0].list()");
+
+        assertThat(groceries, hasItems("10"));
     }
 
     @Test

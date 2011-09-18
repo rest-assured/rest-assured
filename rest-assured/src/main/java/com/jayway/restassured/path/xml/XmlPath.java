@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -648,17 +649,29 @@ public class XmlPath {
     }
 
     private <T> List<T> getAsList(String path, final Class<?> explicitType) {
-        final Object returnObject = get(path);
+        Object returnObject = get(path);
         if(returnObject instanceof NodeChildren) {
             final NodeChildren nodeChildren = (NodeChildren) returnObject;
-            return new ArrayList<T>(CollectionUtils.collect(nodeChildren.list(), new Transformer() {
+            returnObject =  Collections.unmodifiableList(new ArrayList<T>(CollectionUtils.collect(nodeChildren.list(), new Transformer() {
                 public Object transform(Object input) {
                     if(explicitType == null) {
                         return input.toString();
                     }
                     return convertObjectTo(input, explicitType);
                 }
-            }));
+            })));
+        } else if(!(returnObject instanceof List)) {
+            final List<T> asList = new ArrayList<T>();
+            if(returnObject != null) {
+                final T e;
+                if(explicitType == null) {
+                    e = (T) returnObject.toString();
+                } else {
+                    e =  (T) convertObjectTo(returnObject, explicitType);
+                }
+                asList.add(e);
+            }
+            returnObject = asList;
         }
         return (List<T>) returnObject;
     }
