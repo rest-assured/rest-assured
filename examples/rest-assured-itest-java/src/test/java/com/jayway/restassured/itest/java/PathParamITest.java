@@ -58,7 +58,7 @@ public class PathParamITest extends WithJetty {
 
     @Test
     public void urlEncodesPathParamsInMap() throws Exception {
-        final Map<String, Object> params = new HashMap<String, Object>();
+        final Map<String, String> params = new HashMap<String, String>();
         params.put("firstName", "John: å");
         params.put("lastName", "Doe");
 
@@ -74,7 +74,7 @@ public class PathParamITest extends WithJetty {
 
     @Test
     public void supportsPassingPathParamsAsMapToGet() throws Exception {
-        final Map<String, Object> params = new HashMap<String, Object>();
+        final Map<String, String> params = new HashMap<String, String>();
         params.put("firstName", "John=me");
         params.put("lastName", "Doe");
 
@@ -143,7 +143,7 @@ public class PathParamITest extends WithJetty {
 
     @Test
     public void supportsPassingPathParamsWithMapWithGiven() throws Exception {
-         final Map<String, Object> params = new HashMap<String, Object>();
+         final Map<String, String> params = new HashMap<String, String>();
          params.put("firstName", "John");
          params.put("lastName", "Doe");
 

@@ -23,8 +23,6 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
-import net.sf.json.JSONException;
-import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -575,6 +573,11 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
+    public void queryParametersCanBeUsedWithInts() throws Exception {
+        with().queryParam("firstName", 1234).and().queryParameter("lastName", 5678).expect().body("greeting", equalTo("Greetings 1234 5678")).when().get("/greet");
+    }
+
+    @Test
     public void multiValueParametersWorks() throws Exception {
         with().param("list", "1").param("list", "2").param("list", "3").expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
@@ -604,8 +607,8 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void multiValueQueryParametersWorksWhenPassingInList() throws Exception {
-        with().queryParam("list", asList("1", "2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+    public void multiValueQueryParametersWorksWhenPassingInListWithInts() throws Exception {
+        with().queryParam("list", asList(1, 2, 3)).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 
     @Test

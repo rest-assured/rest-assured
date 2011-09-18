@@ -685,7 +685,7 @@ public class RestAssured {
      * @param pathParams The path parameters.
      * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response get(String path, Map<String, Object> pathParams) {
+    public static Response get(String path, Map<String, ?> pathParams) {
         return given().get(path, pathParams);
     }
 
@@ -709,7 +709,7 @@ public class RestAssured {
      * @param pathParams The path parameters.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response post(String path, Map<String, Object> pathParams) {
+    public static Response post(String path, Map<String, ?> pathParams) {
         return given().post(path, pathParams);
     }
 
@@ -745,7 +745,7 @@ public class RestAssured {
      * @param pathParams The path parameters.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response delete(String path, Map<String, Object> pathParams) {
+    public static Response delete(String path, Map<String, ?> pathParams) {
         return given().delete(path, pathParams);
     }
 
@@ -769,7 +769,7 @@ public class RestAssured {
      * @param pathParams The path parameters.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response head(String path, Map<String, Object> pathParams) {
+    public static Response head(String path, Map<String, ?> pathParams) {
         return given().head(path, pathParams);
     }
 

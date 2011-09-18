@@ -40,6 +40,32 @@ public class JSONPostITest extends WithJetty {
     }
 
     @Test
+    public void parametersAcceptsIntArguments() throws Exception {
+        given().parameters("firstName", 1234, "lastName", 5678).expect().body("greeting", equalTo("Greetings 1234 5678")).when().post("/greet");
+    }
+
+    @Test
+    public void formParametersAcceptsIntArguments() throws Exception {
+        given().formParameters("firstName", 1234, "lastName", 5678).expect().body("greeting", equalTo("Greetings 1234 5678")).when().post("/greet");
+    }
+
+    @Test
+    public void formParamsAcceptsIntArguments() throws Exception {
+        given().formParams("firstName", 1234, "lastName", 5678).expect().body("greeting", equalTo("Greetings 1234 5678")).when().post("/greet");
+    }
+
+    @Test
+    public void formParamAcceptsIntArguments() throws Exception {
+        given().
+                formParam("firstName", 1234).
+                formParam("lastName", 5678).
+        expect().
+                body("greeting", equalTo("Greetings 1234 5678")).
+        when().
+                post("/greet");
+    }
+
+    @Test
     public void bodyWithSingleHamcrestMatching() throws Exception {
         given().parameters("firstName", "John", "lastName", "Doe").expect().body(containsString("greeting")).when().post("/greet");
     }

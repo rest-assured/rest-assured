@@ -34,7 +34,7 @@ public class CustomAuthFilter implements Filter {
         final int operandA = jsonPath.getInt("operandA");
         final int operandB = jsonPath.getInt("operandB");
         final String sessionId = jsonPath.getString("id");
-        requestSpec.param("sum", String.valueOf(operandA+operandB));
+        requestSpec.param("sum", operandA+operandB);
         requestSpec.param("id", sessionId);
         return ctx.next(requestSpec, responseSpec);
     }
