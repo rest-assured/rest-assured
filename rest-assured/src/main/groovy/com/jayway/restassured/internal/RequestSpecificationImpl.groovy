@@ -56,15 +56,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private String basePath
   private AuthenticationScheme defaultAuthScheme
   private int port
-  private Map<String, String> requestParameters = [:]
-  private Map<String, String> queryParams = [:]
-  private Map<String, String> formParams = [:]
+  private Map<String, Object> requestParameters = [:]
+  private Map<String, Object> queryParams = [:]
+  private Map<String, Object> formParams = [:]
   private Map<String, Object> pathParams = [:]
   def AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private FilterableResponseSpecification responseSpecification;
   private Object contentType;
-  private Map<String, String> requestHeaders = [:]
-  private Map<String, String> cookies = [:]
+  private Map<String, Object> requestHeaders = [:]
+  private Map<String, Object> cookies = [:]
   private Object requestBody;
   private List<Filter> filters = [];
   private KeystoreSpec keyStoreSpec
@@ -129,77 +129,78 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     applyPathParamsAndSendRequest(HEAD, path, pathParams)
   }
 
-  def Response get(String path, Map<String, Object> pathParams) {
+  def Response get(String path, Map pathParams) {
     pathParameters(pathParams)
     applyPathParamsAndSendRequest(GET, path)
   }
 
-  def Response post(String path, Map<String, Object> pathParams) {
+  def Response post(String path, Map pathParams) {
     pathParameters(pathParams)
     applyPathParamsAndSendRequest(POST, path)
   }
 
-  def Response put(String path, Map<String, Object> pathParams) {
+  def Response put(String path, Map pathParams) {
     pathParameters(pathParams)
     applyPathParamsAndSendRequest(PUT, path)
   }
 
-  def Response delete(String path, Map<String, Object> pathParams) {
+  def Response delete(String path, Map pathParams) {
     pathParameters(pathParams)
     applyPathParamsAndSendRequest(DELETE, path)
   }
 
-  def Response head(String path, Map<String, Object> pathParams) {
+  def Response head(String path, Map pathParams) {
     pathParameters(pathParams)
     applyPathParamsAndSendRequest(HEAD, path)
   }
 
-  def RequestSpecification parameters(String parameterName, String... parameterNameValuePairs) {
-    notNull parameterName, "parameterName"
-    return parameters(MapCreator.createMapFromStrings(parameterName, parameterNameValuePairs))
+  def RequestSpecification parameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+    notNull firstParameterName, "firstParameterName"
+    notNull firstParameterValue, "firstParameterValue"
+    return parameters(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs))
   }
 
-  def RequestSpecification parameters(Map<String, String> parametersMap) {
+  def RequestSpecification parameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
     appendParameters(parametersMap, requestParameters)
     return this
   }
 
-  def RequestSpecification params(String parameterName, String... parameterNameValuePairs) {
-    return parameters(parameterName, parameterNameValuePairs)
+  def RequestSpecification params(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+    return parameters(firstParameterName, firstParameterValue, parameterNameValuePairs)
   }
 
-  def RequestSpecification params(Map<String, String> parametersMap) {
+  def RequestSpecification params(Map parametersMap) {
     return parameters(parametersMap)
   }
 
-  def RequestSpecification param(String parameterName, String parameterValue, String... additionalParameterValues) {
+  def RequestSpecification param(String parameterName, Object parameterValue, Object... additionalParameterValues) {
     return parameter(parameterName, parameterValue, additionalParameterValues)
   }
 
-  def RequestSpecification parameter(String parameterName, List<String> parameterValues) {
+  def RequestSpecification parameter(String parameterName, List parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
     appendListParameter(requestParameters, parameterName, parameterValues)
     return this
   }
 
-  def RequestSpecification param(String parameterName, List<String> parameterValues) {
+  def RequestSpecification param(String parameterName, List parameterValues) {
     return parameter(parameterName, parameterValues)
   }
 
-  def RequestSpecification queryParameter(String parameterName, List<String> parameterValues) {
+  def RequestSpecification queryParameter(String parameterName, List parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
     appendListParameter(queryParams, parameterName, parameterValues)
     return this
   }
 
-  def RequestSpecification queryParam(String parameterName, List<String> parameterValues) {
+  def RequestSpecification queryParam(String parameterName, List parameterValues) {
     return queryParameter(parameterName, parameterValues)
   }
 
-  def RequestSpecification parameter(String parameterName, String parameterValue, String... additionalParameterValues) {
+  def RequestSpecification parameter(String parameterName, Object parameterValue, Object... additionalParameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
     appendStandardParameter(requestParameters, parameterName, parameterValue);
@@ -209,18 +210,19 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return this
   }
 
-  def RequestSpecification queryParameters(String parameterName, String... parameterNameValuePairs) {
-    notNull parameterName, "parameterName"
-    return queryParameters(MapCreator.createMapFromStrings(parameterName, parameterNameValuePairs))
+  def RequestSpecification queryParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+    notNull firstParameterName, "firstParameterName"
+    notNull firstParameterValue, "firstParameterValue"
+    return queryParameters(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs))
   }
 
-  def RequestSpecification queryParameters(Map<String, String> parametersMap) {
+  def RequestSpecification queryParameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
     appendParameters(parametersMap, queryParams)
     return this
   }
 
-  def RequestSpecification queryParameter(String parameterName, String parameterValue, String... additionalParameterValues) {
+  def RequestSpecification queryParameter(String parameterName, Object parameterValue, Object... additionalParameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
     appendStandardParameter(queryParams, parameterName, parameterValue)
@@ -230,41 +232,42 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return this
   }
 
-  def RequestSpecification queryParams(String parameterName, String... parameterNameValuePairs) {
-    return queryParameters(parameterName, parameterNameValuePairs);
+  def RequestSpecification queryParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+    return queryParameters(firstParameterName, firstParameterValue, parameterNameValuePairs);
   }
 
-  def RequestSpecification queryParams(Map<String, String> parametersMap) {
+  def RequestSpecification queryParams(Map parametersMap) {
     return queryParameters(parametersMap)
   }
 
-  def RequestSpecification queryParam(String parameterName, String parameterValue, String... additionalParameterValue) {
-    return queryParameter(parameterName, parameterValue, additionalParameterValue)
+  def RequestSpecification queryParam(String parameterName, Object parameterValue, Object... additionalParameterValues) {
+    return queryParameter(parameterName, parameterValue, additionalParameterValues)
   }
 
-  def RequestSpecification formParameter(String parameterName, List<String> parameterValues) {
+  def RequestSpecification formParameter(String parameterName, List parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
     appendListParameter(formParams, parameterName, parameterValues)
     return this
   }
 
-  def RequestSpecification formParam(String parameterName, List<String> parameterValues) {
+  def RequestSpecification formParam(String parameterName, List parameterValues) {
     return queryParameter(parameterName, parameterValues)
   }
 
-  def RequestSpecification formParameters(String parameterName, String... parameterNameValuePairs) {
-    notNull parameterName, "parameterName"
-    return formParameters(MapCreator.createMapFromStrings(parameterName, parameterNameValuePairs))
+  def RequestSpecification formParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+    notNull firstParameterName, "firstParameterName"
+    notNull firstParameterValue, "firstParameterValue"
+    return formParameters(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs))
   }
 
-  def RequestSpecification formParameters(Map<String, String> parametersMap) {
+  def RequestSpecification formParameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
     appendParameters(parametersMap, formParams)
     return this
   }
 
-  def RequestSpecification formParameter(String parameterName, String parameterValue, String... additionalParameterValues) {
+  def RequestSpecification formParameter(String parameterName, Object parameterValue, Object... additionalParameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
     appendStandardParameter(formParams, parameterName, parameterValue)
@@ -274,16 +277,16 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return this
   }
 
-  def RequestSpecification formParams(String parameterName, String... parameterNameValuePairs) {
-    return formParameters(parameterName, parameterNameValuePairs);
+  def RequestSpecification formParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+    return formParameters(firstParameterName, firstParameterValue, parameterNameValuePairs);
   }
 
-  def RequestSpecification formParams(Map<String, String> parametersMap) {
+  def RequestSpecification formParams(Map parametersMap) {
     return formParameters(parametersMap)
   }
 
-  def RequestSpecification formParam(String parameterName, String parameterValue, String... additionalParameterValue) {
-    return formParameter(parameterName, parameterValue, additionalParameterValue)
+  def RequestSpecification formParam(String parameterName, Object parameterValue, Object... additionalParameterValues) {
+    return formParameter(parameterName, parameterValue, additionalParameterValues)
   }
 
   def RequestSpecification urlEncodingEnabled(boolean isEnabled) {
@@ -298,12 +301,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return this
   }
 
-  def RequestSpecification pathParameters(String parameterName, Object... parameterNameValuePairs) {
-    notNull parameterName, "parameterName"
-    return pathParameters(MapCreator.createMapFromStrings(parameterName, parameterNameValuePairs))
+  def RequestSpecification pathParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+    notNull firstParameterName, "firstParameterName"
+    notNull firstParameterValue, "firstParameterValue"
+    return pathParameters(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs))
   }
 
-  def RequestSpecification pathParameters(Map<String, Object> parameterNameValuePairs) {
+  def RequestSpecification pathParameters(Map parameterNameValuePairs) {
     notNull parameterNameValuePairs, "parameterNameValuePairs"
     appendParameters(parameterNameValuePairs, pathParams)
     return this
@@ -313,11 +317,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return pathParameter(parameterName, parameterValue)
   }
 
-  def RequestSpecification pathParams(String parameterName, Object... parameterNameValuePairs) {
-    return pathParameters(parameterName, parameterNameValuePairs)
+  def RequestSpecification pathParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+    return pathParameters(firstParameterName, firstParameterValue, parameterNameValuePairs)
   }
 
-  def RequestSpecification pathParams(Map<String, Object> parameterNameValuePairs) {
+  def RequestSpecification pathParams(Map parameterNameValuePairs) {
     return pathParameters(parameterNameValuePairs)
   }
 
@@ -419,34 +423,34 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return  this
   }
 
-  RequestSpecification headers(Map<String, String> headers) {
+  RequestSpecification headers(Map headers) {
     notNull headers, "headers"
     this.requestHeaders += headers;
     return this;
   }
 
-  RequestSpecification header(String headerName, String headerValue) {
+  RequestSpecification header(String headerName, Object headerValue) {
     notNull headerName, "headerName"
     notNull headerValue, "headerValue"
     requestHeaders.put(headerName, headerValue);
     return this
   }
 
-  RequestSpecification headers(String headerName, String ... headerNameValueParis) {
-    return headers(MapCreator.createMapFromStrings(headerName, headerNameValueParis))
+  RequestSpecification headers(String firstHeaderName, Object firstHeaderValue, Object... headerNameValuePairs) {
+    return headers(MapCreator.createMapFromParams(firstHeaderName, firstHeaderValue, headerNameValuePairs))
   }
 
-  RequestSpecification cookies(String cookieName, String... cookieNameValuePairs) {
-    return cookies(MapCreator.createMapFromStrings(cookieName, cookieNameValuePairs))
+  RequestSpecification cookies(String firstCookieName, Object firstCookieValue, Object... cookieNameValuePairs) {
+    return cookies(MapCreator.createMapFromParams(firstCookieName, firstCookieValue, cookieNameValuePairs))
   }
 
-  RequestSpecification cookies(Map<String, String> cookies) {
+  RequestSpecification cookies(Map cookies) {
     notNull cookies, "cookies"
     this.cookies += cookies;
     return this;
   }
 
-  RequestSpecification cookie(String cookieName, String value) {
+  RequestSpecification cookie(String cookieName, Object value) {
     notNull cookieName, "cookieName"
     notNull value, "value"
     cookies.put(cookieName, value)
@@ -599,7 +603,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   private def validateMultiPartForPostOnly(method) {
     if(multiParts.size() > 0 && method != POST) {
-        throw new IllegalArgumentException("Sorry, multi part form data is only available for "+POST);
+      throw new IllegalArgumentException("Sorry, multi part form data is only available for "+POST);
     }
   }
 

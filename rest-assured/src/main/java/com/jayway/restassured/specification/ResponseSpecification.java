@@ -234,7 +234,7 @@ public interface ResponseSpecification extends RequestSender {
      * @param expectedHeaders The Map of expected response headers
      * @return the response specification
      */
-    ResponseSpecification headers(Map<String, Object> expectedHeaders);
+    ResponseSpecification headers(Map<String, ?> expectedHeaders);
 
     /**
      * Expect that response headers matches the supplied headers and values.
@@ -258,10 +258,12 @@ public interface ResponseSpecification extends RequestSender {
      * </pre>
      * </p>
      *
+     * @param firstExpectedHeaderName The name of the first header
+     * @param firstExpectedHeaderValue The value of the first header
      * @param expectedHeaders A list of expected "header name" - "header value" pairs.
      * @return the response specification
      */
-    ResponseSpecification headers(String firstExpectedHeaderName, Object...expectedHeaders);
+    ResponseSpecification headers(String firstExpectedHeaderName, Object firstExpectedHeaderValue, Object...expectedHeaders);
 
     /**
      * Expect that a response header matches the supplied header name and hamcrest matcher.
@@ -277,14 +279,14 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().header("Pragma", equalsTo("no-cache")),and().header("Content-Encoding", containsString("zip")).when().get("/something");
      * </pre>
-     * Also take a look at {@link #headers(String, Object...))} for a short version of passing multiple headers.
+     * Also take a look at {@link #headers(String, Object, Object...)} )} for a short version of passing multiple headers.
      * </p>
      *
      * @param headerName The name of the expected header
      * @param expectedValueMatcher The Hamcrest matcher that must conform to the value
      * @return the response specification
      */
-    ResponseSpecification header(String headerName, Matcher<String> expectedValueMatcher);
+    ResponseSpecification header(String headerName, Matcher<?> expectedValueMatcher);
 
     /**
      * Expect that a response header matches the supplied name and value.
@@ -300,7 +302,7 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().header("Pragma", "no-cache"),and().header("Content-Encoding", "gzip").when().get("/something");
      * </pre>
-     * Also take a look at {@link #headers(String, Object...))} for a short version of passing multiple headers.
+     * Also take a look at {@link #headers(String, Object, Object...)} for a short version of passing multiple headers.
      * </p>
      *
      * @param headerName The name of the expected header
@@ -337,7 +339,7 @@ public interface ResponseSpecification extends RequestSender {
      * @param expectedCookies A Map of expected response cookies
      * @return the response specification
      */
-    ResponseSpecification cookies(Map<String, Object> expectedCookies);
+    ResponseSpecification cookies(Map<String, ?> expectedCookies);
 
     /**
      * Expect that a cookie exist in the response, regardless of value (it may have no value at all).
@@ -369,10 +371,12 @@ public interface ResponseSpecification extends RequestSender {
      * </pre>
      * </p>
      *
+     * @param firstExpectedCookieName The name of the first cookie
+     * @param firstExpectedCookieValue The value of the first cookie
      * @param expectedCookieNameValuePairs A list of expected "cookie name" - "cookie value" pairs.
      * @return the response specification
      */
-    ResponseSpecification cookies(String firstExpectedCookieName, Object...expectedCookieNameValuePairs);
+    ResponseSpecification cookies(String firstExpectedCookieName, Object firstExpectedCookieValue, Object...expectedCookieNameValuePairs);
 
     /**
      * Expect that a response cookie matches the supplied cookie name and hamcrest matcher.
@@ -388,14 +392,14 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().cookie("cookieName1", equalsTo("cookieValue1")),and().cookie("cookieName2", containsString("Value2")).when().get("/something");
      * </pre>
-     * Also take a look at {@link #cookies(String, Object...))} for a short version of passing multiple cookies.
+     * Also take a look at {@link #cookies(String, Object, Object...)} for a short version of passing multiple cookies.
      * </p>
      *
      * @param cookieName The name of the expected cookie
      * @param expectedValueMatcher The Hamcrest matcher that must conform to the value
      * @return the response specification
      */
-    ResponseSpecification cookie(String cookieName, Matcher<String> expectedValueMatcher);
+    ResponseSpecification cookie(String cookieName, Matcher<?> expectedValueMatcher);
 
     /**
      * Expect that a response cookie matches the supplied name and value.
@@ -411,14 +415,15 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().cookie("cookieName1", "cookieValue1"),and().cookie("cookieName2", "cookieValue2").when().get("/something");
      * </pre>
-     * Also take a look at {@link #cookies(String, Object...))} for a short version of passing multiple cookies.
+     * Also take a look at {@link #cookies(String, Object, Object...)} for a short version of passing multiple cookies.
      * </p>
+     *
      *
      * @param cookieName The name of the expected cookie
      * @param expectedValue The value of the expected cookie
      * @return the response specification
      */
-    ResponseSpecification cookie(String cookieName, String expectedValue);
+    ResponseSpecification cookie(String cookieName, Object expectedValue);
 
     /**
      * Log (i.e. print to system out) the response body to system out. This is mainly useful for debug purposes when writing

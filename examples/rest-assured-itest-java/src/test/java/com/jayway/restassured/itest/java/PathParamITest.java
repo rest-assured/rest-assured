@@ -16,14 +16,11 @@
 
 package com.jayway.restassured.itest.java;
 
-import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.springframework.web.client.RestTemplate;
 
-import javax.xml.transform.Source;
 import java.util.HashMap;
 import java.util.Map;
 

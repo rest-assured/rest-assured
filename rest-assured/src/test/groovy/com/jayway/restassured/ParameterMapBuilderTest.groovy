@@ -32,21 +32,16 @@ class ParameterMapBuilderTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  def void mapThrowIAEWhenNoValuesAreSupplied() throws Exception {
-    requestBuilder.parameters("key");
-  }
-
-  @Test(expected = IllegalArgumentException.class)
   def void mapThrowIAEWhenOddNumberOfStringsAreSupplied() throws Exception {
     requestBuilder.parameters("key1", "value1", "key2");
   }
 
   @Test
   def void mapBuildsAMapBasedOnTheSuppliedKeysAndValues() throws Exception {
-    def map = requestBuilder.parameters("key1", "value1", "key2", "3").requestParameters;
+    def map = requestBuilder.parameters("key1", "value1", "key2", "value2").requestParameters;
 
     assertEquals 2, map.size()
     assertEquals "value1", map.get("key1")
-    assertEquals "3", map.get("key2")
+    assertEquals "value2", map.get("key2")
   }
 }

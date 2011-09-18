@@ -86,23 +86,23 @@ class TestSpecificationImpl implements RequestSender {
     requestSpecification.head path, pathParams
   }
 
-  Response get(String path, Map<String, Object> pathParams) {
+  Response get(String path, Map pathParams) {
     requestSpecification.get path, pathParams
   }
 
-  Response post(String path, Map<String, Object> pathParams) {
+  Response post(String path, Map pathParams) {
     requestSpecification.post path, pathParams
   }
 
-  Response put(String path, Map<String, Object> pathParams) {
+  Response put(String path, Map pathParams) {
     requestSpecification.put path, pathParams
   }
 
-  Response delete(String path, Map<String, Object> pathParams) {
+  Response delete(String path, Map pathParams) {
     requestSpecification.delete path, pathParams
   }
 
-  Response head(String path, Map<String, Object> pathParams) {
+  Response head(String path, Map pathParams) {
     requestSpecification.head path, pathParams
   }
 

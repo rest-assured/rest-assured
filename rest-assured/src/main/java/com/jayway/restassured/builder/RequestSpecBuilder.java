@@ -123,10 +123,11 @@ public class RequestSpecBuilder {
     /**
      * Add cookies to be sent with the request as Map e.g:
      *
+     *
      * @param cookies The Map containing the cookie names and their values to set in the request.
      * @return The request specification builder
      */
-    public RequestSpecBuilder addCookies(Map<String, String> cookies) {
+    public RequestSpecBuilder addCookies(Map<String, ?> cookies) {
         spec.cookies(cookies);
         return this;
     }
@@ -134,11 +135,12 @@ public class RequestSpecBuilder {
     /**
      * Add a cookie to be sent with the request.
      *
+     *
      * @param key The cookie key
      * @param value The cookie value
      * @return The request specification builder
      */
-    public RequestSpecBuilder addCookie(String key, String value) {
+    public RequestSpecBuilder addCookie(String key, Object value) {
         spec.cookie(key, value);
         return this;
     }
@@ -179,10 +181,11 @@ public class RequestSpecBuilder {
     /**
      * Add parameters to be sent with the request as Map.
 
+     *
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification builder
      */
-    public RequestSpecBuilder addParameters(Map<String, String> parametersMap) {
+    public RequestSpecBuilder addParameters(Map<String, ?> parametersMap) {
         spec.parameters(parametersMap);
         return this;
     }
@@ -190,12 +193,13 @@ public class RequestSpecBuilder {
     /**
      * Add a parameter to be sent with the request.
      *
+     *
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
      * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification builder
      */
-    public RequestSpecBuilder addParameter(String parameterName, String parameterValue, String... additionalParameterValues) {
+    public RequestSpecBuilder addParameter(String parameterName, Object parameterValue, Object... additionalParameterValues) {
         spec.parameter(parameterName, parameterValue, additionalParameterValues);
         return this;
     }
@@ -203,11 +207,12 @@ public class RequestSpecBuilder {
     /**
      * Add a multi-value parameter to be sent with the request.
      *
+     *
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification builder
      */
-    public RequestSpecBuilder addParameter(String parameterName, List<String> parameterValues) {
+    public RequestSpecBuilder addParameter(String parameterName, List<?> parameterValues) {
         spec.parameter(parameterName, parameterValues);
         return this;
     }
@@ -215,24 +220,25 @@ public class RequestSpecBuilder {
     /**
      * A slightly shorter version of {@link #addParameters(Map)}.
      *
+     *
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification builder
      */
-    public RequestSpecBuilder addParams(Map<String, String> parametersMap) {
+    public RequestSpecBuilder addParams(Map<String, ?> parametersMap) {
         spec.params(parametersMap);
         return this;
     }
 
     /**
-     * A slightly shorter version of {@link #addParameter(String, String, String...) }.
+     * A slightly shorter version of {@link #addParameter(String, Object, Object...) }.
      *
-     * @see #addParameter(String, String, String...)
+     * @see #addParameter(String, Object, Object...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
      * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification builder
      */
-    public RequestSpecBuilder addParam(String parameterName, String parameterValue, String... additionalParameterValues) {
+    public RequestSpecBuilder addParam(String parameterName, Object parameterValue, Object... additionalParameterValues) {
         spec.param(parameterName, parameterValue, additionalParameterValues);
         return this;
     }
@@ -240,12 +246,12 @@ public class RequestSpecBuilder {
     /**
      * A slightly shorter version of {@link #addParameter(String, java.util.List)}.
      *
-     * @see #addParameter(String, String, String...)
+     * @see #addParameter(String, Object, Object...)
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification builder
      */
-    public RequestSpecBuilder addParam(String parameterName, List<String> parameterValues) {
+    public RequestSpecBuilder addParam(String parameterName, List<?> parameterValues) {
         spec.param(parameterName, parameterValues);
         return this;
     }
@@ -254,17 +260,19 @@ public class RequestSpecBuilder {
      * Add query parameters to be sent with the request as a Map. This method is the same as {@link #addParameters(java.util.Map)}
      * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
 
+     *
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification builder
      */
-    public RequestSpecBuilder addQueryParameters(Map<String, String> parametersMap) {
+    public RequestSpecBuilder addQueryParameters(Map<String, ?> parametersMap) {
         spec.queryParameters(parametersMap);
         return this;
     }
 
     /**
-     * Add a query parameter to be sent with the request. This method is the same as {@link #addParameter(String, String, String...)} )}
+     * Add a query parameter to be sent with the request. This method is the same as {@link #addParameter(String, Object, Object...)} )}
      * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
+     *
      *
      *
      * @param parameterName The parameter key
@@ -272,7 +280,7 @@ public class RequestSpecBuilder {
      * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification builder
      */
-    public RequestSpecBuilder addQueryParameter(String parameterName, String parameterValue, String... additionalParameterValues) {
+    public RequestSpecBuilder addQueryParameter(String parameterName, Object parameterValue, Object... additionalParameterValues) {
         spec.queryParameter(parameterName, parameterValue, additionalParameterValues);
         return this;
     }
@@ -281,11 +289,13 @@ public class RequestSpecBuilder {
      * Add a query parameter to be sent with the request. This method is the same as {@link #addParameter(String, java.util.List)}
      * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
      *
+     *
+     *
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification builder
      */
-    public RequestSpecBuilder addQueryParameter(String parameterName, List<String> parameterValues) {
+    public RequestSpecBuilder addQueryParameter(String parameterName, List<?> parameterValues) {
         spec.parameter(parameterName, parameterValues);
         return this;
     }
@@ -293,12 +303,12 @@ public class RequestSpecBuilder {
     /**
      * A slightly shorter version of {@link #addQueryParameter(String, java.util.List)}.
      *
-     * @see #addQueryParam(String, String, String...)
+     * @see #addQueryParam(String, Object, Object...)
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification builder
      */
-    public RequestSpecBuilder addQueryParam(String parameterName, List<String> parameterValues) {
+    public RequestSpecBuilder addQueryParam(String parameterName, List<?> parameterValues) {
         spec.queryParam(parameterName, parameterValues);
         return this;
     }
@@ -310,21 +320,21 @@ public class RequestSpecBuilder {
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification builder
      */
-    public RequestSpecBuilder addQueryParams(Map<String, String> parametersMap) {
+    public RequestSpecBuilder addQueryParams(Map<String, ?> parametersMap) {
         spec.queryParams(parametersMap);
         return this;
     }
 
     /**
-     * A slightly shorter version of {@link #addQueryParameter(String, String, String...)}.
+     * A slightly shorter version of {@link #addQueryParameter(String, Object, Object...)}.
      *
-     * @see #addQueryParam(String, String, String...)
+     * @see #addQueryParam(String, Object, Object...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
      * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification builder
      */
-    public RequestSpecBuilder addQueryParam(String parameterName, String parameterValue, String... additionalParameterValues) {
+    public RequestSpecBuilder addQueryParam(String parameterName, Object parameterValue, Object... additionalParameterValues) {
         spec.queryParam(parameterName, parameterValue, additionalParameterValues);
         return this;
     }
@@ -333,17 +343,19 @@ public class RequestSpecBuilder {
      * Add query parameters to be sent with the request as a Map. This method is the same as {@link #addParameters(java.util.Map)}
      * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
 
+     *
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification builder
      */
-    public RequestSpecBuilder addFormParameters(Map<String, String> parametersMap) {
+    public RequestSpecBuilder addFormParameters(Map<String, ?> parametersMap) {
         spec.formParameters(parametersMap);
         return this;
     }
 
     /**
-     * Add a form parameter to be sent with the request. This method is the same as {@link #addParameter(String, String, String...)} )}
+     * Add a form parameter to be sent with the request. This method is the same as {@link #addParameter(String, Object, Object...)} )}
      * for all HTTP methods except PUT where this method can be used to differentiate between form and query params.
+     *
      *
      *
      * @param parameterName The parameter key
@@ -351,7 +363,7 @@ public class RequestSpecBuilder {
      * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification builder
      */
-    public RequestSpecBuilder addFormParameter(String parameterName, String parameterValue, String... additionalParameterValues) {
+    public RequestSpecBuilder addFormParameter(String parameterName, Object parameterValue, Object... additionalParameterValues) {
         spec.formParameter(parameterName, parameterValue, additionalParameterValues);
         return this;
     }
@@ -360,11 +372,13 @@ public class RequestSpecBuilder {
      * Add a form parameter to be sent with the request. This method is the same as {@link #addParameter(String, java.util.List)}
      * for all HTTP methods except PUT where this method can be used to differentiate between form and query params.
      *
+     *
+     *
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification builder
      */
-    public RequestSpecBuilder addFormParameter(String parameterName, List<String> parameterValues) {
+    public RequestSpecBuilder addFormParameter(String parameterName, List<?> parameterValues) {
         spec.formParam(parameterName, parameterValues);
         return this;
     }
@@ -372,12 +386,12 @@ public class RequestSpecBuilder {
     /**
      * A slightly shorter version of {@link #addFormParameter(String, java.util.List)}.
      *
-     * @see #addFormParam(String, String, String...)
+     * @see #addFormParam(String, Object, Object...)
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification builder
      */
-    public RequestSpecBuilder addFormParam(String parameterName, List<String> parameterValues) {
+    public RequestSpecBuilder addFormParam(String parameterName, List<?> parameterValues) {
         spec.formParam(parameterName, parameterValues);
         return this;
     }
@@ -389,21 +403,21 @@ public class RequestSpecBuilder {
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification builder
      */
-    public RequestSpecBuilder addFormParams(Map<String, String> parametersMap) {
+    public RequestSpecBuilder addFormParams(Map<String, ?> parametersMap) {
         spec.formParams(parametersMap);
         return this;
     }
 
     /**
-     * A slightly shorter version of {@link #addFormParameter(String, String, String...)}.
+     * A slightly shorter version of {@link #addFormParameter(String, Object, Object...)}.
      *
-     * @see #addFormParam(String, String, String...)
+     * @see #addFormParam(String, Object, Object...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
      * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification builder
      */
-    public RequestSpecBuilder addFormParam(String parameterName, String parameterValue, String... additionalParameterValues) {
+    public RequestSpecBuilder addFormParam(String parameterName, Object parameterValue, Object... additionalParameterValues) {
         spec.formParam(parameterName, parameterValue, additionalParameterValues);
         return this;
     }
@@ -460,12 +474,14 @@ public class RequestSpecBuilder {
      * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
      * </pre>
      *
-     * @param parameterName The parameter key
-     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     *
+     * @param firstParameterName The name of the first parameter
+     * @param firstParameterValue The value of the first parameter
+     * @param parameterNameValuePairs Additional parameters in name-value pairs.
      * @return The request specification
      */
-    public RequestSpecBuilder addPathParameters(String parameterName, Object...parameterNameValuePairs) {
-        spec.pathParameters(parameterName, parameterNameValuePairs);
+    public RequestSpecBuilder addPathParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+        spec.pathParameters(firstParameterName, firstParameterValue, parameterNameValuePairs);
         return this;
     }
 
@@ -497,7 +513,7 @@ public class RequestSpecBuilder {
      * @param parameterNameValuePairs A map containing the path parameters.
      * @return The request specification
      */
-    public RequestSpecBuilder addPathParameters(Map<String, Object> parameterNameValuePairs) {
+    public RequestSpecBuilder addPathParameters(Map<String, ?> parameterNameValuePairs) {
         spec.pathParameters(parameterNameValuePairs);
         return this;
     }
@@ -516,15 +532,16 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * A slightly shorter version of {@link #addPathParameters(String, Object...)}.
+     * A slightly shorter version of {@link #addPathParameters(String, Object, Object...)}.
      *
-     * @see #addPathParameters(String, Object...)
-     * @param parameterName The parameter key
-     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     * @see #addPathParameters(String, Object, Object...)
+     * @param firstParameterName The name of the first parameter
+     * @param firstParameterValue The value of the first parameter
+     * @param parameterNameValuePairs Additional parameters in name-value pairs.
      * @return The request specification
      */
-    public RequestSpecBuilder addPathParams(String parameterName, Object...parameterNameValuePairs) {
-        spec.pathParams(parameterName, parameterNameValuePairs);
+    public RequestSpecBuilder addPathParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+        spec.pathParams(firstParameterName, firstParameterValue, parameterNameValuePairs);
         return this;
     }
 
@@ -535,7 +552,7 @@ public class RequestSpecBuilder {
      * @param parameterNameValuePairs A map containing the path parameters.
      * @return The request specification
      */
-    public RequestSpecBuilder addPathParams(Map<String, Object> parameterNameValuePairs) {
+    public RequestSpecBuilder addPathParams(Map<String, ?> parameterNameValuePairs) {
         spec.pathParams(parameterNameValuePairs);
         return this;
     }

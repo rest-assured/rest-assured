@@ -82,7 +82,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return this
   }
 
-  def ResponseSpecification headers(Map<String, Object> expectedHeaders){
+  def ResponseSpecification headers(Map expectedHeaders){
     notNull(expectedHeaders, "expectedHeaders")
 
     expectedHeaders.each { headerName, matcher ->
@@ -91,12 +91,13 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return this
   }
 
-  def ResponseSpecification headers(String firstExpectedHeaderName, Object...expectedHeaders) {
+  def ResponseSpecification headers(String firstExpectedHeaderName, Object firstExpectedHeaderValue, Object...expectedHeaders) {
     notNull firstExpectedHeaderName, "firstExpectedHeaderName"
-    return headers(MapCreator.createMapFromStrings(firstExpectedHeaderName, expectedHeaders))
+    notNull firstExpectedHeaderValue, "firstExpectedHeaderValue"
+    return headers(MapCreator.createMapFromParams(firstExpectedHeaderName, firstExpectedHeaderValue, expectedHeaders))
   }
 
-  def ResponseSpecification header(String headerName, Matcher<String> expectedValueMatcher) {
+  def ResponseSpecification header(String headerName, Matcher expectedValueMatcher) {
     notNull headerName, "headerName"
     notNull expectedValueMatcher, "expectedValueMatcher"
 
@@ -107,7 +108,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return header(headerName, equalTo(expectedValue))
   }
 
-  def ResponseSpecification cookies(Map<String, Object> expectedCookies) {
+  def ResponseSpecification cookies(Map expectedCookies) {
     notNull expectedCookies, "expectedCookies"
 
     expectedCookies.each { cookieName, matcher ->
@@ -116,14 +117,15 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return this
   }
 
-  def ResponseSpecification cookies(String firstExpectedCookieName, Object... expectedCookieNameValuePairs) {
+  def ResponseSpecification cookies(String firstExpectedCookieName, Object firstExpectedCookieValue, Object... expectedCookieNameValuePairs) {
     notNull firstExpectedCookieName, "firstExpectedCookieName"
+    notNull firstExpectedCookieValue, "firstExpectedCookieValue"
     notNull expectedCookieNameValuePairs, "expectedCookieNameValuePairs"
 
-    return cookies(MapCreator.createMapFromStrings(firstExpectedCookieName, expectedCookieNameValuePairs))
+    return cookies(MapCreator.createMapFromParams(firstExpectedCookieName, firstExpectedCookieValue, expectedCookieNameValuePairs))
   }
 
-  def ResponseSpecification cookie(String cookieName, Matcher<String> expectedValueMatcher) {
+  def ResponseSpecification cookie(String cookieName, Matcher expectedValueMatcher) {
     notNull cookieName,"cookieName"
     notNull expectedValueMatcher,"expectedValueMatcher"
     cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: expectedValueMatcher)
@@ -135,7 +137,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return cookie(cookieName, Matchers.<String> anything())
   }
 
-  def ResponseSpecification cookie(String cookieName, String expectedValue) {
+  def ResponseSpecification cookie(String cookieName, Object expectedValue) {
     return cookie(cookieName, equalTo(expectedValue))
   }
 
@@ -234,23 +236,23 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     requestSpecification.head(path, pathParams);
   }
 
-  def Response get(String path, Map<String, Object> pathParams) {
+  def Response get(String path, Map pathParams) {
     requestSpecification.get(path, pathParams);
   }
 
-  def Response post(String path, Map<String, Object> pathParams) {
+  def Response post(String path, Map pathParams) {
     requestSpecification.post(path, pathParams);
   }
 
-  def Response put(String path, Map<String, Object> pathParams) {
+  def Response put(String path, Map pathParams) {
     requestSpecification.put(path, pathParams);
   }
 
-  def Response delete(String path, Map<String, Object> pathParams) {
+  def Response delete(String path, Map pathParams) {
     requestSpecification.delete(path, pathParams);
   }
 
-  def Response head(String path, Map<String, Object> pathParams) {
+  def Response head(String path, Map pathParams) {
     requestSpecification.head(path, pathParams);
   }
 

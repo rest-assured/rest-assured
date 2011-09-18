@@ -39,7 +39,7 @@ public interface RequestSender {
      * @param pathParams The path parameters.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    Response get(String path, Map<String, Object> pathParams);
+    Response get(String path, Map<String, ?> pathParams);
 
     /**
      * Perform a POST request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -59,7 +59,7 @@ public interface RequestSender {
      * @param pathParams The path parameters.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    Response post(String path, Map<String, Object> pathParams);
+    Response post(String path, Map<String, ?> pathParams);
 
     /**
      * Perform a PUT request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -79,7 +79,7 @@ public interface RequestSender {
      * @param pathParams The path parameters.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    Response put(String path, Map<String, Object> pathParams);
+    Response put(String path, Map<String, ?> pathParams);
 
     /**
      * Perform a DELETE request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -99,7 +99,7 @@ public interface RequestSender {
      * @param pathParams The path parameters.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    Response delete(String path, Map<String, Object> pathParams);
+    Response delete(String path, Map<String, ?> pathParams);
 
     /**
      * Perform a HEAD request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -119,5 +119,5 @@ public interface RequestSender {
      * @param pathParams The path parameters.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    Response head(String path, Map<String, Object> pathParams);
+    Response head(String path, Map<String, ?> pathParams);
 }

@@ -21,7 +21,6 @@ import groovyx.net.http.ContentType;
 
 import java.io.File;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -125,11 +124,13 @@ public interface RequestSpecification extends RequestSender {
      * </ol>
      * and expect that the response body is equal to "username, token".
      *
-     * @param cookieName The name of the first cookie
-     * @param cookieNameValuePairs The value of the first cookie followed by additional cookies in name-value pairs.
+     *
+     * @param firstCookieName The name of the first cookie
+     * @param firstCookieValue The value of the first cookie
+     * @param cookieNameValuePairs Additional cookies in name-value pairs.
      * @return The request specification
      */
-    RequestSpecification cookies(String cookieName, String...cookieNameValuePairs);
+    RequestSpecification cookies(String firstCookieName, Object firstCookieValue, Object... cookieNameValuePairs);
 
     /**
      * Specify the cookies that'll be sent with the request as Map e.g:
@@ -147,10 +148,11 @@ public interface RequestSpecification extends RequestSender {
      * </ol>
      * and expect that the response body is equal to "username, token".
      *
+     *
      * @param cookies The Map containing the cookie names and their values to set in the request.
      * @return The request specification
      */
-    RequestSpecification cookies(Map<String, String> cookies);
+    RequestSpecification cookies(Map<String, ?> cookies);
 
     /**
      * Specify a cookie that'll be sent with the request e.g:
@@ -168,12 +170,12 @@ public interface RequestSpecification extends RequestSender {
      * </pre>
      * </p>
      *
-     * @see #cookies(String, String...)
+     * @see #cookies(String, Object, Object...)
      * @param cookieName The cookie cookieName
      * @param value The cookie value
      * @return The request specification
      */
-    RequestSpecification cookie(String cookieName, String value);
+    RequestSpecification cookie(String cookieName, Object value);
 
     /**
      * Specify a cookie with no value that'll be sent with the request e.g:
@@ -184,7 +186,7 @@ public interface RequestSpecification extends RequestSender {
      * This will set the cookie <code>some_cookie</code> in the GET request to "/cookie".
      * </p>
      *
-     * @see #cookies(String, String...)
+     * @see #cookies(String, Object, Object...)
      * @param cookieName The cookie cookieName
      * @return The request specification
      */
@@ -203,11 +205,16 @@ public interface RequestSpecification extends RequestSender {
      * </ol>
      * and expect that the response body is equal to "username, token".
      *
-     * @param parameterName The name of the first parameter
-     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     *
+     *
+     *
+     * @param firstParameterName The name of the first parameter
+     * @param firstParameterValue The value of the first parameter
+     * @param parameterNameValuePairs Additional parameters in name-value pairs.
      * @return The request specification
      */
-    RequestSpecification parameters(String parameterName, String...parameterNameValuePairs);
+    RequestSpecification parameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
+
     /**
      * Specify the parameters that'll be sent with the request as Map e.g:
      * <pre>
@@ -224,10 +231,11 @@ public interface RequestSpecification extends RequestSender {
      * </ol>
      * and expect that the response body is equal to "username, token".
      *
+     *
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification
      */
-    RequestSpecification parameters(Map<String, String> parametersMap);
+    RequestSpecification parameters(Map<String, ?> parametersMap);
 
     /**
      * Specify a parameter that'll be sent with the request e.g:
@@ -245,13 +253,13 @@ public interface RequestSpecification extends RequestSender {
      * </pre>
      * </p>
      *
-     * @see #parameters(String, String...)
+     * @see #parameters(String, Object, Object...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
      * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification
      */
-    RequestSpecification parameter(String parameterName, String parameterValue, String... additionalParameterValues);
+    RequestSpecification parameter(String parameterName, Object parameterValue, Object... additionalParameterValues);
 
     /**
      * Specify a multi-value parameter that'll be sent with the request e.g:
@@ -266,17 +274,18 @@ public interface RequestSpecification extends RequestSender {
      * @param parameterValues The parameter values
      * @return The request specification
      */
-    RequestSpecification parameter(String parameterName, List<String> parameterValues);
+    RequestSpecification parameter(String parameterName, List<?> parameterValues);
 
     /**
-     * A slightly shorter version of {@link #parameters(String, String...)}.
+     * A slightly shorter version of {@link #parameters(String, Object, Object...)}
      *
-     * @see #parameters(String, String...)
-     * @param parameterName The name of the first parameter
-     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     * @see #parameters(String, Object, Object...)
+     * @param firstParameterName The name of the first parameter
+     * @param firstParameterValue The value of the first parameter
+     * @param parameterNameValuePairs Additional parameters in name-value pairs.
      * @return The request specification
      */
-    RequestSpecification params(String parameterName, String...parameterNameValuePairs);
+    RequestSpecification params(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
 
     /**
      * A slightly shorter version of {@link #parameters(Map)}.
@@ -285,61 +294,66 @@ public interface RequestSpecification extends RequestSender {
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification
      */
-    RequestSpecification params(Map<String, String> parametersMap);
+    RequestSpecification params(Map<String, ?> parametersMap);
 
     /**
-     * A slightly shorter version of {@link #parameter(String, String, String...) }.
+     * A slightly shorter version of {@link #parameter(String, Object, Object...) }.
      *
-     * @see #parameter(String, String, String...)
+     * @see #parameter(String, Object, Object...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
      * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification
      */
-    RequestSpecification param(String parameterName, String parameterValue, String... additionalParameterValues);
+    RequestSpecification param(String parameterName, Object parameterValue, Object... additionalParameterValues);
 
     /**
      * A slightly shorter version of {@link #parameter(String, java.util.List)}  }.
+     *
      *
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification
      */
-    RequestSpecification param(String parameterName, List<String> parameterValues);
+    RequestSpecification param(String parameterName, List<?> parameterValues);
 
     /**
-     * Specify the query parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(String, String...)}
-     * for all http methods except for POST where {@link #parameters(String, String...)} sets the form parameters and this method sets the
+     * Specify the query parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(String, Object, Object...)}
+     * for all http methods except for POST where {@link #parameters(String, Object, Object...)} sets the form parameters and this method sets the
      * query parameters.
      *
-     * @param parameterName The name of the first parameter
+     *
+     *
+     * @param firstParameterName The name of the first parameter
+     * @param firstParameterValue The value of the first parameter
      * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
      * @return The request specification
      */
-    RequestSpecification queryParameters(String parameterName, String...parameterNameValuePairs);
+    RequestSpecification queryParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
 
     /**
      * Specify the query parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(Map)}
      * for all http methods except for POST where {@link #parameters(Map)} sets the form parameters and this method sets the
      * query parameters.
      *
+     *
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification
      */
-    RequestSpecification queryParameters(Map<String, String> parametersMap);
+    RequestSpecification queryParameters(Map<String, ?> parametersMap);
 
     /**
-     * Specify a query parameter that'll be sent with the request. Note that this method is the same as {@link #parameter(String, String, String...)}
-     * for all http methods except for POST where {@link #parameter(String, String, String...)} adds a form parameter and this method sets a
+     * Specify a query parameter that'll be sent with the request. Note that this method is the same as {@link #parameter(String, Object, Object...)}
+     * for all http methods except for POST where {@link #parameter(String, Object, Object...)} adds a form parameter and this method sets a
      * query parameter.
      *
-     * @see #parameter(String, String, String...)
+     * @see #parameter(String, Object, Object...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
      * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification
      */
-    RequestSpecification queryParameter(String parameterName, String parameterValue, String... additionalParameterValues);
+    RequestSpecification queryParameter(String parameterName, Object parameterValue, Object... additionalParameterValues);
 
     /**
      * Specify a multi-value query parameter that'll be sent with the request e.g:
@@ -354,21 +368,23 @@ public interface RequestSpecification extends RequestSender {
      * for all http methods except for POST where {@link #parameter(String, java.util.List)} adds a form parameter and
      * this method sets a query parameter.
      *
+     *
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification
      */
-    RequestSpecification queryParameter(String parameterName, List<String> parameterValues);
+    RequestSpecification queryParameter(String parameterName, List<?> parameterValues);
 
     /**
-     * A slightly shorter version of {@link #queryParameters(String, String...)}.
+     * A slightly shorter version of {@link #queryParameters(String, Object, Object...)}.
      *
-     * @see #queryParameters(String, String...)
-     * @param parameterName The name of the first parameter
+     * @see #queryParameters(String, Object, Object...)
+     * @param firstParameterName The name of the first parameter
+     * @param firstParameterValue The value of the first parameter
      * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
      * @return The request specification
      */
-    RequestSpecification queryParams(String parameterName, String...parameterNameValuePairs);
+    RequestSpecification queryParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
 
     /**
      * A slightly shorter version of {@link #queryParams(java.util.Map)}.
@@ -377,18 +393,18 @@ public interface RequestSpecification extends RequestSender {
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification
      */
-    RequestSpecification queryParams(Map<String, String> parametersMap);
+    RequestSpecification queryParams(Map<String, ?> parametersMap);
 
     /**
-     * A slightly shorter version of {@link #queryParameter(String, String, String...)}.
+     * A slightly shorter version of {@link #queryParameter(String, Object, Object...)}.
      *
-     * @see #parameter(String, String, String...)
+     * @see #parameter(String, Object, Object...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
      * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification
      */
-    RequestSpecification queryParam(String parameterName, String parameterValue, String... additionalParameterValues);
+    RequestSpecification queryParam(String parameterName, Object parameterValue, Object... additionalParameterValues);
 
     /**
      * A slightly shorter version of {@link #queryParameter(String, java.util.List)}.
@@ -398,41 +414,45 @@ public interface RequestSpecification extends RequestSender {
      * @param parameterValues The parameter values
      * @return The request specification
      */
-    RequestSpecification queryParam(String parameterName, List<String> parameterValues);
+    RequestSpecification queryParam(String parameterName, List<?> parameterValues);
 
     /**
-     * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(String, String...)}
-     * for all http methods except for PUT where {@link #parameters(String, String...)} sets the query parameters and this method sets the
+     * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(String, Object, Object...)}
+     * for all http methods except for PUT where {@link #parameters(String, Object, Object...)} sets the query parameters and this method sets the
      * form parameters.
      *
-     * @param parameterName The name of the first parameter
+     *
+     *
+     * @param firstParameterName The name of the first parameter
+     * @param firstParameterValue The value of the first parameter
      * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
      * @return The request specification
      */
-    RequestSpecification formParameters(String parameterName, String...parameterNameValuePairs);
+    RequestSpecification formParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
 
     /**
      * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(Map)}
      * for all http methods except for PUT where {@link #parameters(Map)} sets the query parameters and this method sets the
      * form parameters.
      *
+     *
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification
      */
-    RequestSpecification formParameters(Map<String, String> parametersMap);
+    RequestSpecification formParameters(Map<String, ?> parametersMap);
 
     /**
-     * Specify a form parameter that'll be sent with the request. Note that this method is the same as {@link #parameter(String, String, String...)}
-     * for all http methods except for PUT where {@link #parameter(String, String, String...)} adds a query parameter and this method sets a
+     * Specify a form parameter that'll be sent with the request. Note that this method is the same as {@link #parameter(String, Object, Object...)}
+     * for all http methods except for PUT where {@link #parameter(String, Object, Object...)} adds a query parameter and this method sets a
      * form parameter.
      *
-     * @see #parameter(String, String, String...)
+     * @see #parameter(String, Object, Object...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
      * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification
      */
-    RequestSpecification formParameter(String parameterName, String parameterValue, String... additionalParameterValues);
+    RequestSpecification formParameter(String parameterName, Object parameterValue, Object... additionalParameterValues);
 
     /**
      * Specify a multi-value form parameter that'll be sent with the request e.g:
@@ -447,21 +467,23 @@ public interface RequestSpecification extends RequestSender {
      * for all http methods except for PUT where {@link #parameter(String, java.util.List)} adds a query parameter and
      * this method sets a form parameter.
      *
+     *
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification
      */
-    RequestSpecification formParameter(String parameterName, List<String> parameterValues);
+    RequestSpecification formParameter(String parameterName, List<?> parameterValues);
 
     /**
-     * A slightly shorter version of {@link #formParameters(String, String...)}.
+     * A slightly shorter version of {@link #formParameters(String, Object, Object...)}.
      *
-     * @see #formParameters(String, String...)
-     * @param parameterName The name of the first parameter
+     * @see #formParameters(String, Object, Object...)
+     * @param firstParameterName The name of the first parameter
+     * @param firstParameterValue The value of the first parameter
      * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
      * @return The request specification
      */
-    RequestSpecification formParams(String parameterName, String...parameterNameValuePairs);
+    RequestSpecification formParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
 
     /**
      * A slightly shorter version of {@link #formParams(java.util.Map)}.
@@ -470,18 +492,18 @@ public interface RequestSpecification extends RequestSender {
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification
      */
-    RequestSpecification formParams(Map<String, String> parametersMap);
+    RequestSpecification formParams(Map<String, ?> parametersMap);
 
     /**
-     * A slightly shorter version of {@link #formParameter(String, String, String...)}.
+     * A slightly shorter version of {@link #formParameter(String, Object, Object...)}.
      *
-     * @see #parameter(String, String, String...)
+     * @see #parameter(String, Object, Object...)
      * @param parameterName The parameter key
      * @param parameterValue The parameter value
      * @param additionalParameterValues Additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification
      */
-    RequestSpecification formParam(String parameterName, String parameterValue, String... additionalParameterValues);
+    RequestSpecification formParam(String parameterName, Object parameterValue, Object... additionalParameterValues);
 
     /**
      * A slightly shorter version of {@link #formParameter(String, java.util.List)}.
@@ -491,7 +513,7 @@ public interface RequestSpecification extends RequestSender {
      * @param parameterValues The parameter values
      * @return The request specification
      */
-    RequestSpecification formParam(String parameterName, List<String> parameterValues);
+    RequestSpecification formParam(String parameterName, List<?> parameterValues);
 
     /**
      * Specify a path parameter. Path parameters are used to improve readability of the request path. E.g. instead
@@ -542,11 +564,13 @@ public interface RequestSpecification extends RequestSender {
      * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
      * </pre>
      *
-     * @param parameterName The parameter key
-     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     *
+     * @param firstParameterName The name of the first parameter
+     * @param firstParameterValue The value of the first parameter
+     * @param parameterNameValuePairs Additional parameters in name-value pairs.
      * @return The request specification
      */
-    RequestSpecification pathParameters(String parameterName, Object...parameterNameValuePairs);
+    RequestSpecification pathParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
 
     /**
      * Specify multiple path parameter name-value pairs. Path parameters are used to improve readability of the request path. E.g. instead
@@ -576,7 +600,7 @@ public interface RequestSpecification extends RequestSender {
      * @param parameterNameValuePairs A map containing the path parameters.
      * @return The request specification
      */
-    RequestSpecification pathParameters(Map<String, Object> parameterNameValuePairs);
+    RequestSpecification pathParameters(Map<String, ?> parameterNameValuePairs);
 
     /**
      * A slightly shorter version of {@link #pathParameter(String, Object)}.
@@ -589,14 +613,15 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification pathParam(String parameterName, Object parameterValue);
 
     /**
-     * A slightly shorter version of {@link #pathParameters(String, Object...)}.
+     * A slightly shorter version of {@link #pathParameters(String, Object, Object...)}.
      *
-     * @see #pathParameters(String, Object...)
-     * @param parameterName The parameter key
-     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     * @see #pathParameters(String, Object, Object...)
+     * @param firstParameterName The name of the first parameter
+     * @param firstParameterValue The value of the first parameter
+     * @param parameterNameValuePairs Additional parameters in name-value pairs.
      * @return The request specification
      */
-    RequestSpecification pathParams(String parameterName, Object...parameterNameValuePairs);
+    RequestSpecification pathParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
 
     /**
      * A slightly shorter version of {@link #pathParameters(java.util.Map)}.
@@ -605,7 +630,7 @@ public interface RequestSpecification extends RequestSender {
      * @param parameterNameValuePairs A map containing the path parameters.
      * @return The request specification
      */
-    RequestSpecification pathParams(Map<String, Object> parameterNameValuePairs);
+    RequestSpecification pathParams(Map<String, ?> parameterNameValuePairs);
 
     /**
      * The following documentation is taken from <a href="HTTP Builder">http://groovy.codehaus.org/modules/http-builder/doc/ssl.html</a>:
@@ -675,11 +700,13 @@ public interface RequestSpecification extends RequestSender {
      * </ol>
      * and expect that the response body is equal to "something".
      *
-     * @param headerName The name of the first header
-     * @param headerNameValuePairs The value of the first header followed by additional headers in name-value pairs.
+     *
+     * @param firstHeaderName The name of the first header
+     * @param firstHeaderValue The value of the first header
+     * @param headerNameValuePairs Additional headers in name-value pairs.
      * @return The request specification
      */
-    RequestSpecification headers(String headerName, String ... headerNameValuePairs);
+    RequestSpecification headers(String firstHeaderName, Object firstHeaderValue, Object... headerNameValuePairs);
 
     /**
      * Specify the headers that'll be sent with the request as Map e.g:
@@ -697,10 +724,11 @@ public interface RequestSpecification extends RequestSender {
      * </ol>
      * and expect that the response body is equal to "something".
      *
+     *
      * @param headers The Map containing the header names and their values to send with the request.
      * @return The request specification
      */
-    RequestSpecification headers(Map<String, String> headers);
+    RequestSpecification headers(Map<String, ?> headers);
 
     /**
      * Specify a header that'll be sent with the request e.g:
@@ -718,12 +746,12 @@ public interface RequestSpecification extends RequestSender {
      * </pre>
      * </p>
      *
-     * @see #headers(String, String...)
+     * @see #headers(String, Object, Object...)
      * @param headerName The header name
      * @param headerValue The header value
      * @return The request specification
      */
-    RequestSpecification header(String headerName, String headerValue);
+    RequestSpecification header(String headerName, Object headerValue);
 
     /**
      * Specify the content type of the request.

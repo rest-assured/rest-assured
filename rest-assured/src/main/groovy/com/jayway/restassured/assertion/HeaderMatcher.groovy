@@ -26,21 +26,11 @@ class HeaderMatcher {
   def Matcher<String> matcher
 
   def containsHeader(headers) {
-    def value = getHeaderValueOrThrowExceptionIfHeaderIsMissing(headerName, headers)
+    def value = headers.get(headerName)
     if (!matcher.matches(value)) {
       String headersAsString = "";
       headers.each { headersAsString += "\n$it.key: $it.value" }
       throw new AssertionFailedException("Expected header \"$headerName\" was not $matcher, was \"$value\". Headers are:$headersAsString")
     }
-  }
-
-  private def validateHeaderDoesntExists(headers) {
-
-  }
-
-
-  private def getHeaderValueOrThrowExceptionIfHeaderIsMissing(headerName, headers) {
-    def header = headers.get(headerName)
-    return header
   }
 }

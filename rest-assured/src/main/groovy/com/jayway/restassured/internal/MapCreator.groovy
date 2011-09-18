@@ -18,20 +18,13 @@ package com.jayway.restassured.internal
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 
-/**
- * Created by IntelliJ IDEA.
- * User: johan
- * Date: 12/21/10
- * Time: 11:20 AM
- * To change this template use File | Settings | File Templates.
- */
 class MapCreator {
 
-   def static Map<String, Object> createMapFromStrings(String firstParam, ... parameters) {
-      return createMapFromObjects(createArgumentArray(firstParam, parameters));
-   }
+  def static Map<String, Object> createMapFromParams(String firstParam,  Object firstValue, ... parameters) {
+    return createMapFromObjects(createArgumentArray(firstParam, firstValue, parameters));
+  }
 
-   def static Map<String, Object> createMapFromObjects(... parameters) {
+  def static Map<String, Object> createMapFromObjects(... parameters) {
     if(parameters == null || parameters.length < 2) {
       throw new IllegalArgumentException("You must supply at least one key and one value.");
     } else if(parameters.length % 2 != 0) {
@@ -45,13 +38,14 @@ class MapCreator {
     return map;
   }
 
-  private static Object[] createArgumentArray(String firstArgument, Object... additionalArguments) {
-    notNull firstArgument, "firstArgument"
-    def params = [firstArgument]
-    additionalArguments.each {
+  private static Object[] createArgumentArray(String firstParam,  Object firstValue,
+                                              ... parameters) {
+    notNull firstParam, "firstParam"
+    notNull firstValue, "firstValue"
+    def params = [firstParam, firstValue]
+    parameters.each {
       params << it
     }
     return params as Object[]
   }
-
 }
