@@ -111,6 +111,12 @@ public class XmlPathTest {
     }
 
     @Test
+    public void getNodeChildrenAsListWithTypeNodeReturnsAListOfNodes() throws Exception {
+        final List<Node> categories = new XmlPath(XML).getList("shopping.category", Node.class);
+        assertThat(categories.size(), equalTo(3));
+    }
+
+    @Test
     public void initializeUsingGivenAndGetAttributes() throws Exception {
         final List<String> categories = given(XML).get("shopping.category.@type");
         assertThat(categories, hasItems("groceries", "supplies", "present"));
