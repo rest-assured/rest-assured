@@ -17,7 +17,10 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.parsing.Parser;
+import com.jayway.restassured.specification.ResponseSpecification;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -210,6 +213,19 @@ public class XMLGetITest extends WithJetty {
         } finally {
             RestAssured.unregisterParser(mimeType);
         }
+    }
+
+    @Test
+    public void supportsRegisteringCustomParserForAGivenMimeTypePerResponse() throws Exception {
+        final String mimeType = "application/vnd.uoml+xml";
+        expect().parser(mimeType, Parser.XML).and().body("body.message", equalTo("Custom mime-type")).when().get("/customMimeType");
+    }
+
+    @Test
+    public void supportsRegisteringCustomParserForAGivenMimeTypeUsingResponseSpec() throws Exception {
+        final String mimeType = "application/vnd.uoml+xml";
+        final ResponseSpecification specification = new ResponseSpecBuilder().registerParser(mimeType, Parser.XML).build();
+        expect().specification(specification).and().body("body.message", equalTo("Custom mime-type")).when().get("/customMimeType");
     }
 
     @Test

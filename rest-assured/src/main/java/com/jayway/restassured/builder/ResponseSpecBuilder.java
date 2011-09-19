@@ -16,13 +16,17 @@
 
 package com.jayway.restassured.builder;
 
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.ResponseSpecificationImpl;
 import com.jayway.restassured.internal.SpecificationMerger;
+import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.specification.Argument;
 import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
 import org.hamcrest.Matcher;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +56,7 @@ public class ResponseSpecBuilder {
     private final ResponseSpecification spec;
 
     public ResponseSpecBuilder() {
-        spec = new ResponseSpecificationImpl(rootPath, responseContentType(), responseSpecification);
+        spec = new ResponseSpecificationImpl(rootPath, responseContentType(), responseSpecification, getResponseParserRegistrar());
     }
 
     /**
@@ -464,11 +468,56 @@ public class ResponseSpecBuilder {
     }
 
     /**
+     * Register a content-type to be parsed using a predefined parser. E.g. let's say you want parse
+     * content-type <tt>application/vnd.uoml+xml</tt> with the XML parser to be able to verify the response using the XML dot notations:
+     * <pre>
+     * expect().body("document.child", equalsTo("something"))..
+     * </pre>
+     * Since <tt>application/vnd.uoml+xml</tt> is not registered to be processed by the XML parser by default you need to explicitly
+     * tell REST Assured to use this parser before making the request:
+     * <pre>
+     * expect().parser("application/vnd.uoml+xml", Parser.XML").when(). ..;
+     * </pre>
+     *
+     * You can also specify by default by using:
+     * <pre>
+     * RestAssured.registerParser("application/vnd.uoml+xml, Parser.XML");
+     * </pre>
+     *
+     * @param contentType The content-type to register
+     * @param parser The parser to use when verifying the response.
+     * @return The builder
+     */
+    public ResponseSpecBuilder registerParser(String contentType, Parser parser) {
+        spec.parser(contentType, parser);
+        return this;
+    }
+
+    /**
      * Build the response specification.
      *
      * @return The assembled response specification
      */
     public ResponseSpecification build() {
         return spec;
+    }
+
+    private ResponseParserRegistrar getResponseParserRegistrar() {
+        ResponseParserRegistrar rpr;
+        Field registrarField = null;
+        try {
+            registrarField = RestAssured.class.getDeclaredField("RESPONSE_PARSER_REGISTRAR");
+            try {
+                registrarField.setAccessible(true);
+                rpr = (ResponseParserRegistrar) registrarField.get(RestAssured.class);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } finally {
+            registrarField.setAccessible(false);
+        }
+        return new ResponseParserRegistrar(rpr);
     }
 }

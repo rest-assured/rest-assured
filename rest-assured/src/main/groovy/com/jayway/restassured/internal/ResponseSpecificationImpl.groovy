@@ -21,6 +21,7 @@ import com.jayway.restassured.assertion.BodyMatcherGroup
 import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.assertion.HeaderMatcher
 import com.jayway.restassured.exception.AssertionFailedException
+import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
 import groovyx.net.http.ContentType
 import org.hamcrest.Matcher
@@ -43,10 +44,12 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   private def contentType;
   private Response restAssuredResponse;
   private String bodyRootPath;
+  private ResponseParserRegistrar rpr;
 
-  ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec) {
+  ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr) {
     rootPath(bodyRootPath)
     this.contentType = responseContentType
+    this.rpr = rpr
     if(defaultSpec != null) {
       spec(defaultSpec)
     }
@@ -54,9 +57,9 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   def ResponseSpecification content(Matcher matcher, Matcher...additionalMatchers) {
     notNull(matcher, "matcher")
-    bodyMatchers << new BodyMatcher(key: null, matcher: matcher)
+    bodyMatchers << new BodyMatcher(key: null, matcher: matcher, rpr: rpr)
     additionalMatchers?.each { hamcrestMatcher ->
-      bodyMatchers << new BodyMatcher(key: null, matcher: hamcrestMatcher)
+      bodyMatchers << new BodyMatcher(key: null, matcher: hamcrestMatcher, rpr: rpr)
     }
     return this
   }
@@ -174,12 +177,12 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     if(arguments?.size() > 0 ) {
       mergedKey = String.format(mergedKey, arguments.collect { it.getArgument() }.toArray(new Object[arguments.size()]))
     }
-    bodyMatchers << new BodyMatcher(key: mergedKey, matcher: matcher)
+    bodyMatchers << new BodyMatcher(key: mergedKey, matcher: matcher, rpr: rpr)
     if(additionalKeyMatcherPairs?.length > 0) {
       def pairs = MapCreator.createMapFromObjects(additionalKeyMatcherPairs)
       pairs.each { matchingKey, hamcrestMatcher ->
         def keyWithRoot = bodyRootPath + matchingKey
-        bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: hamcrestMatcher)
+        bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: hamcrestMatcher, rpr: rpr)
       }
     }
     return this
@@ -254,6 +257,11 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   def Response head(String path, Map pathParams) {
     requestSpecification.head(path, pathParams);
+  }
+
+  def ResponseSpecification parser(String contentType, Parser parser) {
+    rpr.registerParser(contentType, parser)
+    this
   }
 
   def ResponseSpecification and() {

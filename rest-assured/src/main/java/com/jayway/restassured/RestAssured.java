@@ -245,11 +245,11 @@ import java.util.Map;
  *    </ol>
  * </li>
  * <li>
- *  REST Assured providers predefined parsers for e.g. HTML, XML and JSON. But you can parse other kinds of content by registering a predefined parser for unsupported mime-types by using:
+ *  REST Assured providers predefined parsers for e.g. HTML, XML and JSON. But you can parse other kinds of content by registering a predefined parser for unsupported content-types by using:
  * <pre>
- * RestAssured.registerParser(&lt;mime-type&gt;, &lt;parser&gt;);
+ * RestAssured.registerParser(&lt;content-type&gt;, &lt;parser&gt;);
  * </pre>
- * E.g. to register that mime-type <code>'application/vnd.uoml+xml'</code> should be parsed using the XML parser do:
+ * E.g. to register that content-type <code>'application/vnd.uoml+xml'</code> should be parsed using the XML parser do:
  * <pre>
  * RestAssured.registerParser("application/vnd.uoml+xml", Parser.XML);
  * </pre>
@@ -309,6 +309,8 @@ import java.util.Map;
  * </p>
  */
 public class RestAssured {
+
+    private static ResponseParserRegistrar RESPONSE_PARSER_REGISTRAR = new ResponseParserRegistrar();
 
     public static final String DEFAULT_URI = "http://localhost";
     public static final String DEFAULT_BODY_ROOT_PATH = "";
@@ -888,8 +890,8 @@ public class RestAssured {
     }
 
     /**
-     * Register a custom mime-type to be parsed using a predefined parser. E.g. let's say you want parse
-     * mime-type <tt>application/vnd.uoml+xml</tt> with the XML parser to be able to verify the response using the XML dot notations:
+     * Register a custom content-type to be parsed using a predefined parser. E.g. let's say you want parse
+     * content-type <tt>application/vnd.uoml+xml</tt> with the XML parser to be able to verify the response using the XML dot notations:
      * <pre>
      * expect().body("document.child", equalsTo("something"))..
      * </pre>
@@ -899,20 +901,20 @@ public class RestAssured {
      * RestAssured.registerParser("application/vnd.uoml+xml, Parser.XML");
      * </pre>
      *
-     * @param mimeType The mime-type to register
+     * @param contentType The content-type to register
      * @param parser The parser to use when verifying the response.
      */
-    public static void registerParser(String mimeType, Parser parser) {
-        ResponseParserRegistrar.registerParser(mimeType, parser);
+    public static void registerParser(String contentType, Parser parser) {
+        RESPONSE_PARSER_REGISTRAR.registerParser(contentType, parser);
     }
 
     /**
-     * Unregister the parser associated with the provided mime-type
+     * Unregister the parser associated with the provided content-type
      *
-     * @param mimeType The mime-type associated with the parser to unregister.
+     * @param contentType The content-type associated with the parser to unregister.
      */
-    public static void unregisterParser(String mimeType) {
-        ResponseParserRegistrar.unregisterParser(mimeType);
+    public static void unregisterParser(String contentType) {
+        RESPONSE_PARSER_REGISTRAR.unregisterParser(contentType);
     }
 
     /**
@@ -934,11 +936,12 @@ public class RestAssured {
         responseSpecification = null;
         keystoreSpec = new NoKeystoreSpecImpl();
         urlEncodingEnabled = DEFAULT_URL_ENCODING_ENABLED;
+        RESPONSE_PARSER_REGISTRAR = new ResponseParserRegistrar();
     }
 
     private static TestSpecificationImpl createTestSpecification() {
         return new TestSpecificationImpl(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keystoreSpec, requestContentType, requestSpecification, urlEncodingEnabled),
-                new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification));
+                new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, RESPONSE_PARSER_REGISTRAR));
     }
 }

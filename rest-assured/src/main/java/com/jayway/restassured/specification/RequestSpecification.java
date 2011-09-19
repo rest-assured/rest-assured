@@ -17,6 +17,7 @@
 package com.jayway.restassured.specification;
 
 import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.parsing.Parser;
 import groovyx.net.http.ContentType;
 
 import java.io.File;

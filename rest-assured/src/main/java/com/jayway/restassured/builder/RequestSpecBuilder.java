@@ -663,7 +663,7 @@ public class RequestSpecBuilder {
 
     /**
      * Specify a file to upload to the server using multi-part form data uploading.
-     * It will assume that the control name is <tt>file</tt> and the mime-type is <tt>application/octet-stream</tt>.
+     * It will assume that the control name is <tt>file</tt> and the content-type is <tt>application/octet-stream</tt>.
      * If this is not what you want please use an overloaded method.
      *
      * @param file The file to upload
@@ -676,7 +676,7 @@ public class RequestSpecBuilder {
 
     /**
      * Specify a file to upload to the server using multi-part form data uploading with a specific
-     * control name. It will use the mime-type <tt>application/octet-stream</tt>.
+     * control name. It will use the content-type <tt>application/octet-stream</tt>.
      * If this is not what you want please use an overloaded method.
      *
      * @param file The file to upload
@@ -690,11 +690,11 @@ public class RequestSpecBuilder {
 
     /**
      * Specify a file to upload to the server using multi-part form data uploading with a specific
-     * control name and mime-type.
+     * control name and content-type.
      *
      * @param file The file to upload
      * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
-     * @param mimeType The mime-type
+     * @param mimeType The content-type
      * @return The request specification
      */
     public RequestSpecBuilder addMultiPart(String controlName, File file, String mimeType) {
@@ -704,7 +704,7 @@ public class RequestSpecBuilder {
 
     /**
      * Specify a byte-array to upload to the server using multi-part form data.
-     * It will use the mime-type <tt>application/octet-stream</tt>. If this is not what you want please use an overloaded method.
+     * It will use the content-type <tt>application/octet-stream</tt>. If this is not what you want please use an overloaded method.
      *
      * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
      * @param fileName The name of the content you're uploading
@@ -722,7 +722,7 @@ public class RequestSpecBuilder {
      * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
      * @param fileName The name of the content you're uploading
      * @param bytes The bytes you want to send
-     * @param mimeType The mime-type
+     * @param mimeType The content-type
      * @return The request specification
      */
     public RequestSpecBuilder addMultiPart(String controlName, String fileName, byte[] bytes, String mimeType) {
@@ -732,7 +732,7 @@ public class RequestSpecBuilder {
 
     /**
      * Specify an inputstream to upload to the server using multi-part form data.
-     * It will use the mime-type <tt>application/octet-stream</tt>. If this is not what you want please use an overloaded method.
+     * It will use the content-type <tt>application/octet-stream</tt>. If this is not what you want please use an overloaded method.
      *
      * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
      * @param fileName The name of the content you're uploading
@@ -750,7 +750,7 @@ public class RequestSpecBuilder {
      * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
      * @param fileName The name of the content you're uploading
      * @param stream The stream you want to send
-     * @param mimeType The mime-type
+     * @param mimeType The content-type
      * @return The request specification
      */
     public RequestSpecBuilder addMultiPart(String controlName, String fileName, InputStream stream, String mimeType) {
@@ -760,7 +760,7 @@ public class RequestSpecBuilder {
 
     /**
      * Specify a string to send to the server using multi-part form data.
-     * It will use the mime-type <tt>text/plain</tt>. If this is not what you want please use an overloaded method.
+     * It will use the content-type <tt>text/plain</tt>. If this is not what you want please use an overloaded method.
      *
      * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
      * @param contentBody The string to send

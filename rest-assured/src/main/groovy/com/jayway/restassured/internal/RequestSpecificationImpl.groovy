@@ -44,6 +44,7 @@ import org.apache.http.entity.mime.MultipartEntity
 
 import org.apache.http.entity.mime.HttpMultipartMode
 import com.jayway.restassured.internal.encoderregistry.RestAssuredEncoderRegistry
+import com.jayway.restassured.parsing.Parser
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
@@ -555,7 +556,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     registerRestAssuredEncoders(http);
     RestAssuredParserRegistry.responseSpecification = responseSpecification
     http.setParserRegistry(new RestAssuredParserRegistry())
-    ResponseParserRegistrar.registerParsers(http, assertionClosure.requiresTextParsing())
+    responseSpecification.rpr.registerParsers(http, assertionClosure.requiresTextParsing())
     http.getHeaders() << requestHeaders
 
     if(!cookies.isEmpty()) {

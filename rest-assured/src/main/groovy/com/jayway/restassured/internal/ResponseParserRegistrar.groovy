@@ -28,27 +28,41 @@ import static groovyx.net.http.ContentType.*
  * preparing for forced text parsing when applicable.
  */
 class ResponseParserRegistrar {
-  private static final Map<String, String> additional = ['application/rss+xml' : 'application/xml', 'atom+xml' : 'application/xml',
+  private final Map<String, String> additional = ['application/rss+xml' : 'application/xml', 'atom+xml' : 'application/xml',
           'xop+xml' : 'application/xml', 'xslt+xml' : 'application/xml', 'rdf+xml' : 'application/xml',
           'atomcat+xml' : 'application/xml', 'atomsvc+xml' : 'application/xml', 'auth-policy+xml' : 'application/xml']
 
-  def static Parser getParser(String mimeType) {
-    def parserAsString = additional.get(mimeType)
-    parserAsString == null ? null : Parser.fromMimeType(parserAsString)
+  def ResponseParserRegistrar(){
+
   }
 
-  def static void registerParser(String mimeType, Parser parser) {
+  def ResponseParserRegistrar(ResponseParserRegistrar rpr){
+    this.additional.putAll(rpr.additional)
+  }
+
+
+  def Parser getParser(String contentType) {
+    def parserAsString = additional.get(contentType)
+    parserAsString == null ? null : Parser.fromContentType(parserAsString)
+  }
+
+  def void registerParser(String contentType, Parser parser) {
     notNull(parser, "Parser")
-    notNull(mimeType, "mimeType")
-    additional.put(mimeType, parser.getMimeType())
+    notNull(contentType, "contentType")
+    additional.put(contentType, parser.getContentType())
   }
 
-  def static void unregisterParser(String mimeType) {
-    notNull(mimeType, "mimeType")
-    additional.remove(mimeType)
+  def void unregisterParser(String contentType) {
+    notNull(contentType, "contentType")
+    additional.remove(contentType)
   }
 
-  def static void registerParsers(http, forceTextParsing) {
+  def boolean hasCustomParser(String contentType) {
+    def parser = getParser(contentType)
+    return parser != null && (parser == Parser.XML || parser == Parser.JSON || parser == Parser.HTML);
+  }
+
+  def void registerParsers(http, forceTextParsing) {
     if(forceTextParsing) {
       parseResponsesWithBodyParser(http)
     } else {
@@ -58,22 +72,22 @@ class ResponseParserRegistrar {
     }
   }
 
-  private static def void parseResponsesWithBodyParser(http) {
+  private def void parseResponsesWithBodyParser(http) {
     def plainText = http.parser.'text/plain'
-    registerContentTypeToParsedAs(http, XML, plainText)
-    registerContentTypeToParsedAs(http, HTML, plainText)
-    registerContentTypeToParsedAs(http, JSON, plainText)
-    registerContentTypeToParsedAs(http, ANY, plainText)
+    registerContentTypeToBeParsedAs(http, XML, plainText)
+    registerContentTypeToBeParsedAs(http, HTML, plainText)
+    registerContentTypeToBeParsedAs(http, JSON, plainText)
+    registerContentTypeToBeParsedAs(http, ANY, plainText)
     registerAllAdditionalContentTypesToBeParsedAs(http, plainText)
   }
 
-  private static void registerAllAdditionalContentTypesToBeParsedAs(http, toBeParsedAsContentType) {
+  private void registerAllAdditionalContentTypesToBeParsedAs(http, toBeParsedAsContentType) {
     additional.each { type, value ->
       http.parser.putAt(type, toBeParsedAsContentType)
     }
   }
 
-  private static void registerContentTypeToParsedAs(http, ContentType contentType, toBeParsedAsContentType) {
+  private void registerContentTypeToBeParsedAs(http, ContentType contentType, toBeParsedAsContentType) {
     def types = contentType.getContentTypeStrings();
     for(String type : types) {
       http.parser.putAt(type, toBeParsedAsContentType)

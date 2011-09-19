@@ -22,10 +22,12 @@ import org.hamcrest.Matcher
 import org.hamcrest.xml.HasXPath
 import org.w3c.dom.Element
 import com.jayway.restassured.response.Response
+import com.jayway.restassured.internal.ResponseParserRegistrar
 
 class BodyMatcher {
   def key
   def Matcher matcher
+  def ResponseParserRegistrar rpr
 
   def isFulfilled(Response response, content) {
     content = fallbackToResponseBodyIfContentHasAlreadyBeenRead(response, content)
@@ -39,7 +41,7 @@ class BodyMatcher {
         throw new AssertionFailedException("Body doesn't match.\nExpected:\n$matcher\nActual:\n$content")
       }
     } else {
-      def assertion = StreamVerifier.newAssertion(response, key)
+      def assertion = StreamVerifier.newAssertion(response, key, rpr)
       def result = null
       if(content != null) {
         result = assertion.getResult(content)

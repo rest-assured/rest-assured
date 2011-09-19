@@ -24,7 +24,7 @@ import com.jayway.restassured.response.Response
 
 class StreamVerifier {
 
-  def static newAssertion(Response response, key) {
+  def static newAssertion(Response response, key, ResponseParserRegistrar rpr) {
     def contentType = response.getContentType()
     def assertion
     if(contentTypeMatch(JSON, contentType) ) {
@@ -33,8 +33,8 @@ class StreamVerifier {
       assertion = new XMLAssertion(key: key)
     } else if(contentTypeMatch(HTML, contentType)) {
       assertion = new XMLAssertion(key: key, toUpperCase: true)
-    } else if(hasCustomParser(contentType)) {
-      assertion = createAssertionForCustomParser(contentType, key)
+    } else if(rpr.hasCustomParser(contentType)) {
+      assertion = createAssertionForCustomParser(rpr, contentType, key)
     } else {
       def content = response.asString()
       throw new IllegalStateException("""Expected response to be verified as JSON, HTML or XML but content-type '$contentType' is not supported out of the box.
@@ -45,8 +45,8 @@ Content was:\n$content\n""");
     assertion
   }
 
-  static def createAssertionForCustomParser(String contentType, key) {
-    def parser = ResponseParserRegistrar.getParser(contentType);
+  static def createAssertionForCustomParser(ResponseParserRegistrar rpr, String contentType, key) {
+    def parser = rpr.getParser(contentType);
     def assertion
     switch(parser) {
       case Parser.XML:
@@ -60,11 +60,6 @@ Content was:\n$content\n""");
         break;
     }
     assertion
-  }
-
-  private static boolean hasCustomParser(String contentType) {
-    def parser = ResponseParserRegistrar.getParser(contentType)
-    return parser != null && (parser == Parser.XML || parser == Parser.JSON || parser == Parser.HTML);
   }
 
   private static boolean contentTypeMatch(ContentType expectedContentType, String actualContentType) {

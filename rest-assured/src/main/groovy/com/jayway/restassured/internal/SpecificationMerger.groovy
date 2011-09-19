@@ -34,6 +34,7 @@ class SpecificationMerger {
    *     <li>Response body expectations</li>
    *     <li>Cookies</li>
    *     <li>Headers</li>
+   *     <li>Response parser settings</li>
    * </ul>
    */
   def static void merge(ResponseSpecificationImpl thisOne, ResponseSpecificationImpl with) {
@@ -41,6 +42,7 @@ class SpecificationMerger {
     notNull with, "Specification to merge with"
 
     thisOne.contentType = with.contentType
+    thisOne.rpr.additional.putAll(with.rpr.additional)
     thisOne.bodyMatchers << with.bodyMatchers
     thisOne.bodyRootPath = with.bodyRootPath
     thisOne.cookieAssertions.addAll(with.cookieAssertions)

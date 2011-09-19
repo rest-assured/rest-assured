@@ -31,6 +31,7 @@ import static java.util.Arrays.asList
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertTrue
 import static org.junit.Assert.assertFalse
+import com.jayway.restassured.parsing.Parser
 
 class SpecificationMergerTest {
 
@@ -134,6 +135,17 @@ class SpecificationMergerTest {
     assertTrue merge.multiParts.size == 2
   }
 
+
+  @Test
+  public void mergesResponseParsers() throws Exception {
+      def merge = new ResponseSpecBuilder().registerParser("some/xml", Parser.XML).build();
+    def with = new ResponseSpecBuilder().registerParser("some/json", Parser.JSON).build();
+
+    SpecificationMerger.merge(merge, with)
+
+    assertTrue merge.rpr.hasCustomParser("some/xml")
+    assertTrue merge.rpr.hasCustomParser("some/json")
+  }
 
   private Filter newFilter() {
     return new Filter() {

@@ -22,28 +22,28 @@ package com.jayway.restassured.parsing;
 public enum Parser {
     XML("application/xml"), TEXT("text/plain"), JSON("application/json"), HTML("text/html");
 
-    private final String mimeType;
+    private final String contentType;
 
-    Parser(String mimeType) {
-        this.mimeType = mimeType;
+    Parser(String contentType) {
+        this.contentType = contentType;
     }
 
-    public String getMimeType() {
-        return mimeType;
+    public String getContentType() {
+        return contentType;
     }
 
-    public static Parser fromMimeType(String mimeType) {
+    public static Parser fromContentType(String contentType) {
         final Parser foundParser;
-        if(XML.getMimeType().equals(mimeType)) {
+        if(XML.getContentType().equals(contentType)) {
             foundParser = XML;
-        } else if(JSON.getMimeType().equals(mimeType)) {
+        } else if(JSON.getContentType().equals(contentType)) {
             foundParser = JSON;
-        } else if(TEXT.getMimeType().equals(mimeType)) {
+        } else if(TEXT.getContentType().equals(contentType)) {
             foundParser = TEXT;
-        } else if(HTML.getMimeType().equals(mimeType)) {
+        } else if(HTML.getContentType().equals(contentType)) {
             foundParser = HTML;
         } else {
-            throw new IllegalArgumentException("Cannot find a parser for mime-type "+mimeType);
+            throw new IllegalArgumentException("Cannot find a parser for content-type "+contentType);
         }
         return foundParser;
     }

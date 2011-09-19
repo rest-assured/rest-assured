@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.specification;
 
+import com.jayway.restassured.parsing.Parser;
 import groovyx.net.http.ContentType;
 import org.hamcrest.Matcher;
 
@@ -851,4 +852,26 @@ public interface ResponseSpecification extends RequestSender {
      * @return the response specification
      */
     ResponseSpecification specification(ResponseSpecification responseSpecificationToMerge);
+
+    /**
+     * Register a content-type to be parsed using a predefined parser. E.g. let's say you want parse
+     * content-type <tt>application/vnd.uoml+xml</tt> with the XML parser to be able to verify the response using the XML dot notations:
+     * <pre>
+     * expect().body("document.child", equalsTo("something"))..
+     * </pre>
+     * Since <tt>application/vnd.uoml+xml</tt> is not registered to be processed by the XML parser by default you need to explicitly
+     * tell REST Assured to use this parser before making the request:
+     * <pre>
+     * expect().parser("application/vnd.uoml+xml", Parser.XML").when(). ..;
+     * </pre>
+     *
+     * You can also specify by default by using:
+     * <pre>
+     * RestAssured.registerParser("application/vnd.uoml+xml, Parser.XML");
+     * </pre>
+     *
+     * @param contentType The content-type to register
+     * @param parser The parser to use when verifying the response.
+     */
+    ResponseSpecification parser(String contentType, Parser parser);
 }
