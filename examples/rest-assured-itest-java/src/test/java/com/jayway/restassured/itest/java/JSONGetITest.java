@@ -320,7 +320,7 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void hasItemHamcrestMatchingThrowsGoodErrorMessagesWhenExpectedItemNotFoundInArray() throws Exception {
         exception.expect(AssertionFailedException.class);
-        exception.expectMessage(equalTo("JSON element lotto.winning-numbers doesn't match a collection containing <43>, was <[2, 45, 34, 23, 7, 5, 3]>."));
+        exception.expectMessage(equalTo("JSON path lotto.winning-numbers doesn't match a collection containing <43>, was <[2, 45, 34, 23, 7, 5, 3]>."));
 
         expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItem(43)).when().get("/lotto");
     }

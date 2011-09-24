@@ -196,7 +196,7 @@ class XMLAssertion implements Assertion {
   }
 
   def String description() {
-    return "XML element"
+    return "XML path"
   }
 }
 

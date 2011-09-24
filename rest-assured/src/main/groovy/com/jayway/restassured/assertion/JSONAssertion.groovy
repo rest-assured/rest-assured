@@ -58,6 +58,6 @@ class JSONAssertion implements Assertion {
   }
 
   def String description() {
-    return "JSON element"
+    return "JSON path"
   }
 }
