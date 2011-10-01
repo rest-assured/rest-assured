@@ -16,7 +16,6 @@
 
 package com.jayway.restassured.assertion
 
-import com.jayway.restassured.exception.AssertionFailedException
 import org.hamcrest.Matcher
 
 class CookieMatcher {
@@ -27,7 +26,7 @@ class CookieMatcher {
   def containsCookie(String cookies) {
     def value = getCookieValueOrThrowExceptionIfCookieIsMissing(cookieName, cookies)
     if(!matcher.matches(value)) {
-      throw new AssertionFailedException("Expected cookie \"$cookieName\" was not $matcher, was \"$value\".")
+      throw new AssertionError("Expected cookie \"$cookieName\" was not $matcher, was \"$value\".")
     }
   }
 
@@ -37,7 +36,7 @@ class CookieMatcher {
     if (cookie == null) {
       String cookiesAsString = "";
       cookieMap.each { cookiesAsString += "\n$it.key = $it.value" }
-      throw new AssertionFailedException("Cookie \"$cookieName\" was not defined in the response. Cookies are: $cookiesAsString");
+      throw new AssertionError("Cookie \"$cookieName\" was not defined in the response. Cookies are: $cookiesAsString");
     }
     return cookie
 
@@ -45,7 +44,7 @@ class CookieMatcher {
 
   public static Map<String, String> getCookieMap(String cookies) {
     if(!cookies) {
-      throw new AssertionFailedException("No cookies defined in the response")
+      throw new AssertionError("No cookies defined in the response")
     }
     def cookieStrings = cookies.split(";");
     def cookieMap = [:]

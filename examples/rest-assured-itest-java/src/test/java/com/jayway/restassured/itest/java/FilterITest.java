@@ -17,11 +17,8 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.exception.AssertionFailedException;
 import com.jayway.restassured.internal.filter.FormAuthFilter;
 import com.jayway.restassured.itest.java.support.WithJetty;
-import com.jayway.restassured.path.xml.XmlPath;
-import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
 
@@ -122,7 +119,7 @@ public class FilterITest extends WithJetty {
         try {
             given().filter(logResponseTo(captor)).expect().body("greeting", equalTo("Greetings John Do")).when().get("/greet?firstName=John&lastName=Doe");
             fail("Should throw exception");
-        } catch (AssertionFailedException e) {
+        } catch (AssertionError e) {
             assertThat(writer.toString(), containsString("{\"greeting\": \"Greetings John Doe\"}"));
         }
     }

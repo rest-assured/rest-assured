@@ -20,7 +20,6 @@ import com.jayway.restassured.assertion.BodyMatcher
 import com.jayway.restassured.assertion.BodyMatcherGroup
 import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.assertion.HeaderMatcher
-import com.jayway.restassured.exception.AssertionFailedException
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
 import groovyx.net.http.ContentType
@@ -354,14 +353,14 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
       if (expectedStatusCode != null) {
         def actualStatusCode = response.getStatusCode()
         if (!expectedStatusCode.matches(actualStatusCode)) {
-          throw new AssertionFailedException(String.format("Expected status code %s doesn't match actual status code <%s>.", expectedStatusCode.toString(), actualStatusCode));
+          throw new AssertionError(String.format("Expected status code %s doesn't match actual status code <%s>.", expectedStatusCode.toString(), actualStatusCode));
         }
       }
 
       if (expectedStatusLine != null) {
         def actualStatusLine = response.getStatusLine()
         if (!expectedStatusLine.matches(actualStatusLine)) {
-          throw new AssertionFailedException(String.format("Expected status line %s doesn't match actual status line \"%s\".", expectedStatusLine.toString(), actualStatusLine));
+          throw new AssertionError(String.format("Expected status line %s doesn't match actual status line \"%s\".", expectedStatusLine.toString(), actualStatusLine));
         }
       }
     }

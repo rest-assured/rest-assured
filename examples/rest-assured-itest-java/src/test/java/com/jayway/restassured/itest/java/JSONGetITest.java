@@ -17,8 +17,8 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.exception.AssertionFailedException;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
@@ -32,6 +32,7 @@ import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.parsing.Parser.JSON;
+import static com.jayway.restassured.path.json.JsonPath.from;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -145,7 +146,7 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void newSyntaxWithWrongStatusCode() throws Exception {
         // Given
-        exception.expect(AssertionFailedException.class);
+        exception.expect(AssertionError.class);
         exception.expectMessage(equalTo("Expected status code <300> doesn't match actual status code <200>."));
 
         // When
@@ -165,7 +166,7 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void newSyntaxWithWrongStatusLine() throws Exception {
         // Given
-        exception.expect(AssertionFailedException.class);
+        exception.expect(AssertionError.class);
         exception.expectMessage(equalTo("Expected status line \"300\" doesn't match actual status line \"HTTP/1.1 200 OK\"."));
 
         // When
@@ -247,16 +248,16 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void whenExpectedHeaderDoesntMatchAnAssertionThenAssertionFailedExceptionIsThrown() throws Exception {
-        exception.expect(AssertionFailedException.class);
+    public void whenExpectedHeaderDoesntMatchAnAssertionThenAssertionErrorIsThrown() throws Exception {
+        exception.expect(AssertionError.class);
         exception.expectMessage(containsString("Expected header \"Content-Length\" was not \"161\", was \"160\". Headers are:"));
 
         expect().response().header("Content-Length", "161").when().get("/lotto");
     }
 
     @Test
-    public void whenExpectedHeaderIsNotFoundThenAnAssertionFailedExceptionIsThrown() throws Exception {
-        exception.expect(AssertionFailedException.class);
+    public void whenExpectedHeaderIsNotFoundThenAnAssertionErrorIsThrown() throws Exception {
+        exception.expect(AssertionError.class);
         exception.expectMessage(equalTo("Expected header \"Not-Defined\" was not \"160\", was \"null\". Headers are:\n" +
                 "Content-Type: application/json; charset=UTF-8\n" +
                 "Content-Length: 160\n" +
@@ -319,8 +320,10 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void hasItemHamcrestMatchingThrowsGoodErrorMessagesWhenExpectedItemNotFoundInArray() throws Exception {
-        exception.expect(AssertionFailedException.class);
-        exception.expectMessage(equalTo("JSON path lotto.winning-numbers doesn't match a collection containing <43>, was <[2, 45, 34, 23, 7, 5, 3]>."));
+        exception.expect(AssertionError.class);
+        exception.expectMessage(containsString("JSON path lotto.winning-numbers doesn't match."));
+        exception.expectMessage(containsString("Expected: a collection containing <43>"));
+        exception.expectMessage(containsString("got: [2, 45, 34, 23, 7, 5, 3]"));
 
         expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItem(43)).when().get("/lotto");
     }
@@ -454,16 +457,16 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void whenExpectedCookieDoesntMatchAnAssertionThenAssertionFailedExceptionIsThrown() throws Exception {
-        exception.expect(AssertionFailedException.class);
+    public void whenExpectedCookieDoesntMatchAnAssertionThenAssertionErrorIsThrown() throws Exception {
+        exception.expect(AssertionError.class);
         exception.expectMessage(equalTo("Expected cookie \"key1\" was not \"value2\", was \"value1\"."));
 
         expect().response().cookie("key1", "value2").when().get("/setCookies");
     }
 
     @Test
-    public void whenExpectedCookieIsNotFoundThenAnAssertionFailedExceptionIsThrown() throws Exception {
-        exception.expect(AssertionFailedException.class);
+    public void whenExpectedCookieIsNotFoundThenAnAssertionErrorIsThrown() throws Exception {
+        exception.expect(AssertionError.class);
         exception.expectMessage(equalTo("Cookie \"Not-Defined\" was not defined in the response. Cookies are: \n" +
                 "key1 = value1\n" +
                 "key2 = value2\n" +

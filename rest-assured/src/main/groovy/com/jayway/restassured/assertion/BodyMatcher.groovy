@@ -16,13 +16,13 @@
 
 package com.jayway.restassured.assertion
 
-import com.jayway.restassured.exception.AssertionFailedException
 import javax.xml.parsers.DocumentBuilderFactory
 import org.hamcrest.Matcher
 import org.hamcrest.xml.HasXPath
 import org.w3c.dom.Element
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.internal.ResponseParserRegistrar
+import org.hamcrest.Description
 
 class BodyMatcher {
   def key
@@ -35,10 +35,10 @@ class BodyMatcher {
       if(isXPathMatcher()) {
         Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(response.asByteArray())).getDocumentElement();
         if (matcher.matches(node) == false) {
-          throw new AssertionFailedException(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), content))
+          throw new AssertionError(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), content))
         }
       } else if (!matcher.matches(content)) {
-        throw new AssertionFailedException("Body doesn't match.\nExpected:\n$matcher\nActual:\n$content")
+        throw new AssertionError("Body doesn't match.\nExpected:\n$matcher\nActual:\n$content")
       }
     } else {
       def assertion = StreamVerifier.newAssertion(response, key, rpr)
@@ -50,7 +50,7 @@ class BodyMatcher {
         if(result instanceof Object[]) {
           result = result.join(",")
         }
-        throw new AssertionFailedException(String.format("%s %s doesn't match %s, was <%s>.", assertion.description(), key, matcher.toString(), result))
+        throw new AssertionError(String.format("%s %s doesn't match.\nExpected: %s\n     got: %s\n", assertion.description(), key, matcher.toString(), result instanceof String ? "\""+result+"\"" : result))
       }
     }
   }

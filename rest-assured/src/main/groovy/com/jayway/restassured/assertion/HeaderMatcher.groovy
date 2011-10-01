@@ -16,9 +16,7 @@
 
 package com.jayway.restassured.assertion
 
-import com.jayway.restassured.exception.AssertionFailedException
 import org.hamcrest.Matcher
-import org.hamcrest.core.IsNull
 
 class HeaderMatcher {
 
@@ -30,7 +28,7 @@ class HeaderMatcher {
     if (!matcher.matches(value)) {
       String headersAsString = "";
       headers.each { headersAsString += "\n$it.key: $it.value" }
-      throw new AssertionFailedException("Expected header \"$headerName\" was not $matcher, was \"$value\". Headers are:$headersAsString")
+      throw new AssertionError("Expected header \"$headerName\" was not $matcher, was \"$value\". Headers are:$headersAsString")
     }
   }
 }
