@@ -672,8 +672,15 @@ public class XmlPath {
                 asList.add(e);
             }
             returnObject = asList;
+        } else if(explicitType != null) {
+            final List<?> returnObjectAsList = (List<?>) returnObject;
+            final List<T> convertedList = new ArrayList<T>();
+            for (Object o : returnObjectAsList) {
+                convertedList.add((T) convertObjectTo(o, explicitType));
+            }
+            returnObject = convertedList;
         }
-        return (List<T>) returnObject;
+        return returnObject == null ? null : Collections.unmodifiableList((List<T>) returnObject);
     }
 
     private <T> T convertObjectTo(Object object, Class<T> explicitType) {
@@ -682,21 +689,21 @@ public class XmlPath {
             returnObject = null;
         } else if(!object.getClass().isAssignableFrom(explicitType)) {
             final String toString = object.toString();
-            if(explicitType.isAssignableFrom(Integer.class)) {
+            if(explicitType.isAssignableFrom(Integer.class) || explicitType.isAssignableFrom(int.class)) {
                 returnObject = Integer.parseInt(toString);
-            } else  if(explicitType.isAssignableFrom(Boolean.class)) {
+            } else  if(explicitType.isAssignableFrom(Boolean.class) || explicitType.isAssignableFrom(boolean.class)) {
                 returnObject = Boolean.parseBoolean(toString);
-            } else  if(explicitType.isAssignableFrom(Character.class)) {
+            } else  if(explicitType.isAssignableFrom(Character.class) || explicitType.isAssignableFrom(char.class)) {
                 returnObject = toString.charAt(0);
-            } else  if(explicitType.isAssignableFrom(Byte.class)) {
+            } else  if(explicitType.isAssignableFrom(Byte.class) || explicitType.isAssignableFrom(byte.class)) {
                 returnObject = Byte.parseByte(toString);
-            } else  if(explicitType.isAssignableFrom(Short.class)) {
+            } else  if(explicitType.isAssignableFrom(Short.class) || explicitType.isAssignableFrom(short.class)) {
                 returnObject = Short.parseShort(toString);
-            } else  if(explicitType.isAssignableFrom(Float.class)) {
+            } else  if(explicitType.isAssignableFrom(Float.class) || explicitType.isAssignableFrom(float.class)) {
                 returnObject = Float.parseFloat(toString);
-            } else  if(explicitType.isAssignableFrom(Double.class)) {
+            } else  if(explicitType.isAssignableFrom(Double.class) || explicitType.isAssignableFrom(double.class)) {
                 returnObject = Double.parseDouble(toString);
-            } else  if(explicitType.isAssignableFrom(Long.class)) {
+            } else  if(explicitType.isAssignableFrom(Long.class) || explicitType.isAssignableFrom(long.class)) {
                 returnObject = Long.parseLong(toString);
             } else  if(explicitType.isAssignableFrom(String.class)) {
                 returnObject = toString;

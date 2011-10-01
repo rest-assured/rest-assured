@@ -2,6 +2,7 @@ Change log next version
 -----------------------
 * Better error message when an actual JSON or XML path value doesn't match the expected value (issue 104).
 * Removed dependency to spring-web in example project
+* Improved support for getting a list with an explicit type using XmlPath (issue 106).
 
 Change log 1.3.1 (2011-09-20)
 -----------------------------

@@ -104,6 +104,12 @@ public class XmlPathTest {
             "  </channel>\n" +
             "</rss>";
 
+    private static final String LIST_WITH_INTS = "<some>\n"+
+            "  <thing id=\"1\">ikk</thing>\n"+
+            "  <thing id=\"2\">ikk2</thing>\n"+
+            "  <thing id=\"3\">ikk3</thing>\n"+
+            "</some>";
+
     @Test
     public void initializeUsingCtorAndGetList() throws Exception {
         final NodeChildren categories = new XmlPath(XML).get("shopping.category");
@@ -402,5 +408,12 @@ public class XmlPathTest {
         final String firstCategory = from(RSS).get("rss.**.find { it.@domain == 'http://mycompany.com/rss/first' }");
 
         assertThat(firstCategory, equalTo("First category"));
+    }
+
+    @Test
+    public void convertsListMembersToExplicitType() throws Exception {
+        List<Integer> ids = from(LIST_WITH_INTS).getList("some.thing.@id", int.class);
+
+        assertThat(ids, hasItems(1,2,3));
     }
 }
