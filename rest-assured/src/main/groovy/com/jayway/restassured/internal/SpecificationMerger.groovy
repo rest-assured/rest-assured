@@ -28,6 +28,7 @@ class SpecificationMerger {
    *     <li>Root path</
    *     <li>Status code</li>
    *     <li>Status line</li>
+   *     <li>Fallback parser</li>
    * </ul>
    * The following settings are merged:
    * <ul>
@@ -42,6 +43,7 @@ class SpecificationMerger {
     notNull with, "Specification to merge with"
 
     thisOne.contentType = with.contentType
+    thisOne.rpr.defaultParser = thisOne.rpr.defaultParser
     thisOne.rpr.additional.putAll(with.rpr.additional)
     thisOne.bodyMatchers << with.bodyMatchers
     thisOne.bodyRootPath = with.bodyRootPath

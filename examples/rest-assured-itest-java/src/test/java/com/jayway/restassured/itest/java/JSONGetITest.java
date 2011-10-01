@@ -18,7 +18,6 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
-import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
@@ -32,7 +31,6 @@ import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.parsing.Parser.JSON;
-import static com.jayway.restassured.path.json.JsonPath.from;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -684,6 +682,16 @@ public class JSONGetITest extends WithJetty {
 
         try {
             expect().body("lotto.lottoId", equalTo(5)).when().get("/");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void usingFallbackParserParsersAnyContentWhenResponseContentTypeIsDefined() throws Exception {
+        RestAssured.defaultParser = JSON;
+        try {
+            expect().body("message", equalTo("It works")).when().get("/customMimeTypeJsonCompatible");
         } finally {
             RestAssured.reset();
         }

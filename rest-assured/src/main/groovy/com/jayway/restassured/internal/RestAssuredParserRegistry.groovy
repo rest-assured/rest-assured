@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.internal
 
+import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.specification.ResponseSpecification
 import groovyx.net.http.ContentType
 import groovyx.net.http.ParserRegistry
@@ -30,6 +31,12 @@ class RestAssuredParserRegistry extends ParserRegistry {
 
   @Override
   protected Map<String, Closure> buildDefaultParserMap() {
+    def Parser restAssuredDefaultParser = responseSpecification.rpr.defaultParser
+    def hasDefaultParser = restAssuredDefaultParser != null
+    if(hasDefaultParser) {
+      defaultParser = findDefaultParserMethod(restAssuredDefaultParser)
+    }
+
     if(responseSpecification == null || !responseSpecification.hasBodyAssertionsDefined()) {
       Map<String,Closure> parsers = new HashMap<String,Closure>();
       parsers.put( ContentType.BINARY.toString(), new MethodClosure(this, "parseStream" ) );
@@ -48,5 +55,21 @@ class RestAssuredParserRegistry extends ParserRegistry {
     } else {
       return super.buildDefaultParserMap()
     }
+  }
+
+  private findDefaultParserMethod(Parser defaultParser) {
+    def parserMethodName = null
+    switch(defaultParser) {
+      case Parser.XML:
+        parserMethodName = "parseXML"
+        break;
+      case Parser.JSON:
+        parserMethodName = "parseJSON"
+        break;
+      case Parser.HTML:
+        parserMethodName = "parseHTML"
+        break;
+    }
+    return new MethodClosure(this, parserMethodName)
   }
 }

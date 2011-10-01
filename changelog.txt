@@ -5,6 +5,9 @@ Change log next version
 * Improved support for getting a list with an explicit type using XmlPath (issue 106).
 * RestAssured.baseURI now works as expected. You can now use e.g. RestAssured.baseURI = "http://somehost.org:1234" and the subsequent requests will automatically go to that URI as base (issue 54).
 * Rest Assured now throws a java.lang.AssertionError instead of AssertionFailedException (issue 100).
+* Added support for setting a default Parser. This parser will automatically be used to parse for all responses whose content-type doesn't match a pre-defined parser. You can set the default parser using:
+	  RestAssured.defaultParser = Parser.JSON;  
+ (issue 107).
 
 Change log 1.3.1 (2011-09-20)
 -----------------------------

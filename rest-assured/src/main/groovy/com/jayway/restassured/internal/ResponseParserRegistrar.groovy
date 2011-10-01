@@ -32,6 +32,8 @@ class ResponseParserRegistrar {
           'xop+xml' : 'application/xml', 'xslt+xml' : 'application/xml', 'rdf+xml' : 'application/xml',
           'atomcat+xml' : 'application/xml', 'atomsvc+xml' : 'application/xml', 'auth-policy+xml' : 'application/xml']
 
+  private Parser defaultParser = null
+
   def ResponseParserRegistrar(){
 
   }
@@ -43,7 +45,8 @@ class ResponseParserRegistrar {
 
   def Parser getParser(String contentType) {
     def parserAsString = additional.get(contentType)
-    parserAsString == null ? null : Parser.fromContentType(parserAsString)
+    def parser = parserAsString == null ? null : Parser.fromContentType(parserAsString)
+    parser == null ? defaultParser : parser
   }
 
   def void registerParser(String contentType, Parser parser) {
@@ -52,12 +55,20 @@ class ResponseParserRegistrar {
     additional.put(contentType, parser.getContentType())
   }
 
+  def void registerDefaultParser(Parser parser) {
+    notNull(parser, "Parser")
+    this.defaultParser = parser
+  }
+
   def void unregisterParser(String contentType) {
     notNull(contentType, "contentType")
     additional.remove(contentType)
   }
 
   def boolean hasCustomParser(String contentType) {
+    if(defaultParser != null) {
+      return true
+    }
     def parser = getParser(contentType)
     return parser != null && (parser == Parser.XML || parser == Parser.JSON || parser == Parser.HTML);
   }

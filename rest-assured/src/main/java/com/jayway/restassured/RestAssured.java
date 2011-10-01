@@ -412,6 +412,12 @@ public class RestAssured {
     public static RequestSpecification requestSpecification = null;
 
     /**
+     * Specify a default parser. This parser will be used if the response content-type
+     * doesn't match any pre-registered or custom registered parsers.
+     */
+    public static Parser defaultParser = null;
+
+    /**
      * Specify a default response specification that will be sent with each request. E,g.
      * <pre>
      * RestAssured.responseSpecification = new ResponseSpecBuilder().expectStatusCode(200).build();
@@ -937,9 +943,13 @@ public class RestAssured {
         keystoreSpec = new NoKeystoreSpecImpl();
         urlEncodingEnabled = DEFAULT_URL_ENCODING_ENABLED;
         RESPONSE_PARSER_REGISTRAR = new ResponseParserRegistrar();
+        defaultParser = null;
     }
 
     private static TestSpecificationImpl createTestSpecification() {
+        if(defaultParser != null) {
+            RESPONSE_PARSER_REGISTRAR.registerDefaultParser(defaultParser);
+        }
         return new TestSpecificationImpl(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keystoreSpec, requestContentType, requestSpecification, urlEncodingEnabled),
                 new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, RESPONSE_PARSER_REGISTRAR));
