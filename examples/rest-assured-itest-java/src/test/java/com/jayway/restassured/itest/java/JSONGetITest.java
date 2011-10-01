@@ -662,4 +662,27 @@ public class JSONGetITest extends WithJetty {
     public void givenNoBodyExpectationsThenNonBodyExpectationsWorkEvenThoughContentTypeAndBodyContentDoesNotMatch() throws Exception {
         expect().statusCode(200).and().header("Content-Type", notNullValue(String.class)).when().get("/contentTypeJsonButBodyIsNotJson");
     }
+
+    @Test
+    public void baseURIPicksUpSchemeAndPort() throws Exception {
+        RestAssured.baseURI = "http://localhost:8080/lotto";
+
+        try {
+            expect().body("lotto.lottoId", equalTo(5)).when().get("/");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void baseURIPicksUpSchemeAndPortAndBasePath() throws Exception {
+        RestAssured.basePath = "/lotto";
+        RestAssured.baseURI = "http://localhost:8080";
+
+        try {
+            expect().body("lotto.lottoId", equalTo(5)).when().get("/");
+        } finally {
+            RestAssured.reset();
+        }
+    }
 }

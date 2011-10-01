@@ -641,7 +641,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   private def sendHttpRequest(HTTPBuilder http, method, responseContentType, targetPath, assertionClosure) {
     http.request(method, responseContentType) {
-      uri.path = targetPath
+      if(targetPath != "/") {
+        if(targetPath.endsWith("/")) {
+          targetPath = StringUtils.substringBeforeLast(targetPath, "/")
+        }
+        uri.path = targetPath
+      }
 
       setRequestContentType(defineRequestContentTypeAsString(method))
 
@@ -733,10 +738,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     if(hasScheme) {
       def url = new URL(path)
       uri = url.getProtocol()+"://"+url.getAuthority()
+    } else if(hasPortDefined(baseUri)) {
+      uri = baseUri.toString()
     } else {
       uri = "$baseUri:$port"
     }
     return uri
+  }
+
+  private def boolean hasPortDefined(String uri) {
+    def uriObject = new URI(uri)
+    return uriObject.getPort() != -1;
   }
 
   private def appendParameters(Map<String, Object> from, Map<String, Object> to) {
