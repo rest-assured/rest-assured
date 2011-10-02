@@ -17,6 +17,7 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.assertion.CookieMatcher
+import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.response.ResponseBody
 import groovy.xml.StreamingMarkupBuilder
@@ -32,9 +33,11 @@ class RestAssuredResponseImpl implements Response {
   def statusLine
   def statusCode
 
+  def String defaultContentType
+
   def boolean hasExpectations
 
-  public void parseResponse(httpResponse, content, hasBodyAssertions) {
+  public void parseResponse(httpResponse, content, hasBodyAssertions, defaultContentType) {
     parseHeaders(httpResponse)
     parseContentType(httpResponse)
     parseCookies()
@@ -45,6 +48,7 @@ class RestAssuredResponseImpl implements Response {
       this.content = content
     }
     hasExpectations = hasBodyAssertions
+    this.defaultContentType = defaultContentType
   }
 
   def parseStatus(httpResponse) {
@@ -138,6 +142,20 @@ class RestAssuredResponseImpl implements Response {
     }
   }
 
+  def <T> T "as"(Class<T> cls) {
+    def contentTypeToChose
+    if(contentType == "") {
+      if(defaultContentType != null) {
+        contentTypeToChose = defaultContentType
+      } else {
+        throw new IllegalStateException("Cannot parse content to $cls because no content-type was present in the response and no default parser has been set.")
+      }
+    } else {
+      contentTypeToChose = contentType
+    }
+
+    return ObjectMapping.deserialize(asString(), cls, contentTypeToChose)
+  }
 
   private Charset findCharset() {
     String charset = headers.get("charset");

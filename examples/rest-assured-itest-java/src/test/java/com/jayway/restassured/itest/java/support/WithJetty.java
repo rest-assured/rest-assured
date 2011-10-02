@@ -32,7 +32,7 @@ import java.io.File;
 
 @Ignore("To make Maven happy")
 public class WithJetty {
-    public static String itestPath = "/examples/rest-assured-itest";
+    public static String itestPath = "/examples/rest-assured-itest-java";
 
     @BeforeClass
     public static void startJetty() throws Exception {

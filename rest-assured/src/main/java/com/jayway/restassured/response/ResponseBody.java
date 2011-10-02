@@ -46,4 +46,17 @@ public interface ResponseBody {
      * @return The body as an input stream.
      */
     InputStream asInputStream();
+
+    /**
+     * Get the body and map it to a Java object. For JSON responses this requires that you have either
+     *
+     * <ol>
+     * <li>Jackson, or</li>
+     * <li>Gson</li>
+     * </ol>
+     * in the classpath or for XML responses it requires JAXB to be in the classpath.
+     *
+     * @return The object
+     */
+    <T> T as(Class<T> cls);
 }
