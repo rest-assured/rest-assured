@@ -148,7 +148,7 @@ class RestAssuredResponseImpl implements Response {
       if(defaultContentType != null) {
         contentTypeToChose = defaultContentType
       } else {
-        throw new IllegalStateException("Cannot parse content to $cls because no content-type was present in the response and no default parser has been set.")
+        throw new IllegalStateException("Cannot parse content to $cls because no content-type was present in the response and no default parser has been set.\nYou can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n")
       }
     } else {
       contentTypeToChose = contentType

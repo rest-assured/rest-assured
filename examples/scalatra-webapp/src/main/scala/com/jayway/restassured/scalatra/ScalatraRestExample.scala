@@ -406,7 +406,7 @@ class ScalatraRestExample extends ScalatraServlet {
           <title>A title</title>
           <link>http://www.something.com/link/1</link>
           <description>Description 1</description>
-          <enclosure url="http://www.someone.com/somejpg.jpg" length="2721" type="image/jpg" />
+            <enclosure url="http://www.someone.com/somejpg.jpg" length="2721" type="image/jpg" />
           <pubDate>Mon, 10 Jan 2011 19:31:46 GMT</pubDate>
           <guid isPermaLink="false">http://www.something.com/link/1</guid>
           <dc:date>2011-01-10T19:31:46Z</dc:date>
@@ -415,7 +415,7 @@ class ScalatraRestExample extends ScalatraServlet {
           <title>Title 2</title>
           <link>http://www.something.com/link/2</link>
           <description>Description 2</description>
-          <enclosure url="http://www.someone.com/someotherjpg.jpg" length="2721" type="image/jpg" />
+            <enclosure url="http://www.someone.com/someotherjpg.jpg" length="2721" type="image/jpg" />
           <pubDate>Mon, 10 Jan 2011 19:41:46 GMT</pubDate>
           <guid isPermaLink="false">http://www.something.com/link/2</guid>
           <dc:date>2011-01-10T19:42:46Z</dc:date>

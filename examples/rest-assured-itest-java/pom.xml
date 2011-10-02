@@ -88,18 +88,18 @@
             <version>2.0.1</version>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>com.google.code.gson</groupId>-->
-        <!--<artifactId>gson</artifactId>-->
-        <!--<version>1.7.2</version>-->
-        <!--<scope>test</scope>-->
-        <!--</dependency>-->
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-jaxrs</artifactId>
-            <version>1.8.5</version>
-            <scope>test</scope>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>1.7.2</version>
+        <scope>test</scope>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.codehaus.jackson</groupId>-->
+            <!--<artifactId>jackson-jaxrs</artifactId>-->
+            <!--<version>1.8.5</version>-->
+            <!--<scope>test</scope>-->
+        <!--</dependency>-->
 
         <!--<dependency>-->
         <!--<groupId>org.springframework</groupId>-->

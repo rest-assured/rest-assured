@@ -22,8 +22,8 @@ import org.junit.Test;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.parsing.Parser.JSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -42,6 +42,17 @@ public class ObjectMappingITest extends WithJetty {
 
         assertThat(object.getFirstName(), equalTo("John"));
         assertThat(object.getLastName(), equalTo("Doe"));
+    }
+
+    @Test
+    public void mapResponseToObjectUsingJacksonWhenNoContentTypeIsDefined() throws Exception {
+        final Message message =
+                expect().
+                        defaultParser(JSON).
+                when().
+                        get("/noContentTypeJsonCompatible").as(Message.class);
+
+        assertThat(message.getMessage(), equalTo("It works"));
     }
 
     @Ignore
@@ -77,6 +88,18 @@ public class ObjectMappingITest extends WithJetty {
 
         public void setLastName(String lastName) {
             this.lastName = lastName;
+        }
+    }
+
+    private static class Message {
+        private String message;
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
         }
     }
 }
