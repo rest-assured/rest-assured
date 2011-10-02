@@ -49,7 +49,7 @@ class BodyMatcher {
         if(result instanceof Object[]) {
           result = result.join(",")
         }
-        throw new AssertionError(String.format("%s %s doesn't match.\nExpected: %s\n     got: %s\n", assertion.description(), key, matcher.toString(), result instanceof String ? "\""+result+"\"" : result))
+        throw new AssertionError(String.format("%s %s doesn't match.\nExpected: %s\n     got: %s\n", assertion.description(), key, matcher.toString(), result))
       }
     }
   }
