@@ -147,6 +147,16 @@ class SpecificationMergerTest {
     assertTrue merge.rpr.hasCustomParser("some/json")
   }
 
+  @Test
+  public void overwritesDefaultParser() throws Exception {
+      def merge = new ResponseSpecBuilder().setDefaultParser(Parser.XML).build();
+    def with = new ResponseSpecBuilder().setDefaultParser(Parser.JSON).build();
+
+    SpecificationMerger.merge(merge, with)
+
+    assertEquals Parser.JSON, merge.rpr.defaultParser
+  }
+
   private Filter newFilter() {
     return new Filter() {
       @Override

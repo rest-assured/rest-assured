@@ -43,7 +43,7 @@ class SpecificationMerger {
     notNull with, "Specification to merge with"
 
     thisOne.contentType = with.contentType
-    thisOne.rpr.defaultParser = thisOne.rpr.defaultParser
+    thisOne.rpr.defaultParser = with.rpr.defaultParser
     thisOne.rpr.additional.putAll(with.rpr.additional)
     thisOne.bodyMatchers << with.bodyMatchers
     thisOne.bodyRootPath = with.bodyRootPath

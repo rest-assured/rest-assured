@@ -494,6 +494,26 @@ public class ResponseSpecBuilder {
     }
 
     /**
+     * Register a default predefined parser that will be used if no other parser (registered or pre-defined) matches the response
+     * content-type. E.g. let's say that for some reason no content-type is defined in the response but the content is nevertheless
+     * JSON encoded. To be able to expect the content in REST Assured you need to set the default parser:
+     * <pre>
+     * expect().defaultParser(Parser.JSON).when(). ..;
+     * </pre>
+     *
+     * You can also specify it for every response by using:
+     * <pre>
+     * RestAssured.defaultParser(Parser.JSON);
+     * </pre>
+     *
+     * @param parser The parser to use when verifying the response if no other parser is found for the response content-type.
+     */
+    public ResponseSpecBuilder setDefaultParser(Parser parser) {
+        spec.defaultParser(parser);
+        return this;
+    }
+
+    /**
      * Build the response specification.
      *
      * @return The assembled response specification
