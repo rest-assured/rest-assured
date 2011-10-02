@@ -21,9 +21,7 @@ import org.junit.Test;
 
 import javax.net.ssl.SSLException;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.get;
-import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.containsString;
 
 public class SSLTest {

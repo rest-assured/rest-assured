@@ -21,6 +21,7 @@ import com.jayway.restassured.builder.ResponseSpecBuilder
 import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.filter.FilterContext
 import com.jayway.restassured.internal.SpecificationMerger
+import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
@@ -29,9 +30,8 @@ import org.junit.Test
 import static groovy.util.GroovyTestCase.assertEquals
 import static java.util.Arrays.asList
 import static org.hamcrest.Matchers.equalTo
-import static org.junit.Assert.assertTrue
 import static org.junit.Assert.assertFalse
-import com.jayway.restassured.parsing.Parser
+import static org.junit.Assert.assertTrue
 
 class SpecificationMergerTest {
 

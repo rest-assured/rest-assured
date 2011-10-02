@@ -17,13 +17,10 @@
 package com.jayway.restassured.itest.java.presentation;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
 
 public class AdvancedValidationITest extends WithJetty {
 

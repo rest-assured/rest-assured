@@ -18,9 +18,9 @@ package com.jayway.restassured.assertion
 
 import com.jayway.restassured.internal.ResponseParserRegistrar
 import com.jayway.restassured.parsing.Parser
+import com.jayway.restassured.response.Response
 import groovyx.net.http.ContentType
 import static groovyx.net.http.ContentType.*
-import com.jayway.restassured.response.Response
 
 class StreamVerifier {
 

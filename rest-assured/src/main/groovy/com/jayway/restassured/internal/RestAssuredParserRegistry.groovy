@@ -18,10 +18,8 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.specification.ResponseSpecification
-import groovyx.net.http.ContentType
 import groovyx.net.http.ParserRegistry
 import org.codehaus.groovy.runtime.MethodClosure
-import org.apache.http.HttpResponse
 
 class RestAssuredParserRegistry extends ParserRegistry {
   /*

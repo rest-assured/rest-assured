@@ -21,9 +21,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.Map;
 
-import static com.jayway.restassured.path.json.JsonPath.from;
-import static com.jayway.restassured.path.json.JsonPath.given;
-import static com.jayway.restassured.path.json.JsonPath.with;
+import static com.jayway.restassured.path.json.JsonPath.*;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.collection.IsCollectionContaining.hasItem;
 import static org.hamcrest.collection.IsCollectionContaining.hasItems;

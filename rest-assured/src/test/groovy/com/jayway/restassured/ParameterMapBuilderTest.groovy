@@ -17,11 +17,11 @@
 package com.jayway.restassured
 
 import com.jayway.restassured.authentication.NoAuthScheme
+import com.jayway.restassured.internal.NoKeystoreSpecImpl
 import com.jayway.restassured.internal.RequestSpecificationImpl
 import org.junit.Before
 import org.junit.Test
 import static groovy.util.GroovyTestCase.assertEquals
-import com.jayway.restassured.internal.NoKeystoreSpecImpl
 
 class ParameterMapBuilderTest {
   private RequestSpecificationImpl requestBuilder;

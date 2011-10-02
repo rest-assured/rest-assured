@@ -16,13 +16,12 @@
 
 package com.jayway.restassured.assertion
 
+import com.jayway.restassured.internal.ResponseParserRegistrar
+import com.jayway.restassured.response.Response
 import javax.xml.parsers.DocumentBuilderFactory
 import org.hamcrest.Matcher
 import org.hamcrest.xml.HasXPath
 import org.w3c.dom.Element
-import com.jayway.restassured.response.Response
-import com.jayway.restassured.internal.ResponseParserRegistrar
-import org.hamcrest.Description
 
 class BodyMatcher {
   def key

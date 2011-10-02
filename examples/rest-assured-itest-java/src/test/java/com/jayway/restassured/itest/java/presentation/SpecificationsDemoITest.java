@@ -21,7 +21,6 @@ import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.given;
