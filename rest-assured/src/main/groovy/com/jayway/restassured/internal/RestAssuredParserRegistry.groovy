@@ -21,6 +21,7 @@ import com.jayway.restassured.specification.ResponseSpecification
 import groovyx.net.http.ContentType
 import groovyx.net.http.ParserRegistry
 import org.codehaus.groovy.runtime.MethodClosure
+import org.apache.http.HttpResponse
 
 class RestAssuredParserRegistry extends ParserRegistry {
   /*
@@ -32,19 +33,7 @@ class RestAssuredParserRegistry extends ParserRegistry {
   @Override
   protected Map<String, Closure> buildDefaultParserMap() {
     if(responseSpecification == null || !responseSpecification.hasBodyAssertionsDefined()) {
-      Map<String,Closure> parsers = new HashMap<String,Closure>();
-      parsers.put( ContentType.BINARY.toString(), new MethodClosure(this, "parseStream" ) );
-      def parseText = new MethodClosure(this, "parseText")
-      parsers.put( ContentType.TEXT.toString(), parseText );
-      parsers.put( ContentType.URLENC.toString(), parseText );
-      parsers.put( ContentType.HTML.toString(), parseText);
-
-      for ( String ct : ContentType.XML.getContentTypeStrings() )
-        parsers.put( ct, parseText );
-
-      for ( String ct : ContentType.JSON.getContentTypeStrings() )
-        parsers.put( ct, parseText );
-
+      def parsers = [:].withDefault { new MethodClosure(this, "parseStream") }
       return parsers
     } else {
       def Parser restAssuredDefaultParser = responseSpecification.rpr.defaultParser
@@ -72,4 +61,5 @@ class RestAssuredParserRegistry extends ParserRegistry {
     }
     return new MethodClosure(this, parserMethodName)
   }
+
 }

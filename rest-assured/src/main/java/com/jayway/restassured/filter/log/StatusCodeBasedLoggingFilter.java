@@ -18,6 +18,7 @@ package com.jayway.restassured.filter.log;
 
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
+import com.jayway.restassured.internal.RestAssuredResponseImpl;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
@@ -52,10 +53,32 @@ class StatusCodeBasedLoggingFilter implements Filter {
     }
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-        final Response response = ctx.next(requestSpec, responseSpec);
+        Response response = ctx.next(requestSpec, responseSpec);
         final int statusCode = response.statusCode();
         if(matcher.matches(statusCode)) {
-            stream.println(response.asString());
+            final String responseAsString = response.asString();
+            stream.println(responseAsString);
+            response = cloneResponseIfNeeded(response, responseAsString);
+        }
+
+        return response;
+    }
+
+    /*
+     * If body expectations are defined we need to return a new Response otherwise the stream
+     * has been closed due to the logging.
+     */
+    private Response cloneResponseIfNeeded(Response response, String responseAsString) {
+        if(response instanceof RestAssuredResponseImpl && !((RestAssuredResponseImpl) response).getHasExpectations()) {
+            RestAssuredResponseImpl restAssuredResponse = new RestAssuredResponseImpl();
+            restAssuredResponse.setContent(responseAsString);
+            restAssuredResponse.setContentType(response.getContentType());
+            restAssuredResponse.setCookies(response.getCookies());
+            restAssuredResponse.setResponseHeaders(response.getHeaders());
+            restAssuredResponse.setStatusCode(response.getStatusCode());
+            restAssuredResponse.setStatusLine(response.getStatusLine());
+            restAssuredResponse.setHasExpectations(true);
+            return restAssuredResponse;
         }
         return response;
     }

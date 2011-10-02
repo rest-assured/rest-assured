@@ -12,7 +12,9 @@ Change log next version
   or using a response specification builder:
 	  new ResponseSpecBuilder().setDefaultParser(Parser.JSON).build();
  (issue 107).
-
+* Improved parsing of content. If no body expectations are defined then the content is no longer encoded to a data structure before a method such as "asString", "asByteArray" etc is called on the Response object. This really
+  increase the performance of Rest Assured when using no body expectations (e.g. get("/something").asString()) (issue 109).
+ 
 Change log 1.3.1 (2011-09-20)
 -----------------------------
 * Fixed a trivial bug in the error message that is displayed when no parser is found for a certain content type (issue 103).

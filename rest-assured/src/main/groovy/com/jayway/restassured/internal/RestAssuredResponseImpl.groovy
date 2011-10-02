@@ -20,6 +20,7 @@ import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.response.ResponseBody
 import groovy.xml.StreamingMarkupBuilder
+import java.nio.charset.Charset
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 class RestAssuredResponseImpl implements Response {
@@ -31,12 +32,19 @@ class RestAssuredResponseImpl implements Response {
   def statusLine
   def statusCode
 
-  public void parseResponse(httpResponse, content) {
+  def boolean hasExpectations
+
+  public void parseResponse(httpResponse, content, hasBodyAssertions) {
     parseHeaders(httpResponse)
     parseContentType(httpResponse)
     parseCookies()
     parseStatus(httpResponse)
-    parseContent(content)
+    if(hasBodyAssertions) {
+      parseContent(content)
+    } else {
+      this.content = content
+    }
+    hasExpectations = hasBodyAssertions
   }
 
   def parseStatus(httpResponse) {
@@ -104,15 +112,43 @@ class RestAssuredResponseImpl implements Response {
     if(content == null) {
       return ""
     }
-    return content instanceof String ? content : new String(content)
+    if(hasExpectations) {
+      return content instanceof String ? content : new String(content, findCharset())
+    } else {
+      return convertStreamToString(content)
+    }
+  }
+
+  InputStream asInputStream() {
+    if(content == null || content instanceof InputStream) {
+      return content
+    } else {
+      content instanceof String ? new ByteArrayInputStream(content.getBytes(findCharset())) : new ByteArrayInputStream(content)
+    }
   }
 
   byte[] asByteArray() {
     if(content == null) {
       return new byte[0];
     }
-    return content instanceof byte[] ? content : content.getBytes()
+    if(hasExpectations) {
+      return content instanceof byte[] ? content : content.getBytes(findCharset())
+    } else {
+      return convertStreamToByteArray(content)
+    }
   }
+
+
+  private Charset findCharset() {
+    String charset = headers.get("charset");
+
+    if ( charset == null || charset.trim().equals("") ) {
+      return Charset.defaultCharset();
+    }
+
+    return Charset.forName(charset);
+  }
+
 
   Response andReturn() {
     return this
@@ -217,5 +253,34 @@ class RestAssuredResponseImpl implements Response {
       reader.close();
     }
     return writer.toString();
+  }
+
+  private String convertStreamToString(InputStream is) throws IOException {
+    Writer writer = new StringWriter();
+    char[] buffer = new char[1024];
+    try {
+      Reader reader = new BufferedReader(new InputStreamReader(is, findCharset()));
+      int n;
+      while ((n = reader.read(buffer)) != -1) {
+        writer.write(buffer, 0, n);
+      }
+    } finally {
+      is.close();
+    }
+    return writer.toString();
+  }
+
+  private byte[] convertStreamToByteArray(InputStream is) throws IOException {
+    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+    int nRead;
+    byte[] data = new byte[16384];
+
+    while ((nRead = is.read(data, 0, data.length)) != -1) {
+      buffer.write(data, 0, nRead);
+    }
+
+    buffer.flush();
+
+    return buffer.toByteArray();
   }
 }

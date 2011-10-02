@@ -21,36 +21,31 @@ import com.jayway.restassured.authentication.NoAuthScheme
 import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.filter.log.ErrorLoggingFilter
 import com.jayway.restassured.filter.log.ResponseLoggingFilter
+import com.jayway.restassured.internal.encoderregistry.RestAssuredEncoderRegistry
 import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.RootFilter
 import com.jayway.restassured.response.Response
-import groovyx.net.http.ContentType
-import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.HTTPBuilder.RequestConfigDelegate
-import groovyx.net.http.Method
-import groovyx.net.http.Status
 import java.util.Map.Entry
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+import org.apache.commons.lang.StringUtils
 import org.apache.commons.lang.Validate
+import org.apache.http.Header
+import org.apache.http.HttpEntity
+import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpPost
+import org.apache.http.client.methods.HttpRequestBase
+import org.apache.http.entity.HttpEntityWrapper
+import org.apache.http.entity.mime.HttpMultipartMode
+import org.apache.http.entity.mime.MultipartEntity
+import org.apache.http.message.BasicHeader
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.specification.*
+import groovyx.net.http.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
-import org.apache.commons.lang.StringUtils
-import org.apache.http.entity.mime.MultipartEntity
-
-import org.apache.http.entity.mime.HttpMultipartMode
-import com.jayway.restassured.internal.encoderregistry.RestAssuredEncoderRegistry
-import com.jayway.restassured.parsing.Parser
-import org.apache.http.HttpResponse
-import groovyx.net.http.ParserRegistry
-import org.apache.http.entity.HttpEntityWrapper
-import org.apache.http.Header
-import org.apache.http.message.BasicHeader
-import org.apache.http.protocol.HTTP
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
@@ -557,7 +552,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
           // Overwrite the URL encoded query parameters with the original ones
           delegate.uri.query = queryParams
         }
-        return super.doRequest(delegate)
+
+        return restAssuredDoRequest(this, delegate)
       }
 
       /**
@@ -941,5 +937,73 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   String getRequestContentType() {
     return contentType != null ? contentType instanceof String ? contentType : contentType.toString() : ANY.toString()
+  }
+
+  /**
+   * A copy of HTTP builders doRequest method with one exception. The exception is that
+   * the entity's content is not closed if no body matchers are specified.
+   */
+  private Object restAssuredDoRequest(HTTPBuilder httpBuilder, RequestConfigDelegate delegate) {
+    final HttpRequestBase reqMethod = delegate.getRequest();
+
+    Object contentType = delegate.getContentType();
+    String acceptContentTypes = contentType.toString();
+    if ( contentType instanceof ContentType )
+    acceptContentTypes = ((ContentType)contentType).getAcceptHeader();
+
+    reqMethod.setHeader( "Accept", acceptContentTypes );
+    reqMethod.setURI( delegate.getUri().toURI() );
+
+    if ( reqMethod.getURI() == null)
+    throw new IllegalStateException( "Request URI cannot be null" );
+
+    // set any request headers from the delegate
+    Map<?,?> headers = delegate.getHeaders();
+    for ( Object key : headers.keySet() ) {
+      Object val = headers.get( key );
+      if ( key == null ) continue;
+      if ( val == null ) reqMethod.removeHeaders( key.toString() );
+      else reqMethod.setHeader( key.toString(), val.toString() );
+    }
+
+    final HttpResponseDecorator resp = new HttpResponseDecorator(
+            httpBuilder.client.execute( reqMethod, delegate.getContext() ),
+            delegate.getContext(), null );
+    try {
+      int status = resp.getStatusLine().getStatusCode();
+      Closure responseClosure = delegate.findResponseHandler( status );
+
+      final Object returnVal;
+      Object[] closureArgs = null;
+      switch ( responseClosure.getMaximumNumberOfParameters() ) {
+        case 1 :
+          returnVal = responseClosure.call( resp );
+          break;
+        case 2 : // parse the response entity if the response handler expects it:
+          HttpEntity entity = resp.getEntity();
+          try {
+            if ( entity == null || entity.getContentLength() == 0 ) {
+              returnVal = responseClosure.call( resp, null );
+            } else {
+              returnVal = responseClosure.call( resp,  httpBuilder.parseResponse( resp, contentType ));
+            }
+          } catch ( Exception ex ) {
+            Header h = entity.getContentType();
+            String respContentType = h != null ? h.getValue() : null;
+            throw new ResponseParseException( resp, ex );
+          }
+          break;
+        default:
+          throw new IllegalArgumentException(
+                  "Response closure must accept one or two parameters" );
+      }
+      return returnVal;
+    }
+    finally {
+      if(responseSpecification.hasBodyAssertionsDefined()) {
+        HttpEntity entity = resp.getEntity();
+        if ( entity != null ) entity.consumeContent();
+      }
+    }
   }
 }

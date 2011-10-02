@@ -18,9 +18,12 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.response.Response;
+import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import java.io.InputStream;
 
 import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.containsString;
@@ -117,5 +120,37 @@ public class ResponseITest extends WithJetty {
 
         assertThat(response.statusCode(), equalTo(200));
         assertThat(response.getStatusCode(), equalTo(200));
+    }
+
+    @Test
+    public void whenNoExpectationsDefinedThenGetCanReturnBodyAsInputStream() throws Exception {
+        final InputStream inputStream = get("/hello").asInputStream();
+        final String string = IOUtils.toString(inputStream);
+
+        assertThat(string, equalTo("{\"hello\":\"Hello Scalatra\"}"));
+    }
+
+    @Test
+    public void whenExpectationsDefinedThenGetCanReturnBodyAsInputStream() throws Exception {
+        final InputStream inputStream = expect().body("hello", equalTo("Hello Scalatra")).get("/hello").asInputStream();
+        final String string = IOUtils.toString(inputStream);
+
+        assertThat(string, equalTo("{\"hello\": \"Hello Scalatra\"}"));
+    }
+
+    @Test
+    public void whenExpectationsDefinedAndLoggingThenGetCanReturnBodyAsInputStream() throws Exception {
+        final InputStream inputStream = expect().log().body("hello", equalTo("Hello Scalatra")).get("/hello").asInputStream();
+        final String string = IOUtils.toString(inputStream);
+
+        assertThat(string, equalTo("{\"hello\": \"Hello Scalatra\"}"));
+    }
+
+    @Test
+    public void whenNoExpectationsDefinedButLoggingThenGetCanReturnBodyAsInputStream() throws Exception {
+        final InputStream inputStream = expect().log().get("/hello").asInputStream();
+        final String string = IOUtils.toString(inputStream);
+
+        assertThat(string, equalTo("{\"hello\":\"Hello Scalatra\"}"));
     }
 }
