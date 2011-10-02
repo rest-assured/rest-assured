@@ -31,12 +31,6 @@ class RestAssuredParserRegistry extends ParserRegistry {
 
   @Override
   protected Map<String, Closure> buildDefaultParserMap() {
-    def Parser restAssuredDefaultParser = responseSpecification.rpr.defaultParser
-    def hasDefaultParser = restAssuredDefaultParser != null
-    if(hasDefaultParser) {
-      defaultParser = findDefaultParserMethod(restAssuredDefaultParser)
-    }
-
     if(responseSpecification == null || !responseSpecification.hasBodyAssertionsDefined()) {
       Map<String,Closure> parsers = new HashMap<String,Closure>();
       parsers.put( ContentType.BINARY.toString(), new MethodClosure(this, "parseStream" ) );
@@ -53,6 +47,12 @@ class RestAssuredParserRegistry extends ParserRegistry {
 
       return parsers
     } else {
+      def Parser restAssuredDefaultParser = responseSpecification.rpr.defaultParser
+      def hasDefaultParser = restAssuredDefaultParser != null
+      if(hasDefaultParser) {
+        defaultParser = findDefaultParserMethod(restAssuredDefaultParser)
+      }
+
       return super.buildDefaultParserMap()
     }
   }

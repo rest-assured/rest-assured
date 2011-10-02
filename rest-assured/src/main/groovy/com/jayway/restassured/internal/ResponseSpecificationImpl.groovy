@@ -298,6 +298,12 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
             !cookieAssertions.isEmpty() || expectedStatusCode != null || expectedStatusLine != null
   }
 
+  def ResponseSpecification defaultParser(Parser parser) {
+    notNull parser, "Parser"
+    rpr.defaultParser = parser
+    return this
+  }
+
   ResponseSpecification contentType(ContentType contentType) {
     notNull contentType, "contentType"
     this.contentType = contentType

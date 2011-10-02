@@ -37,6 +37,12 @@ class StreamVerifier {
       assertion = createAssertionForCustomParser(rpr, contentType, key)
     } else {
       def content = response.asString()
+      if(contentType.isEmpty()) {
+        throw new IllegalStateException("""Expected response to be verified as JSON, HTML or XML but no content-type was defined in the response.
+Try registering a default parser using:
+   RestAssured.defaultParser(<parser type>);
+Content was:\n$content\n""");
+      }
       throw new IllegalStateException("""Expected response to be verified as JSON, HTML or XML but content-type '$contentType' is not supported out of the box.
 Try registering a custom parser using:
    RestAssured.registerParser(\"$contentType\", <parser type>);

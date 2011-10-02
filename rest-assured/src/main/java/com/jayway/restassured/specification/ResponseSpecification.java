@@ -862,16 +862,33 @@ public interface ResponseSpecification extends RequestSender {
      * Since <tt>application/vnd.uoml+xml</tt> is not registered to be processed by the XML parser by default you need to explicitly
      * tell REST Assured to use this parser before making the request:
      * <pre>
-     * expect().parser("application/vnd.uoml+xml", Parser.XML").when(). ..;
+     * expect().parser("application/vnd.uoml+xml", Parser.XML).when(). ..;
      * </pre>
      *
-     * You can also specify by default by using:
+     * You can also specify by it for every response by using:
      * <pre>
-     * RestAssured.registerParser("application/vnd.uoml+xml, Parser.XML");
+     * RestAssured.registerParser("application/vnd.uoml+xml", Parser.XML);
      * </pre>
      *
      * @param contentType The content-type to register
      * @param parser The parser to use when verifying the response.
      */
     ResponseSpecification parser(String contentType, Parser parser);
+
+    /**
+     * Register a default predefined parser that will be used if no other parser (registered or pre-defined) matches the response
+     * content-type. E.g. let's say that for some reason no content-type is defined in the response but the content is nevertheless
+     * JSON encoded. To be able to expect the content in REST Assured you need to set the default parser:
+     * <pre>
+     * expect().defaultParser(Parser.JSON).when(). ..;
+     * </pre>
+     *
+     * You can also specify it for every response by using:
+     * <pre>
+     * RestAssured.defaultParser(Parser.JSON);
+     * </pre>
+     *
+     * @param parser The parser to use when verifying the response if no other parser is found for the response content-type.
+     */
+    ResponseSpecification defaultParser(Parser parser);
 }

@@ -686,14 +686,4 @@ public class JSONGetITest extends WithJetty {
             RestAssured.reset();
         }
     }
-
-    @Test
-    public void usingFallbackParserParsersAnyContentWhenResponseContentTypeIsDefined() throws Exception {
-        RestAssured.defaultParser = JSON;
-        try {
-            expect().body("message", equalTo("It works")).when().get("/customMimeTypeJsonCompatible");
-        } finally {
-            RestAssured.reset();
-        }
-    }
 }

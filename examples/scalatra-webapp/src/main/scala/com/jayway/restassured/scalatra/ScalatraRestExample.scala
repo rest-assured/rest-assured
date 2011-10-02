@@ -221,6 +221,11 @@ class ScalatraRestExample extends ScalatraServlet {
     """{ "message" : "It works" }"""
   }
 
+  get("/noContentTypeJsonCompatible") {
+    contentType = ""
+    """{ "message" : "It works" }"""
+  }
+
   get("/customMimeTypeNonJsonCompatible") {
     contentType = "application/something+json"
     "This is not JSON"

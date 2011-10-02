@@ -45,6 +45,13 @@ import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.entity.mime.HttpMultipartMode
 import com.jayway.restassured.internal.encoderregistry.RestAssuredEncoderRegistry
 import com.jayway.restassured.parsing.Parser
+import org.apache.http.HttpResponse
+import groovyx.net.http.ParserRegistry
+import org.apache.http.entity.HttpEntityWrapper
+import org.apache.http.Header
+import org.apache.http.message.BasicHeader
+import org.apache.http.protocol.HTTP
+import static org.apache.http.protocol.HTTP.CONTENT_TYPE
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
@@ -551,6 +558,36 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
           delegate.uri.query = queryParams
         }
         return super.doRequest(delegate)
+      }
+
+      /**
+       * We override this method because ParserRegistry.getContentType(..) called by
+       * the super method throws an exception if no content-type is available in the response
+       * and then HTTPBuilder for some reason uses the streaming octet parser instead of the
+       * defaultParser in the ParserRegistry to parse the response. To fix this we set the
+       * content-type of the defaultParser if registered to Rest Assured to the response if no
+       * content-type is defined.
+       */
+      @Override
+      protected Object parseResponse(HttpResponse resp, Object contentType) {
+        def definedDefaultParser = RequestSpecificationImpl.this.responseSpecification.rpr.defaultParser
+        if(definedDefaultParser != null && ContentType.ANY.toString().equals( contentType.toString() ) ) {
+          try {
+            ParserRegistry.getContentType(resp);
+          } catch(IllegalArgumentException e) {
+            // This means that no content-type is defined the response
+            def entity = resp?.entity
+            if(entity != null) {
+              resp.setEntity(new HttpEntityWrapper(entity) {
+                @Override
+                Header getContentType() {
+                  return new BasicHeader(CONTENT_TYPE, definedDefaultParser.getContentType())
+                }
+              })
+            }
+          }
+        }
+        return super.parseResponse(resp, contentType)
       }
     };
     registerRestAssuredEncoders(http);
