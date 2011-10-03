@@ -18,6 +18,7 @@ package com.jayway.restassured.path.json;
 
 import com.jayway.restassured.assertion.JSONAssertion;
 import com.jayway.restassured.exception.ParsePathException;
+import com.jayway.restassured.internal.path.ObjectConverter;
 import net.sf.json.JSON;
 import net.sf.json.groovy.JsonSlurper;
 
@@ -25,10 +26,11 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.Map.Entry;
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
+import static com.jayway.restassured.internal.path.ObjectConverter.convertObjectTo;
 
 /**
  * JsonPath is an alternative to using XPath for easily getting values from a JSON document. It follows the
@@ -327,7 +329,12 @@ public class JsonPath {
      * cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path, Class<T> genericType) {
-        return get(path);
+        final List<T> original = get(path);
+        final List<T> newList = new LinkedList<T>();
+        for (T t : original) {
+            newList.add(convertObjectTo(t, genericType));
+        }
+        return Collections.unmodifiableList(newList);
     }
 
     /**
@@ -355,7 +362,14 @@ public class JsonPath {
      * cannot be casted to the expected type.
      */
     public <K,V> Map<K, V> getMap(String path, Class<K> keyType, Class<V> valueType) {
-        return get(path);
+        final Map<K, V> originalMap = get(path);
+        final Map<K, V> newMap = new HashMap<K, V>();
+        for (Entry<K, V> entry : originalMap.entrySet()) {
+            final K key = entry.getKey() == null ? null : convertObjectTo(entry.getKey(), keyType);
+            final V value = entry.getValue() == null ? null : convertObjectTo(entry.getValue(), valueType);
+            newMap.put(key, value);
+        }
+        return Collections.unmodifiableMap(newMap);
     }
 
     /**

@@ -18,6 +18,7 @@ package com.jayway.restassured.path.xml;
 
 import com.jayway.restassured.assertion.XMLAssertion;
 import com.jayway.restassured.exception.ParsePathException;
+import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.path.xml.element.NodeChildren;
 import groovy.util.XmlSlurper;
@@ -33,13 +34,12 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.Reader;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.Map.Entry;
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.XML;
+import static com.jayway.restassured.internal.path.ObjectConverter.convertObjectTo;
 
 /**
  * XmlPath is an alternative to using XPath for easily getting values from an XML document. It follows the Groovy syntax
@@ -326,7 +326,14 @@ public class XmlPath {
      * cannot be casted to the expected type.
      */
     public <K,V> Map<K, V> getMap(String path, Class<K> keyType, Class<V> valueType) {
-        return get(path);
+        final Map<K, V> originalMap = get(path);
+        final Map<K, V> newMap = new HashMap<K, V>();
+        for (Entry<K, V> entry : originalMap.entrySet()) {
+            final K key = entry.getKey() == null ? null : convertObjectTo(entry.getKey(), keyType);
+            final V value = entry.getValue() == null ? null : convertObjectTo(entry.getValue(), valueType);
+            newMap.put(key, value);
+        }
+        return Collections.unmodifiableMap(newMap);
     }
 
     /**
@@ -681,39 +688,6 @@ public class XmlPath {
             returnObject = convertedList;
         }
         return returnObject == null ? null : Collections.unmodifiableList((List<T>) returnObject);
-    }
-
-    private <T> T convertObjectTo(Object object, Class<T> explicitType) {
-        Object returnObject;
-        if(object == null) {
-            returnObject = null;
-        } else if(!object.getClass().isAssignableFrom(explicitType)) {
-            final String toString = object.toString();
-            if(explicitType.isAssignableFrom(Integer.class) || explicitType.isAssignableFrom(int.class)) {
-                returnObject = Integer.parseInt(toString);
-            } else  if(explicitType.isAssignableFrom(Boolean.class) || explicitType.isAssignableFrom(boolean.class)) {
-                returnObject = Boolean.parseBoolean(toString);
-            } else  if(explicitType.isAssignableFrom(Character.class) || explicitType.isAssignableFrom(char.class)) {
-                returnObject = toString.charAt(0);
-            } else  if(explicitType.isAssignableFrom(Byte.class) || explicitType.isAssignableFrom(byte.class)) {
-                returnObject = Byte.parseByte(toString);
-            } else  if(explicitType.isAssignableFrom(Short.class) || explicitType.isAssignableFrom(short.class)) {
-                returnObject = Short.parseShort(toString);
-            } else  if(explicitType.isAssignableFrom(Float.class) || explicitType.isAssignableFrom(float.class)) {
-                returnObject = Float.parseFloat(toString);
-            } else  if(explicitType.isAssignableFrom(Double.class) || explicitType.isAssignableFrom(double.class)) {
-                returnObject = Double.parseDouble(toString);
-            } else  if(explicitType.isAssignableFrom(Long.class) || explicitType.isAssignableFrom(long.class)) {
-                returnObject = Long.parseLong(toString);
-            } else  if(explicitType.isAssignableFrom(String.class)) {
-                returnObject = toString;
-            } else {
-                returnObject = explicitType.cast(object);
-            }
-        } else {
-            returnObject = explicitType.cast(object);
-        }
-        return (T) returnObject;
     }
 
     private GPathResult parseInputStream(final InputStream stream)  {

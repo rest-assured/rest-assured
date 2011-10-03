@@ -16,13 +16,17 @@
 
 package com.jayway.restassured.path.json;
 
+import net.sf.json.JSON;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.path.json.JsonPath.*;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.collection.IsCollectionContaining.hasItem;
 import static org.hamcrest.collection.IsCollectionContaining.hasItems;
 import static org.junit.Assert.assertThat;
@@ -66,6 +70,9 @@ public class JsonPathTest {
             "{\"email\":\"name2@mail.com\",\"alias\":\"name two\",\"phone\":\"1234567\"},\n" +
             "{\"email\":\"name3@mail.com\",\"alias\":\"name three\",\"phone\":\"2345678\"}]";
 
+
+    private final String JSON_MAP = "{ \"price1\" : 12.3,\n" +
+            "  \"price2\": 15.0 }";
 
     @Test
     public void getList() throws Exception {
@@ -164,5 +171,26 @@ public class JsonPathTest {
         assertThat(with(JSON).getShort("store.bicycle.atoms"), equalTo((short)Long.MAX_VALUE));
         assertThat(with(JSON).getInt("store.bicycle.atoms"), equalTo((int)Long.MAX_VALUE));
         assertThat(with(JSON).getLong("store.bicycle.atoms"), equalTo(Long.MAX_VALUE));
+    }
+
+    @Test
+    public void convertsListMembersToDefinedTypeIfPossible() throws Exception {
+        final List<Integer> phoneNumbers = with(JSON2).getList("phone", int.class);
+
+        assertThat(phoneNumbers, hasItems(3456789, 1234567, 2345678));
+    }
+
+    @Test
+    public void getMapWithGenericType() throws Exception {
+        final Map<String, String> map = with(JSON_MAP).getMap("$", String.class, String.class);
+
+        assertThat(map, allOf(hasEntry("price1", "12.3"), hasEntry("price2", "15.0")));
+    }
+
+    @Test
+    public void getMapWithAnotherGenericType() throws Exception {
+        final Map<String, Float> map = with(JSON_MAP).getMap("$", String.class, float.class);
+
+        assertThat(map, allOf(hasEntry("price1", 12.3f), hasEntry("price2", 15.0f)));
     }
 }
