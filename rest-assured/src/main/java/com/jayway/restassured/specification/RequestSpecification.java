@@ -70,6 +70,8 @@ public interface RequestSpecification extends RequestSender {
      */
     RequestSpecification body(byte[] body);
 
+    RequestSpecification body(Object object);
+
     /**
      * Specify a String request content (such as e.g. JSON or XML) that'll be sent with the request. This works for the
      * POST and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
@@ -110,6 +112,8 @@ public interface RequestSpecification extends RequestSender {
      * @return The request specification
      */
     RequestSpecification content(byte[] content);
+
+    RequestSpecification content(Object object);
 
     /**
      * Specify the cookies that'll be sent with the request. This is done by specifying the cookies in name-value pairs, e.g:

@@ -16,14 +16,8 @@
 
 package com.jayway.restassured.internal.mapping
 
-import com.google.gson.Gson
-import javax.xml.bind.JAXBContext
-import javax.xml.bind.JAXBElement
-import javax.xml.bind.Unmarshaller
-import javax.xml.bind.annotation.XmlRootElement
-import org.codehaus.jackson.map.ObjectMapper
-import org.codehaus.jackson.map.type.TypeFactory
-import org.codehaus.jackson.type.JavaType
+import static com.jayway.restassured.assertion.AssertParameter.notNull
+import static groovyx.net.http.ContentType.ANY
 
 class ObjectMapping {
   private static final boolean isJacksonPresent = existInCP("org.codehaus.jackson.map.ObjectMapper") && existInCP("org.codehaus.jackson.JsonGenerator");
@@ -36,7 +30,7 @@ class ObjectMapping {
     try {
       Class.forName(className, false, Thread.currentThread().getContextClassLoader())
       return true
-    } catch(Exception e) {
+    } catch(Throwable e) {
       return false
     }
   }
@@ -59,26 +53,61 @@ class ObjectMapping {
     throw new IllegalStateException("Cannot parse object because no support XML or JSON deserializer was found in classpath.")
   }
 
-  static def parseWithJaxb(Object object, Class cls) {
-    JAXBContext jaxbContext = JAXBContext.newInstance(cls);
-    Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-    def reader = new StringReader(object)
-    if (cls.isAnnotationPresent(XmlRootElement.class)) {
-      return unmarshaller.unmarshal(reader);
+  public static String serialize(Object object, String contentType) {
+    notNull(object, "Object to serialize")
+    if(contentType == null || contentType == ANY.toString()) {
+      if(isJacksonPresent) {
+        return serializeWithJackson(object, contentType)
+      } else if(isGsonPresent) {
+        return serializeWithGson(object, contentType)
+      } else if(isJaxbPresent) {
+        return serializeWithJaxb(object, contentType)
+      }
+      throw new IllegalArgumentException("Cannot serialize because no JSON or XML serializer found in classpath.")
     } else {
-      JAXBElement jaxbElement = unmarshaller.unmarshal(reader, cls);
-      return jaxbElement.getValue();
+      def ct = contentType.toLowerCase()
+      if(ct.contains("json")) {
+        if(isJacksonPresent) {
+          return serializeWithJackson(object, contentType)
+        } else if(isGsonPresent) {
+          return serializeWithGson(object, contentType)
+        }
+        throw new IllegalStateException("Cannot serialize object because no JSON serializer found in classpath. Please put either Jackson or Gson in the classpath.")
+      } else if(ct.contains("xml")) {
+        if(isJaxbPresent) {
+          return serializeWithJaxb(object, contentType);
+        } else {
+          throw new IllegalStateException("Cannot serialize object because no XML serializer found in classpath. Please put a JAXB compliant object mapper in classpath.")
+        }
+      } else {
+        throw new IllegalArgumentException("Cannot serialize because cannot determine how to serialize content-type $contentType")
+      }
     }
+
+    return serializeWithJaxb(object, contentType)
+  }
+
+  static String serializeWithGson(Object object, String contentType) {
+    new GsonMapping().serialize(object, contentType)
+  }
+
+  static String serializeWithJackson(Object object, String contentType) {
+    new JacksonMapping().serialize(object, contentType)
+  }
+
+  static String serializeWithJaxb(object, String contentType) {
+      new JaxbMapping().serialize(object, contentType)
+  }
+
+  static def parseWithJaxb(Object object, Class cls) {
+    new JaxbMapping().deserialze(object, cls)
   }
 
   private static def parseWithGson(object, Class cls) {
-    def gson = new Gson();
-    return gson.fromJson(object, cls)
+    new GsonMapping().deserialze(object, cls)
   }
 
   static def parseWithJackson(Object object, Class cls) {
-    def mapper = new ObjectMapper();
-    JavaType javaType = TypeFactory.type(cls)
-    return mapper.readValue(object, javaType);
+    new JacksonMapping().deserialize(object, cls)
   }
 }

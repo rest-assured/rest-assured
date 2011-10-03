@@ -55,6 +55,13 @@ public class ObjectMappingITest extends WithJetty {
         assertThat(message.getMessage(), equalTo("It works"));
     }
 
+    @Test
+    public void test() throws Exception {
+        final ScalatraObject object = new ScalatraObject();
+        object.setHello("Hello world");
+        given().body(object).when().post("/reflect").print();
+    }
+
     @Ignore
     private static class ScalatraObject {
         private String hello;

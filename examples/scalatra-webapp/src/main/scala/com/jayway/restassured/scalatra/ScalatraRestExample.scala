@@ -162,6 +162,11 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(render(json))
   }
 
+  post("/reflect") {
+    contentType = request.getContentType
+    request.body
+  }
+
   get("/:firstName/:lastName") {
     val firstName = {params("firstName")}
     val lastName = {params("lastName")}
