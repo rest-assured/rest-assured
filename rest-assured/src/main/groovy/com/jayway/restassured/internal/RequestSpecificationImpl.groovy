@@ -767,21 +767,27 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       throw new IllegalArgumentException("Port must be greater than 0")
     }
     def uri
-    def hasScheme = isFullyQualified(path)
-    if(hasScheme) {
+    def pathHasScheme = isFullyQualified(path)
+    if(pathHasScheme) {
       def url = new URL(path)
       uri = url.getProtocol()+"://"+url.getAuthority()
-    } else if(hasPortDefined(baseUri)) {
-      uri = baseUri.toString()
+    } else if(isFullyQualified(baseUri)) {
+      def uriObject = new URI(baseUri)
+      if(hasPortDefined(uriObject)) {
+        uri = baseUri
+      } else {
+        def builder = new URIBuilder(baseUri)
+        builder.setPort(port)
+        uri = builder.toString()
+      }
     } else {
       uri = "$baseUri:$port"
     }
     return uri
   }
 
-  private def boolean hasPortDefined(String uri) {
-    def uriObject = new URI(uri)
-    return uriObject.getPort() != -1;
+  private def boolean hasPortDefined(URI uri) {
+    return uri.getPort() != -1;
   }
 
   private def appendParameters(Map<String, Object> from, Map<String, Object> to) {
