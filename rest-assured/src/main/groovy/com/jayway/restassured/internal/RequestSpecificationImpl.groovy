@@ -748,8 +748,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         contentType = MULTIPART_FORM_DATA
       } else if (requestBody == null) {
         contentType = shouldUrlEncode(method) ? URLENC : ANY
-      } else if(multiParts.size() > 0) {
-
       } else if (requestBody instanceof byte[]) {
         if(method != POST && method != PUT) {
           throw new IllegalStateException("$method doesn't support binary request data.");
