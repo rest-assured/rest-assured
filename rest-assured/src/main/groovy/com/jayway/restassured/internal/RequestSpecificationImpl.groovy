@@ -542,7 +542,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     path = extractRequestParamsIfNeeded(method, path);
     def isFullyQualifiedUri = isFullyQualified(path)
     def targetUri = getTargetURI(path);
-    def targetPath = isFullyQualifiedUri ? new URL(path).getPath() : "$basePath$path"
+    def targetPath = getTargetPath(path)
     def http = new HTTPBuilder(targetUri) {
       {
         encoderRegistry = new RestAssuredEncoderRegistry();
@@ -645,6 +645,19 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       sendHttpRequest(http, method, responseContentType, targetPath, assertionClosure)
     }
     return restAssuredResponse
+  }
+
+  private String getTargetPath(String path) {
+    if(isFullyQualified(path)) {
+      return new URL(path).getPath()
+    }
+
+    def baseUriPath = ""
+    if(!(baseUri == null || baseUri == "")) {
+      def uri = new URI(baseUri)
+      baseUriPath = uri.getPath()
+    }
+    return "$baseUriPath$basePath$path"
   }
 
   private def validateMultiPartForPostOnly(method) {
@@ -780,27 +793,33 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     def pathHasScheme = isFullyQualified(path)
     if(pathHasScheme) {
       def url = new URL(path)
-      uri = url.getProtocol()+"://"+url.getAuthority()
+      uri = getTargetUriFromUrl(url)
     } else if(isFullyQualified(baseUri)) {
-      def uriObject = new URI(baseUri)
-      if(hasPortDefined(uriObject) || hasPath(uriObject)) {
-        uri = baseUri
-      } else {
-        def builder = new URIBuilder(baseUri)
-        builder.setPort(port)
-        uri = builder.toString()
-      }
+      def baseUriAsUrl = new URL(baseUri)
+      uri = getTargetUriFromUrl(baseUriAsUrl)
     } else {
       uri = "$baseUri:$port"
     }
     return uri
   }
 
-  private def boolean hasPath(URI uri) {
+  private String getTargetUriFromUrl(URL url) {
+    def builder = new StringBuilder();
+    builder.append(url.getProtocol())
+    builder.append("://")
+    builder.append(url.getAuthority())
+    if(!hasPortDefined(url) && !hasPath(url)) {
+      builder.append(":")
+      builder.append(port)
+    }
+    return builder.toString()
+  }
+
+  private def boolean hasPath(uri) {
     uri.getPath() != "";
   }
 
-  private def boolean hasPortDefined(URI uri) {
+  private def boolean hasPortDefined(uri) {
     return uri.getPort() != -1;
   }
 
