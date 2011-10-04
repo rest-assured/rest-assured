@@ -783,7 +783,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       uri = url.getProtocol()+"://"+url.getAuthority()
     } else if(isFullyQualified(baseUri)) {
       def uriObject = new URI(baseUri)
-      if(hasPortDefined(uriObject)) {
+      if(hasPortDefined(uriObject) || hasPath(uriObject)) {
         uri = baseUri
       } else {
         def builder = new URIBuilder(baseUri)
@@ -794,6 +794,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       uri = "$baseUri:$port"
     }
     return uri
+  }
+
+  private def boolean hasPath(URI uri) {
+    uri.getPath() != "";
   }
 
   private def boolean hasPortDefined(URI uri) {

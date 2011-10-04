@@ -67,6 +67,15 @@ public class RootPathITest extends WithJetty {
     }
 
     @Test
+    public void specifyingRootPathThatAndEmptyPathWorks() throws Exception {
+        expect().
+                 root("store.book.category.size()").
+                 body("", equalTo(4)).
+        when().
+                 get("/jsonStore");
+    }
+
+    @Test
     public void specifyingEmptyRootPathResetsToDefaultRootObject() throws Exception {
         expect().
                  rootPath("store.book").

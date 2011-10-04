@@ -31,10 +31,12 @@ import static groovyx.net.http.ContentType.ANY
 import static org.hamcrest.Matchers.equalTo
 
 import static org.apache.commons.lang.StringUtils.substringAfter
+import static org.apache.commons.lang.StringUtils.substring
+import static org.apache.commons.lang.StringUtils.substringBeforeLast
 
 class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
-  private static final String DEFAULT_BODY_ROOT_PATH = ""
+  private static final String EMPTY = ""
   private static final String DOT = "."
   private Matcher<Integer> expectedStatusCode;
   private Matcher<String> expectedStatusLine;
@@ -192,14 +194,15 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   }
 
   private String mergeKeyWithRootPath(String key) {
-    if(bodyRootPath != DEFAULT_BODY_ROOT_PATH) {
+    if(bodyRootPath != EMPTY) {
       if(bodyRootPath.endsWith(DOT) && key.startsWith(DOT)) {
         return bodyRootPath + substringAfter(key, DOT);
       } else if(!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT)) {
         return bodyRootPath + DOT + key
       }
+      return bodyRootPath + key
     }
-    return bodyRootPath + key
+    key
   }
 
   def ResponseSpecification log() {
