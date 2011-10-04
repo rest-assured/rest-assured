@@ -30,9 +30,12 @@ import com.jayway.restassured.specification.*
 import static groovyx.net.http.ContentType.ANY
 import static org.hamcrest.Matchers.equalTo
 
+import static org.apache.commons.lang.StringUtils.substringAfter
+
 class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   private static final String DEFAULT_BODY_ROOT_PATH = ""
+  private static final String DOT = "."
   private Matcher<Integer> expectedStatusCode;
   private Matcher<String> expectedStatusLine;
   private BodyMatcherGroup bodyMatchers = new BodyMatcherGroup()
@@ -172,10 +175,11 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     notNull(key, "key")
     notNull(matcher, "matcher")
 
-    def mergedKey = bodyRootPath + key
+    def mergedKey = mergeKeyWithRootPath(key)
     if(arguments?.size() > 0 ) {
       mergedKey = String.format(mergedKey, arguments.collect { it.getArgument() }.toArray(new Object[arguments.size()]))
     }
+
     bodyMatchers << new BodyMatcher(key: mergedKey, matcher: matcher, rpr: rpr)
     if(additionalKeyMatcherPairs?.length > 0) {
       def pairs = MapCreator.createMapFromObjects(additionalKeyMatcherPairs)
@@ -185,7 +189,17 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
       }
     }
     return this
-    return this
+  }
+
+  private String mergeKeyWithRootPath(String key) {
+    if(bodyRootPath != DEFAULT_BODY_ROOT_PATH) {
+      if(bodyRootPath.endsWith(DOT) && key.startsWith(DOT)) {
+        return bodyRootPath + substringAfter(key, DOT);
+      } else if(!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT)) {
+        return bodyRootPath + DOT + key
+      }
+    }
+    return bodyRootPath + key
   }
 
   def ResponseSpecification log() {
@@ -281,7 +295,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   def ResponseSpecification rootPath(String rootPath) {
     notNull rootPath, "Root path"
-    this.bodyRootPath = rootPath.equals(DEFAULT_BODY_ROOT_PATH) ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + "."
+    this.bodyRootPath = rootPath
     return this
   }
 

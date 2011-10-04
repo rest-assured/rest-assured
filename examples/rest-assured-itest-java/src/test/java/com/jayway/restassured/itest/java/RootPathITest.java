@@ -37,6 +37,36 @@ public class RootPathITest extends WithJetty {
     }
 
     @Test
+    public void specifyingRootPathThatEndsWithDotAndBodyThatEndsWithDotWorks() throws Exception {
+        expect().
+                 root("store.book.").
+                 body(".category.size()", equalTo(4)).
+                 body(".author.size()", equalTo(4)).
+        when().
+                 get("/jsonStore");
+    }
+
+    @Test
+    public void specifyingRootPathThatEndsWithDotAndBodyThatDoesntEndWithDotWorks() throws Exception {
+        expect().
+                 root("store.book.").
+                 body("category.size()", equalTo(4)).
+                 body("author.size()", equalTo(4)).
+        when().
+                 get("/jsonStore");
+    }
+
+    @Test
+    public void specifyingRootPathThatDoesntEndWithDotAndBodyThatEndsWithDotWorks() throws Exception {
+        expect().
+                 root("store.book").
+                 body(".category.size()", equalTo(4)).
+                 body(".author.size()", equalTo(4)).
+        when().
+                 get("/jsonStore");
+    }
+
+    @Test
     public void specifyingEmptyRootPathResetsToDefaultRootObject() throws Exception {
         expect().
                  rootPath("store.book").

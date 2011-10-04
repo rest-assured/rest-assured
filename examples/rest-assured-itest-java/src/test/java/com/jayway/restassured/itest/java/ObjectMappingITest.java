@@ -16,6 +16,9 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.itest.java.objects.Greeting;
+import com.jayway.restassured.itest.java.objects.Message;
+import com.jayway.restassured.itest.java.objects.ScalatraObject;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -60,53 +63,5 @@ public class ObjectMappingITest extends WithJetty {
         final ScalatraObject object = new ScalatraObject();
         object.setHello("Hello world");
         given().body(object).when().post("/reflect").print();
-    }
-
-    @Ignore
-    private static class ScalatraObject {
-        private String hello;
-
-        public String getHello() {
-            return hello;
-        }
-
-        public void setHello(String hello) {
-            this.hello = hello;
-        }
-    }
-
-    @Ignore
-    @XmlRootElement
-    private static class Greeting {
-        private String firstName;
-        private String lastName;
-
-        public String getFirstName() {
-            return firstName;
-        }
-
-        public void setFirstName(String firstName) {
-            this.firstName = firstName;
-        }
-
-        public String getLastName() {
-            return lastName;
-        }
-
-        public void setLastName(String lastName) {
-            this.lastName = lastName;
-        }
-    }
-
-    private static class Message {
-        private String message;
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
     }
 }
