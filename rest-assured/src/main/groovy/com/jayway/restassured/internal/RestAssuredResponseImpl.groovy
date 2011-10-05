@@ -276,28 +276,35 @@ class RestAssuredResponseImpl implements Response {
   private String convertStreamToString(InputStream is) throws IOException {
     Writer writer = new StringWriter();
     char[] buffer = new char[1024];
+    Reader reader;
     try {
-      Reader reader = new BufferedReader(new InputStreamReader(is, findCharset()));
+      reader = new BufferedReader(new InputStreamReader(is, findCharset()));
       int n;
       while ((n = reader.read(buffer)) != -1) {
         writer.write(buffer, 0, n);
       }
     } finally {
       is.close();
+      reader.close();
     }
     return writer.toString();
   }
 
   private byte[] convertStreamToByteArray(InputStream is) throws IOException {
     ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    int nRead;
-    byte[] data = new byte[16384];
+    try {
+      int nRead;
+      byte[] data = new byte[16384];
 
-    while ((nRead = is.read(data, 0, data.length)) != -1) {
-      buffer.write(data, 0, nRead);
+      while ((nRead = is.read(data, 0, data.length)) != -1) {
+        buffer.write(data, 0, nRead);
+      }
+
+      buffer.flush();
+    } finally {
+      buffer.close();
+      is.close();
     }
-
-    buffer.flush();
 
     return buffer.toByteArray();
   }
