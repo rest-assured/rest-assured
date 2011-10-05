@@ -26,10 +26,10 @@ class JacksonMapping {
   def serialize(Object object, String contentType) {
     JsonEncoding jsonEncoding = getEncoding(contentType);
     def mapper = new ObjectMapper();
-    def writer = new StringWriter()
-    JsonGenerator jsonGenerator = mapper.getJsonFactory().createJsonGenerator(writer, jsonEncoding)
+    def stream = new ByteArrayOutputStream();
+    JsonGenerator jsonGenerator = mapper.getJsonFactory().createJsonGenerator(stream, jsonEncoding)
     mapper.writeValue(jsonGenerator, object);
-    return writer.toString()
+    return stream.toString()
   }
 
   def deserialize(Object object, Class cls) {

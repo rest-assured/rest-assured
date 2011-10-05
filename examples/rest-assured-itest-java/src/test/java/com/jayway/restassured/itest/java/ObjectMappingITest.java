@@ -83,4 +83,22 @@ public class ObjectMappingITest extends WithJetty {
         final Greeting actual = given().contentType(ContentType.XML).and().body(object).when().post("/reflect").as(Greeting.class);
         assertThat(object, equalTo(actual));
     }
+
+    @Test
+    public void whenRequestContentTypeIsXmlAndCharsetIsUTF16ThenRestAssuredSerializesToJSON() throws Exception {
+        final Greeting object = new Greeting();
+        object.setFirstName("John");
+        object.setLastName("Doe");
+        final Greeting actual = given().contentType("application/xml; charset=UTF-16").and().body(object).when().post("/reflect").as(Greeting.class);
+        assertThat(object, equalTo(actual));
+    }
+
+    @Test
+    public void whenRequestContentTypeIsJsonAndCharsetIsUTF16ThenRestAssuredSerializesToJSON() throws Exception {
+        final Greeting object = new Greeting();
+        object.setFirstName("John");
+        object.setLastName("Doe");
+        final Greeting actual = given().contentType("application/json; charset=UTF-16").and().body(object).when().post("/reflect").as(Greeting.class);
+        assertThat(object, equalTo(actual));
+    }
 }
