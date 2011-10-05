@@ -154,7 +154,7 @@ class RestAssuredResponseImpl implements Response {
       contentTypeToChose = contentType
     }
 
-    return ObjectMapping.deserialize(asString(), cls, contentTypeToChose)
+    return ObjectMapping.deserialize(asString(), cls, contentTypeToChose, defaultContentType)
   }
 
   private Charset findCharset() {

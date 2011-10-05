@@ -18,6 +18,7 @@ package com.jayway.restassured.internal.mapping
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.ANY
+import com.jayway.restassured.parsing.Parser
 
 class ObjectMapping {
   private static final boolean isJacksonPresent = existInCP("org.codehaus.jackson.map.ObjectMapper") && existInCP("org.codehaus.jackson.JsonGenerator");
@@ -35,7 +36,7 @@ class ObjectMapping {
     }
   }
 
-  public static <T> T deserialize(Object object, Class<T> cls, String contentType) {
+  public static <T> T deserialize(Object object, Class<T> cls, String contentType, String defaultContentType) {
     def ct = contentType.toLowerCase()
     if(ct.contains("json")) {
       if(isJacksonPresent) {
@@ -49,8 +50,20 @@ class ObjectMapping {
         return parseWithJaxb(object, cls);
       }
       throw new IllegalStateException("Cannot parse object because no XML deserializer found in classpath. Please put a JAXB compliant object mapper in classpath.")
+    } else if(defaultContentType != null){
+      if(defaultContentType.contains("json")) {
+        if(isJacksonPresent) {
+          return parseWithJackson(object, cls)
+        } else if(isGsonPresent) {
+          return parseWithGson(object, cls)
+        }
+      } else if(defaultContentType.contains("xml")) {
+        if(isJaxbPresent) {
+          return parseWithJaxb(object, cls);
+        }
+      }
     }
-    throw new IllegalStateException("Cannot parse object because no support XML or JSON deserializer was found in classpath.")
+    throw new IllegalStateException(String.format("Cannot parse object because no supported Content-Type was not specified in response. Content-Type was '%s'.", contentType))
   }
 
   public static String serialize(Object object, String contentType) {
@@ -96,7 +109,7 @@ class ObjectMapping {
   }
 
   static String serializeWithJaxb(object, String contentType) {
-      new JaxbMapping().serialize(object, contentType)
+    new JaxbMapping().serialize(object, contentType)
   }
 
   static def parseWithJaxb(Object object, Class cls) {

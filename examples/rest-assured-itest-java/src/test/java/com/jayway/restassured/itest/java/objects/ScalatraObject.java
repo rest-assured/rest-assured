@@ -29,4 +29,21 @@ public class ScalatraObject {
     public void setHello(String hello) {
         this.hello = hello;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ScalatraObject that = (ScalatraObject) o;
+
+        if (hello != null ? !hello.equals(that.hello) : that.hello != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return hello != null ? hello.hashCode() : 0;
+    }
 }

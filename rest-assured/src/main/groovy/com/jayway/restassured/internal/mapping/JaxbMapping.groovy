@@ -36,14 +36,18 @@ class JaxbMapping {
     }
   }
 
-  def serialize(Object object, String encoding) {
+  def serialize(Object object, String contentType) {
     JAXBContext jaxbContext = JAXBContext.newInstance(object.getClass());
     Marshaller marshaller = jaxbContext.createMarshaller();
-    if (encoding != null) {
-      marshaller.setProperty(Marshaller.JAXB_ENCODING, encoding);
+    if (contentType != null && contentType.contains("charset")) {
+      marshaller.setProperty(Marshaller.JAXB_ENCODING, getEncoding(contentType));
     }
     StringWriter sw = new StringWriter();
     marshaller.marshal(object, sw);
     return sw.toString()
+  }
+
+  private String getEncoding(String contentType) {
+    return contentType.substring(contentType.indexOf("charset")).trim()
   }
 }

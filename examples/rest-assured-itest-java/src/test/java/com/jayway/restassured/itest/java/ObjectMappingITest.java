@@ -20,6 +20,7 @@ import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.objects.ScalatraObject;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import groovyx.net.http.ContentType;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -59,9 +60,27 @@ public class ObjectMappingITest extends WithJetty {
     }
 
     @Test
-    public void test() throws Exception {
+    public void whenNoRequestContentTypeIsSpecifiedThenRestAssuredSerializesToJSON() throws Exception {
         final ScalatraObject object = new ScalatraObject();
         object.setHello("Hello world");
-        given().body(object).when().post("/reflect").print();
+        final ScalatraObject actual = expect().defaultParser(JSON).given().body(object).when().post("/reflect").as(ScalatraObject.class);
+        assertThat(object, equalTo(actual));
+    }
+
+    @Test
+    public void whenRequestContentTypeIsJsonThenRestAssuredSerializesToJSON() throws Exception {
+        final ScalatraObject object = new ScalatraObject();
+        object.setHello("Hello world");
+        final ScalatraObject actual = given().contentType(ContentType.JSON).and().body(object).when().post("/reflect").as(ScalatraObject.class);
+        assertThat(object, equalTo(actual));
+    }
+
+    @Test
+    public void whenRequestContentTypeIsXmlThenRestAssuredSerializesToJSON() throws Exception {
+        final Greeting object = new Greeting();
+        object.setFirstName("John");
+        object.setLastName("Doe");
+        final Greeting actual = given().contentType(ContentType.XML).and().body(object).when().post("/reflect").as(Greeting.class);
+        assertThat(object, equalTo(actual));
     }
 }

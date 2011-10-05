@@ -23,21 +23,12 @@ import org.codehaus.jackson.map.type.TypeFactory
 import org.codehaus.jackson.type.JavaType
 
 class JacksonMapping {
-  def serialize(Object object, String encoding) {
-    JsonEncoding jsonEncoding = null;
-    if (encoding != null) {
-      for (JsonEncoding value : JsonEncoding.values()) {
-        if (encoding.equals(value.getJavaName())) {
-          jsonEncoding = value;
-          break;
-        }
-      }
-    }
-    jsonEncoding = jsonEncoding ?: JsonEncoding.UTF8
+  def serialize(Object object, String contentType) {
+    JsonEncoding jsonEncoding = getEncoding(contentType);
     def mapper = new ObjectMapper();
     def writer = new StringWriter()
-    JsonGenerator jsonGenerator = mapper.getJsonFactory().createJsonGenerator(writer)
-    mapper.writeValue(writer, object);
+    JsonGenerator jsonGenerator = mapper.getJsonFactory().createJsonGenerator(writer, jsonEncoding)
+    mapper.writeValue(jsonGenerator, object);
     return writer.toString()
   }
 
@@ -45,5 +36,17 @@ class JacksonMapping {
     def mapper = new ObjectMapper();
     JavaType javaType = TypeFactory.type(cls)
     return mapper.readValue(object, javaType);
+  }
+
+  private JsonEncoding getEncoding(String contentType) {
+    if(contentType != null && contentType.contains("charset")) {
+      String charset = contentType.substring(contentType.indexOf("charset")).trim()
+      for (JsonEncoding encoding : JsonEncoding.values()) {
+        if (charset.equals(encoding.getJavaName())) {
+          return encoding;
+        }
+      }
+    }
+    return JsonEncoding.UTF8;
   }
 }
