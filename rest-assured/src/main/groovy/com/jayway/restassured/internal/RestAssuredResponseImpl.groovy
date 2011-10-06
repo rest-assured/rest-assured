@@ -24,6 +24,9 @@ import groovy.xml.StreamingMarkupBuilder
 import java.nio.charset.Charset
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.mapper.ObjectMapper
+import com.jayway.restassured.path.json.JsonPath
+import com.jayway.restassured.path.xml.XmlPath
+import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
 
 class RestAssuredResponseImpl implements Response {
   private static final String CANNOT_PARSE_MSG = "Failed to parse response."
@@ -144,18 +147,10 @@ class RestAssuredResponseImpl implements Response {
   }
 
   def <T> T "as"(Class<T> cls) {
-    def contentTypeToChose
-    if(contentType == "") {
-      if(defaultContentType != null) {
-        contentTypeToChose = defaultContentType
-      } else {
-        throw new IllegalStateException("""Cannot parse content to $cls because no content-type was present in the response and no default parser has been set.\nYou can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n
+    String contentTypeToChose = findContentType {
+      throw new IllegalStateException("""Cannot parse content to $cls because no content-type was present in the response and no default parser has been set.\nYou can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n
 or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
-      }
-    } else {
-      contentTypeToChose = contentType
     }
-
     return ObjectMapping.deserialize(asString(), cls, contentTypeToChose, defaultContentType, null)
   }
 
@@ -249,6 +244,30 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     return statusCode()
   }
 
+  JsonPath jsonPath() {
+    new JsonPath(asInputStream())
+  }
+
+  XmlPath xmlPath() {
+    newXmlPath(CompatibilityMode.XML)
+  }
+
+  def <T> T path(String path) {
+    notNull path, "Path"
+    def contentType = findContentType {
+      throw new IllegalStateException("""Cannot invoke the path method because no content-type was present in the response and no default parser has been set.\n
+You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n""")
+    }.toLowerCase();
+    if(contentType.contains("xml")) {
+      return xmlPath().get(path)
+    } else if(contentType.contains("json")) {
+      return jsonPath().get(path)
+    } else if(contentType.contains("html")) {
+      return newXmlPath(CompatibilityMode.HTML)
+    }
+    throw new IllegalStateException("Cannot determine which path implementation to use because the content-type $contentType doesn't map to a path implementation.")
+  }
+
   private convertToByteArray(InputStream stream) {
     ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     int nRead;
@@ -314,5 +333,23 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     }
 
     return buffer.toByteArray();
+  }
+
+  private String findContentType(Closure closure) {
+    def contentTypeToChose
+    if (contentType == "") {
+      if (defaultContentType != null) {
+        contentTypeToChose = defaultContentType
+      } else {
+        closure.call()
+      }
+    } else {
+      contentTypeToChose = contentType
+    }
+    return contentTypeToChose
+  }
+
+  private def newXmlPath(CompatibilityMode xml) {
+    new XmlPath(xml, asInputStream())
   }
 }

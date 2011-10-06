@@ -153,4 +153,32 @@ public class ResponseITest extends WithJetty {
 
         assertThat(string, equalTo("{\"hello\":\"Hello Scalatra\"}"));
     }
+
+    @Test
+    public void usingJsonPathViewFromTheResponse() throws Exception {
+        final String hello = get("/hello").andReturn().jsonPath().getString("hello");
+
+        assertThat(hello, equalTo("Hello Scalatra"));
+    }
+
+    @Test
+    public void usingXmlPathViewFromTheResponse() throws Exception {
+        final String firstName = with().parameters("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().xmlPath().getString("greeting.firstName");
+
+        assertThat(firstName, equalTo("John"));
+    }
+
+    @Test
+    public void usingPathWithContentTypeJsonFromTheResponse() throws Exception {
+        final String hello = get("/hello").andReturn().path("hello");
+
+        assertThat(hello, equalTo("Hello Scalatra"));
+    }
+
+    @Test
+    public void usingPathWithContentTypeXmlFromTheResponse() throws Exception {
+        final String firstName = with().parameters("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().path("greeting.firstName");
+
+        assertThat(firstName, equalTo("John"));
+    }
 }

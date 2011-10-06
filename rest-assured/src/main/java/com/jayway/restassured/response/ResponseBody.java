@@ -17,6 +17,8 @@
 package com.jayway.restassured.response;
 
 import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.path.json.JsonPath;
+import com.jayway.restassured.path.xml.XmlPath;
 
 import java.io.InputStream;
 
@@ -71,4 +73,65 @@ public interface ResponseBody {
      * @return The object
      */
     <T> T as(Class<T> cls, ObjectMapper mapper);
+
+    /**
+     * Get a JsonPath view of the response body. This will let you use the JsonPath syntax to get values from the response.
+     * Example:
+     * <p>
+     *  Assume that the GET request (to <tt>http://localhost:8080/lotto</tt>) returns JSON as:
+     * <pre>
+     * {
+     * "lotto":{
+     *   "lottoId":5,
+     *   "winning-numbers":[2,45,34,23,7,5,3],
+     *   "winners":[{
+     *     "winnerId":23,
+     *     "numbers":[2,45,34,23,3,5]
+     *   },{
+     *     "winnerId":54,
+     *     "numbers":[52,3,12,11,18,22]
+     *   }]
+     *  }
+     * }
+     * </pre>
+     * </p>
+     * You can the make the request and get the winner id's by using JsonPath:
+     * <pre>
+     * List<Integer> winnerIds = get("/lotto").jsonPath().getList("lotto.winnders.winnerId");
+     * </pre>
+     */
+    JsonPath jsonPath();
+
+    /**
+     * Get an XmlPath view of the response body. This will let you use the XmlPath syntax to get values from the response.
+     * Example:
+     * <p>
+     * Imagine that a POST request to <tt>http://localhost:8080/greetXML<tt>  returns:
+     * <pre>
+     * &lt;greeting&gt;
+     *     &lt;firstName&gt;John&lt;/firstName&gt;
+     *     &lt;lastName&gt;Doe&lt;/lastName&gt;
+     *   &lt;/greeting&gt;
+     * </pre>
+     * </pre>
+     * </p>
+     * You can the make the request and get the winner id's by using JsonPath:
+     * <pre>
+     * String firstName = get("/greetXML").xmlPath().getString("greeting.firstName");
+     * </pre>
+     */
+    XmlPath xmlPath();
+
+    /**
+     * Get a value from the response body using the JsonPath or XmlPath syntax. REST Assured will
+     * automatically determine whether to use JsonPath or XmlPath based on the content-type of the response.
+     * If no content-type is defined then REST Assured will try to look at the "default parser" if defined (RestAssured.defaultParser).
+     *
+     * @param path The json- or xml path
+     * @param <T> The return type
+     * @return The value returned by the path
+     * @see #jsonPath()
+     * @see #xmlPath()
+     */
+    <T> T path(String path);
 }

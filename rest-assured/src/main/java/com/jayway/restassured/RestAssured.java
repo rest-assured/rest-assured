@@ -71,7 +71,7 @@ import java.util.Map;
  * </pre>
  * </li>
  * <li>
- * XML can be verified in a similar way. Image that a POST request to <tt>http://localhost:8080/greetXML<tt>  returns:
+ * XML can be verified in a similar way. Imagine that a POST request to <tt>http://localhost:8080/greetXML<tt>  returns:
  * <pre>
  * &lt;greeting&gt;
  *     &lt;firstName&gt;{params("firstName")}&lt;/firstName&gt;
