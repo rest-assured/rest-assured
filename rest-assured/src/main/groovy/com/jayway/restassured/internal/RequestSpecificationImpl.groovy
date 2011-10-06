@@ -49,6 +49,7 @@ import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
 import com.jayway.restassured.mapper.ObjectMapper
+import com.jayway.restassured.internal.filter.FormAuthFilter
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
