@@ -21,10 +21,7 @@ import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.objects.ScalatraObject;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import groovyx.net.http.ContentType;
-import org.junit.Ignore;
 import org.junit.Test;
-
-import javax.xml.bind.annotation.XmlRootElement;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.parsing.Parser.JSON;

@@ -24,6 +24,7 @@ import com.jayway.restassured.filter.log.ResponseLoggingFilter
 import com.jayway.restassured.internal.encoderregistry.RestAssuredEncoderRegistry
 import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.RootFilter
+import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.response.Response
 import groovyx.net.http.HTTPBuilder.RequestConfigDelegate
 import java.util.Map.Entry
@@ -47,7 +48,6 @@ import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
-import com.jayway.restassured.internal.mapping.ObjectMapping
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"

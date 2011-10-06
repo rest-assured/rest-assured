@@ -16,8 +16,6 @@
 
 package com.jayway.restassured.path.json;
 
-import net.sf.json.JSON;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.List;

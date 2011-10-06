@@ -18,7 +18,6 @@ package com.jayway.restassured.path.json;
 
 import com.jayway.restassured.assertion.JSONAssertion;
 import com.jayway.restassured.exception.ParsePathException;
-import com.jayway.restassured.internal.path.ObjectConverter;
 import net.sf.json.JSON;
 import net.sf.json.groovy.JsonSlurper;
 

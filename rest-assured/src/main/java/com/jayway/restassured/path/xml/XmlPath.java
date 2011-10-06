@@ -18,7 +18,6 @@ package com.jayway.restassured.path.xml;
 
 import com.jayway.restassured.assertion.XMLAssertion;
 import com.jayway.restassured.exception.ParsePathException;
-import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.path.xml.element.NodeChildren;
 import groovy.util.XmlSlurper;
@@ -38,8 +37,8 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
-import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.XML;
 import static com.jayway.restassured.internal.path.ObjectConverter.convertObjectTo;
+import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.XML;
 
 /**
  * XmlPath is an alternative to using XPath for easily getting values from an XML document. It follows the Groovy syntax

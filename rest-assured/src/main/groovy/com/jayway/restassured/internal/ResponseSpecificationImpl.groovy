@@ -28,11 +28,8 @@ import org.hamcrest.Matchers
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.specification.*
 import static groovyx.net.http.ContentType.ANY
-import static org.hamcrest.Matchers.equalTo
-
 import static org.apache.commons.lang.StringUtils.substringAfter
-import static org.apache.commons.lang.StringUtils.substring
-import static org.apache.commons.lang.StringUtils.substringBeforeLast
+import static org.hamcrest.Matchers.equalTo
 
 class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
