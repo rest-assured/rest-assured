@@ -715,12 +715,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   private def sendHttpRequest(HTTPBuilder http, method, responseContentType, targetPath, assertionClosure) {
     http.request(method, responseContentType) {
-      if(targetPath != "/") {
-        if(targetPath.endsWith("/")) {
-          targetPath = StringUtils.substringBeforeLast(targetPath, "/")
-        }
-        uri.path = targetPath
-      }
+      uri.path = targetPath
 
       setRequestContentType(defineRequestContentTypeAsString(method))
 

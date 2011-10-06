@@ -669,7 +669,7 @@ public class JSONGetITest extends WithJetty {
         RestAssured.baseURI = "http://localhost:8080/lotto";
 
         try {
-            expect().body("lotto.lottoId", equalTo(5)).when().get("/");
+            expect().body("lotto.lottoId", equalTo(5)).when().get("");
         } finally {
             RestAssured.reset();
         }
@@ -681,7 +681,7 @@ public class JSONGetITest extends WithJetty {
         RestAssured.baseURI = "http://localhost:8080";
 
         try {
-            expect().body("lotto.lottoId", equalTo(5)).when().get("/");
+            expect().body("lotto.lottoId", equalTo(5)).when().get("");
         } finally {
             RestAssured.reset();
         }
