@@ -70,6 +70,46 @@ public interface RequestSpecification extends RequestSender {
      */
     RequestSpecification body(byte[] body);
 
+    /**
+     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request.
+     * If the object is a primitive or <a href="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html">Number</a> the object will
+     * be converted to a String and put in the request body. This works for the POST and PUT methods only.
+     * Trying to do this for the other http methods will cause an exception to be thrown.
+     * <p>
+     * Example of use:
+     * <pre>
+     * Message message = new Message();
+     * message.setMessage("My beautiful message");
+     *
+     * given().
+     *         contentType("application/json").
+     *         body(message).
+     * expect().
+     *         content(equalTo("Response to a beautiful message")).
+     * when().
+     *         post("/beautiful-message");
+     * </pre>
+     * </p>
+     * Since the content-type is "application/json" then REST Assured will automatically try to serialize the object using
+     * <a href="http://jackson.codehaus.org/">Jackson</a> or <a href="http://code.google.com/p/google-gson/">Gson</a> if they are
+     * available in the classpath. If any of these frameworks are not in the classpath then an exception is thrown.
+     * <br />
+     * If the content-type is "application/xml" then REST Assured will automatically try to serialize the object using <a href="http://jaxb.java.net/">JAXB</a>
+     * if it's available in the classpath. Otherwise an exception will be thrown.
+     * <br />
+     * If no request content-type is specified then REST Assured determine the parser in the following order:
+     * <ol>
+     *     <li>Jackson</li>
+     *     <li>Gson</li>
+     *     <li>JAXB</li>
+     * </ol>
+     * <p>
+     * Note that {@link #body(Object)}  and {@link #content(Object)} are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param object The object to serialize and send with the request
+     * @return The request specification
+     */
     RequestSpecification body(Object object);
 
     /**
@@ -113,6 +153,46 @@ public interface RequestSpecification extends RequestSender {
      */
     RequestSpecification content(byte[] content);
 
+     /**
+     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request.
+     * If the object is a primitive or <a href="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html">Number</a> the object will
+     * be converted to a String and put in the request body. This works for the POST and PUT methods only.
+     * Trying to do this for the other http methods will cause an exception to be thrown.
+     * <p>
+     * Example of use:
+     * <pre>
+     * Message message = new Message();
+     * message.setMessage("My beautiful message");
+     *
+     * given().
+     *         contentType("application/json").
+     *         content(message).
+     * expect().
+     *         content(equalTo("Response to a beautiful message")).
+     * when().
+     *         post("/beautiful-message");
+     * </pre>
+     * </p>
+     * Since the content-type is "application/json" then REST Assured will automatically try to serialize the object using
+     * <a href="http://jackson.codehaus.org/">Jackson</a> or <a href="http://code.google.com/p/google-gson/">Gson</a> if they are
+     * available in the classpath. If any of these frameworks are not in the classpath then an exception is thrown.
+     * <br />
+     * If the content-type is "application/xml" then REST Assured will automatically try to serialize the object using <a href="http://jaxb.java.net/">JAXB</a>
+     * if it's available in the classpath. Otherwise an exception will be thrown.
+     * <br />
+     * If no request content-type is specified then REST Assured determine the parser in the following order:
+     * <ol>
+     *     <li>Jackson</li>
+     *     <li>Gson</li>
+     *     <li>JAXB</li>
+     * </ol>
+     * <p>
+     * Note that {@link #body(Object)}  and {@link #content(Object)} are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param object The object to serialize and send with the request
+     * @return The request specification
+     */
     RequestSpecification content(Object object);
 
     /**

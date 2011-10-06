@@ -29,12 +29,11 @@ import java.util.Map;
  * String cookieValue = response.getCookie("cookieName");
  * </pre>
  * <p>
- * The response can only be returned if you don't use any expectations on the body. E.g.
+ * You can also map the response body to a Java object automatically. REST Assured will use
+ * Json, Gson and JAXB to accommodate this:
  * <pre>
- * expect().body(equalTo("my body")).when().get("/something").asString()
+ * Message message = get("/message").as(Message.class);
  * </pre>
- * will throw an {@link IllegalStateException} because of the <code>body</code> expectation matcher.
- *
  * </p>
  */
 public interface Response extends ResponseBody {

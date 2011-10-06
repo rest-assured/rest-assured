@@ -181,6 +181,20 @@ import java.util.Map;
  * </pre>
  * </li>
  * <li>
+ * REST Assured also supports mapping a request body and response body to a Java object using Jackson, Gson or JAXB. Usage example:
+ * <pre>
+ * Greeting greeting = get("/greeting").as(Greeting.class);
+ * </pre>
+ * <pre>
+ * Greeting greeting = new Greeting();
+ * greeting.setFirstName("John");
+ * greeting.setLastName("Doe");
+ *
+ * given().body(greeting).when().post("/greeting");
+ * </pre>
+ * See the javadoc for the body method for more details.
+ * </li>
+ * <li>
  * Full body/content matching:
  * <pre>
  * expect().body(equalsTo("something")). ..
@@ -257,6 +271,10 @@ import java.util.Map;
  * <pre>
  * RestAssured.unregisterParser("application/vnd.uoml+xml");
  * </pre>
+ * If can also specify a default parser for all content-types that do not match a pre-defined or registered parser. This is also useful if the response doesn't contain a content-type at all:
+ * <pre>
+ * RestAssured.defaultParser = Parser.JSON;
+ * </pre>
  * </li>
  * <li>If you need to re-use a specification in multiple tests or multiple requests you can use the {@link com.jayway.restassured.builder.ResponseSpecBuilder}
  * and {@link com.jayway.restassured.builder.RequestSpecBuilder} like this:
@@ -292,7 +310,7 @@ import java.util.Map;
  * This means that a request like e.g. <code>get("/hello")</code> goes to: <tt>http://myhost.org:8080/resource/hello</tt>
  * which basic authentication credentials "username" and "password". See {@link #rootPath} for more info about setting the root paths, {@link #filters(java.util.List)} for setting
  * default filters and {@link #keystore(String, String)} for setting the default keystore when using SSL.<br>
- * You can reset to the standard baseURI (localhost), basePath (empty), standard port (8080), default authentication scheme (none) and default root path (empty string) using:
+ * You can reset to the standard baseURI (localhost), basePath (empty), standard port (8080), default authentication scheme (none), default parser (none) and default root path (empty string) using:
  * <pre>
  * RestAssured.reset();
  * </pre>
@@ -413,7 +431,8 @@ public class RestAssured {
 
     /**
      * Specify a default parser. This parser will be used if the response content-type
-     * doesn't match any pre-registered or custom registered parsers.
+     * doesn't match any pre-registered or custom registered parsers. Also useful if the response
+     * doesn't contain a content-type at all.
      */
     public static Parser defaultParser = null;
 
