@@ -16,9 +16,11 @@ Change log next version
 * Added an "asInputStream" to the Response object. This means that you can now do e.g. "get("/something").asInputStream()" to get the body returned as an input stream.
 * Support for mapping a response content body directly to an Object using either Jackson or Gson for JSON responses and JAXB for XML responses. Usage example: "SomeObject someObject = get("/something").as(SomeObject.class);" 
   Note that Rest Assured doesn't explicitly depend on any of the object mappers so you need to add them to the classpath manually or using a Maven dependency (issue 19).
+* Support for mapping a Java Object to JSON or XML using Jackson, Gson or JAXB. Use e.g. "given().body(someObject).when().post("/something");" (issue 118).
 * getMap with explicit type now converts the key and value to the defined type for both JsonPath and XmlPath
 * JsonPath.getList with an explicit type now converts all list members to the defined type (issue 114).
 * Fixed a bug when defining root path that ends with a dot and a path that starts with a dot.
+* You can now provide ints, floats etc to the request body. E.g. given().body(42).when().post("/somewhere");
  
 Change log 1.3.1 (2011-09-20)
 -----------------------------

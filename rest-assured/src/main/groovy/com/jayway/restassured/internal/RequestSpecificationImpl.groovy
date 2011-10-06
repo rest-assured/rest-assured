@@ -417,12 +417,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def RequestSpecification body(Object object) {
     notNull object, "object"
+    if(Number.class.isAssignableFrom(object.getClass())) {
+      return content(object.toString());
+    }
+
     this.requestBody = ObjectMapping.serialize(object, requestContentType)
     this
   }
 
   def RequestSpecification content(Object object) {
-    notNull object, "object"
     return body(object)
   }
 

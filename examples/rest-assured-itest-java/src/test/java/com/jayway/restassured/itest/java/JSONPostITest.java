@@ -118,6 +118,36 @@ public class JSONPostITest extends WithJetty {
     }
 
     @Test
+    public void requestSpecificationAllowsSpecifyingStringForPost() throws Exception {
+        given().body("tjo").and().expect().body(equalTo("tjo")).when().post("/reflect");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingIntForPost() throws Exception {
+        given().body(2).and().expect().body(equalTo("2")).when().post("/reflect");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingFloatForPost() throws Exception {
+        given().body(2f).and().expect().body(equalTo("2.0")).when().post("/reflect");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingDoubleForPost() throws Exception {
+        given().body(2d).and().expect().body(equalTo("2.0")).when().post("/reflect");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingShortForPost() throws Exception {
+        given().body((short) 2).and().expect().body(equalTo("2")).when().post("/reflect");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingBooleanForPost() throws Exception {
+        given().body(true).and().expect().body(equalTo("true")).when().post("/reflect");
+    }
+
+    @Test
     public void requestSpecificationAllowsSpecifyingJsonContentForPost() throws Exception {
         given().content("{ \"message\" : \"hello world\"}").with().contentType(JSON).and().expect().body(equalTo("hello world")).when().post("/jsonBody");
     }
