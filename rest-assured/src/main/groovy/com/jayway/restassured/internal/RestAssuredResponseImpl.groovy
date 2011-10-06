@@ -23,6 +23,7 @@ import com.jayway.restassured.response.ResponseBody
 import groovy.xml.StreamingMarkupBuilder
 import java.nio.charset.Charset
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import com.jayway.restassured.mapper.ObjectMapper
 
 class RestAssuredResponseImpl implements Response {
   private static final String CANNOT_PARSE_MSG = "Failed to parse response."
@@ -148,13 +149,19 @@ class RestAssuredResponseImpl implements Response {
       if(defaultContentType != null) {
         contentTypeToChose = defaultContentType
       } else {
-        throw new IllegalStateException("Cannot parse content to $cls because no content-type was present in the response and no default parser has been set.\nYou can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n")
+        throw new IllegalStateException("""Cannot parse content to $cls because no content-type was present in the response and no default parser has been set.\nYou can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n
+or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
       }
     } else {
       contentTypeToChose = contentType
     }
 
     return ObjectMapping.deserialize(asString(), cls, contentTypeToChose, defaultContentType)
+  }
+
+  def <T> T "as"(Class<T> cls, ObjectMapper mapper) {
+    notNull mapper, "Object mapper"
+    return ObjectMapping.deserialize(asString(), cls, null, defaultContentType, mapper)
   }
 
   private Charset findCharset() {

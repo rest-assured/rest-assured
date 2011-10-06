@@ -14,7 +14,10 @@ Change log next version
  (issue 107).
 * Improved parsing of response content. If no body expectations are defined then the content is no longer encoded to an intermediate data structure when calling methods such as "asString", "asByteArray" etc on the Response object. This increases the performance of Rest Assured when using no body expectations (e.g. get("/something").asString()) (issue 109).
 * Added an "asInputStream" to the Response object. This means that you can now do e.g. "get("/something").asInputStream()" to get the body returned as an input stream.
-* Support for mapping a response content body directly to an Object using either Jackson or Gson for JSON responses and JAXB for XML responses. Usage example: "SomeObject someObject = get("/something").as(SomeObject.class);" 
+* Support for mapping a response content body directly to an Object using either Jackson or Gson for JSON responses and JAXB for XML responses. Usage example:
+	SomeObject someObject = get("/something").as(SomeObject.class);
+  This requires the the response content-type is defined. If you want to map the response using a specific object mapper you can do like this:
+		SomeObject someObject = get("/something").as(SomeObject.class, ObjectMapper.GSON);
   Note that Rest Assured doesn't explicitly depend on any of the object mappers so you need to add them to the classpath manually or using a Maven dependency (issue 19).
 * Support for mapping a Java Object to JSON or XML using Jackson, Gson or JAXB. Use e.g. "given().body(someObject).when().post("/something");" (issue 118).
 * getMap with explicit type now converts the key and value to the defined type for both JsonPath and XmlPath

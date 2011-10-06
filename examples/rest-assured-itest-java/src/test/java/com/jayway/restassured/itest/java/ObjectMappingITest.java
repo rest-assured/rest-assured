@@ -20,10 +20,14 @@ import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.objects.ScalatraObject;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.mapper.ObjectMapper;
 import groovyx.net.http.ContentType;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.mapper.ObjectMapper.GSON;
+import static com.jayway.restassured.mapper.ObjectMapper.JACKSON;
+import static com.jayway.restassured.mapper.ObjectMapper.JAXB;
 import static com.jayway.restassured.parsing.Parser.JSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -50,7 +54,7 @@ public class ObjectMappingITest extends WithJetty {
         final Message message =
                 expect().
                         defaultParser(JSON).
-                when().
+                        when().
                         get("/noContentTypeJsonCompatible").as(Message.class);
 
         assertThat(message.getMessage(), equalTo("It works"));
@@ -97,5 +101,27 @@ public class ObjectMappingITest extends WithJetty {
         object.setLastName("Doe");
         final Greeting actual = given().contentType("application/json; charset=UTF-16").and().body(object).when().post("/reflect").as(Greeting.class);
         assertThat(object, equalTo(actual));
+    }
+
+    @Test
+    public void mapResponseToObjectUsingJaxbWithJaxObjectMapperDefined() throws Exception {
+        final Greeting object = given().parameters("firstName", "John", "lastName", "Doe").when().get("/greetXML").as(Greeting.class, JAXB);
+
+        assertThat(object.getFirstName(), equalTo("John"));
+        assertThat(object.getLastName(), equalTo("Doe"));
+    }
+
+    @Test
+    public void mapResponseToObjectUsingJacksonWithJacksonObjectMapperDefined() throws Exception {
+        final ScalatraObject object = get("/hello").as(ScalatraObject.class, JACKSON);
+
+        assertThat(object.getHello(), equalTo("Hello Scalatra"));
+    }
+
+    @Test
+    public void mapResponseToObjectUsingGsonWithGsonObjectMapperDefined() throws Exception {
+        final ScalatraObject object = get("/hello").as(ScalatraObject.class, GSON);
+
+        assertThat(object.getHello(), equalTo("Hello Scalatra"));
     }
 }

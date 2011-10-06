@@ -16,6 +16,8 @@
 
 package com.jayway.restassured.response;
 
+import com.jayway.restassured.mapper.ObjectMapper;
+
 import java.io.InputStream;
 
 public interface ResponseBody {
@@ -49,14 +51,24 @@ public interface ResponseBody {
 
     /**
      * Get the body and map it to a Java object. For JSON responses this requires that you have either
-     *
      * <ol>
      * <li>Jackson, or</li>
      * <li>Gson</li>
      * </ol>
      * in the classpath or for XML responses it requires JAXB to be in the classpath.
+     * <br/>
+     * It also requires that the response content-type is either JSON or XML or that a default parser has been been set.
+     * You can also force a specific object mapper using {@link #as(Class, com.jayway.restassured.mapper.ObjectMapper)}.
      *
      * @return The object
      */
     <T> T as(Class<T> cls);
+
+    /**
+     * Get the body and map it to a Java object using a specific object mapper. It will use the supplied
+     * mapper regardless of the response content-type.
+
+     * @return The object
+     */
+    <T> T as(Class<T> cls, ObjectMapper mapper);
 }

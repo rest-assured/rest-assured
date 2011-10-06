@@ -18,6 +18,7 @@ package com.jayway.restassured.internal.mapping
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static groovyx.net.http.ContentType.ANY
+import com.jayway.restassured.mapper.ObjectMapper
 
 class ObjectMapping {
   private static final boolean isJacksonPresent = existInCP("org.codehaus.jackson.map.ObjectMapper") && existInCP("org.codehaus.jackson.JsonGenerator");
@@ -35,8 +36,11 @@ class ObjectMapping {
     }
   }
 
-  public static <T> T deserialize(Object object, Class<T> cls, String contentType, String defaultContentType) {
-    def ct = contentType.toLowerCase()
+  public static <T> T deserialize(Object object, Class<T> cls, String contentType, String defaultContentType, ObjectMapper map) {
+    def ct = contentType?.toLowerCase()
+    if(map != null) {
+      return deserializeUsingMapper(object, cls, map)
+    }
     if(ct.contains("json")) {
       if(isJacksonPresent) {
         return parseWithJackson(object, cls)
@@ -65,7 +69,20 @@ class ObjectMapping {
     throw new IllegalStateException(String.format("Cannot parse object because no supported Content-Type was not specified in response. Content-Type was '%s'.", contentType))
   }
 
-  public static String serialize(Object object, String contentType) {
+  private static <T> T deserializeUsingMapper(Object object, Class<T> cls, ObjectMapper mapper) {
+    if(mapper == ObjectMapper.JACKSON && isJacksonPresent) {
+      return parseWithJackson(object, cls)
+    } else if(mapper == ObjectMapper.GSON && isGsonPresent) {
+      return parseWithGson(object, cls)
+    } else if(mapper == ObjectMapper.JAXB && isJaxbPresent) {
+      return parseWithJaxb(object, cls)
+    } else {
+      def lowerCase = mapper.toString().toLowerCase();
+      throw new IllegalArgumentException("Cannot parse response with mapper $mapper because $lowerCase doesn't exist in the classpath.")
+    }
+  }
+
+  public static String serialize(Object object, String contentType, ObjectMapper map) {
     notNull(object, "Object to serialize")
     if(contentType == null || contentType == ANY.toString()) {
       if(isJacksonPresent) {

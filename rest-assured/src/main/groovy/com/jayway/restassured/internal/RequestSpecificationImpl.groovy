@@ -421,7 +421,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       return content(object.toString());
     }
 
-    this.requestBody = ObjectMapping.serialize(object, requestContentType)
+    this.requestBody = ObjectMapping.serialize(object, requestContentType, null)
     this
   }
 
