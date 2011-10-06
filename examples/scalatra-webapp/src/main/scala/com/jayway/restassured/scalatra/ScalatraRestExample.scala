@@ -226,6 +226,11 @@ class ScalatraRestExample extends ScalatraServlet {
     """{ "message" : "It works" }"""
   }
 
+  get("/customMimeTypeJsonCompatible2") {
+    contentType = "application/vnd.uoml+something"
+    """{ "message" : "It works" }"""
+  }
+
   get("/noContentTypeJsonCompatible") {
     contentType = ""
     """{ "message" : "It works" }"""

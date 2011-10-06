@@ -969,8 +969,9 @@ public class RestAssured {
         if(defaultParser != null) {
             RESPONSE_PARSER_REGISTRAR.registerDefaultParser(defaultParser);
         }
+        final ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(RESPONSE_PARSER_REGISTRAR);
         return new TestSpecificationImpl(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keystoreSpec, requestContentType, requestSpecification, urlEncodingEnabled),
-                new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, RESPONSE_PARSER_REGISTRAR));
+                new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, responseParserRegistrar));
     }
 }

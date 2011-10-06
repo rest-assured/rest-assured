@@ -40,8 +40,8 @@ class ResponseParserRegistrar {
 
   def ResponseParserRegistrar(ResponseParserRegistrar rpr){
     this.additional.putAll(rpr.additional)
+    this.defaultParser = rpr.defaultParser
   }
-
 
   def Parser getParser(String contentType) {
     def parserAsString = additional.get(contentType)
@@ -69,6 +69,10 @@ class ResponseParserRegistrar {
     if(defaultParser != null) {
       return true
     }
+    return hasCustomParserExludingDefaultParser(contentType)
+  }
+
+  def boolean hasCustomParserExludingDefaultParser(String contentType) {
     def parser = getParser(contentType)
     return parser != null && (parser == Parser.XML || parser == Parser.JSON || parser == Parser.HTML);
   }

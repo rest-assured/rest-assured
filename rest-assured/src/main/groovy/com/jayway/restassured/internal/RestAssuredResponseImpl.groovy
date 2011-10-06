@@ -38,10 +38,11 @@ class RestAssuredResponseImpl implements Response {
   def statusCode
 
   def String defaultContentType
+  def ResponseParserRegistrar rpr
 
   def boolean hasExpectations
 
-  public void parseResponse(httpResponse, content, hasBodyAssertions, defaultContentType) {
+  public void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
     parseHeaders(httpResponse)
     parseContentType(httpResponse)
     parseCookies()
@@ -52,7 +53,8 @@ class RestAssuredResponseImpl implements Response {
       this.content = content
     }
     hasExpectations = hasBodyAssertions
-    this.defaultContentType = defaultContentType
+    this.rpr = responseParserRegistrar
+    this.defaultContentType = responseParserRegistrar.defaultParser?.getContentType()
   }
 
   def parseStatus(httpResponse) {
@@ -343,6 +345,8 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
       } else {
         closure.call()
       }
+    } else if(rpr.hasCustomParserExludingDefaultParser(contentType)) {
+      contentTypeToChose = rpr.getParser(contentType).contentType
     } else {
       contentTypeToChose = contentType
     }

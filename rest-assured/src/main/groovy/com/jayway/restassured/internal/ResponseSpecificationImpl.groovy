@@ -352,7 +352,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     def getClosure() {
       return { response, content ->
         this.receivedContent = content
-        restAssuredResponse.parseResponse( response, content, hasBodyAssertionsDefined(), rpr.defaultParser?.getContentType())
+        restAssuredResponse.parseResponse( response, content, hasBodyAssertionsDefined(), rpr)
       }
     }
     def validate(Response response) {

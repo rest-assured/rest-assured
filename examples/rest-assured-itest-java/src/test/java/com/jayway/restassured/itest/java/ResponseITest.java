@@ -17,6 +17,7 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -180,5 +181,19 @@ public class ResponseITest extends WithJetty {
         final String firstName = with().parameters("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().path("greeting.firstName");
 
         assertThat(firstName, equalTo("John"));
+    }
+
+    @Test
+    public void usingACustomRegisteredParserAllowsUsingPath() throws Exception {
+        final String message = expect().parser("application/vnd.uoml+something", Parser.JSON).when().get("/customMimeTypeJsonCompatible2").path("message");
+
+        assertThat(message, equalTo("It works"));
+    }
+
+    @Test
+    public void usingADefaultParserAllowsUsingPath() throws Exception {
+        final String message = expect().defaultParser(Parser.JSON).when().get("/customMimeTypeJsonCompatible2").path("message");
+
+        assertThat(message, equalTo("It works"));
     }
 }
