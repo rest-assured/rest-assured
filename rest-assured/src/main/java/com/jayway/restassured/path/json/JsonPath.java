@@ -303,7 +303,7 @@ public class JsonPath {
      * cannot be casted to the expected type.
      */
     public String getString(String path) {
-        return get(path);
+        return convertObjectTo(get(path), String.class);
     }
     
     /**

@@ -24,6 +24,7 @@ import java.util.Map;
 import static com.jayway.restassured.path.json.JsonPath.*;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.collection.IsCollectionContaining.hasItem;
 import static org.hamcrest.collection.IsCollectionContaining.hasItems;
@@ -190,5 +191,12 @@ public class JsonPathTest {
         final Map<String, Float> map = with(JSON_MAP).getMap("$", String.class, float.class);
 
         assertThat(map, allOf(hasEntry("price1", 12.3f), hasEntry("price2", 15.0f)));
+    }
+
+    @Test
+    public void getStringConvertsTheResultToAString() throws Exception {
+        final String priceAsString = with(JSON).getString("store.book.price[0]");
+
+        assertThat(priceAsString, is("8.95"));
     }
 }
