@@ -28,6 +28,11 @@ Change log next version
 * Fixed a bug when defining root path that ends with a dot and a path that starts with a dot.
 * You can now provide ints, floats etc to the request body. E.g. given().body(42).when().post("/somewhere");
 * getString in JsonPath converts the result to string if needed (issue 115).
+* Added "path", "jsonPath" and "xmlPath" methods to ResponseBody object. This make it very convenient to make a request and parse a single path from the response. E.g.
+    String messageBody = get("/message").path("message.body");
+  In this example the response content-type determines whether JsonPath or XmlPath should be used. It could also be defined explicitly:
+    String messageBody = get("/message").jsonPath().getString("message.body");
+  (issue 110, 116).
  
 Change log 1.3.1 (2011-09-20)
 -----------------------------
