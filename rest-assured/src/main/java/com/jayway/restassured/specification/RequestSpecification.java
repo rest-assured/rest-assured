@@ -17,6 +17,7 @@
 package com.jayway.restassured.specification;
 
 import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.mapper.ObjectMapper;
 import groovyx.net.http.ContentType;
 
 import java.io.File;
@@ -113,6 +114,31 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification body(Object object);
 
     /**
+     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
+     * This works for the POST and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+     * <p>
+     * Example of use:
+     * <pre>
+     * Message message = new Message();
+     * message.setMessage("My beautiful message");
+     *
+     * given().
+     *         body(message, ObjectMapper.GSON).
+     * expect().
+     *         content(equalTo("Response to a beautiful message")).
+     * when().
+     *         post("/beautiful-message");
+     * </pre>
+     * </p>
+     * Note that {@link #body(Object, ObjectMapper)}  and {@link #content(Object, ObjectMapper)} are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param object The object to serialize and send with the request
+     * @return The request specification
+     */
+    RequestSpecification body(Object object, ObjectMapper mapper);
+
+    /**
      * Specify a String request content (such as e.g. JSON or XML) that'll be sent with the request. This works for the
      * POST and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
      * <p>
@@ -153,7 +179,7 @@ public interface RequestSpecification extends RequestSender {
      */
     RequestSpecification content(byte[] content);
 
-     /**
+    /**
      * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request.
      * If the object is a primitive or <a href="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html">Number</a> the object will
      * be converted to a String and put in the request body. This works for the POST and PUT methods only.
@@ -194,6 +220,31 @@ public interface RequestSpecification extends RequestSender {
      * @return The request specification
      */
     RequestSpecification content(Object object);
+
+    /**
+     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
+     * This works for the POST and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+     * <p>
+     * Example of use:
+     * <pre>
+     * Message message = new Message();
+     * message.setMessage("My beautiful message");
+     *
+     * given().
+     *         content(message, ObjectMapper.GSON).
+     * expect().
+     *         content(equalTo("Response to a beautiful message")).
+     * when().
+     *         post("/beautiful-message");
+     * </pre>
+     * </p>
+     * Note that {@link #body(Object, ObjectMapper)}  and {@link #content(Object, ObjectMapper)} are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param object The object to serialize and send with the request
+     * @return The request specification
+     */
+    RequestSpecification content(Object object, ObjectMapper mapper);
 
     /**
      * Specify the cookies that'll be sent with the request. This is done by specifying the cookies in name-value pairs, e.g:

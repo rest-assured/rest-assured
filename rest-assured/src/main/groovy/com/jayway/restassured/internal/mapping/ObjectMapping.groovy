@@ -39,7 +39,7 @@ class ObjectMapping {
   public static <T> T deserialize(Object object, Class<T> cls, String contentType, String defaultContentType, ObjectMapper map) {
     def ct = contentType?.toLowerCase()
     if(map != null) {
-      return deserializeUsingMapper(object, cls, map)
+      return deserializeWithObjectMapper(object, cls, map)
     }
     if(ct.contains("json")) {
       if(isJacksonPresent) {
@@ -69,7 +69,7 @@ class ObjectMapping {
     throw new IllegalStateException(String.format("Cannot parse object because no supported Content-Type was not specified in response. Content-Type was '%s'.", contentType))
   }
 
-  private static <T> T deserializeUsingMapper(Object object, Class<T> cls, ObjectMapper mapper) {
+  private static <T> T deserializeWithObjectMapper(Object object, Class<T> cls, ObjectMapper mapper) {
     if(mapper == ObjectMapper.JACKSON && isJacksonPresent) {
       return parseWithJackson(object, cls)
     } else if(mapper == ObjectMapper.GSON && isGsonPresent) {
@@ -78,12 +78,16 @@ class ObjectMapping {
       return parseWithJaxb(object, cls)
     } else {
       def lowerCase = mapper.toString().toLowerCase();
-      throw new IllegalArgumentException("Cannot parse response with mapper $mapper because $lowerCase doesn't exist in the classpath.")
+      throw new IllegalArgumentException("Cannot map response body with mapper $mapper because $lowerCase doesn't exist in the classpath.")
     }
   }
 
   public static String serialize(Object object, String contentType, ObjectMapper map) {
     notNull(object, "Object to serialize")
+    if(map != null) {
+      return serializeWithObjectMapper(object, contentType, map);
+    }
+
     if(contentType == null || contentType == ANY.toString()) {
       if(isJacksonPresent) {
         return serializeWithJackson(object, contentType)
@@ -116,19 +120,32 @@ class ObjectMapping {
     return serializeWithJaxb(object, contentType)
   }
 
-  static String serializeWithGson(Object object, String contentType) {
+  private static String serializeWithObjectMapper(Object object, String contentType, ObjectMapper mapper) {
+    if(mapper == ObjectMapper.JACKSON && isJacksonPresent) {
+      return serializeWithJackson(object, contentType)
+    } else if(mapper == ObjectMapper.GSON && isGsonPresent) {
+      return serializeWithGson(object, contentType)
+    } else if(mapper == ObjectMapper.JAXB && isJaxbPresent) {
+      return serializeWithJaxb(object, contentType)
+    } else {
+      def lowerCase = mapper.toString().toLowerCase();
+      throw new IllegalArgumentException("Cannot serialize object with mapper $mapper because $lowerCase doesn't exist in the classpath.")
+    }
+  }
+
+  private static String serializeWithGson(Object object, String contentType) {
     new GsonMapping().serialize(object, contentType)
   }
 
-  static String serializeWithJackson(Object object, String contentType) {
+  private static String serializeWithJackson(Object object, String contentType) {
     new JacksonMapping().serialize(object, contentType)
   }
 
-  static String serializeWithJaxb(object, String contentType) {
+  private static String serializeWithJaxb(object, String contentType) {
     new JaxbMapping().serialize(object, contentType)
   }
 
-  static def parseWithJaxb(Object object, Class cls) {
+  private static def parseWithJaxb(Object object, Class cls) {
     new JaxbMapping().deserialze(object, cls)
   }
 

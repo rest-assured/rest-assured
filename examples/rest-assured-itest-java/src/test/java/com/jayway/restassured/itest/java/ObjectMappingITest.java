@@ -54,7 +54,7 @@ public class ObjectMappingITest extends WithJetty {
         final Message message =
                 expect().
                         defaultParser(JSON).
-                        when().
+                when().
                         get("/noContentTypeJsonCompatible").as(Message.class);
 
         assertThat(message.getMessage(), equalTo("It works"));
@@ -77,7 +77,7 @@ public class ObjectMappingITest extends WithJetty {
     }
 
     @Test
-    public void whenRequestContentTypeIsXmlThenRestAssuredSerializesToJSON() throws Exception {
+    public void whenRequestContentTypeIsXmlThenRestAssuredSerializesToXML() throws Exception {
         final Greeting object = new Greeting();
         object.setFirstName("John");
         object.setLastName("Doe");
@@ -123,5 +123,32 @@ public class ObjectMappingITest extends WithJetty {
         final ScalatraObject object = get("/hello").as(ScalatraObject.class, GSON);
 
         assertThat(object.getHello(), equalTo("Hello Scalatra"));
+    }
+
+    @Test
+    public void serializesUsingJAXBWhenJAXBObjectMapperIsSpecified() throws Exception {
+        final Greeting object = new Greeting();
+        object.setFirstName("John");
+        object.setLastName("Doe");
+        final Greeting actual = given().body(object, JAXB).when().post("/reflect").as(Greeting.class, JAXB);
+        assertThat(object, equalTo(actual));
+    }
+
+    @Test
+    public void serializesUsingGsonWhenGsonObjectMapperIsSpecified() throws Exception {
+        final Greeting object = new Greeting();
+        object.setFirstName("John");
+        object.setLastName("Doe");
+        final Greeting actual = given().body(object, GSON).when().post("/reflect").as(Greeting.class, GSON);
+        assertThat(object, equalTo(actual));
+    }
+
+    @Test
+    public void serializesUsingJacksonWhenJacksonObjectMapperIsSpecified() throws Exception {
+        final Greeting object = new Greeting();
+        object.setFirstName("John");
+        object.setLastName("Doe");
+        final Greeting actual = given().body(object, JACKSON).when().post("/reflect").as(Greeting.class, JACKSON);
+        assertThat(object, equalTo(actual));
     }
 }

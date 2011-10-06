@@ -48,6 +48,7 @@ import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
+import com.jayway.restassured.mapper.ObjectMapper
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
@@ -427,6 +428,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def RequestSpecification content(Object object) {
     return body(object)
+  }
+
+  def RequestSpecification body(Object object, ObjectMapper mapper) {
+    notNull object, "object"
+    notNull mapper, "Object mapper"
+    this.requestBody = ObjectMapping.serialize(object, requestContentType, mapper)
+    this
+  }
+
+  def RequestSpecification content(Object object, ObjectMapper mapper) {
+    return body(object, mapper)
   }
 
   RequestSpecification contentType(ContentType contentType) {

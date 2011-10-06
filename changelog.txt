@@ -19,7 +19,10 @@ Change log next version
   This requires the the response content-type is defined. If you want to map the response using a specific object mapper you can do like this:
 		SomeObject someObject = get("/something").as(SomeObject.class, ObjectMapper.GSON);
   Note that Rest Assured doesn't explicitly depend on any of the object mappers so you need to add them to the classpath manually or using a Maven dependency (issue 19).
-* Support for mapping a Java Object to JSON or XML using Jackson, Gson or JAXB. Use e.g. "given().body(someObject).when().post("/something");" (issue 118).
+* Support for mapping a Java Object to JSON or XML using Jackson, Gson or JAXB. Use e.g. "given().contentType("application/json").and().body(someObject).when().post("/something");" 
+  You can also specify an explicit object mapper instead of a content-type:
+	given().body(someObject, ObjectMapper.JACKSON).when().post("/something");
+  (issue 118).
 * getMap with explicit type now converts the key and value to the defined type for both JsonPath and XmlPath
 * JsonPath.getList with an explicit type now converts all list members to the defined type (issue 114).
 * Fixed a bug when defining root path that ends with a dot and a path that starts with a dot.

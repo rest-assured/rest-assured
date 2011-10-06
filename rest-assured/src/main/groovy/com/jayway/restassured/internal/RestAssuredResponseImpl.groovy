@@ -156,7 +156,7 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
       contentTypeToChose = contentType
     }
 
-    return ObjectMapping.deserialize(asString(), cls, contentTypeToChose, defaultContentType)
+    return ObjectMapping.deserialize(asString(), cls, contentTypeToChose, defaultContentType, null)
   }
 
   def <T> T "as"(Class<T> cls, ObjectMapper mapper) {
