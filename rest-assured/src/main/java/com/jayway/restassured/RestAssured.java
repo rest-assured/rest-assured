@@ -181,7 +181,7 @@ import java.util.Map;
  * </pre>
  * </li>
  * <li>
- * REST Assured also supports mapping a request body and response body to a Java object using Jackson, Gson or JAXB. Usage example:
+ * REST Assured also supports mapping a request body and response body to and from a Java object using Jackson, Gson or JAXB. Usage example:
  * <pre>
  * Greeting greeting = get("/greeting").as(Greeting.class);
  * </pre>
