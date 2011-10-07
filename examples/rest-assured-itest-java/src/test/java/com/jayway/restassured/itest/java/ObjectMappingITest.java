@@ -20,14 +20,11 @@ import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.objects.ScalatraObject;
 import com.jayway.restassured.itest.java.support.WithJetty;
-import com.jayway.restassured.mapper.ObjectMapper;
 import groovyx.net.http.ContentType;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
-import static com.jayway.restassured.mapper.ObjectMapper.GSON;
-import static com.jayway.restassured.mapper.ObjectMapper.JACKSON;
-import static com.jayway.restassured.mapper.ObjectMapper.JAXB;
+import static com.jayway.restassured.mapper.ObjectMapper.*;
 import static com.jayway.restassured.parsing.Parser.JSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
