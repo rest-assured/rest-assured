@@ -51,7 +51,7 @@ class CookieMatcher {
     cookieStrings.each {
       if(it.contains("=")) {
         def singleCookie = it.split("=")
-        cookieMap.put singleCookie[0].trim(), singleCookie[1].trim()
+        cookieMap.put singleCookie[0].trim(), (singleCookie.length > 1) ? singleCookie[1].trim() : '';
       } else {
         cookieMap.put it, ""
       }

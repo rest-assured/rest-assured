@@ -373,6 +373,11 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
+    public void responseSpecificationAllowsParsingCookieWithNoValue() throws Exception {
+        expect().cookie("PLAY_FLASH").when().get("/response_cookie_with_no_value");
+    }
+
+    @Test
     public void requestSpecificationAllowsSpecifyingCookies() throws Exception {
         given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().get("/cookie");
     }

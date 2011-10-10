@@ -23,6 +23,7 @@ import net.liftweb.json.JsonAST._
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import collection.mutable.ListBuffer
 import javax.servlet.http.Cookie
+import java.util.Date
 
 class ScalatraRestExample extends ScalatraServlet {
   // To allow for json extract
@@ -251,6 +252,13 @@ class ScalatraRestExample extends ScalatraServlet {
     val cookies = request.getCookies
     val name: String = cookies(0).getName
     name
+  }
+
+  get("/response_cookie_with_no_value") {
+    val cookie: Cookie = new Cookie("PLAY_FLASH", "")
+    val time: Long = new Date().getTime
+    cookie.setMaxAge(time.intValue());
+    response.addCookie(cookie)
   }
 
   get("/key_only_cookie") {

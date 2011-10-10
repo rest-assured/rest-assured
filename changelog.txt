@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* REST Assured can now parse responses with no-value (empty) cookies (issue 124).
+
 Change log 1.4 (2011-10-07)
 ---------------------------
 * Better error message when an actual JSON or XML path value doesn't match the expected value (issue 104).
