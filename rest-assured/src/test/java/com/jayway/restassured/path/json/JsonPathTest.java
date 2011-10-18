@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.path.json;
 
+import net.sf.json.JSONException;
 import org.junit.Test;
 
 import java.util.List;
@@ -71,6 +72,10 @@ public class JsonPathTest {
     private final String JSON_MAP = "{ \"price1\" : 12.3,\n" +
             "  \"price2\": 15.0 }";
 
+    private final String MALFORMED_JSON = "{\n" +
+            "    \"a\": 123456\n" +
+            "    \"b\":\"string\"\n" +
+            "}";
     @Test
     public void getList() throws Exception {
         final List<String> categories = new JsonPath(JSON).get("store.book.category");
@@ -196,5 +201,10 @@ public class JsonPathTest {
         final String priceAsString = with(JSON).getString("store.book.price[0]");
 
         assertThat(priceAsString, is("8.95"));
+    }
+
+    @Test(expected = JSONException.class)
+    public void malformedJson() throws Exception {
+        from(MALFORMED_JSON).get("a");
     }
 }

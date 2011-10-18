@@ -22,6 +22,7 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
+import groovyx.net.http.ResponseParseException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -690,5 +691,10 @@ public class JSONGetITest extends WithJetty {
         } finally {
             RestAssured.reset();
         }
+    }
+
+    @Test(expected = ResponseParseException.class)
+    public void malformedJson() throws Exception {
+        expect().body("a", is(123456)).when().get("/malformedJson").print();
     }
 }

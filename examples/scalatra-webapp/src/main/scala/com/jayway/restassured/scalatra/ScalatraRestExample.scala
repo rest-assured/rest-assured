@@ -295,6 +295,13 @@ class ScalatraRestExample extends ScalatraServlet {
     }
   }
 
+  get("/malformedJson") {
+    """{
+      "a": 123456
+      "b":"string"
+    }"""
+  }
+
   post("/greet") {
     greetJson
   }
