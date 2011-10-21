@@ -1063,6 +1063,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   private boolean isSerializableCandidate(object) {
+    if(object == null) {
+      return false
+    }
     def clazz = object.getClass()
     return !(Number.class.isAssignableFrom(clazz) || String.class.isAssignableFrom(clazz) || GString.class.isAssignableFrom(clazz))
   }
