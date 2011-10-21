@@ -168,6 +168,13 @@ class ScalatraRestExample extends ScalatraServlet {
     request.body
   }
 
+
+  put("/serializedJsonParameter") {
+    val something = {params("something")}
+    val serialized = {params("serialized")}
+    serialized
+  }
+
   get("/:firstName/:lastName") {
     val firstName = {params("firstName")}
     val lastName = {params("lastName")}

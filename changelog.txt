@@ -1,6 +1,14 @@
 Change log next version
 -----------------------
 * REST Assured can now parse responses with no-value (empty) cookies (issue 124).
+* Added support for serializing objects to a parameter if the content-type is set:
+  given().
+          contentType("application/json").
+          queryParam("category", "Games").
+          formParam("object", new GameObject(..)).
+  when().
+          post("/somewhere");
+  (issue 127).
 
 Change log 1.4 (2011-10-07)
 ---------------------------

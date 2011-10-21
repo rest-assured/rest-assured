@@ -418,7 +418,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def RequestSpecification body(Object object) {
     notNull object, "object"
-    if(Number.class.isAssignableFrom(object.getClass())) {
+    if(!isSerializableCandidate(object)) {
       return content(object.toString());
     }
 
@@ -841,35 +841,41 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
   }
 
-  private def appendListParameter(Map<String, String> to, String key, List<String> value) {
-    if(value == null || value.isEmpty()) {
+  private def appendListParameter(Map<String, String> to, String key, List<Object> values) {
+    if(values == null || values.isEmpty()) {
       return;
     }
 
+    def convertedValues = values.collect { serializeIfNeeded(it) }
     if (to.containsKey(key)) {
       def currentValue = to.get(key)
       if (currentValue instanceof List) {
-        currentValue.addAll(value)
+        currentValue.addAll(convertedValues)
       } else {
-        to.put(key, [currentValue, value].flatten())
+        to.put(key, [currentValue, convertedValues].flatten())
       }
     } else {
-      to.put(key, new LinkedList<String>(value))
+      to.put(key, new LinkedList<Object>(convertedValues))
     }
   }
 
 
   private def appendStandardParameter(Map<String, Object> to, String key, Object value) {
+    def newValue = serializeIfNeeded(value)
     if (to.containsKey(key)) {
       def currentValue = to.get(key)
       if (currentValue instanceof List) {
-        currentValue << value
+        currentValue << newValue
       } else {
-        to.put(key, [currentValue, value])
+        to.put(key, [currentValue, newValue])
       }
     } else {
-      to.put(key, value)
+      to.put(key, newValue)
     }
+  }
+
+  private def serializeIfNeeded(Object object) {
+    isSerializableCandidate(object) ? ObjectMapping.serialize(object, requestContentType, null) : object
   }
 
   private def applyPathParamsAndSendRequest(Method method, String path, Object...pathParams) {
@@ -1054,5 +1060,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         if ( entity != null ) entity.consumeContent();
       }
     }
+  }
+
+  private boolean isSerializableCandidate(object) {
+    def clazz = object.getClass()
+    return !(Number.class.isAssignableFrom(clazz) || String.class.isAssignableFrom(clazz) || GString.class.isAssignableFrom(clazz))
   }
 }

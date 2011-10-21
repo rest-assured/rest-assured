@@ -20,6 +20,7 @@ import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.objects.ScalatraObject;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Response;
 import groovyx.net.http.ContentType;
 import org.junit.Test;
 
@@ -147,5 +148,22 @@ public class ObjectMappingITest extends WithJetty {
         object.setLastName("Doe");
         final Greeting actual = given().body(object, JACKSON).when().post("/reflect").as(Greeting.class, JACKSON);
         assertThat(object, equalTo(actual));
+    }
+
+    @Test
+    public void serializesNormalParams() throws Exception {
+        final Greeting object = new Greeting();
+        object.setFirstName("John");
+        object.setLastName("Doe");
+
+        final Greeting actual =
+                given().
+                    contentType(ContentType.JSON).
+                    param("something", "something").
+                    param("serialized", object).
+                when().
+                    put("/serializedJsonParameter").as(Greeting.class);
+
+        assertThat(actual, equalTo(object));
     }
 }
