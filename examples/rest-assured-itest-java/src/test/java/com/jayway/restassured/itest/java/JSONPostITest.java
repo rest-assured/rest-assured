@@ -23,8 +23,6 @@ import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
@@ -32,9 +30,7 @@ import static groovyx.net.http.ContentType.JSON;
 import static groovyx.net.http.ContentType.URLENC;
 import static org.apache.commons.lang.ArrayUtils.toObject;
 import static org.apache.commons.lang.StringUtils.join;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class JSONPostITest extends WithJetty {

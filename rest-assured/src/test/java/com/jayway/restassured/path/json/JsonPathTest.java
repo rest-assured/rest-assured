@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.path.json;
 
+import com.jayway.restassured.path.json.support.Book;
 import net.sf.json.JSONException;
 import org.junit.Test;
 
@@ -23,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.path.json.JsonPath.*;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.collection.IsCollectionContaining.hasItem;
 import static org.hamcrest.collection.IsCollectionContaining.hasItems;
@@ -206,5 +209,41 @@ public class JsonPathTest {
     @Test(expected = JSONException.class)
     public void malformedJson() throws Exception {
         from(MALFORMED_JSON).get("a");
+    }
+
+    @Test
+    public void getObjectWorksWhenPathPointsToAJsonObject() throws Exception {
+        final Book book = from(JSON).getObject("store.book[2]", Book.class);
+
+        assertThat(book, equalTo(new Book("fiction", "Herman Melville", "Moby Dick", "0-553-21311-3", 8.99f)));
+    }
+
+    @Test
+    public void getObjectAsMapWorksWhenPathPointsToAJsonObject() throws Exception {
+        final Map<String, String> book = from(JSON).getObject("store.book[2]", Map.class);
+
+        assertThat(book, hasEntry("category", "fiction"));
+        assertThat(book, hasEntry("author", "Herman Melville"));
+    }
+
+    @Test
+    public void getObjectWorksWhenPathPointsToAList() throws Exception {
+        final List<String> categories = from(JSON).getObject("store.book.category", List.class);
+
+        assertThat(categories, hasItems("reference", "fiction"));
+    }
+
+    @Test
+    public void getObjectAsFloatWorksWhenPathPointsToAFloat() throws Exception {
+        final Float price = from(JSON).getObject("store.book.price[0]", Float.class);
+
+        assertThat(price, equalTo(8.95f));
+    }
+
+    @Test
+    public void getObjectAsStringWorksWhenPathPointsToAString() throws Exception {
+        final String category = from(JSON).getObject("store.book.category[0]", String.class);
+
+        assertThat(category, equalTo("reference"));
     }
 }

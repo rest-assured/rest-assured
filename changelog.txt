@@ -5,7 +5,7 @@ Change log next version
   given().
           contentType("application/json").
           queryParam("category", "Games").
-          formParam("object", new GameObject(..)).
+          formParam("object", new GameObject(..)). // GameObject will be serialized to JSON
   when().
           post("/somewhere");
   (issue 127).

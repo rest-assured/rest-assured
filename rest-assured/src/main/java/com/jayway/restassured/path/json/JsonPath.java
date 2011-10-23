@@ -18,7 +18,10 @@ package com.jayway.restassured.path.json;
 
 import com.jayway.restassured.assertion.JSONAssertion;
 import com.jayway.restassured.exception.ParsePathException;
+import com.jayway.restassured.internal.mapping.ObjectMapping;
 import net.sf.json.JSON;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import net.sf.json.groovy.JsonSlurper;
 
 import java.io.File;
@@ -165,10 +168,7 @@ public class JsonPath {
      * cannot be casted to the expected type.
      */
     public <T> T get(String path) {
-        notNull(path, "path");
-        final JSONAssertion jsonAssertion = new JSONAssertion();
-        final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
-        jsonAssertion.setKey(root + path);
+        final JSONAssertion jsonAssertion = createJsonAssertion(path);
         return (T) jsonAssertion.getResult(json);
     }
 
@@ -214,7 +214,7 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a byte. 
+     * Get the result of an JSON path expression as a byte.
      *
      *
      * @param path The JSON path.
@@ -234,7 +234,7 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a short. 
+     * Get the result of an JSON path expression as a short.
      *
      *
      * @param path The JSON path.
@@ -254,7 +254,7 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a float. 
+     * Get the result of an JSON path expression as a float.
      *
      * @param path The JSON path.
      * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
@@ -266,7 +266,7 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a double. 
+     * Get the result of an JSON path expression as a double.
      *
      * @param path The JSON path.
      * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
@@ -277,7 +277,7 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a long. 
+     * Get the result of an JSON path expression as a long.
      *
      * @param path The JSON path.
      * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
@@ -296,7 +296,7 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a string. 
+     * Get the result of an JSON path expression as a string.
      *
      * @param path The JSON path.
      * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
@@ -305,9 +305,9 @@ public class JsonPath {
     public String getString(String path) {
         return convertObjectTo(get(path), String.class);
     }
-    
+
     /**
-     * Get the result of an JSON path expression as a list. 
+     * Get the result of an JSON path expression as a list.
      *
      * @param path The JSON path.
      * @param <T> The list type
@@ -369,6 +369,120 @@ public class JsonPath {
             newMap.put(key, value);
         }
         return Collections.unmodifiableMap(newMap);
+    }
+
+    /**
+     *  Get the result of a JSON path expression as a java Object.
+     * E.g. given the following JSON document:
+     * <pre>
+     * { "store": {
+     *   "book": [
+     *    { "category": "reference",
+     *      "author": "Nigel Rees",
+     *      "title": "Sayings of the Century",
+     *      "price": 8.95
+     *    },
+     *    { "category": "fiction",
+     *      "author": "Evelyn Waugh",
+     *      "title": "Sword of Honour",
+     *      "price": 12.99
+     *    },
+     *    { "category": "fiction",
+     *      "author": "Herman Melville",
+     *      "title": "Moby Dick",
+     *      "isbn": "0-553-21311-3",
+     *      "price": 8.99
+     *    },
+     *    { "category": "fiction",
+     *      "author": "J. R. R. Tolkien",
+     *      "title": "The Lord of the Rings",
+     *      "isbn": "0-395-19395-8",
+     *      "price": 22.99
+     *    }
+     *  ],
+     *    "bicycle": {
+     *      "color": "red",
+     *      "price": 19.95
+     *    }
+     *  }
+     * }
+     * </pre>
+     * And a Java object like this:
+     *
+     * <pre>
+     * public class Book {
+     *      private String category;
+     *      private String author;
+     *      private String title;
+     *      private String isbn;
+     *      private float price;
+     *
+     *      public String getCategory() {
+     *         return category;
+     *      }
+     *
+     *     public void setCategory(String category) {
+     *         this.category = category;
+     *     }
+     *
+     *    public String getAuthor() {
+     *          return author;
+     *     }
+     *
+     *    public void setAuthor(String author) {
+     *         this.author = author;
+     *    }
+     *
+     *    public String getTitle() {
+     *         return title;
+     *    }
+     *
+     *    public void setTitle(String title) {
+     *        this.title = title;
+     *    }
+     *
+     *    public String getIsbn() {
+     *             return isbn;
+     *    }
+     *
+     *    public void setIsbn(String isbn) {
+     *          this.isbn = isbn;
+     *    }
+     *
+     *    public float getPrice() {
+     *        return price;
+     *    }
+     *
+     *    public void setPrice(float price) {
+     *             this.price = price;
+     *   }
+     * }
+     * </pre>
+     *
+     * Then
+     * <pre>
+     * Book book = from(JSON).getObject("store.book[2]", Book.class);
+     * </pre>
+     *
+     * maps the second book to a Book instance.
+     *
+     * @param path  The path to the object to map
+     * @param objectType The class type of the expected object
+     * @param <T> The type of the expected object
+     * @return The object
+     */
+    public <T> T getObject(String path, Class<T> objectType) {
+        Object object  = getJsonObject(path);
+        if(object == null) {
+            return null;
+        } else if(object instanceof JSONObject || object instanceof JSONArray) {
+            object = object.toString();
+        } else if(object instanceof List) {
+            object = JSONArray.fromObject(object).toString();
+        } else {
+            return convertObjectTo(object, objectType);
+        }
+        return ObjectMapping.deserialize(object, objectType, "application/json","", null);
     }
 
     /**
@@ -563,4 +677,16 @@ public class JsonPath {
         }
     }
 
+    public <T> T getJsonObject(String path) {
+        final JSONAssertion jsonAssertion = createJsonAssertion(path);
+        return (T) jsonAssertion.getAsJsonObject(json);
+    }
+
+    private JSONAssertion createJsonAssertion(String path) {
+        notNull(path, "path");
+        final JSONAssertion jsonAssertion = new JSONAssertion();
+        final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
+        jsonAssertion.setKey(root + path);
+        return jsonAssertion;
+    }
 }

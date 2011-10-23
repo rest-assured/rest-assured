@@ -25,9 +25,14 @@ class JSONAssertion implements Assertion {
   String key;
 
   def Object getResult(Object object) {
+    Object result = getAsJsonObject(object)
+    return convertToJavaListIfNeeded(result);
+  }
+
+  def getAsJsonObject(object) {
     key = escapePath(key, minus());
     def result;
-    if(key == "\$" || key == "") {
+    if (key == "\$" || key == "") {
       result = object
     } else {
       def root = 'restAssuredJsonRootObject'
@@ -37,8 +42,7 @@ class JSONAssertion implements Assertion {
         throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid JSON expression:").replace("$root.", generateWhitespace(root.length())));
       }
     }
-
-    return convertToJavaListIfNeeded(result);
+    return result
   }
 
   private Object convertToJavaListIfNeeded(current) {

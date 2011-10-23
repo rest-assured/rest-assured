@@ -20,7 +20,6 @@ import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.objects.ScalatraObject;
 import com.jayway.restassured.itest.java.support.WithJetty;
-import com.jayway.restassured.response.Response;
 import groovyx.net.http.ContentType;
 import org.junit.Test;
 
