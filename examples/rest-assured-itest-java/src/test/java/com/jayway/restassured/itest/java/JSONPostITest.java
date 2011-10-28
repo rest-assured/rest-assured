@@ -28,6 +28,7 @@ import org.junit.Test;
 import static com.jayway.restassured.RestAssured.*;
 import static groovyx.net.http.ContentType.JSON;
 import static groovyx.net.http.ContentType.URLENC;
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang.ArrayUtils.toObject;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.hamcrest.Matchers.*;
@@ -186,6 +187,11 @@ public class JSONPostITest extends WithJetty {
     @Test
     public void responseSpecificationAllowsSpecifyingJsonBodyAsStringForPost() throws Exception {
         given().body("{ \"message\" : \"hello world\"}").expect().contentType("application/json").and().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
+    }
+
+    @Test
+    public void multiValueParametersSupportsAppendingWhenPassingInList() throws Exception {
+        with().param("list", "1").param("list", asList("2", "3")).expect().body("list", equalTo("1,2,3")).when().post("/multiValueParam");
     }
 
     @Test

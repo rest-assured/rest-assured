@@ -653,13 +653,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
           }
         }
       } else {
-        requestBody = bodyContent instanceof Map ? createFormParamBody(bodyContent) : bodyContent
+        requestBody = createBodyContent(bodyContent)
         sendHttpRequest(http, method, responseContentType, targetPath, assertionClosure)
       }
     } else {
       sendHttpRequest(http, method, responseContentType, targetPath, assertionClosure)
     }
     return restAssuredResponse
+  }
+
+  private def createBodyContent(bodyContent) {
+    return bodyContent instanceof Map ? createFormParamBody(bodyContent) : bodyContent
   }
 
   private String getTargetPath(String path) {
@@ -941,10 +945,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     def value = entry.getValue()
     if (value instanceof List) {
       final StringBuilder multiValueList = new StringBuilder();
-      value.each {
-        multiValueList.append(it.toString()).append("&")
+      value.eachWithIndex { val, index ->
+        multiValueList.append(val.toString())
+        if(index != value.size() - 1) {
+          multiValueList.append("&").append(entry.getKey()).append("=")
+        }
       }
-      multiValueList.deleteCharAt(multiValueList.length()-1); //Delete last &
       value = multiValueList.toString()
     }
     return value
