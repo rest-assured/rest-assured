@@ -27,6 +27,7 @@ import com.jayway.restassured.response.ResponseBody
 import groovy.xml.StreamingMarkupBuilder
 import java.nio.charset.Charset
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import com.jayway.restassured.response.Cookie
 
 class RestAssuredResponseImpl implements Response {
   private static final String CANNOT_PARSE_MSG = "Failed to parse response."
@@ -73,13 +74,20 @@ class RestAssuredResponseImpl implements Response {
 
   def parseCookies() {
     if(headers.containsKey("Set-Cookie")) {
-      cookies = CookieMatcher.getCookieMap(headers.get("Set-Cookie"))
+      cookies = CookieMatcher.getCookies(headers.get("Set-Cookie"))
     }
   }
 
   def parseHeaders(httpResponse) {
     httpResponse.headers.each {
-      responseHeaders.put(it.getName(), it.getValue())
+      def name = it.getName()
+      def value;
+      if(responseHeaders.containsKey(name)) {
+        value = ([it.getValue()] << responseHeaders.getAt(name)).flatten()
+      } else {
+        value = it.getValue()
+      }
+      responseHeaders.put(it.getName(), value)
     }
   }
 
@@ -171,6 +179,21 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     return Charset.forName(charset);
   }
 
+  def Map<String, Cookie> detailedCookies() {
+    return null
+  }
+
+  def Map<String, Cookie> getDetailedCookies() {
+    return null
+  }
+
+  def Cookie detailedCookie(String name) {
+    return null
+  }
+
+  def Cookie getDetailedCookie(String name) {
+    return null
+  }
 
   Response andReturn() {
     return this
@@ -188,20 +211,20 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     return body()
   }
 
-  Map<String, String> headers() {
+  Map<String, Object> headers() {
     return Collections.unmodifiableMap(responseHeaders)
   }
 
-  Map<String, String> getHeaders() {
+  Map<String, Object> getHeaders() {
     return headers()
   }
 
-  String header(String name) {
+  Object header(String name) {
     notNull(name, "name")
     return responseHeaders.get(name)
   }
 
-  String getHeader(String name) {
+  Object getHeader(String name) {
     return header(name)
   }
 

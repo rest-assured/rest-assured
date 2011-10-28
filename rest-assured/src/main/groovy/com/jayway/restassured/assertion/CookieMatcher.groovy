@@ -17,6 +17,19 @@
 package com.jayway.restassured.assertion
 
 import org.hamcrest.Matcher
+import com.jayway.restassured.response.Cookie
+import com.jayway.restassured.response.Cookies
+import org.apache.commons.lang.StringUtils
+import static org.apache.commons.lang.StringUtils.equalsIgnoreCase
+import static com.jayway.restassured.response.Cookie.COMMENT
+import static org.apache.commons.lang.StringUtils.trim
+import org.apache.http.impl.cookie.DateUtils
+import static com.jayway.restassured.response.Cookie.EXPIRES
+import static com.jayway.restassured.response.Cookie.SECURED
+import static com.jayway.restassured.response.Cookie.MAX_AGE
+import static com.jayway.restassured.response.Cookie.DOMAIN
+import static com.jayway.restassured.response.Cookie.PATH
+import static com.jayway.restassured.response.Cookie.VERSION
 
 class CookieMatcher {
 
@@ -31,7 +44,7 @@ class CookieMatcher {
   }
 
   private def getCookieValueOrThrowExceptionIfCookieIsMissing(cookieName,String cookies) {
-    def cookieMap = getCookieMap(cookies)
+    def cookieMap = getCookies(cookies)
     def cookie = cookieMap.get(cookieName)
     if (cookie == null) {
       String cookiesAsString = "";
@@ -42,21 +55,49 @@ class CookieMatcher {
 
   }
 
-  public static Map<String, String> getCookieMap(String cookies) {
+  public static Cookies getCookies(cookies) {
     if(!cookies) {
       throw new AssertionError("No cookies defined in the response")
     }
-    def cookieStrings = cookies.split(";");
-    def cookieMap = [:]
-    cookieStrings.each {
-      if(it.contains("=")) {
-        def singleCookie = it.split("=")
-        cookieMap.put singleCookie[0].trim(), (singleCookie.length > 1) ? singleCookie[1].trim() : '';
-      } else {
-        cookieMap.put it, ""
+    def Cookie.Builder cookieBuilder
+    println cookies
+    cookies.each {
+      def cookieStrings = it.split(";");
+      cookieStrings.eachWithIndex { part, index ->
+        if(index == 0) {
+          if(part.contains("=")) {
+            def singleCookie = part.split("=")
+            cookieBuilder = new Cookie.Builder(singleCookie[0].trim(), (singleCookie.length > 1) ? singleCookie[1].trim() : null);
+          } else {
+            cookieBuilder = new Cookie.Builder(part, null)
+          }
+        } else if(part.contains("=")) {
+          def cookieAttributeAndValue = part.split("=")
+          setCookieProperty(cookieBuilder, cookieAttributeAndValue[0], cookieAttributeAndValue[1])
+        } else {
+          setCookieProperty(cookieBuilder, part)
+        }
       }
     }
-    return cookieMap
+    return cookieBuilder.build()
   }
 
+  private static def setCookieProperty(Cookie.Builder builder, name, value) {
+    name = trim(name);
+    if(equalsIgnoreCase(name, COMMENT)) {
+      builder.setComment(value)
+    } else if(equalsIgnoreCase(name, VERSION)) {
+      builder.setVersion()
+    } else if(equalsIgnoreCase(name, PATH)) {
+      builder.setPath(value)
+    } else if(equalsIgnoreCase(name, DOMAIN)) {
+      builder.setDomain(value)
+    } else if(equalsIgnoreCase(name, MAX_AGE)) {
+      builder.setMaxAge(Integer.parseInt(value))
+    } else if(equalsIgnoreCase(name, SECURED)) {
+      builder.setSecured(true)
+    } else if(equalsIgnoreCase(name, EXPIRES)) {
+      builder.setExpiryDate(DateUtils.parseDate(value))
+    }
+  }
 }

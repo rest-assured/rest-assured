@@ -278,6 +278,22 @@ class ScalatraRestExample extends ScalatraServlet {
     "OK"
   }
 
+  get("/springCookie") {
+    contentType = "text/plain"
+    val cookie1: Cookie = new Cookie("cookie1", "cookieValue1")
+    cookie1.setDomain("localhost")
+    val cookie2 = new Cookie("cookie1", "cookieValue2")
+    cookie2.setPath("/")
+    cookie2.setMaxAge(new Date().getTime.intValue())
+    cookie2.setComment("My Purpose")
+    cookie2.setDomain("localhost")
+    cookie2.setSecure(true)
+    cookie2.setVersion(1)
+    response.addCookie(cookie1)
+    response.addCookie(cookie2)
+    "OK"
+  }
+
   post("/j_spring_security_check") {
     contentType = "text/plain"
     val userName = params.get("j_username").get

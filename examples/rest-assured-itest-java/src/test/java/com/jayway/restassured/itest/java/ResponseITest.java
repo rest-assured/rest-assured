@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.InputStream;
+import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.containsString;
@@ -104,7 +105,8 @@ public class ResponseITest extends WithJetty {
         assertEquals(4, response.getHeaders().size());
         assertEquals(4, response.headers().size());
         assertEquals("text/plain; charset=utf-8", response.getHeader("Content-Type"));
-        assertThat(response.header("Server"), containsString("Jetty"));
+        final String server = response.header("Server");
+        assertThat(server, containsString("Jetty"));
     }
 
     @Test

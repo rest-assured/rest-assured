@@ -10,6 +10,8 @@ Change log next version
           post("/somewhere");
   (issue 127).
 * Fixed a bug with multi-value form parameters when using PUT.
+* Non-backward compatible changes:
+  Response.header(..) and Response.getHeader(..) no longer returns a String, it returns type T. T is usually a String but it can also be a List if several headers with the same name exists.
 
 Change log 1.4 (2011-10-07)
 ---------------------------

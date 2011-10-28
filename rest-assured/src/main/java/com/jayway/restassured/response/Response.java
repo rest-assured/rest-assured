@@ -67,46 +67,68 @@ public interface Response extends ResponseBody {
     ResponseBody getBody();
 
     /**
-     * The response headers.
+     * The response headers. If there are several response headers with the same name a list of
+     *  the response header values are returned.
      *
      * @return The response headers.
      */
-    Map<String, String> headers();
+    <T> Map<String, T> headers();
 
     /**
-     * The response headers.
+     * The response headers. If there are several response headers with the same name a list of
+     *  the response header values are returned.
      *
      * @return The response headers.
      */
-    Map<String, String> getHeaders();
+    <T> Map<String, T> getHeaders();
 
     /**
-     * Get a single header value associated with the given name.
+     * Get a single header value associated with the given name. Usually returns a String but if the header exists more than once
+     * a List of the header values are returned.
+     *
      *
      * @return The header value or <code>null</code> if value was not found.
      */
-    String header(String name);
+    <T> T header(String name);
 
     /**
-     * Get a single header value associated with the given name.
+     * Get a single header value associated with the given name. Usually returns a String but if the header exists more than once
+     * a List of the header values are returned.
      *
      * @return The header value or <code>null</code> if value was not found.
      */
-    String getHeader(String name);
+    <T> T getHeader(String name);
 
     /**
-     * The response cookies.
+     * The response cookies simple name/value pair.
+     *
      *
      * @return The response cookies.
      */
     Map<String, String> cookies();
 
     /**
-     * The response cookies.
+     * The response cookies with all the attributes
+     *
+     *
+     * @return The response cookies.
+     */
+    Map<String, Cookie> detailedCookies();
+
+    /**
+     * The response cookies as simple name/value pair.
      *
      * @return The response cookies.
      */
     Map<String, String> getCookies();
+
+
+    /**
+     * The response cookies with all the attributes
+     *
+     * @return The response cookies.
+     */
+    Map<String, Cookie> getDetailedCookies();
 
     /**
      * Get a single cookie value associated with the given name.
@@ -121,6 +143,20 @@ public interface Response extends ResponseBody {
      * @return The cookie value or <code>null</code> if value was not found.
      */
     String getCookie(String name);
+
+    /**
+     * Get a  single cookie including all attributes associated with the given name.
+     *
+     * @return The cookie value or <code>null</code> if value was not found.
+     */
+    Cookie detailedCookie(String name);
+
+    /**
+     * Get a  single cookie including all attributes associated with the given name.
+     *
+     * @return The cookie value or <code>null</code> if value was not found.
+     */
+    Cookie getDetailedCookie(String name);
 
     /**
      * Get the content type of the response
