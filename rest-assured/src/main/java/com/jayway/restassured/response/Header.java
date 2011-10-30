@@ -17,14 +17,14 @@
 package com.jayway.restassured.response;
 
 import com.jayway.restassured.assertion.AssertParameter;
-import com.jayway.restassured.internal.Nameable;
+import com.jayway.restassured.internal.NameAndValue;
 
-public class Header implements Nameable {
+public class Header implements NameAndValue {
 
     private final String name;
-    private final Object value;
+    private final String value;
 
-    public Header(String name, Object value)  {
+    public Header(String name, String value)  {
         AssertParameter.notNull(name, "Header name");
         this.name = name;
         this.value = value;
@@ -34,7 +34,7 @@ public class Header implements Nameable {
         return name;
     }
 
-    public Object getValue() {
+    public String getValue() {
         return value;
     }
 

@@ -22,7 +22,7 @@ import java.util.*;
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
 
-public class MultiValueEntity<T extends Nameable> implements Iterable<T> {
+public class MultiValueEntity<T extends NameAndValue> implements Iterable<T> {
 
     private final List<T> entities;
 
@@ -77,6 +77,23 @@ public class MultiValueEntity<T extends Nameable> implements Iterable<T> {
     }
 
     /**
+     *  Get a single entity value with the supplied name. If there are several headers match the <code>headerName</code> then
+     *  the first one is returned.
+     *
+     * @param entityName The name of the header to find
+     * @return The found entity value or <code>null</code> if no header was found.
+     */
+    public String getValue(String entityName) {
+        notNull(entityName, "Entity name");
+        final T entity = get(entityName);
+        if(entity == null) {
+            return null;
+        }
+        return entity.getValue();
+    }
+
+
+    /**
      *  Get all entities with the supplied name. If there's only one entity matching the <code>entityName</code> then
      *  a list with only that entity is returned.
      *
@@ -92,6 +109,22 @@ public class MultiValueEntity<T extends Nameable> implements Iterable<T> {
             }
         }
         return Collections.unmodifiableList(entityList);
+    }
+
+    /**
+     *  Get all entity values of the entity with supplied name. If there's only one header matching the <code>entity name</code> then
+     *  a list with only that header value is returned.
+     *
+     * @param entityName The name of the entity to find
+     * @return The found entity values or empty list if no entity was found.
+     */
+    public List<String> multiGetValue(String entityName) {
+        final List<T> list = multiGet(entityName);
+        final List<String> stringList = new LinkedList<String>();
+        for (T entity : list) {
+            stringList.add(entity.getValue());
+        }
+        return Collections.unmodifiableList(stringList);
     }
 
     public Iterator<T> iterator() {

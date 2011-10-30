@@ -22,8 +22,8 @@ import xml.Elem
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import collection.mutable.ListBuffer
-import javax.servlet.http.Cookie
 import java.util.Date
+import javax.servlet.http.Cookie
 
 class ScalatraRestExample extends ScalatraServlet {
   // To allow for json extract
@@ -523,7 +523,9 @@ class ScalatraRestExample extends ScalatraServlet {
 
   def setCookies: String = {
     contentType = "text/plain"
-    response.setHeader("Set-Cookie", " key1=value1 ; key2= value2;key3 = value3")
+    response.addCookie(new Cookie("key1", "value1"))
+    response.addCookie(new Cookie("key2", "value2"))
+    response.addCookie(new Cookie("key3", "value3"))
     "ok"
   }
 

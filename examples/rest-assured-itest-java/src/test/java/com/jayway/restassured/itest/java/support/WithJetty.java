@@ -19,6 +19,8 @@ package com.jayway.restassured.itest.java.support;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.nio.SelectChannelConnector;
@@ -33,6 +35,9 @@ import java.io.File;
 @Ignore("To make Maven happy")
 public class WithJetty {
     public static String itestPath = "/examples/rest-assured-itest-java";
+
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @BeforeClass
     public static void startJetty() throws Exception {

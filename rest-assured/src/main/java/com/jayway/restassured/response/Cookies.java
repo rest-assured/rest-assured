@@ -80,6 +80,18 @@ public class Cookies implements Iterable<Cookie> {
     }
 
     /**
+     *  Get a single cookie <i>value</i> with the supplied name. If there are several cookies matching the <code>cookieName</code> then
+     *  the first one is returned.
+     *
+     * @param cookieName The name of the cookie to find
+     * @return The found cookie or <code>null</code> if no cookie was found.
+     */
+    public String getValue(String cookieName) {
+        notNull(cookieName, "Cookie name");
+        return cookies.getValue(cookieName);
+    }
+
+    /**
      *  Get all cookies with the supplied name. If there's only one cookie matching the <code>cookieName</code> then
      *  a list with only that cookie is returned.
      *
@@ -88,6 +100,17 @@ public class Cookies implements Iterable<Cookie> {
      */
     public List<Cookie> multiGet(String cookieName) {
         return cookies.multiGet(cookieName);
+    }
+
+    /**
+     *  Get all cookie values of the cookie with the supplied name. If there's only one header matching the <code>cookieName</code> then
+     *  a list with only that cookie value is returned.
+     *
+     * @param cookieName The name of the header to find
+     * @return The found header values or empty list if no header was found.
+     */
+    public List<String> multiGetValue(String cookieName) {
+        return cookies.multiGetValue(cookieName);
     }
 
     /**

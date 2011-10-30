@@ -77,7 +77,7 @@ class RestAssuredResponseImpl implements Response {
 
   def parseCookies() {
     if(headers.hasHeaderWithName("Set-Cookie")) {
-      cookies = CookieMatcher.getCookies(headers.multiGet("Set-Cookie"))
+      cookies = CookieMatcher.getCookies(headers.multiGetValue("Set-Cookie"))
     }
   }
 
@@ -221,7 +221,7 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
 
   String header(String name) {
     notNull(name, "name")
-    return responseHeaders.get(name)
+    return responseHeaders.getValue(name)
   }
 
   String getHeader(String name) {
@@ -242,7 +242,7 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
 
   String cookie(String name) {
     notNull(name, "name")
-    return cookies.get(name)
+    return cookies.getValue(name)
   }
 
   String getCookie(String name) {

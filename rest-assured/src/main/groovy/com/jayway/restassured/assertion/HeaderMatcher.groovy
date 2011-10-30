@@ -24,9 +24,10 @@ class HeaderMatcher {
   def Matcher<String> matcher
 
   def containsHeader(headers) {
-    def value = headers.get(headerName)?.getValue()
+    def value = headers.getValue(headerName)
     if (!matcher.matches(value)) {
-      throw new AssertionError("Expected header \"$headerName\" was not $matcher, was \"$value\". Headers are:$headers")
+      def headersString = headers.toString()
+      throw new AssertionError("Expected header \"$headerName\" was not $matcher, was \"$value\". Headers are:\n$headersString")
     }
   }
 }

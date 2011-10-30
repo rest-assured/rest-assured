@@ -18,6 +18,7 @@ package com.jayway.restassured.response;
 
 import com.jayway.restassured.internal.MultiValueEntity;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -71,12 +72,35 @@ public class Headers implements Iterable<Header> {
      *  Get a single header with the supplied name. If there are several headers match the <code>headerName</code> then
      *  the first one is returned.
      *
+     *
      * @param headerName The name of the header to find
      * @return The found header or <code>null</code> if no header was found.
      */
     public Header get(String headerName) {
         notNull(headerName, "Header name");
         return headers.get(headerName);
+    }
+
+    /**
+     *  Get a single header with the supplied name. If there are several headers match the <code>headerName</code> then
+     *  the first one is returned.
+     *
+     * @param headerName The name of the header to find
+     * @return The found header value or <code>null</code> if no header was found.
+     */
+    public String getValue(String headerName) {
+        return headers.getValue(headerName);
+    }
+
+    /**
+     *  Get all header values of the header with supplied name. If there's only one header matching the <code>headerName</code> then
+     *  a list with only that header value is returned.
+     *
+     * @param headerName The name of the header to find
+     * @return The found header values or empty list if no header was found.
+     */
+    public List<String> multiGetValue(String headerName) {
+       return headers.multiGetValue(headerName);
     }
 
     /**

@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.internal;
 
-public interface Nameable {
+public interface NameAndValue {
     String getName();
+    String getValue();
 }

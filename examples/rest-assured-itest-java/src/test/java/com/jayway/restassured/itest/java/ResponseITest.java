@@ -18,6 +18,8 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.parsing.Parser;
+import com.jayway.restassured.response.Header;
+import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -102,8 +104,9 @@ public class ResponseITest extends WithJetty {
     @Test
     public void responseSupportsGettingHeaders() throws Exception {
         final Response response = get("/setCookies");
-        assertEquals(4, response.getHeaders().size());
-        assertEquals(4, response.headers().size());
+        assertEquals(7, response.getHeaders().size());
+        assertEquals(7, response.headers().size());
+        System.out.println(response.headers());
         assertEquals("text/plain; charset=utf-8", response.getHeader("Content-Type"));
         final String server = response.header("Server");
         assertThat(server, containsString("Jetty"));

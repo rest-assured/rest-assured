@@ -481,7 +481,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     notNull cookies, "cookies"
     def cookieList = []
     if(this.cookies.exist()) {
-      cookieList.addAll(this.cookies.cookies)
+      cookieList.addAll(this.cookies.list())
     }
     cookies.each {
       cookieList << new Cookie.Builder(it.key, it.value).build();
@@ -643,16 +643,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     http.getHeaders() << requestHeaders
 
     if(cookies.exist()) {
-      cookies.each { raCookie ->
-        def cookieValue
-        if(http.getHeaders().containsKey("Cookie")) {
-          def list = [http.getHeaders().get("Cookie")] << raCookie.toString()
-          cookieValue = list.flatten()
-        } else {
-          cookieValue = raCookie.toString()
-        }
-        http.getHeaders() << [Cookie : cookieValue]
-      }
+      http.getHeaders() << [Cookie : cookies.collect { it.toString() }.join("; ")]
     }
 
     // Allow returning a the response

@@ -36,19 +36,20 @@ class CookieMatcher {
   def cookieName
   def Matcher<String> matcher
 
-  def containsCookie(String cookies) {
-    def value = getCookieValueOrThrowExceptionIfCookieIsMissing(cookieName, cookies)
+  def containsCookie(List<String> cookies) {
+    def cookie = getCookieValueOrThrowExceptionIfCookieIsMissing(cookieName, cookies)
+    def value = cookie.getValue()
     if(!matcher.matches(value)) {
       throw new AssertionError("Expected cookie \"$cookieName\" was not $matcher, was \"$value\".")
     }
   }
 
-  private def getCookieValueOrThrowExceptionIfCookieIsMissing(cookieName,String cookies) {
+  private def getCookieValueOrThrowExceptionIfCookieIsMissing(cookieName,List<String> cookies) {
     def raCookies = getCookies(cookies)
     def cookie = raCookies.get(cookieName)
     if (cookie == null) {
       String cookiesAsString = raCookies.toString()
-      throw new AssertionError("Cookie \"$cookieName\" was not defined in the response. Cookies are: $cookiesAsString");
+      throw new AssertionError("Cookie \"$cookieName\" was not defined in the response. Cookies are: \n$cookiesAsString");
     }
     return cookie
 
@@ -58,9 +59,8 @@ class CookieMatcher {
     if(!headerWithCookieList) {
       throw new AssertionError("No cookies defined in the response")
     }
-    println headerWithCookieList
     def cookieList = []
-    headerWithCookieList.collect {it.getValue()}.each {
+    headerWithCookieList.each {
       def Cookie.Builder cookieBuilder
       def cookieStrings = org.apache.commons.lang.StringUtils.split(it, ";");
       cookieStrings.eachWithIndex { part, index ->

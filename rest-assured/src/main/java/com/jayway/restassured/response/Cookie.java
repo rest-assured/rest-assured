@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.response;
 
-import com.jayway.restassured.internal.Nameable;
+import com.jayway.restassured.internal.NameAndValue;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -39,7 +39,7 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull;
  * Credits: Some of the javadoc in this class is copied from the <code>org.apache.http.cookie.Cookie</code> class in <a href="http://hc.apache.org/">Apache HTTP Client</a>.
  * and some (version and secured) from <a href="https://github.com/scalatra/scalatra">Scalatra</a>.
  */
-public class Cookie implements Nameable {
+public class Cookie implements NameAndValue {
     public static final String COMMENT = "Comment";
     public static final String PATH = "Path";
     public static final String DOMAIN = "Domain";
@@ -53,7 +53,7 @@ public class Cookie implements Nameable {
     private static final int UNDEFINED = -1;
 
     private final String name;
-    private final Object value;
+    private final String value;
     private final String comment;
     private final Date expiryDate;
     private final String domain;
@@ -62,7 +62,7 @@ public class Cookie implements Nameable {
     private final int version;
     private final int maxAge;
 
-    private Cookie(String name, Object value, String comment, Date expiryDate,
+    private Cookie(String name, String value, String comment, Date expiryDate,
                    String domain, String path, boolean secured, int version,
                    int maxAge) {
         this.name = name;
@@ -90,7 +90,7 @@ public class Cookie implements Nameable {
      *
      * @return The current value.
      */
-    public Object getValue() {
+    public String getValue() {
         return value;
     }
 
@@ -234,7 +234,7 @@ public class Cookie implements Nameable {
 
     public static class Builder {
         private final String name;
-        private final Object value;
+        private final String value;
         private String comment;
         private Date expiryDate;
         private String domain;
@@ -258,7 +258,7 @@ public class Cookie implements Nameable {
          * @param name The name of the cookie
          * @param value the cookie value
          */
-        public Builder(String name, Object value) {
+        public Builder(String name, String value) {
             notNull(name, "Cookie name");
             this.name = name;
             this.value = value;
