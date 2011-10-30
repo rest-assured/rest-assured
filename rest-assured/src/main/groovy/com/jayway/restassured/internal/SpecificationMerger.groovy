@@ -17,6 +17,7 @@
 package com.jayway.restassured.internal
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import com.jayway.restassured.response.Cookies
 
 class SpecificationMerger {
 
@@ -90,7 +91,8 @@ class SpecificationMerger {
     thisOne.keyStoreSpec = with.keyStoreSpec
     thisOne.contentType = with.contentType
     thisOne.requestHeaders.putAll(with.requestHeaders)
-    thisOne.cookies.putAll(with.cookies)
+    // TODO Merge cookies
+    thisOne.cookies = with.cookies
     thisOne.requestBody = with.requestBody
     thisOne.filters.addAll(with.filters)
     thisOne.urlEncodingEnabled = with.urlEncodingEnabled

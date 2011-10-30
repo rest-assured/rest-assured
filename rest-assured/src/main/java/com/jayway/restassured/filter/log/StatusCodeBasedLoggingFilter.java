@@ -73,7 +73,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
             RestAssuredResponseImpl restAssuredResponse = new RestAssuredResponseImpl();
             restAssuredResponse.setContent(responseAsString);
             restAssuredResponse.setContentType(response.getContentType());
-            restAssuredResponse.setCookies(response.getCookies());
+            restAssuredResponse.setCookies(response.getDetailedCookies());
             restAssuredResponse.setResponseHeaders(response.getHeaders());
             restAssuredResponse.setStatusCode(response.getStatusCode());
             restAssuredResponse.setStatusLine(response.getStatusLine());

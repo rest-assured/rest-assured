@@ -28,11 +28,14 @@ import groovy.xml.StreamingMarkupBuilder
 import java.nio.charset.Charset
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.response.Cookie
+import com.jayway.restassured.response.Cookies
+import com.jayway.restassured.response.Headers
+import com.jayway.restassured.response.Header
 
 class RestAssuredResponseImpl implements Response {
   private static final String CANNOT_PARSE_MSG = "Failed to parse response."
-  def responseHeaders = [:]
-  def cookies = [:]
+  def responseHeaders
+  def Cookies cookies
   def content
   def contentType
   def statusLine
@@ -73,22 +76,19 @@ class RestAssuredResponseImpl implements Response {
   }
 
   def parseCookies() {
-    if(headers.containsKey("Set-Cookie")) {
-      cookies = CookieMatcher.getCookies(headers.get("Set-Cookie"))
+    if(headers.hasHeaderWithName("Set-Cookie")) {
+      cookies = CookieMatcher.getCookies(headers.multiGet("Set-Cookie"))
     }
   }
 
   def parseHeaders(httpResponse) {
+    def headerList = [];
     httpResponse.headers.each {
       def name = it.getName()
-      def value;
-      if(responseHeaders.containsKey(name)) {
-        value = ([it.getValue()] << responseHeaders.getAt(name)).flatten()
-      } else {
-        value = it.getValue()
-      }
-      responseHeaders.put(it.getName(), value)
+      def value = it.getValue();
+      headerList << new Header(name, value)
     }
+    this.responseHeaders = new Headers(headerList)
   }
 
   private def parseContent(content) {
@@ -179,12 +179,12 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     return Charset.forName(charset);
   }
 
-  def Map<String, Cookie> detailedCookies() {
-    return null
+  def Cookies detailedCookies() {
+    return cookies
   }
 
-  def Map<String, Cookie> getDetailedCookies() {
-    return null
+  def Cookies getDetailedCookies() {
+    return detailedCookies()
   }
 
   def Cookie detailedCookie(String name) {
@@ -211,25 +211,29 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     return body()
   }
 
-  Map<String, Object> headers() {
-    return Collections.unmodifiableMap(responseHeaders)
+  Headers headers() {
+    return responseHeaders
   }
 
-  Map<String, Object> getHeaders() {
+  Headers getHeaders() {
     return headers()
   }
 
-  Object header(String name) {
+  String header(String name) {
     notNull(name, "name")
     return responseHeaders.get(name)
   }
 
-  Object getHeader(String name) {
+  String getHeader(String name) {
     return header(name)
   }
 
   Map<String, String> cookies() {
-    return Collections.unmodifiableMap(cookies)
+    def cookieMap = [:]
+    cookies.each { cookie ->
+      cookieMap.put(cookie.name, cookie.value)
+    }
+    return Collections.unmodifiableMap(cookieMap)
   }
 
   Map<String, String> getCookies() {

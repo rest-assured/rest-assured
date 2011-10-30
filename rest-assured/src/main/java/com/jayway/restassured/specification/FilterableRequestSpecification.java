@@ -18,6 +18,8 @@ package com.jayway.restassured.specification;
 
 import com.jayway.restassured.authentication.AuthenticationScheme;
 import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.response.Cookies;
+import com.jayway.restassured.response.Headers;
 
 import java.util.List;
 import java.util.Map;
@@ -65,12 +67,12 @@ public interface FilterableRequestSpecification extends RequestSpecification {
     /**
      * @return The headers defined in the request
      */
-    Map<String, String> getHeaders();
+    Headers getHeaders();
 
     /**
      * @return The cookies defined in the request
      */
-    Map<String, String> getCookies();
+    Cookies getCookies();
 
     /**
      * @return The request body

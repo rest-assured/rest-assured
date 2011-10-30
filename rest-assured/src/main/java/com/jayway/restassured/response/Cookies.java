@@ -16,9 +16,10 @@
 
 package com.jayway.restassured.response;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.jayway.restassured.internal.MultiValueEntity;
+
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
@@ -28,11 +29,11 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull;
  */
 public class Cookies implements Iterable<Cookie> {
 
-    private final List<Cookie> cookies;
+    private final MultiValueEntity<Cookie> cookies;
 
     public Cookies(List<Cookie> cookies) {
         notNull(cookies, "Cookies");
-        this.cookies = cookies;
+        this.cookies = new MultiValueEntity<Cookie>(cookies);
     }
 
     /**
@@ -46,7 +47,24 @@ public class Cookies implements Iterable<Cookie> {
      * @return <code>true</code> if one or more cookies are defined, <code>false</code> otherwise.
      */
     public boolean exist() {
-        return !cookies.isEmpty();
+        return cookies.exist();
+    }
+
+    /**
+     * See if a cookie with the given name exists
+     *
+     * @param cookieName The name of the cookie to check
+     * @return <code>true</code> if the cookie exists
+     */
+    public boolean hasCookieWithName(String cookieName) {
+        return cookies.hasEntityWithName(cookieName);
+    }
+
+    /**
+     * @return All cookies as a list.
+     */
+    protected List<Cookie> list() {
+        return cookies.list();
     }
 
     /**
@@ -58,12 +76,7 @@ public class Cookies implements Iterable<Cookie> {
      */
     public Cookie get(String cookieName) {
         notNull(cookieName, "Cookie name");
-        for (Cookie cookie : cookies) {
-            if(cookie.getName().equals(cookieName)) {
-                return cookie;
-            }
-        }
-        return null;
+        return cookies.get(cookieName);
     }
 
     /**
@@ -74,17 +87,37 @@ public class Cookies implements Iterable<Cookie> {
      * @return The found cookies or empty list if no cookie was found.
      */
     public List<Cookie> multiGet(String cookieName) {
-        notNull(cookieName, "Cookie name");
-        final List<Cookie> cookieList = new ArrayList<Cookie>();
-        for (Cookie cookie : cookies) {
-            if(cookie.getName().equals(cookieName)) {
-                cookieList.add(cookie);
-            }
-        }
-        return Collections.unmodifiableList(cookieList);
+        return cookies.multiGet(cookieName);
     }
 
+    /**
+     * @return Cookies iterator
+     */
     public Iterator<Cookie> iterator() {
         return cookies.iterator();
+    }
+
+    /**
+     *  An alternative way to create a Cookies object from the constructor.
+     *
+     * @param cookie The cookie to be included
+     * @param additionalCookies Additional cookies to be included (optional)
+     * @return A new cookies object containing the specified cookies
+     */
+    public static Cookies cookies(Cookie cookie, Cookie... additionalCookies) {
+        notNull(cookie, "Cookie");
+        final List<Cookie> cookieList = new LinkedList<Cookie>();
+        cookieList.add(cookie);
+        if(cookieList != null) {
+            for (Cookie additionalCookie : additionalCookies) {
+                cookieList.add(additionalCookie);
+            }
+        }
+        return new Cookies(cookieList);
+    }
+
+    @Override
+    public String toString() {
+        return cookies.toString();
     }
 }

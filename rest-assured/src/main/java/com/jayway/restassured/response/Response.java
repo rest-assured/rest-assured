@@ -72,7 +72,7 @@ public interface Response extends ResponseBody {
      *
      * @return The response headers.
      */
-    <T> Map<String, T> headers();
+    Headers headers();
 
     /**
      * The response headers. If there are several response headers with the same name a list of
@@ -80,65 +80,68 @@ public interface Response extends ResponseBody {
      *
      * @return The response headers.
      */
-    <T> Map<String, T> getHeaders();
+    Headers getHeaders();
 
     /**
-     * Get a single header value associated with the given name. Usually returns a String but if the header exists more than once
-     * a List of the header values are returned.
+     * Get a single header value associated with the given name. If the header is a multi-value header then you need to use
+     * {@link Headers#multiGet(String)} in order to get all values.
      *
      *
      * @return The header value or <code>null</code> if value was not found.
      */
-    <T> T header(String name);
+    String header(String name);
 
     /**
-     * Get a single header value associated with the given name. Usually returns a String but if the header exists more than once
-     * a List of the header values are returned.
+     * Get a single header value associated with the given name. If the header is a multi-value header then you need to use
+     * {@link Headers#multiGet(String)} in order to get all values..
      *
      * @return The header value or <code>null</code> if value was not found.
      */
-    <T> T getHeader(String name);
+    String getHeader(String name);
 
     /**
-     * The response cookies simple name/value pair.
-     *
+     * The response cookies as simple name/value pair. It assumes that no cookies have the same name. If two cookies should never the less
+     * have the same name <i>the first cookie value</i> is used. If you want to return ALL cookies inlucding all the details such as Max-Age etc use
+     * {@link #detailedCookies()}.
      *
      * @return The response cookies.
      */
     Map<String, String> cookies();
 
     /**
-     * The response cookies with all the attributes
-     *
+     * The response cookies with all the attributes. It also gives you the possibility to get multi-value cookies.
      *
      * @return The response cookies.
      */
-    Map<String, Cookie> detailedCookies();
+    Cookies detailedCookies();
 
     /**
-     * The response cookies as simple name/value pair.
+     * The response cookies as simple name/value pair. It assumes that no cookies have the same name. If two cookies should never the less
+     * have the same name <i>the first cookie value</i> is used. If you want to return ALL cookies inlucding all the details such as Max-Age etc use
+     * {@link #getDetailedCookies()}.
      *
      * @return The response cookies.
      */
     Map<String, String> getCookies();
 
-
     /**
-     * The response cookies with all the attributes
+     * The response cookies with all the attributes. It also gives you the possibility to get multi-value cookies.
      *
      * @return The response cookies.
      */
-    Map<String, Cookie> getDetailedCookies();
+    Cookies getDetailedCookies();
 
     /**
-     * Get a single cookie value associated with the given name.
+     * Get a single cookie <i>value</i> associated with the given name. If you want more details than just
+     * the value use {@link #detailedCookie(String)}.
      *
      * @return The cookie value or <code>null</code> if value was not found.
      */
     String cookie(String name);
 
     /**
-     * Get a single cookie value associated with the given name.
+     * Get a single cookie <i>value</i> associated with the given name. If you want more details than just
+     * the value use {@link #getDetailedCookie(String)}.
      *
      * @return The cookie value or <code>null</code> if value was not found.
      */

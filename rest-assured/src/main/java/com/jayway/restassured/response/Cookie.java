@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.response;
 
-import org.apache.commons.lang.Validate;
+import com.jayway.restassured.internal.Nameable;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,8 +37,9 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull;
  * </pre>
  *
  * Credits: Some of the javadoc in this class is copied from the <code>org.apache.http.cookie.Cookie</code> class in <a href="http://hc.apache.org/">Apache HTTP Client</a>.
+ * and some (version and secured) from <a href="https://github.com/scalatra/scalatra">Scalatra</a>.
  */
-public class Cookie {
+public class Cookie implements Nameable {
     public static final String COMMENT = "Comment";
     public static final String PATH = "Path";
     public static final String DOMAIN = "Domain";
@@ -52,7 +53,7 @@ public class Cookie {
     private static final int UNDEFINED = -1;
 
     private final String name;
-    private final String value;
+    private final Object value;
     private final String comment;
     private final Date expiryDate;
     private final String domain;
@@ -61,7 +62,7 @@ public class Cookie {
     private final int version;
     private final int maxAge;
 
-    private Cookie(String name, String value, String comment, Date expiryDate,
+    private Cookie(String name, Object value, String comment, Date expiryDate,
                    String domain, String path, boolean secured, int version,
                    int maxAge) {
         this.name = name;
@@ -71,7 +72,7 @@ public class Cookie {
         this.domain = domain;
         this.path = path;
         this.secured = secured;
-        this.version = version;
+        this.version = version < 0 ? UNDEFINED : version;
         this.maxAge = maxAge;
     }
 
@@ -87,9 +88,9 @@ public class Cookie {
     /**
      * Returns the value.
      *
-     * @return String value The current value.
+     * @return The current value.
      */
-    public String getValue() {
+    public Object getValue() {
         return value;
     }
 
@@ -135,6 +136,22 @@ public class Cookie {
     }
 
     /**
+     * Indicates to the browser whether the cookie should only be sent using a secure protocol, such as HTTPS or SSL.
+     * @return <code>true</code> if this cookies is secured.
+     */
+    public boolean isSecured() {
+        return secured;
+    }
+
+    /**
+     * Gets the version of the cookie protocol this cookie complies with. Version 0 complies with the original Netscape cookie specification. Version 1 complies with RFC 2109.
+     * @return The version of this cookie or -1 if version is undefined.
+     */
+    public int getVersion() {
+        return version;
+    }
+
+    /**
      * Returns the maximum age of the cookie, specified in seconds,
      * By default, <code>-1</code> indicating the cookie will persist
      * until browser shutdown.
@@ -144,15 +161,51 @@ public class Cookie {
      *				cookie in seconds; if negative, means
      *				the cookie persists until browser shutdown
      */
-
     public int getMaxAge() {
         return maxAge;
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Cookie cookie = (Cookie) o;
+
+        if (maxAge != cookie.maxAge) return false;
+        if (secured != cookie.secured) return false;
+        if (version != cookie.version) return false;
+        if (comment != null ? !comment.equals(cookie.comment) : cookie.comment != null) return false;
+        if (domain != null ? !domain.equals(cookie.domain) : cookie.domain != null) return false;
+        if (expiryDate != null ? !expiryDate.equals(cookie.expiryDate) : cookie.expiryDate != null) return false;
+        if (name != null ? !name.equals(cookie.name) : cookie.name != null) return false;
+        if (path != null ? !path.equals(cookie.path) : cookie.path != null) return false;
+        if (value != null ? !value.equals(cookie.value) : cookie.value != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (value != null ? value.hashCode() : 0);
+        result = 31 * result + (comment != null ? comment.hashCode() : 0);
+        result = 31 * result + (expiryDate != null ? expiryDate.hashCode() : 0);
+        result = 31 * result + (domain != null ? domain.hashCode() : 0);
+        result = 31 * result + (path != null ? path.hashCode() : 0);
+        result = 31 * result + (secured ? 1 : 0);
+        result = 31 * result + version;
+        result = 31 * result + maxAge;
+        return result;
+    }
+
+    @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append(name).append(EQUALS).append(value);
+        builder.append(name);
+        if(value != null) {
+            builder.append(EQUALS).append(value);
+        }
         if(comment != null) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(COMMENT).append(EQUALS).append(comment);
         }
@@ -176,67 +229,99 @@ public class Cookie {
         if(version != UNDEFINED) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(VERSION).append(EQUALS).append(version);
         }
-        return super.toString();
+        return builder.toString();
     }
 
     public static class Builder {
         private final String name;
-        private final String value;
+        private final Object value;
         private String comment;
         private Date expiryDate;
         private String domain;
         private String path;
-        private boolean secured;
-        private int version;
-        private int maxAge;
+        private boolean secured = false;
+        private int version = UNDEFINED;
+        private int maxAge = UNDEFINED;
 
+        /**
+         * Create a cookie with no value
+         *
+         * @param name The name of the cookie
+         */
         public Builder(String name) {
             this(name, null);
         }
 
-        public Builder(String name, String value) {
+        /**
+         * Create a cookie with name and value
+         *
+         * @param name The name of the cookie
+         * @param value the cookie value
+         */
+        public Builder(String name, Object value) {
+            notNull(name, "Cookie name");
             this.name = name;
             this.value = value;
-            notNull(name, "Cookie name");
         }
 
+        /**
+         * Set the comment describing the purpose of this cookie.
+         *
+         * @param comment The comment
+         * @return The builder
+         */
         public Builder setComment(String comment) {
             notNull(name, "Cookie name");
             this.comment = comment;
             return this;
         }
 
+        /**
+         * Set the expiration {@link java.util.Date} of the cookie.
+         * @param date The date to set
+         * @return The builder
+         */
         public Builder setExpiryDate(Date date) {
             notNull(date, "Cookie expiry date");
             this.expiryDate = date;
             return this;
         }
 
+        /**
+         *  Set domain attribute of the cookie. The value of the Domain
+         * attribute specifies the domain for which the cookie is valid.
+
+         * @param domain The domain
+         * @return The builder
+         */
         public Builder setDomain(String domain) {
             notNull(domain, "Cookie domain");
             this.domain = domain;
             return this;
         }
 
+        /**
+         * Set the path attribute of the cookie. The value of the Path
+         * attribute specifies the subset of URLs on the origin server to which
+         * this cookie applies.
+         * @param path The path
+         * @return The builder
+         */
         public Builder setPath(String path) {
-            notNull(domain, "Cookie path");
+            notNull(path, "Cookie path");
             this.path = path;
             return this;
         }
 
-        public Builder setSecured(boolean secured) {
-            this.secured = secured;
-            return this;
-        }
-
-        public Builder setVersion(int version) {
-            if(version < 0) {
-                throw new IllegalArgumentException("Version cannot be less than 0");
-            }
-            this.version = version;
-            return this;
-        }
-
+        /**
+         * Set the maximum age of the cookie, specified in seconds,
+         * By default, <code>-1</code> indicating the cookie will persist
+         * until browser shutdown.
+         *
+         * @return	 an integer specifying the maximum age of the
+         *				cookie in seconds; if negative, means
+         *				the cookie persists until browser shutdown
+         */
         public Builder setMaxAge(int maxAge) {
             if(maxAge < 0) {
                 throw new IllegalArgumentException("Max-Age cannot be less than 0");
@@ -245,6 +330,39 @@ public class Cookie {
             return this;
         }
 
+
+        /**
+         * Indicates to the browser whether the cookie should only be sent using a secure protocol, such as HTTPS or SSL.
+         * The default value is false.
+         * @param secured <code>true</code> if sectured
+         * @return The builder
+         */
+        public Builder setSecured(boolean secured) {
+            this.secured = secured;
+            return this;
+        }
+
+        /**
+         Sets the version of the cookie protocol this cookie complies with. Version 0 complies with the original Netscape cookie specification. Version 1 complies with RFC 2109.
+         Since RFC 2109 is still somewhat new, consider version 1 as experimental; do not use it yet on production sites.
+         Parameters:
+         * @param version 0 if the cookie should comply with the original Netscape specification; 1 if the cookie should comply with RFC 2109
+         * @return The builder
+         */
+        public Builder setVersion(int version) {
+            if(version < 0) {
+                throw new IllegalArgumentException("Version cannot be less than 0");
+            } else if(version > 1) {
+                throw new IllegalArgumentException("Version cannot be greater than 1");
+            }
+            this.version = version;
+            return this;
+        }
+
+        /**
+         * Build a Cookie from the specified parameters.
+         * @return The Cookie
+         */
         public Cookie build() {
             return new Cookie(name, value, comment, expiryDate, domain, path, secured, version, maxAge);
         }

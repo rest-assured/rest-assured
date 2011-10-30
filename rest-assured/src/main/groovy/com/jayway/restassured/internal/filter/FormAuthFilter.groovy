@@ -28,7 +28,6 @@ import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.HTML
 import static java.lang.String.format
 
 class FormAuthFilter implements AuthFilter {
-  private static final String RESERVED_COOKIE_NAME = "Path"
   private static final String FIND_INPUT_TAG = "html.depthFirst().grep { it.name() == 'INPUT' && it.@type == '%s' }.collect { it.@name }"
   private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'FORM' }.get(0).@action"
 
@@ -54,12 +53,7 @@ class FormAuthFilter implements AuthFilter {
       passwordInputForm = config.getPasswordInputTagName()
     }
     final Response loginResponse = given().port(requestSpec.getPort()).with().auth().none().and().with().params(userNameInputForm, userName, passwordInputForm, password).then().post(formAction)
-    def cookies = [:]
-    cookies.putAll(loginResponse.getCookies())
-    if(cookies.containsKey(RESERVED_COOKIE_NAME)) {
-      cookies.remove(RESERVED_COOKIE_NAME)
-    }
-    requestSpec.cookies(cookies);
+    requestSpec.cookies(loginResponse.getDetailedCookies());
     return ctx.next(requestSpec, responseSpec);
   }
 

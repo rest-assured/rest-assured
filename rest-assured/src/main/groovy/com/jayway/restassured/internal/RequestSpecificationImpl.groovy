@@ -26,6 +26,8 @@ import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.RootFilter
 import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.mapper.ObjectMapper
+import com.jayway.restassured.response.Cookie
+import com.jayway.restassured.response.Cookies
 import com.jayway.restassured.response.Response
 import groovyx.net.http.HTTPBuilder.RequestConfigDelegate
 import java.util.Map.Entry
@@ -41,6 +43,7 @@ import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
 import org.apache.http.entity.mime.HttpMultipartMode
 import org.apache.http.entity.mime.MultipartEntity
+import org.apache.http.impl.cookie.BasicClientCookie
 import org.apache.http.message.BasicHeader
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.specification.*
@@ -49,9 +52,9 @@ import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
+import com.jayway.restassured.response.Headers
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
-  private static String KEY_ONLY_COOKIE_VALUE = "Rest Assured Key Only Cookie Value"
   private static final int DEFAULT_HTTPS_PORT = 443
   private static final int DEFAULT_HTTP_PORT = 80
   private static final String MULTIPART_FORM_DATA = "multipart/form-data"
@@ -69,7 +72,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private FilterableResponseSpecification responseSpecification;
   private Object contentType;
   private Map<String, Object> requestHeaders = [:]
-  private Map<String, Object> cookies = [:]
+  private Cookies cookies = new Cookies([])
   private Object requestBody;
   private List<Filter> filters = [];
   private KeystoreSpec keyStoreSpec
@@ -476,19 +479,39 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   RequestSpecification cookies(Map cookies) {
     notNull cookies, "cookies"
-    this.cookies += cookies;
+    def cookieList = []
+    if(this.cookies.exist()) {
+      cookieList.addAll(this.cookies.cookies)
+    }
+    cookies.each {
+      cookieList << new Cookie.Builder(it.key, it.value).build();
+    }
+    this.cookies = new Cookies(cookieList)
     return this;
   }
 
+  def RequestSpecification cookies(Cookies cookies) {
+    notNull cookies, "cookies"
+    def cookieList = []
+    if(this.cookies.exist()) {
+      cookieList.addAll(this.cookies.list())
+    }
+    cookieList.addAll(cookies.cookies.list())
+    this.cookies = new Cookies(cookieList)
+    this
+  }
+
   RequestSpecification cookie(String cookieName, Object value) {
-    notNull cookieName, "cookieName"
-    notNull value, "value"
-    cookies.put(cookieName, value)
-    return this
+    return cookie(new Cookie.Builder(cookieName, value).build())
+  }
+
+  def RequestSpecification cookie(Cookie cookie) {
+    notNull cookie, "Cookie"
+    return cookies(new Cookies(asList(cookie)));
   }
 
   def RequestSpecification cookie(String cookieName) {
-    cookie(cookieName, KEY_ONLY_COOKIE_VALUE)
+    cookie(cookieName, null)
   }
 
   RequestSpecification spec(RequestSpecification requestSpecificationToMerge) {
@@ -619,8 +642,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     responseSpecification.rpr.registerParsers(http, assertionClosure.requiresTextParsing())
     http.getHeaders() << requestHeaders
 
-    if(!cookies.isEmpty()) {
-      http.getHeaders() << [Cookie : cookies.collect{ defineRequestCookie(it) }.join("; ")]
+    if(cookies.exist()) {
+      cookies.each { raCookie ->
+        def cookieValue
+        if(http.getHeaders().containsKey("Cookie")) {
+          def list = [http.getHeaders().get("Cookie")] << raCookie.toString()
+          cookieValue = list.flatten()
+        } else {
+          cookieValue = raCookie.toString()
+        }
+        http.getHeaders() << [Cookie : cookieValue]
+      }
     }
 
     // Allow returning a the response
@@ -743,13 +775,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   private boolean shouldUrlEncode(method) {
     return POST.equals(method) || formParams.size() > 0
-  }
-
-  private def defineRequestCookie(Entry<String, String> it) {
-    if(it.value == KEY_ONLY_COOKIE_VALUE) {
-      return it.key
-    }
-    it.key + "=" + it.value
   }
 
   private boolean isFullyQualified(String targetUri) {
@@ -980,11 +1005,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return queryParams
   }
 
-  Map<String, String> getHeaders() {
+  Headers getHeaders() {
     return requestHeaders
   }
 
-  Map<String, String> getCookies() {
+  Cookies getCookies() {
     return cookies
   }
 

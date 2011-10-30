@@ -17,6 +17,7 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Cookies;
 import org.junit.Test;
 
 import java.util.Map;
@@ -28,6 +29,13 @@ public class CookieITest extends WithJetty {
     @Test
     public void test() throws Exception {
         final Map<String,String> cookies = get("/springCookie").cookies();
+
+        System.out.println(cookies);
+    }
+
+    @Test
+    public void test2() throws Exception {
+        final Cookies cookies = get("/springCookie").detailedCookies();
 
         System.out.println(cookies);
     }

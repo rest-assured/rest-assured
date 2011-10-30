@@ -1,0 +1,113 @@
+/*
+ * Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.jayway.restassured.internal;
+
+import com.jayway.restassured.response.Header;
+
+import java.util.*;
+
+import static com.jayway.restassured.assertion.AssertParameter.notNull;
+
+public class MultiValueEntity<T extends Nameable> implements Iterable<T> {
+
+    private final List<T> entities;
+
+    public MultiValueEntity(List<T> entities) {
+        notNull(entities, "Entities");
+        this.entities = entities;
+    }
+
+    /**
+     * @return The size of the entities
+     */
+    public int size() {
+        return entities.size();
+    }
+
+    /**
+     * @return <code>true</code> if one or more entities are defined, <code>false</code> otherwise.
+     */
+    public boolean exist() {
+        return !entities.isEmpty();
+    }
+
+    /**
+     * See if a entity with the given name exists
+     *
+     * @param entityName The name of the entity to check
+     * @return <code>true</code> if the entity exists
+     */
+    public boolean hasEntityWithName(String entityName) {
+        return get(entityName) != null;
+    }
+
+    public List<T> list() {
+        return Collections.unmodifiableList(entities);
+    }
+
+    /**
+     *  Get a single entity with the supplied name. If there are several entities match the <code>entityName</code> then
+     *  the first one is returned.
+     *
+     * @param entityName The name of the entity to find
+     * @return The found entity or <code>null</code> if no entity was found.
+     */
+    public T get(String entityName) {
+        notNull(entityName, "Entity name");
+        for (T entity : entities) {
+            if(entity.getName().equals(entityName)) {
+                return entity;
+            }
+        }
+        return null;
+    }
+
+    /**
+     *  Get all entities with the supplied name. If there's only one entity matching the <code>entityName</code> then
+     *  a list with only that entity is returned.
+     *
+     * @param entityName The name of the entity to find
+     * @return The found entities or empty list if no entity was found.
+     */
+    public List<T> multiGet(String entityName) {
+        notNull(entityName, "Entity name");
+        final List<T> entityList = new ArrayList<T>();
+        for (T entity : entities) {
+            if(entity.getName().equals(entityName)) {
+                entityList.add(entity);
+            }
+        }
+        return Collections.unmodifiableList(entityList);
+    }
+
+    public Iterator<T> iterator() {
+        return entities.iterator();
+    }
+
+    @Override
+    public String toString() {
+        if(!exist()) {
+            return "";
+        }
+        final StringBuilder builder = new StringBuilder();
+        for (T entity : entities) {
+            builder.append(entity).append("\n");
+        }
+        builder.deleteCharAt(builder.length()-1);
+        return builder.toString();
+    }
+}

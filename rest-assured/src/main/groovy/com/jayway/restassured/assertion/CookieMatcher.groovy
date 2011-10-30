@@ -44,25 +44,25 @@ class CookieMatcher {
   }
 
   private def getCookieValueOrThrowExceptionIfCookieIsMissing(cookieName,String cookies) {
-    def cookieMap = getCookies(cookies)
-    def cookie = cookieMap.get(cookieName)
+    def raCookies = getCookies(cookies)
+    def cookie = raCookies.get(cookieName)
     if (cookie == null) {
-      String cookiesAsString = "";
-      cookieMap.each { cookiesAsString += "\n$it.key = $it.value" }
+      String cookiesAsString = raCookies.toString()
       throw new AssertionError("Cookie \"$cookieName\" was not defined in the response. Cookies are: $cookiesAsString");
     }
     return cookie
 
   }
 
-  public static Cookies getCookies(cookies) {
-    if(!cookies) {
+  public static Cookies getCookies(headerWithCookieList) {
+    if(!headerWithCookieList) {
       throw new AssertionError("No cookies defined in the response")
     }
-    def Cookie.Builder cookieBuilder
-    println cookies
-    cookies.each {
-      def cookieStrings = it.split(";");
+    println headerWithCookieList
+    def cookieList = []
+    headerWithCookieList.collect {it.getValue()}.each {
+      def Cookie.Builder cookieBuilder
+      def cookieStrings = org.apache.commons.lang.StringUtils.split(it, ";");
       cookieStrings.eachWithIndex { part, index ->
         if(index == 0) {
           if(part.contains("=")) {
@@ -75,29 +75,32 @@ class CookieMatcher {
           def cookieAttributeAndValue = part.split("=")
           setCookieProperty(cookieBuilder, cookieAttributeAndValue[0], cookieAttributeAndValue[1])
         } else {
-          setCookieProperty(cookieBuilder, part)
+          setCookieProperty(cookieBuilder, part, null)
         }
       }
+      cookieList << cookieBuilder.build()
     }
-    return cookieBuilder.build()
+    return new Cookies(cookieList)
   }
 
   private static def setCookieProperty(Cookie.Builder builder, name, value) {
     name = trim(name);
-    if(equalsIgnoreCase(name, COMMENT)) {
-      builder.setComment(value)
-    } else if(equalsIgnoreCase(name, VERSION)) {
-      builder.setVersion()
-    } else if(equalsIgnoreCase(name, PATH)) {
-      builder.setPath(value)
-    } else if(equalsIgnoreCase(name, DOMAIN)) {
-      builder.setDomain(value)
-    } else if(equalsIgnoreCase(name, MAX_AGE)) {
-      builder.setMaxAge(Integer.parseInt(value))
-    } else if(equalsIgnoreCase(name, SECURED)) {
-      builder.setSecured(true)
-    } else if(equalsIgnoreCase(name, EXPIRES)) {
-      builder.setExpiryDate(DateUtils.parseDate(value))
+    if(value != null || name != SECURED) {
+      if(equalsIgnoreCase(name, COMMENT)) {
+        builder.setComment(value)
+      } else if(equalsIgnoreCase(name, VERSION)) {
+        builder.setVersion(value as Integer ?: -1 )
+      } else if(equalsIgnoreCase(name, PATH)) {
+        builder.setPath(value)
+      } else if(equalsIgnoreCase(name, DOMAIN)) {
+        builder.setDomain(value)
+      } else if(equalsIgnoreCase(name, MAX_AGE)) {
+        builder.setMaxAge(Integer.parseInt(value))
+      } else if(equalsIgnoreCase(name, SECURED)) {
+        builder.setSecured(true)
+      } else if(equalsIgnoreCase(name, EXPIRES)) {
+        builder.setExpiryDate(DateUtils.parseDate(value))
+      }
     }
   }
 }

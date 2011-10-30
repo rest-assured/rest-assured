@@ -18,6 +18,8 @@ package com.jayway.restassured.specification;
 
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.response.Cookie;
+import com.jayway.restassured.response.Cookies;
 import groovyx.net.http.ContentType;
 
 import java.io.File;
@@ -290,6 +292,27 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification cookies(Map<String, ?> cookies);
 
     /**
+     * Specify the cookies that'll be sent with the request as Cookies:
+     * <pre>
+     *  Cookie cookie Cookie.Builder("username", "John");
+     * Cookies cookies = new Cookies(cookie1, cookie2);
+     * given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
+     * </pre>
+     *
+     * This will send a GET request to "/cookie" with two cookies:
+     * <ol>
+     *   <li>username=John</li>
+     *   <li>token=1234</li>
+     * </ol>
+     * and expect that the response body is equal to "username, token".
+     *
+     *
+     * @param cookies The Map containing the cookie names and their values to set in the request.
+     * @return The request specification
+     */
+    RequestSpecification cookies(Cookies cookies);
+
+    /**
      * Specify a cookie that'll be sent with the request e.g:
      * <p>
      * <pre>
@@ -326,6 +349,22 @@ public interface RequestSpecification extends RequestSender {
      * @return The request specification
      */
     RequestSpecification cookie(String cookieName);
+
+    /**
+     * Specify a {@link Cookie} to send with the request.
+     * <p>
+     * <pre>
+     * Cookie someCookie = new Cookie.Builder("some_cookie"", "some_value").setSecured(true).build()
+     * given().cookie(someCookie).and().expect().body(equalTo("x")).when().get("/cookie");
+     * </pre>
+     * This will set the cookie <code>someCookie</code> in the GET request to "/cookie".
+     * </p>
+     *
+     * @see #cookies(com.jayway.restassured.response.Cookies)
+     * @param cookie The cookie to add to the request
+     * @return The request specification
+     */
+    RequestSpecification cookie(Cookie cookie);
 
     /**
      * Specify the parameters that'll be sent with the request. This is done by specifying the parameters in name-value pairs, e.g:

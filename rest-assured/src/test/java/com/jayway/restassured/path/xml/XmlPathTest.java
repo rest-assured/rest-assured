@@ -312,10 +312,6 @@ public class XmlPathTest {
     @Test
     public void getListReturnsListWhenNodeChildrenFound() {
         final List<String> groceries = from(XML).getList("shopping.category[0].item.name");
-
-        for (String grocery : groceries) {
-            System.out.println(grocery);
-        }
         assertThat(groceries, hasItems("Chocolate", "Coffee"));
     }
 
