@@ -19,11 +19,20 @@ package com.jayway.restassured.response;
 import com.jayway.restassured.assertion.AssertParameter;
 import com.jayway.restassured.internal.NameAndValue;
 
+/**
+ * Represents a HTTP header
+ */
 public class Header implements NameAndValue {
 
     private final String name;
     private final String value;
 
+    /**
+     * Create a new header with the given name and value.
+     *
+     * @param name The header name, cannot be null.
+     * @param value The value (can be null)
+     */
     public Header(String name, String value)  {
         AssertParameter.notNull(name, "Header name");
         this.name = name;

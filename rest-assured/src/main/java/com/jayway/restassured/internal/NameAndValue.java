@@ -16,6 +16,9 @@
 
 package com.jayway.restassured.internal;
 
+/**
+ * Interface that returns a name and a value
+ */
 public interface NameAndValue {
     String getName();
     String getValue();
