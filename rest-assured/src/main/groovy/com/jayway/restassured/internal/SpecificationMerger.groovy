@@ -17,7 +17,6 @@
 package com.jayway.restassured.internal
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull
-import com.jayway.restassured.response.Cookies
 
 class SpecificationMerger {
 

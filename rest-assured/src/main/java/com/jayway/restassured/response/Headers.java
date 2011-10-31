@@ -18,7 +18,6 @@ package com.jayway.restassured.response;
 
 import com.jayway.restassured.internal.MultiValueEntity;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -99,8 +98,8 @@ public class Headers implements Iterable<Header> {
      * @param headerName The name of the header to find
      * @return The found header values or empty list if no header was found.
      */
-    public List<String> multiGetValue(String headerName) {
-       return headers.multiGetValue(headerName);
+    public List<String> getValues(String headerName) {
+       return headers.getValues(headerName);
     }
 
     /**
@@ -110,8 +109,8 @@ public class Headers implements Iterable<Header> {
      * @param headerName The name of the header to find
      * @return The found headers or empty list if no header was found.
      */
-    public List<Header> multiGet(String headerName) {
-        return headers.multiGet(headerName);
+    public List<Header> getList(String headerName) {
+        return headers.getList(headerName);
     }
 
     /**

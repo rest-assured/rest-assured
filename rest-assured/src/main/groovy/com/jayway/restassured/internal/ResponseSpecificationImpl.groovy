@@ -367,7 +367,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
       }
 
       cookieAssertions.each { matcher ->
-        def cookies = response.getHeaders().multiGetValue("Set-Cookie")
+        def cookies = response.getHeaders().getValues("Set-Cookie")
         matcher.containsCookie(cookies)
       }
 

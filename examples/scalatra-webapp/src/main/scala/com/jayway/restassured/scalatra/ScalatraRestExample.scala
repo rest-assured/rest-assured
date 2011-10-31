@@ -169,9 +169,10 @@ class ScalatraRestExample extends ScalatraServlet {
 
   post("/reflect") {
     contentType = request.getContentType
+    val cookies = request.getCookies
+    cookies.foreach { response.addCookie(_) }
     request.body
   }
-
 
   put("/serializedJsonParameter") {
     val something = {params("something")}
@@ -278,7 +279,7 @@ class ScalatraRestExample extends ScalatraServlet {
     "OK"
   }
 
-  get("/springCookie") {
+  get("/multiCookie") {
     contentType = "text/plain"
     val cookie1: Cookie = new Cookie("cookie1", "cookieValue1")
     cookie1.setDomain("localhost")

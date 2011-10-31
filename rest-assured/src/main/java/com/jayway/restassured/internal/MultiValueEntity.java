@@ -16,8 +16,6 @@
 
 package com.jayway.restassured.internal;
 
-import com.jayway.restassured.response.Header;
-
 import java.util.*;
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
@@ -45,7 +43,7 @@ public class MultiValueEntity<T extends NameAndValue> implements Iterable<T> {
         return !entities.isEmpty();
     }
 
-    /**
+    /**                                               C
      * See if a entity with the given name exists
      *
      * @param entityName The name of the entity to check
@@ -100,7 +98,7 @@ public class MultiValueEntity<T extends NameAndValue> implements Iterable<T> {
      * @param entityName The name of the entity to find
      * @return The found entities or empty list if no entity was found.
      */
-    public List<T> multiGet(String entityName) {
+    public List<T> getList(String entityName) {
         notNull(entityName, "Entity name");
         final List<T> entityList = new ArrayList<T>();
         for (T entity : entities) {
@@ -118,8 +116,8 @@ public class MultiValueEntity<T extends NameAndValue> implements Iterable<T> {
      * @param entityName The name of the entity to find
      * @return The found entity values or empty list if no entity was found.
      */
-    public List<String> multiGetValue(String entityName) {
-        final List<T> list = multiGet(entityName);
+    public List<String> getValues(String entityName) {
+        final List<T> list = getList(entityName);
         final List<String> stringList = new LinkedList<String>();
         for (T entity : list) {
             stringList.add(entity.getValue());

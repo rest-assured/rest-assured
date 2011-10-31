@@ -18,8 +18,6 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.parsing.Parser;
-import com.jayway.restassured.response.Header;
-import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -27,7 +25,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.InputStream;
-import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.containsString;

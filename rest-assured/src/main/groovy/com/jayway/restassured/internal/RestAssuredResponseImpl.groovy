@@ -22,15 +22,10 @@ import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.path.json.JsonPath
 import com.jayway.restassured.path.xml.XmlPath
 import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
-import com.jayway.restassured.response.Response
-import com.jayway.restassured.response.ResponseBody
 import groovy.xml.StreamingMarkupBuilder
 import java.nio.charset.Charset
 import static com.jayway.restassured.assertion.AssertParameter.notNull
-import com.jayway.restassured.response.Cookie
-import com.jayway.restassured.response.Cookies
-import com.jayway.restassured.response.Headers
-import com.jayway.restassured.response.Header
+import com.jayway.restassured.response.*
 
 class RestAssuredResponseImpl implements Response {
   private static final String CANNOT_PARSE_MSG = "Failed to parse response."
@@ -77,7 +72,7 @@ class RestAssuredResponseImpl implements Response {
 
   def parseCookies() {
     if(headers.hasHeaderWithName("Set-Cookie")) {
-      cookies = CookieMatcher.getCookies(headers.multiGetValue("Set-Cookie"))
+      cookies = CookieMatcher.getCookies(headers.getValues("Set-Cookie"))
     }
   }
 
@@ -231,7 +226,9 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
   Map<String, String> cookies() {
     def cookieMap = [:]
     cookies.each { cookie ->
-      cookieMap.put(cookie.name, cookie.value)
+      if(!cookieMap.containsKey(cookie.name)) {
+        cookieMap.put(cookie.name, cookie.value)
+      }
     }
     return Collections.unmodifiableMap(cookieMap)
   }

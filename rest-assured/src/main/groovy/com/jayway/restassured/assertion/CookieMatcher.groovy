@@ -16,20 +16,13 @@
 
 package com.jayway.restassured.assertion
 
-import org.hamcrest.Matcher
 import com.jayway.restassured.response.Cookie
 import com.jayway.restassured.response.Cookies
-import org.apache.commons.lang.StringUtils
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase
-import static com.jayway.restassured.response.Cookie.COMMENT
-import static org.apache.commons.lang.StringUtils.trim
 import org.apache.http.impl.cookie.DateUtils
-import static com.jayway.restassured.response.Cookie.EXPIRES
-import static com.jayway.restassured.response.Cookie.SECURED
-import static com.jayway.restassured.response.Cookie.MAX_AGE
-import static com.jayway.restassured.response.Cookie.DOMAIN
-import static com.jayway.restassured.response.Cookie.PATH
-import static com.jayway.restassured.response.Cookie.VERSION
+import org.hamcrest.Matcher
+import static com.jayway.restassured.response.Cookie.*
+import static org.apache.commons.lang.StringUtils.equalsIgnoreCase
+import static org.apache.commons.lang.StringUtils.trim
 
 class CookieMatcher {
 

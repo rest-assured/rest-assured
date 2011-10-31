@@ -84,7 +84,7 @@ public interface Response extends ResponseBody {
 
     /**
      * Get a single header value associated with the given name. If the header is a multi-value header then you need to use
-     * {@link Headers#multiGet(String)} in order to get all values.
+     * {@link Headers#getList(String)} in order to get all values.
      *
      *
      * @return The header value or <code>null</code> if value was not found.
@@ -93,7 +93,7 @@ public interface Response extends ResponseBody {
 
     /**
      * Get a single header value associated with the given name. If the header is a multi-value header then you need to use
-     * {@link Headers#multiGet(String)} in order to get all values..
+     * {@link Headers#getList(String)} in order to get all values..
      *
      * @return The header value or <code>null</code> if value was not found.
      */
@@ -101,7 +101,7 @@ public interface Response extends ResponseBody {
 
     /**
      * The response cookies as simple name/value pair. It assumes that no cookies have the same name. If two cookies should never the less
-     * have the same name <i>the first cookie value</i> is used. If you want to return ALL cookies inlucding all the details such as Max-Age etc use
+     * have the same name <i>the first cookie value</i> is used. If you want to return ALL cookies including all the details such as Max-Age etc use
      * {@link #detailedCookies()}.
      *
      * @return The response cookies.

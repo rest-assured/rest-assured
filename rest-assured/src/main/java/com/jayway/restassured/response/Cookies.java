@@ -98,8 +98,8 @@ public class Cookies implements Iterable<Cookie> {
      * @param cookieName The name of the cookie to find
      * @return The found cookies or empty list if no cookie was found.
      */
-    public List<Cookie> multiGet(String cookieName) {
-        return cookies.multiGet(cookieName);
+    public List<Cookie> getList(String cookieName) {
+        return cookies.getList(cookieName);
     }
 
     /**
@@ -109,8 +109,8 @@ public class Cookies implements Iterable<Cookie> {
      * @param cookieName The name of the header to find
      * @return The found header values or empty list if no header was found.
      */
-    public List<String> multiGetValue(String cookieName) {
-        return cookies.multiGetValue(cookieName);
+    public List<String> getValues(String cookieName) {
+        return cookies.getValues(cookieName);
     }
 
     /**

@@ -328,12 +328,16 @@ public interface RequestSpecification extends RequestSender {
      * </pre>
      * </p>
      *
+     * If you specify <code>additionalValues</code> then the Cookie will be multi-value cookie. This means that you'll create several cookies with the
+     * same name but with different values.
+     *
      * @see #cookies(String, Object, Object...)
      * @param cookieName The cookie cookieName
      * @param value The cookie value
+     * @param additionalValues Additional cookies values. This will actually create two cookies with the same name but with different values.
      * @return The request specification
      */
-    RequestSpecification cookie(String cookieName, Object value);
+    RequestSpecification cookie(String cookieName, Object value, Object...additionalValues);
 
     /**
      * Specify a cookie with no value that'll be sent with the request e.g:
@@ -351,7 +355,7 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification cookie(String cookieName);
 
     /**
-     * Specify a {@link Cookie} to send with the request.
+     * Specify  {@link Cookie} to send with the request.
      * <p>
      * <pre>
      * Cookie someCookie = new Cookie.Builder("some_cookie"", "some_value").setSecured(true).build()

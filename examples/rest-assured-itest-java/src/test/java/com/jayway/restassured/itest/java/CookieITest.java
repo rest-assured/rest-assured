@@ -21,36 +21,44 @@ import com.jayway.restassured.response.Cookies;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.get;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
+import static com.jayway.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class CookieITest extends WithJetty {
 
     @Test
-    public void test() throws Exception {
-        final Map<String,String> cookies = get("/springCookie").cookies();
+    public void cookiesReturnsAMapWhereTheFirstValueOfAMultiValueCookieIsUsed() throws Exception {
+        final Map<String,String> cookies = get("/multiCookie").cookies();
 
-        System.out.println(cookies);
+        assertThat(cookies, hasEntry("cookie1", "cookieValue1"));
     }
 
     @Test
-    public void test2() throws Exception {
-        final Cookies cookies = get("/springCookie").detailedCookies();
+    public void detailedCookiesAllowsToGetMultiValues() throws Exception {
+        final Cookies cookies = get("/multiCookie").detailedCookies();
 
-        System.out.println(cookies);
+        assertThat(cookies.getValues("cookie1"), hasItems("cookieValue1", "cookieValue2"));
     }
 
     @Test
-    public void test3() throws Exception {
-        expect().cookie("cookie1", equalTo("cookieValue1")).when().get("/springCookie");
+    public void whenUsingTheDslAndExpectingAMultiValueCookieThenTheFirstValueIsUsed() throws Exception {
+        expect().cookie("cookie1", equalTo("cookieValue1")).when().get("/multiCookie");
     }
 
-    public void supportsCookieStringMatching() throws Exception {
-        expect().response().cookie("key1", "value1").when().get("/setCookies");
+    @Test
+    public void supportsCookieStringMatchingUsingTheDsl() throws Exception {
+        expect().cookie("key1", "value1").when().get("/setCookies");
+    }
+
+    @Test
+    public void canSpecifyMultiValueCookiesUsingByPassingInSeveralValuesToTheCookieMethod() throws Exception {
+        final List<String> cookieValues = given().cookie("key1", "value1", "value2").when().post("/reflect").detailedCookies().getValues("key1");
+
+        assertThat(cookieValues, hasItems("value1", "value2"));
     }
 
     @Test
