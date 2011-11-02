@@ -393,9 +393,17 @@ class ScalatraRestExample extends ScalatraServlet {
       val name = headerNames.nextElement.toString
       val headerValues = request.getHeaders(name)
       while(headerValues.hasMoreElements) {
-        response.addHeader(name, headerValues.nextElement().toString)
+        val headerValue: String = headerValues.nextElement().toString
+        response.addHeader(name, headerValue)
       }
     }
+  }
+
+  get("/multiValueHeader") {
+    contentType = "text/plain"
+    response.addHeader("MultiHeader", "Value 1")
+    response.addHeader("MultiHeader", "Value 2")
+    ""
   }
 
   post("/cookie") {

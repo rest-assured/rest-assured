@@ -10,7 +10,8 @@ Change log next version
           post("/somewhere");
   (issue 127).
 * Fixed a bug with multi-value form parameters when using PUT.
-* You can now create multi-value cookies using: given().cookie("cookieName", "value1", "value2")... This will create TWO cookies, "cookieName=value1" and "cookieName=value2".
+* You can now create multi-value headers using e.g.: given().header("headerName", "value1", "value2")... This will create TWO headers, "headerName=value1" and "headerName=value2".
+* You can now create multi-value cookies using e.g.: given().cookie("cookieName", "value1", "value2")... This will create TWO cookies, "cookieName=value1" and "cookieName=value2".
 * Fixed a bug in the specification merger which caused FormAuthFilters to be applied twice if using multiple specifications with form auth.
 * Non-backward compatible changes:
   Response.header(..) and Response.getHeader(..) no longer returns a String, it returns type T. T is usually a String but it can also be a List if several headers with the same name exists.

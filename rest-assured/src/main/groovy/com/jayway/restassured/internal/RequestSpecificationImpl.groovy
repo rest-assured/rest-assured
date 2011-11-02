@@ -729,7 +729,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       if (httpHeaders.containsKey(headerName)) {
         def values = [httpHeaders.get(headerName)];
         values << headerValue
-        httpHeaders.put(headerName, values.flatten())
+        def headerVal = values.flatten()
+        httpHeaders.put(headerName, headerVal)
       } else {
         httpHeaders.put(headerName, headerValue)
       }
@@ -1065,8 +1066,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
 /**
- * A copy of HTTP builders doRequest method with one exception. The exception is that
- * the entity's content is not closed if no body matchers are specified.
+ * A copy of HTTP builders doRequest method with two exceptions.
+ * <ol>
+ *  <li>The exception is that the entity's content is not closed if no body matchers are specified.</li>
+ *  <li>If headers contain a list of elements the headers are added and not overridden</li>
+ *  </ol>
  */
   private Object restAssuredDoRequest(HTTPBuilder httpBuilder, RequestConfigDelegate delegate) {
     final HttpRequestBase reqMethod = delegate.getRequest();
@@ -1087,8 +1091,19 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     for ( Object key : headers.keySet() ) {
       Object val = headers.get( key );
       if ( key == null ) continue;
-      if ( val == null ) reqMethod.removeHeaders( key.toString() );
-      else reqMethod.setHeader( key.toString(), val.toString() );
+      if ( val == null ) {
+        reqMethod.removeHeaders( key.toString() )
+      } else {
+        def keyAsString = key.toString()
+        if(val instanceof Collection) {
+          val = val.flatten().collect { it?.toString() }
+          val.each {
+            reqMethod.addHeader(keyAsString, it )
+          }
+        } else {
+          reqMethod.setHeader( keyAsString, val.toString() );
+        }
+      }
     }
 
     final HttpResponseDecorator resp = new HttpResponseDecorator(

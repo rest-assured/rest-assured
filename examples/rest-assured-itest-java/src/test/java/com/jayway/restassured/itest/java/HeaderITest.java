@@ -17,25 +17,51 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Header;
+import com.jayway.restassured.response.Headers;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class HeaderITest extends WithJetty {
+
     @Test
     public void requestSpecificationAllowsSpecifyingHeader() throws Exception {
         given().header("MyHeader", "Something").and().expect().body(containsString("MyHeader")).when().get("/header");
     }
 
     @Test
+    public void allowsParsingMultiValueHeaders() throws Exception {
+        final List<String> headers = given().header("MyHeader", "Something", "Something else").when().get("/multiValueHeader").headers().getValues("MultiHeader");
+
+        assertThat(headers, hasItems("Value 1", "Value 2"));
+    }
+
+    @Test
     public void requestSpecificationAllowsSpecifyingMultiValueHeaders() throws Exception {
-        given().header("MyHeader", "Something", "Something else").and().expect().body(containsString("MyHeader")).when().get("/multiHeaderReflect");
+        final List<String> myHeaderValues = given().header("MyHeader", "Something", "Something else").when().get("/multiHeaderReflect").headers().getValues("MyHeader");
+
+        assertThat(myHeaderValues.size(), is(2));
+        assertThat(myHeaderValues, hasItems("Something", "Something else"));
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingHeadersObject() throws Exception {
+        final Header header1 = new Header("MyHeader", "Something");
+        final Header header2 = new Header("MyHeader", "Something else");
+        final Headers headers = new Headers(header1, header2);
+
+        final List<String> myHeaderValues = given().headers(headers).when().get("/multiHeaderReflect").headers().getValues("MyHeader");
+
+        assertThat(myHeaderValues.size(), is(2));
+        assertThat(myHeaderValues, hasItems("Something", "Something else"));
     }
 
     @Test
