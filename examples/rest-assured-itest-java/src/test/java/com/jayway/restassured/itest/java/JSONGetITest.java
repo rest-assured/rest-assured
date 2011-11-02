@@ -68,6 +68,17 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
+    public void queryParamWithBooleanWorks() throws Exception {
+        given().
+                queryParam("firstName", true).
+                queryParam("lastName", false).
+        expect().
+                 body("greeting", equalTo("Greetings true false")).
+        when().
+                 get("/greet");
+    }
+
+    @Test
     public void parameterSupportWithMapBuilder() throws Exception {
         with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
