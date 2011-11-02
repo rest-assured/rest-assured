@@ -1098,6 +1098,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       return false
     }
     def clazz = object.getClass()
-    return !(Number.class.isAssignableFrom(clazz) || String.class.isAssignableFrom(clazz) || GString.class.isAssignableFrom(clazz))
+    return !(Number.class.isAssignableFrom(clazz) || String.class.isAssignableFrom(clazz)
+            || GString.class.isAssignableFrom(clazz) || Boolean.class.isAssignableFrom(clazz)
+            || Character.class.isAssignableFrom(clazz));
   }
 }
