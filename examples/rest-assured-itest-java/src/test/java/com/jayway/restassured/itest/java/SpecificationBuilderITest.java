@@ -218,7 +218,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsMergingRequestSpecsUsingTheBuilder() throws Exception {
+    public void supportsMergingRequestSpecHeadersUsingTheBuilder() throws Exception {
         final RequestSpecification spec = given().header("header2", "value2");
         final RequestSpecification spec2 = new RequestSpecBuilder().addHeader("header1", "value1").addRequestSpecification(spec).build();
 

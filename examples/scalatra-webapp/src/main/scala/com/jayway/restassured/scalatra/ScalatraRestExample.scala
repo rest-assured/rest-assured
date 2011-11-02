@@ -22,8 +22,8 @@ import xml.Elem
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import collection.mutable.ListBuffer
-import java.util.Date
 import javax.servlet.http.Cookie
+import java.util.{Enumeration, Date}
 
 class ScalatraRestExample extends ScalatraServlet {
   // To allow for json extract
@@ -170,7 +170,9 @@ class ScalatraRestExample extends ScalatraServlet {
   post("/reflect") {
     contentType = request.getContentType
     val cookies = request.getCookies
-    cookies.foreach { response.addCookie(_) }
+    if(cookies != null) {
+      cookies.foreach { response.addCookie(_) }
+    }
     request.body
   }
 
@@ -382,6 +384,18 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/header") {
     getHeaders
+  }
+
+  get("/multiHeaderReflect") {
+    contentType = "text/plain"
+    val headerNames = request.getHeaderNames()
+    while(headerNames.hasMoreElements()) {
+      val name = headerNames.nextElement.toString
+      val headerValues = request.getHeaders(name)
+      while(headerValues.hasMoreElements) {
+        response.addHeader(name, headerValues.nextElement().toString)
+      }
+    }
   }
 
   post("/cookie") {

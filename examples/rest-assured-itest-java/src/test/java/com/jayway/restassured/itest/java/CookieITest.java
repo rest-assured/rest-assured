@@ -127,4 +127,34 @@ public class CookieITest extends WithJetty {
         expect().response().cookie("Not-Defined", "something").when().get("/setCookies");
     }
 
+    @Test
+    public void requestSpecificationAllowsSpecifyingCookieWithNoValue() throws Exception {
+        given().cookie("some_cookie").expect().body(equalTo("some_cookie")).when().get("/cookie_with_no_value");
+    }
+
+    @Test
+    public void responseSpecificationAllowsParsingCookieWithNoValue() throws Exception {
+        expect().cookie("PLAY_FLASH").when().get("/response_cookie_with_no_value");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingCookies() throws Exception {
+        given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().get("/cookie");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingCookieUsingMap() throws Exception {
+        Map<String, String> cookies = new HashMap<String, String>();
+        cookies.put("username", "John");
+        cookies.put("token", "1234");
+        given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingMultipleCookies() throws Exception {
+        Map<String, String> cookies = new HashMap<String, String>();
+        cookies.put("username", "John");
+        cookies.put("token", "1234");
+        given().cookies(cookies).and().cookies("key1", "value1").then().expect().body(equalTo("username, token, key1")).when().get("/cookie");
+    }
 }

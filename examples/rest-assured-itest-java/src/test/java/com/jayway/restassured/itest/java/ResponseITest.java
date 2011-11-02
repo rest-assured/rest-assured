@@ -103,7 +103,6 @@ public class ResponseITest extends WithJetty {
         final Response response = get("/setCookies");
         assertEquals(7, response.getHeaders().size());
         assertEquals(7, response.headers().size());
-        System.out.println(response.headers());
         assertEquals("text/plain; charset=utf-8", response.getHeader("Content-Type"));
         final String server = response.header("Server");
         assertThat(server, containsString("Jetty"));

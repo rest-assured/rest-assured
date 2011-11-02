@@ -36,7 +36,6 @@ import java.util.regex.Matcher
 import java.util.regex.Pattern
 import org.apache.commons.lang.StringUtils
 import org.apache.commons.lang.Validate
-import org.apache.http.Header
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpPost
@@ -52,6 +51,7 @@ import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
+import com.jayway.restassured.response.Header
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static final int DEFAULT_HTTPS_PORT = 443
@@ -70,7 +70,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   def AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private FilterableResponseSpecification responseSpecification;
   private Object contentType;
-  private Map<String, Object> requestHeaders = [:]
+  private Headers requestHeaders = new Headers([])
   private Cookies cookies = new Cookies([])
   private Object requestBody;
   private List<Filter> filters = [];
@@ -457,15 +457,43 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   RequestSpecification headers(Map headers) {
     notNull headers, "headers"
-    this.requestHeaders += headers;
+    def headerList = []
+    if(this.requestHeaders.exist()) {
+      headerList.addAll(this.requestHeaders.list())
+    }
+    headers.each {
+      headerList << new Header(it.key, it.value)
+    }
+    this.requestHeaders = new Headers(headerList)
     return this;
   }
 
-  RequestSpecification header(String headerName, Object headerValue) {
-    notNull headerName, "headerName"
-    notNull headerValue, "headerValue"
-    requestHeaders.put(headerName, headerValue);
-    return this
+  RequestSpecification headers(Headers headers) {
+    notNull headers, "headers"
+    def headerList = []
+    if(headers.exist() && this.requestHeaders.exist()) {
+      headerList.addAll(this.requestHeaders.list())
+    }
+
+    headerList.addAll(headers.headers.list())
+    this.requestHeaders = new Headers(headerList)
+    this
+  }
+
+  RequestSpecification header(String headerName, Object headerValue, Object...additionalHeaderValues) {
+    notNull headerName, "Header name"
+    notNull headerValue, "Header value"
+    def headerList = [new Header(headerName, serializeIfNeeded(headerValue))]
+    additionalHeaderValues?.each {
+      headerList << new Header(headerName, serializeIfNeeded(it))
+    }
+
+    return headers(new Headers(headerList))
+  }
+
+  def RequestSpecification header(Header header) {
+    notNull header, "Header"
+    return headers(new Headers(asList(header)));
   }
 
   RequestSpecification headers(String firstHeaderName, Object firstHeaderValue, Object... headerNameValuePairs) {
@@ -505,7 +533,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   RequestSpecification cookie(String cookieName, Object value, Object...additionalValues) {
     notNull cookieName, "Cookie name"
-    notNull value, "Cookie value"
     def cookieList = [new Cookie.Builder(cookieName, serializeIfNeeded(value)).build()]
     additionalValues?.each {
       cookieList << new Cookie.Builder(cookieName, serializeIfNeeded(it)).build()
@@ -635,7 +662,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             if(entity != null) {
               resp.setEntity(new HttpEntityWrapper(entity) {
                 @Override
-                Header getContentType() {
+                org.apache.http.Header getContentType() {
                   return new BasicHeader(CONTENT_TYPE, definedDefaultParser.getContentType())
                 }
               })
@@ -649,7 +676,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     RestAssuredParserRegistry.responseSpecification = responseSpecification
     http.setParserRegistry(new RestAssuredParserRegistry())
     responseSpecification.rpr.registerParsers(http, assertionClosure.requiresTextParsing())
-    http.getHeaders() << requestHeaders
+    setRequestHeadersToHttpBuilder(http)
 
     if(cookies.exist()) {
       http.getHeaders() << [Cookie : cookies.collect { it.toString() }.join("; ")]
@@ -692,6 +719,21 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       sendHttpRequest(http, method, responseContentType, targetPath, assertionClosure)
     }
     return restAssuredResponse
+  }
+
+  def setRequestHeadersToHttpBuilder(HTTPBuilder http) {
+    def httpHeaders = http.getHeaders();
+    requestHeaders.each { header ->
+      def headerName = header.getName()
+      def headerValue = header.getValue()
+      if (httpHeaders.containsKey(headerName)) {
+        def values = [httpHeaders.get(headerName)];
+        values << headerValue
+        httpHeaders.put(headerName, values.flatten())
+      } else {
+        httpHeaders.put(headerName, headerValue)
+      }
+    }
   }
 
   private def createBodyContent(bodyContent) {
@@ -1022,10 +1064,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return contentType != null ? contentType instanceof String ? contentType : contentType.toString() : ANY.toString()
   }
 
-  /**
-   * A copy of HTTP builders doRequest method with one exception. The exception is that
-   * the entity's content is not closed if no body matchers are specified.
-   */
+/**
+ * A copy of HTTP builders doRequest method with one exception. The exception is that
+ * the entity's content is not closed if no body matchers are specified.
+ */
   private Object restAssuredDoRequest(HTTPBuilder httpBuilder, RequestConfigDelegate delegate) {
     final HttpRequestBase reqMethod = delegate.getRequest();
 
@@ -1071,7 +1113,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
               returnVal = responseClosure.call( resp,  httpBuilder.parseResponse( resp, contentType ));
             }
           } catch ( Exception ex ) {
-            Header h = entity.getContentType();
+            org.apache.http.Header h = entity.getContentType();
             String respContentType = h != null ? h.getValue() : null;
             throw new ResponseParseException( resp, ex );
           }

@@ -91,8 +91,9 @@ class SpecificationMerger {
     thisOne.authenticationScheme = with.authenticationScheme
     thisOne.keyStoreSpec = with.keyStoreSpec
     thisOne.contentType = with.contentType
-    thisOne.requestHeaders.putAll(with.requestHeaders)
-    // TODO Merge cookies
+    // TODO Merge or overwrite headers?
+    thisOne.requestHeaders = with.requestHeaders
+    // TODO Merge or overwrite cookies?
     thisOne.cookies = with.cookies
     thisOne.requestBody = with.requestBody
     mergeFilters(thisOne, with)

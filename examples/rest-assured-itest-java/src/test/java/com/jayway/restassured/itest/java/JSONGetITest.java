@@ -201,77 +201,6 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void supportsHeaderStringMatching() throws Exception {
-        expect().response().header("Content-Type", "application/json; charset=UTF-8").when().get("/lotto");
-    }
-
-    @Test
-    public void multipleHeaderStatementsAreConcatenated() throws Exception {
-        expect().response().header("Content-Type", "application/json; charset=UTF-8").and().header("Content-Length", "160").when().get("/lotto");
-    }
-
-    @Test
-    public void multipleHeadersShortVersionUsingPlainStrings() throws Exception {
-        expect().response().headers("Content-Type", "application/json; charset=UTF-8", "Content-Length", "160").when().get("/lotto");
-    }
-
-    @Test
-    public void multipleHeadersShortVersionUsingHamcrestMatching() throws Exception {
-        expect().response().headers("Content-Type", containsString("application/json"), "Content-Length", equalTo("160")).when().get("/lotto");
-    }
-
-    @Test
-    public void multipleHeadersShortVersionUsingMixOfHamcrestMatchingAndStringMatching() throws Exception {
-        expect().response().headers("Content-Type", containsString("application/json"), "Content-Length", "160").when().get("/lotto");
-    }
-
-    @Test
-    public void multipleHeadersUsingMap() throws Exception {
-        Map expectedHeaders = new HashMap();
-        expectedHeaders.put("Content-Type", "application/json; charset=UTF-8");
-        expectedHeaders.put("Content-Length", "160");
-
-        expect().response().headers(expectedHeaders).when().get("/lotto");
-    }
-
-    @Test
-    public void multipleHeadersUsingMapWithHamcrestMatcher() throws Exception {
-        Map expectedHeaders = new HashMap();
-        expectedHeaders.put("Content-Type", containsString("application/json; charset=UTF-8"));
-        expectedHeaders.put("Content-Length", equalTo("160"));
-
-        expect().response().headers(expectedHeaders).when().get("/lotto");
-    }
-
-    @Test
-    public void multipleHeadersUsingMapWithMixOfStringAndHamcrestMatcher() throws Exception {
-        Map expectedHeaders = new HashMap();
-        expectedHeaders.put("Content-Type", containsString("application/json; charset=UTF-8"));
-        expectedHeaders.put("Content-Length", "160");
-
-        expect().response().headers(expectedHeaders).when().get("/lotto");
-    }
-
-    @Test
-    public void whenExpectedHeaderDoesntMatchAnAssertionThenAssertionErrorIsThrown() throws Exception {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(containsString("Expected header \"Content-Length\" was not \"161\", was \"160\". Headers are:"));
-
-        expect().response().header("Content-Length", "161").when().get("/lotto");
-    }
-
-    @Test
-    public void whenExpectedHeaderIsNotFoundThenAnAssertionErrorIsThrown() throws Exception {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("Expected header \"Not-Defined\" was not \"160\", was \"null\". Headers are:\n" +
-                "Content-Type=application/json; charset=UTF-8\n" +
-                "Content-Length=160\n" +
-                "Server=Jetty(6.1.14)"));
-
-        expect().response().header("Not-Defined", "160").when().get("/lotto");
-    }
-
-    @Test
     public void whenMixingBodyMatchersRequiringContentTypeTextAndContentTypeAnyThenAnIllegalStateExceptionIsThrown() throws Exception {
         exception.expect(IllegalStateException.class);
         exception.expectMessage(equalTo("Currently you cannot mix body expectations that require different content types for matching.\n" +
@@ -347,22 +276,6 @@ public class JSONGetITest extends WithJetty {
         given(requestSpecification, responseSpecification).get("/greet");
     }
 
-    @Test
-    public void requestSpecificationAllowsSpecifyingHeader() throws Exception {
-        given().header("MyHeader", "Something").and().expect().body(containsString("MyHeader")).when().get("/header");
-    }
-
-    @Test
-    public void requestSpecificationAllowsSpecifyingHeaders() throws Exception {
-        given().headers("MyHeader", "Something").and().expect().body(containsString("MyHeader")).when().get("/header");
-    }
-
-    @Test
-    public void requestSpecificationAllowsSpecifyingMultipleHeaders() throws Exception {
-        given().header("MyHeader", "Something").and().headers("MyHeader2", "Something else", "MyHeader3", "H").and().
-                expect().body(containsString("MyHeader"), containsString("MyHeader2"), containsString("MyHeader3")).when()
-                .get("/header");
-    }
 
     @Test
     public void requestSpecificationAllowsSpecifyingCookie() throws Exception {
@@ -372,37 +285,6 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void supportsValidatingCookiesWithNoValue() throws Exception {
         expect().cookie("some_cookie").when().get("/key_only_cookie");
-    }
-
-    @Test
-    public void requestSpecificationAllowsSpecifyingCookieWithNoValue() throws Exception {
-        given().cookie("some_cookie").expect().body(equalTo("some_cookie")).when().get("/cookie_with_no_value");
-    }
-
-    @Test
-    public void responseSpecificationAllowsParsingCookieWithNoValue() throws Exception {
-        expect().cookie("PLAY_FLASH").when().get("/response_cookie_with_no_value");
-    }
-
-    @Test
-    public void requestSpecificationAllowsSpecifyingCookies() throws Exception {
-        given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().get("/cookie");
-    }
-
-    @Test
-    public void requestSpecificationAllowsSpecifyingCookieUsingMap() throws Exception {
-        Map<String, String> cookies = new HashMap<String, String>();
-        cookies.put("username", "John");
-        cookies.put("token", "1234");
-        given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
-    }
-
-    @Test
-    public void requestSpecificationAllowsSpecifyingMultiple() throws Exception {
-        Map<String, String> cookies = new HashMap<String, String>();
-        cookies.put("username", "John");
-        cookies.put("token", "1234");
-        given().cookies(cookies).and().cookies("key1", "value1").then().expect().body(equalTo("username, token, key1")).when().get("/cookie");
     }
 
     @Test

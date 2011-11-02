@@ -20,6 +20,8 @@ import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
+import com.jayway.restassured.response.Header;
+import com.jayway.restassured.response.Headers;
 import groovyx.net.http.ContentType;
 
 import java.io.File;
@@ -292,9 +294,10 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification cookies(Map<String, ?> cookies);
 
     /**
-     * Specify the cookies that'll be sent with the request as Cookies:
+     * Specify the cookies that'll be sent with the request as {@link Cookies}:
      * <pre>
-     *  Cookie cookie Cookie.Builder("username", "John");
+     * Cookie cookie1 =  Cookie.Builder("username", "John");
+     * Cookie cookie2 =  Cookie.Builder("token", 1234);
      * Cookies cookies = new Cookies(cookie1, cookie2);
      * given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
      * </pre>
@@ -306,8 +309,7 @@ public interface RequestSpecification extends RequestSender {
      * </ol>
      * and expect that the response body is equal to "username, token".
      *
-     *
-     * @param cookies The Map containing the cookie names and their values to set in the request.
+     * @param cookies The cookies to set in the request.
      * @return The request specification
      */
     RequestSpecification cookies(Cookies cookies);
@@ -328,7 +330,7 @@ public interface RequestSpecification extends RequestSender {
      * </pre>
      * </p>
      *
-     * If you specify <code>additionalValues</code> then the Cookie will be multi-value cookie. This means that you'll create several cookies with the
+     * If you specify <code>additionalValues</code> then the Cookie will be a multi-value cookie. This means that you'll create several cookies with the
      * same name but with different values.
      *
      * @see #cookies(String, Object, Object...)
@@ -355,10 +357,10 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification cookie(String cookieName);
 
     /**
-     * Specify  {@link Cookie} to send with the request.
+     * Specify  a {@link Cookie} to send with the request.
      * <p>
      * <pre>
-     * Cookie someCookie = new Cookie.Builder("some_cookie"", "some_value").setSecured(true).build()
+     * Cookie someCookie = new Cookie.Builder("some_cookie"", "some_value").setSecured(true).build();
      * given().cookie(someCookie).and().expect().body(equalTo("x")).when().get("/cookie");
      * </pre>
      * This will set the cookie <code>someCookie</code> in the GET request to "/cookie".
@@ -909,6 +911,27 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification headers(Map<String, ?> headers);
 
     /**
+     * Specify the headers that'll be sent with the request as {@link Headers}, e.g:
+     * <pre>
+     * Header first = new Header("headerName1", "headerValue1");
+     * Header second = new Header("headerName2", "headerValue2");
+     * Headers headers = new Header(first, second);
+     * given().headers(headers).then().expect().body(equalTo("something")).when().get("/headers");
+     * </pre>
+     *
+     * This will send a GET request to "/headers" with two headers:
+     * <ol>
+     *   <li>headerName1=headerValue1</li>
+     *   <li>headerName2=headerValue2</li>
+     * </ol>
+     * and expect that the response body is equal to "something".
+     *
+     * @param headers The headers to use in the request
+     * @return The request specification
+     */
+    RequestSpecification headers(Headers headers);
+
+    /**
      * Specify a header that'll be sent with the request e.g:
      * <p>
      * <pre>
@@ -924,12 +947,33 @@ public interface RequestSpecification extends RequestSender {
      * </pre>
      * </p>
      *
+     * If you specify <code>additionalHeaderValues</code> then the Header will be a multi-value header. This means that you'll create several headers with the
+     * same name but with different values.
+     *
+     *
      * @see #headers(String, Object, Object...)
      * @param headerName The header name
      * @param headerValue The header value
+     * @param additionalHeaderValues Additional header values. This will actually create two headers with the same name but with different values.
      * @return The request specification
      */
-    RequestSpecification header(String headerName, Object headerValue);
+    RequestSpecification header(String headerName, Object headerValue, Object...additionalHeaderValues);
+
+    /**
+     * Specify  a {@link Header} to send with the request.
+     * <p>
+     * <pre>
+     * Header someHeader = new Header("some_name"", "some_value");
+     * given().header(someHeader).and().expect().body(equalTo("x")).when().get("/header");
+     * </pre>
+     * This will set the header <code>some_name=some_value</code> in the GET request to "/header".
+     * </p>
+     *
+     * @see #headers(com.jayway.restassured.response.Headers)
+     * @param header The header to add to the request
+     * @return The request specification
+     */
+    RequestSpecification header(Header header);
 
     /**
      * Specify the content type of the request.

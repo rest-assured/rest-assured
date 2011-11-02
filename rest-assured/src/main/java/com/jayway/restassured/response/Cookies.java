@@ -18,11 +18,13 @@ package com.jayway.restassured.response;
 
 import com.jayway.restassured.internal.MultiValueEntity;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
+import static java.util.Arrays.asList;
 
 /**
  * Represents the a number of response cookies
@@ -30,6 +32,10 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull;
 public class Cookies implements Iterable<Cookie> {
 
     private final MultiValueEntity<Cookie> cookies;
+
+    public Cookies(Cookie...cookies) {
+        this(asList(cookies));
+    }
 
     public Cookies(List<Cookie> cookies) {
         notNull(cookies, "Cookies");

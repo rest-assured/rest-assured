@@ -18,11 +18,14 @@ package com.jayway.restassured.response;
 
 import com.jayway.restassured.internal.MultiValueEntity;
 
+import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
+import static java.util.Arrays.asList;
 
 /**
  * Represents the a number of response headers
@@ -30,6 +33,10 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull;
 public class Headers implements Iterable<Header> {
 
     private final MultiValueEntity<Header> headers;
+
+    public Headers(Header...headers) {
+        this(asList(headers));
+    }
 
     public Headers(List<Header> headers) {
         notNull(headers, "Headers");
