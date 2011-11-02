@@ -192,13 +192,14 @@ public class SpecificationBuilderITest extends WithJetty {
 
     @Test
     public void supportsMergingCookiesWhenUsingRequestSpecBuilder() throws Exception {
-        final RequestSpecification spec = new RequestSpecBuilder().addCookie("cookie1", "value1").build();
+        final RequestSpecification spec1 = new RequestSpecBuilder().addCookie("cookie3", "value3").build();
+        final RequestSpecification spec2 = new RequestSpecBuilder().addCookie("cookie1", "value1").addRequestSpecification(spec1).build();
 
         given().
-                spec(spec).
+                spec(spec2).
                 cookie("cookie2", "value2").
         expect().
-                body(equalTo("cookie1, cookie2")).
+                body(equalTo("cookie1, cookie3, cookie2")).
         when().
                 get("/cookie");
     }
