@@ -53,7 +53,8 @@ class FormAuthFilter implements AuthFilter {
       passwordInputForm = config.getPasswordInputTagName()
     }
     final Response loginResponse = given().port(requestSpec.getPort()).with().auth().none().and().with().params(userNameInputForm, userName, passwordInputForm, password).then().post(formAction)
-    requestSpec.cookies(loginResponse.getDetailedCookies());
+    // Don't send the detailed cookies because they contain too many detail (such as Path which is a reserved token)
+    requestSpec.cookies(loginResponse.getCookies());
     return ctx.next(requestSpec, responseSpec);
   }
 

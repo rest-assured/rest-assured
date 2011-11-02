@@ -17,6 +17,8 @@
 package com.jayway.restassured.internal
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import com.jayway.restassured.spi.AuthFilter
+import com.jayway.restassured.authentication.ExplicitNoAuthScheme
 
 class SpecificationMerger {
 
@@ -93,7 +95,20 @@ class SpecificationMerger {
     // TODO Merge cookies
     thisOne.cookies = with.cookies
     thisOne.requestBody = with.requestBody
-    thisOne.filters.addAll(with.filters)
+    mergeFilters(thisOne, with)
     thisOne.urlEncodingEnabled = with.urlEncodingEnabled
+  }
+
+  private static def mergeFilters(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {
+    def thisFilters = thisOne.filters;
+    def withFilters = with.filters
+
+    // Overwrite auth filters
+    def instanceOfAuthFilter = { it instanceof AuthFilter }
+    if((thisFilters.any(instanceOfAuthFilter) && withFilters.any(instanceOfAuthFilter)) ||
+            with.authenticationScheme instanceof ExplicitNoAuthScheme) {
+      thisFilters.removeAll(instanceOfAuthFilter)
+    }
+    thisFilters.addAll(withFilters)
   }
 }

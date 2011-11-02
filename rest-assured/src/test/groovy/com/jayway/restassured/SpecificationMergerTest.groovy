@@ -32,6 +32,12 @@ import static java.util.Arrays.asList
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertFalse
 import static org.junit.Assert.assertTrue
+import com.jayway.restassured.internal.RequestSpecificationImpl
+import com.jayway.restassured.authentication.FormAuthScheme
+import com.jayway.restassured.authentication.BasicAuthScheme
+import com.jayway.restassured.authentication.NoAuthScheme
+import com.jayway.restassured.internal.filter.FormAuthFilter
+import com.jayway.restassured.authentication.ExplicitNoAuthScheme
 
 class SpecificationMergerTest {
 
@@ -138,7 +144,7 @@ class SpecificationMergerTest {
 
   @Test
   public void mergesResponseParsers() throws Exception {
-      def merge = new ResponseSpecBuilder().registerParser("some/xml", Parser.XML).build();
+    def merge = new ResponseSpecBuilder().registerParser("some/xml", Parser.XML).build();
     def with = new ResponseSpecBuilder().registerParser("some/json", Parser.JSON).build();
 
     SpecificationMerger.merge(merge, with)
@@ -149,12 +155,32 @@ class SpecificationMergerTest {
 
   @Test
   public void overwritesDefaultParser() throws Exception {
-      def merge = new ResponseSpecBuilder().setDefaultParser(Parser.XML).build();
+    def merge = new ResponseSpecBuilder().setDefaultParser(Parser.XML).build();
     def with = new ResponseSpecBuilder().setDefaultParser(Parser.JSON).build();
 
     SpecificationMerger.merge(merge, with)
 
     assertEquals Parser.JSON, merge.rpr.defaultParser
+  }
+
+  @Test
+  public void authFiltersAreOverwritten() throws Exception {
+    def merge = new RequestSpecBuilder().addFilter(new FormAuthFilter()).build();
+    def with = new RequestSpecBuilder().addFilter(new FormAuthFilter()).build();
+
+    SpecificationMerger.merge(merge, with)
+
+    assertEquals 1, merge.filters.size()
+  }
+
+  @Test
+  public void authFiltersAreRemovedIfMergedSpecContainsExplicitNoAuth() throws Exception {
+    def merge = new RequestSpecBuilder().addFilter(new FormAuthFilter()).build();
+    def with = new RequestSpecBuilder().setAuth(new ExplicitNoAuthScheme()).build();
+
+    SpecificationMerger.merge(merge, with)
+
+    assertEquals 0, merge.filters.size()
   }
 
   private Filter newFilter() {
