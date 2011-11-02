@@ -613,7 +613,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   private def Response sendRequest(path, method, assertionClosure) {
-    path = extractQueryParamsIfNeeded(method, path);
+    path = extractRequestParamsIfNeeded(method, path);
     def isFullyQualifiedUri = isFullyQualified(path)
     def targetUri = getTargetURI(path);
     def targetPath = getTargetPath(path)
@@ -825,7 +825,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return targetUri.contains("://")
   }
 
-  private String extractQueryParamsIfNeeded(Method method, String path) {
+  private String extractRequestParamsIfNeeded(Method method, String path) {
     if(path.contains("?")) {
       def indexOfQuestionMark = path.indexOf("?")
       String allParamAsString = path.substring(indexOfQuestionMark+1);
@@ -835,7 +835,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         if(keyValue.length != 2) {
           throw new IllegalArgumentException("Illegal parameters passed to REST Assured. Parameters was: $keyValueParams")
         }
-        queryParam(keyValue[0], keyValue[1]);
+        if(method == POST) {
+          queryParams.put(keyValue[0], keyValue[1])
+        } else {
+          param(keyValue[0], keyValue[1]);
+        }
       };
       path = path.substring(0, indexOfQuestionMark);
     }
