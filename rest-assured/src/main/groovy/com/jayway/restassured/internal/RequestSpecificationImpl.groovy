@@ -470,13 +470,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   RequestSpecification headers(Headers headers) {
     notNull headers, "headers"
-    def headerList = []
-    if(headers.exist() && this.requestHeaders.exist()) {
-      headerList.addAll(this.requestHeaders.list())
-    }
+    if(headers.exist()) {
+      def headerList = []
+      if(this.requestHeaders.exist()) {
+        headerList.addAll(this.requestHeaders.list())
+      }
 
-    headerList.addAll(headers.headers.list())
-    this.requestHeaders = new Headers(headerList)
+      headerList.addAll(headers.headers.list())
+      this.requestHeaders = new Headers(headerList)
+    }
     this
   }
 
@@ -519,8 +521,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def RequestSpecification cookies(Cookies cookies) {
     notNull cookies, "cookies"
-    def cookieList = []
     if(cookies.exist()) {
+      def cookieList = []
       if(this.cookies.exist()) {
         cookieList.addAll(this.cookies.list())
       }
