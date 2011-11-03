@@ -454,6 +454,12 @@ class ScalatraRestExample extends ScalatraServlet {
     </html>
   }
 
+  get("/statusCode500") {
+    contentType = "text/plain"
+    response.setStatus(500)
+    "An expected error occurred"
+  }
+
   get("/rss") {
     contentType ="application/rss+xml"
     <rss>

@@ -513,4 +513,13 @@ public class JSONGetITest extends WithJetty {
     public void malformedJson() throws Exception {
         expect().body("a", is(123456)).when().get("/malformedJson").print();
     }
+
+    @Test(expected = AssertionError.class)
+    public void statusCodeHasPriorityOverJsonParsingWhenErrorOccurs() throws Exception {
+        expect().
+                statusCode(200).
+                body("doesnt.exist", equalTo("something")).
+        when().
+                get("/statusCode500");
+    }
 }
