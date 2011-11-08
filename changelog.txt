@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 1.4.5 (2011-11-08)
+-----------------------------
 * REST Assured can now parse responses with no-value (empty) cookies (issue 124).
 * Added support for serializing objects to a parameter if the content-type is set:
   given().
