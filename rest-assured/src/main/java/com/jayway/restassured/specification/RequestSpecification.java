@@ -345,7 +345,7 @@ public interface RequestSpecification extends RequestSender {
      * Specify a cookie with no value that'll be sent with the request e.g:
      * <p>
      * <pre>
-     * given().cookie("some_cookie"").and().expect().body(equalTo("x")).when().get("/cookie");
+     * given().cookie("some_cookie").and().expect().body(equalTo("x")).when().get("/cookie");
      * </pre>
      * This will set the cookie <code>some_cookie</code> in the GET request to "/cookie".
      * </p>
@@ -360,7 +360,7 @@ public interface RequestSpecification extends RequestSender {
      * Specify  a {@link Cookie} to send with the request.
      * <p>
      * <pre>
-     * Cookie someCookie = new Cookie.Builder("some_cookie"", "some_value").setSecured(true).build();
+     * Cookie someCookie = new Cookie.Builder("some_cookie", "some_value").setSecured(true).build();
      * given().cookie(someCookie).and().expect().body(equalTo("x")).when().get("/cookie");
      * </pre>
      * This will set the cookie <code>someCookie</code> in the GET request to "/cookie".
@@ -963,7 +963,7 @@ public interface RequestSpecification extends RequestSender {
      * Specify  a {@link Header} to send with the request.
      * <p>
      * <pre>
-     * Header someHeader = new Header("some_name"", "some_value");
+     * Header someHeader = new Header("some_name", "some_value");
      * given().header(someHeader).and().expect().body(equalTo("x")).when().get("/header");
      * </pre>
      * This will set the header <code>some_name=some_value</code> in the GET request to "/header".

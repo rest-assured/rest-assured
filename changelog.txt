@@ -17,7 +17,7 @@ Change log next version
 * This version introduces a number of non-backward compatible change: The headers() and getHeaders() methods in com.jayway.restassured.response.Response no longer return a Map of key-value pairs, it now returns an instance of com.jayway.restassured.response.Headers. The reason for this is to allow for multi-value headers. These are headers that has several values for the same header name, e.g. "headerName=value1" and "headerName=value2". See javadoc in com.jayway.restassured.response.Headers for more info.
 * Added support for getting "detailed cookies". A detailed cookie contains information such as Expiry Date, Path, Version etc. To get a detailed cookie use com.jayway.restassured.response.Response#getDetailedCookie(<cookie name>) or to get all use com.jayway.restassured.response.Response#getDetailedCookies(). 
 * Added support for sending detailed cookies, e.g.  
-	Cookie someCookie = new Cookie.Builder("some_cookie"", "some_value").setSecured(true).build();
+	Cookie someCookie = new Cookie.Builder("some_cookie", "some_value").setSecured(true).build();
 	given().cookie(someCookie).and().expect().body(equalTo("x")).when().get("/cookie");
   you can also send multiple detailed cookies at the same time:
   	Cookie cookie1 =  Cookie.Builder("username", "John").setComment("comment 1").build();
