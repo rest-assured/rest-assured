@@ -30,7 +30,7 @@ import java.util.Map;
  * </pre>
  * <p>
  * You can also map the response body to a Java object automatically. REST Assured will use
- * Json, Gson and JAXB to accommodate this:
+ * Jackson, Gson and JAXB to accommodate this:
  * <pre>
  * Message message = get("/message").as(Message.class);
  * </pre>
