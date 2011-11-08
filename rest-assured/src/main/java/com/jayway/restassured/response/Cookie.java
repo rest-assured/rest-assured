@@ -95,6 +95,13 @@ public class Cookie implements NameAndValue {
     }
 
     /**
+     * @return <code>true</code> if this cookie has a value defined, <code>false</code> otherwise.
+     */
+    public boolean hasValue() {
+        return value != null;
+    }
+
+    /**
      * Returns the comment describing the purpose of this cookie, or
      * <tt>null</tt> if no such comment has been defined.
      *
@@ -104,6 +111,12 @@ public class Cookie implements NameAndValue {
         return comment;
     }
 
+    /**
+     * @return <code>true</code> if this cookie has a comment defined, <code>false</code> otherwise.
+     */
+    public boolean hasComment() {
+        return comment != null;
+    }
 
     /**
      * Returns the expiration {@link java.util.Date} of the cookie, or <tt>null</tt>
@@ -112,6 +125,13 @@ public class Cookie implements NameAndValue {
      */
     public Date getExpiryDate() {
         return expiryDate;
+    }
+
+    /**
+     * @return <code>true</code> if this cookie has an expiry defined, <code>false</code> otherwise.
+     */
+    public boolean hasExpiryDate() {
+        return expiryDate != null;
     }
 
     /**
@@ -125,6 +145,13 @@ public class Cookie implements NameAndValue {
     }
 
     /**
+     * @return <code>true</code> if this cookie has a domain defined, <code>false</code> otherwise.
+     */
+    public boolean hasDomain() {
+        return domain != null;
+    }
+
+    /**
      * Returns the path attribute of the cookie. The value of the Path
      * attribute specifies the subset of URLs on the origin server to which
      * this cookie applies.
@@ -133,6 +160,13 @@ public class Cookie implements NameAndValue {
      */
     public String getPath() {
         return path;
+    }
+
+    /**
+     * @return <code>true</code> if this cookie has a path defined, <code>false</code> otherwise.
+     */
+    public boolean hasPath() {
+        return path != null;
     }
 
     /**
@@ -152,6 +186,13 @@ public class Cookie implements NameAndValue {
     }
 
     /**
+     * @return <code>true</code> if this cookie has a version defined, <code>false</code> otherwise.
+     */
+    public boolean hasVersion() {
+        return version != UNDEFINED;
+    }
+
+    /**
      * Returns the maximum age of the cookie, specified in seconds,
      * By default, <code>-1</code> indicating the cookie will persist
      * until browser shutdown.
@@ -163,6 +204,13 @@ public class Cookie implements NameAndValue {
      */
     public int getMaxAge() {
         return maxAge;
+    }
+
+     /**
+     * @return <code>true</code> if this cookie has a Max-Age defined, <code>false</code> otherwise.
+     */
+    public boolean hasMaxAge() {
+        return maxAge != UNDEFINED;
     }
 
     @Override
@@ -203,30 +251,30 @@ public class Cookie implements NameAndValue {
     public String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append(name);
-        if(value != null) {
+        if(hasValue()) {
             builder.append(EQUALS).append(value);
         }
-        if(comment != null) {
+        if(hasComment()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(COMMENT).append(EQUALS).append(comment);
         }
-        if(path != null) {
+        if(hasPath()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(PATH).append(EQUALS).append(path);
         }
-        if(domain != null) {
+        if(hasDomain()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(DOMAIN).append(EQUALS).append(domain);
         }
-        if(maxAge != UNDEFINED) {
+        if(hasMaxAge()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(MAX_AGE).append(EQUALS).append(maxAge);
         }
-        if(secured) {
+        if(isSecured()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(SECURED);
         }
-        if(expiryDate != null) {
+        if(hasExpiryDate()) {
             final SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
             simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(EXPIRES).append(EQUALS).append(simpleDateFormat.format(expiryDate));
         }
-        if(version != UNDEFINED) {
+        if(hasVersion()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(VERSION).append(EQUALS).append(version);
         }
         return builder.toString();
