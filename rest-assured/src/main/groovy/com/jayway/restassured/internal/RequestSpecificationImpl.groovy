@@ -26,10 +26,6 @@ import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.RootFilter
 import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.mapper.ObjectMapper
-import com.jayway.restassured.response.Cookie
-import com.jayway.restassured.response.Cookies
-import com.jayway.restassured.response.Headers
-import com.jayway.restassured.response.Response
 import groovyx.net.http.HTTPBuilder.RequestConfigDelegate
 import java.util.Map.Entry
 import java.util.regex.Matcher
@@ -45,13 +41,13 @@ import org.apache.http.entity.mime.HttpMultipartMode
 import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.message.BasicHeader
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import com.jayway.restassured.response.*
 import com.jayway.restassured.specification.*
 import groovyx.net.http.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
-import com.jayway.restassured.response.Header
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static final int DEFAULT_HTTPS_PORT = 443

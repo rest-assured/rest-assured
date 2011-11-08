@@ -14,8 +14,18 @@ Change log next version
 * You can now create multi-value cookies using e.g.: given().cookie("cookieName", "value1", "value2")... This will create TWO cookies, "cookieName=value1" and "cookieName=value2".
 * Fixed a bug in the specification merger which caused FormAuthFilters to be applied twice if using multiple specifications with form auth.
 * Fixed a serious bug in the cookie response parsing that caused cookie attributes to be parsed as a new cookie (issue 130).
-* Non-backward compatible changes:
-  Response.header(..) and Response.getHeader(..) no longer returns a String, it returns type T. T is usually a String but it can also be a List if several headers with the same name exists.
+* This version introduces a number of non-backward compatible change: The headers() and getHeaders() methods in com.jayway.restassured.response.Response no longer return a Map of key-value pairs, it now returns an instance of com.jayway.restassured.response.Headers. The reason for this is to allow for multi-value headers. These are headers that has several values for the same header name, e.g. "headerName=value1" and "headerName=value2". See javadoc in com.jayway.restassured.response.Headers for more info.
+* Added support for getting "detailed cookies". A detailed cookie contains information such as Expiry Date, Path, Version etc. To get a detailed cookie use com.jayway.restassured.response.Response#getDetailedCookie(<cookie name>) or to get all use com.jayway.restassured.response.Response#getDetailedCookies(). 
+* Added support for sending detailed cookies, e.g.  
+	Cookie someCookie = new Cookie.Builder("some_cookie"", "some_value").setSecured(true).build();
+	given().cookie(someCookie).and().expect().body(equalTo("x")).when().get("/cookie");
+  you can also send multiple detailed cookies at the same time:
+  	Cookie cookie1 =  Cookie.Builder("username", "John").setComment("comment 1").build();
+	Cookie cookie2 =  Cookie.Builder("token", 1234).setComment("comment 2").build();
+	Cookies cookies = new Cookies(cookie1, cookie2);
+	given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
+  (issue 99).
+* Added support for mapping a path to a Java object in JsonPath, e.g: Book book = from(JSON).getObject("store.book[2]", Book.class); (half of issue 125)  
 
 Change log 1.4 (2011-10-07)
 ---------------------------

@@ -296,8 +296,8 @@ public interface RequestSpecification extends RequestSender {
     /**
      * Specify the cookies that'll be sent with the request as {@link Cookies}:
      * <pre>
-     * Cookie cookie1 =  Cookie.Builder("username", "John");
-     * Cookie cookie2 =  Cookie.Builder("token", 1234);
+     * Cookie cookie1 =  Cookie.Builder("username", "John").setComment("comment 1").build();
+     * Cookie cookie2 =  Cookie.Builder("token", 1234).setComment("comment 2").build();
      * Cookies cookies = new Cookies(cookie1, cookie2);
      * given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
      * </pre>

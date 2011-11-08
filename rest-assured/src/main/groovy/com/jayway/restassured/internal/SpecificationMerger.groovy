@@ -16,11 +16,9 @@
 
 package com.jayway.restassured.internal
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull
-import com.jayway.restassured.spi.AuthFilter
 import com.jayway.restassured.authentication.ExplicitNoAuthScheme
-import com.jayway.restassured.response.Headers
-import com.jayway.restassured.response.Cookies
+import com.jayway.restassured.spi.AuthFilter
+import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 class SpecificationMerger {
 

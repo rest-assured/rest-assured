@@ -23,7 +23,7 @@ import net.liftweb.json.JsonAST._
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import collection.mutable.ListBuffer
 import javax.servlet.http.Cookie
-import java.util.{Enumeration, Date}
+import java.util.Date
 
 class ScalatraRestExample extends ScalatraServlet {
   // To allow for json extract
