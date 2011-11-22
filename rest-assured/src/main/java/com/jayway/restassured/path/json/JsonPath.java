@@ -180,7 +180,7 @@ public class JsonPath {
      * cannot be casted to the expected type.
      */
     public boolean getBoolean(String path) {
-        return (Boolean) get(path);
+        return convertObjectTo(get(path), Boolean.class);
     }
 
     /**
@@ -191,7 +191,7 @@ public class JsonPath {
      * cannot be casted to the expected type.
      */
     public char getChar(String path) {
-        return (Character) get(path);
+        return convertObjectTo(get(path), Character.class);
     }
 
     /**
@@ -204,12 +204,14 @@ public class JsonPath {
     public int getInt(String path) {
         //The type returned from Groovy depends on the input, so we need to handle different numerical types.
         Object value = get(path);
-        if (value instanceof Short) {
+        if(value instanceof Integer) {
+            return (Integer) value;
+        }else  if (value instanceof Short) {
             return ((Short)value).intValue();
         } else if (value instanceof Long) {
             return ((Long)value).intValue();
         } else {
-            return (Integer) value;
+            return convertObjectTo(value, Integer.class);
         }
     }
 
@@ -224,12 +226,14 @@ public class JsonPath {
     public byte getByte(String path) {
         //The type returned from Groovy depends on the input, so we need to handle different numerical types.
         Object value = get(path);
-        if (value instanceof Long) {
+        if(value instanceof Byte) {
+            return (Byte) value;
+        } else if (value instanceof Long) {
             return ((Long)value).byteValue();
         } else if (value instanceof Integer) {
             return ((Integer)value).byteValue();
         } else {
-            return (Byte) value;
+            return convertObjectTo(value, Byte.class);
         }
     }
 
@@ -244,12 +248,14 @@ public class JsonPath {
     public short getShort(String path) {
         //The type returned from Groovy depends on the input, so we need to handle different numerical types.
         Object value = get(path);
-        if (value instanceof Long) {
+        if(value instanceof Short) {
+            return (Short) value;
+        } else if (value instanceof Long) {
             return ((Long)value).shortValue();
         } else if (value instanceof Integer) {
             return ((Integer)value).shortValue();
         } else {
-            return (Short) value;
+            return convertObjectTo(value, Short.class);
         }
     }
 
@@ -261,8 +267,13 @@ public class JsonPath {
      * cannot be casted to the expected type.
      */
     public float getFloat(String path) {
+        final Object value = get(path);
         //Groovy will always return a Double for floating point values.
-        return ((Double)get(path)).floatValue();
+        if(value instanceof Double) {
+            return ((Double) value).floatValue();
+        } else {
+            return convertObjectTo(value, Float.class);
+        }
     }
 
     /**
@@ -273,7 +284,11 @@ public class JsonPath {
      * cannot be casted to the expected type.
      */
     public double getDouble(String path) {
-        return (Double) get(path);
+        final Object value = get(path);
+        if(value instanceof Double) {
+            return (Double) value;
+        }
+        return convertObjectTo(value, Double.class);
     }
 
     /**
@@ -286,12 +301,14 @@ public class JsonPath {
     public long getLong(String path) {
         //The type returned from Groovy depends on the input, so we need to handle different numerical types.
         Object value = get(path);
-        if (value instanceof Short) {
+        if(value instanceof Long) {
+            return (Long) value;
+        } else if (value instanceof Short) {
             return ((Short)value).longValue();
         } else if (value instanceof Integer) {
             return ((Integer)value).longValue();
         } else {
-            return (Long) value;
+            return convertObjectTo(value, Long.class);
         }
     }
 

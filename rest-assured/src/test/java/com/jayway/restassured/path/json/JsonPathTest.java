@@ -179,6 +179,34 @@ public class JsonPathTest {
     }
 
     @Test
+    public void convertsValueToStringWhenExplicitlyRequested() throws Exception {
+        String phoneNumber = from(JSON2).getString("phone[0]");
+
+        assertThat(phoneNumber, equalTo("3456789"));
+    }
+
+    @Test
+    public void convertsValueToIntWhenExplicitlyRequested() throws Exception {
+        int phoneNumber = from(JSON2).getInt("phone[0]");
+
+        assertThat(phoneNumber, equalTo(3456789));
+    }
+
+    @Test
+    public void convertsValueToDoubleWhenExplicitlyRequested() throws Exception {
+        double phoneNumber = from(JSON2).getDouble("phone[0]");
+
+        assertThat(phoneNumber, equalTo(3456789d));
+    }
+
+    @Test
+    public void convertsValueToFloatWhenExplicitlyRequested() throws Exception {
+        float phoneNumber = from(JSON2).getFloat("phone[0]");
+
+        assertThat(phoneNumber, equalTo(3456789f));
+    }
+
+    @Test
     public void convertsListMembersToDefinedTypeIfPossible() throws Exception {
         final List<Integer> phoneNumbers = with(JSON2).getList("phone", int.class);
 
