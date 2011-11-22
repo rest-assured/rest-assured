@@ -1226,6 +1226,20 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification filters(List<Filter> filters);
 
     /**
+     * Remove all applied filters
+     *
+     * @return the request specification
+     */
+    RequestSpecification noFilters();
+
+    /**
+     * Remove all applied filters
+     *
+     * @return the request specification
+     */
+    <T extends Filter> RequestSpecification noFiltersOfType(Class<T> filterType);
+
+    /**
      * Log (i.e. print to system out) the response body to system out. This is mainly useful for debug purposes when writing
      * your tests. A shortcut for:
      * <pre>

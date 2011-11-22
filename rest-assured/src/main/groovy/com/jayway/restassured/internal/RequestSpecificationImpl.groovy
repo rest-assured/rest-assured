@@ -1067,6 +1067,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return contentType != null ? contentType instanceof String ? contentType : contentType.toString() : ANY.toString()
   }
 
+  def RequestSpecification noFilters() {
+    this.filters.clear()
+    this
+  }
+
+  def <T extends Filter> RequestSpecification noFiltersOfType(Class<T> filterType) {
+    notNull filterType, "Filter type"
+    this.filters.removeAll {filterType.isAssignableFrom(it.getClass())}
+    this
+  }
+
 /**
  * A copy of HTTP builders doRequest method with two exceptions.
  * <ol>
