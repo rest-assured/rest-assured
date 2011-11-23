@@ -48,11 +48,15 @@ import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
+import static org.apache.commons.lang.StringUtils.substringAfter
+import javax.xml.bind.annotation.XmlElementRef.DEFAULT
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static final int DEFAULT_HTTPS_PORT = 443
   private static final int DEFAULT_HTTP_PORT = 80
+  private static final int DEFAULT_HTTP_TEST_PORT = 8080
   private static final String MULTIPART_FORM_DATA = "multipart/form-data"
+  private static final String SLASH = "/"
 
   private String baseUri
   private String path  = ""
@@ -692,7 +696,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     authenticationScheme.authenticate(http)
 
-    keyStoreSpec.apply(http, isFullyQualifiedUri == true && port == 8080 ? DEFAULT_HTTPS_PORT : port)
+    keyStoreSpec.apply(http, isFullyQualifiedUri == true && port == DEFAULT_HTTP_TEST_PORT ? DEFAULT_HTTPS_PORT : port)
 
     validateMultiPartForPostOnly(method);
 
@@ -749,7 +753,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       def uri = new URI(baseUri)
       baseUriPath = uri.getPath()
     }
-    return "$baseUriPath$basePath$path"
+    return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(baseUriPath, basePath), path)
   }
 
   private def validateMultiPartForPostOnly(method) {
@@ -886,10 +890,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   private String getTargetUriFromUrl(URL url) {
     def builder = new StringBuilder();
-    builder.append(url.getProtocol())
+    def protocol = url.getProtocol()
+    def boolean useDefaultHttps = false
+    if(port == DEFAULT_HTTP_TEST_PORT && protocol.equalsIgnoreCase("https")) {
+      useDefaultHttps = true
+    }
+    builder.append(protocol)
     builder.append("://")
     builder.append(url.getAuthority())
-    if(!hasPortDefined(url) && !hasPath(url)) {
+    if(!hasPortDefined(url) && port != DEFAULT_HTTP_PORT && !useDefaultHttps) {
       builder.append(":")
       builder.append(port)
     }
@@ -897,7 +906,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   private def boolean hasPath(uri) {
-    uri.getPath() != "";
+    def path = uri.getPath().trim()
+    path != "" || path == "/";
   }
 
   private def boolean hasPortDefined(uri) {
@@ -1169,4 +1179,18 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             || GString.class.isAssignableFrom(clazz) || Boolean.class.isAssignableFrom(clazz)
             || Character.class.isAssignableFrom(clazz) || clazz.isEnum() );
   }
+
+  def private String mergeAndRemoveDoubleSlash(String thisOne, String otherOne) {
+    thisOne = thisOne.trim()
+    otherOne = otherOne.trim()
+    final boolean otherOneStartsWithSlash = otherOne.startsWith(SLASH);
+    final boolean thisOneEndsWithSlash = thisOne.endsWith(SLASH)
+    if(thisOneEndsWithSlash && otherOneStartsWithSlash) {
+      return thisOne + substringAfter(otherOne, SLASH);
+    } else if(!thisOneEndsWithSlash && !otherOneStartsWithSlash && !(otherOne == "" ^ thisOne == "")) {
+      return "$thisOne/$otherOne"
+    }
+    return thisOne + otherOne;
+  }
+
 }

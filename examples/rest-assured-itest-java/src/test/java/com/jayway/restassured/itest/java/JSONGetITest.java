@@ -374,18 +374,6 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void specifyingFullyQualifiedPathOverridesDefaultValues() throws Exception {
-        RestAssured.basePath = "/something";
-        RestAssured.baseURI = "http://www.google.com";
-        RestAssured.port = 80;
-        try {
-            expect().body("store.book[0..2].size()", equalTo(3)).when().get("http://localhost:8080/jsonStore");
-        } finally {
-            RestAssured.reset();
-        }
-    }
-
-    @Test
     public void parametersAndQueryParametersAreConcatenated() throws Exception {
         with().parameters("firstName", "John").and().queryParameters("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
@@ -484,29 +472,6 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void givenNoBodyExpectationsThenNonBodyExpectationsWorkEvenThoughContentTypeAndBodyContentDoesNotMatch() throws Exception {
         expect().statusCode(200).and().header("Content-Type", notNullValue(String.class)).when().get("/contentTypeJsonButBodyIsNotJson");
-    }
-
-    @Test
-    public void baseURIPicksUpSchemeAndPort() throws Exception {
-        RestAssured.baseURI = "http://localhost:8080/lotto";
-
-        try {
-            expect().body("lotto.lottoId", equalTo(5)).when().get("");
-        } finally {
-            RestAssured.reset();
-        }
-    }
-
-    @Test
-    public void baseURIPicksUpSchemeAndPortAndBasePath() throws Exception {
-        RestAssured.basePath = "/lotto";
-        RestAssured.baseURI = "http://localhost:8080";
-
-        try {
-            expect().body("lotto.lottoId", equalTo(5)).when().get("");
-        } finally {
-            RestAssured.reset();
-        }
     }
 
     @Test(expected = ResponseParseException.class)

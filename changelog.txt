@@ -13,6 +13,8 @@ Change log next version
    when().
           get("/jsonStore");
   (issue 135)
+* Fixed a bug with automatic port detection for certain base URI's.
+* Improved merging of baseUri, basePath and path. E.g. if the baseUri ends with slash and the path starts with slash one of the slashes are automatically removed (issue 134).
 
 Change log 1.4.5 (2011-11-08)
 -----------------------------
