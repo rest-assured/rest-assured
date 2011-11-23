@@ -44,7 +44,7 @@ public class Cookie implements NameAndValue {
     public static final String PATH = "Path";
     public static final String DOMAIN = "Domain";
     public static final String MAX_AGE = "Max-Age";
-    public static final String SECURED = "Secured";
+    public static final String SECURE = "Secure";
     public static final String EXPIRES = "Expires";
     public static final String VERSION = "Version";
 
@@ -267,7 +267,7 @@ public class Cookie implements NameAndValue {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(MAX_AGE).append(EQUALS).append(maxAge);
         }
         if(isSecured()) {
-            builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(SECURED);
+            builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(SECURE);
         }
         if(hasExpiryDate()) {
             final SimpleDateFormat simpleDateFormat = new SimpleDateFormat();

@@ -287,7 +287,7 @@ class ScalatraRestExample extends ScalatraServlet {
     cookie1.setDomain("localhost")
     val cookie2 = new Cookie("cookie1", "cookieValue2")
     cookie2.setPath("/")
-    cookie2.setMaxAge(new Date().getTime.intValue())
+    cookie2.setMaxAge(1234567)
     cookie2.setComment("My Purpose")
     cookie2.setDomain("localhost")
     cookie2.setSecure(true)

@@ -17,6 +17,7 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import org.junit.Test;
 
@@ -156,5 +157,24 @@ public class CookieITest extends WithJetty {
         cookies.put("username", "John");
         cookies.put("token", "1234");
         given().cookies(cookies).and().cookies("key1", "value1").then().expect().body(equalTo("username, token, key1")).when().get("/cookie");
+    }
+
+    @Test
+    public void canGetCookieDetails() throws Exception {
+        final List<Cookie> cookies = get("/multiCookie").detailedCookies().getList("cookie1");
+
+        assertThat(cookies.size(), is(2));
+
+        final Cookie firstCookie = cookies.get(0);
+        assertThat(firstCookie.getValue(), equalTo("cookieValue1"));
+        assertThat(firstCookie.getDomain(), equalTo("localhost"));
+
+        final Cookie secondCookie = cookies.get(1);
+        assertThat(secondCookie.getValue(), equalTo("cookieValue2"));
+        assertThat(secondCookie.getDomain(), equalTo("localhost"));
+        assertThat(secondCookie.getPath(), equalTo("/"));
+        assertThat(secondCookie.getMaxAge(), is(1234567));
+        assertThat(secondCookie.isSecured(), is(true));
+        assertThat(secondCookie.getVersion(), is(1));
     }
 }
