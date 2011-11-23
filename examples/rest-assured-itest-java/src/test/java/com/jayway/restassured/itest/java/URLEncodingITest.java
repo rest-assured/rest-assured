@@ -19,6 +19,7 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.specification.RequestSpecification;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
@@ -45,12 +46,14 @@ public class URLEncodingITest {
     }
 
     @Test
+    @Ignore("2.0.alpha1 no longer working")
     public void urlEncodingDisabledUsingGiven() {
         final String body = given().urlEncodingEnabled(false).get("https://jira.atlassian.com:443/rest/api/2.0.alpha1/search?jql=project%20=%20BAM%20AND%20issuetype%20=%20Bug").asString();
         assertThat(body, containsString("issues"));
     }
 
     @Test
+    @Ignore("2.0.alpha1 no longer working")
     public void urlEncodingDisabledUsingRequestSpecBuilder() {
         final RequestSpecification specification = new RequestSpecBuilder().setUrlEncodingEnabled(false).build();
 
@@ -59,6 +62,7 @@ public class URLEncodingITest {
     }
 
     @Test
+    @Ignore("2.0.alpha1 no longer working")
     public void doubleUrlEncodingShouldFailRequest() {
         final String body = given().urlEncodingEnabled(true).get("https://jira.atlassian.com:443/rest/api/2.0.alpha1/search?jql=project%20=%20BAM%20AND%20issuetype%20=%20Bug").asString();
 
