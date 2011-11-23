@@ -3,6 +3,16 @@ Change log next version
 * Added methods "noFilters" and "noFiltersOfType" to RequestSpecification to allow for removal of filters. This is useful when specifying a default filter statically (e.g. a custom authentication filter) but you need to remove it in a Filter implementation in order to make requests without this filter.
 * Improved JsonPath to automatically convert e.g. ints to Strings if explicitly requested.
 * Fixed an issue with detailed cookie parsing that prevent the "secured" attribute to be parsed correctly.
+* Fixed a bug that failed to apply the root path for multi-body expectations, e.g this will now work: 
+   expect().
+          root("store.book").
+          body(
+             "category.size()", equalTo(4),
+             "author.size()", equalTo(4)
+          ).
+   when().
+          get("/jsonStore");
+  (issue 135)
 
 Change log 1.4.5 (2011-11-08)
 -----------------------------

@@ -141,4 +141,28 @@ public class RootPathITest extends WithJetty {
         when().
                 get("/jsonStore");
     }
+
+    @Test
+    public void specifyingRootPathInMultiBodyAddsTheRootPathForEachExpectation() throws Exception {
+        expect().
+                 root("store.book").
+                 body(
+                    "category.size()", equalTo(4),
+                    "author.size()", equalTo(4)
+                 ).
+        when().
+                 get("/jsonStore");
+    }
+
+    @Test
+    public void specifyingRootPathInMultiContentAddsTheRootPathForEachExpectation() throws Exception {
+        expect().
+                 root("store.book").
+                 content(
+                    "category.size()", equalTo(4),
+                    "author.size()", equalTo(4)
+                 ).
+        when().
+                 get("/jsonStore");
+    }
 }

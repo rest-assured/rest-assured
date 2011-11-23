@@ -183,7 +183,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     if(additionalKeyMatcherPairs?.length > 0) {
       def pairs = MapCreator.createMapFromObjects(additionalKeyMatcherPairs)
       pairs.each { matchingKey, hamcrestMatcher ->
-        def keyWithRoot = bodyRootPath + matchingKey
+        def keyWithRoot = mergeKeyWithRootPath(matchingKey)
         bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: hamcrestMatcher, rpr: rpr)
       }
     }
