@@ -898,7 +898,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     builder.append(protocol)
     builder.append("://")
     builder.append(url.getAuthority())
-    if(!hasPortDefined(url) && port != DEFAULT_HTTP_PORT && !useDefaultHttps) {
+    if(!hasPortDefined(url) && !(port == DEFAULT_HTTP_PORT || hasPath(url)) && !useDefaultHttps) {
       builder.append(":")
       builder.append(port)
     }
@@ -907,7 +907,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   private def boolean hasPath(uri) {
     def path = uri.getPath().trim()
-    path != "" || path == "/";
+    path != "";
   }
 
   private def boolean hasPortDefined(uri) {

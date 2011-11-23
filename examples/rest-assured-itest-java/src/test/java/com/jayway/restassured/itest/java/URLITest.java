@@ -18,9 +18,11 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -38,6 +40,7 @@ public class URLITest extends WithJetty {
         }
     }
 
+    @Ignore("Find a way to test this (port, because it's 8080, is messing things up)")
     @Test
     public void whenBaseURIEndsWithSlashAndPathBeginsWithSlashThenOneSlashIsRemoved() throws Exception {
         RestAssured.baseURI = "http://localhost/";
@@ -101,5 +104,11 @@ public class URLITest extends WithJetty {
         } finally {
             RestAssured.reset();
         }
+    }
+
+    @Test
+    public void canCallFullyQualifiedUrlsWithoutPortDefined() throws Exception {
+        // This test hangs forever unless it works
+        get("http://filehost-semc-rss-dev.s3.amazonaws.com/testfile1.txt");
     }
 }
