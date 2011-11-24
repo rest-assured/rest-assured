@@ -32,16 +32,6 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void basicAuthenticationWithBasePath() throws Exception {
-        RestAssured.basePath = "/secured/hello";
-        try {
-            given().auth().basic("jetty", "jetty").expect().statusCode(200).when().get("");
-        } finally {
-            RestAssured.reset();
-        }
-    }
-
-    @Test
     public void basicAuthenticationUsingDefault() throws Exception {
         authentication = basic("jetty", "jetty");
         try {
