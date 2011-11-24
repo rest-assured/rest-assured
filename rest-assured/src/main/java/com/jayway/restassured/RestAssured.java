@@ -504,16 +504,29 @@ public class RestAssured {
      * given().keystore("/truststore.jks", "test1234"). ..
      * </pre>
      * </p>
-     * @param pathToJks The path to the JKS
+     * @param classpathToJks The path to the JKS
      * @param password The store pass
      */
-    public static void keystore(String pathToJks, String password) {
-        Validate.notEmpty(pathToJks, "Path to java keystore cannot be empty");
-        Validate.notEmpty(password, "Password cannot be empty");
+    public static KeystoreSpec keystore(String classpathToJks, String password) {
+        Validate.notEmpty(password, "Password cannot be empty! Standard password for tomcat 'changeit'");
+
         final KeystoreSpecImpl spec = new KeystoreSpecImpl();
-        spec.setPath(pathToJks);
+        spec.setPath(classpathToJks);
         spec.setPassword(password);
         RestAssured.keystoreSpec = spec;
+
+        System.out.println(spec);
+        return keystoreSpec;
+    }
+
+    /**
+     * Uses the user default keystore stored in @{user.home}/.keystore
+     *
+     * @param password - Use null for no password
+     * @return
+     */
+    public static KeystoreSpec keystore(String password) {
+        return keystore(null, password);
     }
 
     /**
