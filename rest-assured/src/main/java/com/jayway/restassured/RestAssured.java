@@ -29,10 +29,7 @@ import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
 import org.apache.commons.lang.Validate;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * REST Assured is a Java DSL for simplifying testing of REST based services built on top of
@@ -515,7 +512,6 @@ public class RestAssured {
         spec.setPassword(password);
         RestAssured.keystoreSpec = spec;
 
-        System.out.println(spec);
         return keystoreSpec;
     }
 

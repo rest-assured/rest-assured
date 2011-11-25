@@ -47,9 +47,9 @@ import groovyx.net.http.*
 import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
-import static org.apache.http.protocol.HTTP.CONTENT_TYPE
 import static org.apache.commons.lang.StringUtils.substringAfter
-import javax.xml.bind.annotation.XmlElementRef.DEFAULT
+import static org.apache.http.protocol.HTTP.CONTENT_TYPE
+import org.apache.http.client.params.ClientPNames
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static final int DEFAULT_HTTPS_PORT = 443
@@ -67,6 +67,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private Map<String, Object> queryParams = [:]
   private Map<String, Object> formParams = [:]
   private Map<String, Object> pathParams = [:]
+  private Map<String, Object> httpClientParams = [:]
   def AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private FilterableResponseSpecification responseSpecification;
   private Object contentType;
@@ -330,6 +331,33 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def RequestSpecification pathParams(Map parameterNameValuePairs) {
     return pathParameters(parameterNameValuePairs)
+  }
+
+  def RequestSpecification followRedirects(boolean value) {
+    return httpClientParameter(ClientPNames.HANDLE_REDIRECTS, value)
+  }
+
+  def RequestSpecification allowCircularRedirects(boolean value) {
+    return httpClientParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, value)
+  }
+
+  def RequestSpecification handleAuthentication(boolean value) {
+    return httpClientParameter(ClientPNames.HANDLE_AUTHENTICATION, value)
+  }
+
+  def RequestSpecification rejectRelativeRedirect(boolean value) {
+    return httpClientParameter(ClientPNames.REJECT_RELATIVE_REDIRECT, value)
+  }
+
+  def RequestSpecification maxRedirects(int value) {
+    return httpClientParameter(ClientPNames.MAX_REDIRECTS, value)
+  }
+
+  def RequestSpecification httpClientParameter(String parameterName, Object parameterValue) {
+    notNull parameterName,  "parameterName"
+    notNull parameterValue, "parameterValue"
+    appendStandardParameter(httpClientParams, parameterName, parameterValue)
+    return this
   }
 
   def RequestSpecification keystore(String pathToJks, String password) {
@@ -674,6 +702,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         return super.parseResponse(resp, contentType)
       }
     };
+
+    // Apply http client parameters
+    if (httpClientParams != null && !httpClientParams.isEmpty()) {
+        def p = http.client.getParams();
+        httpClientParams.each { key, value ->
+            p.setParameter(key, value)
+        }
+    }
     registerRestAssuredEncoders(http);
     RestAssuredParserRegistry.responseSpecification = responseSpecification
     http.setParserRegistry(new RestAssuredParserRegistry())
