@@ -812,6 +812,26 @@ public interface RequestSpecification extends RequestSender {
      */
     RequestSpecification pathParams(Map<String, ?> parameterNameValuePairs);
 
+    RequestSpecification followRedirects(boolean value);
+
+    RequestSpecification allowCircularRedirects(boolean value);
+
+    RequestSpecification handleAuthentication(boolean value);
+
+    RequestSpecification rejectRelativeRedirect(boolean value);
+
+    RequestSpecification maxRedirects(int value);
+
+
+    /**
+     * Adding parameters to the http client to control behaviors for redirects
+     *
+     * @param parameterName
+     * @param parameterValue
+     * @return
+     */
+    RequestSpecification httpClientParameter(String parameterName, Object parameterValue);
+
     /**
      * The following documentation is taken from <a href="HTTP Builder">http://groovy.codehaus.org/modules/http-builder/doc/ssl.html</a>:
      * <p>
