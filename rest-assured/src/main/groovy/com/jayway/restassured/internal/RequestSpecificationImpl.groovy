@@ -1213,7 +1213,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     def clazz = object.getClass()
     return !(Number.class.isAssignableFrom(clazz) || String.class.isAssignableFrom(clazz)
             || GString.class.isAssignableFrom(clazz) || Boolean.class.isAssignableFrom(clazz)
-            || Character.class.isAssignableFrom(clazz) || clazz.isEnum() || Locale.class.isAssignableFrom(clazz));
+            || Character.class.isAssignableFrom(clazz) || clazz.isEnum() ||
+            Locale.class.isAssignableFrom(clazz) || Class.isAssignableFrom(clazz));
   }
 
   def private String mergeAndRemoveDoubleSlash(String thisOne, String otherOne) {
