@@ -101,7 +101,7 @@ public class JSONPostITest extends WithJetty {
 
     @Test
     public void uriNotFoundTWhenPost() throws Exception {
-        expect().statusCode(404).and().body(equalTo("Not found")).when().post("/lotto");
+        expect().statusCode(greaterThanOrEqualTo(400)).when().post("/lotto");
     }
 
     @Test

@@ -24,7 +24,7 @@ class CustomAuthExample extends ScalatraServlet {
 
   val authenticatedSessions = new HashMap[String, Int]()
 
-  before {
+  before() {
     contentType = "application/json"
   }
 

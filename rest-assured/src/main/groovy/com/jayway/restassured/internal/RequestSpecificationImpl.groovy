@@ -260,7 +260,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   def RequestSpecification formParam(String parameterName, List parameterValues) {
-    return queryParameter(parameterName, parameterValues)
+    return formParameter(parameterName, parameterValues)
   }
 
   def RequestSpecification formParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
@@ -705,10 +705,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     // Apply http client parameters
     if (httpClientParams != null && !httpClientParams.isEmpty()) {
-        def p = http.client.getParams();
-        httpClientParams.each { key, value ->
-            p.setParameter(key, value)
-        }
+      def p = http.client.getParams();
+      httpClientParams.each { key, value ->
+        p.setParameter(key, value)
+      }
     }
     registerRestAssuredEncoders(http);
     RestAssuredParserRegistry.responseSpecification = responseSpecification
@@ -740,7 +740,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       if(hasFormParams() && requestBody != null) {
         throw new IllegalStateException("You can either send form parameters OR body content in $method, not both!");
       }
-      def bodyContent = hasFormParams() ? requestParameters += formParams : multiParts.isEmpty() ? requestBody : new byte[0]
+      def bodyContent = assembleBodyContent(method)
       if(method == POST) {
         http.post( path: targetPath, body: bodyContent,
                 requestContentType: defineRequestContentType(method),
@@ -757,6 +757,16 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       sendHttpRequest(http, method, responseContentType, targetPath, assertionClosure)
     }
     return restAssuredResponse
+  }
+
+  def assembleBodyContent(httpMethod) {
+    if(hasFormParams()) {
+      httpMethod == Method.POST ? requestParameters += formParams : formParams
+    } else if(multiParts.isEmpty()) {
+      requestBody
+    } else {
+      new byte[0]
+    }
   }
 
   def setRequestHeadersToHttpBuilder(HTTPBuilder http) {

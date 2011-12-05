@@ -20,10 +20,14 @@ import net.liftweb.json.JsonDSL._
 import java.lang.String
 import xml.Elem
 import net.liftweb.json.JsonAST._
+import net.liftweb.json.Printer._
+import scala.collection.JavaConversions._
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import collection.mutable.ListBuffer
 import javax.servlet.http.Cookie
-import java.util.Date
+import org.apache.commons.io.IOUtils
+import org.apache.commons.lang.StringUtils
+import java.util.{Scanner, Date}
 
 class ScalatraRestExample extends ScalatraServlet {
   // To allow for json extract
@@ -35,7 +39,7 @@ class ScalatraRestExample extends ScalatraServlet {
   val winners = List(Winner(23, List(2, 45, 34, 23, 3, 5)), Winner(54, List(52, 3, 12, 11, 18, 22)))
   val lotto = Lotto(5, List(2, 45, 34, 23, 7, 5, 3), winners, None)
 
-  before {
+  before() {
     contentType = "application/json"
   }
 
@@ -146,7 +150,8 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   put("/multiValueParam") {
-    "{ \"list\" : \""+{multiParams("list")}.mkString(",") +"\" }"
+    val content: String = IOUtils.toString(request.getInputStream)
+    "{ \"list\" : \""+{findMultiParamIn(content, "list")}.mkString(",") +"\" }"
   }
 
   post("/multiValueParam") {
@@ -188,6 +193,7 @@ class ScalatraRestExample extends ScalatraServlet {
     val fullName: String = firstName + " " + lastName
     val json = ("firstName" -> firstName) ~ ("lastName" -> lastName) ~ ("fullName" -> fullName)
     compact(render(json))
+
   }
 
   get("/409") {
@@ -197,7 +203,19 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   put("/greetPut") {
-    greetJson
+    // For some reason Scalatra doesn't seem to handle form parameters in PUT requests
+    if(request.getParameterNames.exists { _ == "firstName" }) {
+      greetJson
+    } else {
+      val content: String = IOUtils.toString(request.getInputStream)
+      val name = "Greetings " + {
+        findParamIn(content, "firstName")
+      } + " " + {
+        findParamIn(content, "lastName")
+      }
+      val json = ("greeting" -> name)
+      compact(render(json))
+    }
   }
 
   delete("/greet") {
@@ -628,5 +646,23 @@ class ScalatraRestExample extends ScalatraServlet {
     val lastName = firstAndLastName(1)
 
     "{ \"firstName\" : \""+firstName+"\",\"lastName\" : \""+lastName+"\", \"responseType\" : \"simple\" }"
+  }
+
+  def findParamIn(content: String, param: String): String = {
+    var value: String = StringUtils.substringBetween(content, param+"=", "&")
+    if(value == null) {
+      value = StringUtils.substringAfter(content, param+"=")
+    }
+    return value
+  }
+
+  def findMultiParamIn(content: String, param: String): scala.collection.mutable.MutableList[String] = {
+    val scanner: Scanner = new Scanner(content).useDelimiter("&")
+    val myList = scala.collection.mutable.MutableList[String]()
+    while(scanner.hasNext) {
+      val next: String = scanner.next
+      myList += next.split('=')(1)
+    }
+    myList
   }
 }

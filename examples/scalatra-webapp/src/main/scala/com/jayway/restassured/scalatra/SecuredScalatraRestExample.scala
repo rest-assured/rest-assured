@@ -18,10 +18,11 @@ package com.jayway.restassured.scalatra
 import org.scalatra.ScalatraServlet
 import net.liftweb.json.JsonAST
 import net.liftweb.json.JsonDSL._
+import net.liftweb.json.Printer._
 
 class SecuredScalatraRestExample extends ScalatraServlet {
 
-  before {
+  before() {
     contentType = "application/json"
   }
 

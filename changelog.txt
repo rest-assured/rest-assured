@@ -16,6 +16,7 @@ Change log next version
 * Fixed a bug with automatic port detection for certain base URI's.
 * Improved merging of baseUri, basePath and path. E.g. if the baseUri ends with slash and the path starts with slash one of the slashes are automatically removed (issue 134).
 * java.util.Locale will never be serialized to JSON/XML when provided in as a parameter object
+* Fixed an issue with PUT method duplicating form parameters as query parameters (issue 137)
 
 Change log 1.4.5 (2011-11-08)
 -----------------------------
