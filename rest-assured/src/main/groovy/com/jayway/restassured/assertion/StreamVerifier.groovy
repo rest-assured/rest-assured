@@ -52,7 +52,7 @@ Content was:\n$content\n""");
   }
 
   static def createAssertionForCustomParser(ResponseParserRegistrar rpr, String contentType, key) {
-    def parser = rpr.getParser(contentType);
+    def parser = rpr.getNonDefaultParser(contentType);
     def assertion
     switch(parser) {
       case Parser.XML:

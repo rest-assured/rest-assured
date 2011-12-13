@@ -30,18 +30,17 @@ class RestAssuredParserRegistry extends ParserRegistry {
 
   @Override
   protected Map<String, Closure> buildDefaultParserMap() {
-    if(responseSpecification == null || !responseSpecification.hasBodyAssertionsDefined()) {
+//    if(responseSpecification == null || !responseSpecification.hasBodyAssertionsDefined()) {
       def parsers = [:].withDefault { new MethodClosure(this, "parseStream") }
       return parsers
-    } else {
-      def Parser restAssuredDefaultParser = responseSpecification.rpr.defaultParser
-      def hasDefaultParser = restAssuredDefaultParser != null
-      if(hasDefaultParser) {
-        defaultParser = findDefaultParserMethod(restAssuredDefaultParser)
-      }
-
-      return super.buildDefaultParserMap()
-    }
+//    } else {
+//      def Parser restAssuredDefaultParser = responseSpecification.rpr.defaultParser
+//      def hasDefaultParser = restAssuredDefaultParser != null
+//      if(hasDefaultParser) {
+//        defaultParser = findDefaultParserMethod(restAssuredDefaultParser)
+//      }
+//      return super.buildDefaultParserMap()
+//    }
   }
 
   private findDefaultParserMethod(Parser defaultParser) {

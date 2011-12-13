@@ -36,7 +36,7 @@ class BodyMatcher {
         if (matcher.matches(node) == false) {
           throw new AssertionError(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), content))
         }
-      } else if (!matcher.matches(content)) {
+      } else if (!matcher.matches(response.asString())) {
         throw new AssertionError("Body doesn't match.\nExpected:\n$matcher\nActual:\n$content")
       }
     } else {

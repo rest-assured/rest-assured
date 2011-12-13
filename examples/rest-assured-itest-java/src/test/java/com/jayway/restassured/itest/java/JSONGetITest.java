@@ -22,7 +22,7 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
-import groovyx.net.http.ResponseParseException;
+import net.sf.json.JSONException;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -474,7 +474,7 @@ public class JSONGetITest extends WithJetty {
         expect().statusCode(200).and().header("Content-Type", notNullValue(String.class)).when().get("/contentTypeJsonButBodyIsNotJson");
     }
 
-    @Test(expected = ResponseParseException.class)
+    @Test(expected = JSONException.class)
     public void malformedJson() throws Exception {
         expect().body("a", is(123456)).when().get("/malformedJson").print();
     }

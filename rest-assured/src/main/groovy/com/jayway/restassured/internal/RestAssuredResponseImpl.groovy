@@ -370,7 +370,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
         closure.call()
       }
     } else if(rpr.hasCustomParserExludingDefaultParser(contentType)) {
-      contentTypeToChose = rpr.getParser(contentType).contentType
+      contentTypeToChose = rpr.getNonDefaultParser(contentType).contentType
     } else {
       contentTypeToChose = contentType
     }

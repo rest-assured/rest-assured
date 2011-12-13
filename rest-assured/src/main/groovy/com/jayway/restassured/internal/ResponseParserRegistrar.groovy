@@ -45,6 +45,12 @@ class ResponseParserRegistrar {
 
   def Parser getParser(String contentType) {
     def parserAsString = additional.get(contentType)
+    def parser = parserAsString == null ? Parser.fromContentType(contentType) : Parser.fromContentType(parserAsString)
+    parser == null ? defaultParser : parser
+  }
+
+  def Parser getNonDefaultParser(String contentType) {
+    def parserAsString = additional.get(contentType)
     def parser = parserAsString == null ? null : Parser.fromContentType(parserAsString)
     parser == null ? defaultParser : parser
   }
@@ -73,7 +79,7 @@ class ResponseParserRegistrar {
   }
 
   def boolean hasCustomParserExludingDefaultParser(String contentType) {
-    def parser = getParser(contentType)
+    def parser = getNonDefaultParser(contentType)
     return parser != null && (parser == Parser.XML || parser == Parser.JSON || parser == Parser.HTML);
   }
 

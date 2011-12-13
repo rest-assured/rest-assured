@@ -331,7 +331,6 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   }
 
   class HamcrestAssertionClosure {
-    private def receivedContent
 
     def call(response, content) {
       return getClosure().call(response, content)
@@ -351,14 +350,21 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
     def getClosure() {
       return { response, content ->
-        this.receivedContent = content
         restAssuredResponse.parseResponse( response, content, hasBodyAssertionsDefined(), rpr)
       }
     }
     def validate(Response response) {
       if(hasAssertionsDefined()) {
         validateHeadersAndCookies(response)
-        bodyMatchers.isFulfilled(response, receivedContent)
+        if(hasBodyAssertionsDefined()) {
+          def content
+          if(requiresTextParsing()) {
+            content = response.asString()
+          } else {
+            content = new ContentParser().parse(response, rpr)
+          }
+          bodyMatchers.isFulfilled(response, content)
+        }
       }
     }
     private def validateHeadersAndCookies(Response response) {

@@ -16,34 +16,41 @@
 
 package com.jayway.restassured.parsing;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ArrayUtils;
+
+import static org.apache.commons.lang.ArrayUtils.contains;
+
 /**
  * The different parsers that are provided by REST Assured.
  */
 public enum Parser {
-    XML("application/xml"), TEXT("text/plain"), JSON("application/json"), HTML("text/html");
+    XML("application/xml","text/xml","application/xhtml+xml"), TEXT("text/plain", "*/*"),
+    JSON("application/json","application/javascript","text/javascript"), HTML("text/html");
 
-    private final String contentType;
+    private final String[] contentTypes;
 
-    Parser(String contentType) {
-        this.contentType = contentType;
+    Parser(String... contentTypes) {
+        this.contentTypes = contentTypes;
     }
 
     public String getContentType() {
-        return contentType;
+        return contentTypes[0];
     }
 
     public static Parser fromContentType(String contentType) {
+        contentType = contentType.toLowerCase();
         final Parser foundParser;
-        if(XML.getContentType().equals(contentType)) {
+        if(contains(XML.contentTypes, contentType)) {
             foundParser = XML;
-        } else if(JSON.getContentType().equals(contentType)) {
+        } else if(contains(JSON.contentTypes, contentType)) {
             foundParser = JSON;
-        } else if(TEXT.getContentType().equals(contentType)) {
+        } else if(contains(TEXT.contentTypes, contentType)) {
             foundParser = TEXT;
-        } else if(HTML.getContentType().equals(contentType)) {
+        } else if(contains(HTML.contentTypes, contentType)) {
             foundParser = HTML;
         } else {
-            throw new IllegalArgumentException("Cannot find a parser for content-type "+contentType);
+            foundParser = null;
         }
         return foundParser;
     }

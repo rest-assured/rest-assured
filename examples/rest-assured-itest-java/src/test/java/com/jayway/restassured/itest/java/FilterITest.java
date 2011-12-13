@@ -18,6 +18,7 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.internal.filter.FormAuthFilter;
+import com.jayway.restassured.itest.java.support.SpookyGreetJsonResponseFilter;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
@@ -47,9 +48,9 @@ public class FilterITest extends WithJetty {
                 filter(filter).
         expect().
                 statusCode(200).
-        body(equalTo("OK")).
-                when().
-        get("/formAuth");
+                body(equalTo("OK")).
+        when().
+                get("/formAuth");
     }
 
     @Test
@@ -93,7 +94,7 @@ public class FilterITest extends WithJetty {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor)).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
-        assertThat(writer.toString(), containsString("{\"greeting\": \"Greetings John Doe\"}"));
+        assertThat(writer.toString(), containsString("{\"greeting\":\"Greetings John Doe\"}"));
     }
 
     @Test
@@ -101,7 +102,7 @@ public class FilterITest extends WithJetty {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseToIfMatches(captor, equalTo(200))).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
-        assertThat(writer.toString(), containsString("{\"greeting\": \"Greetings John Doe\"}"));
+        assertThat(writer.toString(), containsString("{\"greeting\":\"Greetings John Doe\"}"));
     }
 
     @Test
@@ -120,7 +121,7 @@ public class FilterITest extends WithJetty {
             given().filter(logResponseTo(captor)).expect().body("greeting", equalTo("Greetings John Do")).when().get("/greet?firstName=John&lastName=Doe");
             fail("Should throw exception");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), containsString("{\"greeting\": \"Greetings John Doe\"}"));
+            assertThat(writer.toString(), containsString("{\"greeting\":\"Greetings John Doe\"}"));
         }
     }
 
@@ -135,5 +136,18 @@ public class FilterITest extends WithJetty {
             RestAssured.reset();
         }
         assertThat(writer.toString(), is("ERROR\nERROR\n"));
+    }
+
+    @Test
+    public void filtersCanAlterResponseBeforeValidation() throws Exception {
+       given().
+               filter(new SpookyGreetJsonResponseFilter()).
+               queryParam("firstName", "John").
+               queryParam("lastName", "Doe").
+       expect().
+                body("greeting.firstName", equalTo("Spooky")).
+                body("greeting.lastName", equalTo("Doe")).
+       when().
+                get("/greetJSON");
     }
 }
