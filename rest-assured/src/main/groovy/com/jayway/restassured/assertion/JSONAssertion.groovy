@@ -30,7 +30,7 @@ class JSONAssertion implements Assertion {
   }
 
   def getAsJsonObject(object) {
-    key = escapePath(key, minus());
+    key = escapePath(key, minus(), attributeGetter());
     def result;
     if (key == "\$" || key == "") {
       result = object

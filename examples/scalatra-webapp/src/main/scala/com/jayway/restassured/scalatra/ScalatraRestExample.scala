@@ -343,6 +343,13 @@ class ScalatraRestExample extends ScalatraServlet {
     }
   }
 
+  get("/jsonWithAtSign") {
+    """{
+        "body" : { "@id" : 10, content: "some content"  }
+     }"""
+
+  }
+
   get("/malformedJson") {
     """{
       "a": 123456

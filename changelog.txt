@@ -17,6 +17,7 @@ Change log next version
 * Improved merging of baseUri, basePath and path. E.g. if the baseUri ends with slash and the path starts with slash one of the slashes are automatically removed (issue 134).
 * java.util.Locale will never be serialized to JSON/XML when provided in as a parameter object
 * Fixed an issue with PUT method duplicating form parameters as query parameters (issue 137)
+* Fixed so that JSON path fragments starting with @ are escaped automatically (issue 138).
 
 Change log 1.4.5 (2011-11-08)
 -----------------------------

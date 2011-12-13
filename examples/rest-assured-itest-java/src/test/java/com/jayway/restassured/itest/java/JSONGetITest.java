@@ -487,4 +487,22 @@ public class JSONGetITest extends WithJetty {
         when().
                 get("/statusCode500");
     }
+
+    @Test
+    public void canParseJsonPathWithAFragmentStartingWithAtSign() throws Exception {
+        expect().
+                statusCode(200).
+                body("body.@id", is(10)).
+        when().
+                get("/jsonWithAtSign");
+    }
+
+    @Test
+    public void canParseJsonPathWithAnEscapedFragmentStartingWithAtSign() throws Exception {
+        expect().
+                statusCode(200).
+                body("body.'@id'", is(10)).
+        when().
+                get("/jsonWithAtSign");
+    }
 }
