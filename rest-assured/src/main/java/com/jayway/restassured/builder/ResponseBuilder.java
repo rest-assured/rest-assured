@@ -24,13 +24,18 @@ import com.jayway.restassured.response.Response;
 import java.io.InputStream;
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
+import static java.lang.String.format;
 
+/**
+ * A builder to make it easier to create new {@link Response} implementations. This is useful if you're working with {@link com.jayway.restassured.filter.Filter}s and want to
+ * change the response you get from the sever somehow.
+ */
 public class ResponseBuilder {
 
     private RestAssuredResponseImpl restAssuredResponse = new RestAssuredResponseImpl();
 
     /**
-     * Set the response body
+     * Clone an already existing response.
      *
      * @return Builder.
      */
@@ -52,7 +57,7 @@ public class ResponseBuilder {
     }
 
     /**
-     * Set the response body
+     * Set the response body to a String
      *
      * @return Builder.
      */
@@ -64,7 +69,7 @@ public class ResponseBuilder {
 
 
     /**
-     * Set the response body
+     * Set the response body to an inputstream
      *
      * @return Builder.
      */
@@ -75,7 +80,7 @@ public class ResponseBuilder {
     }
 
     /**
-     * Set the response body
+     * Set the response body to an array of bytes
      *
      * @return Builder.
      */
@@ -86,7 +91,14 @@ public class ResponseBuilder {
     }
 
     /**
-     * The response headers.
+     * Set response headers,  e.g:
+     * <pre>
+     * Header first = new Header("headerName1", "headerValue1");
+     * Header second = new Header("headerName2", "headerValue2");
+     * Headers headers = new Header(first, second);
+     * </pre>
+     *
+     * @see Headers
      *
      * @return  The builder
      */
@@ -97,7 +109,12 @@ public class ResponseBuilder {
     }
 
     /**
-     * The response cookies with all the attributes.
+     * Set some cookies that will be available in the response. To create cookies you can do:
+     * <pre>
+     * Cookie cookie1 = Cookie.Builder("username", "John").setComment("comment 1").build();
+     * Cookie cookie2 = Cookie.Builder("token", 1234).setComment("comment 2").build();
+     * Cookies cookies = new Cookies(cookie1, cookie2);
+     * </pre>
      *
      * @return The Builder
      */
@@ -137,12 +154,21 @@ public class ResponseBuilder {
      * @return The builder
      */
     public ResponseBuilder setStatusCode(int statusCode) {
-        notNull(statusCode, "Status code");
         restAssuredResponse.setStatusCode(statusCode);
         return this;
     }
 
+    /**
+     * Build the actual response
+     *
+     * @return The response object
+     */
     public Response build() {
+        final int statusCode = restAssuredResponse.statusCode();
+        if(statusCode < 100 || statusCode >= 600) {
+            throw new IllegalArgumentException(format("Status code must be greater than 100 and less than 600, was %d.", statusCode));
+        }
+        notNull("Status line", restAssuredResponse.statusLine());
         return restAssuredResponse;
     }
 

@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.filter.log;
 
+import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
@@ -70,16 +71,9 @@ class StatusCodeBasedLoggingFilter implements Filter {
      */
     private Response cloneResponseIfNeeded(Response response, String responseAsString) {
         if(response instanceof RestAssuredResponseImpl && !((RestAssuredResponseImpl) response).getHasExpectations()) {
-            RestAssuredResponseImpl restAssuredResponse = new RestAssuredResponseImpl();
-            restAssuredResponse.setContent(responseAsString);
-            restAssuredResponse.setContentType(response.getContentType());
-            restAssuredResponse.setCookies(response.getDetailedCookies());
-            restAssuredResponse.setResponseHeaders(response.getHeaders());
-            restAssuredResponse.setStatusCode(response.getStatusCode());
-            restAssuredResponse.setStatusLine(response.getStatusLine());
-            restAssuredResponse.setHasExpectations(true);
-            restAssuredResponse.setDefaultContentType(((RestAssuredResponseImpl) response).getDefaultContentType());
-            return restAssuredResponse;
+            final Response build = new ResponseBuilder().clone(response).setBody(responseAsString).build();
+            ((RestAssuredResponseImpl) build).setHasExpectations(true);
+            return build;
         }
         return response;
     }
