@@ -23,6 +23,13 @@ Change log next version
 	Response myResponse = new ResponseBuilder().clone(originalResponse).setBody("Something").build();
 * Allows configuring redirect settings using the DSL, e.g.
 	given().redirects().max(12).and().redirects().follow(true).when(). ..
+* Support for passing in a keystore located on the file-system, e.g. 
+	given().keystore(new File(".."), "password"). .. 
+  or for all requests:
+	RestAssured.keystore(new File(".."), "password"). ..
+  You can also specify the path to the file system as a string as well:
+       	given().keystore("some/path/my_keystore.jks", "password"). .. 
+  In this case REST Assured will first try to find the keystore in the classpath but if it was not found it will look in the file-system (issue 136).
 
 Change log 1.4.5 (2011-11-08)
 -----------------------------
