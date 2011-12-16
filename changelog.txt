@@ -22,7 +22,7 @@ Change log next version
 * Created a ResponseBuilder to make it easier to create new Response implementations. This is useful if you're working with filters and want to change the response you get from the sever somehow. E.g. 
 	Response myResponse = new ResponseBuilder().clone(originalResponse).setBody("Something").build();
 * Allows configuring redirect settings using the DSL, e.g.
-	given().redirects().max(12).and().redirects().follow(true).when(). ..
+	given().redirects().max(12).and().redirects().follow(true).when(). .. (issue 24)
 * Support for passing in a keystore located on the file-system, e.g. 
 	given().keystore(new File(".."), "password"). .. 
   or for all requests:
