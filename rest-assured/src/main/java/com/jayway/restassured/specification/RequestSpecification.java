@@ -881,10 +881,21 @@ public interface RequestSpecification extends RequestSender {
      * given().keystore("/truststore.jks", "test1234"). ..
      * </pre>
      * </p>
-     * @param pathToJks The path to the JKS
+     * @param pathToJks The path to the JKS. The path to the JKS. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system.
      * @param password The store pass
+     * @return The request specification
      */
     RequestSpecification keystore(String pathToJks, String password);
+
+    /**
+     * Use a keystore located on the file-system. See {@link #keystore(String, String)} for more details.
+     *
+     * @param pathToJks The path to JKS file on the file-system
+     * @param password The password for the keystore
+     * @return The request specification
+     * @see #keystore(String, String)
+     */
+    RequestSpecification keystore(File pathToJks, String password);
 
     /**
      * Specify the headers that'll be sent with the request. This is done by specifying the headers in name-value pairs, e.g:

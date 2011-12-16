@@ -339,6 +339,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return this
   }
 
+  def RequestSpecification keystore(File pathToJks, String password) {
+    Validate.notNull(pathToJks, "Path to java keystore cannot be empty");
+    Validate.notEmpty(password, "Password cannot be empty");
+    this.keyStoreSpec = new KeystoreSpecImpl(path: pathToJks, password: password)
+    this
+  }
+
   def RequestSpecification keystore(String pathToJks, String password) {
     Validate.notEmpty(pathToJks, "Path to java keystore cannot be empty");
     Validate.notEmpty(password, "Password cannot be empty");

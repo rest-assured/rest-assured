@@ -29,6 +29,7 @@ import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
 import org.apache.commons.lang.Validate;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -504,18 +505,25 @@ public class RestAssured {
      * given().keystore("/truststore.jks", "test1234"). ..
      * </pre>
      * </p>
-     * @param classpathToJks The path to the JKS
+     * @param pathToJks The path to the JKS. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system
      * @param password The store pass
      */
-    public static KeystoreSpec keystore(String classpathToJks, String password) {
-        Validate.notEmpty(password, "Password cannot be empty! Standard password for tomcat 'changeit'");
+    public static KeystoreSpec keystore(String pathToJks, String password) {
+        Validate.notEmpty(password, "Password cannot be empty");
+        return setKeyStore(pathToJks, password);
+    }
 
-        final KeystoreSpecImpl spec = new KeystoreSpecImpl();
-        spec.setPath(classpathToJks);
-        spec.setPassword(password);
-        RestAssured.keystoreSpec = spec;
-
-        return keystoreSpec;
+    /**
+     * Use a keystore located on the file-system. See {@link #keystore(String, String)} for more details.
+     *
+     * @param pathToJks The path to JKS file on the file-system
+     * @param password The password for the keystore
+     * @return The request specification
+     * @see #keystore(String, String)
+     */
+    public static KeystoreSpec keystore(File pathToJks, String password) {
+        Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
+        return setKeyStore(pathToJks, password);
     }
 
     /**
@@ -525,7 +533,7 @@ public class RestAssured {
      * @return
      */
     public static KeystoreSpec keystore(String password) {
-        return keystore(null, password);
+        return setKeyStore(null, password);
     }
 
     /**
@@ -985,5 +993,14 @@ public class RestAssured {
         return new TestSpecificationImpl(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keystoreSpec, requestContentType, requestSpecification, urlEncodingEnabled),
                 new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, responseParserRegistrar));
+    }
+
+     private static KeystoreSpec setKeyStore(Object pathToJks, String password) {
+        final KeystoreSpecImpl spec = new KeystoreSpecImpl();
+        spec.setPath(pathToJks);
+        spec.setPassword(password);
+        RestAssured.keystoreSpec = spec;
+
+        return keystoreSpec;
     }
 }

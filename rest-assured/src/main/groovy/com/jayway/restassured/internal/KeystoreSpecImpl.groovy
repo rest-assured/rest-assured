@@ -24,28 +24,33 @@ import org.apache.http.conn.ssl.SSLSocketFactory
 
 class KeystoreSpecImpl implements KeystoreSpec {
 
-    def path
-    def password
+  def path
+  def password
 
-    def void apply(HTTPBuilder builder, int port) {
-        def keyStore = KeyStore.getInstance(KeyStore.defaultType)
-        if (path == null)
-            path = System.getProperty("user.home") + File.separatorChar + ".keystore"
+  def void apply(HTTPBuilder builder, int port) {
+    def keyStore = KeyStore.getInstance(KeyStore.defaultType)
+    if (path == null)
+      path = System.getProperty("user.home") + File.separatorChar + ".keystore"
 
-        def resource = getClass().getResource(path)
-        if (resource == null)
-            resource = new File(path)
-
-        Validate.notNull(resource, "Couldn't find java keystore file in classpath at '$path'.")
-        resource.withInputStream {
-            keyStore.load(it, password.toCharArray())
-        }
-
-        def factory = new SSLSocketFactory(keyStore)
-        factory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)
-        builder.client.connectionManager.schemeRegistry.register(
-                new Scheme("https", factory, port)
-        )
+    def resource
+    if(path instanceof File) {
+      resource = path
+    } else {
+      resource = getClass().getResource(path)
+      if (resource == null)
+        resource = new File(path)
     }
+
+    Validate.notNull(resource, "Couldn't find java keystore file at '$path'.")
+    resource.withInputStream {
+      keyStore.load(it, password.toCharArray())
+    }
+
+    def factory = new SSLSocketFactory(keyStore)
+    factory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)
+    builder.client.connectionManager.schemeRegistry.register(
+            new Scheme("https", factory, port)
+    )
+  }
 
 }
