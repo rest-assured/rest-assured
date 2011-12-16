@@ -16,9 +16,6 @@
 
 package com.jayway.restassured.parsing;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.ArrayUtils;
-
 import static org.apache.commons.lang.ArrayUtils.contains;
 
 /**

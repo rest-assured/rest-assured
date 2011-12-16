@@ -24,10 +24,10 @@ import com.jayway.restassured.specification.FilterableResponseSpecification
 import org.junit.Ignore
 import org.junit.Test
 import static com.jayway.restassured.RestAssured.given
-import static org.hamcrest.Matchers.equalTo
-import static org.junit.Assert.assertThat
 import static java.util.Arrays.asList
+import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.instanceOf
+import static org.junit.Assert.assertThat
 
 class RequestSpecificationTest {
 

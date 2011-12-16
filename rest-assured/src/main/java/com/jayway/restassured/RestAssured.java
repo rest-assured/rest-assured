@@ -29,7 +29,10 @@ import com.jayway.restassured.specification.ResponseSpecification;
 import groovyx.net.http.ContentType;
 import org.apache.commons.lang.Validate;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * REST Assured is a Java DSL for simplifying testing of REST based services built on top of
