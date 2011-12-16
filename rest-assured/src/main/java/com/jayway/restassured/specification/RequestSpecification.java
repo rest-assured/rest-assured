@@ -251,6 +251,16 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification content(Object object, ObjectMapper mapper);
 
     /**
+     * Specify the redirect configuration for this request. E.g.
+     * <pre>
+     *  given().redirects().max(12).and().redirects().follow(true).when(). ..
+     * </pre>
+     *
+     * @return The redirect specification
+     */
+    RedirectSpecification redirects();
+
+    /**
      * Specify the cookies that'll be sent with the request. This is done by specifying the cookies in name-value pairs, e.g:
      * <pre>
      * given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().get("/cookie");
@@ -811,17 +821,6 @@ public interface RequestSpecification extends RequestSender {
      * @return The request specification
      */
     RequestSpecification pathParams(Map<String, ?> parameterNameValuePairs);
-
-    RequestSpecification followRedirects(boolean value);
-
-    RequestSpecification allowCircularRedirects(boolean value);
-
-    RequestSpecification handleAuthentication(boolean value);
-
-    RequestSpecification rejectRelativeRedirect(boolean value);
-
-    RequestSpecification maxRedirects(int value);
-
 
     /**
      * Adding parameters to the http client to control behaviors for redirects

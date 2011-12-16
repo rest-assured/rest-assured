@@ -19,8 +19,10 @@ Change log next version
 * Fixed an issue with PUT method duplicating form parameters as query parameters (issue 137)
 * Fixed so that JSON path fragments starting with @ are escaped automatically (issue 138).
 * Fixed a serious bug in the response parsing which ignored changes made to the response from a filter when using the DSL (issue 139).
-* Create a ResponseBuilder to help you create new Response implementations. This is useful if you're working with filters and want to change the response you get from the sever somehow. E.g. 
-  	Response myResponse = new ResponseBuilder().clone(originalResponse).setBody("Something").build();
+* Created a ResponseBuilder to make it easier to create new Response implementations. This is useful if you're working with filters and want to change the response you get from the sever somehow. E.g. 
+	Response myResponse = new ResponseBuilder().clone(originalResponse).setBody("Something").build();
+* Allows configuring redirect settings using the DSL, e.g.
+	given().redirects().max(12).and().redirects().follow(true).when(). ..
 
 Change log 1.4.5 (2011-11-08)
 -----------------------------

@@ -49,7 +49,6 @@ import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
 import static org.apache.commons.lang.StringUtils.substringAfter
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
-import org.apache.http.client.params.ClientPNames
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static final int DEFAULT_HTTPS_PORT = 443
@@ -333,26 +332,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return pathParameters(parameterNameValuePairs)
   }
 
-  def RequestSpecification followRedirects(boolean value) {
-    return httpClientParameter(ClientPNames.HANDLE_REDIRECTS, value)
-  }
-
-  def RequestSpecification allowCircularRedirects(boolean value) {
-    return httpClientParameter(ClientPNames.ALLOW_CIRCULAR_REDIRECTS, value)
-  }
-
-  def RequestSpecification handleAuthentication(boolean value) {
-    return httpClientParameter(ClientPNames.HANDLE_AUTHENTICATION, value)
-  }
-
-  def RequestSpecification rejectRelativeRedirect(boolean value) {
-    return httpClientParameter(ClientPNames.REJECT_RELATIVE_REDIRECT, value)
-  }
-
-  def RequestSpecification maxRedirects(int value) {
-    return httpClientParameter(ClientPNames.MAX_REDIRECTS, value)
-  }
-
   def RequestSpecification httpClientParameter(String parameterName, Object parameterValue) {
     notNull parameterName,  "parameterName"
     notNull parameterValue, "parameterValue"
@@ -578,6 +557,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def RequestSpecification cookie(String cookieName) {
     cookie(cookieName, null)
+  }
+
+  def RedirectSpecification redirects() {
+    new RedirectSpecificationImpl(this, httpClientParams)
   }
 
   RequestSpecification spec(RequestSpecification requestSpecificationToMerge) {
@@ -1239,5 +1222,4 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
     return thisOne + otherOne;
   }
-
 }

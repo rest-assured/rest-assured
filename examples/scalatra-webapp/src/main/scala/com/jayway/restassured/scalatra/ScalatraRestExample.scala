@@ -254,6 +254,11 @@ class ScalatraRestExample extends ScalatraServlet {
     </body>
   }
 
+  get("/redirect") {
+    val url: String = {params("url")}
+    redirect(url)
+  }
+
   get("/customMimeTypeJsonCompatible") {
     contentType = "application/vnd.uoml+json"
     """{ "message" : "It works" }"""
