@@ -30,6 +30,16 @@ Change log next version
   You can also specify the path to the file system as a string as well:
        	given().keystore("some/path/my_keystore.jks", "password"). .. 
   In this case REST Assured will first try to find the keystore in the classpath but if it was not found it will look in the file-system (issue 136).
+* Status code and status line are now validated before headers and cookies (issue 131).
+* Quotes from strings in error messages has been removed.
+* Added possibility for more some more advanced configuration by providing a RestAssuredConfig instance. Right now you can configure the parameters of HTTP Client and Redirect settings. Examples:
+  For a specific request:
+	given().config(newConfig().redirect(redirectConfig().followRedirects(false))). ..
+  or using a RequestSpecBuilder:
+	RequestSpecification spec = new RequestSpecBuilder().setConfig(newConfig().redirect(redirectConfig().followRedirects(false))).build();
+  or for all requests:
+	RestAssured.config = config().redirect(redirectConfig().followRedirects(true).and().maxRedirects(0));
+  "config()" and "newConfig()" can be statically imported from com.jayway.restassured.config.RestAssuredConfig
 
 Change log 1.4.5 (2011-11-08)
 -----------------------------

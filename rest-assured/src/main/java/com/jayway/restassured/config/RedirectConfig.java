@@ -19,7 +19,7 @@ package com.jayway.restassured.config;
 /**
  * Configures the redirect settings that can be used with RestAssured.
  *
- * @see RestAssuredConfiguration
+ * @see RestAssuredConfig
  * @see org.apache.http.client.params.ClientPNames
  */
 public class RedirectConfig {

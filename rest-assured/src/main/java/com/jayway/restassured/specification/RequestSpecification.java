@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.specification;
 
+import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.response.Cookie;
@@ -823,13 +824,17 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification pathParams(Map<String, ?> parameterNameValuePairs);
 
     /**
-     * Adding parameters to the http client to control behaviors for redirects
+     * Define a configuration for redirection settings and http client parameters. E.g.
+     * <pre>
+     * given().config(config().redirect(redirectConfig().followRedirects(true).and().maxRedirects(0))). ..
+     * </pre>
      *
-     * @param parameterName
-     * @param parameterValue
-     * @return
+     * <code>config()</code> can be statically imported from {@link RestAssuredConfig}.
+     *
+     * @param config The configuration to use for this request. If <code>null</code> no config will be used.
+     * @return The request specification
      */
-    RequestSpecification httpClientParameter(String parameterName, Object parameterValue);
+    RequestSpecification config(RestAssuredConfig config);
 
     /**
      * The following documentation is taken from <a href="HTTP Builder">http://groovy.codehaus.org/modules/http-builder/doc/ssl.html</a>:

@@ -16,10 +16,15 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.config.RedirectConfig.redirectConfig;
+import static com.jayway.restassured.config.RestAssuredConfig.config;
+import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
@@ -45,5 +50,54 @@ public class RedirectITest extends WithJetty {
                 header("Location", is("http://localhost:8080/hello")).
         when().
                 get("/redirect");
+    }
+
+    @Test
+    public void doesntFollowRedirectsIfSpecifiedStaticallyInRedirectConfig() throws Exception {
+        RestAssured.config = newConfig().redirect(redirectConfig().followRedirects(false));
+        try {
+            given().
+                    param("url", "/hello").
+            expect().
+                    statusCode(302).
+                    header("Location", is("http://localhost:8080/hello")).
+            when().
+                    get("/redirect");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test(expected = ClientProtocolException.class)
+    public void throwsClientProtocolExceptionIfMaxNumberOfRedirectAreExceeded() throws Exception {
+        RestAssured.config = config().redirect(redirectConfig().followRedirects(true).and().maxRedirects(0));
+        try {
+            given().
+                    param("url", "/hello").
+            expect().
+                    statusCode(302).
+                    header("Location", is("http://localhost:8080/hello")).
+            when().
+                    get("/redirect");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void definingRedirectConfigInTheDSLOverridesSettingsFromDefaultConfig() throws Exception {
+        RestAssured.config = config().redirect(redirectConfig().followRedirects(false).and().maxRedirects(0));
+        try {
+            given().
+                    redirects().follow(true).and().redirects().max(1).
+                    param("url", "/hello").
+            expect().
+                    statusCode(200).
+                    body("hello", equalTo("Hello Scalatra")).
+            when().
+                    get("/redirect");
+        } finally {
+            RestAssured.reset();
+        }
     }
 }

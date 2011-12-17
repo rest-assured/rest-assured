@@ -22,6 +22,12 @@ import javax.xml.parsers.DocumentBuilderFactory
 import org.hamcrest.Matcher
 import org.hamcrest.xml.HasXPath
 import org.w3c.dom.Element
+import org.apache.commons.lang.StringUtils
+import org.codehaus.groovy.util.StringUtil
+import static org.apache.commons.lang.StringUtils.removeStart
+import static org.apache.commons.lang.StringUtils.removeEnd
+import static org.apache.commons.lang.StringUtils.startsWith
+import static org.apache.commons.lang.StringUtils.endsWith
 
 class BodyMatcher {
   def key
@@ -49,9 +55,17 @@ class BodyMatcher {
         if(result instanceof Object[]) {
           result = result.join(",")
         }
-        throw new AssertionError(String.format("%s %s doesn't match.\nExpected: %s\n     got: %s\n", assertion.description(), key, matcher.toString(), result))
+        throw new AssertionError(String.format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), result))
       }
     }
+  }
+
+  private String removeQuotesIfString(String string) {
+    if(startsWith(string, "\"") && endsWith(string, "\"")) {
+      def start = removeStart(string, "\"")
+      string = removeEnd(start, "\"")
+    }
+    string
   }
 
   def fallbackToResponseBodyIfContentHasAlreadyBeenRead(Response response, content) {

@@ -17,6 +17,7 @@
 package com.jayway.restassured.builder;
 
 import com.jayway.restassured.authentication.AuthenticationScheme;
+import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.SpecificationMerger;
@@ -56,7 +57,8 @@ public class RequestSpecBuilder {
     private RequestSpecification spec;
 
     public RequestSpecBuilder() {
-        this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters(), keystore(), requestContentType(), requestSpecification, urlEncodingEnabled);
+        this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters(), keystore(),
+                requestContentType(), requestSpecification, urlEncodingEnabled, config);
     }
 
     /**
@@ -847,11 +849,22 @@ public class RequestSpecBuilder {
      */
     public RequestSpecBuilder addRequestSpecification(RequestSpecification specification) {
         if(!(specification instanceof RequestSpecification)) {
-            throw new IllegalArgumentException("specification must be of type "+RequestSpecification.class.getClass()+".");
+            throw new IllegalArgumentException("Specification must be of type "+RequestSpecification.class.getClass()+".");
         }
 
         RequestSpecificationImpl rs = (RequestSpecificationImpl) specification;
         SpecificationMerger.merge((RequestSpecificationImpl) spec, rs);
+        return this;
+    }
+
+    /**
+     * Define a configuration for redirection settings and http client parameters.
+     *
+     * @param config The configuration to use for this request. If <code>null</code> no config will be used.
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder setConfig(RestAssuredConfig config) {
+        spec.config(config);
         return this;
     }
 

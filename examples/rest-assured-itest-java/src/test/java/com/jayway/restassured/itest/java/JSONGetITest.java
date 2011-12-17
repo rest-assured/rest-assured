@@ -257,7 +257,7 @@ public class JSONGetITest extends WithJetty {
         exception.expect(AssertionError.class);
         exception.expectMessage(containsString("JSON path lotto.winning-numbers doesn't match."));
         exception.expectMessage(containsString("Expected: a collection containing <43>"));
-        exception.expectMessage(containsString("got: [2, 45, 34, 23, 7, 5, 3]"));
+        exception.expectMessage(containsString("  Actual: [2, 45, 34, 23, 7, 5, 3]"));
 
         expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItem(43)).when().get("/lotto");
     }

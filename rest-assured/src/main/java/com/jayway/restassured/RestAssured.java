@@ -17,6 +17,7 @@
 package com.jayway.restassured;
 
 import com.jayway.restassured.authentication.*;
+import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.internal.*;
 import com.jayway.restassured.internal.filter.FormAuthFilter;
@@ -391,6 +392,18 @@ public class RestAssured {
      *
      */
     public static AuthenticationScheme authentication = DEFAULT_AUTH;
+
+    /**
+     * Define a configuration for redirection settings and http client parameters (default is <code>null</code>). E.g.
+     * <pre>
+     * RestAssured.config = config().redirect(redirectConfig().followRedirects(true).and().maxRedirects(0));
+     * </pre>
+     *
+     * <code>config()</code> can be statically imported from {@link RestAssuredConfig}.
+     *
+     * </pre>
+     */
+    public static RestAssuredConfig config = null;
 
     /**
      * Set the default root path of the response body so that you don't need to write the entire path for each expectation.
@@ -964,9 +977,9 @@ public class RestAssured {
 
     /**
      * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath}, {@link #requestContentType(groovyx.net.http.ContentType)},
-     * {@link #responseContentType(groovyx.net.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification}. {@link #keystore(String, String)}
-     * and {@link #urlEncodingEnabled} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, "", <code>null</code>, <code>null</code>,
-     * "empty list", <code>null</code>, <code>null</code>, <code>none</code>, <code>true</code>.
+     * {@link #responseContentType(groovyx.net.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification}. {@link #keystore(String, String)},
+     * {@link #urlEncodingEnabled} and {@link #config} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, "", <code>null</code>, <code>null</code>,
+     * "empty list", <code>null</code>, <code>null</code>, <code>none</code>, <code>true</code>, <code>null</code>.
      */
     public static void reset() {
         baseURI = DEFAULT_URI;
@@ -983,6 +996,7 @@ public class RestAssured {
         urlEncodingEnabled = DEFAULT_URL_ENCODING_ENABLED;
         RESPONSE_PARSER_REGISTRAR = new ResponseParserRegistrar();
         defaultParser = null;
+        config = null;
     }
 
     private static TestSpecificationImpl createTestSpecification() {
@@ -991,11 +1005,12 @@ public class RestAssured {
         }
         final ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(RESPONSE_PARSER_REGISTRAR);
         return new TestSpecificationImpl(
-                new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keystoreSpec, requestContentType, requestSpecification, urlEncodingEnabled),
+                new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keystoreSpec,
+                        requestContentType, requestSpecification, urlEncodingEnabled, config),
                 new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, responseParserRegistrar));
     }
 
-     private static KeystoreSpec setKeyStore(Object pathToJks, String password) {
+    private static KeystoreSpec setKeyStore(Object pathToJks, String password) {
         final KeystoreSpecImpl spec = new KeystoreSpecImpl();
         spec.setPath(pathToJks);
         spec.setPassword(password);

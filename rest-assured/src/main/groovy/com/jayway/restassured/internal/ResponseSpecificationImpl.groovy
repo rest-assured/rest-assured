@@ -368,15 +368,6 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
       }
     }
     private def validateHeadersAndCookies(Response response) {
-      headerAssertions.each { matcher ->
-        matcher.containsHeader(response.getHeaders())
-      }
-
-      cookieAssertions.each { matcher ->
-        def cookies = response.getHeaders().getValues("Set-Cookie")
-        matcher.containsCookie(cookies)
-      }
-
       if (expectedStatusCode != null) {
         def actualStatusCode = response.getStatusCode()
         if (!expectedStatusCode.matches(actualStatusCode)) {
@@ -389,6 +380,15 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         if (!expectedStatusLine.matches(actualStatusLine)) {
           throw new AssertionError(String.format("Expected status line %s doesn't match actual status line \"%s\".", expectedStatusLine.toString(), actualStatusLine));
         }
+      }
+
+      headerAssertions.each { matcher ->
+        matcher.containsHeader(response.getHeaders())
+      }
+
+      cookieAssertions.each { matcher ->
+        def cookies = response.getHeaders().getValues("Set-Cookie")
+        matcher.containsCookie(cookies)
       }
     }
   }

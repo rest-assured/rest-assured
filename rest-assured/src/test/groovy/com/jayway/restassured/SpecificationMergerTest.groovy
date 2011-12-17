@@ -34,6 +34,10 @@ import static java.util.Arrays.asList
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertFalse
 import static org.junit.Assert.assertTrue
+import com.jayway.restassured.config.RestAssuredConfig
+import static com.jayway.restassured.config.RestAssuredConfig.newConfig
+import com.jayway.restassured.config.RedirectConfig
+import static com.jayway.restassured.config.RedirectConfig.redirectConfig
 
 class SpecificationMergerTest {
 
@@ -177,6 +181,16 @@ class SpecificationMergerTest {
     SpecificationMerger.merge(merge, with)
 
     assertEquals 0, merge.filters.size()
+  }
+
+  @Test
+  public void restAssuredConfigurationIsOverwritten() throws Exception {
+    def merge = new RequestSpecBuilder().setConfig(new RestAssuredConfig()).build();
+    def with = new RequestSpecBuilder().setConfig(newConfig().redirect(redirectConfig().allowCircularRedirects(false))).build();
+
+    SpecificationMerger.merge(merge, with)
+
+    assertFalse merge.restAssuredConfig.getRedirectConfig().allowsCircularRedirects()
   }
 
   private Filter newFilter() {

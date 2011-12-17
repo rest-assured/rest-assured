@@ -18,6 +18,9 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.AuthenticationScheme
 import com.jayway.restassured.authentication.NoAuthScheme
+import com.jayway.restassured.config.HttpClientConfig
+import com.jayway.restassured.config.RedirectConfig
+import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.filter.log.ErrorLoggingFilter
 import com.jayway.restassured.filter.log.ResponseLoggingFilter
@@ -48,6 +51,7 @@ import static groovyx.net.http.ContentType.*
 import static groovyx.net.http.Method.*
 import static java.util.Arrays.asList
 import static org.apache.commons.lang.StringUtils.substringAfter
+import static org.apache.http.client.params.ClientPNames.*
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
@@ -76,11 +80,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private List<Filter> filters = [];
   private KeystoreSpec keyStoreSpec
   private boolean urlEncodingEnabled
+  private RestAssuredConfig restAssuredConfig;
   private List<MultiPart> multiParts = [];
 
   public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
                                    List<Filter> filters, KeystoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec,
-                                   boolean urlEncode) {
+                                   boolean urlEncode, RestAssuredConfig restAssuredConfig) {
     notNull(baseURI, "baseURI");
     notNull(basePath, "basePath");
     notNull(defaultAuthScheme, "defaultAuthScheme");
@@ -94,6 +99,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     this.contentType = defaultRequestContentType
     this.keyStoreSpec = keyStoreSpec
     this.urlEncodingEnabled = urlEncode
+    this.restAssuredConfig = restAssuredConfig
     port(requestPort)
     if(defaultSpec != null) {
       spec(defaultSpec)
@@ -332,11 +338,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return pathParameters(parameterNameValuePairs)
   }
 
-  def RequestSpecification httpClientParameter(String parameterName, Object parameterValue) {
-    notNull parameterName,  "parameterName"
-    notNull parameterValue, "parameterValue"
-    appendStandardParameter(httpClientParams, parameterName, parameterValue)
-    return this
+  def RequestSpecification config(RestAssuredConfig config) {
+    this.restAssuredConfig = config
+    this
   }
 
   def RequestSpecification keystore(File pathToJks, String password) {
@@ -693,13 +697,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       }
     };
 
-    // Apply http client parameters
-    if (httpClientParams != null && !httpClientParams.isEmpty()) {
-      def p = http.client.getParams();
-      httpClientParams.each { key, value ->
-        p.setParameter(key, value)
-      }
-    }
+    applyRestAssuredConfig(http)
     registerRestAssuredEncoders(http);
     RestAssuredParserRegistry.responseSpecification = responseSpecification
     http.setParserRegistry(new RestAssuredParserRegistry())
@@ -747,6 +745,39 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       sendHttpRequest(http, method, responseContentType, targetPath, assertionClosure)
     }
     return restAssuredResponse
+  }
+
+  def applyRestAssuredConfig(HTTPBuilder http) {
+    if(restAssuredConfig != null) {
+      applyRedirectConfig(restAssuredConfig.getRedirectConfig())
+      applyHttpClientConfig(restAssuredConfig.getHttpClientConfig())
+    }
+    if (!httpClientParams.isEmpty()) {
+      def p = http.client.getParams();
+
+      httpClientParams.each { key, value ->
+        p.setParameter(key, value)
+      }
+    }
+  }
+
+  def applyHttpClientConfig(HttpClientConfig httpClientConfig) {
+    ([:].plus(httpClientConfig.params())).each { key, value ->
+      putIfAbsent(httpClientParams, key, value)
+    }
+  }
+
+  def applyRedirectConfig(RedirectConfig redirectConfig) {
+    putIfAbsent(httpClientParams, ALLOW_CIRCULAR_REDIRECTS, redirectConfig.allowsCircularRedirects())
+    putIfAbsent(httpClientParams, HANDLE_REDIRECTS, redirectConfig.followsRedirects())
+    putIfAbsent(httpClientParams, MAX_REDIRECTS, redirectConfig.maxRedirects())
+    putIfAbsent(httpClientParams, REJECT_RELATIVE_REDIRECT, redirectConfig.rejectRelativeRedirects())
+  }
+
+  private def putIfAbsent(Map map, key, value) {
+    if(!map.containsKey(key)) {
+      map.put(key, value)
+    }
   }
 
   def assembleBodyContent(httpMethod) {

@@ -65,6 +65,7 @@ class SpecificationMerger {
    *     <li>Request body</li>
    *     <li>Keystore</li>
    *     <li>URL Encoding enabled/disabled</li>
+   *     <li>Config</li>
    * </ul>
    * The following settings are merged:
    * <ul>
@@ -96,6 +97,7 @@ class SpecificationMerger {
     thisOne.requestBody = with.requestBody
     mergeFilters(thisOne, with)
     thisOne.urlEncodingEnabled = with.urlEncodingEnabled
+    thisOne.restAssuredConfig = with.restAssuredConfig
   }
 
   private static def mergeFilters(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {

@@ -24,6 +24,7 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull;
 
 /**
  * Configure the Apache HTTP Client parameters.
+ * <p>Note that you can't configure the redirect settings from this config. Please use {@link RedirectConfig} for this purpose.</p>
  *
  * @see org.apache.http.client.params.ClientPNames
  * @see org.apache.http.params.CoreProtocolPNames

@@ -26,6 +26,8 @@ import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.config.RedirectConfig.redirectConfig;
+import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -343,6 +345,21 @@ public class SpecificationBuilderITest extends WithJetty {
         when().
                get("/{firstName}/{lastName}");
     }
+
+    @Test
+    public void supportsSettingConfigWhenUsingRequestSpecBuilder() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().setConfig(newConfig().redirect(redirectConfig().followRedirects(false))).build();
+
+        given().
+                param("url", "/hello").
+                spec(spec).
+        expect().
+                statusCode(302).
+                header("Location", Matchers.is("http://localhost:8080/hello")).
+        when().
+                get("/redirect");
+    }
+
 
     @Test
     public void supportsSpecifyingKeystore() throws Exception {
