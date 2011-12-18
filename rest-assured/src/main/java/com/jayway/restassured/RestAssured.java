@@ -551,9 +551,26 @@ public class RestAssured {
 
     /**
      * The the default filters to apply to each request.
+     *
+     * @param filters The filter list
      */
     public static void filters(List<Filter> filters) {
+        Validate.notNull(filters, "Filter list cannot be null");
         RestAssured.filters.addAll(filters);
+    }
+
+    /**
+     * The the default filters to apply to each request.
+     *
+     * @param filter The filter to set
+     * @param additionalFilters An optional array of additional filters to set
+     */
+    public static void filters(Filter filter, Filter...additionalFilters) {
+        Validate.notNull(filter, "Filter cannot be null");
+        RestAssured.filters.add(filter);
+        if(additionalFilters != null) {
+            Collections.addAll(RestAssured.filters, additionalFilters);
+        }
     }
 
     /**

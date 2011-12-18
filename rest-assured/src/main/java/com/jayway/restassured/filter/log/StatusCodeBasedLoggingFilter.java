@@ -20,18 +20,26 @@ import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
+import com.jayway.restassured.response.Cookies;
+import com.jayway.restassured.response.Header;
+import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.hamcrest.Matcher;
 
 import java.io.PrintStream;
 
+import static com.jayway.restassured.filter.log.LogDetail.*;
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 class StatusCodeBasedLoggingFilter implements Filter {
 
     private final PrintStream stream;
-    private Matcher<?> matcher;
+    private final Matcher<?> matcher;
+    private final LogDetail logDetail;
 
     /**
      * Log to system out
@@ -47,22 +55,62 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param matcher The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(PrintStream stream, Matcher<Integer> matcher) {
-        this.matcher = matcher;
+        this(ALL, stream, matcher);
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream and a specific log detail
+     *
+     * @param logDetail The log detail
+     * @param stream The stream to log errors to.
+     * @param matcher The matcher for the logging to take place
+     */
+    public StatusCodeBasedLoggingFilter(LogDetail logDetail, PrintStream stream, Matcher<Integer> matcher) {
+        Validate.notNull(logDetail, "Log details cannot be null");
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(matcher, "Matcher cannot be null");
+        this.logDetail = logDetail;
         this.stream = stream;
+        this.matcher = matcher;
     }
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
         Response response = ctx.next(requestSpec, responseSpec);
         final int statusCode = response.statusCode();
         if(matcher.matches(statusCode)) {
-            final String responseAsString = response.asString();
-            stream.println(responseAsString);
+            final String responseAsString = log(response);
             response = cloneResponseIfNeeded(response, responseAsString);
         }
 
         return response;
+    }
+
+    private String log(Response response) {
+        final StringBuilder builder = new StringBuilder();
+        if(logDetail == ALL || logDetail == STATUS) {
+            builder.append(response.statusLine()).append("\n");
+        }
+        if(logDetail == ALL || logDetail == HEADERS) {
+            final Headers headers = response.headers();
+            if(headers.exist()) {
+                builder.append(headers.toString()).append("\n");
+            }
+        } else if(logDetail == COOKIES) {
+            final Cookies cookies = response.detailedCookies();
+            if(cookies.exist()) {
+                builder.append(cookies.toString()).append("\n");
+            }
+        }
+        if(logDetail == ALL || logDetail == BODY) {
+            final String responseBody = response.asString();
+            if(logDetail == ALL && !isBlank(responseBody)) {
+                builder.append("\n");
+            }
+            builder.append(responseBody);
+        }
+        final String responseAsString = builder.toString();
+        stream.println(responseAsString);
+        return responseAsString;
     }
 
     /*

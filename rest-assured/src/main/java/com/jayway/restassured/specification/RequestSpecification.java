@@ -1261,6 +1261,15 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification filters(List<Filter> filters);
 
     /**
+     * Add filters that will be used in the request.
+     *
+     * @param filter The filter to add
+     * @param additionalFilter Additional filters to add
+     * @return the request specification
+     */
+    RequestSpecification filters(Filter filter, Filter...additionalFilter);
+
+    /**
      * Remove all applied filters
      *
      * @return the request specification

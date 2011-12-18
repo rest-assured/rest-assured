@@ -53,6 +53,7 @@ import static java.util.Arrays.asList
 import static org.apache.commons.lang.StringUtils.substringAfter
 import static org.apache.http.client.params.ClientPNames.*
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
+import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static final int DEFAULT_HTTPS_PORT = 443
@@ -369,6 +370,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return this
   }
 
+  def RequestSpecification filters(Filter filter, Filter...additionalFilter) {
+    notNull filter, "Filter"
+    this.filters.add(filter)
+    additionalFilter?.each {
+      this.filters.add(it)
+    }
+    return this
+  }
+
   def RequestSpecification log() {
     return filter(ResponseLoggingFilter.responseLogger())
   }
@@ -431,7 +441,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return this;
   }
 
-  RequestSpecification content(byte[] content) {
+  def RequestSpecification content(byte[] content) {
     notNull content, "content"
     return body(content);
   }
@@ -461,19 +471,19 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return body(object, mapper)
   }
 
-  RequestSpecification contentType(ContentType contentType) {
+  def RequestSpecification contentType(ContentType contentType) {
     notNull contentType, "contentType"
     this.contentType = contentType
     return  this
   }
 
-  RequestSpecification contentType(String contentType) {
+  def RequestSpecification contentType(String contentType) {
     notNull contentType, "contentType"
     this.contentType = contentType
     return  this
   }
 
-  RequestSpecification headers(Map headers) {
+  def RequestSpecification headers(Map headers) {
     notNull headers, "headers"
     def headerList = []
     if(this.requestHeaders.exist()) {
@@ -839,7 +849,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       convertFormParamsToMultiPartParams()
     }
     http.encoder.putAt MULTIPART_FORM_DATA, {
-      MultipartEntity entity = new MultipartEntity(HttpMultipartMode.BROWSER_COMPATIBLE);
+      MultipartEntity entity = new MultipartEntity(BROWSER_COMPATIBLE);
 
       multiParts.each {
         def body = it.contentBody
@@ -1116,12 +1126,20 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return port
   }
 
-  Map<String, String> getRequestParams() {
-    return requestParameters
+  def Map<String, Object> getFormParams() {
+    return Collections.unmodifiableMap(formParams)
   }
 
-  Map<String, String> getQueryParams() {
-    return queryParams
+  def Map<String, Object> getPathParams() {
+    return Collections.unmodifiableMap(pathParams)
+  }
+
+  Map<String, Object> getRequestParams() {
+    return Collections.unmodifiableMap(requestParameters)
+  }
+
+  Map<String, Object> getQueryParams() {
+    return Collections.unmodifiableMap(queryParams)
   }
 
   Headers getHeaders() {
@@ -1138,6 +1156,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   List<Filter> getDefinedFilters() {
     return Collections.unmodifiableList(filters)
+  }
+
+  def RestAssuredConfig getConfig() {
+    return restAssuredConfig
   }
 
   String getRequestContentType() {

@@ -22,6 +22,7 @@ import org.hamcrest.Matchers;
 
 import java.io.PrintStream;
 
+import static com.jayway.restassured.filter.log.LogDetail.ALL;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
@@ -64,23 +65,56 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
     }
 
     /**
+     * Instantiate a logger using a specific print stream for all status codes
+     *
+     *@param logDetail The log detail
+     * @param stream The stream to log errors to.
+     */
+    public ResponseLoggingFilter(LogDetail logDetail, PrintStream stream) {
+        this(logDetail, stream, Matchers.<Integer>anything());
+    }
+
+
+    /**
      * Instantiate a logger using a specific print stream for status codes matching the supplied status code.
      *
      * @param stream The stream to log errors to.
      * @param statusCode The status code that must be present in the response if the response body is to be printed.
      */
     public ResponseLoggingFilter(PrintStream stream, int statusCode) {
-        super(stream, equalTo(statusCode));
+        this(stream, equalTo(statusCode));
     }
 
     /**
-     * Instantiate a logger using a specific print stream for status codes matching the supplied matcher.
+     * Instantiate a logger using a specific print stream for status codes matching the supplied status code.
      *
      * @param stream The stream to log errors to.
      * @param matcher The matcher that must be fulfilled if the response body is to be printed.
      */
     public ResponseLoggingFilter(PrintStream stream, Matcher<Integer> matcher) {
-        super(stream, matcher);
+        this(ALL, stream, matcher);
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream for status codes matching the supplied status code.
+     *
+     * @param logDetail The log detail
+     * @param stream The stream to log errors to.
+     * @param statusCode The status code that must be present in the response if the response body is to be printed.
+     */
+    public ResponseLoggingFilter(LogDetail logDetail, PrintStream stream, int statusCode) {
+        this(logDetail, stream, equalTo(statusCode));
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream for status codes matching the supplied matcher.
+     *
+     * @param logDetail The log detail
+     * @param stream The stream to log errors to.
+     * @param matcher The matcher that must be fulfilled if the response body is to be printed.
+     */
+    public ResponseLoggingFilter(LogDetail logDetail, PrintStream stream, Matcher<Integer> matcher) {
+        super(logDetail, stream, matcher);
     }
 
     /**
@@ -102,6 +136,19 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      */
     public static Filter logResponseTo(PrintStream stream) {
         return new ResponseLoggingFilter(stream);
+    }
+
+    /**
+     * Create a new logging filter without using the "new" operator.
+     * Will make the DSL look nicer.
+     *
+     *
+     * @param stream The print stream to log to
+     * @param logDetail The log detail
+     * @return a new instance of the filter
+     */
+    public static Filter logResponseTo(PrintStream stream, LogDetail logDetail) {
+        return new ResponseLoggingFilter(logDetail, stream);
     }
 
     /**

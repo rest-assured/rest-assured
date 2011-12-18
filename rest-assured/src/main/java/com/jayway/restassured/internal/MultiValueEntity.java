@@ -67,7 +67,7 @@ public class MultiValueEntity<T extends NameAndValue> implements Iterable<T> {
     public T get(String entityName) {
         notNull(entityName, "Entity name");
         for (T entity : entities) {
-            if(entity.getName().equals(entityName)) {
+            if(entity.getName().equalsIgnoreCase(entityName)) {
                 return entity;
             }
         }

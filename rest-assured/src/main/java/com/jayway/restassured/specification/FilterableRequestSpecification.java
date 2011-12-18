@@ -17,6 +17,7 @@
 package com.jayway.restassured.specification;
 
 import com.jayway.restassured.authentication.AuthenticationScheme;
+import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Headers;
@@ -30,47 +31,57 @@ import java.util.Map;
 public interface FilterableRequestSpecification extends RequestSpecification {
 
     /**
-     * @return The base URI defined in the request
+     * @return The base URI defined in the request specification
      */
     String getBaseUri();
 
     /**
-     * @return The base path defined in the request
+     * @return The base path defined in the request specification
      */
     String getBasePath();
 
     /**
-     * @return The port defined in the request
+     * @return The port defined in the request specification
      */
     int getPort();
 
     /**
-     * @return The request content type defined in the request
+     * @return The request content type defined in the request specification
      */
     String getRequestContentType();
 
     /**
-     * @return The authentication scheme defined in the request
+     * @return The authentication scheme defined in the request specification
      */
     AuthenticationScheme getAuthenticationScheme();
 
     /**
-     * @return The request parameters defined in the request
+     * @return The request parameters defined in the request specification
      */
-    Map<String, String> getRequestParams();
+    Map<String, ?> getRequestParams();
 
     /**
-     * @return The query parameters defined in the request
+     * @return The form parameters defined in the request specification
      */
-    Map<String, String> getQueryParams();
+    Map<String, ?> getFormParams();
 
     /**
-     * @return The headers defined in the request
+     * @return The (named) path parameters defined in the request specification
+     */
+    Map<String,?> getPathParams();
+
+    /**
+     * @return The query parameters defined in the request specification
+     */
+    Map<String, ?> getQueryParams();
+
+    /**
+     * @return The headers defined in the request specification
      */
     Headers getHeaders();
 
     /**
-     * @return The cookies defined in the request
+     * @return The cookies defined in the request specification
      */
     Cookies getCookies();
 
@@ -83,4 +94,9 @@ public interface FilterableRequestSpecification extends RequestSpecification {
      * @return The filters (unmodifiable)
      */
     List<Filter> getDefinedFilters();
+
+    /**
+     * @return The Rest Assured configurations
+     */
+    RestAssuredConfig getConfig();
 }

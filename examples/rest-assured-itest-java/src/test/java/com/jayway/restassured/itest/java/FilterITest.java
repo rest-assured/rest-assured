@@ -54,78 +54,6 @@ public class FilterITest extends WithJetty {
     }
 
     @Test
-    public void errorLoggingFilterWorks() throws Exception {
-        final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
-        given().filter(logErrorsTo(captor)).and().expect().body(equalTo("ERROR")).when().get("/409");
-        assertThat(writer.toString(), containsString("ERROR"));
-    }
-
-    @Test
-    public void logErrorsUsingRequestSpec() throws Exception {
-        given().logOnError().and().expect().body(equalTo("ERROR")).when().get("/409");
-    }
-
-    @Test
-    public void logErrorsUsingResponseSpec() throws Exception {
-        expect().logOnError().body(equalTo("ERROR")).when().get("/409");
-    }
-
-    @Test
-    public void logUsingRequestSpec() throws Exception {
-        given().log().and().expect().body(equalTo("ERROR")).when().get("/409");
-    }
-
-    @Test
-    public void logUsingResponseSpec() throws Exception {
-        expect().log().body(equalTo("ERROR")).when().get("/409");
-    }
-
-    @Test
-    public void loggingFilterLogsErrors() throws Exception {
-        final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
-        given().filter(logResponseTo(captor)).and().expect().body(equalTo("ERROR")).when().get("/409");
-        assertThat(writer.toString(), containsString("ERROR"));
-    }
-
-    @Test
-    public void loggingFilterLogsNonErrors() throws Exception {
-        final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
-        given().filter(logResponseTo(captor)).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
-        assertThat(writer.toString(), containsString("{\"greeting\":\"Greetings John Doe\"}"));
-    }
-
-    @Test
-    public void loggingFilterLogsToSpecifiedWriterWhenMatcherIsFulfilled() throws Exception {
-        final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
-        given().filter(logResponseToIfMatches(captor, equalTo(200))).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
-        assertThat(writer.toString(), containsString("{\"greeting\":\"Greetings John Doe\"}"));
-    }
-
-    @Test
-    public void loggingFilterDoesntLogWhenSpecifiedMatcherIsNotFulfilled() throws Exception {
-        final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
-        given().filter(logResponseToIfMatches(captor, equalTo(400))).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
-        assertThat(writer.toString(), is(""));
-    }
-
-    @Test
-    public void loggingFilterLogsWhenExpectationsFail() throws Exception {
-        final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
-        try {
-            given().filter(logResponseTo(captor)).expect().body("greeting", equalTo("Greetings John Do")).when().get("/greet?firstName=John&lastName=Doe");
-            fail("Should throw exception");
-        } catch (AssertionError e) {
-            assertThat(writer.toString(), containsString("{\"greeting\":\"Greetings John Doe\"}"));
-        }
-    }
-
-    @Test
     public void supportsSpecifyingDefaultFilters() throws Exception {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -135,7 +63,7 @@ public class FilterITest extends WithJetty {
         }  finally {
             RestAssured.reset();
         }
-        assertThat(writer.toString(), is("ERROR\nERROR\n"));
+        assertThat(writer.toString(), is("HTTP/1.1 409 Conflict\nContent-Type=text/plain; charset=utf-8\nContent-Length=5\nServer=Jetty(6.1.14)\n\nERROR\nHTTP/1.1 409 Conflict\nContent-Type=text/plain; charset=utf-8\nContent-Length=5\nServer=Jetty(6.1.14)\n\nERROR\n"));
     }
 
     @Test

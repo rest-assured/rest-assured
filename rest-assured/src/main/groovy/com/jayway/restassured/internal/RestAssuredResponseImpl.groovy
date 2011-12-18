@@ -175,6 +175,9 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
   }
 
   def Cookies detailedCookies() {
+    if(cookies == null) {
+      return new Cookies()
+    }
     return cookies
   }
 

@@ -40,6 +40,10 @@ Change log next version
   or for all requests:
 	RestAssured.config = config().redirect(redirectConfig().followRedirects(true).and().maxRedirects(0));
   "config()" and "newConfig()" can be statically imported from com.jayway.restassured.config.RestAssuredConfig
+* Non-backward compatible change: getRequestParams and getQueryParams() now returns Map<String, ?> instead of Map<String, String> in FilterableRequestSpecification.
+* Added getFormParams() and getPathParams() to com.jayway.restassured.specification.FilterableRequestSpecification.
+* Header- and Cookie names are now case-insentive in com.jayway.restassured.response.Headers and com.jayway.restassured.response.Cookies.
+* Added a new method called filters(Filter filter, Filter...additionalFilter) in the com.jayway.restassured.specification.RequestSpecification and com.jayway.restassured.RestAssured.
 
 Change log 1.4.5 (2011-11-08)
 -----------------------------
