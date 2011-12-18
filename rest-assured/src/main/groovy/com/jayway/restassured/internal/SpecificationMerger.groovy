@@ -85,9 +85,9 @@ class SpecificationMerger {
 
     thisOne.port = with.port
     thisOne.requestParameters.putAll(with.requestParameters)
-    thisOne.queryParams.putAll(with.queryParams)
-    thisOne.formParams.putAll(with.formParams)
-    thisOne.pathParams.putAll(with.pathParams)
+    thisOne.queryParameters.putAll(with.queryParams)
+    thisOne.formParameters.putAll(with.formParams)
+    thisOne.pathParameters.putAll(with.pathParams)
     thisOne.multiParts.addAll(with.multiParts)
     thisOne.authenticationScheme = with.authenticationScheme
     thisOne.keyStoreSpec = with.keyStoreSpec

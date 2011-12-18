@@ -87,6 +87,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
 
     private String log(Response response) {
         final StringBuilder builder = new StringBuilder();
+        String responseBody = null;
         if(logDetail == ALL || logDetail == STATUS) {
             builder.append(response.statusLine()).append("\n");
         }
@@ -102,15 +103,14 @@ class StatusCodeBasedLoggingFilter implements Filter {
             }
         }
         if(logDetail == ALL || logDetail == BODY) {
-            final String responseBody = response.asString();
+            responseBody = response.asString();
             if(logDetail == ALL && !isBlank(responseBody)) {
                 builder.append("\n");
             }
             builder.append(responseBody);
         }
-        final String responseAsString = builder.toString();
-        stream.println(responseAsString);
-        return responseAsString;
+        stream.println(builder.toString());
+        return responseBody;
     }
 
     /*
@@ -118,7 +118,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * has been closed due to the logging.
      */
     private Response cloneResponseIfNeeded(Response response, String responseAsString) {
-        if(response instanceof RestAssuredResponseImpl && !((RestAssuredResponseImpl) response).getHasExpectations()) {
+        if(responseAsString != null && response instanceof RestAssuredResponseImpl && !((RestAssuredResponseImpl) response).getHasExpectations()) {
             final Response build = new ResponseBuilder().clone(response).setBody(responseAsString).build();
             ((RestAssuredResponseImpl) build).setHasExpectations(true);
             return build;

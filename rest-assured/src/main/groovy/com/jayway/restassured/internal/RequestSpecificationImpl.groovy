@@ -40,7 +40,7 @@ import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
-import org.apache.http.entity.mime.HttpMultipartMode
+
 import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.message.BasicHeader
 import static com.jayway.restassured.assertion.AssertParameter.notNull
@@ -68,9 +68,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   private AuthenticationScheme defaultAuthScheme
   private int port
   private Map<String, Object> requestParameters = [:]
-  private Map<String, Object> queryParams = [:]
-  private Map<String, Object> formParams = [:]
-  private Map<String, Object> pathParams = [:]
+  private Map<String, Object> queryParameters = [:]
+  private Map<String, Object> formParameters = [:]
+  private Map<String, Object> pathParameters = [:]
   private Map<String, Object> httpClientParams = [:]
   def AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private FilterableResponseSpecification responseSpecification;
@@ -206,7 +206,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   def RequestSpecification queryParameter(String parameterName, List parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
-    appendListParameter(queryParams, parameterName, parameterValues)
+    appendListParameter(queryParameters, parameterName, parameterValues)
     return this
   }
 
@@ -232,16 +232,16 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def RequestSpecification queryParameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
-    appendParameters(parametersMap, queryParams)
+    appendParameters(parametersMap, queryParameters)
     return this
   }
 
   def RequestSpecification queryParameter(String parameterName, Object parameterValue, Object... additionalParameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
-    appendStandardParameter(queryParams, parameterName, parameterValue)
+    appendStandardParameter(queryParameters, parameterName, parameterValue)
     if(additionalParameterValues != null) {
-      appendListParameter(queryParams, parameterName, asList(additionalParameterValues))
+      appendListParameter(queryParameters, parameterName, asList(additionalParameterValues))
     }
     return this
   }
@@ -261,7 +261,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   def RequestSpecification formParameter(String parameterName, List parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
-    appendListParameter(formParams, parameterName, parameterValues)
+    appendListParameter(formParameters, parameterName, parameterValues)
     return this
   }
 
@@ -277,16 +277,16 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def RequestSpecification formParameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
-    appendParameters(parametersMap, formParams)
+    appendParameters(parametersMap, formParameters)
     return this
   }
 
   def RequestSpecification formParameter(String parameterName, Object parameterValue, Object... additionalParameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
-    appendStandardParameter(formParams, parameterName, parameterValue)
+    appendStandardParameter(formParameters, parameterName, parameterValue)
     if(additionalParameterValues != null) {
-      appendListParameter(formParams, parameterName, asList(additionalParameterValues))
+      appendListParameter(formParameters, parameterName, asList(additionalParameterValues))
     }
     return this
   }
@@ -311,7 +311,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   def RequestSpecification pathParameter(String parameterName, Object parameterValue) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
-    appendStandardParameter(pathParams, parameterName, parameterValue)
+    appendStandardParameter(pathParameters, parameterName, parameterValue)
     return this
   }
 
@@ -323,7 +323,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def RequestSpecification pathParameters(Map parameterNameValuePairs) {
     notNull parameterNameValuePairs, "parameterNameValuePairs"
-    appendParameters(parameterNameValuePairs, pathParams)
+    appendParameters(parameterNameValuePairs, pathParameters)
     return this
   }
 
@@ -667,10 +667,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
                       assertionClosure.call (response, content)
                     });
           }
-          delegate.uri.query = queryParams
+          delegate.uri.query = queryParameters
         } else if(!urlEncodingEnabled) {
           // Overwrite the URL encoded query parameters with the original ones
-          delegate.uri.query = queryParams
+          delegate.uri.query = queryParameters
         }
 
         return restAssuredDoRequest(this, delegate)
@@ -792,7 +792,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   def assembleBodyContent(httpMethod) {
     if(hasFormParams()) {
-      httpMethod == Method.POST ? requestParameters += formParams : formParams
+      httpMethod == Method.POST ? requestParameters += formParameters : formParameters
     } else if(multiParts.isEmpty()) {
       requestBody
     } else {
@@ -862,16 +862,16 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   private def convertFormParamsToMultiPartParams() {
-    def allFormParams = requestParameters += formParams
+    def allFormParams = requestParameters += formParameters
     allFormParams.each {
       multiPart(it.key, it.value)
     }
     requestParameters.clear()
-    formParams.clear()
+    formParameters.clear()
   }
 
   private def sendHttpRequest(HTTPBuilder http, method, responseContentType, targetPath, assertionClosure) {
-    def allQueryParams = requestParameters += queryParams
+    def allQueryParams = requestParameters += queryParameters
     http.request(method, responseContentType) {
       uri.path = targetPath
 
@@ -893,11 +893,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   private boolean hasFormParams() {
-    return !(requestParameters.isEmpty() && formParams.isEmpty())
+    return !(requestParameters.isEmpty() && formParameters.isEmpty())
   }
 
   private boolean shouldUrlEncode(method) {
-    return POST.equals(method) || formParams.size() > 0
+    return POST.equals(method) || formParameters.size() > 0
   }
 
   private boolean isFullyQualified(String targetUri) {
@@ -915,7 +915,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
           throw new IllegalArgumentException("Illegal parameters passed to REST Assured. Parameters was: $keyValueParams")
         }
         if(method == POST) {
-          queryParams.put(keyValue[0], keyValue[1])
+          queryParameters.put(keyValue[0], keyValue[1])
         } else {
           param(keyValue[0], keyValue[1]);
         }
@@ -1046,7 +1046,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   private def String applyPathParamsIfNeeded(String path, Object... pathParams) {
     def suppliedPathParamSize = pathParams.size()
-    def fieldPathParamSize = this.pathParams.size()
+    def fieldPathParamSize = this.pathParameters.size()
     if(suppliedPathParamSize == 0 && fieldPathParamSize == 0) {
       return path
     } else if(suppliedPathParamSize > 0 && fieldPathParamSize > 0) {
@@ -1064,7 +1064,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
           path = path.replaceFirst(replacePattern, Matcher.quoteReplacement(it.toString()))
         }
       } else {
-        this.pathParams.each { key, value ->
+        this.pathParameters.each { key, value ->
           def literalizedKey = Matcher.quoteReplacement(key)
           def replacePattern = Pattern.compile("\\{$literalizedKey\\}")
           int current = 0;
@@ -1127,11 +1127,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   def Map<String, Object> getFormParams() {
-    return Collections.unmodifiableMap(formParams)
+    return Collections.unmodifiableMap(formParameters)
   }
 
   def Map<String, Object> getPathParams() {
-    return Collections.unmodifiableMap(pathParams)
+    return Collections.unmodifiableMap(pathParameters)
   }
 
   Map<String, Object> getRequestParams() {
@@ -1139,7 +1139,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   Map<String, Object> getQueryParams() {
-    return Collections.unmodifiableMap(queryParams)
+    return Collections.unmodifiableMap(queryParameters)
   }
 
   Headers getHeaders() {
