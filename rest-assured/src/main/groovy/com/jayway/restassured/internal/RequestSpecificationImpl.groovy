@@ -379,12 +379,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return this
   }
 
-  def RequestSpecification log() {
-    return filter(ResponseLoggingFilter.responseLogger())
-  }
-
-  def RequestSpecification logOnError() {
-    return filter(ErrorLoggingFilter.errorLogger())
+  def RequestLogSpecification log() {
+    return new RequestLogSpecificationImpl(requestSpecification: this)
   }
 
   def RequestSpecification and() {

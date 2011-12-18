@@ -51,22 +51,17 @@ public class LoggingITest extends WithJetty {
 
     @Test
     public void logErrorsUsingRequestSpec() throws Exception {
-        given().logOnError().and().expect().body(equalTo("ERROR")).when().get("/409");
-    }
-
-    @Test
-    public void logErrorsUsingResponseSpec() throws Exception {
-        expect().logOnError().body(equalTo("ERROR")).when().get("/409");
+        expect().log().ifError().body(equalTo("ERROR")).when().get("/409");
     }
 
     @Test
     public void logUsingRequestSpec() throws Exception {
-        given().log().and().expect().body(equalTo("ERROR")).when().get("/409");
+        given().log().everything().and().expect().body(equalTo("ERROR")).when().get("/409");
     }
 
     @Test
     public void logUsingResponseSpec() throws Exception {
-        expect().log().body(equalTo("ERROR")).when().get("/409");
+        expect().log().everything().body(equalTo("ERROR")).when().get("/409");
     }
 
     @Test

@@ -21,12 +21,10 @@ import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
 import com.jayway.restassured.response.Cookies;
-import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 import org.hamcrest.Matcher;
 
@@ -69,6 +67,9 @@ class StatusCodeBasedLoggingFilter implements Filter {
         Validate.notNull(logDetail, "Log details cannot be null");
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(matcher, "Matcher cannot be null");
+        if(logDetail == PARAMS) {
+            throw new IllegalArgumentException(String.format("%s is not a valid %s for a response.", PARAMS, LogDetail.class.getSimpleName()));
+        }
         this.logDetail = logDetail;
         this.stream = stream;
         this.matcher = matcher;

@@ -16,6 +16,43 @@
 
 package com.jayway.restassured.specification;
 
-// TODO Make marker interface for response log for future compatibly
-public interface LogSpecification {
+/**
+ * Base interface for request- and response log specifications.
+ */
+public interface LogSpecification<T extends RequestSender> {
+
+    /**
+     * Logs only the content of the body.
+     *
+     * @return The specification
+     */
+    T body();
+
+    /**
+     * Logs everything in the specification, including e.g. headers, cookies, body.
+     *
+     * @return The specification
+     */
+    T all();
+
+    /**
+     ** Logs everything in the specification, including e.g. headers, cookies, body.
+     *
+     * @return The specification
+     */
+    T everything();
+
+    /**
+     * Logs only the headers.
+     *
+     * @return The specification
+     */
+    T headers();
+
+    /**
+     * Logs only the cookies.
+     *
+     * @return The specification
+     */
+    T cookies();
 }

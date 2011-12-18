@@ -1284,24 +1284,14 @@ public interface RequestSpecification extends RequestSender {
     <T extends Filter> RequestSpecification noFiltersOfType(Class<T> filterType);
 
     /**
-     * Log (i.e. print to system out) the response body to system out. This is mainly useful for debug purposes when writing
-     * your tests. A shortcut for:
+     * Returns the {@link RequestLogSpecification} that allows you to log different parts of the {@link RequestSpecification}.
+     * This is mainly useful for debug purposes when writing your tests. It's a shortcut for:
      * <pre>
-     * given().filter(ResponseLoggingFilter.responseLogger()). ..
+     * given().filter(new RequestLoggingFilter(..))). ..
      * </pre>
-     * @return the request specification
+     * @return the request log specification
      */
-    RequestSpecification log();
-
-    /**
-     * Log (i.e. print to system out) the response body to system out if an error occurs. This is mainly useful for debug purposes when writing
-     * your tests. A shortcut for:
-     * <pre>
-     * given().filter(ErrorLoggingFilter.errorLogger()). ..
-     * </pre>
-     * @return the request specification
-     */
-    RequestSpecification logOnError();
+    RequestLogSpecification log();
 
     /**
      * Returns the response specification so that you can setup the expectations on the response. E.g.

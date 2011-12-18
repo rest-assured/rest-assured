@@ -427,24 +427,14 @@ public interface ResponseSpecification extends RequestSender {
     ResponseSpecification cookie(String cookieName, Object expectedValue);
 
     /**
-     * Log (i.e. print to system out) the response body to system out. This is mainly useful for debug purposes when writing
-     * your tests. A shortcut for:
+     *  Returns the {@link ResponseLogSpecification} that allows you to log different parts of the {@link ResponseSpecification}.
+     * This is mainly useful for debug purposes when writing your tests. It's a shortcut for:
      * <pre>
      * given().filter(ResponseLoggingFilter.responseLogger()). ..
      * </pre>
-     * @return the response specification
+     * @return the response log specification
      */
-    ResponseSpecification log();
-
-    /**
-     * Log (i.e. print to system out) the response body to system out if an error occurs. This is mainly useful for debug purposes when writing
-     * your tests. A shortcut for:
-     * <pre>
-     * given().filter(ErrorLoggingFilter.errorLogger()). ..
-     * </pre>
-     * @return the response specification
-     */
-    ResponseSpecification logOnError();
+    ResponseLogSpecification log();
 
     /**
      * Set the root path of the response body so that you don't need to write the entire path for each expectation.

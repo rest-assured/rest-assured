@@ -14,34 +14,25 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.filter.log;
+package com.jayway.restassured.specification;
+
 
 /**
- * The different log details. Determine what should be logged in a request or response.
+ * The request logging specification
  */
-public enum LogDetail {
+public interface RequestLogSpecification extends LogSpecification<RequestSpecification> {
+
     /**
-     * Logs everything
+     * Logs only the parameters of the request. Same as {@link #parameters()} but slightly shorter syntax.
+     *
+     * @return The response specification
      */
-    ALL,
+    RequestSpecification params();
+
     /**
-     * Log only headers
+     * Logs only the parameters of the request. Same as {@link #params()} but more explicit syntax.
+     *
+     * @return The response specification
      */
-    HEADERS,
-    /**
-     * Log only cookies
-     */
-    COOKIES,
-    /**
-     * Log on the body
-     */
-    BODY,
-    /**
-     * Log only the status line (works only for responses).
-     */
-    STATUS,
-    /**
-     * Logs only the request parameters (only works for requests)
-     */
-    PARAMS
+    RequestSpecification parameters();
 }

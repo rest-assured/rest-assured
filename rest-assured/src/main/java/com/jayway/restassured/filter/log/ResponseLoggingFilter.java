@@ -56,6 +56,15 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
     }
 
     /**
+     * Instantiate a logger using the supplied log detail.
+     *
+     * @param logDetail The log detail
+     */
+    public ResponseLoggingFilter(LogDetail logDetail) {
+        this(logDetail, System.out);
+    }
+
+    /**
      * Instantiate a logger using a specific print stream for all status codes
      *
      * @param stream The stream to log errors to.

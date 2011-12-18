@@ -202,14 +202,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     key
   }
 
-  def ResponseSpecification log() {
-    requestSpecification.log()
-    return this;
-  }
-
-  def ResponseSpecification logOnError() {
-    requestSpecification.logOnError()
-    return this;
+  def ResponseLogSpecification log() {
+    return new ResponseLogSpecificationImpl(responseSpecification: this)
   }
 
   def ResponseSpecification when() {

@@ -142,7 +142,7 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void whenExpectationsDefinedAndLoggingThenGetCanReturnBodyAsInputStream() throws Exception {
-        final InputStream inputStream = expect().log().body("hello", equalTo("Hello Scalatra")).get("/hello").asInputStream();
+        final InputStream inputStream = expect().log().all().and().body("hello", equalTo("Hello Scalatra")).get("/hello").asInputStream();
         final String string = IOUtils.toString(inputStream);
 
         assertThat(string, equalTo("{\"hello\":\"Hello Scalatra\"}"));
@@ -150,7 +150,7 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void whenNoExpectationsDefinedButLoggingThenGetCanReturnBodyAsInputStream() throws Exception {
-        final InputStream inputStream = expect().log().get("/hello").asInputStream();
+        final InputStream inputStream = expect().log().all().then().get("/hello").asInputStream();
         final String string = IOUtils.toString(inputStream);
 
         assertThat(string, equalTo("{\"hello\":\"Hello Scalatra\"}"));
