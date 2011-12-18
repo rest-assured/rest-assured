@@ -33,7 +33,7 @@ import static com.jayway.restassured.filter.log.LogDetail.PARAMS;
 /**
  * Will log the request before it's passed to HTTP Builder. Note that HTTP Builder and HTTP Client will add additional headers. This filter will <i>only</i>
  * log things specified in the request specification. I.e. you can NOT regard the things logged here to be what's actually sent to the server.
- * Also subsequent filters may alter the request <i>after</i> the logging has took place. You need to log what's <i>actually</i> sent on the wire
+ * Also subsequent filters may alter the request <i>after</i> the logging has took place. If you need to log what's <i>actually</i> sent on the wire
  * refer to the <a href="http://hc.apache.org/httpcomponents-client-ga/logging.html">HTTP Client logging docs</a> or use an external tool such as
  * <a href="http://www.wireshark.org/">Wireshark</a>.
  */

@@ -21,7 +21,7 @@ import com.jayway.restassured.filter.log.RequestLoggingFilter
 import com.jayway.restassured.specification.RequestLogSpecification
 import com.jayway.restassured.specification.RequestSpecification
 
-class RequestLogSpecificationImpl implements RequestLogSpecification {
+class RequestLogSpecificationImpl extends LogSpecificationImpl implements RequestLogSpecification {
   private RequestSpecification requestSpecification
 
   RequestSpecification params() {
@@ -53,7 +53,7 @@ class RequestLogSpecificationImpl implements RequestLogSpecification {
   }
 
   private def logWith(LogDetail logDetail) {
-    requestSpecification.filter(new RequestLoggingFilter(logDetail))
+    requestSpecification.filter(new RequestLoggingFilter(logDetail, getPrintStream(requestSpecification)))
     requestSpecification
   }
 }

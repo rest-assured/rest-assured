@@ -90,28 +90,35 @@ class StatusCodeBasedLoggingFilter implements Filter {
         final StringBuilder builder = new StringBuilder();
         String responseBody = null;
         if(logDetail == ALL || logDetail == STATUS) {
-            builder.append(response.statusLine()).append("\n");
+            builder.append(response.statusLine());
         }
         if(logDetail == ALL || logDetail == HEADERS) {
             final Headers headers = response.headers();
             if(headers.exist()) {
-                builder.append(headers.toString()).append("\n");
+                appendNewLineIfAll(logDetail, builder).append(headers.toString());
             }
         } else if(logDetail == COOKIES) {
             final Cookies cookies = response.detailedCookies();
             if(cookies.exist()) {
-                builder.append(cookies.toString()).append("\n");
+                appendNewLineIfAll(logDetail, builder).append(cookies.toString());
             }
         }
         if(logDetail == ALL || logDetail == BODY) {
             responseBody = response.asString();
             if(logDetail == ALL && !isBlank(responseBody)) {
-                builder.append("\n");
+                builder.append("\n\n");
             }
             builder.append(responseBody);
         }
         stream.println(builder.toString());
         return responseBody;
+    }
+
+    private StringBuilder appendNewLineIfAll(LogDetail logDetail, StringBuilder builder) {
+        if(logDetail == ALL) {
+            builder.append("\n");
+        }
+        return builder;
     }
 
     /*

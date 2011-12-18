@@ -16,6 +16,9 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.config.LogConfig;
+import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.filter.log.ResponseLoggingFilter;
@@ -29,6 +32,8 @@ import java.io.StringWriter;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.config.LogConfig.logConfig;
+import static com.jayway.restassured.config.RestAssuredConfig.config;
 import static com.jayway.restassured.filter.log.ErrorLoggingFilter.logErrorsTo;
 import static com.jayway.restassured.filter.log.LogDetail.COOKIES;
 import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logResponseTo;
@@ -77,7 +82,7 @@ public class LoggingITest extends WithJetty {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor, COOKIES)).and().expect().body(equalTo("OK")).when().get("/multiCookie");
-        assertThat(writer.toString(), equalTo("cookie1=cookieValue1;Domain=localhost\ncookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Version=1\n\n"));
+        assertThat(writer.toString(), equalTo("cookie1=cookieValue1;Domain=localhost\ncookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Version=1\n"));
     }
 
     @Test
@@ -235,4 +240,156 @@ public class LoggingITest extends WithJetty {
 
         assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}\nHTTP/1.1 200 OK\nContent-Type=text/plain; charset=utf-8\nContent-Length=23\nServer=Jetty(6.1.14)\n\n{\"hello\":\"Hello world\"}\n"));
     }
+
+    @Test
+    public void logEverythingResponseUsingLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(logConfig().defaultStream(captor))).
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+        expect().
+                log().all().
+                body("fullName", equalTo("John Doe")).
+        when().
+                get("/{firstName}/{lastName}");
+
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type=application/json; charset=UTF-8\nContent-Length=59\nServer=Jetty(6.1.14)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}\n"));
+    }
+
+    @Test
+    public void logIfStatusCodeIsEqualToResponseUsingLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(logConfig().defaultStream(captor))).
+        expect().
+                log().ifStatusCodeIsEqualTo(409).
+        when().
+                get("/409");
+
+        assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type=text/plain; charset=utf-8\nContent-Length=5\nServer=Jetty(6.1.14)\n\nERROR\n"));
+    }
+
+    @Test
+    public void doesntLogIfStatusCodeIsNotEqualToResponseUsingLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(logConfig().defaultStream(captor))).
+        expect().
+                log().ifStatusCodeIsEqualTo(200).
+        when().
+                get("/409");
+
+        assertThat(writer.toString(), equalTo(""));
+    }
+
+    @Test
+    public void logIfStatusCodeMatchesResponseUsingLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(logConfig().defaultStream(captor))).
+        expect().
+                log().ifStatusCodeMatches(greaterThan(200)).
+        when().
+                get("/409");
+
+        assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type=text/plain; charset=utf-8\nContent-Length=5\nServer=Jetty(6.1.14)\n\nERROR\n"));
+    }
+
+    @Test
+    public void logOnlyBodyUsingResponseUsingLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor))).
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+        expect().
+                log().body().
+                body("fullName", equalTo("John Doe")).
+        when().
+                get("/{firstName}/{lastName}");
+
+
+        assertThat(writer.toString(), equalTo("{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}\n"));
+    }
+
+    @Test
+    public void logOnlyStatusUsingResponseUsingLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor))).
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+        expect().
+                log().status().
+                body("fullName", equalTo("John Doe")).
+        when().
+                get("/{firstName}/{lastName}");
+
+
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\n"));
+    }
+
+    @Test
+    public void logOnlyHeadersUsingResponseUsingLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor))).
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+        expect().
+                log().headers().
+                body("fullName", equalTo("John Doe")).
+        when().
+                get("/{firstName}/{lastName}");
+
+
+        assertThat(writer.toString(), equalTo("Content-Type=application/json; charset=UTF-8\nContent-Length=59\nServer=Jetty(6.1.14)\n"));
+    }
+
+    @Test
+    public void logOnlyHeadersUsingResponseUsingLogSpecWhenMultiHeaders() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor))).
+        expect().
+                log().headers().
+        when().
+                get("/multiValueHeader");
+
+
+        assertThat(writer.toString(), equalTo("Content-Type=text/plain; charset=utf-8\nMultiHeader=Value 1\nMultiHeader=Value 2\nContent-Length=0\nServer=Jetty(6.1.14)\n"));
+    }
+
+    @Test
+    public void logOnlyCookiesUsingResponseUsingLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor))).
+        expect().
+                log().cookies().
+        when().
+                get("/multiCookie");
+
+        assertThat(writer.toString(), equalTo("cookie1=cookieValue1;Domain=localhost\ncookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Version=1\n"));
+    }
+
 }

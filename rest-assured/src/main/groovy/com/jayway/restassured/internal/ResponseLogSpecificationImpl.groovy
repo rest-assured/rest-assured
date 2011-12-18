@@ -23,7 +23,7 @@ import org.hamcrest.Matcher
 import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.greaterThanOrEqualTo
 
-class ResponseLogSpecificationImpl implements ResponseLogSpecification {
+class ResponseLogSpecificationImpl extends LogSpecificationImpl implements ResponseLogSpecification {
   private ResponseSpecification responseSpecification
 
   ResponseSpecification body() {
@@ -51,23 +51,27 @@ class ResponseLogSpecificationImpl implements ResponseLogSpecification {
   }
 
   ResponseSpecification ifError() {
-    logWith(new ResponseLoggingFilter(greaterThanOrEqualTo(400)))
+    logWith(new ResponseLoggingFilter(getPrintStream(), greaterThanOrEqualTo(400)))
   }
 
   ResponseSpecification ifStatusCodeIsEqualTo(int statusCode) {
-    logWith(new ResponseLoggingFilter(equalTo(statusCode)))
+    logWith(new ResponseLoggingFilter(getPrintStream(), equalTo(statusCode)))
   }
 
   ResponseSpecification ifStatusCodeMatches(Matcher<Integer> matcher) {
-    logWith(new ResponseLoggingFilter(matcher))
+    logWith(new ResponseLoggingFilter(getPrintStream(), matcher))
   }
 
   private def logWith(LogDetail logDetail) {
-    logWith(new ResponseLoggingFilter(logDetail))
+    logWith(new ResponseLoggingFilter(logDetail, getPrintStream()))
   }
 
   private def logWith(ResponseLoggingFilter filter) {
     responseSpecification.request().filter(filter)
     responseSpecification
+  }
+
+  private def getPrintStream() {
+    super.getPrintStream(responseSpecification.request())
   }
 }

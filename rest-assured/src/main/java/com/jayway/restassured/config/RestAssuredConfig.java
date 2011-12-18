@@ -31,22 +31,25 @@ public class RestAssuredConfig {
 
     private final RedirectConfig redirectConfig;
     private final HttpClientConfig httpClientConfig;
+    private final LogConfig logConfig;
 
     /**
      * Create a new RestAssuredConfiguration with the default {@link RedirectConfig} and a default {@link HttpClientConfig}.
      */
     public RestAssuredConfig() {
-        this(new RedirectConfig(), new HttpClientConfig());
+        this(new RedirectConfig(), new HttpClientConfig(), new LogConfig());
     }
 
     /**
-     * Create a new RestAssuredConfiguration with the supplied {@link RedirectConfig} and {@link HttpClientConfig}.
+     * Create a new RestAssuredConfiguration with the supplied {@link RedirectConfig}, {@link HttpClientConfig} and {@link LogConfig}.
      */
-    public RestAssuredConfig(RedirectConfig redirectConfig, HttpClientConfig httpClientConfig) {
+    public RestAssuredConfig(RedirectConfig redirectConfig, HttpClientConfig httpClientConfig, LogConfig logConfig) {
         notNull(redirectConfig, "Redirect Config");
         notNull(httpClientConfig, "HTTP Client Config");
+        notNull(logConfig, "Log config");
         this.httpClientConfig = httpClientConfig;
         this.redirectConfig = redirectConfig;
+        this.logConfig = logConfig;
     }
 
     /**
@@ -57,7 +60,7 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig redirect(RedirectConfig redirectConfig) {
         notNull(redirectConfig, "Redirect config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig);
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig);
     }
 
     /**
@@ -68,7 +71,18 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig httpClient(HttpClientConfig httpClientConfig) {
         notNull(httpClientConfig, "HTTP Client Config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig);
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig);
+    }
+
+    /**
+     * Set the Log config.
+     *
+     * @param logConfig The {@link LogConfig} to set
+     * @return An updated RestAssuredConfiguration
+     */
+    public RestAssuredConfig logConfig(LogConfig logConfig) {
+        notNull(logConfig, "Log config");
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig);
     }
 
     /**
@@ -94,6 +108,13 @@ public class RestAssuredConfig {
      */
     public RedirectConfig getRedirectConfig() {
         return redirectConfig;
+    }
+
+    /**
+     * @return The LogConfig
+     */
+    public LogConfig getLogConfig() {
+        return logConfig;
     }
 
     /**
