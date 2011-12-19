@@ -58,7 +58,7 @@ Change log next version
 	expect().log().headers(). .. // Log only the response headers
   Previously there was a method called "logOnError" in both the request and response specification. This has now been replaced with the following method in the response specification:
 	expect().log().ifError(). ..
-  This change is not backward compatible (issue 84).
+  This change is not backward compatible (issue 81).
 
 Change log 1.4.5 (2011-11-08)
 -----------------------------
