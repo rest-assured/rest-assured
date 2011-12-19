@@ -378,7 +378,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logOnlyCookiesUsingResponseUsingLogSpec() throws Exception {
+    public void logOnlyCookiesUsingResponseLogSpec() throws Exception {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -392,4 +392,85 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo("cookie1=cookieValue1;Domain=localhost\ncookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Version=1\n"));
     }
 
+    @Test
+    public void logAllUsingRequestLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor))).
+                log().everything().
+                param("firstName", "John").
+                queryParam("lastName", "Doe").
+        when().
+                get("/greetJSON");
+
+        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\t/greetJSON\nRequest params:\tfirstName=John\nQuery params:\tlastName=Doe\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
+    }
+
+    @Test
+    public void logParamsUsingRequestLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor))).
+                log().parameters().
+                param("firstName", "John").
+                queryParam("lastName", "Doe").
+        when().
+                get("/greetJSON");
+
+        assertThat(writer.toString(), equalTo("Request params:\tfirstName=John\nQuery params:\tlastName=Doe\nForm params:\t<none>\nPath params:\t<none>\n"));
+    }
+
+    @Test
+    public void logBodyUsingRequestLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor))).
+                log().body().
+                param("firstName", "John").
+                queryParam("lastName", "Doe").
+        when().
+                get("/greetJSON");
+
+        assertThat(writer.toString(), equalTo("Body:\t\t\t<none>\n"));
+    }
+
+    @Test
+    public void logCookiesUsingRequestLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor))).
+                log().cookies().
+                cookie("myCookie1", "myCookieValue1").
+                cookie("myCookie2", "myCookieValue2").
+                cookie("myMultiCookie", "myMultiCookieValue1", "myMultiCookieValue2").
+        when().
+                post("/reflect");
+
+        assertThat(writer.toString(), equalTo("Cookies:\t\tmyCookie1=myCookieValue1\n\t\t\t\tmyCookie2=myCookieValue2\n\t\t\t\tmyMultiCookie=myMultiCookieValue1\n\t\t\t\tmyMultiCookie=myMultiCookieValue2\n"));
+    }
+
+    @Test
+    public void logHeadersUsingRequestLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor))).
+                log().headers().
+                header("myHeader1", "myHeaderValue1").
+                header("myHeader2", "myHeaderValue2").
+                header("myMultiHeader", "myMultiHeaderValue1", "myMultiHeaderValue2").
+        when().
+                get("/multiHeaderReflect");
+
+        assertThat(writer.toString(), equalTo("Headers:\t\tContent-Type=*/*\n\t\t\t\tmyHeader1=myHeaderValue1\n\t\t\t\tmyHeader2=myHeaderValue2\n\t\t\t\tmyMultiHeader=myMultiHeaderValue1\n\t\t\t\tmyMultiHeader=myMultiHeaderValue2\n"));
+    }
 }

@@ -44,6 +44,21 @@ Change log next version
 * Added getFormParams() and getPathParams() to com.jayway.restassured.specification.FilterableRequestSpecification.
 * Header- and Cookie names are now case-insentive in com.jayway.restassured.response.Headers and com.jayway.restassured.response.Cookies.
 * Added a new method called filters(Filter filter, Filter...additionalFilter) in the com.jayway.restassured.specification.RequestSpecification and com.jayway.restassured.RestAssured.
+* Logging has undergone a major uplift. You can now not only log the response body but also headers, cookies and status line. You can also log the request details as defined in the request specification. Thus the following:
+	given().log(). .. // Log the response body
+  and
+	expect().log(). .. // Also logs the response body
+  will now look like this:
+	given().log().body(). .. // Log the _request_ body
+  and
+	expect().log().body() .. // Log the response body
+  You can also log e.g. only headers in the request and the response:
+	given().log().headers(). .. // Log only the request headers
+  and
+	expect().log().headers(). .. // Log only the response headers
+  Previously there was a method called "logOnError" in both the request and response specification. This has now been replaced with the following method in the response specification:
+	expect().log().ifError(). ..
+  This change is not backward compatible (issue 84).
 
 Change log 1.4.5 (2011-11-08)
 -----------------------------

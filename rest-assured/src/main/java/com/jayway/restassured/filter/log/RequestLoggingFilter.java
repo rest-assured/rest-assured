@@ -21,6 +21,7 @@ import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.response.*;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 
 import java.io.PrintStream;
@@ -110,7 +111,11 @@ public class RequestLoggingFilter implements Filter {
         if(logDetail == ALL || logDetail == BODY) {
             addBody(requestSpec, builder);
         }
-        stream.println(builder.toString());
+        String logString = builder.toString();
+        if(logString.endsWith("\n")) {
+            logString = StringUtils.removeEnd(logString, "\n");
+        }
+        stream.println(logString);
         return ctx.next(requestSpec, responseSpec);
     }
 
