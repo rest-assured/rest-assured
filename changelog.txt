@@ -45,13 +45,13 @@ Change log next version
 * Header- and Cookie names are now case-insentive in com.jayway.restassured.response.Headers and com.jayway.restassured.response.Cookies.
 * Added a new method called filters(Filter filter, Filter...additionalFilter) in the com.jayway.restassured.specification.RequestSpecification and com.jayway.restassured.RestAssured.
 * Logging has undergone a major uplift. You can now not only log the response body but also headers, cookies and status line. You can also log the request details as defined in the request specification. Thus the following:
-	given().log(). .. // Log the response body
+	given().log(). .. // Log the response body in versions prior to 1.5
   and
-	expect().log(). .. // Also logs the response body
+	expect().log(). .. // Also logs the response body in versions prior to 1.5
   will now look like this:
-	given().log().body(). .. // Log the _request_ body
+	given().log().body(). .. // Log the _request_ body in versions >= 1.5
   and
-	expect().log().body() .. // Log the response body
+	expect().log().body() .. // Log the response body in versions >= 1.5
   You can also log e.g. only headers in the request and the response:
 	given().log().headers(). .. // Log only the request headers
   and
