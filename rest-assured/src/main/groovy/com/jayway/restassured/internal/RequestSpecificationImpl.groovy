@@ -22,13 +22,11 @@ import com.jayway.restassured.config.HttpClientConfig
 import com.jayway.restassured.config.RedirectConfig
 import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.filter.Filter
-
-import com.jayway.restassured.internal.encoderregistry.RestAssuredEncoderRegistry
+import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.RootFilter
 import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.mapper.ObjectMapper
-import com.jayway.restassured.http.HTTPBuilder.RequestConfigDelegate
 import java.util.Map.Entry
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -39,21 +37,19 @@ import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
-
 import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.message.BasicHeader
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import static com.jayway.restassured.http.ContentType.*
+import com.jayway.restassured.internal.http.*
+import static com.jayway.restassured.internal.http.Method.*
 import com.jayway.restassured.response.*
 import com.jayway.restassured.specification.*
-import com.jayway.restassured.http.*
-import static com.jayway.restassured.http.ContentType.*
-import static com.jayway.restassured.http.Method.*
 import static java.util.Arrays.asList
 import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.apache.http.client.params.ClientPNames.*
-import static org.apache.http.protocol.HTTP.CONTENT_TYPE
 import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE
-import com.jayway.restassured.http.ContentType
+import static org.apache.http.protocol.HTTP.CONTENT_TYPE
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static final int DEFAULT_HTTPS_PORT = 443
@@ -647,67 +643,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     def isFullyQualifiedUri = isFullyQualified(path)
     def targetUri = getTargetURI(path);
     def targetPath = getTargetPath(path)
-    def http = new HTTPBuilder(targetUri) {
-      {
-        encoderRegistry = new RestAssuredEncoderRegistry();
-      }
-
-      @Override protected Object doRequest(RequestConfigDelegate delegate) {
-        // When doing POST we must add the failure handler here
-        // in order to be able to return the response when doing
-        // e.g. post("/ikk"); when an error occurs.
-        if(delegate.getRequest() instanceof HttpPost) {
-          if (assertionClosure != null ) {
-            delegate.getResponse().put(
-                    Status.FAILURE.toString(), { response, content ->
-                      assertionClosure.call (response, content)
-                    });
-          }
-          delegate.uri.query = queryParameters
-        } else if(!urlEncodingEnabled) {
-          // Overwrite the URL encoded query parameters with the original ones
-          delegate.uri.query = queryParameters
-        }
-
-        return restAssuredDoRequest(this, delegate)
-      }
-
-      /**
-       * We override this method because ParserRegistry.getContentType(..) called by
-       * the super method throws an exception if no content-type is available in the response
-       * and then HTTPBuilder for some reason uses the streaming octet parser instead of the
-       * defaultParser in the ParserRegistry to parse the response. To fix this we set the
-       * content-type of the defaultParser if registered to Rest Assured to the response if no
-       * content-type is defined.
-       */
-      @Override
-      protected Object parseResponse(HttpResponse resp, Object contentType) {
-        def definedDefaultParser = RequestSpecificationImpl.this.responseSpecification.rpr.defaultParser
-        if(definedDefaultParser != null && ContentType.ANY.toString().equals( contentType.toString() ) ) {
-          try {
-            ParserRegistry.getContentType(resp);
-          } catch(IllegalArgumentException e) {
-            // This means that no content-type is defined the response
-            def entity = resp?.entity
-            if(entity != null) {
-              resp.setEntity(new HttpEntityWrapper(entity) {
-                @Override
-                org.apache.http.Header getContentType() {
-                  return new BasicHeader(CONTENT_TYPE, definedDefaultParser.getContentType())
-                }
-              })
-            }
-          }
-        }
-        return super.parseResponse(resp, contentType)
-      }
-    };
-
+    def http = new RestAssuredHttpBuilder(targetUri, assertionClosure);
     applyRestAssuredConfig(http)
     registerRestAssuredEncoders(http);
-    RestAssuredParserRegistry.responseSpecification = responseSpecification
-    http.setParserRegistry(new RestAssuredParserRegistry())
-    responseSpecification.rpr.registerParsers(http, assertionClosure.requiresTextParsing())
     setRequestHeadersToHttpBuilder(http)
 
     if(cookies.exist()) {
@@ -844,7 +782,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     if(hasFormParams()) {
       convertFormParamsToMultiPartParams()
     }
-    http.encoder.putAt MULTIPART_FORM_DATA, {
+    http.encoders.putAt MULTIPART_FORM_DATA, {
       MultipartEntity entity = new MultipartEntity(BROWSER_COMPATIBLE);
 
       multiParts.each {
@@ -1173,87 +1111,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     this
   }
 
-/**
- * A copy of HTTP builders doRequest method with two exceptions.
- * <ol>
- *  <li>The exception is that the entity's content is not closed if no body matchers are specified.</li>
- *  <li>If headers contain a list of elements the headers are added and not overridden</li>
- *  </ol>
- */
-  private Object restAssuredDoRequest(HTTPBuilder httpBuilder, RequestConfigDelegate delegate) {
-    final HttpRequestBase reqMethod = delegate.getRequest();
-
-    Object contentType = delegate.getContentType();
-    String acceptContentTypes = contentType.toString();
-    if ( contentType instanceof ContentType )
-    acceptContentTypes = ((ContentType)contentType).getAcceptHeader();
-
-    reqMethod.setHeader( "Accept", acceptContentTypes );
-    reqMethod.setURI( delegate.getUri().toURI() );
-
-    if ( reqMethod.getURI() == null)
-    throw new IllegalStateException( "Request URI cannot be null" );
-
-    // set any request headers from the delegate
-    Map<?,?> headers = delegate.getHeaders();
-    for ( Object key : headers.keySet() ) {
-      Object val = headers.get( key );
-      if ( key == null ) continue;
-      if ( val == null ) {
-        reqMethod.removeHeaders( key.toString() )
-      } else {
-        def keyAsString = key.toString()
-        if(val instanceof Collection) {
-          val = val.flatten().collect { it?.toString() }
-          val.each {
-            reqMethod.addHeader(keyAsString, it )
-          }
-        } else {
-          reqMethod.setHeader( keyAsString, val.toString() );
-        }
-      }
-    }
-
-    final HttpResponseDecorator resp = new HttpResponseDecorator(
-            httpBuilder.client.execute( reqMethod, delegate.getContext() ),
-            delegate.getContext(), null );
-    try {
-      int status = resp.getStatusLine().getStatusCode();
-      Closure responseClosure = delegate.findResponseHandler( status );
-
-      final Object returnVal;
-      Object[] closureArgs = null;
-      switch ( responseClosure.getMaximumNumberOfParameters() ) {
-        case 1 :
-          returnVal = responseClosure.call( resp );
-          break;
-        case 2 : // parse the response entity if the response handler expects it:
-          HttpEntity entity = resp.getEntity();
-          try {
-            if ( entity == null || entity.getContentLength() == 0 ) {
-              returnVal = responseClosure.call( resp, null );
-            } else {
-              returnVal = responseClosure.call( resp,  httpBuilder.parseResponse( resp, contentType ));
-            }
-          } catch ( Exception ex ) {
-            org.apache.http.Header h = entity.getContentType();
-            String respContentType = h != null ? h.getValue() : null;
-            throw new ResponseParseException( resp, ex );
-          }
-          break;
-        default:
-          throw new IllegalArgumentException(
-                  "Response closure must accept one or two parameters" );
-      }
-      return returnVal;
-    }
-    finally {
-      if(responseSpecification.hasBodyAssertionsDefined()) {
-        HttpEntity entity = resp.getEntity();
-        if ( entity != null ) entity.consumeContent();
-      }
-    }
-  }
+  /**
+   * A copy of HTTP builders doRequest method with two exceptions.
+   * <ol>
+   *  <li>The exception is that the entity's content is not closed if no body matchers are specified.</li>
+   *  <li>If headers contain a list of elements the headers are added and not overridden</li>
+   *  </ol>
+   */
 
   private boolean isSerializableCandidate(object) {
     if(object == null) {
@@ -1277,5 +1141,125 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       return "$thisOne/$otherOne"
     }
     return thisOne + otherOne;
+  }
+
+  private class RestAssuredHttpBuilder extends HTTPBuilder {
+    def assertionClosure
+
+    RestAssuredHttpBuilder(Object defaultURI, assertionClosure) throws URISyntaxException {
+      super(defaultURI)
+      this.assertionClosure = assertionClosure
+    }
+
+    @Override protected Object doRequest(HTTPBuilder.RequestConfigDelegate delegate) {
+      if(delegate.getRequest() instanceof HttpPost) {
+        if (assertionClosure != null ) {
+          delegate.getResponse().put(
+                  Status.FAILURE.toString(), { response, content ->
+                    assertionClosure.call (response, content)
+                  });
+        }
+        delegate.uri.query = queryParameters
+      } else if(!urlEncodingEnabled) {
+        // Overwrite the URL encoded query parameters with the original ones
+        delegate.uri.query = queryParameters
+      }
+      final HttpRequestBase reqMethod = delegate.getRequest()
+      Object contentType1 = delegate.getContentType()
+      String acceptContentTypes = contentType1.toString()
+      if ( contentType1 instanceof ContentType )
+      acceptContentTypes = ((ContentType) contentType1).getAcceptHeader()
+      reqMethod.setHeader( "Accept", acceptContentTypes )
+      reqMethod.setURI( delegate.getUri().toURI() )
+      if ( reqMethod.getURI() == null)
+      throw new IllegalStateException( "Request URI cannot be null" )
+      Map<?,?> headers1 = delegate.getHeaders()
+      for ( Object key : headers1.keySet() ) {
+        Object val = headers1.get( key );
+        if ( key == null ) continue;
+        if ( val == null ) {
+          reqMethod.removeHeaders( key.toString() )
+        } else {
+          def keyAsString = key.toString()
+          if(val instanceof Collection) {
+            val = val.flatten().collect { it?.toString() }
+            val.each {
+              reqMethod.addHeader(keyAsString, it )
+            }
+          } else {
+            reqMethod.setHeader( keyAsString, val.toString() );
+          }
+        }
+      }
+      final HttpResponseDecorator resp = new HttpResponseDecorator(
+              this.client.execute( reqMethod, delegate.getContext() ),
+              delegate.getContext(), null )
+      try {
+        int status = resp.getStatusLine().getStatusCode();
+        Closure responseClosure = delegate.findResponseHandler( status );
+
+        final Object returnVal;
+        Object[] closureArgs = null;
+        switch ( responseClosure.getMaximumNumberOfParameters() ) {
+          case 1 :
+            returnVal = responseClosure.call( resp );
+            break;
+          case 2 : // parse the response entity if the response handler expects it:
+            HttpEntity entity = resp.getEntity();
+            try {
+              if ( entity == null || entity.getContentLength() == 0 ) {
+                returnVal = responseClosure.call( resp, null );
+              } else {
+                returnVal = responseClosure.call( resp,  this.parseResponse( resp, contentType1 ));
+              }
+            } catch ( Exception ex ) {
+              org.apache.http.Header h = entity.getContentType();
+              String respContentType = h != null ? h.getValue() : null;
+              throw new ResponseParseException( resp, ex );
+            }
+            break;
+          default:
+            throw new IllegalArgumentException(
+                    "Response closure must accept one or two parameters" );
+        }
+        return returnVal;
+      }
+      finally {
+        if(responseSpecification.hasBodyAssertionsDefined()) {
+          HttpEntity entity = resp.getEntity();
+          if ( entity != null ) entity.consumeContent();
+        }
+      }
+    }
+
+    /**
+     * We override this method because ParserRegistry.getContentType(..) called by
+     * the super method throws an exception if no content-type is available in the response
+     * and then HTTPBuilder for some reason uses the streaming octet parser instead of the
+     * defaultParser in the ParserRegistry to parse the response. To fix this we set the
+     * content-type of the defaultParser if registered to Rest Assured to the response if no
+     * content-type is defined.
+     */
+    @Override
+    protected Object parseResponse(HttpResponse resp, Object contentType) {
+      def definedDefaultParser = responseSpecification.rpr.defaultParser
+      if (definedDefaultParser != null && ANY.toString().equals(contentType.toString())) {
+        try {
+          HttpResponseContentTypeFinder.findContentType(resp);
+        } catch (IllegalArgumentException e) {
+          // This means that no content-type is defined the response
+          def entity = resp?.entity
+          if (entity != null) {
+            resp.setEntity(new HttpEntityWrapper(entity) {
+              @Override
+              org.apache.http.Header getContentType() {
+                return new BasicHeader(CONTENT_TYPE, definedDefaultParser.getContentType())
+              }
+            })
+          }
+        }
+      }
+      return super.parseResponse(resp, contentType)
+    }
   }
 }

@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.authentication
 
-import com.jayway.restassured.http.HTTPBuilder
+import com.jayway.restassured.internal.http.HTTPBuilder
 
 /**
  * Used for basic and digest authentication

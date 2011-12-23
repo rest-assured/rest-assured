@@ -17,13 +17,13 @@
 package com.jayway.restassured.builder;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.ResponseSpecificationImpl;
 import com.jayway.restassured.internal.SpecificationMerger;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.specification.Argument;
 import com.jayway.restassured.specification.ResponseSpecification;
-import com.jayway.restassured.http.ContentType;
 import org.hamcrest.Matcher;
 
 import java.lang.reflect.Field;

@@ -13,21 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jayway.restassured.http;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
+package com.jayway.restassured.internal.http;
 
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.commonshttp.HttpRequestAdapter;
 import oauth.signpost.exception.OAuthException;
-
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -40,10 +31,17 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+
 /**
  * Encapsulates all configuration related to HTTP authentication methods.
  * @see HTTPBuilder#getAuth()
- * 
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
  */
 public class AuthConfig {

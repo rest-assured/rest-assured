@@ -16,8 +16,8 @@
 
 package com.jayway.restassured.specification;
 
-import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.parsing.Parser;
 import org.hamcrest.Matcher;
 
 import java.util.List;

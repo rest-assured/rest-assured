@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.internal
 
-import com.jayway.restassured.http.HTTPBuilder
+import com.jayway.restassured.internal.http.HTTPBuilder
 
 class NoKeystoreSpecImpl implements KeystoreSpec {
 

@@ -18,12 +18,12 @@ package com.jayway.restassured.specification;
 
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
-import com.jayway.restassured.http.ContentType;
 
 import java.io.File;
 import java.io.InputStream;

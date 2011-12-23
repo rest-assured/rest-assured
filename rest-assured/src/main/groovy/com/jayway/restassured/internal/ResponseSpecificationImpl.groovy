@@ -20,14 +20,14 @@ import com.jayway.restassured.assertion.BodyMatcher
 import com.jayway.restassured.assertion.BodyMatcherGroup
 import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.assertion.HeaderMatcher
+import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
-import com.jayway.restassured.http.ContentType
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import static com.jayway.restassured.assertion.AssertParameter.notNull
-import com.jayway.restassured.specification.*
 import static com.jayway.restassured.http.ContentType.ANY
+import com.jayway.restassured.specification.*
 import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.hamcrest.Matchers.equalTo
 

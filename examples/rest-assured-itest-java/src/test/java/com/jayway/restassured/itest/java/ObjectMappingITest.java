@@ -16,11 +16,11 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.objects.ScalatraObject;
 import com.jayway.restassured.itest.java.support.WithJetty;
-import com.jayway.restassured.http.ContentType;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;

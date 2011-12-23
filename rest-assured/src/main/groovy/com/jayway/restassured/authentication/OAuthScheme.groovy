@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.authentication
 
-import com.jayway.restassured.http.HTTPBuilder
+import com.jayway.restassured.internal.http.HTTPBuilder
 
 class OAuthScheme implements AuthenticationScheme {
   def String consumerKey

@@ -19,7 +19,7 @@
  * enhancements or improvements back to the community under a similar open
  * source license.  Thank you. -TMN
  */
-package com.jayway.restassured.http;
+package com.jayway.restassured.internal.http;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.*;

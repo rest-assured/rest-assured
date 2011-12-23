@@ -16,9 +16,7 @@
 
 package com.jayway.restassured.itest.java;
 
-import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.LogConfig;
-import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.filter.log.ResponseLoggingFilter;

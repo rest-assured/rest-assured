@@ -18,11 +18,11 @@ package com.jayway.restassured.internal.filter
 
 import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.filter.FilterContext
+import com.jayway.restassured.internal.http.Method
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
 import com.jayway.restassured.specification.RequestSender
-import com.jayway.restassured.http.Method
 import org.codehaus.groovy.runtime.ReflectionMethodInvoker
 
 class FilterContextImpl implements FilterContext {

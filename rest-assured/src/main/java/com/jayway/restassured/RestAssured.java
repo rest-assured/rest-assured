@@ -19,6 +19,7 @@ package com.jayway.restassured;
 import com.jayway.restassured.authentication.*;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.*;
 import com.jayway.restassured.internal.filter.FormAuthFilter;
 import com.jayway.restassured.parsing.Parser;
@@ -27,7 +28,6 @@ import com.jayway.restassured.specification.Argument;
 import com.jayway.restassured.specification.RequestSender;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
-import com.jayway.restassured.http.ContentType;
 import org.apache.commons.lang3.Validate;
 
 import java.io.File;

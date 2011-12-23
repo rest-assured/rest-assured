@@ -19,9 +19,7 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.parsing.Parser
-import com.jayway.restassured.http.ContentType
 import static com.jayway.restassured.assertion.AssertParameter.notNull
-import static com.jayway.restassured.http.ContentType.*
 
 /**
  * Takes care of registering additional content types to the parser registry as well as
@@ -81,37 +79,5 @@ class ResponseParserRegistrar {
   def boolean hasCustomParserExludingDefaultParser(String contentType) {
     def parser = getNonDefaultParser(contentType)
     return parser != null && (parser == Parser.XML || parser == Parser.JSON || parser == Parser.HTML);
-  }
-
-  def void registerParsers(http, forceTextParsing) {
-    if(forceTextParsing) {
-      parseResponsesWithBodyParser(http)
-    } else {
-      additional.each { type, value ->
-        http.parser.putAt(type, http.parser.getAt(value))
-      }
-    }
-  }
-
-  private def void parseResponsesWithBodyParser(http) {
-    def plainText = http.parser.'text/plain'
-    registerContentTypeToBeParsedAs(http, XML, plainText)
-    registerContentTypeToBeParsedAs(http, HTML, plainText)
-    registerContentTypeToBeParsedAs(http, JSON, plainText)
-    registerContentTypeToBeParsedAs(http, ANY, plainText)
-    registerAllAdditionalContentTypesToBeParsedAs(http, plainText)
-  }
-
-  private void registerAllAdditionalContentTypesToBeParsedAs(http, toBeParsedAsContentType) {
-    additional.each { type, value ->
-      http.parser.putAt(type, toBeParsedAsContentType)
-    }
-  }
-
-  private void registerContentTypeToBeParsedAs(http, ContentType contentType, toBeParsedAsContentType) {
-    def types = contentType.getContentTypeStrings();
-    for(String type : types) {
-      http.parser.putAt(type, toBeParsedAsContentType)
-    }
   }
 }

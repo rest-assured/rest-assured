@@ -21,9 +21,9 @@
  */
 package com.jayway.restassured.http;
 
-import java.util.Iterator;
-
 import org.apache.commons.collections.iterators.ArrayIterator;
+
+import java.util.Iterator;
 
 /**
  * Enumeration of common <a href="http://www.iana.org/assignments/media-types/">IANA</a>
@@ -39,7 +39,7 @@ import org.apache.commons.collections.iterators.ArrayIterator;
  * The only difference being, equivalent content-types (i.e. 
  * <code>application/xml</code> and <code>text/xml</code> are all added to the 
  * request's <code>Accept</code> header.  By default, all equivalent content-types
- * are handled the same by the {@link EncoderRegistry} and {@link ParserRegistry}
+ * are handled the same by the {@link com.jayway.restassured.internal.http.EncoderRegistry} and {@link com.jayway.restassured.internal.http.HttpResponseContentTypeFinder}
  * as well. 
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
  */

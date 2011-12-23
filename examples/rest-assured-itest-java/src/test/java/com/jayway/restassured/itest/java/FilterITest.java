@@ -30,11 +30,10 @@ import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.filter.log.ErrorLoggingFilter.logErrorsTo;
 import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logResponseTo;
-import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logResponseToIfMatches;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 public class FilterITest extends WithJetty {
 

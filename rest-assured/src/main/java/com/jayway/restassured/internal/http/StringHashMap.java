@@ -17,7 +17,7 @@
 /**
  * 
  */
-package com.jayway.restassured.http;
+package com.jayway.restassured.internal.http;
 
 import java.util.HashMap;
 import java.util.Map;

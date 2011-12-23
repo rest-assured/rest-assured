@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jayway.restassured.http;
+package com.jayway.restassured.internal.http;
 
-import java.util.Iterator;
-import java.util.Locale;
-
-import org.apache.http.Header;
-import org.apache.http.HeaderIterator;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolVersion;
-import org.apache.http.StatusLine;
+import org.apache.http.*;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+
+import java.util.Iterator;
+import java.util.Locale;
 
 /**
  * This class is a wrapper for {@link HttpResponse}, which allows for 
@@ -84,11 +79,11 @@ public class HttpResponseDecorator implements HttpResponse {
 	
 	/**
 	 * Get the content-type for this response.
-	 * @see ParserRegistry#getContentType(HttpResponse)
+	 * @see HttpResponseContentTypeFinder#findContentType(HttpResponse)
 	 * @return the content-type string, without any charset information.
 	 */
 	public String getContentType() {
-		return ParserRegistry.getContentType( responseBase );
+		return HttpResponseContentTypeFinder.findContentType(responseBase);
 	}
 	
 	/**

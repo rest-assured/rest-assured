@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jayway.restassured.http;
+package com.jayway.restassured.internal.http;
 
 /**
  * Thrown when a response body is parsed unsuccessfully.  This most often 

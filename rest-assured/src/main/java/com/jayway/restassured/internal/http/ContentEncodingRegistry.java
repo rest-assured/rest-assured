@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jayway.restassured.http;
+package com.jayway.restassured.internal.http;
 
+import com.jayway.restassured.internal.http.ContentEncoding.Type;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.AbstractHttpClient;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.jayway.restassured.http.ContentEncoding.Type.DEFLATE;
-import static com.jayway.restassured.http.ContentEncoding.Type.GZIP;
 
 /**
  * Keeps track of available content-encoding handlers.
@@ -40,8 +38,8 @@ public class ContentEncodingRegistry {
 	 */
 	protected Map<String,ContentEncoding> getDefaultEncoders() {
 		Map<String, ContentEncoding> map = new HashMap<String, ContentEncoding>();
-		map.put( GZIP.toString(), new GZIPEncoding() );
-		map.put( DEFLATE.toString(), new DeflateEncoding() );
+		map.put( Type.GZIP.toString(), new GZIPEncoding() );
+		map.put( Type.DEFLATE.toString(), new DeflateEncoding() );
 		return map;
 	}	
 

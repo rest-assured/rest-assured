@@ -19,8 +19,10 @@ package com.jayway.restassured
 import com.jayway.restassured.authentication.ExplicitNoAuthScheme
 import com.jayway.restassured.builder.RequestSpecBuilder
 import com.jayway.restassured.builder.ResponseSpecBuilder
+import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.filter.FilterContext
+import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.internal.SpecificationMerger
 import com.jayway.restassured.internal.filter.FormAuthFilter
 import com.jayway.restassured.parsing.Parser
@@ -28,15 +30,13 @@ import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
 import org.junit.Test
+import static com.jayway.restassured.config.RedirectConfig.redirectConfig
+import static com.jayway.restassured.config.RestAssuredConfig.newConfig
 import static groovy.util.GroovyTestCase.assertEquals
 import static java.util.Arrays.asList
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertFalse
 import static org.junit.Assert.assertTrue
-import com.jayway.restassured.config.RestAssuredConfig
-import static com.jayway.restassured.config.RestAssuredConfig.newConfig
-import static com.jayway.restassured.config.RedirectConfig.redirectConfig
-import com.jayway.restassured.http.ContentType
 
 class SpecificationMergerTest {
 

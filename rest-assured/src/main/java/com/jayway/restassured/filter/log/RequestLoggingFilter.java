@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import static com.jayway.restassured.filter.log.LogDetail.*;
-import static com.jayway.restassured.filter.log.LogDetail.PARAMS;
 
 /**
  * Will log the request before it's passed to HTTP Builder. Note that HTTP Builder and HTTP Client will add additional headers. This filter will <i>only</i>

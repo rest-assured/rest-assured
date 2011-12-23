@@ -19,19 +19,12 @@
  * enhancements or improvements back to the community under a similar open
  * source license.  Thank you. -TMN
  */
-package com.jayway.restassured.http;
+package com.jayway.restassured.internal.http;
+
+import org.apache.http.*;
+import org.apache.http.protocol.HttpContext;
 
 import java.io.IOException;
-
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.protocol.HttpContext;
 
 /**
  * Base class for handing content-encoding.  

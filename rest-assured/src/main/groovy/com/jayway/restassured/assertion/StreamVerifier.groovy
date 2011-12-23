@@ -16,10 +16,10 @@
 
 package com.jayway.restassured.assertion
 
+import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.internal.ResponseParserRegistrar
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
-import com.jayway.restassured.http.ContentType
 import static com.jayway.restassured.http.ContentType.*
 
 class StreamVerifier {
