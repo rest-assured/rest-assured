@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.parsing;
 
-import static org.apache.commons.lang.ArrayUtils.contains;
+import static org.apache.commons.lang3.ArrayUtils.contains;
 
 /**
  * The different parsers that are provided by REST Assured.

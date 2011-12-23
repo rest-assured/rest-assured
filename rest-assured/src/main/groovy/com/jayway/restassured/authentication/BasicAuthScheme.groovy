@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.authentication
 
-import groovyx.net.http.HTTPBuilder
+import com.jayway.restassured.http.HTTPBuilder
 
 /**
  * Used for basic and digest authentication

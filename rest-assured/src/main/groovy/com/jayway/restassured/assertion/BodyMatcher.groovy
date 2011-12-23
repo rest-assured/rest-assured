@@ -22,12 +22,12 @@ import javax.xml.parsers.DocumentBuilderFactory
 import org.hamcrest.Matcher
 import org.hamcrest.xml.HasXPath
 import org.w3c.dom.Element
-import org.apache.commons.lang.StringUtils
+import org.apache.commons.lang3.StringUtils
 import org.codehaus.groovy.util.StringUtil
-import static org.apache.commons.lang.StringUtils.removeStart
-import static org.apache.commons.lang.StringUtils.removeEnd
-import static org.apache.commons.lang.StringUtils.startsWith
-import static org.apache.commons.lang.StringUtils.endsWith
+import static org.apache.commons.lang3.StringUtils.removeStart
+import static org.apache.commons.lang3.StringUtils.removeEnd
+import static org.apache.commons.lang3.StringUtils.startsWith
+import static org.apache.commons.lang3.StringUtils.endsWith
 
 class BodyMatcher {
   def key

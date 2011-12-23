@@ -22,19 +22,18 @@ import com.jayway.restassured.config.HttpClientConfig
 import com.jayway.restassured.config.RedirectConfig
 import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.filter.Filter
-import com.jayway.restassured.filter.log.ErrorLoggingFilter
-import com.jayway.restassured.filter.log.ResponseLoggingFilter
+
 import com.jayway.restassured.internal.encoderregistry.RestAssuredEncoderRegistry
 import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.RootFilter
 import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.mapper.ObjectMapper
-import groovyx.net.http.HTTPBuilder.RequestConfigDelegate
+import com.jayway.restassured.http.HTTPBuilder.RequestConfigDelegate
 import java.util.Map.Entry
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-import org.apache.commons.lang.StringUtils
-import org.apache.commons.lang.Validate
+import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.Validate
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.HttpPost
@@ -46,14 +45,15 @@ import org.apache.http.message.BasicHeader
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.response.*
 import com.jayway.restassured.specification.*
-import groovyx.net.http.*
-import static groovyx.net.http.ContentType.*
-import static groovyx.net.http.Method.*
+import com.jayway.restassured.http.*
+import static com.jayway.restassured.http.ContentType.*
+import static com.jayway.restassured.http.Method.*
 import static java.util.Arrays.asList
-import static org.apache.commons.lang.StringUtils.substringAfter
+import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.apache.http.client.params.ClientPNames.*
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
 import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE
+import com.jayway.restassured.http.ContentType
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
   private static final int DEFAULT_HTTPS_PORT = 443

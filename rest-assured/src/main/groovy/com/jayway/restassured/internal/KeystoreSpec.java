@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.internal;
 
-import groovyx.net.http.HTTPBuilder;
+import com.jayway.restassured.http.HTTPBuilder;
 
 /**
  * The key store specification

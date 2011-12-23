@@ -21,8 +21,8 @@ import com.jayway.restassured.response.Cookies
 import org.apache.http.impl.cookie.DateUtils
 import org.hamcrest.Matcher
 import static com.jayway.restassured.response.Cookie.*
-import static org.apache.commons.lang.StringUtils.equalsIgnoreCase
-import static org.apache.commons.lang.StringUtils.trim
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase
+import static org.apache.commons.lang3.StringUtils.trim
 
 class CookieMatcher {
 
@@ -55,7 +55,7 @@ class CookieMatcher {
     def cookieList = []
     headerWithCookieList.each {
       def Cookie.Builder cookieBuilder
-      def cookieStrings = org.apache.commons.lang.StringUtils.split(it, ";");
+      def cookieStrings = org.apache.commons.lang3.StringUtils.split(it, ";");
       cookieStrings.eachWithIndex { part, index ->
         if(index == 0) {
           if(part.contains("=")) {

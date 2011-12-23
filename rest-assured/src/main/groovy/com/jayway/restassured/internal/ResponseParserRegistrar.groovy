@@ -19,9 +19,9 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.parsing.Parser
-import groovyx.net.http.ContentType
+import com.jayway.restassured.http.ContentType
 import static com.jayway.restassured.assertion.AssertParameter.notNull
-import static groovyx.net.http.ContentType.*
+import static com.jayway.restassured.http.ContentType.*
 
 /**
  * Takes care of registering additional content types to the parser registry as well as

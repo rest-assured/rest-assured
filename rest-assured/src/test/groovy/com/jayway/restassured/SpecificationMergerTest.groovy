@@ -27,7 +27,6 @@ import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
-import groovyx.net.http.ContentType
 import org.junit.Test
 import static groovy.util.GroovyTestCase.assertEquals
 import static java.util.Arrays.asList
@@ -36,8 +35,8 @@ import static org.junit.Assert.assertFalse
 import static org.junit.Assert.assertTrue
 import com.jayway.restassured.config.RestAssuredConfig
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig
-import com.jayway.restassured.config.RedirectConfig
 import static com.jayway.restassured.config.RedirectConfig.redirectConfig
+import com.jayway.restassured.http.ContentType
 
 class SpecificationMergerTest {
 

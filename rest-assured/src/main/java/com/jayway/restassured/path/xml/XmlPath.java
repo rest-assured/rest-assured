@@ -22,10 +22,9 @@ import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.path.xml.element.NodeChildren;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
-import groovyx.net.http.ParserRegistry;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 
@@ -739,8 +738,7 @@ public class XmlPath {
                 if(mode == XML) {
                     slurper = new XmlSlurper();
                 } else {
-                    XMLReader p = new org.cyberneko.html.parsers.SAXParser();
-                    p.setEntityResolver(ParserRegistry.getCatalogResolver());
+                    XMLReader p = new org.ccil.cowan.tagsoup.Parser();
                     slurper = new XmlSlurper(p);
                 }
                 return method(slurper);

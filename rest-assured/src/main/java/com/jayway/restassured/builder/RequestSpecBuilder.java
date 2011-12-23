@@ -22,7 +22,7 @@ import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.SpecificationMerger;
 import com.jayway.restassured.specification.RequestSpecification;
-import groovyx.net.http.ContentType;
+import com.jayway.restassured.http.ContentType;
 
 import java.io.File;
 import java.io.InputStream;
@@ -643,7 +643,7 @@ public class RequestSpecBuilder {
     /**
      * Specify the content type of the request.
      *
-     * @see groovyx.net.http.ContentType
+     * @see com.jayway.restassured.http.ContentType
      * @param contentType The content type of the request
      * @return The request specification builder
      */

@@ -26,11 +26,11 @@ import com.jayway.restassured.specification.ResponseSpecification;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
-import static groovyx.net.http.ContentType.JSON;
-import static groovyx.net.http.ContentType.URLENC;
+import static com.jayway.restassured.http.ContentType.JSON;
+import static com.jayway.restassured.http.ContentType.URLENC;
 import static java.util.Arrays.asList;
-import static org.apache.commons.lang.ArrayUtils.toObject;
-import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang3.ArrayUtils.toObject;
+import static org.apache.commons.lang3.StringUtils.join;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 

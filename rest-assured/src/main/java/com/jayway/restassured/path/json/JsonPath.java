@@ -19,14 +19,10 @@ package com.jayway.restassured.path.json;
 import com.jayway.restassured.assertion.JSONAssertion;
 import com.jayway.restassured.exception.ParsePathException;
 import com.jayway.restassured.internal.mapping.ObjectMapping;
-import net.sf.json.JSON;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.groovy.JsonSlurper;
+import groovy.json.JsonBuilder;
+import groovy.json.JsonSlurper;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.Reader;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
@@ -35,9 +31,9 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.internal.path.ObjectConverter.convertObjectTo;
 
 /**
- * JsonPath is an alternative to using XPath for easily getting values from a JSON document. It follows the
+ * JsonPath is an alternative to using XPath for easily getting values from a Object document. It follows the
  * Groovy dot notation syntax when getting an object from the document. You can regard it as an alternative to XPath for XML.
- * E.g. given the following JSON document:
+ * E.g. given the following Object document:
  * <pre>
  * { "store": {
  *   "book": [
@@ -73,34 +69,34 @@ import static com.jayway.restassured.internal.path.ObjectConverter.convertObject
  * </pre>
  * To get a list of all book categories:
  * <pre>
- * List&lt;String&gt; categories = with(JSON).get("store.book.category");
+ * List&lt;String&gt; categories = with(Object).get("store.book.category");
  * </pre>
  *
  * Get the first book category:
  * <pre>
- * String category = with(JSON).get("store.book[0].category");
+ * String category = with(Object).get("store.book[0].category");
  * </pre>
  *
  * Get the last book category:
  * <pre>
- * String category = with(JSON).get("store.book[-1].category");
+ * String category = with(Object).get("store.book[-1].category");
  * </pre>
  *
  * Get all books with price between 5 and 15:
  * <pre>
- * List&lt;Map&gt; books = with(JSON).get("store.book.findAll { book -> book.price >= 5 && book.price <= 15 }");
+ * List&lt;Map&gt; books = with(Object).get("store.book.findAll { book -> book.price >= 5 && book.price <= 15 }");
  * </pre>
  *
  */
 public class JsonPath {
 
-    private final JSON json;
+    private final Object json;
     private String rootPath = "";
 
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param text The text containing the JSON document
+     * @param text The text containing the Object document
      */
     public JsonPath(String text) {
         json = new JsonSlurper().parseText(text);
@@ -109,7 +105,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param url The url containing the JSON document
+     * @param url The url containing the Object document
      */
     public JsonPath(URL url) {
         json = parseURL(url);
@@ -118,7 +114,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param stream The stream containing the JSON document
+     * @param stream The stream containing the Object document
      */
     public JsonPath(InputStream stream) {
         json = parseInputStream(stream);
@@ -127,7 +123,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param file The file containing the JSON document
+     * @param file The file containing the Object document
      */
     public JsonPath(File file) {
         json = parseFile(file);
@@ -136,14 +132,14 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param reader The reader containing the JSON document
+     * @param reader The reader containing the Object document
      */
     public JsonPath(Reader reader) {
         json = parseReader(reader);
     }
 
     /**
-     * Get a JSON graph with no named root element as a Java object. This is just a short-cut for
+     * Get a Object graph with no named root element as a Java object. This is just a short-cut for
      *
      * <pre>
      *     get("");
@@ -153,7 +149,7 @@ public class JsonPath {
      *     get("$");
      * </pre>
      *
-     * @return The object matching the JSON graph. This may be any primitive type, a List or a Map.  A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object graph. This may be any primitive type, a List or a Map.  A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public <T> T get() {
@@ -161,10 +157,10 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a boolean.
+     * Get the result of an Object path expression as a boolean.
      *
-     * @param path The JSON path.
-     * @return The object matching the JSON path. This may be any primitive type, a List or a Map.  A {@java.lang.ClassCastException} will be thrown if the object
+     * @param path The Object path.
+     * @return The object matching the Object path. This may be any primitive type, a List or a Map.  A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public <T> T get(String path) {
@@ -173,10 +169,10 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a boolean
+     * Get the result of an Object path expression as a boolean
      *
-     * @param path The JSON path.
-     * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @param path The Object path.
+     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public boolean getBoolean(String path) {
@@ -184,10 +180,10 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a char.
+     * Get the result of an Object path expression as a char.
      *
-     * @param path The JSON path.
-     * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @param path The Object path.
+     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public char getChar(String path) {
@@ -195,10 +191,10 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as an int.
+     * Get the result of an Object path expression as an int.
      *
-     * @param path The JSON path.
-     * @return The int matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @param path The Object path.
+     * @return The int matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public int getInt(String path) {
@@ -216,11 +212,11 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a byte.
+     * Get the result of an Object path expression as a byte.
      *
      *
-     * @param path The JSON path.
-     * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @param path The Object path.
+     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public byte getByte(String path) {
@@ -238,11 +234,11 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a short.
+     * Get the result of an Object path expression as a short.
      *
      *
-     * @param path The JSON path.
-     * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @param path The Object path.
+     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public short getShort(String path) {
@@ -260,10 +256,10 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a float.
+     * Get the result of an Object path expression as a float.
      *
-     * @param path The JSON path.
-     * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @param path The Object path.
+     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public float getFloat(String path) {
@@ -277,10 +273,10 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a double.
+     * Get the result of an Object path expression as a double.
      *
-     * @param path The JSON path.
-     * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @param path The Object path.
+     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public double getDouble(String path) {
@@ -292,10 +288,10 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a long.
+     * Get the result of an Object path expression as a long.
      *
-     * @param path The JSON path.
-     * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @param path The Object path.
+     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public long getLong(String path) {
@@ -313,10 +309,10 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a string.
+     * Get the result of an Object path expression as a string.
      *
-     * @param path The JSON path.
-     * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @param path The Object path.
+     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public String getString(String path) {
@@ -324,11 +320,11 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a list.
+     * Get the result of an Object path expression as a list.
      *
-     * @param path The JSON path.
+     * @param path The Object path.
      * @param <T> The list type
-     * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path) {
@@ -336,12 +332,12 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a list.
+     * Get the result of an Object path expression as a list.
      *
-     * @param path The JSON path.
+     * @param path The Object path.
      * @param genericType The generic list type
      * @param <T> The type
-     * @return The object matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path, Class<T> genericType) {
@@ -354,12 +350,12 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a map.
+     * Get the result of an Object path expression as a map.
      *
-     * @param path The JSON path.
+     * @param path The Object path.
      * @param <K> The type of the expected key
      * @param <V> The type of the expected value
-     * @return The map matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The map matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public <K,V> Map<K, V> getMap(String path) {
@@ -367,14 +363,14 @@ public class JsonPath {
     }
 
     /**
-     * Get the result of an JSON path expression as a map.
+     * Get the result of an Object path expression as a map.
      *
-     * @param path The JSON path.
+     * @param path The Object path.
      * @param keyType The type of the expected key
      * @param valueType The type of the expected value
      * @param <K> The type of the expected key
      * @param <V> The type of the expected value
-     * @return The map matching the JSON path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The map matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
      */
     public <K,V> Map<K, V> getMap(String path, Class<K> keyType, Class<V> valueType) {
@@ -389,8 +385,8 @@ public class JsonPath {
     }
 
     /**
-     *  Get the result of a JSON path expression as a java Object.
-     * E.g. given the following JSON document:
+     *  Get the result of a Object path expression as a java Object.
+     * E.g. given the following Object document:
      * <pre>
      * { "store": {
      *   "book": [
@@ -478,7 +474,7 @@ public class JsonPath {
      *
      * Then
      * <pre>
-     * Book book = from(JSON).getObject("store.book[2]", Book.class);
+     * Book book = from(Object).getObject("store.book[2]", Book.class);
      * </pre>
      *
      * maps the second book to a Book instance.
@@ -492,10 +488,9 @@ public class JsonPath {
         Object object  = getJsonObject(path);
         if(object == null) {
             return null;
-        } else if(object instanceof JSONObject || object instanceof JSONArray) {
-            object = object.toString();
-        } else if(object instanceof List) {
-            object = JSONArray.fromObject(object).toString();
+        } else if(object instanceof List || object instanceof  Map) {
+            // TODO Avoid double parsing
+            object = new JsonBuilder(object).toString();
         } else {
             return convertObjectTo(object, objectType);
         }
@@ -505,7 +500,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param text The text containing the JSON document
+     * @param text The text containing the Object document
      */
     public static JsonPath given(String text) {
         return new JsonPath(text);
@@ -514,7 +509,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param stream The stream containing the JSON document
+     * @param stream The stream containing the Object document
      */
     public static JsonPath given(InputStream stream) {
         return new JsonPath(stream);
@@ -523,7 +518,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param file The file containing the JSON document
+     * @param file The file containing the Object document
      */
     public static JsonPath given(File file) {
         return new JsonPath(file);
@@ -531,7 +526,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param reader The reader containing the JSON document
+     * @param reader The reader containing the Object document
      */
     public static JsonPath given(Reader reader) {
         return new JsonPath(reader);
@@ -539,7 +534,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param url The URL containing the JSON document
+     * @param url The URL containing the Object document
      */
     public static JsonPath given(URL url) {
         return new JsonPath(url);
@@ -548,7 +543,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param stream The stream containing the JSON document
+     * @param stream The stream containing the Object document
      */
     public static JsonPath with(InputStream stream) {
         return new JsonPath(stream);
@@ -557,7 +552,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param text The text containing the JSON document
+     * @param text The text containing the Object document
      */
     public static JsonPath with(String text) {
         return new JsonPath(text);
@@ -566,7 +561,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param file The file containing the JSON document
+     * @param file The file containing the Object document
      */
     public static JsonPath with(File file) {
         return new JsonPath(file);
@@ -575,7 +570,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param reader The reader containing the JSON document
+     * @param reader The reader containing the Object document
      */
     public static JsonPath with(Reader reader) {
         return new JsonPath(reader);
@@ -583,7 +578,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param url The URI containing the JSON document
+     * @param url The URI containing the Object document
      */
     public static JsonPath with(URL url) {
         return new JsonPath(url);
@@ -592,7 +587,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param stream The stream containing the JSON document
+     * @param stream The stream containing the Object document
      */
     public static JsonPath from(InputStream stream) {
         return new JsonPath(stream);
@@ -601,7 +596,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param text The text containing the JSON document
+     * @param text The text containing the Object document
      */
     public static JsonPath from(String text) {
         return new JsonPath(text);
@@ -610,7 +605,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param file The file containing the JSON document
+     * @param file The file containing the Object document
      */
     public static JsonPath from(File file) {
         return new JsonPath(file);
@@ -619,7 +614,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param reader The reader containing the JSON document
+     * @param reader The reader containing the Object document
      */
     public static JsonPath from(Reader reader) {
         return new JsonPath(reader);
@@ -627,7 +622,7 @@ public class JsonPath {
     /**
      * Instantiate a new JsonPath instance.
      *
-     * @param url The URI containing the JSON document
+     * @param url The URI containing the Object document
      */
     public static JsonPath from(URL url) {
         return new JsonPath(url);
@@ -636,7 +631,7 @@ public class JsonPath {
     /**
      * Set the root path of the document so that you don't need to write the entire path. E.g.
      * <pre>
-     * final JsonPath jsonPath = new JsonPath(JSON).setRoot("store.book");
+     * final JsonPath jsonPath = new JsonPath(Object).setRoot("store.book");
      * assertThat(jsonPath.getInt("size()"), equalTo(4));
      * assertThat(jsonPath.getList("author", String.class), hasItem("J. R. R. Tolkien"));
      * </pre>
@@ -649,47 +644,51 @@ public class JsonPath {
         return this;
     }
 
-    private JSON parseInputStream(final InputStream stream)  {
+    private Object parseInputStream(final InputStream stream)  {
         return new ExceptionCatcher() {
-            protected JSON method(JsonSlurper slurper) throws Exception {
-                return slurper.parse(stream);
+            protected Object method(JsonSlurper slurper) throws Exception {
+                return slurper.parse(toReader(stream));
             }
         }.invoke();
     }
 
-    private JSON parseReader(final Reader reader)  {
+    private Object parseReader(final Reader reader)  {
         return new ExceptionCatcher() {
-            protected JSON method(JsonSlurper slurper) throws Exception {
+            protected Object method(JsonSlurper slurper) throws Exception {
                 return slurper.parse(reader);
             }
         }.invoke();
     }
 
-    private JSON parseFile(final File file)  {
+    private Object parseFile(final File file)  {
         return new ExceptionCatcher() {
-            protected JSON method(JsonSlurper slurper) throws Exception {
-                return slurper.parse(file);
+            protected Object method(JsonSlurper slurper) throws Exception {
+                return slurper.parse(new FileReader(file));
             }
         }.invoke();
     }
 
-    private JSON parseURL(final URL url)  {
+    private Object parseURL(final URL url)  {
         return new ExceptionCatcher() {
-            protected JSON method(JsonSlurper slurper) throws Exception {
-                return slurper.parse(url.toString());
+            protected Object method(JsonSlurper slurper) throws Exception {
+                return slurper.parse(toReader(url.openStream()));
             }
         }.invoke();
+    }
+
+    private BufferedReader toReader(InputStream in) {
+        return new BufferedReader(new InputStreamReader(in));
     }
 
     private abstract class ExceptionCatcher {
 
-        protected abstract JSON method(JsonSlurper slurper) throws Exception;
+        protected abstract Object method(JsonSlurper slurper) throws Exception;
 
-        public JSON invoke() {
+        public Object invoke() {
             try {
                 return method(new JsonSlurper());
             } catch(Exception e) {
-                throw new ParsePathException("Failed to parse the JSON document", e);
+                throw new ParsePathException("Failed to parse the Object document", e);
             }
         }
     }

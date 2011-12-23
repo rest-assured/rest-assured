@@ -17,12 +17,12 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
-import groovyx.net.http.ContentType;
-import net.sf.json.JSONException;
+import groovy.json.JsonException;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -312,7 +312,7 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void supportsGettingSingleFloat() throws Exception {
-        expect().body("store.book[0].price", equalTo(8.95)).when().get("/jsonStore");
+        expect().body("store.book[0].price", equalTo(8.95f)).when().get("/jsonStore");
     }
 
     @Test
@@ -474,7 +474,7 @@ public class JSONGetITest extends WithJetty {
         expect().statusCode(200).and().header("Content-Type", notNullValue(String.class)).when().get("/contentTypeJsonButBodyIsNotJson");
     }
 
-    @Test(expected = JSONException.class)
+    @Test(expected = JsonException.class)
     public void malformedJson() throws Exception {
         expect().body("a", is(123456)).when().get("/malformedJson").print();
     }

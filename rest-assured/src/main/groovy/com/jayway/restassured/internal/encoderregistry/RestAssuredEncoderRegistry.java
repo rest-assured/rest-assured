@@ -16,9 +16,9 @@
 
 package com.jayway.restassured.internal.encoderregistry;
 
+import com.jayway.restassured.http.EncoderRegistry;
 import groovy.lang.Closure;
-import groovyx.net.http.ContentType;
-import groovyx.net.http.EncoderRegistry;
+import com.jayway.restassured.http.ContentType;
 
 /**
  * A custom Encoder Registry that returns a default encoder (URL ENCODED)

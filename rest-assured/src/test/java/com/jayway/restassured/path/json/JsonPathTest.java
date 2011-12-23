@@ -17,7 +17,7 @@
 package com.jayway.restassured.path.json;
 
 import com.jayway.restassured.path.json.support.Book;
-import net.sf.json.JSONException;
+import groovy.json.JsonException;
 import org.junit.Test;
 
 import java.util.List;
@@ -123,9 +123,9 @@ public class JsonPathTest {
 
         final Map<String, Object> bicycle = store.get("bicycle");
         final String color = (String) bicycle.get("color");
-        final double price = (Double) bicycle.get("price");
+        final float price = (Float) bicycle.get("price");
         assertThat(color, equalTo("red"));
-        assertThat(price, equalTo(19.95d));
+        assertThat(price, equalTo(19.95f));
     }
 
     @Test
@@ -234,7 +234,7 @@ public class JsonPathTest {
         assertThat(priceAsString, is("8.95"));
     }
 
-    @Test(expected = JSONException.class)
+    @Test(expected = JsonException.class)
     public void malformedJson() throws Exception {
         from(MALFORMED_JSON).get("a");
     }

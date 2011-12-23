@@ -21,8 +21,8 @@ import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.response.*;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 
 import java.io.PrintStream;
 import java.util.Map;

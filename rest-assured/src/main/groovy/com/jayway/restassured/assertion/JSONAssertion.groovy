@@ -16,17 +16,14 @@
 
 package com.jayway.restassured.assertion
 
-import net.sf.json.JSONArray
-import net.sf.json.JSONNull
 import static com.jayway.restassured.assertion.AssertionSupport.*
-import static java.util.Arrays.asList
 
 class JSONAssertion implements Assertion {
   String key;
 
   def Object getResult(Object object) {
     Object result = getAsJsonObject(object)
-    return convertToJavaListIfNeeded(result);
+    return result;
   }
 
   def getAsJsonObject(object) {
@@ -43,22 +40,6 @@ class JSONAssertion implements Assertion {
       }
     }
     return result
-  }
-
-  private Object convertToJavaListIfNeeded(current) {
-    if (current instanceof JSONArray) {
-      current = asList(current.toArray());
-    }
-    if(current instanceof List) {
-      for(int i = 0; i < current.size(); i++) {
-        if(current.get(i) instanceof JSONNull) {
-          current.set(i, null);
-        }
-      }
-    }
-    return current
-
-
   }
 
   def String description() {

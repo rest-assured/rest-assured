@@ -19,8 +19,8 @@ package com.jayway.restassured.assertion
 import com.jayway.restassured.internal.ResponseParserRegistrar
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
-import groovyx.net.http.ContentType
-import static groovyx.net.http.ContentType.*
+import com.jayway.restassured.http.ContentType
+import static com.jayway.restassured.http.ContentType.*
 
 class StreamVerifier {
 
@@ -29,10 +29,8 @@ class StreamVerifier {
     def assertion
     if(contentTypeMatch(JSON, contentType) ) {
       assertion = new JSONAssertion(key: key)
-    } else if(contentTypeMatch(XML, contentType)) {
+    } else if(contentTypeMatch(XML, contentType) || contentTypeMatch(HTML, contentType)) {
       assertion = new XMLAssertion(key: key)
-    } else if(contentTypeMatch(HTML, contentType)) {
-      assertion = new XMLAssertion(key: key, toUpperCase: true)
     } else if(rpr.hasCustomParser(contentType)) {
       assertion = createAssertionForCustomParser(rpr, contentType, key)
     } else {

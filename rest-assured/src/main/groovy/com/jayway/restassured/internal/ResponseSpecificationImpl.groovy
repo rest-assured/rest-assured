@@ -22,13 +22,13 @@ import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.assertion.HeaderMatcher
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
-import groovyx.net.http.ContentType
+import com.jayway.restassured.http.ContentType
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.specification.*
-import static groovyx.net.http.ContentType.ANY
-import static org.apache.commons.lang.StringUtils.substringAfter
+import static com.jayway.restassured.http.ContentType.ANY
+import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.hamcrest.Matchers.equalTo
 
 class ResponseSpecificationImpl implements FilterableResponseSpecification {

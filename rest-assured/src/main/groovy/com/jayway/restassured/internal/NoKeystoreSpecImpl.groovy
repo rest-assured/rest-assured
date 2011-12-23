@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.internal
 
-import groovyx.net.http.HTTPBuilder
+import com.jayway.restassured.http.HTTPBuilder
 
 class NoKeystoreSpecImpl implements KeystoreSpec {
 

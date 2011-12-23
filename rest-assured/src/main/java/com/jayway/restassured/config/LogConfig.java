@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.config;
 
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 
 import java.io.PrintStream;
 

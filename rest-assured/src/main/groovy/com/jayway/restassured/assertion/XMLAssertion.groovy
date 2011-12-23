@@ -26,7 +26,6 @@ class XMLAssertion implements Assertion {
   private static final String DOT = "."
   private static final String EXPLICIT_LIST_CONVERSION = 'list()'
   String key;
-  boolean toUpperCase;
 
   /* Matches fragment such as children() or size(2) */
   private def isInvocationFragment = ~/.*\(\d*\)|.*(\{|\}).*/
@@ -41,15 +40,6 @@ class XMLAssertion implements Assertion {
     def isRootOnly = indexOfDot < 0
     if (!isRootOnly) {
       fragments = key.split("\\.");
-      if(toUpperCase) {
-        for(int i = 0; i < fragments.length; i++) {
-          if(isPathFragment(fragments[i])) {
-            fragments[i] = fragments[i].toUpperCase();
-          }
-        }
-        key = fragments.join(".")
-      }
-
       def firstFragment = fragments[0];
       if(isDoubleStarFragment(firstFragment) || !isPathFragment(firstFragment)) {
         evaluationString = key.startsWith(DOT) ?: DOT + key; // Add a dot if needed because the first path fragment is actually a method invocation

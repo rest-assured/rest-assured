@@ -26,8 +26,8 @@ import net.liftweb.json.{DefaultFormats, JsonParser}
 import collection.mutable.ListBuffer
 import javax.servlet.http.Cookie
 import org.apache.commons.io.IOUtils
-import org.apache.commons.lang.StringUtils
 import java.util.{Scanner, Date}
+import org.apache.commons.lang3.StringUtils
 
 class ScalatraRestExample extends ScalatraServlet {
   // To allow for json extract
@@ -350,7 +350,7 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/jsonWithAtSign") {
     """{
-        "body" : { "@id" : 10, content: "some content"  }
+        "body" : { "@id" : 10, "content": "some content"  }
      }"""
 
   }

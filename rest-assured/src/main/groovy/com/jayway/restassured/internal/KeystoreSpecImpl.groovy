@@ -16,9 +16,9 @@
 
 package com.jayway.restassured.internal
 
-import groovyx.net.http.HTTPBuilder
+import com.jayway.restassured.http.HTTPBuilder
 import java.security.KeyStore
-import org.apache.commons.lang.Validate
+import org.apache.commons.lang3.Validate
 import org.apache.http.conn.scheme.Scheme
 import org.apache.http.conn.ssl.SSLSocketFactory
 

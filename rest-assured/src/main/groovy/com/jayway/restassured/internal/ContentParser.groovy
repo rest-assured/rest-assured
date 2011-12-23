@@ -20,9 +20,7 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
-import groovyx.net.http.ParserRegistry
-import net.sf.json.groovy.JsonSlurper
-import org.xml.sax.XMLReader
+import groovy.json.JsonSlurper
 import static com.jayway.restassured.parsing.Parser.*
 
 class ContentParser {
@@ -35,15 +33,13 @@ class ContentParser {
     } else {
       switch(parser) {
         case JSON:
-          content = new JsonSlurper().parse(bodyAsInputStream)
+          content = new JsonSlurper().parse(new InputStreamReader(new BufferedInputStream(bodyAsInputStream)))
           break;
         case XML:
           content = new XmlSlurper().parse(bodyAsInputStream)
           break
         case HTML:
-          XMLReader p = new org.cyberneko.html.parsers.SAXParser();
-          p.setEntityResolver( ParserRegistry.getCatalogResolver() );
-          content = new XmlSlurper( p ).parse(bodyAsInputStream);
+          content = new XmlSlurper( new org.ccil.cowan.tagsoup.Parser() ).parse(bodyAsInputStream);
           break
         case TEXT:
         default:

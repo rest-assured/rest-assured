@@ -27,8 +27,8 @@ import com.jayway.restassured.specification.Argument;
 import com.jayway.restassured.specification.RequestSender;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
-import groovyx.net.http.ContentType;
-import org.apache.commons.lang.Validate;
+import com.jayway.restassured.http.ContentType;
+import org.apache.commons.lang3.Validate;
 
 import java.io.File;
 import java.util.Collections;
@@ -993,8 +993,8 @@ public class RestAssured {
     }
 
     /**
-     * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath}, {@link #requestContentType(groovyx.net.http.ContentType)},
-     * {@link #responseContentType(groovyx.net.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification}. {@link #keystore(String, String)},
+     * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath}, {@link #requestContentType(com.jayway.restassured.http.ContentType)},
+     * {@link #responseContentType(com.jayway.restassured.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification}. {@link #keystore(String, String)},
      * {@link #urlEncodingEnabled} and {@link #config} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, "", <code>null</code>, <code>null</code>,
      * "empty list", <code>null</code>, <code>null</code>, <code>none</code>, <code>true</code>, <code>null</code>.
      */

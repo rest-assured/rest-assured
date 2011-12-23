@@ -18,7 +18,7 @@ package com.jayway.restassured.internal.mapping
 
 import com.jayway.restassured.mapper.ObjectMapper
 import static com.jayway.restassured.assertion.AssertParameter.notNull
-import static groovyx.net.http.ContentType.ANY
+import static com.jayway.restassured.http.ContentType.ANY
 
 class ObjectMapping {
   private static final boolean isJacksonPresent = existInCP("org.codehaus.jackson.map.ObjectMapper") && existInCP("org.codehaus.jackson.JsonGenerator");

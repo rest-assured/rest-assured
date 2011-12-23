@@ -25,13 +25,13 @@ import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
-import org.apache.commons.lang.Validate;
+import org.apache.commons.lang3.Validate;
 import org.hamcrest.Matcher;
 
 import java.io.PrintStream;
 
 import static com.jayway.restassured.filter.log.LogDetail.*;
-import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 class StatusCodeBasedLoggingFilter implements Filter {
 

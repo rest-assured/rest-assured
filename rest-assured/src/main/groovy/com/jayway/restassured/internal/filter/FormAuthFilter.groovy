@@ -28,8 +28,8 @@ import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.HTML
 import static java.lang.String.format
 
 class FormAuthFilter implements AuthFilter {
-  private static final String FIND_INPUT_TAG = "html.depthFirst().grep { it.name() == 'INPUT' && it.@type == '%s' }.collect { it.@name }"
-  private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'FORM' }.get(0).@action"
+  private static final String FIND_INPUT_TAG = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }"
+  private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action"
 
   def userName
   def password

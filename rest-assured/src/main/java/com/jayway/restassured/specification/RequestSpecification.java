@@ -23,7 +23,7 @@ import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
-import groovyx.net.http.ContentType;
+import com.jayway.restassured.http.ContentType;
 
 import java.io.File;
 import java.io.InputStream;
