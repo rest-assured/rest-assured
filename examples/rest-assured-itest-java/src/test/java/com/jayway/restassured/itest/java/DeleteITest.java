@@ -38,11 +38,8 @@ public class DeleteITest extends WithJetty {
         given().parameters("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().delete("/greet");
     }
 
-      @Test
-    public void deleteDoesntSupportsStringBody() throws Exception {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Cannot set a request body for a DELETE method");
-
+    @Test
+    public void deleteSupportsStringBody() throws Exception {
         given().body("a body").expect().body(equalTo("a body")).when().delete("/body");
     }
 }
