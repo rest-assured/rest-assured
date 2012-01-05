@@ -49,9 +49,7 @@ class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
   }
 
   post("/fileAndText") {
-    val fileItem = fileParams.get("file").get
-    fileItem.getString + getText
-
+    getFileContent + getText
   }
 
   private def getFileContent: String = {
@@ -60,8 +58,8 @@ class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
   }
 
   private def getText: String = {
-    val option: Option[Seq[String]] = multiParams.get("text")
-    val seq: Seq[String] = option.get
+    val option = multiParams.get("text")
+    val seq = option.get
     seq.mkString(",")
   }
 }
