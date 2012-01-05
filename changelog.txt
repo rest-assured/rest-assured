@@ -1,3 +1,9 @@
+Change log next version
+-----------------------
+* Forked HTTPBuilder
+* Better HTML parsing
+* Allow body content in DELETE request
+
 Change log 1.5 (2011-12-20)
 ---------------------------
 * Added methods "noFilters" and "noFiltersOfType" to RequestSpecification to allow for removal of filters. This is useful when specifying a default filter statically (e.g. a custom authentication filter) but you need to remove it in a Filter implementation in order to make requests without this filter.
