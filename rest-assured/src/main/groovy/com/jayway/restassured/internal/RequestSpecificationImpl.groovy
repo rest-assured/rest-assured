@@ -666,7 +666,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     keyStoreSpec.apply(http, isFullyQualifiedUri == true && port == DEFAULT_HTTP_TEST_PORT ? DEFAULT_HTTPS_PORT : port)
 
-    validateMultiPartForPostOnly(method);
+    validateMultiPartForPostAndPutOnly(method);
 
     if(shouldUrlEncode(method)) {
       if(hasFormParams() && requestBody != null) {
@@ -767,9 +767,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(baseUriPath, basePath), path)
   }
 
-  private def validateMultiPartForPostOnly(method) {
-    if(multiParts.size() > 0 && method != POST) {
-      throw new IllegalArgumentException("Sorry, multi part form data is only available for "+POST);
+  private def validateMultiPartForPostAndPutOnly(method) {
+    if(multiParts.size() > 0 && method != POST && method != PUT) {
+      throw new IllegalArgumentException("Sorry, multi part form data is only available for POST and PUT.");
     }
   }
 
@@ -831,7 +831,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
   }
 
   private boolean shouldUrlEncode(method) {
-    return POST.equals(method) || formParameters.size() > 0
+    return POST.equals(method) || formParameters.size() > 0 || multiParts.size() > 0
   }
 
   private boolean isFullyQualified(String targetUri) {

@@ -3,6 +3,7 @@ Change log next version
 * Forked HTTPBuilder
 * Better HTML parsing
 * Allow body content in DELETE request
+* PUT request now work for multi part form data uploading
 
 Change log 1.5 (2011-12-20)
 ---------------------------

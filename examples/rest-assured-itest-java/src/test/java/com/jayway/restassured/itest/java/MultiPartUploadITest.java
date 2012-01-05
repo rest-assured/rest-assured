@@ -168,12 +168,27 @@ public class MultiPartUploadITest extends WithJetty {
     }
 
     @Test
-    public void multiPartUploadingDoesntWorkForPut() throws Exception {
+    public void multiPartUploadingDoesntWorkForDelete() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Sorry, multi part form data is only available for POST");
+        exception.expectMessage("Sorry, multi part form data is only available for POST and PUT.");
 
         given().
                 multiPart("text", "sometext").
+        when().
+                delete("/multipart/file");
+    }
+
+    @Test
+    public void multiPartByteArrayUploadingWorksUsingPut() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                multiPart("file", "myFile", bytes).
+        expect().
+                statusCode(200).
+                body(is(new String(bytes))).
         when().
                 put("/multipart/file");
     }

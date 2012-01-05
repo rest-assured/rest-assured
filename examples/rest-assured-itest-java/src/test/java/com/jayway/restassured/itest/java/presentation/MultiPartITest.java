@@ -55,5 +55,4 @@ public class MultiPartITest extends WithJetty {
         when().
                 post("/multipart/file");
     }
-
 }
