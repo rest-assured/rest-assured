@@ -27,7 +27,7 @@ public interface RequestSender {
      *
      * @param path The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>get("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response get(String path, Object...pathParams);
 
@@ -37,7 +37,7 @@ public interface RequestSender {
      *
      * @param path The path to send the request to.
      * @param pathParams The path parameters.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response get(String path, Map<String, ?> pathParams);
 
@@ -47,7 +47,7 @@ public interface RequestSender {
      *
      * @param path The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>post("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response post(String path, Object...pathParams);
 
@@ -57,7 +57,7 @@ public interface RequestSender {
      *
      * @param path The path to send the request to.
      * @param pathParams The path parameters.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response post(String path, Map<String, ?> pathParams);
 
@@ -67,7 +67,7 @@ public interface RequestSender {
      *
      * @param path The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>put("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response put(String path, Object...pathParams);
 
@@ -77,7 +77,7 @@ public interface RequestSender {
      *
      * @param path The path to send the request to.
      * @param pathParams The path parameters.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response put(String path, Map<String, ?> pathParams);
 
@@ -87,7 +87,7 @@ public interface RequestSender {
      *
      * @param path The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>delete("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response delete(String path, Object...pathParams);
 
@@ -97,7 +97,7 @@ public interface RequestSender {
      *
      * @param path The path to send the request to.
      * @param pathParams The path parameters.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response delete(String path, Map<String, ?> pathParams);
 
@@ -107,7 +107,7 @@ public interface RequestSender {
      *
      * @param path The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response head(String path, Object...pathParams);
 
@@ -117,7 +117,7 @@ public interface RequestSender {
      *
      * @param path The path to send the request to.
      * @param pathParams The path parameters.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response head(String path, Map<String, ?> pathParams);
 }
