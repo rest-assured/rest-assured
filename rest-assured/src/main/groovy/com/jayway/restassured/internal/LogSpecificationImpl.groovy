@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.internal
 
+import com.jayway.restassured.config.LogConfig
 import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.specification.RequestSpecification
 
@@ -25,11 +26,23 @@ import com.jayway.restassured.specification.RequestSpecification
 class LogSpecificationImpl {
 
   def PrintStream getPrintStream(RequestSpecification requestSpecification) {
-    RestAssuredConfig config = requestSpecification.restAssuredConfig
-    def stream = config?.logConfig?.defaultStream()
+    def stream = getLogConfig(requestSpecification)?.defaultStream()
     if(stream == null) {
       stream = System.out
     }
     stream
+  }
+
+  def boolean shouldPrettyPrint(RequestSpecification requestSpecification) {
+    def prettyPrintingEnabled = getLogConfig(requestSpecification)?.isPrettyPrintingEnabled()
+    if(prettyPrintingEnabled == null) {
+      return true
+    }
+    prettyPrintingEnabled
+  }
+
+  private def LogConfig getLogConfig(RequestSpecification requestSpecification) {
+    RestAssuredConfig config = requestSpecification.restAssuredConfig
+    config?.logConfig
   }
 }

@@ -20,6 +20,7 @@ import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
+import com.jayway.restassured.internal.support.Prettifier;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
@@ -30,6 +31,7 @@ import org.hamcrest.Matcher;
 
 import java.io.PrintStream;
 
+import static com.jayway.restassured.RestAssured.config;
 import static com.jayway.restassured.filter.log.LogDetail.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -38,6 +40,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
     private final PrintStream stream;
     private final Matcher<?> matcher;
     private final LogDetail logDetail;
+    private final boolean shouldPrettyPrint;
 
     /**
      * Log to system out
@@ -64,12 +67,25 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param matcher The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, PrintStream stream, Matcher<Integer> matcher) {
+        this(logDetail, isPrettyPrintingEnabled(), stream, matcher);
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream and a specific log detail  and the option to pretty printing
+     *
+     * @param logDetail The log detail
+     * @param prettyPrint Enabled pretty printing if possible
+     * @param stream The stream to log errors to.
+     * @param matcher The matcher for the logging to take place
+     */
+    public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<Integer> matcher) {
         Validate.notNull(logDetail, "Log details cannot be null");
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(matcher, "Matcher cannot be null");
         if(logDetail == PARAMS) {
             throw new IllegalArgumentException(String.format("%s is not a valid %s for a response.", PARAMS, LogDetail.class.getSimpleName()));
         }
+        this.shouldPrettyPrint = prettyPrint;
         this.logDetail = logDetail;
         this.stream = stream;
         this.matcher = matcher;
@@ -104,10 +120,15 @@ class StatusCodeBasedLoggingFilter implements Filter {
             }
         }
         if(logDetail == ALL || logDetail == BODY) {
-            responseBody = response.asString();
+            if(shouldPrettyPrint) {
+                responseBody = new Prettifier().getPrettifiedBodyIfPossible(response);
+            } else {
+                responseBody = response.asString();
+            }
             if(logDetail == ALL && !isBlank(responseBody)) {
                 builder.append("\n\n");
             }
+
             builder.append(responseBody);
         }
         stream.println(builder.toString());
@@ -132,5 +153,9 @@ class StatusCodeBasedLoggingFilter implements Filter {
             return build;
         }
         return response;
+    }
+
+    private static boolean isPrettyPrintingEnabled() {
+        return config == null ? true : config.getLogConfig().isPrettyPrintingEnabled();
     }
 }

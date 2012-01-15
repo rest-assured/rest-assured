@@ -3,6 +3,13 @@ Change log next version
 * Forked HTTPBuilder. This means that a lot of workarounds that had to be made in the past can be removed in the future. It allows means that an updated version of Groovy and HTML parsing is possible as well as many other minor changes. 
 * The HTTP Delete method now supports a method body 
 * PUT request now work for multi part form data uploading
+* Added support for pretty-printing the request and response body when logging if content-type is XML, JSON or HTML. Pretty-printing is enabled by default but it could be disabled either by:
+	RestAssured.config = config().logConfig(logConfig().enablePrettyPrinting(false));
+  or using the DSL:
+	expect().log.all(false). ..
+  You can also pretty-print the response from the Response object:
+	get("/some-xml").prettyPrint();
+  (issue 140)
 
 Change log 1.5 (2011-12-20)
 ---------------------------

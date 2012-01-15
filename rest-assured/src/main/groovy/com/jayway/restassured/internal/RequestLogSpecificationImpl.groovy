@@ -33,11 +33,23 @@ class RequestLogSpecificationImpl extends LogSpecificationImpl implements Reques
   }
 
   RequestSpecification body() {
-    logWith(LogDetail.BODY)
+    body(shouldPrettyPrint(requestSpecification))
+  }
+
+  RequestSpecification body(boolean shouldPrettyPrint) {
+    logWith(LogDetail.BODY, shouldPrettyPrint)
+  }
+
+  RequestSpecification all(boolean shouldPrettyPrint) {
+    logWith(LogDetail.ALL, shouldPrettyPrint)
+  }
+
+  RequestSpecification everything(boolean shouldPrettyPrint) {
+    all(shouldPrettyPrint)
   }
 
   RequestSpecification all() {
-    logWith(LogDetail.ALL)
+    all(shouldPrettyPrint(requestSpecification))
   }
 
   RequestSpecification everything() {
@@ -53,6 +65,10 @@ class RequestLogSpecificationImpl extends LogSpecificationImpl implements Reques
   }
 
   private def logWith(LogDetail logDetail) {
+    logWith(logDetail, shouldPrettyPrint(requestSpecification))
+  }
+
+  private def logWith(LogDetail logDetail, boolean prettyPrintingEnabled) {
     requestSpecification.filter(new RequestLoggingFilter(logDetail, getPrintStream(requestSpecification)))
     requestSpecification
   }

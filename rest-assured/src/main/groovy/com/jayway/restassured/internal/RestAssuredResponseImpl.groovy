@@ -18,6 +18,7 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.internal.mapping.ObjectMapping
+
 import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.path.json.JsonPath
 import com.jayway.restassured.path.xml.XmlPath
@@ -26,6 +27,7 @@ import groovy.xml.StreamingMarkupBuilder
 import java.nio.charset.Charset
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.response.*
+import com.jayway.restassured.internal.support.Prettifier
 
 class RestAssuredResponseImpl implements Response {
   private static final String CANNOT_PARSE_MSG = "Failed to parse response."
@@ -116,6 +118,12 @@ class RestAssuredResponseImpl implements Response {
     def string = asString();
     println string
     string
+  }
+
+  String prettyPrint() {
+    def body = new Prettifier().getPrettifiedBodyIfPossible(this)
+    println body
+    body
   }
 
   String asString() {

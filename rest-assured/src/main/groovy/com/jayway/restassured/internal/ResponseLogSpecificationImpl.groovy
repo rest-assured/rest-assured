@@ -27,15 +27,27 @@ class ResponseLogSpecificationImpl extends LogSpecificationImpl implements Respo
   private ResponseSpecification responseSpecification
 
   ResponseSpecification body() {
-    logWith(LogDetail.BODY)
+    body(shouldPrettyPrint())
+  }
+
+  ResponseSpecification body(boolean shouldPrettyPrint) {
+    return logWith(LogDetail.BODY, shouldPrettyPrint)
   }
 
   ResponseSpecification all() {
-    logWith(LogDetail.ALL)
+    all(shouldPrettyPrint())
+  }
+
+  ResponseSpecification all(boolean shouldPrettyPrint) {
+    return logWith(LogDetail.ALL, shouldPrettyPrint)
   }
 
   ResponseSpecification everything() {
     all()
+  }
+
+  ResponseSpecification everything(boolean shouldPrettyPrint) {
+    all(shouldPrettyPrint);
   }
 
   ResponseSpecification headers() {
@@ -66,6 +78,10 @@ class ResponseLogSpecificationImpl extends LogSpecificationImpl implements Respo
     logWith(new ResponseLoggingFilter(logDetail, getPrintStream()))
   }
 
+  private def logWith(LogDetail logDetail, boolean prettyPrintingEnabled) {
+    logWith(new ResponseLoggingFilter(logDetail, prettyPrintingEnabled, getPrintStream()))
+  }
+
   private def logWith(ResponseLoggingFilter filter) {
     responseSpecification.request().filter(filter)
     responseSpecification
@@ -73,5 +89,9 @@ class ResponseLogSpecificationImpl extends LogSpecificationImpl implements Respo
 
   private def getPrintStream() {
     super.getPrintStream(responseSpecification.request())
+  }
+
+  private def shouldPrettyPrint() {
+    super.shouldPrettyPrint(responseSpecification.request())
   }
 }

@@ -16,13 +16,19 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.filter.log.ResponseLoggingFilter;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.itest.java.objects.Greeting;
+import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.objects.ScalatraObject;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.output.WriterOutputStream;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.PrintStream;
@@ -38,11 +44,22 @@ import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logRespons
 import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logResponseToIfMatches;
 import static com.jayway.restassured.parsing.Parser.JSON;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class LoggingITest extends WithJetty {
+
+    @Before
+    public void setup() throws Exception {
+        RestAssured.config = config().logConfig(logConfig().enablePrettyPrinting(false));
+    }
+
+    @After
+    public void teardown() throws Exception {
+        RestAssured.reset();
+    }
 
     @Test
     public void errorLoggingFilterWorks() throws Exception {
@@ -145,9 +162,9 @@ public class LoggingITest extends WithJetty {
                 cookie("standardCookie", "standard value").
                 header("multiHeader", "headerValue1", "headerValue2").
                 header("standardHeader", "standard header value").
-        expect().
+                expect().
                 body("greeting", equalTo("Greetings John Doe")).
-        when().
+                when().
                 post("/greet");
 
         assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/greet\nRequest params:\thello1=world1\n\t\t\t\thello2=world2\n\t\t\t\tmultiParam=[multi1, multi2]\nQuery params:\tsomething1=else1\n\t\t\t\tsomething2=else2\n\t\t\t\tsomething3=else3\nForm params:\tfirstName=John\n\t\t\t\tlastName=Doe\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\n\t\t\t\tmultiHeader=headerValue1\n\t\t\t\tmultiHeader=headerValue2\n\t\t\t\tstandardHeader=standard header value\nCookies:\t\tmultiCookie=value1\n\t\t\t\tmultiCookie=value2\n\t\t\t\tstandardCookie=standard value\nBody:\t\t\t<none>\n"));
@@ -167,9 +184,9 @@ public class LoggingITest extends WithJetty {
                 param("firstName", "John").
                 param("lastName", "Doe").
                 header("Content-type", "application/json").
-        expect().
+                expect().
                 body("greeting", equalTo("Greetings John Doe")).
-        when().
+                when().
                 get("/greet");
 
         assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\t/greet\nRequest params:\tfirstName=John\n\t\t\t\tlastName=Doe\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-type=application/json\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
@@ -184,9 +201,9 @@ public class LoggingITest extends WithJetty {
                 filter(new RequestLoggingFilter(captor)).
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
-        expect().
+                expect().
                 body("fullName", equalTo("John Doe")).
-        when().get("/{firstName}/{lastName}");
+                when().get("/{firstName}/{lastName}");
 
         assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\t/John/Doe\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\tfirstName=John\n\t\t\t\tlastName=Doe\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
     }
@@ -213,9 +230,9 @@ public class LoggingITest extends WithJetty {
         given().
                 filters(new RequestLoggingFilter(captor), new ResponseLoggingFilter(captor)).
                 body(object).
-        expect().
+                expect().
                 defaultParser(JSON).
-        when().
+                when().
                 post("/reflect");
 
         assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}\nHTTP/1.1 200 OK\nContent-Type=text/plain; charset=utf-8\nContent-Length=23\nServer=Jetty(6.1.14)\n\n{\"hello\":\"Hello world\"}\n"));
@@ -231,9 +248,9 @@ public class LoggingITest extends WithJetty {
         given().
                 filters(new ResponseLoggingFilter(captor), new RequestLoggingFilter(captor)).
                 body(object).
-        expect().
+                expect().
                 defaultParser(JSON).
-        when().
+                when().
                 post("/reflect");
 
         assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}\nHTTP/1.1 200 OK\nContent-Type=text/plain; charset=utf-8\nContent-Length=23\nServer=Jetty(6.1.14)\n\n{\"hello\":\"Hello world\"}\n"));
@@ -245,13 +262,13 @@ public class LoggingITest extends WithJetty {
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                config(config().logConfig(logConfig().defaultStream(captor))).
+                config(config().logConfig(logConfig().defaultStream(captor).and().enablePrettyPrinting(false))).
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
-        expect().
+                expect().
                 log().all().
                 body("fullName", equalTo("John Doe")).
-        when().
+                when().
                 get("/{firstName}/{lastName}");
 
         assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type=application/json; charset=UTF-8\nContent-Length=59\nServer=Jetty(6.1.14)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}\n"));
@@ -264,9 +281,9 @@ public class LoggingITest extends WithJetty {
 
         given().
                 config(config().logConfig(logConfig().defaultStream(captor))).
-        expect().
+                expect().
                 log().ifStatusCodeIsEqualTo(409).
-        when().
+                when().
                 get("/409");
 
         assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type=text/plain; charset=utf-8\nContent-Length=5\nServer=Jetty(6.1.14)\n\nERROR\n"));
@@ -279,9 +296,9 @@ public class LoggingITest extends WithJetty {
 
         given().
                 config(config().logConfig(logConfig().defaultStream(captor))).
-        expect().
+                expect().
                 log().ifStatusCodeIsEqualTo(200).
-        when().
+                when().
                 get("/409");
 
         assertThat(writer.toString(), equalTo(""));
@@ -294,9 +311,9 @@ public class LoggingITest extends WithJetty {
 
         given().
                 config(config().logConfig(logConfig().defaultStream(captor))).
-        expect().
+                expect().
                 log().ifStatusCodeMatches(greaterThan(200)).
-        when().
+                when().
                 get("/409");
 
         assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type=text/plain; charset=utf-8\nContent-Length=5\nServer=Jetty(6.1.14)\n\nERROR\n"));
@@ -308,7 +325,7 @@ public class LoggingITest extends WithJetty {
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                config(config().logConfig(new LogConfig(captor))).
+                config(config().logConfig(new LogConfig(captor, false))).
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
         expect().
@@ -322,12 +339,152 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
+    public void logOnlyResponseBodyWithPrettyPrintingWhenJson() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+        expect().
+                log().body().
+                body("fullName", equalTo("John Doe")).
+        when().
+                get("/{firstName}/{lastName}");
+
+
+        assertThat(writer.toString(), equalTo("{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}\n"));
+    }
+
+    @Test
+    public void logOnlyResponseBodyWithPrettyPrintingWhenXml() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+        expect().
+                log().body().
+                body("videos.music[0].title", is("Video Title 1")).
+        when().
+                get("/videos-not-formatted");
+
+        assertThat(writer.toString(), equalTo("<videos>\n  <music>\n    <title>\n      Video Title 1\n    </title>\n    <artist>\n      Artist 1\n    </artist>\n  </music>\n  <music>\n    <title>\n      Video Title 2\n    </title>\n    <artist>\n      Artist 2\n    </artist>\n    <artist>\n      Artist 3\n    </artist>\n  </music>\n</videos>\n"));
+    }
+
+    @Test
+    public void logOnlyResponseBodyWithPrettyPrintingWhenHtml() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+        expect().
+                log().body().
+                body("html.head.title", is("my title")).
+        when().
+                get("/textHTML-not-formatted");
+
+        assertThat(writer.toString(), equalTo("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n  <head>\n    <title>\n      my title\n    </title>\n  </head>\n  <body>\n    <p>\n      paragraph 1\n    </p>\n    <p>\n      paragraph 2\n    </p>\n  </body>\n</html>\n"));
+    }
+
+    @Test
+    public void logAllWithPrettyPrintingWhenJson() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+        expect().
+                log().all().
+                body("fullName", equalTo("John Doe")).
+        when().
+                get("/{firstName}/{lastName}");
+
+
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type=application/json; charset=UTF-8\nContent-Length=59\nServer=Jetty(6.1.14)\n\n{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}\n"));
+    }
+
+    @Test
+    public void logAllWithPrettyPrintingUsingDSLWhenJson() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, false))).
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+        expect().
+                log().all(true).
+                body("fullName", equalTo("John Doe")).
+        when().
+                get("/{firstName}/{lastName}");
+
+
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type=application/json; charset=UTF-8\nContent-Length=59\nServer=Jetty(6.1.14)\n\n{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}\n"));
+    }
+
+    @Test
+    public void logAllWithNoPrettyPrintingUsingDSLWhenJson() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+        expect().
+                log().all(false).
+                body("fullName", equalTo("John Doe")).
+        when().
+                get("/{firstName}/{lastName}");
+
+
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type=application/json; charset=UTF-8\nContent-Length=59\nServer=Jetty(6.1.14)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}\n"));
+    }
+
+    @Test
+    public void logOnlyResponseBodyWithPrettyPrintingUsingDSLWhenXml() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, false))).
+        expect().
+                log().body(true).
+                body("videos.music[0].title", is("Video Title 1")).
+        when().
+                get("/videos-not-formatted");
+
+        assertThat(writer.toString(), equalTo("<videos>\n  <music>\n    <title>\n      Video Title 1\n    </title>\n    <artist>\n      Artist 1\n    </artist>\n  </music>\n  <music>\n    <title>\n      Video Title 2\n    </title>\n    <artist>\n      Artist 2\n    </artist>\n    <artist>\n      Artist 3\n    </artist>\n  </music>\n</videos>\n"));
+    }
+
+    @Test
+    public void logOnlyResponseBodyWithNoPrettyPrintingUsingDSLWhenXml() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+        expect().
+                log().body(false).
+                body("videos.music[0].title", is("Video Title 1")).
+        when().
+                get("/videos-not-formatted");
+
+        assertThat(writer.toString(), equalTo("<videos><music><title>Video Title 1</title><artist>Artist 1</artist></music><music><title>Video Title 2</title><artist>Artist 2</artist><artist>Artist 3</artist></music></videos>\n"));
+    }
+
+    @Test
     public void logOnlyStatusUsingResponseUsingLogSpec() throws Exception {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                config(config().logConfig(new LogConfig(captor))).
+                config(config().logConfig(new LogConfig(captor, true))).
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
         expect().
@@ -346,7 +503,7 @@ public class LoggingITest extends WithJetty {
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                config(config().logConfig(new LogConfig(captor))).
+                config(config().logConfig(new LogConfig(captor, true))).
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
         expect().
@@ -365,7 +522,7 @@ public class LoggingITest extends WithJetty {
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                config(config().logConfig(new LogConfig(captor))).
+                config(config().logConfig(new LogConfig(captor, true))).
         expect().
                 log().headers().
         when().
@@ -381,7 +538,7 @@ public class LoggingITest extends WithJetty {
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                config(config().logConfig(new LogConfig(captor))).
+                config(config().logConfig(new LogConfig(captor, true))).
         expect().
                 log().cookies().
         when().
@@ -396,7 +553,7 @@ public class LoggingITest extends WithJetty {
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                config(config().logConfig(new LogConfig(captor))).
+                config(config().logConfig(new LogConfig(captor, true))).
                 log().everything().
                 param("firstName", "John").
                 queryParam("lastName", "Doe").
@@ -412,7 +569,7 @@ public class LoggingITest extends WithJetty {
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                config(config().logConfig(new LogConfig(captor))).
+                config(config().logConfig(new LogConfig(captor, true))).
                 log().parameters().
                 param("firstName", "John").
                 queryParam("lastName", "Doe").
@@ -428,7 +585,7 @@ public class LoggingITest extends WithJetty {
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                config(config().logConfig(new LogConfig(captor))).
+                config(config().logConfig(new LogConfig(captor, true))).
                 log().body().
                 param("firstName", "John").
                 queryParam("lastName", "Doe").
@@ -439,12 +596,81 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
+    public void logBodyWithPrettyPrintingUsingRequestLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                contentType(ContentType.JSON).
+                config(config().logConfig(new LogConfig(captor, true))).
+                log().body().
+                body("{ \"something\" : \"else\" }").
+        when().
+                post("/body");
+
+        assertThat(writer.toString(), equalTo("Body:\n{\n    \"something\": \"else\"\n}\n"));
+    }
+
+    @Test
+    public void logBodyWithPrettyPrintingUsingDslAndRequestLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                contentType(ContentType.JSON).
+                config(config().logConfig(new LogConfig(captor, false))).
+                log().body(true).
+                body("{ \"something\" : \"else\" }").
+        when().
+                post("/body");
+
+        assertThat(writer.toString(), equalTo("Body:\n{\n    \"something\": \"else\"\n}\n"));
+    }
+
+    @Test
+    public void logBodyWithPrettyPrintingUsingRequestLogSpecAndObjectMapping() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        final Message message = new Message();
+        message.setMessage("My message");
+        given().
+                contentType(ContentType.JSON).
+                config(config().logConfig(new LogConfig(captor, true))).
+                log().body().
+                body(message).
+        when().
+                post("/body");
+
+        assertThat(writer.toString(), equalTo("Body:\n{\n    \"message\": \"My message\"\n}\n"));
+    }
+
+    @Test
+    public void logBodyWithPrettyPrintingUsingRequestLogSpecAndObjectMappingWhenXML() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        final Greeting greeting = new Greeting();
+        greeting.setFirstName("John");
+        greeting.setLastName("Doe");
+        given().
+                contentType(ContentType.XML).
+                config(config().logConfig(new LogConfig(captor, true))).
+                log().body().
+                body(greeting).
+        when().
+                post("/body");
+
+        assertThat(writer.toString(), equalTo("Body:\n<greeting>\n  <firstName>\n    John\n  </firstName>\n  <lastName>\n    Doe\n  </lastName>\n</greeting>\n"));
+    }
+
+    @Test
     public void logCookiesUsingRequestLogSpec() throws Exception {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                config(config().logConfig(new LogConfig(captor))).
+                config(config().logConfig(new LogConfig(captor, true))).
                 log().cookies().
                 cookie("myCookie1", "myCookieValue1").
                 cookie("myCookie2", "myCookieValue2").
@@ -461,7 +687,7 @@ public class LoggingITest extends WithJetty {
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                config(config().logConfig(new LogConfig(captor))).
+                config(config().logConfig(new LogConfig(captor, true))).
                 log().headers().
                 header("myHeader1", "myHeaderValue1").
                 header("myHeader2", "myHeaderValue2").

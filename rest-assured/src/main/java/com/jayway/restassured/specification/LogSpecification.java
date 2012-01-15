@@ -22,25 +22,52 @@ package com.jayway.restassured.specification;
 public interface LogSpecification<T extends RequestSender> {
 
     /**
-     * Logs only the content of the body.
+     * Logs only the content of the body. The body will be pretty-printed by default if content-type is either XML, JSON or HTML.
      *
      * @return The specification
      */
     T body();
 
     /**
-     * Logs everything in the specification, including e.g. headers, cookies, body.
+     * Logs only the content of the body and pretty-print the body if specified. Note that pretty-printing can only take place if the
+     * content-type is either XML, JSON or HTML.
+     *
+     * @param shouldPrettyPrint <code>true</code> if the body should be pretty-printed, <code>false</code> otherwise.
+     * @return The specification
+     */
+    T body(boolean shouldPrettyPrint);
+
+    /**
+     * Logs everything in the specification, including e.g. headers, cookies, body.   Pretty-prints the body if content-type is either either XML, JSON or HTML..
      *
      * @return The specification
      */
     T all();
 
     /**
-     ** Logs everything in the specification, including e.g. headers, cookies, body.
+     * Logs everything in the specification, including e.g. headers, cookies, body with the option to pretty-print the body if the content-type is
+     * either XML, JSON or HTML..
+     *
+     * @param shouldPrettyPrint <code>true</code> if the body should be pretty-printed, <code>false</code> otherwise.
+     * @return The specification
+     */
+    T all(boolean shouldPrettyPrint);
+
+    /**
+     ** Logs everything in the specification, including e.g. headers, cookies, body. Pretty-prints the body if content-type is either either XML, JSON or HTML..
      *
      * @return The specification
      */
     T everything();
+
+    /**
+     ** Logs everything in the specification, including e.g. headers, cookies, body with the option to pretty-print the body if the content-type is
+     * either XML, JSON or HTML..
+     *
+     * @param shouldPrettyPrint <code>true</code> if the body should be pretty-printed, <code>false</code> otherwise.
+     * @return The specification
+     */
+    T everything(boolean shouldPrettyPrint);
 
     /**
      * Logs only the headers.

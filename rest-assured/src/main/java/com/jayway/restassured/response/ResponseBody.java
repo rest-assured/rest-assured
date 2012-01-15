@@ -31,6 +31,14 @@ public interface ResponseBody {
     String print();
 
     /**
+     * Pretty-print the response body if possible and return it as string. Mainly useful for debug purposes when writing tests.
+     * Pretty printing is possible for content-types JSON, XML and HTML.
+     *
+     * @return The body as a string.
+     */
+    String prettyPrint();
+
+    /**
      * Get the body as a string.
      *
      * @return The body as a string.

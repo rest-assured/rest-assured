@@ -125,6 +125,11 @@ class ScalatraRestExample extends ScalatraServlet {
     </videos>
   }
 
+  get("/videos-not-formatted") {
+    contentType = "application/xml"
+    <videos><music><title>Video Title 1</title><artist>Artist 1</artist></music><music ><title>Video Title 2</title><artist>Artist 2</artist><artist>Artist 3</artist></music></videos>
+  }
+
   get("/greetJSON") {
     "{ \"greeting\" : { \n" +
             "                \"firstName\" : \""+{params("firstName")}+"\", \n" +
@@ -485,6 +490,12 @@ class ScalatraRestExample extends ScalatraServlet {
         <p>paragraph 2</p>
       </body>
     </html>
+  }
+
+
+  get("/textHTML-not-formatted") {
+    contentType ="text/html"
+    <html><head><title>my title</title></head><body><p>paragraph 1</p><p>paragraph 2</p></body></html>
   }
 
   get("/statusCode500") {

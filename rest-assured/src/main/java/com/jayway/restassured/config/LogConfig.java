@@ -29,16 +29,17 @@ import java.io.PrintStream;
 public class LogConfig {
 
     private final PrintStream defaultPrintStream;
+    private final boolean prettyPrintingEnabled;
 
     /**
      * Configure the default stream to use the System.out stream (default).
      */
     public LogConfig() {
-        this(System.out);
+        this(System.out, true);
     }
 
     /**
-     * Configure the default stream where logs should be written if <i>not</i> specified explicitly by a filter. I.e. this stream will be used in cases
+     * Configure pretty printing and the default stream where logs should be written if <i>not</i> specified explicitly by a filter. I.e. this stream will be used in cases
      * where the log specification DSL is used, e.g.
      * <pre>
      * given().log().all()...
@@ -51,10 +52,12 @@ public class LogConfig {
      * It will not override explicit streams defined by using the {@link com.jayway.restassured.filter.log.RequestLoggingFilter} or the {@link com.jayway.restassured.filter.log.ResponseLoggingFilter}.
      *
      * @param defaultPrintStream The default print stream to use for the {@link com.jayway.restassured.specification.LogSpecification}'s.
+     * @param prettyPrintingEnabled Enable or disable pretty printing when logging. Pretty printing is only possible when content-type is XML, JSON or HTML.
      */
-    public LogConfig(PrintStream defaultPrintStream) {
+    public LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled) {
         Validate.notNull(defaultPrintStream, "Stream to write logs to cannot be null");
         this.defaultPrintStream = defaultPrintStream;
+        this.prettyPrintingEnabled = prettyPrintingEnabled;
     }
 
     /**
@@ -64,8 +67,30 @@ public class LogConfig {
         return defaultPrintStream;
     }
 
+    /**
+     * Specify a new default stream to the print to.
+     * @param printStream The stream
+     * @return A new LogConfig instance
+     */
     public LogConfig defaultStream(PrintStream printStream) {
-        return new LogConfig(printStream);
+        return new LogConfig(printStream, true);
+    }
+
+    /**
+     * @return The default stream to use
+     */
+    public boolean isPrettyPrintingEnabled() {
+        return prettyPrintingEnabled;
+    }
+
+    /**
+     * Specify a whether or not to enable pretty printing by default.
+     *
+     * @param shouldEnable <code>true</code> if pretty-printing should be enabled, <code>false</code> otherwise.
+     * @return A new LogConfig instance
+     */
+    public LogConfig enablePrettyPrinting(boolean shouldEnable) {
+        return new LogConfig(defaultPrintStream, shouldEnable);
     }
 
     /**
@@ -73,5 +98,14 @@ public class LogConfig {
      */
     public static LogConfig logConfig() {
         return new LogConfig();
+    }
+
+    /**
+     * Syntactic sugar.
+     *
+     * @return The same log config instance.
+     */
+    public LogConfig and() {
+        return this;
     }
 }

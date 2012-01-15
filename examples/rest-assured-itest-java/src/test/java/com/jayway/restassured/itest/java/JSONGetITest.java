@@ -109,8 +109,17 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void restAssuredSupportsPrintingResponse() throws Exception {
-        expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe").print();
+    public void restAssuredSupportsPrintingTheResponse() throws Exception {
+        final String greeting = expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe").print();
+
+        assertThat(greeting, equalTo("{\"greeting\":\"Greetings John Doe\"}"));
+    }
+
+    @Test
+    public void restAssuredSupportsPrettyPrintingTheResponse() throws Exception {
+        final String greeting = expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe").prettyPrint();
+
+        assertThat(greeting, equalTo("{\n    \"greeting\": \"Greetings John Doe\"\n}"));
     }
 
     @Test
@@ -476,7 +485,7 @@ public class JSONGetITest extends WithJetty {
 
     @Test(expected = JsonException.class)
     public void malformedJson() throws Exception {
-        expect().body("a", is(123456)).when().get("/malformedJson").print();
+        expect().body("a", is(123456)).when().get("/malformedJson");
     }
 
     @Test(expected = AssertionError.class)

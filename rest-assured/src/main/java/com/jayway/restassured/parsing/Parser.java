@@ -36,6 +36,9 @@ public enum Parser {
     }
 
     public static Parser fromContentType(String contentType) {
+        if(contentType == null) {
+            return null;
+        }
         contentType = contentType.toLowerCase();
         final Parser foundParser;
         if(contains(XML.contentTypes, contentType)) {

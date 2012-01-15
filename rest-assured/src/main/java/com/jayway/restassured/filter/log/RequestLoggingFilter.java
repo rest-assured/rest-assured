@@ -18,6 +18,7 @@ package com.jayway.restassured.filter.log;
 
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
+import com.jayway.restassured.internal.support.Prettifier;
 import com.jayway.restassured.response.*;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
@@ -47,6 +48,7 @@ public class RequestLoggingFilter implements Filter {
 
     private final LogDetail logDetail;
     private final PrintStream stream;
+    private final boolean shouldPrettyPrint;
 
     /**
      * Logs to System.out
@@ -74,12 +76,24 @@ public class RequestLoggingFilter implements Filter {
     }
 
     /**
-     * Instantiate a  logger using a specific print stream and a specific log detail
+     * Instantiate a  logger using a specific print stream and a specific log detail. Pretty-printing will be enabled if possible.
      *
      * @param logDetail The log detail
      * @param stream The stream to log to.
      */
     public RequestLoggingFilter(LogDetail logDetail, PrintStream stream) {
+        this(logDetail, true, stream);
+    }
+
+
+    /**
+     * Instantiate a  logger using a specific print stream and a specific log detail
+     *
+     * @param logDetail The log detail
+     * @param shouldPrettyPrint <code>true</code> if pretty-printing of the body should occur.
+     * @param stream The stream to log to.
+     */
+    public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream) {
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(logDetail, "Log details cannot be null");
         if(logDetail == STATUS) {
@@ -87,6 +101,7 @@ public class RequestLoggingFilter implements Filter {
         }
         this.stream = stream;
         this.logDetail = logDetail;
+        this.shouldPrettyPrint = shouldPrettyPrint;
     }
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
@@ -121,7 +136,13 @@ public class RequestLoggingFilter implements Filter {
     private void addBody(FilterableRequestSpecification requestSpec, StringBuilder builder) {
         builder.append("Body:");
         if(requestSpec.getBody() != null) {
-            builder.append(NEW_LINE).append(requestSpec.getBody());
+            final String body;
+            if(shouldPrettyPrint) {
+                body = new Prettifier().getPrettifiedBodyIfPossible(requestSpec);
+            } else {
+                body = requestSpec.getBody();
+            }
+            builder.append(NEW_LINE).append(body);
         } else {
             appendTab(appendTwoTabs(builder)).append(NONE);
         }
