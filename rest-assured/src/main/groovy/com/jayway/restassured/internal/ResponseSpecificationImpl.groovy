@@ -303,7 +303,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   def boolean hasAssertionsDefined() {
     return  hasBodyAssertionsDefined() || !headerAssertions.isEmpty() ||
-            !cookieAssertions.isEmpty() || expectedStatusCode != null || expectedStatusLine != null
+            !cookieAssertions.isEmpty() || expectedStatusCode != null || expectedStatusLine != null ||
+            contentType != null
   }
 
   def ResponseSpecification defaultParser(Parser parser) {
@@ -350,6 +351,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     def validate(Response response) {
       if(hasAssertionsDefined()) {
         validateHeadersAndCookies(response)
+        validateContentType(response);
         if(hasBodyAssertionsDefined()) {
           def content
           if(requiresTextParsing()) {
@@ -361,6 +363,16 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         }
       }
     }
+
+    private def validateContentType(Response response) {
+      if(contentType != null) {
+        def actualContentType = response.getContentType()
+        if (!contentType.toString().equals(actualContentType)) {
+          throw new AssertionError(String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".", contentType, actualContentType));
+        }
+      }
+    }
+
     private def validateHeadersAndCookies(Response response) {
       if (expectedStatusCode != null) {
         def actualStatusCode = response.getStatusCode()

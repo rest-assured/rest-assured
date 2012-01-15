@@ -402,7 +402,6 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   post("/jsonBodyAcceptHeader") {
-    contentType = "text/plain";
     val accept : String = request.getHeader("Accept")
     if(!accept.contains("application/json")) {
       "FAILURE"

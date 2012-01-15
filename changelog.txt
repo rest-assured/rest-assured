@@ -10,6 +10,7 @@ Change log next version
   You can also pretty-print the response from the Response object:
 	get("/some-xml").prettyPrint();
   (issue 140)
+* Fixed a serious issue with content-type validation, it was actually ignored in the previous versions (issue 146).
 
 Change log 1.5 (2011-12-20)
 ---------------------------
