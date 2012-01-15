@@ -30,8 +30,6 @@ import static com.jayway.restassured.http.ContentType.ANY
 import com.jayway.restassured.specification.*
 import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.hamcrest.Matchers.equalTo
-import static org.apache.commons.lang3.StringUtils.isEmpty
-import static org.apache.commons.lang3.StringUtils.isBlank
 
 class ResponseSpecificationImpl implements FilterableResponseSpecification {
 

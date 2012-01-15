@@ -45,7 +45,8 @@ import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logRespons
 import static com.jayway.restassured.parsing.Parser.JSON;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 

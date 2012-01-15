@@ -16,7 +16,6 @@
 
 package com.jayway.restassured.specification;
 
-import com.jayway.restassured.parsing.Parser;
 import org.hamcrest.Matcher;
 
 /**

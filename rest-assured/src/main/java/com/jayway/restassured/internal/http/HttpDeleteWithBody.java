@@ -1,8 +1,9 @@
 package com.jayway.restassured.internal.http;
 
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import java.net.URI;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+
+import java.net.URI;
 
 @NotThreadSafe
 class HttpDeleteWithBody extends HttpEntityEnclosingRequestBase {
