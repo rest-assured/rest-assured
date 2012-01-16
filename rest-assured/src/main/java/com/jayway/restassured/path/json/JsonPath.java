@@ -19,7 +19,10 @@ package com.jayway.restassured.path.json;
 import com.jayway.restassured.assertion.JSONAssertion;
 import com.jayway.restassured.exception.ParsePathException;
 import com.jayway.restassured.internal.mapping.ObjectMapping;
+import com.jayway.restassured.internal.support.Prettifier;
+import com.jayway.restassured.parsing.Parser;
 import groovy.json.JsonBuilder;
+import groovy.json.JsonOutput;
 import groovy.json.JsonSlurper;
 
 import java.io.*;
@@ -495,6 +498,26 @@ public class JsonPath {
             return convertObjectTo(object, objectType);
         }
         return ObjectMapping.deserialize(object, objectType, "application/json","", null);
+    }
+
+    /**
+     * Get the XML as a prettified string.
+     *
+     * @return The XML as a prettified String.
+     */
+    public String prettify() {
+        return new Prettifier().prettify(JsonOutput.toJson(json), Parser.JSON);
+    }
+
+    /**
+     * Get and print the XML as a prettified string.
+     *
+     * @return The XML as a prettified String.
+     */
+    public String prettyPrint() {
+        final String pretty = prettify();
+        System.out.println(pretty);
+        return pretty;
     }
 
     /**

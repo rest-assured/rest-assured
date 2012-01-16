@@ -16,6 +16,11 @@ Change log next version
   or print the XML to System.out and then return it:
         String prettyXml = with(someXml).prettyPrint(); // Prints and returns a prettified XML string. 
   "with" is statically imported from com.jayway.restassured.path.xml.XmlPath (issue 147).
+* JsonPath supports prettifying and pretty-printing JSON documents, for example:
+	String prettyJson = with(someJson).prettify(); // Return a prettified JSON string. 
+  or print the JSON to System.out and then return it:
+        String prettyJson = with(someJson).prettyPrint(); // Prints and returns a prettified JSON string. 
+  "with" is statically imported from com.jayway.restassured.path.json.JsonPath (issue 147).
 
 Change log 1.5 (2011-12-20)
 ---------------------------
