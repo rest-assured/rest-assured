@@ -21,6 +21,7 @@ Change log next version
   or print the JSON to System.out and then return it:
         String prettyJson = with(someJson).prettyPrint(); // Prints and returns a prettified JSON string. 
   "with" is statically imported from com.jayway.restassured.path.json.JsonPath (issue 147).
+* REST Assured now automatically detects content-types ending with +xml, +json and +html (for example application/something+json) and parses the content with the corresponding parser. This means that you don't need to register custom parsers for these kind of content-types (issue 142).
 
 Change log 1.5 (2011-12-20)
 ---------------------------

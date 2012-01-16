@@ -17,6 +17,7 @@
 package com.jayway.restassured.parsing;
 
 import static org.apache.commons.lang3.ArrayUtils.contains;
+import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 
 /**
  * The different parsers that are provided by REST Assured.
@@ -24,6 +25,10 @@ import static org.apache.commons.lang3.ArrayUtils.contains;
 public enum Parser {
     XML("application/xml","text/xml","application/xhtml+xml"), TEXT("text/plain", "*/*"),
     JSON("application/json","application/javascript","text/javascript"), HTML("text/html");
+
+    private static final String PLUS_XML = "+xml";
+    private static final String PLUS_JSON = "+json";
+    private static final String PLUS_HTML = "+html";
 
     private final String[] contentTypes;
 
@@ -41,13 +46,13 @@ public enum Parser {
         }
         contentType = contentType.toLowerCase();
         final Parser foundParser;
-        if(contains(XML.contentTypes, contentType)) {
+        if(contains(XML.contentTypes, contentType) || endsWithIgnoreCase(contentType, PLUS_XML)) {
             foundParser = XML;
-        } else if(contains(JSON.contentTypes, contentType)) {
+        } else if(contains(JSON.contentTypes, contentType) || endsWithIgnoreCase(contentType, PLUS_JSON)) {
             foundParser = JSON;
         } else if(contains(TEXT.contentTypes, contentType)) {
             foundParser = TEXT;
-        } else if(contains(HTML.contentTypes, contentType)) {
+        } else if(contains(HTML.contentTypes, contentType) || endsWithIgnoreCase(contentType, PLUS_HTML)) {
             foundParser = HTML;
         } else {
             foundParser = null;

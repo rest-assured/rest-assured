@@ -16,20 +16,19 @@
 
 package com.jayway.restassured.assertion
 
-import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.internal.ResponseParserRegistrar
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
-import static com.jayway.restassured.http.ContentType.*
 
 class StreamVerifier {
 
   def static newAssertion(Response response, key, ResponseParserRegistrar rpr) {
     def contentType = response.getContentType()
+    def parserType = Parser.fromContentType(contentType)
     def assertion
-    if(contentTypeMatch(JSON, contentType) ) {
+    if(parserType == Parser.JSON) {
       assertion = new JSONAssertion(key: key)
-    } else if(contentTypeMatch(XML, contentType) || contentTypeMatch(HTML, contentType)) {
+    } else if(parserType == Parser.XML || parserType == Parser.HTML) {
       assertion = new XMLAssertion(key: key)
     } else if(rpr.hasCustomParser(contentType)) {
       assertion = createAssertionForCustomParser(rpr, contentType, key)
@@ -53,24 +52,14 @@ Content was:\n$content\n""");
     def parser = rpr.getNonDefaultParser(contentType);
     def assertion
     switch(parser) {
-      case Parser.XML:
-        assertion = new XMLAssertion(key: key)
-        break;
       case Parser.JSON:
         assertion = new JSONAssertion(key: key)
         break;
+      case Parser.XML:
       case Parser.HTML:
-        assertion = new XMLAssertion(key: key, toUpperCase: true)
+        assertion = new XMLAssertion(key: key)
         break;
     }
     assertion
-  }
-
-  private static boolean contentTypeMatch(ContentType expectedContentType, String actualContentType) {
-    def types = expectedContentType.getContentTypeStrings();
-    for(String type : types) {
-      if(type == actualContentType) return true
-    }
-    return false
   }
 }

@@ -123,6 +123,11 @@ public class XMLGetITest extends WithJetty {
     }
 
     @Test
+    public void supportsParsingHtmlWhenContentTypeEndsWithPlusHtml() throws Exception {
+        expect().body("html.head.title", equalTo("my title")).when().get("/mimeTypeWithPlusHtml");
+    }
+
+    @Test
     public void canGetSpecificEntityFromListHtmlDocument() throws Exception {
         expect().body("html.body.p[0]", equalTo("paragraph 1")).when().get("/textHTML");
     }
@@ -205,7 +210,7 @@ public class XMLGetITest extends WithJetty {
 
     @Test
     public void supportsRegisteringCustomParserForAGivenMimeType() throws Exception {
-        final String mimeType = "application/vnd.uoml+xml";
+        final String mimeType = "application/something-custom";
         RestAssured.registerParser(mimeType, XML);
         try {
             expect().body("body.message", equalTo("Custom mime-type")).when().get("/customMimeType");
@@ -216,15 +221,20 @@ public class XMLGetITest extends WithJetty {
 
     @Test
     public void supportsRegisteringCustomParserForAGivenMimeTypePerResponse() throws Exception {
-        final String mimeType = "application/vnd.uoml+xml";
+        final String mimeType = "application/something-custom";
         expect().parser(mimeType, Parser.XML).and().body("body.message", equalTo("Custom mime-type")).when().get("/customMimeType");
     }
 
     @Test
     public void supportsRegisteringCustomParserForAGivenMimeTypeUsingResponseSpec() throws Exception {
-        final String mimeType = "application/vnd.uoml+xml";
+        final String mimeType = "application/something-custom";
         final ResponseSpecification specification = new ResponseSpecBuilder().registerParser(mimeType, Parser.XML).build();
         expect().specification(specification).and().body("body.message", equalTo("Custom mime-type")).when().get("/customMimeType");
+    }
+
+    @Test
+    public void supportsParsingXmlWhenContentTypeEndsWithPlusXml() throws Exception {
+        expect().body("body.message", equalTo("Custom mime-type ending with +xml")).when().get("/mimeTypeWithPlusXml");
     }
 
     @Test

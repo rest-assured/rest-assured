@@ -253,10 +253,33 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/customMimeType") {
-    contentType = "application/vnd.uoml+xml"
+    contentType = "application/something-custom"
     <body>
       <message>Custom mime-type</message>
     </body>
+  }
+
+  get("/mimeTypeWithPlusXml") {
+    contentType = "application/something+xml"
+    <body><message>Custom mime-type ending with +xml</message></body>
+  }
+
+  get("/mimeTypeWithPlusJson") {
+    contentType = "application/something+json"
+    """{ "message" : "It works" }"""
+  }
+
+  get("/mimeTypeWithPlusHtml") {
+    contentType ="application/something+html"
+    <html>
+      <head>
+        <title>my title</title>
+      </head>
+      <body>
+        <p>paragraph 1</p>
+        <p>paragraph 2</p>
+      </body>
+    </html>
   }
 
   get("/redirect") {
@@ -490,7 +513,6 @@ class ScalatraRestExample extends ScalatraServlet {
       </body>
     </html>
   }
-
 
   get("/textHTML-not-formatted") {
     contentType ="text/html"

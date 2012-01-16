@@ -58,6 +58,13 @@ public class ObjectMappingITest extends WithJetty {
     }
 
     @Test
+    public void contentTypesEndingWithPlusJsonWorksForJsonObjectMapping() throws Exception {
+        final Message message = get("/mimeTypeWithPlusJson").as(Message.class);
+
+        assertThat(message.getMessage(), equalTo("It works"));
+    }
+
+    @Test
     public void whenNoRequestContentTypeIsSpecifiedThenRestAssuredSerializesToJSON() throws Exception {
         final ScalatraObject object = new ScalatraObject();
         object.setHello("Hello world");

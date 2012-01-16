@@ -514,4 +514,9 @@ public class JSONGetITest extends WithJetty {
         when().
                 get("/jsonWithAtSign");
     }
+
+    @Test
+    public void supportsParsingJsonWhenContentTypeEndsWithPlusJson() throws Exception {
+        expect().body("message", equalTo("It works")).when().get("/mimeTypeWithPlusJson");
+    }
 }
