@@ -29,6 +29,7 @@ Change log next version
   and let's say you want to get the first e-mail. You can now do like this:
 	String email = from(jsonDocument).getString("[0].email");
   (issue 148).
+* Response cookies are no longer automatically set in subsequent requests by default. To re-enable this set the "http.protocol.cookie-policy" parameter in the HttpClientConfig (issue 149).
 
 Change log 1.5 (2011-12-20)
 ---------------------------

@@ -16,6 +16,9 @@
 
 package com.jayway.restassured.config;
 
+import org.apache.http.client.params.ClientPNames;
+import org.apache.http.client.params.CookiePolicy;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +29,18 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull;
  * Configure the Apache HTTP Client parameters.
  * <p>Note that you can't configure the redirect settings from this config. Please use {@link RedirectConfig} for this purpose.</p>
  *
+ * The following parameters are applied per default:
+ * <table border=1>
+ *     <tr>
+ *         <th>Parameter name</th><th>Parameter value</th><th>Description</th>
+ *     </tr>
+ *     <tr>
+ *         <td>{@link ClientPNames#COOKIE_POLICY}</td><td>{@link CookiePolicy#IGNORE_COOKIES}</td><td>Don't automatically set response cookies in subsequent requests</td>
+ *     </tr>
+ * </table>
+ *
  * @see org.apache.http.client.params.ClientPNames
+ * @see org.apache.http.client.params.CookiePolicy
  * @see org.apache.http.params.CoreProtocolPNames
  */
 public class HttpClientConfig {
@@ -34,10 +48,14 @@ public class HttpClientConfig {
     private final Map<String, ?> httpClientParams;
 
     /**
-     * Creates a new  HttpClientConfig instance with no parameters set
+     * Creates a new  HttpClientConfig instance with the <code>{@value ClientPNames#COOKIE_POLICY}</code> parameter set to <code>{@value CookiePolicy#IGNORE_COOKIES}</code>.
      */
     public HttpClientConfig() {
-        this.httpClientParams = new HashMap<String, Object>();
+        this.httpClientParams = new HashMap<String, Object>() {
+            {
+                put(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+            }
+        };
     }
 
     /**
