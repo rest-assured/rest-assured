@@ -110,6 +110,8 @@ public class XmlPathTest {
             "  <thing id=\"3\">ikk3</thing>\n"+
             "</some>";
 
+    private static final String NOT_PRETTY_XML = "<some><thing id=\"1\">ikk</thing><thing id=\"2\">ikk2</thing><thing id=\"3\">3</thing></some>";
+
     @Test
     public void initializeUsingCtorAndGetList() throws Exception {
         final NodeChildren categories = new XmlPath(XML).get("shopping.category");
@@ -411,5 +413,19 @@ public class XmlPathTest {
         List<Integer> ids = from(LIST_WITH_INTS).getList("some.thing.@id", int.class);
 
         assertThat(ids, hasItems(1,2,3));
+    }
+
+    @Test
+    public void xmlPathSupportsPrettifiyingTheXML() throws Exception {
+        final String prettify = with(NOT_PRETTY_XML).prettify();
+
+        assertThat(prettify, equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<some>\n  <thing id=\"1\">ikk</thing>\n  <thing id=\"2\">ikk2</thing>\n  <thing id=\"3\">3</thing>\n</some>"));
+    }
+
+    @Test
+    public void xmlPathSupportsPrettyPrintingTheXML() throws Exception {
+        final String prettify = with(NOT_PRETTY_XML).prettyPrint();
+
+        assertThat(prettify, equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<some>\n  <thing id=\"1\">ikk</thing>\n  <thing id=\"2\">ikk2</thing>\n  <thing id=\"3\">3</thing>\n</some>"));
     }
 }

@@ -11,6 +11,11 @@ Change log next version
 	get("/some-xml").prettyPrint();
   (issue 140)
 * Fixed a serious issue with content-type validation, it was actually ignored in the previous versions (issue 146).
+* XmlPath supports prettifying and pretty-printing XML and HTML, for example:
+	String prettyXml = with(someXml).prettify(); // Return a prettified XML string. 
+  or print the XML to System.out and then return it:
+        String prettyXml = with(someXml).prettyPrint(); // Prints and returns a prettified XML string. 
+  "with" is statically imported from com.jayway.restassured.path.xml.XmlPath (issue 147).
 
 Change log 1.5 (2011-12-20)
 ---------------------------

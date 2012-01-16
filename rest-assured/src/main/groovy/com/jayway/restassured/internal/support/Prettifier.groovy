@@ -21,6 +21,8 @@ import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import groovy.json.JsonOutput
+import groovy.util.slurpersupport.GPathResult
+import groovy.xml.XmlUtil
 import static org.apache.commons.lang3.StringUtils.isBlank
 
 class Prettifier {
@@ -33,7 +35,7 @@ class Prettifier {
       return body.toString()
     }
     def parser = Parser.fromContentType(request.getRequestContentType())
-    prettyPrint(body as String, parser)
+    prettify(body as String, parser)
   }
 
   def String getPrettifiedBodyIfPossible(Response response) {
@@ -46,20 +48,20 @@ class Prettifier {
     RestAssuredResponseImpl responseImpl = response as RestAssuredResponseImpl;
     def rpr = responseImpl.getRpr();
     def parser = rpr.getParser(contentType)
-    prettyPrint(responseAsString, parser);
+    prettify(responseAsString, parser);
   }
 
-  def String prettyPrint(String body, Parser parser) {
+  def String prettify(String body, Parser parser) {
     def String prettifiedBody;
     switch (parser) {
       case Parser.JSON:
         prettifiedBody = JsonOutput.prettyPrint(body)
         break
       case Parser.XML:
-        prettifiedBody = prettyPrintWithXmlParser(new XmlParser(), body)
+        prettifiedBody = prettifyWithXmlParser(new XmlParser(), body)
         break
       case Parser.HTML:
-        prettifiedBody = prettyPrintWithXmlParser(new XmlParser(new org.ccil.cowan.tagsoup.Parser()), body)
+        prettifiedBody = prettifyWithXmlParser(new XmlParser(new org.ccil.cowan.tagsoup.Parser()), body)
         break
       default:
         prettifiedBody = body
@@ -68,14 +70,26 @@ class Prettifier {
     return prettifiedBody
   }
 
-  private String prettyPrintWithXmlParser(XmlParser xmlParser, responseAsString) {
+  private String prettifyWithXmlParser(XmlParser xmlParser, responseAsString) {
+    doPrettify { stringWriter ->
+      def node = xmlParser.parseText(responseAsString);
+      new XmlNodePrinter(new PrintWriter(stringWriter)).print(node)
+    }
+  }
+
+  public String prettify(GPathResult gPathResult) {
+    doPrettify { stringWriter -> XmlUtil.serialize(gPathResult, stringWriter)  }
+  }
+
+  def doPrettify(Closure<String> closure) {
     def stringWriter = new StringWriter()
-    def node = xmlParser.parseText(responseAsString);
-    new XmlNodePrinter(new PrintWriter(stringWriter)).print(node)
+    closure.call(stringWriter);
     def body = stringWriter.toString()
-    if(body.endsWith("\n")) {
-      body = body.substring(0, body.length()-1)
+    if (body.endsWith("\n")) {
+      body = body.substring(0, body.length() - 1)
     }
     body
   }
+
+
 }

@@ -18,6 +18,7 @@ package com.jayway.restassured.path.xml;
 
 import com.jayway.restassured.assertion.XMLAssertion;
 import com.jayway.restassured.exception.ParsePathException;
+import com.jayway.restassured.internal.support.Prettifier;
 import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.path.xml.element.NodeChildren;
 import groovy.util.XmlSlurper;
@@ -473,6 +474,26 @@ public class XmlPath {
     public String getString(String path) {
         Object object = get(path);
         return convertObjectTo(object, String.class);
+    }
+
+    /**
+     * Get the XML as a prettified string.
+     *
+     * @return The XML as a prettified String.
+     */
+    public String prettify() {
+        return new Prettifier().prettify(input);
+    }
+
+    /**
+     * Get and print the XML as a prettified string.
+     *
+     * @return The XML as a prettified String.
+     */
+    public String prettyPrint() {
+        final String pretty = prettify();
+        System.out.println(pretty);
+        return pretty;
     }
 
     /**
