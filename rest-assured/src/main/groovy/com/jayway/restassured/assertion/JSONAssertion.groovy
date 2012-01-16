@@ -34,9 +34,15 @@ class JSONAssertion implements Assertion {
     } else {
       def root = 'restAssuredJsonRootObject'
       try {
-        result = Eval.me(root, object, "$root.$key")
+        def expr;
+        if (key =~ /^\[\d+\].*/) {
+          expr = "$root$key"
+        } else {
+          expr = "$root.$key"
+        }
+        result = Eval.me(root, object, expr)
       } catch (Exception e) {
-        throw new IllegalArgumentException(e.getMessage().replace("startup failed:", "Invalid JSON expression:").replace("$root.", generateWhitespace(root.length())));
+        throw new IllegalArgumentException(e.getMessage().replace("startup failed:","Invalid JSON expression:").replace("$root.", generateWhitespace(root.length())));
       }
     }
     return result

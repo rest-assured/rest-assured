@@ -159,6 +159,18 @@ public class JsonPathTest {
         final Map<String, String> object = from(JSON2).get("get(0)");
         assertThat(object.get("email"), equalTo("name1@mail.com"));
     }
+
+    @Test
+    public void getValueFromUnnamedRootObjectUsingBrackets() throws Exception {
+        final Map<String, String> object = from(JSON2).get("[0]");
+        assertThat(object.get("email"), equalTo("name1@mail.com"));
+    }
+
+    @Test
+    public void getSubValueFromUnnamedRootObjectUsingBrackets() throws Exception {
+        final String object = from(JSON2).getString("[0].email");
+        assertThat(object, equalTo("name1@mail.com"));
+    }
     
     @Test
     public void getNumericalValues() {

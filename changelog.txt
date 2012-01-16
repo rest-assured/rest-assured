@@ -22,6 +22,13 @@ Change log next version
         String prettyJson = with(someJson).prettyPrint(); // Prints and returns a prettified JSON string. 
   "with" is statically imported from com.jayway.restassured.path.json.JsonPath (issue 147).
 * REST Assured now automatically detects content-types ending with +xml, +json and +html (for example application/something+json) and parses the content with the corresponding parser. This means that you don't need to register custom parsers for these kind of content-types (issue 142).
+* Added support for using "bracket notation" for parsing unnamed JSON root arrays. For example consider the following JSON document:
+	[{"email":"name1@mail.com","alias":"name one","phone":"3456789"},
+         {"email":"name2@mail.com","alias":"name two","phone":"1234567"},
+	 {"email":"name3@mail.com","alias":"name three","phone":"2345678"}]
+  and let's say you want to get the first e-mail. You can now do like this:
+	String email = from(jsonDocument).getString("[0].email");
+  (issue 148).
 
 Change log 1.5 (2011-12-20)
 ---------------------------
