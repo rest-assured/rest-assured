@@ -164,7 +164,6 @@ public class MultiPartUploadITest extends WithJetty {
                 body(is(new String(bytes)+"Some text")).
         when().
                 post("/multipart/fileAndText");
-
     }
 
     @Test

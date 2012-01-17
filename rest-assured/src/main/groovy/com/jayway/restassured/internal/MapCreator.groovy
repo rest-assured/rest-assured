@@ -20,8 +20,12 @@ import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 class MapCreator {
 
-  def static Map<String, Object> createMapFromParams(String firstParam,  Object firstValue, ... parameters) {
-    return createMapFromObjects(createArgumentArray(firstParam, firstValue, parameters));
+  def static Map<String, Object> createMapFromParams(String firstParam, Object firstValue, ... parameters) {
+    return createMapFromObjects(createArgumentArrayFromKeyAndValue(firstParam, firstValue, parameters));
+  }
+
+  def static Map<String, Object> createMapFromParams(String firstParam, ... parameters) {
+    return createMapFromObjects(createArgumentArray(firstParam, parameters));
   }
 
   def static Map<String, Object> createMapFromObjects(... parameters) {
@@ -38,8 +42,22 @@ class MapCreator {
     return map;
   }
 
-  private static Object[] createArgumentArray(String firstParam,  Object firstValue,
-                                              ... parameters) {
+  private static Object[] createArgumentArray(String firstParam, ... parameters) {
+    notNull firstParam, "firstParam"
+    if(parameters == null || parameters.length == 0) {
+      return [firstParam : new NoParameterValue()] as Object[]
+    }
+
+    def params = [firstParam, parameters[0]]
+    if(parameters.length > 1) {
+      parameters[1..-1].each {
+        params << it
+      }
+    }
+    return params as Object[]
+  }
+
+  private static Object[] createArgumentArrayFromKeyAndValue(String firstParam,  Object firstValue,  ... parameters) {
     notNull firstParam, "firstParam"
     notNull firstValue, "firstValue"
     def params = [firstParam, firstValue]

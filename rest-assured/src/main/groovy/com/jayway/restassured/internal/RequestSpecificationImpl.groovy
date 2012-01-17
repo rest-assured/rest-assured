@@ -184,8 +184,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return parameters(parametersMap)
   }
 
-  def RequestSpecification param(String parameterName, Object parameterValue, Object... additionalParameterValues) {
-    return parameter(parameterName, parameterValue, additionalParameterValues)
+  def RequestSpecification param(String parameterName, Object... additionalParameterValues) {
+    return parameter(parameterName, additionalParameterValues)
   }
 
   def RequestSpecification parameter(String parameterName, List parameterValues) {
@@ -210,13 +210,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return queryParameter(parameterName, parameterValues)
   }
 
-  def RequestSpecification parameter(String parameterName, Object parameterValue, Object... additionalParameterValues) {
+  def RequestSpecification parameter(String parameterName, Object... parameterValues) {
     notNull parameterName, "parameterName"
-    notNull parameterValue, "parameterValue"
-    appendStandardParameter(requestParameters, parameterName, parameterValue);
-    if(additionalParameterValues != null) {
-      appendListParameter(requestParameters, parameterName, asList(additionalParameterValues))
-    }
+    addZeroToManyParameters(requestParameters, parameterName, parameterValues)
     return this
   }
 
@@ -232,13 +228,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return this
   }
 
-  def RequestSpecification queryParameter(String parameterName, Object parameterValue, Object... additionalParameterValues) {
+  def RequestSpecification queryParameter(String parameterName, Object... parameterValues) {
     notNull parameterName, "parameterName"
-    notNull parameterValue, "parameterValue"
-    appendStandardParameter(queryParameters, parameterName, parameterValue)
-    if(additionalParameterValues != null) {
-      appendListParameter(queryParameters, parameterName, asList(additionalParameterValues))
-    }
+    addZeroToManyParameters(queryParameters, parameterName, parameterValues)
     return this
   }
 
@@ -250,8 +242,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return queryParameters(parametersMap)
   }
 
-  def RequestSpecification queryParam(String parameterName, Object parameterValue, Object... additionalParameterValues) {
-    return queryParameter(parameterName, parameterValue, additionalParameterValues)
+  def RequestSpecification queryParam(String parameterName, Object... additionalParameterValues) {
+    return queryParameter(parameterName, additionalParameterValues)
   }
 
   def RequestSpecification formParameter(String parameterName, List parameterValues) {
@@ -277,13 +269,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return this
   }
 
-  def RequestSpecification formParameter(String parameterName, Object parameterValue, Object... additionalParameterValues) {
+  def RequestSpecification formParameter(String parameterName, ... additionalParameterValues) {
     notNull parameterName, "parameterName"
-    notNull parameterValue, "parameterValue"
-    appendStandardParameter(formParameters, parameterName, parameterValue)
-    if(additionalParameterValues != null) {
-      appendListParameter(formParameters, parameterName, asList(additionalParameterValues))
-    }
+    addZeroToManyParameters(formParameters, parameterName, additionalParameterValues)
     return this
   }
 
@@ -295,8 +283,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return formParameters(parametersMap)
   }
 
-  def RequestSpecification formParam(String parameterName, Object parameterValue, Object... additionalParameterValues) {
-    return formParameter(parameterName, parameterValue, additionalParameterValues)
+  def RequestSpecification formParam(String parameterName, Object... parameterValues) {
+    return formParameter(parameterName, parameterValues)
   }
 
   def RequestSpecification urlEncodingEnabled(boolean isEnabled) {
@@ -933,8 +921,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
   }
 
+  private def appendListParameter(Map<String, String> to, String key) {
+    appendListParameter(to, key, null)
+  }
+
   private def appendListParameter(Map<String, String> to, String key, List<Object> values) {
     if(values == null || values.isEmpty()) {
+      to.put(key, new NoParameterValue())
       return;
     }
 
@@ -951,8 +944,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
   }
 
+  private def appendStandardParameter(Map<String, Object> to, String key) {
+    appendStandardParameter(to, key, null)
+  }
 
   private def appendStandardParameter(Map<String, Object> to, String key, Object value) {
+    if(value == null) {
+      to.put(key, new LinkedList<Object>())
+    }
     def newValue = serializeIfNeeded(value)
     if (to.containsKey(key)) {
       def currentValue = to.get(key)
@@ -1261,5 +1260,19 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       }
       return super.parseResponse(resp, contentType)
     }
+  }
+
+  def addZeroToManyParameters(Map<String, Object> to, String parameterName, ... additionalParameterValues) {
+    if (isEmpty(additionalParameterValues)) {
+      appendStandardParameter(to, parameterName)
+    } else if (additionalParameterValues.length == 1) {
+      appendStandardParameter(to, parameterName, additionalParameterValues[0])
+    } else {
+      appendListParameter(to, parameterName, asList(additionalParameterValues))
+    }
+  }
+
+  private boolean isEmpty(Object[] objects) {
+    return objects == null || objects.length == 0
   }
 }
