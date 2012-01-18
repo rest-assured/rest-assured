@@ -184,8 +184,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return parameters(parametersMap)
   }
 
-  def RequestSpecification param(String parameterName, Object... additionalParameterValues) {
-    return parameter(parameterName, additionalParameterValues)
+  def RequestSpecification param(String parameterName, Object... parameterValues) {
+    return parameter(parameterName, parameterValues)
   }
 
   def RequestSpecification parameter(String parameterName, List parameterValues) {
@@ -242,8 +242,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return queryParameters(parametersMap)
   }
 
-  def RequestSpecification queryParam(String parameterName, Object... additionalParameterValues) {
-    return queryParameter(parameterName, additionalParameterValues)
+  def RequestSpecification queryParam(String parameterName, Object... parameterValues) {
+    return queryParameter(parameterName, parameterValues)
   }
 
   def RequestSpecification formParameter(String parameterName, List parameterValues) {
@@ -269,7 +269,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     return this
   }
 
-  def RequestSpecification formParameter(String parameterName, ... additionalParameterValues) {
+  def RequestSpecification formParameter(String parameterName, Object... additionalParameterValues) {
     notNull parameterName, "parameterName"
     addZeroToManyParameters(formParameters, parameterName, additionalParameterValues)
     return this
@@ -950,7 +950,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
   private def appendStandardParameter(Map<String, Object> to, String key, Object value) {
     if(value == null) {
-      to.put(key, new LinkedList<Object>())
+      to.put(key, new NoParameterValue())
+      return;
     }
     def newValue = serializeIfNeeded(value)
     if (to.containsKey(key)) {
@@ -1150,7 +1151,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
       this.assertionClosure = assertionClosure
     }
 
-    @Override protected Object doRequest(HTTPBuilder.RequestConfigDelegate delegate) {
+    protected Object doRequest(HTTPBuilder.RequestConfigDelegate delegate) {
       if(delegate.getRequest() instanceof HttpPost) {
         if (assertionClosure != null ) {
           delegate.getResponse().put(
@@ -1239,7 +1240,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
      * content-type of the defaultParser if registered to Rest Assured to the response if no
      * content-type is defined.
      */
-    @Override
     protected Object parseResponse(HttpResponse resp, Object contentType) {
       def definedDefaultParser = responseSpecification.rpr.defaultParser
       if (definedDefaultParser != null && ANY.toString().equals(contentType.toString())) {
@@ -1262,13 +1262,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
   }
 
-  def addZeroToManyParameters(Map<String, Object> to, String parameterName, ... additionalParameterValues) {
-    if (isEmpty(additionalParameterValues)) {
+  private def addZeroToManyParameters(Map<String, Object> to, String parameterName, Object... parameterValues) {
+    if (isEmpty(parameterValues)) {
       appendStandardParameter(to, parameterName)
-    } else if (additionalParameterValues.length == 1) {
-      appendStandardParameter(to, parameterName, additionalParameterValues[0])
+    } else if (parameterValues.length == 1) {
+      appendStandardParameter(to, parameterName, parameterValues[0])
     } else {
-      appendListParameter(to, parameterName, asList(additionalParameterValues))
+      appendListParameter(to, parameterName, asList(parameterValues))
     }
   }
 
