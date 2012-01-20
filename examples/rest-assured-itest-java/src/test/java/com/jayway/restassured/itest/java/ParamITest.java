@@ -17,9 +17,11 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
 
 public class ParamITest extends WithJetty {
 
@@ -36,5 +38,19 @@ public class ParamITest extends WithJetty {
     @Test
     public void test3() throws Exception {
         given().log().parameters().formParam("some").when().post("/mimeTypeWithPlusJson");
+    }
+
+    @Test
+    public void multiPartUploadingWorksForFormParamsAndByteArray() throws Exception {
+        // When
+        given().
+                formParam("formParam1").
+                formParam("formParam2", "formParamValue").
+                multiPart("file", "juX").
+                multiPart("string", "body").
+        expect().
+                statusCode(200).
+        when().
+                post("/multipart/multiple");
     }
 }

@@ -21,29 +21,33 @@ import org.apache.http.entity.mime.content.InputStreamBody
 import org.apache.http.entity.mime.content.StringBody
 
 class MultiPart {
-  private static final String OCTET_STREAM = "application/octet-stream"
+    private static final String OCTET_STREAM = "application/octet-stream"
 
-  def content
-  def name
-  def fileName
-  def mimeType
+    def content
+    def name
+    def fileName
+    def mimeType
 
-  def getContentBody() {
-    if(content instanceof File) {
-      new FileBody(content, mimeType ?: OCTET_STREAM)
-    } else if(content instanceof InputStream) {
-      returnInputStreamBody()
-    } else if(content instanceof byte[]) {
-      content = new ByteArrayInputStream(content)
-      returnInputStreamBody()
-    } else if(content instanceof String) {
-      new StringBody(content, mimeType ?: "text/plain", null)
-    } else {
-      throw new IllegalArgumentException("Illegal content: $content")
+    def getContentBody() {
+        if(content instanceof NoParameterValue) {
+            content = "";
+        }
+
+        if(content instanceof File) {
+            new FileBody(content, mimeType ?: OCTET_STREAM)
+        } else if(content instanceof InputStream) {
+            returnInputStreamBody()
+        } else if(content instanceof byte[]) {
+            content = new ByteArrayInputStream(content)
+            returnInputStreamBody()
+        } else if(content instanceof String) {
+            new StringBody(content, mimeType ?: "text/plain", null)
+        } else {
+            throw new IllegalArgumentException("Illegal content: $content")
+        }
     }
-  }
 
-  private def returnInputStreamBody() {
-    new InputStreamBody(content, mimeType ?: OCTET_STREAM, fileName ?: "file")
-  }
+    private def returnInputStreamBody() {
+        new InputStreamBody(content, mimeType ?: OCTET_STREAM, fileName ?: "file")
+    }
 }

@@ -613,6 +613,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         this
     }
 
+    def RequestSpecification multiPart(String name, NoParameterValue contentBody) {
+        multiParts << new MultiPart(name: name, content: contentBody)
+        this
+    }
+
     def RequestSpecification multiPart(String name, String contentBody, String mimeType) {
         multiParts << new MultiPart(name: name, content: contentBody, mimeType: mimeType)
         this
