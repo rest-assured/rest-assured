@@ -30,6 +30,9 @@ Change log next version
 	String email = from(jsonDocument).getString("[0].email");
   (issue 148).
 * Response cookies are no longer automatically set in subsequent requests by default. To re-enable this set the "http.protocol.cookie-policy" parameter in the HttpClientConfig to CookiePolicy.RFC_2109 (issue 149).
+* Implemented support for no-value parameters, for example:
+	given().queryParam("someParameterName").when().get("/something");
+  This works for both "request parameters", query parameters and form parameters. (issue 143)
 
 Change log 1.5 (2011-12-20)
 ---------------------------
