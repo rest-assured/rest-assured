@@ -128,23 +128,8 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void iaeIsThrownWhenMalformedGetParams() throws Exception {
-        expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
     public void iaeIsThrownWhenNoParamsSpecifiedAfterGetPath() throws Exception {
         expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void iaeIsThrownWhenLastParamInGetRequestIsEmpty() throws Exception {
-        expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void iaeIsThrownWhenMiddleParamInGetRequestIsEmpty() throws Exception {
-        expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=&lastName=Doe");
     }
 
     @Test

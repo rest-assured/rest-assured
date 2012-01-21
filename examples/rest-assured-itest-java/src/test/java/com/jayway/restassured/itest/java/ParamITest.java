@@ -20,20 +20,42 @@ import com.jayway.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
+import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 public class ParamITest extends WithJetty {
 
     @Test
     public void noValueParamWhenUsingParamWithGetRequest() throws Exception {
-        given().param("some").expect().body(is("OK")).when().get("/noValueParam");
+        given().param("some").expect().body(is("Params: some=")).when().get("/noValueParam");
     }
 
     @Test
     public void noValueParamWhenUsingQueryParamWithGetRequest() throws Exception {
-        given().queryParam("some").expect().body(is("OK")).when().get("/noValueParam");
+        given().queryParam("some").expect().body(is("Params: some=")).when().get("/noValueParam");
+    }
+
+    @Test
+    public void multipleNoValueQueryParamWhenUsingQueryParamInUrlForGetRequest() throws Exception {
+        expect().body(is("Params: some1=some=")).when().get("/noValueParam?some&some1");
+    }
+
+    @Test
+    public void singleNoValueQueryParamWhenUsingQueryParamInUrlForGetRequest() throws Exception {
+        expect().body(is("Params: some=")).when().get("/noValueParam?some");
+    }
+
+    @Test
+    public void mixingStartingNoValueQueryParamWhenUsingQueryParamInUrlForGetRequest() throws Exception {
+        expect().body(is("Params: some1=some2=one")).when().get("/noValueParam?some1&some2=one");
+    }
+
+    @Test
+    public void mixingEndingNoValueQueryParamWhenUsingQueryParamInUrlForGetRequest() throws Exception {
+        expect().body(is("Params: some1=onesome2=")).when().get("/noValueParam?some1=one&some2");
     }
 
     @Test
@@ -43,12 +65,32 @@ public class ParamITest extends WithJetty {
 
     @Test
     public void noValueParamWhenUsingFormParamWithPostRequest() throws Exception {
-        given().formParam("some").expect().body(is("OK")).when().post("/noValueParam");
+        given().formParam("some").expect().body(is("Params: some=")).when().post("/noValueParam");
+    }
+
+    @Test
+    public void multipleNoValueParamWhenUsingFormParamWithPostRequest() throws Exception {
+        given().formParam("some").and().formParam("some1").expect().body(is("Params: some1=some=")).when().post("/noValueParam");
+    }
+
+    @Test
+    public void mixingNoValueAndValueParamWhenUsingFormParamWithPostRequest() throws Exception {
+        given().formParam("some").and().formParam("some1", "one").expect().body(is("Params: some1=onesome=")).when().post("/noValueParam");
     }
 
     @Test
     public void noValueParamWhenUsingParamWithPostRequest() throws Exception {
-        given().param("some").expect().body(is("OK")).when().post("/noValueParam");
+        given().param("some").expect().body(is("Params: some=")).when().post("/noValueParam");
+    }
+
+    @Test
+    public void whenLastParamInGetRequestEndsWithEqualItsTreatedAsANoValueParam() throws Exception {
+        expect().body("greeting", equalTo("Greetings John ")).when().get("/greet?firstName=John&lastName=");
+    }
+
+    @Test
+    public void whenFirstParamInGetRequestEndsWithEqualItsTreatedAsANoValueParam() throws Exception {
+        expect().body("greeting", equalTo("Greetings  Doe")).when().get("/greet?firstName=&lastName=Doe");
     }
 
     @Test

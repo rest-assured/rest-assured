@@ -63,36 +63,36 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/jsonStore") {
     "{ \"store\": {\n" +
-            "    \"book\": [ \n" +
-            "      { \"category\": \"reference\",\n" +
-            "        \"author\": \"Nigel Rees\",\n" +
-            "        \"title\": \"Sayings of the Century\",\n" +
-            "        \"price\": 8.95\n" +
-            "      },\n" +
-            "      { \"category\": \"fiction\",\n" +
-            "        \"author\": \"Evelyn Waugh\",\n" +
-            "        \"title\": \"Sword of Honour\",\n" +
-            "        \"price\": 12.99\n" +
-            "      },\n" +
-            "      { \"category\": \"fiction\",\n" +
-            "        \"author\": \"Herman Melville\",\n" +
-            "        \"title\": \"Moby Dick\",\n" +
-            "        \"isbn\": \"0-553-21311-3\",\n" +
-            "        \"price\": 8.99\n" +
-            "      },\n" +
-            "      { \"category\": \"fiction\",\n" +
-            "        \"author\": \"J. R. R. Tolkien\",\n" +
-            "        \"title\": \"The Lord of the Rings\",\n" +
-            "        \"isbn\": \"0-395-19395-8\",\n" +
-            "        \"price\": 22.99\n" +
-            "      }\n" +
-            "    ],\n" +
-            "    \"bicycle\": {\n" +
-            "      \"color\": \"red\",\n" +
-            "      \"price\": 19.95,\n" +
-            "    }\n" +
-            "  }\n" +
-            "}";
+      "    \"book\": [ \n" +
+      "      { \"category\": \"reference\",\n" +
+      "        \"author\": \"Nigel Rees\",\n" +
+      "        \"title\": \"Sayings of the Century\",\n" +
+      "        \"price\": 8.95\n" +
+      "      },\n" +
+      "      { \"category\": \"fiction\",\n" +
+      "        \"author\": \"Evelyn Waugh\",\n" +
+      "        \"title\": \"Sword of Honour\",\n" +
+      "        \"price\": 12.99\n" +
+      "      },\n" +
+      "      { \"category\": \"fiction\",\n" +
+      "        \"author\": \"Herman Melville\",\n" +
+      "        \"title\": \"Moby Dick\",\n" +
+      "        \"isbn\": \"0-553-21311-3\",\n" +
+      "        \"price\": 8.99\n" +
+      "      },\n" +
+      "      { \"category\": \"fiction\",\n" +
+      "        \"author\": \"J. R. R. Tolkien\",\n" +
+      "        \"title\": \"The Lord of the Rings\",\n" +
+      "        \"isbn\": \"0-395-19395-8\",\n" +
+      "        \"price\": 22.99\n" +
+      "      }\n" +
+      "    ],\n" +
+      "    \"bicycle\": {\n" +
+      "      \"color\": \"red\",\n" +
+      "      \"price\": 19.95,\n" +
+      "    }\n" +
+      "  }\n" +
+      "}";
   }
 
   get("/shopping") {
@@ -134,10 +134,10 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/greetJSON") {
     "{ \"greeting\" : { \n" +
-            "                \"firstName\" : \""+{params("firstName")}+"\", \n" +
-            "                \"lastName\" : \""+{params("lastName")}+"\" \n" +
-            "               }\n" +
-            "}"
+      "                \"firstName\" : \""+{params("firstName")}+"\", \n" +
+      "                \"lastName\" : \""+{params("lastName")}+"\" \n" +
+      "               }\n" +
+      "}"
   }
 
   post("/greetXML") {
@@ -172,10 +172,10 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/lotto") {
     val json = ("lotto" -> ("lottoId" -> lotto.id) ~
-            ("winning-numbers" -> lotto.winningNumbers) ~
-            ("drawDate" -> lotto.drawDate.map(_.toString)) ~
-            ("winners" -> lotto.winners.map { w =>
-              (("winnerId" -> w.id) ~ ("numbers" -> w.numbers))}))
+      ("winning-numbers" -> lotto.winningNumbers) ~
+      ("drawDate" -> lotto.drawDate.map(_.toString)) ~
+      ("winners" -> lotto.winners.map { w =>
+        (("winnerId" -> w.id) ~ ("numbers" -> w.numbers))}))
     compact(render(json))
   }
 
@@ -285,10 +285,7 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/noValueParam") {
-    if (params.filter(_._2 != "").size > 0) {
-      throw new IllegalArgumentException("One of the parameters had a value")
-    }
-    "OK"
+    "Params: "+params.foldLeft(new StringBuilder)( (b,t) => b.append(t._1+"="+t._2)).toString()
   }
 
   put("/noValueParam") {
@@ -300,10 +297,7 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   post("/noValueParam") {
-    if (params.filter(_._2 != "").size > 0) {
-      throw new IllegalArgumentException("One of the parameters had a value")
-    }
-    "OK"
+    "Params: "+params.foldLeft(new StringBuilder)( (b,t) => b.append(t._1+"="+t._2)).toString()
   }
 
   get("/redirect") {

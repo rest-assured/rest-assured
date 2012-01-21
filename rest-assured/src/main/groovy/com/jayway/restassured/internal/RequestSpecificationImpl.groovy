@@ -838,13 +838,21 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             def keyValueParams = allParamAsString.split("&");
             keyValueParams.each {
                 def keyValue = StringUtils.split(it, "=", 2)
-                if(keyValue.length != 2) {
+                def theKey;
+                def theValue;
+                if(keyValue.length < 1 || keyValue.length > 2) {
                     throw new IllegalArgumentException("Illegal parameters passed to REST Assured. Parameters was: $keyValueParams")
+                } else if(keyValue.length == 1) {
+                    theKey = keyValue[0]
+                    theValue = new NoParameterValue();
+                } else {
+                    theKey = keyValue[0]
+                    theValue = keyValue[1]
                 }
                 if(method == POST) {
-                    queryParameters.put(keyValue[0], keyValue[1])
+                    queryParameters.put(theKey, theValue)
                 } else {
-                    param(keyValue[0], keyValue[1]);
+                    requestParameters.put(theKey, theValue);
                 }
             };
             path = path.substring(0, indexOfQuestionMark);
