@@ -21,28 +21,38 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 
 public class ParamITest extends WithJetty {
 
     @Test
-    public void test() throws Exception {
-        given().log().parameters().param("some").when().get("/mimeTypeWithPlusJson");
+    public void noValueParamWhenUsingParamWithGetRequest() throws Exception {
+        given().param("some").expect().body(is("OK")).when().get("/noValueParam");
     }
 
     @Test
-    public void test2() throws Exception {
-        given().log().parameters().formParam("some").when().put("/mimeTypeWithPlusJson");
+    public void noValueParamWhenUsingQueryParamWithGetRequest() throws Exception {
+        given().queryParam("some").expect().body(is("OK")).when().get("/noValueParam");
     }
 
     @Test
-    public void test3() throws Exception {
-        given().log().parameters().formParam("some").when().post("/mimeTypeWithPlusJson");
+    public void noValueParamWhenUsingFormParamWithPutRequest() throws Exception {
+        given().formParam("some").expect().body(is("OK")).when().put("/noValueParam");
+    }
+
+    @Test
+    public void noValueParamWhenUsingFormParamWithPostRequest() throws Exception {
+        given().formParam("some").expect().body(is("OK")).when().post("/noValueParam");
+    }
+
+    @Test
+    public void noValueParamWhenUsingParamWithPostRequest() throws Exception {
+        given().param("some").expect().body(is("OK")).when().post("/noValueParam");
     }
 
     @Test
     public void multiPartUploadingWorksForFormParamsAndByteArray() throws Exception {
-        // When
         given().
                 formParam("formParam1").
                 formParam("formParam2", "formParamValue").
@@ -50,6 +60,7 @@ public class ParamITest extends WithJetty {
                 multiPart("string", "body").
         expect().
                 statusCode(200).
+                body(containsString("formParam1 -> WrappedArray()")).
         when().
                 post("/multipart/multiple");
     }

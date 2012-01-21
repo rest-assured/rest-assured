@@ -24,10 +24,12 @@ import net.liftweb.json.Printer._
 import scala.collection.JavaConversions._
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import collection.mutable.ListBuffer
-import javax.servlet.http.Cookie
 import org.apache.commons.io.IOUtils
 import java.util.{Scanner, Date}
 import org.apache.commons.lang3.StringUtils
+import org.scalatra.util.{MapWithIndifferentAccess, MultiMapHeadView}
+import javax.servlet.http.{HttpServletRequest, Cookie}
+import collection.immutable.Map
 
 class ScalatraRestExample extends ScalatraServlet {
   // To allow for json extract
@@ -280,6 +282,28 @@ class ScalatraRestExample extends ScalatraServlet {
         <p>paragraph 2</p>
       </body>
     </html>
+  }
+
+  get("/noValueParam") {
+    if (params.filter(_._2 != "").size > 0) {
+      throw new IllegalArgumentException("One of the parameters had a value")
+    }
+    "OK"
+  }
+
+  put("/noValueParam") {
+    val content: String = IOUtils.toString(request.getInputStream)
+    if(content.contains("=")) {
+      throw new IllegalArgumentException("One of the parameters had a value")
+    }
+    "OK"
+  }
+
+  post("/noValueParam") {
+    if (params.filter(_._2 != "").size > 0) {
+      throw new IllegalArgumentException("One of the parameters had a value")
+    }
+    "OK"
   }
 
   get("/redirect") {

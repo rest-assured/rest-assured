@@ -54,8 +54,7 @@ class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
 
 
   post("/multiple") {
-    multiParams.foreach(println _)
-    "jux"
+    multiParams.toString()
   }
 
   private def getFileContent: String = {
