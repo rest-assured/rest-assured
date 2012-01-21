@@ -18,6 +18,7 @@ package com.jayway.restassured.filter.log;
 
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
+import com.jayway.restassured.internal.NoParameterValue;
 import com.jayway.restassured.internal.support.Prettifier;
 import com.jayway.restassured.response.*;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
@@ -198,7 +199,12 @@ public class RequestLoggingFilter implements Filter {
                 if(i++ != 0) {
                     appendFourTabs(builder);
                 }
-                builder.append(entry.getKey()).append(EQUALS).append(entry.getValue()).append(NEW_LINE);
+                final Object value = entry.getValue();
+                builder.append(entry.getKey());
+                if(!(value instanceof NoParameterValue)) {
+                    builder.append(EQUALS).append(value);
+                }
+                builder.append(NEW_LINE);
             }
         }
     }

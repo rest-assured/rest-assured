@@ -580,6 +580,23 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo("Request params:\tfirstName=John\nQuery params:\tlastName=Doe\nForm params:\t<none>\nPath params:\t<none>\n"));
     }
 
+
+   @Test
+    public void logNoValueParamsUsingRequestLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+                log().parameters().
+                formParam("formParam").
+                queryParam("queryParam").
+        when().
+                post("/noValueParam");
+
+        assertThat(writer.toString(), equalTo("Request params:\t<none>\nQuery params:\tqueryParam\nForm params:\tformParam\nPath params:\t<none>\n"));
+    }
+
     @Test
     public void logBodyUsingRequestLogSpec() throws Exception {
         final StringWriter writer = new StringWriter();

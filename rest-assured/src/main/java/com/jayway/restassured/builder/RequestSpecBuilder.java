@@ -272,8 +272,6 @@ public class RequestSpecBuilder {
      * Add a query parameter to be sent with the request. This method is the same as {@link #addParameter(String, Object...)} )}
      * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
      *
-     *
-     *
      * @param parameterName The parameter key
      * @param parameterValues Zero to many parameter values for this parameter name.
      * @return The request specification builder
@@ -301,7 +299,7 @@ public class RequestSpecBuilder {
     /**
      * A slightly shorter version of {@link #addQueryParameter(String, java.util.List)}.
      *
-     * @see #addQueryParam(String, Object, Object...)
+     * @see #addQueryParam(String, Object...)
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification builder
