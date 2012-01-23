@@ -54,7 +54,7 @@ public class URIBuilder implements Cloneable {
     private static final String NAME_VALUE_SEPARATOR = "=";
 
     protected URI base;
-    private final String ENC = "UTF-8";
+    public static final String ENC = "UTF-8";
 
     public URIBuilder( String url ) throws URISyntaxException {
         base = new URI(url);
@@ -447,7 +447,7 @@ public class URIBuilder implements Cloneable {
     }
 
     // Copy of  the private method in URLEncodedUtils
-    private static String encode (final String content, final String encoding) {
+    public static String encode (final String content, final String encoding) {
         try {
             return URLEncoder.encode(content,
                     encoding != null ? encoding : HTTP.DEFAULT_CONTENT_CHARSET);

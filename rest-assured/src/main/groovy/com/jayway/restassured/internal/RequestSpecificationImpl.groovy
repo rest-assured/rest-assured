@@ -1033,7 +1033,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private String createFormParamBody(Map<String, Object> formParams)  {
         final StringBuilder body = new StringBuilder();
         for (Entry<String, Object> entry : formParams.entrySet()) {
-            body.append(entry.getKey());
+            body.append(encode(entry.getKey()));
             if(!(entry.getValue() instanceof NoParameterValue)) {
                 body.append("=").append(handleMultiValueParamsIfNeeded(entry));
             }
@@ -1043,17 +1043,42 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         return body.toString();
     }
 
+    private def String encode(String string) {
+        if(urlEncodingEnabled) {
+            def charset = URIBuilder.ENC
+            if(contentType instanceof String) {
+                def type = contentType as String
+                if(StringUtils.containsIgnoreCase(type, "charset")) {
+                    type.split(";").each {
+                        if(StringUtils.containsIgnoreCase(type, "charset")) {
+                            def questionMark = it.split("=")
+                            if(questionMark != null && questionMark.length == 2) {
+                                charset = questionMark[1]?.trim();
+                            }
+                        }
+                    }
+                }
+            }
+            return URIBuilder.encode(string, charset)
+        } else {
+            return string
+        }
+    }
+
     private def handleMultiValueParamsIfNeeded(Entry<String, Object> entry) {
         def value = entry.getValue()
         if (value instanceof List) {
+            def key = encode(entry.getKey())
             final StringBuilder multiValueList = new StringBuilder();
             value.eachWithIndex { val, index ->
-                multiValueList.append(val.toString())
+                multiValueList.append(encode(val.toString()))
                 if(index != value.size() - 1) {
-                    multiValueList.append("&").append(entry.getKey()).append("=")
+                    multiValueList.append("&").append(key).append("=")
                 }
             }
             value = multiValueList.toString()
+        } else {
+            value = encode(value)
         }
         return value
     }
