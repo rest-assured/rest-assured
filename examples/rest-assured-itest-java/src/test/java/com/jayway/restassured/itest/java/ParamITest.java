@@ -20,6 +20,8 @@ import com.jayway.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
+import java.io.UnsupportedEncodingException;
+
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
@@ -71,6 +73,41 @@ public class ParamITest extends WithJetty {
     @Test
     public void multipleNoValueParamWhenUsingFormParamWithPostRequest() throws Exception {
         given().formParam("some").and().formParam("some1").expect().body(is("Params: some1=some=")).when().post("/noValueParam");
+    }
+
+    @Test
+    public void formParamsAreUrlEncoded() throws Exception {
+        given().
+                formParam("firstName", "Some & firstname").
+                formParam("lastName", "<lastname>").
+        expect().
+                body("greeting", equalTo("Greetings Some & firstname <lastname>")).
+        when().
+                post("/greet");
+    }
+
+    @Test
+    public void formParamsAreUrlEncodedWithDefinedCharset() throws Exception {
+        given().
+                contentType("application/x-www-form-urlencoded; charset=ISO-8859-1").
+                formParam("firstName", "Some & firstname").
+                formParam("lastName", "<lastname>").
+        expect().
+                body("greeting", equalTo("Greetings Some & firstname <lastname>")).
+        when().
+                post("/greet");
+    }
+
+    @Test
+    public void formParamsAreUrlEncodedWithUtf8WhenCharsetDefinedWithNoEqualSign() throws Exception {
+        given().
+                contentType("application/x-www-form-urlencoded; charset").
+                formParam("firstName", "Some & firstname").
+                formParam("lastName", "<lastname>").
+        expect().
+                body("greeting", equalTo("Greetings Some & firstname <lastname>")).
+        when().
+                post("/greet");
     }
 
     @Test
