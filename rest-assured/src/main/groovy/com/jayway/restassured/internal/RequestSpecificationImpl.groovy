@@ -775,7 +775,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         if(hasFormParams()) {
             convertFormParamsToMultiPartParams()
         }
-        http.encoders.putAt MULTIPART_FORM_DATA, {
+        http.encoders.putAt MULTIPART_FORM_DATA, { contentType, content ->
+            // TODO Add charset
             MultipartEntity entity = new MultipartEntity(BROWSER_COMPATIBLE);
 
             multiParts.each {
@@ -1043,7 +1044,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         return body.toString();
     }
 
-    private def String encode(String string) {
+    private def Object encode(Object string) {
+        string = string.toString()
         if(urlEncodingEnabled) {
             def charset = URIBuilder.ENC
             if(contentType instanceof String) {

@@ -379,7 +379,7 @@ public abstract class HTTPBuilder {
      *   {@link RequestConfigDelegate#getUri() uri.path},
      *   {@link URIBuilder#setQuery(Map) request parameters},
      *   {@link RequestConfigDelegate#setHeaders(Map) headers},
-     *   {@link RequestConfigDelegate#setBody(Object) request body} and
+     *   {@link RequestConfigDelegate#setBody(Object, Object) request body} and
      *   {@link RequestConfigDelegate#getResponse() response handlers}.
      *
      * @return whatever value was returned by the executed response handler.
@@ -585,7 +585,7 @@ public abstract class HTTPBuilder {
      * </pre>
      * Setting the default content-type does three things:
      * <ol>
-     *   <li>It tells the builder to encode any {@link RequestConfigDelegate#setBody(Object)
+     *   <li>It tells the builder to encode any {@link RequestConfigDelegate#setBody(Object, Object)
      *   request body} as this content-type.  Calling {@link
      *   RequestConfigDelegate#setRequestContentType(String)} can override this
      *   on a per-request basis.</li>
@@ -924,7 +924,7 @@ public abstract class HTTPBuilder {
             if ( contentType != null ) this.setRequestContentType( contentType.toString() );
 
             Object body = args.get("body");
-            if ( body != null ) this.setBody( body );
+            if ( body != null ) this.setBody( this.getRequestContentType(), body );
         }
 
         /**
@@ -958,7 +958,7 @@ public abstract class HTTPBuilder {
         /**
          * Convenience method to set a request content-type at the same time
          * the request body is set.  This is a variation of
-         * {@link #setBody(Object)} that allows for a different content-type
+         * {@link #setBody(Object, Object)} that allows for a different content-type
          * than what is expected for the response.
          *
          * <p>Example:
@@ -992,6 +992,10 @@ public abstract class HTTPBuilder {
             this.setBody( requestBody );
         }
 
+        private void setBody(Object requestBody) {
+            setBody(null, requestBody);
+        }
+
         /**
          * Set the request body.  This value may be of any type supported by
          * the associated {@link EncoderRegistry request encoder}.  That is,
@@ -1001,12 +1005,12 @@ public abstract class HTTPBuilder {
          * @see #send(Object, Object)
          * @param body data or closure interpreted as the request body
          */
-        public void setBody( Object body ) {
+        public void setBody( Object requestContentType, Object body ) {
             if ( ! (request instanceof HttpEntityEnclosingRequest ) )
                 throw new IllegalArgumentException(
                         "Cannot set a request body for a " + request.getMethod() + " method" );
             Closure encoder = encoders.getAt( this.getRequestContentType() );
-            HttpEntity entity = (HttpEntity)encoder.call( body );
+            HttpEntity entity = (HttpEntity)encoder.call( requestContentType, body );
 
             ((HttpEntityEnclosingRequest)this.request).setEntity( entity );
         }

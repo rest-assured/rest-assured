@@ -90,6 +90,17 @@ public class ParamITest extends WithJetty {
     public void formParamsAreUrlEncodedWithDefinedCharset() throws Exception {
         given().
                 contentType("application/x-www-form-urlencoded; charset=ISO-8859-1").
+                formParam("ikk", "&&&").
+        expect().
+                body(is("ISO-8859-1")).
+        when().
+                post("/charEncoding");
+    }
+
+    @Test
+    public void charsetIsReallyDefined() throws Exception {
+        given().
+                contentType("application/x-www-form-urlencoded; charset=ISO-8859-1").
                 formParam("firstName", "Some & firstname").
                 formParam("lastName", "<lastname>").
         expect().

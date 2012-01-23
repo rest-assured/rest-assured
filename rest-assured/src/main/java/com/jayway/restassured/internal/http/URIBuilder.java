@@ -54,7 +54,7 @@ public class URIBuilder implements Cloneable {
     private static final String NAME_VALUE_SEPARATOR = "=";
 
     protected URI base;
-    public static final String ENC = "UTF-8";
+    public static final String ENC = "ISO-8859-1";
 
     public URIBuilder( String url ) throws URISyntaxException {
         base = new URI(url);

@@ -16,21 +16,24 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.http.ContentType.URLENC;
 import static org.hamcrest.Matchers.equalTo;
 
 public class BodyWithCustomContentTypeITest extends WithJetty {
 
     @Test
-    public void bodyIsUrlEncodedWhenUsingPostWithUnregisteredContentType() throws Exception {
+    public void bodyIsUrlEncodedWhenSettingBody() throws Exception {
         given().
-                contentType("application/my+custom+stuff").
-                body("firstName=John&lastName=Doe").
+                contentType(URLENC).
+                body("firstName=John&lastName=Doe&").
         expect().
                 body("greeting.firstName", equalTo("John")).
+                body("greeting.lastName", equalTo("Doe")).
         when().
                 post("/greetXML");
     }

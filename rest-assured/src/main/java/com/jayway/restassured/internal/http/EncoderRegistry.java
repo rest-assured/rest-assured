@@ -28,6 +28,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
 
@@ -57,13 +58,11 @@ import java.util.*;
  * <p>Contrary to its name, this class does not have anything to do with the 
  * <code>content-encoding</code> HTTP header.  </p>
  *
- * @see RequestConfigDelegate#setBody(Object)
- * @see RequestConfigDelegate#send(Object, Object)
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
  */
 public class EncoderRegistry {
 
-    Charset charset = Charset.defaultCharset(); // 1.5
+    Charset charset = Charset.forName(HTTP.DEFAULT_CONTENT_CHARSET);
     private Map<String,Closure> registeredEncoders = buildDefaultEncoderMap();
 
     /**
@@ -91,7 +90,7 @@ public class EncoderRegistry {
      * @return an {@link HttpEntity} encapsulating this request data
      * @throws UnsupportedEncodingException
      */
-    public InputStreamEntity encodeStream( Object data ) throws UnsupportedEncodingException {
+    public InputStreamEntity encodeStream( Object contentType, Object data ) throws UnsupportedEncodingException {
         InputStreamEntity entity = null;
 
         if ( data instanceof ByteArrayInputStream ) {
@@ -141,7 +140,7 @@ public class EncoderRegistry {
      * @return an {@link HttpEntity} encapsulating this request data
      * @throws IOException
      */
-    public HttpEntity encodeText( Object data ) throws IOException {
+    public HttpEntity encodeText(Object contentType, Object data ) throws IOException {
         if ( data instanceof Closure ) {
             StringWriter out = new StringWriter();
             PrintWriter writer = new PrintWriter( out );
@@ -204,8 +203,8 @@ public class EncoderRegistry {
      * @return an {@link HttpEntity} encapsulating this request data
      * @throws UnsupportedEncodingException
      */
-    public HttpEntity encodeForm( String formData ) throws UnsupportedEncodingException {
-        return this.createEntity( ContentType.URLENC, formData );
+    public HttpEntity encodeForm( Object contentType, String formData ) throws UnsupportedEncodingException {
+        return this.createEntity( contentType == null ? ContentType.URLENC : contentType, formData );
     }
 
     /**
@@ -217,7 +216,7 @@ public class EncoderRegistry {
      * @return an {@link HttpEntity} encapsulating this request data
      * @throws UnsupportedEncodingException
      */
-    public HttpEntity encodeXML( Object xml ) throws UnsupportedEncodingException {
+    public HttpEntity encodeXML( Object contentType, Object xml ) throws UnsupportedEncodingException {
         if ( xml instanceof Closure ) {
             StreamingMarkupBuilder smb = new StreamingMarkupBuilder();
             xml = smb.bind( xml );
@@ -256,7 +255,7 @@ public class EncoderRegistry {
      * @throws UnsupportedEncodingException
      */
     @SuppressWarnings("unchecked")
-    public HttpEntity encodeJSON( Object model ) throws UnsupportedEncodingException {
+    public HttpEntity encodeJSON( Object contentType, Object model ) throws UnsupportedEncodingException {
 
         Object json;
         if ( model instanceof Map || model instanceof Collection) {
@@ -286,7 +285,7 @@ public class EncoderRegistry {
      *  {@link HttpEntityEnclosingRequest#setEntity(HttpEntity) request content}
      * @throws UnsupportedEncodingException
      */
-    protected StringEntity createEntity( ContentType ct, String data )
+    protected StringEntity createEntity( Object ct, String data )
             throws UnsupportedEncodingException {
         StringEntity entity = new StringEntity( data, charset.toString() );
         entity.setContentType( ct.toString() );

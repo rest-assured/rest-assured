@@ -188,6 +188,11 @@ class ScalatraRestExample extends ScalatraServlet {
     request.body
   }
 
+  post("/charEncoding") {
+    contentType = "text/plain"
+    request.getCharacterEncoding
+  }
+
   put("/serializedJsonParameter") {
     val something = {params("something")}
     val serialized = {params("serialized")}
