@@ -15,6 +15,8 @@
  */
 package com.jayway.restassured.internal.http;
 
+import com.jayway.restassured.config.EncoderConfig;
+import org.apache.commons.lang3.Validate;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.protocol.HTTP;
@@ -25,6 +27,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
 
 /**
  * This class implements a mutable URI.  All <code>set</code>, <code>add</code> 
@@ -54,24 +58,17 @@ public class URIBuilder implements Cloneable {
     private static final String NAME_VALUE_SEPARATOR = "=";
 
     protected URI base;
-    public static final String ENC = "ISO-8859-1";
-
-    public URIBuilder( String url ) throws URISyntaxException {
-        base = new URI(url);
-    }
-
-    public URIBuilder( URL url ) throws URISyntaxException {
-        this.base = url.toURI();
-    }
+    private String enc;
 
     /**
      * @throws IllegalArgumentException if uri is null
      * @param uri
      */
-    public URIBuilder( URI uri ) throws IllegalArgumentException {
-        if ( uri == null )
-            throw new IllegalArgumentException( "uri cannot be null" );
+    public URIBuilder( URI uri, EncoderConfig config) throws IllegalArgumentException {
+        Validate.notNull(uri, "uri cannot be null");
+        Validate.notNull(config, "encoder config cannot be null");
         this.base = uri;
+        this.enc = config.defaultProtocolCharset();
     }
 
     /**
@@ -154,7 +151,7 @@ public class URIBuilder implements Cloneable {
         String path = base.getRawPath();
         if ( path != null ) sb.append( path );
         sb.append( '?' );
-        sb.append( format(nvp, ENC) );
+        sb.append( format(nvp, enc) );
         String frag = base.getRawFragment();
         if ( frag != null ) sb.append( '#' ).append( frag );
         this.base = base.resolve( sb.toString() );
@@ -233,7 +230,7 @@ public class URIBuilder implements Cloneable {
     }
 
     protected List<NameValuePair> getQueryNVP() {
-        List<NameValuePair> nvps = URLEncodedUtils.parse( this.base, ENC );
+        List<NameValuePair> nvps = URLEncodedUtils.parse( this.base, enc );
         List<NameValuePair> newList = new ArrayList<NameValuePair>();
         if ( nvps != null ) newList.addAll( nvps );
         return newList;
@@ -394,7 +391,7 @@ public class URIBuilder implements Cloneable {
      */
     @Override
     protected URIBuilder clone() {
-        return new URIBuilder( this.base );
+        return new URIBuilder( this.base, encoderConfig().defaultProtocolCharset(this.enc) );
     }
 
     /**

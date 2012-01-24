@@ -15,6 +15,7 @@
  */
 package com.jayway.restassured.internal.http;
 
+import com.jayway.restassured.config.EncoderConfig;
 import com.jayway.restassured.http.ContentType;
 import groovy.lang.Closure;
 import org.apache.commons.logging.Log;
@@ -165,8 +166,9 @@ public abstract class HTTPBuilder {
 
     protected EncoderRegistry encoders = new EncoderRegistry();
     protected HttpResponseContentTypeFinder parsers = new HttpResponseContentTypeFinder();
+    private EncoderConfig encoderConfig;
 
-    public HTTPBuilder() {
+    public HTTPBuilder(EncoderConfig encoderConfig) {
         super();
         HttpParams defaultParams = new BasicHttpParams();
         defaultParams.setParameter( CookieSpecPNames.DATE_PATTERNS,
@@ -175,6 +177,7 @@ public abstract class HTTPBuilder {
         this.client = new DefaultHttpClient(defaultParams);
         this.setContentEncoding( ContentEncoding.Type.GZIP,
                 ContentEncoding.Type.DEFLATE );
+        this.encoderConfig = encoderConfig == null ? new EncoderConfig() : encoderConfig;
     }
 
     /**
@@ -185,10 +188,10 @@ public abstract class HTTPBuilder {
      * 	{@link URIBuilder#convertToURI(Object)}.
      * @throws URISyntaxException if the given argument does not represent a valid URI
      */
-    public HTTPBuilder( Object defaultURI ) {
-        this();
+    public HTTPBuilder( Object defaultURI, EncoderConfig encoderConfig) {
+        this(encoderConfig);
         try {
-            this.defaultURI = new URIBuilder( URIBuilder.convertToURI(defaultURI) );
+            this.defaultURI = new URIBuilder( URIBuilder.convertToURI(defaultURI), this.encoderConfig );
         } catch (URISyntaxException e) {
             throw new IllegalArgumentException(e);
         }
@@ -205,9 +208,9 @@ public abstract class HTTPBuilder {
      *   for common types.
      * @throws URISyntaxException if the uri argument does not represent a valid URI
      */
-    public HTTPBuilder( Object defaultURI, Object defaultContentType ) throws URISyntaxException {
-        this();
-        this.defaultURI = new URIBuilder( URIBuilder.convertToURI(defaultURI) );
+    public HTTPBuilder( Object defaultURI, Object defaultContentType, EncoderConfig encoderConfig ) throws URISyntaxException {
+        this(encoderConfig);
+        this.defaultURI = new URIBuilder( URIBuilder.convertToURI(defaultURI), this.encoderConfig );
         this.defaultContentType = defaultContentType;
     }
 
@@ -643,7 +646,7 @@ public abstract class HTTPBuilder {
      * @throws URISyntaxException if the uri argument does not represent a valid URI
      */
     public void setUri( Object uri ) throws URISyntaxException {
-        this.defaultURI = new URIBuilder( URIBuilder.convertToURI(uri) );
+        this.defaultURI = new URIBuilder( URIBuilder.convertToURI(uri), encoderConfig );
     }
 
     /**
@@ -758,7 +761,7 @@ public abstract class HTTPBuilder {
                 this.requestContentType = defaultRequestContentType.toString();
             this.responseHandlers.putAll( defaultResponseHandlers );
             URI uri = request.getURI();
-            if ( uri != null ) this.uri = new URIBuilder(uri);
+            if ( uri != null ) this.uri = new URIBuilder(uri, encoderConfig);
         }
 
         public RequestConfigDelegate( Map<String,?> args, HttpRequestBase request, Closure successHandler )
@@ -808,7 +811,7 @@ public abstract class HTTPBuilder {
          */
         public void setUri( Object uri ) throws URISyntaxException {
             if ( uri instanceof URIBuilder ) this.uri = (URIBuilder)uri;
-            this.uri = new URIBuilder( URIBuilder.convertToURI(uri) );
+            this.uri = new URIBuilder( URIBuilder.convertToURI(uri), encoderConfig );
         }
 
         /**
@@ -902,7 +905,7 @@ public abstract class HTTPBuilder {
             if ( uri == null ) uri = defaultURI;
             if ( uri == null ) throw new IllegalStateException(
                     "Default URI is null, and no 'uri' parameter was given" );
-            this.uri = new URIBuilder( URIBuilder.convertToURI(uri) );
+            this.uri = new URIBuilder( URIBuilder.convertToURI(uri), encoderConfig );
 
             Map query = (Map)args.get( "params" );
             if ( query != null ) {

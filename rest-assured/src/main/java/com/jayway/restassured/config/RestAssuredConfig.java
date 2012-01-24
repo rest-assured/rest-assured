@@ -32,24 +32,30 @@ public class RestAssuredConfig {
     private final RedirectConfig redirectConfig;
     private final HttpClientConfig httpClientConfig;
     private final LogConfig logConfig;
+    private final EncoderConfig encoderConfig;
 
     /**
      * Create a new RestAssuredConfiguration with the default {@link RedirectConfig} and a default {@link HttpClientConfig}.
      */
     public RestAssuredConfig() {
-        this(new RedirectConfig(), new HttpClientConfig(), new LogConfig());
+        this(new RedirectConfig(), new HttpClientConfig(), new LogConfig(), new EncoderConfig());
     }
 
     /**
-     * Create a new RestAssuredConfiguration with the supplied {@link RedirectConfig}, {@link HttpClientConfig} and {@link LogConfig}.
+     * Create a new RestAssuredConfiguration with the supplied {@link RedirectConfig}, {@link HttpClientConfig}, {@link LogConfig} and {@link EncoderConfig}
      */
-    public RestAssuredConfig(RedirectConfig redirectConfig, HttpClientConfig httpClientConfig, LogConfig logConfig) {
+    public RestAssuredConfig(RedirectConfig redirectConfig, 
+                             HttpClientConfig httpClientConfig, 
+                             LogConfig logConfig, 
+                             EncoderConfig encoderConfig) {
         notNull(redirectConfig, "Redirect Config");
         notNull(httpClientConfig, "HTTP Client Config");
         notNull(logConfig, "Log config");
+        notNull(encoderConfig, "Encoder config");
         this.httpClientConfig = httpClientConfig;
         this.redirectConfig = redirectConfig;
         this.logConfig = logConfig;
+        this.encoderConfig = encoderConfig;
     }
 
     /**
@@ -60,7 +66,7 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig redirect(RedirectConfig redirectConfig) {
         notNull(redirectConfig, "Redirect config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig);
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig);
     }
 
     /**
@@ -71,7 +77,7 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig httpClient(HttpClientConfig httpClientConfig) {
         notNull(httpClientConfig, "HTTP Client Config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig);
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig);
     }
 
     /**
@@ -82,7 +88,18 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig logConfig(LogConfig logConfig) {
         notNull(logConfig, "Log config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig);
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig);
+    }
+
+    /**
+     * Set the Encoder config.
+     *
+     * @param encoderConfig The {@link EncoderConfig} to set
+     * @return An updated RestAssuredConfiguration
+     */
+    public RestAssuredConfig encoderConfig(EncoderConfig encoderConfig) {
+        notNull(logConfig, "Log config");
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig);
     }
 
     /**
@@ -122,6 +139,13 @@ public class RestAssuredConfig {
      */
     public HttpClientConfig getHttpClientConfig() {
         return httpClientConfig;
+    }
+
+    /**
+     * @return The EncoderConfig
+     */
+    public EncoderConfig getEncoderConfig() {
+        return encoderConfig;
     }
 
     /**

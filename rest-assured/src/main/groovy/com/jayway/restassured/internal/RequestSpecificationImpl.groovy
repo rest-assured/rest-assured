@@ -50,6 +50,7 @@ import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.apache.http.client.params.ClientPNames.*
 import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
+import com.jayway.restassured.config.EncoderConfig
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
     private static final int DEFAULT_HTTPS_PORT = 443
@@ -636,7 +637,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         def isFullyQualifiedUri = isFullyQualified(path)
         def targetUri = getTargetURI(path);
         def targetPath = getTargetPath(path)
-        def http = new RestAssuredHttpBuilder(targetUri, assertionClosure);
+        def http = new RestAssuredHttpBuilder(targetUri, assertionClosure, config);
         applyRestAssuredConfig(http)
         registerRestAssuredEncoders(http);
         setRequestHeadersToHttpBuilder(http)
@@ -1047,7 +1048,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private def Object encode(Object string) {
         string = string.toString()
         if(urlEncodingEnabled) {
-            def charset = URIBuilder.ENC
+            def charset = config == null ? new EncoderConfig().defaultContentCharset() : config.getEncoderConfig().defaultContentCharset()
             if(contentType instanceof String) {
                 def type = contentType as String
                 if(StringUtils.containsIgnoreCase(type, "charset")) {
@@ -1187,8 +1188,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private class RestAssuredHttpBuilder extends HTTPBuilder {
         def assertionClosure
 
-        RestAssuredHttpBuilder(Object defaultURI, assertionClosure) throws URISyntaxException {
-            super(defaultURI)
+        RestAssuredHttpBuilder(Object defaultURI, assertionClosure, RestAssuredConfig config) throws URISyntaxException {
+            super(defaultURI, config?.getEncoderConfig())
             this.assertionClosure = assertionClosure
         }
 
