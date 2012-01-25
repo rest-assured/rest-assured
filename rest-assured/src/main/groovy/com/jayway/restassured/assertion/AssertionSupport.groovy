@@ -16,6 +16,8 @@
 
 package com.jayway.restassured.assertion
 
+import org.apache.commons.lang3.math.NumberUtils
+
 class AssertionSupport {
 
   private static def closureStartFragment = '{'
@@ -54,6 +56,12 @@ class AssertionSupport {
     return { pathFragment ->
       pathFragment == "**"
     }
+  }
+
+  def static integer() {
+      return { pathFragment ->
+          NumberUtils.isDigits(pathFragment)
+      }
   }
 
   def static String generateWhitespace(int number) {

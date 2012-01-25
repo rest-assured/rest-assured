@@ -75,6 +75,12 @@ public class JsonPathTest {
     private final String JSON_MAP = "{ \"price1\" : 12.3,\n" +
             "  \"price2\": 15.0 }";
 
+    private final String JSON_PATH_STARTING_WITH_NUMBER = "{ \"0\" : 12.3,\n" +
+            "  \"1\": 15.0 }";
+
+    private final String JSON_PATH_WITH_NUMBER = "{ \"map\" : { \"0\" : 12.3,\n" +
+            "  \"1\": 15.0 } }";
+
     private final String MALFORMED_JSON = "{\n" +
             "    \"a\": 123456\n" +
             "    \"b\":\"string\"\n" +
@@ -299,5 +305,26 @@ public class JsonPathTest {
         final String prettyJson = with(JSON2).prettyPrint();
 
         assertThat(prettyJson, equalTo("[\n    {\n        \"phone\": \"3456789\",\n        \"alias\": \"name one\",\n        \"email\": \"name1@mail.com\"\n    },\n    {\n        \"phone\": \"1234567\",\n        \"alias\": \"name two\",\n        \"email\": \"name2@mail.com\"\n    },\n    {\n        \"phone\": \"2345678\",\n        \"alias\": \"name three\",\n        \"email\": \"name3@mail.com\"\n    }\n]"));
+    }
+
+    @Test
+    public void canParseJsonDocumentWhenFirstKeyIsIntegerUsingManualEscaping() throws Exception {
+        final float number = from(JSON_PATH_STARTING_WITH_NUMBER).getFloat("'0'");
+
+        assertThat(number, equalTo(12.3f));
+    }
+
+    @Test
+    public void canParseJsonDocumentWhenFirstKeyIsIntegerUsingNoEscaping() throws Exception {
+        final float number = from(JSON_PATH_STARTING_WITH_NUMBER).getFloat("0");
+
+        assertThat(number, equalTo(12.3f));
+    }
+
+    @Test
+    public void canParseJsonDocumentWhenPathIncludesKeyIsIntegerUsingNoEscaping() throws Exception {
+        final float number = from(JSON_PATH_WITH_NUMBER).getFloat("map.0");
+
+        assertThat(number, equalTo(12.3f));
     }
 }

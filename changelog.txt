@@ -33,6 +33,7 @@ Change log next version
 * Implemented support for no-value parameters, for example:
 	given().queryParam("someParameterName").when().get("/something");
   This works for both "request parameters", query parameters and form parameters. (issue 143)
+* Added support for getting integer JSON types without escaping, e.g. {"0":"value"} can now be parsed as ..body("0", equalTo("value"). (issue 150)
 
 Change log 1.5 (2011-12-20)
 ---------------------------
