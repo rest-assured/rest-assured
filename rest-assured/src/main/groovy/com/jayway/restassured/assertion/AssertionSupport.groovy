@@ -60,7 +60,7 @@ class AssertionSupport {
 
   def static integer() {
       return { pathFragment ->
-          NumberUtils.isDigits(pathFragment)
+          NumberUtils.isDigits(pathFragment) && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, space, listGetterFragment, listIndexFragment])
       }
   }
 
