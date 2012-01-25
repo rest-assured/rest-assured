@@ -81,6 +81,9 @@ public class JsonPathTest {
     private final String JSON_PATH_WITH_NUMBER = "{ \"map\" : { \"0\" : 12.3,\n" +
             "  \"1\": 15.0 } }";
 
+    private final String JSON_PATH_WITH_BOOLEAN = "{ \"map\" : { \"true\" : 12.3,\n" +
+            "  \"false\": 15.0 } }";
+
     private final String MALFORMED_JSON = "{\n" +
             "    \"a\": 123456\n" +
             "    \"b\":\"string\"\n" +
@@ -315,15 +318,29 @@ public class JsonPathTest {
     }
 
     @Test
-    public void canParseJsonDocumentWhenFirstKeyIsIntegerUsingNoEscaping() throws Exception {
+    public void canParseJsonDocumentWhenFirstKeyThatIsAIntegerUsingNoEscaping() throws Exception {
         final float number = from(JSON_PATH_STARTING_WITH_NUMBER).getFloat("0");
 
         assertThat(number, equalTo(12.3f));
     }
 
     @Test
-    public void canParseJsonDocumentWhenPathIncludesKeyIsIntegerUsingNoEscaping() throws Exception {
+    public void canParseJsonDocumentWhenPathIncludesKeyThatIsAIntegerUsingNoEscaping() throws Exception {
         final float number = from(JSON_PATH_WITH_NUMBER).getFloat("map.0");
+
+        assertThat(number, equalTo(12.3f));
+    }
+
+    @Test
+    public void canParseJsonDocumentWhenPathIncludesKeyThatIsABooleanUsingEscaping() throws Exception {
+        final float number = from(JSON_PATH_WITH_BOOLEAN).getFloat("map.'false'");
+
+        assertThat(number, equalTo(15.0f));
+    }
+
+    @Test
+    public void canParseJsonDocumentWhenPathIncludesKeyThatIsABooleanUsingNoEscaping() throws Exception {
+        final float number = from(JSON_PATH_WITH_BOOLEAN).getFloat("map.true");
 
         assertThat(number, equalTo(12.3f));
     }
