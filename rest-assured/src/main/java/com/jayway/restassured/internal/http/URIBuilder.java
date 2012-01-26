@@ -68,7 +68,7 @@ public class URIBuilder implements Cloneable {
         Validate.notNull(uri, "uri cannot be null");
         Validate.notNull(config, "encoder config cannot be null");
         this.base = uri;
-        this.enc = config.defaultProtocolCharset();
+        this.enc = config.defaultQueryParameterCharset();
     }
 
     /**
@@ -391,7 +391,7 @@ public class URIBuilder implements Cloneable {
      */
     @Override
     protected URIBuilder clone() {
-        return new URIBuilder( this.base, encoderConfig().defaultProtocolCharset(this.enc) );
+        return new URIBuilder( this.base, encoderConfig().defaultQueryParameterCharset(this.enc) );
     }
 
     /**

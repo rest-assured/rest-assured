@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,37 +24,38 @@ import org.apache.http.protocol.HTTP;
  */
 public class EncoderConfig {
 
+    private static final String UTF_8 = "UTF-8";
     private final String defaultContentCharset;
-    private final String defaultProtocolCharset;
+    private final String defaultQueryParameterCharset;
 
     /**
-     * Configure the encoder config to use {@value HTTP#DEFAULT_CONTENT_CHARSET} for content encoding and {@value HTTP#DEFAULT_PROTOCOL_CHARSET}
+     * Configure the encoder config to use {@value HTTP#DEFAULT_CONTENT_CHARSET} for content encoding and {@value #UTF_8}.
      * for http protocol encoding.
      */
     public EncoderConfig() {
-        this(HTTP.DEFAULT_CONTENT_CHARSET, HTTP.DEFAULT_PROTOCOL_CHARSET);
+        this(HTTP.DEFAULT_CONTENT_CHARSET, UTF_8);
     }
 
-    public EncoderConfig(String defaultContentCharset, String defaultProtocolCharset) {
+    public EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset) {
         Validate.notBlank(defaultContentCharset, "Default content charset to cannot be blank");
-        Validate.notBlank(defaultProtocolCharset, "Default protocol charset to cannot be blank");
+        Validate.notBlank(defaultQueryParameterCharset, "Default protocol charset to cannot be blank");
         this.defaultContentCharset = defaultContentCharset;
-        this.defaultProtocolCharset = defaultProtocolCharset;
+        this.defaultQueryParameterCharset = defaultQueryParameterCharset;
     }
 
     public String defaultContentCharset() {
         return defaultContentCharset;
     }
 
-    public String defaultProtocolCharset() {
-        return defaultProtocolCharset;
+    public String defaultQueryParameterCharset() {
+        return defaultQueryParameterCharset;
     }
 
     public EncoderConfig defaultContentCharset(String charset) {
-        return new EncoderConfig(charset, defaultProtocolCharset);
+        return new EncoderConfig(charset, defaultQueryParameterCharset);
     }
 
-    public EncoderConfig defaultProtocolCharset(String charset) {
+    public EncoderConfig defaultQueryParameterCharset(String charset) {
         return new EncoderConfig(defaultContentCharset, charset);
     }
 

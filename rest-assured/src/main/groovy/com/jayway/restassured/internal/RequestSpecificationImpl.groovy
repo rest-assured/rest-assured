@@ -18,6 +18,7 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.AuthenticationScheme
 import com.jayway.restassured.authentication.NoAuthScheme
+import com.jayway.restassured.config.EncoderConfig
 import com.jayway.restassured.config.HttpClientConfig
 import com.jayway.restassured.config.RedirectConfig
 import com.jayway.restassured.config.RestAssuredConfig
@@ -50,7 +51,6 @@ import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.apache.http.client.params.ClientPNames.*
 import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
-import com.jayway.restassured.config.EncoderConfig
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
     private static final int DEFAULT_HTTPS_PORT = 443
@@ -689,6 +689,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         if(restAssuredConfig != null) {
             applyRedirectConfig(restAssuredConfig.getRedirectConfig())
             applyHttpClientConfig(restAssuredConfig.getHttpClientConfig())
+            applyEncoderConfig(http, restAssuredConfig.getEncoderConfig())
         }
         if (!httpClientParams.isEmpty()) {
             def p = http.client.getParams();
@@ -697,6 +698,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
                 p.setParameter(key, value)
             }
         }
+    }
+
+    def applyEncoderConfig(HTTPBuilder httpBuilder, EncoderConfig encoderConfig) {
+        httpBuilder.encoders.setCharset(encoderConfig.defaultContentCharset())
     }
 
     def applyHttpClientConfig(HttpClientConfig httpClientConfig) {
