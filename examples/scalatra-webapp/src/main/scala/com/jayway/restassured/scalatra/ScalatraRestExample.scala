@@ -31,7 +31,8 @@ import org.scalatra.util.{MapWithIndifferentAccess, MultiMapHeadView}
 import javax.servlet.http.{HttpServletRequest, Cookie}
 import collection.immutable.Map
 
-class ScalatraRestExample extends ScalatraServlet {
+class
+ScalatraRestExample extends ScalatraServlet {
   // To allow for json extract
   implicit val formats = DefaultFormats
 

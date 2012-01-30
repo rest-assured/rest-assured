@@ -163,9 +163,9 @@ public class LoggingITest extends WithJetty {
                 cookie("standardCookie", "standard value").
                 header("multiHeader", "headerValue1", "headerValue2").
                 header("standardHeader", "standard header value").
-                expect().
+        expect().
                 body("greeting", equalTo("Greetings John Doe")).
-                when().
+        when().
                 post("/greet");
 
         assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/greet\nRequest params:\thello1=world1\n\t\t\t\thello2=world2\n\t\t\t\tmultiParam=[multi1, multi2]\nQuery params:\tsomething1=else1\n\t\t\t\tsomething2=else2\n\t\t\t\tsomething3=else3\nForm params:\tfirstName=John\n\t\t\t\tlastName=Doe\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\n\t\t\t\tmultiHeader=headerValue1\n\t\t\t\tmultiHeader=headerValue2\n\t\t\t\tstandardHeader=standard header value\nCookies:\t\tmultiCookie=value1\n\t\t\t\tmultiCookie=value2\n\t\t\t\tstandardCookie=standard value\nBody:\t\t\t<none>\n"));
@@ -185,9 +185,9 @@ public class LoggingITest extends WithJetty {
                 param("firstName", "John").
                 param("lastName", "Doe").
                 header("Content-type", "application/json").
-                expect().
+        expect().
                 body("greeting", equalTo("Greetings John Doe")).
-                when().
+        when().
                 get("/greet");
 
         assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\t/greet\nRequest params:\tfirstName=John\n\t\t\t\tlastName=Doe\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-type=application/json\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
@@ -202,9 +202,10 @@ public class LoggingITest extends WithJetty {
                 filter(new RequestLoggingFilter(captor)).
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
-                expect().
+        expect().
                 body("fullName", equalTo("John Doe")).
-                when().get("/{firstName}/{lastName}");
+        when().
+                get("/{firstName}/{lastName}");
 
         assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\t/John/Doe\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\tfirstName=John\n\t\t\t\tlastName=Doe\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
     }
@@ -231,12 +232,12 @@ public class LoggingITest extends WithJetty {
         given().
                 filters(new RequestLoggingFilter(captor), new ResponseLoggingFilter(captor)).
                 body(object).
-                expect().
+        expect().
                 defaultParser(JSON).
-                when().
+        when().
                 post("/reflect");
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}\nHTTP/1.1 200 OK\nContent-Type=text/plain; charset=utf-8\nContent-Length=23\nServer=Jetty(6.1.14)\n\n{\"hello\":\"Hello world\"}\n"));
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}\nHTTP/1.1 200 OK\nContent-Type=text/plain; charset=iso-8859-1\nContent-Length=23\nServer=Jetty(6.1.14)\n\n{\"hello\":\"Hello world\"}\n"));
     }
 
     @Test
@@ -249,12 +250,12 @@ public class LoggingITest extends WithJetty {
         given().
                 filters(new ResponseLoggingFilter(captor), new RequestLoggingFilter(captor)).
                 body(object).
-                expect().
+        expect().
                 defaultParser(JSON).
-                when().
+        when().
                 post("/reflect");
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}\nHTTP/1.1 200 OK\nContent-Type=text/plain; charset=utf-8\nContent-Length=23\nServer=Jetty(6.1.14)\n\n{\"hello\":\"Hello world\"}\n"));
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}\nHTTP/1.1 200 OK\nContent-Type=text/plain; charset=iso-8859-1\nContent-Length=23\nServer=Jetty(6.1.14)\n\n{\"hello\":\"Hello world\"}\n"));
     }
 
     @Test
@@ -266,10 +267,10 @@ public class LoggingITest extends WithJetty {
                 config(config().logConfig(logConfig().defaultStream(captor).and().enablePrettyPrinting(false))).
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
-                expect().
+        expect().
                 log().all().
                 body("fullName", equalTo("John Doe")).
-                when().
+        when().
                 get("/{firstName}/{lastName}");
 
         assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type=application/json; charset=UTF-8\nContent-Length=59\nServer=Jetty(6.1.14)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}\n"));
@@ -312,9 +313,9 @@ public class LoggingITest extends WithJetty {
 
         given().
                 config(config().logConfig(logConfig().defaultStream(captor))).
-                expect().
+        expect().
                 log().ifStatusCodeMatches(greaterThan(200)).
-                when().
+        when().
                 get("/409");
 
         assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type=text/plain; charset=utf-8\nContent-Length=5\nServer=Jetty(6.1.14)\n\nERROR\n"));

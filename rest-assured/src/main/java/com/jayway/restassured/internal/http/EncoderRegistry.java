@@ -21,6 +21,7 @@ import groovy.lang.Closure;
 import groovy.lang.GString;
 import groovy.lang.Writable;
 import groovy.xml.StreamingMarkupBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.NameValuePair;
@@ -35,6 +36,8 @@ import org.codehaus.groovy.runtime.MethodClosure;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
+
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 
 /**
@@ -386,6 +389,10 @@ public class EncoderRegistry {
     }
 
     private String useContentTypeIfDefinedOrElseUse(Object contentType, ContentType defaultContentType) {
-        return contentType == null ? defaultContentType.toString() : contentType.toString();
+        String tempContentType = contentType == null ? defaultContentType.toString() : contentType.toString();
+        if(!containsIgnoreCase(tempContentType, "charset")) {
+            tempContentType = tempContentType + "; charset="+charset.toString();
+        }
+        return tempContentType;
     }
 }

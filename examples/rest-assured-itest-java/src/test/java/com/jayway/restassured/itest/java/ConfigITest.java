@@ -41,15 +41,13 @@ public class ConfigITest extends WithJetty {
                 get("/redirect");
     }
 
-    @Ignore
     @Test
-    public void supportsSpecifying() throws Exception {
+    public void supportsSpecifyingDefaultContentCharset() throws Exception {
         given().
                 config(newConfig().encoderConfig(encoderConfig().defaultContentCharset("US-ASCII"))).
                 body("Something {\\+£???").
         expect().
-                log().all().
-                header("Content-Type", is("text/plan; charset=US-ASCII")).
+                header("Content-Type", is("text/plain; charset=US-ASCII")).
         when().
                 post("/reflect");
     }
