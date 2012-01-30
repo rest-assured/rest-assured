@@ -21,10 +21,11 @@ import javax.xml.bind.JAXBElement
 import javax.xml.bind.Marshaller
 import javax.xml.bind.Unmarshaller
 import javax.xml.bind.annotation.XmlRootElement
+import com.jayway.restassured.internal.http.CharsetExtractor
 
 class JaxbMapping {
 
-  def deserialze(Object object, Class cls) {
+  def deserialze(Object object, String charset, Class cls) {
     JAXBContext jaxbContext = JAXBContext.newInstance(cls);
     Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
     def reader = new StringReader(object)
@@ -48,6 +49,6 @@ class JaxbMapping {
   }
 
   private String getEncoding(String contentType) {
-    return contentType.substring(contentType.indexOf("charset")).trim()
+    return CharsetExtractor.getCharsetFromContentType(contentType);
   }
 }

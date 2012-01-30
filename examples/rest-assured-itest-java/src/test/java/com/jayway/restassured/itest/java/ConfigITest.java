@@ -16,10 +16,13 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.config.EncoderConfig;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
 import static com.jayway.restassured.config.RedirectConfig.redirectConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static org.hamcrest.Matchers.is;
@@ -36,5 +39,18 @@ public class ConfigITest extends WithJetty {
                 header("Location", is("http://localhost:8080/hello")).
         when().
                 get("/redirect");
+    }
+
+    @Ignore
+    @Test
+    public void supportsSpecifying() throws Exception {
+        given().
+                config(newConfig().encoderConfig(encoderConfig().defaultContentCharset("US-ASCII"))).
+                body("Something {\\+£???").
+        expect().
+                log().all().
+                header("Content-Type", is("text/plan; charset=US-ASCII")).
+        when().
+                post("/reflect");
     }
 }

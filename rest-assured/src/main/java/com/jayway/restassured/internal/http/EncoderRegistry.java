@@ -121,7 +121,7 @@ public class EncoderRegistry {
         if ( entity == null ) throw new IllegalArgumentException(
                 "Don't know how to encode " + data + " as a byte stream" );
 
-        entity.setContentType( ContentType.BINARY.toString() );
+        entity.setContentType(useContentTypeIfDefinedOrElseUse(contentType, ContentType.BINARY));
         return entity;
     }
 
@@ -164,7 +164,7 @@ public class EncoderRegistry {
             data = out;
         }
         // if data is a String, we are already covered.
-        return createEntity( ContentType.TEXT, data.toString() );
+        return createEntity( useContentTypeIfDefinedOrElseUse(contentType, ContentType.TEXT), data.toString() );
     }
 
     /**
@@ -204,7 +204,7 @@ public class EncoderRegistry {
      * @throws UnsupportedEncodingException
      */
     public HttpEntity encodeForm( Object contentType, String formData ) throws UnsupportedEncodingException {
-        return this.createEntity( contentType == null ? ContentType.URLENC : contentType, formData );
+        return this.createEntity(useContentTypeIfDefinedOrElseUse(contentType, ContentType.URLENC), formData );
     }
 
     /**
@@ -221,7 +221,7 @@ public class EncoderRegistry {
             StreamingMarkupBuilder smb = new StreamingMarkupBuilder();
             xml = smb.bind( xml );
         }
-        return createEntity( ContentType.XML, xml.toString() );
+        return createEntity( useContentTypeIfDefinedOrElseUse(contentType, ContentType.XML), xml.toString() );
     }
 
     /**
@@ -270,7 +270,7 @@ public class EncoderRegistry {
             throw new UnsupportedOperationException("Internal error: Can't encode "+model+" to JSON.");
         }
 
-        return this.createEntity( ContentType.JSON, json.toString() );
+        return this.createEntity( useContentTypeIfDefinedOrElseUse(contentType, ContentType.JSON), json.toString() );
     }
 
     /**
@@ -285,10 +285,14 @@ public class EncoderRegistry {
      *  {@link HttpEntityEnclosingRequest#setEntity(HttpEntity) request content}
      * @throws UnsupportedEncodingException
      */
-    protected StringEntity createEntity( Object ct, String data )
+    protected StringEntity createEntity( String ct, String data )
             throws UnsupportedEncodingException {
-        StringEntity entity = new StringEntity( data, charset.toString() );
-        entity.setContentType( ct.toString() );
+        String charsetToUse = CharsetExtractor.getCharsetFromContentType(ct);
+        if(charsetToUse == null) {
+            charsetToUse = charset.toString();
+        }
+        StringEntity entity = new StringEntity( data, charsetToUse );
+        entity.setContentType( ct );
         return entity;
     }
 
@@ -379,5 +383,9 @@ public class EncoderRegistry {
      */
     public Iterator<Map.Entry<String,Closure>> iterator() {
         return this.registeredEncoders.entrySet().iterator();
+    }
+
+    private String useContentTypeIfDefinedOrElseUse(Object contentType, ContentType defaultContentType) {
+        return contentType == null ? defaultContentType.toString() : contentType.toString();
     }
 }

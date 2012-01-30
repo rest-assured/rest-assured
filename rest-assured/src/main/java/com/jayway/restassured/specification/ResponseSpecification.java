@@ -524,6 +524,14 @@ public interface ResponseSpecification extends RequestSender {
     ResponseSpecification contentType(String contentType);
 
     /**
+     * Expect the response content type to be <code>contentType</code>.
+     *
+     * @param contentType The expected content type of the response.
+     * @return the response specification
+     */
+    ResponseSpecification contentType(Matcher<String> contentType);
+
+    /**
      * Expect that the response body conforms to one or more Hamcrest matchers. E.g.
      * <pre>
      * // Expect that the response body (content) contains the string "winning-numbers"

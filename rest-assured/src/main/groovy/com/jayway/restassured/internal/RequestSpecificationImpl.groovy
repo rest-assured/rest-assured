@@ -662,7 +662,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
         validateMultiPartForPostAndPutOnly(method);
 
-        if(shouldUrlEncode(method)) {
+        if(mayHaveBody(method)) {
             if(hasFormParams() && requestBody != null) {
                 throw new IllegalStateException("You can either send form parameters OR body content in $method, not both!");
             }
@@ -830,7 +830,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         return !(requestParameters.isEmpty() && formParameters.isEmpty())
     }
 
-    private boolean shouldUrlEncode(method) {
+    private boolean mayHaveBody(method) {
         return POST.equals(method) || formParameters.size() > 0 || multiParts.size() > 0
     }
 
@@ -876,7 +876,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             if(multiParts.size() > 0) {
                 contentType = MULTIPART_FORM_DATA
             } else if (requestBody == null) {
-                contentType = shouldUrlEncode(method) ? URLENC : ANY
+                contentType = mayHaveBody(method) ? URLENC : ANY
             } else if (requestBody instanceof byte[]) {
                 if(method != POST && method != PUT) {
                     throw new IllegalStateException("$method doesn't support binary request data.");
@@ -1055,16 +1055,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         if(urlEncodingEnabled) {
             def charset = config == null ? new EncoderConfig().defaultContentCharset() : config.getEncoderConfig().defaultContentCharset()
             if(contentType instanceof String) {
-                def type = contentType as String
-                if(StringUtils.containsIgnoreCase(type, "charset")) {
-                    type.split(";").each {
-                        if(StringUtils.containsIgnoreCase(type, "charset")) {
-                            def questionMark = it.split("=")
-                            if(questionMark != null && questionMark.length == 2) {
-                                charset = questionMark[1]?.trim();
-                            }
-                        }
-                    }
+                def tempCharset = CharsetExtractor.getCharsetFromContentType(contentType as String)
+                if(tempCharset != null) {
+                    charset = tempCharset
                 }
             }
             return URIBuilder.encode(string, charset)

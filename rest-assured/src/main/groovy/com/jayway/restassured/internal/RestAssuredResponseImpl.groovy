@@ -17,6 +17,7 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.assertion.CookieMatcher
+import com.jayway.restassured.internal.http.CharsetExtractor
 import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.internal.support.Prettifier
 import com.jayway.restassured.mapper.ObjectMapper
@@ -27,6 +28,8 @@ import groovy.xml.StreamingMarkupBuilder
 import java.nio.charset.Charset
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.response.*
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
+import static org.apache.commons.lang3.StringUtils.isBlank
 
 class RestAssuredResponseImpl implements Response {
   private static final String CANNOT_PARSE_MSG = "Failed to parse response."
@@ -64,7 +67,7 @@ class RestAssuredResponseImpl implements Response {
 
   def parseContentType(httpResponse) {
     try {
-      contentType = httpResponse.contentType?.toString()?.toLowerCase()
+      contentType = httpResponse.contentType?.toString()
     } catch(IllegalArgumentException e) {
       // No content type was found, set it to empty
       contentType = ""
@@ -169,7 +172,7 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
   }
 
   private Charset findCharset() {
-    String charset = headers.get("charset");
+    String charset = CharsetExtractor.getCharsetFromContentType(isBlank(contentType) ? defaultContentType : contentType)
 
     if ( charset == null || charset.trim().equals("") ) {
       return Charset.defaultCharset();
@@ -290,12 +293,12 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     def contentType = findContentType {
       throw new IllegalStateException("""Cannot invoke the path method because no content-type was present in the response and no default parser has been set.\n
 You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n""")
-    }.toLowerCase();
-    if(contentType.contains("xml")) {
+    };
+    if(containsIgnoreCase(contentType, "xml")) {
       return xmlPath().get(path)
-    } else if(contentType.contains("json")) {
+    } else if(containsIgnoreCase(contentType, "json")) {
       return jsonPath().get(path)
-    } else if(contentType.contains("html")) {
+    } else if(containsIgnoreCase(contentType, "html")) {
       return newXmlPath(CompatibilityMode.HTML)
     }
     throw new IllegalStateException("Cannot determine which path implementation to use because the content-type $contentType doesn't map to a path implementation.")

@@ -20,64 +20,69 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.parsing.Parser
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import org.apache.commons.lang3.StringUtils
+import static com.jayway.restassured.internal.http.ContentTypeExtractor.getContentTypeWithoutCharset
 
 /**
  * Takes care of registering additional content types to the parser registry as well as
  * preparing for forced text parsing when applicable.
  */
 class ResponseParserRegistrar {
-  private final Map<String, String> additional = ['application/rss+xml' : 'application/xml', 'atom+xml' : 'application/xml',
-          'xop+xml' : 'application/xml', 'xslt+xml' : 'application/xml', 'rdf+xml' : 'application/xml',
-          'atomcat+xml' : 'application/xml', 'atomsvc+xml' : 'application/xml', 'auth-policy+xml' : 'application/xml']
+    private final Map<String, String> additional = ['application/rss+xml' : 'application/xml', 'atom+xml' : 'application/xml',
+            'xop+xml' : 'application/xml', 'xslt+xml' : 'application/xml', 'rdf+xml' : 'application/xml',
+            'atomcat+xml' : 'application/xml', 'atomsvc+xml' : 'application/xml', 'auth-policy+xml' : 'application/xml']
 
-  private Parser defaultParser = null
+    private Parser defaultParser = null
 
-  def ResponseParserRegistrar(){
+    def ResponseParserRegistrar(){
 
-  }
-
-  def ResponseParserRegistrar(ResponseParserRegistrar rpr){
-    this.additional.putAll(rpr.additional)
-    this.defaultParser = rpr.defaultParser
-  }
-
-  def Parser getParser(String contentType) {
-    def parserAsString = additional.get(contentType)
-    def parser = parserAsString == null ? Parser.fromContentType(contentType) : Parser.fromContentType(parserAsString)
-    parser == null ? defaultParser : parser
-  }
-
-  def Parser getNonDefaultParser(String contentType) {
-    def parserAsString = additional.get(contentType)
-    def parser = parserAsString == null ? null : Parser.fromContentType(parserAsString)
-    parser == null ? defaultParser : parser
-  }
-
-  def void registerParser(String contentType, Parser parser) {
-    notNull(parser, "Parser")
-    notNull(contentType, "contentType")
-    additional.put(contentType, parser.getContentType())
-  }
-
-  def void registerDefaultParser(Parser parser) {
-    notNull(parser, "Parser")
-    this.defaultParser = parser
-  }
-
-  def void unregisterParser(String contentType) {
-    notNull(contentType, "contentType")
-    additional.remove(contentType)
-  }
-
-  def boolean hasCustomParser(String contentType) {
-    if(defaultParser != null) {
-      return true
     }
-    return hasCustomParserExludingDefaultParser(contentType)
-  }
 
-  def boolean hasCustomParserExludingDefaultParser(String contentType) {
-    def parser = getNonDefaultParser(contentType)
-    return parser != null && (parser == Parser.XML || parser == Parser.JSON || parser == Parser.HTML);
-  }
+    def ResponseParserRegistrar(ResponseParserRegistrar rpr){
+        this.additional.putAll(rpr.additional)
+        this.defaultParser = rpr.defaultParser
+    }
+
+    def Parser getParser(String contentType) {
+        def contentTypeWithoutCharset = getContentTypeWithoutCharset(contentType);
+        def parserAsString = additional.get(contentTypeWithoutCharset)
+        def parser = parserAsString == null ? Parser.fromContentType(contentType) : Parser.fromContentType(parserAsString)
+        parser == null ? defaultParser : parser
+    }
+
+    def Parser getNonDefaultParser(String contentType) {
+        def contentTypeWithoutCharset = getContentTypeWithoutCharset(contentType);
+        def parserAsString = additional.get(contentTypeWithoutCharset)
+        def parser = parserAsString == null ? null : Parser.fromContentType(parserAsString)
+        parser == null ? defaultParser : parser
+    }
+
+    def void registerParser(String contentType, Parser parser) {
+        notNull(parser, "Parser")
+        notNull(contentType, "contentType")
+        def contentTypeWithoutCharset = getContentTypeWithoutCharset(contentType);
+        additional.put(contentTypeWithoutCharset, parser.getContentType())
+    }
+
+    def void registerDefaultParser(Parser parser) {
+        notNull(parser, "Parser")
+        this.defaultParser = parser
+    }
+
+    def void unregisterParser(String contentType) {
+        notNull(contentType, "contentType")
+        additional.remove(contentType)
+    }
+
+    def boolean hasCustomParser(String contentType) {
+        if(defaultParser != null) {
+            return true
+        }
+        return hasCustomParserExludingDefaultParser(contentType)
+    }
+
+    def boolean hasCustomParserExludingDefaultParser(String contentType) {
+        def parser = getNonDefaultParser(contentType)
+        return parser != null && (parser == Parser.XML || parser == Parser.JSON || parser == Parser.HTML);
+    }
 }

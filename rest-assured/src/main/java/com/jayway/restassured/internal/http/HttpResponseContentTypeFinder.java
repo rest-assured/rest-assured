@@ -34,7 +34,7 @@ public class HttpResponseContentTypeFinder {
         if ( resp.getEntity().getContentType() == null )
             throw new IllegalArgumentException( "Response does not have a content-type header" );
         try {
-            return resp.getEntity().getContentType().getElements()[0].getName();
+            return resp.getEntity().getContentType().getValue();
         }
         catch ( RuntimeException ex ) {  // NPE or OOB Exceptions
             throw new IllegalArgumentException( "Could not parse content-type from response" );

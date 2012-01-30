@@ -90,7 +90,25 @@ public class ObjectMappingITest extends WithJetty {
     }
 
     @Test
-    public void whenRequestContentTypeIsXmlAndCharsetIsUTF16ThenRestAssuredSerializesToJSON() throws Exception {
+    public void whenRequestContentTypeIsXmlAndCharsetIsUsAsciiThenRestAssuredSerializesToJSON() throws Exception {
+        final Greeting object = new Greeting();
+        object.setFirstName("John");
+        object.setLastName("Doe");
+        final Greeting actual = given().contentType("application/xml; charset=US-ASCII").and().body(object).when().post("/reflect").as(Greeting.class);
+        assertThat(object, equalTo(actual));
+    }
+
+    @Test
+    public void whenRequestContentTypeIsJsonAndCharsetIsUsAsciiThenRestAssuredSerializesToJSON() throws Exception {
+        final Greeting object = new Greeting();
+        object.setFirstName("John");
+        object.setLastName("Doe");
+        final Greeting actual = given().contentType("application/json; charset=US-ASCII").and().body(object).when().post("/reflect").as(Greeting.class);
+        assertThat(object, equalTo(actual));
+    }
+
+    @Test
+    public void whenRequestContentTypeIsXmlAndCharsetIsUtf16ThenRestAssuredSerializesToJSON() throws Exception {
         final Greeting object = new Greeting();
         object.setFirstName("John");
         object.setLastName("Doe");
@@ -99,7 +117,7 @@ public class ObjectMappingITest extends WithJetty {
     }
 
     @Test
-    public void whenRequestContentTypeIsJsonAndCharsetIsUTF16ThenRestAssuredSerializesToJSON() throws Exception {
+    public void whenRequestContentTypeIsJsonAndCharsetIsUtf16ThenRestAssuredSerializesToJSON() throws Exception {
         final Greeting object = new Greeting();
         object.setFirstName("John");
         object.setLastName("Doe");

@@ -19,6 +19,8 @@ package com.jayway.restassured.internal.mapping
 import com.jayway.restassured.mapper.ObjectMapper
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static com.jayway.restassured.http.ContentType.ANY
+import com.jayway.restassured.internal.http.CharsetExtractor
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
 
 class ObjectMapping {
   private static final boolean isJacksonPresent = existInCP("org.codehaus.jackson.map.ObjectMapper") && existInCP("org.codehaus.jackson.JsonGenerator");
@@ -37,45 +39,45 @@ class ObjectMapping {
   }
 
   public static <T> T deserialize(Object object, Class<T> cls, String contentType, String defaultContentType, ObjectMapper map) {
-    def ct = contentType?.toLowerCase()
+    String charset = CharsetExtractor.getCharsetFromContentType(contentType)
     if(map != null) {
-      return deserializeWithObjectMapper(object, cls, map)
+      return deserializeWithObjectMapper(object, charset, cls, map)
     }
-    if(ct.contains("json")) {
+    if(containsIgnoreCase(contentType, "json")) {
       if(isJacksonPresent) {
-        return parseWithJackson(object, cls)
+        return parseWithJackson(object, charset, cls)
       } else if(isGsonPresent) {
-        return parseWithGson(object, cls)
+        return parseWithGson(object, charset, cls)
       }
       throw new IllegalStateException("Cannot parse object because no JSON deserializer found in classpath. Please put either Jackson or Gson in the classpath.")
-    } else if(ct.contains("xml")) {
+    } else if(containsIgnoreCase(contentType, "xml")) {
       if(isJaxbPresent) {
-        return parseWithJaxb(object, cls);
+        return parseWithJaxb(object, charset, cls);
       }
       throw new IllegalStateException("Cannot parse object because no XML deserializer found in classpath. Please put a JAXB compliant object mapper in classpath.")
     } else if(defaultContentType != null){
-      if(defaultContentType.contains("json")) {
+      if(containsIgnoreCase(defaultContentType, "json")) {
         if(isJacksonPresent) {
-          return parseWithJackson(object, cls)
+          return parseWithJackson(object, charset, cls)
         } else if(isGsonPresent) {
-          return parseWithGson(object, cls)
+          return parseWithGson(object, charset, cls)
         }
-      } else if(defaultContentType.contains("xml")) {
+      } else if(containsIgnoreCase(defaultContentType, "xml")) {
         if(isJaxbPresent) {
-          return parseWithJaxb(object, cls);
+          return parseWithJaxb(object, charset, cls);
         }
       }
     }
     throw new IllegalStateException(String.format("Cannot parse object because no supported Content-Type was not specified in response. Content-Type was '%s'.", contentType))
   }
 
-  private static <T> T deserializeWithObjectMapper(Object object, Class<T> cls, ObjectMapper mapper) {
+  private static <T> T deserializeWithObjectMapper(Object object, String charset, Class<T> cls, ObjectMapper mapper) {
     if(mapper == ObjectMapper.JACKSON && isJacksonPresent) {
-      return parseWithJackson(object, cls)
+      return parseWithJackson(object, charset, cls)
     } else if(mapper == ObjectMapper.GSON && isGsonPresent) {
-      return parseWithGson(object, cls)
+      return parseWithGson(object, charset, cls)
     } else if(mapper == ObjectMapper.JAXB && isJaxbPresent) {
-      return parseWithJaxb(object, cls)
+      return parseWithJaxb(object, charset, cls)
     } else {
       def lowerCase = mapper.toString().toLowerCase();
       throw new IllegalArgumentException("Cannot map response body with mapper $mapper because $lowerCase doesn't exist in the classpath.")
@@ -99,14 +101,14 @@ class ObjectMapping {
       throw new IllegalArgumentException("Cannot serialize because no JSON or XML serializer found in classpath.")
     } else {
       def ct = contentType.toLowerCase()
-      if(ct.contains("json")) {
+      if(containsIgnoreCase(ct, "json")) {
         if(isJacksonPresent) {
           return serializeWithJackson(object, contentType)
         } else if(isGsonPresent) {
           return serializeWithGson(object, contentType)
         }
         throw new IllegalStateException("Cannot serialize object because no JSON serializer found in classpath. Please put either Jackson or Gson in the classpath.")
-      } else if(ct.contains("xml")) {
+      } else if(containsIgnoreCase(ct, "xml")) {
         if(isJaxbPresent) {
           return serializeWithJaxb(object, contentType);
         } else {
@@ -145,15 +147,15 @@ class ObjectMapping {
     new JaxbMapping().serialize(object, contentType)
   }
 
-  private static def parseWithJaxb(Object object, Class cls) {
-    new JaxbMapping().deserialze(object, cls)
+  private static def parseWithJaxb(Object object, String charset, Class cls) {
+    new JaxbMapping().deserialze(object, charset, cls)
   }
 
-  private static def parseWithGson(object, Class cls) {
-    new GsonMapping().deserialze(object, cls)
+  private static def parseWithGson(object, String charset, Class cls) {
+    new GsonMapping().deserialze(object, charset, cls)
   }
 
-  static def parseWithJackson(Object object, Class cls) {
-    new JacksonMapping().deserialize(object, cls)
+  static def parseWithJackson(Object object, String charset, Class cls) {
+    new JacksonMapping().deserialize(object, charset, cls)
   }
 }

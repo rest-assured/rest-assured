@@ -31,7 +31,7 @@ public class ContentTypeITest extends WithJetty {
     @Test
     public void canValidateResponseContentType() throws Exception {
         exception.expect(AssertionError.class);
-        exception.expectMessage("Expected content-type \"something\" doesn't match actual content-type \"application/json\".");
+        exception.expectMessage("Expected content-type \"something\" doesn't match actual content-type \"application/json; charset=UTF-8\".");
 
         expect().contentType("something").when().get("/hello");
     }

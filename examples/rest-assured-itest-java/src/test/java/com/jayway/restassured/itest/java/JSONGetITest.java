@@ -270,6 +270,12 @@ public class JSONGetITest extends WithJetty {
         given(requestSpecification, responseSpecification).get("/greet");
     }
 
+    @Test
+    public void contentTypeSpecificationWithHamcrestMatcher() throws Exception {
+        final RequestSpecification requestSpecification = given().contentType(ContentType.TEXT).with().parameters("firstName", "John", "lastName", "Doe");
+        final ResponseSpecification responseSpecification = expect().contentType(equalTo("application/json; charset=UTF-8")).and().body("greeting", equalTo("Greetings John Doe"));
+        given(requestSpecification, responseSpecification).get("/greet");
+    }
 
     @Test
     public void requestSpecificationAllowsSpecifyingCookie() throws Exception {
