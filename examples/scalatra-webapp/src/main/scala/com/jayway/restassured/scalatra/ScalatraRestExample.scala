@@ -719,6 +719,11 @@ ScalatraRestExample extends ScalatraServlet {
     "{ \"firstName\" : \""+firstName+"\",\"lastName\" : \""+lastName+"\", \"responseType\" : \"simple\" }"
   }
 
+  get("/contentTypeJsonButContentIsNotJson") {
+    contentType = "application/json"
+    "This is not a valid JSON document"
+  }
+
   def findParamIn(content: String, param: String): String = {
     var value: String = StringUtils.substringBetween(content, param+"=", "&")
     if(value == null) {

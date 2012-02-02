@@ -27,7 +27,9 @@ import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.objects.ScalatraObject;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.output.WriterOutputStream;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -550,6 +552,22 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
+    public void logBodyPrettyPrintedUsingResponseLogSpecWhenContentTypeDoesntMatchContent() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+        expect().
+                log().everything().
+                body(equalTo("This is not a valid JSON document")).
+        when().
+                get("/contentTypeJsonButContentIsNotJson");
+
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type=application/json; charset=UTF-8\nContent-Length=33\nServer=Jetty(6.1.14)\n\nThis is not a valid JSON document\n"));
+    }
+
+    @Test
     public void logAllUsingRequestLogSpec() throws Exception {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -715,5 +733,21 @@ public class LoggingITest extends WithJetty {
                 get("/multiHeaderReflect");
 
         assertThat(writer.toString(), equalTo("Headers:\t\tContent-Type=*/*\n\t\t\t\tmyHeader1=myHeaderValue1\n\t\t\t\tmyHeader2=myHeaderValue2\n\t\t\t\tmyMultiHeader=myMultiHeaderValue1\n\t\t\t\tmyMultiHeader=myMultiHeaderValue2\n"));
+    }
+
+    @Test
+    public void logBodyPrettyPrintedUsingRequestLogSpecWhenContentTypeDoesntMatchContent() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+                log().everything().
+                contentType("application/json").
+                body("This is not JSON").
+        when().
+                post("/reflect");
+
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/json\nCookies:\t\t<none>\nBody:\nThis is not JSON\n"));
     }
 }

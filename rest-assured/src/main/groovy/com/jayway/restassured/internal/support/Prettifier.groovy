@@ -27,69 +27,72 @@ import static org.apache.commons.lang3.StringUtils.isBlank
 
 class Prettifier {
 
-  def String getPrettifiedBodyIfPossible(FilterableRequestSpecification request) {
-    def body = request.getBody();
-    if(body == null) {
-      return null
-    } else if(!(body instanceof String)) {
-      return body.toString()
-    }
-    def parser = Parser.fromContentType(request.getRequestContentType())
-    prettify(body as String, parser)
-  }
-
-  def String getPrettifiedBodyIfPossible(Response response) {
-    def contentType = response.getContentType()
-    def responseAsString = response.asString()
-    if(isBlank(contentType) || !response instanceof RestAssuredResponseImpl) {
-      return responseAsString
+    def String getPrettifiedBodyIfPossible(FilterableRequestSpecification request) {
+        def body = request.getBody();
+        if(body == null) {
+            return null
+        } else if(!(body instanceof String)) {
+            return body.toString()
+        }
+        def parser = Parser.fromContentType(request.getRequestContentType())
+        prettify(body as String, parser)
     }
 
-    RestAssuredResponseImpl responseImpl = response as RestAssuredResponseImpl;
-    def rpr = responseImpl.getRpr();
-    def parser = rpr.getParser(contentType)
-    prettify(responseAsString, parser);
-  }
+    def String getPrettifiedBodyIfPossible(Response response) {
+        def contentType = response.getContentType()
+        def responseAsString = response.asString()
+        if(isBlank(contentType) || !response instanceof RestAssuredResponseImpl) {
+            return responseAsString
+        }
 
-  def String prettify(String body, Parser parser) {
-    def String prettifiedBody;
-    switch (parser) {
-      case Parser.JSON:
-        prettifiedBody = JsonOutput.prettyPrint(body)
-        break
-      case Parser.XML:
-        prettifiedBody = prettifyWithXmlParser(new XmlParser(), body)
-        break
-      case Parser.HTML:
-        prettifiedBody = prettifyWithXmlParser(new XmlParser(new org.ccil.cowan.tagsoup.Parser()), body)
-        break
-      default:
-        prettifiedBody = body
-        break
+        RestAssuredResponseImpl responseImpl = response as RestAssuredResponseImpl;
+        def rpr = responseImpl.getRpr();
+        def parser = rpr.getParser(contentType)
+        prettify(responseAsString, parser);
     }
-    return prettifiedBody
-  }
 
-  private String prettifyWithXmlParser(XmlParser xmlParser, responseAsString) {
-    doPrettify { stringWriter ->
-      def node = xmlParser.parseText(responseAsString);
-      new XmlNodePrinter(new PrintWriter(stringWriter)).print(node)
+    def String prettify(String body, Parser parser) {
+        def String prettifiedBody;
+        try {
+            switch (parser) {
+                case Parser.JSON:
+                    prettifiedBody = JsonOutput.prettyPrint(body)
+                    break
+                case Parser.XML:
+                    prettifiedBody = prettifyWithXmlParser(new XmlParser(), body)
+                    break
+                case Parser.HTML:
+                    prettifiedBody = prettifyWithXmlParser(new XmlParser(new org.ccil.cowan.tagsoup.Parser()), body)
+                    break
+                default:
+                    prettifiedBody = body
+                    break
+            }
+        } catch(Exception e) {
+            // Parsing failed, probably because the content was not of expected type.
+            prettifiedBody = body
+        }
+        return prettifiedBody
     }
-  }
 
-  public String prettify(GPathResult gPathResult) {
-    doPrettify { stringWriter -> XmlUtil.serialize(gPathResult, stringWriter)  }
-  }
-
-  def doPrettify(Closure<String> closure) {
-    def stringWriter = new StringWriter()
-    closure.call(stringWriter);
-    def body = stringWriter.toString()
-    if (body.endsWith("\n")) {
-      body = body.substring(0, body.length() - 1)
+    private String prettifyWithXmlParser(XmlParser xmlParser, responseAsString) {
+        doPrettify { stringWriter ->
+            def node = xmlParser.parseText(responseAsString);
+            new XmlNodePrinter(new PrintWriter(stringWriter)).print(node)
+        }
     }
-    body
-  }
 
+    public String prettify(GPathResult gPathResult) {
+        doPrettify { stringWriter -> XmlUtil.serialize(gPathResult, stringWriter)  }
+    }
 
+    def doPrettify(Closure<String> closure) {
+        def stringWriter = new StringWriter()
+        closure.call(stringWriter);
+        def body = stringWriter.toString()
+        if (body.endsWith("\n")) {
+            body = body.substring(0, body.length() - 1)
+        }
+        body
+    }
 }
