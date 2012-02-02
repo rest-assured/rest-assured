@@ -21,13 +21,15 @@ import static org.apache.commons.lang3.StringUtils.isBlank
 
 class CharsetExtractor {
 
+    private static final String CHARSET = "charset"
+
     public static String getCharsetFromContentType(String contentType) {
         def foundCharset = null
         if(isBlank(contentType)) {
             foundCharset = null;
-        } else if(StringUtils.containsIgnoreCase(contentType, "charset")) {
+        } else if(StringUtils.containsIgnoreCase(contentType, CHARSET)) {
             contentType.split(";").each {
-                if(StringUtils.containsIgnoreCase(contentType, "charset")) {
+                if(StringUtils.containsIgnoreCase(contentType, CHARSET)) {
                     def questionMark = it.split("=")
                     if(questionMark != null && questionMark.length == 2) {
                         foundCharset = questionMark[1]?.trim();

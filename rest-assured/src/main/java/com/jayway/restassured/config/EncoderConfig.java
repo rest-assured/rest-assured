@@ -30,7 +30,7 @@ public class EncoderConfig {
 
     /**
      * Configure the encoder config to use {@value HTTP#DEFAULT_CONTENT_CHARSET} for content encoding and {@value #UTF_8}.
-     * for http protocol encoding.
+     * for query parameter encoding.
      */
     public EncoderConfig() {
         this(HTTP.DEFAULT_CONTENT_CHARSET, UTF_8);
