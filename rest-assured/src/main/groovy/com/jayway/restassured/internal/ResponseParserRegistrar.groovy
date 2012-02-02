@@ -20,7 +20,6 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.parsing.Parser
 import static com.jayway.restassured.assertion.AssertParameter.notNull
-import org.apache.commons.lang3.StringUtils
 import static com.jayway.restassured.internal.http.ContentTypeExtractor.getContentTypeWithoutCharset
 
 /**

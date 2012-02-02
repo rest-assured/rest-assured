@@ -16,9 +16,7 @@
 
 package com.jayway.restassured.itest.java;
 
-import com.jayway.restassured.config.EncoderConfig;
 import com.jayway.restassured.itest.java.support.WithJetty;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.given;

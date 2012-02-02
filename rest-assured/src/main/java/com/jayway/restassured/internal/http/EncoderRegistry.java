@@ -21,7 +21,6 @@ import groovy.lang.Closure;
 import groovy.lang.GString;
 import groovy.lang.Writable;
 import groovy.xml.StreamingMarkupBuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.NameValuePair;

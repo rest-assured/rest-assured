@@ -16,12 +16,12 @@
 
 package com.jayway.restassured.internal.mapping
 
+import com.jayway.restassured.internal.http.CharsetExtractor
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.JAXBElement
 import javax.xml.bind.Marshaller
 import javax.xml.bind.Unmarshaller
 import javax.xml.bind.annotation.XmlRootElement
-import com.jayway.restassured.internal.http.CharsetExtractor
 
 class JaxbMapping {
 

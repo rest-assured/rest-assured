@@ -17,11 +17,9 @@
 package com.jayway.restassured.parsing;
 
 import com.jayway.restassured.internal.http.ContentTypeExtractor;
-import org.apache.commons.lang3.StringUtils;
 
 import static org.apache.commons.lang3.ArrayUtils.contains;
 import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
-import static org.apache.commons.lang3.StringUtils.startsWithAny;
 
 /**
  * The different parsers that are provided by REST Assured.

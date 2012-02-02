@@ -27,9 +27,7 @@ import collection.mutable.ListBuffer
 import org.apache.commons.io.IOUtils
 import java.util.{Scanner, Date}
 import org.apache.commons.lang3.StringUtils
-import org.scalatra.util.{MapWithIndifferentAccess, MultiMapHeadView}
-import javax.servlet.http.{HttpServletRequest, Cookie}
-import collection.immutable.Map
+import javax.servlet.http.Cookie
 
 class
 ScalatraRestExample extends ScalatraServlet {

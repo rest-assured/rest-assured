@@ -17,16 +17,11 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
-import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-
-import java.io.UnsupportedEncodingException;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 public class ParamITest extends WithJetty {
 

@@ -16,10 +16,10 @@
 
 package com.jayway.restassured.internal.mapping
 
+import com.jayway.restassured.internal.http.CharsetExtractor
 import com.jayway.restassured.mapper.ObjectMapper
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static com.jayway.restassured.http.ContentType.ANY
-import com.jayway.restassured.internal.http.CharsetExtractor
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
 
 class ObjectMapping {

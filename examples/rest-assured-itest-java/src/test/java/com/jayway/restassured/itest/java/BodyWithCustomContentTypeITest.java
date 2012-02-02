@@ -16,7 +16,6 @@
 
 package com.jayway.restassured.itest.java;
 
-import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
