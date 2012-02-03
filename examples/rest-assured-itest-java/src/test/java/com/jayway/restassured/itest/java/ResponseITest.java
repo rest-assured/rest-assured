@@ -16,14 +16,17 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.parsing.Parser;
+import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import static com.jayway.restassured.RestAssured.*;
@@ -196,5 +199,16 @@ public class ResponseITest extends WithJetty {
         final String message = expect().defaultParser(Parser.JSON).when().get("/customMimeTypeJsonCompatible2").path("message");
 
         assertThat(message, equalTo("It works"));
+    }
+
+    @Test
+    public void responseTakeCharsetIntoAccount() throws Exception {
+        ResponseBuilder b = new ResponseBuilder();
+        b.setHeaders(new Headers());
+        b.setBody(new ByteArrayInputStream("äöü".getBytes("UTF-8")));
+        b.setStatusCode(200);
+        b.setContentType("application/json;charset=UTF-8");
+        final Response response = b.build();
+        assertThat("äöü", equalTo(response.asString()));
     }
 }
