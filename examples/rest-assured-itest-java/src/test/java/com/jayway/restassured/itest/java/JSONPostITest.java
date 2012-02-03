@@ -25,6 +25,8 @@ import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.junit.Test;
 
+import java.net.ConnectException;
+
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static com.jayway.restassured.http.ContentType.URLENC;
@@ -253,5 +255,11 @@ public class JSONPostITest extends WithJetty {
     @Test
     public void requestSpecificationAllowsSpecifyingCookie() throws Exception {
         given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().post("/cookie");
+    }
+
+
+    @Test
+    public void byteArrayBodyWithJsonContentTypeIsProcessedCorrectly(){
+        given().contentType("application/json").body("{\"hello\":\"world\"}".getBytes()).expect().statusCode(200).when().post("/binaryBody");
     }
 }

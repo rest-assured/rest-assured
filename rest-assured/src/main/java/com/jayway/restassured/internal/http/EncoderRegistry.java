@@ -25,6 +25,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
@@ -157,8 +158,9 @@ public class EncoderRegistry {
             out.flush();
             data = out;
         }
-        else if ( data instanceof Reader && ! (data instanceof BufferedReader) )
+        else if ( data instanceof Reader && ! (data instanceof BufferedReader) ) {
             data = new BufferedReader( (Reader)data );
+        }
         if ( data instanceof BufferedReader ) {
             StringWriter out = new StringWriter();
             DefaultGroovyMethods.leftShift( out, (BufferedReader)data );
@@ -166,7 +168,7 @@ public class EncoderRegistry {
             data = out;
         }
         // if data is a String, we are already covered.
-        return createEntity( useContentTypeIfDefinedOrElseUse(contentType, ContentType.TEXT), data.toString() );
+        return createEntity( useContentTypeIfDefinedOrElseUse(contentType, ContentType.TEXT), data );
     }
 
     /**
@@ -223,7 +225,7 @@ public class EncoderRegistry {
             StreamingMarkupBuilder smb = new StreamingMarkupBuilder();
             xml = smb.bind( xml );
         }
-        return createEntity( useContentTypeIfDefinedOrElseUse(contentType, ContentType.XML), xml.toString() );
+        return createEntity( useContentTypeIfDefinedOrElseUse(contentType, ContentType.XML), xml );
     }
 
     /**
@@ -266,13 +268,25 @@ public class EncoderRegistry {
             Closure closure = (Closure)model;
             closure.setDelegate( new JsonBuilder() );
             json = closure.call();
-        } else if ( model instanceof String || model instanceof GString ) {
-            json = model; // assume string is valid JSON already.
+        } else if ( model instanceof String || model instanceof GString || model instanceof byte[]) {
+            json = model; // assume valid JSON already.
         } else {
             throw new UnsupportedOperationException("Internal error: Can't encode "+model+" to JSON.");
         }
 
-        return this.createEntity( useContentTypeIfDefinedOrElseUse(contentType, ContentType.JSON), json.toString() );
+        return createEntity(useContentTypeIfDefinedOrElseUse(contentType, ContentType.JSON), json);
+    }
+
+    private HttpEntity createEntity(String ct, Object object) throws UnsupportedEncodingException {
+        if(object instanceof byte[]) {
+            return createEntity((byte[]) object);
+        } else {
+            return createEntity(ct, object.toString());
+        }
+    }
+
+    protected HttpEntity createEntity(byte[] byteArray) {
+        return new ByteArrayEntity(byteArray);
     }
 
     /**
@@ -287,12 +301,9 @@ public class EncoderRegistry {
      *  {@link HttpEntityEnclosingRequest#setEntity(HttpEntity) request content}
      * @throws UnsupportedEncodingException
      */
-    protected StringEntity createEntity( String ct, String data )
+    protected HttpEntity createEntity( String ct, String data )
             throws UnsupportedEncodingException {
-        String charsetToUse = CharsetExtractor.getCharsetFromContentType(ct);
-        if(charsetToUse == null) {
-            charsetToUse = charset.toString();
-        }
+        String charsetToUse = findCharsetOrUseDefault(ct);
         StringEntity entity = new StringEntity( data, charsetToUse );
         entity.setContentType( ct );
         return entity;
@@ -393,5 +404,13 @@ public class EncoderRegistry {
             tempContentType = tempContentType + "; charset="+charset.toString();
         }
         return tempContentType;
+    }
+
+    private String findCharsetOrUseDefault(String ct) {
+        String charsetToUse = CharsetExtractor.getCharsetFromContentType(ct);
+        if(charsetToUse == null) {
+            charsetToUse = charset.toString();
+        }
+        return charsetToUse;
     }
 }

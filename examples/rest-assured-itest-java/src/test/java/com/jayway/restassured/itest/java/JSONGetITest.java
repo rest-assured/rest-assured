@@ -25,6 +25,7 @@ import com.jayway.restassured.specification.ResponseSpecification;
 import groovy.json.JsonException;
 import org.junit.Test;
 
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 
