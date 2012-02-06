@@ -32,6 +32,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
+import com.jayway.restassured.internal.http.HTTPBuilder.RequestConfigDelegate;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -43,7 +44,7 @@ import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 /**
  * <p>This class handles creation of the request body (i.e. for a 
  * PUT or POST operation) based on content-type.   When a 
- * {@link RequestConfigDelegate#setBody(Object) body} is set from the builder, it is 
+ * {@link RequestConfigDelegate#setBody(Object) body} is set from the builder, it is
  * processed based on the {@link RequestConfigDelegate#getRequestContentType()
  * request content-type}.  For instance, the {@link #encodeForm(Map)} method 
  * will be invoked if the request content-type is form-urlencoded, which will 
@@ -214,8 +215,7 @@ public class EncoderRegistry {
     /**
      * Encode the content as XML.  The argument may be either an object whose
      * <code>toString</code> produces valid markup, or a Closure which will be
-     * interpreted as a builder definition.  A closure argument is
-     * passed to {@link StreamingMarkupBuilder#bind(groovy.lang.Closure)}.
+     * interpreted as a builder definition.
      * @param xml data that defines the XML structure
      * @return an {@link HttpEntity} encapsulating this request data
      * @throws UnsupportedEncodingException
@@ -230,13 +230,12 @@ public class EncoderRegistry {
 
     /**
      * <p>Accepts a Collection or a JavaBean object which is converted to JSON.
-     * A Map or POJO/POGO will be converted to a {@link JSONObject}, and any
-     * other collection type will be converted to a {@link JSONArray}.  A
+     * A Map or Collection will be converted to a {@link JsonBuilder}..  A
      * String or GString will be interpreted as valid JSON and passed directly
      * as the request body (with charset conversion if necessary.)</p>
      *
      * <p>If a Closure is passed as the model, it will be executed as if it were
-     * a JSON object definition passed to a {@link JsonGroovyBuilder}.  In order
+     * a JSON object definition passed to a {@link JsonBuilder}.  In order
      * for the closure to be interpreted correctly, there must be a 'root'
      * element immediately inside the closure.  For example:</p>
      *
@@ -362,7 +361,6 @@ public class EncoderRegistry {
      * accept a single argument, which will be whatever is set in the request
      * configuration closure via {@link RequestConfigDelegate#setBody(Object)}.
      * @param contentType
-     * @param closure
      */
     public void putAt( Object contentType, Closure value ) {
         if ( contentType instanceof ContentType ) {

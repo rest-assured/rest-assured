@@ -42,6 +42,7 @@ Change log next version
 * Default content encoding charset has been changed from UTF-8 to ISO-8859-1 to comply with the RFC. To change this use the EncoderConfig, e.g.
 	RestAssured.config = newConfig().encoderConfig(encoderConfig().defaultContentCharset("UTF-8"));
   You can also specify the default query parameter charset.
+* Fixed a bug when setting content type to JSON and using a byte array as body (issue 156).
 
 Change log 1.5 (2011-12-20)
 ---------------------------
