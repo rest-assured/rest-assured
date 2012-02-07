@@ -55,7 +55,7 @@
     <properties>
         <scm.branch>master</scm.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <groovy.version>1.8.4</groovy.version>
+        <groovy.version>1.8.5</groovy.version>
         <gmaven.version>1.3</gmaven.version>
     </properties>
     <scm>
