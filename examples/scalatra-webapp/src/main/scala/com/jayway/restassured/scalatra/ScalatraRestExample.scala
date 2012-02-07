@@ -29,8 +29,7 @@ import java.util.{Scanner, Date}
 import org.apache.commons.lang3.StringUtils
 import javax.servlet.http.Cookie
 
-class
-ScalatraRestExample extends ScalatraServlet {
+class ScalatraRestExample extends ScalatraServlet {
   // To allow for json extract
   implicit val formats = DefaultFormats
 
