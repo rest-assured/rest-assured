@@ -102,7 +102,7 @@ public class MultiValueEntity<T extends NameAndValue> implements Iterable<T> {
         notNull(entityName, "Entity name");
         final List<T> entityList = new ArrayList<T>();
         for (T entity : entities) {
-            if(entity.getName().equals(entityName)) {
+            if(entity.getName().equalsIgnoreCase(entityName)) {
                 entityList.add(entity);
             }
         }
