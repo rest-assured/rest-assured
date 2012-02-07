@@ -18,10 +18,6 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.AuthenticationScheme
 import com.jayway.restassured.authentication.NoAuthScheme
-import com.jayway.restassured.config.EncoderConfig
-import com.jayway.restassured.config.HttpClientConfig
-import com.jayway.restassured.config.RedirectConfig
-import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.internal.filter.FilterContextImpl
@@ -41,6 +37,7 @@ import org.apache.http.entity.HttpEntityWrapper
 import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.message.BasicHeader
 import static com.jayway.restassured.assertion.AssertParameter.notNull
+import com.jayway.restassured.config.*
 import static com.jayway.restassured.http.ContentType.*
 import com.jayway.restassured.internal.http.*
 import static com.jayway.restassured.internal.http.Method.*
@@ -648,6 +645,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
         // Allow returning a the response
         def restAssuredResponse = new RestAssuredResponseImpl()
+        restAssuredResponse.setDefaultCharset(config == null ? new DecoderConfig().defaultContentCharset() : config.getDecoderConfig().defaultContentCharset())
         responseSpecification.restAssuredResponse = restAssuredResponse
         def responseContentType =  assertionClosure.getResponseContentType()
 

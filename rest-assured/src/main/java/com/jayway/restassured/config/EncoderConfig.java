@@ -37,7 +37,7 @@ public class EncoderConfig {
     }
 
     public EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset) {
-        Validate.notBlank(defaultContentCharset, "Default content charset to cannot be blank");
+        Validate.notBlank(defaultContentCharset, "Default encoder content charset to cannot be blank");
         Validate.notBlank(defaultQueryParameterCharset, "Default protocol charset to cannot be blank");
         this.defaultContentCharset = defaultContentCharset;
         this.defaultQueryParameterCharset = defaultQueryParameterCharset;

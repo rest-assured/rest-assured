@@ -45,6 +45,7 @@ public class ResponseBuilder {
             restAssuredResponse.setContent(raResponse.getContent());
             restAssuredResponse.setHasExpectations(raResponse.getHasExpectations());
             restAssuredResponse.setDefaultContentType(raResponse.getDefaultContentType());
+            restAssuredResponse.setDefaultCharset(raResponse.getDefaultCharset());
         } else {
             restAssuredResponse.setContent(response.asInputStream());
         }
