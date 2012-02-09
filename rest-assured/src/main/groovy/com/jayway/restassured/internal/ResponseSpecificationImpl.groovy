@@ -70,7 +70,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         content(key, Collections.emptyList(), matcher, additionalKeyMatcherPairs)
     }
 
-    def ResponseSpecification statusCode(Matcher<Integer> expectedStatusCode) {
+    def ResponseSpecification statusCode(Matcher<? super Integer> expectedStatusCode) {
         notNull(expectedStatusCode, "expectedStatusCode")
         this.expectedStatusCode = expectedStatusCode
         return this
@@ -81,7 +81,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         return statusCode(equalTo(expectedStatusCode));
     }
 
-    def ResponseSpecification statusLine(Matcher<String> expectedStatusLine) {
+    def ResponseSpecification statusLine(Matcher<? super String> expectedStatusLine) {
         notNull(expectedStatusLine, "expectedStatusLine")
         this.expectedStatusLine = expectedStatusLine
         return this
@@ -326,7 +326,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         return this
     }
 
-    ResponseSpecification contentType(Matcher<String> contentType) {
+    ResponseSpecification contentType(Matcher<? super String> contentType) {
         notNull contentType, "contentType"
         this.contentType = contentType
         return this

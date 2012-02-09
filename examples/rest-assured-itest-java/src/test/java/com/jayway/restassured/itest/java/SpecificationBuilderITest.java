@@ -32,7 +32,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.collection.IsCollectionContaining.hasItems;
+import static org.hamcrest.Matchers.hasItems;
 
 public class SpecificationBuilderITest extends WithJetty {
 

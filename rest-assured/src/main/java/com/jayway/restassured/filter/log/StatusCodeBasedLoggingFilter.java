@@ -46,7 +46,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * Log to system out
      * @param matcher The matcher for the logging to take place
      */
-    public StatusCodeBasedLoggingFilter(Matcher<Integer> matcher) {
+    public StatusCodeBasedLoggingFilter(Matcher<? super Integer> matcher) {
         this(System.out, matcher);
     }
 
@@ -55,7 +55,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param stream The stream to log errors to.
      * @param matcher The matcher for the logging to take place
      */
-    public StatusCodeBasedLoggingFilter(PrintStream stream, Matcher<Integer> matcher) {
+    public StatusCodeBasedLoggingFilter(PrintStream stream, Matcher<? super Integer> matcher) {
         this(ALL, stream, matcher);
     }
 
@@ -66,7 +66,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param stream The stream to log errors to.
      * @param matcher The matcher for the logging to take place
      */
-    public StatusCodeBasedLoggingFilter(LogDetail logDetail, PrintStream stream, Matcher<Integer> matcher) {
+    public StatusCodeBasedLoggingFilter(LogDetail logDetail, PrintStream stream, Matcher<? super Integer> matcher) {
         this(logDetail, isPrettyPrintingEnabled(), stream, matcher);
     }
 
@@ -78,7 +78,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param stream The stream to log errors to.
      * @param matcher The matcher for the logging to take place
      */
-    public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<Integer> matcher) {
+    public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<? super Integer> matcher) {
         Validate.notNull(logDetail, "Log details cannot be null");
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(matcher, "Matcher cannot be null");

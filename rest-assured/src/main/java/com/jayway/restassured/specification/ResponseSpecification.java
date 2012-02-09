@@ -163,7 +163,7 @@ public interface ResponseSpecification extends RequestSender {
      * @param expectedStatusCode The expected status code matcher.
      * @return the response specification
      */
-    ResponseSpecification statusCode(Matcher<Integer> expectedStatusCode);
+    ResponseSpecification statusCode(Matcher<? super Integer> expectedStatusCode);
 
     /**
      * Expect that the response status code matches an integer. E.g.
@@ -189,7 +189,7 @@ public interface ResponseSpecification extends RequestSender {
      * @param expectedStatusLine The expected status line matcher.
      * @return the response specification
      */
-    ResponseSpecification statusLine(Matcher<String> expectedStatusLine);
+    ResponseSpecification statusLine(Matcher<? super String> expectedStatusLine);
 
     /**
      * Expect that the response status line matches the given String. E.g.
@@ -529,7 +529,7 @@ public interface ResponseSpecification extends RequestSender {
      * @param contentType The expected content type of the response.
      * @return the response specification
      */
-    ResponseSpecification contentType(Matcher<String> contentType);
+    ResponseSpecification contentType(Matcher<? super String> contentType);
 
     /**
      * Expect that the response body conforms to one or more Hamcrest matchers. E.g.

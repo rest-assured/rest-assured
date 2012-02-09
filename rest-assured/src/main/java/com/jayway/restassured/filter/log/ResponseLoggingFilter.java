@@ -70,7 +70,7 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * @param stream The stream to log errors to.
      */
     public ResponseLoggingFilter(PrintStream stream) {
-        this(stream, Matchers.<Integer>anything());
+        this(stream,Matchers.any(Integer.class));
     }
 
     /**
@@ -80,7 +80,7 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * @param stream The stream to log errors to.
      */
     public ResponseLoggingFilter(LogDetail logDetail, PrintStream stream) {
-        this(logDetail, stream, Matchers.<Integer>anything());
+        this(logDetail, stream,Matchers.any(Integer.class));
     }
 
     /**
@@ -91,7 +91,7 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * @param stream The stream to log errors to.
      */
     public ResponseLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream) {
-        this(logDetail, shouldPrettyPrint, stream, Matchers.<Integer>anything());
+        this(logDetail, shouldPrettyPrint, stream, Matchers.any(Integer.class));
     }
 
 

@@ -31,6 +31,10 @@
     <description>Java DSL for easy testing of REST services</description>
     <url>http://code.google.com/p/rest-assured</url>
 
+    <properties>
+        <hamcrest.version>1.2.1</hamcrest.version>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
@@ -65,8 +69,13 @@
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>${hamcrest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
             <artifactId>hamcrest-library</artifactId>
-            <version>1.1</version>
+            <version>${hamcrest.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>

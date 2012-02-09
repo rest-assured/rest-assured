@@ -103,7 +103,7 @@ public class RestAssuredMatchers {
     /**
      * Evaluates to true if an XML string matches the supplied DTD.
      *
-     * @param dtd The DTD to match
+     * @param url The DTD to match
      * @return The DTD matcher
      */
     public static Matcher<String> matchesDtd(URL url) {

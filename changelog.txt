@@ -46,6 +46,7 @@ Change log next version
 	RestAssured.config = newConfig().decoderConfig(decoderConfig().defaultContentCharset("UTF-8"));
 * Fixed a bug when setting content type to JSON and using a byte array as body (issue 156).
 * Multi-headers and multi-cookie cookie parsing now uses ignore-case equals to identify the entity.
+* Upgraded to Hamcrest 1.2.1.
 
 Change log 1.5 (2011-12-20)
 ---------------------------
