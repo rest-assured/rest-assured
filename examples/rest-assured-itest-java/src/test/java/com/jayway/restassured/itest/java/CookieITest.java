@@ -177,4 +177,14 @@ public class CookieITest extends WithJetty {
         assertThat(secondCookie.isSecured(), is(true));
         assertThat(secondCookie.getVersion(), is(1));
     }
+
+    @Test
+    public void cookiesSupportEqualCharacterInCookieValue() throws Exception {
+        given().
+                cookie("jsessionid", "9HTaCatOIaiO7ccHojDzuxwVoIU=").
+        expect().
+                cookie("JSESSIONID", "9HTaCatOIaiO7ccHojDzuxwVoIU=").
+        when().
+                post("/reflect");
+    }
 }

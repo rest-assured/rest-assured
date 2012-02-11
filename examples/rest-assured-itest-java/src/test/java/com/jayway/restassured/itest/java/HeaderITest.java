@@ -53,6 +53,14 @@ public class HeaderITest extends WithJetty {
     }
 
     @Test
+    public void responseSpecificationAllowsParsingMultiValueHeadersWithValuesIncludingEqualCharacter() throws Exception {
+        final List<String> myHeaderValues = given().header("MyHeader", "Some=thing", "Something=else=").when().get("/multiHeaderReflect").headers().getValues("MyHeader");
+
+        assertThat(myHeaderValues.size(), is(2));
+        assertThat(myHeaderValues, hasItems("Some=thing", "Something=else="));
+    }
+
+    @Test
     public void requestSpecificationAllowsSpecifyingHeadersObject() throws Exception {
         final Header header1 = new Header("MyHeader", "Something");
         final Header header2 = new Header("MyHeader", "Something else");
