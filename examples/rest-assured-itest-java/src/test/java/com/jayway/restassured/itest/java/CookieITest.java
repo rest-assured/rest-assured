@@ -187,4 +187,14 @@ public class CookieITest extends WithJetty {
         when().
                 post("/reflect");
     }
+
+    @Test
+    public void cookiesParsingSupportsNoValueCookies() throws Exception {
+        given().
+                cookie("no-value-cookie").
+        expect().
+                cookie("no-value-cookie").
+        when().
+                post("/reflect");
+    }
 }
