@@ -469,6 +469,28 @@ public interface ResponseSpecification extends RequestSender {
     ResponseSpecification rootPath(String rootPath);
 
     /**
+     * Set the root path with arguments of the response body so that you don't need to write the entire path for each expectation.
+     *
+     * Note that this method is exactly the same as {@link #root(String, java.util.List)}.
+     *
+     * @param rootPath The root path to use.
+     * @param arguments A list of arguments. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * @see #rootPath(String)
+     */
+    ResponseSpecification rootPath(String rootPath, List<Argument> arguments);
+
+    /**
+     * Set the root path with arguments of the response body so that you don't need to write the entire path for each expectation.
+     *
+     * Note that this method is exactly the same as {@link #rootPath(String, java.util.List)}.
+     *
+     * @param rootPath The root path to use.
+     * @param arguments The list of substitution arguments. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java..
+     * @see #rootPath(String)
+     */
+    ResponseSpecification root(String rootPath, List<Argument> arguments);
+
+    /**
      * Set the root path of the response body so that you don't need to write the entire path for each expectation.
      * E.g. instead of writing:
      *
@@ -620,16 +642,16 @@ public interface ResponseSpecification extends RequestSender {
      * The only difference between the <code>content</code> and <code>body</code> methods are of syntactic nature.
      * </p>
      *
-     * @param key The body key
+     * @param path The body path
      * @param matcher The hamcrest matcher that must response body must match.
      * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
      * @return the response specification
      */
-    ResponseSpecification body(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs);
+    ResponseSpecification body(String path, Matcher<?> matcher, Object...additionalKeyMatcherPairs);
 
     /**
-     * Same as {@link #content(String, java.util.List, org.hamcrest.Matcher, Object...)} expect that you can pass arguments to the key. This
-     * is useful in situations where you have e.g. pre-defined variables that constitutes the key:
+     * Same as {@link #content(String, java.util.List, org.hamcrest.Matcher, Object...)} expect that you can pass arguments to the path. This
+     * is useful in situations where you have e.g. pre-defined variables that constitutes the path:
      * <pre>
      * String someSubPath = "else";
      * int index = 1;
@@ -645,18 +667,18 @@ public interface ResponseSpecification extends RequestSender {
      *          ..
      * </pre>
      *
-     * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * <p>
      * Note that <code>withArgs</code> can be statically imported from the <code>com.jayway.restassured.RestAssured</code> class.
      * </p>
      *
-     * @param key The body key
+     * @param path The body path
      * @param matcher The hamcrest matcher that must response body must match.
      * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
      * @see #content(String, org.hamcrest.Matcher, Object...)
      * @return the response specification
      */
-    ResponseSpecification content(String key, List<Argument> arguments, Matcher matcher, Object...additionalKeyMatcherPairs);
+    ResponseSpecification content(String path, List<Argument> arguments, Matcher matcher, Object...additionalKeyMatcherPairs);
 
     /**
      * Syntactic sugar, e.g.

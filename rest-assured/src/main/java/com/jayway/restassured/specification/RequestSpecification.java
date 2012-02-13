@@ -445,7 +445,7 @@ public interface RequestSpecification extends RequestSender {
      * </p>
      *
      * @see #parameters(String, Object, Object...)
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValues Zero to many parameter values for this parameter name
      * @return The request specification
      */
@@ -460,7 +460,7 @@ public interface RequestSpecification extends RequestSender {
      * This will set the parameter <code>cars=Volvo</code> and <code>cars=Saab</code>.
      * </p>
      *
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
      */
@@ -490,7 +490,7 @@ public interface RequestSpecification extends RequestSender {
      * A slightly shorter version of {@link #parameter(String, Object...) }.
      *
      * @see #parameter(String, Object...)
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValues Parameter values, one to many if you want to specify multiple values for the same parameter.
      * @return The request specification
      */
@@ -500,7 +500,7 @@ public interface RequestSpecification extends RequestSender {
      * A slightly shorter version of {@link #parameter(String, java.util.List)}  }.
      *
      *
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
      */
@@ -535,7 +535,7 @@ public interface RequestSpecification extends RequestSender {
      * query parameter.
      *
      * @see #parameter(String, Object...)
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValues Zero to many parameter values, i.e. you can specify multiple values for the same parameter
      * @return The request specification
      */
@@ -555,7 +555,7 @@ public interface RequestSpecification extends RequestSender {
      * this method sets a query parameter.
      *
      *
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
      */
@@ -585,7 +585,7 @@ public interface RequestSpecification extends RequestSender {
      * A slightly shorter version of {@link #queryParameter(String,  Object...)}.
      *
      * @see #parameter(String, Object...)
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValues Zero to many parameter values. Use additional parameter values if you want to specify multiple values for the same parameter
      * @return The request specification
      */
@@ -595,7 +595,7 @@ public interface RequestSpecification extends RequestSender {
      * A slightly shorter version of {@link #queryParameter(String, java.util.List)}.
      *
      * @see #queryParam(String, java.util.List)
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
      */
@@ -632,7 +632,7 @@ public interface RequestSpecification extends RequestSender {
      * form parameter.
      *
      * @see #parameter(String, Object...)
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValues Zero to many parameter values for this parameter.
      * @return The request specification
      */
@@ -652,7 +652,7 @@ public interface RequestSpecification extends RequestSender {
      * this method sets a form parameter.
      *
      *
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
      */
@@ -682,7 +682,7 @@ public interface RequestSpecification extends RequestSender {
      * A slightly shorter version of {@link #formParameter(String, Object...)}.
      *
      * @see #parameter(String, Object...)
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValues Zero to many parameter values. You can specify multiple values for the same parameter.
      * @return The request specification
      */
@@ -692,7 +692,7 @@ public interface RequestSpecification extends RequestSender {
      * A slightly shorter version of {@link #formParameter(String, java.util.List)}.
      *
      * @see #formParam(String, java.util.List)
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
      */
@@ -720,7 +720,7 @@ public interface RequestSpecification extends RequestSender {
      * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
      * </pre>
      *
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValue The parameter value
      * @return The request specification
      */
@@ -789,7 +789,7 @@ public interface RequestSpecification extends RequestSender {
      * A slightly shorter version of {@link #pathParameter(String, Object)}.
      *
      * @see #pathParameter(String, Object)
-     * @param parameterName The parameter key
+     * @param parameterName The parameter name
      * @param parameterValue The parameter value
      * @return The request specification
      */

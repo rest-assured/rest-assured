@@ -98,14 +98,14 @@ public class ResponseSpecBuilder {
      * @param matcher The hamcrest matcher that the response content must match.
      * @return The builder
      */
-    public ResponseSpecBuilder expectContent(String key, Matcher<?> matcher) {
-        spec.content(key, matcher);
+    public ResponseSpecBuilder expectContent(String path, Matcher<?> matcher) {
+        spec.content(path, matcher);
         return this;
     }
 
     /**
-     * Same as {@link #expectContent(String, org.hamcrest.Matcher)} expect that you can pass arguments to the key. This
-     * is useful in situations where you have e.g. pre-defined variables that constitutes the key:
+     * Same as {@link #expectContent(String, org.hamcrest.Matcher)} expect that you can pass arguments to the path. This
+     * is useful in situations where you have e.g. pre-defined variables that constitutes the path:
      * <pre>
      * String someSubPath = "else";
      * int index = 1;
@@ -121,18 +121,18 @@ public class ResponseSpecBuilder {
      *          ..
      * </pre>
      *
-     * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * <p>
      * Note that <code>withArgs</code> can be statically imported from the <code>com.jayway.restassured.RestAssured</code> class.
      * </p>
      *
-     * @param key The body key
+     * @param path The body path
      * @param matcher The hamcrest matcher that must response body must match.
      * @see #expectContent(String, org.hamcrest.Matcher)
      * @return the response specification
      */
-    public ResponseSpecBuilder expectContent(String key, List<Argument> arguments, Matcher<?> matcher) {
-        spec.content(key, arguments, matcher);
+    public ResponseSpecBuilder expectContent(String path, List<Argument> arguments, Matcher<?> matcher) {
+        spec.content(path, arguments, matcher);
         return this;
     }
 
@@ -332,6 +332,19 @@ public class ResponseSpecBuilder {
     }
 
     /**
+     * Set the root path of the response body so that you don't need to write the entire path for each expectation. The same as {@link #rootPath(String)}
+     * but also provides a way to defined arguments.
+     *
+     * @param rootPath The root path to use.
+     * @param arguments The arguments.
+     * @see ResponseSpecification#rootPath(String, java.util.List)
+     */
+    public ResponseSpecBuilder rootPath(String rootPath, List<Argument> arguments) {
+        spec.rootPath(rootPath, arguments);
+        return this;
+    }
+
+    /**
      * Set the response content type to be <code>contentType</code>.
      * <p>Note that this will affect the way the response is decoded.
      * E,g. if you can't use JSON/XML matching (see e.g. {@link #expectBody(String, org.hamcrest.Matcher)}) if you specify a
@@ -400,14 +413,14 @@ public class ResponseSpecBuilder {
      * @param matcher The hamcrest matcher that the response content must match.
      * @return The builder
      */
-    public ResponseSpecBuilder expectBody(String key, Matcher<?> matcher) {
-        spec.body(key, matcher);
+    public ResponseSpecBuilder expectBody(String path, Matcher<?> matcher) {
+        spec.body(path, matcher);
         return this;
     }
 
     /**
-     * Same as {@link #expectBody(String, org.hamcrest.Matcher)} expect that you can pass arguments to the key. This
-     * is useful in situations where you have e.g. pre-defined variables that constitutes the key:
+     * Same as {@link #expectBody(String, org.hamcrest.Matcher)} expect that you can pass arguments to the path. This
+     * is useful in situations where you have e.g. pre-defined variables that constitutes the path:
      * <pre>
      * String someSubPath = "else";
      * int index = 1;
@@ -423,18 +436,18 @@ public class ResponseSpecBuilder {
      *          ..
      * </pre>
      *
-     * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * <p>
      * Note that <code>withArgs</code> can be statically imported from the <code>com.jayway.restassured.RestAssured</code> class.
      * </p>
      *
-     * @param key The body key
+     * @param path The body path
      * @param matcher The hamcrest matcher that must response body must match.
      * @see #expectBody(String, org.hamcrest.Matcher)
      * @return the response specification
      */
-    public ResponseSpecBuilder expectBody(String key, List<Argument> arguments, Matcher<?> matcher) {
-        spec.body(key, arguments, matcher);
+    public ResponseSpecBuilder expectBody(String path, List<Argument> arguments, Matcher<?> matcher) {
+        spec.body(path, arguments, matcher);
         return this;
     }
 

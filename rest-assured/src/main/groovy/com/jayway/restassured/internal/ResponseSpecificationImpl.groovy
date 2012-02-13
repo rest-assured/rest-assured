@@ -175,12 +175,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         notNull(key, "key")
         notNull(matcher, "matcher")
 
-        def mergedKey = mergeKeyWithRootPath(key)
-        if(arguments?.size() > 0 ) {
-            mergedKey = String.format(mergedKey, arguments.collect { it.getArgument() }.toArray(new Object[arguments.size()]))
-        }
+        def mergedPath = mergeKeyWithRootPath(key)
+        mergedPath = applyArguments(mergedPath, arguments)
 
-        bodyMatchers << new BodyMatcher(key: mergedKey, matcher: matcher, rpr: rpr)
+        bodyMatchers << new BodyMatcher(key: mergedPath, matcher: matcher, rpr: rpr)
         if(additionalKeyMatcherPairs?.length > 0) {
             def pairs = MapCreator.createMapFromObjects(additionalKeyMatcherPairs)
             pairs.each { matchingKey, hamcrestMatcher ->
@@ -189,18 +187,6 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
             }
         }
         return this
-    }
-
-    private String mergeKeyWithRootPath(String key) {
-        if(bodyRootPath != EMPTY) {
-            if(bodyRootPath.endsWith(DOT) && key.startsWith(DOT)) {
-                return bodyRootPath + substringAfter(key, DOT);
-            } else if(!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT)) {
-                return bodyRootPath + DOT + key
-            }
-            return bodyRootPath + key
-        }
-        key
     }
 
     def ResponseLogSpecification log() {
@@ -289,13 +275,22 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     }
 
     def ResponseSpecification rootPath(String rootPath) {
-        notNull rootPath, "Root path"
-        this.bodyRootPath = rootPath
-        return this
+        return this.rootPath(rootPath, [])
     }
 
     def ResponseSpecification root(String rootPath) {
         return this.rootPath(rootPath);
+    }
+
+    def ResponseSpecification rootPath(String rootPath, List<Argument> arguments) {
+        notNull rootPath, "Root path"
+        notNull arguments, "Arguments"
+        this.bodyRootPath = applyArguments(rootPath, arguments)
+        return this
+    }
+
+    def ResponseSpecification root(String rootPath, List<Argument> arguments) {
+        return this.rootPath(rootPath, arguments)
     }
 
     def boolean hasBodyAssertionsDefined() {
@@ -436,5 +431,24 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
     String getRootPath() {
         return bodyRootPath
+    }
+
+    private String applyArguments(String path, List<Argument> arguments) {
+        if (arguments?.size() > 0) {
+            path = String.format(path, arguments.collect { it.getArgument() }.toArray(new Object[arguments.size()]))
+        }
+        return path
+    }
+
+    private String mergeKeyWithRootPath(String key) {
+        if(bodyRootPath != EMPTY) {
+            if(bodyRootPath.endsWith(DOT) && key.startsWith(DOT)) {
+                return bodyRootPath + substringAfter(key, DOT);
+            } else if(!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT)) {
+                return bodyRootPath + DOT + key
+            }
+            return bodyRootPath + key
+        }
+        key
     }
 }

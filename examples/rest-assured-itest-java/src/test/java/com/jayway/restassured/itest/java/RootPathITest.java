@@ -165,4 +165,16 @@ public class RootPathITest extends WithJetty {
         when().
                  get("/jsonStore");
     }
+
+    @Test
+    public void specifyingRootPathWithArguments() throws Exception {
+        expect().
+                 root("store.%s", withArgs("book")).
+                 content(
+                    "category.size()", equalTo(4),
+                    "author.size()", equalTo(4)
+                 ).
+        when().
+                 get("/jsonStore");
+    }
 }
