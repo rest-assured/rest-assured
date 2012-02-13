@@ -87,7 +87,7 @@ class CookieMatcher {
             cookieKey = part
             cookieValue = null
         }
-        return [cookieKey, cookieValue]
+        return [StringUtils.trim(cookieKey), StringUtils.trim(cookieValue)]
     }
 
     private static def setCookieProperty(Cookie.Builder builder, name, value) {
