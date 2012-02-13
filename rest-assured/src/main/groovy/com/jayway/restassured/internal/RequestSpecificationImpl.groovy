@@ -1149,14 +1149,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         this
     }
 
-    /**
-     * A copy of HTTP builders doRequest method with two exceptions.
-     * <ol>
-     *  <li>The exception is that the entity's content is not closed if no body matchers are specified.</li>
-     *  <li>If headers contain a list of elements the headers are added and not overridden</li>
-     *  </ol>
-     */
-
     private boolean isSerializableCandidate(object) {
         if(object == null) {
             return false
@@ -1189,6 +1181,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             this.assertionClosure = assertionClosure
         }
 
+        /**
+         * A copy of HTTP builders doRequest method with two exceptions.
+         * <ol>
+         *  <li>The exception is that the entity's content is not closed if no body matchers are specified.</li>
+         *  <li>If headers contain a list of elements the headers are added and not overridden</li>
+         *  </ol>
+         */
         protected Object doRequest(HTTPBuilder.RequestConfigDelegate delegate) {
             if(delegate.getRequest() instanceof HttpPost) {
                 if (assertionClosure != null ) {

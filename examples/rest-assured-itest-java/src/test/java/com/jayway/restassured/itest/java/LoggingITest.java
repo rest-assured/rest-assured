@@ -748,4 +748,44 @@ public class LoggingITest extends WithJetty {
 
         assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/json\nCookies:\t\t<none>\nBody:\nThis is not JSON\n"));
     }
+
+    @Test
+    public void logAllWhenBasePathIsDefinedUsingRequestLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        RestAssured.basePath = "/reflect";
+
+        try {
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+                log().all().
+                body("hello").
+        when().
+                post("/");
+        } finally {
+            RestAssured.reset();
+        }
+
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/\nRequest base path:\t/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\nhello\n"));
+    }
+
+    @Test
+    public void logAllWhenBaseURIIsDefinedUsingRequestLogSpec() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        RestAssured.baseURI = "http://localhost:8080/reflect";
+
+        try {
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+                log().all().
+                body("hello").
+        when().
+                post("/");
+        } finally {
+            RestAssured.reset();
+        }
+
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/\nRequest base URI:\thttp://localhost:8080/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\nhello\n"));
+    }
 }

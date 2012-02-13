@@ -49,6 +49,7 @@ Change log next version
 * Upgraded to Hamcrest 1.2.1 and changed the ResponseSpecification to allow for more flexible argument matchers.
 * Fixed a bug with the cookie parsing which couldn't deal with cookie values including an equal character (issue 159).
 * Added support for argument lists in root and rootPath methods in the response specification (issue 117).
+* Request logging filter now logs base path and base uri (issue 145).
 
 Change log 1.5 (2011-12-20)
 ---------------------------
