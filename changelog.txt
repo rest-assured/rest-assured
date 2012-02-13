@@ -50,6 +50,7 @@ Change log next version
 * Fixed a bug with the cookie parsing which couldn't deal with cookie values including an equal character (issue 159).
 * Added support for argument lists in root and rootPath methods in the response specification (issue 117).
 * Request logging filter now logs base path and base uri (issue 145).
+* Added method getCompleteRequestPath to com.jayway.restassured.filter.FilterContext. This method provides the fully-qualified URL including scheme and port number to the request path.
 
 Change log 1.5 (2011-12-20)
 ---------------------------

@@ -63,6 +63,11 @@ public interface FilterContext {
     String getRequestPath();
 
     /**
+     * @return The complete request path. This is the fully-qualified path including port number and scheme.
+     */
+    String getCompleteRequestPath();
+
+    /**
      * Continue to the next filter in the chain.
      *
      * @param request The request specification

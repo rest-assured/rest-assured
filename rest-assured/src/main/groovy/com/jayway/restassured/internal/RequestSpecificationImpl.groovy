@@ -623,7 +623,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     def invokeFilterChain(path, method, assertionClosure) {
         filters << new RootFilter()
-        def ctx = new FilterContextImpl(path, method, assertionClosure, filters);
+        def ctx = new FilterContextImpl(assembleCompleteTargetPath(path), path, method, assertionClosure, filters);
         def response = ctx.next(this, responseSpecification)
         responseSpecification.assertionClosure.validate(response)
         return response;
@@ -1311,5 +1311,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     private boolean isEmpty(Object[] objects) {
         return objects == null || objects.length == 0
+    }
+
+    private def String assembleCompleteTargetPath(requestPath) {
+        return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(getTargetURI(path), getTargetPath(path)), requestPath);
     }
 }

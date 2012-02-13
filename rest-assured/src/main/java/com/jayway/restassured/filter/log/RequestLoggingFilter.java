@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import static com.jayway.restassured.filter.log.LogDetail.*;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * Will log the request before it's passed to HTTP Builder. Note that HTTP Builder and HTTP Client will add additional headers. This filter will <i>only</i>
@@ -110,13 +109,7 @@ public class RequestLoggingFilter implements Filter {
         final StringBuilder builder = new StringBuilder();
         if(logDetail == ALL) {
             addSingle(builder, "Request method:", ctx.getRequestMethod().toString());
-            addSingle(builder, "Request path:", ctx.getRequestPath());
-            if(!isBlank(requestSpec.getBasePath())) {
-                addSingle(builder, "Request base path:", requestSpec.getBasePath());
-            }
-            if(!isBlank(requestSpec.getBaseUri())) {
-                addSingle(builder, "Request base URI:", requestSpec.getBaseUri());
-            }
+            addSingle(builder, "Request path:", ctx.getCompleteRequestPath());
         }
         if(logDetail == ALL || logDetail == PARAMS) {
             addMapDetails(builder, "Request params:", requestSpec.getRequestParams());

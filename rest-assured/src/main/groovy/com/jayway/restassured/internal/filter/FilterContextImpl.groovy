@@ -26,43 +26,49 @@ import com.jayway.restassured.specification.RequestSender
 import org.codehaus.groovy.runtime.ReflectionMethodInvoker
 
 class FilterContextImpl implements FilterContext {
-  def private Iterator<Filter> filters
-  def private path;
-  def private Method method;
-  def assertionClosure
-  def properties = [:]
+    def private Iterator<Filter> filters
+    def private completePath;
+    def private path;
+    def private Method method;
+    def assertionClosure
+    def properties = [:]
 
-  FilterContextImpl(String path, Method method, assertionClosure, List<Filter> filterList) {
-    this.filters = filterList.iterator()
-    this.path = path
-    this.method = method
-    this.assertionClosure = assertionClosure
-  }
-
-  Response next(FilterableRequestSpecification request, FilterableResponseSpecification response) {
-    if(filters.hasNext()) {
-      def next = filters.next();
-      return next.filter(request, response, this)
+    FilterContextImpl(String completePath, String path, Method method, assertionClosure, List<Filter> filterList) {
+        this.filters = filterList.iterator()
+        this.completePath = completePath
+        this.path = path
+        this.method = method
+        this.assertionClosure = assertionClosure
     }
-  }
 
-  String getRequestPath() {
-    path
-  }
+    Response next(FilterableRequestSpecification request, FilterableResponseSpecification response) {
+        if(filters.hasNext()) {
+            def next = filters.next();
+            return next.filter(request, response, this)
+        }
+    }
 
-  Method getRequestMethod() {
-    method
-  }
+    String getRequestPath() {
+        path
+    }
 
-  Response send(RequestSender requestSender) {
-    return ReflectionMethodInvoker.invoke(requestSender, method.toString().toLowerCase(), path)
-  }
+    Method getRequestMethod() {
+        method
+    }
 
-  void setValue(String name, Object value) {
-    properties.put(name, value)
-  }
+    String getCompleteRequestPath() {
+        return completePath
+    }
 
-  def getValue(String name) {
-    return properties.get(name)
-  }
+    Response send(RequestSender requestSender) {
+        return ReflectionMethodInvoker.invoke(requestSender, method.toString().toLowerCase(), path)
+    }
+
+    void setValue(String name, Object value) {
+        properties.put(name, value)
+    }
+
+    def getValue(String name) {
+        return properties.get(name)
+    }
 }
