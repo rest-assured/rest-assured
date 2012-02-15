@@ -36,8 +36,8 @@ Change log next version
 * Added support for getting integer JSON types without escaping, e.g. {"0":"value"} can now be parsed as ..body("0", equalTo("value"). (issue 150)
 * REST Assured now takes the charset into consideration for both the request and the response. E.g. 
 	given().contentType("application/xml; charset=US-ASCII").and().body("my body"). .. will encode the body as US-ASCII. 
-  you can also specify the charset for each request:
-	RestAssured.conifg = newConfig().encoderConfig(encoderConfig().defaultContentCharset("US-ASCII"));
+  you can also specify the default charset for each request:
+	RestAssured.config = newConfig().encoderConfig(encoderConfig().defaultContentCharset("US-ASCII"));
   (issue 132)
 * Default encoding content encoding charset has been changed from UTF-8 to ISO-8859-1 to comply with the RFC 2616. To change this use the EncoderConfig, e.g.
 	RestAssured.config = newConfig().encoderConfig(encoderConfig().defaultContentCharset("UTF-8"));
