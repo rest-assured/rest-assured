@@ -177,13 +177,12 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(render(json))
   }
 
+  put("/reflect") {
+     reflect
+  }
+
   post("/reflect") {
-    contentType = request.getContentType
-    val cookies = request.getCookies
-    if(cookies != null) {
-      cookies.foreach { response.addCookie(_) }
-    }
-    request.body
+    reflect
   }
 
   post("/charEncoding") {
@@ -719,6 +718,17 @@ class ScalatraRestExample extends ScalatraServlet {
   get("/contentTypeJsonButContentIsNotJson") {
     contentType = "application/json"
     "This is not a valid JSON document"
+  }
+
+  def reflect: String = {
+    contentType = request.getContentType
+    val cookies = request.getCookies
+    if (cookies != null) {
+      cookies.foreach {
+        response.addCookie(_)
+      }
+    }
+    request.body
   }
 
   def findParamIn(content: String, param: String): String = {

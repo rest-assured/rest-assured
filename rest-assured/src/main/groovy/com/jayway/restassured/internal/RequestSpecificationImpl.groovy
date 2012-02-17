@@ -876,7 +876,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             } else if (requestBody == null) {
                 contentType = mayHaveBody(method) ? URLENC : ANY
             } else if (requestBody instanceof byte[]) {
-                if(method != POST && method != PUT) {
+                if(method != POST && method != PUT && method != DELETE) {
                     throw new IllegalStateException("$method doesn't support binary request data.");
                 }
                 contentType = BINARY

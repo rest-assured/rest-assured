@@ -262,4 +262,17 @@ public class JSONPostITest extends WithJetty {
     public void byteArrayBodyWithJsonContentTypeIsProcessedCorrectly(){
         given().contentType("application/json").body("{\"hello\":\"world\"}".getBytes()).expect().statusCode(200).when().post("/binaryBody");
     }
+
+    @Test
+    public void customJsonCompatibleContentTypeWithBody() throws Exception {
+        byte[] bytes = "Some Text".getBytes();
+        given().
+                contentType("application/vnd.myitem+json").
+                body(bytes).
+        expect().
+                body(equalTo("Some Text")).
+        when().
+                put("/reflect");
+
+    }
 }

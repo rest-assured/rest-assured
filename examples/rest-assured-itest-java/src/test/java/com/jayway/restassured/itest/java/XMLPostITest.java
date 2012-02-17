@@ -20,6 +20,7 @@ import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.with;
 import static org.hamcrest.Matchers.*;
 
@@ -63,5 +64,18 @@ public class XMLPostITest extends WithJetty {
     @Test
     public void postWithOnlyQueryParams() throws Exception {
         with().queryParams("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).post("/greetXML");
+    }
+
+    @Test
+    public void customXmlCompatibleContentTypeWithBody() throws Exception {
+        byte[] bytes = "Some Text".getBytes();
+        given().
+                contentType("application/vnd.myitem+xml").
+                body(bytes).
+        expect().
+                body(equalTo("Some Text")).
+        when().
+                put("/reflect");
+
     }
 }

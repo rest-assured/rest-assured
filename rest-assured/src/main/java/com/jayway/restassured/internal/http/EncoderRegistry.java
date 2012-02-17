@@ -16,6 +16,7 @@
 package com.jayway.restassured.internal.http;
 
 import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.internal.http.HTTPBuilder.RequestConfigDelegate;
 import groovy.json.JsonBuilder;
 import groovy.lang.Closure;
 import groovy.lang.GString;
@@ -32,7 +33,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
-import com.jayway.restassured.internal.http.HTTPBuilder.RequestConfigDelegate;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -347,7 +347,13 @@ public class EncoderRegistry {
         int idx = ct.indexOf( ';' );
         if ( idx > 0 ) ct = ct.substring( 0, idx );
 
-        final Closure closure = registeredEncoders.get(ct);
+        Closure closure = registeredEncoders.get(ct);
+        if(closure == null) {
+            final ContentType foundCt = ContentType.fromContentType(ct);
+            if(foundCt != null) {
+                closure = registeredEncoders.get(foundCt.toString());
+            }
+        }
         if(closure == null) {
             return getAt(ContentType.URLENC.toString());
         }

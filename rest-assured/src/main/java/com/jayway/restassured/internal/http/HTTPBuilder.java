@@ -996,7 +996,7 @@ public abstract class HTTPBuilder {
         }
 
         private void setBody(Object requestBody) {
-            setBody(null, requestBody);
+            setBody(getRequestContentType(), requestBody);
         }
 
         /**
@@ -1012,7 +1012,7 @@ public abstract class HTTPBuilder {
             if ( ! (request instanceof HttpEntityEnclosingRequest ) )
                 throw new IllegalArgumentException(
                         "Cannot set a request body for a " + request.getMethod() + " method" );
-            Closure encoder = encoders.getAt( this.getRequestContentType() );
+            Closure encoder = encoders.getAt( requestContentType );
             HttpEntity entity = (HttpEntity)encoder.call( requestContentType, body );
 
             ((HttpEntityEnclosingRequest)this.request).setEntity( entity );

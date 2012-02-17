@@ -21,9 +21,13 @@
  */
 package com.jayway.restassured.http;
 
+import com.jayway.restassured.internal.http.ContentTypeExtractor;
 import org.apache.commons.collections.iterators.ArrayIterator;
 
 import java.util.Iterator;
+
+import static org.apache.commons.lang3.ArrayUtils.contains;
+import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 
 /**
  * Enumeration of common <a href="http://www.iana.org/assignments/media-types/">IANA</a>
@@ -44,6 +48,7 @@ import java.util.Iterator;
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
  */
 public enum ContentType {
+
 	/** <code>&#42;/*</code> */
 	ANY("*/*"),
 	/** <code>text/plain</code> */
@@ -70,8 +75,12 @@ public enum ContentType {
 	URLENC("application/x-www-form-urlencoded"),
 	/** <code>application/octet-stream</code> */
 	BINARY("application/octet-stream");
-	
-	private final String[] ctStrings;
+
+    private static final String PLUS_XML = "+xml";
+    private static final String PLUS_JSON = "+json";
+    private static final String PLUS_HTML = "+html";
+
+    private final String[] ctStrings;
 	public String[] getContentTypeStrings() { return ctStrings; } 
 	@Override public String toString() { return ctStrings[0]; }
 	
@@ -94,4 +103,24 @@ public enum ContentType {
 	private ContentType( String... contentTypes ) {
 		this.ctStrings = contentTypes;
 	}
+
+    public static ContentType fromContentType(String contentType) {
+        if(contentType == null) {
+            return null;
+        }
+        contentType = ContentTypeExtractor.getContentTypeWithoutCharset(contentType.toLowerCase());
+        final ContentType foundContentType;
+        if(contains(XML.ctStrings, contentType) || endsWithIgnoreCase(contentType, PLUS_XML)) {
+            foundContentType = XML;
+        } else if(contains(JSON.ctStrings, contentType) || endsWithIgnoreCase(contentType, PLUS_JSON)) {
+            foundContentType = JSON;
+        } else if(contains(TEXT.ctStrings, contentType)) {
+            foundContentType = TEXT;
+        } else if(contains(HTML.ctStrings, contentType) || endsWithIgnoreCase(contentType, PLUS_HTML)) {
+            foundContentType = HTML;
+        } else {
+            foundContentType = null;
+        }
+        return foundContentType;
+    }
 }	
