@@ -39,7 +39,7 @@ Change log next version
   you can also specify the default charset for each request:
 	RestAssured.config = newConfig().encoderConfig(encoderConfig().defaultContentCharset("US-ASCII"));
   (issue 132)
-* Default encoding content encoding charset has been changed from UTF-8 to ISO-8859-1 to comply with the RFC 2616. To change this use the EncoderConfig, e.g.
+* Default content encoding charset has been changed from UTF-8 to ISO-8859-1 to comply with the RFC 2616. To change this use the EncoderConfig, e.g.
 	RestAssured.config = newConfig().encoderConfig(encoderConfig().defaultContentCharset("UTF-8"));
   You can also specify the default query parameter charset.
 * Default decoding content charset has been changed from platform default to ISO-8859-1 to comply with the RFC 2616. To change this use the DecoderConfig, e.g.
