@@ -19,7 +19,7 @@
     <parent>
         <groupId>com.jayway.restassured.examples</groupId>
         <artifactId>example-parent</artifactId>
-        <version>1.6-SNAPSHOT</version>
+        <version>1.6</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -57,21 +57,21 @@
         <dependency>
             <groupId>com.jayway.restassured.examples</groupId>
             <artifactId>scalatra-webapp</artifactId>
-            <version>1.6-SNAPSHOT</version>
+            <version>1.6</version>
             <type>war</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.jayway.restassured.examples</groupId>
             <artifactId>scalatra-webapp</artifactId>
-            <version>1.6-SNAPSHOT</version>
+            <version>1.6</version>
             <type>warpath</type>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>1.6-SNAPSHOT</version>
+            <version>1.6</version>
         </dependency>
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
