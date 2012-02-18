@@ -53,12 +53,12 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.1.2</version>
+            <version>4.1.3</version>
         </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <version>4.1.2</version>
+            <version>4.1.3</version>
         </dependency>
         <dependency>
             <!-- Add this dependency if you are using OAuth in HTTPBuilder or RESTClient -->
