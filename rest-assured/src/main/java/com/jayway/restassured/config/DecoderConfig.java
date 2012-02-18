@@ -20,7 +20,7 @@ import org.apache.commons.lang3.Validate;
 import org.apache.http.protocol.HTTP;
 
 /**
- * Allows you to specify configuration for the encoder
+ * Allows you to specify configuration for the decoder.
  */
 public class DecoderConfig {
 
