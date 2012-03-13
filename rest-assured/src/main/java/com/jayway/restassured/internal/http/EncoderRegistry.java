@@ -355,7 +355,7 @@ public class EncoderRegistry {
             }
         }
         if(closure == null) {
-            return getAt(ContentType.URLENC.toString());
+            return getAt(ContentType.BINARY.toString());
         }
         return closure;
     }

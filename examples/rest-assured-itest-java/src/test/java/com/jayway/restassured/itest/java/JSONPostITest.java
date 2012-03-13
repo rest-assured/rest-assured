@@ -25,8 +25,6 @@ import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.junit.Test;
 
-import java.net.ConnectException;
-
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static com.jayway.restassured.http.ContentType.URLENC;
@@ -244,6 +242,21 @@ public class JSONPostITest extends WithJetty {
 
         given().
                 contentType("application/octet-stream").
+                body(bytes).
+        expect().
+                statusCode(200).
+                body(is(expectedResponseBody)).
+        when().
+                post("/binaryBody");
+    }
+
+    @Test
+    public void requestSpecificationWithUnrecognizedContentTypeAllowsSpecifyingBinaryBodyForPost() throws Exception {
+        byte[] bytes = "somestring".getBytes();
+        final String expectedResponseBody = join(toObject(bytes), ", ");
+
+        given().
+                contentType("application/image-jpeg").
                 body(bytes).
         expect().
                 statusCode(200).
