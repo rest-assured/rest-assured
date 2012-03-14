@@ -1,6 +1,6 @@
 Change log next version
 -----------------------
-* Default encoder is set to binary instead of url encoded. This means that when setting
+* Default encoder is set to binary instead of url encoded. This means that when setting a binary body with an (by REST Assured) unrecognized content-type it will automatically be treated as an octet stream.
 
 Change log 1.6 (2012-02-18)
 ---------------------------
