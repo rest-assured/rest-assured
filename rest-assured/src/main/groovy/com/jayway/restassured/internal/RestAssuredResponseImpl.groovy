@@ -315,11 +315,14 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
         int nRead;
         byte[] data = new byte[16384];
 
-        while ((nRead = stream.read(data, 0, data.length)) != -1) {
-            buffer.write(data, 0, nRead);
+        try {
+            while ((nRead = stream.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
+            buffer.flush();
+        } finally {
+            stream.close()
         }
-
-        buffer.flush();
         return buffer.toByteArray();
     }
 
