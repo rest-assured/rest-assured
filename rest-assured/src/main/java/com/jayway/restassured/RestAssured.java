@@ -28,6 +28,7 @@ import com.jayway.restassured.specification.Argument;
 import com.jayway.restassured.specification.RequestSender;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import java.io.File;
@@ -338,6 +339,7 @@ public class RestAssured {
     public static final String DEFAULT_PATH = "";
     public static final AuthenticationScheme DEFAULT_AUTH = new NoAuthScheme();
     public static final boolean DEFAULT_URL_ENCODING_ENABLED = true;
+    public static final String DEFAULT_SESSION_ID_VALUE = null;
 
     /**
      * The base URI that's used by REST assured when making requests if a non-fully qualified URI is used in the request.
@@ -459,6 +461,13 @@ public class RestAssured {
      * means that for each response Rest Assured will assert that the status code is equal to 200.
      */
     public static ResponseSpecification responseSpecification = null;
+
+    /**
+     * Set the default session id value that'll be used for each request. This value will be set in the {@link com.jayway.restassured.config.SessionConfig} so it'll
+     * override the session id value previously defined there (if any). If you need to change the sessionId cookie name you need to configure and supply the {@link com.jayway.restassured.config.SessionConfig} to
+     * <code>RestAssured.config</code>.
+     */
+    public static String sessionId = DEFAULT_SESSION_ID_VALUE;
 
     private static Object requestContentType = null;
 
@@ -995,8 +1004,8 @@ public class RestAssured {
     /**
      * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath}, {@link #requestContentType(com.jayway.restassured.http.ContentType)},
      * {@link #responseContentType(com.jayway.restassured.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification}. {@link #keystore(String, String)},
-     * {@link #urlEncodingEnabled} and {@link #config} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, "", <code>null</code>, <code>null</code>,
-     * "empty list", <code>null</code>, <code>null</code>, <code>none</code>, <code>true</code>, <code>null</code>.
+     * {@link #urlEncodingEnabled} , {@link #config} and {@link #sessionId} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, "", <code>null</code>, <code>null</code>,
+     * "empty list", <code>null</code>, <code>null</code>, <code>none</code>, <code>true</code>, <code>null</code>, <code>null</code>
      */
     public static void reset() {
         baseURI = DEFAULT_URI;
@@ -1014,6 +1023,7 @@ public class RestAssured {
         RESPONSE_PARSER_REGISTRAR = new ResponseParserRegistrar();
         defaultParser = null;
         config = null;
+        sessionId = DEFAULT_SESSION_ID_VALUE;
     }
 
     private static TestSpecificationImpl createTestSpecification() {
@@ -1021,10 +1031,23 @@ public class RestAssured {
             RESPONSE_PARSER_REGISTRAR.registerDefaultParser(defaultParser);
         }
         final ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(RESPONSE_PARSER_REGISTRAR);
+        applySessionIdIfApplicable();
         return new TestSpecificationImpl(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keystoreSpec,
                         requestContentType, requestSpecification, urlEncodingEnabled, config),
                 new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, responseParserRegistrar));
+    }
+
+    private static void applySessionIdIfApplicable() {
+        if(!StringUtils.equals(sessionId, DEFAULT_SESSION_ID_VALUE)) {
+            final RestAssuredConfig configToUse;
+            if(config == null) {
+                configToUse = new RestAssuredConfig();
+            } else {
+                configToUse = config;
+            }
+            config = configToUse.sessionConfig(configToUse.getSessionConfig().sessionIdValue(sessionId));
+        }
     }
 
     private static KeystoreSpec setKeyStore(Object pathToJks, String password) {

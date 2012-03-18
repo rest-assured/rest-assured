@@ -22,6 +22,8 @@ import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.SpecificationMerger;
+import com.jayway.restassured.response.Cookie;
+import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.specification.RequestSpecification;
 
 import java.io.File;
@@ -135,28 +137,52 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Add a cookie to be sent with the request.
+     * Add a detailed cookie
      *
+     * @param cookie The cookie to add.
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder addCookie(Cookie cookie) {
+        spec.cookie(cookie);
+        return this;
+    }
+
+    /**
+     * Add a cookie to be sent with the request.
      *
      * @param key The cookie key
      * @param value The cookie value
+     * @param cookieNameValuePairs Additional cookies values. This will actually create two cookies with the same name but with different values.
      * @return The request specification builder
      */
-    public RequestSpecBuilder addCookie(String key, Object value) {
-        spec.cookie(key, value);
+    public RequestSpecBuilder addCookie(String key, Object value, Object... cookieNameValuePairs) {
+        spec.cookie(key, value, cookieNameValuePairs);
         return this;
     }
 
     /**
      * Add a cookie without value to be sent with the request.
      *
-     * @param key The cookie key
+     * @param name The cookie name
      * @return The request specification builder
      */
-    public RequestSpecBuilder addCookie(String key) {
-        spec.cookie(key);
+    public RequestSpecBuilder addCookie(String name) {
+        spec.cookie(name);
         return this;
     }
+
+    /**
+     * Specify multiple detailed cookies that'll be sent with the request.
+     *
+     * @see RequestSpecification#cookies(com.jayway.restassured.response.Cookies)
+     * @param cookies The cookies to set in the request.
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder addCookies(Cookies cookies) {
+        spec.cookies(cookies);
+        return this;
+    }
+
 
     /**
      * Add a filter that will be used in the request.
@@ -813,6 +839,39 @@ public class RequestSpecBuilder {
      */
     public RequestSpecBuilder setUrlEncodingEnabled(boolean isEnabled) {
         spec.urlEncodingEnabled(isEnabled);
+        return this;
+    }
+
+    /**
+     * Set the session id for this request. It will use the configured session id name from the configuration (by default this is {@value com.jayway.restassured.config.SessionConfig#DEFAULT_SESSION_ID_NAME}).
+     * You can configure the session id name by using:
+     * <pre>
+     *     RestAssured.config = newConfig().sessionConfig(new SessionConfig().sessionIdName(&lt;sessionIdName&gt;));
+     * </pre>
+     * or you can use the {@link #setSessionId(String, String)} method to set it for this request only.
+     *
+     * @param sessionIdValue The session id value.
+     * @return The request specification
+     */
+    public RequestSpecBuilder setSessionId(String sessionIdValue) {
+        spec.sessionId(sessionIdValue);
+        return this;
+    }
+
+    /**
+     * Set the session id name and value for this request. It'll override the default session id name from the configuration (by default this is {@value com.jayway.restassured.config.SessionConfig#DEFAULT_SESSION_ID_NAME}).
+     * You can configure the default session id name by using:
+     * <pre>
+     *     RestAssured.config = newConfig().sessionConfig(new SessionConfig().sessionIdName(&lt;sessionIdName&gt;));
+     * </pre>
+     * and then you can use the {@link RequestSpecBuilder#setSessionId(String)} method to set the session id value without specifying the name for each request.
+     *
+     * @param sessionIdName The session id name
+     * @param sessionIdValue The session id value.
+     * @return The request specification
+     */
+    public RequestSpecBuilder setSessionId(String sessionIdName, String sessionIdValue) {
+        spec.sessionId(sessionIdName, sessionIdValue);
         return this;
     }
 

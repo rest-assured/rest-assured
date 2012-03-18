@@ -1228,6 +1228,33 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification specification(RequestSpecification requestSpecificationToMerge);
 
     /**
+     * Set the session id for this request. It will use the configured session id name from the configuration (by default this is {@value com.jayway.restassured.config.SessionConfig#DEFAULT_SESSION_ID_NAME}).
+     * You can configure the session id name by using:
+     * <pre>
+     *     RestAssured.config = newConfig().sessionConfig(new SessionConfig().sessionIdName(&lt;sessionIdName&gt;));
+     * </pre>
+     * or you can use the {@link #sessionId(String, String)} method to set it for this request only.
+     *
+     * @param sessionIdValue The session id value.
+     * @return The request specification
+     */
+    RequestSpecification sessionId(String sessionIdValue);
+
+    /**
+     * Set the session id name and value for this request. It'll override the default session id name from the configuration (by default this is {@value com.jayway.restassured.config.SessionConfig#DEFAULT_SESSION_ID_NAME}).
+     * You can configure the default session id name by using:
+     * <pre>
+     *     RestAssured.config = newConfig().sessionConfig(new SessionConfig().sessionIdName(&lt;sessionIdName&gt;));
+     * </pre>
+     * and then you can use the {@link #sessionId(String)} method to set the session id value without specifying the name for each request.
+     *
+     * @param sessionIdName The session id name
+     * @param sessionIdValue The session id value.
+     * @return The request specification
+     */
+    RequestSpecification sessionId(String sessionIdName, String sessionIdValue);
+
+    /**
      * Specifies if Rest Assured should url encode the URL automatically. Usually this is a recommended but in some cases
      * e.g. the query parameters are already be encoded before you provide them to Rest Assured then it's useful to disable
      * URL encoding.

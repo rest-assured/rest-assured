@@ -571,6 +571,24 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         return spec(requestSpecificationToMerge)
     }
 
+    RequestSpecification sessionId(String sessionIdValue) {
+        def sessionIdName = config == null ? SessionConfig.DEFAULT_SESSION_ID_NAME : config.getSessionConfig().sessionIdName()
+        sessionId(sessionIdName, sessionIdValue)
+    }
+
+    RequestSpecification sessionId(String sessionIdName, String sessionIdValue) {
+        notNull(sessionIdName, "Session id name")
+        notNull(sessionIdValue, "Session id value")
+        if(cookies.hasCookieWithName(sessionIdName)) {
+            def allOtherCookies = cookies.findAll { !it.getName().equalsIgnoreCase(sessionIdName) }
+            allOtherCookies.add(new Cookie.Builder(sessionIdName, sessionIdValue).build());
+            this.cookies = new Cookies(allOtherCookies)
+        } else {
+            cookie(sessionIdName, sessionIdValue)
+        }
+        this
+    }
+
     def RequestSpecification multiPart(String controlName, File file) {
         multiParts << new MultiPart(name: controlName, content: file)
         this
@@ -688,6 +706,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             applyRedirectConfig(restAssuredConfig.getRedirectConfig())
             applyHttpClientConfig(restAssuredConfig.getHttpClientConfig())
             applyEncoderConfig(http, restAssuredConfig.getEncoderConfig())
+            applySessionConfig(restAssuredConfig.getSessionConfig())
         }
         if (!httpClientParams.isEmpty()) {
             def p = http.client.getParams();
@@ -695,6 +714,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             httpClientParams.each { key, value ->
                 p.setParameter(key, value)
             }
+        }
+    }
+
+    def applySessionConfig(SessionConfig sessionConfig) {
+        if (sessionConfig.isSessionIdValueDefined() && !cookies.hasCookieWithName(sessionConfig.sessionIdName())) {
+            cookie(sessionConfig.sessionIdName(), sessionConfig.sessionIdValue())
         }
     }
 

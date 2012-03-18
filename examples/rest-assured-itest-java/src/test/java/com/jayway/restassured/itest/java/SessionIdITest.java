@@ -1,0 +1,100 @@
+/*
+ * Copyright 2012 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.jayway.restassured.itest.java;
+
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.config.SessionConfig;
+import com.jayway.restassured.itest.java.support.WithJetty;
+import org.junit.Test;
+
+import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
+import static com.jayway.restassured.config.SessionConfig.DEFAULT_SESSION_ID_NAME;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.core.Is.is;
+
+public class SessionIdITest extends WithJetty {
+
+    @Test
+    public void settingSessionIdThroughTheDSLConfig() throws Exception {
+        given().config(newConfig().sessionConfig(new SessionConfig("1234"))).then().expect().that().body(is(equalTo("Success"))).when().request().get("/sessionId");
+    }
+
+    @Test
+    public void settingSessionIdThroughTheDSL() throws Exception {
+        given().log().cookies().sessionId("1234").then().expect().that().body(is(equalTo("Success"))).when().request().get("/sessionId");
+    }
+
+    @Test
+    public void settingSessionIdThroughTheDSLHasPrecedenceOverTheConfig() throws Exception {
+        given().log().cookies().config(newConfig().sessionConfig(new SessionConfig("1235"))).and().sessionId("1234").then().expect().that().body(is(equalTo("Success"))).when().request().get("/sessionId");
+    }
+
+    @Test
+    public void settingSessionIdThroughTheDSLHasPrecedenceOverTheStaticConfig() throws Exception {
+        RestAssured.config = newConfig().sessionConfig(new SessionConfig("1235"));
+        try {
+            given().sessionId("1234").then().expect().that().body(is(equalTo("Success"))).when().request().get("/sessionId");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void settingSessionIdThroughStaticConfig() throws Exception {
+        RestAssured.config = newConfig().sessionConfig(new SessionConfig("1234"));
+
+        try {
+            expect().that().body(is(equalTo("Success"))).when().request().get("/sessionId");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void settingSessionIdNameThroughTheDSLOverridesTheSessionIdInTheDefaultSessionConfig() throws Exception {
+        RestAssured.config = newConfig().sessionConfig(new SessionConfig("phpsessionid", "12345"));
+
+        try {
+            given().sessionId("jsessionid", "1234").then().expect().that().body(is(equalTo("Success"))).when().request().get("/sessionId");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void settingSessionIdNameThroughTheDSLWorks() throws Exception {
+        given().sessionId("phpsessionid", "1234").then().expect().cookie(DEFAULT_SESSION_ID_NAME, "1234").when().request().get("/sessionId");
+    }
+
+    @Test
+    public void settingSessionIdStaticallyWorks() throws Exception {
+        RestAssured.sessionId = "1234";
+
+        try {
+            expect().that().body(is(equalTo("Success"))).when().request().get("/sessionId");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void settingTheSessionIdTwiceOverwritesTheFirstOne() throws Exception {
+        given().sessionId("1234").sessionId("1235").expect().statusLine("HTTP/1.1 409 Invalid sessionid").when().request().get("/sessionId");
+    }
+}

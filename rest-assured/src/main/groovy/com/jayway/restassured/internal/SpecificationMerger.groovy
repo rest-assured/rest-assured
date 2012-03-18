@@ -17,99 +17,114 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.ExplicitNoAuthScheme
+import com.jayway.restassured.config.SessionConfig
+import com.jayway.restassured.response.Cookies
 import com.jayway.restassured.spi.AuthFilter
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 class SpecificationMerger {
 
-  /**
-   * Merge this builder with settings from another specification. Note that the supplied specification
-   * can overwrite data in the current specification. The following settings are overwritten:
-   * <ul>
-   *     <li>Content type</li>
-   *     <li>Root path</
-   *     <li>Status code</li>
-   *     <li>Status line</li>
-   *     <li>Fallback parser</li>
-   * </ul>
-   * The following settings are merged:
-   * <ul>
-   *     <li>Response body expectations</li>
-   *     <li>Cookies</li>
-   *     <li>Headers</li>
-   *     <li>Response parser settings</li>
-   * </ul>
-   */
-  def static void merge(ResponseSpecificationImpl thisOne, ResponseSpecificationImpl with) {
-    notNull thisOne, "Specification to merge"
-    notNull with, "Specification to merge with"
+    /**
+     * Merge this builder with settings from another specification. Note that the supplied specification
+     * can overwrite data in the current specification. The following settings are overwritten:
+     * <ul>
+     *     <li>Content type</li>
+     *     <li>Root path</
+     *     <li>Status code</li>
+     *     <li>Status line</li>
+     *     <li>Fallback parser</li>
+     * </ul>
+     * The following settings are merged:
+     * <ul>
+     *     <li>Response body expectations</li>
+     *     <li>Cookies</li>
+     *     <li>Headers</li>
+     *     <li>Response parser settings</li>
+     * </ul>
+     */
+    def static void merge(ResponseSpecificationImpl thisOne, ResponseSpecificationImpl with) {
+        notNull thisOne, "Specification to merge"
+        notNull with, "Specification to merge with"
 
-    thisOne.contentType = with.contentType
-    thisOne.rpr.defaultParser = with.rpr.defaultParser
-    thisOne.rpr.additional.putAll(with.rpr.additional)
-    thisOne.bodyMatchers << with.bodyMatchers
-    thisOne.bodyRootPath = with.bodyRootPath
-    thisOne.cookieAssertions.addAll(with.cookieAssertions)
-    thisOne.expectedStatusCode = with.expectedStatusCode
-    thisOne.expectedStatusLine = with.expectedStatusLine
-    thisOne.headerAssertions.addAll(with.headerAssertions)
-  }
-
-  /**
-   * Merge this builder with settings from another specification. Note that the supplied specification
-   * can overwrite data in the current specification. The following settings are overwritten:
-   * <ul>
-   *     <li>Port</li>
-   *     <li>Authentication scheme</
-   *     <li>Content type</li>
-   *     <li>Request body</li>
-   *     <li>Keystore</li>
-   *     <li>URL Encoding enabled/disabled</li>
-   *     <li>Config</li>
-   * </ul>
-   * The following settings are merged:
-   * <ul>
-   *     <li>Parameters</li>
-   *     <li>Query Parameters</li>
-   *     <li>Form Parameters</li>
-   *     <li>Path parameters</li>
-   *     <li>Multi-part form data parameters</li>
-   *     <li>Cookies</li>
-   *     <li>Headers</li>
-   *     <li>Filters</li>
-   * </ul>
-   */
-  def static void merge(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {
-    notNull thisOne, "Specification to merge"
-    notNull with, "Specification to merge with"
-
-    thisOne.port = with.port
-    thisOne.requestParameters.putAll(with.requestParameters)
-    thisOne.queryParameters.putAll(with.queryParams)
-    thisOne.formParameters.putAll(with.formParams)
-    thisOne.pathParameters.putAll(with.pathParams)
-    thisOne.multiParts.addAll(with.multiParts)
-    thisOne.authenticationScheme = with.authenticationScheme
-    thisOne.keyStoreSpec = with.keyStoreSpec
-    thisOne.contentType = with.contentType
-    thisOne.headers(with.requestHeaders)
-    thisOne.cookies(with.cookies)
-    thisOne.requestBody = with.requestBody
-    mergeFilters(thisOne, with)
-    thisOne.urlEncodingEnabled = with.urlEncodingEnabled
-    thisOne.restAssuredConfig = with.restAssuredConfig
-  }
-
-  private static def mergeFilters(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {
-    def thisFilters = thisOne.filters;
-    def withFilters = with.filters
-
-    // Overwrite auth filters
-    def instanceOfAuthFilter = { it instanceof AuthFilter }
-    if((thisFilters.any(instanceOfAuthFilter) && withFilters.any(instanceOfAuthFilter)) ||
-            with.authenticationScheme instanceof ExplicitNoAuthScheme) {
-      thisFilters.removeAll(instanceOfAuthFilter)
+        thisOne.contentType = with.contentType
+        thisOne.rpr.defaultParser = with.rpr.defaultParser
+        thisOne.rpr.additional.putAll(with.rpr.additional)
+        thisOne.bodyMatchers << with.bodyMatchers
+        thisOne.bodyRootPath = with.bodyRootPath
+        thisOne.cookieAssertions.addAll(with.cookieAssertions)
+        thisOne.expectedStatusCode = with.expectedStatusCode
+        thisOne.expectedStatusLine = with.expectedStatusLine
+        thisOne.headerAssertions.addAll(with.headerAssertions)
     }
-    thisFilters.addAll(withFilters)
-  }
+
+    /**
+     * Merge this builder with settings from another specification. Note that the supplied specification
+     * can overwrite data in the current specification. The following settings are overwritten:
+     * <ul>
+     *     <li>Port</li>
+     *     <li>Authentication scheme</
+     *     <li>Content type</li>
+     *     <li>Request body</li>
+     *     <li>Keystore</li>
+     *     <li>URL Encoding enabled/disabled</li>
+     *     <li>Config</li>
+     * </ul>
+     * The following settings are merged:
+     * <ul>
+     *     <li>Parameters</li>
+     *     <li>Query Parameters</li>
+     *     <li>Form Parameters</li>
+     *     <li>Path parameters</li>
+     *     <li>Multi-part form data parameters</li>
+     *     <li>Cookies</li>
+     *     <li>Headers</li>
+     *     <li>Filters</li>
+     * </ul>
+     */
+    def static void merge(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {
+        notNull thisOne, "Specification to merge"
+        notNull with, "Specification to merge with"
+
+        thisOne.port = with.port
+        thisOne.requestParameters.putAll(with.requestParameters)
+        thisOne.queryParameters.putAll(with.queryParams)
+        thisOne.formParameters.putAll(with.formParams)
+        thisOne.pathParameters.putAll(with.pathParams)
+        thisOne.multiParts.addAll(with.multiParts)
+        thisOne.authenticationScheme = with.authenticationScheme
+        thisOne.keyStoreSpec = with.keyStoreSpec
+        thisOne.contentType = with.contentType
+        thisOne.headers(with.requestHeaders)
+        mergeSessionId(thisOne, with)
+        thisOne.cookies(with.cookies)
+        thisOne.requestBody = with.requestBody
+        mergeFilters(thisOne, with)
+        thisOne.urlEncodingEnabled = with.urlEncodingEnabled
+        thisOne.restAssuredConfig = with.restAssuredConfig
+    }
+
+    private static def mergeSessionId(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {
+        def thisOneConfig = thisOne.config
+        def thisOneCookies = thisOne.cookies
+
+        def oldSessionIdName = SessionConfig.DEFAULT_SESSION_ID_NAME
+        if(thisOneConfig != null) {
+            oldSessionIdName = thisOneConfig.sessionConfig.sessionIdName()
+        }
+        def cookieList = thisOneCookies.findAll {!it.getName().equalsIgnoreCase(oldSessionIdName)}
+        thisOne.cookies = new Cookies(cookieList);
+    }
+
+    private static def mergeFilters(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {
+        def thisFilters = thisOne.filters;
+        def withFilters = with.filters
+
+        // Overwrite auth filters
+        def instanceOfAuthFilter = { it instanceof AuthFilter }
+        if((thisFilters.any(instanceOfAuthFilter) && withFilters.any(instanceOfAuthFilter)) ||
+                with.authenticationScheme instanceof ExplicitNoAuthScheme) {
+            thisFilters.removeAll(instanceOfAuthFilter)
+        }
+        thisFilters.addAll(withFilters)
+    }
 }

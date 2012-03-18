@@ -178,7 +178,7 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   put("/reflect") {
-     reflect
+    reflect
   }
 
   post("/reflect") {
@@ -558,6 +558,26 @@ class ScalatraRestExample extends ScalatraServlet {
   get("/jsonp") {
     contentType ="application/javascript"
     params("callback")+"("+greetJson+");"
+  }
+
+  get("/sessionId") {
+    def setSessionId {
+      response.setHeader("Set-Cookie", "jsessionid=1234")
+    }
+
+    val cookies: Array[Cookie] = request.getCookies()
+    if (cookies == null) {
+      setSessionId
+    } else {
+      val cookie = cookies.find(_.getName.equalsIgnoreCase("jsessionid"))
+      if(cookie == None) {
+        setSessionId
+      } else if(cookie.get.getValue == "1234" ) {
+        "Success"
+      } else {
+        response.sendError(409, "Invalid sessionid")
+      }
+    }
   }
 
   get("/bigRss") {

@@ -2,6 +2,14 @@ Change log next version
 -----------------------
 * Default encoder is set to binary instead of url encoded. This means that when setting a binary body with an (by REST Assured) unrecognized content-type it will automatically be treated as an octet stream.
 * Closed input stream when getting response body as byte-array (issue 163)
+* Improved session support. You can now define a session id value in the DSL:
+    given().sessionId("1234"). .. 
+  or for each request:
+    RestAssured.sessionId = "1234";
+  By default the session id name is JSESSIONID but you can change it using the SessionConfig:
+    RestAssured.config = newConfig().sessionConfig(new SessionConfig().sessionIdName("phpsessionid"));
+  RequestSpecBuilder has been improved to support session id's as well (issue 28).
+* Added methods in the RequestSpecBuilder to all it to add cookies of type com.jayway.restassured.response.Cookie and com.jayway.restassured.response.Cookies.
 
 Change log 1.6 (2012-02-18)
 ---------------------------
