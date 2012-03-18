@@ -190,6 +190,20 @@ public interface Response extends ResponseBody {
     String getStatusLine();
 
     /**
+     * Get the session id from the response. The session id name can be configured from the {@link com.jayway.restassured.config.SessionConfig}.
+     *
+     * @return The session id of the response or <code>null</code> if not defined.
+     */
+    String sessionId();
+
+    /**
+     * Get the session id from the response. The session id name can be configured from the {@link com.jayway.restassured.config.SessionConfig}.
+     *
+     * @return The session id of the response or <code>null</code> if not defined.
+     */
+    String getSessionId();
+
+    /**
      * Get the status code of the response.
      *
      * @return The status code of the response.

@@ -663,6 +663,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
         // Allow returning a the response
         def restAssuredResponse = new RestAssuredResponseImpl()
+        restAssuredResponse.setSessionIdName(config == null ? SessionConfig.DEFAULT_SESSION_ID_NAME : config.sessionConfig.sessionIdName())
         restAssuredResponse.setDefaultCharset(config == null ? new DecoderConfig().defaultContentCharset() : config.getDecoderConfig().defaultContentCharset())
         responseSpecification.restAssuredResponse = restAssuredResponse
         def responseContentType =  assertionClosure.getResponseContentType()

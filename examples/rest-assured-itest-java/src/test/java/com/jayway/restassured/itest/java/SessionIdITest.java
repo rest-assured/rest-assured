@@ -21,12 +21,12 @@ import com.jayway.restassured.config.SessionConfig;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static com.jayway.restassured.config.SessionConfig.DEFAULT_SESSION_ID_NAME;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 public class SessionIdITest extends WithJetty {
 
@@ -96,5 +96,12 @@ public class SessionIdITest extends WithJetty {
     @Test
     public void settingTheSessionIdTwiceOverwritesTheFirstOne() throws Exception {
         given().sessionId("1234").sessionId("1235").expect().statusLine("HTTP/1.1 409 Invalid sessionid").when().request().get("/sessionId");
+    }
+
+    @Test
+    public void restAssuredResponseSupportsGettingTheSessionId() throws Exception {
+        final String sessionId = get("/sessionId").sessionId();
+
+        assertThat(sessionId, equalTo("1234"));
     }
 }

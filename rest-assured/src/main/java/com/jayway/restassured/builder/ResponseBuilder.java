@@ -46,6 +46,7 @@ public class ResponseBuilder {
             restAssuredResponse.setHasExpectations(raResponse.getHasExpectations());
             restAssuredResponse.setDefaultContentType(raResponse.getDefaultContentType());
             restAssuredResponse.setDefaultCharset(raResponse.getDefaultCharset());
+            restAssuredResponse.setSessionIdName(raResponse.getSessionIdName());
         } else {
             restAssuredResponse.setContent(response.asInputStream());
         }
@@ -158,7 +159,7 @@ public class ResponseBuilder {
         restAssuredResponse.setStatusCode(statusCode);
         return this;
     }
-
+    
     /**
      * Build the actual response
      *

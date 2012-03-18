@@ -39,6 +39,7 @@ class RestAssuredResponseImpl implements Response {
     def contentType
     def statusLine
     def statusCode
+    def sessionIdName
 
     def String defaultContentType
     def ResponseParserRegistrar rpr
@@ -280,6 +281,14 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
 
     String getStatusLine() {
         return statusLine()
+    }
+
+    String sessionId() {
+        return getSessionId()
+    }
+
+    String getSessionId() {
+        return cookie(sessionIdName)
     }
 
     int getStatusCode() {
