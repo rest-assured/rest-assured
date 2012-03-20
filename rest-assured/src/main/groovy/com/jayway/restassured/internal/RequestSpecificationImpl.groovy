@@ -43,6 +43,7 @@ import org.apache.http.entity.HttpEntityWrapper
 
 import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.message.BasicHeader
+import org.apache.http.impl.conn.ProxySelectorRoutePlanner
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.response.*
 import com.jayway.restassured.specification.*
@@ -702,7 +703,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         return super.parseResponse(resp, contentType)
       }
     };
-
+  
+    // make client aware of JRE proxy settings http://freeside.co/betamax/
+    http.client.routePlanner = new ProxySelectorRoutePlanner(
+        http.client.connectionManager.schemeRegistry, ProxySelector.default)
     applyRestAssuredConfig(http)
     registerRestAssuredEncoders(http);
     RestAssuredParserRegistry.responseSpecification = responseSpecification
