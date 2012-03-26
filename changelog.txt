@@ -10,6 +10,7 @@ Change log next version
     RestAssured.config = newConfig().sessionConfig(new SessionConfig().sessionIdName("phpsessionid"));
   RequestSpecBuilder has been improved to support session id's as well (issue 28).
 * Added methods in the RequestSpecBuilder to all it to add cookies of type com.jayway.restassured.response.Cookie and com.jayway.restassured.response.Cookies.
+* JRE proxy settings are now applied by default (thanks to Wolfram Kroll for the patch).
 
 Change log 1.6 (2012-02-18)
 ---------------------------

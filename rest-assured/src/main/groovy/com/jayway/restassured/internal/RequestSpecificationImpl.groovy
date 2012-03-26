@@ -35,6 +35,7 @@ import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
 import org.apache.http.entity.mime.MultipartEntity
+import org.apache.http.impl.conn.ProxySelectorRoutePlanner
 import org.apache.http.message.BasicHeader
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.config.*
@@ -653,6 +654,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         def targetUri = getTargetURI(path);
         def targetPath = getTargetPath(path)
         def http = new RestAssuredHttpBuilder(targetUri, assertionClosure, config);
+        allowJreProxySettings(http)
         applyRestAssuredConfig(http)
         registerRestAssuredEncoders(http);
         setRequestHeadersToHttpBuilder(http)
@@ -1337,6 +1339,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     private boolean isEmpty(Object[] objects) {
         return objects == null || objects.length == 0
+    }
+
+    // make client aware of JRE proxy settings http://freeside.co/betamax/
+    private def allowJreProxySettings(RestAssuredHttpBuilder http) {
+        http.client.routePlanner = new ProxySelectorRoutePlanner(http.client.connectionManager.schemeRegistry, ProxySelector.default)
     }
 
     private def String assembleCompleteTargetPath(requestPath) {
