@@ -37,12 +37,12 @@ public class SessionIdITest extends WithJetty {
 
     @Test
     public void settingSessionIdThroughTheDSL() throws Exception {
-        given().log().cookies().sessionId("1234").then().expect().that().body(is(equalTo("Success"))).when().request().get("/sessionId");
+        given().sessionId("1234").then().expect().that().body(is(equalTo("Success"))).when().request().get("/sessionId");
     }
 
     @Test
     public void settingSessionIdThroughTheDSLHasPrecedenceOverTheConfig() throws Exception {
-        given().log().cookies().config(newConfig().sessionConfig(new SessionConfig("1235"))).and().sessionId("1234").then().expect().that().body(is(equalTo("Success"))).when().request().get("/sessionId");
+        given().config(newConfig().sessionConfig(new SessionConfig("1235"))).and().sessionId("1234").then().expect().that().body(is(equalTo("Success"))).when().request().get("/sessionId");
     }
 
     @Test
