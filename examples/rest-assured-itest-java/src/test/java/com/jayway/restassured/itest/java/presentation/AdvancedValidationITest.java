@@ -57,7 +57,11 @@ public class AdvancedValidationITest extends WithJetty {
                 statusCode(allOf(greaterThanOrEqualTo(200), lessThanOrEqualTo(300))).
                 root("store.book").
                 body("findAll { book -> book.price < 10 }.title", hasItems("Sayings of the Century", "Moby Dick")).
+                body("price.min()", equalTo(8.95f)).
+                body("price.max()", equalTo(22.99f)).
+                body("min { it.price }.title", equalTo("Sayings of the Century")).
                 body("author*.length().sum()", equalTo(53)).
+                body("author*.length().sum(2, { it * 2 })", is(108)).
         when().
                 get("/jsonStore");
     }
