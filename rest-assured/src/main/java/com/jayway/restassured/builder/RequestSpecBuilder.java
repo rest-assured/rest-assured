@@ -28,6 +28,7 @@ import com.jayway.restassured.specification.RequestSpecification;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -235,11 +236,12 @@ public class RequestSpecBuilder {
      * Add a multi-value parameter to be sent with the request.
      *
      *
+     *
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification builder
      */
-    public RequestSpecBuilder addParameter(String parameterName, List<?> parameterValues) {
+    public RequestSpecBuilder addParameter(String parameterName, Collection<?> parameterValues) {
         spec.parameter(parameterName, parameterValues);
         return this;
     }
@@ -269,14 +271,14 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * A slightly shorter version of {@link #addParameter(String, java.util.List)}.
+     * A slightly shorter version of {@link #addParameter(String, java.util.Collection}.
      *
      * @see #addParameter(String, Object...)
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification builder
      */
-    public RequestSpecBuilder addParam(String parameterName, List<?> parameterValues) {
+    public RequestSpecBuilder addParam(String parameterName, Collection<?> parameterValues) {
         spec.param(parameterName, parameterValues);
         return this;
     }
@@ -308,7 +310,7 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Add a query parameter to be sent with the request. This method is the same as {@link #addParameter(String, java.util.List)}
+     * Add a query parameter to be sent with the request. This method is the same as {@link #addParameter(String, java.util.Collection)}
      * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
      *
      *
@@ -317,20 +319,20 @@ public class RequestSpecBuilder {
      * @param parameterValues The parameter values
      * @return The request specification builder
      */
-    public RequestSpecBuilder addQueryParameter(String parameterName, List<?> parameterValues) {
+    public RequestSpecBuilder addQueryParameter(String parameterName, Collection<?> parameterValues) {
         spec.parameter(parameterName, parameterValues);
         return this;
     }
 
     /**
-     * A slightly shorter version of {@link #addQueryParameter(String, java.util.List)}.
+     * A slightly shorter version of {@link #addQueryParameter(String, java.util.Collection)}.
      *
      * @see #addQueryParam(String, Object...)
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification builder
      */
-    public RequestSpecBuilder addQueryParam(String parameterName, List<?> parameterValues) {
+    public RequestSpecBuilder addQueryParam(String parameterName, Collection<?> parameterValues) {
         spec.queryParam(parameterName, parameterValues);
         return this;
     }
@@ -387,27 +389,27 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Add a form parameter to be sent with the request. This method is the same as {@link #addParameter(String, java.util.List)}
+     * Add a form parameter to be sent with the request. This method is the same as {@link #addParameter(String, java.util.Collection}
      * for all HTTP methods except PUT where this method can be used to differentiate between form and query params.
      *
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification builder
      */
-    public RequestSpecBuilder addFormParameter(String parameterName, List<?> parameterValues) {
+    public RequestSpecBuilder addFormParameter(String parameterName, Collection<?> parameterValues) {
         spec.formParam(parameterName, parameterValues);
         return this;
     }
 
     /**
-     * A slightly shorter version of {@link #addFormParameter(String, java.util.List)}.
+     * A slightly shorter version of {@link #addFormParameter(String, java.util.Collection}.
      *
      * @see #addFormParam(String, Object...)
      * @param parameterName The parameter key
      * @param parameterValues The parameter values
      * @return The request specification builder
      */
-    public RequestSpecBuilder addFormParam(String parameterName, List<?> parameterValues) {
+    public RequestSpecBuilder addFormParam(String parameterName, Collection<?> parameterValues) {
         spec.formParam(parameterName, parameterValues);
         return this;
     }
