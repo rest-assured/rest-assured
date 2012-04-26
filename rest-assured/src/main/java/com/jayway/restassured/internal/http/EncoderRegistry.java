@@ -278,14 +278,16 @@ public class EncoderRegistry {
 
     private HttpEntity createEntity(String ct, Object object) throws UnsupportedEncodingException {
         if(object instanceof byte[]) {
-            return createEntity((byte[]) object);
+            return createEntity(ct, (byte[]) object);
         } else {
             return createEntity(ct, object.toString());
         }
     }
 
-    protected HttpEntity createEntity(byte[] byteArray) {
-        return new ByteArrayEntity(byteArray);
+    protected HttpEntity createEntity(String ct, byte[] byteArray) {
+        final ByteArrayEntity byteArrayEntity = new ByteArrayEntity(byteArray);
+        byteArrayEntity.setContentType(ct);
+        return byteArrayEntity;
     }
 
     /**

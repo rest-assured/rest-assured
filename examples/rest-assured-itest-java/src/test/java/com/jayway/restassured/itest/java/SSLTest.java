@@ -17,6 +17,7 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.net.ssl.SSLException;
@@ -24,6 +25,7 @@ import javax.net.ssl.SSLException;
 import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.containsString;
 
+@Ignore("https://dev.java.net/ is down atm")
 public class SSLTest {
 
     @Test(expected = SSLException.class)

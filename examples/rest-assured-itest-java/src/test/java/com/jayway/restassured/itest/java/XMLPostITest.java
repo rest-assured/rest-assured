@@ -78,4 +78,18 @@ public class XMLPostITest extends WithJetty {
                 put("/reflect");
 
     }
+
+    @Test
+    public void requestIncludesContentTypeWhenSendingBinaryDataAsXml() throws Exception {
+        byte[] bytes = "<tag attr='value'>/".getBytes( "UTF-8" );
+        given().
+                contentType("application/xml").
+                body(bytes).
+        expect().
+                statusCode(200).
+                contentType("application/xml").
+                body(is(new String(bytes, "UTF-8"))).
+        when().
+                post("/validateContentTypeIsDefinedAndReturnBody");
+    }
 }

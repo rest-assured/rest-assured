@@ -628,6 +628,13 @@ class ScalatraRestExample extends ScalatraServlet {
     </records>
   }
 
+  post("/validateContentTypeIsDefinedAndReturnBody") {
+    if(request.getContentType == null) {
+      response.setStatus(304)
+    }
+    contentType = request.getContentType
+    request.body
+  }
 
   def getBinaryBodyResponse: String = {
     contentType = "text/plain";
