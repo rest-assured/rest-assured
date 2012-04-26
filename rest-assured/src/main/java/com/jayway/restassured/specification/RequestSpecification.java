@@ -27,6 +27,7 @@ import com.jayway.restassured.response.Headers;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -460,11 +461,12 @@ public interface RequestSpecification extends RequestSender {
      * This will set the parameter <code>cars=Volvo</code> and <code>cars=Saab</code>.
      * </p>
      *
+     *
      * @param parameterName The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
      */
-    RequestSpecification parameter(String parameterName, List<?> parameterValues);
+    RequestSpecification parameter(String parameterName, Collection<?> parameterValues);
 
     /**
      * A slightly shorter version of {@link #parameters(String, Object, Object...)}
@@ -497,14 +499,15 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification param(String parameterName, Object... parameterValues);
 
     /**
-     * A slightly shorter version of {@link #parameter(String, java.util.List)}  }.
+     * A slightly shorter version of {@link #parameter(String, java.util.Collection}  }.
+     *
      *
      *
      * @param parameterName The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
      */
-    RequestSpecification param(String parameterName, List<?> parameterValues);
+    RequestSpecification param(String parameterName, Collection<?> parameterValues);
 
     /**
      * Specify the query parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(String, Object, Object...)}
@@ -550,16 +553,17 @@ public interface RequestSpecification extends RequestSender {
      * This will set the parameter <code>cars=Volvo</code> and <code>cars=Saab</code>.
      * </p>
      *
-     * Note that this method is the same as {@link #parameter(String, java.util.List)}
-     * for all http methods except for POST where {@link #parameter(String, java.util.List)} adds a form parameter and
+     * Note that this method is the same as {@link #parameter(String, java.util.Collection)}
+     * for all http methods except for POST where {@link #parameter(String, java.util.Collection)} adds a form parameter and
      * this method sets a query parameter.
+     *
      *
      *
      * @param parameterName The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
      */
-    RequestSpecification queryParameter(String parameterName, List<?> parameterValues);
+    RequestSpecification queryParameter(String parameterName, Collection<?> parameterValues);
 
     /**
      * A slightly shorter version of {@link #queryParameters(String, Object, Object...)}.
@@ -592,14 +596,14 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification queryParam(String parameterName, Object... parameterValues);
 
     /**
-     * A slightly shorter version of {@link #queryParameter(String, java.util.List)}.
+     * A slightly shorter version of {@link #queryParameter(String, java.util.Collection}.
      *
      * @see #queryParam(String, java.util.List)
      * @param parameterName The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
      */
-    RequestSpecification queryParam(String parameterName, List<?> parameterValues);
+    RequestSpecification queryParam(String parameterName, Collection<?> parameterValues);
 
     /**
      * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(String, Object, Object...)}
@@ -647,16 +651,17 @@ public interface RequestSpecification extends RequestSender {
      * This will set the parameter <code>cars=Volvo</code> and <code>cars=Saab</code>.
      * </p>
      *
-     * Note that this method is the same as {@link #parameter(String, java.util.List)}
-     * for all http methods except for PUT where {@link #parameter(String, java.util.List)} adds a query parameter and
+     * Note that this method is the same as {@link #parameter(String, java.util.Collection)}
+     * for all http methods except for PUT where {@link #parameter(String, java.util.Collection)} adds a query parameter and
      * this method sets a form parameter.
+     *
      *
      *
      * @param parameterName The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
      */
-    RequestSpecification formParameter(String parameterName, List<?> parameterValues);
+    RequestSpecification formParameter(String parameterName, Collection<?> parameterValues);
 
     /**
      * A slightly shorter version of {@link #formParameters(String, Object, Object...)}.
@@ -689,14 +694,14 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification formParam(String parameterName, Object... parameterValues);
 
     /**
-     * A slightly shorter version of {@link #formParameter(String, java.util.List)}.
+     * A slightly shorter version of {@link #formParameter(String, java.util.Collection}.
      *
      * @see #formParam(String, java.util.List)
      * @param parameterName The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
      */
-    RequestSpecification formParam(String parameterName, List<?> parameterValues);
+    RequestSpecification formParam(String parameterName, Collection<?> parameterValues);
 
     /**
      * Specify a path parameter. Path parameters are used to improve readability of the request path. E.g. instead

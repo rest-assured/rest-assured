@@ -187,25 +187,25 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         return parameter(parameterName, parameterValues)
     }
 
-    def RequestSpecification parameter(String parameterName, List parameterValues) {
+    def RequestSpecification parameter(String parameterName, Collection<?> parameterValues) {
         notNull parameterName, "parameterName"
         notNull parameterValues, "parameterValues"
-        appendListParameter(requestParameters, parameterName, parameterValues)
+        appendCollectionParameter(requestParameters, parameterName, parameterValues)
         return this
     }
 
-    def RequestSpecification param(String parameterName, List parameterValues) {
+    def RequestSpecification param(String parameterName, Collection<?> parameterValues) {
         return parameter(parameterName, parameterValues)
     }
 
-    def RequestSpecification queryParameter(String parameterName, List parameterValues) {
+    def RequestSpecification queryParameter(String parameterName, Collection<?> parameterValues) {
         notNull parameterName, "parameterName"
         notNull parameterValues, "parameterValues"
-        appendListParameter(queryParameters, parameterName, parameterValues)
+        appendCollectionParameter(queryParameters, parameterName, parameterValues)
         return this
     }
 
-    def RequestSpecification queryParam(String parameterName, List parameterValues) {
+    def RequestSpecification queryParam(String parameterName, Collection<?> parameterValues) {
         return queryParameter(parameterName, parameterValues)
     }
 
@@ -245,14 +245,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         return queryParameter(parameterName, parameterValues)
     }
 
-    def RequestSpecification formParameter(String parameterName, List parameterValues) {
+    def RequestSpecification formParameter(String parameterName, Collection<?> parameterValues) {
         notNull parameterName, "parameterName"
         notNull parameterValues, "parameterValues"
-        appendListParameter(formParameters, parameterName, parameterValues)
+        appendCollectionParameter(formParameters, parameterName, parameterValues)
         return this
     }
 
-    def RequestSpecification formParam(String parameterName, List parameterValues) {
+    def RequestSpecification formParam(String parameterName, Collection<?> parameterValues) {
         return formParameter(parameterName, parameterValues)
     }
 
@@ -967,11 +967,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         }
     }
 
-    private def appendListParameter(Map<String, String> to, String key) {
-        appendListParameter(to, key, null)
-    }
-
-    private def appendListParameter(Map<String, String> to, String key, List<Object> values) {
+    private def appendCollectionParameter(Map<String, String> to, String key, Collection<Object> values) {
         if(values == null || values.isEmpty()) {
             to.put(key, new NoParameterValue())
             return;
@@ -980,7 +976,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         def convertedValues = values.collect { serializeIfNeeded(it) }
         if (to.containsKey(key)) {
             def currentValue = to.get(key)
-            if (currentValue instanceof List) {
+            if (currentValue instanceof Collection) {
                 currentValue.addAll(convertedValues)
             } else {
                 to.put(key, [currentValue, convertedValues].flatten())
@@ -1333,7 +1329,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         } else if (parameterValues.length == 1) {
             appendStandardParameter(to, parameterName, parameterValues[0])
         } else {
-            appendListParameter(to, parameterName, asList(parameterValues))
+            appendCollectionParameter(to, parameterName, asList(parameterValues))
         }
     }
 

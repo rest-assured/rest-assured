@@ -27,7 +27,9 @@ import org.junit.Test;
 
 import java.net.ConnectException;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.parsing.Parser.JSON;
@@ -392,6 +394,15 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void multiValueParametersWorks() throws Exception {
         with().param("list", "1").param("list", "2").param("list", "3").expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+    }
+
+    @Test
+    public void multiValueParametersWorksForSets() throws Exception {
+        final Set<String> paramValues = new LinkedHashSet<String>();
+        paramValues.add("1");
+        paramValues.add("2");
+        paramValues.add("3");
+        with().param("list", paramValues).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 
     @Test
