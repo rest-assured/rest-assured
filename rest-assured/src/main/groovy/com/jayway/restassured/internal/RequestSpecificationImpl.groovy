@@ -49,6 +49,7 @@ import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.apache.http.client.params.ClientPNames.*
 import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
+import java.util.concurrent.TimeUnit
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
     private static final int DEFAULT_HTTPS_PORT = 443
@@ -667,6 +668,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         def restAssuredResponse = new RestAssuredResponseImpl()
         restAssuredResponse.setSessionIdName(config == null ? SessionConfig.DEFAULT_SESSION_ID_NAME : config.sessionConfig.sessionIdName())
         restAssuredResponse.setDefaultCharset(config == null ? new DecoderConfig().defaultContentCharset() : config.getDecoderConfig().defaultContentCharset())
+        restAssuredResponse.setConnectionManager(http.client.connectionManager)
         responseSpecification.restAssuredResponse = restAssuredResponse
         def responseContentType =  assertionClosure.getResponseContentType()
 
@@ -1290,6 +1292,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
                     HttpEntity entity = resp.getEntity();
                     if ( entity != null ) entity.consumeContent();
                 }
+                // Close idle connections to the server
+                client.getConnectionManager().closeIdleConnections( 0, TimeUnit.NANOSECONDS );
             }
         }
 

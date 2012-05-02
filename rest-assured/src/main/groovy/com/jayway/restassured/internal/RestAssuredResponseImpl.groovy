@@ -31,6 +31,8 @@ import com.jayway.restassured.response.*
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
 import static org.apache.commons.lang3.StringUtils.isBlank
 
+import com.jayway.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper
+
 class RestAssuredResponseImpl implements Response {
     private static final String CANNOT_PARSE_MSG = "Failed to parse response."
     def responseHeaders
@@ -40,6 +42,7 @@ class RestAssuredResponseImpl implements Response {
     def statusLine
     def statusCode
     def sessionIdName
+    def connectionManager;
 
     def String defaultContentType
     def ResponseParserRegistrar rpr
@@ -144,7 +147,7 @@ class RestAssuredResponseImpl implements Response {
 
     InputStream asInputStream() {
         if(content == null || content instanceof InputStream) {
-            return content
+            new CloseHTTPClientConnectionInputStreamWrapper(connectionManager, content)
         } else {
             content instanceof String ? new ByteArrayInputStream(content.getBytes(findCharset())) : new ByteArrayInputStream(content)
         }

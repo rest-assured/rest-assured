@@ -47,6 +47,7 @@ public class ResponseBuilder {
             restAssuredResponse.setDefaultContentType(raResponse.getDefaultContentType());
             restAssuredResponse.setDefaultCharset(raResponse.getDefaultCharset());
             restAssuredResponse.setSessionIdName(raResponse.getSessionIdName());
+            restAssuredResponse.setConnectionManager(raResponse.getConnectionManager());
         } else {
             restAssuredResponse.setContent(response.asInputStream());
         }
