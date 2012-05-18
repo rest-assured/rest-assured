@@ -42,7 +42,7 @@ class AssertionSupport {
 
   def static minus() {
     return { pathFragment ->
-      !pathFragment.startsWith("'") && pathFragment.contains('-') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexFragment])
+      !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('-') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexFragment])
     }
   }
 

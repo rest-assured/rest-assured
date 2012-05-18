@@ -25,6 +25,7 @@ import java.util.Map;
 
 import static com.jayway.restassured.path.json.JsonPath.*;
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -340,5 +341,12 @@ public class JsonPathTest {
         final float number = from(JSON_PATH_WITH_BOOLEAN).getFloat("map.true");
 
         assertThat(number, equalTo(12.3f));
+    }
+
+    @Test
+    public void canParseJsonDocumentWhenPathIncludesMinusInsideEscaped() throws Exception {
+        JsonPath path = new JsonPath("{ \"a-b\"  : \"minus\" , \"a.b\" : \"dot\"  , \"a.b-c\" : \"both\"  }" );
+
+        assertThat(path.getString("'a.b-c'"), equalTo("both"));
     }
 }

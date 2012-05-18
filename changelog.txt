@@ -3,6 +3,11 @@ Change log next version
 * You can now use all kinds of Collection instances (and not only List's as in the previous versions) as multi-value parameters (issue 165).
 * The specified content-type header is no longer ignored when specifiying binary request body content (issue 167).
 * REST Assured now closes the HTTP Client connection after each invocation (issue 168).
+* JsonPath can now parse JSON documents with attribute names including dots and minus at the same time, e.g. 
+  	{ "a-b"  : "minus" , "a.b" : "dot"  , "a.b-c" : "both"  }"
+  we can now get the result from "a.b-c" using:
+        from(json).get("'a.b-c'"); // Returns "both"
+  (issue 172).  
 
 Change log 1.6.1 (2012-04-05)
 -----------------------------
