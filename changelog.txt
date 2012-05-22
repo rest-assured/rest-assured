@@ -8,6 +8,7 @@ Change log next version
   we can now get the result from "a.b-c" using:
         from(json).get("'a.b-c'"); // Returns "both"
   (issue 172).  
+* Fixed a NPE when using getting the session when no cookies were defined (issue 173).
 
 Change log 1.6.1 (2012-04-05)
 -----------------------------
