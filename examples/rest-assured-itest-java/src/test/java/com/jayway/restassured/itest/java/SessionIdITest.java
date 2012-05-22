@@ -25,6 +25,7 @@ import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static com.jayway.restassured.config.SessionConfig.DEFAULT_SESSION_ID_NAME;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -103,5 +104,12 @@ public class SessionIdITest extends WithJetty {
         final String sessionId = get("/sessionId").sessionId();
 
         assertThat(sessionId, equalTo("1234"));
+    }
+
+    @Test
+    public void sessionIdReturnsNullWhenNoCookiesAreDefined() throws Exception {
+        final String sessionId = get("/shopping").sessionId();
+
+        assertThat(sessionId, nullValue());
     }
 }

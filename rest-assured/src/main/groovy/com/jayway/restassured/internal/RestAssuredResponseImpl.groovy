@@ -259,7 +259,7 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
 
     String cookie(String name) {
         notNull(name, "name")
-        return cookies.getValue(name)
+        return cookies == null ? null : cookies.getValue(name)
     }
 
     String getCookie(String name) {
