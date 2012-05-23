@@ -12,6 +12,14 @@ Change log next version
 * You can now serialize Java objects to JSON and XML in multi-part bodies. E.g.
        given().multiPart("controlName", myJavaObject, "application/json"). .. 
   will serialized "myJavaObject" to a JSON string automatically (issue 166).
+* Fixed a bug that prevented using a single named path parameter multiple times. I.e. this will now work:
+	given().
+                pathParam("firstName", "John").
+        expect().
+                body("fullName", equalTo("John John")).
+        when().
+                get("/{firstName}/{firstName}");
+  (issue 169).
 
 Change log 1.6.1 (2012-04-05)
 -----------------------------

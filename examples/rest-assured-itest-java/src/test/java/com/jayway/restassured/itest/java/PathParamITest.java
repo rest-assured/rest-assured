@@ -234,4 +234,14 @@ public class PathParamITest extends WithJetty {
                get("/{firstName}/{lastName}", nonStandardChars, "Last");
 
     }
+
+    @Test
+    public void passingInSinglePathParamsThatHaveBeenDefinedMultipleTimesWorks() throws Exception {
+        given().
+                pathParam("firstName", "John").
+        expect().
+                body("fullName", equalTo("John John")).
+        when().
+               get("/{firstName}/{firstName}");
+    }
 }

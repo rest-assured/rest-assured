@@ -1038,20 +1038,20 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     private def String applyPathParamsIfNeeded(String path, Object... pathParams) {
-        def suppliedPathParamSize = pathParams.size()
-        def fieldPathParamSize = this.pathParameters.size()
-        if(suppliedPathParamSize == 0 && fieldPathParamSize == 0) {
+        def unnamedPathParamSize = pathParams.size()
+        def namedPathParamSize = this.pathParameters.size()
+        if(unnamedPathParamSize == 0 && namedPathParamSize == 0) {
             return path
-        } else if(suppliedPathParamSize > 0 && fieldPathParamSize > 0) {
+        } else if(unnamedPathParamSize > 0 && namedPathParamSize > 0) {
             throw new IllegalArgumentException("You cannot specify both named and unnamed path params at the same time")
         } else {
             def matchPattern = ~/.*\{\w+\}.*/
-            if (suppliedPathParamSize > 0) {
+            if (unnamedPathParamSize > 0) {
                 def replacePattern = ~/\{\w+\}/
                 int current = 0;
                 pathParams.each {
                     if (!path.matches(matchPattern)) {
-                        throw new IllegalArgumentException("Illegal number of path parameters. Expected $current, was $suppliedPathParamSize.")
+                        throw new IllegalArgumentException("Illegal number of path parameters. Expected $current, was $unnamedPathParamSize.")
                     }
                     current++
                     path = path.replaceFirst(replacePattern, Matcher.quoteReplacement(it.toString()))
@@ -1062,10 +1062,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
                     def replacePattern = Pattern.compile("\\{$literalizedKey\\}")
                     int current = 0;
                     if(path.matches(".*\\{$literalizedKey\\}.*")) {
-                        path = path.replaceFirst(replacePattern, value.toString())
+                        path = path.replaceAll(replacePattern, value.toString())
                         current++
                     } else {
-                        throw new IllegalArgumentException("You specified too many path parameters ($fieldPathParamSize).")
+                        throw new IllegalArgumentException("You specified too many path parameters ($namedPathParamSize).")
                     }
                 }
             }
