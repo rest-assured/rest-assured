@@ -606,6 +606,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         this
     }
 
+    def RequestSpecification multiPart(String controlName, Object object) {
+        def mimeType = requestContentType == ANY ? JSON.toString() : requestContentType
+        return multiPart(controlName, object, mimeType)
+    }
+
+    def RequestSpecification multiPart(String controlName, Object object, String mimeType) {
+        def possiblySerializedObject = serializeIfNeeded(object, mimeType)
+        multiParts << new MultiPart(name: controlName, content: possiblySerializedObject, mimeType: mimeType)
+        this
+    }
+
     def RequestSpecification multiPart(String name, String fileName, byte[] bytes) {
         multiParts << new MultiPart(name: name, content: bytes, fileName: fileName)
         this
@@ -1011,7 +1022,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     private def serializeIfNeeded(Object object) {
-        isSerializableCandidate(object) ? ObjectMapping.serialize(object, requestContentType, null) : object
+        serializeIfNeeded(object, requestContentType)
+    }
+
+    private def serializeIfNeeded(Object object, contentType) {
+        isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, null) : object
     }
 
     private def applyPathParamsAndSendRequest(Method method, String path, Object...pathParams) {

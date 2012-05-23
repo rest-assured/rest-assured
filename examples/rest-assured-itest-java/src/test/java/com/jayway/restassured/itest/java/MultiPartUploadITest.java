@@ -16,7 +16,11 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.itest.java.objects.Greeting;
+import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.apache.commons.io.IOUtils;
@@ -25,6 +29,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.http.ContentType.XML;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
 public class MultiPartUploadITest extends WithJetty {
@@ -58,6 +65,55 @@ public class MultiPartUploadITest extends WithJetty {
        when().
                post("/multipart/text");
     }
+
+   @Test
+   public void multiPartUploadingWorksForJsonObjects() throws Exception {
+        // Given
+        final Message message = new Message();
+        message.setMessage("Hello World");
+
+        // When
+       given().
+               multiPart("text", message).
+       expect().
+               statusCode(200).
+               body(is("{\"message\":\"Hello World\"}")).
+       when().
+               post("/multipart/text");
+    }
+
+   @Test
+   public void multiPartUploadingWorksForJsonObjectsWhenMimeTypeIsSpecified() throws Exception {
+       // Given
+       final Message message = new Message();
+       message.setMessage("Hello World");
+
+       // When
+       given().
+               multiPart("text", message, "application/some+json").
+       expect().
+               statusCode(200).
+               body(is("{\"message\":\"Hello World\"}")).
+       when().
+               post("/multipart/text");
+   }
+
+   @Test
+   public void multiPartUploadingWorksForXmlObjectsWhenMimeTypeIsSpecified() throws Exception {
+       // Given
+       final Greeting greeting = new Greeting();
+       greeting.setFirstName("John");
+       greeting.setLastName("Doe");
+
+       // When
+       given().
+               multiPart("text", greeting, "application/some+xml").
+       expect().
+               statusCode(200).
+               body(endsWith("<greeting><firstName>John</firstName><lastName>Doe</lastName></greeting>")).
+       when().
+               post("/multipart/text");
+   }
 
    @Test
    public void multiPartUploadingWorksForMultipleStrings() throws Exception {

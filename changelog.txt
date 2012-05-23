@@ -9,6 +9,9 @@ Change log next version
         from(json).get("'a.b-c'"); // Returns "both"
   (issue 172).  
 * Fixed a NPE when using getting the session when no cookies were defined (issue 173).
+* You can now serialize Java objects to JSON and XML in multi-part bodies. E.g.
+       given().multiPart("controlName", myJavaObject, "application/json"). .. 
+  will serialized "myJavaObject" to a JSON string automatically (issue 166).
 
 Change log 1.6.1 (2012-04-05)
 -----------------------------

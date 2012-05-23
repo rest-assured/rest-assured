@@ -1058,6 +1058,28 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification multiPart(String controlName, File file, String mimeType);
 
     /**
+     * Specify an object that will be serialized to JSON and uploaded to the server using multi-part form data
+     * uploading with a specific control name. It will use mime-type <tt>application/json</tt>.
+     * If this is not what you want please use an overloaded method.
+     *
+     * @param object The object to serialize to JSON or XML and send to the server
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @return The request specification
+     */
+    RequestSpecification multiPart(String controlName, Object object);
+
+    /**
+     * Specify an object that will be serialized and uploaded to the server using multi-part form data
+     * uploading with a specific control name.
+     *
+     * @param object The object to serialize to JSON or XML and send to the server
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param mimeType The mime-type
+     * @return The request specification
+     */
+    RequestSpecification multiPart(String controlName, Object object, String mimeType);
+
+    /**
      * Specify a byte-array to upload to the server using multi-part form data.
      * It will use the mime-type <tt>application/octet-stream</tt>. If this is not what you want please use an overloaded method.
      *
