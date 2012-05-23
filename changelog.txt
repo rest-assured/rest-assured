@@ -8,7 +8,7 @@ Change log next version
   we can now get the result from "a.b-c" using:
         from(json).get("'a.b-c'"); // Returns "both"
   (issue 172).  
-* Fixed a NPE when using getting the session when no cookies were defined (issue 173).
+* Fixed a NPE when using getting the session id when no cookies were defined (issue 173).
 * You can now serialize Java objects to JSON and XML in multi-part bodies. E.g.
        given().multiPart("controlName", myJavaObject, "application/json"). .. 
   will serialized "myJavaObject" to a JSON string automatically (issue 166).
