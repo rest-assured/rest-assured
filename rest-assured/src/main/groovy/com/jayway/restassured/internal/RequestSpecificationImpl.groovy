@@ -665,7 +665,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         def isFullyQualifiedUri = isFullyQualified(path)
         def targetUri = getTargetURI(path);
         def targetPath = getTargetPath(path)
-        def http = new RestAssuredHttpBuilder(targetUri, assertionClosure, config);
+        def http = new RestAssuredHttpBuilder(targetUri, assertionClosure, urlEncodingEnabled, config);
         allowJreProxySettings(http)
         applyRestAssuredConfig(http)
         registerRestAssuredEncoders(http);
@@ -1217,8 +1217,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private class RestAssuredHttpBuilder extends HTTPBuilder {
         def assertionClosure
 
-        RestAssuredHttpBuilder(Object defaultURI, assertionClosure, RestAssuredConfig config) throws URISyntaxException {
-            super(defaultURI, config?.getEncoderConfig())
+        RestAssuredHttpBuilder(Object defaultURI, assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config) throws URISyntaxException {
+            super(defaultURI, urlEncodingEnabled, config?.getEncoderConfig())
             this.assertionClosure = assertionClosure
         }
 
@@ -1237,9 +1237,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
                                 assertionClosure.call (response, content)
                             });
                 }
-                delegate.uri.query = queryParameters
-            } else if(!urlEncodingEnabled) {
-                // Overwrite the URL encoded query parameters with the original ones
                 delegate.uri.query = queryParameters
             }
             final HttpRequestBase reqMethod = delegate.getRequest()

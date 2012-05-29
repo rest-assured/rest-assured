@@ -59,16 +59,18 @@ public class URIBuilder implements Cloneable {
 
     protected URI base;
     private String enc;
+    private final boolean isUrlEncodingEnabled;
 
     /**
      * @throws IllegalArgumentException if uri is null
      * @param uri
      */
-    public URIBuilder( URI uri, EncoderConfig config) throws IllegalArgumentException {
+    public URIBuilder( URI uri, boolean urlEncodingEnabled, EncoderConfig config) throws IllegalArgumentException {
         Validate.notNull(uri, "uri cannot be null");
         Validate.notNull(config, "encoder config cannot be null");
         this.base = uri;
         this.enc = config.defaultQueryParameterCharset();
+        this.isUrlEncodingEnabled = urlEncodingEnabled;
     }
 
     /**
@@ -151,7 +153,7 @@ public class URIBuilder implements Cloneable {
         String path = base.getRawPath();
         if ( path != null ) sb.append( path );
         sb.append( '?' );
-        sb.append( format(nvp, enc) );
+        sb.append( format(nvp, isUrlEncodingEnabled, enc) );
         String frag = base.getRawFragment();
         if ( frag != null ) sb.append( '#' ).append( frag );
         this.base = base.resolve( sb.toString() );
@@ -391,7 +393,7 @@ public class URIBuilder implements Cloneable {
      */
     @Override
     protected URIBuilder clone() {
-        return new URIBuilder( this.base, encoderConfig().defaultQueryParameterCharset(this.enc) );
+        return new URIBuilder( this.base, this.isUrlEncodingEnabled, encoderConfig().defaultQueryParameterCharset(this.enc) );
     }
 
     /**
@@ -418,16 +420,17 @@ public class URIBuilder implements Cloneable {
      */
     private static String format (
             final List <? extends NameValuePair> parameters,
+            final boolean isUrlEncodingEnabled,
             final String encoding) {
         final StringBuilder result = new StringBuilder();
         for (final NameValuePair parameter : parameters) {
             if (result.length() > 0)
                 result.append(PARAMETER_SEPARATOR);
-            final String encodedName = encode(parameter.getName(), encoding);
+            final String encodedName = isUrlEncodingEnabled ? encode(parameter.getName(), encoding) : parameter.getName();
             result.append(encodedName);
             if(hasValue(parameter)) {
                 final String value = parameter.getValue();
-                final String encodedValue = value != null ? encode(value, encoding) : "";
+                final String encodedValue = value != null ? isUrlEncodingEnabled ? encode(value, encoding) : value : "";
                 result.append(NAME_VALUE_SEPARATOR);
                 result.append(encodedValue);
             }
