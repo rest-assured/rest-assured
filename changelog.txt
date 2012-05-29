@@ -20,6 +20,7 @@ Change log 1.6.2 (2012-05-28)
         when().
                 get("/{firstName}/{firstName}");
   (issue 169).
+* Fixed an issue with RestAssured.urlEncodingEnabled which didn't take request parameters into account when url encoding was disabled (issue 175).
 
 Change log 1.6.1 (2012-04-05)
 -----------------------------
