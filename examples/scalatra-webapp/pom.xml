@@ -19,7 +19,7 @@
     <parent>
         <groupId>com.jayway.restassured.examples</groupId>
         <artifactId>example-parent</artifactId>
-        <version>1.6.2-SNAPSHOT</version>
+        <version>1.6.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
