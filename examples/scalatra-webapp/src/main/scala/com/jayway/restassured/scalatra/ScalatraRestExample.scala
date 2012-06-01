@@ -747,6 +747,23 @@ class ScalatraRestExample extends ScalatraServlet {
     "This is not a valid JSON document"
   }
 
+  get("/xmlWithBom") {
+    contentType = "application/xml"
+    IOUtils.toByteArray(getClass.getResourceAsStream("/bom_example.xml"))
+  }
+
+  get("/xmlWithHeaderAndFooter") {
+    contentType = "application/xml"
+    """733
+      <?xml version="1.0" encoding="utf-8"?><soapenv:Envelope
+      xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+      xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <some>thing</some>
+      </soapenv:Envelope>
+      0"""
+  }
+
   def reflect: String = {
     contentType = request.getContentType
     val cookies = request.getCookies
