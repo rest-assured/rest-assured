@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Fixed an issue with XmlPath when parsing xml attributes and using findAll.
+
 Change log 1.6.2 (2012-05-28)
 -----------------------------
 * You can now use all kinds of Collection instances (and not only List's as in the previous versions) as multi-value parameters (issue 165).

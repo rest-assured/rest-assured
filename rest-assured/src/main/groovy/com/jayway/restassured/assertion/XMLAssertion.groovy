@@ -88,7 +88,7 @@ class XMLAssertion implements Assertion {
 
   private def convertToJavaObject(result) {
     def returnValue;
-    if(result.getClass().getName().equals(Attributes.class.getName())) {
+    if(Attributes.class.isAssignableFrom(result.getClass())) {
       returnValue = toJavaObject(result, true, false)
     } else if(result instanceof Node) {
       returnValue = nodeToJavaObject(result)

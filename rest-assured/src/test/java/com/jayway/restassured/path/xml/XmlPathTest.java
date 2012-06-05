@@ -428,4 +428,11 @@ public class XmlPathTest {
 
         assertThat(prettify, equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<some>\n  <thing id=\"1\">ikk</thing>\n  <thing id=\"2\">ikk2</thing>\n  <thing id=\"3\">3</thing>\n</some>"));
     }
+
+    @Test
+    public void canParseXmlFilteredAttributes() throws Exception {
+        final List<Integer> list = with(getClass().getResourceAsStream("/jmeter.jtl")).getList("testResults.httpSample.@t.findAll { it.text().toInteger() < 60000 }", int.class);
+
+        assertThat(list.size(), is(171));
+    }
 }
