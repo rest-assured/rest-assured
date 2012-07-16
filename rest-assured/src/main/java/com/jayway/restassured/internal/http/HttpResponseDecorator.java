@@ -118,7 +118,7 @@ public class HttpResponseDecorator implements HttpResponse {
 	 * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
 	 * @since 0.5.0
 	 */
-	public final class HeadersDecorator implements Iterable<Header> {
+	public final class HeadersDecorator implements Iterable<Object> {
 		
 		/**
 		 * Access the named header value, using bracket form.  For example,
@@ -154,7 +154,7 @@ public class HttpResponseDecorator implements HttpResponse {
 		 * }</pre>
 		 */
 		@SuppressWarnings("unchecked")
-		public Iterator<Header> iterator() {
+		public Iterator<Object> iterator() {
 			return responseBase.headerIterator();
 		}
 	}
