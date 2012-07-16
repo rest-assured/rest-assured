@@ -139,6 +139,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         applyPathParamsAndSendRequest(HEAD, path, pathParams)
     }
 
+    def Response options(String path, Object...pathParams) {
+        applyPathParamsAndSendRequest(OPTIONS, path, pathParams)
+    }
+
     def Response get(String path, Map pathParams) {
         pathParameters(pathParams)
         applyPathParamsAndSendRequest(GET, path)
@@ -162,6 +166,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     def Response head(String path, Map pathParams) {
         pathParameters(pathParams)
         applyPathParamsAndSendRequest(HEAD, path)
+    }
+
+    def Response options(String path, Map pathParams) {
+        pathParameters(pathParams)
+        applyPathParamsAndSendRequest(OPTIONS, path)
     }
 
     def RequestSpecification parameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
