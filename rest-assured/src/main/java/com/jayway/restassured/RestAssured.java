@@ -40,7 +40,7 @@ import java.util.Map;
 /**
  * REST Assured is a Java DSL for simplifying testing of REST based services built on top of
  * <a href="http://groovy.codehaus.org/modules/http-builder/">HTTP Builder</a>.
- * It supports POST, GET, PUT, DELETE and HEAD
+ * It supports POST, GET, PUT, DELETE, HEAD and OPTIONS
  * requests and to verify the response of these requests. Usage examples:
  *<ol>
  * <li>
@@ -857,6 +857,30 @@ public class RestAssured {
      */
     public static Response head(String path, Map<String, ?> pathParams) {
         return given().head(path, pathParams);
+    }
+
+    /**
+     * Perform a OPTIONS request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response options(String path, Object...pathParams) {
+        return given().options(path, pathParams);
+    }
+
+    /**
+     * Perform a OPTIONS request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path The path to send the request to.
+     * @param pathParams The path parameters.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response options(String path, Map<String, ?> pathParams) {
+        return given().options(path, pathParams);
     }
 
     /**
