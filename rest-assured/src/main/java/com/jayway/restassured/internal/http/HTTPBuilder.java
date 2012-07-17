@@ -26,6 +26,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.ClientContext;
@@ -323,6 +324,73 @@ public abstract class HTTPBuilder {
     public Object post( Map<String,?> args, Closure responseClosure )
             throws URISyntaxException, ClientProtocolException, IOException {
         RequestConfigDelegate delegate = new RequestConfigDelegate( new HttpPost(),
+                this.defaultContentType,
+                this.defaultRequestHeaders,
+                this.defaultResponseHandlers );
+
+        /* by default assume the request body will be URLEncoded, but allow
+             the 'requestContentType' named argument to override this if it is
+             given */
+        delegate.setRequestContentType( ContentType.URLENC.toString() );
+        delegate.setPropertiesFromMap( args );
+
+        if ( responseClosure != null ) delegate.getResponse().put(
+                Status.SUCCESS.toString(), responseClosure );
+
+        return this.doRequest( delegate );
+    }
+
+    /**
+     * <p>Convenience method to perform an HTTP PATCH.  It will use the HTTPBuilder's
+     * {@link #getHandler() registered response handlers} to handle success or
+     * failure status codes.  By default, the <code>success</code> response
+     * handler will attempt to parse the data and simply return the parsed
+     * object. </p>
+     *
+     * <p><strong>Note:</strong> If using the {@link #defaultSuccessHandler(HttpResponseDecorator, Object)
+     * default <code>success</code> response handler}, be sure to read the
+     * caveat regarding streaming response data.</p>
+     *
+     * @see #getHandler()
+     * @see #defaultSuccessHandler(HttpResponseDecorator, Object)
+     * @see #defaultFailureHandler(HttpResponseDecorator)
+     * @param args see {@link RequestConfigDelegate#setPropertiesFromMap(Map)}
+     * @return whatever was returned from the response closure.
+     * @throws IOException
+     * @throws URISyntaxException if a uri argument is given which does not
+     * 		represent a valid URI
+     * @throws ClientProtocolException
+     */
+    public Object patch( Map<String,?> args )
+            throws ClientProtocolException, URISyntaxException, IOException {
+        return this.patch( args, null );
+    }
+
+    /** <p>
+     * Convenience method to perform an HTTP form PATCH.  The response closure will be
+     * called only on a successful response.</p>
+     *
+     * <p>A 'failed' response (i.e. any
+     * HTTP status code > 399) will be handled by the registered 'failure'
+     * handler.  The {@link #defaultFailureHandler(HttpResponseDecorator) default
+     * failure handler} throws an {@link HttpResponseException}.</p>
+     *
+     * <p>The request body (specified by a <code>body</code> named parameter)
+     * will be converted to a url-encoded form string unless a different
+     * <code>requestContentType</code> named parameter is passed to this method.
+     *  (See {@link EncoderRegistry#encodeForm(Map)}.) </p>
+     *
+     * @param args see {@link RequestConfigDelegate#setPropertiesFromMap(Map)}
+     * @param responseClosure code to handle a successful HTTP response
+     * @return any value returned by the response closure.
+     * @throws ClientProtocolException
+     * @throws IOException
+     * @throws URISyntaxException if a uri argument is given which does not
+     * 		represent a valid URI
+     */
+    public Object patch( Map<String,?> args, Closure responseClosure )
+            throws URISyntaxException, ClientProtocolException, IOException {
+        RequestConfigDelegate delegate = new RequestConfigDelegate( new HttpPatch(),
                 this.defaultContentType,
                 this.defaultRequestHeaders,
                 this.defaultResponseHandlers );

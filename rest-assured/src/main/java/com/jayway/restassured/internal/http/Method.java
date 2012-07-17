@@ -36,7 +36,8 @@ public enum Method {
 	DELETE( HttpDeleteWithBody.class ),
 	HEAD( HttpHead.class ),
     TRACE(HttpTrace.class),
-    OPTIONS(HttpOptions.class);
+    OPTIONS(HttpOptions.class),
+    PATCH (HttpPatch.class);
 	
 	private final Class<? extends HttpRequestBase> requestType;
 	

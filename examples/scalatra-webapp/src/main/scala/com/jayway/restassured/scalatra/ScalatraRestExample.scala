@@ -163,6 +163,11 @@ class ScalatraRestExample extends ScalatraServlet {
     "{ \"list\" : \""+{multiParams("list")}.mkString(",") +"\" }"
   }
 
+  patch("/multiValueParam") {
+    val content: String = IOUtils.toString(request.getInputStream)
+    "{ \"list\" : \""+{findMultiParamIn(content, "list")}.mkString(",") +"\" }"
+  }
+
   get("/hello") {
     val json = ("hello" -> "Hello Scalatra")
     compact(render(json))
@@ -181,6 +186,10 @@ class ScalatraRestExample extends ScalatraServlet {
     reflect
   }
 
+  patch("/reflect") {
+    reflect
+  }
+
   post("/reflect") {
     reflect
   }
@@ -191,6 +200,12 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   put("/serializedJsonParameter") {
+    val something = {params("something")}
+    val serialized = {params("serialized")}
+    serialized
+  }
+
+  patch("/serializedJsonParameter") {
     val something = {params("something")}
     val serialized = {params("serialized")}
     serialized
@@ -213,6 +228,21 @@ class ScalatraRestExample extends ScalatraServlet {
 
   put("/greetPut") {
     // For some reason Scalatra doesn't seem to handle form parameters in PUT requests
+    if(request.getParameterNames.exists { _ == "firstName" }) {
+      greetJson
+    } else {
+      val content: String = IOUtils.toString(request.getInputStream)
+      val name = "Greetings " + {
+        findParamIn(content, "firstName")
+      } + " " + {
+        findParamIn(content, "lastName")
+      }
+      val json = ("greeting" -> name)
+      compact(render(json))
+    }
+  }
+
+  patch("/greetPatch") {
     if(request.getParameterNames.exists { _ == "firstName" }) {
       greetJson
     } else {
@@ -291,6 +321,14 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   put("/noValueParam") {
+    val content: String = IOUtils.toString(request.getInputStream)
+    if(content.contains("=")) {
+      throw new IllegalArgumentException("One of the parameters had a value")
+    }
+    "OK"
+  }
+
+  patch("/noValueParam") {
     val content: String = IOUtils.toString(request.getInputStream)
     if(content.contains("=")) {
       throw new IllegalArgumentException("One of the parameters had a value")
@@ -421,11 +459,20 @@ class ScalatraRestExample extends ScalatraServlet {
   put("/body") {
     getStringBody
   }
+
+  patch("/body") {
+    getStringBody
+  }
+
   delete("/body") {
     getStringBody
   }
 
   put("/binaryBody") {
+    getBinaryBodyResponse
+  }
+
+  patch("/binaryBody") {
     getBinaryBodyResponse
   }
 
@@ -499,6 +546,10 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   delete("/cookie") {
+    getCookies
+  }
+
+  patch("/cookie") {
     getCookies
   }
 

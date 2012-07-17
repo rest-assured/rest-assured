@@ -86,6 +86,13 @@ class TestSpecificationImpl implements RequestSender {
     requestSpecification.head path, pathParams
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  Response patch(String path, Object...pathParams) {
+    requestSpecification.patch path, pathParams
+  }
+
   Response get(String path, Map pathParams) {
     requestSpecification.get path, pathParams
   }
@@ -104,6 +111,10 @@ class TestSpecificationImpl implements RequestSender {
 
   Response head(String path, Map pathParams) {
     requestSpecification.head path, pathParams
+  }
+
+  Response patch(String path, Map pathParams) {
+    requestSpecification.patch path, pathParams
   }
 
   def RequestSpecification getRequestSpecification() {
