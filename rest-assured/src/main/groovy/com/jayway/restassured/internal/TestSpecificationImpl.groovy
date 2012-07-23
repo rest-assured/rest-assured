@@ -93,6 +93,10 @@ class TestSpecificationImpl implements RequestSender {
     requestSpecification.patch path, pathParams
   }
 
+  Response options(String path, Object...pathParams) {
+    requestSpecification.options path, pathParams
+  }
+
   Response get(String path, Map pathParams) {
     requestSpecification.get path, pathParams
   }
@@ -115,6 +119,10 @@ class TestSpecificationImpl implements RequestSender {
 
   Response patch(String path, Map pathParams) {
     requestSpecification.patch path, pathParams
+  }
+
+  Response options(String path, Map pathParams) {
+    requestSpecification.options path, pathParams
   }
 
   def RequestSpecification getRequestSpecification() {

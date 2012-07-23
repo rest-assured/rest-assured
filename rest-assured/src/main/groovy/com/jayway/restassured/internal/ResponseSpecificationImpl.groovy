@@ -233,6 +233,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         requestSpecification.patch(path, pathParams);
     }
 
+    Response options(String path, Object...pathParams) {
+        requestSpecification.options(path, pathParams);
+    }
+
     def Response head(String path, Object...pathParams) {
         requestSpecification.head(path, pathParams);
     }
@@ -259,6 +263,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
     def Response patch(String path, Map pathParams) {
         requestSpecification.patch(path, pathParams);
+    }
+
+    def Response options(String path, Map pathParams) {
+        requestSpecification.options(path, pathParams);
     }
 
     def ResponseSpecification parser(String contentType, Parser parser) {

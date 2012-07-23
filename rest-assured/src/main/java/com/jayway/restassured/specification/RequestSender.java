@@ -140,4 +140,25 @@ public interface RequestSender {
      * @return The response of the request.
      */
     Response patch(String path, Map<String, ?> pathParams);
+
+    /**
+     * Perform a OPTIONS request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
+     * @return The response of the request.
+     */
+    Response options(String path, Object...pathParams);
+
+
+    /**
+     * Perform a OPTIONS request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path The path to send the request to.
+     * @param pathParams The path parameters.
+     * @return The response of the request.
+     */
+    Response options(String path, Map<String, ?> pathParams);
 }
