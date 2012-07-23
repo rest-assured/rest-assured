@@ -139,6 +139,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         applyPathParamsAndSendRequest(HEAD, path, pathParams)
     }
 
+    def Response patch(String path, Object...pathParams) {
+        applyPathParamsAndSendRequest(PATCH, path, pathParams)
+    }
+
     def Response get(String path, Map pathParams) {
         pathParameters(pathParams)
         applyPathParamsAndSendRequest(GET, path)
@@ -162,6 +166,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     def Response head(String path, Map pathParams) {
         pathParameters(pathParams)
         applyPathParamsAndSendRequest(HEAD, path)
+    }
+
+    def Response patch(String path, Map pathParams) {
+        pathParameters(pathParams)
+        applyPathParamsAndSendRequest(PATCH, path)
     }
 
     def RequestSpecification parameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
@@ -692,7 +701,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
         keyStoreSpec.apply(http, isFullyQualifiedUri == true && port == DEFAULT_HTTP_TEST_PORT ? DEFAULT_HTTPS_PORT : port)
 
-        validateMultiPartForPostAndPutOnly(method);
+        validateMultiPartForPostPutAndPatchOnly(method);
 
         if(mayHaveBody(method)) {
             if(hasFormParams() && requestBody != null) {
@@ -701,6 +710,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             def bodyContent = createBodyContent(assembleBodyContent(method))
             if(method == POST) {
                 http.post( path: targetPath, body: bodyContent,
+                        requestContentType: defineRequestContentType(method),
+                        contentType: responseContentType) { response, content ->
+                    if(assertionClosure != null) {
+                        assertionClosure.call (response, content)
+                    }
+                }
+            } else if(method == PATCH) {
+                http.patch( path: targetPath, body: bodyContent,
                         requestContentType: defineRequestContentType(method),
                         contentType: responseContentType) { response, content ->
                     if(assertionClosure != null) {
@@ -805,9 +822,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(baseUriPath, basePath), path)
     }
 
-    private def validateMultiPartForPostAndPutOnly(method) {
-        if(multiParts.size() > 0 && method != POST && method != PUT) {
-            throw new IllegalArgumentException("Sorry, multi part form data is only available for POST and PUT.");
+    private def validateMultiPartForPostPutAndPatchOnly(method) {
+        if(multiParts.size() > 0 && method != POST && method != PUT && method != PATCH) {
+            throw new IllegalArgumentException("Sorry, multi part form data is only available for POST, PUT and PATCH.");
         }
     }
 
@@ -917,7 +934,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             } else if (requestBody == null) {
                 contentType = mayHaveBody(method) ? URLENC : ANY
             } else if (requestBody instanceof byte[]) {
-                if(method != POST && method != PUT && method != DELETE) {
+                if(method != POST && method != PUT && method != DELETE && method != PATCH) {
                     throw new IllegalStateException("$method doesn't support binary request data.");
                 }
                 contentType = BINARY
