@@ -16,42 +16,44 @@
 
 package com.jayway.restassured.internal.mapping
 
-import com.jayway.restassured.internal.http.CharsetExtractor
 import org.codehaus.jackson.JsonEncoding
 import org.codehaus.jackson.JsonGenerator
 import org.codehaus.jackson.map.ObjectMapper
 import org.codehaus.jackson.map.type.TypeFactory
 import org.codehaus.jackson.type.JavaType
 
+import com.jayway.restassured.internal.http.CharsetExtractor
+
 class JacksonMapping {
-    def serialize(Object object, String contentType) {
-        JsonEncoding jsonEncoding = getEncoding(contentType);
-        def mapper = new ObjectMapper();
-        def stream = new ByteArrayOutputStream();
-        JsonGenerator jsonGenerator = mapper.getJsonFactory().createJsonGenerator(stream, jsonEncoding)
-        mapper.writeValue(jsonGenerator, object);
-        return stream.toString()
-    }
+	def serialize(Object object, String contentType) {
+		JsonEncoding jsonEncoding = getEncoding(contentType);
 
-    def deserialize(Object object, String charset, Class cls) {
-        def mapper = new ObjectMapper();
-        JavaType javaType = TypeFactory.type(cls)
-        return mapper.readValue(object, javaType);
-    }
+		def mapper = ObjectMapperFactory.createJacksonObjectMapper();
+		def stream = new ByteArrayOutputStream();
+		JsonGenerator jsonGenerator = mapper.getJsonFactory().createJsonGenerator(stream, jsonEncoding)
+		mapper.writeValue(jsonGenerator, object);
+		return stream.toString()
+	}
 
-    private JsonEncoding getEncoding(String contentType) {
-        def foundEncoding = JsonEncoding.UTF8
-        if(contentType != null) {
-            def charset = CharsetExtractor.getCharsetFromContentType(contentType)
-            if(charset != null) {
-                for (JsonEncoding encoding : JsonEncoding.values()) {
-                    if (charset.equals(encoding.getJavaName())) {
-                        foundEncoding = encoding
-                        break
-                    }
-                }
-            }
-        }
-        return foundEncoding;
-    }
+	def deserialize(Object object, String charset, Class cls) {
+		def mapper = new ObjectMapper();
+		JavaType javaType = TypeFactory.type(cls)
+		return mapper.readValue(object, javaType);
+	}
+
+	private JsonEncoding getEncoding(String contentType) {
+		def foundEncoding = JsonEncoding.UTF8
+		if(contentType != null) {
+			def charset = CharsetExtractor.getCharsetFromContentType(contentType)
+			if(charset != null) {
+				for (JsonEncoding encoding : JsonEncoding.values()) {
+					if (charset.equals(encoding.getJavaName())) {
+						foundEncoding = encoding
+						break
+					}
+				}
+			}
+		}
+		return foundEncoding;
+	}
 }
