@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static com.jayway.restassured.RestAssured.expect;
+import static org.hamcrest.Matchers.is;
 
 public class ContentTypeITest extends WithJetty {
 
@@ -34,5 +35,10 @@ public class ContentTypeITest extends WithJetty {
         exception.expectMessage("Expected content-type \"something\" doesn't match actual content-type \"application/json; charset=UTF-8\".");
 
         expect().contentType("something").when().get("/hello");
+    }
+
+    @Test
+    public void canValidateResponseContentTypeWithHamcrestMatcher() throws Exception {
+        expect().contentType(is("application/json; charset=UTF-8")).when().get("/hello");
     }
 }
