@@ -225,7 +225,7 @@ public class MultiPartUploadITest extends WithJetty {
     @Test
     public void multiPartUploadingDoesntWorkForDelete() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Sorry, multi part form data is only available for POST and PUT.");
+        exception.expectMessage("Sorry, multi part form data is only available for POST, PUT and PATCH.");
 
         given().
                 multiPart("text", "sometext").
