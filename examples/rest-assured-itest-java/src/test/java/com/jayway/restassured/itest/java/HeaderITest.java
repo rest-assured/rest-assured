@@ -16,19 +16,25 @@
 
 package com.jayway.restassured.itest.java;
 
-import com.jayway.restassured.itest.java.support.WithJetty;
-import com.jayway.restassured.response.Header;
-import com.jayway.restassured.response.Headers;
-import org.junit.Test;
+import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
+
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.filter.log.ResponseLoggingFilter;
+import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Header;
+import com.jayway.restassured.response.Headers;
 
 public class HeaderITest extends WithJetty {
 
@@ -138,16 +144,17 @@ public class HeaderITest extends WithJetty {
 
     @Test
     public void whenExpectedHeaderDoesntMatchAnAssertionThenAssertionErrorIsThrown() throws Exception {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(containsString("Expected header \"Content-Length\" was not \"161\", was \"160\". Headers are:"));
+		RestAssured.filters(new ResponseLoggingFilter());
+        this.exception.expect(AssertionError.class);
+        this.exception.expectMessage(containsString("Expected header \"Content-Length\" was not \"161\", was \"160\". Headers are:"));
 
         expect().response().header("Content-Length", "161").when().get("/lotto");
     }
 
     @Test
     public void whenExpectedHeaderIsNotFoundThenAnAssertionErrorIsThrown() throws Exception {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("Expected header \"Not-Defined\" was not \"160\", was \"null\". Headers are:\n" +
+        this.exception.expect(AssertionError.class);
+        this.exception.expectMessage(equalTo("Expected header \"Not-Defined\" was not \"160\", was \"null\". Headers are:\n" +
                 "Content-Type=application/json; charset=UTF-8\n" +
                 "Content-Length=160\n" +
                 "Server=Jetty(6.1.14)"));

@@ -16,17 +16,20 @@
 
 package com.jayway.restassured.internal
 
-import com.jayway.restassured.authentication.AuthenticationScheme
-import com.jayway.restassured.authentication.NoAuthScheme
-import com.jayway.restassured.filter.Filter
-import com.jayway.restassured.http.ContentType
-import com.jayway.restassured.internal.filter.FilterContextImpl
-import com.jayway.restassured.internal.filter.RootFilter
-import com.jayway.restassured.internal.mapping.ObjectMapping
-import com.jayway.restassured.mapper.ObjectMapper
+import static com.jayway.restassured.assertion.AssertParameter.notNull
+import static com.jayway.restassured.http.ContentType.*
+import static com.jayway.restassured.internal.http.Method.*
+import static java.util.Arrays.asList
+import static org.apache.commons.lang3.StringUtils.substringAfter
+import static org.apache.http.client.params.ClientPNames.*
+import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE
+import static org.apache.http.protocol.HTTP.CONTENT_TYPE
+
 import java.util.Map.Entry
+import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
 import java.util.regex.Pattern
+
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.Validate
 import org.apache.http.HttpEntity
@@ -37,19 +40,20 @@ import org.apache.http.entity.HttpEntityWrapper
 import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner
 import org.apache.http.message.BasicHeader
-import static com.jayway.restassured.assertion.AssertParameter.notNull
+
+import com.jayway.restassured.authentication.AuthenticationScheme
+import com.jayway.restassured.authentication.NoAuthScheme
 import com.jayway.restassured.config.*
-import static com.jayway.restassured.http.ContentType.*
+import com.jayway.restassured.filter.Filter
+import com.jayway.restassured.http.ContentType
+import com.jayway.restassured.internal.filter.FilterContextImpl
+import com.jayway.restassured.internal.filter.RootFilter
 import com.jayway.restassured.internal.http.*
-import static com.jayway.restassured.internal.http.Method.*
+import com.jayway.restassured.internal.mapping.ObjectMapper
+import com.jayway.restassured.internal.mapping.ObjectMapping
+import com.jayway.restassured.mapper.ObjectMapperType
 import com.jayway.restassured.response.*
 import com.jayway.restassured.specification.*
-import static java.util.Arrays.asList
-import static org.apache.commons.lang3.StringUtils.substringAfter
-import static org.apache.http.client.params.ClientPNames.*
-import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE
-import static org.apache.http.protocol.HTTP.CONTENT_TYPE
-import java.util.concurrent.TimeUnit
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
     private static final int DEFAULT_HTTPS_PORT = 443
@@ -459,14 +463,26 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     def RequestSpecification body(Object object, ObjectMapper mapper) {
+    	notNull object, "object"
+    	notNull mapper, "Object mapper"
+
+    	this.requestBody = mapper.serialize(object, requestContentType);
+    	this
+    }
+
+    def RequestSpecification body(Object object, ObjectMapperType mapperType) {
         notNull object, "object"
-        notNull mapper, "Object mapper"
-        this.requestBody = ObjectMapping.serialize(object, requestContentType, mapper)
+        notNull mapperType, "Object mapper type"
+        this.requestBody = ObjectMapping.serialize(object, requestContentType, mapperType)
         this
     }
 
     def RequestSpecification content(Object object, ObjectMapper mapper) {
         return body(object, mapper)
+    }
+
+    def RequestSpecification content(Object object, ObjectMapperType mapperType) {
+    	return body(object, mapperType)
     }
 
     def RequestSpecification contentType(ContentType contentType) {

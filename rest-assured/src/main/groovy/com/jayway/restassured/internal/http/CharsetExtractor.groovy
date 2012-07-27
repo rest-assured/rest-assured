@@ -23,7 +23,7 @@ class CharsetExtractor {
 
     private static final String CHARSET = "charset"
 
-    public static String getCharsetFromContentType(String contentType) {
+    public static String getCharsetFromContentType(String contentType) { 
         def foundCharset = null
         if(isBlank(contentType)) {
             foundCharset = null;

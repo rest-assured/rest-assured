@@ -16,29 +16,50 @@
 
 package com.jayway.restassured.itest.java;
 
-import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.itest.java.support.WithJetty;
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.RequestSpecification;
-import com.jayway.restassured.specification.ResponseSpecification;
+import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.with;
+import static com.jayway.restassured.parsing.Parser.JSON;
+import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 import groovy.json.JsonException;
-import org.junit.Test;
 
-import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static com.jayway.restassured.RestAssured.*;
-import static com.jayway.restassured.parsing.Parser.JSON;
-import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.filter.log.RequestLoggingFilter;
+import com.jayway.restassured.filter.log.ResponseLoggingFilter;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.RequestSpecification;
+import com.jayway.restassured.specification.ResponseSpecification;
 
 public class JSONGetITest extends WithJetty {
-
+	@Before
+	public void setup()
+	{
+		RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
+	}
     @Test
     public void simpleJSONAndHamcrestMatcher() throws Exception {
         expect().body("hello", equalTo("Hello Scalatra")).when().get("/hello");
@@ -148,8 +169,8 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void newSyntaxWithWrongStatusCode() throws Exception {
         // Given
-        exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("Expected status code <300> doesn't match actual status code <200>."));
+        this.exception.expect(AssertionError.class);
+        this.exception.expectMessage(equalTo("Expected status code <300> doesn't match actual status code <200>."));
 
         // When
         expect().response().statusCode(300).and().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
@@ -168,8 +189,8 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void newSyntaxWithWrongStatusLine() throws Exception {
         // Given
-        exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("Expected status line \"300\" doesn't match actual status line \"HTTP/1.1 200 OK\"."));
+        this.exception.expect(AssertionError.class);
+        this.exception.expectMessage(equalTo("Expected status line \"300\" doesn't match actual status line \"HTTP/1.1 200 OK\"."));
 
         // When
         expect().statusLine(equalTo("300")).and().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
@@ -199,8 +220,8 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void whenMixingBodyMatchersRequiringContentTypeTextAndContentTypeAnyThenAnIllegalStateExceptionIsThrown() throws Exception {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage(equalTo("Currently you cannot mix body expectations that require different content types for matching.\n" +
+        this.exception.expect(IllegalStateException.class);
+        this.exception.expectMessage(equalTo("Currently you cannot mix body expectations that require different content types for matching.\n" +
                 "For example XPath and full body matching requires TEXT content and JSON/XML matching requires JSON/XML/ANY mapping. " +
                 "You need to split conflicting matchers into two tests. Your matchers are:\n" +
                 "Body containing expression \"lotto\" must match \"something\" which cannot be 'TEXT'\n" +
@@ -251,10 +272,10 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void hasItemHamcrestMatchingThrowsGoodErrorMessagesWhenExpectedItemNotFoundInArray() throws Exception {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(containsString("JSON path lotto.winning-numbers doesn't match."));
-        exception.expectMessage(containsString("Expected: a collection containing <43>"));
-        exception.expectMessage(containsString("  Actual: [2, 45, 34, 23, 7, 5, 3]"));
+        this.exception.expect(AssertionError.class);
+        this.exception.expectMessage(containsString("JSON path lotto.winning-numbers doesn't match."));
+        this.exception.expectMessage(containsString("Expected: a collection containing <43>"));
+        this.exception.expectMessage(containsString("  Actual: [2, 45, 34, 23, 7, 5, 3]"));
 
         expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItem(43)).when().get("/lotto");
     }
@@ -292,8 +313,8 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void getDoesntSupportsStringBody() throws Exception {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Cannot set a request body for a GET method");
+        this.exception.expect(IllegalArgumentException.class);
+        this.exception.expectMessage("Cannot set a request body for a GET method");
 
         given().body("a body").expect().body(equalTo("a body")).when().get("/body");
     }
@@ -315,7 +336,7 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void supportsGettingSingleFloat() throws Exception {
-        expect().body("store.book[0].price", equalTo(8.95f)).when().get("/jsonStore");
+		expect().body("store.book[0].price", equalTo(8.95f)).when().get("/jsonStore");
     }
 
     @Test
@@ -358,8 +379,8 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void throwsNiceErrorMessageWhenIllegalPath() throws Exception {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Cannot get property 'unknown' on null object");
+        this.exception.expect(IllegalArgumentException.class);
+        this.exception.expectMessage("Cannot get property 'unknown' on null object");
 
         expect().body("store.unknown.unknown.get(0)", hasItems("none")).when().get("/jsonStore");
     }
