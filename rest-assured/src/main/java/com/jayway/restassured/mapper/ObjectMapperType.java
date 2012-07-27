@@ -19,6 +19,6 @@ package com.jayway.restassured.mapper;
 /**
  * The different object mappers that can be used with REST Assured
  */
-public enum ObjectMapper {
+public enum ObjectMapperType {
     JACKSON, GSON, JAXB;
 }

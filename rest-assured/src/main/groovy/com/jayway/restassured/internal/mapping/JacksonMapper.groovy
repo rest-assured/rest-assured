@@ -24,21 +24,31 @@ import org.codehaus.jackson.type.JavaType
 
 import com.jayway.restassured.internal.http.CharsetExtractor
 
-class JacksonMapping {
-	def serialize(Object object, String contentType) {
-		JsonEncoding jsonEncoding = getEncoding(contentType);
+class JacksonMapper implements com.jayway.restassured.internal.mapping.ObjectMapper {
+	private static ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory()
 
-		def mapper = ObjectMapperFactory.createJacksonObjectMapper();
-		def stream = new ByteArrayOutputStream();
+	def static register(ObjectMapperFactory objectMapperFactory) {
+		JacksonMapper.objectMapperFactory = objectMapperFactory
+	}
+
+	private ObjectMapper createJacksonObjectMapper(Class cls) {
+		return JacksonMapper.objectMapperFactory.createJacksonObjectMapper(cls)
+	}
+
+	def String serialize(Object object, String contentType) {
+		JsonEncoding jsonEncoding = getEncoding(contentType)
+
+		def mapper = createJacksonObjectMapper(object.getClass())
+		def stream = new ByteArrayOutputStream()
 		JsonGenerator jsonGenerator = mapper.getJsonFactory().createJsonGenerator(stream, jsonEncoding)
-		mapper.writeValue(jsonGenerator, object);
+		mapper.writeValue(jsonGenerator, object)
 		return stream.toString()
 	}
 
-	def deserialize(Object object, String charset, Class cls) {
-		def mapper = new ObjectMapper();
+	def Object deserialize(Object object, Class cls) {
+		def mapper = createJacksonObjectMapper(cls)
 		JavaType javaType = TypeFactory.type(cls)
-		return mapper.readValue(object, javaType);
+		return mapper.readValue(object, javaType)
 	}
 
 	private JsonEncoding getEncoding(String contentType) {
@@ -54,6 +64,6 @@ class JacksonMapping {
 				}
 			}
 		}
-		return foundEncoding;
+		return foundEncoding
 	}
 }

@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.internal.mapping
+package com.jayway.restassured.mapper;
 
-import com.google.gson.Gson
-
-class GsonMapping {
-  def deserialze(Object object, String charset, Class cls) {
-    def gson = new Gson();
-    return gson.fromJson(object, cls)
-  }
-
-  def serialize(Object object, String encoding) {
-    Gson gson = new Gson();
-    return gson.toJson(object);
-  }
+/**
+ * The different object mappers that can be used with REST Assured
+ */
+public enum ObjectMapperOld
+{
+    JACKSON, GSON, JAXB;
 }

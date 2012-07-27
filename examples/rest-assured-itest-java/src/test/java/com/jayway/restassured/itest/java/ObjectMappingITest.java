@@ -24,7 +24,7 @@ import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
-import static com.jayway.restassured.mapper.ObjectMapper.*;
+import static com.jayway.restassured.mapper.ObjectMapperType.*;
 import static com.jayway.restassured.parsing.Parser.JSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
