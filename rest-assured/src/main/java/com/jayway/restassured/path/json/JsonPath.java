@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,10 @@ package com.jayway.restassured.path.json;
 
 import com.jayway.restassured.assertion.JSONAssertion;
 import com.jayway.restassured.exception.ParsePathException;
+import com.jayway.restassured.internal.mapping.ObjectMapperDeserializationContextImpl;
 import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.internal.support.Prettifier;
+import com.jayway.restassured.mapper.ObjectMapperDeserializationContext;
 import com.jayway.restassured.parsing.Parser;
 import groovy.json.JsonBuilder;
 import groovy.json.JsonOutput;
@@ -497,7 +499,7 @@ public class JsonPath {
         } else {
             return convertObjectTo(object, objectType);
         }
-        return ObjectMapping.deserialize(object, objectType, "application/json","", null);
+        return ObjectMapping.deserialize(object, objectType, "application/json","", null, null);
     }
 
     /**

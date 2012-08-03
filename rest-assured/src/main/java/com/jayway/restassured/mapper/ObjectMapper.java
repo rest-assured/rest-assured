@@ -15,12 +15,30 @@
  */
 package com.jayway.restassured.mapper;
 
+/**
+ * An object mapper is used to serialize and deserialize a Java object to and from a String. REST Assured provides
+ * mappers for XML and JSON out of the box (see {@link ObjectMapperType}) but you can implement this interface
+ * to roll your own mapper implementations for custom formats.
+ */
 public interface ObjectMapper {
-	public static final ObjectMapperType JACKSON = ObjectMapperType.JACKSON;
-	public static final ObjectMapperType GSON = ObjectMapperType.GSON;
-	public static final ObjectMapperType JAXB = ObjectMapperType.JAXB;
+    public static final ObjectMapperType JACKSON = ObjectMapperType.JACKSON;
+    public static final ObjectMapperType GSON = ObjectMapperType.GSON;
+    public static final ObjectMapperType JAXB = ObjectMapperType.JAXB;
 
-	Object deserialize(Object object, Class cls);
+    /**
+     * Deserialize a response to a Java object
+     *
+     * @param context The details needed to convert the response to a Java object
+     * @return A Java object
+     */
+    Object deserialize(ObjectMapperDeserializationContext context);
 
-	String serialize(Object object, String contentType);
+
+    /**
+     * Serialize a request to a string that'll be used as the method body.
+     *
+     * @param context The details needed to convert the request from a Java object to a object
+     * @return A serialized representation of the Java object (String, InputStream or byte[]).
+     */
+    Object serialize(ObjectMapperSerializationContext context);
 }

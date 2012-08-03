@@ -19,7 +19,7 @@ package com.jayway.restassured.internal.mapping
 import com.google.gson.Gson
 
 class GsonFactory {
-	def Gson createGson(Class cls) {
+	def Gson createGson(Class cls, String charset) {
 		return new Gson();
 	}
 }

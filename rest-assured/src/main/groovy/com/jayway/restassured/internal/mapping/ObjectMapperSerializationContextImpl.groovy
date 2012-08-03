@@ -13,13 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.jayway.restassured.internal.mapping
 
-import javax.xml.bind.JAXBContext
+import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 
-class JAXBContextFactory {
-	public JAXBContext createJAXBContext(Class<?> clazz, String charset) {
-		return JAXBContext.newInstance(clazz);
-	}
+class ObjectMapperSerializationContextImpl implements ObjectMapperSerializationContext {
+
+    def object
+    def contentType
+    def charset
+
+    @Override
+    Object getObjectToSerialize() {
+        return object
+    }
+
+    @Override
+    String getContentType() {
+        return contentType
+    }
+
+    @Override
+    String getCharset() {
+        return charset
+    }
 }

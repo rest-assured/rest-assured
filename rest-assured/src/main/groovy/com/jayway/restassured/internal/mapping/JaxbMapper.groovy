@@ -24,6 +24,8 @@ import javax.xml.bind.annotation.XmlRootElement
 
 import com.jayway.restassured.internal.http.CharsetExtractor
 import com.jayway.restassured.mapper.ObjectMapper
+import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
+import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 
 class JaxbMapper implements ObjectMapper {
 	private static JAXBContextFactory jaxbContextFactory=new JAXBContextFactory()
@@ -32,23 +34,27 @@ class JaxbMapper implements ObjectMapper {
 		JaxbMapper.jaxbContextFactory = jaxbContextFactory
 	}
 
-	private JAXBContext createJAXBContext(Class clazz) {
-		return JaxbMapper.jaxbContextFactory.createJAXBContext(clazz)
+	private JAXBContext createJAXBContext(Class clazz, String charset) {
+		return JaxbMapper.jaxbContextFactory.createJAXBContext(clazz, charset)
 	}
 
-	def String serialize(Object object, String contentType) {
-		JAXBContext jaxbContext = createJAXBContext(object.getClass())
+	def Object serialize(ObjectMapperSerializationContext context) {
+        def object = context.getObjectToSerialize();
+        def charset = context.getCharset()
+        JAXBContext jaxbContext = createJAXBContext(object.getClass(), charset)
 		Marshaller marshaller = jaxbContext.createMarshaller()
-		if (contentType != null && contentType.contains("charset")) {
-			marshaller.setProperty(Marshaller.JAXB_ENCODING, getEncoding(contentType))
+		if (charset != null) {
+			marshaller.setProperty(Marshaller.JAXB_ENCODING, charset)
 		}
 		StringWriter sw = new StringWriter()
 		marshaller.marshal(object, sw)
 		return sw.toString()
 	}
 
-	def Object deserialize(Object object, Class cls) {
-		JAXBContext jaxbContext = createJAXBContext(cls)
+	def Object deserialize(ObjectMapperDeserializationContext context) {
+        def cls = context.getType();
+        def object = context.getObjectToDeserializeAs(String.class);
+		JAXBContext jaxbContext = createJAXBContext(cls, context.getCharset())
 
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller()
 		def reader = new StringReader(object)
@@ -58,9 +64,5 @@ class JaxbMapper implements ObjectMapper {
 			JAXBElement jaxbElement = unmarshaller.unmarshal(reader, cls)
 			return jaxbElement.getValue()
 		}
-	}
-
-	private String getEncoding(String contentType) {
-		return CharsetExtractor.getCharsetFromContentType(contentType)
 	}
 }

@@ -13,58 +13,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.jayway.restassured.internal.mapping
 
+import com.jayway.restassured.mapper.ObjectMapper
+import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
+import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 import org.codehaus.jackson.JsonEncoding
 import org.codehaus.jackson.JsonGenerator
-
 import org.codehaus.jackson.map.type.TypeFactory
 import org.codehaus.jackson.type.JavaType
 
-import com.jayway.restassured.internal.http.CharsetExtractor
-import com.jayway.restassured.mapper.ObjectMapper
-
 class JacksonMapper implements ObjectMapper {
-	private static ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory()
+    private static ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory()
 
-	def static register(ObjectMapperFactory objectMapperFactory) {
-		JacksonMapper.objectMapperFactory = objectMapperFactory
-	}
+    def static register(ObjectMapperFactory objectMapperFactory) {
+        JacksonMapper.objectMapperFactory = objectMapperFactory
+    }
 
-	private org.codehaus.jackson.map.ObjectMapper createJacksonObjectMapper(Class cls) {
-		return JacksonMapper.objectMapperFactory.createJacksonObjectMapper(cls)
-	}
+    private org.codehaus.jackson.map.ObjectMapper createJacksonObjectMapper(Class cls, String charset) {
+        return JacksonMapper.objectMapperFactory.createJacksonObjectMapper(cls, charset)
+    }
 
-	def String serialize(Object object, String contentType) {
-		JsonEncoding jsonEncoding = getEncoding(contentType)
+    def String serialize(ObjectMapperSerializationContext context) {
+        def object = context.getObjectToSerialize()
+        JsonEncoding jsonEncoding = getEncoding(context.getCharset())
+        def mapper = createJacksonObjectMapper(object.getClass(), context.getCharset())
+        def stream = new ByteArrayOutputStream()
+        JsonGenerator jsonGenerator = mapper.getJsonFactory().createJsonGenerator(stream, jsonEncoding)
+        mapper.writeValue(jsonGenerator, object)
+        return stream.toString()
+    }
 
-		def mapper = createJacksonObjectMapper(object.getClass())
-		def stream = new ByteArrayOutputStream()
-		JsonGenerator jsonGenerator = mapper.getJsonFactory().createJsonGenerator(stream, jsonEncoding)
-		mapper.writeValue(jsonGenerator, object)
-		return stream.toString()
-	}
+    def Object deserialize(ObjectMapperDeserializationContext context) {
+        def object = context.getObjectToDeserializeAs(String.class)
+        def cls = context.getType()
+        def mapper = createJacksonObjectMapper(cls, context.getCharset())
+        JavaType javaType = TypeFactory.type(cls)
+        return mapper.readValue(object, javaType)
+    }
 
-	def Object deserialize(Object object, Class cls) {
-		def mapper = createJacksonObjectMapper(cls)
-		JavaType javaType = TypeFactory.type(cls)
-		return mapper.readValue(object, javaType)
-	}
-
-	private JsonEncoding getEncoding(String contentType) {
-		def foundEncoding = JsonEncoding.UTF8
-		if(contentType != null) {
-			def charset = CharsetExtractor.getCharsetFromContentType(contentType)
-			if(charset != null) {
-				for (JsonEncoding encoding : JsonEncoding.values()) {
-					if (charset.equals(encoding.getJavaName())) {
-						foundEncoding = encoding
-						break
-					}
-				}
-			}
-		}
-		return foundEncoding
-	}
+    private JsonEncoding getEncoding(String charset) {
+        def foundEncoding = JsonEncoding.UTF8
+        if(charset != null) {
+            for (JsonEncoding encoding : JsonEncoding.values()) {
+                if (charset.equals(encoding.getJavaName())) {
+                    foundEncoding = encoding
+                    break
+                }
+            }
+        }
+        return foundEncoding
+    }
 }

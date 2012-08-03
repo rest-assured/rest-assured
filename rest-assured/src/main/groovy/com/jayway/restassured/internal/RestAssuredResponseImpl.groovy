@@ -1,11 +1,11 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,6 +34,7 @@ import com.jayway.restassured.path.json.JsonPath
 import com.jayway.restassured.path.xml.XmlPath
 import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
 import com.jayway.restassured.response.*
+import com.jayway.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
 
 class RestAssuredResponseImpl implements Response {
     private static final String CANNOT_PARSE_MSG = "Failed to parse response."
@@ -137,14 +138,7 @@ class RestAssuredResponseImpl implements Response {
     }
 
     String asString() {
-        if(content == null) {
-            return ""
-        }
-        if(hasExpectations) {
-            return content instanceof String ? content : new String(content, findCharset())
-        } else {
-            return convertStreamToString(content)
-        }
+        asString(findCharset())
     }
 
     InputStream asInputStream() {
@@ -167,24 +161,27 @@ class RestAssuredResponseImpl implements Response {
     }
 
     def <T> T "as"(Class<T> cls) {
+        def charset = findCharset();
         String contentTypeToChose = findContentType {
             throw new IllegalStateException("""Cannot parse content to $cls because no content-type was present in the response and no default parser has been set.\nYou can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n
 or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
         }
-        return ObjectMapping.deserialize(asString(), cls, contentTypeToChose, defaultContentType, null)
+        return ObjectMapping.deserialize(asString(charset), cls, contentTypeToChose, defaultContentType, charset, null)
     }
 
     def <T> T "as"(Class<T> cls, ObjectMapperType mapperType) {
-    	notNull mapperType, "Object mapper type"
-    	return ObjectMapping.deserialize(asString(), cls, null, defaultContentType, mapperType)
+        notNull mapperType, "Object mapper type"
+        def charset = findCharset()
+        return ObjectMapping.deserialize(asString(charset), cls, null, defaultContentType, charset, mapperType)
     }
 
     def <T> T "as"(Class<T> cls, ObjectMapper mapper) {
         notNull mapper, "Object mapper"
-        return mapper.deserialize(asString(), cls)
+        def ctx = createObjectMapperDeserializationContext(cls)
+        return mapper.deserialize(ctx)
     }
 
-    private Charset findCharset() {
+    private String findCharset() {
         String charset = CharsetExtractor.getCharsetFromContentType(isBlank(contentType) ? defaultContentType : contentType)
 
         if ( charset == null || charset.trim().equals("") ) {
@@ -195,7 +192,7 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
             }
         }
 
-        return Charset.forName(charset);
+        return charset;
     }
 
     def Cookies detailedCookies() {
@@ -366,7 +363,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
     private String convertStreamToString(InputStream is) throws IOException {
         Writer writer = new StringWriter();
         char[] buffer = new char[1024];
-        Reader reader;
+        Reader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(is, findCharset()));
             int n;
@@ -375,7 +372,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
             }
         } finally {
             is.close();
-            reader.close();
+            if(reader != null) reader.close();
         }
         return writer.toString();
     }
@@ -400,7 +397,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
     }
 
     private String findContentType(Closure closure) {
-        def contentTypeToChose
+        def contentTypeToChose = null
         if (contentType == "") {
             if (defaultContentType != null) {
                 contentTypeToChose = defaultContentType
@@ -417,5 +414,25 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
 
     private def newXmlPath(CompatibilityMode xml) {
         new XmlPath(xml, asInputStream())
+    }
+
+    private def asString(charset) {
+        if(content == null) {
+            return ""
+        }
+        if(hasExpectations) {
+            return content instanceof String ? content : new String(content, charset)
+        } else {
+            return convertStreamToString(content)
+        }
+    }
+
+    private ObjectMapperDeserializationContextImpl createObjectMapperDeserializationContext(Class cls) {
+        def ctx = new ObjectMapperDeserializationContextImpl()
+        ctx.type = cls
+        ctx.charset = findCharset()
+        ctx.contentType = contentType()
+        ctx.object = asString(ctx.charset)
+        ctx
     }
 }

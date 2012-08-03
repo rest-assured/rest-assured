@@ -54,6 +54,8 @@ import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.mapper.ObjectMapperType
 import com.jayway.restassured.response.*
 import com.jayway.restassured.specification.*
+import com.jayway.restassured.mapper.ObjectMapperSerializationContext
+import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
     private static final int DEFAULT_HTTPS_PORT = 443
@@ -454,7 +456,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             return content(object.toString());
         }
 
-        this.requestBody = ObjectMapping.serialize(object, requestContentType, null)
+        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null)
         this
     }
 
@@ -463,16 +465,20 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     def RequestSpecification body(Object object, ObjectMapper mapper) {
-    	notNull object, "object"
-    	notNull mapper, "Object mapper"
-    	this.requestBody = mapper.serialize(object, requestContentType);
-    	this
+        notNull object, "object"
+        notNull mapper, "Object mapper"
+        def ctx = new ObjectMapperSerializationContextImpl();
+        ctx.setObject(object)
+        ctx.setCharset(findEncoderCharsetOrReturnDefault(requestContentType))
+        ctx.setContentType(requestContentType)
+        this.requestBody = mapper.serialize(ctx);
+        this
     }
 
     def RequestSpecification body(Object object, ObjectMapperType mapperType) {
         notNull object, "object"
         notNull mapperType, "Object mapper type"
-        this.requestBody = ObjectMapping.serialize(object, requestContentType, mapperType)
+        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType)
         this
     }
 
@@ -481,7 +487,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     def RequestSpecification content(Object object, ObjectMapperType mapperType) {
-    	return body(object, mapperType)
+        return body(object, mapperType)
     }
 
     def RequestSpecification contentType(ContentType contentType) {
@@ -1067,7 +1073,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     private def serializeIfNeeded(Object object, contentType) {
-        isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, null) : object
+        isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null) : object
     }
 
     private def applyPathParamsAndSendRequest(Method method, String path, Object...pathParams) {
@@ -1401,5 +1407,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     private def String assembleCompleteTargetPath(requestPath) {
         return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(getTargetURI(path), getTargetPath(path)), requestPath);
+    }
+
+    private def String findEncoderCharsetOrReturnDefault(String contentType) {
+        def charset = ContentTypeExtractor.getContentTypeWithoutCharset(contentType)
+        if (charset == null) {
+            charset = config == null ? new EncoderConfig().defaultContentCharset() : config.getEncoderConfig().defaultContentCharset()
+        }
+        charset
     }
 }

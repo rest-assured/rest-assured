@@ -18,6 +18,8 @@ package com.jayway.restassured.internal.mapping
 
 import com.google.gson.Gson
 import com.jayway.restassured.mapper.ObjectMapper
+import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
+import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 
 class GsonMapper implements ObjectMapper {
 	private static GsonFactory gsonFactory = new GsonFactory()
@@ -26,17 +28,21 @@ class GsonMapper implements ObjectMapper {
 		GsonMapper.gsonFactory = gsonFactory
 	}
 
-	private Gson createGson(Class cls) {
-		return GsonMapper.gsonFactory.createGson(cls)
+	private Gson createGson(Class cls, String charset) {
+		return GsonMapper.gsonFactory.createGson(cls, charset)
 	}
 
-	def Object deserialize(Object object, Class cls) {
-		def gson = createGson(cls)
+	def Object deserialize(ObjectMapperDeserializationContext context) {
+        def object = context.getObjectToDeserializeAs(String.class)
+        def cls = context.getType()
+
+		def gson = createGson(cls, context.getCharset())
 		return gson.fromJson(object, cls)
 	}
 
-	def String serialize(Object object, String encoding) {
-		Gson gson = createGson(object.getClass())
+	def Object serialize(ObjectMapperSerializationContext context) {
+        def object = context.getObjectToSerialize();
+		Gson gson = createGson(object.getClass(), context.getCharset())
 		return gson.toJson(object)
 	}
 }
