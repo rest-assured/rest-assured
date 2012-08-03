@@ -28,31 +28,6 @@
     <name>REST Assured Java integration tests</name>
     <description>REST Assured Java integration tests. Here you'll find various examples of how to use rest-assured.</description>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.appfuse.plugins</groupId>
-                <artifactId>maven-warpath-plugin</artifactId>
-                <version>2.1.0</version>
-                <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>add-classes</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <dependentWarExcludes>WEB-INF/lib/*</dependentWarExcludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>com.jayway.restassured.examples</groupId>
@@ -62,9 +37,8 @@
         </dependency>
         <dependency>
             <groupId>com.jayway.restassured.examples</groupId>
-            <artifactId>scalatra-webapp</artifactId>
+            <artifactId>scalatra-example</artifactId>
             <version>1.6.3-SNAPSHOT</version>
-            <type>warpath</type>
         </dependency>
         <dependency>
             <groupId>com.jayway.restassured</groupId>
