@@ -35,6 +35,7 @@ import com.jayway.restassured.path.xml.XmlPath
 import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
 import com.jayway.restassured.response.*
 import com.jayway.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
+import com.jayway.restassured.config.ObjectMapperConfig
 
 class RestAssuredResponseImpl implements Response {
     private static final String CANNOT_PARSE_MSG = "Failed to parse response."
@@ -53,6 +54,8 @@ class RestAssuredResponseImpl implements Response {
     def String defaultCharset
 
     def boolean hasExpectations
+
+    def ObjectMapperConfig objectMapperConfig
 
     public void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
         parseHeaders(httpResponse)
@@ -166,19 +169,19 @@ class RestAssuredResponseImpl implements Response {
             throw new IllegalStateException("""Cannot parse content to $cls because no content-type was present in the response and no default parser has been set.\nYou can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n
 or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
         }
-        return ObjectMapping.deserialize(asString(charset), cls, contentTypeToChose, defaultContentType, charset, null)
+        return ObjectMapping.deserialize(asString(charset), cls, contentTypeToChose, defaultContentType, charset, null, objectMapperConfig)
     }
 
     def <T> T "as"(Class<T> cls, ObjectMapperType mapperType) {
         notNull mapperType, "Object mapper type"
         def charset = findCharset()
-        return ObjectMapping.deserialize(asString(charset), cls, null, defaultContentType, charset, mapperType)
+        return ObjectMapping.deserialize(asString(charset), cls, null, defaultContentType, charset, mapperType, objectMapperConfig)
     }
 
     def <T> T "as"(Class<T> cls, ObjectMapper mapper) {
         notNull mapper, "Object mapper"
         def ctx = createObjectMapperDeserializationContext(cls)
-        return mapper.deserialize(ctx)
+        return mapper.deserialize(ctx) as T
     }
 
     private String findCharset() {

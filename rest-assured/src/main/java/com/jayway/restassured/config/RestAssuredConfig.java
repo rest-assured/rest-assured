@@ -35,36 +35,41 @@ public class RestAssuredConfig {
     private final EncoderConfig encoderConfig;
     private final DecoderConfig decoderConfig;
     private final SessionConfig sessionConfig;
+    private final ObjectMapperConfig objectMapperConfig;
 
     /**
-     * Create a new RestAssuredConfiguration with the default {@link RedirectConfig} and a default {@link HttpClientConfig}.
+     * Create a new RestAssuredConfiguration with the default configurations.
      */
     public RestAssuredConfig() {
-        this(new RedirectConfig(), new HttpClientConfig(), new LogConfig(), new EncoderConfig(), new DecoderConfig(), new SessionConfig());
+        this(new RedirectConfig(), new HttpClientConfig(), new LogConfig(), new EncoderConfig(), new DecoderConfig(), 
+                new SessionConfig(), new ObjectMapperConfig());
     }
 
     /**
      * Create a new RestAssuredConfiguration with the supplied {@link RedirectConfig}, {@link HttpClientConfig}, {@link LogConfig}, 
-     * {@link EncoderConfig}, {@link DecoderConfig} and {@link SessionConfig}.
+     * {@link EncoderConfig}, {@link DecoderConfig}, {@link SessionConfig} and {@link ObjectMapperConfig}.
      */
     public RestAssuredConfig(RedirectConfig redirectConfig,
                              HttpClientConfig httpClientConfig,
                              LogConfig logConfig,
                              EncoderConfig encoderConfig,
                              DecoderConfig decoderConfig,
-                             SessionConfig sessionConfig) {
+                             SessionConfig sessionConfig,
+                             ObjectMapperConfig objectMapperConfig) {
         notNull(redirectConfig, "Redirect Config");
         notNull(httpClientConfig, "HTTP Client Config");
         notNull(logConfig, "Log config");
         notNull(encoderConfig, "Encoder config");
         notNull(decoderConfig, "Decoder config");
         notNull(sessionConfig, "Session config");
+        notNull(objectMapperConfig, "Object mapper config");
         this.httpClientConfig = httpClientConfig;
         this.redirectConfig = redirectConfig;
         this.logConfig = logConfig;
         this.encoderConfig = encoderConfig;
         this.decoderConfig = decoderConfig;
         this.sessionConfig = sessionConfig;
+        this.objectMapperConfig = objectMapperConfig;
     }
 
     /**
@@ -75,7 +80,7 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig redirect(RedirectConfig redirectConfig) {
         notNull(redirectConfig, "Redirect config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig);
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig, objectMapperConfig);
     }
 
     /**
@@ -86,7 +91,7 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig httpClient(HttpClientConfig httpClientConfig) {
         notNull(httpClientConfig, "HTTP Client Config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig);
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig, objectMapperConfig);
     }
 
     /**
@@ -97,7 +102,7 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig logConfig(LogConfig logConfig) {
         notNull(logConfig, "Log config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig);
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig, objectMapperConfig);
     }
 
     /**
@@ -108,7 +113,7 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig encoderConfig(EncoderConfig encoderConfig) {
         notNull(encoderConfig, "Encoder config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig);
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig, objectMapperConfig);
     }
 
     /**
@@ -119,7 +124,7 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig decoderConfig(DecoderConfig decoderConfig) {
         notNull(decoderConfig, "Decoder config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig);
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig, objectMapperConfig);
     }
 
     /**
@@ -130,7 +135,18 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig sessionConfig(SessionConfig sessionConfig) {
         notNull(sessionConfig, "Session config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig);
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig, objectMapperConfig);
+    }
+
+    /**
+     * Set the object mapper config.
+     *
+     * @param objectMapperConfig The {@link com.jayway.restassured.config.ObjectMapperConfig} to set
+     * @return An updated RestAssuredConfiguration
+     */
+    public RestAssuredConfig objectMapperConfig(ObjectMapperConfig objectMapperConfig) {
+        notNull(objectMapperConfig, "Object mapper config");
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig, objectMapperConfig);
     }
 
     /**
@@ -191,6 +207,13 @@ public class RestAssuredConfig {
      */
     public SessionConfig getSessionConfig() {
         return sessionConfig;
+    }
+
+    /**
+     * @return The SessionConfig
+     */
+    public ObjectMapperConfig getObjectMapperConfig() {
+        return objectMapperConfig;
     }
 
     /**

@@ -22,7 +22,7 @@ import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
 class ObjectMapperDeserializationContextImpl implements ObjectMapperDeserializationContext {
 
     def object
-    def type
+    def Class<?> type
     def contentType
     def charset
 

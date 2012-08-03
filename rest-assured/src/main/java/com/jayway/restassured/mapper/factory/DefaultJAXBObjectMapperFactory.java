@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.mapper;
+package com.jayway.restassured.mapper.factory;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 
 /**
- * The predefined object mappers that can be used with REST Assured
+ * Simply creates a new JAXBContext based on the supplied class.
  */
-public enum ObjectMapperType {
-    JACKSON, GSON, JAXB
-
-
-
+public class DefaultJAXBObjectMapperFactory implements JAXBObjectMapperFactory {
+    public JAXBContext create(Class cls, String charset) {
+        try {
+            return JAXBContext.newInstance(cls);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

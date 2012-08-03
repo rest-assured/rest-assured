@@ -21,6 +21,7 @@ package com.jayway.restassured.mapper;
  * to roll your own mapper implementations for custom formats.
  */
 public interface ObjectMapper {
+    // For backward compatibility
     public static final ObjectMapperType JACKSON = ObjectMapperType.JACKSON;
     public static final ObjectMapperType GSON = ObjectMapperType.GSON;
     public static final ObjectMapperType JAXB = ObjectMapperType.JAXB;
@@ -35,7 +36,7 @@ public interface ObjectMapper {
 
 
     /**
-     * Serialize a request to a string that'll be used as the method body.
+     * Serialize a request to an object (String, InputStream or byte[]) that'll be used as the request body.
      *
      * @param context The details needed to convert the request from a Java object to a object
      * @return A serialized representation of the Java object (String, InputStream or byte[]).

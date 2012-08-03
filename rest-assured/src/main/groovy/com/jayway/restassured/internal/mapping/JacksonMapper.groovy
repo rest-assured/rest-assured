@@ -18,20 +18,22 @@ package com.jayway.restassured.internal.mapping
 import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext
+import com.jayway.restassured.mapper.factory.JacksonObjectMapperFactory
 import org.codehaus.jackson.JsonEncoding
 import org.codehaus.jackson.JsonGenerator
 import org.codehaus.jackson.map.type.TypeFactory
 import org.codehaus.jackson.type.JavaType
 
 class JacksonMapper implements ObjectMapper {
-    private static ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory()
 
-    def static register(ObjectMapperFactory objectMapperFactory) {
-        JacksonMapper.objectMapperFactory = objectMapperFactory
+    private final JacksonObjectMapperFactory factory;
+
+    JacksonMapper(JacksonObjectMapperFactory factory) {
+        this.factory = factory
     }
 
     private org.codehaus.jackson.map.ObjectMapper createJacksonObjectMapper(Class cls, String charset) {
-        return JacksonMapper.objectMapperFactory.createJacksonObjectMapper(cls, charset)
+        return factory.create(cls, charset)
     }
 
     def String serialize(ObjectMapperSerializationContext context) {

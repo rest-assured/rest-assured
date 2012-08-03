@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.jayway.restassured.mapper.factory;
 
-package com.jayway.restassured.mapper;
+import com.google.gson.Gson;
 
 /**
- * The predefined object mappers that can be used with REST Assured
+ * Interface for Gson object mappers. Implement this class and register it to the ObjectMapperConfig if you
+ * want to override default settings for the Gson object mapper.
  */
-public enum ObjectMapperType {
-    JACKSON, GSON, JAXB
-
-
-
+public interface GsonObjectMapperFactory extends ObjectMapperFactory<Gson> {
 }

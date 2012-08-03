@@ -22,7 +22,7 @@ package com.jayway.restassured.mapper;
 public interface ObjectMapperDeserializationContext {
 
     /**
-     * @return The response object that should be deserialized to
+     * @return The response object that should be deserialized to a Java object
      */
     Object getObjectToDeserialize();
 

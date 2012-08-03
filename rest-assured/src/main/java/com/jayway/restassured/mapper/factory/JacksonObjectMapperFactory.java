@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.internal.mapping
+package com.jayway.restassured.mapper.factory;
 
-import com.google.gson.Gson
+import org.codehaus.jackson.map.ObjectMapper;
 
-class GsonFactory {
-	def Gson createGson(Class cls, String charset) {
-		return new Gson();
-	}
+/**
+ * Interface for Jackson object mappers. Implement this class and register it to the ObjectMapperConfig if you
+ * want to override default settings for the Jackson object mapper.
+ */
+public interface JacksonObjectMapperFactory extends ObjectMapperFactory<ObjectMapper> {
 }

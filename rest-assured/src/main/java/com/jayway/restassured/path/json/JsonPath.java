@@ -17,15 +17,19 @@
 package com.jayway.restassured.path.json;
 
 import com.jayway.restassured.assertion.JSONAssertion;
+import com.jayway.restassured.config.ObjectMapperConfig;
 import com.jayway.restassured.exception.ParsePathException;
-import com.jayway.restassured.internal.mapping.ObjectMapperDeserializationContextImpl;
 import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.internal.support.Prettifier;
-import com.jayway.restassured.mapper.ObjectMapperDeserializationContext;
+import com.jayway.restassured.mapper.ObjectMapperType;
+import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
+import com.jayway.restassured.mapper.factory.JacksonObjectMapperFactory;
+import com.jayway.restassured.mapper.factory.ObjectMapperFactory;
 import com.jayway.restassured.parsing.Parser;
 import groovy.json.JsonBuilder;
 import groovy.json.JsonOutput;
 import groovy.json.JsonSlurper;
+import org.apache.commons.lang3.Validate;
 
 import java.io.*;
 import java.net.URL;
@@ -33,6 +37,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
+import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfig;
 import static com.jayway.restassured.internal.path.ObjectConverter.convertObjectTo;
 
 /**
@@ -97,6 +102,7 @@ public class JsonPath {
 
     private final Object json;
     private String rootPath = "";
+    private ObjectMapperFactory<?> objectMapperFactory;
 
     /**
      * Instantiate a new JsonPath instance.
@@ -141,6 +147,13 @@ public class JsonPath {
      */
     public JsonPath(Reader reader) {
         json = parseReader(reader);
+    }
+
+    private JsonPath(JsonPath jsonPath, ObjectMapperFactory<?> objectMapperFactory) {
+        Validate.notNull(objectMapperFactory, "Object mapper factory cannot be null");
+        this.objectMapperFactory = objectMapperFactory;
+        this.json = jsonPath.json;
+        this.rootPath = jsonPath.rootPath;
     }
 
     /**
@@ -499,7 +512,20 @@ public class JsonPath {
         } else {
             return convertObjectTo(object, objectType);
         }
-        return ObjectMapping.deserialize(object, objectType, "application/json","", null, null);
+
+        final ObjectMapperType type;
+        final ObjectMapperConfig config;
+        if(objectMapperFactory == null) {
+            type = null;
+            config = objectMapperConfig();
+        } else if(objectMapperFactory instanceof GsonObjectMapperFactory) {
+            type = ObjectMapperType.GSON;
+            config = objectMapperConfig().defaultObjectMapperType(type).gsonObjectMapperFactory((GsonObjectMapperFactory) objectMapperFactory);
+        } else {
+            type = ObjectMapperType.JACKSON;
+            config = objectMapperConfig().defaultObjectMapperType(type).jacksonObjectMapperFactory((JacksonObjectMapperFactory) objectMapperFactory);
+        }
+        return ObjectMapping.deserialize(object, objectType, "application/json","", null, type, config);
     }
 
     /**
@@ -520,6 +546,24 @@ public class JsonPath {
         final String pretty = prettify();
         System.out.println(pretty);
         return pretty;
+    }
+
+    /**
+     * Configure JsonPath to use a specific Gson object mapper factory
+     * @param factory The gson object mapper factory instance
+     * @return a new JsonPath instance
+     */
+    public JsonPath using(GsonObjectMapperFactory factory) {
+        return new JsonPath(this, factory);
+    }
+
+    /**
+     * Configure JsonPath to use a specific Jackson object mapper factory
+     * @param factory The Jackson object mapper factory instance
+     * @return a new JsonPath instance
+     */
+    public JsonPath using(JacksonObjectMapperFactory factory) {
+        return new JsonPath(this, factory);
     }
 
     /**

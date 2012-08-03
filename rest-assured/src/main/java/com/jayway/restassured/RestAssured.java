@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.jayway.restassured;
 
 import com.jayway.restassured.authentication.*;
@@ -22,6 +21,7 @@ import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.*;
 import com.jayway.restassured.internal.filter.FormAuthFilter;
+import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.Argument;
@@ -36,6 +36,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfig;
 
 /**
  * REST Assured is a Java DSL for simplifying testing of REST based services built on top of
@@ -589,6 +591,17 @@ public class RestAssured {
         return Collections.unmodifiableList(filters);
     }
 
+    /**
+     * Set a object mapper that'll be used when serializing and deserializing Java objects to and from it's
+     * document representation (XML, JSON etc).
+
+     * @param objectMapper The object mapper to use.
+     */
+    public static void objectMapper(ObjectMapper objectMapper) {
+        Validate.notNull(objectMapper, "Default object mapper cannot be null");
+        config = config().objectMapperConfig(objectMapperConfig().defaultObjectMapper(objectMapper));
+    }
+
     public static Object requestContentType() {
         return requestContentType;
     }
@@ -1105,5 +1118,9 @@ public class RestAssured {
         RestAssured.keystoreSpec = spec;
 
         return keystoreSpec;
+    }
+
+    private static RestAssuredConfig config() {
+        return config == null ? new RestAssuredConfig() : config;
     }
 }

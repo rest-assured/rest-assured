@@ -48,6 +48,7 @@ public class ResponseBuilder {
             restAssuredResponse.setDefaultCharset(raResponse.getDefaultCharset());
             restAssuredResponse.setSessionIdName(raResponse.getSessionIdName());
             restAssuredResponse.setConnectionManager(raResponse.getConnectionManager());
+            restAssuredResponse.setObjectMapperConfig(raResponse.getObjectMapperConfig());
         } else {
             restAssuredResponse.setContent(response.asInputStream());
         }

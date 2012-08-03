@@ -16,20 +16,16 @@
 
 package com.jayway.restassured.internal
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull
-import static com.jayway.restassured.http.ContentType.*
-import static com.jayway.restassured.internal.http.Method.*
-import static java.util.Arrays.asList
-import static org.apache.commons.lang3.StringUtils.substringAfter
-import static org.apache.http.client.params.ClientPNames.*
-import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE
-import static org.apache.http.protocol.HTTP.CONTENT_TYPE
-
-import java.util.Map.Entry
-import java.util.concurrent.TimeUnit
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
+import com.jayway.restassured.authentication.AuthenticationScheme
+import com.jayway.restassured.authentication.NoAuthScheme
+import com.jayway.restassured.filter.Filter
+import com.jayway.restassured.http.ContentType
+import com.jayway.restassured.internal.filter.FilterContextImpl
+import com.jayway.restassured.internal.filter.RootFilter
+import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl
+import com.jayway.restassured.internal.mapping.ObjectMapping
+import com.jayway.restassured.mapper.ObjectMapper
+import com.jayway.restassured.mapper.ObjectMapperType
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.Validate
 import org.apache.http.HttpEntity
@@ -41,21 +37,24 @@ import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner
 import org.apache.http.message.BasicHeader
 
-import com.jayway.restassured.authentication.AuthenticationScheme
-import com.jayway.restassured.authentication.NoAuthScheme
+import java.util.Map.Entry
+import java.util.concurrent.TimeUnit
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 import com.jayway.restassured.config.*
-import com.jayway.restassured.filter.Filter
-import com.jayway.restassured.http.ContentType
-import com.jayway.restassured.internal.filter.FilterContextImpl
-import com.jayway.restassured.internal.filter.RootFilter
 import com.jayway.restassured.internal.http.*
-import com.jayway.restassured.mapper.ObjectMapper
-import com.jayway.restassured.internal.mapping.ObjectMapping
-import com.jayway.restassured.mapper.ObjectMapperType
 import com.jayway.restassured.response.*
 import com.jayway.restassured.specification.*
-import com.jayway.restassured.mapper.ObjectMapperSerializationContext
-import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl
+
+import static com.jayway.restassured.assertion.AssertParameter.notNull
+import static com.jayway.restassured.http.ContentType.*
+import static com.jayway.restassured.internal.http.Method.*
+import static java.util.Arrays.asList
+import static org.apache.commons.lang3.StringUtils.substringAfter
+import static org.apache.http.client.params.ClientPNames.*
+import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE
+import static org.apache.http.protocol.HTTP.CONTENT_TYPE
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
     private static final int DEFAULT_HTTPS_PORT = 443
@@ -456,7 +455,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             return content(object.toString());
         }
 
-        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null)
+        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, objectMappingConfig());
         this
     }
 
@@ -478,7 +477,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     def RequestSpecification body(Object object, ObjectMapperType mapperType) {
         notNull object, "object"
         notNull mapperType, "Object mapper type"
-        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType)
+        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType, objectMappingConfig())
         this
     }
 
@@ -719,6 +718,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         restAssuredResponse.setSessionIdName(config == null ? SessionConfig.DEFAULT_SESSION_ID_NAME : config.sessionConfig.sessionIdName())
         restAssuredResponse.setDefaultCharset(config == null ? new DecoderConfig().defaultContentCharset() : config.getDecoderConfig().defaultContentCharset())
         restAssuredResponse.setConnectionManager(http.client.connectionManager)
+        restAssuredResponse.setObjectMapperConfig(config == null ? new ObjectMapperConfig() : config.getObjectMapperConfig())
         responseSpecification.restAssuredResponse = restAssuredResponse
         def responseContentType =  assertionClosure.getResponseContentType()
 
@@ -1073,7 +1073,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     private def serializeIfNeeded(Object object, contentType) {
-        isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null) : object
+        isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, objectMappingConfig()) : object
     }
 
     private def applyPathParamsAndSendRequest(Method method, String path, Object...pathParams) {
@@ -1415,5 +1415,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             charset = config == null ? new EncoderConfig().defaultContentCharset() : config.getEncoderConfig().defaultContentCharset()
         }
         charset
+    }
+
+    private def ObjectMapperConfig objectMappingConfig() {
+        return config == null ? ObjectMapperConfig.objectMapperConfig() : config.getObjectMapperConfig();
     }
 }

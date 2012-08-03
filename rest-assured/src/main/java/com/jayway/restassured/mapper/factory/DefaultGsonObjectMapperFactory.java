@@ -12,14 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ */package com.jayway.restassured.mapper.factory;
+
+import com.google.gson.Gson;
+
+/**
+ * Simply creates a new Gson instance.
  */
-
-package com.jayway.restassured.internal.mapping
-
-import javax.xml.bind.JAXBContext
-
-class JAXBContextFactory {
-	public JAXBContext createJAXBContext(Class<?> clazz, String charset) {
-		return JAXBContext.newInstance(clazz);
-	}
+public class DefaultGsonObjectMapperFactory implements GsonObjectMapperFactory {
+    public Gson create(Class cls, String charset) {
+        return new Gson();
+    }
 }

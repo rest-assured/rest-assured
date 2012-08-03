@@ -13,36 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.jayway.restassured.internal.mapping
 
-import com.google.gson.Gson
 import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext
+import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory
 
 class GsonMapper implements ObjectMapper {
-	private static GsonFactory gsonFactory = new GsonFactory()
 
-	def static register(GsonFactory gsonFactory) {
-		GsonMapper.gsonFactory = gsonFactory
-	}
+    private GsonObjectMapperFactory factory;
 
-	private Gson createGson(Class cls, String charset) {
-		return GsonMapper.gsonFactory.createGson(cls, charset)
-	}
+    public GsonMapper(GsonObjectMapperFactory factory) {
+        this.factory = factory
+    }
 
-	def Object deserialize(ObjectMapperDeserializationContext context) {
+
+    def Object deserialize(ObjectMapperDeserializationContext context) {
         def object = context.getObjectToDeserializeAs(String.class)
         def cls = context.getType()
-
-		def gson = createGson(cls, context.getCharset())
+		def gson = factory.create(cls, context.getCharset())
 		return gson.fromJson(object, cls)
 	}
 
 	def Object serialize(ObjectMapperSerializationContext context) {
         def object = context.getObjectToSerialize();
-		Gson gson = createGson(object.getClass(), context.getCharset())
+		def gson = factory.create(object.getClass(), context.getCharset())
 		return gson.toJson(object)
 	}
 }

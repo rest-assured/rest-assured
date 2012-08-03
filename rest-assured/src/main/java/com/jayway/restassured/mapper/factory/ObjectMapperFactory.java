@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.internal.mapping
+package com.jayway.restassured.mapper.factory;
 
-import org.codehaus.jackson.map.ObjectMapper
+/**
+ * The base interface for object mapper factories.
+ * @param <T> The type of the created object mapper.
+ */
+public interface ObjectMapperFactory<T> {
 
-
-class ObjectMapperFactory {
-	public ObjectMapper createJacksonObjectMapper(Class cls, String charset) {
-		return new ObjectMapper();
-	}
+    /**
+     * Create the object mapper instance.
+     *
+     * @param cls The type of the class to serialize or de-serialize
+     * @param charset The charset
+     * @return An object mapper instance
+     */
+    T create(Class cls, String charset);
 }

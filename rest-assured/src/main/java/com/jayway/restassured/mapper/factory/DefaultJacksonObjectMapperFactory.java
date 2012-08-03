@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.mapper;
+package com.jayway.restassured.mapper.factory;
+
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
- * The predefined object mappers that can be used with REST Assured
+ * Simply creates a new Jackson ObjectMapper
  */
-public enum ObjectMapperType {
-    JACKSON, GSON, JAXB
-
-
-
+public class DefaultJacksonObjectMapperFactory implements JacksonObjectMapperFactory {
+    public ObjectMapper create(Class cls, String charset) {
+        return new ObjectMapper();
+    }
 }
