@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.jayway.restassured.internal.http
 
 import org.apache.commons.lang3.StringUtils
@@ -23,7 +22,7 @@ class CharsetExtractor {
 
     private static final String CHARSET = "charset"
 
-    public static String getCharsetFromContentType(String contentType) {
+    public static String getCharsetFromContentType(String contentType) { 
         def foundCharset = null
         if(isBlank(contentType)) {
             foundCharset = null;

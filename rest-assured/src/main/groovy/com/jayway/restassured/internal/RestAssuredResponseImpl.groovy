@@ -16,22 +16,24 @@
 
 package com.jayway.restassured.internal
 
+import static com.jayway.restassured.assertion.AssertParameter.notNull
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
+import static org.apache.commons.lang3.StringUtils.isBlank
+import groovy.xml.StreamingMarkupBuilder
+
+import java.nio.charset.Charset
+
 import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.internal.http.CharsetExtractor
-import com.jayway.restassured.internal.mapping.ObjectMapping
-import com.jayway.restassured.internal.support.Prettifier
 import com.jayway.restassured.mapper.ObjectMapper
+import com.jayway.restassured.internal.mapping.ObjectMapping
+import com.jayway.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper
+import com.jayway.restassured.internal.support.Prettifier
+import com.jayway.restassured.mapper.ObjectMapperType
 import com.jayway.restassured.path.json.JsonPath
 import com.jayway.restassured.path.xml.XmlPath
 import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
-import groovy.xml.StreamingMarkupBuilder
-import java.nio.charset.Charset
-import static com.jayway.restassured.assertion.AssertParameter.notNull
 import com.jayway.restassured.response.*
-import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
-import static org.apache.commons.lang3.StringUtils.isBlank
-
-import com.jayway.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper
 
 class RestAssuredResponseImpl implements Response {
     private static final String CANNOT_PARSE_MSG = "Failed to parse response."
@@ -172,9 +174,14 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
         return ObjectMapping.deserialize(asString(), cls, contentTypeToChose, defaultContentType, null)
     }
 
+    def <T> T "as"(Class<T> cls, ObjectMapperType mapperType) {
+    	notNull mapperType, "Object mapper type"
+    	return ObjectMapping.deserialize(asString(), cls, null, defaultContentType, mapperType)
+    }
+
     def <T> T "as"(Class<T> cls, ObjectMapper mapper) {
         notNull mapper, "Object mapper"
-        return ObjectMapping.deserialize(asString(), cls, null, defaultContentType, mapper)
+        return mapper.deserialize(asString(), cls)
     }
 
     private Charset findCharset() {

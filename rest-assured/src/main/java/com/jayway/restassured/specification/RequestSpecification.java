@@ -1,11 +1,11 @@
 /*
- * Copyright 2010 the original author or authors.
+ * Copyright 2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *        http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,20 +16,21 @@
 
 package com.jayway.restassured.specification;
 
-import com.jayway.restassured.config.RestAssuredConfig;
-import com.jayway.restassured.filter.Filter;
-import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.mapper.ObjectMapper;
-import com.jayway.restassured.response.Cookie;
-import com.jayway.restassured.response.Cookies;
-import com.jayway.restassured.response.Header;
-import com.jayway.restassured.response.Headers;
-
 import java.io.File;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import com.jayway.restassured.config.RestAssuredConfig;
+import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.mapper.ObjectMapperType;
+import com.jayway.restassured.response.Cookie;
+import com.jayway.restassured.response.Cookies;
+import com.jayway.restassured.response.Header;
+import com.jayway.restassured.response.Headers;
 
 /**
  * Allows you to specify how the request will look like.
@@ -120,33 +121,60 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification body(Object object);
 
     /**
-     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
-     * This works for the POST and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Example of use:
-     * <pre>
-     * Message message = new Message();
-     * message.setMessage("My beautiful message");
-     *
-     * given().
-     *         body(message, ObjectMapper.GSON).
-     * expect().
-     *         content(equalTo("Response to a beautiful message")).
-     * when().
-     *         post("/beautiful-message");
-     * </pre>
-     * </p>
-     * Note that {@link #body(Object, ObjectMapper)}  and {@link #content(Object, ObjectMapper)} are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param object The object to serialize and send with the request
-     * @return The request specification
-     */
-    RequestSpecification body(Object object, ObjectMapper mapper);
+	 * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
+	 * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+	 * <p>
+	 * Example of use:
+	 * <pre>
+	 * Message message = new Message();
+	 * message.setMessage("My beautiful message");
+	 *
+	 * given().
+	 *         body(message, new MyObjectMapper()).
+	 * expect().
+	 *         content(equalTo("Response to a beautiful message")).
+	 * when().
+	 *         post("/beautiful-message");
+	 * </pre>
+	 * </p>
+	 * Note that {@link #body(Object, ObjectMapper)}  and {@link #content(Object, ObjectMapper)} are the same except for the syntactic difference.
+	 * </p>
+	 *
+	 * @param object The object to serialize and send with the request
+	 * @param mapper The object mapper
+	 * @return The request specification
+	 */
+	RequestSpecification body(Object object, ObjectMapper mapper);
+
+	/**
+	 * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper type.
+	 * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+	 * <p>
+	 * Example of use:
+	 * <pre>
+	 * Message message = new Message();
+	 * message.setMessage("My beautiful message");
+	 *
+	 * given().
+	 *         body(message, ObjectMapper.GSON).
+	 * expect().
+	 *         content(equalTo("Response to a beautiful message")).
+	 * when().
+	 *         post("/beautiful-message");
+	 * </pre>
+	 * </p>
+	 * Note that {@link #body(Object, ObjectMapperType)}  and {@link #content(Object, ObjectMapperType)} are the same except for the syntactic difference.
+	 * </p>
+	 *
+	 * @param object The object to serialize and send with the request
+	 * @param mapperType The object mapper type to be used
+	 * @return The request specification
+	 */
+	RequestSpecification body(Object object, ObjectMapperType mapperType);
 
     /**
      * Specify a String request content (such as e.g. JSON or XML) that'll be sent with the request. This works for the
-     * POST and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+     * POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
      * <p>
      * Example of use:
      * <pre>
@@ -166,7 +194,7 @@ public interface RequestSpecification extends RequestSender {
 
     /**
      * Specify a byte array request content that'll be sent with the request. This only works for the
-     * POST http method. Trying to do this for the other http methods will cause an exception to be thrown.
+     * POST, PATCH and PUT http method. Trying to do this for the other http methods will cause an exception to be thrown.
      * <p>
      * Example of use:
      * <pre>
@@ -228,28 +256,54 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification content(Object object);
 
     /**
-     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
-     * This works for the POST and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Example of use:
-     * <pre>
-     * Message message = new Message();
-     * message.setMessage("My beautiful message");
-     *
-     * given().
-     *         content(message, ObjectMapper.GSON).
-     * expect().
-     *         content(equalTo("Response to a beautiful message")).
-     * when().
-     *         post("/beautiful-message");
-     * </pre>
-     * </p>
-     * Note that {@link #body(Object, ObjectMapper)}  and {@link #content(Object, ObjectMapper)} are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param object The object to serialize and send with the request
-     * @return The request specification
-     */
+	 * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper type.
+	 * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+	 * <p>
+	 * Example of use:
+	 * <pre>
+	 * Message message = new Message();
+	 * message.setMessage("My beautiful message");
+	 *
+	 * given().
+	 *         content(message, ObjectMapperType.GSON).
+	 * expect().
+	 *         content(equalTo("Response to a beautiful message")).
+	 * when().
+	 *         post("/beautiful-message");
+	 * </pre>
+	 * </p>
+	 * Note that {@link #body(Object, ObjectMapperType)}  and {@link #content(Object, ObjectMapperType)} are the same except for the syntactic difference.
+	 * </p>
+	 *
+	 * @param object The object to serialize and send with the request
+	 * @param mapperType The object mapper type to use
+	 * @return The request specification
+	 */
+	RequestSpecification content(Object object, ObjectMapperType mapperType);
+
+	/**
+	 * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
+	 * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+	 * <p>
+	 * Example of use:
+	 * <pre>
+	 * Message message = new Message();
+	 * message.setMessage("My beautiful message");
+	 *
+	 * given().
+	 *         content(message, new MyObjectMapper()).
+	 * expect().
+	 *         content(equalTo("Response to a beautiful message")).
+	 * when().
+	 *         post("/beautiful-message");
+	 * </pre>
+	 * </p>
+	 * Note that {@link #body(Object, ObjectMapper)}  and {@link #content(Object, ObjectMapper)} are the same except for the syntactic difference.
+	 * </p>
+	 *
+	 * @param object The object to serialize and send with the request
+	 * @return The request specification
+	 */
     RequestSpecification content(Object object, ObjectMapper mapper);
 
     /**

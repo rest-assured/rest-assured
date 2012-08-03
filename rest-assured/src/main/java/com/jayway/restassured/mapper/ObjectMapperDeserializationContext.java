@@ -13,14 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.jayway.restassured.mapper;
 
-public interface ObjectMapper {
-	public static final ObjectMapperType JACKSON = ObjectMapperType.JACKSON;
-	public static final ObjectMapperType GSON = ObjectMapperType.GSON;
-	public static final ObjectMapperType JAXB = ObjectMapperType.JAXB;
+/**
+ * Class containing details needed for deserializing a response to a Java class.
+ */
+public interface ObjectMapperDeserializationContext {
 
-	Object deserialize(Object object, Class cls);
+    /**
+     * @return The object (response) that should be deserialized to
+     */
+    Object getResponseObject();
 
-	String serialize(Object object, String contentType);
+    /**
+     * @return The expected type of the
+     */
+    Class<?> getType();
+
+
 }

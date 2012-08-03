@@ -16,11 +16,12 @@
 
 package com.jayway.restassured.response;
 
+import java.io.InputStream;
+
 import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
-
-import java.io.InputStream;
 
 public interface ResponseBody {
     /**
@@ -75,12 +76,20 @@ public interface ResponseBody {
     <T> T as(Class<T> cls);
 
     /**
-     * Get the body and map it to a Java object using a specific object mapper. It will use the supplied
-     * mapper regardless of the response content-type.
+	 * Get the body and map it to a Java object using a specific object mapper type. It will use the supplied
+	 * mapper regardless of the response content-type.
 
-     * @return The object
-     */
-    <T> T as(Class<T> cls, ObjectMapper mapper);
+	 * @return The object
+	 */
+	<T> T as(Class<T> cls, ObjectMapperType mapperType);
+
+	/**
+	 * Get the body and map it to a Java object using a specific object mapper. It will use the supplied
+	 * mapper regardless of the response content-type.
+
+	 * @return The object
+	 */
+	<T> T as(Class<T> cls, ObjectMapper mapper);
 
     /**
      * Get a JsonPath view of the response body. This will let you use the JsonPath syntax to get values from the response.

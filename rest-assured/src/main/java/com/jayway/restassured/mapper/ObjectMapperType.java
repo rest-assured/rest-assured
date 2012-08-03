@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.jayway.restassured.mapper;
 
-public interface ObjectMapper {
-	public static final ObjectMapperType JACKSON = ObjectMapperType.JACKSON;
-	public static final ObjectMapperType GSON = ObjectMapperType.GSON;
-	public static final ObjectMapperType JAXB = ObjectMapperType.JAXB;
-
-	Object deserialize(Object object, Class cls);
-
-	String serialize(Object object, String contentType);
+/**
+ * The predefined object mappers that can be used with REST Assured
+ */
+public enum ObjectMapperType {
+    JACKSON, GSON, JAXB
 }

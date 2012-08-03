@@ -16,6 +16,9 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.config.EncoderConfig;
+import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
@@ -24,7 +27,9 @@ import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
-import static com.jayway.restassured.mapper.ObjectMapper.*;
+import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
+import static com.jayway.restassured.config.RestAssuredConfig.config;
+import static com.jayway.restassured.mapper.ObjectMapperType.*;
 import static com.jayway.restassured.parsing.Parser.JSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -51,7 +56,7 @@ public class ObjectMappingITest extends WithJetty {
         final Message message =
                 expect().
                         defaultParser(JSON).
-                when().
+                        when().
                         get("/noContentTypeJsonCompatible").as(Message.class);
 
         assertThat(message.getMessage(), equalTo("It works"));
@@ -117,6 +122,20 @@ public class ObjectMappingITest extends WithJetty {
     }
 
     @Test
+    public void whenRequestContentTypeIsXmlAndDefaultCharsetIsUtf16ThenRestAssuredSerializesToJSON() throws Exception {
+        RestAssured.config = config().encoderConfig(encoderConfig().defaultContentCharset("UTF-16"));
+        try {
+            final Greeting object = new Greeting();
+            object.setFirstName("John");
+            object.setLastName("Doe");
+            final Greeting actual = given().contentType("application/xml").and().body(object).when().post("/reflect").as(Greeting.class);
+            assertThat(object, equalTo(actual));
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
     public void whenRequestContentTypeIsJsonAndCharsetIsUtf16ThenRestAssuredSerializesToJSON() throws Exception {
         final Greeting object = new Greeting();
         object.setFirstName("John");
@@ -157,6 +176,15 @@ public class ObjectMappingITest extends WithJetty {
     }
 
     @Test
+    public void serializesUsingJAXBWhenJAXBObjectMapperIsSpecifiedForPatchVerb() throws Exception {
+        final Greeting object = new Greeting();
+        object.setFirstName("John");
+        object.setLastName("Doe");
+        final Greeting actual = given().body(object, JAXB).when().patch("/reflect").as(Greeting.class, JAXB);
+        assertThat(object, equalTo(actual));
+    }
+
+    @Test
     public void serializesUsingGsonWhenGsonObjectMapperIsSpecified() throws Exception {
         final Greeting object = new Greeting();
         object.setFirstName("John");
@@ -182,11 +210,11 @@ public class ObjectMappingITest extends WithJetty {
 
         final Greeting actual =
                 given().
-                    contentType(ContentType.JSON).
-                    param("something", "something").
-                    param("serialized", object).
-                when().
-                    put("/serializedJsonParameter").as(Greeting.class);
+                        contentType(ContentType.JSON).
+                        param("something", "something").
+                        param("serialized", object).
+                        when().
+                        put("/serializedJsonParameter").as(Greeting.class);
 
         assertThat(actual, equalTo(object));
     }

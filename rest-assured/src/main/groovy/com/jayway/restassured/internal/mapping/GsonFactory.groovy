@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jayway.restassured.mapper;
 
-public interface ObjectMapper {
-	public static final ObjectMapperType JACKSON = ObjectMapperType.JACKSON;
-	public static final ObjectMapperType GSON = ObjectMapperType.GSON;
-	public static final ObjectMapperType JAXB = ObjectMapperType.JAXB;
+package com.jayway.restassured.internal.mapping
 
-	Object deserialize(Object object, Class cls);
+import com.google.gson.Gson
 
-	String serialize(Object object, String contentType);
+class GsonFactory {
+	def Gson createGson(Class cls) {
+		return new Gson();
+	}
 }

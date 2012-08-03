@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,10 @@
 
 package com.jayway.restassured.internal.mapping
 
-import com.google.gson.Gson
+import javax.xml.bind.JAXBContext
 
-class GsonMapping {
-  def deserialze(Object object, String charset, Class cls) {
-    def gson = new Gson();
-    return gson.fromJson(object, cls)
-  }
-
-  def serialize(Object object, String encoding) {
-    Gson gson = new Gson();
-    return gson.toJson(object);
-  }
+class JAXBContextFactory {
+	public JAXBContext createJAXBContext(Class<?> clazz) {
+		return JAXBContext.newInstance(clazz);
+	}
 }

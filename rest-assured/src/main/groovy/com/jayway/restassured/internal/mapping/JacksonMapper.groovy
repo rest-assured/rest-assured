@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2012 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,27 +18,38 @@ package com.jayway.restassured.internal.mapping
 
 import org.codehaus.jackson.JsonEncoding
 import org.codehaus.jackson.JsonGenerator
-import org.codehaus.jackson.map.ObjectMapper
+
 import org.codehaus.jackson.map.type.TypeFactory
 import org.codehaus.jackson.type.JavaType
 
 import com.jayway.restassured.internal.http.CharsetExtractor
+import com.jayway.restassured.mapper.ObjectMapper
 
-class JacksonMapping {
-	def serialize(Object object, String contentType) {
-		JsonEncoding jsonEncoding = getEncoding(contentType);
+class JacksonMapper implements ObjectMapper {
+	private static ObjectMapperFactory objectMapperFactory = new ObjectMapperFactory()
 
-		def mapper = ObjectMapperFactory.createJacksonObjectMapper();
-		def stream = new ByteArrayOutputStream();
+	def static register(ObjectMapperFactory objectMapperFactory) {
+		JacksonMapper.objectMapperFactory = objectMapperFactory
+	}
+
+	private org.codehaus.jackson.map.ObjectMapper createJacksonObjectMapper(Class cls) {
+		return JacksonMapper.objectMapperFactory.createJacksonObjectMapper(cls)
+	}
+
+	def String serialize(Object object, String contentType) {
+		JsonEncoding jsonEncoding = getEncoding(contentType)
+
+		def mapper = createJacksonObjectMapper(object.getClass())
+		def stream = new ByteArrayOutputStream()
 		JsonGenerator jsonGenerator = mapper.getJsonFactory().createJsonGenerator(stream, jsonEncoding)
-		mapper.writeValue(jsonGenerator, object);
+		mapper.writeValue(jsonGenerator, object)
 		return stream.toString()
 	}
 
-	def deserialize(Object object, String charset, Class cls) {
-		def mapper = new ObjectMapper();
+	def Object deserialize(Object object, Class cls) {
+		def mapper = createJacksonObjectMapper(cls)
 		JavaType javaType = TypeFactory.type(cls)
-		return mapper.readValue(object, javaType);
+		return mapper.readValue(object, javaType)
 	}
 
 	private JsonEncoding getEncoding(String contentType) {
@@ -54,6 +65,6 @@ class JacksonMapping {
 				}
 			}
 		}
-		return foundEncoding;
+		return foundEncoding
 	}
 }
