@@ -34,6 +34,7 @@
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
+                <version>1.4</version>
             </plugin>
         </plugins>
     </build>
@@ -60,7 +61,7 @@
 			<!-- Add this dependency if you are using OAuth in HTTPBuilder or RESTClient -->
 			<groupId>oauth.signpost</groupId>
 			<artifactId>signpost-commonshttp4</artifactId>
-			<version>1.2.1.1</version>
+			<version>1.2.1.2</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -93,7 +94,7 @@
 		<dependency>
 			<groupId>com.googlecode.json-simple</groupId>
 			<artifactId>json-simple</artifactId>
-			<version>1.1</version>
+			<version>1.1.1</version>
 			<optional>true</optional>
 		</dependency>
 		<dependency>
@@ -110,6 +111,8 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

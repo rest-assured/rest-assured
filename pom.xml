@@ -57,6 +57,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <groovy.version>1.8.4</groovy.version>
         <gmaven.version>1.4</gmaven.version>
+        <junit.version>4.10</junit.version>
     </properties>
     <scm>
         <url>http://github.com/jayway/rest-assured/tree/${scm.branch}</url>
