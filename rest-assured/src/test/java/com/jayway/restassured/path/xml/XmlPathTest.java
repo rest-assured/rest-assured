@@ -419,14 +419,18 @@ public class XmlPathTest {
     public void xmlPathSupportsPrettifiyingTheXML() throws Exception {
         final String prettify = with(NOT_PRETTY_XML).prettify();
 
-        assertThat(prettify, equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<some>\n  <thing id=\"1\">ikk</thing>\n  <thing id=\"2\">ikk2</thing>\n  <thing id=\"3\">3</thing>\n</some>"));
+        String lineSeparator = System.getProperty("line.separator");
+
+        assertThat(prettify, equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator + "<some>" + lineSeparator + "  <thing id=\"1\">ikk</thing>" + lineSeparator + "  <thing id=\"2\">ikk2</thing>" + lineSeparator + "  <thing id=\"3\">3</thing>" + lineSeparator + "</some>"));
     }
 
     @Test
     public void xmlPathSupportsPrettyPrintingTheXML() throws Exception {
         final String prettify = with(NOT_PRETTY_XML).prettyPrint();
 
-        assertThat(prettify, equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<some>\n  <thing id=\"1\">ikk</thing>\n  <thing id=\"2\">ikk2</thing>\n  <thing id=\"3\">3</thing>\n</some>"));
+        String lineSeparator = System.getProperty("line.separator");
+
+        assertThat(prettify, equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator + "<some>" + lineSeparator + "  <thing id=\"1\">ikk</thing>" + lineSeparator + "  <thing id=\"2\">ikk2</thing>" + lineSeparator + "  <thing id=\"3\">3</thing>" + lineSeparator + "</some>"));
     }
 
     @Test

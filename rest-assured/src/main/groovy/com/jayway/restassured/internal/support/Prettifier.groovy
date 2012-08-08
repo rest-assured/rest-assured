@@ -90,7 +90,9 @@ class Prettifier {
         def stringWriter = new StringWriter()
         closure.call(stringWriter);
         def body = stringWriter.toString()
-        if (body.endsWith("\n")) {
+        if (body.endsWith(("\r\n"))) {
+            body = body.substring(0, body.length() - 2)
+        } else if (body.endsWith("\n")) {
             body = body.substring(0, body.length() - 1)
         }
         body
