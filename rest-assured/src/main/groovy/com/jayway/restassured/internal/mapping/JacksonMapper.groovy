@@ -47,7 +47,7 @@ class JacksonMapper implements ObjectMapper {
     }
 
     def Object deserialize(ObjectMapperDeserializationContext context) {
-        def object = context.getObjectToDeserializeAs(String.class)
+        def object = context.getResponse().asString()
         def cls = context.getType()
         def mapper = createJacksonObjectMapper(cls, context.getCharset())
         JavaType javaType = TypeFactory.type(cls)

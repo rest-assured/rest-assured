@@ -26,6 +26,7 @@ import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.JacksonObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.ObjectMapperFactory;
 import com.jayway.restassured.parsing.Parser;
+import com.jayway.restassured.response.ResponseBodyData;
 import groovy.json.JsonBuilder;
 import groovy.json.JsonOutput;
 import groovy.json.JsonSlurper;
@@ -525,7 +526,24 @@ public class JsonPath {
             type = ObjectMapperType.JACKSON;
             config = objectMapperConfig().defaultObjectMapperType(type).jacksonObjectMapperFactory((JacksonObjectMapperFactory) objectMapperFactory);
         }
-        return ObjectMapping.deserialize(object, objectType, "application/json","", null, type, config);
+
+
+        final Object finalObject = object;
+        ResponseBodyData d = new ResponseBodyData() {
+            public String asString() {
+                return (String) finalObject;
+            }
+
+            public byte[] asByteArray() {
+                return new byte[0];
+            }
+
+            public InputStream asInputStream() {
+                return null;
+            }
+        };
+
+        return ObjectMapping.deserialize(d, objectType, "application/json","", null, type, config);
     }
 
     /**

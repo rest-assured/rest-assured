@@ -49,7 +49,7 @@ class JaxbMapper implements ObjectMapper {
 
 	def Object deserialize(ObjectMapperDeserializationContext context) {
         def cls = context.getType();
-        def object = context.getObjectToDeserializeAs(String.class);
+        def object = context.getResponse().asString();
 		JAXBContext jaxbContext = factory.create(cls, context.getCharset())
 
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller()

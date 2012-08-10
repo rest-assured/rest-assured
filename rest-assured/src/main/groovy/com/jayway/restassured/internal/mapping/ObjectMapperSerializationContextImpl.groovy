@@ -29,6 +29,14 @@ class ObjectMapperSerializationContextImpl implements ObjectMapperSerializationC
     }
 
     @Override
+    def <T> T getObjectToSerializeAs(Class<T> expectedType) {
+        if(!expectedType.isAssignableFrom(object.getClass())) {
+            throw new IllegalArgumentException("Object to serialize is not of required type $expectedType")
+        }
+        return expectedType.cast(object)
+    }
+
+    @Override
     String getContentType() {
         return contentType
     }

@@ -169,13 +169,13 @@ class RestAssuredResponseImpl implements Response {
             throw new IllegalStateException("""Cannot parse content to $cls because no content-type was present in the response and no default parser has been set.\nYou can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n
 or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
         }
-        return ObjectMapping.deserialize(asString(charset), cls, contentTypeToChose, defaultContentType, charset, null, objectMapperConfig)
+        return ObjectMapping.deserialize(this, cls, contentTypeToChose, defaultContentType, charset, null, objectMapperConfig)
     }
 
     def <T> T "as"(Class<T> cls, ObjectMapperType mapperType) {
         notNull mapperType, "Object mapper type"
         def charset = findCharset()
-        return ObjectMapping.deserialize(asString(charset), cls, null, defaultContentType, charset, mapperType, objectMapperConfig)
+        return ObjectMapping.deserialize(this, cls, null, defaultContentType, charset, mapperType, objectMapperConfig)
     }
 
     def <T> T "as"(Class<T> cls, ObjectMapper mapper) {
@@ -435,7 +435,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
         ctx.type = cls
         ctx.charset = findCharset()
         ctx.contentType = contentType()
-        ctx.object = asString(ctx.charset)
+        ctx.responseData = this
         ctx
     }
 }

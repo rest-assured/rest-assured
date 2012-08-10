@@ -16,20 +16,17 @@
 
 package com.jayway.restassured.mapper;
 
+import com.jayway.restassured.response.ResponseBodyData;
+
 /**
  * Class containing details needed for deserializing a response to a Java class.
  */
 public interface ObjectMapperDeserializationContext {
 
     /**
-     * @return The response object that should be deserialized to a Java object
+     * @return The response data that should be deserialized to a Java object.
      */
-    Object getObjectToDeserialize();
-
-    /**
-     * @return The object that should be deserialized as a specific type. If the object is not of the expected type then an IllegalArgumentException is thrown.
-     */
-    <T> T getObjectToDeserializeAs(Class<T> expectedType);
+    ResponseBodyData getResponse();
 
     /**
      * @return The expected type of the object to deserialize

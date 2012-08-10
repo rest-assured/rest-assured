@@ -27,6 +27,11 @@ public interface ObjectMapperSerializationContext {
     Object getObjectToSerialize();
 
     /**
+     * @return The object that should be serialized as a specific type. If the object is not of the expected type then an IllegalArgumentException is thrown.
+     */
+    <T> T getObjectToSerializeAs(Class<T> expectedType);
+
+    /**
      * @return The content-type of the request or <code>null</code> if not defined.
      */
     String getContentType();

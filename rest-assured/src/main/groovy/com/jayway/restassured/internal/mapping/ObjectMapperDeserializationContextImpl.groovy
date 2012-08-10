@@ -13,30 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.jayway.restassured.internal.mapping
 
 import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
 
+import com.jayway.restassured.response.ResponseBodyData
 
 class ObjectMapperDeserializationContextImpl implements ObjectMapperDeserializationContext {
 
-    def object
+    def ResponseBodyData responseData
     def Class<?> type
     def contentType
     def charset
 
     @Override
-    Object getObjectToDeserialize() {
-        return object
-    }
-
-    @Override
-    def <T> T getObjectToDeserializeAs(Class<T> expectedType) {
-        if(!expectedType.isAssignableFrom(object.getClass())) {
-            throw new IllegalArgumentException("Object to de-serialize is not of required type $expectedType")
-        }
-        return expectedType.cast(object)
+    ResponseBodyData getResponse() {
+        return responseData
     }
 
     @Override

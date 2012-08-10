@@ -16,14 +16,12 @@
 
 package com.jayway.restassured.response;
 
-import java.io.InputStream;
-
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
 
-public interface ResponseBody {
+public interface ResponseBody extends ResponseBodyData {
     /**
      * Print the response body and return it as string. Mainly useful for debug purposes when writing tests.
      *
@@ -38,27 +36,6 @@ public interface ResponseBody {
      * @return The body as a string.
      */
     String prettyPrint();
-
-    /**
-     * Get the body as a string.
-     *
-     * @return The body as a string.
-     */
-    String asString();
-
-    /**
-     * Get the body as a byte array.
-     *
-     * @return The body as a array.
-     */
-    byte[] asByteArray();
-
-    /**
-     * Get the body as an input stream.
-     *
-     * @return The body as an input stream.
-     */
-    InputStream asInputStream();
 
     /**
      * Get the body and map it to a Java object. For JSON responses this requires that you have either

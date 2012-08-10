@@ -23,21 +23,23 @@ import com.jayway.restassured.mapper.ObjectMapperType
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory
 import com.jayway.restassured.mapper.factory.JAXBObjectMapperFactory
 import com.jayway.restassured.mapper.factory.JacksonObjectMapperFactory
+
 import org.apache.commons.lang3.Validate
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static com.jayway.restassured.http.ContentType.ANY
 import static com.jayway.restassured.mapper.resolver.ObjectMapperResolver.*
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
+import com.jayway.restassured.response.ResponseBodyData
 
 class ObjectMapping {
 
-    public static <T> T deserialize(Object object, Class<T> cls, String contentType, String defaultContentType, String charset, ObjectMapperType mapperType,
+    public static <T> T deserialize(ResponseBodyData response, Class<T> cls, String contentType, String defaultContentType, String charset, ObjectMapperType mapperType,
                                     ObjectMapperConfig objectMapperConfig) {
         Validate.notNull(objectMapperConfig, "Object mapper configuration wasn't found, cannot deserialize.")
-        def deserializationCtx = deserializationContext(object, cls, contentType, charset)
+        def deserializationCtx = deserializationContext(response, cls, contentType, charset)
         if(objectMapperConfig.hasDefaultObjectMapper()) {
-            return objectMapperConfig.defaultObjectMapper().deserialize(deserializationContext(object, cls, contentType, charset)) as T;
+            return objectMapperConfig.defaultObjectMapper().deserialize(deserializationContext(response, cls, contentType, charset)) as T;
         } else if(mapperType != null || objectMapperConfig.hasDefaultObjectMapperType()) {
             ObjectMapperType mapperTypeToUse = mapperType == null ? objectMapperConfig.defaultObjectMapperType() : mapperType;
             return deserializeWithObjectMapper(deserializationCtx, mapperTypeToUse, objectMapperConfig)
@@ -162,12 +164,12 @@ class ObjectMapping {
         new JacksonMapper(factory).deserialize(ctx)
     }
 
-    private static ObjectMapperDeserializationContext deserializationContext(Object object, Class cls, contentType, charset) {
+    private static ObjectMapperDeserializationContext deserializationContext(ResponseBodyData responseData, Class cls, contentType, charset) {
         def ctx = new ObjectMapperDeserializationContextImpl()
         ctx.type = cls
         ctx.charset = charset
         ctx.contentType = contentType
-        ctx.object = object
+        ctx.responseData = responseData
         ctx
     }
 
