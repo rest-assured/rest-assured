@@ -34,7 +34,12 @@ import java.io.File;
 
 @Ignore("To make Maven happy")
 public class WithJetty {
-    public static String itestPath = "/examples/rest-assured-itest-java";
+    public static final String itestPath;
+
+    static {
+        String fileSeparator = System.getProperty("file.separator");
+        itestPath = fileSeparator + "examples" + fileSeparator + "rest-assured-itest-java";
+    }
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
