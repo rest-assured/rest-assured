@@ -15,6 +15,9 @@
  */
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.config.ObjectMapperConfig;
+import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.mapper.ObjectMapper;
@@ -30,7 +33,7 @@ import static org.junit.Assert.assertThat;
 public class CustomObjectMappingITest extends WithJetty {
 
     @Test
-    public void ikk() throws Exception {
+    public void using_explicit_custom_object_mapper() throws Exception {
         final Message message = new Message();
         message.setMessage("A message");
         final ObjectMapper mapper = new ObjectMapper() {
@@ -50,6 +53,32 @@ public class CustomObjectMappingITest extends WithJetty {
         };
 
         final Message returnedMessage = given().body(message, mapper).when().post("/reflect").as(Message.class, mapper);
+
+        assertThat(returnedMessage.getMessage(), equalTo("A message"));
+    }
+
+    @Test public void
+    using_custom_object_mapper_statically() {
+        final Message message = new Message();
+        message.setMessage("A message");
+        final ObjectMapper mapper = new ObjectMapper() {
+            public Object deserialize(ObjectMapperDeserializationContext context) {
+                final String toDeserialize = context.getResponse().asString();
+                final String unquoted = StringUtils.remove(toDeserialize, "##");
+                final Message message = new Message();
+                message.setMessage(unquoted);
+                return message;
+            }
+
+            public Object serialize(ObjectMapperSerializationContext context) {
+                final Message objectToSerialize = context.getObjectToSerializeAs(Message.class);
+                final String message = objectToSerialize.getMessage();
+                return "##" + message + "##";
+            }
+        };
+        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(new ObjectMapperConfig(mapper));
+
+        final Message returnedMessage = given().body(message).when().post("/reflect").as(Message.class, mapper);
 
         assertThat(returnedMessage.getMessage(), equalTo("A message"));
     }
