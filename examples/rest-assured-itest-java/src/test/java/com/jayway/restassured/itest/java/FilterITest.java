@@ -62,7 +62,8 @@ public class FilterITest extends WithJetty {
         }  finally {
             RestAssured.reset();
         }
-        assertThat(writer.toString(), is("HTTP/1.1 409 Conflict\nContent-Type=text/plain; charset=utf-8\nContent-Length=5\nServer=Jetty(6.1.14)\n\nERROR\nHTTP/1.1 409 Conflict\nContent-Type=text/plain; charset=utf-8\nContent-Length=5\nServer=Jetty(6.1.14)\n\nERROR\n"));
+        String lineSeparator = System.getProperty("line.separator");
+        assertThat(writer.toString(), is("HTTP/1.1 409 Conflict\nContent-Type=text/plain; charset=utf-8\nContent-Length=5\nServer=Jetty(6.1.14)\n\nERROR" + lineSeparator + "HTTP/1.1 409 Conflict\nContent-Type=text/plain; charset=utf-8\nContent-Length=5\nServer=Jetty(6.1.14)\n\nERROR" + lineSeparator));
     }
 
     @Test
