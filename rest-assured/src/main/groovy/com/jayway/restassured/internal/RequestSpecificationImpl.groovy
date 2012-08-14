@@ -533,7 +533,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         notNull headerValue, "Header value"
 
         if ("content-type".equals(headerName)) {
-            contentType(headerValue)
+            return contentType(headerValue)
         }
 
         def headerList = [new Header(headerName, serializeIfNeeded(headerValue))]
