@@ -28,6 +28,8 @@ import static java.util.Arrays.asList
 import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.instanceOf
 import static org.junit.Assert.assertThat
+import static org.junit.Assert.assertEquals
+import com.jayway.restassured.response.Header
 
 class RequestSpecificationTest {
 
@@ -44,6 +46,20 @@ class RequestSpecificationTest {
 
     assertThat(requestSpec.filters[0], instanceOf(ExampleFilter2.class))
     assertThat(requestSpec.filters.size(), equalTo(1))
+  }
+
+  @Test
+  public void contentTypeAsHeaderParameters() {
+    def requestSpec = given().header("content-type", "something");
+
+    assertEquals(requestSpec.contentType, "something");
+  }
+
+  public void contentTypeAsHeaderObject() {
+      def header = new Header("content-type", "something");
+    def requestSpec = given().header(header);
+
+    assertEquals(requestSpec.contentType(), header);
   }
 
   @Ignore

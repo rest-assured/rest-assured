@@ -531,6 +531,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     RequestSpecification header(String headerName, Object headerValue, Object...additionalHeaderValues) {
         notNull headerName, "Header name"
         notNull headerValue, "Header value"
+
+        if ("content-type".equals(headerName)) {
+            contentType(headerValue)
+        }
+
         def headerList = [new Header(headerName, serializeIfNeeded(headerValue))]
         additionalHeaderValues?.each {
             headerList << new Header(headerName, serializeIfNeeded(it))
