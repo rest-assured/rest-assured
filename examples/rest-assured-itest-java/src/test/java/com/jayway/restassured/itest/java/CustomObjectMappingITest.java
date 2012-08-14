@@ -23,10 +23,12 @@ import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.mapper.ObjectMapperDeserializationContext;
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext;
+import com.jayway.restassured.mapper.ObjectMapperType;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.mapper.ObjectMapperType.GSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -78,7 +80,18 @@ public class CustomObjectMappingITest extends WithJetty {
         };
         RestAssured.config = RestAssuredConfig.config().objectMapperConfig(new ObjectMapperConfig(mapper));
 
-        final Message returnedMessage = given().body(message).when().post("/reflect").as(Message.class, mapper);
+        final Message returnedMessage = given().body(message).when().post("/reflect").as(Message.class);
+
+        assertThat(returnedMessage.getMessage(), equalTo("A message"));
+    }
+
+    @Test public void
+    using_default_object_mapper_type_if_specified() {
+        final Message message = new Message();
+        message.setMessage("A message");
+        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(new ObjectMapperConfig(GSON));
+
+        final Message returnedMessage = given().body(message).when().post("/reflect").as(Message.class);
 
         assertThat(returnedMessage.getMessage(), equalTo("A message"));
     }

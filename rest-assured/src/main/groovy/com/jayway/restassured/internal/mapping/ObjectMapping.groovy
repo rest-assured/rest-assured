@@ -92,7 +92,8 @@ class ObjectMapping {
         def serializationCtx = serializationContext(object, contentType, charset)
         if(config.hasDefaultObjectMapper()) {
             return config.defaultObjectMapper().serialize(serializationContext(object, contentType, charset));
-        } else if(mapperType != null) {
+        } else if(mapperType != null ||config.hasDefaultObjectMapperType()) {
+            mapperType = mapperType ?: config.defaultObjectMapperType()
             return serializeWithObjectMapper(serializationCtx, mapperType, config)
         }
 
