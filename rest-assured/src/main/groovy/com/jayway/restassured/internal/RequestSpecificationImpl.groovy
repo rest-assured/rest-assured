@@ -511,6 +511,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         headers.each {
             headerList << new Header(it.key, it.value)
         }
+        filterContentTypeHeader(headerList)
         this.requestHeaders = new Headers(headerList)
         return this;
     }
@@ -524,9 +525,20 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             }
 
             headerList.addAll(headers.headers.list())
+            filterContentTypeHeader(headerList)
             this.requestHeaders = new Headers(headerList)
         }
         this
+    }
+
+    private def void filterContentTypeHeader(List<Header> headerList) {
+        def contentHeader = headerList.find {
+            CONTENT_TYPE.equals(it.name)
+        };
+        if (contentHeader != null) {
+            contentType(contentHeader.value)
+            headerList.remove(contentHeader)
+        }
     }
 
     RequestSpecification header(String headerName, Object headerValue, Object...additionalHeaderValues) {
