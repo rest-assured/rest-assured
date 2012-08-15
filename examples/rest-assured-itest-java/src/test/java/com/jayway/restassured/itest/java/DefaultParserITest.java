@@ -18,6 +18,7 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.parsing.Parser;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
@@ -54,5 +55,11 @@ public class DefaultParserITest extends WithJetty {
     @Test
     public void usingDefaultParserWhenResponseContentTypeIsUnDefined() throws Exception {
         expect().defaultParser(JSON).and().body("message", equalTo("It works")).when().get("/noContentTypeJsonCompatible");
+    }
+
+    @Test
+    public void usingJsonParserWhenContentTypeIsHtml() {
+        RestAssured.registerParser("text/html", Parser.JSON);
+        RestAssured.expect().body("42", equalTo("23")).when().get("/contentTypeHtmlButContentIsJson");
     }
 }

@@ -26,12 +26,12 @@ class StreamVerifier {
     def contentType = response.getContentType()
     def parserType = Parser.fromContentType(contentType)
     def assertion
-    if(parserType == Parser.JSON) {
+    if(rpr.hasCustomParser(contentType)) {
+      assertion = createAssertionForCustomParser(rpr, contentType, key)
+    } else if(parserType == Parser.JSON) {
       assertion = new JSONAssertion(key: key)
     } else if(parserType == Parser.XML || parserType == Parser.HTML) {
       assertion = new XMLAssertion(key: key)
-    } else if(rpr.hasCustomParser(contentType)) {
-      assertion = createAssertionForCustomParser(rpr, contentType, key)
     } else {
       def content = response.asString()
       if(contentType.isEmpty()) {
