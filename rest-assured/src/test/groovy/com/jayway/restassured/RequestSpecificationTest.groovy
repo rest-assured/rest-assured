@@ -30,8 +30,11 @@ import static org.hamcrest.Matchers.instanceOf
 import static org.junit.Assert.assertThat
 import static org.junit.Assert.assertEquals
 import com.jayway.restassured.response.Header
+import com.jayway.restassured.response.Headers
 
 class RequestSpecificationTest {
+    final def CONTENT_TYPE = "content-type"
+    final def CONTENT_TYPE_TEST_VALUE = "something"
 
   @Test
   public void allowsRemovingAllFilters() throws Exception {
@@ -49,17 +52,37 @@ class RequestSpecificationTest {
   }
 
   @Test
-  public void contentTypeAsHeaderParameters() {
-    def requestSpec = given().header("content-type", "something");
+  public void contentTypeAsHeaderParameter() {
+    def requestSpec = given().header(CONTENT_TYPE, CONTENT_TYPE_TEST_VALUE)
 
-    assertEquals(requestSpec.contentType, "something");
+    assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.contentType)
   }
 
+  @Test
   public void contentTypeAsHeaderObject() {
-      def header = new Header("content-type", "something");
+    def header = new Header(CONTENT_TYPE, CONTENT_TYPE_TEST_VALUE)
     def requestSpec = given().header(header);
 
-    assertEquals(requestSpec.contentType(), header);
+    assertEquals(header.value, requestSpec.contentType)
+  }
+
+  @Test
+  public void contentTypeInHeaderObject() {
+    def header = new Headers(new Header(CONTENT_TYPE, CONTENT_TYPE_TEST_VALUE))
+
+    def requestSpec = given().headers(header)
+
+    assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.contentType)
+  }
+
+  @Test
+  public void contentTypeInHeaderMap() {
+      def headerMap = new TreeMap<String, String>()
+      headerMap.put(CONTENT_TYPE, CONTENT_TYPE_TEST_VALUE)
+
+      def requestSpec = given().headers(headerMap)
+
+      assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.contentType)
   }
 
   @Ignore
