@@ -33,8 +33,8 @@ import com.jayway.restassured.response.Header
 import com.jayway.restassured.response.Headers
 
 class RequestSpecificationTest {
-    final def CONTENT_TYPE = "content-type"
-    final def CONTENT_TYPE_TEST_VALUE = "something"
+    private static final def CONTENT_TYPE = "content-type"
+    private static final def CONTENT_TYPE_TEST_VALUE = "something"
 
   @Test
   public void allowsRemovingAllFilters() throws Exception {
