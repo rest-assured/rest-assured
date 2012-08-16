@@ -16,10 +16,8 @@
 
 package com.jayway.restassured.itest.java.support;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
+import com.jayway.restassured.RestAssured;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
@@ -84,6 +82,11 @@ public class WithJetty {
         server.addHandler(sh);
         server.setStopAtShutdown(true);
         server.start();
+    }
+
+    @Before
+    public void setUpBeforeTest() {
+        RestAssured.reset();
     }
 
     private static File gotoProjectRoot() {
