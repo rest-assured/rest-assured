@@ -798,6 +798,11 @@ class ScalatraRestExample extends ScalatraServlet {
     "This is not a valid JSON document"
   }
 
+  get("/contentTypeHtmlButContentIsJson") {
+    contentType = "text/html"
+    "{ \"key\" : \"value\", \"42\" : \"23\"}"
+  }
+
   get("/xmlWithBom") {
     contentType = "application/xml"
     IOUtils.toByteArray(getClass.getResourceAsStream("/bom_example.xml"))
