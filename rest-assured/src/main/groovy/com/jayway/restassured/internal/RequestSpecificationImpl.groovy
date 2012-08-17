@@ -62,6 +62,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private static final int DEFAULT_HTTP_TEST_PORT = 8080
     private static final String MULTIPART_FORM_DATA = "multipart/form-data"
     private static final String SLASH = "/"
+    private static final String CONTENT_TYPE = "content-type"
 
     private String baseUri
     private String path  = ""
@@ -510,6 +511,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         headers.each {
             headerList << new Header(it.key, it.value)
         }
+        filterContentTypeHeader(headerList)
         this.requestHeaders = new Headers(headerList)
         return this;
     }
@@ -523,14 +525,30 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             }
 
             headerList.addAll(headers.headers.list())
+            filterContentTypeHeader(headerList)
             this.requestHeaders = new Headers(headerList)
         }
         this
     }
 
+    private def void filterContentTypeHeader(List<Header> headerList) {
+        def contentHeader = headerList.find {
+            CONTENT_TYPE.equals(it.name)
+        };
+        if (contentHeader != null) {
+            contentType(contentHeader.value)
+            headerList.remove(contentHeader)
+        }
+    }
+
     RequestSpecification header(String headerName, Object headerValue, Object...additionalHeaderValues) {
         notNull headerName, "Header name"
         notNull headerValue, "Header value"
+
+        if (CONTENT_TYPE.equals(headerName)) {
+            return contentType(headerValue)
+        }
+
         def headerList = [new Header(headerName, serializeIfNeeded(headerValue))]
         additionalHeaderValues?.each {
             headerList << new Header(headerName, serializeIfNeeded(it))
@@ -541,6 +559,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     def RequestSpecification header(Header header) {
         notNull header, "Header"
+
+        if (CONTENT_TYPE.equals(header.name)) {
+            return contentType(header.value)
+        }
+
         return headers(new Headers(asList(header)));
     }
 
