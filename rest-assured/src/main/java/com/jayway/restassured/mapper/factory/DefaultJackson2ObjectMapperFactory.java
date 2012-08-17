@@ -14,11 +14,16 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.mapper;
+package com.jayway.restassured.mapper.factory;
+
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * The predefined object mappers that can be used with REST Assured
+ * Simply creates a new Jackson 2.0 ObjectMapper
  */
-public enum ObjectMapperType {
-    JACKSON_2, JACKSON_1, GSON, JAXB
+public class DefaultJackson2ObjectMapperFactory implements Jackson2ObjectMapperFactory {
+    public ObjectMapper create(Class cls, String charset) {
+        return new ObjectMapper();
+    }
 }

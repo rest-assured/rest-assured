@@ -13,33 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
 package com.jayway.restassured.internal.mapping
 
+import com.fasterxml.jackson.core.JsonEncoding
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.JavaType
 import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext
-import com.jayway.restassured.mapper.factory.JacksonObjectMapperFactory
-import org.codehaus.jackson.JsonEncoding
-import org.codehaus.jackson.JsonGenerator
-import org.codehaus.jackson.map.type.TypeFactory
-import org.codehaus.jackson.type.JavaType
+import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory
 
-class JacksonMapper implements ObjectMapper {
+/**
+ * Support for Jackson 2.0 (https://github.com/FasterXML/jackson-core)
+ */
+class Jackson2Mapper implements ObjectMapper {
 
-    private final JacksonObjectMapperFactory factory;
+    private final Jackson2ObjectMapperFactory factory;
 
-    JacksonMapper(JacksonObjectMapperFactory factory) {
+    Jackson2Mapper(Jackson2ObjectMapperFactory factory) {
         this.factory = factory
     }
 
-    private org.codehaus.jackson.map.ObjectMapper createJacksonObjectMapper(Class cls, String charset) {
+    private com.fasterxml.jackson.databind.ObjectMapper createJackson2ObjectMapper(Class cls, String charset) {
         return factory.create(cls, charset)
     }
 
     def String serialize(ObjectMapperSerializationContext context) {
         def object = context.getObjectToSerialize()
         JsonEncoding jsonEncoding = getEncoding(context.getCharset())
-        def mapper = createJacksonObjectMapper(object.getClass(), context.getCharset())
+        def mapper = createJackson2ObjectMapper(object.getClass(), context.getCharset())
         def stream = new ByteArrayOutputStream()
         JsonGenerator jsonGenerator = mapper.getJsonFactory().createJsonGenerator(stream, jsonEncoding)
         mapper.writeValue(jsonGenerator, object)
@@ -49,8 +53,8 @@ class JacksonMapper implements ObjectMapper {
     def Object deserialize(ObjectMapperDeserializationContext context) {
         def object = context.getResponse().asString()
         def cls = context.getType()
-        def mapper = createJacksonObjectMapper(cls, context.getCharset())
-        JavaType javaType = TypeFactory.type(cls)
+        def mapper = createJackson2ObjectMapper(cls, context.getCharset())
+        JavaType javaType = mapper.constructType(cls)
         return mapper.readValue(object, javaType)
     }
 

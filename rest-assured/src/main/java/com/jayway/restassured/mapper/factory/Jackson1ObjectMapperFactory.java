@@ -19,10 +19,8 @@ package com.jayway.restassured.mapper.factory;
 import org.codehaus.jackson.map.ObjectMapper;
 
 /**
- * Simply creates a new Jackson ObjectMapper
+ * Interface for Jackson 1.0 based object mappers. Implement this class and register it to the ObjectMapperConfig if you
+ * want to override default settings for the Jackson object mapper.
  */
-public class DefaultJacksonObjectMapperFactory implements JacksonObjectMapperFactory {
-    public ObjectMapper create(Class cls, String charset) {
-        return new ObjectMapper();
-    }
+public interface Jackson1ObjectMapperFactory extends ObjectMapperFactory<ObjectMapper> {
 }

@@ -17,7 +17,8 @@
 package com.jayway.restassured.mapper.resolver;
 
 public class ObjectMapperResolver {
-    private static final boolean isJacksonPresent = existInCP("org.codehaus.jackson.map.ObjectMapper") && existInCP("org.codehaus.jackson.JsonGenerator");
+    private static final boolean isJackson1Present = existInCP("org.codehaus.jackson.map.ObjectMapper") && existInCP("org.codehaus.jackson.JsonGenerator");
+    private static final boolean isJackson2Present = existInCP("com.fasterxml.jackson.databind.ObjectMapper") && existInCP("com.fasterxml.jackson.core.JsonGenerator");
     private static final boolean isJaxbPresent = existInCP("javax.xml.bind.Binder");
     private static final boolean isGsonPresent = existInCP("com.google.gson.Gson");
 
@@ -30,8 +31,12 @@ public class ObjectMapperResolver {
         }
     }
 
-    public static boolean isJacksonInClassPath() {
-        return isJacksonPresent;
+    public static boolean isJackson1InClassPath() {
+        return isJackson1Present;
+    }
+
+    public static boolean isJackson2InClassPath() {
+        return isJackson2Present;
     }
 
     public static boolean isJAXBInClassPath() {

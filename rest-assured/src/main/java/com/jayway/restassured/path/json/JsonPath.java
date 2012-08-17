@@ -23,7 +23,7 @@ import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.internal.support.Prettifier;
 import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
-import com.jayway.restassured.mapper.factory.JacksonObjectMapperFactory;
+import com.jayway.restassured.mapper.factory.Jackson1ObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.ObjectMapperFactory;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.ResponseBodyData;
@@ -523,8 +523,8 @@ public class JsonPath {
             type = ObjectMapperType.GSON;
             config = objectMapperConfig().defaultObjectMapperType(type).gsonObjectMapperFactory((GsonObjectMapperFactory) objectMapperFactory);
         } else {
-            type = ObjectMapperType.JACKSON;
-            config = objectMapperConfig().defaultObjectMapperType(type).jacksonObjectMapperFactory((JacksonObjectMapperFactory) objectMapperFactory);
+            type = ObjectMapperType.JACKSON_1;
+            config = objectMapperConfig().defaultObjectMapperType(type).jackson1ObjectMapperFactory((Jackson1ObjectMapperFactory) objectMapperFactory);
         }
 
 
@@ -580,7 +580,7 @@ public class JsonPath {
      * @param factory The Jackson object mapper factory instance
      * @return a new JsonPath instance
      */
-    public JsonPath using(JacksonObjectMapperFactory factory) {
+    public JsonPath using(Jackson1ObjectMapperFactory factory) {
         return new JsonPath(this, factory);
     }
 

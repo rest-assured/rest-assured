@@ -26,8 +26,8 @@
     <groupId>com.jayway.restassured.examples</groupId>
     <artifactId>scalatra-example</artifactId>
     <packaging>jar</packaging>
-    <name>Scalatra REST service example</name>
-    <description>Scalatra REST service example that's used for integration testing rest-assured</description>
+    <name>Scalatra Example</name>
+    <description>Scalatra service example that's used for integration testing rest-assured</description>
 
     <properties>
         <scala.version>2.9.1</scala.version>

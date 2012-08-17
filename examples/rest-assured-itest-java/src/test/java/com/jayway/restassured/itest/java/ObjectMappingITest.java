@@ -17,8 +17,6 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.config.EncoderConfig;
-import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
@@ -153,8 +151,15 @@ public class ObjectMappingITest extends WithJetty {
     }
 
     @Test
-    public void mapResponseToObjectUsingJacksonWithJacksonObjectMapperDefined() throws Exception {
-        final ScalatraObject object = get("/hello").as(ScalatraObject.class, JACKSON);
+    public void mapResponseToObjectUsingJackson1WithJacksonObjectMapperDefined() throws Exception {
+        final ScalatraObject object = get("/hello").as(ScalatraObject.class, JACKSON_1);
+
+        assertThat(object.getHello(), equalTo("Hello Scalatra"));
+    }
+
+    @Test
+    public void mapResponseToObjectUsingJackson2WithJacksonObjectMapperDefined() throws Exception {
+        final ScalatraObject object = get("/hello").as(ScalatraObject.class, JACKSON_2);
 
         assertThat(object.getHello(), equalTo("Hello Scalatra"));
     }
@@ -198,7 +203,7 @@ public class ObjectMappingITest extends WithJetty {
         final Greeting object = new Greeting();
         object.setFirstName("John");
         object.setLastName("Doe");
-        final Greeting actual = given().body(object, JACKSON).when().post("/reflect").as(Greeting.class, JACKSON);
+        final Greeting actual = given().body(object, JACKSON_1).when().post("/reflect").as(Greeting.class, JACKSON_1);
         assertThat(object, equalTo(actual));
     }
 

@@ -16,21 +16,20 @@
 package com.jayway.restassured.internal.mapping
 
 import com.jayway.restassured.config.ObjectMapperConfig
-import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 import com.jayway.restassured.mapper.ObjectMapperType
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory
 import com.jayway.restassured.mapper.factory.JAXBObjectMapperFactory
-import com.jayway.restassured.mapper.factory.JacksonObjectMapperFactory
-
+import com.jayway.restassured.mapper.factory.Jackson1ObjectMapperFactory
+import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory
+import com.jayway.restassured.response.ResponseBodyData
 import org.apache.commons.lang3.Validate
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static com.jayway.restassured.http.ContentType.ANY
 import static com.jayway.restassured.mapper.resolver.ObjectMapperResolver.*
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
-import com.jayway.restassured.response.ResponseBodyData
 
 class ObjectMapping {
 
@@ -45,8 +44,10 @@ class ObjectMapping {
             return deserializeWithObjectMapper(deserializationCtx, mapperTypeToUse, objectMapperConfig)
         }
         if(containsIgnoreCase(contentType, "json")) {
-            if(isJacksonInClassPath()) {
-                return parseWithJackson(deserializationCtx, objectMapperConfig.jacksonObjectMapperFactory()) as T
+            if(isJackson2InClassPath()) {
+                return parseWithJackson2(deserializationCtx, objectMapperConfig.jackson2ObjectMapperFactory()) as T
+            } else if(isJackson1InClassPath()) {
+                return parseWithJackson1(deserializationCtx, objectMapperConfig.jackson1ObjectMapperFactory()) as T
             } else if(isGsonInClassPath()) {
                 return parseWithGson(deserializationCtx, objectMapperConfig.gsonObjectMapperFactory()) as T
             }
@@ -58,8 +59,10 @@ class ObjectMapping {
             throw new IllegalStateException("Cannot parse object because no XML deserializer found in classpath. Please put a JAXB compliant object mapper in classpath.")
         } else if(defaultContentType != null){
             if(containsIgnoreCase(defaultContentType, "json")) {
-                if(isJacksonInClassPath()) {
-                    return parseWithJackson(deserializationCtx, objectMapperConfig.jacksonObjectMapperFactory()) as T
+                if(isJackson2InClassPath()) {
+                    return parseWithJackson2(deserializationCtx, objectMapperConfig.jackson2ObjectMapperFactory()) as T
+                } else if(isJackson1InClassPath()) {
+                    return parseWithJackson1(deserializationCtx, objectMapperConfig.jackson1ObjectMapperFactory()) as T
                 } else if(isGsonInClassPath()) {
                     return parseWithGson(deserializationCtx, objectMapperConfig.gsonObjectMapperFactory()) as T
                 }
@@ -73,11 +76,13 @@ class ObjectMapping {
     }
 
     private static <T> T deserializeWithObjectMapper(ObjectMapperDeserializationContext ctx, ObjectMapperType mapperType, ObjectMapperConfig config) {
-        if(mapperType == ObjectMapper.JACKSON && isJacksonInClassPath()) {
-            return parseWithJackson(ctx, config.jacksonObjectMapperFactory()) as T
-        } else if(mapperType == ObjectMapper.GSON && isGsonInClassPath()) {
+        if(mapperType == ObjectMapperType.JACKSON_2 && isJackson2InClassPath()) {
+            return parseWithJackson2(ctx, config.jackson2ObjectMapperFactory()) as T
+        } else if(mapperType == ObjectMapperType.JACKSON_1 && isJackson1InClassPath()) {
+            return parseWithJackson1(ctx, config.jackson1ObjectMapperFactory()) as T
+        } else if(mapperType == ObjectMapperType.GSON && isGsonInClassPath()) {
             return parseWithGson(ctx, config.gsonObjectMapperFactory()) as T
-        } else if(mapperType == ObjectMapper.JAXB && isJAXBInClassPath()) {
+        } else if(mapperType == ObjectMapperType.JAXB && isJAXBInClassPath()) {
             return parseWithJaxb(ctx, config.jaxbObjectMapperFactory()) as T
         } else {
             def lowerCase = mapperType.toString().toLowerCase()
@@ -98,8 +103,10 @@ class ObjectMapping {
         }
 
         if(contentType == null || contentType == ANY.toString()) {
-            if(isJacksonInClassPath()) {
-                return serializeWithJackson(serializationCtx, config.jacksonObjectMapperFactory())
+            if(isJackson2InClassPath()) {
+                return serializeWithJackson2(serializationCtx, config.jackson2ObjectMapperFactory())
+            } else if(isJackson1InClassPath()) {
+                return serializeWithJackson1(serializationCtx, config.jackson1ObjectMapperFactory())
             } else if(isGsonInClassPath()) {
                 return serializeWithGson(serializationCtx, config.gsonObjectMapperFactory())
             } else if(isJAXBInClassPath()) {
@@ -109,8 +116,10 @@ class ObjectMapping {
         } else {
             def ct = contentType.toLowerCase()
             if(containsIgnoreCase(ct, "json")) {
-                if(isJacksonInClassPath()) {
-                    return serializeWithJackson(serializationCtx, config.jacksonObjectMapperFactory())
+                if(isJackson2InClassPath()) {
+                    return serializeWithJackson2(serializationCtx, config.jackson2ObjectMapperFactory())
+                } else if(isJackson1InClassPath()) {
+                    return serializeWithJackson1(serializationCtx, config.jackson1ObjectMapperFactory())
                 } else if(isGsonInClassPath()) {
                     return serializeWithGson(serializationCtx, config.gsonObjectMapperFactory())
                 }
@@ -129,11 +138,13 @@ class ObjectMapping {
     }
 
     private static String serializeWithObjectMapper(ObjectMapperSerializationContext ctx, ObjectMapperType mapperType, ObjectMapperConfig config) {
-        if(mapperType == ObjectMapper.JACKSON && isJacksonInClassPath()) {
-            return serializeWithJackson(ctx, config.jacksonObjectMapperFactory())
-        } else if(mapperType == ObjectMapper.GSON && isGsonInClassPath()) {
+        if(mapperType == ObjectMapperType.JACKSON_2 && isJackson2InClassPath()) {
+            return serializeWithJackson2(ctx, config.jackson2ObjectMapperFactory())
+        } else if(mapperType == ObjectMapperType.JACKSON_1 && isJackson1InClassPath()) {
+            return serializeWithJackson1(ctx, config.jackson1ObjectMapperFactory())
+        } else if(mapperType == ObjectMapperType.GSON && isGsonInClassPath()) {
             return serializeWithGson(ctx, config.gsonObjectMapperFactory())
-        } else if(mapperType == ObjectMapper.JAXB && isJAXBInClassPath()) {
+        } else if(mapperType == ObjectMapperType.JAXB && isJAXBInClassPath()) {
             return serializeWithJaxb(ctx, config.jaxbObjectMapperFactory())
         } else {
             def lowerCase = mapperType.toString().toLowerCase()
@@ -145,8 +156,12 @@ class ObjectMapping {
         new GsonMapper(factory).serialize(ctx)
     }
 
-    private static Object serializeWithJackson(ObjectMapperSerializationContext ctx, JacksonObjectMapperFactory factory) {
-        new JacksonMapper(factory).serialize(ctx)
+    private static Object serializeWithJackson1(ObjectMapperSerializationContext ctx, Jackson1ObjectMapperFactory factory) {
+        new Jackson1Mapper(factory).serialize(ctx)
+    }
+
+    private static Object serializeWithJackson2(ObjectMapperSerializationContext ctx, Jackson2ObjectMapperFactory factory) {
+        new Jackson2Mapper(factory).serialize(ctx)
     }
 
     private static Object serializeWithJaxb(ObjectMapperSerializationContext ctx, JAXBObjectMapperFactory factory) {
@@ -161,8 +176,12 @@ class ObjectMapping {
         new GsonMapper(factory).deserialize(ctx)
     }
 
-    static def parseWithJackson(ObjectMapperDeserializationContext ctx, JacksonObjectMapperFactory factory) {
-        new JacksonMapper(factory).deserialize(ctx)
+    static def parseWithJackson1(ObjectMapperDeserializationContext ctx, Jackson1ObjectMapperFactory factory) {
+        new Jackson1Mapper(factory).deserialize(ctx)
+    }
+
+    static def parseWithJackson2(ObjectMapperDeserializationContext ctx, Jackson2ObjectMapperFactory factory) {
+        new Jackson2Mapper(factory).deserialize(ctx)
     }
 
     private static ObjectMapperDeserializationContext deserializationContext(ResponseBodyData responseData, Class cls, contentType, charset) {
