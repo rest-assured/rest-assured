@@ -15,27 +15,44 @@
  */
 package com.jayway.restassured.itest.java;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.ObjectMapperConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
+import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.mapper.ObjectMapperDeserializationContext;
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext;
-import com.jayway.restassured.mapper.ObjectMapperType;
+import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES;
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfig;
 import static com.jayway.restassured.mapper.ObjectMapperType.GSON;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class CustomObjectMappingITest extends WithJetty {
+    public AtomicBoolean customSerializationUsed = new AtomicBoolean(false);
+    public AtomicBoolean customDeserializationUsed = new AtomicBoolean(false);
 
-    @Test
-    public void using_explicit_custom_object_mapper() throws Exception {
+    @Before public void
+    setup() throws Exception {
+        customSerializationUsed.set(false);
+        customDeserializationUsed.set(false);
+    }
+
+    @Test public void
+    using_explicit_custom_object_mapper() throws Exception {
         final Message message = new Message();
         message.setMessage("A message");
         final ObjectMapper mapper = new ObjectMapper() {
@@ -44,12 +61,14 @@ public class CustomObjectMappingITest extends WithJetty {
                 final String unquoted = StringUtils.remove(toDeserialize, "#");
                 final Message message = new Message();
                 message.setMessage(unquoted);
+                customDeserializationUsed.set(true);
                 return message;
             }
 
             public Object serialize(ObjectMapperSerializationContext context) {
                 final Message objectToSerialize = context.getObjectToSerializeAs(Message.class);
                 final String message = objectToSerialize.getMessage();
+                customSerializationUsed.set(true);
                 return "##" + message + "##";
             }
         };
@@ -57,6 +76,8 @@ public class CustomObjectMappingITest extends WithJetty {
         final Message returnedMessage = given().body(message, mapper).when().post("/reflect").as(Message.class, mapper);
 
         assertThat(returnedMessage.getMessage(), equalTo("A message"));
+        assertThat(customSerializationUsed.get(), is(true));
+        assertThat(customDeserializationUsed.get(), is(true));
     }
 
     @Test public void
@@ -69,12 +90,14 @@ public class CustomObjectMappingITest extends WithJetty {
                 final String unquoted = StringUtils.remove(toDeserialize, "##");
                 final Message message = new Message();
                 message.setMessage(unquoted);
+                customDeserializationUsed.set(true);
                 return message;
             }
 
             public Object serialize(ObjectMapperSerializationContext context) {
                 final Message objectToSerialize = context.getObjectToSerializeAs(Message.class);
                 final String message = objectToSerialize.getMessage();
+                customSerializationUsed.set(true);
                 return "##" + message + "##";
             }
         };
@@ -83,6 +106,8 @@ public class CustomObjectMappingITest extends WithJetty {
         final Message returnedMessage = given().body(message).when().post("/reflect").as(Message.class);
 
         assertThat(returnedMessage.getMessage(), equalTo("A message"));
+        assertThat(customSerializationUsed.get(), is(true));
+        assertThat(customDeserializationUsed.get(), is(true));
     }
 
     @Test public void
@@ -94,5 +119,25 @@ public class CustomObjectMappingITest extends WithJetty {
         final Message returnedMessage = given().body(message).when().post("/reflect").as(Message.class);
 
         assertThat(returnedMessage.getMessage(), equalTo("A message"));
+    }
+
+    @Test public void
+    using_custom_object_mapper_factory() {
+        final Greeting greeting = new Greeting();
+        greeting.setFirstName("John");
+        greeting.setLastName("Doe");
+        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(objectMapperConfig().gsonObjectMapperFactory(
+                new GsonObjectMapperFactory() {
+                    public Gson create(Class cls, String charset) {
+                        return new GsonBuilder().setFieldNamingPolicy(LOWER_CASE_WITH_UNDERSCORES).create();
+                    }
+                }
+        ));
+
+        final Greeting returnedGreeting = given().contentType("application/json").body(greeting, GSON).
+                expect().body("first_name", equalTo("John")).when().post("/reflect").as(Greeting.class, GSON);
+
+        assertThat(returnedGreeting.getFirstName(), equalTo("John"));
+        assertThat(returnedGreeting.getLastName(), equalTo("Doe"));
     }
 }
