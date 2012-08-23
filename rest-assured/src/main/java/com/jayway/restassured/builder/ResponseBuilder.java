@@ -49,6 +49,7 @@ public class ResponseBuilder {
             restAssuredResponse.setSessionIdName(raResponse.getSessionIdName());
             restAssuredResponse.setConnectionManager(raResponse.getConnectionManager());
             restAssuredResponse.setObjectMapperConfig(raResponse.getObjectMapperConfig());
+            restAssuredResponse.setRpr(raResponse.getRpr());
         } else {
             restAssuredResponse.setContent(response.asInputStream());
         }
