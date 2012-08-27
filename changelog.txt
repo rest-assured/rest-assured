@@ -7,6 +7,7 @@ Change log next version
 * ObjectMapper.JACKSON, ObjectMapper.GSON and ObjectMapper.JAXB have been deprecated. Use the corresponding types in enum com.jayway.restassured.mapper.ObjectMapperType instead.
 * Added object mapping support for Jackson 2.0 (issue 189).
 * Fixed an issue with the com.jayway.restassured.builder.ResponseBuilder that failed to clone the ResponseParserRegistrar.
+* JSON path with digits separated by dots can now be processed by JsonPath (issue 195).
 
 Change log 1.6.2 (2012-05-28)
 -----------------------------

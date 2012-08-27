@@ -33,6 +33,7 @@ class XMLAssertion implements Assertion {
   private def fragments
 
   def Object getResult(Object object) {
+    key = key?.startsWith(DOT) ? key.substring(1) : key
     key = escapePath(key, minus(), attributeGetter(), doubleStar())
     def indexOfDot = key.indexOf(".")
     def baseString
