@@ -17,9 +17,18 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.config.RestAssuredConfig;
+import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.internal.filter.FormAuthFilter;
 import com.jayway.restassured.itest.java.support.SpookyGreetJsonResponseFilter;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.FilterableRequestSpecification;
+import com.jayway.restassured.specification.FilterableResponseSpecification;
+import com.jayway.restassured.specification.RequestSpecification;
+
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
 
@@ -78,4 +87,35 @@ public class FilterITest extends WithJetty {
        when().
                 get("/greetJSON");
     }
+    
+    /** 
+    Regression Test for 197
+    */
+    @Test
+    public void testDefaultfiltersDontAccumluate() {
+           CountingFilter myFilter = new CountingFilter();
+           RestAssured.config = RestAssuredConfig.newConfig();
+           RestAssured.filters(myFilter);
+
+           RequestSpecification spec = new RequestSpecBuilder().build();
+
+           given().get("/greetJSON");
+           assertThat (myFilter.counter, equalTo(1)); 
+
+           given().spec(spec).get("/greetJSON");
+           assertThat (myFilter.counter, equalTo(2));
+    }
+
+       public static class CountingFilter implements Filter {
+
+		public int counter = 0;
+           
+           public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+               counter++;
+               return ctx.next (requestSpec, responseSpec);
+           }       
+           
+            
+       }
+    
 }
