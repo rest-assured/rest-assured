@@ -125,6 +125,8 @@ class SpecificationMerger {
                 with.authenticationScheme instanceof ExplicitNoAuthScheme) {
             thisFilters.removeAll(instanceOfAuthFilter)
         }
-        thisFilters.addAll(withFilters)
+		// Only add filters not already present
+	    def toAdd = withFilters.findAll ({ !thisFilters.contains(it) })
+		thisFilters.addAll (toAdd)
     }
 }

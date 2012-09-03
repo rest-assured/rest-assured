@@ -891,6 +891,7 @@ public class RequestSpecBuilder {
      *     <li>Parameters</li>
      *     <li>Cookies</li>
      *     <li>Headers</li>
+     *     <li>Filters</li>
      * </ul>
      * @param specification The specification to add
      * @return The request specification builder

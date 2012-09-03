@@ -81,7 +81,19 @@ class SpecificationMergerTest {
 
         assertEquals merge.filters.size(), 5
     }
+    
+    
+    @Test 
+    def void sameFilterNotAddedTwice() throws Exception {
+        Filter filter = newFilter();
+        def merge = new RequestSpecBuilder().addFilter(filter).build();
+        def with = new RequestSpecBuilder().addFilter(filter).build();
 
+        SpecificationMerger.merge(merge, with)
+        
+        assertEquals 1, merge.filters.size
+    }
+ 
     @Test
     public void overwritesContentType() throws Exception {
         def merge = new ResponseSpecBuilder().expectContentType(ContentType.ANY).build();
