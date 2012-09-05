@@ -55,6 +55,7 @@ import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.apache.http.client.params.ClientPNames.*
 import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE
 import static org.apache.http.protocol.HTTP.CONTENT_TYPE
+import org.apache.http.util.EntityUtils
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
     private static final int DEFAULT_HTTPS_PORT = 443
@@ -1372,10 +1373,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             finally {
                 if(responseSpecification.hasBodyAssertionsDefined()) {
                     HttpEntity entity = resp.getEntity();
-                    if ( entity != null ) entity.consumeContent();
+                    EntityUtils.consume(entity.consumeContent())
                 }
                 // Close idle connections to the server
-                client.getConnectionManager().closeIdleConnections( 0, TimeUnit.NANOSECONDS );
+
+//                client.getConnectionManager().closeIdleConnections( 0, TimeUnit.NANOSECONDS );
             }
         }
 

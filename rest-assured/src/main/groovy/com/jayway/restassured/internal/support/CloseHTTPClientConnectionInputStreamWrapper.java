@@ -59,7 +59,7 @@ public class CloseHTTPClientConnectionInputStreamWrapper extends InputStream {
     @Override
     public void close() throws IOException {
         if(connectionManager != null) {
-            connectionManager.closeIdleConnections(0, TimeUnit.NANOSECONDS);
+//            connectionManager.closeIdleConnections(0, TimeUnit.NANOSECONDS);
         }
         wrapped.close();
     }

@@ -16,25 +16,21 @@
 
 package com.jayway.restassured.path.json;
 
-import static com.jayway.restassured.path.json.JsonPath.from;
-import static com.jayway.restassured.path.json.JsonPath.given;
-import static com.jayway.restassured.path.json.JsonPath.with;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.junit.Assert.assertThat;
+import com.jayway.restassured.path.json.support.Book;
 import groovy.json.JsonException;
+import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import org.hamcrest.Matchers;
-import org.junit.Test;
-
-import com.jayway.restassured.path.json.support.Book;
+import static com.jayway.restassured.path.json.JsonPath.*;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasItems;
+import static org.junit.Assert.assertThat;
 
 public class JsonPathTest {
 

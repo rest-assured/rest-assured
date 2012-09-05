@@ -368,7 +368,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
         char[] buffer = new char[1024];
         Reader reader = null;
         try {
-            reader = new BufferedReader(new InputStreamReader(is, findCharset()));
+            reader = new InputStreamReader(is, findCharset());
             int n;
             while ((n = reader.read(buffer)) != -1) {
                 writer.write(buffer, 0, n);
