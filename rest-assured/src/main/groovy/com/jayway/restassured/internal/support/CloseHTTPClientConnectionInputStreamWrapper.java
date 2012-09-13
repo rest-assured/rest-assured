@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.internal.support;
 
+import com.jayway.restassured.config.ConnectionConfig;
 import org.apache.http.conn.ClientConnectionManager;
 
 import java.io.IOException;
@@ -23,10 +24,13 @@ import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 public class CloseHTTPClientConnectionInputStreamWrapper extends InputStream {
+    private ConnectionConfig connectionConfig;
     private final ClientConnectionManager connectionManager;
     private final InputStream wrapped;
 
-    public CloseHTTPClientConnectionInputStreamWrapper(ClientConnectionManager connectionManager, InputStream wrapped) {
+    public CloseHTTPClientConnectionInputStreamWrapper(ConnectionConfig connectionConfig,
+                                                       ClientConnectionManager connectionManager, InputStream wrapped) {
+        this.connectionConfig = connectionConfig;
         this.connectionManager = connectionManager;
         this.wrapped = wrapped;
     }
@@ -58,8 +62,9 @@ public class CloseHTTPClientConnectionInputStreamWrapper extends InputStream {
 
     @Override
     public void close() throws IOException {
-        if(connectionManager != null) {
-//            connectionManager.closeIdleConnections(0, TimeUnit.NANOSECONDS);
+        if(connectionManager != null && connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
+            connectionManager.closeIdleConnections(connectionConfig.closeIdleConnectionConfig().getIdleTime(),
+                    connectionConfig.closeIdleConnectionConfig().getTimeUnit());
         }
         wrapped.close();
     }

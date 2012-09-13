@@ -36,9 +36,9 @@ import org.apache.http.entity.HttpEntityWrapper
 import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner
 import org.apache.http.message.BasicHeader
+import org.apache.http.util.EntityUtils
 
 import java.util.Map.Entry
-import java.util.concurrent.TimeUnit
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -54,8 +54,6 @@ import static java.util.Arrays.asList
 import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.apache.http.client.params.ClientPNames.*
 import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE
-import static org.apache.http.protocol.HTTP.CONTENT_TYPE
-import org.apache.http.util.EntityUtils
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
     private static final int DEFAULT_HTTPS_PORT = 443
@@ -742,7 +740,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         restAssuredResponse.setSessionIdName(config == null ? SessionConfig.DEFAULT_SESSION_ID_NAME : config.sessionConfig.sessionIdName())
         restAssuredResponse.setDefaultCharset(config == null ? new DecoderConfig().defaultContentCharset() : config.getDecoderConfig().defaultContentCharset())
         restAssuredResponse.setConnectionManager(http.client.connectionManager)
-        restAssuredResponse.setObjectMapperConfig(config == null ? new ObjectMapperConfig() : config.getObjectMapperConfig())
+        restAssuredResponse.setObjectMapperConfig(objectMappingConfig())
+        restAssuredResponse.setConnectionConfig(connectionConfig())
         responseSpecification.restAssuredResponse = restAssuredResponse
         def responseContentType =  assertionClosure.getResponseContentType()
 
@@ -1373,11 +1372,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             finally {
                 if(responseSpecification.hasBodyAssertionsDefined()) {
                     HttpEntity entity = resp.getEntity();
-                    EntityUtils.consume(entity.consumeContent())
+                    if(entity != null) entity.consumeContent()
                 }
                 // Close idle connections to the server
-
-//                client.getConnectionManager().closeIdleConnections( 0, TimeUnit.NANOSECONDS );
+                def connectionConfig = connectionConfig()
+                if(connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
+                    def closeConnectionConfig = connectionConfig.closeIdleConnectionConfig()
+                    client.getConnectionManager().closeIdleConnections( closeConnectionConfig.getIdleTime(),  closeConnectionConfig.getTimeUnit() );
+                }
             }
         }
 
@@ -1444,5 +1446,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     private def ObjectMapperConfig objectMappingConfig() {
         return config == null ? ObjectMapperConfig.objectMapperConfig() : config.getObjectMapperConfig();
+    }
+
+    private def ConnectionConfig connectionConfig() {
+        return config == null ? ConnectionConfig.connectionConfig() : config.getConnectionConfig();
     }
 }

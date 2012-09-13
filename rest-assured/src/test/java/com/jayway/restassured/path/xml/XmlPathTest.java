@@ -421,7 +421,7 @@ public class XmlPathTest {
 
         String lineSeparator = System.getProperty("line.separator");
 
-        assertThat(prettify, equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator + "<some>" + lineSeparator + "  <thing id=\"1\">ikk</thing>" + lineSeparator + "  <thing id=\"2\">ikk2</thing>" + lineSeparator + "  <thing id=\"3\">3</thing>" + lineSeparator + "</some>"));
+        assertThat(prettify, endsWith("<some>" + lineSeparator + "  <thing id=\"1\">ikk</thing>" + lineSeparator + "  <thing id=\"2\">ikk2</thing>" + lineSeparator + "  <thing id=\"3\">3</thing>" + lineSeparator + "</some>"));
     }
 
     @Test
@@ -430,7 +430,7 @@ public class XmlPathTest {
 
         String lineSeparator = System.getProperty("line.separator");
 
-        assertThat(prettify, equalTo("<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + lineSeparator + "<some>" + lineSeparator + "  <thing id=\"1\">ikk</thing>" + lineSeparator + "  <thing id=\"2\">ikk2</thing>" + lineSeparator + "  <thing id=\"3\">3</thing>" + lineSeparator + "</some>"));
+        assertThat(prettify, endsWith("<some>" + lineSeparator + "  <thing id=\"1\">ikk</thing>" + lineSeparator + "  <thing id=\"2\">ikk2</thing>" + lineSeparator + "  <thing id=\"3\">3</thing>" + lineSeparator + "</some>"));
     }
 
     @Test

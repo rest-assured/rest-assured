@@ -9,6 +9,9 @@ Change log next version
 * Fixed an issue with the com.jayway.restassured.builder.ResponseBuilder that failed to clone the ResponseParserRegistrar.
 * JSON path with digits separated by dots can now be processed by JsonPath (issue 195).
 * Default filters accumulate and are not merged when reusing request specs (issue 197).
+* Fixed so that it's possible to download large (chunked) files again. This was broken in the last release, 1.6.2. (issue 194).
+* Added a ConnectionConfig (com.jayway.restassured.config.ConnectionConfig) object that allows you to modify if REST Assured should drop idle connections after each response. Enable connection dropping if you need to make several small and fast requests (e.g. stress testing).
+
 
 Change log 1.6.2 (2012-05-28)
 -----------------------------

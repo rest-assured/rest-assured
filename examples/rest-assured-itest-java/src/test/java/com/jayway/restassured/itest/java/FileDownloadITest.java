@@ -30,7 +30,7 @@ import static org.hamcrest.Matchers.equalTo;
 public class FileDownloadITest extends WithJetty {
 
     @Test
-    public void test() throws Exception {
+    public void canDownloadLargeFiles() throws Exception {
         int expectedSize = IOUtils.toByteArray(getClass().getResourceAsStream("/powermock-easymock-junit-1.4.12.zip")).length;
         final InputStream inputStream = expect().log().headers().when().get("http://powermock.googlecode.com/files/powermock-easymock-junit-1.4.12.zip").asInputStream();
 

@@ -36,6 +36,7 @@ import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
 import com.jayway.restassured.response.*
 import com.jayway.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
 import com.jayway.restassured.config.ObjectMapperConfig
+import com.jayway.restassured.config.ConnectionConfig
 
 class RestAssuredResponseImpl implements Response {
     private static final String CANNOT_PARSE_MSG = "Failed to parse response."
@@ -56,6 +57,7 @@ class RestAssuredResponseImpl implements Response {
     def boolean hasExpectations
 
     def ObjectMapperConfig objectMapperConfig
+    def ConnectionConfig connectionConfig
 
     public void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
         parseHeaders(httpResponse)
@@ -146,7 +148,7 @@ class RestAssuredResponseImpl implements Response {
 
     InputStream asInputStream() {
         if(content == null || content instanceof InputStream) {
-            new CloseHTTPClientConnectionInputStreamWrapper(connectionManager, content)
+            new CloseHTTPClientConnectionInputStreamWrapper(connectionConfig, connectionManager, content)
         } else {
             content instanceof String ? new ByteArrayInputStream(content.getBytes(findCharset())) : new ByteArrayInputStream(content)
         }

@@ -17,6 +17,7 @@
 package com.jayway.restassured.itest.java.stress;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.config.ConnectionConfig;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -30,6 +31,7 @@ import java.io.UnsupportedEncodingException;
 
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.config.RestAssuredConfig.config;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 
@@ -49,6 +51,7 @@ public class StressITest {
         component.getServers().add( Protocol.HTTP, 8081 );
         component.getDefaultHost().attach( "/restlet", new StressApp() );
         component.start();
+        RestAssured.config = config().connectionConfig(new ConnectionConfig().closeIdleConnectionsAfterEachResponse());
     }
 
     @After
@@ -71,7 +74,7 @@ public class StressITest {
         for( int i=0, n=iterations; i<n; i++ ) {
             given().contentType("text/plain; charset=UTF-8").body( post.getBytes( "UTF-8" ) ).
                     expect().body( equalTo( expect ) ).
-                    when().post( url );
+                    when().post(url);
         }
     }
 
