@@ -360,7 +360,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
                 writer.write(buffer, 0, n);
             }
         } finally {
-            reader.close();
+            reader?.close();
         }
         return writer.toString();
     }
@@ -376,8 +376,8 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
                 writer.write(buffer, 0, n);
             }
         } finally {
-            is.close();
-            if(reader != null) reader.close();
+            is?.close();
+            reader?.close();
         }
         return writer.toString();
     }
@@ -394,8 +394,8 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
 
             buffer.flush();
         } finally {
-            buffer.close();
-            is.close();
+            buffer?.close();
+            is?.close();
         }
 
         return buffer.toByteArray();
