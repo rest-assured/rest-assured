@@ -4,6 +4,7 @@ Change log next version
 * REST Assured now (finally) builds from Maven 3
 * Explicitly registered custom parsers have precedence over default parsers (issue 183).
 * It's now possible to manually set the content-type header, e.g. header("content-type", "something") now works (issue 155).
+* It's now possible to create custom object mappers and configure existing ones (issue 122).
 * ObjectMapper.JACKSON, ObjectMapper.GSON and ObjectMapper.JAXB have been deprecated. Use the corresponding types in enum com.jayway.restassured.mapper.ObjectMapperType instead.
 * Added object mapping support for Jackson 2.0 (issue 189).
 * Fixed an issue with the com.jayway.restassured.builder.ResponseBuilder that failed to clone the ResponseParserRegistrar.
