@@ -1002,7 +1002,7 @@ public class RestAssured {
     }
 
     /**
-     * Use http digest authentication.
+     * Use http digest authentication. Note that you need to encode the password yourself.
      *
      * @param userName The user name.
      * @param password The password.

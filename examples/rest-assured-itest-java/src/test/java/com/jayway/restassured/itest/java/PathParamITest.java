@@ -18,6 +18,7 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -56,6 +57,18 @@ public class PathParamITest extends WithJetty {
     @Test
     public void urlEncodesPathParams() throws Exception {
         expect().body("fullName", equalTo("John:() Doe")).when().get("/{firstName}/{lastName}", "John:()", "Doe");
+    }
+
+    @Test
+    @Ignore("This is a bug and should be fixed")
+    public void urlEncodesQuestionMarksInNamedPathParams() throws Exception {
+        given().
+                pathParam("firstName", ":yo").
+                pathParam("lastName", "yo?").
+        expect().
+                body("fullName", equalTo(":yo yo?")).
+        when().
+                get("/{firstName}/{lastName}");
     }
 
     @Test
