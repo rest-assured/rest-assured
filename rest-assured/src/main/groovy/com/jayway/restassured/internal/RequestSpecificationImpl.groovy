@@ -36,7 +36,6 @@ import org.apache.http.entity.HttpEntityWrapper
 import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner
 import org.apache.http.message.BasicHeader
-import org.apache.http.util.EntityUtils
 
 import java.util.Map.Entry
 import java.util.regex.Matcher
@@ -1278,6 +1277,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         final boolean thisOneEndsWithSlash = thisOne.endsWith(SLASH)
         if(thisOneEndsWithSlash && otherOneStartsWithSlash) {
             return thisOne + substringAfter(otherOne, SLASH);
+        } else if (thisOneEndsWithSlash && isFullyQualified(otherOne)) {
+            thisOne = ""
         } else if(!thisOneEndsWithSlash && !otherOneStartsWithSlash && !(otherOne == "" ^ thisOne == "")) {
             return "$thisOne/$otherOne"
         }
@@ -1433,7 +1434,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     private def String assembleCompleteTargetPath(requestPath) {
-        return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(getTargetURI(path), getTargetPath(path)), requestPath);
+        def targetUri = getTargetURI(path)
+        def targetPath = getTargetPath(path)
+        if(isFullyQualified(requestPath)) {
+            targetUri = ""
+        }
+        return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(targetUri, targetPath), requestPath);
     }
 
     private def String findEncoderCharsetOrReturnDefault(String contentType) {

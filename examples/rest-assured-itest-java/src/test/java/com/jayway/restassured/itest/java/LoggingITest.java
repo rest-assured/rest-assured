@@ -35,6 +35,7 @@ import java.io.PrintStream;
 import java.io.StringWriter;
 
 import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.config.LogConfig.logConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.config;
@@ -45,6 +46,7 @@ import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logRespons
 import static com.jayway.restassured.parsing.Parser.JSON;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.junit.Assert.assertThat;
@@ -811,5 +813,15 @@ public class LoggingITest extends WithJetty {
         }
 
         assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/reflect/\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\nhello" + LINE_SEPARATOR));
+    }
+
+    @Test
+    public void logsFullyQualifiedUrlsAreLoggedCorrectly() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().config(config().logConfig(new LogConfig(captor, true))).log().all().get("http://www.beijingchina.net.cn/transportation/train/train-to-shanghai.html");
+
+        assertThat(writer.toString(), startsWith("Request method:\tGET\nRequest path:\thttp://www.beijingchina.net.cn/transportation/train/train-to-shanghai.html"));
     }
 }
