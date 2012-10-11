@@ -219,6 +219,10 @@ class ScalatraRestExample extends ScalatraServlet {
     serialized
   }
 
+  get("/contentTypeButNoBody") {
+    contentType = "application/json"
+  }
+
   get("/:firstName/:lastName") {
     val firstName = {params("firstName")}
     val lastName = {params("lastName")}

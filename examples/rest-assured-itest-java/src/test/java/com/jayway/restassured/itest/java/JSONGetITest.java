@@ -522,4 +522,9 @@ public class JSONGetITest extends WithJetty {
     public void supportsParsingJsonWhenContentTypeEndsWithPlusJson() throws Exception {
         expect().body("message", equalTo("It works")).when().get("/mimeTypeWithPlusJson");
     }
+
+    @Test
+    public void contentTypeButNoBody() throws Exception {
+        expect().contentType(ContentType.JSON).when().get("/contentTypeButNoBody");
+    }
 }
