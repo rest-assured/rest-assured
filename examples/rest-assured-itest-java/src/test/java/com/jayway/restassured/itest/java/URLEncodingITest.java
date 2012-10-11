@@ -18,16 +18,18 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.post;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
-public class URLEncodingITest {
+public class URLEncodingITest extends WithJetty {
 
     @Test
     public void urlEncodingDisabledStatically() {
@@ -38,7 +40,7 @@ public class URLEncodingITest {
             final String query = "project%20=%20BAM%20AND%20issuetype%20=%20Bug";
             expect().
                     body("issues", not(nullValue())).
-            when().
+                    when().
                     get("/rest/api/2.0.alpha1/search?jql={q}", query);
         } finally {
             RestAssured.reset();
@@ -67,5 +69,31 @@ public class URLEncodingITest {
         final String body = given().urlEncodingEnabled(true).get("https://jira.atlassian.com:443/rest/api/2.0.alpha1/search?jql=project%20=%20BAM%20AND%20issuetype%20=%20Bug").asString();
 
         assertThat(body, containsString("Error in the JQL Query"));
+    }
+
+    @Test
+    public void doesntDoubleEncodeParamsWhenDefiningUrlEncodingToFalseStatically() throws Exception {
+        RestAssured.urlEncodingEnabled = false;
+        try {
+            given().
+                    formParam("formParam", "form%20param").
+            then().
+                    body(equalTo("query param path param form param")).
+            when().
+                    post("/{pathParam}/manyParams?queryParam=query%20param", "path%20param");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void doesntDoubleEncodeParamsWhenDefiningUrlEncodingToFalseNonStatically() throws Exception {
+        given().
+                urlEncodingEnabled(false).
+                formParam("formParam", "form%20param").
+        then().
+                body(equalTo("query param path param form param")).
+        when().
+                post("/{pathParam}/manyParams?queryParam=query%20param", "path%20param");
     }
 }

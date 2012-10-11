@@ -16,11 +16,13 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,12 +59,38 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
+    public void doesntUrlEncodesPathParamsWhenUrlEncodingIsDisabled() throws Exception {
+        RestAssured.urlEncodingEnabled = false;
+        final String encoded = URLEncoder.encode("John:()", "UTF-8");
+        try {
+            expect().body("fullName", equalTo("John:() Doe")).when().get("/{firstName}/{lastName}", encoded, "Doe");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
     public void urlEncodesPathParamsInMap() throws Exception {
         final Map<String, String> params = new HashMap<String, String>();
         params.put("firstName", "John: å");
         params.put("lastName", "Doe");
 
         expect().body("fullName", equalTo("John: å Doe")).when().get("/{firstName}/{lastName}", params);
+    }
+
+    @Test
+    public void doesntUrlEncodePathParamsInMapWhenUrlEncodingIsDisabled() throws Exception {
+        RestAssured.urlEncodingEnabled = false;
+
+        try {
+            final Map<String, String> params = new HashMap<String, String>();
+            params.put("firstName", "John%20å");
+            params.put("lastName", "Doe");
+
+            expect().body("fullName", equalTo("John å Doe")).when().get("/{firstName}/{lastName}", params);
+        } finally {
+            RestAssured.reset();
+        }
     }
 
     @Test
@@ -104,9 +132,9 @@ public class PathParamITest extends WithJetty {
         given().
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
-        expect().
+                expect().
                 body("fullName", equalTo("John Doe")).
-        when().
+                when().
                 get("/{firstName}/{lastName}");
     }
 
@@ -115,9 +143,9 @@ public class PathParamITest extends WithJetty {
         given().
                 pathParam("firstName", "John").
                 pathParam("lastName", 42).
-        expect().
+                expect().
                 body("fullName", equalTo("John 42")).
-        when().
+                when().
                 get("/{firstName}/{lastName}");
     }
 
@@ -125,9 +153,9 @@ public class PathParamITest extends WithJetty {
     public void supportsPassingPathParamsWithGiven() throws Exception {
         given().
                 pathParams("firstName", "John", "lastName", "Doe").
-        expect().
+                expect().
                 body("fullName", equalTo("John Doe")).
-        when().
+                when().
                 get("/{firstName}/{lastName}");
     }
 
@@ -135,51 +163,51 @@ public class PathParamITest extends WithJetty {
     public void supportsPassingPathParamsWithIntWithGiven() throws Exception {
         given().
                 pathParams("firstName", "John", "lastName", 42).
-        expect().
+                expect().
                 body("fullName", equalTo("John 42")).
-        when().
+                when().
                 get("/{firstName}/{lastName}");
     }
 
     @Test
     public void supportsPassingPathParamsWithMapWithGiven() throws Exception {
-         final Map<String, String> params = new HashMap<String, String>();
-         params.put("firstName", "John");
-         params.put("lastName", "Doe");
+        final Map<String, String> params = new HashMap<String, String>();
+        params.put("firstName", "John");
+        params.put("lastName", "Doe");
 
-         given().
-                 pathParams(params).
-         expect().
-                 body("fullName", equalTo("John Doe")).
-         when().
+        given().
+                pathParams(params).
+                expect().
+                body("fullName", equalTo("John Doe")).
+                when().
                 get("/{firstName}/{lastName}");
     }
 
     @Test
     public void supportsPassingPathParamsWithIntWithMapWhenGiven() throws Exception {
-         final Map<String, Object> params = new HashMap<String, Object>();
-         params.put("firstName", "John");
-         params.put("lastName", 42);
+        final Map<String, Object> params = new HashMap<String, Object>();
+        params.put("firstName", "John");
+        params.put("lastName", 42);
 
-         given().
-                 pathParams(params).
-         expect().
-                 body("fullName", equalTo("John 42")).
-         when().
+        given().
+                pathParams(params).
+                expect().
+                body("fullName", equalTo("John 42")).
+                when().
                 get("/{firstName}/{lastName}");
     }
 
     @Test
     public void mergesPathParamsMapWithNonMapWhenGiven() throws Exception {
-         final Map<String, Object> params = new HashMap<String, Object>();
-         params.put("firstName", "John");
+        final Map<String, Object> params = new HashMap<String, Object>();
+        params.put("firstName", "John");
 
-         given().
-                 pathParams(params).
-                 pathParam("lastName", "Doe").
-         expect().
-                 body("fullName", equalTo("John Doe")).
-         when().
+        given().
+                pathParams(params).
+                pathParam("lastName", "Doe").
+                expect().
+                body("fullName", equalTo("John Doe")).
+                when().
                 get("/{firstName}/{lastName}");
     }
 
@@ -190,10 +218,10 @@ public class PathParamITest extends WithJetty {
 
         given().
                 pathParam("lastName", "Doe").
-        expect().
+                expect().
                 body("fullName", equalTo("John Doe")).
-        when().
-               get("/{firstName}/{lastName}", "John");
+                when().
+                get("/{firstName}/{lastName}", "John");
     }
 
     @Test
@@ -205,10 +233,10 @@ public class PathParamITest extends WithJetty {
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
                 pathParam("thirdName", "Not defined").
-        expect().
+                expect().
                 body("fullName", equalTo("John Doe")).
-        when().
-               get("/{firstName}/{lastName}");
+                when().
+                get("/{firstName}/{lastName}");
     }
 
     @Test
@@ -218,10 +246,10 @@ public class PathParamITest extends WithJetty {
 
         given().
                 pathParam("firstName", "John").
-        expect().
+                expect().
                 body("fullName", equalTo("John Doe")).
-        when().
-               get("/{firstName}/{lastName}");
+                when().
+                get("/{firstName}/{lastName}");
     }
 
     @Test
@@ -230,8 +258,8 @@ public class PathParamITest extends WithJetty {
 
         expect().
                 body("fullName", equalTo("\\$£@\"){¤$ Last")).
-        when().
-               get("/{firstName}/{lastName}", nonStandardChars, "Last");
+                when().
+                get("/{firstName}/{lastName}", nonStandardChars, "Last");
 
     }
 
@@ -239,9 +267,9 @@ public class PathParamITest extends WithJetty {
     public void passingInSinglePathParamsThatHaveBeenDefinedMultipleTimesWorks() throws Exception {
         given().
                 pathParam("firstName", "John").
-        expect().
+                expect().
                 body("fullName", equalTo("John John")).
-        when().
-               get("/{firstName}/{firstName}");
+                when().
+                get("/{firstName}/{firstName}");
     }
 }

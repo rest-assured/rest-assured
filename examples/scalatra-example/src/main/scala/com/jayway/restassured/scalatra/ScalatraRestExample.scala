@@ -194,6 +194,14 @@ class ScalatraRestExample extends ScalatraServlet {
     reflect
   }
 
+  post("/:pathParam/manyParams") {
+    val queryParam = {params("queryParam")}
+    val pathParam = {params("pathParam")}
+    val formParam = {params("formParam")}
+
+    queryParam + " " + pathParam + " " + formParam
+  }
+
   post("/charEncoding") {
     contentType = "text/plain"
     request.getCharacterEncoding

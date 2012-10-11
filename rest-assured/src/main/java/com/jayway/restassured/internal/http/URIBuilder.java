@@ -135,11 +135,21 @@ public class URIBuilder implements Cloneable {
      *   cannot be converted to a valid URI
      */
     public URIBuilder setPath( String path ) throws URISyntaxException {
-        this.base = base.resolve( new URI(null,null, path, base.getQuery(), base.getFragment()) );
-//		path = base.resolve( path ).getPath();
-//		this.base = new URI( base.getScheme(), base.getUserInfo(), 
-//				base.getHost(), base.getPort(), path,
-//				base.getQuery(), base.getFragment() );
+        if(isUrlEncodingEnabled) {
+            this.base = base.resolve( new URI(null,null, path, base.getQuery(), base.getFragment()) );
+        } else {
+            /* Passing the path string in the URI constructor will
+                     * double-escape path parameters and goober things up.  So we have
+                     * to create a full path+query+fragment and use URI#resolve() to
+                     * create the new URI. */
+            StringBuilder sb = new StringBuilder();
+            if ( path != null ) sb.append( path );
+            sb.append( '?' );
+            sb.append( base.getQuery() );
+            String frag = base.getRawFragment();
+            if ( frag != null ) sb.append( '#' ).append( frag );
+            this.base = base.resolve( sb.toString() );
+        }
         return this;
     }
 
