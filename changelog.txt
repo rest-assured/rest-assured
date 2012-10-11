@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 1.7 (2012-10-11)
+---------------------------
 * Fixed an issue with XmlPath when parsing xml attributes and using findAll.
 * REST Assured now (finally) builds from Maven 3
 * Explicitly registered custom parsers have precedence over default parsers (issue 183).
