@@ -16,12 +16,6 @@
 
 package com.jayway.restassured.specification;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.http.ContentType;
@@ -31,6 +25,12 @@ import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Allows you to specify how the request will look like.

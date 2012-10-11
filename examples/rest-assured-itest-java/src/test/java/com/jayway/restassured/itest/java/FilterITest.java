@@ -28,7 +28,6 @@ import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
 import com.jayway.restassured.specification.RequestSpecification;
-
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
 

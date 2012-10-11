@@ -21,6 +21,7 @@ import com.jayway.restassured.internal.NoKeystoreSpecImpl
 import com.jayway.restassured.internal.RequestSpecificationImpl
 import org.junit.Before
 import org.junit.Test
+
 import static groovy.util.GroovyTestCase.assertEquals
 
 class ParameterMapBuilderTest {

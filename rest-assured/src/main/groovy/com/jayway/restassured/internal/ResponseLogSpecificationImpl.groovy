@@ -20,6 +20,7 @@ import com.jayway.restassured.filter.log.ResponseLoggingFilter
 import com.jayway.restassured.specification.ResponseLogSpecification
 import com.jayway.restassured.specification.ResponseSpecification
 import org.hamcrest.Matcher
+
 import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.greaterThanOrEqualTo
 

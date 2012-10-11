@@ -19,9 +19,7 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.with;
+import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 
 public class XMLPostITest extends WithJetty {

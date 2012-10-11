@@ -16,12 +16,14 @@
 
 package com.jayway.restassured.internal.matcher.xml
 
-import javax.xml.XMLConstants
-import javax.xml.transform.stream.StreamSource
-import javax.xml.validation.SchemaFactory
 import org.hamcrest.BaseMatcher
 import org.hamcrest.Description
 import org.hamcrest.Matcher
+
+import javax.xml.XMLConstants
+import javax.xml.transform.stream.StreamSource
+import javax.xml.validation.SchemaFactory
+
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 class XmlXsdMatcher extends BaseMatcher<String> {

@@ -26,9 +26,10 @@ import com.jayway.restassured.response.Response
 import org.apache.commons.lang3.StringUtils
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
+import com.jayway.restassured.specification.*
+
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static com.jayway.restassured.http.ContentType.ANY
-import com.jayway.restassured.specification.*
 import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.hamcrest.Matchers.equalTo
 

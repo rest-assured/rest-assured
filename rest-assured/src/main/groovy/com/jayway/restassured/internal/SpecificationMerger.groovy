@@ -20,6 +20,7 @@ import com.jayway.restassured.authentication.ExplicitNoAuthScheme
 import com.jayway.restassured.config.SessionConfig
 import com.jayway.restassured.response.Cookies
 import com.jayway.restassured.spi.AuthFilter
+
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 class SpecificationMerger {

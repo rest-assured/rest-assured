@@ -23,6 +23,7 @@ import com.jayway.restassured.specification.FilterableRequestSpecification
 import groovy.json.JsonOutput
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.XmlUtil
+
 import static org.apache.commons.lang3.StringUtils.isBlank
 
 class Prettifier {

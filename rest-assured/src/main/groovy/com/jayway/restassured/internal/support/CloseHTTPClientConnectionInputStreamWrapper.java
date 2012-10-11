@@ -21,7 +21,6 @@ import org.apache.http.conn.ClientConnectionManager;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
 
 public class CloseHTTPClientConnectionInputStreamWrapper extends InputStream {
     private ConnectionConfig connectionConfig;

@@ -19,6 +19,7 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.parsing.Parser
+
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static com.jayway.restassured.internal.http.ContentTypeExtractor.getContentTypeWithoutCharset
 

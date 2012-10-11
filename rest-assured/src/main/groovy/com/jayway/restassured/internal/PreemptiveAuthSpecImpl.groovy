@@ -21,6 +21,7 @@ package com.jayway.restassured.internal
 import com.jayway.restassured.authentication.PreemptiveBasicAuthScheme
 import com.jayway.restassured.specification.PreemptiveAuthSpec
 import com.jayway.restassured.specification.RequestSpecification
+
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 
 /**

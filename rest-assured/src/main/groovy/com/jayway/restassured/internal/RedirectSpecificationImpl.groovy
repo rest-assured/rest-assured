@@ -17,6 +17,7 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.specification.RedirectSpecification
 import com.jayway.restassured.specification.RequestSpecification
+
 import static org.apache.http.client.params.ClientPNames.*
 
 class RedirectSpecificationImpl implements RedirectSpecification {

@@ -19,8 +19,9 @@ package com.jayway.restassured.assertion
 import com.jayway.restassured.internal.path.xml.NodeChildrenImpl
 import com.jayway.restassured.internal.path.xml.NodeImpl
 import com.jayway.restassured.path.xml.element.NodeChildren
-import static com.jayway.restassured.assertion.AssertionSupport.*
 import groovy.util.slurpersupport.*
+
+import static com.jayway.restassured.assertion.AssertionSupport.*
 
 class XMLAssertion implements Assertion {
   private static final String DOT = "."

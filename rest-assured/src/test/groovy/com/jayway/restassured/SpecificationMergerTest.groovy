@@ -30,15 +30,16 @@ import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
 import org.junit.Test
+
 import static com.jayway.restassured.config.RedirectConfig.redirectConfig
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig
 import static com.jayway.restassured.config.SessionConfig.DEFAULT_SESSION_ID_NAME
+import static com.jayway.restassured.config.SessionConfig.sessionConfig
 import static groovy.util.GroovyTestCase.assertEquals
 import static java.util.Arrays.asList
 import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertFalse
 import static org.junit.Assert.assertTrue
-import static com.jayway.restassured.config.SessionConfig.sessionConfig
 
 class SpecificationMergerTest {
 

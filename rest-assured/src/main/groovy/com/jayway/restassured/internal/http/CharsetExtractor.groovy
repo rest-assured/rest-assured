@@ -16,6 +16,7 @@
 package com.jayway.restassured.internal.http
 
 import org.apache.commons.lang3.StringUtils
+
 import static org.apache.commons.lang3.StringUtils.isBlank
 
 class CharsetExtractor {

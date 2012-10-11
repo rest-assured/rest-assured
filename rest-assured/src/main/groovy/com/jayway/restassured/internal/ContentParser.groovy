@@ -21,6 +21,7 @@ package com.jayway.restassured.internal
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
 import groovy.json.JsonSlurper
+
 import static com.jayway.restassured.parsing.Parser.*
 
 class ContentParser {

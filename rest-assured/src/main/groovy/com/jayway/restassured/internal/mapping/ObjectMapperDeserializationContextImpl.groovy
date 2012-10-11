@@ -16,7 +16,6 @@
 package com.jayway.restassured.internal.mapping
 
 import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
-
 import com.jayway.restassured.response.ResponseBodyData
 
 class ObjectMapperDeserializationContextImpl implements ObjectMapperDeserializationContext {

@@ -25,7 +25,6 @@ import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.post;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 

@@ -16,27 +16,28 @@
 
 package com.jayway.restassured.internal
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull
-import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
-import static org.apache.commons.lang3.StringUtils.isBlank
-import groovy.xml.StreamingMarkupBuilder
-
-import java.nio.charset.Charset
-
 import com.jayway.restassured.assertion.CookieMatcher
+import com.jayway.restassured.config.ConnectionConfig
+import com.jayway.restassured.config.ObjectMapperConfig
 import com.jayway.restassured.internal.http.CharsetExtractor
-import com.jayway.restassured.mapper.ObjectMapper
+import com.jayway.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
 import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper
 import com.jayway.restassured.internal.support.Prettifier
+import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.mapper.ObjectMapperType
 import com.jayway.restassured.path.json.JsonPath
 import com.jayway.restassured.path.xml.XmlPath
 import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
+import groovy.xml.StreamingMarkupBuilder
+
+import java.nio.charset.Charset
+
 import com.jayway.restassured.response.*
-import com.jayway.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
-import com.jayway.restassured.config.ObjectMapperConfig
-import com.jayway.restassured.config.ConnectionConfig
+
+import static com.jayway.restassured.assertion.AssertParameter.notNull
+import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
+import static org.apache.commons.lang3.StringUtils.isBlank
 
 class RestAssuredResponseImpl implements Response {
     private static final String CANNOT_PARSE_MSG = "Failed to parse response."

@@ -18,19 +18,20 @@ package com.jayway.restassured
 
 import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.filter.FilterContext
+import com.jayway.restassured.response.Header
+import com.jayway.restassured.response.Headers
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
 import org.junit.Ignore
 import org.junit.Test
+
 import static com.jayway.restassured.RestAssured.given
 import static java.util.Arrays.asList
 import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.instanceOf
-import static org.junit.Assert.assertThat
 import static org.junit.Assert.assertEquals
-import com.jayway.restassured.response.Header
-import com.jayway.restassured.response.Headers
+import static org.junit.Assert.assertThat
 
 class RequestSpecificationTest {
     private static final def CONTENT_TYPE = "content-type"
