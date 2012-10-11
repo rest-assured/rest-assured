@@ -21,7 +21,7 @@ Change log 1.7 (2012-10-11)
 Change log 1.6.2 (2012-05-28)
 -----------------------------
 * You can now use all kinds of Collection instances (and not only List's as in the previous versions) as multi-value parameters (issue 165).
-* The specified content-type header is no longer ignored when specifiying binary request body content (issue 167).
+* The specified content-type header is no longer ignored when specifying binary request body content (issue 167).
 * REST Assured now closes the HTTP Client connection after each invocation (issue 168).
 * JsonPath can now parse JSON documents with attribute names including dots and minus at the same time, e.g. 
   	{ "a-b"  : "minus" , "a.b" : "dot"  , "a.b-c" : "both"  }"
