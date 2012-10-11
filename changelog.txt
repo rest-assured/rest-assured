@@ -5,6 +5,7 @@ Change log next version
 * Explicitly registered custom parsers have precedence over default parsers (issue 183).
 * It's now possible to manually set the content-type header, e.g. header("content-type", "something") now works (issue 155).
 * It's now possible to create custom object mappers and configure existing ones (issue 122).
+* It's now possible to define a default object mapper using the com.jayway.restassured.config.ObjectMapperConfig (issue 123).
 * ObjectMapper.JACKSON, ObjectMapper.GSON and ObjectMapper.JAXB have been deprecated. Use the corresponding types in enum com.jayway.restassured.mapper.ObjectMapperType instead.
 * Added object mapping support for Jackson 2.0 (issue 189).
 * Fixed an issue with the com.jayway.restassured.builder.ResponseBuilder that failed to clone the ResponseParserRegistrar.
@@ -14,6 +15,8 @@ Change log next version
 * Added a ConnectionConfig (com.jayway.restassured.config.ConnectionConfig) object that allows you to modify if REST Assured should drop idle connections after each response. Enable connection dropping if you need to make several small and fast requests (e.g. stress testing).
 * Path parameters are no longer url encoded if REST Assured url encoding is disabled (issue 181).
 * Base path is now shown correctly in request logging when path is a fully qualified URL (issue 145).
+* Updated HTTP Client version to 4.2.1.
+* Added support for PATCH and OPTIONS requests (issue 164).
 
 Change log 1.6.2 (2012-05-28)
 -----------------------------
