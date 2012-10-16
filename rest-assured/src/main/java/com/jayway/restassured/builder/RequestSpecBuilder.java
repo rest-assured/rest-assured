@@ -22,6 +22,8 @@ import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.SpecificationMerger;
+import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.specification.RequestSpecification;
@@ -66,7 +68,7 @@ public class RequestSpecBuilder {
 
     /**
      * Specify a String request body (such as e.g. JSON or XML) to be sent with the request. This works for the
-     * POST and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+     * POST, PUT and PATCH methods only. Trying to do this for the other http methods will cause an exception to be thrown.
      *
      * <p>
      * Note that {@link #setBody(String)} and {@link #setContent(String)} are the same except for the syntactic difference.
@@ -96,8 +98,73 @@ public class RequestSpecBuilder {
     }
 
     /**
+     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request.
+     * If the object is a primitive or <a href="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html">Number</a> the object will
+     * be converted to a String and put in the request body. This works for the POST, PUT and PATCH methods only.
+     * Trying to do this for the other http methods will cause an exception to be thrown.
+
+     * <p>
+     * Note that {@link #setBody(Object)}  and {@link #setContent(Object)} are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param object The object to serialize and send with the request
+     * @return The request specification
+     */
+    public RequestSpecBuilder setBody(Object object) {
+        spec.body(object);
+        return this;
+    }
+
+    /**
+     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
+     * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+     * <p>
+     * Note that {@link #setBody(Object, com.jayway.restassured.mapper.ObjectMapper)}  and {@link #setContent(Object, com.jayway.restassured.mapper.ObjectMapper)}
+     * are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param object The object to serialize and send with the request
+     * @param mapper The object mapper
+     * @return The request specification
+     */
+    public RequestSpecBuilder setBody(Object object, ObjectMapper mapper) {
+        spec.body(object, mapper);
+        return this;
+    }
+
+    /**
+     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper type.
+     * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+     * <p>
+     * Example of use:
+     * <pre>
+     * Message message = new Message();
+     * message.setMessage("My beautiful message");
+     *
+     * given().
+     *         body(message, ObjectMapper.GSON).
+     * expect().
+     *         content(equalTo("Response to a beautiful message")).
+     * when().
+     *         post("/beautiful-message");
+     * </pre>
+     * </p>
+     * Note that {@link #setBody(Object, com.jayway.restassured.mapper.ObjectMapperType)}  and {@link #setContent(Object, com.jayway.restassured.mapper.ObjectMapperType)}
+     * are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param object The object to serialize and send with the request
+     * @param mapperType The object mapper type to be used
+     * @return The request specification
+     */
+    public RequestSpecBuilder setBody(Object object, ObjectMapperType mapperType) {
+        spec.body(object, mapperType);
+        return this;
+    }
+
+    /**
      * Specify a String request content (such as e.g. JSON or XML) to be sent with the request. This works for the
-     * POST and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+     * POST, PUT and PATCH methods only. Trying to do this for the other http methods will cause an exception to be thrown.
      * <p>
      * Note that {@link #setBody(String)} and {@link #setContent(String)} are the same except for the syntactic difference.
      * </p>
@@ -122,6 +189,71 @@ public class RequestSpecBuilder {
      */
     public RequestSpecBuilder setContent(byte[] content) {
         spec.content(content);
+        return this;
+    }
+
+    /**
+     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request.
+     * If the object is a primitive or <a href="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html">Number</a> the object will
+     * be converted to a String and put in the request body. This works for the POST, PUT and PATCH methods only.
+     * Trying to do this for the other http methods will cause an exception to be thrown.
+
+     * <p>
+     * Note that {@link #setBody(Object)}  and {@link #setContent(Object)} are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param object The object to serialize and send with the request
+     * @return The request specification
+     */
+    public RequestSpecBuilder setContent(Object object) {
+        spec.body(object);
+        return this;
+    }
+
+    /**
+     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
+     * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+     * <p>
+     * Note that {@link #setBody(Object, com.jayway.restassured.mapper.ObjectMapper)}  and {@link #setContent(Object, com.jayway.restassured.mapper.ObjectMapper)}
+     * are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param object The object to serialize and send with the request
+     * @param mapper The object mapper
+     * @return The request specification
+     */
+    public RequestSpecBuilder setContent(Object object, ObjectMapper mapper) {
+        spec.body(object, mapper);
+        return this;
+    }
+
+    /**
+     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper type.
+     * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+     * <p>
+     * Example of use:
+     * <pre>
+     * Message message = new Message();
+     * message.setMessage("My beautiful message");
+     *
+     * given().
+     *         body(message, ObjectMapper.GSON).
+     * expect().
+     *         content(equalTo("Response to a beautiful message")).
+     * when().
+     *         post("/beautiful-message");
+     * </pre>
+     * </p>
+     * Note that {@link #setBody(Object, com.jayway.restassured.mapper.ObjectMapperType)}  and {@link #setContent(Object, com.jayway.restassured.mapper.ObjectMapperType)}
+     * are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param object The object to serialize and send with the request
+     * @param mapperType The object mapper type to be used
+     * @return The request specification
+     */
+    public RequestSpecBuilder setContent(Object object, ObjectMapperType mapperType) {
+        spec.body(object, mapperType);
         return this;
     }
 
