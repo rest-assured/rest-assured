@@ -22,6 +22,10 @@ import com.jayway.restassured.internal.http.HTTPBuilder
  * Used for form authentication, does nothing.
  */
 class FormAuthScheme implements AuthenticationScheme {
-  void authenticate(HTTPBuilder httpBuilder) {
-  }
+    def userName
+    def password
+    def FormAuthConfig config
+
+    void authenticate(HTTPBuilder httpBuilder) {
+    }
 }

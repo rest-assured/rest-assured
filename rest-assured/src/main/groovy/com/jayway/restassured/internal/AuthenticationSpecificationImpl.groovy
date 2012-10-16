@@ -121,9 +121,7 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
   }
 
   def RequestSpecification form(String userName, String password, FormAuthConfig config) {
-    requestSpecification.authenticationScheme = new FormAuthScheme();
-    requestSpecification.filters.removeAll { AuthFilter.class.isAssignableFrom(it.getClass())  }
-    requestSpecification.filter(new FormAuthFilter(userName: userName,password: password, config: config))
+    requestSpecification.authenticationScheme = new FormAuthScheme(userName: userName,password: password, config: config)
     return requestSpecification
   }
 }

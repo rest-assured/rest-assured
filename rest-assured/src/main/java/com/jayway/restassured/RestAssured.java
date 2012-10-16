@@ -20,7 +20,6 @@ import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.*;
-import com.jayway.restassured.internal.filter.FormAuthFilter;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.Response;
@@ -967,11 +966,9 @@ public class RestAssured {
             throw new IllegalArgumentException("Password cannot be null");
         }
         final FormAuthScheme scheme = new FormAuthScheme();
-        final FormAuthFilter authFilter = new FormAuthFilter();
-        authFilter.setUserName(userName);
-        authFilter.setPassword(password);
-        authFilter.setConfig(config);
-        filters.add(authFilter);
+        scheme.setUserName(userName);
+        scheme.setPassword(password);
+        scheme.setConfig(config);
         return scheme;
     }
 

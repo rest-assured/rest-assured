@@ -17,7 +17,9 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.specification.RequestSpecification;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
@@ -88,6 +90,19 @@ public class AuthenticationITest extends WithJetty {
 
     @Test
     public void formAuthenticationUsingSpringAuthConf() throws Exception {
+        given().
+                auth().form("John", "Doe", springSecurity()).
+        expect().
+                statusCode(200).
+                body(equalTo("OK")).
+        when().
+                get("/formAuth");
+    }
+
+    @Test
+    public void formAuthenticationUsingSpringAuthConfDefinedInRequestSpec() throws Exception {
+        final RequestSpecification specification = new RequestSpecBuilder().setAuth(form("John", "Doe", springSecurity())).build();
+
         given().
                 auth().form("John", "Doe", springSecurity()).
         expect().
