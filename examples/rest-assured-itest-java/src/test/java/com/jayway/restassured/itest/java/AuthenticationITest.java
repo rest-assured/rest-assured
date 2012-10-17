@@ -104,7 +104,7 @@ public class AuthenticationITest extends WithJetty {
         final RequestSpecification specification = new RequestSpecBuilder().setAuth(form("John", "Doe", springSecurity())).build();
 
         given().
-                auth().form("John", "Doe", springSecurity()).
+                spec(specification).
         expect().
                 statusCode(200).
                 body(equalTo("OK")).
