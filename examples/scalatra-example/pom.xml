@@ -40,6 +40,7 @@
             <plugin>
                 <groupId>org.scala-tools</groupId>
                 <artifactId>maven-scala-plugin</artifactId>
+                <version>2.15.2</version>
                 <executions>
                     <execution>
                         <goals>
@@ -78,11 +79,6 @@
             <groupId>net.liftweb</groupId>
             <artifactId>lift-json_${scala.version}</artifactId>
             <version>2.4-M5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
