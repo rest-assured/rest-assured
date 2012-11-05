@@ -19,6 +19,7 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
+import com.jayway.restassured.itest.java.support.MyEnum;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.apache.commons.io.IOUtils;
@@ -152,6 +153,38 @@ public class MultiPartUploadITest extends WithJetty {
         expect().
                 statusCode(200).
                 body(is(new String(bytes)+"Some text")).
+        when().
+                post("/multipart/fileAndText");
+    }
+
+    @Test
+    public void multiPartUploadingWorksForByteArrayAndNumberFormParams() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                multiPart("file", "myFile", bytes).
+                formParam("text", 2L).
+        expect().
+                statusCode(200).
+                body(is(new String(bytes)+"2")).
+        when().
+                post("/multipart/fileAndText");
+    }
+
+    @Test
+    public void multiPartUploadingWorksForByteArrayAndEnumFormParams() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                multiPart("file", "myFile", bytes).
+                formParam("text", MyEnum.ENUM_1).
+        expect().
+                statusCode(200).
+                body(is(new String(bytes)+"ENUM_1")).
         when().
                 post("/multipart/fileAndText");
     }

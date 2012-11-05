@@ -22,6 +22,7 @@ import org.apache.http.entity.mime.content.StringBody
 
 class MultiPart {
     private static final String OCTET_STREAM = "application/octet-stream"
+    private static final String TEXT_PLAIN = "text/plain"
 
     def content
     def name
@@ -41,10 +42,16 @@ class MultiPart {
             content = new ByteArrayInputStream(content)
             returnInputStreamBody()
         } else if(content instanceof String) {
-            new StringBody(content, mimeType ?: "text/plain", null)
+            returnStringBody(content)
+        } else if(content != null) {
+            returnStringBody(content.toString())
         } else {
             throw new IllegalArgumentException("Illegal content: $content")
         }
+    }
+
+    private def returnStringBody(String content) {
+        new StringBody(content, mimeType ?: TEXT_PLAIN, null)
     }
 
     private def returnInputStreamBody() {
