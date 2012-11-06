@@ -1452,7 +1452,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     private def String findEncoderCharsetOrReturnDefault(String contentType) {
-        def charset = ContentTypeExtractor.getContentTypeWithoutCharset(contentType)
+        def charset = CharsetExtractor.getCharsetFromContentType(contentType)
         if (charset == null) {
             charset = config == null ? new EncoderConfig().defaultContentCharset() : config.getEncoderConfig().defaultContentCharset()
         }
