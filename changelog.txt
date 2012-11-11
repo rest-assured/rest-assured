@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 1.7.1 (2012-11-11)
+-----------------------------
 * Added methods object variants of setBody and setContent to RequestSpecBuilder.
 * Fixed so that form authentication can be added from RequestSpecBuilder.
 * You can now add non-string values in form parameters (such as primitives and enums) (issue 201).
