@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* StreamVerifier prints better error message the response content-type is not recognized.
+
 Change log 1.7.1 (2012-11-11)
 -----------------------------
 * Added methods object variants of setBody and setContent to RequestSpecBuilder.

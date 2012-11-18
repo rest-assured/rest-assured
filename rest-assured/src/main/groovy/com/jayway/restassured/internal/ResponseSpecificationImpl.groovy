@@ -41,8 +41,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     private Matcher<String> expectedStatusLine;
     private BodyMatcherGroup bodyMatchers = new BodyMatcherGroup()
     private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure();
-    private List headerAssertions = []
-    private List cookieAssertions = []
+    private def headerAssertions = []
+    private def cookieAssertions = []
     private FilterableRequestSpecification requestSpecification;
     private def contentType;
     private Response restAssuredResponse;
@@ -369,8 +369,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         }
         def validate(Response response) {
             if(hasAssertionsDefined()) {
-                validateHeadersAndCookies(response)
-                validateContentType(response);
+                def validations = []
+                validations.addAll(validateStatusCodeAndStatusLine(response))
+                validations.addAll(validateHeadersAndCookies(response))
+                validations.addAll(validateContentType(response))
                 if(hasBodyAssertionsDefined()) {
                     def content
                     if(requiresTextParsing()) {
@@ -378,47 +380,65 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                     } else {
                         content = new ContentParser().parse(response, rpr)
                     }
-                    bodyMatchers.isFulfilled(response, content)
+                    validations.addAll(bodyMatchers.validate(response, content))
+                }
+
+                def errors = validations.findAll { !it.success }
+                def numberOfErrors = errors.size()
+                if (numberOfErrors > 0) {
+                    def errorMessage = errors.collect { it.errorMessage }.join("\n")
+                    def s = numberOfErrors > 1 ? "s" : ""
+                    throw new AssertionError("$numberOfErrors expectation$s failed.\n$errorMessage")
                 }
             }
         }
 
         private def validateContentType(Response response) {
+            def errors = []
             if(contentType != null) {
                 def actualContentType = response.getContentType()
                 if(contentType instanceof Matcher) {
                     if (!contentType.matches(actualContentType)) {
-                        throw new AssertionError(String.format("Expected content-type %s doesn't match actual content-type \"%s\".", contentType, actualContentType));
+                        errors << [success : false, errorMessage: String.format("Expected content-type %s doesn't match actual content-type \"%s\".\n", contentType, actualContentType)]
                     }
                 } else if (!StringUtils.startsWith(actualContentType, contentType.toString())) {
-                    throw new AssertionError(String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".", contentType, actualContentType));
+                    errors << [success: false, errorMessage:  String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", contentType, actualContentType)];
                 }
             }
+            errors
         }
 
-        private def validateHeadersAndCookies(Response response) {
+        private def validateStatusCodeAndStatusLine(Response response) {
+            def errors = []
             if (expectedStatusCode != null) {
                 def actualStatusCode = response.getStatusCode()
                 if (!expectedStatusCode.matches(actualStatusCode)) {
-                    throw new AssertionError(String.format("Expected status code %s doesn't match actual status code <%s>.", expectedStatusCode.toString(), actualStatusCode));
+                    def errorMessage = String.format("Expected status code %s doesn't match actual status code <%s>.\n", expectedStatusCode.toString(), actualStatusCode)
+                    errors << [success:false, errorMessage : errorMessage];
                 }
             }
 
             if (expectedStatusLine != null) {
                 def actualStatusLine = response.getStatusLine()
                 if (!expectedStatusLine.matches(actualStatusLine)) {
-                    throw new AssertionError(String.format("Expected status line %s doesn't match actual status line \"%s\".", expectedStatusLine.toString(), actualStatusLine));
+                    def errorMessage = String.format("Expected status line %s doesn't match actual status line \"%s\".\n", expectedStatusLine.toString(), actualStatusLine)
+                    errors << [success:false, errorMessage : errorMessage];
                 }
             }
+            errors
+        }
 
-            headerAssertions.each { matcher ->
-                matcher.containsHeader(response.getHeaders())
-            }
+        private def validateHeadersAndCookies(Response response) {
+            def validations = []
+            validations.addAll(headerAssertions.collect { matcher ->
+                matcher.validateHeader(response.getHeaders())
+            })
 
-            cookieAssertions.each { matcher ->
+            validations.addAll(cookieAssertions.collect { matcher ->
                 def cookies = response.getHeaders().getValues("Set-Cookie")
-                matcher.containsCookie(cookies)
-            }
+                matcher.validateCookie(cookies)
+            })
+            validations
         }
     }
 

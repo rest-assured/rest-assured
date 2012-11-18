@@ -20,14 +20,18 @@ import org.hamcrest.Matcher
 
 class HeaderMatcher {
 
-  def headerName
-  def Matcher<String> matcher
+    def headerName
+    def Matcher<String> matcher
 
-  def containsHeader(headers) {
-    def value = headers.getValue(headerName)
-    if (!matcher.matches(value)) {
-      def headersString = headers.toString()
-      throw new AssertionError("Expected header \"$headerName\" was not $matcher, was \"$value\". Headers are:\n$headersString")
+    def validateHeader(headers) {
+        def success = true
+        def message = ""
+        def value = headers.getValue(headerName)
+        if (!matcher.matches(value)) {
+            def headersString = headers.toString()
+            success = false
+            message = "Expected header \"$headerName\" was not $matcher, was \"$value\". Headers are:\n$headersString\n"
+        }
+        [success: success, errorMessage: message]
     }
-  }
 }

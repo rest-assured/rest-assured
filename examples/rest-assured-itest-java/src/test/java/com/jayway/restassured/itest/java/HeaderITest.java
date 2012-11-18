@@ -147,10 +147,11 @@ public class HeaderITest extends WithJetty {
     @Test
     public void whenExpectedHeaderIsNotFoundThenAnAssertionErrorIsThrown() throws Exception {
         exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("Expected header \"Not-Defined\" was not \"160\", was \"null\". Headers are:\n" +
+        exception.expectMessage(equalTo("1 expectation failed.\n" +
+                "Expected header \"Not-Defined\" was not \"160\", was \"null\". Headers are:\n" +
                 "Content-Type=application/json; charset=UTF-8\n" +
                 "Content-Length=160\n" +
-                "Server=Jetty(6.1.14)"));
+                "Server=Jetty(6.1.14)\n"));
 
         expect().response().header("Not-Defined", "160").when().get("/lotto");
     }

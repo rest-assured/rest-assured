@@ -27,66 +27,78 @@ import javax.xml.parsers.DocumentBuilderFactory
 import static org.apache.commons.lang3.StringUtils.*
 
 class BodyMatcher {
-  def key
-  def Matcher matcher
-  def ResponseParserRegistrar rpr
+    def key
+    def Matcher matcher
+    def ResponseParserRegistrar rpr
 
-  def isFulfilled(Response response, content) {
-    content = fallbackToResponseBodyIfContentHasAlreadyBeenRead(response, content)
-    if(key == null) {
-      if(isXPathMatcher()) {
-        Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(response.asByteArray())).getDocumentElement();
-        if (matcher.matches(node) == false) {
-          throw new AssertionError(String.format("Body doesn't match.\nExpected:\n%s\nActual:\n%s", matcher.toString(), content))
+    def validate(Response response, content) {
+        def success = true
+        def errorMessage = "";
+
+        content = fallbackToResponseBodyIfContentHasAlreadyBeenRead(response, content)
+        if(key == null) {
+            if(isXPathMatcher()) {
+                Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(response.asByteArray())).getDocumentElement();
+                if (!matcher.matches(node)) {
+                    success = false
+                    errorMessage = String.format("Expected: %s\n  Actual: %s\n", matcher.toString(), content)
+                }
+            } else if (!matcher.matches(response.asString())) {
+                success = false
+                errorMessage = "Response body doesn't match expectation.\nExpected: $matcher\n  Actual: $content\n"
+            }
+        } else {
+            try {
+                def assertion = StreamVerifier.newAssertion(response, key, rpr)
+                def result = null
+                if(content != null) {
+                    result = assertion.getResult(content)
+                }
+                if (!matcher.matches(result)) {
+                    success = false
+                    if(result instanceof Object[]) {
+                        result = result.join(",")
+                    }
+                    errorMessage = String.format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), result)
+                }
+            } catch (IllegalStateException e) {
+                success = false
+                errorMessage = e.getMessage()
+            }
         }
-      } else if (!matcher.matches(response.asString())) {
-        throw new AssertionError("Body doesn't match.\nExpected:\n$matcher\nActual:\n$content")
-      }
-    } else {
-      def assertion = StreamVerifier.newAssertion(response, key, rpr)
-      def result = null
-      if(content != null) {
-        result = assertion.getResult(content)
-      }
-      if (!matcher.matches(result)) {
-        if(result instanceof Object[]) {
-          result = result.join(",")
+        return [success: success, errorMessage: errorMessage];
+    }
+
+    private String removeQuotesIfString(String string) {
+        if(startsWith(string, "\"") && endsWith(string, "\"")) {
+            def start = removeStart(string, "\"")
+            string = removeEnd(start, "\"")
         }
-        throw new AssertionError(String.format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), result))
-      }
+        string
     }
-  }
 
-  private String removeQuotesIfString(String string) {
-    if(startsWith(string, "\"") && endsWith(string, "\"")) {
-      def start = removeStart(string, "\"")
-      string = removeEnd(start, "\"")
+    def fallbackToResponseBodyIfContentHasAlreadyBeenRead(Response response, content) {
+        if(content instanceof Reader || content instanceof InputStream) {
+            return response.asString()
+        }
+        return  content
     }
-    string
-  }
 
-  def fallbackToResponseBodyIfContentHasAlreadyBeenRead(Response response, content) {
-    if(content instanceof Reader || content instanceof InputStream) {
-      return response.asString()
+    private boolean isXPathMatcher() {
+        matcher instanceof HasXPath
     }
-    return  content
-  }
 
-  private boolean isXPathMatcher() {
-    matcher instanceof HasXPath
-  }
-
-  def boolean requiresTextParsing() {
-    isXPathMatcher() || key == null
-  }
-
-  def String getDescription() {
-    String description = ""
-    if(key) {
-      description = "Body containing expression \"$key\" must match $matcher"
-    } else {
-      description = "Body must match $matcher"
+    def boolean requiresTextParsing() {
+        isXPathMatcher() || key == null
     }
-    return description
-  }
+
+    def String getDescription() {
+        String description = ""
+        if(key) {
+            description = "Body containing expression \"$key\" must match $matcher"
+        } else {
+            description = "Body must match $matcher"
+        }
+        return description
+    }
 }

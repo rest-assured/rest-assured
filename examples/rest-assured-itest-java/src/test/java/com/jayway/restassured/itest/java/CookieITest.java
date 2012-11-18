@@ -112,7 +112,8 @@ public class CookieITest extends WithJetty {
     @Test
     public void whenExpectedCookieDoesntMatchAnAssertionThenAssertionErrorIsThrown() throws Exception {
         exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("Expected cookie \"key1\" was not \"value2\", was \"value1\"."));
+        exception.expectMessage(equalTo("1 expectation failed.\n" +
+                "Expected cookie \"key1\" was not \"value2\", was \"value1\".\n"));
 
         expect().response().cookie("key1", "value2").when().get("/setCookies");
     }
@@ -120,10 +121,11 @@ public class CookieITest extends WithJetty {
     @Test
     public void whenExpectedCookieIsNotFoundThenAnAssertionErrorIsThrown() throws Exception {
         exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("Cookie \"Not-Defined\" was not defined in the response. Cookies are: \n" +
+        exception.expectMessage(equalTo("1 expectation failed.\n" +
+                "Cookie \"Not-Defined\" was not defined in the response. Cookies are: \n" +
                 "key1=value1\n" +
                 "key2=value2\n" +
-                "key3=value3"));
+                "key3=value3\n"));
 
         expect().response().cookie("Not-Defined", "something").when().get("/setCookies");
     }

@@ -148,7 +148,8 @@ public class JSONGetITest extends WithJetty {
     public void newSyntaxWithWrongStatusCode() throws Exception {
         // Given
         exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("Expected status code <300> doesn't match actual status code <200>."));
+        exception.expectMessage(equalTo("1 expectation failed.\n" +
+                "Expected status code <300> doesn't match actual status code <200>.\n"));
 
         // When
         expect().response().statusCode(300).and().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
@@ -168,7 +169,8 @@ public class JSONGetITest extends WithJetty {
     public void newSyntaxWithWrongStatusLine() throws Exception {
         // Given
         exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("Expected status line \"300\" doesn't match actual status line \"HTTP/1.1 200 OK\"."));
+        exception.expectMessage(equalTo("1 expectation failed.\n" +
+                "Expected status line \"300\" doesn't match actual status line \"HTTP/1.1 200 OK\".\n"));
 
         // When
         expect().statusLine(equalTo("300")).and().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
@@ -490,8 +492,18 @@ public class JSONGetITest extends WithJetty {
         expect().body("a", is(123456)).when().get("/malformedJson");
     }
 
-    @Test(expected = AssertionError.class)
+    @Test
     public void statusCodeHasPriorityOverJsonParsingWhenErrorOccurs() throws Exception {
+        exception.expect(AssertionError.class);
+        exception.expectMessage(equalTo("2 expectations failed.\n" +
+                "Expected status code <200> doesn't match actual status code <500>.\n" +
+                "\n" +
+                "Expected response body to be verified as JSON, HTML or XML but content-type 'text/plain' is not supported out of the box.\n" +
+                "Try registering a custom parser using:\n" +
+                "   RestAssured.registerParser(\"text/plain\", <parser type>);\n" +
+                "Content was:\n" +
+                "An expected error occurred\n"));
+
         expect().
                 statusCode(200).
                 body("doesnt.exist", equalTo("something")).

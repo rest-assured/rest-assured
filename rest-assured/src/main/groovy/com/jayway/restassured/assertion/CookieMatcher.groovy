@@ -31,29 +31,32 @@ class CookieMatcher {
     def cookieName
     def Matcher<String> matcher
 
-    def containsCookie(List<String> cookies) {
-        def cookie = getCookieValueOrThrowExceptionIfCookieIsMissing(cookieName, cookies)
-        def value = cookie.getValue()
-        if(!matcher.matches(value)) {
-            throw new AssertionError("Expected cookie \"$cookieName\" was not $matcher, was \"$value\".")
-        }
-    }
+    def validateCookie(List<String> cookies) {
+        def success = true
+        def errorMessage = ""
+        if(!cookies) {
+            success = false
+            errorMessage = "No cookies defined in the response\n"
+        } else {
+            def raCookies = getCookies(cookies)
+            def cookie = raCookies.get(cookieName)
+            if (cookie == null) {
+                String cookiesAsString = raCookies.toString()
+                success = false
+                errorMessage = "Cookie \"$cookieName\" was not defined in the response. Cookies are: \n$cookiesAsString\n"
+            } else {
+                def value = cookie.getValue()
+                if(!matcher.matches(value)) {
+                    success = false
+                    errorMessage = "Expected cookie \"$cookieName\" was not $matcher, was \"$value\".\n"
 
-    private def getCookieValueOrThrowExceptionIfCookieIsMissing(cookieName,List<String> cookies) {
-        def raCookies = getCookies(cookies)
-        def cookie = raCookies.get(cookieName)
-        if (cookie == null) {
-            String cookiesAsString = raCookies.toString()
-            throw new AssertionError("Cookie \"$cookieName\" was not defined in the response. Cookies are: \n$cookiesAsString");
+                }
+            }
         }
-        return cookie
-
+        [success: success, errorMessage: errorMessage]
     }
 
     public static Cookies getCookies(headerWithCookieList) {
-        if(!headerWithCookieList) {
-            throw new AssertionError("No cookies defined in the response")
-        }
         def cookieList = []
         headerWithCookieList.each {
             def Cookie.Builder cookieBuilder
