@@ -1,6 +1,7 @@
 Change log next version
 -----------------------
 * StreamVerifier prints better error message the response content-type is not recognized.
+* REST Assured now prints all validation errors in a single test run (issue 207).
 
 Change log 1.7.1 (2012-11-11)
 -----------------------------
