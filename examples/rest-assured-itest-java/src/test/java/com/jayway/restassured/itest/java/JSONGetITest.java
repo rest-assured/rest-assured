@@ -494,11 +494,8 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void statusCodeHasPriorityOverJsonParsingWhenErrorOccurs() throws Exception {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("2 expectations failed.\n" +
-                "Expected status code <200> doesn't match actual status code <500>.\n" +
-                "\n" +
-                "Expected response body to be verified as JSON, HTML or XML but content-type 'text/plain' is not supported out of the box.\n" +
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage(equalTo("Expected response body to be verified as JSON, HTML or XML but content-type 'text/plain' is not supported out of the box.\n" +
                 "Try registering a custom parser using:\n" +
                 "   RestAssured.registerParser(\"text/plain\", <parser type>);\n" +
                 "Content was:\n" +

@@ -48,22 +48,17 @@ class BodyMatcher {
                 errorMessage = "Response body doesn't match expectation.\nExpected: $matcher\n  Actual: $content\n"
             }
         } else {
-            try {
-                def assertion = StreamVerifier.newAssertion(response, key, rpr)
-                def result = null
-                if(content != null) {
-                    result = assertion.getResult(content)
-                }
-                if (!matcher.matches(result)) {
-                    success = false
-                    if(result instanceof Object[]) {
-                        result = result.join(",")
-                    }
-                    errorMessage = String.format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), result)
-                }
-            } catch (IllegalStateException e) {
+            def assertion = StreamVerifier.newAssertion(response, key, rpr)
+            def result = null
+            if(content != null) {
+                result = assertion.getResult(content)
+            }
+            if (!matcher.matches(result)) {
                 success = false
-                errorMessage = e.getMessage()
+                if(result instanceof Object[]) {
+                    result = result.join(",")
+                }
+                errorMessage = String.format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), result)
             }
         }
         return [success: success, errorMessage: errorMessage];
