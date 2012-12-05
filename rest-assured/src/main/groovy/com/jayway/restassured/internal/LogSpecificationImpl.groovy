@@ -25,24 +25,27 @@ import com.jayway.restassured.specification.RequestSpecification
  */
 class LogSpecificationImpl {
 
-  def PrintStream getPrintStream(RequestSpecification requestSpecification) {
-    def stream = getLogConfig(requestSpecification)?.defaultStream()
-    if(stream == null) {
-      stream = System.out
+    def PrintStream getPrintStream(RequestSpecification requestSpecification) {
+        def stream = getLogConfig(requestSpecification)?.defaultStream()
+        if(stream == null) {
+            stream = System.out
+        }
+        stream
     }
-    stream
-  }
 
-  def boolean shouldPrettyPrint(RequestSpecification requestSpecification) {
-    def prettyPrintingEnabled = getLogConfig(requestSpecification)?.isPrettyPrintingEnabled()
-    if(prettyPrintingEnabled == null) {
-      return true
+    def boolean shouldPrettyPrint(RequestSpecification requestSpecification) {
+        def prettyPrintingEnabled = getLogConfig(requestSpecification)?.isPrettyPrintingEnabled()
+        if(prettyPrintingEnabled == null) {
+            return true
+        }
+        prettyPrintingEnabled
     }
-    prettyPrintingEnabled
-  }
 
-  private def LogConfig getLogConfig(RequestSpecification requestSpecification) {
-    RestAssuredConfig config = requestSpecification.restAssuredConfig
-    config?.logConfig
-  }
+    private def LogConfig getLogConfig(RequestSpecification requestSpecification) {
+        if(!requestSpecification) {
+            throw new IllegalStateException("Cannot configure logging since request specification is not defined. You may be misusing the API.");
+        }
+        RestAssuredConfig config = requestSpecification.restAssuredConfig
+        config?.logConfig
+    }
 }
