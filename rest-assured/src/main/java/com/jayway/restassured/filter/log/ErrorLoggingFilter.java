@@ -20,7 +20,7 @@ import com.jayway.restassured.filter.Filter;
 
 import java.io.PrintStream;
 
-import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 

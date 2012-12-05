@@ -27,6 +27,7 @@ import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.objects.ScalatraObject;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.output.WriterOutputStream;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,9 +44,7 @@ import static com.jayway.restassured.filter.log.LogDetail.COOKIES;
 import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logResponseTo;
 import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logResponseToIfMatches;
 import static com.jayway.restassured.parsing.Parser.JSON;
-import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 

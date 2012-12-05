@@ -24,8 +24,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import static com.jayway.restassured.RestAssured.expect;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class FileDownloadITest extends WithJetty {
 
