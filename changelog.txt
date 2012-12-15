@@ -1,6 +1,6 @@
 Change log 1.7.2 (2012-12-15)
 -----------------------------
-* StreamVerifier prints better error message the response content-type is not recognized.
+* StreamVerifier prints better error message when the response content-type is not recognized.
 * REST Assured now prints all validation errors in a single test run (issue 207).
 * Throws IllegalStateException when incorrectly trying to configure logging on a ResponseSpecBuilder instance after it has been built.
 
