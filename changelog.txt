@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Added support for settings a custom Jackson 2 object factory to JsonPath
+
 Change log 1.7.2 (2012-12-15)
 -----------------------------
 * StreamVerifier prints better error message when the response content-type is not recognized.
