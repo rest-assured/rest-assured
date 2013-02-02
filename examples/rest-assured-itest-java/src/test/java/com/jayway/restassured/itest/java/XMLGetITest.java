@@ -18,6 +18,7 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.specification.ResponseSpecification;
@@ -26,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.RestAssured.with;
 import static com.jayway.restassured.parsing.Parser.XML;
 import static org.hamcrest.Matchers.*;
@@ -250,5 +252,43 @@ public class XMLGetITest extends WithJetty {
         final String body = expect().body("shopping", anything()).when().get("/shopping").asString();
 
         assertThat(body, containsString("<shopping>"));
+    }
+
+    @Test
+    public void whenExpectingContentTypeXMLThenTextXmlIsAllowedAsContentType() throws Exception {
+        given().
+                param("firstName", "John").
+                param("lastName", "Doe").
+        expect().
+                contentType(ContentType.XML).
+        when().
+                get("/xmlWithContentTypeTextXml");
+    }
+
+    @Test
+    public void whenExpectingContentTypeXMLThenCustomXmlIsAllowedAsContentType() throws Exception {
+        given().
+                param("firstName", "John").
+                param("lastName", "Doe").
+        expect().
+                contentType(ContentType.XML).
+                body("greeting.firstName", equalTo("John")).
+                body("greeting.lastName", equalTo("Doe")).
+        when().
+                get("/xmlWithCustomXmlContentType");
+    }
+
+    @Test
+    public void whenExpectingContentTypeXMLThenExceptionIsThrownIfContentTypeIsJson() throws Exception {
+        exception.expect(AssertionError.class);
+        exception.expectMessage("Expected content-type \"XML\" doesn't match actual content-type \"application/json; charset=UTF-8\".");
+
+        given().
+                param("firstName", "John").
+                param("lastName", "Doe").
+        expect().
+                contentType(ContentType.XML).
+        when().
+                get("/greetJSON");
     }
 }

@@ -23,10 +23,10 @@ import com.jayway.restassured.assertion.HeaderMatcher
 import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
+import com.jayway.restassured.specification.*
 import org.apache.commons.lang3.StringUtils
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
-import com.jayway.restassured.specification.*
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static com.jayway.restassured.http.ContentType.ANY
@@ -398,11 +398,27 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
             if(contentType != null) {
                 def actualContentType = response.getContentType()
                 if(contentType instanceof Matcher) {
+                    println contentType
                     if (!contentType.matches(actualContentType)) {
                         errors << [success : false, errorMessage: String.format("Expected content-type %s doesn't match actual content-type \"%s\".\n", contentType, actualContentType)]
                     }
-                } else if (!StringUtils.startsWith(actualContentType, contentType.toString())) {
-                    errors << [success: false, errorMessage:  String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", contentType, actualContentType)];
+                } else if(contentType instanceof String) {
+                    if (!StringUtils.startsWith(actualContentType, contentType.toString())) {
+                        errors << [success: false, errorMessage:  String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", contentType, actualContentType)];
+                    }
+                } else {
+                    def name = contentType.name()
+                    def pattern = ~/(^[\w\d_\-]+\/[\w\d_\-]+)\s*(?:;)/
+                    def matcher = pattern.matcher(actualContentType);
+                    def contentTypeToMatch
+                    if (matcher.find()) {
+                        contentTypeToMatch = matcher.group(1);
+                    } else {
+                        contentTypeToMatch = actualContentType
+                    }
+                    if (ContentType.fromContentType(contentTypeToMatch) != contentType) {
+                        errors << [success: false, errorMessage:  String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", name, actualContentType)];
+                    }
                 }
             }
             errors

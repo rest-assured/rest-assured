@@ -52,6 +52,22 @@ class ScalatraRestExample extends ScalatraServlet {
     greetXML
   }
 
+  get("/xmlWithContentTypeTextXml") {
+    contentType = "text/xml; charset=iso-8859-1"
+    <greeting>
+      <firstName>{params("firstName")}</firstName>
+      <lastName>{params("lastName")}</lastName>
+    </greeting>
+  }
+
+  get("/xmlWithCustomXmlContentType") {
+    contentType = "application/something+xml; charset=iso-8859-1"
+    <greeting>
+      <firstName>{params("firstName")}</firstName>
+      <lastName>{params("lastName")}</lastName>
+    </greeting>
+  }
+
   get("/greetXMLAttribute") {
     contentType = "application/xml"
     <greeting>
