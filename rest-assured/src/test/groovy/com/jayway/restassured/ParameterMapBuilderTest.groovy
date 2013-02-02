@@ -22,7 +22,7 @@ import com.jayway.restassured.internal.RequestSpecificationImpl
 import org.junit.Before
 import org.junit.Test
 
-import static groovy.util.GroovyTestCase.assertEquals
+import static org.junit.Assert.assertEquals
 
 class ParameterMapBuilderTest {
   private RequestSpecificationImpl requestBuilder;

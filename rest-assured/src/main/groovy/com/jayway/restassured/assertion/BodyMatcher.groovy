@@ -53,6 +53,16 @@ class BodyMatcher {
             if(content != null) {
                 result = assertion.getResult(content)
             }
+
+            // Convert big decimal to float or double
+            if (result instanceof BigDecimal) {
+                if (result > Float.MAX_VALUE) {
+                    result = result.doubleValue();
+                } else {
+                    result = result.floatValue();
+                }
+            }
+
             if (!matcher.matches(result)) {
                 success = false
                 if(result instanceof Object[]) {

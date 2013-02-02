@@ -20,6 +20,7 @@ import com.jayway.restassured.path.json.support.Book;
 import groovy.json.JsonException;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -132,9 +133,9 @@ public class JsonPathTest {
 
         final Map<String, Object> bicycle = store.get("bicycle");
         final String color = (String) bicycle.get("color");
-		final float price = (Float) bicycle.get("price");
+		final BigDecimal price = (BigDecimal) bicycle.get("price");
         assertThat(color, equalTo("red"));
-		assertThat(price, equalTo(19.95f));
+		assertThat(price.floatValue(), equalTo(19.95f));
     }
 
     @Test
