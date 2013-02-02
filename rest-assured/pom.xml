@@ -8,25 +8,25 @@
 	language governing permissions and ~ limitations under the License. -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>com.jayway.restassured</groupId>
-		<artifactId>rest-assured-parent</artifactId>
-		<version>1.7.3-SNAPSHOT</version>
-	</parent>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.jayway.restassured</groupId>
+        <artifactId>rest-assured-parent</artifactId>
+        <version>1.7.3-SNAPSHOT</version>
+    </parent>
 
-	<groupId>com.jayway.restassured</groupId>
-	<artifactId>rest-assured</artifactId>
-	<version>1.7.3-SNAPSHOT</version>
-	<packaging>jar</packaging>
+    <groupId>com.jayway.restassured</groupId>
+    <artifactId>rest-assured</artifactId>
+    <version>1.7.3-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
-	<name>REST Assured</name>
-	<description>Java DSL for easy testing of REST services</description>
-	<url>http://code.google.com/p/rest-assured</url>
+    <name>REST Assured</name>
+    <description>Java DSL for easy testing of REST services</description>
+    <url>http://code.google.com/p/rest-assured</url>
 
-	<properties>
-		<hamcrest.version>1.2.1</hamcrest.version>
-	</properties>
+    <properties>
+        <hamcrest.version>1.2.1</hamcrest.version>
+    </properties>
 
     <build>
         <plugins>
@@ -37,84 +37,92 @@
         </plugins>
     </build>
 
-	<dependencies>
- 		<dependency>
-			<groupId>org.codehaus.groovy</groupId>
-			<artifactId>groovy</artifactId>
-			<version>${groovy.version}</version>
-		</dependency>
-<!--
- -->
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.2.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpmime</artifactId>
-			<version>4.2.1</version>
-		</dependency>
-		<dependency>
-			<!-- Add this dependency if you are using OAuth in HTTPBuilder or RESTClient -->
-			<groupId>oauth.signpost</groupId>
-			<artifactId>signpost-commonshttp4</artifactId>
-			<version>1.2.1.1</version>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-core</artifactId>
-			<version>${hamcrest.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest-library</artifactId>
-			<version>${hamcrest.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-collections</groupId>
-			<artifactId>commons-collections</artifactId>
-			<version>3.2.1</version>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>${groovy.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-json</artifactId>
+            <version>${groovy.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-xml</artifactId>
+            <version>${groovy.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpmime</artifactId>
+            <version>4.2.1</version>
+        </dependency>
+        <dependency>
+            <!-- Add this dependency if you are using OAuth in HTTPBuilder or RESTClient -->
+            <groupId>oauth.signpost</groupId>
+            <artifactId>signpost-commonshttp4</artifactId>
+            <version>1.2.1.1</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <version>${hamcrest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-library</artifactId>
+            <version>${hamcrest.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections</artifactId>
+            <version>3.2.1</version>
+        </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.0.5</version>
             <optional>true</optional>
         </dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-jaxrs</artifactId>
-			<version>1.8.5</version>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>1.7.2</version>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>com.googlecode.json-simple</groupId>
-			<artifactId>json-simple</artifactId>
-			<version>1.1</version>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ccil.cowan.tagsoup</groupId>
-			<artifactId>tagsoup</artifactId>
-			<version>1.2.1</version>
-		</dependency>
-		<!-- Test dependencies -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-jaxrs</artifactId>
+            <version>1.8.5</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>1.7.2</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ccil.cowan.tagsoup</groupId>
+            <artifactId>tagsoup</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+    </dependencies>
 </project>

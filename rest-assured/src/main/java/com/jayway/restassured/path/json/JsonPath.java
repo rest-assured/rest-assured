@@ -20,6 +20,7 @@ import com.jayway.restassured.assertion.JSONAssertion;
 import com.jayway.restassured.config.ObjectMapperConfig;
 import com.jayway.restassured.exception.ParsePathException;
 import com.jayway.restassured.internal.mapping.ObjectMapping;
+import com.jayway.restassured.internal.path.json.ConfigurableJsonSlurper;
 import com.jayway.restassured.internal.support.Prettifier;
 import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
@@ -30,7 +31,6 @@ import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.ResponseBodyData;
 import groovy.json.JsonBuilder;
 import groovy.json.JsonOutput;
-import groovy.json.JsonSlurper;
 import org.apache.commons.lang3.Validate;
 
 import java.io.*;
@@ -112,7 +112,7 @@ public class JsonPath {
      * @param text The text containing the Object document
      */
     public JsonPath(String text) {
-        json = new JsonSlurper().parseText(text);
+        json = new ConfigurableJsonSlurper().parseText(text);
     }
 
     /**
@@ -746,7 +746,7 @@ public class JsonPath {
 
     private Object parseInputStream(final InputStream stream)  {
         return new ExceptionCatcher() {
-            protected Object method(JsonSlurper slurper) throws Exception {
+            protected Object method(ConfigurableJsonSlurper slurper) throws Exception {
                 return slurper.parse(toReader(stream));
             }
         }.invoke();
@@ -754,7 +754,7 @@ public class JsonPath {
 
     private Object parseReader(final Reader reader)  {
         return new ExceptionCatcher() {
-            protected Object method(JsonSlurper slurper) throws Exception {
+            protected Object method(ConfigurableJsonSlurper slurper) throws Exception {
                 return slurper.parse(reader);
             }
         }.invoke();
@@ -762,7 +762,7 @@ public class JsonPath {
 
     private Object parseFile(final File file)  {
         return new ExceptionCatcher() {
-            protected Object method(JsonSlurper slurper) throws Exception {
+            protected Object method(ConfigurableJsonSlurper slurper) throws Exception {
                 return slurper.parse(new FileReader(file));
             }
         }.invoke();
@@ -770,7 +770,7 @@ public class JsonPath {
 
     private Object parseURL(final URL url)  {
         return new ExceptionCatcher() {
-            protected Object method(JsonSlurper slurper) throws Exception {
+            protected Object method(ConfigurableJsonSlurper slurper) throws Exception {
                 return slurper.parse(toReader(url.openStream()));
             }
         }.invoke();
@@ -782,11 +782,11 @@ public class JsonPath {
 
     private abstract class ExceptionCatcher {
 
-        protected abstract Object method(JsonSlurper slurper) throws Exception;
+        protected abstract Object method(ConfigurableJsonSlurper slurper) throws Exception;
 
         public Object invoke() {
             try {
-                return method(new JsonSlurper());
+                return method(new ConfigurableJsonSlurper());
             } catch(Exception e) {
                 throw new ParsePathException("Failed to parse the Object document", e);
             }

@@ -20,6 +20,7 @@ import com.jayway.restassured.path.json.support.Book;
 import groovy.json.JsonException;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -135,6 +136,14 @@ public class JsonPathTest {
 		final float price = (Float) bicycle.get("price");
         assertThat(color, equalTo("red"));
 		assertThat(price, equalTo(19.95f));
+    }
+
+    @Test
+    public void getRootObjectAsMap2() throws Exception {
+        final Map<String, Object> store = from(JSON).get("store.book[0]");
+        for (Map.Entry<String, Object> stringObjectEntry : store.entrySet()) {
+            System.out.println(stringObjectEntry.getKey() + " = "+stringObjectEntry.getValue());
+        }
     }
 
     @Test

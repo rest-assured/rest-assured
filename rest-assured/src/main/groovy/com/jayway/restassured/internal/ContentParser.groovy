@@ -18,9 +18,9 @@
 
 package com.jayway.restassured.internal
 
+import com.jayway.restassured.internal.path.json.ConfigurableJsonSlurper
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
-import groovy.json.JsonSlurper
 
 import static com.jayway.restassured.parsing.Parser.*
 
@@ -34,7 +34,7 @@ class ContentParser {
     } else {
       switch(parser) {
         case JSON:
-          content = new JsonSlurper().parse(new InputStreamReader(new BufferedInputStream(bodyAsInputStream)))
+          content = new ConfigurableJsonSlurper().parse(new InputStreamReader(new BufferedInputStream(bodyAsInputStream)))
           break;
         case XML:
           content = new XmlSlurper().parse(bodyAsInputStream)

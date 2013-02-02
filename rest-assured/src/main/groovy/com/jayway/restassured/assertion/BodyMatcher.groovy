@@ -53,6 +53,7 @@ class BodyMatcher {
             if(content != null) {
                 result = assertion.getResult(content)
             }
+
             if (!matcher.matches(result)) {
                 success = false
                 if(result instanceof Object[]) {

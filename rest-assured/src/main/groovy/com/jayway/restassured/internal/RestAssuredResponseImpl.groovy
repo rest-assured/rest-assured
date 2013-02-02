@@ -144,7 +144,7 @@ class RestAssuredResponseImpl implements Response {
     }
 
     String asString() {
-        asString(findCharset())
+        charsetToString(findCharset())
     }
 
     InputStream asInputStream() {
@@ -422,7 +422,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
         new XmlPath(xml, asInputStream())
     }
 
-    private def asString(charset) {
+    private def charsetToString(charset) {
         if(content == null) {
             return ""
         }
