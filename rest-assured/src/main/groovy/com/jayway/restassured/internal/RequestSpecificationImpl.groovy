@@ -19,15 +19,19 @@ package com.jayway.restassured.internal
 import com.jayway.restassured.authentication.AuthenticationScheme
 import com.jayway.restassured.authentication.FormAuthScheme
 import com.jayway.restassured.authentication.NoAuthScheme
+import com.jayway.restassured.config.*
 import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.FormAuthFilter
 import com.jayway.restassured.internal.filter.RootFilter
+import com.jayway.restassured.internal.http.*
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl
 import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.mapper.ObjectMapperType
+import com.jayway.restassured.response.*
+import com.jayway.restassured.specification.*
 import com.jayway.restassured.spi.AuthFilter
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.Validate
@@ -43,11 +47,6 @@ import org.apache.http.message.BasicHeader
 import java.util.Map.Entry
 import java.util.regex.Matcher
 import java.util.regex.Pattern
-
-import com.jayway.restassured.config.*
-import com.jayway.restassured.internal.http.*
-import com.jayway.restassured.response.*
-import com.jayway.restassured.specification.*
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static com.jayway.restassured.http.ContentType.*

@@ -26,9 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.with;
+import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.parsing.Parser.XML;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;

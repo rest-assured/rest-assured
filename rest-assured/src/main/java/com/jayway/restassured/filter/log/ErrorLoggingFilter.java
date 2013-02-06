@@ -20,9 +20,7 @@ import com.jayway.restassured.filter.Filter;
 
 import java.io.PrintStream;
 
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.greaterThanOrEqualTo;
-import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.*;
 
 /**
  * A filter that'll print the response body if an error occurred (status code is between 400 and 500).

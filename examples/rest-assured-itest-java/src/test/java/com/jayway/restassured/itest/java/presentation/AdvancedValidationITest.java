@@ -19,8 +19,6 @@ package com.jayway.restassured.itest.java.presentation;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
-import java.math.BigDecimal;
-
 import static com.jayway.restassured.RestAssured.expect;
 import static org.hamcrest.Matchers.*;
 

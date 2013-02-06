@@ -29,11 +29,10 @@ import com.jayway.restassured.mapper.ObjectMapperType
 import com.jayway.restassured.path.json.JsonPath
 import com.jayway.restassured.path.xml.XmlPath
 import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
+import com.jayway.restassured.response.*
 import groovy.xml.StreamingMarkupBuilder
 
 import java.nio.charset.Charset
-
-import com.jayway.restassured.response.*
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase

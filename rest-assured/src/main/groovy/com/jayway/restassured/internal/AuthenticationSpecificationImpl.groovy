@@ -18,11 +18,11 @@
 
 package com.jayway.restassured.internal
 
+import com.jayway.restassured.authentication.*
 import com.jayway.restassured.specification.AuthenticationSpecification
 import com.jayway.restassured.specification.PreemptiveAuthSpec
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.spi.AuthFilter
-import com.jayway.restassured.authentication.*
 
 import static com.jayway.restassured.assertion.AssertParameter.notNull
 
