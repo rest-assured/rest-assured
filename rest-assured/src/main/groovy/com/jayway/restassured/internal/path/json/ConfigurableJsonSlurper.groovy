@@ -24,9 +24,10 @@ import groovy.json.JsonToken
 import static groovy.json.JsonTokenType.*
 
 /**
- * Copy of Groovy's JsonSlurper class. The reason why it's needed is that in Groovy 1.8.5 Groovy's JsonSlurper no longer
- * returns floats and doubles and instead returns BigDecimal. In order to maintain backward compatibility this class is
- * created.
+ * Copy of Groovy's JsonSlurper class. The reason why this is needed is because in 1.8.5 Groovy's JsonSlurper no longer
+ * returns floats and doubles and instead returns BigDecimal. ExpandoMetaClasses doesn't work for Java classes so that's the
+ * technical reason for copying (what we really want to do is to override the {@link groovy.json.JsonToken#getValue()}).
+ * In order to maintain RA backward compatibility this class is created.
  *
  * The copied methods are:
  * <ol>
