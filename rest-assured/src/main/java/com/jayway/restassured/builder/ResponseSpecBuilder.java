@@ -17,6 +17,7 @@
 package com.jayway.restassured.builder;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.ResponseSpecificationImpl;
@@ -56,7 +57,8 @@ public class ResponseSpecBuilder {
     private final ResponseSpecification spec;
 
     public ResponseSpecBuilder() {
-        spec = new ResponseSpecificationImpl(rootPath, responseContentType(), responseSpecification, getResponseParserRegistrar());
+        spec = new ResponseSpecificationImpl(rootPath, responseContentType(), responseSpecification, getResponseParserRegistrar(),
+                restAssuredConfig());
     }
 
     /**
@@ -552,5 +554,9 @@ public class ResponseSpecBuilder {
             registrarField.setAccessible(false);
         }
         return new ResponseParserRegistrar(rpr);
+    }
+
+    private RestAssuredConfig restAssuredConfig() {
+        return RestAssured.config == null ? new RestAssuredConfig() : RestAssured.config;
     }
 }

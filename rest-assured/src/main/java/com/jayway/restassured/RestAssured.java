@@ -1093,7 +1093,8 @@ public class RestAssured {
         return new TestSpecificationImpl(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keystoreSpec,
                         requestContentType, requestSpecification, urlEncodingEnabled, config),
-                new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, responseParserRegistrar));
+                new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, responseParserRegistrar,
+                        config()));
     }
 
     private static void applySessionIdIfApplicable() {

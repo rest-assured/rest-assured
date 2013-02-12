@@ -28,6 +28,7 @@ import com.jayway.restassured.mapper.factory.Jackson1ObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.ObjectMapperFactory;
 import com.jayway.restassured.parsing.Parser;
+import com.jayway.restassured.path.json.config.JsonPathConfig;
 import com.jayway.restassured.response.ResponseBodyData;
 import groovy.json.JsonBuilder;
 import groovy.json.JsonOutput;
@@ -102,7 +103,10 @@ import static com.jayway.restassured.internal.path.ObjectConverter.convertObject
  */
 public class JsonPath {
 
+    private static JsonPathConfig config = null;
+
     private final Object json;
+    private JsonPathConfig jsonPathConfig = null;
     private String rootPath = "";
     private ObjectMapperFactory<?> objectMapperFactory;
 
@@ -112,7 +116,7 @@ public class JsonPath {
      * @param text The text containing the Object document
      */
     public JsonPath(String text) {
-        json = new ConfigurableJsonSlurper().parseText(text);
+        json = createConfigurableJsonSlurper().parseText(text);
     }
 
     /**
@@ -151,8 +155,9 @@ public class JsonPath {
         json = parseReader(reader);
     }
 
-    private JsonPath(JsonPath jsonPath, ObjectMapperFactory<?> objectMapperFactory) {
+    private JsonPath(JsonPath jsonPath, JsonPathConfig jsonPathConfig, ObjectMapperFactory<?> objectMapperFactory) {
         Validate.notNull(objectMapperFactory, "Object mapper factory cannot be null");
+        this.jsonPathConfig = jsonPathConfig;
         this.objectMapperFactory = objectMapperFactory;
         this.json = jsonPath.json;
         this.rootPath = jsonPath.rootPath;
@@ -576,7 +581,7 @@ public class JsonPath {
      * @return a new JsonPath instance
      */
     public JsonPath using(GsonObjectMapperFactory factory) {
-        return new JsonPath(this, factory);
+        return new JsonPath(this, jsonPathConfig, factory);
     }
 
     /**
@@ -585,7 +590,7 @@ public class JsonPath {
      * @return a new JsonPath instance
      */
     public JsonPath using(Jackson1ObjectMapperFactory factory) {
-        return new JsonPath(this, factory);
+        return new JsonPath(this, jsonPathConfig, factory);
     }
 
     /**
@@ -594,7 +599,26 @@ public class JsonPath {
      * @return a new JsonPath instance
      */
     public JsonPath using(Jackson2ObjectMapperFactory factory) {
-        return new JsonPath(this, factory);
+        return new JsonPath(this, jsonPathConfig, factory);
+    }
+
+    /**
+     * Configure JsonPath to with a specific JsonPathConfig.
+     *
+     * @param config The JsonPath config
+     * @return a new JsonPath instance
+     */
+    public JsonPath using(JsonPathConfig config) {
+        return new JsonPath(this, config, objectMapperFactory);
+    }
+
+    /**
+     * Syntactic sugar.
+     *
+     * @return The same JsonPath instance.
+     */
+    public JsonPath and() {
+        return this;
     }
 
     /**
@@ -786,7 +810,7 @@ public class JsonPath {
 
         public Object invoke() {
             try {
-                return method(new ConfigurableJsonSlurper());
+                return method(createConfigurableJsonSlurper());
             } catch(Exception e) {
                 throw new ParsePathException("Failed to parse the Object document", e);
             }
@@ -804,5 +828,20 @@ public class JsonPath {
         final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
         jsonAssertion.setKey(root + path);
         return jsonAssertion;
+    }
+
+    private ConfigurableJsonSlurper createConfigurableJsonSlurper() {
+        JsonPathConfig cfg;
+        if(config == null && jsonPathConfig == null) {
+            cfg = new JsonPathConfig();
+        } else if(config != null && jsonPathConfig == null) {
+            cfg = config;
+        } else if(config == null) {
+            cfg = jsonPathConfig;
+        } else {
+            cfg = new JsonPathConfig();
+        }
+
+        return new ConfigurableJsonSlurper(cfg.shouldRepresentJsonNumbersAsBigDecimal());
     }
 }

@@ -16,6 +16,8 @@
 
 package com.jayway.restassured.config;
 
+import com.jayway.restassured.path.json.config.JsonPathConfig;
+
 import static com.jayway.restassured.assertion.AssertParameter.notNull;
 
 /**
@@ -37,13 +39,14 @@ public class RestAssuredConfig {
     private final SessionConfig sessionConfig;
     private final ObjectMapperConfig objectMapperConfig;
     private final ConnectionConfig connectionConfig;
+    private final JsonPathConfig jsonPathConfig;
 
     /**
      * Create a new RestAssuredConfiguration with the default configurations.
      */
     public RestAssuredConfig() {
-        this(new RedirectConfig(), new HttpClientConfig(), new LogConfig(), new EncoderConfig(), new DecoderConfig(), 
-                new SessionConfig(), new ObjectMapperConfig(), new ConnectionConfig());
+        this(new RedirectConfig(), new HttpClientConfig(), new LogConfig(), new EncoderConfig(), new DecoderConfig(),
+                new SessionConfig(), new ObjectMapperConfig(), new ConnectionConfig(), new JsonPathConfig());
     }
 
     /**
@@ -57,7 +60,8 @@ public class RestAssuredConfig {
                              DecoderConfig decoderConfig,
                              SessionConfig sessionConfig,
                              ObjectMapperConfig objectMapperConfig,
-                             ConnectionConfig connectionConfig) {
+                             ConnectionConfig connectionConfig,
+                             JsonPathConfig jsonPathConfig) {
         notNull(redirectConfig, "Redirect Config");
         notNull(httpClientConfig, "HTTP Client Config");
         notNull(logConfig, "Log config");
@@ -66,6 +70,7 @@ public class RestAssuredConfig {
         notNull(sessionConfig, "Session config");
         notNull(objectMapperConfig, "Object mapper config");
         notNull(connectionConfig, "Connection config");
+        notNull(jsonPathConfig, "JsonPath config");
         this.httpClientConfig = httpClientConfig;
         this.redirectConfig = redirectConfig;
         this.logConfig = logConfig;
@@ -74,6 +79,7 @@ public class RestAssuredConfig {
         this.sessionConfig = sessionConfig;
         this.objectMapperConfig = objectMapperConfig;
         this.connectionConfig = connectionConfig;
+        this.jsonPathConfig = jsonPathConfig;
     }
 
     /**
@@ -85,7 +91,7 @@ public class RestAssuredConfig {
     public RestAssuredConfig redirect(RedirectConfig redirectConfig) {
         notNull(redirectConfig, "Redirect config");
         return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig);
+                objectMapperConfig, connectionConfig, jsonPathConfig);
     }
 
     /**
@@ -97,7 +103,7 @@ public class RestAssuredConfig {
     public RestAssuredConfig httpClient(HttpClientConfig httpClientConfig) {
         notNull(httpClientConfig, "HTTP Client Config");
         return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig);
+                objectMapperConfig, connectionConfig, jsonPathConfig);
     }
 
     /**
@@ -109,7 +115,7 @@ public class RestAssuredConfig {
     public RestAssuredConfig logConfig(LogConfig logConfig) {
         notNull(logConfig, "Log config");
         return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig);
+                objectMapperConfig, connectionConfig, jsonPathConfig);
     }
 
     /**
@@ -121,7 +127,7 @@ public class RestAssuredConfig {
     public RestAssuredConfig encoderConfig(EncoderConfig encoderConfig) {
         notNull(encoderConfig, "Encoder config");
         return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig);
+                objectMapperConfig, connectionConfig, jsonPathConfig);
     }
 
     /**
@@ -133,7 +139,7 @@ public class RestAssuredConfig {
     public RestAssuredConfig decoderConfig(DecoderConfig decoderConfig) {
         notNull(decoderConfig, "Decoder config");
         return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig);
+                objectMapperConfig, connectionConfig, jsonPathConfig);
     }
 
     /**
@@ -145,7 +151,7 @@ public class RestAssuredConfig {
     public RestAssuredConfig sessionConfig(SessionConfig sessionConfig) {
         notNull(sessionConfig, "Session config");
         return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig);
+                objectMapperConfig, connectionConfig, jsonPathConfig);
     }
 
     /**
@@ -157,19 +163,31 @@ public class RestAssuredConfig {
     public RestAssuredConfig objectMapperConfig(ObjectMapperConfig objectMapperConfig) {
         notNull(objectMapperConfig, "Object mapper config");
         return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig);
+                objectMapperConfig, connectionConfig, jsonPathConfig);
     }
 
     /**
      * Set the connection config.
      *
-     * @param connectionConfig The {@link com.jayway.restassured.config.ObjectMapperConfig} to set
+     * @param connectionConfig The {@link com.jayway.restassured.config.ConnectionConfig} to set
      * @return An updated RestAssuredConfiguration
      */
     public RestAssuredConfig connectionConfig(ConnectionConfig connectionConfig) {
         notNull(connectionConfig, "Connection config");
         return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig);
+                objectMapperConfig, connectionConfig, jsonPathConfig);
+    }
+
+    /**
+     * Set the JsonPath config.
+     *
+     * @param jsonPathConfig The {@link JsonPathConfig} to set
+     * @return An updated RestAssuredConfiguration
+     */
+    public RestAssuredConfig jsonPathConfig(JsonPathConfig jsonPathConfig) {
+        notNull(jsonPathConfig, "JsonPath config");
+        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
+                objectMapperConfig, connectionConfig, jsonPathConfig);
     }
 
     /**
@@ -244,6 +262,13 @@ public class RestAssuredConfig {
      */
     public ConnectionConfig getConnectionConfig() {
         return connectionConfig;
+    }
+
+    /**
+     * @return The JsonPath Config
+     */
+    public JsonPathConfig getJsonPathConfig() {
+        return jsonPathConfig;
     }
 
     /**

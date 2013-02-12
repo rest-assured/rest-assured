@@ -20,11 +20,13 @@ import com.jayway.restassured.assertion.BodyMatcher
 import com.jayway.restassured.assertion.BodyMatcherGroup
 import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.assertion.HeaderMatcher
+import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.*
 import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.Validate
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 
@@ -48,8 +50,12 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     private Response restAssuredResponse;
     private String bodyRootPath;
     private ResponseParserRegistrar rpr;
+    private RestAssuredConfig config
 
-    ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr) {
+    ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
+                              RestAssuredConfig config) {
+        Validate.notNull(config, "RestAssuredConfig cannot be null")
+        this.config = config
         rootPath(bodyRootPath)
         this.contentType = responseContentType
         this.rpr = rpr
@@ -378,7 +384,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                     if(requiresTextParsing()) {
                         content = response.asString()
                     } else {
-                        content = new ContentParser().parse(response, rpr)
+                        content = new ContentParser().parse(response, rpr, config)
                     }
                     validations.addAll(bodyMatchers.validate(response, content))
                 }

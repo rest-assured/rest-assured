@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
 package com.jayway.restassured.internal
 
+import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.internal.path.json.ConfigurableJsonSlurper
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
@@ -25,28 +23,29 @@ import com.jayway.restassured.response.Response
 import static com.jayway.restassured.parsing.Parser.*
 
 class ContentParser {
-  def parse(Response response, ResponseParserRegistrar rpr) {
-    Parser parser = rpr.getParser(response.contentType())
-    def content;
-    def bodyAsInputStream = response.asInputStream()
-    if(parser == null) {
-      content = bodyAsInputStream
-    } else {
-      switch(parser) {
-        case JSON:
-          content = new ConfigurableJsonSlurper().parse(new InputStreamReader(new BufferedInputStream(bodyAsInputStream)))
-          break;
-        case XML:
-          content = new XmlSlurper().parse(bodyAsInputStream)
-          break
-        case HTML:
-          content = new XmlSlurper( new org.ccil.cowan.tagsoup.Parser() ).parse(bodyAsInputStream);
-          break
-        case TEXT:
-        default:
-          content = bodyAsInputStream
-      }
+    def parse(Response response, ResponseParserRegistrar rpr, RestAssuredConfig config) {
+        Parser parser = rpr.getParser(response.contentType())
+        def content;
+        def bodyAsInputStream = response.asInputStream()
+        if (parser == null) {
+            content = bodyAsInputStream
+        } else {
+            switch (parser) {
+                case JSON:
+                    content = new ConfigurableJsonSlurper(config.getJsonPathConfig().shouldRepresentJsonNumbersAsBigDecimal()).
+                            parse(new InputStreamReader(new BufferedInputStream(bodyAsInputStream)))
+                    break;
+                case XML:
+                    content = new XmlSlurper().parse(bodyAsInputStream)
+                    break
+                case HTML:
+                    content = new XmlSlurper(new org.ccil.cowan.tagsoup.Parser()).parse(bodyAsInputStream);
+                    break
+                case TEXT:
+                default:
+                    content = bodyAsInputStream
+            }
+        }
+        content
     }
-    content
-  }
 }
