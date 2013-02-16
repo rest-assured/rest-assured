@@ -349,6 +349,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     def RequestSpecification config(RestAssuredConfig config) {
         this.restAssuredConfig = config
+        responseSpecification?.config = config
         this
     }
 

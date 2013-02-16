@@ -18,7 +18,7 @@ package com.jayway.restassured.path.json;
 
 import com.jayway.restassured.assertion.JSONAssertion;
 import com.jayway.restassured.config.ObjectMapperConfig;
-import com.jayway.restassured.exception.ParsePathException;
+import com.jayway.restassured.exception.PathException;
 import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.internal.path.json.ConfigurableJsonSlurper;
 import com.jayway.restassured.internal.support.Prettifier;
@@ -32,7 +32,6 @@ import com.jayway.restassured.path.json.config.JsonPathConfig;
 import com.jayway.restassured.response.ResponseBodyData;
 import groovy.json.JsonBuilder;
 import groovy.json.JsonOutput;
-import org.apache.commons.lang3.Validate;
 
 import java.io.*;
 import java.net.URL;
@@ -103,9 +102,9 @@ import static com.jayway.restassured.internal.path.ObjectConverter.convertObject
  */
 public class JsonPath {
 
-    private static JsonPathConfig config = null;
+    public static JsonPathConfig config = null;
 
-    private final Object json;
+    private final JsonParser jsonParser;
     private JsonPathConfig jsonPathConfig = null;
     private String rootPath = "";
     private ObjectMapperFactory<?> objectMapperFactory;
@@ -116,7 +115,7 @@ public class JsonPath {
      * @param text The text containing the Object document
      */
     public JsonPath(String text) {
-        json = createConfigurableJsonSlurper().parseText(text);
+        jsonParser = parseText(text);
     }
 
     /**
@@ -125,7 +124,7 @@ public class JsonPath {
      * @param url The url containing the Object document
      */
     public JsonPath(URL url) {
-        json = parseURL(url);
+        jsonParser = parseURL(url);
     }
 
     /**
@@ -134,7 +133,7 @@ public class JsonPath {
      * @param stream The stream containing the Object document
      */
     public JsonPath(InputStream stream) {
-        json = parseInputStream(stream);
+        jsonParser = parseInputStream(stream);
     }
 
     /**
@@ -143,7 +142,7 @@ public class JsonPath {
      * @param file The file containing the Object document
      */
     public JsonPath(File file) {
-        json = parseFile(file);
+        jsonParser = parseFile(file);
     }
 
     /**
@@ -152,13 +151,13 @@ public class JsonPath {
      * @param reader The reader containing the Object document
      */
     public JsonPath(Reader reader) {
-        json = parseReader(reader);
+        jsonParser = parseReader(reader);
     }
 
     private JsonPath(JsonPath jsonPath, JsonPathConfig jsonPathConfig, ObjectMapperFactory<?> objectMapperFactory) {
         this.jsonPathConfig = jsonPathConfig;
         this.objectMapperFactory = objectMapperFactory;
-        this.json = jsonPath.json;
+        this.jsonParser = jsonPath.jsonParser;
         this.rootPath = jsonPath.rootPath;
     }
 
@@ -189,6 +188,7 @@ public class JsonPath {
      */
     public <T> T get(String path) {
         final JSONAssertion jsonAssertion = createJsonAssertion(path);
+        final Object json = jsonParser.parseWith(createConfigurableJsonSlurper());
         return (T) jsonAssertion.getResult(json);
     }
 
@@ -560,6 +560,7 @@ public class JsonPath {
      * @return The XML as a prettified String.
      */
     public String prettify() {
+        final Object json = jsonParser.parseWith(createConfigurableJsonSlurper());
         return new Prettifier().prettify(JsonOutput.toJson(json), Parser.JSON);
     }
 
@@ -767,36 +768,69 @@ public class JsonPath {
         return this;
     }
 
-    private Object parseInputStream(final InputStream stream)  {
-        return new ExceptionCatcher() {
-            protected Object method(ConfigurableJsonSlurper slurper) throws Exception {
-                return slurper.parse(toReader(stream));
+    private JsonParser parseInputStream(final InputStream stream)  {
+        return new JsonParser() {
+            @Override
+            public Object parseWith(final ConfigurableJsonSlurper slurper) {
+                return new ExceptionCatcher() {
+                    protected Object method() throws Exception {
+                        return slurper.parse(toReader(stream));
+                    }
+                }.invoke();
             }
-        }.invoke();
+        };
     }
 
-    private Object parseReader(final Reader reader)  {
-        return new ExceptionCatcher() {
-            protected Object method(ConfigurableJsonSlurper slurper) throws Exception {
-                return slurper.parse(reader);
+    private JsonParser parseReader(final Reader reader)  {
+        return new JsonParser() {
+            @Override
+            public Object parseWith(final ConfigurableJsonSlurper slurper) {
+                return new ExceptionCatcher() {
+                    protected Object method() throws Exception {
+                        return slurper.parse(reader);
+                    }
+                }.invoke();
             }
-        }.invoke();
+        };
     }
 
-    private Object parseFile(final File file)  {
-        return new ExceptionCatcher() {
-            protected Object method(ConfigurableJsonSlurper slurper) throws Exception {
-                return slurper.parse(new FileReader(file));
+    private JsonParser parseFile(final File file)  {
+        return new JsonParser() {
+            @Override
+            public Object parseWith(final ConfigurableJsonSlurper slurper) {
+                return new ExceptionCatcher() {
+                    protected Object method() throws Exception {
+                        return slurper.parse(new FileReader(file));
+                    }
+                }.invoke();
             }
-        }.invoke();
+        };
     }
 
-    private Object parseURL(final URL url)  {
-        return new ExceptionCatcher() {
-            protected Object method(ConfigurableJsonSlurper slurper) throws Exception {
-                return slurper.parse(toReader(url.openStream()));
+    private JsonParser parseText(final String text) {
+        return new JsonParser() {
+            @Override
+            public Object parseWith(final ConfigurableJsonSlurper slurper) {
+                return new ExceptionCatcher() {
+                    protected Object method() throws Exception {
+                        return slurper.parseText(text);
+                    }
+                }.invoke();
             }
-        }.invoke();
+        };
+    }
+
+    private JsonParser parseURL(final URL url)  {
+        return new JsonParser() {
+            @Override
+            public Object parseWith(final ConfigurableJsonSlurper slurper) {
+                return new ExceptionCatcher() {
+                    protected Object method() throws Exception {
+                        return slurper.parse(toReader(url.openStream()));
+                    }
+                }.invoke();
+            }
+        };
     }
 
     private BufferedReader toReader(InputStream in) {
@@ -805,19 +839,20 @@ public class JsonPath {
 
     private abstract class ExceptionCatcher {
 
-        protected abstract Object method(ConfigurableJsonSlurper slurper) throws Exception;
+        protected abstract Object method() throws Exception;
 
         public Object invoke() {
             try {
-                return method(createConfigurableJsonSlurper());
+                return method();
             } catch(Exception e) {
-                throw new ParsePathException("Failed to parse the Object document", e);
+                throw new PathException("Failed to parse the JSON document", e);
             }
         }
     }
 
     public <T> T getJsonObject(String path) {
         final JSONAssertion jsonAssertion = createJsonAssertion(path);
+        final Object json = jsonParser.parseWith(createConfigurableJsonSlurper());
         return (T) jsonAssertion.getAsJsonObject(json);
     }
 
@@ -833,14 +868,17 @@ public class JsonPath {
         JsonPathConfig cfg;
         if(config == null && jsonPathConfig == null) {
             cfg = new JsonPathConfig();
-        } else if(config != null && jsonPathConfig == null) {
-            cfg = config;
-        } else if(config == null) {
+        } else if(jsonPathConfig != null) {
             cfg = jsonPathConfig;
         } else {
-            cfg = new JsonPathConfig();
+            cfg = config;
         }
 
         return new ConfigurableJsonSlurper(cfg.shouldRepresentJsonNumbersAsBigDecimal());
+    }
+
+    private abstract class JsonParser {
+        public abstract Object parseWith(ConfigurableJsonSlurper slurper);
+
     }
 }

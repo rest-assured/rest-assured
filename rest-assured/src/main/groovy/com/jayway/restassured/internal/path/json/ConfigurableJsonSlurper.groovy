@@ -18,7 +18,6 @@ package com.jayway.restassured.internal.path.json
 import groovy.io.LineColumnReader
 import groovy.json.JsonException
 import groovy.json.JsonLexer
-import groovy.json.JsonSlurper
 import groovy.json.JsonToken
 
 import static groovy.json.JsonTokenType.*
@@ -34,32 +33,17 @@ import static groovy.json.JsonTokenType.*
  *     <li>parseText</li>
  *     <li>parseArray</li>
  *     <li>parseObject</li>
- *</ol>
+ * </ol>
  */
 class ConfigurableJsonSlurper {
+    private static ThreadLocal<Boolean> useBigDecimal = new ThreadLocal<>();
 
-    public ConfigurableJsonSlurper() {
-        this(false)
-    }
-
-    public ConfigurableJsonSlurper(boolean useBigDecimal) {
-        if (!useBigDecimal) {
-            overrideGetValueInJsonToken();
-            def originalParse = JsonSlurper.metaClass.getMetaMethod("parseText", [String] as Class[])
-            ConfigurableJsonSlurper.metaClass.parseText = { String text ->
-                overrideGetValueInJsonToken();
-                originalParse.invoke(delegate, text)
-            }
-        }
-    }
-
-    def void overrideGetValueInJsonToken() {
+    static {
         def original = JsonToken.metaClass.getMetaMethod("getValue")
         JsonToken.metaClass.getValue = {->
             def result = original.invoke(delegate)
-
-            // Convert big decimal to float or double
-            if (result instanceof BigDecimal) {
+            if (!useBigDecimal.get() && result instanceof BigDecimal) {
+                // Convert big decimal to float or double
                 if (result > Float.MAX_VALUE) {
                     result = result.doubleValue();
                 } else {
@@ -70,6 +54,13 @@ class ConfigurableJsonSlurper {
         }
     }
 
+    public ConfigurableJsonSlurper() {
+        this(false)
+    }
+
+    public ConfigurableJsonSlurper(boolean useBigDecimal) {
+        ConfigurableJsonSlurper.useBigDecimal.set(useBigDecimal);
+    }
 
     /**
      * Parse a text representation of a JSON data structure
@@ -78,11 +69,14 @@ class ConfigurableJsonSlurper {
      * @return a data structure of lists and maps
      */
     public Object parseText(String text) {
-        if (text == null || text.length() == 0) {
-            throw new IllegalArgumentException("The JSON input text should neither be null nor empty.");
+        try {
+            if (text == null || text.length() == 0) {
+                throw new IllegalArgumentException("The JSON input text should neither be null nor empty.");
+            }
+            return parse(new LineColumnReader(new StringReader(text)));
+        } finally {
+            useBigDecimal.remove();
         }
-
-        return parse(new LineColumnReader(new StringReader(text)));
     }
 
     /**
@@ -125,7 +119,7 @@ class ConfigurableJsonSlurper {
 
         JsonToken currentToken;
 
-        for(;;) {
+        for (; ;) {
             currentToken = lexer.nextToken();
 
             if (currentToken == null) {
@@ -194,7 +188,7 @@ class ConfigurableJsonSlurper {
         JsonToken previousToken = null;
         JsonToken currentToken = null;
 
-        for(;;) {
+        for (; ;) {
             currentToken = lexer.nextToken();
 
             if (currentToken == null) {
@@ -238,7 +232,7 @@ class ConfigurableJsonSlurper {
                         "Expected " + COLON.getLabel() + " " +
                                 "on line: " + currentToken.getStartLine() + ", " +
                                 "column: " + currentToken.getStartColumn() + ".\n" +
-                                "But got '" + currentToken.getText() +  "' instead."
+                                "But got '" + currentToken.getText() + "' instead."
                 );
             }
 

@@ -16,9 +16,9 @@
 
 package com.jayway.restassured.exception;
 
-public class ParsePathException extends RuntimeException {
+public class PathException extends RuntimeException {
 
-    public ParsePathException(String message, Throwable cause) {
+    public PathException(String message, Throwable cause) {
         super(message, cause);
     }
 }

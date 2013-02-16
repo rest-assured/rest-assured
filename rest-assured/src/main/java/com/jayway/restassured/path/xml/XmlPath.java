@@ -17,7 +17,7 @@
 package com.jayway.restassured.path.xml;
 
 import com.jayway.restassured.assertion.XMLAssertion;
-import com.jayway.restassured.exception.ParsePathException;
+import com.jayway.restassured.exception.PathException;
 import com.jayway.restassured.internal.support.Prettifier;
 import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.path.xml.element.NodeChildren;
@@ -764,7 +764,7 @@ public class XmlPath {
                 }
                 return method(slurper);
             } catch(Exception e) {
-                throw new ParsePathException("Failed to parse the XML document", e);
+                throw new PathException("Failed to parse the XML document", e);
             }
         }
     }
