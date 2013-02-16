@@ -41,6 +41,8 @@ class ObjectConverter {
         returnObject = Double.parseDouble(toString);
       } else  if(explicitType.isAssignableFrom(Long.class) || explicitType.isAssignableFrom(long.class)) {
         returnObject = Long.parseLong(toString);
+      } else  if(explicitType.isAssignableFrom(BigDecimal.class)) {
+        returnObject = new BigDecimal(toString);
       } else  if(explicitType.isAssignableFrom(String.class)) {
         returnObject = toString;
       } else {

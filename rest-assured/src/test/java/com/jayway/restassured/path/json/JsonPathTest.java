@@ -16,14 +16,17 @@
 
 package com.jayway.restassured.path.json;
 
+import com.jayway.restassured.path.json.config.JsonPathConfig;
 import com.jayway.restassured.path.json.support.Book;
 import groovy.json.JsonException;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.path.json.JsonPath.*;
+import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.BIG_DECIMAL;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -130,6 +133,18 @@ public class JsonPathTest {
 		final float price = (Float) bicycle.get("price");
         assertThat(color, equalTo("red"));
 		assertThat(price, equalTo(19.95f));
+    }
+
+    @Test
+    public void getFloatAndDoublesAsBigDecimal() throws Exception {
+        final Map<String, Map> store = with(JSON).using(new JsonPathConfig(BIG_DECIMAL)).get("store");
+        assertThat(store.size(), equalTo(2));
+
+        final Map<String, Object> bicycle = store.get("bicycle");
+        final String color = (String) bicycle.get("color");
+		final BigDecimal price = (BigDecimal) bicycle.get("price");
+        assertThat(color, equalTo("red"));
+		assertThat(price, equalTo(new BigDecimal(19.95)));
     }
 
     @Test

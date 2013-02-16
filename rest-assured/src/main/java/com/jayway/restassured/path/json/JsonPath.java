@@ -156,7 +156,6 @@ public class JsonPath {
     }
 
     private JsonPath(JsonPath jsonPath, JsonPathConfig jsonPathConfig, ObjectMapperFactory<?> objectMapperFactory) {
-        Validate.notNull(objectMapperFactory, "Object mapper factory cannot be null");
         this.jsonPathConfig = jsonPathConfig;
         this.objectMapperFactory = objectMapperFactory;
         this.json = jsonPath.json;
