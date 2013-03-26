@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.authentication;
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull;
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
  * Configuration of form authentication to correctly identify which form that contains the username and password

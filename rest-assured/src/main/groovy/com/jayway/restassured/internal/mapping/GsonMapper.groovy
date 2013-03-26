@@ -28,7 +28,6 @@ class GsonMapper implements ObjectMapper {
         this.factory = factory
     }
 
-
     def Object deserialize(ObjectMapperDeserializationContext context) {
         def object = context.getResponse().asString()
         def cls = context.getType()

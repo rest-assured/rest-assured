@@ -21,7 +21,7 @@ import com.jayway.restassured.config.SessionConfig
 import com.jayway.restassured.response.Cookies
 import com.jayway.restassured.spi.AuthFilter
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 
 class SpecificationMerger {
 

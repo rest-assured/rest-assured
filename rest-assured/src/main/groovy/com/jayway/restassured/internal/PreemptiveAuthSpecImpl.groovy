@@ -22,7 +22,7 @@ import com.jayway.restassured.authentication.PreemptiveBasicAuthScheme
 import com.jayway.restassured.specification.PreemptiveAuthSpec
 import com.jayway.restassured.specification.RequestSpecification
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 
 /**
  * Specify a preemptive authentication scheme to use when sending a request.

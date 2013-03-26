@@ -24,7 +24,7 @@ import com.jayway.restassured.specification.PreemptiveAuthSpec
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.spi.AuthFilter
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 
 /**
  * Specify an authentication scheme to use when sending a request.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.assertion
+package com.jayway.restassured.internal.assertion
 
 class AssertParameter {
 

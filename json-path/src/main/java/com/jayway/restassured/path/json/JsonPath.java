@@ -16,20 +16,20 @@
 
 package com.jayway.restassured.path.json;
 
-import com.jayway.restassured.assertion.JSONAssertion;
-import com.jayway.restassured.config.ObjectMapperConfig;
-import com.jayway.restassured.exception.PathException;
+import com.jayway.restassured.internal.assertion.AssertParameter;
 import com.jayway.restassured.internal.mapping.ObjectMapping;
+import com.jayway.restassured.internal.path.ObjectConverter;
 import com.jayway.restassured.internal.path.json.ConfigurableJsonSlurper;
-import com.jayway.restassured.internal.support.Prettifier;
+import com.jayway.restassured.internal.path.json.JSONAssertion;
+import com.jayway.restassured.internal.path.json.JsonPrettifier;
+import com.jayway.restassured.internal.path.json.mapping.JsonObjectMapping;
 import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.Jackson1ObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.ObjectMapperFactory;
-import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.path.json.config.JsonPathConfig;
-import com.jayway.restassured.response.ResponseBodyData;
+import com.jayway.restassured.path.json.exception.JsonPathException;
 import groovy.json.JsonBuilder;
 import groovy.json.JsonOutput;
 
@@ -37,10 +37,6 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
-
-import static com.jayway.restassured.assertion.AssertParameter.notNull;
-import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfig;
-import static com.jayway.restassured.internal.path.ObjectConverter.convertObjectTo;
 
 /**
  * JsonPath is an alternative to using XPath for easily getting values from a Object document. It follows the
@@ -154,7 +150,7 @@ public class JsonPath {
         jsonParser = parseReader(reader);
     }
 
-    private JsonPath(JsonPath jsonPath, JsonPathConfig jsonPathConfig, ObjectMapperFactory<?> objectMapperFactory) {
+    private JsonPath(JsonPath jsonPath, JsonPathConfig jsonPathConfig) {
         this.jsonPathConfig = jsonPathConfig;
         this.objectMapperFactory = objectMapperFactory;
         this.jsonParser = jsonPath.jsonParser;
@@ -200,7 +196,7 @@ public class JsonPath {
      * cannot be casted to the expected type.
      */
     public boolean getBoolean(String path) {
-        return convertObjectTo(get(path), Boolean.class);
+        return ObjectConverter.convertObjectTo(get(path), Boolean.class);
     }
 
     /**
@@ -211,7 +207,7 @@ public class JsonPath {
      * cannot be casted to the expected type.
      */
     public char getChar(String path) {
-        return convertObjectTo(get(path), Character.class);
+        return ObjectConverter.convertObjectTo(get(path), Character.class);
     }
 
     /**
@@ -231,7 +227,7 @@ public class JsonPath {
         } else if (value instanceof Long) {
             return ((Long)value).intValue();
         } else {
-            return convertObjectTo(value, Integer.class);
+            return ObjectConverter.convertObjectTo(value, Integer.class);
         }
     }
 
@@ -253,7 +249,7 @@ public class JsonPath {
         } else if (value instanceof Integer) {
             return ((Integer)value).byteValue();
         } else {
-            return convertObjectTo(value, Byte.class);
+            return ObjectConverter.convertObjectTo(value, Byte.class);
         }
     }
 
@@ -275,7 +271,7 @@ public class JsonPath {
         } else if (value instanceof Integer) {
             return ((Integer)value).shortValue();
         } else {
-            return convertObjectTo(value, Short.class);
+            return ObjectConverter.convertObjectTo(value, Short.class);
         }
     }
 
@@ -292,7 +288,7 @@ public class JsonPath {
         if(value instanceof Double) {
             return ((Double) value).floatValue();
         } else {
-            return convertObjectTo(value, Float.class);
+            return ObjectConverter.convertObjectTo(value, Float.class);
         }
     }
 
@@ -308,7 +304,7 @@ public class JsonPath {
         if(value instanceof Double) {
             return (Double) value;
         }
-        return convertObjectTo(value, Double.class);
+        return ObjectConverter.convertObjectTo(value, Double.class);
     }
 
     /**
@@ -328,7 +324,7 @@ public class JsonPath {
         } else if (value instanceof Integer) {
             return ((Integer)value).longValue();
         } else {
-            return convertObjectTo(value, Long.class);
+            return ObjectConverter.convertObjectTo(value, Long.class);
         }
     }
 
@@ -340,7 +336,7 @@ public class JsonPath {
      * cannot be casted to the expected type.
      */
     public String getString(String path) {
-        return convertObjectTo(get(path), String.class);
+        return ObjectConverter.convertObjectTo(get(path), String.class);
     }
 
     /**
@@ -368,7 +364,7 @@ public class JsonPath {
         final List<T> original = get(path);
         final List<T> newList = new LinkedList<T>();
         for (T t : original) {
-            newList.add(convertObjectTo(t, genericType));
+            newList.add(ObjectConverter.convertObjectTo(t, genericType));
         }
         return Collections.unmodifiableList(newList);
     }
@@ -401,8 +397,8 @@ public class JsonPath {
         final Map<K, V> originalMap = get(path);
         final Map<K, V> newMap = new HashMap<K, V>();
         for (Entry<K, V> entry : originalMap.entrySet()) {
-            final K key = entry.getKey() == null ? null : convertObjectTo(entry.getKey(), keyType);
-            final V value = entry.getValue() == null ? null : convertObjectTo(entry.getValue(), valueType);
+            final K key = entry.getKey() == null ? null : ObjectConverter.convertObjectTo(entry.getKey(), keyType);
+            final V value = entry.getValue() == null ? null : ObjectConverter.convertObjectTo(entry.getValue(), valueType);
             newMap.put(key, value);
         }
         return Collections.unmodifiableMap(newMap);
@@ -516,42 +512,25 @@ public class JsonPath {
             // TODO Avoid double parsing
             object = new JsonBuilder(object).toString();
         } else {
-            return convertObjectTo(object, objectType);
+            return ObjectConverter.convertObjectTo(object, objectType);
         }
 
         final ObjectMapperType type;
-        final ObjectMapperConfig config;
+        JsonPathConfig cfg = new JsonPathConfig(getJsonPathConfig());
         if(objectMapperFactory == null) {
             type = null;
-            config = objectMapperConfig();
         } else if(objectMapperFactory instanceof GsonObjectMapperFactory) {
             type = ObjectMapperType.GSON;
-            config = objectMapperConfig().defaultObjectMapperType(type).gsonObjectMapperFactory((GsonObjectMapperFactory) objectMapperFactory);
+            cfg = cfg.defaultObjectMapperType(type).gsonObjectMapperFactory((GsonObjectMapperFactory) objectMapperFactory);
         } else if(objectMapperFactory instanceof Jackson2ObjectMapperFactory) {
             type = ObjectMapperType.JACKSON_2;
-            config = objectMapperConfig().defaultObjectMapperType(type).jackson2ObjectMapperFactory((Jackson2ObjectMapperFactory) objectMapperFactory);
+            cfg = cfg.defaultObjectMapperType(type).jackson2ObjectMapperFactory((Jackson2ObjectMapperFactory) objectMapperFactory);
         } else {
             type = ObjectMapperType.JACKSON_1;
-            config = objectMapperConfig().defaultObjectMapperType(type).jackson1ObjectMapperFactory((Jackson1ObjectMapperFactory) objectMapperFactory);
+            cfg = cfg.defaultObjectMapperType(type).jackson1ObjectMapperFactory((Jackson1ObjectMapperFactory) objectMapperFactory);
         }
 
-
-        final Object finalObject = object;
-        ResponseBodyData d = new ResponseBodyData() {
-            public String asString() {
-                return (String) finalObject;
-            }
-
-            public byte[] asByteArray() {
-                return new byte[0];
-            }
-
-            public InputStream asInputStream() {
-                return null;
-            }
-        };
-
-        return ObjectMapping.deserialize(d, objectType, "application/json","", null, type, config);
+        return JsonObjectMapping.deserialize(object, objectType, type, cfg);
     }
 
     /**
@@ -561,7 +540,7 @@ public class JsonPath {
      */
     public String prettify() {
         final Object json = jsonParser.parseWith(createConfigurableJsonSlurper());
-        return new Prettifier().prettify(JsonOutput.toJson(json), Parser.JSON);
+        return JsonPrettifier.prettifyJson(JsonOutput.toJson(json));
     }
 
     /**
@@ -581,7 +560,7 @@ public class JsonPath {
      * @return a new JsonPath instance
      */
     public JsonPath using(GsonObjectMapperFactory factory) {
-        return new JsonPath(this, jsonPathConfig, factory);
+        return new JsonPath(this, jsonPathConfig.gsonObjectMapperFactory(factory));
     }
 
     /**
@@ -763,7 +742,7 @@ public class JsonPath {
      * @param rootPath The root path to use.
      */
     public JsonPath setRoot(String rootPath) {
-        notNull(rootPath, "Root path");
+        AssertParameter.notNull(rootPath, "Root path");
         this.rootPath = rootPath;
         return this;
     }
@@ -845,7 +824,7 @@ public class JsonPath {
             try {
                 return method();
             } catch(Exception e) {
-                throw new PathException("Failed to parse the JSON document", e);
+                throw new JsonPathException("Failed to parse the JSON document", e);
             }
         }
     }
@@ -857,7 +836,7 @@ public class JsonPath {
     }
 
     private JSONAssertion createJsonAssertion(String path) {
-        notNull(path, "path");
+        AssertParameter.notNull(path, "path");
         final JSONAssertion jsonAssertion = new JSONAssertion();
         final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
         jsonAssertion.setKey(root + path);
@@ -865,6 +844,11 @@ public class JsonPath {
     }
 
     private ConfigurableJsonSlurper createConfigurableJsonSlurper() {
+        JsonPathConfig cfg = getJsonPathConfig();
+        return new ConfigurableJsonSlurper(cfg.shouldRepresentJsonNumbersAsBigDecimal());
+    }
+
+    private JsonPathConfig getJsonPathConfig() {
         JsonPathConfig cfg;
         if(config == null && jsonPathConfig == null) {
             cfg = new JsonPathConfig();
@@ -873,8 +857,7 @@ public class JsonPath {
         } else {
             cfg = config;
         }
-
-        return new ConfigurableJsonSlurper(cfg.shouldRepresentJsonNumbersAsBigDecimal());
+        return cfg;
     }
 
     private abstract class JsonParser {

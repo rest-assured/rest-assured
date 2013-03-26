@@ -17,6 +17,7 @@
 package com.jayway.restassured.internal.support
 
 import com.jayway.restassured.internal.RestAssuredResponseImpl
+import com.jayway.restassured.internal.path.json.JsonPrettifier
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
@@ -57,7 +58,7 @@ class Prettifier {
         try {
             switch (parser) {
                 case Parser.JSON:
-                    prettifiedBody = JsonOutput.prettyPrint(body)
+                    prettifiedBody = JsonPrettifier.prettifyJson(body)
                     break
                 case Parser.XML:
                     prettifiedBody = prettifyWithXmlParser(new XmlParser(), body)

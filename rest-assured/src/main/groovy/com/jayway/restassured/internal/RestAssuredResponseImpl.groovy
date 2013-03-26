@@ -34,7 +34,7 @@ import groovy.xml.StreamingMarkupBuilder
 
 import java.nio.charset.Charset
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
 import static org.apache.commons.lang3.StringUtils.isBlank
 

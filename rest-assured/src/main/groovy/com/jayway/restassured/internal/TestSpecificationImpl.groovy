@@ -19,7 +19,7 @@
 package com.jayway.restassured.internal;
 
 
-import com.jayway.restassured.assertion.AssertParameter
+import com.jayway.restassured.internal.assertion.AssertParameter
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.RequestSender
 import com.jayway.restassured.specification.RequestSpecification

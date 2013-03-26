@@ -23,7 +23,7 @@ import com.jayway.restassured.response.Response;
 
 import java.io.InputStream;
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull;
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static java.lang.String.format;
 
 /**

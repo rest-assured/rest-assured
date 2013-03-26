@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull;
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
  * Configure the Apache HTTP Client parameters.

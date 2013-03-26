@@ -18,7 +18,7 @@ package com.jayway.restassured.internal;
 
 import java.util.*;
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull;
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
 public class MultiValueEntity<T extends NameAndValue> implements Iterable<T> {
 

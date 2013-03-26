@@ -22,7 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull;
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
  * Cookie class represents a token or short packet of state information

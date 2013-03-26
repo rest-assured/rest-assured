@@ -36,7 +36,7 @@ import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull;
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.internal.path.ObjectConverter.convertObjectTo;
 import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.XML;
 

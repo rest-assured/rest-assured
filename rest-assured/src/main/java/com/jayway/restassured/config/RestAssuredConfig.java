@@ -18,7 +18,7 @@ package com.jayway.restassured.config;
 
 import com.jayway.restassured.path.json.config.JsonPathConfig;
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull;
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
  * Main configuration for REST Assured that allows you to configure advanced settings such as redirections and HTTP Client parameters.

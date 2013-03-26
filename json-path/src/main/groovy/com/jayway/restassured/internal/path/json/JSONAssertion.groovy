@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.assertion
+package com.jayway.restassured.internal.path.json
 
-import static com.jayway.restassured.assertion.AssertionSupport.*
+import com.jayway.restassured.internal.assertion.Assertion
+
+import static com.jayway.restassured.internal.assertion.AssertionSupport.*
 
 class JSONAssertion implements Assertion {
   String key;

@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.internal
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 
 class MapCreator {
 

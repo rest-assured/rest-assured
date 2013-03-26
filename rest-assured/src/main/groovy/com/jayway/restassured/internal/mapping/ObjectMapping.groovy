@@ -26,7 +26,7 @@ import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory
 import com.jayway.restassured.response.ResponseBodyData
 import org.apache.commons.lang3.Validate
 
-import static com.jayway.restassured.assertion.AssertParameter.notNull
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static com.jayway.restassured.http.ContentType.ANY
 import static com.jayway.restassured.mapper.resolver.ObjectMapperResolver.*
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase

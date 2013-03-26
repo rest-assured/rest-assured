@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.internal.path.xml
 
-import com.jayway.restassured.assertion.AssertParameter
+import com.jayway.restassured.internal.assertion.AssertParameter
 import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.path.xml.element.NodeChildren
 
