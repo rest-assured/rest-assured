@@ -16,7 +16,9 @@
 
 package com.jayway.restassured.path.json.exception;
 
-public class JsonPathException extends RuntimeException {
+import com.jayway.restassured.exception.PathException;
+
+public class JsonPathException extends PathException {
 
     public JsonPathException(String message, Throwable cause) {
         super(message, cause);

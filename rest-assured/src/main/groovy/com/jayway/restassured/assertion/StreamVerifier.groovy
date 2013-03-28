@@ -20,8 +20,8 @@ package com.jayway.restassured.assertion
 
 import com.jayway.restassured.internal.ResponseParserRegistrar
 import com.jayway.restassured.internal.http.ContentTypeExtractor
-import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.internal.path.json.JSONAssertion
+import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
 
 class StreamVerifier {

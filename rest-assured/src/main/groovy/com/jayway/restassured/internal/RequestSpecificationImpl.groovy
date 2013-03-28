@@ -50,8 +50,8 @@ import java.util.Map.Entry
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static com.jayway.restassured.http.ContentType.*
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static com.jayway.restassured.internal.http.Method.*
 import static java.util.Arrays.asList
 import static org.apache.commons.lang3.StringUtils.substringAfter

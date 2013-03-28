@@ -19,12 +19,13 @@ import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.config.ConnectionConfig
 import com.jayway.restassured.config.ObjectMapperConfig
 import com.jayway.restassured.internal.http.CharsetExtractor
-import com.jayway.restassured.internal.mapper.ObjectDeserializationContextImpl
+import com.jayway.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
 import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper
 import com.jayway.restassured.internal.support.Prettifier
 import com.jayway.restassured.mapper.DataToDeserialize
 import com.jayway.restassured.mapper.ObjectMapper
+import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
 import com.jayway.restassured.mapper.ObjectMapperType
 import com.jayway.restassured.path.json.JsonPath
 import com.jayway.restassured.path.xml.XmlPath
@@ -432,10 +433,11 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
         }
     }
 
-    private ObjectDeserializationContextImpl createObjectMapperDeserializationContext(Class cls) {
-        def ctx = new ObjectDeserializationContextImpl()
+    private ObjectMapperDeserializationContext createObjectMapperDeserializationContext(Class cls) {
+        def ctx = new ObjectMapperDeserializationContextImpl()
         ctx.type = cls
         ctx.charset = findCharset()
+        ctx.contentType = contentType()
         ctx.dataToDeserialize = new DataToDeserialize() {
             @Override
             String asString() {

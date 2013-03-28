@@ -36,7 +36,7 @@ public interface ObjectMapper {
      * @param context The details needed to convert the response to a Java object
      * @return A Java object
      */
-    Object deserialize(ObjectDeserializationContext context);
+    Object deserialize(ObjectMapperDeserializationContext context);
 
 
     /**

@@ -23,7 +23,6 @@ import com.jayway.restassured.internal.path.json.JsonPrettifier
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
-import groovy.json.JsonOutput
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.XmlUtil
 

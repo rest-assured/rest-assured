@@ -54,7 +54,6 @@ class JsonObjectDeserializer {
             }
         }
 
-
         if (jsonPathConfig.hasDefaultObjectMapper()) {
             return jsonPathConfig.defaultDeserializer().deserialize(deserializationCtx) as T;
         } else if (mapperType != null || jsonPathConfig.hasDefaultObjectMapperType()) {

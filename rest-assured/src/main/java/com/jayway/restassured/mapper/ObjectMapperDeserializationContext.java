@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.path.json.mapping;
-
-import com.jayway.restassured.mapper.ObjectDeserializationContext;
+package com.jayway.restassured.mapper;
 
 /**
- * Interface for all JsonPath object deserializers. It's possible to roll your own implementation if the pre-defined
- * de-serializers are not enough.
+ * Class containing details needed for REST Assured deserializers to convert a response to a Java class.
  */
-public interface JsonPathObjectDeserializer {
+public interface ObjectMapperDeserializationContext extends ObjectDeserializationContext {
+
     /**
-     * De-serialize data to an instance of <code>T</code>.
+     * @return The content type of the response
      */
-    <T> T deserialize(ObjectDeserializationContext ctx);
+    String getContentType();
 }

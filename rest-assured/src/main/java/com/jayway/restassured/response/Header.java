@@ -16,8 +16,8 @@
 
 package com.jayway.restassured.response;
 
-import com.jayway.restassured.internal.assertion.AssertParameter;
 import com.jayway.restassured.internal.NameAndValue;
+import com.jayway.restassured.internal.assertion.AssertParameter;
 
 /**
  * Represents a HTTP header

@@ -32,8 +32,8 @@ import org.apache.commons.lang3.Validate
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 
-import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static com.jayway.restassured.http.ContentType.ANY
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.hamcrest.Matchers.equalTo
 

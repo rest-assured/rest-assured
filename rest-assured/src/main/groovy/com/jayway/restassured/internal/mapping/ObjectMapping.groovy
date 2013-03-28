@@ -18,11 +18,7 @@
 package com.jayway.restassured.internal.mapping
 
 import com.jayway.restassured.config.ObjectMapperConfig
-import com.jayway.restassured.internal.mapper.ObjectDeserializationContextImpl
-import com.jayway.restassured.mapper.DataToDeserialize
-import com.jayway.restassured.mapper.ObjectDeserializationContext
-import com.jayway.restassured.mapper.ObjectMapperSerializationContext
-import com.jayway.restassured.mapper.ObjectMapperType
+import com.jayway.restassured.mapper.*
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory
 import com.jayway.restassured.mapper.factory.JAXBObjectMapperFactory
 import com.jayway.restassured.mapper.factory.Jackson1ObjectMapperFactory
@@ -30,8 +26,8 @@ import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory
 import com.jayway.restassured.response.ResponseBodyData
 import org.apache.commons.lang3.Validate
 
-import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static com.jayway.restassured.http.ContentType.ANY
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static com.jayway.restassured.mapper.resolver.ObjectMapperResolver.*
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
 
@@ -189,11 +185,12 @@ class ObjectMapping {
         new Jackson2Mapper(factory).deserialize(ctx)
     }
 
-    private static ObjectDeserializationContext deserializationContext(ResponseBodyData responseData, Class cls, contentType, charset) {
-        def ctx = new ObjectDeserializationContextImpl()
+    private static ObjectMapperDeserializationContext deserializationContext(ResponseBodyData responseData, Class cls, contentType, charset) {
+        def ctx = new ObjectMapperDeserializationContextImpl()
         ctx.type = cls
         ctx.charset = charset
-        ctx.dataToDeserialize =  new DataToDeserialize() {
+        ctx.contentType = contentType
+        ctx.dataToDeserialize = new DataToDeserialize() {
             @Override
             String asString() {
                 return responseData.asString()

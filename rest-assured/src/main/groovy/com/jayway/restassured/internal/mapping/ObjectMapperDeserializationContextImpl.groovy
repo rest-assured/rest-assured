@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.path.json.mapping;
 
-import com.jayway.restassured.mapper.ObjectDeserializationContext;
+package com.jayway.restassured.internal.mapping
 
-/**
- * Interface for all JsonPath object deserializers. It's possible to roll your own implementation if the pre-defined
- * de-serializers are not enough.
- */
-public interface JsonPathObjectDeserializer {
-    /**
-     * De-serialize data to an instance of <code>T</code>.
-     */
-    <T> T deserialize(ObjectDeserializationContext ctx);
+import com.jayway.restassured.internal.mapper.ObjectDeserializationContextImpl
+import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
+
+class ObjectMapperDeserializationContextImpl extends ObjectDeserializationContextImpl implements ObjectMapperDeserializationContext {
+
+    def contentType
+
+    @Override
+    String getContentType() {
+        return contentType
+    }
+
 }

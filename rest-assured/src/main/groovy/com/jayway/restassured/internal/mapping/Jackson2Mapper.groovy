@@ -21,11 +21,12 @@ package com.jayway.restassured.internal.mapping
 
 import com.fasterxml.jackson.core.JsonEncoding
 import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.databind.JavaType
+import com.jayway.restassured.internal.path.json.mapping.JsonPathJackson2ObjectDeserializer
 import com.jayway.restassured.mapper.ObjectMapper
-import com.jayway.restassured.mapper.ObjectDeserializationContext
+import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory
+import com.jayway.restassured.path.json.mapping.JsonPathObjectDeserializer
 
 /**
  * Support for Jackson 2.0 (https://github.com/FasterXML/jackson-core)
@@ -34,8 +35,11 @@ class Jackson2Mapper implements ObjectMapper {
 
     private final Jackson2ObjectMapperFactory factory;
 
+    private JsonPathObjectDeserializer deserializer
+
     Jackson2Mapper(Jackson2ObjectMapperFactory factory) {
         this.factory = factory
+        deserializer = new JsonPathJackson2ObjectDeserializer(factory)
     }
 
     private com.fasterxml.jackson.databind.ObjectMapper createJackson2ObjectMapper(Class cls, String charset) {
@@ -52,17 +56,13 @@ class Jackson2Mapper implements ObjectMapper {
         return stream.toString()
     }
 
-    def Object deserialize(ObjectDeserializationContext context) {
-        def object = context.getDataToDeserialize().asString()
-        def cls = context.getType()
-        def mapper = createJackson2ObjectMapper(cls, context.getCharset())
-        JavaType javaType = mapper.constructType(cls)
-        return mapper.readValue(object, javaType)
+    def Object deserialize(ObjectMapperDeserializationContext context) {
+        return deserializer.deserialize(context);
     }
 
     private JsonEncoding getEncoding(String charset) {
         def foundEncoding = JsonEncoding.UTF8
-        if(charset != null) {
+        if (charset != null) {
             for (JsonEncoding encoding : JsonEncoding.values()) {
                 if (charset.equals(encoding.getJavaName())) {
                     foundEncoding = encoding

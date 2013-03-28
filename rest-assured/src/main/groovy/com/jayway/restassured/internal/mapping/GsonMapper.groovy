@@ -17,29 +17,31 @@
 
 package com.jayway.restassured.internal.mapping
 
+import com.jayway.restassured.internal.path.json.mapping.JsonPathGsonObjectDeserializer
 import com.jayway.restassured.mapper.ObjectMapper
-import com.jayway.restassured.mapper.ObjectDeserializationContext
+import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory
+import com.jayway.restassured.path.json.mapping.JsonPathObjectDeserializer
 
 class GsonMapper implements ObjectMapper {
 
     private GsonObjectMapperFactory factory;
 
+    private JsonPathObjectDeserializer deserializer
+
     public GsonMapper(GsonObjectMapperFactory factory) {
         this.factory = factory
+        deserializer = new JsonPathGsonObjectDeserializer(factory)
     }
 
-    def Object deserialize(ObjectDeserializationContext context) {
-        def object = context.getDataToDeserialize().asString()
-        def cls = context.getType()
-		def gson = factory.create(cls, context.getCharset())
-		return gson.fromJson(object, cls)
-	}
+    def Object deserialize(ObjectMapperDeserializationContext context) {
+        return deserializer.deserialize(context);
+    }
 
-	def Object serialize(ObjectMapperSerializationContext context) {
+    def Object serialize(ObjectMapperSerializationContext context) {
         def object = context.getObjectToSerialize();
-		def gson = factory.create(object.getClass(), context.getCharset())
-		return gson.toJson(object)
-	}
+        def gson = factory.create(object.getClass(), context.getCharset())
+        return gson.toJson(object)
+    }
 }

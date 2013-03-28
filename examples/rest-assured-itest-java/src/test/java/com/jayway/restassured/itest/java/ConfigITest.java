@@ -18,7 +18,6 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
-import com.jayway.restassured.path.json.config.JsonPathConfig;
 import org.junit.Test;
 
 import java.math.BigDecimal;

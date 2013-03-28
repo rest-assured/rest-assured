@@ -18,7 +18,7 @@
 package com.jayway.restassured.internal.mapping
 
 import com.jayway.restassured.mapper.ObjectMapper
-import com.jayway.restassured.mapper.ObjectDeserializationContext
+import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 import com.jayway.restassured.mapper.factory.JAXBObjectMapperFactory
 
@@ -49,7 +49,7 @@ class JaxbMapper implements ObjectMapper {
 		return sw.toString()
 	}
 
-	def Object deserialize(ObjectDeserializationContext context) {
+	def Object deserialize(ObjectMapperDeserializationContext context) {
         def cls = context.getType();
         def object = context.getDataToDeserialize().asString();
 		JAXBContext jaxbContext = factory.create(cls, context.getCharset())

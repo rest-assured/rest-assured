@@ -17,21 +17,24 @@
 
 package com.jayway.restassured.internal.mapping
 
+import com.jayway.restassured.internal.path.json.mapping.JsonPathJackson1ObjectDeserializer
 import com.jayway.restassured.mapper.ObjectMapper
-import com.jayway.restassured.mapper.ObjectDeserializationContext
+import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 import com.jayway.restassured.mapper.factory.Jackson1ObjectMapperFactory
+import com.jayway.restassured.path.json.mapping.JsonPathObjectDeserializer
 import org.codehaus.jackson.JsonEncoding
 import org.codehaus.jackson.JsonGenerator
-import org.codehaus.jackson.map.type.TypeFactory
-import org.codehaus.jackson.type.JavaType
 
 class Jackson1Mapper implements ObjectMapper {
 
     private final Jackson1ObjectMapperFactory factory;
 
+    private JsonPathObjectDeserializer deserializer
+
     Jackson1Mapper(Jackson1ObjectMapperFactory factory) {
         this.factory = factory
+        deserializer = new JsonPathJackson1ObjectDeserializer(factory)
     }
 
     private org.codehaus.jackson.map.ObjectMapper createJacksonObjectMapper(Class cls, String charset) {
@@ -48,17 +51,13 @@ class Jackson1Mapper implements ObjectMapper {
         return stream.toString()
     }
 
-    def Object deserialize(ObjectDeserializationContext context) {
-        def object = context.getDataToDeserialize().asString()
-        def cls = context.getType()
-        def mapper = createJacksonObjectMapper(cls, context.getCharset())
-        JavaType javaType = TypeFactory.type(cls)
-        return mapper.readValue(object, javaType)
+    def Object deserialize(ObjectMapperDeserializationContext context) {
+        return deserializer.deserialize(context)
     }
 
     private JsonEncoding getEncoding(String charset) {
         def foundEncoding = JsonEncoding.UTF8
-        if(charset != null) {
+        if (charset != null) {
             for (JsonEncoding encoding : JsonEncoding.values()) {
                 if (charset.equals(encoding.getJavaName())) {
                     foundEncoding = encoding

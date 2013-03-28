@@ -16,12 +16,10 @@
 
 package com.jayway.restassured.path.json;
 
-import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.path.json.config.JsonPathConfig;
 import com.jayway.restassured.path.json.exception.JsonPathException;
 import com.jayway.restassured.path.json.support.Book;
 import org.junit.Test;
-import sun.dc.path.PathException;
 
 import java.math.BigDecimal;
 import java.util.List;
