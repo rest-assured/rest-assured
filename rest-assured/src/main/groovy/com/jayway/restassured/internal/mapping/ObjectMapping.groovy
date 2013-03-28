@@ -17,6 +17,7 @@ package com.jayway.restassured.internal.mapping
 
 import com.jayway.restassured.config.ObjectMapperConfig
 import com.jayway.restassured.internal.mapper.ObjectDeserializationContextImpl
+import com.jayway.restassured.mapper.DataToDeserialize
 import com.jayway.restassured.mapper.ObjectDeserializationContext
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 import com.jayway.restassured.mapper.ObjectMapperType
@@ -190,8 +191,22 @@ class ObjectMapping {
         def ctx = new ObjectDeserializationContextImpl()
         ctx.type = cls
         ctx.charset = charset
-        ctx.contentType = contentType
-        ctx.dataToDeserialize = responseData
+        ctx.dataToDeserialize =  new DataToDeserialize() {
+            @Override
+            String asString() {
+                return responseData.asString()
+            }
+
+            @Override
+            byte[] asByteArray() {
+                return responseData.asByteArray()
+            }
+
+            @Override
+            InputStream asInputStream() {
+                return responseData.asInputStream()
+            }
+        }
         ctx
     }
 

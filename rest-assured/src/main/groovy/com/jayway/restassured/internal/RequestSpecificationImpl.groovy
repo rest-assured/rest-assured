@@ -936,10 +936,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
             Closure closure = assertionClosure.getClosure()
             // response handler for a success response code:
-            getDataToDeserialize.success = closure
+            response.success = closure
 
             // handler for any failure status code:
-            getDataToDeserialize.failure = closure
+            response.failure = closure
         }
     }
 

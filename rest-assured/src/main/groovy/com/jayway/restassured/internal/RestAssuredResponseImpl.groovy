@@ -24,6 +24,7 @@ import com.jayway.restassured.internal.mapper.ObjectDeserializationContextImpl
 import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper
 import com.jayway.restassured.internal.support.Prettifier
+import com.jayway.restassured.mapper.DataToDeserialize
 import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.mapper.ObjectMapperType
 import com.jayway.restassured.path.json.JsonPath
@@ -436,8 +437,22 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
         def ctx = new ObjectDeserializationContextImpl()
         ctx.type = cls
         ctx.charset = findCharset()
-        ctx.contentType = contentType()
-        ctx.dataToDeserialize = this
+        ctx.dataToDeserialize = new DataToDeserialize() {
+            @Override
+            String asString() {
+                return RestAssuredResponseImpl.this.asString()
+            }
+
+            @Override
+            byte[] asByteArray() {
+                return RestAssuredResponseImpl.this.asByteArray()
+            }
+
+            @Override
+            InputStream asInputStream() {
+                return RestAssuredResponseImpl.this.asInputStream()
+            }
+        }
         ctx
     }
 }
