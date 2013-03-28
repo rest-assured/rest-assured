@@ -17,10 +17,10 @@
 package com.jayway.restassured.http;
 
 import com.jayway.restassured.internal.http.ContentTypeExtractor;
-import org.apache.commons.collections.iterators.ArrayIterator;
 
 import java.util.Iterator;
 
+import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.ArrayUtils.contains;
 import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 
@@ -86,7 +86,7 @@ public enum ContentType {
 	 */
 	@SuppressWarnings("unchecked")
 	public String getAcceptHeader() {
-		Iterator<String> iter = new ArrayIterator(ctStrings);
+		Iterator<String> iter = asList(ctStrings).iterator();
 		StringBuilder sb = new StringBuilder();
 		while ( iter.hasNext() ) {
 			sb.append( iter.next() );

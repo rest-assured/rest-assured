@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.exception;
+package com.jayway.restassured.path.xml.exception;
 
-public abstract class PathException extends RuntimeException {
+import com.jayway.restassured.exception.PathException;
 
-    public PathException(String message, Throwable cause) {
+public class XmlPathException extends PathException {
+
+    public XmlPathException(String message, Throwable cause) {
         super(message, cause);
     }
 }

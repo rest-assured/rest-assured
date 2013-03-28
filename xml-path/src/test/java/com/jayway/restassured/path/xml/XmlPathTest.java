@@ -20,6 +20,7 @@ import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.path.xml.element.NodeChildren;
 import org.junit.Test;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 

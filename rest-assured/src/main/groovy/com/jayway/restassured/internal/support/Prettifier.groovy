@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
 package com.jayway.restassured.internal.support
 
 import com.jayway.restassured.internal.RestAssuredResponseImpl
 import com.jayway.restassured.internal.path.json.JsonPrettifier
+import com.jayway.restassured.internal.path.xml.XmlPrettifier
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
-import groovy.util.slurpersupport.GPathResult
-import groovy.xml.XmlUtil
 
 import static org.apache.commons.lang3.StringUtils.isBlank
 
@@ -32,9 +28,9 @@ class Prettifier {
 
     def String getPrettifiedBodyIfPossible(FilterableRequestSpecification request) {
         def body = request.getBody();
-        if(body == null) {
+        if (body == null) {
             return null
-        } else if(!(body instanceof String)) {
+        } else if (!(body instanceof String)) {
             return body.toString()
         }
         def parser = Parser.fromContentType(request.getRequestContentType())
@@ -44,7 +40,7 @@ class Prettifier {
     def String getPrettifiedBodyIfPossible(Response response) {
         def contentType = response.getContentType()
         def responseAsString = response.asString()
-        if(isBlank(contentType) || !response instanceof RestAssuredResponseImpl) {
+        if (isBlank(contentType) || !response instanceof RestAssuredResponseImpl) {
             return responseAsString
         }
 
@@ -62,42 +58,19 @@ class Prettifier {
                     prettifiedBody = JsonPrettifier.prettifyJson(body)
                     break
                 case Parser.XML:
-                    prettifiedBody = prettifyWithXmlParser(new XmlParser(), body)
+                    prettifiedBody = XmlPrettifier.prettify(new XmlParser(), body)
                     break
                 case Parser.HTML:
-                    prettifiedBody = prettifyWithXmlParser(new XmlParser(new org.ccil.cowan.tagsoup.Parser()), body)
+                    prettifiedBody = XmlPrettifier.prettify(new XmlParser(new org.ccil.cowan.tagsoup.Parser()), body)
                     break
                 default:
                     prettifiedBody = body
                     break
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             // Parsing failed, probably because the content was not of expected type.
             prettifiedBody = body
         }
         return prettifiedBody
-    }
-
-    private String prettifyWithXmlParser(XmlParser xmlParser, responseAsString) {
-        doPrettify { stringWriter ->
-            def node = xmlParser.parseText(responseAsString);
-            new XmlNodePrinter(new PrintWriter(stringWriter)).print(node)
-        }
-    }
-
-    public String prettify(GPathResult gPathResult) {
-        doPrettify { stringWriter -> XmlUtil.serialize(gPathResult, stringWriter)  }
-    }
-
-    def doPrettify(Closure<String> closure) {
-        def stringWriter = new StringWriter()
-        closure.call(stringWriter);
-        def body = stringWriter.toString()
-        if (body.endsWith(("\r\n"))) {
-            body = body.substring(0, body.length() - 2)
-        } else if (body.endsWith("\n")) {
-            body = body.substring(0, body.length() - 1)
-        }
-        body
     }
 }

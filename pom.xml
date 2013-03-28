@@ -79,6 +79,7 @@
         <module>examples</module>
         <module>json-path</module>
         <module>rest-assured-common</module>
+        <module>xml-path</module>
     </modules>
 
     <build>
@@ -200,6 +201,11 @@
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.ccil.cowan.tagsoup</groupId>
+                <artifactId>tagsoup</artifactId>
+                <version>1.2.1</version>
+            </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>

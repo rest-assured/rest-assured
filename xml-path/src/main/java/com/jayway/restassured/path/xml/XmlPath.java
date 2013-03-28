@@ -17,14 +17,12 @@
 package com.jayway.restassured.path.xml;
 
 import com.jayway.restassured.assertion.XMLAssertion;
-import com.jayway.restassured.exception.PathException;
-import com.jayway.restassured.internal.support.Prettifier;
+import com.jayway.restassured.internal.path.xml.XmlPrettifier;
 import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.path.xml.element.NodeChildren;
+import com.jayway.restassured.path.xml.exception.XmlPathException;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang3.Validate;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -45,65 +43,65 @@ import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.XML;
  * described <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">here</a>. <br>Let's say we have an XML defined as;
  * <pre>
  * &lt;shopping&gt;
- &lt;category type=&quot;groceries&quot;&gt;
- &lt;item&gt;
- &lt;name&gt;Chocolate&lt;/name&gt;
- &lt;price&gt;10&lt;/price&gt;
- &lt;/item&gt;
- &lt;item&gt;
- &lt;name&gt;Coffee&lt;/name&gt;
- &lt;price&gt;20&lt;/price&gt;
- &lt;/item&gt;
- &lt;/category&gt;
- &lt;category type=&quot;supplies&quot;&gt;
- &lt;item&gt;
- &lt;name&gt;Paper&lt;/name&gt;
- &lt;price&gt;5&lt;/price&gt;
- &lt;/item&gt;
- &lt;item quantity=&quot;4&quot;&gt;
- &lt;name&gt;Pens&lt;/name&gt;
- &lt;price&gt;15&lt;/price&gt;
- &lt;/item&gt;
- &lt;/category&gt;
- &lt;category type=&quot;present&quot;&gt;
- &lt;item when=&quot;Aug 10&quot;&gt;
- &lt;name&gt;Kathryn&#39;s Birthday&lt;/name&gt;
- &lt;price&gt;200&lt;/price&gt;
- &lt;/item&gt;
- &lt;/category&gt;
- &lt;/shopping&gt;
+ * &lt;category type=&quot;groceries&quot;&gt;
+ * &lt;item&gt;
+ * &lt;name&gt;Chocolate&lt;/name&gt;
+ * &lt;price&gt;10&lt;/price&gt;
+ * &lt;/item&gt;
+ * &lt;item&gt;
+ * &lt;name&gt;Coffee&lt;/name&gt;
+ * &lt;price&gt;20&lt;/price&gt;
+ * &lt;/item&gt;
+ * &lt;/category&gt;
+ * &lt;category type=&quot;supplies&quot;&gt;
+ * &lt;item&gt;
+ * &lt;name&gt;Paper&lt;/name&gt;
+ * &lt;price&gt;5&lt;/price&gt;
+ * &lt;/item&gt;
+ * &lt;item quantity=&quot;4&quot;&gt;
+ * &lt;name&gt;Pens&lt;/name&gt;
+ * &lt;price&gt;15&lt;/price&gt;
+ * &lt;/item&gt;
+ * &lt;/category&gt;
+ * &lt;category type=&quot;present&quot;&gt;
+ * &lt;item when=&quot;Aug 10&quot;&gt;
+ * &lt;name&gt;Kathryn&#39;s Birthday&lt;/name&gt;
+ * &lt;price&gt;200&lt;/price&gt;
+ * &lt;/item&gt;
+ * &lt;/category&gt;
+ * &lt;/shopping&gt;
  * </pre>
- *
+ * <p/>
  * Get the name of the first category item:
  * <pre>
  *     String name = with(XML).get("shopping.category.item[0].name");
  * </pre>
- *
+ * <p/>
  * To get the number of category items:
  * <pre>
  *     int items = with(XML).get("shopping.category.item.size()");
  * </pre>
- *
+ * <p/>
  * Get a specific category:
  * <pre>
  *     Node category = with(XML).get("shopping.category[0]");
  * </pre>
- *
+ * <p/>
  * To get the number of categories with type attribute equal to 'groceries':
  * <pre>
  *    int items = with(XML).get("shopping.category.findAll { it.@type == 'groceries' }.size()");
  * </pre>
- *
+ * <p/>
  * Get all items with price greater than or equal to 10 and less than or equal to 20:
  * <pre>
  * List&lt;Node&gt; itemsBetweenTenAndTwenty = with(XML).get("shopping.category.item.findAll { item -> def price = item.price.toFloat(); price >= 10 && price <= 20 }");
  * </pre>
- *
+ * <p/>
  * Get the chocolate price:
  * <pre>
  * int priceOfChocolate = with(XML).getInt("**.find { it.name == 'Chocolate' }.price"
  * </pre>
- *
+ * <p/>
  * You can also parse HTML by setting compatibility mode to HTML:
  * <pre>
  * XmlPath xmlPath = new XmlPath(CompatibilityMode.HTML,&lt;some html&gt;);
@@ -186,7 +184,7 @@ public class XmlPath {
     /**
      * Instantiate a new XmlPath instance.
      *
-     * @param mode The compatibility mode
+     * @param mode   The compatibility mode
      * @param stream The stream containing the XML document
      */
     public XmlPath(CompatibilityMode mode, InputStream stream) {
@@ -198,7 +196,7 @@ public class XmlPath {
     /**
      * Instantiate a new XmlPath instance.
      *
-     * @param mode The compatibility mode
+     * @param mode   The compatibility mode
      * @param source The source containing the XML document
      */
     public XmlPath(CompatibilityMode mode, InputSource source) {
@@ -222,7 +220,7 @@ public class XmlPath {
     /**
      * Instantiate a new XmlPath instance.
      *
-     * @param mode The compatibility mode
+     * @param mode   The compatibility mode
      * @param reader The reader containing the XML document
      */
     public XmlPath(CompatibilityMode mode, Reader reader) {
@@ -235,7 +233,7 @@ public class XmlPath {
      * Instantiate a new XmlPath instance.
      *
      * @param mode The compatibility mode
-     * @param uri The URI containing the XML document
+     * @param uri  The URI containing the XML document
      */
     public XmlPath(CompatibilityMode mode, URI uri) {
         Validate.notNull(mode, "Compatibility mode cannot be null");
@@ -248,7 +246,7 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @return The XML Node. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public Node get() {
         return (Node) get("$");
@@ -259,9 +257,9 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @param <T> The type of the return value.
+     * @param <T>  The type of the return value.
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public <T> T get(String path) {
         notNull(path, "path");
@@ -276,9 +274,9 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @param <T> The list type
+     * @param <T>  The list type
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path) {
         return getAsList(path);
@@ -288,11 +286,11 @@ public class XmlPath {
      * Get the result of an XML path expression as a list. For syntax details please refer to
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
-     * @param path The XML path.
+     * @param path        The XML path.
      * @param genericType The generic list type
-     * @param <T> The type
+     * @param <T>         The type
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path, Class<T> genericType) {
         return getAsList(path, genericType);
@@ -303,12 +301,12 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @param <K> The type of the expected key
-     * @param <V> The type of the expected value
+     * @param <K>  The type of the expected key
+     * @param <V>  The type of the expected value
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
-    public <K,V> Map<K, V> getMap(String path) {
+    public <K, V> Map<K, V> getMap(String path) {
         return get(path);
     }
 
@@ -316,15 +314,15 @@ public class XmlPath {
      * Get the result of an XML path expression as a map. For syntax details please refer to
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
-     * @param path The XML path.
-     * @param keyType The type of the expected key
+     * @param path      The XML path.
+     * @param keyType   The type of the expected key
      * @param valueType The type of the expected value
-     * @param <K> The type of the expected key
-     * @param <V> The type of the expected value
+     * @param <K>       The type of the expected key
+     * @param <V>       The type of the expected value
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
-    public <K,V> Map<K, V> getMap(String path, Class<K> keyType, Class<V> valueType) {
+    public <K, V> Map<K, V> getMap(String path, Class<K> keyType, Class<V> valueType) {
         final Map<K, V> originalMap = get(path);
         final Map<K, V> newMap = new HashMap<K, V>();
         for (Entry<K, V> entry : originalMap.entrySet()) {
@@ -341,7 +339,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public int getInt(String path) {
         final Object object = get(path);
@@ -354,7 +352,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public boolean getBoolean(String path) {
         Object object = get(path);
@@ -367,7 +365,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public Node getNode(String path) {
         return convertObjectTo(get(path), Node.class);
@@ -379,7 +377,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public NodeChildren getNodeChildren(String path) {
         return convertObjectTo(get(path), NodeChildren.class);
@@ -391,7 +389,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public char getChar(String path) {
         Object object = get(path);
@@ -404,7 +402,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public byte getByte(String path) {
         Object object = get(path);
@@ -417,7 +415,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public short getShort(String path) {
         Object object = get(path);
@@ -430,7 +428,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public float getFloat(String path) {
         Object object = get(path);
@@ -443,7 +441,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public double getDouble(String path) {
         Object object = get(path);
@@ -456,7 +454,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public long getLong(String path) {
         Object object = get(path);
@@ -469,7 +467,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public String getString(String path) {
         Object object = get(path);
@@ -482,7 +480,7 @@ public class XmlPath {
      * @return The XML as a prettified String.
      */
     public String prettify() {
-        return new Prettifier().prettify(input);
+        return XmlPrettifier.prettify(input);
     }
 
     /**
@@ -513,6 +511,7 @@ public class XmlPath {
     public static XmlPath given(InputStream stream) {
         return new XmlPath(stream);
     }
+
     /**
      * Instantiate a new XmlPath instance.
      *
@@ -521,6 +520,7 @@ public class XmlPath {
     public static XmlPath given(InputSource source) {
         return new XmlPath(source);
     }
+
     /**
      * Instantiate a new XmlPath instance.
      *
@@ -529,6 +529,7 @@ public class XmlPath {
     public static XmlPath given(File file) {
         return new XmlPath(file);
     }
+
     /**
      * Instantiate a new XmlPath instance.
      *
@@ -537,6 +538,7 @@ public class XmlPath {
     public static XmlPath given(Reader reader) {
         return new XmlPath(reader);
     }
+
     /**
      * Instantiate a new XmlPath instance.
      *
@@ -545,6 +547,7 @@ public class XmlPath {
     public static XmlPath given(URI uri) {
         return new XmlPath(uri);
     }
+
     public static XmlPath with(InputStream stream) {
         return new XmlPath(stream);
     }
@@ -584,6 +587,7 @@ public class XmlPath {
     public static XmlPath with(Reader reader) {
         return new XmlPath(reader);
     }
+
     /**
      * Instantiate a new XmlPath instance.
      *
@@ -637,6 +641,7 @@ public class XmlPath {
     public static XmlPath from(Reader reader) {
         return new XmlPath(reader);
     }
+
     /**
      * Instantiate a new XmlPath instance.
      *
@@ -646,7 +651,7 @@ public class XmlPath {
         return new XmlPath(uri);
     }
 
-    private GPathResult parseText(final String text)  {
+    private GPathResult parseText(final String text) {
         return new ExceptionCatcher() {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parseText(text);
@@ -676,29 +681,22 @@ public class XmlPath {
 
     private <T> List<T> getAsList(String path, final Class<?> explicitType) {
         Object returnObject = get(path);
-        if(returnObject instanceof NodeChildren) {
+        if (returnObject instanceof NodeChildren) {
             final NodeChildren nodeChildren = (NodeChildren) returnObject;
-            returnObject =  Collections.unmodifiableList(new ArrayList<T>(CollectionUtils.collect(nodeChildren.list(), new Transformer() {
-                public Object transform(Object input) {
-                    if(explicitType == null) {
-                        return input.toString();
-                    }
-                    return convertObjectTo(input, explicitType);
-                }
-            })));
-        } else if(!(returnObject instanceof List)) {
+            returnObject = convertElementsListTo(nodeChildren.list(), explicitType);
+        } else if (!(returnObject instanceof List)) {
             final List<T> asList = new ArrayList<T>();
-            if(returnObject != null) {
+            if (returnObject != null) {
                 final T e;
-                if(explicitType == null) {
+                if (explicitType == null) {
                     e = (T) returnObject.toString();
                 } else {
-                    e =  (T) convertObjectTo(returnObject, explicitType);
+                    e = (T) convertObjectTo(returnObject, explicitType);
                 }
                 asList.add(e);
             }
             returnObject = asList;
-        } else if(explicitType != null) {
+        } else if (explicitType != null) {
             final List<?> returnObjectAsList = (List<?>) returnObject;
             final List<T> convertedList = new ArrayList<T>();
             for (Object o : returnObjectAsList) {
@@ -709,7 +707,21 @@ public class XmlPath {
         return returnObject == null ? null : Collections.unmodifiableList((List<T>) returnObject);
     }
 
-    private GPathResult parseInputStream(final InputStream stream)  {
+    private List<Object> convertElementsListTo(List<Node> list, Class<?> explicitType) {
+        List<Object> convertedList = new ArrayList<Object>();
+        if (list != null && list.size() > 0) {
+            for (Node node : list) {
+                if (explicitType == null) {
+                    convertedList.add(node.toString());
+                } else {
+                    convertedList.add(convertObjectTo(node, explicitType));
+                }
+            }
+        }
+        return convertedList;
+    }
+
+    private GPathResult parseInputStream(final InputStream stream) {
         return new ExceptionCatcher() {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(stream);
@@ -717,7 +729,7 @@ public class XmlPath {
         }.invoke();
     }
 
-    private GPathResult parseReader(final Reader reader)  {
+    private GPathResult parseReader(final Reader reader) {
         return new ExceptionCatcher() {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(reader);
@@ -725,7 +737,7 @@ public class XmlPath {
         }.invoke();
     }
 
-    private GPathResult parseFile(final File file)  {
+    private GPathResult parseFile(final File file) {
         return new ExceptionCatcher() {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(file);
@@ -733,7 +745,7 @@ public class XmlPath {
         }.invoke();
     }
 
-    private GPathResult parseURI(final URI uri)  {
+    private GPathResult parseURI(final URI uri) {
         return new ExceptionCatcher() {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(uri.toString());
@@ -741,7 +753,7 @@ public class XmlPath {
         }.invoke();
     }
 
-    private GPathResult parseInputSource(final InputSource source)  {
+    private GPathResult parseInputSource(final InputSource source) {
         return new ExceptionCatcher() {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(source);
@@ -756,15 +768,15 @@ public class XmlPath {
         public GPathResult invoke() {
             try {
                 final XmlSlurper slurper;
-                if(mode == XML) {
+                if (mode == XML) {
                     slurper = new XmlSlurper();
                 } else {
                     XMLReader p = new org.ccil.cowan.tagsoup.Parser();
                     slurper = new XmlSlurper(p);
                 }
                 return method(slurper);
-            } catch(Exception e) {
-                throw new PathException("Failed to parse the XML document", e);
+            } catch (Exception e) {
+                throw new XmlPathException("Failed to parse the XML document", e);
             }
         }
     }
