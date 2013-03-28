@@ -23,8 +23,8 @@ import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.mapper.ObjectDeserializationContext;
 import com.jayway.restassured.mapper.ObjectMapper;
-import com.jayway.restassured.mapper.ObjectMapperDeserializationContext;
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext;
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -56,8 +56,8 @@ public class CustomObjectMappingITest extends WithJetty {
         final Message message = new Message();
         message.setMessage("A message");
         final ObjectMapper mapper = new ObjectMapper() {
-            public Object deserialize(ObjectMapperDeserializationContext context) {
-                final String toDeserialize = context.getResponse().asString();
+            public Object deserialize(ObjectDeserializationContext context) {
+                final String toDeserialize = context.getDataToDeserialize().asString();
                 final String unquoted = StringUtils.remove(toDeserialize, "#");
                 final Message message = new Message();
                 message.setMessage(unquoted);
@@ -85,8 +85,8 @@ public class CustomObjectMappingITest extends WithJetty {
         final Message message = new Message();
         message.setMessage("A message");
         final ObjectMapper mapper = new ObjectMapper() {
-            public Object deserialize(ObjectMapperDeserializationContext context) {
-                final String toDeserialize = context.getResponse().asString();
+            public Object deserialize(ObjectDeserializationContext context) {
+                final String toDeserialize = context.getDataToDeserialize().asString();
                 final String unquoted = StringUtils.remove(toDeserialize, "##");
                 final Message message = new Message();
                 message.setMessage(unquoted);

@@ -3,7 +3,7 @@ Change log next version
 * Added support for settings a custom Jackson 2 object factory to JsonPath
 * Expecting content type to be a pre-defined content type (such as ContentType.XML) now accepts many kinds of different variations (thanks to exsuscito for the help) (issue 213).
 * Upgraded to Groovy 2.1.0
-* It's not possible to configure JsonPath to return BigDecimal instead of floats and doubles. You can do this either statically using:  
+* It's now possible to configure JsonPath with various settings so as returning a BigDecimal instead of floats and doubles. You can do this either statically using:
 	  JsonPath.config = new JsonPathConfig(..);  
   or per instance:
 	  new JsonPath().using(new JsonPathConfig(..)).get(..);
@@ -12,6 +12,9 @@ Change log next version
 * Added support for automatically converting a String to BigDecimal in JsonPath
 * Non-backward compatible change: com.jayway.restassured.exception.ParsePathException was renamed to com.jayway.restassured.exception.PathException.
 * Non-backward compatible change: JsonPath now throws PathException instead of Groovy's JsonException when parsing JSON text when the JSON document is malformed.
+* Non-backward compatible change: ObjectMapperDeserializationContext has been renamed to ObjectDeserializationContext
+* Non-backward compatible change: ObjectMapperDeserializationContext#getContentType() method has been removed.
+* Non-backward compatible change: ObjectMapperDeserializationContext#getResponse() has been renamed to "getDataToDeserialize()". It no longer returns an instance of ResponseBodyData, it now returns an instance of "DataToDeserialize".
 
 Change log 1.7.2 (2012-12-15)
 -----------------------------

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,18 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */package com.jayway.restassured.mapper.factory;
 
-package com.jayway.restassured.mapper.factory;
-
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 
 /**
- * Simply creates a new Jackson 2.0 ObjectMapper
+ * Simply creates a new Gson instance.
  */
-public class DefaultJackson2ObjectMapperFactory implements Jackson2ObjectMapperFactory {
-    public ObjectMapper create(Class cls, String charset) {
-        return new ObjectMapper();
+public class DefaultGsonObjectMapperFactory implements GsonObjectMapperFactory {
+    public Gson create(Class cls, String charset) {
+        return new Gson();
     }
 }

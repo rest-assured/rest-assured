@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package com.jayway.restassured.internal.mapping
 
 import com.jayway.restassured.mapper.ObjectMapper
-import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
+import com.jayway.restassured.mapper.ObjectDeserializationContext
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 import com.jayway.restassured.mapper.factory.JAXBObjectMapperFactory
 
@@ -47,9 +47,9 @@ class JaxbMapper implements ObjectMapper {
 		return sw.toString()
 	}
 
-	def Object deserialize(ObjectMapperDeserializationContext context) {
+	def Object deserialize(ObjectDeserializationContext context) {
         def cls = context.getType();
-        def object = context.getResponse().asString();
+        def object = context.getDataToDeserialize().asString();
 		JAXBContext jaxbContext = factory.create(cls, context.getCharset())
 
 		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller()

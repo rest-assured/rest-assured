@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 package com.jayway.restassured.internal.mapping
 
 import com.jayway.restassured.config.ObjectMapperConfig
-import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
+import com.jayway.restassured.internal.mapper.ObjectDeserializationContextImpl
+import com.jayway.restassured.mapper.ObjectDeserializationContext
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 import com.jayway.restassured.mapper.ObjectMapperType
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory
@@ -37,37 +38,37 @@ class ObjectMapping {
                                     ObjectMapperConfig objectMapperConfig) {
         Validate.notNull(objectMapperConfig, "Object mapper configuration wasn't found, cannot deserialize.")
         def deserializationCtx = deserializationContext(response, cls, contentType, charset)
-        if(objectMapperConfig.hasDefaultObjectMapper()) {
+        if (objectMapperConfig.hasDefaultObjectMapper()) {
             return objectMapperConfig.defaultObjectMapper().deserialize(deserializationContext(response, cls, contentType, charset)) as T;
-        } else if(mapperType != null || objectMapperConfig.hasDefaultObjectMapperType()) {
+        } else if (mapperType != null || objectMapperConfig.hasDefaultObjectMapperType()) {
             ObjectMapperType mapperTypeToUse = mapperType == null ? objectMapperConfig.defaultObjectMapperType() : mapperType;
             return deserializeWithObjectMapper(deserializationCtx, mapperTypeToUse, objectMapperConfig)
         }
-        if(containsIgnoreCase(contentType, "json")) {
-            if(isJackson2InClassPath()) {
+        if (containsIgnoreCase(contentType, "json")) {
+            if (isJackson2InClassPath()) {
                 return parseWithJackson2(deserializationCtx, objectMapperConfig.jackson2ObjectMapperFactory()) as T
-            } else if(isJackson1InClassPath()) {
+            } else if (isJackson1InClassPath()) {
                 return parseWithJackson1(deserializationCtx, objectMapperConfig.jackson1ObjectMapperFactory()) as T
-            } else if(isGsonInClassPath()) {
+            } else if (isGsonInClassPath()) {
                 return parseWithGson(deserializationCtx, objectMapperConfig.gsonObjectMapperFactory()) as T
             }
             throw new IllegalStateException("Cannot parse object because no JSON deserializer found in classpath. Please put either Jackson or Gson in the classpath.")
-        } else if(containsIgnoreCase(contentType, "xml")) {
-            if(isJAXBInClassPath()) {
+        } else if (containsIgnoreCase(contentType, "xml")) {
+            if (isJAXBInClassPath()) {
                 return parseWithJaxb(deserializationCtx, objectMapperConfig.jaxbObjectMapperFactory()) as T
             }
             throw new IllegalStateException("Cannot parse object because no XML deserializer found in classpath. Please put a JAXB compliant object mapper in classpath.")
-        } else if(defaultContentType != null){
-            if(containsIgnoreCase(defaultContentType, "json")) {
-                if(isJackson2InClassPath()) {
+        } else if (defaultContentType != null) {
+            if (containsIgnoreCase(defaultContentType, "json")) {
+                if (isJackson2InClassPath()) {
                     return parseWithJackson2(deserializationCtx, objectMapperConfig.jackson2ObjectMapperFactory()) as T
-                } else if(isJackson1InClassPath()) {
+                } else if (isJackson1InClassPath()) {
                     return parseWithJackson1(deserializationCtx, objectMapperConfig.jackson1ObjectMapperFactory()) as T
-                } else if(isGsonInClassPath()) {
+                } else if (isGsonInClassPath()) {
                     return parseWithGson(deserializationCtx, objectMapperConfig.gsonObjectMapperFactory()) as T
                 }
-            } else if(containsIgnoreCase(defaultContentType, "xml")) {
-                if(isJAXBInClassPath()) {
+            } else if (containsIgnoreCase(defaultContentType, "xml")) {
+                if (isJAXBInClassPath()) {
                     return parseWithJaxb(deserializationCtx, objectMapperConfig.jaxbObjectMapperFactory()) as T
                 }
             }
@@ -75,14 +76,14 @@ class ObjectMapping {
         throw new IllegalStateException(String.format("Cannot parse object because no supported Content-Type was not specified in response. Content-Type was '%s'.", contentType))
     }
 
-    private static <T> T deserializeWithObjectMapper(ObjectMapperDeserializationContext ctx, ObjectMapperType mapperType, ObjectMapperConfig config) {
-        if(mapperType == ObjectMapperType.JACKSON_2 && isJackson2InClassPath()) {
+    private static <T> T deserializeWithObjectMapper(ObjectDeserializationContext ctx, ObjectMapperType mapperType, ObjectMapperConfig config) {
+        if (mapperType == ObjectMapperType.JACKSON_2 && isJackson2InClassPath()) {
             return parseWithJackson2(ctx, config.jackson2ObjectMapperFactory()) as T
-        } else if(mapperType == ObjectMapperType.JACKSON_1 && isJackson1InClassPath()) {
+        } else if (mapperType == ObjectMapperType.JACKSON_1 && isJackson1InClassPath()) {
             return parseWithJackson1(ctx, config.jackson1ObjectMapperFactory()) as T
-        } else if(mapperType == ObjectMapperType.GSON && isGsonInClassPath()) {
+        } else if (mapperType == ObjectMapperType.GSON && isGsonInClassPath()) {
             return parseWithGson(ctx, config.gsonObjectMapperFactory()) as T
-        } else if(mapperType == ObjectMapperType.JAXB && isJAXBInClassPath()) {
+        } else if (mapperType == ObjectMapperType.JAXB && isJAXBInClassPath()) {
             return parseWithJaxb(ctx, config.jaxbObjectMapperFactory()) as T
         } else {
             def lowerCase = mapperType.toString().toLowerCase()
@@ -95,37 +96,37 @@ class ObjectMapping {
         notNull(config, "Object mapper configuration not found, cannot serialize object.")
 
         def serializationCtx = serializationContext(object, contentType, charset)
-        if(config.hasDefaultObjectMapper()) {
+        if (config.hasDefaultObjectMapper()) {
             return config.defaultObjectMapper().serialize(serializationContext(object, contentType, charset));
-        } else if(mapperType != null ||config.hasDefaultObjectMapperType()) {
+        } else if (mapperType != null || config.hasDefaultObjectMapperType()) {
             mapperType = mapperType ?: config.defaultObjectMapperType()
             return serializeWithObjectMapper(serializationCtx, mapperType, config)
         }
 
-        if(contentType == null || contentType == ANY.toString()) {
-            if(isJackson2InClassPath()) {
+        if (contentType == null || contentType == ANY.toString()) {
+            if (isJackson2InClassPath()) {
                 return serializeWithJackson2(serializationCtx, config.jackson2ObjectMapperFactory())
-            } else if(isJackson1InClassPath()) {
+            } else if (isJackson1InClassPath()) {
                 return serializeWithJackson1(serializationCtx, config.jackson1ObjectMapperFactory())
-            } else if(isGsonInClassPath()) {
+            } else if (isGsonInClassPath()) {
                 return serializeWithGson(serializationCtx, config.gsonObjectMapperFactory())
-            } else if(isJAXBInClassPath()) {
+            } else if (isJAXBInClassPath()) {
                 return serializeWithJaxb(serializationCtx, config.jaxbObjectMapperFactory())
             }
             throw new IllegalArgumentException("Cannot serialize because no JSON or XML serializer found in classpath.")
         } else {
             def ct = contentType.toLowerCase()
-            if(containsIgnoreCase(ct, "json")) {
-                if(isJackson2InClassPath()) {
+            if (containsIgnoreCase(ct, "json")) {
+                if (isJackson2InClassPath()) {
                     return serializeWithJackson2(serializationCtx, config.jackson2ObjectMapperFactory())
-                } else if(isJackson1InClassPath()) {
+                } else if (isJackson1InClassPath()) {
                     return serializeWithJackson1(serializationCtx, config.jackson1ObjectMapperFactory())
-                } else if(isGsonInClassPath()) {
+                } else if (isGsonInClassPath()) {
                     return serializeWithGson(serializationCtx, config.gsonObjectMapperFactory())
                 }
                 throw new IllegalStateException("Cannot serialize object because no JSON serializer found in classpath. Please put either Jackson or Gson in the classpath.")
-            } else if(containsIgnoreCase(ct, "xml")) {
-                if(isJAXBInClassPath()) {
+            } else if (containsIgnoreCase(ct, "xml")) {
+                if (isJAXBInClassPath()) {
                     return serializeWithJaxb(serializationCtx, config.jaxbObjectMapperFactory())
                 } else {
                     throw new IllegalStateException("Cannot serialize object because no XML serializer found in classpath. Please put a JAXB compliant object mapper in classpath.")
@@ -138,13 +139,13 @@ class ObjectMapping {
     }
 
     private static String serializeWithObjectMapper(ObjectMapperSerializationContext ctx, ObjectMapperType mapperType, ObjectMapperConfig config) {
-        if(mapperType == ObjectMapperType.JACKSON_2 && isJackson2InClassPath()) {
+        if (mapperType == ObjectMapperType.JACKSON_2 && isJackson2InClassPath()) {
             return serializeWithJackson2(ctx, config.jackson2ObjectMapperFactory())
-        } else if(mapperType == ObjectMapperType.JACKSON_1 && isJackson1InClassPath()) {
+        } else if (mapperType == ObjectMapperType.JACKSON_1 && isJackson1InClassPath()) {
             return serializeWithJackson1(ctx, config.jackson1ObjectMapperFactory())
-        } else if(mapperType == ObjectMapperType.GSON && isGsonInClassPath()) {
+        } else if (mapperType == ObjectMapperType.GSON && isGsonInClassPath()) {
             return serializeWithGson(ctx, config.gsonObjectMapperFactory())
-        } else if(mapperType == ObjectMapperType.JAXB && isJAXBInClassPath()) {
+        } else if (mapperType == ObjectMapperType.JAXB && isJAXBInClassPath()) {
             return serializeWithJaxb(ctx, config.jaxbObjectMapperFactory())
         } else {
             def lowerCase = mapperType.toString().toLowerCase()
@@ -164,32 +165,33 @@ class ObjectMapping {
         new Jackson2Mapper(factory).serialize(ctx)
     }
 
+
     private static Object serializeWithJaxb(ObjectMapperSerializationContext ctx, JAXBObjectMapperFactory factory) {
         new JaxbMapper(factory).serialize(ctx)
     }
 
-    private static def parseWithJaxb(ObjectMapperDeserializationContext ctx, JAXBObjectMapperFactory factory) {
+    private static def parseWithJaxb(ObjectDeserializationContext ctx, JAXBObjectMapperFactory factory) {
         new JaxbMapper(factory).deserialize(ctx)
     }
 
-    private static def parseWithGson(ObjectMapperDeserializationContext ctx, GsonObjectMapperFactory factory) {
+    private static def parseWithGson(ObjectDeserializationContext ctx, GsonObjectMapperFactory factory) {
         new GsonMapper(factory).deserialize(ctx)
     }
 
-    static def parseWithJackson1(ObjectMapperDeserializationContext ctx, Jackson1ObjectMapperFactory factory) {
+    static def parseWithJackson1(ObjectDeserializationContext ctx, Jackson1ObjectMapperFactory factory) {
         new Jackson1Mapper(factory).deserialize(ctx)
     }
 
-    static def parseWithJackson2(ObjectMapperDeserializationContext ctx, Jackson2ObjectMapperFactory factory) {
+    static def parseWithJackson2(ObjectDeserializationContext ctx, Jackson2ObjectMapperFactory factory) {
         new Jackson2Mapper(factory).deserialize(ctx)
     }
 
-    private static ObjectMapperDeserializationContext deserializationContext(ResponseBodyData responseData, Class cls, contentType, charset) {
-        def ctx = new ObjectMapperDeserializationContextImpl()
+    private static ObjectDeserializationContext deserializationContext(ResponseBodyData responseData, Class cls, contentType, charset) {
+        def ctx = new ObjectDeserializationContextImpl()
         ctx.type = cls
         ctx.charset = charset
         ctx.contentType = contentType
-        ctx.responseData = responseData
+        ctx.dataToDeserialize = responseData
         ctx
     }
 

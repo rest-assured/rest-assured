@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.config.ConnectionConfig
 import com.jayway.restassured.config.ObjectMapperConfig
 import com.jayway.restassured.internal.http.CharsetExtractor
-import com.jayway.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
+import com.jayway.restassured.internal.mapper.ObjectDeserializationContextImpl
 import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper
 import com.jayway.restassured.internal.support.Prettifier
@@ -432,12 +432,12 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
         }
     }
 
-    private ObjectMapperDeserializationContextImpl createObjectMapperDeserializationContext(Class cls) {
-        def ctx = new ObjectMapperDeserializationContextImpl()
+    private ObjectDeserializationContextImpl createObjectMapperDeserializationContext(Class cls) {
+        def ctx = new ObjectDeserializationContextImpl()
         ctx.type = cls
         ctx.charset = findCharset()
         ctx.contentType = contentType()
-        ctx.responseData = this
+        ctx.dataToDeserialize = this
         ctx
     }
 }

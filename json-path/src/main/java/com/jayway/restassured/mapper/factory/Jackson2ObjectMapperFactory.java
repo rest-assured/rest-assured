@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 
 package com.jayway.restassured.mapper.factory;
 
-import org.codehaus.jackson.map.ObjectMapper;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * Interface for Jackson 1.0 based object mappers. Implement this class and register it to the ObjectMapperConfig if you
- * want to override default settings for the Jackson object mapper.
+ * Interface for Jackson 2.0 based object mappers. Implement this class and register it to the ObjectMapperConfig if you
+ * want to override default settings for the Jackson 2.0 object mapper.
  */
-public interface Jackson1ObjectMapperFactory extends ObjectMapperFactory<ObjectMapper> {
+public interface Jackson2ObjectMapperFactory extends ObjectMapperFactory<ObjectMapper> {
 }

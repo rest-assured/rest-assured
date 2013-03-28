@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.fasterxml.jackson.core.JsonEncoding
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.databind.JavaType
 import com.jayway.restassured.mapper.ObjectMapper
-import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
+import com.jayway.restassured.mapper.ObjectDeserializationContext
 import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory
 
@@ -50,8 +50,8 @@ class Jackson2Mapper implements ObjectMapper {
         return stream.toString()
     }
 
-    def Object deserialize(ObjectMapperDeserializationContext context) {
-        def object = context.getResponse().asString()
+    def Object deserialize(ObjectDeserializationContext context) {
+        def object = context.getDataToDeserialize().asString()
         def cls = context.getType()
         def mapper = createJackson2ObjectMapper(cls, context.getCharset())
         JavaType javaType = mapper.constructType(cls)

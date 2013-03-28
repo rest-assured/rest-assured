@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 the original author or authors.
+ * Copyright 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,12 @@
 
 package com.jayway.restassured.path.json;
 
-import com.jayway.restassured.exception.PathException;
+import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.path.json.config.JsonPathConfig;
+import com.jayway.restassured.path.json.exception.JsonPathException;
 import com.jayway.restassured.path.json.support.Book;
 import org.junit.Test;
+import sun.dc.path.PathException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -87,6 +89,7 @@ public class JsonPathTest {
             "    \"a\": 123456\n" +
             "    \"b\":\"string\"\n" +
             "}";
+
     @Test
     public void getList() throws Exception {
         final List<String> categories = new JsonPath(JSON).get("store.book.category");
@@ -240,15 +243,15 @@ public class JsonPathTest {
         assertThat(with(JSON).getFloat("store.book[0].price"), equalTo(8.95F));
 
         // The price is stored as an integer
-        assertThat(with(JSON).getByte("store.book[1].price"), equalTo((byte)12));
-        assertThat(with(JSON).getShort("store.book[1].price"), equalTo((short)12));
+        assertThat(with(JSON).getByte("store.book[1].price"), equalTo((byte) 12));
+        assertThat(with(JSON).getShort("store.book[1].price"), equalTo((short) 12));
         assertThat(with(JSON).getInt("store.book[1].price"), equalTo(12));
         assertThat(with(JSON).getLong("store.book[1].price"), equalTo(12L));
 
         // The atoms is stored as a long
-        assertThat(with(JSON).getByte("store.bicycle.atoms"), equalTo((byte)Long.MAX_VALUE));
-        assertThat(with(JSON).getShort("store.bicycle.atoms"), equalTo((short)Long.MAX_VALUE));
-        assertThat(with(JSON).getInt("store.bicycle.atoms"), equalTo((int)Long.MAX_VALUE));
+        assertThat(with(JSON).getByte("store.bicycle.atoms"), equalTo((byte) Long.MAX_VALUE));
+        assertThat(with(JSON).getShort("store.bicycle.atoms"), equalTo((short) Long.MAX_VALUE));
+        assertThat(with(JSON).getInt("store.bicycle.atoms"), equalTo((int) Long.MAX_VALUE));
         assertThat(with(JSON).getLong("store.bicycle.atoms"), equalTo(Long.MAX_VALUE));
     }
 
@@ -308,7 +311,7 @@ public class JsonPathTest {
         assertThat(priceAsString, is("8.95"));
     }
 
-    @Test(expected = PathException.class)
+    @Test(expected = JsonPathException.class)
     public void malformedJson() throws Exception {
         from(MALFORMED_JSON).get("a");
     }

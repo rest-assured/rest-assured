@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,27 +16,20 @@
 
 package com.jayway.restassured.mapper;
 
-import com.jayway.restassured.response.ResponseBodyData;
-
 /**
  * Class containing details needed for deserializing a response to a Java class.
  */
-public interface ObjectMapperDeserializationContext {
+public interface ObjectDeserializationContext {
 
     /**
-     * @return The response data that should be deserialized to a Java object.
+     * @return The data that should be deserialized to a Java object.
      */
-    ResponseBodyData getResponse();
+    DataToDeserialize getDataToDeserialize();
 
     /**
      * @return The expected type of the object to deserialize
      */
     Class<?> getType();
-
-    /**
-     * @return The content-type of the response.
-     */
-    String getContentType();
 
     /**
      * If a charset is specified in the content-type then this method will return that charset otherwise

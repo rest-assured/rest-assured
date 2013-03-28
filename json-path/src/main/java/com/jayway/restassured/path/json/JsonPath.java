@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import com.jayway.restassured.internal.path.ObjectConverter;
 import com.jayway.restassured.internal.path.json.ConfigurableJsonSlurper;
 import com.jayway.restassured.internal.path.json.JSONAssertion;
 import com.jayway.restassured.internal.path.json.JsonPrettifier;
-import com.jayway.restassured.internal.path.json.mapping.JsonObjectMapping;
+import com.jayway.restassured.internal.path.json.mapping.JsonObjectDeserializer;
 import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.Jackson1ObjectMapperFactory;
@@ -508,22 +508,20 @@ public class JsonPath {
             return ObjectConverter.convertObjectTo(object, objectType);
         }
 
-        final ObjectMapperType type;
         JsonPathConfig cfg = new JsonPathConfig(getJsonPathConfig());
-        if (!cfg.hasObjectMapperFactory()) {
-            type = null;
-        } else if (cfg.hasGsonObjectMapperFactory()) {
-            type = ObjectMapperType.GSON;
-            cfg = cfg.defaultObjectMapperType(type);
-        } else if (cfg.hasJackson20ObjectMapperFactory()) {
-            type = ObjectMapperType.JACKSON_2;
-            cfg = cfg.defaultObjectMapperType(type);
-        } else {
-            type = ObjectMapperType.JACKSON_1;
-            cfg = cfg.defaultObjectMapperType(type);
+        if (cfg.hasCustomJackson10ObjectMapperFactory()) {
+            cfg = cfg.defaultObjectMapperType(ObjectMapperType.JACKSON_1);
+        } else if (cfg.hasCustomGsonObjectMapperFactory()) {
+            cfg = cfg.defaultObjectMapperType(ObjectMapperType.GSON);
+        } else if (cfg.hasCustomJackson20ObjectMapperFactory()) {
+            cfg = cfg.defaultObjectMapperType(ObjectMapperType.JACKSON_2);
         }
 
-        return JsonObjectMapping.deserialize(object, objectType, type, cfg);
+        if (!(object instanceof String)) {
+            throw new IllegalStateException("Internal error: Json object was not an instance of String, please report to the REST Assured mailing-list.");
+        }
+
+        return JsonObjectDeserializer.deserialize((String) object, objectType, cfg);
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 the original author or authors.
+ * Copyright 2013 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,15 +12,15 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */package com.jayway.restassured.mapper.factory;
+ */
 
-import com.google.gson.Gson;
+package com.jayway.restassured.mapper.factory;
+
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
- * Simply creates a new Gson instance.
+ * Interface for Jackson 1.0 based object mappers. Implement this class and register it to the ObjectMapperConfig if you
+ * want to override default settings for the Jackson object mapper.
  */
-public class DefaultGsonObjectMapperFactory implements GsonObjectMapperFactory {
-    public Gson create(Class cls, String charset) {
-        return new Gson();
-    }
+public interface Jackson1ObjectMapperFactory extends ObjectMapperFactory<ObjectMapper> {
 }

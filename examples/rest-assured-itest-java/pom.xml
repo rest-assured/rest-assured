@@ -69,7 +69,7 @@
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-jaxrs</artifactId>
-            <version>1.8.5</version>
+            <version>${jackson1.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
