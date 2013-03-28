@@ -36,7 +36,7 @@ Change log 1.7 (2012-10-11)
 * It's now possible to manually set the content-type header, e.g. header("content-type", "something") now works (issue 155).
 * It's now possible to create custom object mappers and configure existing ones (issue 122).
 * It's now possible to define a default object mapper using the com.jayway.restassured.config.ObjectMapperConfig (issue 123).
-* ObjectMapper.JACKSON, ObjectMapper.GSON and ObjectMapper.JAXB have been deprecated. Use the corresponding types in enum com.jayway.restassured.mapper.ObjectMapperType instead.
+* ObjectMapper.JACKSON, ObjectMapper.GSON and ObjectMapper.JAXB have been deprecated. Use the corresponding types in enum com.jayway.restassured.internal.mapper.ObjectMapperType instead.
 * Added object mapping support for Jackson 2.0 (issue 189).
 * Fixed an issue with the com.jayway.restassured.builder.ResponseBuilder that failed to clone the ResponseParserRegistrar.
 * JSON path with digits separated by dots can now be processed by JsonPath (issue 195).

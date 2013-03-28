@@ -19,8 +19,8 @@ package com.jayway.restassured.specification;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
-import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
@@ -163,7 +163,7 @@ public interface RequestSpecification extends RequestSender {
 	 *         post("/beautiful-message");
 	 * </pre>
 	 * </p>
-	 * Note that {@link #body(Object, ObjectMapperType)}  and {@link #content(Object, ObjectMapperType)} are the same except for the syntactic difference.
+	 * Note that {@link #body(Object, com.jayway.restassured.internal.mapper.ObjectMapperType)}  and {@link #content(Object, ObjectMapperType)} are the same except for the syntactic difference.
 	 * </p>
 	 *
 	 * @param object The object to serialize and send with the request

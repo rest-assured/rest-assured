@@ -22,10 +22,10 @@ import com.jayway.restassured.internal.path.json.ConfigurableJsonSlurper;
 import com.jayway.restassured.internal.path.json.JSONAssertion;
 import com.jayway.restassured.internal.path.json.JsonPrettifier;
 import com.jayway.restassured.internal.path.json.mapping.JsonObjectDeserializer;
-import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.Jackson1ObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory;
+import com.jayway.restassured.path.json.config.JsonParserType;
 import com.jayway.restassured.path.json.config.JsonPathConfig;
 import com.jayway.restassured.path.json.exception.JsonPathException;
 import groovy.json.JsonBuilder;
@@ -510,11 +510,11 @@ public class JsonPath {
 
         JsonPathConfig cfg = new JsonPathConfig(getJsonPathConfig());
         if (cfg.hasCustomJackson10ObjectMapperFactory()) {
-            cfg = cfg.defaultObjectMapperType(ObjectMapperType.JACKSON_1);
+            cfg = cfg.defaultParserType(JsonParserType.JACKSON_1);
         } else if (cfg.hasCustomGsonObjectMapperFactory()) {
-            cfg = cfg.defaultObjectMapperType(ObjectMapperType.GSON);
+            cfg = cfg.defaultParserType(JsonParserType.GSON);
         } else if (cfg.hasCustomJackson20ObjectMapperFactory()) {
-            cfg = cfg.defaultObjectMapperType(ObjectMapperType.JACKSON_2);
+            cfg = cfg.defaultParserType(JsonParserType.JACKSON_2);
         }
 
         if (!(object instanceof String)) {

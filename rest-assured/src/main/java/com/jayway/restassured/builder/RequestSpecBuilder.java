@@ -22,8 +22,8 @@ import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.SpecificationMerger;
+import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
-import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.specification.RequestSpecification;
@@ -149,7 +149,7 @@ public class RequestSpecBuilder {
      *         post("/beautiful-message");
      * </pre>
      * </p>
-     * Note that {@link #setBody(Object, com.jayway.restassured.mapper.ObjectMapperType)}  and {@link #setContent(Object, com.jayway.restassured.mapper.ObjectMapperType)}
+     * Note that {@link #setBody(Object, com.jayway.restassured.internal.mapper.ObjectMapperType)}  and {@link #setContent(Object, com.jayway.restassured.internal.mapper.ObjectMapperType)}
      * are the same except for the syntactic difference.
      * </p>
      *
@@ -244,7 +244,7 @@ public class RequestSpecBuilder {
      *         post("/beautiful-message");
      * </pre>
      * </p>
-     * Note that {@link #setBody(Object, com.jayway.restassured.mapper.ObjectMapperType)}  and {@link #setContent(Object, com.jayway.restassured.mapper.ObjectMapperType)}
+     * Note that {@link #setBody(Object, com.jayway.restassured.internal.mapper.ObjectMapperType)}  and {@link #setContent(Object, com.jayway.restassured.internal.mapper.ObjectMapperType)}
      * are the same except for the syntactic difference.
      * </p>
      *

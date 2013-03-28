@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.mapper;
+package com.jayway.restassured.internal.mapper;
 
 /**
  * The predefined object mappers that can be used with REST Assured

@@ -16,8 +16,8 @@
 
 package com.jayway.restassured.config;
 
+import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
-import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.factory.*;
 import org.apache.commons.lang3.Validate;
 

@@ -20,11 +20,11 @@ package com.jayway.restassured.internal.path.json.mapping
 import com.jayway.restassured.internal.mapper.ObjectDeserializationContextImpl
 import com.jayway.restassured.mapper.DataToDeserialize
 import com.jayway.restassured.mapper.ObjectDeserializationContext
-import com.jayway.restassured.mapper.ObjectMapperType
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory
 import com.jayway.restassured.mapper.factory.Jackson1ObjectMapperFactory
 import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory
 import com.jayway.restassured.mapper.resolver.ObjectMapperResolver
+import com.jayway.restassured.path.json.config.JsonParserType
 import com.jayway.restassured.path.json.config.JsonPathConfig
 import org.apache.commons.lang3.Validate
 
@@ -32,7 +32,7 @@ class JsonObjectDeserializer {
 
     public static <T> T deserialize(String json, Class<T> cls, JsonPathConfig jsonPathConfig) {
         Validate.notNull(jsonPathConfig, "JsonPath configuration wasn't specified, cannot deserialize.")
-        def mapperType = jsonPathConfig.defaultObjectMapperType()
+        def mapperType = jsonPathConfig.defaultParserType()
         def deserializationCtx = new ObjectDeserializationContextImpl()
         deserializationCtx.type = cls
         deserializationCtx.charset = jsonPathConfig.charset()
@@ -56,8 +56,8 @@ class JsonObjectDeserializer {
 
         if (jsonPathConfig.hasDefaultObjectMapper()) {
             return jsonPathConfig.defaultDeserializer().deserialize(deserializationCtx) as T;
-        } else if (mapperType != null || jsonPathConfig.hasDefaultObjectMapperType()) {
-            ObjectMapperType mapperTypeToUse = mapperType == null ? jsonPathConfig.defaultObjectMapperType() : mapperType;
+        } else if (mapperType != null || jsonPathConfig.hasDefaultParserType()) {
+            JsonParserType mapperTypeToUse = mapperType == null ? jsonPathConfig.defaultParserType() : mapperType;
             return deserializeWithObjectMapper(deserializationCtx, mapperTypeToUse, jsonPathConfig)
         }
 
@@ -74,12 +74,12 @@ class JsonObjectDeserializer {
 //        throw new IllegalStateException(String.format("Cannot parse object because no supported Content-Type was not specified in response. Content-Type was '%s'.", contentType))
     }
 
-    private static <T> T deserializeWithObjectMapper(ObjectDeserializationContext ctx, ObjectMapperType mapperType, JsonPathConfig config) {
-        if (mapperType == ObjectMapperType.JACKSON_2 && ObjectMapperResolver.isJackson2InClassPath()) {
+    private static <T> T deserializeWithObjectMapper(ObjectDeserializationContext ctx, JsonParserType mapperType, JsonPathConfig config) {
+        if (mapperType == JsonParserType.JACKSON_2 && ObjectMapperResolver.isJackson2InClassPath()) {
             return deserializeWithJackson2(ctx, config.jackson2ObjectMapperFactory()) as T
-        } else if (mapperType == ObjectMapperType.JACKSON_1 && ObjectMapperResolver.isJackson1InClassPath()) {
+        } else if (mapperType == JsonParserType.JACKSON_1 && ObjectMapperResolver.isJackson1InClassPath()) {
             return deserializeWithJackson1(ctx, config.jackson1ObjectMapperFactory()) as T
-        } else if (mapperType == ObjectMapperType.GSON && ObjectMapperResolver.isGsonInClassPath()) {
+        } else if (mapperType == JsonParserType.GSON && ObjectMapperResolver.isGsonInClassPath()) {
             return deserializeWithGson(ctx, config.gsonObjectMapperFactory()) as T
         } else {
             def lowerCase = mapperType.toString().toLowerCase()

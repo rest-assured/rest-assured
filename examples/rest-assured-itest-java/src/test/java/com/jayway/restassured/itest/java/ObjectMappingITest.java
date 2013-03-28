@@ -27,7 +27,7 @@ import org.junit.Test;
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.config;
-import static com.jayway.restassured.mapper.ObjectMapperType.*;
+import static com.jayway.restassured.internal.mapper.ObjectMapperType.*;
 import static com.jayway.restassured.parsing.Parser.JSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;

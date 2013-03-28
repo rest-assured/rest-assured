@@ -26,7 +26,7 @@ import com.jayway.restassured.internal.support.Prettifier
 import com.jayway.restassured.mapper.DataToDeserialize
 import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
-import com.jayway.restassured.mapper.ObjectMapperType
+import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.path.json.JsonPath
 import com.jayway.restassured.path.xml.XmlPath
 import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
