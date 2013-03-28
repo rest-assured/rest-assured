@@ -18,6 +18,8 @@ package com.jayway.restassured.path.xml;
 
 import com.jayway.restassured.assertion.XMLAssertion;
 import com.jayway.restassured.internal.path.xml.XmlPrettifier;
+import com.jayway.restassured.mapper.factory.JAXBObjectMapperFactory;
+import com.jayway.restassured.path.xml.config.XmlPathConfig;
 import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.path.xml.element.NodeChildren;
 import com.jayway.restassured.path.xml.exception.XmlPathException;
@@ -108,9 +110,11 @@ import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.XML;
  * </pre>
  */
 public class XmlPath {
+    public static XmlPathConfig config = null;
 
     private final CompatibilityMode mode;
     private final GPathResult input;
+    private XmlPathConfig xmlPathConfig = null;
 
     private String rootPath = "";
 
@@ -239,6 +243,32 @@ public class XmlPath {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
         input = parseURI(uri);
+    }
+
+    /**
+     * Configure XmlPath to use a specific JAXB object mapper factory
+     *
+     * @param factory The JAXB object mapper factory instance
+     * @return a new XmlPath instance
+     */
+    public XmlPath using(JAXBObjectMapperFactory factory) {
+        return new XmlPath(this, getXmlPathConfig().jaxbObjectMapperFactory(factory));
+    }
+
+    /**
+     * Configure XmlPath to with a specific XmlPathConfig.
+     *
+     * @param config The XmlPath config
+     * @return a new XmlPath instance
+     */
+    public XmlPath using(XmlPathConfig config) {
+        return new XmlPath(this, config);
+    }
+
+    private XmlPath(XmlPath xmlPath, XmlPathConfig config) {
+        this.xmlPathConfig = config;
+        this.mode = xmlPath.mode;
+        this.input = xmlPath.input;
     }
 
     /**
@@ -759,6 +789,18 @@ public class XmlPath {
                 return slurper.parse(source);
             }
         }.invoke();
+    }
+
+    private XmlPathConfig getXmlPathConfig() {
+        XmlPathConfig cfg;
+        if (config == null && xmlPathConfig == null) {
+            cfg = new XmlPathConfig();
+        } else if (xmlPathConfig != null) {
+            cfg = xmlPathConfig;
+        } else {
+            cfg = config;
+        }
+        return cfg;
     }
 
     private abstract class ExceptionCatcher {

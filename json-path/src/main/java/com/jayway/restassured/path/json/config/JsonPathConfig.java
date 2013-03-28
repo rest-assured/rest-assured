@@ -26,7 +26,7 @@ import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberRetur
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE;
 
 /**
- * Allows you to configure how the JsonPath will handle JSON numbers and object mappers. By default JsonPath and body expectations
+ * Allows you to configure how JsonPath will handle JSON numbers and object mappers. By default JsonPath and body expectations
  * in REST Assured will return floats for numbers that are less than or equal to {@link Float#MAX_VALUE} or doubles
  * for larger numbers. In Groovy 1.8.5 they changed so that all numbers are now BigDecimals. If you prefer that
  * you can configure the {@link NumberReturnType} to be {@link NumberReturnType#BIG_DECIMAL}.
@@ -34,7 +34,7 @@ import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberRetur
 public class JsonPathConfig {
 
     private final NumberReturnType numberReturnType;
-    private final JsonPathObjectDeserializer defaultObjectMapper;
+    private final JsonPathObjectDeserializer defaultDeserializer;
     private final JsonParserType defaultParserType;
     private final GsonObjectMapperFactory gsonObjectMapperFactory;
     private final Jackson1ObjectMapperFactory jackson1ObjectMapperFactory;
@@ -81,13 +81,13 @@ public class JsonPathConfig {
 
     private JsonPathConfig(NumberReturnType numberReturnType, JsonParserType parserType, GsonObjectMapperFactory gsonObjectMapperFactory,
                            Jackson1ObjectMapperFactory jackson1ObjectMapperFactory, Jackson2ObjectMapperFactory jackson2ObjectMapperFactory,
-                           JsonPathObjectDeserializer defaultObjectMapper, String charset) {
+                           JsonPathObjectDeserializer defaultDeserializer, String charset) {
         if (numberReturnType == null) throw new IllegalArgumentException("numberReturnType cannot be null");
         charset = StringUtils.trimToNull(charset);
         if (charset == null) throw new IllegalArgumentException("Charset cannot be empty");
         this.charset = charset;
         this.numberReturnType = numberReturnType;
-        this.defaultObjectMapper = defaultObjectMapper;
+        this.defaultDeserializer = defaultDeserializer;
         this.defaultParserType = parserType;
         this.gsonObjectMapperFactory = gsonObjectMapperFactory;
         this.jackson1ObjectMapperFactory = jackson1ObjectMapperFactory;
@@ -152,15 +152,15 @@ public class JsonPathConfig {
      */
     public JsonPathConfig defaultParserType(JsonParserType defaultParserType) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, defaultObjectMapper, charset);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, defaultDeserializer, charset);
     }
 
     public JsonPathObjectDeserializer defaultDeserializer() {
-        return defaultObjectMapper;
+        return defaultDeserializer;
     }
 
-    public boolean hasDefaultObjectMapper() {
-        return defaultObjectMapper != null;
+    public boolean hasDefaultDeserializer() {
+        return defaultDeserializer != null;
     }
 
     /**
@@ -184,7 +184,7 @@ public class JsonPathConfig {
      */
     public JsonPathConfig gsonObjectMapperFactory(GsonObjectMapperFactory gsonObjectMapperFactory) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, defaultObjectMapper, charset);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, defaultDeserializer, charset);
     }
 
     public Jackson1ObjectMapperFactory jackson1ObjectMapperFactory() {
@@ -198,7 +198,7 @@ public class JsonPathConfig {
      */
     public JsonPathConfig jackson1ObjectMapperFactory(Jackson1ObjectMapperFactory jackson1ObjectMapperFactory) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, defaultObjectMapper, charset);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, defaultDeserializer, charset);
     }
 
     public Jackson2ObjectMapperFactory jackson2ObjectMapperFactory() {
@@ -212,7 +212,7 @@ public class JsonPathConfig {
      */
     public JsonPathConfig jackson2ObjectMapperFactory(Jackson2ObjectMapperFactory jackson2ObjectMapperFactory) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, defaultObjectMapper, charset);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, defaultDeserializer, charset);
     }
 
     /**
