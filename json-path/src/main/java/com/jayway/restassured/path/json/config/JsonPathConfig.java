@@ -15,7 +15,6 @@
  */
 package com.jayway.restassured.path.json.config;
 
-import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.factory.*;
 import com.jayway.restassured.path.json.mapping.JsonPathObjectMapper;
@@ -24,7 +23,7 @@ import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberRetur
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE;
 
 /**
- * Allows you to configure how the JsonPath will handle JSON numbers. By default JsonPath and body expectations
+ * Allows you to configure how the JsonPath will handle JSON numbers and object mappers. By default JsonPath and body expectations
  * in REST Assured will return floats for numbers that are less than or equal to {@link Float#MAX_VALUE} or doubles
  * for larger numbers. In Groovy 1.8.5 they changed so that all numbers are now BigDecimals. If you prefer that
  * you can configure the {@link NumberReturnType} to be {@link NumberReturnType#BIG_DECIMAL}.
@@ -92,6 +91,22 @@ public class JsonPathConfig {
 
     public boolean hasDefaultObjectMapperType() {
         return defaultObjectMapperType != null;
+    }
+
+    public boolean hasObjectMapperFactory() {
+        return hasGsonObjectMapperFactory() && hasJackson10ObjectMapperFactory() && hasJackson20ObjectMapperFactory();
+    }
+
+    public boolean hasGsonObjectMapperFactory() {
+        return gsonObjectMapperFactory() != null;
+    }
+
+    public boolean hasJackson10ObjectMapperFactory() {
+        return jackson1ObjectMapperFactory() != null;
+    }
+
+    public boolean hasJackson20ObjectMapperFactory() {
+        return jackson2ObjectMapperFactory() != null;
     }
 
     /**

@@ -17,7 +17,6 @@
 package com.jayway.restassured.path.json;
 
 import com.jayway.restassured.internal.assertion.AssertParameter;
-import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.internal.path.ObjectConverter;
 import com.jayway.restassured.internal.path.json.ConfigurableJsonSlurper;
 import com.jayway.restassured.internal.path.json.JSONAssertion;
@@ -27,7 +26,6 @@ import com.jayway.restassured.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.Jackson1ObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory;
-import com.jayway.restassured.mapper.factory.ObjectMapperFactory;
 import com.jayway.restassured.path.json.config.JsonPathConfig;
 import com.jayway.restassured.path.json.exception.JsonPathException;
 import groovy.json.JsonBuilder;
@@ -79,22 +77,21 @@ import java.util.Map.Entry;
  * <pre>
  * List&lt;String&gt; categories = with(Object).get("store.book.category");
  * </pre>
- *
+ * <p/>
  * Get the first book category:
  * <pre>
  * String category = with(Object).get("store.book[0].category");
  * </pre>
- *
+ * <p/>
  * Get the last book category:
  * <pre>
  * String category = with(Object).get("store.book[-1].category");
  * </pre>
- *
+ * <p/>
  * Get all books with price between 5 and 15:
  * <pre>
  * List&lt;Map&gt; books = with(Object).get("store.book.findAll { book -> book.price >= 5 && book.price <= 15 }");
  * </pre>
- *
  */
 public class JsonPath {
 
@@ -103,7 +100,6 @@ public class JsonPath {
     private final JsonParser jsonParser;
     private JsonPathConfig jsonPathConfig = null;
     private String rootPath = "";
-    private ObjectMapperFactory<?> objectMapperFactory;
 
     /**
      * Instantiate a new JsonPath instance.
@@ -152,14 +148,13 @@ public class JsonPath {
 
     private JsonPath(JsonPath jsonPath, JsonPathConfig jsonPathConfig) {
         this.jsonPathConfig = jsonPathConfig;
-        this.objectMapperFactory = objectMapperFactory;
         this.jsonParser = jsonPath.jsonParser;
         this.rootPath = jsonPath.rootPath;
     }
 
     /**
      * Get a Object graph with no named root element as a Java object. This is just a short-cut for
-     *
+     * <p/>
      * <pre>
      *     get("");
      * </pre>
@@ -169,7 +164,7 @@ public class JsonPath {
      * </pre>
      *
      * @return The object matching the Object graph. This may be any primitive type, a List or a Map.  A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public <T> T get() {
         return get("");
@@ -180,7 +175,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. This may be any primitive type, a List or a Map.  A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public <T> T get(String path) {
         final JSONAssertion jsonAssertion = createJsonAssertion(path);
@@ -193,7 +188,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public boolean getBoolean(String path) {
         return ObjectConverter.convertObjectTo(get(path), Boolean.class);
@@ -204,7 +199,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public char getChar(String path) {
         return ObjectConverter.convertObjectTo(get(path), Character.class);
@@ -215,17 +210,17 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The int matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public int getInt(String path) {
         //The type returned from Groovy depends on the input, so we need to handle different numerical types.
         Object value = get(path);
-        if(value instanceof Integer) {
+        if (value instanceof Integer) {
             return (Integer) value;
-        }else  if (value instanceof Short) {
-            return ((Short)value).intValue();
+        } else if (value instanceof Short) {
+            return ((Short) value).intValue();
         } else if (value instanceof Long) {
-            return ((Long)value).intValue();
+            return ((Long) value).intValue();
         } else {
             return ObjectConverter.convertObjectTo(value, Integer.class);
         }
@@ -234,20 +229,19 @@ public class JsonPath {
     /**
      * Get the result of an Object path expression as a byte.
      *
-     *
      * @param path The Object path.
      * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public byte getByte(String path) {
         //The type returned from Groovy depends on the input, so we need to handle different numerical types.
         Object value = get(path);
-        if(value instanceof Byte) {
+        if (value instanceof Byte) {
             return (Byte) value;
         } else if (value instanceof Long) {
-            return ((Long)value).byteValue();
+            return ((Long) value).byteValue();
         } else if (value instanceof Integer) {
-            return ((Integer)value).byteValue();
+            return ((Integer) value).byteValue();
         } else {
             return ObjectConverter.convertObjectTo(value, Byte.class);
         }
@@ -256,20 +250,19 @@ public class JsonPath {
     /**
      * Get the result of an Object path expression as a short.
      *
-     *
      * @param path The Object path.
      * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public short getShort(String path) {
         //The type returned from Groovy depends on the input, so we need to handle different numerical types.
         Object value = get(path);
-        if(value instanceof Short) {
+        if (value instanceof Short) {
             return (Short) value;
         } else if (value instanceof Long) {
-            return ((Long)value).shortValue();
+            return ((Long) value).shortValue();
         } else if (value instanceof Integer) {
-            return ((Integer)value).shortValue();
+            return ((Integer) value).shortValue();
         } else {
             return ObjectConverter.convertObjectTo(value, Short.class);
         }
@@ -280,12 +273,12 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public float getFloat(String path) {
         final Object value = get(path);
         //Groovy will always return a Double for floating point values.
-        if(value instanceof Double) {
+        if (value instanceof Double) {
             return ((Double) value).floatValue();
         } else {
             return ObjectConverter.convertObjectTo(value, Float.class);
@@ -297,11 +290,11 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public double getDouble(String path) {
         final Object value = get(path);
-        if(value instanceof Double) {
+        if (value instanceof Double) {
             return (Double) value;
         }
         return ObjectConverter.convertObjectTo(value, Double.class);
@@ -312,17 +305,17 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public long getLong(String path) {
         //The type returned from Groovy depends on the input, so we need to handle different numerical types.
         Object value = get(path);
-        if(value instanceof Long) {
+        if (value instanceof Long) {
             return (Long) value;
         } else if (value instanceof Short) {
-            return ((Short)value).longValue();
+            return ((Short) value).longValue();
         } else if (value instanceof Integer) {
-            return ((Integer)value).longValue();
+            return ((Integer) value).longValue();
         } else {
             return ObjectConverter.convertObjectTo(value, Long.class);
         }
@@ -333,7 +326,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public String getString(String path) {
         return ObjectConverter.convertObjectTo(get(path), String.class);
@@ -343,9 +336,9 @@ public class JsonPath {
      * Get the result of an Object path expression as a list.
      *
      * @param path The Object path.
-     * @param <T> The list type
+     * @param <T>  The list type
      * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path) {
         return get(path);
@@ -354,11 +347,11 @@ public class JsonPath {
     /**
      * Get the result of an Object path expression as a list.
      *
-     * @param path The Object path.
+     * @param path        The Object path.
      * @param genericType The generic list type
-     * @param <T> The type
+     * @param <T>         The type
      * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path, Class<T> genericType) {
         final List<T> original = get(path);
@@ -373,27 +366,27 @@ public class JsonPath {
      * Get the result of an Object path expression as a map.
      *
      * @param path The Object path.
-     * @param <K> The type of the expected key
-     * @param <V> The type of the expected value
+     * @param <K>  The type of the expected key
+     * @param <V>  The type of the expected value
      * @return The map matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
-    public <K,V> Map<K, V> getMap(String path) {
+    public <K, V> Map<K, V> getMap(String path) {
         return get(path);
     }
 
     /**
      * Get the result of an Object path expression as a map.
      *
-     * @param path The Object path.
-     * @param keyType The type of the expected key
+     * @param path      The Object path.
+     * @param keyType   The type of the expected key
      * @param valueType The type of the expected value
-     * @param <K> The type of the expected key
-     * @param <V> The type of the expected value
+     * @param <K>       The type of the expected key
+     * @param <V>       The type of the expected value
      * @return The map matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
-     * cannot be casted to the expected type.
+     *         cannot be casted to the expected type.
      */
-    public <K,V> Map<K, V> getMap(String path, Class<K> keyType, Class<V> valueType) {
+    public <K, V> Map<K, V> getMap(String path, Class<K> keyType, Class<V> valueType) {
         final Map<K, V> originalMap = get(path);
         final Map<K, V> newMap = new HashMap<K, V>();
         for (Entry<K, V> entry : originalMap.entrySet()) {
@@ -405,7 +398,7 @@ public class JsonPath {
     }
 
     /**
-     *  Get the result of a Object path expression as a java Object.
+     * Get the result of a Object path expression as a java Object.
      * E.g. given the following Object document:
      * <pre>
      * { "store": {
@@ -441,7 +434,7 @@ public class JsonPath {
      * }
      * </pre>
      * And a Java object like this:
-     *
+     * <p/>
      * <pre>
      * public class Book {
      *      private String category;
@@ -491,24 +484,24 @@ public class JsonPath {
      *   }
      * }
      * </pre>
-     *
+     * <p/>
      * Then
      * <pre>
      * Book book = from(Object).getObject("store.book[2]", Book.class);
      * </pre>
-     *
+     * <p/>
      * maps the second book to a Book instance.
      *
-     * @param path  The path to the object to map
+     * @param path       The path to the object to map
      * @param objectType The class type of the expected object
-     * @param <T> The type of the expected object
+     * @param <T>        The type of the expected object
      * @return The object
      */
     public <T> T getObject(String path, Class<T> objectType) {
-        Object object  = getJsonObject(path);
-        if(object == null) {
+        Object object = getJsonObject(path);
+        if (object == null) {
             return null;
-        } else if(object instanceof List || object instanceof  Map) {
+        } else if (object instanceof List || object instanceof Map) {
             // TODO Avoid double parsing
             object = new JsonBuilder(object).toString();
         } else {
@@ -517,17 +510,17 @@ public class JsonPath {
 
         final ObjectMapperType type;
         JsonPathConfig cfg = new JsonPathConfig(getJsonPathConfig());
-        if(objectMapperFactory == null) {
+        if (!cfg.hasObjectMapperFactory()) {
             type = null;
-        } else if(objectMapperFactory instanceof GsonObjectMapperFactory) {
+        } else if (cfg.hasGsonObjectMapperFactory()) {
             type = ObjectMapperType.GSON;
-            cfg = cfg.defaultObjectMapperType(type).gsonObjectMapperFactory((GsonObjectMapperFactory) objectMapperFactory);
-        } else if(objectMapperFactory instanceof Jackson2ObjectMapperFactory) {
+            cfg = cfg.defaultObjectMapperType(type);
+        } else if (cfg.hasJackson20ObjectMapperFactory()) {
             type = ObjectMapperType.JACKSON_2;
-            cfg = cfg.defaultObjectMapperType(type).jackson2ObjectMapperFactory((Jackson2ObjectMapperFactory) objectMapperFactory);
+            cfg = cfg.defaultObjectMapperType(type);
         } else {
             type = ObjectMapperType.JACKSON_1;
-            cfg = cfg.defaultObjectMapperType(type).jackson1ObjectMapperFactory((Jackson1ObjectMapperFactory) objectMapperFactory);
+            cfg = cfg.defaultObjectMapperType(type);
         }
 
         return JsonObjectMapping.deserialize(object, objectType, type, cfg);
@@ -556,6 +549,7 @@ public class JsonPath {
 
     /**
      * Configure JsonPath to use a specific Gson object mapper factory
+     *
      * @param factory The gson object mapper factory instance
      * @return a new JsonPath instance
      */
@@ -565,20 +559,22 @@ public class JsonPath {
 
     /**
      * Configure JsonPath to use a specific Jackson object mapper factory
+     *
      * @param factory The Jackson object mapper factory instance
      * @return a new JsonPath instance
      */
     public JsonPath using(Jackson1ObjectMapperFactory factory) {
-        return new JsonPath(this, jsonPathConfig, factory);
+        return new JsonPath(this, getJsonPathConfig().jackson1ObjectMapperFactory(factory));
     }
 
     /**
      * Configure JsonPath to use a specific Jackson 2 object mapper factory
+     *
      * @param factory The Jackson 2 object mapper factory instance
      * @return a new JsonPath instance
      */
     public JsonPath using(Jackson2ObjectMapperFactory factory) {
-        return new JsonPath(this, jsonPathConfig, factory);
+        return new JsonPath(this, getJsonPathConfig().jackson2ObjectMapperFactory(factory));
     }
 
     /**
@@ -588,7 +584,7 @@ public class JsonPath {
      * @return a new JsonPath instance
      */
     public JsonPath using(JsonPathConfig config) {
-        return new JsonPath(this, config, objectMapperFactory);
+        return new JsonPath(this, config);
     }
 
     /**
@@ -626,6 +622,7 @@ public class JsonPath {
     public static JsonPath given(File file) {
         return new JsonPath(file);
     }
+
     /**
      * Instantiate a new JsonPath instance.
      *
@@ -634,6 +631,7 @@ public class JsonPath {
     public static JsonPath given(Reader reader) {
         return new JsonPath(reader);
     }
+
     /**
      * Instantiate a new JsonPath instance.
      *
@@ -678,6 +676,7 @@ public class JsonPath {
     public static JsonPath with(Reader reader) {
         return new JsonPath(reader);
     }
+
     /**
      * Instantiate a new JsonPath instance.
      *
@@ -722,6 +721,7 @@ public class JsonPath {
     public static JsonPath from(Reader reader) {
         return new JsonPath(reader);
     }
+
     /**
      * Instantiate a new JsonPath instance.
      *
@@ -747,7 +747,7 @@ public class JsonPath {
         return this;
     }
 
-    private JsonParser parseInputStream(final InputStream stream)  {
+    private JsonParser parseInputStream(final InputStream stream) {
         return new JsonParser() {
             @Override
             public Object parseWith(final ConfigurableJsonSlurper slurper) {
@@ -760,7 +760,7 @@ public class JsonPath {
         };
     }
 
-    private JsonParser parseReader(final Reader reader)  {
+    private JsonParser parseReader(final Reader reader) {
         return new JsonParser() {
             @Override
             public Object parseWith(final ConfigurableJsonSlurper slurper) {
@@ -773,7 +773,7 @@ public class JsonPath {
         };
     }
 
-    private JsonParser parseFile(final File file)  {
+    private JsonParser parseFile(final File file) {
         return new JsonParser() {
             @Override
             public Object parseWith(final ConfigurableJsonSlurper slurper) {
@@ -799,7 +799,7 @@ public class JsonPath {
         };
     }
 
-    private JsonParser parseURL(final URL url)  {
+    private JsonParser parseURL(final URL url) {
         return new JsonParser() {
             @Override
             public Object parseWith(final ConfigurableJsonSlurper slurper) {
@@ -823,7 +823,7 @@ public class JsonPath {
         public Object invoke() {
             try {
                 return method();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 throw new JsonPathException("Failed to parse the JSON document", e);
             }
         }
@@ -850,9 +850,9 @@ public class JsonPath {
 
     private JsonPathConfig getJsonPathConfig() {
         JsonPathConfig cfg;
-        if(config == null && jsonPathConfig == null) {
+        if (config == null && jsonPathConfig == null) {
             cfg = new JsonPathConfig();
-        } else if(jsonPathConfig != null) {
+        } else if (jsonPathConfig != null) {
             cfg = jsonPathConfig;
         } else {
             cfg = config;
