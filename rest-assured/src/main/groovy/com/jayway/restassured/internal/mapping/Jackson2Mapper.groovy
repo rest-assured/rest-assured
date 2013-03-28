@@ -15,6 +15,8 @@
  */
 
 
+
+
 package com.jayway.restassured.internal.mapping
 
 import com.fasterxml.jackson.core.JsonEncoding

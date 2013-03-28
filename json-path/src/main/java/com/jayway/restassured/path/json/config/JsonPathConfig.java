@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.jayway.restassured.path.json.config;
 
 import com.jayway.restassured.mapper.ObjectMapperType;

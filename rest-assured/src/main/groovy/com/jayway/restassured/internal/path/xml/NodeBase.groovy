@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package com.jayway.restassured.internal.path.xml
 
 import com.jayway.restassured.path.xml.element.Node

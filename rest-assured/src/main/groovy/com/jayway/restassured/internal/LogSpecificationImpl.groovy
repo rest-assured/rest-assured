@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.config.LogConfig
