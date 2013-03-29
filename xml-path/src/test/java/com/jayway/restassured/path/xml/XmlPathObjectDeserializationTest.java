@@ -2,10 +2,14 @@ package com.jayway.restassured.path.xml;
 
 import com.jayway.restassured.path.xml.support.CoolGreeting;
 import com.jayway.restassured.path.xml.support.Greeting;
+import com.jayway.restassured.path.xml.support.Greetings;
 import org.junit.Test;
+
+import java.util.List;
 
 import static com.jayway.restassured.path.xml.XmlPath.from;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class XmlPathObjectDeserializationTest {
@@ -49,6 +53,33 @@ public class XmlPathObjectDeserializationTest {
         assertThat(greeting.getGreeting().getFirstName(), equalTo("John"));
         assertThat(greeting.getGreeting().getLastName(), equalTo("Doe"));
     }
+
+    @Test public void
+    deserializes_xml_document_including_list_using_jaxb() {
+        // When
+        final Greetings greetings = from(GREETINGS).getObject("greetings", Greetings.class);
+
+        // Then
+        assertThat(greetings.getGreeting().size(), is(3));
+    }
+
+    @Test public void
+    deserializes_list_using_jaxb() {
+        // When
+        final List<Greeting>  greetings = from(GREETINGS).getObject("greetings.greeting", List.class);
+
+        // Then
+        assertThat(greetings.size(), is(3));
+    }
+
+//    @Test public void
+//    deserializes_list_using_getList() {
+//        // When
+//        final List<Greeting>  greetings = from(GREETINGS).getList("greetings.greeting", Greeting.class);
+//
+//        // Then
+//        assertThat(greetings.size(), is(3));
+//    }
 
 //    @Test public void
 //    deserializes_x_node_using_jaxb() {
