@@ -76,7 +76,7 @@ class ObjectMapping {
         throw new IllegalStateException(String.format("Cannot parse object because no supported Content-Type was not specified in response. Content-Type was '%s'.", contentType))
     }
 
-    private static <T> T deserializeWithObjectMapper(ObjectDeserializationContext ctx, ObjectMapperType mapperType, ObjectMapperConfig config) {
+    private static <T> T deserializeWithObjectMapper(ObjectMapperDeserializationContext ctx, ObjectMapperType mapperType, ObjectMapperConfig config) {
         if (mapperType == ObjectMapperType.JACKSON_2 && isJackson2InClassPath()) {
             return parseWithJackson2(ctx, config.jackson2ObjectMapperFactory()) as T
         } else if (mapperType == ObjectMapperType.JACKSON_1 && isJackson1InClassPath()) {
@@ -170,19 +170,19 @@ class ObjectMapping {
         new JaxbMapper(factory).serialize(ctx)
     }
 
-    private static def parseWithJaxb(ObjectDeserializationContext ctx, JAXBObjectMapperFactory factory) {
+    private static def parseWithJaxb(ObjectMapperDeserializationContext ctx, JAXBObjectMapperFactory factory) {
         new JaxbMapper(factory).deserialize(ctx)
     }
 
-    private static def parseWithGson(ObjectDeserializationContext ctx, GsonObjectMapperFactory factory) {
+    private static def parseWithGson(ObjectMapperDeserializationContext ctx, GsonObjectMapperFactory factory) {
         new GsonMapper(factory).deserialize(ctx)
     }
 
-    static def parseWithJackson1(ObjectDeserializationContext ctx, Jackson1ObjectMapperFactory factory) {
+    static def parseWithJackson1(ObjectMapperDeserializationContext ctx, Jackson1ObjectMapperFactory factory) {
         new Jackson1Mapper(factory).deserialize(ctx)
     }
 
-    static def parseWithJackson2(ObjectDeserializationContext ctx, Jackson2ObjectMapperFactory factory) {
+    static def parseWithJackson2(ObjectMapperDeserializationContext ctx, Jackson2ObjectMapperFactory factory) {
         new Jackson2Mapper(factory).deserialize(ctx)
     }
 

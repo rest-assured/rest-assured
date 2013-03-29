@@ -117,6 +117,12 @@ public class JsonPathConfig {
         return numberReturnType;
     }
 
+    /**
+     * Specifies if JsonPath should use floats and doubles or BigDecimals to represent Json numbers.
+     *
+     * @param numberReturnType The choice.
+     * @return A new instance of JsonPathConfig with the given configuration
+     */
     public JsonPathConfig numberReturnType(NumberReturnType numberReturnType) {
         return new JsonPathConfig(numberReturnType);
     }
@@ -146,9 +152,9 @@ public class JsonPathConfig {
     }
 
     /**
-     * Creates an json path configuration that uses the specified object mapper type as default.
+     * Creates an json path configuration that uses the specified parser type as default.
      *
-     * @param defaultParserType The object mapper type to use. If <code>null</code> then classpath scanning will be used.
+     * @param defaultParserType The parser type to use. If <code>null</code> then classpath scanning will be used.
      */
     public JsonPathConfig defaultParserType(JsonParserType defaultParserType) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,

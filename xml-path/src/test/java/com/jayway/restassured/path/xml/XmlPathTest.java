@@ -20,7 +20,6 @@ import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.path.xml.element.NodeChildren;
 import org.junit.Test;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -105,10 +104,10 @@ public class XmlPathTest {
             "  </channel>\n" +
             "</rss>";
 
-    private static final String LIST_WITH_INTS = "<some>\n"+
-            "  <thing id=\"1\">ikk</thing>\n"+
-            "  <thing id=\"2\">ikk2</thing>\n"+
-            "  <thing id=\"3\">ikk3</thing>\n"+
+    private static final String LIST_WITH_INTS = "<some>\n" +
+            "  <thing id=\"1\">ikk</thing>\n" +
+            "  <thing id=\"2\">ikk2</thing>\n" +
+            "  <thing id=\"3\">ikk3</thing>\n" +
             "</some>";
 
     private static final String NOT_PRETTY_XML = "<some><thing id=\"1\">ikk</thing><thing id=\"2\">ikk2</thing><thing id=\"3\">3</thing></some>";
@@ -413,7 +412,7 @@ public class XmlPathTest {
     public void convertsListMembersToExplicitType() throws Exception {
         List<Integer> ids = from(LIST_WITH_INTS).getList("some.thing.@id", int.class);
 
-        assertThat(ids, hasItems(1,2,3));
+        assertThat(ids, hasItems(1, 2, 3));
     }
 
     @Test

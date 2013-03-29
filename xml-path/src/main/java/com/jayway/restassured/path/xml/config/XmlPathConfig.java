@@ -31,6 +31,7 @@ public class XmlPathConfig {
 
     private final XmlPathObjectDeserializer defaultDeserializer;
     private final JAXBObjectMapperFactory jaxbObjectMapperFactory;
+    private final XmlParserType defaultParserType;
     private final String charset;
 
 
@@ -40,14 +41,14 @@ public class XmlPathConfig {
      * @param config The config to copy.
      */
     public XmlPathConfig(XmlPathConfig config) {
-        this(config.jaxbObjectMapperFactory(), config.defaultDeserializer(), config.charset());
+        this(config.jaxbObjectMapperFactory(), config.defaultParserType(), config.defaultDeserializer(), config.charset());
     }
 
     /**
      * Creates a new XmlPathConfig that is configured to use the default JAXBObjectMapperFactory.
      */
     public XmlPathConfig() {
-        this(new DefaultJAXBObjectMapperFactory(), null, defaultCharset());
+        this(new DefaultJAXBObjectMapperFactory(), null, null, defaultCharset());
     }
 
 
@@ -55,16 +56,17 @@ public class XmlPathConfig {
      * Create a new XmlPathConfig that uses the <code>defaultCharset</code> when deserializing XML data.
      */
     public XmlPathConfig(String defaultCharset) {
-        this(new DefaultJAXBObjectMapperFactory(), null, defaultCharset);
+        this(new DefaultJAXBObjectMapperFactory(), null, null, defaultCharset);
 
     }
 
-    private XmlPathConfig(JAXBObjectMapperFactory jaxbObjectMapperFactory,
+    private XmlPathConfig(JAXBObjectMapperFactory jaxbObjectMapperFactory, XmlParserType defaultParserType,
                           XmlPathObjectDeserializer defaultDeserializer, String charset) {
         charset = StringUtils.trimToNull(charset);
         if (charset == null) throw new IllegalArgumentException("Charset cannot be empty");
         this.charset = charset;
         this.defaultDeserializer = defaultDeserializer;
+        this.defaultParserType = defaultParserType;
         this.jaxbObjectMapperFactory = jaxbObjectMapperFactory;
     }
 
@@ -86,6 +88,14 @@ public class XmlPathConfig {
         return new XmlPathConfig();
     }
 
+    public XmlParserType defaultParserType() {
+        return defaultParserType;
+    }
+
+    public boolean hasDefaultParserType() {
+        return defaultParserType != null;
+    }
+
     public boolean hasCustomJaxbObjectMapperFactory() {
         return jaxbObjectMapperFactory() != null && jaxbObjectMapperFactory().getClass() != DefaultJAXBObjectMapperFactory.class;
     }
@@ -99,12 +109,21 @@ public class XmlPathConfig {
     }
 
     /**
+     * Creates an xml path configuration that uses the specified parser type as default.
+     *
+     * @param defaultParserType The default parser type to use. If <code>null</code> then classpath scanning will be used.
+     */
+    public XmlPathConfig defaultParserType(XmlParserType defaultParserType) {
+        return new XmlPathConfig(jaxbObjectMapperFactory, defaultParserType, defaultDeserializer, charset);
+    }
+
+    /**
      * Creates an json path configuration that uses the specified object de-serializer as default.
      *
      * @param defaultObjectDeserializer The object de-serializer to use. If <code>null</code> then classpath scanning will be used.
      */
     public XmlPathConfig defaultObjectDeserializer(XmlPathObjectDeserializer defaultObjectDeserializer) {
-        return new XmlPathConfig(jaxbObjectMapperFactory, defaultObjectDeserializer, charset);
+        return new XmlPathConfig(jaxbObjectMapperFactory, defaultParserType, defaultObjectDeserializer, charset);
     }
 
     public JAXBObjectMapperFactory jaxbObjectMapperFactory() {
@@ -117,7 +136,7 @@ public class XmlPathConfig {
      * @param jaxbObjectMapperFactory The object mapper factory
      */
     public XmlPathConfig jaxbObjectMapperFactory(JAXBObjectMapperFactory jaxbObjectMapperFactory) {
-        return new XmlPathConfig(jaxbObjectMapperFactory, defaultDeserializer, charset);
+        return new XmlPathConfig(jaxbObjectMapperFactory, defaultParserType, defaultDeserializer, charset);
     }
 
     /**

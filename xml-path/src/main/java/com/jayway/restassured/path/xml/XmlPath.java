@@ -18,7 +18,10 @@ package com.jayway.restassured.path.xml;
 
 import com.jayway.restassured.assertion.XMLAssertion;
 import com.jayway.restassured.internal.path.xml.XmlPrettifier;
+import com.jayway.restassured.internal.path.xml.mapping.GPathResultToXml;
+import com.jayway.restassured.internal.path.xml.mapping.XmlObjectDeserializer;
 import com.jayway.restassured.mapper.factory.JAXBObjectMapperFactory;
+import com.jayway.restassured.path.xml.config.XmlParserType;
 import com.jayway.restassured.path.xml.config.XmlPathConfig;
 import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.path.xml.element.NodeChildren;
@@ -293,10 +296,7 @@ public class XmlPath {
      */
     public <T> T get(String path) {
         notNull(path, "path");
-        final XMLAssertion xmlAssertion = new XMLAssertion();
-        final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
-        xmlAssertion.setKey(root + path);
-        return (T) xmlAssertion.getResult(input);
+        return getFromPath(path, true);
     }
 
     /**
@@ -361,6 +361,40 @@ public class XmlPath {
             newMap.put(key, value);
         }
         return Collections.unmodifiableMap(newMap);
+    }
+
+    /**
+     * Get an XML document as a Java Object.
+     *
+     * @param objectType The type of the java object.
+     * @param <T>        The type of the java object
+     * @return A Java object representation of the XML document
+     */
+    public <T> T getObject(String path, Class<T> objectType) {
+        Object object = getFromPath(path, false);
+        if (object == null) {
+            return null;
+        } else if (object instanceof GPathResult) {
+            object = GPathResultToXml.toXML((GPathResult) object);
+        }
+
+        XmlPathConfig cfg = new XmlPathConfig(getXmlPathConfig());
+        if (cfg.hasCustomJaxbObjectMapperFactory()) {
+            cfg = cfg.defaultParserType(XmlParserType.JAXB);
+        }
+
+        if (!(object instanceof String)) {
+            throw new IllegalStateException("Internal error: XML object was not an instance of String, please report to the REST Assured mailing-list.");
+        }
+
+        return XmlObjectDeserializer.deserialize((String) object, objectType, cfg);
+    }
+
+    private <T> T getFromPath(String path, boolean convertToJavaObject) {
+        final XMLAssertion xmlAssertion = new XMLAssertion();
+        final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
+        xmlAssertion.setKey(root + path);
+        return (T) xmlAssertion.getResult(input, convertToJavaObject);
     }
 
     /**

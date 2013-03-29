@@ -69,9 +69,6 @@ class JsonObjectDeserializer {
             return deserializeWithGson(deserializationCtx, jsonPathConfig.gsonObjectMapperFactory()) as T
         }
         throw new IllegalStateException("Cannot deserialize object because no JSON deserializer found in classpath. Please put either Jackson or Gson in the classpath.")
-
-        // if not json or xml
-//        throw new IllegalStateException(String.format("Cannot parse object because no supported Content-Type was not specified in response. Content-Type was '%s'.", contentType))
     }
 
     private static <T> T deserializeWithObjectMapper(ObjectDeserializationContext ctx, JsonParserType mapperType, JsonPathConfig config) {
