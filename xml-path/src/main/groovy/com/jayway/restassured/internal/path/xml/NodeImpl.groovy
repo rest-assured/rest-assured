@@ -141,6 +141,10 @@ class NodeImpl extends NodeBase implements Node {
         return get(name, children.nodeIterator(), true)
     }
 
+    @Override
+    Object getBackingGroovyObject() {
+        return groovyNode
+    }
 
     class ValueIterator implements Iterator<String> {
         def hasNext = true

@@ -80,6 +80,11 @@ class NodeChildrenImpl extends NodeBase implements NodeChildren {
         return get(name, nodeList.iterator(), true)
     }
 
+    @Override
+    Object getBackingGroovyObject() {
+        return groovyNodes
+    }
+
     class NodeListIterator implements Iterator<String> {
         def iterator = nodeList.iterator()
 

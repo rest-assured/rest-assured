@@ -17,6 +17,8 @@
 package com.jayway.restassured.path.xml;
 
 import com.jayway.restassured.assertion.XMLAssertion;
+import com.jayway.restassured.internal.path.ObjectConverter;
+import com.jayway.restassured.internal.path.xml.NodeBase;
 import com.jayway.restassured.internal.path.xml.XmlPrettifier;
 import com.jayway.restassured.internal.path.xml.mapping.XmlObjectDeserializer;
 import com.jayway.restassured.mapper.factory.JAXBObjectMapperFactory;
@@ -24,6 +26,7 @@ import com.jayway.restassured.path.xml.config.XmlParserType;
 import com.jayway.restassured.path.xml.config.XmlPathConfig;
 import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.path.xml.element.NodeChildren;
+import com.jayway.restassured.path.xml.element.PathElement;
 import com.jayway.restassured.path.xml.exception.XmlPathException;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
@@ -372,6 +375,10 @@ public class XmlPath {
      */
     public <T> T getObject(String path, Class<T> objectType) {
         Object object = getFromPath(path, false);
+        return getObjectAsType(object, objectType);
+    }
+
+    private <T> T getObjectAsType(Object object, Class<T> objectType) {
         if (object == null) {
             return null;
         } else if (object instanceof GPathResult) {
@@ -783,6 +790,13 @@ public class XmlPath {
             }
         }
         return convertedList;
+    }
+
+    private <T> T convertObjectTo(Object object, Class<T> explicitType) {
+        if (object instanceof NodeBase && !explicitType.isAssignableFrom(Node.class) && !explicitType.isAssignableFrom(NodeChildren.class)) {
+            return getObjectAsType(((NodeBase) object).getBackingGroovyObject(), explicitType);
+        }
+        return ObjectConverter.convertObjectTo(object, explicitType);
     }
 
     private GPathResult parseInputStream(final InputStream stream) {

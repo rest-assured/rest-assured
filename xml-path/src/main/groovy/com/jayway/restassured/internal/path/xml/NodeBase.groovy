@@ -52,4 +52,7 @@ abstract class NodeBase {
   public List<Node> getNodes(String name) {
     return getList(name)
   }
+
+  public abstract Object getBackingGroovyObject();
+
 }
