@@ -18,6 +18,7 @@ package com.jayway.restassured.assertion
 import com.jayway.restassured.internal.assertion.Assertion
 import com.jayway.restassured.internal.path.xml.NodeChildrenImpl
 import com.jayway.restassured.internal.path.xml.NodeImpl
+import com.jayway.restassured.path.xml.element.NodeChildren
 import groovy.util.slurpersupport.*
 
 import static com.jayway.restassured.internal.assertion.AssertionSupport.*
@@ -139,6 +140,12 @@ class XMLAssertion implements Assertion {
     }
 
     private def nodeToJavaObject(node) {
+        if (node.getClass().getMethods().find { it.name == "size" && it.parameterTypes.size() == 0} != null) {
+            if (node.size() == 1 && !hasChildren(node, false)) {
+                return node.text()
+            }
+        }
+
         def nodeImpl = new NodeImpl(name: node.name(), groovyNode: node)
         addAttributes(nodeImpl, node)
         for (Object child : node.children()) {
