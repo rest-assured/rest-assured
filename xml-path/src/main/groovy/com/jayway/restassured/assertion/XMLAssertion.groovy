@@ -115,7 +115,12 @@ class XMLAssertion implements Assertion {
         } else if (result instanceof FilteredNodeChildren) {
             returnValue = toJavaObject(result, false, true)
         } else if (result instanceof NodeChild) {
-            returnValue = nodeToJavaObject(result)
+            def object = toJavaObject(result, false, false)
+            if (object instanceof NodeChildren) {
+                returnValue = object.get(0)
+            } else {
+                returnValue = object
+            }
         } else if (result instanceof GPathResult) {
             returnValue = toJavaObject(result, false, false)
         } else if (result instanceof List) {
@@ -140,12 +145,6 @@ class XMLAssertion implements Assertion {
     }
 
     private def nodeToJavaObject(node) {
-        if (node.getClass().getMethods().find { it.name == "size" && it.parameterTypes.size() == 0} != null) {
-            if (node.size() == 1 && !hasChildren(node, false)) {
-                return node.text()
-            }
-        }
-
         def nodeImpl = new NodeImpl(name: node.name(), groovyNode: node)
         addAttributes(nodeImpl, node)
         for (Object child : node.children()) {
@@ -185,7 +184,18 @@ class XMLAssertion implements Assertion {
     }
 
     private def toJavaList(nodes, isAttributes, forceList) {
-        def nodeList = forceList ? [] : new NodeChildrenImpl(groovyNodes: nodes)
+        println nodes.getClass()
+        def nodeList
+        if (forceList) {
+            nodeList = []
+        } else if (nodes instanceof NodeChild) {
+            def nodeImpl = new NodeImpl(name: nodes.name(), groovyNode: nodes)
+            addAttributes(nodeImpl, nodes)
+            nodeList = nodeImpl
+        } else {
+            nodeList = new NodeChildrenImpl(groovyNodes: nodes)
+        }
+
         if (isAttributes) {
             def temp = []
             nodes.each {

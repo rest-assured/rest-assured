@@ -13,19 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
 package com.jayway.restassured.internal.path.xml
 
 import com.jayway.restassured.assertion.XMLAssertion
 import com.jayway.restassured.internal.assertion.AssertParameter
-import com.jayway.restassured.path.xml.XmlPath
 import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.path.xml.element.NodeChildren
-import groovy.util.slurpersupport.NodeChild
-import groovy.xml.MarkupBuilder
-import groovy.xml.StreamingMarkupBuilder
 
 class NodeImpl extends NodeBase implements Node {
 
@@ -70,6 +63,10 @@ class NodeImpl extends NodeBase implements Node {
 
     NodeChildren children() {
         return children
+    }
+
+    def leftShift(Node node) {
+        children << node
     }
 
     String getAttribute(String name) {

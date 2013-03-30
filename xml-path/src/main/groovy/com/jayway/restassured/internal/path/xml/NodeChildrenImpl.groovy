@@ -20,76 +20,77 @@ import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.path.xml.element.NodeChildren
 
 class NodeChildrenImpl extends NodeBase implements NodeChildren {
-  def nodeList = []
-  def groovyNodes
+    def nodeList = []
+    def groovyNodes
 
-  Node get(int index) {
-    return nodeList.get(index)
-  }
-
-  int size() {
-    return nodeList.size()
-  }
-
-  boolean isEmpty() {
-    return nodeList.isEmpty()
-  }
-
-  Iterator<String> iterator() {
-    return new NodeListIterator()
-  }
-
-  def leftShift(Node node) {
-    nodeList << node
-  }
-
-
-  public String toString ( ) {
-    def builder = new StringBuilder()
-    nodeList.each {
-      builder.append(it.toString())
+    Node get(int index) {
+        return nodeList.get(index)
     }
-    builder.toString()
-  }
 
-  Iterable<Node> nodeIterable() {
-    nodeList
-  }
+    int size() {
+        return nodeList.size()
+    }
 
-  public <T> T get(String name) {
-    return get(name, nodeList.iterator(), false)
-  }
+    boolean isEmpty() {
+        return nodeList.isEmpty()
+    }
 
-  @Override
-  Iterator<Node> nodeIterator() {
-    return nodeList.iterator()
-  }
+    Iterator<String> iterator() {
+        return new NodeListIterator()
+    }
 
-  @Override
-  List<Node> list() {
-    return Collections.unmodifiableList(nodeList)
-  }
+    def leftShift(Node node) {
+        nodeList << node
+    }
 
-  @Override def <T> List<T> getList(String name) {
-    return get(name, nodeList.iterator(), true)
-  }
+    public String toString() {
+        def builder = new StringBuilder()
+        nodeList.each {
+            builder.append(it.toString())
+        }
+        builder.toString()
+    }
 
-  class NodeListIterator implements Iterator<String> {
-    def iterator = nodeList.iterator()
-    @Override
-    boolean hasNext() {
-      return iterator.hasNext()
+    Iterable<Node> nodeIterable() {
+        nodeList
+    }
+
+    public <T> T get(String name) {
+        return get(name, nodeList.iterator(), false)
     }
 
     @Override
-    String next() {
-      def asString = iterator.next().toString()
-      return asString
+    Iterator<Node> nodeIterator() {
+        return nodeList.iterator()
     }
 
     @Override
-    void remove() {
-      throw new UnsupportedOperationException()
+    List<Node> list() {
+        return Collections.unmodifiableList(nodeList)
     }
-  }
+
+    @Override
+    def <T> List<T> getList(String name) {
+        return get(name, nodeList.iterator(), true)
+    }
+
+    class NodeListIterator implements Iterator<String> {
+        def iterator = nodeList.iterator()
+
+        @Override
+        boolean hasNext() {
+            return iterator.hasNext()
+        }
+
+        @Override
+        String next() {
+            def asString = iterator.next().toString()
+            return asString
+        }
+
+        @Override
+        void remove() {
+            throw new UnsupportedOperationException()
+        }
+    }
 }
