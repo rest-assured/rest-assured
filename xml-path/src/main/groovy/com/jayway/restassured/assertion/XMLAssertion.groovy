@@ -56,15 +56,15 @@ class XMLAssertion implements Assertion {
         }
 
         def result;
-        def rootObject = "restAssuredXmlRootObject"
+        def rootObjectVariableName = "restAssuredXmlRootObject"
         try {
-            result = Eval.me(rootObject, object, "$rootObject$evaluationString")
+            result = Eval.me(rootObjectVariableName, object, "$rootObjectVariableName$evaluationString")
         } catch (Exception e) {
             def errorMessage = e.getMessage();
             if (errorMessage.startsWith("No signature of method:")) {
                 errorMessage = "Path $key is invalid."
             } else {
-                errorMessage = e.getMessage().replace("startup failed:", "Invalid path:").replace(rootObject, generateWhitespace(rootObject.length() - baseString.length()) + baseString)
+                errorMessage = e.getMessage().replace("startup failed:", "Invalid path:").replace(rootObjectVariableName, generateWhitespace(rootObjectVariableName.length() - baseString.length()) + baseString)
             }
             throw new IllegalArgumentException(errorMessage);
         }
@@ -131,7 +131,7 @@ class XMLAssertion implements Assertion {
     }
 
     private def nodeToJavaObject(node) {
-        def nodeImpl = new NodeImpl(name: node.name())
+        def nodeImpl = new NodeImpl(name: node.name(), groovyNode: node)
         addAttributes(nodeImpl, node)
         for (Object child : node.children()) {
             if (child instanceof Node) {
@@ -170,7 +170,7 @@ class XMLAssertion implements Assertion {
     }
 
     private def toJavaList(nodes, isAttributes, forceList) {
-        def nodeList = forceList ? [] : new NodeChildrenImpl()
+        def nodeList = forceList ? [] : new NodeChildrenImpl(groovyNodes: nodes)
         if (isAttributes) {
             def temp = []
             nodes.each {
