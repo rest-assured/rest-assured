@@ -61,6 +61,16 @@ class NodeImpl extends NodeBase implements Node {
         builder.toString()
     }
 
+    /**
+     * The the Node on the nth index
+     *
+     * @param index The index of the node the get
+     * @return The node
+     */
+    Node get(int index) {
+        return children.get(index)
+    }
+
     NodeChildren children() {
         return children
     }
@@ -110,6 +120,14 @@ class NodeImpl extends NodeBase implements Node {
     }
 
     public <T> T get(String name) {
+        if (name.startsWith("@")) {
+            return attributes.get(name.substring(1))
+        }
+        return get(name, children.nodeIterator(), false)
+    }
+
+    @Override
+    def <T> T path(String name) {
         return new XMLAssertion(key: name).getChildResultAsJavaObject(groovyNode) as T;
     }
 

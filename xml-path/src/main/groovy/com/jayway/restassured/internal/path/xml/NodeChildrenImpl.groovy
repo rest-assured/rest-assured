@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.internal.path.xml
 
+import com.jayway.restassured.assertion.XMLAssertion
 import com.jayway.restassured.path.xml.element.Node
 import com.jayway.restassured.path.xml.element.NodeChildren
 
@@ -57,6 +58,11 @@ class NodeChildrenImpl extends NodeBase implements NodeChildren {
 
     public <T> T get(String name) {
         return get(name, nodeList.iterator(), false)
+    }
+
+    @Override
+    def <T> T path(String name) {
+        return new XMLAssertion(key: name).getChildResultAsJavaObject(groovyNodes) as T;
     }
 
     @Override

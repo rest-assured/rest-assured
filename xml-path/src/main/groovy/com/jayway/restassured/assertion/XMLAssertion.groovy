@@ -18,7 +18,7 @@ package com.jayway.restassured.assertion
 import com.jayway.restassured.internal.assertion.Assertion
 import com.jayway.restassured.internal.path.xml.NodeChildrenImpl
 import com.jayway.restassured.internal.path.xml.NodeImpl
-import com.jayway.restassured.path.xml.element.NodeChildren
+import com.jayway.restassured.path.xml.element.PathElement
 import groovy.util.slurpersupport.*
 
 import static com.jayway.restassured.internal.assertion.AssertionSupport.*
@@ -116,7 +116,7 @@ class XMLAssertion implements Assertion {
             returnValue = toJavaObject(result, false, true)
         } else if (result instanceof NodeChild) {
             def object = toJavaObject(result, false, false)
-            if (object instanceof NodeChildren) {
+            if (object instanceof PathElement) {
                 returnValue = object.get(0)
             } else {
                 returnValue = object
@@ -161,11 +161,6 @@ class XMLAssertion implements Assertion {
     private def addAttributes(nodeImpl, node) {
         def attributes = node.attributes();
         nodeImpl.attributes = convertToJavaObject(attributes)
-    }
-
-    private boolean shouldBeTreatedAsList(child) {
-        def firstGrandChild = child.children().get(0);
-        return firstGrandChild instanceof Node;
     }
 
     private def toJavaObject(nodes, isAttributes, forceList) {
