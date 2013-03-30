@@ -18,6 +18,7 @@ package com.jayway.restassured.path.xml;
 
 import com.jayway.restassured.assertion.XMLAssertion;
 import com.jayway.restassured.internal.path.ObjectConverter;
+import com.jayway.restassured.internal.path.xml.GroovyNodeSerializer;
 import com.jayway.restassured.internal.path.xml.NodeBase;
 import com.jayway.restassured.internal.path.xml.XmlPrettifier;
 import com.jayway.restassured.internal.path.xml.mapping.XmlObjectDeserializer;
@@ -26,7 +27,6 @@ import com.jayway.restassured.path.xml.config.XmlParserType;
 import com.jayway.restassured.path.xml.config.XmlPathConfig;
 import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.path.xml.element.NodeChildren;
-import com.jayway.restassured.path.xml.element.PathElement;
 import com.jayway.restassured.path.xml.exception.XmlPathException;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
@@ -43,7 +43,6 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
-import static com.jayway.restassured.internal.path.ObjectConverter.convertObjectTo;
 import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.XML;
 
 /**
@@ -383,6 +382,8 @@ public class XmlPath {
             return null;
         } else if (object instanceof GPathResult) {
             object = XmlUtil.serialize((GPathResult) object);
+        } else if(object instanceof groovy.util.slurpersupport.Node) {
+            object =   GroovyNodeSerializer.toXML((groovy.util.slurpersupport.Node) object);
         }
 
         XmlPathConfig cfg = new XmlPathConfig(getXmlPathConfig());
@@ -793,7 +794,7 @@ public class XmlPath {
     }
 
     private <T> T convertObjectTo(Object object, Class<T> explicitType) {
-        if (object instanceof NodeBase && !explicitType.isAssignableFrom(Node.class) && !explicitType.isAssignableFrom(NodeChildren.class)) {
+        if (object instanceof NodeBase && !ObjectConverter.canConvert(object, explicitType)) {
             return getObjectAsType(((NodeBase) object).getBackingGroovyObject(), explicitType);
         }
         return ObjectConverter.convertObjectTo(object, explicitType);

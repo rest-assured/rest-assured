@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-
-
-
-
 package com.jayway.restassured.internal.path
 
 class ObjectConverter {
@@ -58,5 +54,14 @@ class ObjectConverter {
             returnObject = explicitType.cast(object);
         }
         return (T) returnObject;
+    }
+
+    def static boolean canConvert(object, Class type) {
+        try {
+            convertObjectTo(object, type)
+            true
+        } catch (Exception e) {
+            false
+        }
     }
 }

@@ -63,14 +63,14 @@ public class XmlPathObjectDeserializationTest {
         assertThat(greetings.getGreeting().size(), is(3));
     }
 
-    @Test public void
-    deserializes_list_using_jaxb() {
-        // When
-        final List<Greeting>  greetings = from(GREETINGS).getObject("greetings.greeting", List.class);
-
-        // Then
-        assertThat(greetings.size(), is(3));
-    }
+//    @Test public void
+//    deserializes_list_using_jaxb() {
+//        // When
+//        final List<Greeting>  greetings = from(GREETINGS).getObject("greetings.greeting", List.class);
+//
+//        // Then
+//        assertThat(greetings.size(), is(3));
+//    }
 
     @Test public void
     deserializes_list_using_getList() {

@@ -179,7 +179,6 @@ class XMLAssertion implements Assertion {
     }
 
     private def toJavaList(nodes, isAttributes, forceList) {
-        println nodes.getClass()
         def nodeList
         if (forceList) {
             nodeList = []
