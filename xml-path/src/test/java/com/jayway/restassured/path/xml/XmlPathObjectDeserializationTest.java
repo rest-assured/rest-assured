@@ -3,7 +3,9 @@ package com.jayway.restassured.path.xml;
 import com.jayway.restassured.path.xml.support.CoolGreeting;
 import com.jayway.restassured.path.xml.support.Greeting;
 import com.jayway.restassured.path.xml.support.Greetings;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.util.List;
 
@@ -13,6 +15,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class XmlPathObjectDeserializationTest {
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     private static final String COOL_GREETING = "<cool><greeting><firstName>John</firstName>\n" +
             "      <lastName>Doe</lastName>\n" +
@@ -63,14 +67,17 @@ public class XmlPathObjectDeserializationTest {
         assertThat(greetings.getGreeting().size(), is(3));
     }
 
-//    @Test public void
-//    deserializes_list_using_jaxb() {
-//        // When
-//        final List<Greeting>  greetings = from(GREETINGS).getObject("greetings.greeting", List.class);
-//
-//        // Then
-//        assertThat(greetings.size(), is(3));
-//    }
+    @Test public void
+    cannot_deserialize_list_when_using_getObject() {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Failed to convert XML to Java Object. If you're trying convert to a list then use the getList method instead.");
+
+        // When
+        final List<Greeting>  greetings = from(GREETINGS).getObject("greetings.greeting", List.class);
+
+        // Then
+        assertThat(greetings.size(), is(3));
+    }
 
     @Test public void
     deserializes_list_using_getList() {
@@ -80,13 +87,4 @@ public class XmlPathObjectDeserializationTest {
         // Then
         assertThat(greetings.size(), is(3));
     }
-
-//    @Test public void
-//    deserializes_x_node_using_jaxb() {
-//        // When
-//        final String greeting = from(COOL_GREETING).getObject("greetings.greeting.firstName", String.class);
-//
-//        // Then
-//        System.out.println(greeting);
-//    }
 }
