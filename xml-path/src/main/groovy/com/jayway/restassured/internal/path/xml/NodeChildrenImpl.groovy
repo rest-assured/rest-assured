@@ -21,6 +21,7 @@ import com.jayway.restassured.path.xml.element.NodeChildren
 
 class NodeChildrenImpl extends NodeBase implements NodeChildren {
   def nodeList = []
+  def groovyNodes
 
   Node get(int index) {
     return nodeList.get(index)

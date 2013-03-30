@@ -18,7 +18,6 @@ package com.jayway.restassured.assertion
 import com.jayway.restassured.internal.assertion.Assertion
 import com.jayway.restassured.internal.path.xml.NodeChildrenImpl
 import com.jayway.restassured.internal.path.xml.NodeImpl
-import com.jayway.restassured.path.xml.element.NodeChildren
 import groovy.util.slurpersupport.*
 
 import static com.jayway.restassured.internal.assertion.AssertionSupport.*
@@ -33,22 +32,32 @@ class XMLAssertion implements Assertion {
 
     private def fragments
 
-    def Object getResult(Object object, boolean shouldConvertToJavaObject) {
-        key = key?.startsWith(DOT) ? key.substring(1) : key
+    /**
+     * @param object The object to get the result from
+     * @param shouldConvertToJavaObject Should the result be converted to Java Object or should we retain the returned Groovy object
+     * @param rootEvaluation True if we're evaluating from a root, false if start node is a child node.
+     */
+    def Object getResult(Object object, boolean shouldConvertToJavaObject, boolean rootEvaluation) {
+        if (rootEvaluation) {
+            key = key?.startsWith(DOT) ? key.substring(1) : key
+        }
         key = escapePath(key, minus(), attributeGetter(), doubleStar())
         def indexOfDot = key.indexOf(".")
         def baseString
         def evaluationString
-        def isRootOnly = indexOfDot < 0
+        def isRootOnly = rootEvaluation ? (indexOfDot < 0) : false
         if (!isRootOnly) {
             fragments = key.split("\\.");
             def firstFragment = fragments[0];
             if (isDoubleStarFragment(firstFragment) || !isPathFragment(firstFragment)) {
                 evaluationString = key.startsWith(DOT) ?: DOT + key; // Add a dot if needed because the first path fragment is actually a method invocation
                 baseString = firstFragment
-            } else {
+            } else if (rootEvaluation) {
                 evaluationString = key.substring(indexOfDot);
                 baseString = key.substring(0, indexOfDot)
+            } else {
+                evaluationString = key.startsWith(".") ? key : "." + key;
+                baseString = "";
             }
         } else {
             evaluationString = "";
@@ -73,7 +82,11 @@ class XMLAssertion implements Assertion {
     }
 
     def Object getResult(Object object) {
-        return getResult(object, true)
+        return getResult(object, true, true)
+    }
+
+    def Object getChildResultAsJavaObject(Object object) {
+        return getResult(object, true, false)
     }
 
     private def isDoubleStarFragment(String fragment) {
@@ -101,12 +114,7 @@ class XMLAssertion implements Assertion {
         } else if (result instanceof FilteredNodeChildren) {
             returnValue = toJavaObject(result, false, true)
         } else if (result instanceof NodeChild) {
-            def object = toJavaObject(result, false, false)
-            if (object instanceof NodeChildren) {
-                returnValue = object.get(0)
-            } else {
-                returnValue = object
-            }
+            returnValue = nodeToJavaObject(result)
         } else if (result instanceof GPathResult) {
             returnValue = toJavaObject(result, false, false)
         } else if (result instanceof List) {

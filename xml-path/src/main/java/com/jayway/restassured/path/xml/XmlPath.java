@@ -18,7 +18,6 @@ package com.jayway.restassured.path.xml;
 
 import com.jayway.restassured.assertion.XMLAssertion;
 import com.jayway.restassured.internal.path.xml.XmlPrettifier;
-import com.jayway.restassured.internal.path.xml.mapping.GPathResultToXml;
 import com.jayway.restassured.internal.path.xml.mapping.XmlObjectDeserializer;
 import com.jayway.restassured.mapper.factory.JAXBObjectMapperFactory;
 import com.jayway.restassured.path.xml.config.XmlParserType;
@@ -28,6 +27,7 @@ import com.jayway.restassured.path.xml.element.NodeChildren;
 import com.jayway.restassured.path.xml.exception.XmlPathException;
 import groovy.util.XmlSlurper;
 import groovy.util.slurpersupport.GPathResult;
+import groovy.xml.XmlUtil;
 import org.apache.commons.lang3.Validate;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -375,7 +375,7 @@ public class XmlPath {
         if (object == null) {
             return null;
         } else if (object instanceof GPathResult) {
-            object = GPathResultToXml.toXML((GPathResult) object);
+            object = XmlUtil.serialize((GPathResult) object);
         }
 
         XmlPathConfig cfg = new XmlPathConfig(getXmlPathConfig());
@@ -394,7 +394,7 @@ public class XmlPath {
         final XMLAssertion xmlAssertion = new XMLAssertion();
         final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
         xmlAssertion.setKey(root + path);
-        return (T) xmlAssertion.getResult(input, convertToJavaObject);
+        return (T) xmlAssertion.getResult(input, convertToJavaObject, true);
     }
 
     /**
