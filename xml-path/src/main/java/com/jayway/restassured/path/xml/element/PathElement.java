@@ -83,7 +83,7 @@ public interface PathElement extends Iterable<String> {
      * @param <T> The expected type of the return value.
      * @return A Node, a list of nodes, an attribute value or null if not found.
      */
-    <T> T path(String name);
+    <T> T getPath(String name);
 
     /**
      * Get a {@link Node} whose name matches the supplied <code>name</code>

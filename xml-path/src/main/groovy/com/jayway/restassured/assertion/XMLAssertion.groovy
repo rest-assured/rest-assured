@@ -39,6 +39,7 @@ class XMLAssertion implements Assertion {
      * @param rootEvaluation True if we're evaluating from a root, false if start node is a child node.
      */
     def Object getResult(Object object, boolean shouldConvertToJavaObject, boolean rootEvaluation) {
+        def objectToUse = object instanceof groovy.util.slurpersupport.Node ? new NodeChild(object, null, null) : object
         if (rootEvaluation) {
             key = key?.startsWith(DOT) ? key.substring(1) : key
         }
@@ -68,7 +69,7 @@ class XMLAssertion implements Assertion {
         def result;
         def rootObjectVariableName = "restAssuredXmlRootObject"
         try {
-            result = Eval.me(rootObjectVariableName, object, "$rootObjectVariableName$evaluationString")
+            result = Eval.me(rootObjectVariableName, objectToUse, "$rootObjectVariableName$evaluationString")
         } catch (Exception e) {
             def errorMessage = e.getMessage();
             if (errorMessage.startsWith("No signature of method:")) {
