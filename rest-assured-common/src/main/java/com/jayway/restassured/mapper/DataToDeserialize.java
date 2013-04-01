@@ -20,23 +20,23 @@ import java.io.InputStream;
 
 public interface DataToDeserialize {
     /**
-     * Get the body as a string.
+     * Get the data as a string.
      *
-     * @return The body as a string.
+     * @return The data as a string.
      */
     String asString();
 
     /**
-     * Get the body as a byte array.
+     * Get the data as a byte array.
      *
-     * @return The body as a array.
+     * @return The data as a array.
      */
     byte[] asByteArray();
 
     /**
-     * Get the body as an input stream.
+     * Get the data as an input stream.
      *
-     * @return The body as an input stream.
+     * @return The data as an input stream.
      */
     InputStream asInputStream();
 }
