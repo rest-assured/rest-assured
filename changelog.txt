@@ -12,7 +12,7 @@ Change log 1.8.0 (2013-04-01)
 * Added support for automatically converting a String to BigDecimal in JsonPath
 * Non-backward compatible change: com.jayway.restassured.exception.ParsePathException was renamed to com.jayway.restassured.exception.PathException.
 * Non-backward compatible change: JsonPath now throws JsonPathException instead of Groovy's JsonException when parsing invalid JSON documents
-* Non-backward compatible change: XmlPath now throws XmlPathException instead of PathException when invalid malformed XML documents
+* Non-backward compatible change: XmlPath now throws XmlPathException instead of PathException when parsing invalid XML documents
 * Non-backward compatible change: ObjectMapperDeserializationContext#getResponse() has been renamed to "getDataToDeserialize()". It no longer returns an instance of ResponseBodyData, it now returns an instance of "DataToDeserialize".
 * Improved error messages in XmlPath
 * Added getPath method to Node and NodeChildren elements in XmlPath which allows you get a subpath using the GPath notation.
