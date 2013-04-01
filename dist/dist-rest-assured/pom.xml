@@ -48,6 +48,20 @@
                             </descriptors>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>package-rest-assured-dist</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>rest-assured-${project.version}-dist</finalName>
+                            <descriptors>
+                                <descriptor>src/main/assembly/rest-assured-dist.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

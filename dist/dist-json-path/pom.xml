@@ -49,6 +49,20 @@
                             </descriptors>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>package-json-path-dist</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>json-path-${project.version}-dist</finalName>
+                            <descriptors>
+                                <descriptor>src/main/assembly/json-path-dist.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>
