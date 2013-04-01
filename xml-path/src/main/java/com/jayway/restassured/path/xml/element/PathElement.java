@@ -49,49 +49,35 @@ public interface PathElement extends Iterable<String> {
      * </p>
      *
      * @param name The name of the child, children or attribute.
-     * @param <T> The expected type of the return value.
+     * @param <T>  The expected type of the return value.
      * @return A Node, a list of nodes, an attribute value or null if not found.
      */
     <T> T get(String name);
 
     /**
-     * Get a value from the current XML object.
-     * <p>
-     * This method returns the child whose name matches <code>name</code>. If several
-     * children matches the name then a {@link List} of Node's
-     * are returned.
-     * </p>
-     * <p>
-     * If this object is a Node and you want to return an attribute value you need to prefix
-     * the name with an <tt>@</tt>. E.g. given
-     * <pre>
-     *   &lt;category type=&quot;present&quot;&gt;
-     *      &lt;item when=&quot;Aug 10&quot;&gt;
-     *         &lt;name&gt;Kathryn&#39;s Birthday&lt;/name&gt;
-     *         &lt;price&gt;200&lt;/price&gt;
-     *      &lt;/item&gt;
-     *   &lt;/category&gt;
-     * </pre>
-     * then
-     * <pre>
-     *  String type = node.get("@type");
-     * </pre>
-     * will return "present".
-     * </p>
+     * Get a value from the current XML using Groovy's <a href="http://groovy.codehaus.org/GPath">GPath</a> expression syntax.
      *
-     * @param path The name of the child, children or attribute.
-     * @param <T> The expected type of the return value.
-     * @return A Node, a list of nodes, an attribute value or null if not found.
+     * @param path The GPath expression syntax
+     * @param <T>  The expected type of the return value.
+     * @return The outcome of the gpath expression
      */
     <T> T getPath(String path);
 
+    /**
+     * Get a value from the current XML using Groovy's <a href="http://groovy.codehaus.org/GPath">GPath</a> expression syntax.
+     *
+     * @param path         The GPath expression syntax
+     * @param explicitType Converts the outcome of the GPath expression to tis type if allowed
+     * @param <T>          The expected type of the return value.
+     * @return The outcome of the gpath expression
+     */
     <T> T getPath(String path, Class<T> explicitType);
 
     /**
      * Get a {@link Node} whose name matches the supplied <code>name</code>
      * from the current XML object.
-     *
-     * <p>
+     * <p/>
+     * <p/>
      * Note that there's no guarantee that this method actually
      * will return a Node. It could result in a {@java.lang.ClassCastException}.
      *
