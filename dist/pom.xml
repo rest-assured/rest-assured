@@ -12,6 +12,8 @@
     <packaging>pom</packaging>
     <modules>
         <module>dist-rest-assured</module>
+        <module>dist-json-path</module>
+        <module>dist-xml-path</module>
     </modules>
     <artifactId>dist</artifactId>
 
