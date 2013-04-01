@@ -1,0 +1,48 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+    <id>bin</id>
+    <formats>
+        <!--<format>tar.gz</format>-->
+        <!--<format>tar.bz2</format>-->
+        <format>zip</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>README*</include>
+                <include>LICENSE*</include>
+                <include>NOTICE*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/site</directory>
+            <outputDirectory>docs</outputDirectory>
+        </fileSet>
+    </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <excludes>
+                <!-- JsonPath -->
+                <exclude>com.jayway.restassured:json-path</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-annotations</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-core</exclude>
+                <exclude>org.codehaus.jackson:jackson-core-asl</exclude>
+                <exclude>org.codehaus.jackson:jackson-mapper-asl</exclude>
+                <exclude>com.google.code.gson:gson</exclude>
+                <exclude>com.googlecode.json-simple:json-simple</exclude>
+                <!-- XmlPath -->
+                <exclude>com.jayway.restassured:xml-path</exclude>
+                <!-- Rest Assured -->
+                <exclude>com.jayway.restassured:rest-assured</exclude>
+                <exclude>com.jayway.restassured:rest-assured-common</exclude>
+            </excludes>
+            <outputDirectory>/</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <scope>runtime</scope>
+        </dependencySet>
+    </dependencySets>
+</assembly>

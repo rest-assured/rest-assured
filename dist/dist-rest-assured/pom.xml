@@ -30,6 +30,7 @@
                         <configuration>
                             <descriptors>
                                 <descriptor>src/main/assembly/rest-assured-full-jar.xml</descriptor>
+                                <descriptor>src/main/assembly/dependencies.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
