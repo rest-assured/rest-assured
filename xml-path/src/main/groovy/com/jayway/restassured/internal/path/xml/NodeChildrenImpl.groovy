@@ -61,8 +61,8 @@ class NodeChildrenImpl extends NodeBase implements NodeChildren {
     }
 
     @Override
-    def <T> T getPath(String name) {
-        return new XMLAssertion(key: name).getChildResultAsJavaObject(groovyNodes) as T;
+    def <T> T getPath(String path) {
+        return new XMLAssertion(key: path).getChildResultAsJavaObject(groovyNodes) as T;
     }
 
     @Override

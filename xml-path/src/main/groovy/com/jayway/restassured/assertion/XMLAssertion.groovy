@@ -20,6 +20,7 @@ import com.jayway.restassured.internal.path.xml.NodeChildrenImpl
 import com.jayway.restassured.internal.path.xml.NodeImpl
 import com.jayway.restassured.path.xml.element.PathElement
 import groovy.util.slurpersupport.*
+import org.apache.commons.lang3.StringUtils
 
 import static com.jayway.restassured.internal.assertion.AssertionSupport.*
 
@@ -75,7 +76,23 @@ class XMLAssertion implements Assertion {
             if (errorMessage.startsWith("No signature of method:")) {
                 errorMessage = "Path $key is invalid."
             } else {
-                errorMessage = e.getMessage().replace("startup failed:", "Invalid path:").replace(rootObjectVariableName, generateWhitespace(rootObjectVariableName.length() - baseString.length()) + baseString)
+                def boolean hasRootObjectVariableName = StringUtils.contains(errorMessage, rootObjectVariableName)
+                def replacement = rootEvaluation ? fragments[0].toString() + "." : ""
+                errorMessage = e.getMessage().replace("startup failed:", "Invalid path:").replace("Script1.groovy: 1: ", "").
+                        replace(rootObjectVariableName+".", replacement).replace("Object.", replacement)
+
+                // Since we've replaced "Object" with root node name we need to move the ^ indicator.
+                def originalIndicatorIndex = errorMessage.indexOf("^");
+                if (originalIndicatorIndex > 0) {
+                    def int lhs = rootEvaluation ? replacement.length() : 0
+                    def int indicatorDelta = lhs - (hasRootObjectVariableName ? rootObjectVariableName.length() + 1 : "Object.".length())
+                    if (indicatorDelta > 0) {
+                        errorMessage = StringUtils.replace(errorMessage, "^", generateWhitespace(indicatorDelta) + "^")
+                    } else if (indicatorDelta < 0) {
+                        errorMessage = StringUtils.replace(errorMessage, generateWhitespace(Math.abs(indicatorDelta)) + "^", "^")
+                    }
+                }
+
             }
             throw new IllegalArgumentException(errorMessage);
         }

@@ -1,38 +1,16 @@
-/*
- * Copyright 2013 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *        http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.jayway.restassured.path.xml;
 
 import com.jayway.restassured.path.xml.element.Node;
-import com.jayway.restassured.path.xml.element.NodeChildren;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.List;
-
 import static com.jayway.restassured.path.xml.XmlPath.with;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-public class XmlPathSubPathTest {
+public class XmlPathErrorMessageTest {
+
     @Rule
     public ExpectedException exception = ExpectedException.none();
-
 
     private static final String XML = "<shopping>\n" +
             "      <category type=\"groceries\">\n" +
@@ -66,24 +44,23 @@ public class XmlPathSubPathTest {
             "      </category>\n" +
             "</shopping>";
 
-    @Test public void
-    subpath_works_for_lists() {
-        Node category = with(XML).get("shopping");
-        final NodeChildren names = category.getPath("category[0].item.name");
 
-        assertThat(names, hasItems("Chocolate", "Coffee"));
+    @Test public void
+    error_messages_on_invalid_subpath_looks_ok_when_received_node_is_not_root() {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Invalid path:\n" +
+                "unexpected token: [ @ line 1, column 37.\n" +
+                "   item.price.[0]\n" +
+                "              ^\n" +
+                "\n" +
+                "1 error");
+
+        Node firstCategory = with(XML).get("shopping.category[0]");
+        firstCategory.getPath("item.price.[0]", float.class);
     }
 
     @Test public void
-    subpath_with_explicit_type() {
-        Node category = with(XML).get("shopping");
-        final float firstPrice = category.getPath("category[0].item.price[0]", float.class);
-
-        assertThat(firstPrice, is(10f));
-    }
-
-    @Test public void
-    error_messages_on_invalid_subpath_looks_ok() {
+    error_messages_on_invalid_subpath_with_root_name_less_than_six_characters_looks_ok() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Invalid path:\n" +
                 "unexpected token: [ @ line 1, column 49.\n" +
@@ -92,10 +69,20 @@ public class XmlPathSubPathTest {
                 "\n" +
                 "1 error");
 
-        Node category = with(XML).get("shopping");
-        final float firstPrice = category.getPath("category[0].item.price.[0]", float.class);
-
-        assertThat(firstPrice, is(10f));
+        Node category = with(XML.replace("shopping", "some")).get("some");
+        category.getPath("category[0].item.price.[0]", float.class);
     }
 
+    @Test public void
+    error_messages_on_invalid_path_looks_ok() {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Invalid path:\n" +
+                "unexpected token: [ @ line 1, column 26.\n" +
+                "   shopping.[0]\n" +
+                "            ^\n" +
+                "\n" +
+                "1 error");
+
+        with(XML).get("shopping.[0]");
+    }
 }

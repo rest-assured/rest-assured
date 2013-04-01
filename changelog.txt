@@ -14,6 +14,8 @@ Change log next version
 * Non-backward compatible change: JsonPath now throws JsonPathException instead of Groovy's JsonException when parsing invalid JSON documents
 * Non-backward compatible change: XmlPath now throws XmlPathException instead of PathException when invalid malformed XML documents
 * Non-backward compatible change: ObjectMapperDeserializationContext#getResponse() has been renamed to "getDataToDeserialize()". It no longer returns an instance of ResponseBodyData, it now returns an instance of "DataToDeserialize".
+* Improved error messages in XmlPath
+* Added getPath method to Node and NodeChildren elements in XmlPath which allows you get a subpath using the GPath notation.
 
 Change log 1.7.2 (2012-12-15)
 -----------------------------

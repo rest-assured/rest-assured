@@ -18,41 +18,50 @@
 
 package com.jayway.restassured.internal.path.xml
 
+import com.jayway.restassured.internal.path.ObjectConverter
 import com.jayway.restassured.path.xml.element.Node
 
 abstract class NodeBase {
 
-  abstract <T> T get(String name)
+    abstract <T> T get(String name)
 
-  abstract <T> List<T> getList(String name)
+    abstract <T> List<T> getList(String name)
 
-  protected <T> T get(String name, iterator, boolean forceList) {
-    def found = []
-    while(iterator.hasNext()) {
-      def next = iterator.next();
-      if(next.name() == name) {
-        found << next
-      }
+    protected <T> T get(String name, iterator, boolean forceList) {
+        def found = []
+        while (iterator.hasNext()) {
+            def next = iterator.next();
+            if (next.name() == name) {
+                found << next
+            }
+        }
+        if (forceList) {
+            Collections.unmodifiableList(found)
+        } else if (found.size() == 1) {
+            found.get(0)
+        } else if (found.isEmpty()) {
+            null
+        } else {
+            Collections.unmodifiableList(found)
+        }
     }
-    if(forceList) {
-      Collections.unmodifiableList(found)
-    } else if(found.size() == 1) {
-      found.get(0)
-    } else if(found.isEmpty()) {
-      null
-    } else {
-      Collections.unmodifiableList(found)
+
+    def abstract <T> T getPath(String path)
+
+    def <T> T getPath(String path, Class<T> explicitType) {
+        def object = getPath(path)
+        return ObjectConverter.convertObjectTo(object, explicitType)
     }
-  }
 
-  public Node getNode(String name) {
-    return get(name)
-  }
 
-  public List<Node> getNodes(String name) {
-    return getList(name)
-  }
+    public Node getNode(String name) {
+        return get(name)
+    }
 
-  public abstract Object getBackingGroovyObject();
+    public List<Node> getNodes(String name) {
+        return getList(name)
+    }
+
+    public abstract Object getBackingGroovyObject();
 
 }
