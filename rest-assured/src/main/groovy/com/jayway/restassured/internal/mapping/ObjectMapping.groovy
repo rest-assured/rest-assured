@@ -19,7 +19,9 @@ package com.jayway.restassured.internal.mapping
 
 import com.jayway.restassured.config.ObjectMapperConfig
 import com.jayway.restassured.internal.mapper.ObjectMapperType
-import com.jayway.restassured.mapper.*
+import com.jayway.restassured.mapper.DataToDeserialize
+import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
+import com.jayway.restassured.mapper.ObjectMapperSerializationContext
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory
 import com.jayway.restassured.mapper.factory.JAXBObjectMapperFactory
 import com.jayway.restassured.mapper.factory.Jackson1ObjectMapperFactory

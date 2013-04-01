@@ -22,7 +22,6 @@ import com.jayway.restassured.internal.path.json.ConfigurableJsonSlurper;
 import com.jayway.restassured.internal.path.json.JSONAssertion;
 import com.jayway.restassured.internal.path.json.JsonPrettifier;
 import com.jayway.restassured.internal.path.json.mapping.JsonObjectDeserializer;
-import com.jayway.restassured.internal.utils.InputStreamToStringUtil;
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.Jackson1ObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory;

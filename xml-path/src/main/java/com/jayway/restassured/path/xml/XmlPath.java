@@ -34,7 +34,6 @@ import groovy.util.slurpersupport.GPathResult;
 import groovy.xml.XmlUtil;
 import org.apache.commons.lang3.Validate;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 
 import java.io.File;

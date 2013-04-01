@@ -28,10 +28,10 @@ import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.FormAuthFilter
 import com.jayway.restassured.internal.filter.RootFilter
 import com.jayway.restassured.internal.http.*
+import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl
 import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.mapper.ObjectMapper
-import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.response.*
 import com.jayway.restassured.specification.*
 import com.jayway.restassured.spi.AuthFilter

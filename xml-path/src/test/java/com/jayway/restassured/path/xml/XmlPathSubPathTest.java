@@ -22,8 +22,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.List;
-
 import static com.jayway.restassured.path.xml.XmlPath.with;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
