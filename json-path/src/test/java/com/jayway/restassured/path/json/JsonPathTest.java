@@ -421,4 +421,18 @@ public class JsonPathTest {
 
         assertThat(string, equalTo("test"));
     }
+
+    @Test public void
+    can_parse_multiple_values() {
+        // Given
+        final JsonPath jsonPath = new JsonPath(JSON);
+
+        // When
+        final String category1 = jsonPath.getString("store.book.category[0]");
+        final String category2 = jsonPath.getString("store.book.category[1]");
+
+        // Then
+        assertThat(category1, equalTo("reference"));
+        assertThat(category2, equalTo("fiction"));
+    }
 }

@@ -71,14 +71,11 @@ class ConfigurableJsonSlurper {
      * @return a data structure of lists and maps
      */
     public Object parseText(String text) {
-        try {
-            if (text == null || text.length() == 0) {
-                throw new IllegalArgumentException("The JSON input text should neither be null nor empty.");
-            }
-            return parse(new LineColumnReader(new StringReader(text)));
-        } finally {
-            useBigDecimal.remove();
+        if (text == null || text.length() == 0) {
+            throw new IllegalArgumentException("The JSON input text should neither be null nor empty.");
         }
+
+        return parse(new LineColumnReader(new StringReader(text)));
     }
 
     /**

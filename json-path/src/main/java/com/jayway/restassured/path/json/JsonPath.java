@@ -22,6 +22,7 @@ import com.jayway.restassured.internal.path.json.ConfigurableJsonSlurper;
 import com.jayway.restassured.internal.path.json.JSONAssertion;
 import com.jayway.restassured.internal.path.json.JsonPrettifier;
 import com.jayway.restassured.internal.path.json.mapping.JsonObjectDeserializer;
+import com.jayway.restassured.internal.utils.InputStreamToStringUtil;
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.Jackson1ObjectMapperFactory;
 import com.jayway.restassured.mapper.factory.Jackson2ObjectMapperFactory;
@@ -748,7 +749,7 @@ public class JsonPath {
     private JsonParser parseInputStream(final InputStream stream) {
         return new JsonParser() {
             @Override
-            public Object parseWith(final ConfigurableJsonSlurper slurper) {
+            public Object doParseWith(final ConfigurableJsonSlurper slurper) {
                 return new ExceptionCatcher() {
                     protected Object method() throws Exception {
                         return slurper.parse(toReader(stream));
@@ -761,7 +762,7 @@ public class JsonPath {
     private JsonParser parseReader(final Reader reader) {
         return new JsonParser() {
             @Override
-            public Object parseWith(final ConfigurableJsonSlurper slurper) {
+            public Object doParseWith(final ConfigurableJsonSlurper slurper) {
                 return new ExceptionCatcher() {
                     protected Object method() throws Exception {
                         return slurper.parse(reader);
@@ -774,7 +775,7 @@ public class JsonPath {
     private JsonParser parseFile(final File file) {
         return new JsonParser() {
             @Override
-            public Object parseWith(final ConfigurableJsonSlurper slurper) {
+            public Object doParseWith(final ConfigurableJsonSlurper slurper) {
                 return new ExceptionCatcher() {
                     protected Object method() throws Exception {
                         return slurper.parse(new FileReader(file));
@@ -787,7 +788,7 @@ public class JsonPath {
     private JsonParser parseText(final String text) {
         return new JsonParser() {
             @Override
-            public Object parseWith(final ConfigurableJsonSlurper slurper) {
+            public Object doParseWith(final ConfigurableJsonSlurper slurper) {
                 return new ExceptionCatcher() {
                     protected Object method() throws Exception {
                         return slurper.parseText(text);
@@ -800,7 +801,7 @@ public class JsonPath {
     private JsonParser parseURL(final URL url) {
         return new JsonParser() {
             @Override
-            public Object parseWith(final ConfigurableJsonSlurper slurper) {
+            public Object doParseWith(final ConfigurableJsonSlurper slurper) {
                 return new ExceptionCatcher() {
                     protected Object method() throws Exception {
                         return slurper.parse(toReader(url.openStream()));
@@ -811,7 +812,12 @@ public class JsonPath {
     }
 
     private BufferedReader toReader(InputStream in) {
-        return new BufferedReader(new InputStreamReader(in));
+        final JsonPathConfig cfg = getJsonPathConfig();
+        try {
+            return new BufferedReader(new InputStreamReader(in, cfg.charset()));
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException("Charset is invalid", e);
+        }
     }
 
     private abstract class ExceptionCatcher {
@@ -859,7 +865,23 @@ public class JsonPath {
     }
 
     private abstract class JsonParser {
-        public abstract Object parseWith(ConfigurableJsonSlurper slurper);
+        private Object json;
 
+        public final Object parseWith(ConfigurableJsonSlurper slurper) {
+            if (json == null) {
+                json = doParseWith(slurper);
+            }
+            return json;
+        }
+
+        abstract Object doParseWith(ConfigurableJsonSlurper slurper);
+
+    }
+
+    /**
+     * Resets static JsonPath configuration to default values
+     */
+    public static void reset() {
+        JsonPath.config = null;
     }
 }
