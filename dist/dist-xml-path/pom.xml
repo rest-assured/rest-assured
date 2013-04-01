@@ -22,7 +22,7 @@
                 <version>2.4</version>
                 <executions>
                     <execution>
-                        <id>package-rest-assured</id>
+                        <id>package-xml-path</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
@@ -36,7 +36,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>package-rest-assured-deps</id>
+                        <id>package-xml-path-deps</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
@@ -46,6 +46,20 @@
                             <finalName>xml-path-${project.version}-deps</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/dependencies.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>package-xml-path-dist</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>xml-path-${project.version}-dist</finalName>
+                            <descriptors>
+                                <descriptor>src/main/assembly/xml-path-dist.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
