@@ -2,7 +2,7 @@ Change log 1.8.0 (2013-04-01)
 -----------------------------
 * Added support for settings a custom Jackson 2 object factory to JsonPath
 * Expecting content type to be a pre-defined content type (such as ContentType.XML) now accepts many kinds of different variations (thanks to exsuscito for the help) (issue 213).
-* Upgraded to Groovy 2.1.0
+* Upgraded to Groovy 2.1.2
 * It's now possible to configure JsonPath with various settings so as returning a BigDecimal instead of floats and doubles. You can do this either statically using:
 	  JsonPath.config = new JsonPathConfig(..);  
   or per instance:
