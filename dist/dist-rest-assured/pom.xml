@@ -14,7 +14,6 @@
 
     <name>Rest Assured distribution jar</name>
     <build>
-        <finalName>rest-assured-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -22,14 +21,29 @@
                 <version>2.4</version>
                 <executions>
                     <execution>
-                        <id>package-all</id>
+                        <id>package-rest-assured</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>rest-assured-${project.version}</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/rest-assured-full-jar.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>package-rest-assured-deps</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>rest-assured-${project.version}-deps</finalName>
+                            <descriptors>
                                 <descriptor>src/main/assembly/dependencies.xml</descriptor>
                             </descriptors>
                         </configuration>

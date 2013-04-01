@@ -22,14 +22,29 @@
                 <version>2.4</version>
                 <executions>
                     <execution>
-                        <id>package-all</id>
+                        <id>package-rest-assured</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
                         <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>json-path-${project.version}</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/json-path-full-jar.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>package-rest-assured-deps</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>json-path-${project.version}-deps</finalName>
+                            <descriptors>
                                 <descriptor>src/main/assembly/dependencies.xml</descriptor>
                             </descriptors>
                         </configuration>
