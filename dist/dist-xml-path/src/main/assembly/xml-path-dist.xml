@@ -1,0 +1,37 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+    <id>bin</id>
+    <formats>
+        <!--<format>tar.gz</format>-->
+        <!--<format>tar.bz2</format>-->
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>../../xml-path/target</directory>
+            <outputDirectory>/docs</outputDirectory>
+            <includes>
+                <include>xml-path-${project.version}-javadoc.jar</include>
+                <include>xml-path-${project.version}-sources.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>../../rest-assured-common/target</directory>
+            <outputDirectory>/docs</outputDirectory>
+            <includes>
+                <include>rest-assured-common-${project.version}-javadoc.jar</include>
+                <include>rest-assured-common-${project.version}-sources.jar</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>xml-path-${project.version}.jar</include>
+                <include>xml-path-${project.version}-deps.zip</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</assembly>
