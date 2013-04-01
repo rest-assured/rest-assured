@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 1.8.0 (2013-04-01)
+-----------------------------
 * Added support for settings a custom Jackson 2 object factory to JsonPath
 * Expecting content type to be a pre-defined content type (such as ContentType.XML) now accepts many kinds of different variations (thanks to exsuscito for the help) (issue 213).
 * Upgraded to Groovy 2.1.0
