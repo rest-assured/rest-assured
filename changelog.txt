@@ -17,6 +17,9 @@ Change log next version
 * Improved error messages in XmlPath
 * Added getPath method to Node and NodeChildren elements in XmlPath which allows you get a subpath using the GPath notation.
 * Improved speed of JsonPath when parsing multiple values
+* JsonPath and XmlPath has been extracted to their own projects. This means that you can use them with the need to depend on REST Assured.
+* Major improvements to XmlPath
+* Possible to configure JsonPath and XmlPath both per instance and statically.
 
 Change log 1.7.2 (2012-12-15)
 -----------------------------
