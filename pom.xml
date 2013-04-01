@@ -197,6 +197,18 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>dist</id>
+            <!-- Active profile when running release -->
+            <activation>
+                <property>
+                    <name>release</name>
+                </property>
+            </activation>
+            <modules>
+                <module>dist</module>
+            </modules>
+        </profile>
     </profiles>
 
     <dependencyManagement>
