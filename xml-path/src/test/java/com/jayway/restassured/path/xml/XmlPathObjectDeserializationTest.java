@@ -1,15 +1,24 @@
 package com.jayway.restassured.path.xml;
 
+import com.jayway.restassured.mapper.ObjectDeserializationContext;
+import com.jayway.restassured.path.xml.config.XmlPathConfig;
+import com.jayway.restassured.path.xml.mapping.XmlPathObjectDeserializer;
 import com.jayway.restassured.path.xml.support.CoolGreeting;
 import com.jayway.restassured.path.xml.support.Greeting;
 import com.jayway.restassured.path.xml.support.Greetings;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.jayway.restassured.path.xml.XmlPath.from;
+import static com.jayway.restassured.path.xml.config.XmlPathConfig.xmlPathConfig;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -21,6 +30,10 @@ public class XmlPathObjectDeserializationTest {
     private static final String COOL_GREETING = "<cool><greeting><firstName>John</firstName>\n" +
             "      <lastName>Doe</lastName>\n" +
             "    </greeting></cool>";
+
+    private static final String GREETING_WITH_STRANGE_CHARS = "<greeting><firstName>€%#åö</firstName>\n" +
+            "      <lastName>`ü</lastName>\n" +
+            "    </greeting>";
 
     public static final String GREETINGS = "<greetings>\n" +
             "\t<greeting>\n" +
@@ -86,5 +99,90 @@ public class XmlPathObjectDeserializationTest {
 
         // Then
         assertThat(greetings.size(), is(3));
+    }
+
+    @Test public void
+    xml_path_supports_custom_deserializer() {
+        // Given
+        final AtomicBoolean customDeserializerUsed = new AtomicBoolean(false);
+
+        final XmlPath xmlPath = new XmlPath(COOL_GREETING).using(xmlPathConfig().defaultObjectDeserializer(new XmlPathObjectDeserializer() {
+            public <T> T deserialize(ObjectDeserializationContext ctx) {
+                customDeserializerUsed.set(true);
+                final String xml = ctx.getDataToDeserialize().asString();
+                final Greeting greeting = new Greeting();
+                greeting.setFirstName(StringUtils.substringBetween(xml, "<firstName>", "</firstName>"));
+                greeting.setLastName(StringUtils.substringBetween(xml, "<lastName>", "</lastName>"));
+                return (T) greeting;
+            }
+        }));
+
+        // When
+        final Greeting greeting = xmlPath.getObject("", Greeting.class);
+
+        // Then
+        assertThat(greeting.getFirstName(), equalTo("John"));
+        assertThat(greeting.getLastName(), equalTo("Doe"));
+        assertThat(customDeserializerUsed.get(), is(true));
+    }
+
+    @Test public void
+    xml_path_supports_custom_deserializer_using_static_configuration() {
+        // Given
+        final AtomicBoolean customDeserializerUsed = new AtomicBoolean(false);
+
+        XmlPath.config = xmlPathConfig().defaultObjectDeserializer(new XmlPathObjectDeserializer() {
+            public <T> T deserialize(ObjectDeserializationContext ctx) {
+                customDeserializerUsed.set(true);
+                final String xml = ctx.getDataToDeserialize().asString();
+                final Greeting greeting = new Greeting();
+                greeting.setFirstName(StringUtils.substringBetween(xml, "<firstName>", "</firstName>"));
+                greeting.setLastName(StringUtils.substringBetween(xml, "<lastName>", "</lastName>"));
+                return (T) greeting;
+            }
+        });
+
+        // When
+        try {
+            final XmlPath xmlPath = new XmlPath(COOL_GREETING);
+            final Greeting greeting = xmlPath.getObject("", Greeting.class);
+
+            // Then
+            assertThat(greeting.getFirstName(), equalTo("John"));
+            assertThat(greeting.getLastName(), equalTo("Doe"));
+            assertThat(customDeserializerUsed.get(), is(true));
+        } finally {
+            XmlPath.reset();
+        }
+    }
+
+    @Test public void
+    xml_path_supports_deserializing_input_stream_using_with_given_charset() throws UnsupportedEncodingException {
+        // Given
+        InputStream is = new ByteArrayInputStream(GREETING_WITH_STRANGE_CHARS.getBytes("UTF-16"));
+        XmlPath xmlPath = new XmlPath(is).using(new XmlPathConfig("UTF-16"));
+
+        // When
+        final String firstName = xmlPath.getString("greeting.firstName");
+        final String lastName = xmlPath.getString("greeting.lastName");
+
+        // Then
+        assertThat(firstName, equalTo("€%#åö"));
+        assertThat(lastName, equalTo("`ü"));
+    }
+
+    @Test public void
+    xml_path_cannot_correctly_deserialize_input_stream_using_wrong_charset() throws UnsupportedEncodingException {
+        // Given
+        InputStream is = new ByteArrayInputStream(GREETING_WITH_STRANGE_CHARS.getBytes("US-ASCII"));
+        XmlPath xmlPath = new XmlPath(is).using(new XmlPathConfig("ISO-8859-1"));
+
+        // When
+        final String firstName = xmlPath.getString("greeting.firstName");
+        final String lastName = xmlPath.getString("greeting.lastName");
+
+        // Then
+        assertThat(firstName, equalTo("?%#??"));
+        assertThat(lastName, equalTo("`?"));
     }
 }

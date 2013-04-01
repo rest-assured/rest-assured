@@ -881,4 +881,11 @@ public class XmlPath {
     public static enum CompatibilityMode {
         XML, HTML
     }
+
+    /**
+     * Resets static XmlPath configuration to default values
+     */
+    public static void reset() {
+        XmlPath.config = null;
+    }
 }

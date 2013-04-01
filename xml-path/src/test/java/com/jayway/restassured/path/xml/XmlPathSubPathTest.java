@@ -33,7 +33,6 @@ public class XmlPathSubPathTest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-
     private static final String XML = "<shopping>\n" +
             "      <category type=\"groceries\">\n" +
             "        <item>\n" +
