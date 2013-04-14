@@ -64,6 +64,16 @@ public class XmlPathObjectDeserializationTest {
     }
 
     @Test public void
+    deserializes_another_sub_node_using_jaxb() {
+        // When
+        final Greeting greeting = from(GREETINGS).getObject("greetings.greeting[0]", Greeting.class);
+
+        // Then
+        assertThat(greeting.getFirstName(), equalTo("John"));
+        assertThat(greeting.getLastName(), equalTo("Doe"));
+    }
+
+    @Test public void
     deserializes_xml_document_including_list_using_jaxb() {
         // When
         final Greetings greetings = from(GREETINGS).getObject("greetings", Greetings.class);

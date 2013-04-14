@@ -270,6 +270,20 @@ public class XmlPathTest {
     }
 
     @Test
+    public void getFirstTwoYearsOfRecordsAsIntegers() throws Exception {
+        final List<Integer> list = from(RECORDS).getList("records.car[0..1].@year", Integer.class);
+
+        assertThat(list, hasItems(2006, 1962));
+    }
+
+    @Test
+    public void getTheEarliestRecord() throws Exception {
+        final int earliest = from(RECORDS).getInt("records.car.@year.list()*.toInteger().min()");
+
+        assertThat(earliest , is(1931));
+    }
+
+    @Test
     public void getFirstTwoYearsOfRecordsUsingEscapedAttributeGetter() throws Exception {
         final List<String> list = from(RECORDS).getList("records.car[0..1].'@year'", String.class);
 
