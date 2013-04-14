@@ -18,6 +18,7 @@ package com.jayway.restassured.config;
 
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
+import org.apache.http.entity.mime.HttpMultipartMode;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,15 +29,15 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 /**
  * Configure the Apache HTTP Client parameters.
  * <p>Note that you can't configure the redirect settings from this config. Please use {@link RedirectConfig} for this purpose.</p>
- *
+ * <p/>
  * The following parameters are applied per default:
  * <table border=1>
- *     <tr>
- *         <th>Parameter name</th><th>Parameter value</th><th>Description</th>
- *     </tr>
- *     <tr>
- *         <td>{@link ClientPNames#COOKIE_POLICY}</td><td>{@link CookiePolicy#IGNORE_COOKIES}</td><td>Don't automatically set response cookies in subsequent requests</td>
- *     </tr>
+ * <tr>
+ * <th>Parameter name</th><th>Parameter value</th><th>Description</th>
+ * </tr>
+ * <tr>
+ * <td>{@link ClientPNames#COOKIE_POLICY}</td><td>{@link CookiePolicy#IGNORE_COOKIES}</td><td>Don't automatically set response cookies in subsequent requests</td>
+ * </tr>
  * </table>
  *
  * @see org.apache.http.client.params.ClientPNames
@@ -46,6 +47,7 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 public class HttpClientConfig {
 
     private final Map<String, ?> httpClientParams;
+    private final HttpMultipartMode httpMultipartMode;
 
     /**
      * Creates a new  HttpClientConfig instance with the <code>{@value ClientPNames#COOKIE_POLICY}</code> parameter set to <code>{@value CookiePolicy#IGNORE_COOKIES}</code>.
@@ -56,14 +58,21 @@ public class HttpClientConfig {
                 put(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
             }
         };
+        this.httpMultipartMode = HttpMultipartMode.STRICT;
+    }
+
+    private HttpClientConfig(Map<String, ?> httpClientParams, HttpMultipartMode httpMultipartMode) {
+        notNull(httpClientParams, "httpClientParams");
+        notNull(httpMultipartMode, "httpMultipartMode");
+        this.httpClientParams = new HashMap<String, Object>(httpClientParams);
+        this.httpMultipartMode = httpMultipartMode;
     }
 
     /**
      * Creates a new  HttpClientConfig instance with the parameters defined by the <code>httpClientParams</code>.
      */
     public HttpClientConfig(Map<String, ?> httpClientParams) {
-        notNull(httpClientParams, "httpClientParams");
-        this.httpClientParams = new HashMap<String, Object>(httpClientParams);
+        this(httpClientParams, HttpMultipartMode.STRICT);
     }
 
     /**
@@ -83,9 +92,9 @@ public class HttpClientConfig {
     /**
      * Set a http client parameter.
      *
-     * @param parameterName The name of the parameter
+     * @param parameterName  The name of the parameter
      * @param parameterValue The value of the parameter (may be null)
-     * @param <T> The parameter type
+     * @param <T>            The parameter type
      * @return An updated HttpClientConfig
      */
     public <T> HttpClientConfig setParam(String parameterName, T parameterValue) {
@@ -129,9 +138,26 @@ public class HttpClientConfig {
     }
 
     /**
+     * Specify the HTTP Multipart mode when sending multi-part data.
+     *
+     * @param httpMultipartMode The multi-part mode to set.
+     * @return An updated HttpClientConfig
+     */
+    public HttpClientConfig httpMultipartMode(HttpMultipartMode httpMultipartMode) {
+        return new HttpClientConfig(httpClientParams, httpMultipartMode);
+    }
+
+    /**
      * @return A static way to create a new HttpClientConfig instance without calling "new" explicitly. Mainly for syntactic sugar.
      */
     public static HttpClientConfig httpClientConfig() {
         return new HttpClientConfig();
+    }
+
+    /**
+     * @return The http multi-part mode.
+     */
+    public HttpMultipartMode httpMultipartMode() {
+        return httpMultipartMode;
     }
 }
