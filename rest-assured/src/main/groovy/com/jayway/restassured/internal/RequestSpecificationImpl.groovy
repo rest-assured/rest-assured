@@ -56,7 +56,6 @@ import static com.jayway.restassured.internal.http.Method.*
 import static java.util.Arrays.asList
 import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.apache.http.client.params.ClientPNames.*
-import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE
 
 class RequestSpecificationImpl implements FilterableRequestSpecification {
     private static final int DEFAULT_HTTPS_PORT = 443
@@ -902,7 +901,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         }
         http.encoders.putAt MULTIPART_FORM_DATA, { contentType, content ->
             // TODO Add charset
-            MultipartEntity entity = new MultipartEntity(BROWSER_COMPATIBLE);
+            MultipartEntity entity = new MultipartEntity( httpClientConfig().httpMultipartMode() );
 
             multiParts.each {
                 def body = it.contentBody
@@ -1463,6 +1462,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     private def ObjectMapperConfig objectMappingConfig() {
         return config == null ? ObjectMapperConfig.objectMapperConfig() : config.getObjectMapperConfig();
+    }
+
+    private def HttpClientConfig httpClientConfig() {
+        return config == null ? HttpClientConfig.httpClientConfig() : config.getHttpClientConfig();
     }
 
     private def ConnectionConfig connectionConfig() {
