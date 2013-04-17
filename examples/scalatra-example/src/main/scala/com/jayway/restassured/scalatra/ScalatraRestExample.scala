@@ -405,6 +405,14 @@ class ScalatraRestExample extends ScalatraServlet {
     name
   }
 
+  get("/html_with_cookie") {
+    contentType = "text/html"
+    response.addHeader("Set-Cookie", "JSESSIONID=B3134D534F40968A3805968207273EF5; Path=/")
+    """<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+        <body>body</body>
+        </html>"""
+  }
+
   get("/response_cookie_with_no_value") {
     val cookie: Cookie = new Cookie("PLAY_FLASH", "")
     val time: Long = new Date().getTime

@@ -213,11 +213,11 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     }
 
     def Cookie detailedCookie(String name) {
-        return null
+        return detailedCookies().get(name)
     }
 
     def Cookie getDetailedCookie(String name) {
-        return null
+        return detailedCookie(name)
     }
 
     Response andReturn() {

@@ -19,6 +19,7 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
+import com.jayway.restassured.response.Response;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -198,5 +199,25 @@ public class CookieITest extends WithJetty {
                 cookie("no-value-cookie").
         when().
                 post("/reflect");
+    }
+
+    @Test
+    public void detailedCookieWorks() throws Exception {
+        final Response response = get("/html_with_cookie");
+        final Cookie detailedCookieJsessionId = response.detailedCookie("JSESSIONID");
+
+        assertThat(detailedCookieJsessionId, notNullValue());
+        assertThat(detailedCookieJsessionId.getPath(), equalTo("/"));
+        assertThat(detailedCookieJsessionId.getValue(), equalTo("B3134D534F40968A3805968207273EF5"));
+    }
+
+    @Test
+    public void getDetailedCookieWorks() throws Exception {
+        final Response response = get("/html_with_cookie");
+        final Cookie detailedCookieJsessionId = response.getDetailedCookie("JSESSIONID");
+
+        assertThat(detailedCookieJsessionId, notNullValue());
+        assertThat(detailedCookieJsessionId.getPath(), equalTo("/"));
+        assertThat(detailedCookieJsessionId.getValue(), equalTo("B3134D534F40968A3805968207273EF5"));
     }
 }
