@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.internal.http;
 
+import com.jayway.restassured.authentication.KeystoreProvider;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
 import oauth.signpost.commonshttp.HttpRequestAdapter;
@@ -28,6 +29,7 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -86,20 +88,22 @@ public class AuthConfig {
 	 * @param certURL URL to a JKS keystore where the certificate is stored.  
 	 * @param password password to decrypt the keystore
 	 */
-	public void certificate( String certURL, String password ) 
+	public void certificate( String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider)
 			throws GeneralSecurityException, IOException {
-		
-		KeyStore keyStore = KeyStore.getInstance( KeyStore.getDefaultType() );
+
+        KeyStore keyStore = KeyStore.getInstance( certType );
         InputStream jksStream = new URL(certURL).openStream();
         try {
-        	keyStore.load( jksStream, password.toCharArray() );
+            keyStore.load( jksStream, password.toCharArray() );
         } finally { jksStream.close(); }
 
-        SSLSocketFactory ssl = new SSLSocketFactory(keyStore, password);
+        SSLSocketFactory ssl = trustStoreProvider.canBuild()? new SSLSocketFactory(keyStore, password, trustStoreProvider.build()):
+                                                              new SSLSocketFactory(keyStore, password);
+
         ssl.setHostnameVerifier( SSLSocketFactory.STRICT_HOSTNAME_VERIFIER );
-        
-        builder.getClient().getConnectionManager().getSchemeRegistry()
-        	.register( new Scheme("https", ssl, 443) );
+
+        SchemeRegistry registry = builder.getClient().getConnectionManager().getSchemeRegistry();
+        registry.register(new Scheme("https", ssl, port));
 	}
 
 	/**

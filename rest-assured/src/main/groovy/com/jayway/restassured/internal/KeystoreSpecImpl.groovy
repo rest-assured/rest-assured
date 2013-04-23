@@ -18,6 +18,7 @@
 
 package com.jayway.restassured.internal
 
+import com.jayway.restassured.authentication.KeystoreProvider
 import com.jayway.restassured.internal.http.HTTPBuilder
 import org.apache.commons.lang3.Validate
 import org.apache.http.conn.scheme.Scheme
@@ -25,12 +26,25 @@ import org.apache.http.conn.ssl.SSLSocketFactory
 
 import java.security.KeyStore
 
-class KeystoreSpecImpl implements KeystoreSpec {
+class KeystoreSpecImpl implements KeystoreSpec, KeystoreProvider {
 
   def path
   def password
 
   def void apply(HTTPBuilder builder, int port) {
+    def trustStore = build()
+    def factory = new SSLSocketFactory(trustStore)
+    factory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)
+    builder.client.connectionManager.schemeRegistry.register(
+      new Scheme("https", factory, port)
+    )
+  }
+
+  def Boolean canBuild() {
+    return true
+  }
+
+  def KeyStore build() {
     def keyStore = KeyStore.getInstance(KeyStore.defaultType)
     if (path == null)
       path = System.getProperty("user.home") + File.separatorChar + ".keystore"
@@ -49,11 +63,7 @@ class KeystoreSpecImpl implements KeystoreSpec {
       keyStore.load(it, password.toCharArray())
     }
 
-    def factory = new SSLSocketFactory(keyStore)
-    factory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)
-    builder.client.connectionManager.schemeRegistry.register(
-            new Scheme("https", factory, port)
-    )
+    return keyStore
   }
 
 }

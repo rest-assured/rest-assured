@@ -20,11 +20,16 @@ package com.jayway.restassured.authentication
 
 import com.jayway.restassured.internal.http.HTTPBuilder
 
+import java.security.KeyStore
+
 class CertAuthScheme implements AuthenticationScheme {
   def String certURL
   def String password
+  def String certType = KeyStore.getDefaultType()
+  def int port = 433
+  def KeystoreProvider trustStoreProvider
 
   @Override void authenticate(HTTPBuilder httpBuilder) {
-     httpBuilder.auth.certificate(certURL, password)
+     httpBuilder.auth.certificate(certURL, password, certType, port, trustStoreProvider)
   }
 }
