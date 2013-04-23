@@ -4,6 +4,16 @@ Change log next version
 * Non-backward compatible change: Default multi-part mode for multi-part uploads is changed from Browser Compatibility mode to Strict mode.
 * Fixed so that getting a single detailed cookie from the Response really works.
 * You can now specify a charset when specifying a com.jayway.restassured.http.Charset. For example Charset.JSON.withCharset("UTF-8") (issue 228).
+* It's now possible to specify a truststore when doing certificate authentication (thanks to Ian Forsey for the help) (issue 205). Usage:
+    RequestSpecBuilder request = ...
+    request.setKeystore("truststore.jks", "password");
+
+    CertAuthScheme scheme = new CertAuthScheme();
+    scheme.setCertURL("clientcert.p12");
+    scheme.setCertType("pkcs12");
+    scheme.setPassword("password");
+    scheme.setPort(8443);
+    request.setAuthentication(scheme);
 
 Change log 1.8.0 (2013-04-01)
 -----------------------------
