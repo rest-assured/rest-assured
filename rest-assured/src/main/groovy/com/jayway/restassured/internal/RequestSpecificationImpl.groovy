@@ -19,6 +19,7 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.AuthenticationScheme
+import com.jayway.restassured.authentication.CertAuthScheme
 import com.jayway.restassured.authentication.FormAuthScheme
 import com.jayway.restassured.authentication.NoAuthScheme
 import com.jayway.restassured.config.*
@@ -727,6 +728,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             filters.removeAll { AuthFilter.class.isAssignableFrom(it.getClass())  }
             filters << new FormAuthFilter(userName: formAuthScheme.userName,password: formAuthScheme.password, config: formAuthScheme.config)
         }
+
+        //If we are authenticating with Certificates, then provide the truststore spec (configured via request.keystore())
+        //as we will need to apply it when creating the SSLSocketFactory
+        if (authenticationScheme instanceof CertAuthScheme) {
+          authenticationScheme.setTrustStoreProvider(this.keyStoreSpec)
+        }
+
         filters << new RootFilter()
         def ctx = new FilterContextImpl(assembleCompleteTargetPath(path), path, method, assertionClosure, filters);
         def response = ctx.next(this, responseSpecification)
@@ -759,9 +767,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         responseSpecification.restAssuredResponse = restAssuredResponse
         def responseContentType =  assertionClosure.getResponseContentType()
 
-        authenticationScheme.authenticate(http)
-
         keyStoreSpec.apply(http, isFullyQualifiedUri == true && port == DEFAULT_HTTP_TEST_PORT ? DEFAULT_HTTPS_PORT : port)
+
+        authenticationScheme.authenticate(http)
 
         validateMultiPartForPostPutAndPatchOnly(method);
 

@@ -18,10 +18,22 @@
 
 package com.jayway.restassured.internal
 
+import com.jayway.restassured.authentication.KeystoreProvider
 import com.jayway.restassured.internal.http.HTTPBuilder
+import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
-class NoKeystoreSpecImpl implements KeystoreSpec {
+import java.security.KeyStore
+
+class NoKeystoreSpecImpl implements KeystoreSpec, KeystoreProvider {
 
   void apply(HTTPBuilder builder, int port) {
+  }
+
+  def Boolean canBuild() {
+    return false
+  }
+
+  def KeyStore build() {
+    throw new NotImplementedException()
   }
 }
