@@ -44,7 +44,7 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  * <a href="http://groovy.codehaus.org/modules/http-builder/">HTTP Builder</a>.
  * It supports POST, GET, PUT, DELETE, HEAD, PATCH  and OPTIONS
  * requests and to verify the response of these requests. Usage examples:
- *<ol>
+ * <ol>
  * <li>
  * Assume that the GET request (to <tt>http://localhost:8080/lotto</tt>) returns JSON as:
  * <pre>
@@ -62,14 +62,14 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  *  }
  * }
  * </pre>
- *
+ * <p/>
  * REST assured can then help you to easily make the GET request and verify the response. E.g. if you want to verify
  * that <tt>lottoId</tt> is equal to 5 you can do like this:
- *
+ * <p/>
  * <pre>
  * expect().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
  * </pre>
- *
+ * <p/>
  * or perhaps you want to check that the winnerId's are 23 and 54:
  * <pre>
  *  expect().body("lotto.winners.winnerId", hasItems(23, 54)).when().get("/lotto");
@@ -83,18 +83,18 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  *     &lt;lastName&gt;{params("lastName")}&lt;/lastName&gt;
  *   &lt;/greeting&gt;
  * </pre>
- *
+ * <p/>
  * i.e. it sends back a greeting based on the <tt>firstName</tt> and <tt>lastName</tt> parameter sent in the request.
  * You can easily perform and verify e.g. the <tt>firstName</tt> with REST assured:
  * <pre>
  * with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
  * </pre>
- *
+ * <p/>
  * If you want to verify both <tt>firstName</tt> and <tt>lastName</tt> you may do like this:
  * <pre>
  * with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).and().body("greeting.lastName", equalTo("Doe")).when().post("/greetXML");
  * </pre>
- *
+ * <p/>
  * or a little shorter:
  * <pre>
  * with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John"), "greeting.lastName", equalTo("Doe")).when().post("/greetXML");
@@ -234,9 +234,9 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  * <li>
  * You can use the {@link com.jayway.restassured.path.xml.XmlPath} or {@link com.jayway.restassured.path.json.JsonPath} to
  * easily parse XML or JSON data from a response.
- *    <ol>
- *        <li>XML example:
- *        <pre>
+ * <ol>
+ * <li>XML example:
+ * <pre>
  *            String xml = post("/greetXML?firstName=John&lastName=Doe").andReturn().asString();
  *            // Now use XmlPath to get the first and last name
  *            String firstName = with(xml).get("greeting.firstName");
@@ -247,9 +247,9 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  *            String firstName = xmlPath.get("firstName");
  *            String lastName = xmlPath.get("lastName");
  *        </pre>
- *        </li>
- *        <li>JSON example:
- *        <pre>
+ * </li>
+ * <li>JSON example:
+ * <pre>
  *            String json = get("/lotto").asString();
  *            // Now use JsonPath to get data out of the JSON body
  *            int lottoId = with(json).getInt("lotto.lottoId);
@@ -260,11 +260,11 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  *            int lottoId = jsonPath.getInt("lottoId");
  *            List<Integer> winnderIds = jsonPath.get("winnders.winnderId");
  *        </pre>
- *        </li>
- *    </ol>
+ * </li>
+ * </ol>
  * </li>
  * <li>
- *  REST Assured providers predefined parsers for e.g. HTML, XML and JSON. But you can parse other kinds of content by registering a predefined parser for unsupported content-types by using:
+ * REST Assured providers predefined parsers for e.g. HTML, XML and JSON. But you can parse other kinds of content by registering a predefined parser for unsupported content-types by using:
  * <pre>
  * RestAssured.registerParser(&lt;content-type&gt;, &lt;parser&gt;);
  * </pre>
@@ -359,11 +359,11 @@ public class RestAssured {
      * A base path that's added to the {@link #baseURI} by REST assured when making requests. E.g. let's say that
      * the {@link #baseURI} is <code>http://localhost</code> and <code>basePath</code> is <code>/resource</code>
      * then
-     *
+     * <p/>
      * <pre>
      * ..when().get("/something");
      * </pre>
-     *
+     * <p/>
      * will make a request to <code>http://localhost/resource</code>.
      * Default <code>basePath</code> value is empty.
      */
@@ -389,11 +389,10 @@ public class RestAssured {
      * Set an authentication scheme that should be used for each request. By default no authentication is used.
      * If you have specified an authentication scheme and wish to override it for a single request then
      * you can do this using:
-     *
+     * <p/>
      * <pre>
      *     given().auth().none()..
      * </pre>
-     *
      */
     public static AuthenticationScheme authentication = DEFAULT_AUTH;
 
@@ -402,9 +401,9 @@ public class RestAssured {
      * <pre>
      * RestAssured.config = config().redirect(redirectConfig().followRedirects(true).and().maxRedirects(0));
      * </pre>
-     *
+     * <p/>
      * <code>config()</code> can be statically imported from {@link RestAssuredConfig}.
-     *
+     * <p/>
      * </pre>
      */
     public static RestAssuredConfig config = null;
@@ -412,7 +411,7 @@ public class RestAssured {
     /**
      * Set the default root path of the response body so that you don't need to write the entire path for each expectation.
      * E.g. instead of writing:
-     *
+     * <p/>
      * <pre>
      * expect().
      *          body("x.y.firstName", is(..)).
@@ -421,8 +420,8 @@ public class RestAssured {
      *          body("x.y.gender", is(..)).
      * when().
      *          get(..);
-     *</pre>
-     *
+     * </pre>
+     * <p/>
      * you can use a root and do:
      * <pre>
      * RestAssured.rootPath = "x.y";
@@ -442,7 +441,7 @@ public class RestAssured {
      * <pre>
      * RestAssured.requestSpecification = new RequestSpecBuilder().addParameter("parameter1", "value1").build();
      * </pre>
-     *
+     * <p/>
      * means that for each request by Rest Assured "parameter1" will be equal to "value1".
      */
     public static RequestSpecification requestSpecification = null;
@@ -459,7 +458,7 @@ public class RestAssured {
      * <pre>
      * RestAssured.responseSpecification = new ResponseSpecBuilder().expectStatusCode(200).build();
      * </pre>
-     *
+     * <p/>
      * means that for each response Rest Assured will assert that the status code is equal to 200.
      */
     public static ResponseSpecification responseSpecification = null;
@@ -482,14 +481,14 @@ public class RestAssured {
     /**
      * The following documentation is taken from <a href="HTTP Builder">http://groovy.codehaus.org/modules/http-builder/doc/ssl.html</a>:
      * <p>
-     *     <h1>SSL Configuration</h1>
-     *
+     * <h1>SSL Configuration</h1>
+     * <p/>
      * SSL should, for the most part, "just work." There are a few situations where it is not completely intuitive. You can follow the example below, or see HttpClient's SSLSocketFactory documentation for more information.
-     *
+     * <p/>
      * <h1>SSLPeerUnverifiedException</h1>
-     *
+     * <p/>
      * If you can't connect to an SSL website, it is likely because the certificate chain is not trusted. This is an Apache HttpClient issue, but explained here for convenience. To correct the untrusted certificate, you need to import a certificate into an SSL truststore.
-     *
+     * <p/>
      * First, export a certificate from the website using your browser. For example, if you go to https://dev.java.net in Firefox, you will probably get a warning in your browser. Choose "Add Exception," "Get Certificate," "View," "Details tab." Choose a certificate in the chain and export it as a PEM file. You can view the details of the exported certificate like so:
      * <pre>
      * $ keytool -printcert -file EquifaxSecureGlobaleBusinessCA-1.crt
@@ -505,7 +504,7 @@ public class RestAssured {
      * ....
      * </pre>
      * Now, import that into a Java keystore file:
-     *<pre>
+     * <pre>
      * $ keytool -importcert -alias "equifax-ca" -file EquifaxSecureGlobaleBusinessCA-1.crt -keystore truststore.jks -storepass test1234
      * Owner: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
      * Issuer: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
@@ -529,8 +528,9 @@ public class RestAssured {
      * given().keystore("/truststore.jks", "test1234"). ..
      * </pre>
      * </p>
+     *
      * @param pathToJks The path to the JKS. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system
-     * @param password The store pass
+     * @param password  The store pass
      */
     public static KeystoreSpec keystore(String pathToJks, String password) {
         Validate.notEmpty(password, "Password cannot be empty");
@@ -541,7 +541,7 @@ public class RestAssured {
      * Use a keystore located on the file-system. See {@link #keystore(String, String)} for more details.
      *
      * @param pathToJks The path to JKS file on the file-system
-     * @param password The password for the keystore
+     * @param password  The password for the keystore
      * @return The request specification
      * @see #keystore(String, String)
      */
@@ -573,13 +573,13 @@ public class RestAssured {
     /**
      * The the default filters to apply to each request.
      *
-     * @param filter The filter to set
+     * @param filter            The filter to set
      * @param additionalFilters An optional array of additional filters to set
      */
-    public static void filters(Filter filter, Filter...additionalFilters) {
+    public static void filters(Filter filter, Filter... additionalFilters) {
         Validate.notNull(filter, "Filter cannot be null");
         RestAssured.filters.add(filter);
-        if(additionalFilters != null) {
+        if (additionalFilters != null) {
             Collections.addAll(RestAssured.filters, additionalFilters);
         }
     }
@@ -594,7 +594,7 @@ public class RestAssured {
     /**
      * Set a object mapper that'll be used when serializing and deserializing Java objects to and from it's
      * document representation (XML, JSON etc).
-
+     *
      * @param objectMapper The object mapper to use.
      */
     public static void objectMapper(ObjectMapper objectMapper) {
@@ -652,11 +652,11 @@ public class RestAssured {
 
     /**
      * Start building the response part of the test com.jayway.restassured.specification. E.g.
-     *
+     * <p/>
      * <pre>
      * expect().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
      * </pre>
-     *
+     * <p/>
      * will expect that the response body for the GET request to "/lotto" should
      * contain JSON or XML which has a lottoId equal to 5.
      *
@@ -668,14 +668,14 @@ public class RestAssured {
 
     /**
      * Start building the request part of the test com.jayway.restassured.specification. E.g.
-     *
+     * <p/>
      * <pre>
      * with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
      * </pre>
-     *
+     * <p/>
      * will send a POST request to "/greetXML" with request parameters <tt>firstName=John</tt> and <tt>lastName=Doe</tt> and
      * expect that the response body containing JSON or XML firstName equal to John.
-     *
+     * <p/>
      * The only difference between {@link #with()} and {@link #given()} is syntactical.
      *
      * @return A request specification.
@@ -692,7 +692,7 @@ public class RestAssured {
      * int index = 1;
      * expect().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
      * </pre>
-     *
+     * <p/>
      * or if you have complex root paths and don't wish to duplicate the path for small variations:
      * <pre>
      * expect().
@@ -701,16 +701,16 @@ public class RestAssured {
      *          body("", withArgs(1), hasItem("second")).
      *          ..
      * </pre>
-     *
+     * <p/>
      * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      *
      * @return A list of arguments that can be used to build up the
      */
-    public static List<Argument> withArguments(Object firstArgument, Object...additionalArguments) {
+    public static List<Argument> withArguments(Object firstArgument, Object... additionalArguments) {
         Validate.notNull(firstArgument, "You need to supply at least one argument");
         final List<Argument> arguments = new LinkedList<Argument>();
         arguments.add(Argument.arg(firstArgument));
-        if(additionalArguments != null && additionalArguments.length > 0) {
+        if (additionalArguments != null && additionalArguments.length > 0) {
             for (Object additionalArgument : additionalArguments) {
                 arguments.add(Argument.arg(additionalArgument));
             }
@@ -724,20 +724,20 @@ public class RestAssured {
      * @return A list of arguments.
      * @see #withArguments(Object, Object...)
      */
-    public static List<Argument> withArgs(Object firstArgument, Object...additionalArguments) {
+    public static List<Argument> withArgs(Object firstArgument, Object... additionalArguments) {
         return withArguments(firstArgument, additionalArguments);
     }
 
     /**
      * Start building the request part of the test com.jayway.restassured.specification. E.g.
-     *
+     * <p/>
      * <pre>
      * given().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
      * </pre>
-     *
+     * <p/>
      * will send a POST request to "/greetXML" with request parameters <tt>firstName=John</tt> and <tt>lastName=Doe</tt> and
      * expect that the response body containing JSON or XML firstName equal to John.
-     *
+     * <p/>
      * The only difference between {@link #with()} and {@link #given()} is syntactical.
      *
      * @return A request specification.
@@ -749,13 +749,13 @@ public class RestAssured {
     /**
      * When you have long specifications it can be better to split up the definition of response and request specifications in multiple lines.
      * You can then pass the response and request specifications to this method. E.g.
-     *
+     * <p/>
      * <pre>
      * RequestSpecification requestSpecification = with().parameters("firstName", "John", "lastName", "Doe");
      * ResponseSpecification responseSpecification = expect().body("greeting", equalTo("Greetings John Doe"));
      * given(requestSpecification, responseSpecification).get("/greet");
      * </pre>
-     *
+     * <p/>
      * This will perform a GET request to "/greet" and verify it according to the <code>responseSpecification</code>.
      *
      * @return A test com.jayway.restassured.specification.
@@ -768,11 +768,11 @@ public class RestAssured {
      * Perform a GET request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
-     * @param path The path to send the request to.
+     * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>get("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response get(String path, Object...pathParams) {
+    public static Response get(String path, Object... pathParams) {
         return given().get(path, pathParams);
     }
 
@@ -780,7 +780,7 @@ public class RestAssured {
      * Perform a GET request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
-     * @param path The path to send the request to.
+     * @param path       The path to send the request to.
      * @param pathParams The path parameters.
      * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
      */
@@ -792,11 +792,11 @@ public class RestAssured {
      * Perform a POST request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
-     * @param path The path to send the request to.
+     * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>post("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response post(String path, Object...pathParams) {
+    public static Response post(String path, Object... pathParams) {
         return given().post(path, pathParams);
     }
 
@@ -804,7 +804,7 @@ public class RestAssured {
      * Perform a POST request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
-     * @param path The path to send the request to.
+     * @param path       The path to send the request to.
      * @param pathParams The path parameters.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
@@ -816,11 +816,11 @@ public class RestAssured {
      * Perform a PUT request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
-     * @param path The path to send the request to.
+     * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>put("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response put(String path, Object...pathParams) {
+    public static Response put(String path, Object... pathParams) {
         return given().put(path, pathParams);
     }
 
@@ -828,11 +828,11 @@ public class RestAssured {
      * Perform a DELETE request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
-     * @param path The path to send the request to.
+     * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>delete("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response delete(String path, Object...pathParams) {
+    public static Response delete(String path, Object... pathParams) {
         return given().delete(path, pathParams);
     }
 
@@ -840,7 +840,7 @@ public class RestAssured {
      * Perform a DELETE request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
-     * @param path The path to send the request to.
+     * @param path       The path to send the request to.
      * @param pathParams The path parameters.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
@@ -852,11 +852,11 @@ public class RestAssured {
      * Perform a HEAD request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
-     * @param path The path to send the request to.
+     * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response head(String path, Object...pathParams) {
+    public static Response head(String path, Object... pathParams) {
         return given().head(path, pathParams);
     }
 
@@ -864,7 +864,7 @@ public class RestAssured {
      * Perform a HEAD request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
-     * @param path The path to send the request to.
+     * @param path       The path to send the request to.
      * @param pathParams The path parameters.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
@@ -876,11 +876,11 @@ public class RestAssured {
      * Perform a PATCH request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
-     * @param path The path to send the request to.
+     * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response patch(String path, Object...pathParams) {
+    public static Response patch(String path, Object... pathParams) {
         return given().patch(path, pathParams);
     }
 
@@ -888,7 +888,7 @@ public class RestAssured {
      * Perform a PATCH request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
-     * @param path The path to send the request to.
+     * @param path       The path to send the request to.
      * @param pathParams The path parameters.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
@@ -900,11 +900,11 @@ public class RestAssured {
      * Perform a OPTIONS request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
-     * @param path The path to send the request to.
+     * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
-    public static Response options(String path, Object...pathParams) {
+    public static Response options(String path, Object... pathParams) {
         return given().options(path, pathParams);
     }
 
@@ -912,7 +912,7 @@ public class RestAssured {
      * Perform a OPTIONS request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
-     * @param path The path to send the request to.
+     * @param path       The path to send the request to.
      * @param pathParams The path parameters.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
@@ -944,8 +944,8 @@ public class RestAssured {
      *
      * @param userName The user name.
      * @param password The password.
-     * @see #form(String, String, com.jayway.restassured.authentication.FormAuthConfig)
      * @return The authentication scheme
+     * @see #form(String, String, com.jayway.restassured.authentication.FormAuthConfig)
      */
     public static AuthenticationScheme form(String userName, String password) {
         return form(userName, password, null);
@@ -956,14 +956,14 @@ public class RestAssured {
      *
      * @param userName The user name.
      * @param password The password.
-     * @param config The form authentication config
+     * @param config   The form authentication config
      * @return The authentication scheme
      */
     public static AuthenticationScheme form(String userName, String password, FormAuthConfig config) {
-        if(userName == null) {
+        if (userName == null) {
             throw new IllegalArgumentException("Username cannot be null");
         }
-        if(password == null) {
+        if (password == null) {
             throw new IllegalArgumentException("Password cannot be null");
         }
         final FormAuthScheme scheme = new FormAuthScheme();
@@ -985,18 +985,55 @@ public class RestAssured {
     }
 
     /**
-     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)}
+     * Sets a certificate to be used for SSL authentication. See {@link java.lang.Class#getResource(String)}
      * for how to get a URL from a resource on the classpath.
+     * <p>
+     * Uses keystore: <code>KeyStore.getDefaultType()</code>.<br/>
+     * Uses port: 443<br/>
+     * Uses keystore provider: <code>none</code><br/>
+     * </p>
      *
      * @param certURL URL to a JKS keystore where the certificate is stored.
-     * @param password  password to decrypt the keystore
-     * @return The authentication scheme
+     * @return The request com.jayway.restassured.specification
      */
     public static AuthenticationScheme certificate(String certURL, String password) {
         final CertAuthScheme scheme = new CertAuthScheme();
         scheme.setCertURL(certURL);
         scheme.setPassword(password);
         return scheme;
+    }
+
+    /**
+     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
+     * on the classpath.
+     *
+     * @param certURL            URL to a JKS keystore where the certificate is stored.
+     * @param password           password to decrypt the keystore
+     * @param certType           The certificate type
+     * @param port               The SSL port
+     * @param trustStoreProvider The provider
+     */
+    public static AuthenticationScheme certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
+        final CertAuthScheme scheme = new CertAuthScheme();
+        scheme.setCertURL(certURL);
+        scheme.setPassword(password);
+        scheme.setCertType(certType);
+        scheme.setPort(port);
+        scheme.setTrustStoreProvider(trustStoreProvider);
+        return scheme;
+    }
+
+    /**
+     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
+     * on the classpath.
+     *
+     * @param certURL  URL to a JKS keystore where the certificate is stored.
+     * @param password password to decrypt the keystore
+     * @param certType The certificate type
+     * @param port     The SSL port
+     */
+    public static AuthenticationScheme certificate(String certURL, String password, String certType, int port) {
+        return certificate(certURL, password, certType, port);
     }
 
     /**
@@ -1045,7 +1082,7 @@ public class RestAssured {
      * </pre>
      *
      * @param contentType The content-type to register
-     * @param parser The parser to use when verifying the response.
+     * @param parser      The parser to use when verifying the response.
      */
     public static void registerParser(String contentType, Parser parser) {
         RESPONSE_PARSER_REGISTRAR.registerParser(contentType, parser);
@@ -1086,7 +1123,7 @@ public class RestAssured {
     }
 
     private static TestSpecificationImpl createTestSpecification() {
-        if(defaultParser != null) {
+        if (defaultParser != null) {
             RESPONSE_PARSER_REGISTRAR.registerDefaultParser(defaultParser);
         }
         final ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(RESPONSE_PARSER_REGISTRAR);
@@ -1099,9 +1136,9 @@ public class RestAssured {
     }
 
     private static void applySessionIdIfApplicable() {
-        if(!StringUtils.equals(sessionId, DEFAULT_SESSION_ID_VALUE)) {
+        if (!StringUtils.equals(sessionId, DEFAULT_SESSION_ID_VALUE)) {
             final RestAssuredConfig configToUse;
-            if(config == null) {
+            if (config == null) {
                 configToUse = new RestAssuredConfig();
             } else {
                 configToUse = config;

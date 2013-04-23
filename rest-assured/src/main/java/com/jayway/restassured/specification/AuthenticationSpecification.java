@@ -17,6 +17,7 @@
 package com.jayway.restassured.specification;
 
 import com.jayway.restassured.authentication.FormAuthConfig;
+import com.jayway.restassured.authentication.KeystoreProvider;
 
 /**
  * Specify an authentication scheme to use when sending a request.
@@ -56,20 +57,49 @@ public interface AuthenticationSpecification {
      *
      * @param userName The user name.
      * @param password The password.
-     * @param config The form authentication config
+     * @param config   The form authentication config
      * @return The authentication scheme
      */
     RequestSpecification form(String userName, String password, FormAuthConfig config);
 
     /**
-     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)}
+     * Sets a certificate to be used for SSL authentication. See {@link java.lang.Class#getResource(String)}
      * for how to get a URL from a resource on the classpath.
+     * <p>
+     * Uses keystore: <code>KeyStore.getDefaultType()</code>.<br/>
+     * Uses port: 443<br/>
+     * Uses keystore provider: <code>none</code><br/>
+     * </p>
      *
-     * @param certURL URL to a JKS keystore where the certificate is stored.
-     * @param password  password to decrypt the keystore
-     * @return Request specification
+     * @param certURL  URL to a JKS keystore where the certificate is stored.
+     * @param password password to decrypt the keystore
+     * @return The request com.jayway.restassured.specification
+     * @see #certificate(java.lang.String, java.lang.String, java.lang.String, int, com.jayway.restassured.authentication.KeystoreProvider)
      */
     RequestSpecification certificate(String certURL, String password);
+
+    /**
+     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
+     * on the classpath.
+     *
+     * @param certURL  URL to a JKS keystore where the certificate is stored.
+     * @param password password to decrypt the keystore
+     * @param certType The certificate type
+     * @param port     The SSL port
+     */
+    RequestSpecification certificate(String certURL, String password, String certType, int port);
+
+    /**
+     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
+     * on the classpath.
+     *
+     * @param certURL            URL to a JKS keystore where the certificate is stored.
+     * @param password           password to decrypt the keystore
+     * @param certType           The certificate type
+     * @param port               The SSL port
+     * @param trustStoreProvider The provider
+     */
+    RequestSpecification certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider);
 
     /**
      * Excerpt from the HttpBuilder docs:<br>
@@ -97,6 +127,7 @@ public interface AuthenticationSpecification {
     /**
      * Explicitly state that you don't which to use any authentication in this request. This is useful only in cases where you've
      * specified a default authentication scheme and you wish to override it for a single request.
+     *
      * @return The Request specification
      */
     RequestSpecification none();

@@ -20,20 +20,19 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.KeystoreProvider
 import com.jayway.restassured.internal.http.HTTPBuilder
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
 
 import java.security.KeyStore
 
 class NoKeystoreSpecImpl implements KeystoreSpec, KeystoreProvider {
 
-  void apply(HTTPBuilder builder, int port) {
-  }
+    void apply(HTTPBuilder builder, int port) {
+    }
 
-  def Boolean canBuild() {
-    return false
-  }
+    def Boolean canBuild() {
+        return false
+    }
 
-  def KeyStore build() {
-    throw new NotImplementedException()
-  }
+    def KeyStore build() {
+        throw new IllegalArgumentException("Cannot use this key store specification to build a KeyStore")
+    }
 }

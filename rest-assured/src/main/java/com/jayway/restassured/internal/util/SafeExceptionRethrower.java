@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jayway.restassured.authentication
+package com.jayway.restassured.internal.util;
 
-import com.jayway.restassured.internal.http.HTTPBuilder
+public class SafeExceptionRethrower {
 
-import java.security.KeyStore
-
-class CertAuthScheme implements AuthenticationScheme {
-    def String certURL
-    def String password
-    def String certType = KeyStore.getDefaultType()
-    def int port = 433
-    def KeystoreProvider trustStoreProvider
-
-    @Override
-    void authenticate(HTTPBuilder httpBuilder) {
-        httpBuilder.auth.certificate(certURL, password, certType, port, trustStoreProvider)
+    public static <T> T safeRethrow(Throwable t) {
+        SafeExceptionRethrower.<RuntimeException>safeRethrow0(t);
+        return null;
     }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Throwable> void safeRethrow0(Throwable t) throws T {
+        throw (T) t;
+    }
+
 }

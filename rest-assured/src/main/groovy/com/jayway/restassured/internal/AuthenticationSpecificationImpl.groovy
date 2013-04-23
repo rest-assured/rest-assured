@@ -13,11 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
-
-
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.*
@@ -26,103 +21,118 @@ import com.jayway.restassured.specification.PreemptiveAuthSpec
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.spi.AuthFilter
 
+import java.security.KeyStore
+
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 
 /**
  * Specify an authentication scheme to use when sending a request.
  */
 class AuthenticationSpecificationImpl implements AuthenticationSpecification {
-  private RequestSpecification requestSpecification;
+    private RequestSpecification requestSpecification;
 
-  AuthenticationSpecificationImpl(RequestSpecification requestSpecification) {
-    this.requestSpecification = requestSpecification
-  }
+    AuthenticationSpecificationImpl(RequestSpecification requestSpecification) {
+        this.requestSpecification = requestSpecification
+    }
 
-  /**
-   * Use http basic authentication.
-   *
-   * @param userName The user name.
-   * @param password The password.
-   * @return The request builder
-   */
-  def RequestSpecification basic(String userName, String password) {
-    notNull userName, "userName"
-    notNull password, "password"
+    /**
+     * Use http basic authentication.
+     *
+     * @param userName The user name.
+     * @param password The password.
+     * @return The request builder
+     */
+    def RequestSpecification basic(String userName, String password) {
+        notNull userName, "userName"
+        notNull password, "password"
 
-    requestSpecification.authenticationScheme = new BasicAuthScheme(userName: userName, password: password)
-    return requestSpecification
-  }
+        requestSpecification.authenticationScheme = new BasicAuthScheme(userName: userName, password: password)
+        return requestSpecification
+    }
 
-  /**
-   * Use http digest authentication.
-   *
-   * @param userName The user name.
-   * @param password The password.
-   * @return The request builder
-   */
-  def RequestSpecification digest(String userName, String password) {
-    notNull userName, "userName"
-    notNull password, "password"
+    /**
+     * Use http digest authentication.
+     *
+     * @param userName The user name.
+     * @param password The password.
+     * @return The request builder
+     */
+    def RequestSpecification digest(String userName, String password) {
+        notNull userName, "userName"
+        notNull password, "password"
 
-    requestSpecification.authenticationScheme = new BasicAuthScheme(userName: userName, password: password)
-    return requestSpecification
-  }
+        requestSpecification.authenticationScheme = new BasicAuthScheme(userName: userName, password: password)
+        return requestSpecification
+    }
 
-  /**
-   * Sets a certificate to be used for SSL authentication. See {@link java.lang.Class#getResource(String)}
-   * for how to get a URL from a resource on the classpath.
-   *
-   * @param certURL URL to a JKS keystore where the certificate is stored.
-   * @param password  password to decrypt the keystore
-   * @return The request com.jayway.restassured.specification
-   */
-  def RequestSpecification certificate(String certURL, String password) {
-    notNull certURL, "certURL"
-    notNull password, "password"
+    /**
+     * Sets a certificate to be used for SSL authentication. See {@link java.lang.Class#getResource(String)}
+     * for how to get a URL from a resource on the classpath.
+     * <p>
+     *     Uses keystore: <code>KeyStore.getDefaultType()</code>.
+     * </p>
+     *
+     * @param certURL URL to a JKS keystore where the certificate is stored.
+     * @param password password to decrypt the keystore
+     * @return The request com.jayway.restassured.specification
+     * @see #certificate(java.lang.String, java.lang.String, java.lang.String, int, com.jayway.restassured.authentication.KeystoreProvider)
+     */
+    def RequestSpecification certificate(String certURL, String password) {
+        return certificate(certURL, password, KeyStore.getDefaultType(), 443)
+    }
 
-    requestSpecification.authenticationScheme = new CertAuthScheme(certURL: certURL, password: password)
-    return requestSpecification
-  }
+    def RequestSpecification certificate(String certURL, String password, String certType, int port) {
+        return certificate(certURL, password, certType, port, new NoKeystoreSpecImpl())
+    }
 
-  /**
-   * Excerpt from the HttpBuilder docs:<br>
-   * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
-   * All requests to all domains will be signed for this instance.
-   * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-   * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
-   *
-   * @param consumerKey
-   * @param consumerSecret
-   * @param accessToken
-   * @param secretToken
-   * @return The request com.jayway.restassured.specification
-   */
-  def RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken) {
-    notNull consumerKey, "consumerKey"
-    notNull consumerSecret, "consumerSecret"
-    notNull accessToken, "accessToken"
-    notNull secretToken, "secretToken"
+    def RequestSpecification certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
+        notNull certURL, "certURL"
+        notNull password, "password"
+        notNull certType, "Certification type"
 
-    requestSpecification.authenticationScheme = new OAuthScheme(consumerKey: consumerKey, consumerSecret: consumerSecret, accessToken: accessToken, secretToken: secretToken)
-    return requestSpecification
-  }
+        requestSpecification.authenticationScheme = new CertAuthScheme(certURL: certURL, password: password, certType: certType,
+                port: port, trustStoreProvider: trustStoreProvider)
+        return requestSpecification
+    }
+/**
+ * Excerpt from the HttpBuilder docs:<br>
+ * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
+ * All requests to all domains will be signed for this instance.
+ * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
+ * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+ *
+ * @param consumerKey
+ * @param consumerSecret
+ * @param accessToken
+ * @param secretToken
+ * @return The request com.jayway.restassured.specification
+ */
+    def RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken) {
+        notNull consumerKey, "consumerKey"
+        notNull consumerSecret, "consumerSecret"
+        notNull accessToken, "accessToken"
+        notNull secretToken, "secretToken"
 
-  def RequestSpecification none() {
-    requestSpecification.authenticationScheme = new ExplicitNoAuthScheme();
-    requestSpecification.filters.removeAll { it instanceof AuthFilter }
-    return requestSpecification
-  }
+        requestSpecification.authenticationScheme = new OAuthScheme(consumerKey: consumerKey, consumerSecret: consumerSecret, accessToken: accessToken, secretToken: secretToken)
+        return requestSpecification
+    }
 
-  def PreemptiveAuthSpec preemptive() {
-    return new PreemptiveAuthSpecImpl(requestSpecification)
-  }
+    def RequestSpecification none() {
+        requestSpecification.authenticationScheme = new ExplicitNoAuthScheme();
+        requestSpecification.filters.removeAll { it instanceof AuthFilter }
+        return requestSpecification
+    }
 
-  def RequestSpecification form(String userName, String password) {
-    form(userName, password, null)
-  }
+    def PreemptiveAuthSpec preemptive() {
+        return new PreemptiveAuthSpecImpl(requestSpecification)
+    }
 
-  def RequestSpecification form(String userName, String password, FormAuthConfig config) {
-    requestSpecification.authenticationScheme = new FormAuthScheme(userName: userName,password: password, config: config)
-    return requestSpecification
-  }
+    def RequestSpecification form(String userName, String password) {
+        form(userName, password, null)
+    }
+
+    def RequestSpecification form(String userName, String password, FormAuthConfig config) {
+        requestSpecification.authenticationScheme = new FormAuthScheme(userName: userName, password: password, config: config)
+        return requestSpecification
+    }
 }
