@@ -88,16 +88,16 @@ public class AuthConfig {
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
      * on the classpath.
      *
-     * @param certURL            URL to a JKS keystore where the certificate is stored.
+     * @param certPath           Location where the certificate is stored.
      * @param password           password to decrypt the keystore
-     * @param certType           The certificate type
+     * @param certType           The certificate type (eg jks or pkcs12)
      * @param port               The SSL port
      * @param trustStoreProvider The provider
      */
-    public void certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
+    public void certificate(String certPath, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
         try {
             KeyStore keyStore = KeyStore.getInstance(certType);
-            InputStream jksStream = new URL(certURL).openStream();
+            InputStream jksStream = getClass().getResource(certPath).openStream();
             try {
                 keyStore.load(jksStream, password.toCharArray());
             } finally {

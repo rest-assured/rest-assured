@@ -72,25 +72,25 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
      *     Uses keystore: <code>KeyStore.getDefaultType()</code>.
      * </p>
      *
-     * @param certURL URL to a JKS keystore where the certificate is stored.
+     * @param certPath           Location where the certificate is stored.
      * @param password password to decrypt the keystore
      * @return The request com.jayway.restassured.specification
      * @see #certificate(java.lang.String, java.lang.String, java.lang.String, int, com.jayway.restassured.authentication.KeystoreProvider)
      */
-    def RequestSpecification certificate(String certURL, String password) {
-        return certificate(certURL, password, KeyStore.getDefaultType(), 443)
+    def RequestSpecification certificate(String certPath, String password) {
+        return certificate(certPath, password, KeyStore.getDefaultType(), 443)
     }
 
-    def RequestSpecification certificate(String certURL, String password, String certType, int port) {
-        return certificate(certURL, password, certType, port, new NoKeystoreSpecImpl())
+    def RequestSpecification certificate(String certPath, String password, String certType, int port) {
+        return certificate(certPath, password, certType, port, new NoKeystoreSpecImpl())
     }
 
-    def RequestSpecification certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
-        notNull certURL, "certURL"
+    def RequestSpecification certificate(String certPath, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
+        notNull certPath, "certPath"
         notNull password, "password"
         notNull certType, "Certification type"
 
-        requestSpecification.authenticationScheme = new CertAuthScheme(certURL: certURL, password: password, certType: certType,
+        requestSpecification.authenticationScheme = new CertAuthScheme(certPath: certPath, password: password, certType: certType,
                 port: port, trustStoreProvider: trustStoreProvider)
         return requestSpecification
     }
