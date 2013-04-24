@@ -71,35 +71,35 @@ public interface AuthenticationSpecification {
      * Uses keystore provider: <code>none</code><br/>
      * </p>
      *
-     * @param certURL  URL to a JKS keystore where the certificate is stored.
+     * @param certPath           Location where the certificate is stored.
      * @param password password to decrypt the keystore
      * @return The request com.jayway.restassured.specification
      * @see #certificate(java.lang.String, java.lang.String, java.lang.String, int, com.jayway.restassured.authentication.KeystoreProvider)
      */
-    RequestSpecification certificate(String certURL, String password);
+    RequestSpecification certificate(String certPath, String password);
 
     /**
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
      * on the classpath.
      *
-     * @param certURL  URL to a JKS keystore where the certificate is stored.
+     * @param certPath           Location where the certificate is stored.
      * @param password password to decrypt the keystore
      * @param certType The certificate type
      * @param port     The SSL port
      */
-    RequestSpecification certificate(String certURL, String password, String certType, int port);
+    RequestSpecification certificate(String certPath, String password, String certType, int port);
 
     /**
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
      * on the classpath.
      *
-     * @param certURL            URL to a JKS keystore where the certificate is stored.
+     * @param certPath           Location where the certificate is stored.
      * @param password           password to decrypt the keystore
      * @param certType           The certificate type
      * @param port               The SSL port
      * @param trustStoreProvider The provider
      */
-    RequestSpecification certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider);
+    RequestSpecification certificate(String certPath, String password, String certType, int port, KeystoreProvider trustStoreProvider);
 
     /**
      * Excerpt from the HttpBuilder docs:<br>
