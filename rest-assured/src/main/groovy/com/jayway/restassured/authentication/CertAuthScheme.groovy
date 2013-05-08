@@ -23,7 +23,7 @@ class CertAuthScheme implements AuthenticationScheme {
     def String certURL
     def String password
     def String certType = KeyStore.getDefaultType()
-    def int port = 433
+    def int port = 443
     def KeystoreProvider trustStoreProvider
 
     @Override
