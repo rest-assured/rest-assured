@@ -6,6 +6,7 @@ Change log next version
 * You can now specify a charset more easily when using com.jayway.restassured.http.Charset. For example Charset.JSON.withCharset("UTF-8") (issue 228).
 * It's now possible to specify a truststore when doing certificate authentication (thanks to Ian Forsey for the help) (issue 205). Usage:
   given().auth().certificate("file:///my/project/src/test/resources/soapui.p12",  "password", "pkcs12", 8443, truststoreProvider)
+* Pretty printing in JsonPath now works for json elements represented as a Java Map (issue 218).
 
 Change log 1.8.0 (2013-04-01)
 -----------------------------

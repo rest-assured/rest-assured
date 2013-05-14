@@ -531,7 +531,13 @@ public class JsonPath {
      */
     public String prettify() {
         final Object json = jsonParser.parseWith(createConfigurableJsonSlurper());
-        return JsonPrettifier.prettifyJson(JsonOutput.toJson(json));
+        final String jsonString;
+        if(json instanceof Map) {
+            jsonString = JsonOutput.toJson((Map) json);
+        } else {
+            jsonString = JsonOutput.toJson(json);
+        }
+        return JsonPrettifier.prettifyJson(jsonString);
     }
 
     /**

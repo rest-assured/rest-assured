@@ -435,4 +435,28 @@ public class JsonPathTest {
         assertThat(category1, equalTo("reference"));
         assertThat(category2, equalTo("fiction"));
     }
+
+    @Test public void
+    pretty_printing_works() {
+        // Given
+        String json = "{\"data\": [{" +
+                "         \"uid\": 10,\n" +
+                "         \"name\": \"abc\"\n" +
+                "      }\n" +
+                "   ]\n" +
+                "}";
+        // When
+        final JsonPath jsonPath = new JsonPath(json);
+
+        // Then
+        final String string = jsonPath.prettyPrint();
+        assertThat(string, equalTo("{\n" +
+                "    \"data\": [\n" +
+                "        {\n" +
+                "            \"uid\": 10,\n" +
+                "            \"name\": \"abc\"\n" +
+                "        }\n" +
+                "    ]\n" +
+                "}"));
+    }
 }
