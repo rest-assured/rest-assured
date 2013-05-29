@@ -57,6 +57,12 @@ class AssertionSupport {
         }
     }
 
+    def static properties() {
+        return { pathFragment ->
+            !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('properties') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexFragment, space])
+        }
+    }
+
     def static attributeGetter() {
         return { pathFragment ->
             pathFragment.startsWith("@") && !pathFragment.endsWith("'") && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, space])

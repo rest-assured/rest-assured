@@ -459,4 +459,16 @@ public class JsonPathTest {
                 "    ]\n" +
                 "}"));
     }
+
+    @Test public void
+    parses_json_document_with_attribute_name_equal_to_properties() {
+        // Given
+        final String jsonWithPropertyAttribute = "[{\"properties\":\"test\"}]"; // properties is a reserved word in Groovy
+
+        // When
+        final String value = new JsonPath(jsonWithPropertyAttribute).getString("[0].properties");
+
+        // Then
+        assertThat(value, equalTo("test"));
+    }
 }

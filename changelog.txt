@@ -7,6 +7,7 @@ Change log next version
 * It's now possible to specify a truststore when doing certificate authentication (thanks to Ian Forsey for the help) (issue 205). Usage:
   given().auth().certificate("file:///my/project/src/test/resources/soapui.p12",  "password", "pkcs12", 8443, truststoreProvider)
 * Pretty printing in JsonPath now works for json elements represented as a Java Map (issue 218).
+* Reserved Groovy keyword "properties" is automatically escaped in JsonPath (issue 231).
 
 Change log 1.8.0 (2013-04-01)
 -----------------------------

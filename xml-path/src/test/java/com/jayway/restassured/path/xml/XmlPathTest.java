@@ -453,4 +453,28 @@ public class XmlPathTest {
 
         assertThat(list.size(), is(171));
     }
+
+    @Test
+    public void parsesXmlRootTagCalledProperties() throws Exception {
+        // Given
+        String xml = "<properties>prop</properties>";
+
+        // When
+        final String properties = from(xml).getString("properties");
+
+        // Then
+        assertThat(properties, equalTo("prop"));
+    }
+
+    @Test
+    public void parsesNonXmlRootTagCalledProperties() throws Exception {
+        // Given
+        String xml = "<root><properties>prop</properties></root>";
+
+        // When
+        final String properties = from(xml).getString("root.properties");
+
+        // Then
+        assertThat(properties, equalTo("prop"));
+    }
 }
