@@ -8,6 +8,7 @@ Change log next version
   given().auth().certificate("file:///my/project/src/test/resources/soapui.p12",  "password", "pkcs12", 8443, truststoreProvider)
 * Pretty printing in JsonPath now works for json elements represented as a Java Map (issue 218).
 * Reserved Groovy keyword "properties" is automatically escaped in JsonPath (issue 231).
+* Response body logger now uses ": " instead of "=" when logging headers to mimic HTTP specification (issue 227).
 
 Change log 1.8.0 (2013-04-01)
 -----------------------------

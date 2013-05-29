@@ -89,7 +89,7 @@ public class LoggingITest extends WithJetty {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor)).and().expect().body(equalTo("OK")).when().get("/multiCookie");
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type=text/plain; charset=utf-8\nExpires=Thu, 01 Jan 1970 00:00:00 GMT\nSet-Cookie=cookie1=cookieValue1;Domain=localhost\nSet-Cookie=cookie1=cookieValue2;Version=1;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure\nContent-Length=2\nServer=Jetty(6.1.14)\n\nOK" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: text/plain; charset=utf-8\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\nSet-Cookie: cookie1=cookieValue1;Domain=localhost\nSet-Cookie: cookie1=cookieValue2;Version=1;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure\nContent-Length: 2\nServer: Jetty(6.1.14)\n\nOK" + LINE_SEPARATOR));
     }
 
     @Test
@@ -236,7 +236,7 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/reflect");
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR + "HTTP/1.1 200 OK\nContent-Type=text/plain; charset=iso-8859-1\nContent-Length=23\nServer=Jetty(6.1.14)\n\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR + "HTTP/1.1 200 OK\nContent-Type: text/plain; charset=iso-8859-1\nContent-Length: 23\nServer: Jetty(6.1.14)\n\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR));
     }
 
     @Test
@@ -254,7 +254,7 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/reflect");
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR + "HTTP/1.1 200 OK\nContent-Type=text/plain; charset=iso-8859-1\nContent-Length=23\nServer=Jetty(6.1.14)\n\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/reflect\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR + "HTTP/1.1 200 OK\nContent-Type: text/plain; charset=iso-8859-1\nContent-Length: 23\nServer: Jetty(6.1.14)\n\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR));
     }
 
     @Test
@@ -272,7 +272,7 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/{firstName}/{lastName}");
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type=application/json; charset=UTF-8\nContent-Length=59\nServer=Jetty(6.1.14)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json; charset=UTF-8\nContent-Length: 59\nServer: Jetty(6.1.14)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}" + LINE_SEPARATOR));
     }
 
     @Test
@@ -287,7 +287,7 @@ public class LoggingITest extends WithJetty {
                 when().
                 get("/409");
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type=text/plain; charset=utf-8\nContent-Length=5\nServer=Jetty(6.1.14)\n\nERROR" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type: text/plain; charset=utf-8\nContent-Length: 5\nServer: Jetty(6.1.14)\n\nERROR" + LINE_SEPARATOR));
     }
 
     @Test
@@ -317,7 +317,7 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/409");
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type=text/plain; charset=utf-8\nContent-Length=5\nServer=Jetty(6.1.14)\n\nERROR" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type: text/plain; charset=utf-8\nContent-Length: 5\nServer: Jetty(6.1.14)\n\nERROR" + LINE_SEPARATOR));
     }
 
     @Test
@@ -406,7 +406,7 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type=application/json; charset=UTF-8\nContent-Length=59\nServer=Jetty(6.1.14)\n\n{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json; charset=UTF-8\nContent-Length: 59\nServer: Jetty(6.1.14)\n\n{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}" + LINE_SEPARATOR));
     }
 
     @Test
@@ -425,7 +425,7 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type=application/json; charset=UTF-8\nContent-Length=59\nServer=Jetty(6.1.14)\n\n{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json; charset=UTF-8\nContent-Length: 59\nServer: Jetty(6.1.14)\n\n{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}" + LINE_SEPARATOR));
     }
 
     @Test
@@ -444,7 +444,7 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type=application/json; charset=UTF-8\nContent-Length=59\nServer=Jetty(6.1.14)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json; charset=UTF-8\nContent-Length: 59\nServer: Jetty(6.1.14)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}" + LINE_SEPARATOR));
     }
 
     @Test
@@ -514,7 +514,7 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("Content-Type=application/json; charset=UTF-8\nContent-Length=59\nServer=Jetty(6.1.14)" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("Content-Type: application/json; charset=UTF-8\nContent-Length: 59\nServer: Jetty(6.1.14)" + LINE_SEPARATOR));
     }
 
     @Test
@@ -530,7 +530,7 @@ public class LoggingITest extends WithJetty {
                 get("/multiValueHeader");
 
 
-        assertThat(writer.toString(), equalTo("Content-Type=text/plain; charset=utf-8\nMultiHeader=Value 1\nMultiHeader=Value 2\nContent-Length=0\nServer=Jetty(6.1.14)" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("Content-Type: text/plain; charset=utf-8\nMultiHeader: Value 1\nMultiHeader: Value 2\nContent-Length: 0\nServer: Jetty(6.1.14)" + LINE_SEPARATOR));
     }
 
     @Test
@@ -561,7 +561,7 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/contentTypeJsonButContentIsNotJson");
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type=application/json; charset=UTF-8\nContent-Length=33\nServer=Jetty(6.1.14)\n\nThis is not a valid JSON document" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json; charset=UTF-8\nContent-Length: 33\nServer: Jetty(6.1.14)\n\nThis is not a valid JSON document" + LINE_SEPARATOR));
     }
 
     @Test

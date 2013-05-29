@@ -22,6 +22,7 @@ import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
 import com.jayway.restassured.internal.support.Prettifier;
 import com.jayway.restassured.response.Cookies;
+import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
@@ -37,6 +38,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 class StatusCodeBasedLoggingFilter implements Filter {
 
+    private static final String HEADER_NAME_AND_VALUE_SEPARATOR = ": ";
+
     private final PrintStream stream;
     private final Matcher<?> matcher;
     private final LogDetail logDetail;
@@ -44,6 +47,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
 
     /**
      * Log to system out
+     *
      * @param matcher The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(Matcher<? super Integer> matcher) {
@@ -52,7 +56,8 @@ class StatusCodeBasedLoggingFilter implements Filter {
 
     /**
      * Instantiate a error logger using a specific print stream
-     * @param stream The stream to log errors to.
+     *
+     * @param stream  The stream to log errors to.
      * @param matcher The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(PrintStream stream, Matcher<? super Integer> matcher) {
@@ -63,8 +68,8 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * Instantiate a logger using a specific print stream and a specific log detail
      *
      * @param logDetail The log detail
-     * @param stream The stream to log errors to.
-     * @param matcher The matcher for the logging to take place
+     * @param stream    The stream to log errors to.
+     * @param matcher   The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, PrintStream stream, Matcher<? super Integer> matcher) {
         this(logDetail, isPrettyPrintingEnabled(), stream, matcher);
@@ -73,16 +78,16 @@ class StatusCodeBasedLoggingFilter implements Filter {
     /**
      * Instantiate a logger using a specific print stream and a specific log detail  and the option to pretty printing
      *
-     * @param logDetail The log detail
+     * @param logDetail   The log detail
      * @param prettyPrint Enabled pretty printing if possible
-     * @param stream The stream to log errors to.
-     * @param matcher The matcher for the logging to take place
+     * @param stream      The stream to log errors to.
+     * @param matcher     The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<? super Integer> matcher) {
         Validate.notNull(logDetail, "Log details cannot be null");
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(matcher, "Matcher cannot be null");
-        if(logDetail == PARAMS) {
+        if (logDetail == PARAMS) {
             throw new IllegalArgumentException(String.format("%s is not a valid %s for a response.", PARAMS, LogDetail.class.getSimpleName()));
         }
         this.shouldPrettyPrint = prettyPrint;
@@ -94,7 +99,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
         Response response = ctx.next(requestSpec, responseSpec);
         final int statusCode = response.statusCode();
-        if(matcher.matches(statusCode)) {
+        if (matcher.matches(statusCode)) {
             final String responseAsString = log(response);
             response = cloneResponseIfNeeded(response, responseAsString);
         }
@@ -105,27 +110,27 @@ class StatusCodeBasedLoggingFilter implements Filter {
     private String log(Response response) {
         final StringBuilder builder = new StringBuilder();
         String responseBody = null;
-        if(logDetail == ALL || logDetail == STATUS) {
+        if (logDetail == ALL || logDetail == STATUS) {
             builder.append(response.statusLine());
         }
-        if(logDetail == ALL || logDetail == HEADERS) {
+        if (logDetail == ALL || logDetail == HEADERS) {
             final Headers headers = response.headers();
-            if(headers.exist()) {
-                appendNewLineIfAll(logDetail, builder).append(headers.toString());
+            if (headers.exist()) {
+                appendNewLineIfAll(logDetail, builder).append(toString(headers));
             }
-        } else if(logDetail == COOKIES) {
+        } else if (logDetail == COOKIES) {
             final Cookies cookies = response.detailedCookies();
-            if(cookies.exist()) {
+            if (cookies.exist()) {
                 appendNewLineIfAll(logDetail, builder).append(cookies.toString());
             }
         }
-        if(logDetail == ALL || logDetail == BODY) {
-            if(shouldPrettyPrint) {
+        if (logDetail == ALL || logDetail == BODY) {
+            if (shouldPrettyPrint) {
                 responseBody = new Prettifier().getPrettifiedBodyIfPossible(response);
             } else {
                 responseBody = response.asString();
             }
-            if(logDetail == ALL && !isBlank(responseBody)) {
+            if (logDetail == ALL && !isBlank(responseBody)) {
                 builder.append("\n\n");
             }
 
@@ -135,8 +140,21 @@ class StatusCodeBasedLoggingFilter implements Filter {
         return responseBody;
     }
 
+    private String toString(Headers headers) {
+        if (!headers.exist()) {
+            return "";
+        }
+
+        final StringBuilder builder = new StringBuilder();
+        for (Header header : headers) {
+            builder.append(header.getName()).append(HEADER_NAME_AND_VALUE_SEPARATOR).append(header.getValue()).append("\n");
+        }
+        builder.deleteCharAt(builder.length() - 1);
+        return builder.toString();
+    }
+
     private StringBuilder appendNewLineIfAll(LogDetail logDetail, StringBuilder builder) {
-        if(logDetail == ALL) {
+        if (logDetail == ALL) {
             builder.append("\n");
         }
         return builder;
@@ -147,7 +165,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * has been closed due to the logging.
      */
     private Response cloneResponseIfNeeded(Response response, String responseAsString) {
-        if(responseAsString != null && response instanceof RestAssuredResponseImpl && !((RestAssuredResponseImpl) response).getHasExpectations()) {
+        if (responseAsString != null && response instanceof RestAssuredResponseImpl && !((RestAssuredResponseImpl) response).getHasExpectations()) {
             final Response build = new ResponseBuilder().clone(response).setBody(responseAsString).build();
             ((RestAssuredResponseImpl) build).setHasExpectations(true);
             return build;

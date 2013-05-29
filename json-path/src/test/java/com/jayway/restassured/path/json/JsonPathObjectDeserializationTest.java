@@ -6,7 +6,6 @@ import com.jayway.restassured.path.json.mapping.JsonPathObjectDeserializer;
 import com.jayway.restassured.path.json.support.Greeting;
 import com.jayway.restassured.path.json.support.Winner;
 import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.List;
