@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
 package com.jayway.restassured.internal
 
 import org.apache.http.entity.mime.content.FileBody
 import org.apache.http.entity.mime.content.InputStreamBody
 import org.apache.http.entity.mime.content.StringBody
 
-class MultiPart {
+import java.nio.charset.Charset
+
+class MultiPartInternal {
     private static final String OCTET_STREAM = "application/octet-stream"
     private static final String TEXT_PLAIN = "text/plain"
 
     def content
-    def name
-    def fileName
-    def mimeType
+    def String name
+    def String fileName
+    def String mimeType
+    def String charset
 
     def getContentBody() {
         if(content instanceof NoParameterValue) {
@@ -37,7 +37,7 @@ class MultiPart {
         }
 
         if(content instanceof File) {
-            new FileBody(content, mimeType ?: OCTET_STREAM)
+            new FileBody(content, fileName, mimeType ?: OCTET_STREAM, charset)
         } else if(content instanceof InputStream) {
             returnInputStreamBody()
         } else if(content instanceof byte[]) {
@@ -53,7 +53,7 @@ class MultiPart {
     }
 
     private def returnStringBody(String content) {
-        new StringBody(content, mimeType ?: TEXT_PLAIN, null)
+        StringBody.create(content, mimeType ?: TEXT_PLAIN, charset == null ? null : Charset.forName(charset))
     }
 
     private def returnInputStreamBody() {

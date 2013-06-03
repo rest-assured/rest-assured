@@ -86,7 +86,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private KeystoreSpec keyStoreSpec
     private boolean urlEncodingEnabled
     private RestAssuredConfig restAssuredConfig;
-    private List<MultiPart> multiParts = [];
+    private List<MultiPartInternal> multiParts = [];
 
     public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
                                      List<Filter> filters, KeystoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec,
@@ -655,18 +655,36 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         this
     }
 
+    def RequestSpecification multiPart(MultiPartSpecification multiPartSpec) {
+        notNull multiPartSpec, "Multi-part specification"
+        def mimeType = multiPartSpec.mimeType
+        def content
+        if( multiPartSpec.content instanceof File || multiPartSpec.content instanceof InputStream || multiPartSpec.content instanceof byte[]) {
+            content = multiPartSpec.content
+        } else {
+            // Objects ought to be serialized
+            if(mimeType == null) {
+                mimeType = requestContentType == ANY ? JSON.toString() : requestContentType
+            }
+            content = serializeIfNeeded(multiPartSpec.content, mimeType)
+        }
+
+        multiParts << new MultiPartInternal(name: multiPartSpec.controlName, content: content, fileName: multiPartSpec.fileName, charset: multiPartSpec.charset, mimeType: mimeType)
+        return this
+    }
+
     def RequestSpecification multiPart(String controlName, File file) {
-        multiParts << new MultiPart(name: controlName, content: file)
+        multiParts << new MultiPartInternal(name: controlName, content: file)
         this
     }
 
     def RequestSpecification multiPart(File file) {
-        multiParts << new MultiPart(name: "file", content: file)
+        multiParts << new MultiPartInternal(name: "file", content: file)
         this
     }
 
     def RequestSpecification multiPart(String name, File file, String mimeType) {
-        multiParts << new MultiPart(name: name, content: file, mimeType: mimeType)
+        multiParts << new MultiPartInternal(name: name, content: file, mimeType: mimeType)
         this
     }
 
@@ -677,42 +695,42 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     def RequestSpecification multiPart(String controlName, Object object, String mimeType) {
         def possiblySerializedObject = serializeIfNeeded(object, mimeType)
-        multiParts << new MultiPart(name: controlName, content: possiblySerializedObject, mimeType: mimeType)
+        multiParts << new MultiPartInternal(name: controlName, content: possiblySerializedObject, mimeType: mimeType)
         this
     }
 
     def RequestSpecification multiPart(String name, String fileName, byte[] bytes) {
-        multiParts << new MultiPart(name: name, content: bytes, fileName: fileName)
+        multiParts << new MultiPartInternal(name: name, content: bytes, fileName: fileName)
         this
     }
 
     def RequestSpecification multiPart(String name, String fileName, byte[] bytes, String mimeType) {
-        multiParts << new MultiPart(name: name, content: bytes, mimeType: mimeType, fileName: fileName)
+        multiParts << new MultiPartInternal(name: name, content: bytes, mimeType: mimeType, fileName: fileName)
         this
     }
 
     def RequestSpecification multiPart(String name, String fileName, InputStream stream) {
-        multiParts << new MultiPart(name: name, content: stream, fileName: fileName)
+        multiParts << new MultiPartInternal(name: name, content: stream, fileName: fileName)
         this
     }
 
     def RequestSpecification multiPart(String name, String fileName, InputStream stream, String mimeType) {
-        multiParts << new MultiPart(name: name, content: stream, mimeType: mimeType, fileName: fileName)
+        multiParts << new MultiPartInternal(name: name, content: stream, mimeType: mimeType, fileName: fileName)
         this
     }
 
     def RequestSpecification multiPart(String name, String contentBody) {
-        multiParts << new MultiPart(name: name, content: contentBody)
+        multiParts << new MultiPartInternal(name: name, content: contentBody)
         this
     }
 
     def RequestSpecification multiPart(String name, NoParameterValue contentBody) {
-        multiParts << new MultiPart(name: name, content: contentBody)
+        multiParts << new MultiPartInternal(name: name, content: contentBody)
         this
     }
 
     def RequestSpecification multiPart(String name, String contentBody, String mimeType) {
-        multiParts << new MultiPart(name: name, content: contentBody, mimeType: mimeType)
+        multiParts << new MultiPartInternal(name: name, content: contentBody, mimeType: mimeType)
         this
     }
 
@@ -732,7 +750,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         //If we are authenticating with Certificates, then provide the truststore spec (configured via request.keystore())
         //as we will need to apply it when creating the SSLSocketFactory
         if (authenticationScheme instanceof CertAuthScheme) {
-          authenticationScheme.setTrustStoreProvider(this.keyStoreSpec)
+            authenticationScheme.setTrustStoreProvider(this.keyStoreSpec)
         }
 
         filters << new RootFilter()
@@ -1323,8 +1341,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
                 if (assertionClosure != null ) {
                     delegate.getResponse().put(
                             Status.FAILURE.toString(), { response, content ->
-                                assertionClosure.call (response, content)
-                            });
+                        assertionClosure.call (response, content)
+                    });
                 }
                 delegate.uri.query = queryParameters
             }

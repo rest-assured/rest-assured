@@ -56,6 +56,11 @@ class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
     getFileContent + getText
   }
 
+  post("/string") {
+    val control = multiParams.get("other").getOrElse(throw new IllegalArgumentException("Missing argument 'other'"))
+    control.mkString(",")
+  }
+
 
   post("/multiple") {
     multiParams.toString()

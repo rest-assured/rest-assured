@@ -16,12 +16,14 @@
 
 package com.jayway.restassured.itest.java.presentation;
 
+import com.jayway.restassured.builder.MultiPartSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.InputStream;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
@@ -52,6 +54,54 @@ public class MultiPartITest extends WithJetty {
         expect().
                 statusCode(200).
                 body(is(new String(bytes))).
+        when().
+                post("/multipart/file");
+    }
+
+    @Test
+    public void byteArrayUploadingWhenUsingMultiPartSpecification() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(bytes).build()).
+        expect().
+                statusCode(200).
+                body(is(new String(bytes))).
+        when().
+                post("/multipart/file");
+    }
+
+
+    @Test
+    public void textUploadingWhenUsingMultiPartSpecificationAndCharset() throws Exception {
+        // Given
+        final String string = IOUtils.toString(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(string).with().charset("UTF-8").and().with().controlName("other").
+                        and().with().mimeType("application/vnd.some+json").build()).
+        expect().
+                statusCode(200).
+                body(is(string)).
+        when().
+                post("/multipart/string");
+    }
+
+    @Test
+    public void inputStreamUploadingUsingMultiPartSpecification() throws Exception {
+        // Given
+        final InputStream is = getClass().getResourceAsStream("/car-records.xsd");
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(is).with().and().with().controlName("file").
+                        and().with().mimeType("application/vnd.some+json").and().with().fileName("my-file").build()).
+        expect().
+                statusCode(200).
+                body(is(IOUtils.toString(getClass().getResourceAsStream("/car-records.xsd")))).
         when().
                 post("/multipart/file");
     }
