@@ -27,6 +27,12 @@ import static java.lang.String.format;
 
 /**
  * Builder for creating more advanced multi-part requests.
+ * <p>
+ * Usage example:
+ * <pre>
+ * File myFile = ..
+ * given().multiPart(new MultiPartSpecBuilder(myFile).with().fileName("some-name.txt").and().with().mimeType("application/vnd.mycompany+text").build()). ..
+ * </pre>
  */
 public class MultiPartSpecBuilder {
 
