@@ -119,7 +119,7 @@ public class XmlPath {
     public static XmlPathConfig config = null;
 
     private final CompatibilityMode mode;
-    private final GPathResult input;
+    private LazyJsonParser lazyJsonParser;
     private XmlPathConfig xmlPathConfig = null;
 
     private String rootPath = "";
@@ -188,7 +188,7 @@ public class XmlPath {
     public XmlPath(CompatibilityMode mode, String text) {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
-        input = parseText(text);
+        lazyJsonParser = parseText(text);
     }
 
     /**
@@ -200,7 +200,7 @@ public class XmlPath {
     public XmlPath(CompatibilityMode mode, InputStream stream) {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
-        input = parseInputStream(stream);
+        lazyJsonParser = parseInputStream(stream);
     }
 
     /**
@@ -212,7 +212,7 @@ public class XmlPath {
     public XmlPath(CompatibilityMode mode, InputSource source) {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
-        input = parseInputSource(source);
+        lazyJsonParser = parseInputSource(source);
     }
 
     /**
@@ -224,7 +224,7 @@ public class XmlPath {
     public XmlPath(CompatibilityMode mode, File file) {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
-        input = parseFile(file);
+        lazyJsonParser = parseFile(file);
     }
 
     /**
@@ -236,7 +236,7 @@ public class XmlPath {
     public XmlPath(CompatibilityMode mode, Reader reader) {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
-        input = parseReader(reader);
+        lazyJsonParser = parseReader(reader);
     }
 
     /**
@@ -248,7 +248,7 @@ public class XmlPath {
     public XmlPath(CompatibilityMode mode, URI uri) {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
-        input = parseURI(uri);
+        lazyJsonParser = parseURI(uri);
     }
 
     /**
@@ -274,7 +274,7 @@ public class XmlPath {
     private XmlPath(XmlPath xmlPath, XmlPathConfig config) {
         this.xmlPathConfig = config;
         this.mode = xmlPath.mode;
-        this.input = xmlPath.input;
+        this.lazyJsonParser = xmlPath.lazyJsonParser.changeCompatibilityMode(mode).changeConfig(config);
     }
 
     /**
@@ -404,6 +404,7 @@ public class XmlPath {
     }
 
     private <T> T getFromPath(String path, boolean convertToJavaObject) {
+        final GPathResult input = lazyJsonParser.invoke();
         final XMLAssertion xmlAssertion = new XMLAssertion();
         final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
         xmlAssertion.setKey(root + path);
@@ -557,7 +558,7 @@ public class XmlPath {
      * @return The XML as a prettified String.
      */
     public String prettify() {
-        return XmlPrettifier.prettify(input);
+        return XmlPrettifier.prettify(lazyJsonParser.invoke());
     }
 
     /**
@@ -728,12 +729,12 @@ public class XmlPath {
         return new XmlPath(uri);
     }
 
-    private GPathResult parseText(final String text) {
-        return new ExceptionCatcher() {
+    private LazyJsonParser parseText(final String text) {
+        return new LazyJsonParser(getXmlPathConfig(), mode) {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parseText(text);
             }
-        }.invoke();
+        };
     }
 
     /**
@@ -805,44 +806,44 @@ public class XmlPath {
         return ObjectConverter.convertObjectTo(object, explicitType);
     }
 
-    private GPathResult parseInputStream(final InputStream stream) {
-        return new ExceptionCatcher() {
+    private LazyJsonParser parseInputStream(final InputStream stream) {
+        return new LazyJsonParser(getXmlPathConfig(), mode) {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(stream);
             }
-        }.invoke();
+        };
     }
 
-    private GPathResult parseReader(final Reader reader) {
-        return new ExceptionCatcher() {
+    private LazyJsonParser parseReader(final Reader reader) {
+        return new LazyJsonParser(getXmlPathConfig(), mode) {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(reader);
             }
-        }.invoke();
+        };
     }
 
-    private GPathResult parseFile(final File file) {
-        return new ExceptionCatcher() {
+    private LazyJsonParser parseFile(final File file) {
+        return new LazyJsonParser(getXmlPathConfig(), mode) {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(file);
             }
-        }.invoke();
+        };
     }
 
-    private GPathResult parseURI(final URI uri) {
-        return new ExceptionCatcher() {
+    private LazyJsonParser parseURI(final URI uri) {
+        return new LazyJsonParser(getXmlPathConfig(), mode) {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(uri.toString());
             }
-        }.invoke();
+        };
     }
 
-    private GPathResult parseInputSource(final InputSource source) {
-        return new ExceptionCatcher() {
+    private LazyJsonParser parseInputSource(final InputSource source) {
+        return new LazyJsonParser(getXmlPathConfig(), mode) {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(source);
             }
-        }.invoke();
+        };
     }
 
     private XmlPathConfig getXmlPathConfig() {
@@ -857,20 +858,52 @@ public class XmlPath {
         return cfg;
     }
 
-    private abstract class ExceptionCatcher {
-
+    private static abstract class LazyJsonParser {
         protected abstract GPathResult method(XmlSlurper slurper) throws Exception;
 
-        public GPathResult invoke() {
+        private volatile XmlPathConfig config;
+        private volatile CompatibilityMode compatibilityMode;
+
+        protected LazyJsonParser(XmlPathConfig config, CompatibilityMode compatibilityMode) {
+            this.config = config;
+            this.compatibilityMode = compatibilityMode;
+        }
+
+        public LazyJsonParser changeCompatibilityMode(CompatibilityMode mode) {
+            this.compatibilityMode = mode;
+            return this;
+        }
+
+        public LazyJsonParser changeConfig(XmlPathConfig config) {
+            this.config = config;
+            return this;
+        }
+
+        private GPathResult input;
+        private boolean isInputParsed;
+
+        public synchronized GPathResult invoke() {
+            if (isInputParsed) {
+                return input;
+            }
+            isInputParsed = true;
             try {
                 final XmlSlurper slurper;
-                if (mode == XML) {
+                if (compatibilityMode == XML) {
                     slurper = new XmlSlurper();
                 } else {
                     XMLReader p = new org.ccil.cowan.tagsoup.Parser();
                     slurper = new XmlSlurper(p);
                 }
-                return method(slurper);
+
+                // Apply features
+                Map<String, Boolean> features = config.features();
+                for (Entry<String, Boolean> feature : features.entrySet()) {
+                    slurper.setFeature(feature.getKey(), feature.getValue());
+                }
+
+                input = method(slurper);
+                return input;
             } catch (Exception e) {
                 throw new XmlPathException("Failed to parse the XML document", e);
             }

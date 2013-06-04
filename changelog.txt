@@ -10,6 +10,7 @@ Change log next version
 * Reserved Groovy keyword "properties" is automatically escaped in JsonPath (issue 231).
 * Response body logger now uses ": " instead of "=" when logging headers to mimic HTTP specification (issue 227).
 * Added com.jayway.restassured.builder.MultiPartSpecBuilder that can be used to build more advanced multi-part requests in a fluent way. This also allows you to specify charset for strings in multi-part uploads which was previously not possible (issue 239).
+* Added support for setting features in XmlPath using the XmlPathConfig. This can be used to for example disabling external DTD loading. There's also a shortcut for this by using the XmlPathConfig#disableLoadingOfExternalDtd() method (issue 237).
 
 Change log 1.8.0 (2013-04-01)
 -----------------------------

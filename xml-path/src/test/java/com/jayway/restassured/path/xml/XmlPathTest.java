@@ -20,10 +20,12 @@ import com.jayway.restassured.path.xml.element.Node;
 import com.jayway.restassured.path.xml.element.NodeChildren;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.path.xml.XmlPath.*;
+import static com.jayway.restassured.path.xml.config.XmlPathConfig.xmlPathConfig;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -476,5 +478,51 @@ public class XmlPathTest {
 
         // Then
         assertThat(properties, equalTo("prop"));
+    }
+
+    @Test
+    public void disableDtdValidationWorks() throws Exception {
+        // Given
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<!DOCTYPE LegacyService SYSTEM \"http://example.com/dtd/NonExistent.dtd\">\n" +
+                "<LegacyService>Text</LegacyService>";
+
+        // When
+        final XmlPath xmlPath = new XmlPath(xml).using(xmlPathConfig().with().disableLoadingOfExternalDtd());
+
+        // Then
+        assertThat(xmlPath.getString("LegacyService"), equalTo("Text"));
+    }
+
+    @Test
+    public void setting_feature_works() throws Exception {
+        // Given
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<!DOCTYPE LegacyService SYSTEM \"http://example.com/dtd/NonExistent.dtd\">\n" +
+                "<LegacyService>Text</LegacyService>";
+
+        // When
+        final XmlPath xmlPath = new XmlPath(xml).using(xmlPathConfig().with().feature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false));
+
+        // Then
+        assertThat(xmlPath.getString("LegacyService"), equalTo("Text"));
+    }
+
+    @Test
+    public void setting_features_works() throws Exception {
+        // Given
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<!DOCTYPE LegacyService SYSTEM \"http://example.com/dtd/NonExistent.dtd\">\n" +
+                "<LegacyService>Text</LegacyService>";
+
+        Map<String, Boolean> features = new HashMap<String, Boolean>();
+        features.put("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        features.put("http://xml.org/sax/features/namespaces", false);
+
+        // When
+        final XmlPath xmlPath = new XmlPath(xml).using(xmlPathConfig().with().features(features));
+
+        // Then
+        assertThat(xmlPath.getString("LegacyService"), equalTo("Text"));
     }
 }
