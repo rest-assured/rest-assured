@@ -66,6 +66,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         }
     }
 
+    def void validate(Response response) {
+      assertionClosure.validate(response)
+    }
+
     def ResponseSpecification content(Matcher matcher, Matcher...additionalMatchers) {
         notNull(matcher, "matcher")
         bodyMatchers << new BodyMatcher(key: null, matcher: matcher, rpr: rpr)
