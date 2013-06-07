@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 1.8.1 (2013-06-07)
+-----------------------------
 * It's now possible to configure the HTTP Multipart mode when sending multi-parts. Configure this in the REST Assured HttpClientConfig (issue 223).
 * Non-backward compatible change: Default multi-part mode for multi-part uploads is changed from Browser Compatibility mode to Strict mode.
 * Fixed so that getting a single detailed cookie from the Response really works.
