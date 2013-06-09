@@ -18,6 +18,7 @@ package com.jayway.restassured.specification;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.parsing.Parser;
+import com.jayway.restassured.response.Response;
 import org.hamcrest.Matcher;
 
 import java.util.List;
@@ -42,6 +43,13 @@ public interface ResponseSpecification extends RequestSender {
      * @return the response specification
      */
     ResponseSpecification content(Matcher<?> matcher, Matcher<?>...additionalMatchers);
+
+
+    /**
+     * Validates the specified response against this ResponseSpecification
+     * @param response
+     */
+    void validate(Response response);
 
     /**
      * Expect that the JSON or XML response content conforms to one or more Hamcrest matchers.<br>
