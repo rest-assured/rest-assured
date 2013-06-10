@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* It's now possible to validate if ResponseSpecification is fulfilled by calling the validate method and passing in a Response object (thanks to Ian Forsey for the patch).
+
 Change log 1.8.1 (2013-06-07)
 -----------------------------
 * It's now possible to configure the HTTP Multipart mode when sending multi-parts. Configure this in the REST Assured HttpClientConfig (issue 223).
