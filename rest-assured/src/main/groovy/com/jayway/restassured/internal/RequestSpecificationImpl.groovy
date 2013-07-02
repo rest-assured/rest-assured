@@ -87,6 +87,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private boolean urlEncodingEnabled
     private RestAssuredConfig restAssuredConfig;
     private List<MultiPartInternal> multiParts = [];
+    private List<ContentEncoding.Type> acceptEncodings = [ContentEncoding.Type.GZIP, ContentEncoding.Type.DEFLATE]
 
     public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
                                      List<Filter> filters, KeystoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec,
@@ -504,6 +505,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         this.contentType = contentType
         return  this
     }
+    
+    def RequestSpecification acceptEncoding(ContentEncoding.Type... contentEncodingTypes) {
+        this.acceptEncodings.clear()
+        contentEncodingTypes?.each {
+            this.acceptEncodings.add(it)
+        }
+        this.header(ContentEncoding.ACCEPT_ENC_HDR, this.acceptEncodings.join(","))
+        return this
+    }
 
     def RequestSpecification headers(Map headers) {
         notNull headers, "headers"
@@ -770,6 +780,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         applyRestAssuredConfig(http)
         registerRestAssuredEncoders(http);
         setRequestHeadersToHttpBuilder(http)
+        setAcceptEncodingHeader(http)
 
         if(cookies.exist()) {
             http.getHeaders() << [Cookie : cookies.collect { it.toString() }.join("; ")]
@@ -891,6 +902,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
                 httpHeaders.put(headerName, headerValue)
             }
         }
+    }
+    
+    def setAcceptEncodingHeader(HTTPBuilder http) {
+        http.setContentEncoding(acceptEncodings.toArray())
     }
 
     private def createBodyContent(bodyContent) {
