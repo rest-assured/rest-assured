@@ -87,7 +87,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private boolean urlEncodingEnabled
     private RestAssuredConfig restAssuredConfig;
     private List<MultiPartInternal> multiParts = [];
-    private List<ContentEncoding.Type> acceptEncodings = [ContentEncoding.Type.GZIP, ContentEncoding.Type.DEFLATE]
+    private ContentEncoding.Type[] acceptEncodings = null
 
     public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
                                      List<Filter> filters, KeystoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec,
@@ -506,12 +506,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         return  this
     }
     
-    def RequestSpecification acceptEncoding(ContentEncoding.Type... contentEncodingTypes) {
-        this.acceptEncodings.clear()
-        contentEncodingTypes?.each {
-            this.acceptEncodings.add(it)
-        }
-        this.header(ContentEncoding.ACCEPT_ENC_HDR, this.acceptEncodings.join(","))
+    def RequestSpecification acceptEncoding(AcceptEncodingConfig acceptEncodingConfig) {
+        notNull acceptEncodingConfig, "acceptEncodingConfig"
+        this.acceptEncodings = acceptEncodingConfig.getAcceptedEncodings()
+        this.header(ContentEncoding.ACCEPT_ENC_HDR, acceptEncodingConfig.toString())
         return this
     }
 
@@ -780,7 +778,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         applyRestAssuredConfig(http)
         registerRestAssuredEncoders(http);
         setRequestHeadersToHttpBuilder(http)
-        setAcceptEncodingHeader(http)
+        if (acceptEncodings != null) {
+            setAcceptEncodingHeader(http)
+        }
 
         if(cookies.exist()) {
             http.getHeaders() << [Cookie : cookies.collect { it.toString() }.join("; ")]
@@ -839,6 +839,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             applyHttpClientConfig(restAssuredConfig.getHttpClientConfig())
             applyEncoderConfig(http, restAssuredConfig.getEncoderConfig())
             applySessionConfig(restAssuredConfig.getSessionConfig())
+            applyAcceptEncodingConfig(http, restAssuredConfig.getAcceptEncodingConfig())
         }
         if (!httpClientParams.isEmpty()) {
             def p = http.client.getParams();
@@ -847,6 +848,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
                 p.setParameter(key, value)
             }
         }
+    }
+    
+    private def applyAcceptEncodingConfig(HTTPBuilder httpBuilder, AcceptEncodingConfig config) {
+        httpBuilder.setContentEncoding(config.getAcceptedEncodings())
     }
 
     def applySessionConfig(SessionConfig sessionConfig) {
@@ -904,8 +909,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         }
     }
     
-    def setAcceptEncodingHeader(HTTPBuilder http) {
-        http.setContentEncoding(acceptEncodings.toArray())
+    private def setAcceptEncodingHeader(HTTPBuilder http) {
+        http.setContentEncoding(acceptEncodings)
     }
 
     private def createBodyContent(bodyContent) {

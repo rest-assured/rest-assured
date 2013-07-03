@@ -17,6 +17,7 @@
 package com.jayway.restassured.builder;
 
 import com.jayway.restassured.authentication.AuthenticationScheme;
+import com.jayway.restassured.config.AcceptEncodingConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.http.ContentType;
@@ -1009,6 +1010,22 @@ public class RequestSpecBuilder {
      */
     public RequestSpecBuilder setSessionId(String sessionIdName, String sessionIdValue) {
         spec.sessionId(sessionIdName, sessionIdValue);
+        return this;
+    }
+    
+    /**
+     * Set the "Accept-Encoding" header value for this request. It'll override the default value from the configuration.
+     * You can configure the default "Accept-Encoding" value by using:
+     * <pre>
+     *     RestAssured.config = newConfig().acceptEncodingConfig(AcceptEncodingConfig.getXXX());
+     * </pre>
+     * and then you can use the {@link RequestSpecBuilder#setAcceptEncoding(AcceptEncodingConfig)} method to set the "Accept-Encoding" header value without specifying it for each request.
+     *
+     * @param acceptEncodingConfig  The AcceptEncoding configuration
+     * @return The request specification
+     */
+    public RequestSpecBuilder setAcceptEncoding(AcceptEncodingConfig acceptEncodingConfig) {
+        spec.acceptEncoding(acceptEncodingConfig);
         return this;
     }
 

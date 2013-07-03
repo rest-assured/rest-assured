@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.specification;
 
+import com.jayway.restassured.config.AcceptEncodingConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.http.ContentType;
@@ -1047,11 +1048,11 @@ public interface RequestSpecification extends RequestSender {
      * <p>
      * Default value for "Accept-Encoding" header is "gzip,deflate".
      * Call this method without any paramater to disable this header.
-     * @param contentEncodingTypes The accepted encodings for the response
+     * @param acceptEncodingConfig The accepted encodings for the response
      * @return The request specification
      * @see ContentEncoding
      */
-    RequestSpecification acceptEncoding(ContentEncoding.Type... contentEncodingTypes);
+    RequestSpecification acceptEncoding(AcceptEncodingConfig acceptEncodingConfig);
     
     /**
      * Specify the content type of the request.
