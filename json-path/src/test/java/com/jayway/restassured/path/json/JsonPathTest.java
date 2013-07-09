@@ -80,6 +80,9 @@ public class JsonPathTest {
     private final String JSON_PATH_WITH_NUMBER = "{ \"map\" : { \"0\" : 12.3,\n" +
             "  \"1\": 15.0 } }";
 
+    private final String JSON_PATH_WITH_SIZE = "{ \"map\" : { \"size\" : 12.3,\n" +
+            "  \"1\": 15.0 } }";
+
     private final String JSON_PATH_WITH_BOOLEAN = "{ \"map\" : { \"true\" : 12.3,\n" +
             "  \"false\": 15.0 } }";
 
@@ -470,5 +473,14 @@ public class JsonPathTest {
 
         // Then
         assertThat(value, equalTo("test"));
+    }
+
+    @Test public void
+    parses_json_document_with_attribute_name_equal_to_size() {
+        // When
+        final float anInt = new JsonPath(JSON_PATH_WITH_SIZE).getFloat("map.size");
+
+        // Then
+        assertThat(anInt, is(12.3f));
     }
 }
