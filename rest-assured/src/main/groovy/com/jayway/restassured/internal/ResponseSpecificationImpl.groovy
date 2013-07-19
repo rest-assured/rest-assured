@@ -410,7 +410,6 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
             if(contentType != null) {
                 def actualContentType = response.getContentType()
                 if(contentType instanceof Matcher) {
-                    println contentType
                     if (!contentType.matches(actualContentType)) {
                         errors << [success : false, errorMessage: String.format("Expected content-type %s doesn't match actual content-type \"%s\".\n", contentType, actualContentType)]
                     }
