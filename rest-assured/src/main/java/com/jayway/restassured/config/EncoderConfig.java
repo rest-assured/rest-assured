@@ -33,7 +33,7 @@ public class EncoderConfig {
      * for query parameter encoding.
      */
     public EncoderConfig() {
-        this(HTTP.DEFAULT_CONTENT_CHARSET, UTF_8);
+        this(HTTP.DEF_CONTENT_CHARSET.toString(), UTF_8);
     }
 
     public EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset) {
