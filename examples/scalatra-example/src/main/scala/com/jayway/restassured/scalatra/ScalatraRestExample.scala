@@ -540,6 +540,10 @@ class ScalatraRestExample extends ScalatraServlet {
   get("/setCookies") {
     setCookies
   }
+  
+   get("/setCommonIdCookies") {
+    setCommonIdCookies
+  }
 
   post("/header") {
     getHeaders
@@ -754,6 +758,14 @@ class ScalatraRestExample extends ScalatraServlet {
     response.addCookie(new Cookie("key1", "value1"))
     response.addCookie(new Cookie("key2", "value2"))
     response.addCookie(new Cookie("key3", "value3"))
+    "ok"
+  }
+  
+  def setCommonIdCookies:String={
+      contentType = "text/plain"
+    response.addCookie(new Cookie("key1", "value1"))
+    response.addCookie(new Cookie("key1", "value2"))
+    response.addCookie(new Cookie("key1", "value3"))
     "ok"
   }
 
