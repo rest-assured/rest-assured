@@ -101,7 +101,7 @@ public interface Response extends ResponseBody {
 
     /**
      * The response cookies as simple name/value pair. It assumes that no cookies have the same name. If two cookies should never the less
-     * have the same name <i>the first cookie value</i> is used. If you want to return ALL cookies including all the details such as Max-Age etc use
+     * have the same name <i>the Last cookie value</i> is used. If you want to return ALL cookies including all the details such as Max-Age etc use
      * {@link #detailedCookies()}.
      *
      * @return The response cookies.

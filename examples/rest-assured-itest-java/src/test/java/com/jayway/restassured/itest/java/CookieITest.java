@@ -220,4 +220,11 @@ public class CookieITest extends WithJetty {
         assertThat(detailedCookieJsessionId.getPath(), equalTo("/"));
         assertThat(detailedCookieJsessionId.getValue(), equalTo("B3134D534F40968A3805968207273EF5"));
     }
+    @Test
+	public void multipleCookiesWithSameKey() throws Exception {
+		final Response response = get("/setCommonIdCookies");
+		Map<String, String> map = new HashMap<String, String>();
+		map = response.cookies();
+		assertThat(map.get("key1"), equalTo("value3"));
+	}
 }
