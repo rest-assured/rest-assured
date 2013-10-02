@@ -256,9 +256,7 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     Map<String, String> cookies() {
         def cookieMap = [:]
         cookies.each { cookie ->
-            if(!cookieMap.containsKey(cookie.name)) {
-                cookieMap.put(cookie.name, cookie.value)
-            }
+            cookieMap.put(cookie.name, cookie.value)
         }
         return Collections.unmodifiableMap(cookieMap)
     }
