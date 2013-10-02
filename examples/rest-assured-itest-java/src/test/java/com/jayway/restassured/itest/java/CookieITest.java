@@ -33,10 +33,10 @@ import static org.junit.Assert.assertThat;
 public class CookieITest extends WithJetty {
 
     @Test
-    public void cookiesReturnsAMapWhereTheFirstValueOfAMultiValueCookieIsUsed() throws Exception {
+    public void cookiesReturnsAMapWhereTheLastValueOfAMultiValueCookieIsUsed() throws Exception {
         final Map<String,String> cookies = get("/multiCookie").cookies();
 
-        assertThat(cookies, hasEntry("cookie1", "cookieValue1"));
+        assertThat(cookies, hasEntry("cookie1", "cookieValue2"));
     }
 
     @Test
