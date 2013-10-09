@@ -3,6 +3,7 @@ Change log next version
 * It's now possible to validate if ResponseSpecification is fulfilled by calling the validate method and passing in a Response object (thanks to Ian Forsey for the patch).
 * Getting cookies as a Map now returns the last value returned instead of the first one if multiple cookies with the same name are sent from the server to comply with the HTTP specification (thanks to DeviKiran Setti for the patch) (issue 257).
 * Fixed an issue with merging session ids when merging request specifications.
+* Fixed an issue with merging baseUri and port when merging request specifications.
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------

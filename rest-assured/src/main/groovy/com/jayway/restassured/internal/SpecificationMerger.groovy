@@ -89,6 +89,8 @@ class SpecificationMerger {
         notNull with, "Specification to merge with"
 
         thisOne.port = with.port
+        thisOne.baseUri = with.baseUri
+        thisOne.basePath = with.basePath
         thisOne.requestParameters.putAll(with.requestParameters)
         thisOne.queryParameters.putAll(with.queryParams)
         thisOne.formParameters.putAll(with.formParams)
