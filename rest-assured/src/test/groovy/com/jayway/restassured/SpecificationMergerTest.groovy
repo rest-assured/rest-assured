@@ -238,6 +238,26 @@ class SpecificationMergerTest {
         assertEquals merge.cookies.get("ikk2").getValue(), "value2"
     }
 
+    @Test
+    def void copiesSessionIdWhenFirstRequestSpecBuilderDoesntHaveASessionIdSpecified() throws Exception {
+        def merge = new RequestSpecBuilder().build();
+        def with = new RequestSpecBuilder().setConfig(newConfig().sessionConfig(sessionConfig().sessionIdName("ikk2"))).setSessionId("ikk2", "value2").build();
+
+        SpecificationMerger.merge(merge, with)
+
+        assertEquals merge.cookies.get("ikk2").getValue(), "value2"
+    }
+
+    @Test
+    def void doesntOverwriteSessionIdFromMergingSpecWhenItDoesntHaveASessionIdSpecified() throws Exception {
+        def merge = new RequestSpecBuilder().setConfig(newConfig().sessionConfig(sessionConfig().sessionIdName("ikk2"))).setSessionId("ikk2", "value2").build();
+        def with = new RequestSpecBuilder().build();
+
+        SpecificationMerger.merge(merge, with)
+
+        assertEquals merge.cookies.get("ikk2").getValue(), "value2"
+    }
+
 
     private Filter newFilter() {
         return new Filter() {

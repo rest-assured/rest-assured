@@ -110,12 +110,26 @@ class SpecificationMerger {
         def thisOneConfig = thisOne.config
         def thisOneCookies = thisOne.cookies
 
+        def otherConfig = with.config
+        def otherCookies = with.cookies;
+
         def oldSessionIdName = SessionConfig.DEFAULT_SESSION_ID_NAME
-        if(thisOneConfig != null) {
+        if (thisOneConfig != null) {
             oldSessionIdName = thisOneConfig.sessionConfig.sessionIdName()
         }
-        def cookieList = thisOneCookies.findAll {!it.getName().equalsIgnoreCase(oldSessionIdName)}
-        thisOne.cookies = new Cookies(cookieList);
+
+        def shouldRemoveSessionFromThis = false
+        if (otherConfig == null) {
+            shouldRemoveSessionFromThis = otherCookies.hasCookieWithName(oldSessionIdName);
+        } else {
+            def otherSessionIdName = otherConfig.sessionConfig.sessionIdName();
+            shouldRemoveSessionFromThis = otherCookies.hasCookieWithName(otherSessionIdName);
+        }
+
+        if (shouldRemoveSessionFromThis) {
+            def cookieList = thisOneCookies.findAll { !it.getName().equalsIgnoreCase(oldSessionIdName) }
+            thisOne.cookies = new Cookies(cookieList);
+        }
     }
 
     private static def mergeFilters(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {
@@ -124,12 +138,12 @@ class SpecificationMerger {
 
         // Overwrite auth filters
         def instanceOfAuthFilter = { it instanceof AuthFilter }
-        if((thisFilters.any(instanceOfAuthFilter) && withFilters.any(instanceOfAuthFilter)) ||
+        if ((thisFilters.any(instanceOfAuthFilter) && withFilters.any(instanceOfAuthFilter)) ||
                 with.authenticationScheme instanceof ExplicitNoAuthScheme) {
             thisFilters.removeAll(instanceOfAuthFilter)
         }
-		// Only add filters not already present
-	    def toAdd = withFilters.findAll ({ !thisFilters.contains(it) })
-		thisFilters.addAll (toAdd)
+        // Only add filters not already present
+        def toAdd = withFilters.findAll({ !thisFilters.contains(it) })
+        thisFilters.addAll(toAdd)
     }
 }
