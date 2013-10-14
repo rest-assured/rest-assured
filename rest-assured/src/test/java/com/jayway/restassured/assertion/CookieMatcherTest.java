@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Sergey Podgurskiy
  */
-public class TestCookieMatcher {
+public class CookieMatcherTest {
     @Test
     public void testSetVersion() throws ParseException {
         String[] cookies = new String[]{
