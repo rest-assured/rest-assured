@@ -441,7 +441,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         notNull content, "content"
         this.requestBody = content;
         return this
-    }
+	}
+	
+	def RequestSpecification baseUri(String baseUriparam) {
+		this.baseUri=baseUriparam;
+		return this;
+	}
 
     def RequestSpecification body(byte[] body) {
         notNull body, "body"

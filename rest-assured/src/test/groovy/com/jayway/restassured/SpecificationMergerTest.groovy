@@ -20,6 +20,7 @@ package com.jayway.restassured
 
 import com.jayway.restassured.authentication.ExplicitNoAuthScheme
 import com.jayway.restassured.builder.RequestSpecBuilder
+import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.builder.ResponseSpecBuilder
 import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.filter.Filter
@@ -257,7 +258,16 @@ class SpecificationMergerTest {
 
         assertEquals merge.cookies.get("ikk2").getValue(), "value2"
     }
-
+	
+	@Test
+	def void mergeRequestSpecsOveridebaseUri() throws Exception{
+		RestAssured.baseURI = "http://www.exampleSpec.com";
+		RequestSpecBuilder merge = new RequestSpecBuilder();
+		merge.setbaseUri("http://www.exampleSpec2.com");
+		RequestSpecification with = merge.build();
+		with.baseUri("http://www.exampleSpec3.com")
+		assertEquals merge.spec.given().spec(with).getProperties().get("baseUri"), "http://www.exampleSpec3.com"
+	}
 
     private Filter newFilter() {
         return new Filter() {
