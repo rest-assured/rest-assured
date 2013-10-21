@@ -261,12 +261,10 @@ class SpecificationMergerTest {
 	
 	@Test
 	def void mergeRequestSpecsOveridebaseUri() throws Exception{
-		RestAssured.baseURI = "http://www.exampleSpec.com";
-		RequestSpecBuilder merge = new RequestSpecBuilder();
-		merge.setbaseUri("http://www.exampleSpec2.com");
-		RequestSpecification with = merge.build();
-		with.baseUri("http://www.exampleSpec3.com")
-		assertEquals merge.spec.given().spec(with).getProperties().get("baseUri"), "http://www.exampleSpec3.com"
+		RequestSpecification merge =  new RequestSpecBuilder().setbaseUri("http://www.exampleSpec.com").build();
+		RequestSpecification with  = new RequestSpecBuilder().setbaseUri("http://www.exampleSpec2.com").build();;
+		SpecificationMerger.merge(merge, with);
+		assertEquals merge.getProperties().get("baseUri"), "http://www.exampleSpec2.com"
 	}
 
     private Filter newFilter() {
