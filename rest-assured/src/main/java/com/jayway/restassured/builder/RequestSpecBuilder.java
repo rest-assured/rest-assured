@@ -1084,7 +1084,7 @@ public class RequestSpecBuilder {
      * 
      * <pre>
      * RequestSpecBuilder builder = new RequestSpecBuilder();
-     * builder.setbaseUri("http://example.com");
+     * builder.setBaseUri("http://example.com");
 	 * RequestSpecification specs = builder.build();
 	 * given().specification(specs)
 	 *</pre>
@@ -1092,7 +1092,7 @@ public class RequestSpecBuilder {
      * @param uri
      * @return RequestSpecBuilder
      */
-    public RequestSpecBuilder setbaseUri(String uri) {
+    public RequestSpecBuilder setBaseUri(String uri) {
 		spec.baseUri(uri);
 		return this;
 	}
