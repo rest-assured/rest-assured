@@ -1078,4 +1078,22 @@ public class RequestSpecBuilder {
     public RequestSpecification build() {
         return spec;
     }
+    /**
+     * Adding the baseUri Property from the RequestSpecBuilder.
+     * instead of using static field RestAssured.baseURI 
+     * 
+     * <pre>
+     * RequestSpecBuilder builder = new RequestSpecBuilder();
+     * builder.setBaseUri("http://example.com");
+	 * RequestSpecification specs = builder.build();
+	 * given().specification(specs)
+	 *</pre>
+	 *
+     * @param uri
+     * @return RequestSpecBuilder
+     */
+    public RequestSpecBuilder setBaseUri(String uri) {
+		spec.baseUri(uri);
+		return this;
+	}
 }
