@@ -1033,7 +1033,7 @@ public class RestAssured {
      * @param port     The SSL port
      */
     public static AuthenticationScheme certificate(String certURL, String password, String certType, int port) {
-        return certificate(certURL, password, certType, port);
+        return certificate(certURL, password, certType, port, new NoKeystoreSpecImpl());
     }
 
     /**
