@@ -5,6 +5,7 @@ Change log next version
 * Fixed an issue with merging session ids when merging request specifications.
 * Fixed an issue with merging baseUri and port when merging request specifications.
 * CookieMatcher initialized cookie version with -1 if value was "0" (thanks to Sergey Podgurskiy for the patch)
+* Fixed stackoverflow in certificate authentication (issue 262) (thanks to douglasdedo for the patch)
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------
