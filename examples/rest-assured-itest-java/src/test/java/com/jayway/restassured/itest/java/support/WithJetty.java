@@ -80,7 +80,6 @@ public class WithJetty {
 
         server.setHandler(wac);
         server.addHandler(sh);
-        server.setStopAtShutdown(true);
         server.start();
     }
 
@@ -100,6 +99,7 @@ public class WithJetty {
     @AfterClass
     public static void stopJetty() throws Exception {
         server.stop();
+        server.join();
     }
 
     private static Server server;
