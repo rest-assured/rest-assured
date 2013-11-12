@@ -12,6 +12,7 @@ Change log next version
       String pageTitle = get("/index.html").xmlPath(CompatibilityMode.HTML).getString("html.head.title");
   (issue 258)
 * Fixed a NPE when trying to parse an empty JSON response (issue 260).
+* Added ability to set base uri from RequestSpecBuilder (issue 252).
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------
