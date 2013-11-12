@@ -28,7 +28,7 @@ import com.jayway.restassured.specification.FilterableResponseSpecification;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.http.Header;
 import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.SystemDefaultHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
@@ -88,7 +88,7 @@ public class HttpClientConfigITest extends WithJetty {
 
         // When
         given().
-                config(newConfig().httpClient(HttpClientConfig.httpClientConfig().httpClientInstance(new SystemDefaultHttpClient()))).
+                config(newConfig().httpClient(HttpClientConfig.httpClientConfig().httpClientFactory(systemDefaultHttpClient()))).
                 filter(new Filter() {
                     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
                         client.setValue(requestSpec.getHttpClient());
@@ -108,7 +108,7 @@ public class HttpClientConfigITest extends WithJetty {
     public void httpClientIsConfigurableFromAStaticHttpClientConfigWithOtherConfigurations() {
         // Given
         final MutableObject<HttpClient> client = new MutableObject<HttpClient>();
-        RestAssured.config = newConfig().httpClient(httpClientConfig().setParam(HANDLE_REDIRECTS, true).and().setParam(MAX_REDIRECTS, 0).and().httpClientInstance(new SystemDefaultHttpClient()));
+        RestAssured.config = newConfig().httpClient(httpClientConfig().setParam(HANDLE_REDIRECTS, true).and().setParam(MAX_REDIRECTS, 0).and().httpClientFactory(systemDefaultHttpClient()));
 
         // When
         try {
@@ -130,5 +130,15 @@ public class HttpClientConfigITest extends WithJetty {
 
         // Then
         assertThat(client.getValue(), instanceOf(SystemDefaultHttpClient.class));
+    }
+
+    private HttpClientConfig.HttpClientFactory systemDefaultHttpClient() {
+        return new HttpClientConfig.HttpClientFactory() {
+
+            @Override
+            public AbstractHttpClient createHttpClient() throws Exception {
+                return new SystemDefaultHttpClient();
+            }
+        };
     }
 }

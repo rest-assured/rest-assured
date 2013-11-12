@@ -102,10 +102,10 @@ public class FilterITest extends WithJetty {
 
             RequestSpecification spec = new RequestSpecBuilder().build();
 
-            given().get("/greetJSON");
+            given().get("/greetJSON?firstName=John&lastName=Doe");
             assertThat(myFilter.counter, equalTo(1));
 
-            given().spec(spec).get("/greetJSON");
+            given().spec(spec).get("/greetJSON?firstName=Johan&lastName=Doe");
             assertThat(myFilter.counter, equalTo(2));
         } finally {
             RestAssured.reset();

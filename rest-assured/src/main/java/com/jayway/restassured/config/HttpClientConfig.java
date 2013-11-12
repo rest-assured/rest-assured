@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.config;
 
+import com.jayway.restassured.internal.util.SafeExceptionRethrower;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.cookie.params.CookieSpecPNames;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
+import static java.util.Arrays.asList;
 
 /**
  * Configure the Apache HTTP Client parameters.
@@ -42,9 +44,18 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
  * <th>Parameter name</th><th>Parameter value</th><th>Description</th>
  * </tr>
  * <tr>
- * <td>{@link ClientPNames#COOKIE_POLICY}</td><td>{@link CookiePolicy#IGNORE_COOKIES}</td><td>Don't automatically set response cookies in subsequent requests</td>
+ * <td>{@link ClientPNames#COOKIE_POLICY}</td><td>{@link CookiePolicy#IGNORE_COOKIES}</td><td>Don't automatically set response cookies in subsequent requests.</td>
+ * </tr>
+ * <tr>
+ * <td>{@link CookieSpecPNames#DATE_PATTERNS}</td><td>[EEE, dd-MMM-yyyy HH:mm:ss z, EEE, dd MMM yyyy HH:mm:ss z]</td><td>Defines valid date patterns to be used for parsing non-standard
+ * <code>expires</code> attribute.</td>
+ * <p/>
  * </tr>
  * </table>
+ * <p>
+ * You can also specify a http client factory that is used to create the http client instances that REST Assured uses ({@link #httpClientFactory(com.jayway.restassured.config.HttpClientConfig.HttpClientFactory)}).
+ * By default the {@link DefaultHttpClient} is used
+ * </p>
  *
  * @see org.apache.http.client.params.ClientPNames
  * @see org.apache.http.client.params.CookiePolicy
@@ -54,27 +65,29 @@ public class HttpClientConfig {
 
     private final Map<String, ?> httpClientParams;
     private final HttpMultipartMode httpMultipartMode;
-    private final AbstractHttpClient httpClient;
+    private final HttpClientFactory httpClientFactory;
 
     /**
      * Creates a new  HttpClientConfig instance with the <code>{@value ClientPNames#COOKIE_POLICY}</code> parameter set to <code>{@value CookiePolicy#IGNORE_COOKIES}</code>.
      */
     public HttpClientConfig() {
-        this.httpClient = defaultHttpClientInstance();
+        this.httpClientFactory = defaultHttpClientFactory();
+
 
         this.httpClientParams = new HashMap<String, Object>() {
             {
                 put(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
+                put(CookieSpecPNames.DATE_PATTERNS, asList("EEE, dd-MMM-yyyy HH:mm:ss z", "EEE, dd MMM yyyy HH:mm:ss z"));
             }
         };
         this.httpMultipartMode = HttpMultipartMode.STRICT;
     }
 
-    private HttpClientConfig(AbstractHttpClient httpClient, Map<String, ?> httpClientParams, HttpMultipartMode httpMultipartMode) {
+    private HttpClientConfig(HttpClientFactory httpClientFactory, Map<String, ?> httpClientParams, HttpMultipartMode httpMultipartMode) {
         notNull(httpClientParams, "httpClientParams");
         notNull(httpMultipartMode, "httpMultipartMode");
-        notNull(httpClient, "Http Client");
-        this.httpClient = httpClient;
+        notNull(httpClientFactory, "Http Client factory");
+        this.httpClientFactory = httpClientFactory;
         this.httpClientParams = new HashMap<String, Object>(httpClientParams);
         this.httpMultipartMode = httpMultipartMode;
     }
@@ -83,7 +96,7 @@ public class HttpClientConfig {
      * Creates a new  HttpClientConfig instance with the parameters defined by the <code>httpClientParams</code>.
      */
     public HttpClientConfig(Map<String, ?> httpClientParams) {
-        this(defaultHttpClientInstance(), httpClientParams, HttpMultipartMode.STRICT);
+        this(defaultHttpClientFactory(), httpClientParams, HttpMultipartMode.STRICT);
     }
 
     /**
@@ -149,20 +162,24 @@ public class HttpClientConfig {
     }
 
     /**
-     * Set the http client instance that Rest Assured should use.
+     * Set the http client factory that Rest Assured should use when making request. For each request REST Assured will invoke the factory to get the a the HttpClient instance.
      *
-     * @param httpClient The http client instance.
+     * @param httpClientFactory The http client factory to use.
      * @return An updated HttpClientConfig
      */
-    public HttpClientConfig httpClientInstance(AbstractHttpClient httpClient) {
-        return new HttpClientConfig(httpClient, httpClientParams, httpMultipartMode);
+    public HttpClientConfig httpClientFactory(HttpClientFactory httpClientFactory) {
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode);
     }
 
     /**
-     * @return The configured http client instance that will be used when making a request.
+     * @return The configured http client instance created by the factory that will be used when making a request.
      */
     public AbstractHttpClient httpClientInstance() {
-        return httpClient;
+        try {
+            return httpClientFactory.createHttpClient();
+        } catch (Exception e) {
+            return SafeExceptionRethrower.safeRethrow(e);
+        }
     }
 
     /**
@@ -172,7 +189,7 @@ public class HttpClientConfig {
      * @return An updated HttpClientConfig
      */
     public HttpClientConfig httpMultipartMode(HttpMultipartMode httpMultipartMode) {
-        return new HttpClientConfig(httpClient, httpClientParams, httpMultipartMode);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode);
     }
 
     /**
@@ -189,11 +206,16 @@ public class HttpClientConfig {
         return httpMultipartMode;
     }
 
-    private static DefaultHttpClient defaultHttpClientInstance() {
-        HttpParams defaultParams = new BasicHttpParams();
-        defaultParams.setParameter(CookieSpecPNames.DATE_PATTERNS,
-                Arrays.asList("EEE, dd-MMM-yyyy HH:mm:ss z",
-                        "EEE, dd MMM yyyy HH:mm:ss z"));
-        return new DefaultHttpClient(defaultParams);
+    private static HttpClientFactory defaultHttpClientFactory() {
+        return new HttpClientFactory() {
+            @Override
+            public AbstractHttpClient createHttpClient() {
+                return new DefaultHttpClient();
+            }
+        };
+    }
+
+    public static abstract class HttpClientFactory {
+        public abstract AbstractHttpClient createHttpClient() throws Exception;
     }
 }

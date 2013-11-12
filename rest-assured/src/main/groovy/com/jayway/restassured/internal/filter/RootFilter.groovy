@@ -25,8 +25,9 @@ import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
 
 class RootFilter implements Filter {
-  @Override
-  Response filter(FilterableRequestSpecification requestSpecification, FilterableResponseSpecification responseSpecification, FilterContext context) {
-    return requestSpecification.sendRequest(context.getRequestPath(), context.getRequestMethod(), context.assertionClosure, requestSpecification)
-  }
+
+    @Override
+    Response filter(FilterableRequestSpecification requestSpecification, FilterableResponseSpecification responseSpecification, FilterContext context) {
+        return requestSpecification.sendRequest(context.getRequestPath(), context.getRequestMethod(), context.assertionClosure, requestSpecification)
+    }
 }
