@@ -311,7 +311,12 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     }
 
     XmlPath xmlPath() {
-        newXmlPath(CompatibilityMode.XML)
+        xmlPath(CompatibilityMode.XML)
+    }
+
+    XmlPath xmlPath(CompatibilityMode compatibilityMode) {
+        notNull(compatibilityMode, "Compatibility mode")
+        newXmlPath(compatibilityMode)
     }
 
     def <T> T path(String path) {

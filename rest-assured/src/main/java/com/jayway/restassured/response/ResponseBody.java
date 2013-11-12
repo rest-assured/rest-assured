@@ -21,6 +21,8 @@ import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
 
+import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode;
+
 public interface ResponseBody extends ResponseBodyData {
     /**
      * Print the response body and return it as string. Mainly useful for debug purposes when writing tests.
@@ -115,6 +117,12 @@ public interface ResponseBody extends ResponseBodyData {
      * </pre>
      */
     XmlPath xmlPath();
+
+    /**
+     * Get an XmlPath view of the response body but also pass in a {@link CompatibilityMode}.
+     * This is mainly useful if you want to parse HTML documents.
+     */
+    XmlPath xmlPath(CompatibilityMode compatibilityMode);
 
     /**
      * Get a value from the response body using the JsonPath or XmlPath syntax. REST Assured will

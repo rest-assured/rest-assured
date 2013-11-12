@@ -19,6 +19,7 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.parsing.Parser;
+import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.io.IOUtils;
@@ -30,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.HTML;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.*;
@@ -171,6 +173,15 @@ public class ResponseITest extends WithJetty {
         final String firstName = with().parameters("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().xmlPath().getString("greeting.firstName");
 
         assertThat(firstName, equalTo("John"));
+    }
+
+    @Test
+    public void usingXmlPathWithHtmlCompatibilityModeFromTheResponse() throws Exception {
+        // When
+        final String title = get("/textHTML").xmlPath(HTML).getString("html.head.title");
+
+        // Then
+        assertThat(title, equalTo("my title"));
     }
 
     @Test

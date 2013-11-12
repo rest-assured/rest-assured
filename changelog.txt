@@ -8,6 +8,9 @@ Change log next version
 * Fixed stackoverflow in certificate authentication (issue 262) (thanks to douglasdedo for the patch)
 * It's now possible to configure the HTTP Client instance to be used by REST Assured when making requests. Use the HttpClientConfig and set the http client instance there. This makes it possible for some advanced configuration not exposed by the REST Assured API (issue 203).
 * Request filters now expose the http client instance which makes it possible to alter some advanced settings not exposed by REST Assured.
+* The xmlPath method in the REST Assured response (com.jayway.restassured.response.Response) now accepts a CompatibilityMode. This means that it's easy to get values from HTML responses:
+      String pageTitle = get("/index.html").xmlPath(CompatibilityMode.HTML).getString("html.head.title");
+  (issue 258)
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------
