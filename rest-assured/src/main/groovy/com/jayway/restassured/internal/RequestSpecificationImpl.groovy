@@ -33,6 +33,7 @@ import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl
 import com.jayway.restassured.internal.mapping.ObjectMapping
 import com.jayway.restassured.mapper.ObjectMapper
+import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.*
 import com.jayway.restassured.specification.*
 import com.jayway.restassured.spi.AuthFilter
@@ -1454,7 +1455,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
          * content-type is defined.
          */
         protected Object parseResponse(HttpResponse resp, Object contentType) {
-            def definedDefaultParser = responseSpecification.rpr.defaultParser
+            def Parser definedDefaultParser = responseSpecification.rpr.defaultParser
             if (definedDefaultParser != null && ANY.toString().equals(contentType.toString())) {
                 try {
                     HttpResponseContentTypeFinder.findContentType(resp);
@@ -1462,12 +1463,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
                     // This means that no content-type is defined the response
                     def entity = resp?.entity
                     if (entity != null) {
-                        resp.setEntity(new HttpEntityWrapper(entity) {
+                        resp.entity = new HttpEntityWrapper(entity) {
                             @Override
                             org.apache.http.Header getContentType() {
-                                return new BasicHeader(CONTENT_TYPE, definedDefaultParser.getContentType())
+                                // We don't use CONTENT_TYPE field because of issue 253 (no tests for this!)
+                                return new BasicHeader("Content-Type", definedDefaultParser.getContentType())
                             }
-                        })
+                        }
                     }
                 }
             }
