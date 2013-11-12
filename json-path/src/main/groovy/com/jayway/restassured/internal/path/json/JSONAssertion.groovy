@@ -23,36 +23,47 @@ import com.jayway.restassured.internal.assertion.Assertion
 import static com.jayway.restassured.internal.assertion.AssertionSupport.*
 
 class JSONAssertion implements Assertion {
-  String key;
+    String key;
 
-  def Object getResult(Object object) {
-    Object result = getAsJsonObject(object)
-    return result;
-  }
-
-  def getAsJsonObject(object) {
-    key = escapePath(key, minus(), attributeGetter(), integer(), properties());
-    def result;
-    if (key == "\$" || key == "") {
-      result = object
-    } else {
-      def root = 'restAssuredJsonRootObject'
-      try {
-        def expr;
-        if (key =~ /^\[\d+\].*/) {
-          expr = "$root$key"
-        } else {
-          expr = "$root.$key"
-        }
-        result = Eval.me(root, object, expr)
-      } catch (Exception e) {
-        throw new IllegalArgumentException(e.getMessage().replace("startup failed:","Invalid JSON expression:").replace("$root.", generateWhitespace(root.length())));
-      }
+    def Object getResult(Object object) {
+        Object result = getAsJsonObject(object)
+        return result;
     }
-    return result
-  }
 
-  def String description() {
-    return "JSON path"
-  }
+    def getAsJsonObject(object) {
+        key = escapePath(key, minus(), attributeGetter(), integer(), properties());
+        def result;
+        if (key == "\$" || key == "") {
+            result = object
+        } else {
+            def root = 'restAssuredJsonRootObject'
+            try {
+                def expr;
+                if (key =~ /^\[\d+\].*/) {
+                    expr = "$root$key"
+                } else {
+                    expr = "$root.$key"
+                }
+                result = Eval.me(root, object, expr)
+            } catch (Exception e) {
+                def message = e.getMessage()
+
+                if (message?.contains("startup failed:")) {
+                    message = message.replace("startup failed:", "Invalid JSON expression:")
+                }
+
+                if (message?.contains("$root")) {
+                    message = message.replace("$root.", generateWhitespace(root.length()))
+                }
+
+                e.printStackTrace();
+                throw new IllegalArgumentException(message);
+            }
+        }
+        return result
+    }
+
+    def String description() {
+        return "JSON path"
+    }
 }

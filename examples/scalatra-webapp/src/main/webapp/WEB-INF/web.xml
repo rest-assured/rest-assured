@@ -40,6 +40,21 @@
         <servlet-class>com.jayway.restassured.scalatra.CustomAuthExample</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>Jersey REST Service</servlet-name>
+        <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+            <param-value>com.jayway.restassured.jersey</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Jersey REST Service</servlet-name>
+        <url-pattern>/jersey/*</url-pattern>
+    </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>ScalatraRestExample</servlet-name>
         <url-pattern>/*</url-pattern>

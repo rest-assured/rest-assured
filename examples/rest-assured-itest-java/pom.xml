@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.jayway.restassured.examples</groupId>
         <artifactId>example-parent</artifactId>
@@ -23,10 +24,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.jayway.restassured.examples</groupId>
     <artifactId>rest-assured-itest-java</artifactId>
     <name>REST Assured Java integration tests</name>
-    <description>REST Assured Java integration tests. Here you'll find various examples of how to use rest-assured.</description>
+    <description>REST Assured Java integration tests. Here you'll find various examples of how to use rest-assured.
+    </description>
 
     <dependencies>
         <dependency>
@@ -41,9 +42,27 @@
             <version>1.8.2-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>com.jayway.restassured.examples</groupId>
+            <artifactId>jersey-example</artifactId>
+            <version>1.8.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
+            <exclusions>
+                <!-- Exclude Groovy because of classpath issue with Jersey -->
+                <exclusion>
+                    <groupId>org.codehaus.groovy</groupId>
+                    <artifactId>groovy</artifactId>
+                </exclusion>
+            </exclusions>
             <version>1.8.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <!-- Needs to be the same version that REST Assured depends on -->
+            <version>${groovy.version}</version>
         </dependency>
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
@@ -82,10 +101,5 @@
             <version>2.0.14</version>
             <scope>test</scope>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.springframework</groupId>-->
-        <!--<artifactId>spring-web</artifactId>-->
-        <!--<version>3.0.5.RELEASE</version>-->
-        <!--</dependency>-->
     </dependencies>
 </project>
