@@ -6,6 +6,8 @@ Change log next version
 * Fixed an issue with merging baseUri and port when merging request specifications.
 * CookieMatcher initialized cookie version with -1 if value was "0" (thanks to Sergey Podgurskiy for the patch)
 * Fixed stackoverflow in certificate authentication (issue 262) (thanks to douglasdedo for the patch)
+* It's now possible to configure the HTTP Client instance to be used by REST Assured when making requests. Use the HttpClientConfig and set the http client instance there. This makes it possible for some advanced configuration not exposed by the REST Assured API (issue 203).
+* Request filters now expose the http client instance which makes it possible to alter some advanced settings not exposed by REST Assured.
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------

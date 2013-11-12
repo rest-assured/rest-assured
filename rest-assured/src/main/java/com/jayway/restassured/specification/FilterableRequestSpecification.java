@@ -21,6 +21,7 @@ import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Headers;
+import org.apache.http.client.HttpClient;
 
 import java.util.List;
 import java.util.Map;
@@ -68,7 +69,7 @@ public interface FilterableRequestSpecification extends RequestSpecification {
     /**
      * @return The (named) path parameters defined in the request specification
      */
-    Map<String,?> getPathParams();
+    Map<String, ?> getPathParams();
 
     /**
      * @return The query parameters defined in the request specification
@@ -99,4 +100,9 @@ public interface FilterableRequestSpecification extends RequestSpecification {
      * @return The Rest Assured configurations
      */
     RestAssuredConfig getConfig();
+
+    /**
+     * @return The underlying http client. Only use this for advanced configuration which is not accessible from Rest Assured!
+     */
+    HttpClient getHttpClient();
 }

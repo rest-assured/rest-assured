@@ -18,8 +18,14 @@ package com.jayway.restassured.config;
 
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
+import org.apache.http.cookie.params.CookieSpecPNames;
 import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -48,11 +54,14 @@ public class HttpClientConfig {
 
     private final Map<String, ?> httpClientParams;
     private final HttpMultipartMode httpMultipartMode;
+    private final AbstractHttpClient httpClient;
 
     /**
      * Creates a new  HttpClientConfig instance with the <code>{@value ClientPNames#COOKIE_POLICY}</code> parameter set to <code>{@value CookiePolicy#IGNORE_COOKIES}</code>.
      */
     public HttpClientConfig() {
+        this.httpClient = defaultHttpClientInstance();
+
         this.httpClientParams = new HashMap<String, Object>() {
             {
                 put(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
@@ -61,9 +70,11 @@ public class HttpClientConfig {
         this.httpMultipartMode = HttpMultipartMode.STRICT;
     }
 
-    private HttpClientConfig(Map<String, ?> httpClientParams, HttpMultipartMode httpMultipartMode) {
+    private HttpClientConfig(AbstractHttpClient httpClient, Map<String, ?> httpClientParams, HttpMultipartMode httpMultipartMode) {
         notNull(httpClientParams, "httpClientParams");
         notNull(httpMultipartMode, "httpMultipartMode");
+        notNull(httpClient, "Http Client");
+        this.httpClient = httpClient;
         this.httpClientParams = new HashMap<String, Object>(httpClientParams);
         this.httpMultipartMode = httpMultipartMode;
     }
@@ -72,7 +83,7 @@ public class HttpClientConfig {
      * Creates a new  HttpClientConfig instance with the parameters defined by the <code>httpClientParams</code>.
      */
     public HttpClientConfig(Map<String, ?> httpClientParams) {
-        this(httpClientParams, HttpMultipartMode.STRICT);
+        this(defaultHttpClientInstance(), httpClientParams, HttpMultipartMode.STRICT);
     }
 
     /**
@@ -138,13 +149,30 @@ public class HttpClientConfig {
     }
 
     /**
+     * Set the http client instance that Rest Assured should use.
+     *
+     * @param httpClient The http client instance.
+     * @return An updated HttpClientConfig
+     */
+    public HttpClientConfig httpClientInstance(AbstractHttpClient httpClient) {
+        return new HttpClientConfig(httpClient, httpClientParams, httpMultipartMode);
+    }
+
+    /**
+     * @return The configured http client instance that will be used when making a request.
+     */
+    public AbstractHttpClient httpClientInstance() {
+        return httpClient;
+    }
+
+    /**
      * Specify the HTTP Multipart mode when sending multi-part data.
      *
      * @param httpMultipartMode The multi-part mode to set.
      * @return An updated HttpClientConfig
      */
     public HttpClientConfig httpMultipartMode(HttpMultipartMode httpMultipartMode) {
-        return new HttpClientConfig(httpClientParams, httpMultipartMode);
+        return new HttpClientConfig(httpClient, httpClientParams, httpMultipartMode);
     }
 
     /**
@@ -159,5 +187,13 @@ public class HttpClientConfig {
      */
     public HttpMultipartMode httpMultipartMode() {
         return httpMultipartMode;
+    }
+
+    private static DefaultHttpClient defaultHttpClientInstance() {
+        HttpParams defaultParams = new BasicHttpParams();
+        defaultParams.setParameter(CookieSpecPNames.DATE_PATTERNS,
+                Arrays.asList("EEE, dd-MMM-yyyy HH:mm:ss z",
+                        "EEE, dd MMM yyyy HH:mm:ss z"));
+        return new DefaultHttpClient(defaultParams);
     }
 }

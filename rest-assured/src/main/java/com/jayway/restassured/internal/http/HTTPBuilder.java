@@ -171,13 +171,9 @@ public abstract class HTTPBuilder {
     private EncoderConfig encoderConfig;
     private boolean urlEncodingEnabled;
 
-    public HTTPBuilder(boolean urlEncodingEnabled, EncoderConfig encoderConfig) {
+    public HTTPBuilder(boolean urlEncodingEnabled, EncoderConfig encoderConfig, AbstractHttpClient client) {
         super();
-        HttpParams defaultParams = new BasicHttpParams();
-        defaultParams.setParameter( CookieSpecPNames.DATE_PATTERNS,
-                Arrays.asList("EEE, dd-MMM-yyyy HH:mm:ss z",
-                        "EEE, dd MMM yyyy HH:mm:ss z") );
-        this.client = new DefaultHttpClient(defaultParams);
+        this.client = client;
         this.setContentEncoding( ContentEncoding.Type.GZIP,
                 ContentEncoding.Type.DEFLATE );
         this.encoderConfig = encoderConfig == null ? new EncoderConfig() : encoderConfig;
@@ -192,8 +188,8 @@ public abstract class HTTPBuilder {
      * 	{@link URIBuilder#convertToURI(Object)}.
      * @throws URISyntaxException if the given argument does not represent a valid URI
      */
-    public HTTPBuilder( Object defaultURI, boolean urlEncodingEnabled, EncoderConfig encoderConfig) {
-        this(urlEncodingEnabled, encoderConfig);
+    public HTTPBuilder( Object defaultURI, boolean urlEncodingEnabled, EncoderConfig encoderConfig, AbstractHttpClient client) {
+        this(urlEncodingEnabled, encoderConfig, client);
         try {
             this.defaultURI = new URIBuilder( URIBuilder.convertToURI(defaultURI), this.urlEncodingEnabled, this.encoderConfig);
         } catch (URISyntaxException e) {
@@ -212,8 +208,8 @@ public abstract class HTTPBuilder {
      *   for common types.
      * @throws URISyntaxException if the uri argument does not represent a valid URI
      */
-    public HTTPBuilder( Object defaultURI, Object defaultContentType, boolean urlEncodingEnabled, EncoderConfig encoderConfig ) throws URISyntaxException {
-        this(urlEncodingEnabled, encoderConfig);
+    public HTTPBuilder( Object defaultURI, Object defaultContentType, boolean urlEncodingEnabled, EncoderConfig encoderConfig, AbstractHttpClient client) throws URISyntaxException {
+        this(urlEncodingEnabled, encoderConfig, client);
         this.defaultURI = new URIBuilder( URIBuilder.convertToURI(defaultURI), urlEncodingEnabled, this.encoderConfig);
         this.defaultContentType = defaultContentType;
     }

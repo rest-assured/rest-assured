@@ -18,6 +18,7 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
@@ -29,6 +30,9 @@ import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.apache.commons.io.output.WriterOutputStream;
+import org.apache.commons.lang3.mutable.MutableObject;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.junit.Test;
 
 import java.io.PrintStream;
@@ -39,8 +43,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.filter.log.ErrorLoggingFilter.logErrorsTo;
 import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logResponseTo;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class FilterITest extends WithJetty {
@@ -86,35 +89,58 @@ public class FilterITest extends WithJetty {
        when().
                 get("/greetJSON");
     }
-    
-    /** 
-    Regression Test for 197
-    */
+
+    /**
+     * Regression Test for 197
+     */
     @Test
-    public void testDefaultfiltersDontAccumluate() {
-           CountingFilter myFilter = new CountingFilter();
-           RestAssured.config = RestAssuredConfig.newConfig();
-           RestAssured.filters(myFilter);
+    public void defaultFiltersDontAccumluate() {
+        CountingFilter myFilter = new CountingFilter();
+        try {
+            RestAssured.config = RestAssuredConfig.newConfig();
+            RestAssured.filters(myFilter);
 
-           RequestSpecification spec = new RequestSpecBuilder().build();
+            RequestSpecification spec = new RequestSpecBuilder().build();
 
-           given().get("/greetJSON");
-           assertThat (myFilter.counter, equalTo(1)); 
+            given().get("/greetJSON");
+            assertThat(myFilter.counter, equalTo(1));
 
-           given().spec(spec).get("/greetJSON");
-           assertThat (myFilter.counter, equalTo(2));
+            given().spec(spec).get("/greetJSON");
+            assertThat(myFilter.counter, equalTo(2));
+        } finally {
+            RestAssured.reset();
+        }
     }
 
-       public static class CountingFilter implements Filter {
+    @Test
+    public void httpClientIsAccessibleFromTheRequestSpecification() {
+        // Given
+        final MutableObject<HttpClient> client = new MutableObject<HttpClient>();
+        // When
 
-		public int counter = 0;
-           
-           public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-               counter++;
-               return ctx.next (requestSpec, responseSpec);
-           }       
-           
-            
-       }
-    
+        given().
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        client.setValue(requestSpec.getHttpClient());
+                        return new ResponseBuilder().setStatusCode(200).setContentType("application/json").setBody("{ \"message\" : \"hello\"}").build();
+                    }
+                }).
+        expect().
+                body("message", equalTo("hello")).
+        when().
+                get("/something");
+
+        // Then
+        assertThat(client.getValue(), instanceOf(DefaultHttpClient.class));
+    }
+
+    public static class CountingFilter implements Filter {
+
+        public int counter = 0;
+
+        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+            counter++;
+            return ctx.next(requestSpec, responseSpec);
+        }
+    }
 }

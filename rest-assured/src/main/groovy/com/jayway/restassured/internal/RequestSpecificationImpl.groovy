@@ -41,10 +41,12 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.Validate
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
+import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
 import org.apache.http.entity.mime.MultipartEntity
+import org.apache.http.impl.client.AbstractHttpClient
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner
 import org.apache.http.message.BasicHeader
 
@@ -55,11 +57,12 @@ import java.util.regex.Pattern
 import static com.jayway.restassured.http.ContentType.*
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static com.jayway.restassured.internal.http.Method.*
+import static java.lang.String.format
 import static java.util.Arrays.asList
 import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.apache.http.client.params.ClientPNames.*
 
-class RequestSpecificationImpl implements FilterableRequestSpecification {
+class RequestSpecificationImpl implements RequestSpecification {
     private static final int DEFAULT_HTTPS_PORT = 443
     private static final int DEFAULT_HTTP_PORT = 80
     private static final int DEFAULT_HTTP_TEST_PORT = 8080
@@ -68,7 +71,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private static final String CONTENT_TYPE = "content-type"
 
     private String baseUri
-    private String path  = ""
+    private String path = ""
     private String basePath
     private AuthenticationScheme defaultAuthScheme
     private int port
@@ -90,9 +93,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private List<MultiPartInternal> multiParts = [];
     private ContentEncoding.Type[] acceptEncodings = null
 
-    public RequestSpecificationImpl (String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
-                                     List<Filter> filters, KeystoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec,
-                                     boolean urlEncode, RestAssuredConfig restAssuredConfig) {
+    public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
+                                    List<Filter> filters, KeystoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec,
+                                    boolean urlEncode, RestAssuredConfig restAssuredConfig) {
         notNull(baseURI, "baseURI");
         notNull(basePath, "basePath");
         notNull(defaultAuthScheme, "defaultAuthScheme");
@@ -108,7 +111,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         this.urlEncodingEnabled = urlEncode
         this.restAssuredConfig = restAssuredConfig
         port(requestPort)
-        if(defaultSpec != null) {
+        if (defaultSpec != null) {
             spec(defaultSpec)
         }
     }
@@ -129,31 +132,31 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         return responseSpecification;
     }
 
-    def Response get(String path, Object...pathParams) {
+    def Response get(String path, Object... pathParams) {
         applyPathParamsAndSendRequest(GET, path, pathParams)
     }
 
-    def Response post(String path, Object...pathParams) {
+    def Response post(String path, Object... pathParams) {
         applyPathParamsAndSendRequest(POST, path, pathParams)
     }
 
-    def Response put(String path, Object...pathParams) {
+    def Response put(String path, Object... pathParams) {
         applyPathParamsAndSendRequest(PUT, path, pathParams)
     }
 
-    def Response delete(String path, Object...pathParams) {
+    def Response delete(String path, Object... pathParams) {
         applyPathParamsAndSendRequest(DELETE, path, pathParams)
     }
 
-    def Response head(String path, Object...pathParams) {
+    def Response head(String path, Object... pathParams) {
         applyPathParamsAndSendRequest(HEAD, path, pathParams)
     }
 
-    def Response patch(String path, Object...pathParams) {
+    def Response patch(String path, Object... pathParams) {
         applyPathParamsAndSendRequest(PATCH, path, pathParams)
     }
 
-    def Response options(String path, Object...pathParams) {
+    def Response options(String path, Object... pathParams) {
         applyPathParamsAndSendRequest(OPTIONS, path, pathParams)
     }
 
@@ -383,7 +386,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         return this
     }
 
-    def RequestSpecification filters(Filter filter, Filter...additionalFilter) {
+    def RequestSpecification filters(Filter filter, Filter... additionalFilter) {
         notNull filter, "Filter"
         this.filters.add(filter)
         additionalFilter?.each {
@@ -425,7 +428,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     def RequestSpecification port(int port) {
-        if(port < 1) {
+        if (port < 1) {
             throw new IllegalArgumentException("Port must be greater than 0")
         }
         this.port = port
@@ -442,12 +445,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         notNull content, "content"
         this.requestBody = content;
         return this
-	}
-	
-	def RequestSpecification baseUri(String baseUriparam) {
-		this.baseUri=baseUriparam;
-		return this;
-	}
+    }
+
+    def RequestSpecification baseUri(String baseUriparam) {
+        this.baseUri = baseUriparam;
+        return this;
+    }
 
     def RequestSpecification body(byte[] body) {
         notNull body, "body"
@@ -462,7 +465,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     def RequestSpecification body(Object object) {
         notNull object, "object"
-        if(!isSerializableCandidate(object)) {
+        if (!isSerializableCandidate(object)) {
             return content(object.toString());
         }
 
@@ -503,15 +506,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     def RequestSpecification contentType(ContentType contentType) {
         notNull contentType, "contentType"
         this.contentType = contentType
-        return  this
+        return this
     }
 
     def RequestSpecification contentType(String contentType) {
         notNull contentType, "contentType"
         this.contentType = contentType
-        return  this
+        return this
     }
-    
+
     def RequestSpecification acceptEncoding(AcceptEncodingConfig acceptEncodingConfig) {
         notNull acceptEncodingConfig, "acceptEncodingConfig"
         this.acceptEncodings = acceptEncodingConfig.getAcceptedEncodings()
@@ -522,7 +525,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     def RequestSpecification headers(Map headers) {
         notNull headers, "headers"
         def headerList = []
-        if(this.requestHeaders.exist()) {
+        if (this.requestHeaders.exist()) {
             headerList.addAll(this.requestHeaders.list())
         }
         headers.each {
@@ -535,9 +538,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     RequestSpecification headers(Headers headers) {
         notNull headers, "headers"
-        if(headers.exist()) {
+        if (headers.exist()) {
             def headerList = []
-            if(this.requestHeaders.exist()) {
+            if (this.requestHeaders.exist()) {
                 headerList.addAll(this.requestHeaders.list())
             }
 
@@ -558,7 +561,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         }
     }
 
-    RequestSpecification header(String headerName, Object headerValue, Object...additionalHeaderValues) {
+    RequestSpecification header(String headerName, Object headerValue, Object... additionalHeaderValues) {
         notNull headerName, "Header name"
         notNull headerValue, "Header value"
 
@@ -595,7 +598,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     RequestSpecification cookies(Map cookies) {
         notNull cookies, "cookies"
         def cookieList = []
-        if(this.cookies.exist()) {
+        if (this.cookies.exist()) {
             cookieList.addAll(this.cookies.list())
         }
         cookies.each {
@@ -607,9 +610,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     def RequestSpecification cookies(Cookies cookies) {
         notNull cookies, "cookies"
-        if(cookies.exist()) {
+        if (cookies.exist()) {
             def cookieList = []
-            if(this.cookies.exist()) {
+            if (this.cookies.exist()) {
                 cookieList.addAll(this.cookies.list())
             }
 
@@ -619,7 +622,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         this
     }
 
-    RequestSpecification cookie(String cookieName, Object value, Object...additionalValues) {
+    RequestSpecification cookie(String cookieName, Object value, Object... additionalValues) {
         notNull cookieName, "Cookie name"
         def cookieList = [new Cookie.Builder(cookieName, serializeIfNeeded(value)).build()]
         additionalValues?.each {
@@ -659,7 +662,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     RequestSpecification sessionId(String sessionIdName, String sessionIdValue) {
         notNull(sessionIdName, "Session id name")
         notNull(sessionIdValue, "Session id value")
-        if(cookies.hasCookieWithName(sessionIdName)) {
+        if (cookies.hasCookieWithName(sessionIdName)) {
             def allOtherCookies = cookies.findAll { !it.getName().equalsIgnoreCase(sessionIdName) }
             allOtherCookies.add(new Cookie.Builder(sessionIdName, sessionIdValue).build());
             this.cookies = new Cookies(allOtherCookies)
@@ -673,11 +676,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         notNull multiPartSpec, "Multi-part specification"
         def mimeType = multiPartSpec.mimeType
         def content
-        if( multiPartSpec.content instanceof File || multiPartSpec.content instanceof InputStream || multiPartSpec.content instanceof byte[]) {
+        if (multiPartSpec.content instanceof File || multiPartSpec.content instanceof InputStream || multiPartSpec.content instanceof byte[]) {
             content = multiPartSpec.content
         } else {
             // Objects ought to be serialized
-            if(mimeType == null) {
+            if (mimeType == null) {
                 mimeType = requestContentType == ANY ? JSON.toString() : requestContentType
             }
             content = serializeIfNeeded(multiPartSpec.content, mimeType)
@@ -749,16 +752,16 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     def invokeFilterChain(path, method, assertionClosure) {
-        if(authenticationScheme instanceof NoAuthScheme && !(defaultAuthScheme instanceof NoAuthScheme)) {
+        if (authenticationScheme instanceof NoAuthScheme && !(defaultAuthScheme instanceof NoAuthScheme)) {
             // Use default auth scheme
             authenticationScheme = defaultAuthScheme
         }
 
         if (authenticationScheme instanceof FormAuthScheme) {
             // Form auth scheme is handled a bit differently than other auth schemes since it's implemented by a filter.
-            def formAuthScheme =  authenticationScheme as FormAuthScheme
-            filters.removeAll { AuthFilter.class.isAssignableFrom(it.getClass())  }
-            filters << new FormAuthFilter(userName: formAuthScheme.userName,password: formAuthScheme.password, config: formAuthScheme.config)
+            def formAuthScheme = authenticationScheme as FormAuthScheme
+            filters.removeAll { AuthFilter.class.isAssignableFrom(it.getClass()) }
+            filters << new FormAuthFilter(userName: formAuthScheme.userName, password: formAuthScheme.password, config: formAuthScheme.config)
         }
 
         //If we are authenticating with Certificates, then provide the truststore spec (configured via request.keystore())
@@ -769,17 +772,24 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
         filters << new RootFilter()
         def ctx = new FilterContextImpl(assembleCompleteTargetPath(path), path, method, assertionClosure, filters);
-        def response = ctx.next(this, responseSpecification)
+        def response = ctx.next(
+                new RestAssuredRequestSpecification(requestSpecification: this,
+                httpClient: httpClientConfig().httpClientInstance()), responseSpecification)
         responseSpecification.assertionClosure.validate(response)
         return response;
     }
 
-    private def Response sendRequest(path, method, assertionClosure) {
+    private def Response sendRequest(path, method, assertionClosure, FilterableRequestSpecification requestSpecification) {
         path = extractRequestParamsIfNeeded(method, path);
         def isFullyQualifiedUri = isFullyQualified(path)
         def targetUri = getTargetURI(path);
         def targetPath = getTargetPath(path)
-        def http = new RestAssuredHttpBuilder(targetUri, assertionClosure, urlEncodingEnabled, config);
+
+        if(!requestSpecification.getHttpClient() instanceof AbstractHttpClient ) {
+            throw new IllegalStateException(format("Unfortunately Rest Assured only supports Http Client instances of type %s.", AbstractHttpClient.class.getName()));
+        }
+
+        def http = new RestAssuredHttpBuilder(targetUri, assertionClosure, urlEncodingEnabled, config, requestSpecification.getHttpClient() as AbstractHttpClient);
         allowJreProxySettings(http)
         applyRestAssuredConfig(http)
         registerRestAssuredEncoders(http);
@@ -788,8 +798,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             setAcceptEncodingHeader(http)
         }
 
-        if(cookies.exist()) {
-            http.getHeaders() << [Cookie : cookies.collect { it.toString() }.join("; ")]
+        if (cookies.exist()) {
+            http.getHeaders() << [Cookie: cookies.collect { it.toString() }.join("; ")]
         }
 
         // Allow returning a the response
@@ -800,7 +810,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         restAssuredResponse.setObjectMapperConfig(objectMappingConfig())
         restAssuredResponse.setConnectionConfig(connectionConfig())
         responseSpecification.restAssuredResponse = restAssuredResponse
-        def responseContentType =  assertionClosure.getResponseContentType()
+        def responseContentType = assertionClosure.getResponseContentType()
 
         keyStoreSpec.apply(http, isFullyQualifiedUri == true && port == DEFAULT_HTTP_TEST_PORT ? DEFAULT_HTTPS_PORT : port)
 
@@ -808,25 +818,25 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
         validateMultiPartForPostPutAndPatchOnly(method);
 
-        if(mayHaveBody(method)) {
-            if(hasFormParams() && requestBody != null) {
+        if (mayHaveBody(method)) {
+            if (hasFormParams() && requestBody != null) {
                 throw new IllegalStateException("You can either send form parameters OR body content in $method, not both!");
             }
             def bodyContent = createBodyContent(assembleBodyContent(method))
-            if(method == POST) {
-                http.post( path: targetPath, body: bodyContent,
+            if (method == POST) {
+                http.post(path: targetPath, body: bodyContent,
                         requestContentType: defineRequestContentType(method),
                         contentType: responseContentType) { response, content ->
-                    if(assertionClosure != null) {
-                        assertionClosure.call (response, content)
+                    if (assertionClosure != null) {
+                        assertionClosure.call(response, content)
                     }
                 }
-            } else if(method == PATCH) {
-                http.patch( path: targetPath, body: bodyContent,
+            } else if (method == PATCH) {
+                http.patch(path: targetPath, body: bodyContent,
                         requestContentType: defineRequestContentType(method),
                         contentType: responseContentType) { response, content ->
-                    if(assertionClosure != null) {
-                        assertionClosure.call (response, content)
+                    if (assertionClosure != null) {
+                        assertionClosure.call(response, content)
                     }
                 }
             } else {
@@ -840,7 +850,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     def applyRestAssuredConfig(HTTPBuilder http) {
-        if(restAssuredConfig != null) {
+        if (restAssuredConfig != null) {
             applyRedirectConfig(restAssuredConfig.getRedirectConfig())
             applyHttpClientConfig(restAssuredConfig.getHttpClientConfig())
             applyEncoderConfig(http, restAssuredConfig.getEncoderConfig())
@@ -855,7 +865,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             }
         }
     }
-    
+
     private def applyAcceptEncodingConfig(HTTPBuilder httpBuilder, AcceptEncodingConfig config) {
         httpBuilder.setContentEncoding(config.getAcceptedEncodings())
     }
@@ -884,15 +894,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     private def putIfAbsent(Map map, key, value) {
-        if(!map.containsKey(key)) {
+        if (!map.containsKey(key)) {
             map.put(key, value)
         }
     }
 
     def assembleBodyContent(httpMethod) {
-        if(hasFormParams()) {
+        if (hasFormParams()) {
             httpMethod == Method.POST ? requestParameters += formParameters : formParameters
-        } else if(multiParts.isEmpty()) {
+        } else if (multiParts.isEmpty()) {
             requestBody
         } else {
             new byte[0]
@@ -914,7 +924,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             }
         }
     }
-    
+
     private def setAcceptEncodingHeader(HTTPBuilder http) {
         http.setContentEncoding(acceptEncodings)
     }
@@ -924,12 +934,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     private String getTargetPath(String path) {
-        if(isFullyQualified(path)) {
+        if (isFullyQualified(path)) {
             return new URL(path).getPath()
         }
 
         def baseUriPath = ""
-        if(!(baseUri == null || baseUri == "")) {
+        if (!(baseUri == null || baseUri == "")) {
             def uri = new URI(baseUri)
             baseUriPath = uri.getPath()
         }
@@ -937,23 +947,23 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     private def validateMultiPartForPostPutAndPatchOnly(method) {
-        if(multiParts.size() > 0 && method != POST && method != PUT && method != PATCH) {
+        if (multiParts.size() > 0 && method != POST && method != PUT && method != PATCH) {
             throw new IllegalArgumentException("Sorry, multi part form data is only available for POST, PUT and PATCH.");
         }
     }
 
     private def registerRestAssuredEncoders(HTTPBuilder http) {
         // Multipart form-data
-        if(multiParts.isEmpty()) {
+        if (multiParts.isEmpty()) {
             return;
         }
 
-        if(hasFormParams()) {
+        if (hasFormParams()) {
             convertFormParamsToMultiPartParams()
         }
         http.encoders.putAt MULTIPART_FORM_DATA, { contentType, content ->
             // TODO Add charset
-            MultipartEntity entity = new MultipartEntity( httpClientConfig().httpMultipartMode() );
+            MultipartEntity entity = new MultipartEntity(httpClientConfig().httpMultipartMode());
 
             multiParts.each {
                 def body = it.contentBody
@@ -1009,24 +1019,24 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     private String extractRequestParamsIfNeeded(Method method, String path) {
-        if(path.contains("?")) {
+        if (path.contains("?")) {
             def indexOfQuestionMark = path.indexOf("?")
-            String allParamAsString = path.substring(indexOfQuestionMark+1);
+            String allParamAsString = path.substring(indexOfQuestionMark + 1);
             def keyValueParams = allParamAsString.split("&");
             keyValueParams.each {
                 def keyValue = StringUtils.split(it, "=", 2)
                 def theKey;
                 def theValue;
-                if(keyValue.length < 1 || keyValue.length > 2) {
+                if (keyValue.length < 1 || keyValue.length > 2) {
                     throw new IllegalArgumentException("Illegal parameters passed to REST Assured. Parameters was: $keyValueParams")
-                } else if(keyValue.length == 1) {
+                } else if (keyValue.length == 1) {
                     theKey = keyValue[0]
                     theValue = new NoParameterValue();
                 } else {
                     theKey = keyValue[0]
                     theValue = keyValue[1]
                 }
-                if(method == POST) {
+                if (method == POST) {
                     queryParameters.put(theKey, theValue)
                 } else {
                     requestParameters.put(theKey, theValue);
@@ -1043,12 +1053,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     private def defineRequestContentType(Method method) {
         if (contentType == null) {
-            if(multiParts.size() > 0) {
+            if (multiParts.size() > 0) {
                 contentType = MULTIPART_FORM_DATA
             } else if (requestBody == null) {
                 contentType = mayHaveBody(method) ? URLENC : ANY
             } else if (requestBody instanceof byte[]) {
-                if(method != POST && method != PUT && method != DELETE && method != PATCH) {
+                if (method != POST && method != PUT && method != DELETE && method != PATCH) {
                     throw new IllegalStateException("$method doesn't support binary request data.");
                 }
                 contentType = BINARY
@@ -1060,15 +1070,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     private String getTargetURI(String path) {
-        if(port <= 0) {
+        if (port <= 0) {
             throw new IllegalArgumentException("Port must be greater than 0")
         }
         def uri
         def pathHasScheme = isFullyQualified(path)
-        if(pathHasScheme) {
+        if (pathHasScheme) {
             def url = new URL(path)
             uri = getTargetUriFromUrl(url)
-        } else if(isFullyQualified(baseUri)) {
+        } else if (isFullyQualified(baseUri)) {
             def baseUriAsUrl = new URL(baseUri)
             uri = getTargetUriFromUrl(baseUriAsUrl)
         } else {
@@ -1081,13 +1091,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         def builder = new StringBuilder();
         def protocol = url.getProtocol()
         def boolean useDefaultHttps = false
-        if(port == DEFAULT_HTTP_TEST_PORT && protocol.equalsIgnoreCase("https")) {
+        if (port == DEFAULT_HTTP_TEST_PORT && protocol.equalsIgnoreCase("https")) {
             useDefaultHttps = true
         }
         builder.append(protocol)
         builder.append("://")
         builder.append(url.getAuthority())
-        if(!hasPortDefined(url) && !(port == DEFAULT_HTTP_PORT || hasPath(url)) && !useDefaultHttps) {
+        if (!hasPortDefined(url) && !(port == DEFAULT_HTTP_PORT || hasPath(url)) && !useDefaultHttps) {
             builder.append(":")
             builder.append(port)
         }
@@ -1106,13 +1116,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private def appendParameters(Map<String, Object> from, Map<String, Object> to) {
         notNull from, "Map to copy from"
         notNull to, "Map to copy to"
-        from.each {key, value ->
+        from.each { key, value ->
             appendStandardParameter(to, key, value)
         }
     }
 
     private def appendCollectionParameter(Map<String, String> to, String key, Collection<Object> values) {
-        if(values == null || values.isEmpty()) {
+        if (values == null || values.isEmpty()) {
             to.put(key, new NoParameterValue())
             return;
         }
@@ -1135,7 +1145,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     }
 
     private def appendStandardParameter(Map<String, Object> to, String key, Object value) {
-        if(value == null) {
+        if (value == null) {
             to.put(key, new NoParameterValue())
             return;
         }
@@ -1160,7 +1170,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, objectMappingConfig()) : object
     }
 
-    private def applyPathParamsAndSendRequest(Method method, String path, Object...pathParams) {
+    private def applyPathParamsAndSendRequest(Method method, String path, Object... pathParams) {
         notNull path, "path"
         notNull pathParams, "Path params"
 
@@ -1171,9 +1181,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private def String applyPathParamsIfNeeded(String path, Object... pathParams) {
         def unnamedPathParamSize = pathParams.size()
         def namedPathParamSize = this.pathParameters.size()
-        if(unnamedPathParamSize == 0 && namedPathParamSize == 0) {
+        if (unnamedPathParamSize == 0 && namedPathParamSize == 0) {
             return path
-        } else if(unnamedPathParamSize > 0 && namedPathParamSize > 0) {
+        } else if (unnamedPathParamSize > 0 && namedPathParamSize > 0) {
             throw new IllegalArgumentException("You cannot specify both named and unnamed path params at the same time")
         } else {
             def matchPattern = ~/.*\{\w+\}.*/
@@ -1192,7 +1202,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
                     def literalizedKey = Matcher.quoteReplacement(key)
                     def replacePattern = Pattern.compile("\\{$literalizedKey\\}")
                     int current = 0;
-                    if(path.matches(".*\\{$literalizedKey\\}.*")) {
+                    if (path.matches(".*\\{$literalizedKey\\}.*")) {
                         path = path.replaceAll(replacePattern, value.toString())
                         current++
                     } else {
@@ -1207,26 +1217,26 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         path
     }
 
-    private String createFormParamBody(Map<String, Object> formParams)  {
+    private String createFormParamBody(Map<String, Object> formParams) {
         final StringBuilder body = new StringBuilder();
         for (Entry<String, Object> entry : formParams.entrySet()) {
             body.append(encode(entry.getKey()));
-            if(!(entry.getValue() instanceof NoParameterValue)) {
+            if (!(entry.getValue() instanceof NoParameterValue)) {
                 body.append("=").append(handleMultiValueParamsIfNeeded(entry));
             }
             body.append("&");
         }
-        body.deleteCharAt(body.length()-1); //Delete last &
+        body.deleteCharAt(body.length() - 1); //Delete last &
         return body.toString();
     }
 
     private def Object encode(Object string) {
         string = string.toString()
-        if(urlEncodingEnabled) {
+        if (urlEncodingEnabled) {
             def charset = config == null ? new EncoderConfig().defaultContentCharset() : config.getEncoderConfig().defaultContentCharset()
-            if(contentType instanceof String) {
+            if (contentType instanceof String) {
                 def tempCharset = CharsetExtractor.getCharsetFromContentType(contentType as String)
-                if(tempCharset != null) {
+                if (tempCharset != null) {
                     charset = tempCharset
                 }
             }
@@ -1243,7 +1253,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             final StringBuilder multiValueList = new StringBuilder();
             value.eachWithIndex { val, index ->
                 multiValueList.append(encode(val.toString()))
-                if(index != value.size() - 1) {
+                if (index != value.size() - 1) {
                     multiValueList.append("&").append(key).append("=")
                 }
             }
@@ -1317,12 +1327,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
 
     def <T extends Filter> RequestSpecification noFiltersOfType(Class<T> filterType) {
         notNull filterType, "Filter type"
-        this.filters.removeAll {filterType.isAssignableFrom(it.getClass())}
+        this.filters.removeAll { filterType.isAssignableFrom(it.getClass()) }
         this
     }
 
     private boolean isSerializableCandidate(object) {
-        if(object == null) {
+        if (object == null) {
             return false
         }
         def clazz = object.getClass()
@@ -1337,11 +1347,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
         otherOne = otherOne.trim()
         final boolean otherOneStartsWithSlash = otherOne.startsWith(SLASH);
         final boolean thisOneEndsWithSlash = thisOne.endsWith(SLASH)
-        if(thisOneEndsWithSlash && otherOneStartsWithSlash) {
+        if (thisOneEndsWithSlash && otherOneStartsWithSlash) {
             return thisOne + substringAfter(otherOne, SLASH);
         } else if (thisOneEndsWithSlash && isFullyQualified(otherOne)) {
             thisOne = ""
-        } else if(!thisOneEndsWithSlash && !otherOneStartsWithSlash && !(otherOne == "" ^ thisOne == "")) {
+        } else if (!thisOneEndsWithSlash && !otherOneStartsWithSlash && !(otherOne == "" ^ thisOne == "")) {
             return "$thisOne/$otherOne"
         }
         return thisOne + otherOne;
@@ -1350,8 +1360,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private class RestAssuredHttpBuilder extends HTTPBuilder {
         def assertionClosure
 
-        RestAssuredHttpBuilder(Object defaultURI, assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config) throws URISyntaxException {
-            super(defaultURI, urlEncodingEnabled, config?.getEncoderConfig())
+        RestAssuredHttpBuilder(Object defaultURI, assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config, AbstractHttpClient client) throws URISyntaxException {
+            super(defaultURI, urlEncodingEnabled, config?.getEncoderConfig(), client)
             this.assertionClosure = assertionClosure
         }
 
@@ -1363,11 +1373,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
          *  </ol>
          */
         protected Object doRequest(HTTPBuilder.RequestConfigDelegate delegate) {
-            if(delegate.getRequest() instanceof HttpPost) {
-                if (assertionClosure != null ) {
+            if (delegate.getRequest() instanceof HttpPost) {
+                if (assertionClosure != null) {
                     delegate.getResponse().put(
                             Status.FAILURE.toString(), { response, content ->
-                        assertionClosure.call (response, content)
+                        assertionClosure.call(response, content)
                     });
                 }
                 delegate.uri.query = queryParameters
@@ -1375,73 +1385,73 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
             final HttpRequestBase reqMethod = delegate.getRequest()
             Object contentType1 = delegate.getContentType()
             String acceptContentTypes = contentType1.toString()
-            if ( contentType1 instanceof ContentType )
+            if (contentType1 instanceof ContentType)
                 acceptContentTypes = ((ContentType) contentType1).getAcceptHeader()
-            reqMethod.setHeader( "Accept", acceptContentTypes )
-            reqMethod.setURI( delegate.getUri().toURI() )
-            if ( reqMethod.getURI() == null)
-                throw new IllegalStateException( "Request URI cannot be null" )
-            Map<?,?> headers1 = delegate.getHeaders()
-            for ( Object key : headers1.keySet() ) {
-                Object val = headers1.get( key );
-                if ( key == null ) continue;
-                if ( val == null ) {
-                    reqMethod.removeHeaders( key.toString() )
+            reqMethod.setHeader("Accept", acceptContentTypes)
+            reqMethod.setURI(delegate.getUri().toURI())
+            if (reqMethod.getURI() == null)
+                throw new IllegalStateException("Request URI cannot be null")
+            Map<?, ?> headers1 = delegate.getHeaders()
+            for (Object key : headers1.keySet()) {
+                Object val = headers1.get(key);
+                if (key == null) continue;
+                if (val == null) {
+                    reqMethod.removeHeaders(key.toString())
                 } else {
                     def keyAsString = key.toString()
-                    if(val instanceof Collection) {
+                    if (val instanceof Collection) {
                         val = val.flatten().collect { it?.toString() }
                         val.each {
-                            reqMethod.addHeader(keyAsString, it )
+                            reqMethod.addHeader(keyAsString, it)
                         }
                     } else {
-                        reqMethod.setHeader( keyAsString, val.toString() );
+                        reqMethod.setHeader(keyAsString, val.toString());
                     }
                 }
             }
             final HttpResponseDecorator resp = new HttpResponseDecorator(
-                    this.client.execute( reqMethod, delegate.getContext() ),
-                    delegate.getContext(), null )
+                    this.client.execute(reqMethod, delegate.getContext()),
+                    delegate.getContext(), null)
             try {
                 int status = resp.getStatusLine().getStatusCode();
-                Closure responseClosure = delegate.findResponseHandler( status );
+                Closure responseClosure = delegate.findResponseHandler(status);
 
                 final Object returnVal;
                 Object[] closureArgs = null;
-                switch ( responseClosure.getMaximumNumberOfParameters() ) {
-                    case 1 :
-                        returnVal = responseClosure.call( resp );
+                switch (responseClosure.getMaximumNumberOfParameters()) {
+                    case 1:
+                        returnVal = responseClosure.call(resp);
                         break;
-                    case 2 : // parse the response entity if the response handler expects it:
+                    case 2: // parse the response entity if the response handler expects it:
                         HttpEntity entity = resp.getEntity();
                         try {
-                            if ( entity == null || entity.getContentLength() == 0 ) {
-                                returnVal = responseClosure.call( resp, null );
+                            if (entity == null || entity.getContentLength() == 0) {
+                                returnVal = responseClosure.call(resp, null);
                             } else {
-                                returnVal = responseClosure.call( resp,  this.parseResponse( resp, contentType1 ));
+                                returnVal = responseClosure.call(resp, this.parseResponse(resp, contentType1));
                             }
-                        } catch ( Exception ex ) {
+                        } catch (Exception ex) {
                             org.apache.http.Header h = entity.getContentType();
                             String respContentType = h != null ? h.getValue() : null;
-                            throw new ResponseParseException( resp, ex );
+                            throw new ResponseParseException(resp, ex);
                         }
                         break;
                     default:
                         throw new IllegalArgumentException(
-                                "Response closure must accept one or two parameters" );
+                                "Response closure must accept one or two parameters");
                 }
                 return returnVal;
             }
             finally {
-                if(responseSpecification.hasBodyAssertionsDefined()) {
+                if (responseSpecification.hasBodyAssertionsDefined()) {
                     HttpEntity entity = resp.getEntity();
-                    if(entity != null) entity.consumeContent()
+                    if (entity != null) entity.consumeContent()
                 }
                 // Close idle connections to the server
                 def connectionConfig = connectionConfig()
-                if(connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
+                if (connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
                     def closeConnectionConfig = connectionConfig.closeIdleConnectionConfig()
-                    client.getConnectionManager().closeIdleConnections( closeConnectionConfig.getIdleTime(),  closeConnectionConfig.getTimeUnit() );
+                    client.getConnectionManager().closeIdleConnections(closeConnectionConfig.getIdleTime(), closeConnectionConfig.getTimeUnit());
                 }
             }
         }
@@ -1499,7 +1509,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private def String assembleCompleteTargetPath(requestPath) {
         def targetUri = getTargetURI(path)
         def targetPath = getTargetPath(path)
-        if(isFullyQualified(requestPath)) {
+        if (isFullyQualified(requestPath)) {
             targetUri = ""
         }
         return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(targetUri, targetPath), requestPath);
@@ -1524,4 +1534,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification {
     private def ConnectionConfig connectionConfig() {
         return config == null ? ConnectionConfig.connectionConfig() : config.getConnectionConfig();
     }
+
+    private class RestAssuredRequestSpecification implements FilterableRequestSpecification {
+        @Delegate
+        RequestSpecificationImpl requestSpecification; // All methods implemented in the supplied requestSpecification will be routed to this instance
+        def HttpClient httpClient
+    }
+
 }

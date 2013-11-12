@@ -47,7 +47,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure();
     private def headerAssertions = []
     private def cookieAssertions = []
-    private FilterableRequestSpecification requestSpecification;
+    private RequestSpecification requestSpecification;
     private def contentType;
     private Response restAssuredResponse;
     private String bodyRootPath;
