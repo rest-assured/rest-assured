@@ -49,7 +49,9 @@ import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.impl.client.AbstractHttpClient
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner
 import org.apache.http.message.BasicHeader
+import org.codehaus.groovy.runtime.InvokerHelper
 
+import java.lang.reflect.InvocationHandler
 import java.util.Map.Entry
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -62,7 +64,7 @@ import static java.util.Arrays.asList
 import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.apache.http.client.params.ClientPNames.*
 
-class RequestSpecificationImpl implements RequestSpecification {
+class RequestSpecificationImpl implements FilterableRequestSpecification, GroovyInterceptable {
     private static final int DEFAULT_HTTPS_PORT = 443
     private static final int DEFAULT_HTTP_PORT = 80
     private static final int DEFAULT_HTTP_TEST_PORT = 8080
@@ -92,6 +94,9 @@ class RequestSpecificationImpl implements RequestSpecification {
     private RestAssuredConfig restAssuredConfig;
     private List<MultiPartInternal> multiParts = [];
     private ContentEncoding.Type[] acceptEncodings = null
+
+    // This field should be removed once http://jira.codehaus.org/browse/GROOVY-4647 is resolved, merge with sha 9619c3b when it's fixed.
+    private AbstractHttpClient httpClient
 
     public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
                                     List<Filter> filters, KeystoreSpec keyStoreSpec, defaultRequestContentType, RequestSpecification defaultSpec,
@@ -772,9 +777,9 @@ class RequestSpecificationImpl implements RequestSpecification {
 
         filters << new RootFilter()
         def ctx = new FilterContextImpl(assembleCompleteTargetPath(path), path, method, assertionClosure, filters);
-        def response = ctx.next(
-                new RestAssuredRequestSpecification(requestSpecification: this,
-                httpClient: httpClientConfig().httpClientInstance()), responseSpecification)
+        // We pass in this here because of a bug in the Groovy compiler, http://jira.codehaus.org/browse/GROOVY-4647 (when it's fixed 9619c3b should be used instead)
+        httpClient = httpClientConfig().httpClientInstance()
+        def response = ctx.next(this, responseSpecification)
         responseSpecification.assertionClosure.validate(response)
         return response;
     }
@@ -785,7 +790,7 @@ class RequestSpecificationImpl implements RequestSpecification {
         def targetUri = getTargetURI(path);
         def targetPath = getTargetPath(path)
 
-        if(!requestSpecification.getHttpClient() instanceof AbstractHttpClient ) {
+        if (!requestSpecification.getHttpClient() instanceof AbstractHttpClient) {
             throw new IllegalStateException(format("Unfortunately Rest Assured only supports Http Client instances of type %s.", AbstractHttpClient.class.getName()));
         }
 
@@ -1316,6 +1321,10 @@ class RequestSpecificationImpl implements RequestSpecification {
         return restAssuredConfig
     }
 
+    def HttpClient getHttpClient() {
+        return httpClient // @Delegate doesn't work because of http://jira.codehaus.org/browse/GROOVY-4647 (when it's fixed 9619c3b should be used instead)
+    }
+
     String getRequestContentType() {
         return contentType != null ? contentType instanceof String ? contentType : contentType.toString() : ANY.toString()
     }
@@ -1533,12 +1542,6 @@ class RequestSpecificationImpl implements RequestSpecification {
 
     private def ConnectionConfig connectionConfig() {
         return config == null ? ConnectionConfig.connectionConfig() : config.getConnectionConfig();
-    }
-
-    private class RestAssuredRequestSpecification implements FilterableRequestSpecification {
-        @Delegate
-        RequestSpecificationImpl requestSpecification; // All methods implemented in the supplied requestSpecification will be routed to this instance
-        def HttpClient httpClient
     }
 
 }
