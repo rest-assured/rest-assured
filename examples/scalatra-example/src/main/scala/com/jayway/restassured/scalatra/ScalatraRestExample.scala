@@ -651,6 +651,11 @@ class ScalatraRestExample extends ScalatraServlet {
     params("callback")+"("+greetJson+");"
   }
 
+  get("/statusCode409WithNoBody") {
+    contentType = "application/json"
+    response.setStatus(409)
+  }
+
   get("/sessionId") {
     def setSessionId {
       response.setHeader("Set-Cookie", "jsessionid=1234")

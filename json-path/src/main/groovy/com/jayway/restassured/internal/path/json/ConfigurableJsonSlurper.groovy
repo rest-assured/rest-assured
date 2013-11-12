@@ -32,10 +32,15 @@ import static groovy.json.JsonTokenType.*
  *
  * The copied methods are:
  * <ol>
+ *     <li>parse</li>
  *     <li>parseText</li>
  *     <li>parseArray</li>
  *     <li>parseObject</li>
  * </ol>
+ * <p>
+ * There's also a tiny change in the <code>parse</code> method indicated by the "Added by Johan Haleby" comment.
+ * </p>
+ *
  */
 class ConfigurableJsonSlurper {
     private static ThreadLocal<Boolean> useBigDecimal = new ThreadLocal<>();
@@ -90,6 +95,12 @@ class ConfigurableJsonSlurper {
         JsonLexer lexer = new JsonLexer(reader);
 
         JsonToken token = lexer.nextToken();
+        // Added by Johan Haleby
+        // We need to check if the token is null (this happens if the document to parse is empty, see issue 260).
+        if (token == null) {
+            return null;
+        }
+        // End add
         if (token.getType() == OPEN_CURLY) {
             content = parseObject(lexer);
         } else if (token.getType() == OPEN_BRACKET) {

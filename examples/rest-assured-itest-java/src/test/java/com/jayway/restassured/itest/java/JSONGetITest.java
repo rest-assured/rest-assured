@@ -535,4 +535,9 @@ public class JSONGetITest extends WithJetty {
     public void contentTypeButNoBody() throws Exception {
         expect().contentType(ContentType.JSON).when().get("/contentTypeButNoBody");
     }
+
+    @Test
+    public void contentTypeButNoBodyWhenError() throws Exception {
+        expect().contentType(ContentType.JSON).body("error", equalTo(null)).when().get("/statusCode409WithNoBody");
+    }
 }

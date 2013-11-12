@@ -11,6 +11,7 @@ Change log next version
 * The xmlPath method in the REST Assured response (com.jayway.restassured.response.Response) now accepts a CompatibilityMode. This means that it's easy to get values from HTML responses:
       String pageTitle = get("/index.html").xmlPath(CompatibilityMode.HTML).getString("html.head.title");
   (issue 258)
+* Fixed a NPE when trying to parse an empty JSON response (issue 260).
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------
