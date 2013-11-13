@@ -71,7 +71,7 @@ class RequestLogSpecificationImpl extends LogSpecificationImpl implements Reques
   }
 
   private def logWith(LogDetail logDetail, boolean prettyPrintingEnabled) {
-    requestSpecification.filter(new RequestLoggingFilter(logDetail, getPrintStream(requestSpecification)))
+    requestSpecification.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, getPrintStream(requestSpecification)))
     requestSpecification
   }
 }
