@@ -16,7 +16,6 @@
 
 package com.jayway.restassured.config;
 
-import com.jayway.restassured.internal.util.SafeExceptionRethrower;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.cookie.params.CookieSpecPNames;
@@ -51,7 +50,7 @@ import static java.util.Arrays.asList;
  * </table>
  * <p>
  * You can also specify a http client factory that is used to create the http client instances that REST Assured uses ({@link #httpClientFactory(com.jayway.restassured.config.HttpClientConfig.HttpClientFactory)}).
- * By default the {@link DefaultHttpClient} is used
+ * By default the {@link DefaultHttpClient} is used. It's also possible to specify whether or not this instance should be reused in multiple requests. By default the http client instance is not reused.
  * </p>
  *
  * @see org.apache.http.client.params.ClientPNames
@@ -60,9 +59,14 @@ import static java.util.Arrays.asList;
  */
 public class HttpClientConfig {
 
+    private static final boolean SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT = false;
+    private static final AbstractHttpClient NO_HTTP_CLIENT = null;
+
+    private final boolean shouldReuseHttpClientInstance;
     private final Map<String, ?> httpClientParams;
     private final HttpMultipartMode httpMultipartMode;
     private final HttpClientFactory httpClientFactory;
+    private volatile AbstractHttpClient httpClient;
 
     /**
      * Creates a new  HttpClientConfig instance with the <code>{@value ClientPNames#COOKIE_POLICY}</code> parameter set to <code>{@value CookiePolicy#IGNORE_COOKIES}</code>.
@@ -78,22 +82,27 @@ public class HttpClientConfig {
             }
         };
         this.httpMultipartMode = HttpMultipartMode.STRICT;
+        this.shouldReuseHttpClientInstance = SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT;
+        this.httpClient = null;
     }
 
-    private HttpClientConfig(HttpClientFactory httpClientFactory, Map<String, ?> httpClientParams, HttpMultipartMode httpMultipartMode) {
+    private HttpClientConfig(HttpClientFactory httpClientFactory, Map<String, ?> httpClientParams, HttpMultipartMode httpMultipartMode,
+                             boolean shouldReuseHttpClientInstance, AbstractHttpClient abstractHttpClient) {
         notNull(httpClientParams, "httpClientParams");
         notNull(httpMultipartMode, "httpMultipartMode");
         notNull(httpClientFactory, "Http Client factory");
+        this.shouldReuseHttpClientInstance = shouldReuseHttpClientInstance;
         this.httpClientFactory = httpClientFactory;
         this.httpClientParams = new HashMap<String, Object>(httpClientParams);
         this.httpMultipartMode = httpMultipartMode;
+        this.httpClient = abstractHttpClient;
     }
 
     /**
      * Creates a new  HttpClientConfig instance with the parameters defined by the <code>httpClientParams</code>.
      */
     public HttpClientConfig(Map<String, ?> httpClientParams) {
-        this(defaultHttpClientFactory(), httpClientParams, HttpMultipartMode.STRICT);
+        this(defaultHttpClientFactory(), httpClientParams, HttpMultipartMode.STRICT, SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT, NO_HTTP_CLIENT);
     }
 
     /**
@@ -108,6 +117,49 @@ public class HttpClientConfig {
      */
     public HttpClientConfig and() {
         return this;
+    }
+
+    /**
+     * Instruct REST Assured to reuse the configured http client instance for multiple requests. By default REST Assured
+     * will create a new {@link org.apache.http.client.HttpClient} instance for each request. Note that for this to work
+     * the configuration must be defined statically, for example:
+     * <p/>
+     * <pre>
+     * RestAssured.config = newConfig().httpClient(httpClientConfig().reuseHttpClientInstance());
+     * </pre>
+     *
+     * @return An updated HttpClientConfig
+     * @see #httpClientFactory(com.jayway.restassured.config.HttpClientConfig.HttpClientFactory)
+     */
+    public HttpClientConfig reuseHttpClientInstance() {
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, true, httpClient);
+    }
+
+    /**
+     * Instruct REST Assured <i>not</i> to reuse the configured http client instance for multiple requests. This is the default behavior.
+     *
+     * @return An updated HttpClientConfig
+     * @see #reuseHttpClientInstance()
+     */
+    public HttpClientConfig dontReuseHttpClientInstance() {
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, false, NO_HTTP_CLIENT);
+    }
+
+    /**
+     * If this method returns <code>true</code> then REST Assured will reuse the same {@link org.apache.http.client.HttpClient} instance created
+     * by the {@link #httpClientInstance()} method for all requests. If <code>false</code> is returned then REST Assured creates a new instance for each request.
+     * <p>
+     * By default <code>false</code> is returned.
+     * </p>
+     * Note that for this to work the configuration must be defined statically, for example:
+     * <pre>
+     * RestAssured.config = newConfig().httpClient(httpClientConfig().reuseHttpClientInstance());
+     * </pre>
+     *
+     * @return <code>true</code> if the same HTTP Client instance should be reused between several requests, <code>false</code> otherwise.
+     */
+    public boolean isConfiguredToReuseTheSameHttpClientInstance() {
+        return shouldReuseHttpClientInstance;
     }
 
     /**
@@ -165,18 +217,20 @@ public class HttpClientConfig {
      * @return An updated HttpClientConfig
      */
     public HttpClientConfig httpClientFactory(HttpClientFactory httpClientFactory) {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT);
     }
 
     /**
-     * @return The configured http client instance created by the factory that will be used when making a request.
+     * @return The configured http client that will create an {@link org.apache.http.client.HttpClient} instances that's used by REST Assured when making a request.
      */
     public AbstractHttpClient httpClientInstance() {
-        try {
-            return httpClientFactory.createHttpClient();
-        } catch (Exception e) {
-            return SafeExceptionRethrower.safeRethrow(e);
+        if (isConfiguredToReuseTheSameHttpClientInstance()) {
+            if (httpClient == NO_HTTP_CLIENT) {
+                httpClient = httpClientFactory.createHttpClient();
+            }
+            return httpClient;
         }
+        return httpClientFactory.createHttpClient();
     }
 
     /**
@@ -186,7 +240,7 @@ public class HttpClientConfig {
      * @return An updated HttpClientConfig
      */
     public HttpClientConfig httpMultipartMode(HttpMultipartMode httpMultipartMode) {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, httpClient);
     }
 
     /**
@@ -212,7 +266,16 @@ public class HttpClientConfig {
         };
     }
 
+    /**
+     * A factory for creating and configuring a custom http client instance that will be used by REST Assured.
+     */
     public static abstract class HttpClientFactory {
-        public abstract AbstractHttpClient createHttpClient() throws Exception;
+        /**
+         * Create an instance of {@link AbstractHttpClient} that'll be used by REST Assured when making requests. By default
+         * REST Assured creates a {@link DefaultHttpClient}.
+         *
+         * @return An instance of {@link AbstractHttpClient}.
+         */
+        public abstract AbstractHttpClient createHttpClient();
     }
 }

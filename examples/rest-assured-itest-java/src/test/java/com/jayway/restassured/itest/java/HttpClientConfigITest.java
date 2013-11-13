@@ -18,6 +18,7 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.ResponseBuilder;
+import com.jayway.restassured.config.DecoderConfig;
 import com.jayway.restassured.config.HttpClientConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
@@ -37,11 +38,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.config.DecoderConfig.ContentDecoder.DEFLATE;
+import static com.jayway.restassured.config.DecoderConfig.decoderConfig;
 import static com.jayway.restassured.config.HttpClientConfig.httpClientConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static org.apache.http.client.params.ClientPNames.*;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class HttpClientConfigITest extends WithJetty {
@@ -132,11 +134,132 @@ public class HttpClientConfigITest extends WithJetty {
         assertThat(client.getValue(), instanceOf(SystemDefaultHttpClient.class));
     }
 
+    @Test public void
+    http_client_config_allows_specifying_that_the_http_client_instance_is_reused_in_multiple_requests() {
+        final MutableObject<HttpClient> client1 = new MutableObject<HttpClient>();
+        final MutableObject<HttpClient> client2 = new MutableObject<HttpClient>();
+
+        RestAssured.config = newConfig().httpClient(httpClientConfig().reuseHttpClientInstance());
+
+        // When
+        try {
+            given().
+                    param("url", "/hello").
+                    filter(new Filter() {
+                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                            client1.setValue(requestSpec.getHttpClient());
+                            return ctx.next(requestSpec, responseSpec);
+                        }
+                    }).
+            expect().
+                    body("hello", equalTo("Hello Scalatra")).
+            when().
+                    get("/redirect");
+
+            given().
+                    header("name", "value").
+                    filter(new Filter() {
+                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                            client2.setValue(requestSpec.getHttpClient());
+                            return ctx.next(requestSpec, responseSpec);
+                        }
+                    }).
+            when().
+                    post("/reflect");
+        } finally {
+            RestAssured.reset();
+        }
+
+        assertThat(client1.getValue(), sameInstance(client2.getValue()));
+    }
+
+    @Test public void
+    local_http_client_config_doesnt_reuse_static_http_client_instance_when_local_config_specifies_reuse() {
+        final MutableObject<HttpClient> client1 = new MutableObject<HttpClient>();
+        final MutableObject<HttpClient> client2 = new MutableObject<HttpClient>();
+
+        RestAssured.config = newConfig().httpClient(httpClientConfig().reuseHttpClientInstance());
+
+        // When
+        try {
+            given().
+                    param("url", "/hello").
+                    filter(new Filter() {
+                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                            client1.setValue(requestSpec.getHttpClient());
+                            return ctx.next(requestSpec, responseSpec);
+                        }
+                    }).
+            expect().
+                    body("hello", equalTo("Hello Scalatra")).
+            when().
+                    get("/redirect");
+
+            given().
+                    config(newConfig().httpClient(httpClientConfig().reuseHttpClientInstance())).
+                    header("name", "value").
+                    filter(new Filter() {
+                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                            client2.setValue(requestSpec.getHttpClient());
+                            return ctx.next(requestSpec, responseSpec);
+                        }
+                    }).
+            when().
+                    post("/reflect");
+        } finally {
+            RestAssured.reset();
+        }
+
+        assertThat(client1.getValue(), not(sameInstance(client2.getValue())));
+    }
+
+    @Test public void
+    local_http_client_config_reuse_reuse_static_http_client_instance_when_local_config_changes_other_configs_than_http_client_config() {
+        final MutableObject<HttpClient> client1 = new MutableObject<HttpClient>();
+        final MutableObject<HttpClient> client2 = new MutableObject<HttpClient>();
+
+        RestAssured.config = newConfig().httpClient(httpClientConfig().reuseHttpClientInstance());
+
+        // When
+        try {
+            given().
+                    param("url", "/hello").
+                    filter(new Filter() {
+                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                            client1.setValue(requestSpec.getHttpClient());
+                            return ctx.next(requestSpec, responseSpec);
+                        }
+                    }).
+            expect().
+                    body("hello", equalTo("Hello Scalatra")).
+            when().
+                    get("/redirect");
+
+            given().
+                    // Here we only change the decoder config
+                    config(RestAssured.config.decoderConfig(decoderConfig().with().contentDecoders(DEFLATE))).
+                    filter(new Filter() {
+                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                            client2.setValue(requestSpec.getHttpClient());
+                            return ctx.next(requestSpec, responseSpec);
+                        }
+                    }).
+            expect().
+                    body("Accept-Encoding", contains("deflate")).
+            when().
+                    get("/headersWithValues");
+        } finally {
+            RestAssured.reset();
+        }
+
+        assertThat(client1.getValue(), sameInstance(client2.getValue()));
+    }
+
     private HttpClientConfig.HttpClientFactory systemDefaultHttpClient() {
         return new HttpClientConfig.HttpClientFactory() {
 
             @Override
-            public AbstractHttpClient createHttpClient() throws Exception {
+            public AbstractHttpClient createHttpClient() {
                 return new SystemDefaultHttpClient();
             }
         };

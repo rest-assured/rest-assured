@@ -31,7 +31,9 @@ import java.io.UnsupportedEncodingException;
 
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.config.HttpClientConfig.httpClientConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.config;
+import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 
@@ -47,9 +49,9 @@ public class StressITest {
     public void setUp() throws Exception {
         url = "http://localhost:8081/restlet/test";
         component = new Component();
-        component.getLogService().setEnabled( true );
-        component.getServers().add( Protocol.HTTP, 8081 );
-        component.getDefaultHost().attach( "/restlet", new StressApp() );
+        component.getLogService().setEnabled(true);
+        component.getServers().add(Protocol.HTTP, 8081);
+        component.getDefaultHost().attach("/restlet", new StressApp());
         component.start();
         RestAssured.config = config().connectionConfig(new ConnectionConfig().closeIdleConnectionsAfterEachResponse());
     }
@@ -60,30 +62,50 @@ public class StressITest {
         RestAssured.reset();
     }
 
-    @Test(timeout=wait)
+    @Test(timeout = wait)
     public void stressWithRestAssuredGet() throws UnsupportedEncodingException {
-        for( int i=0, n=iterations; i<n; i++ ) {
+        for (int i = 0, n = iterations; i < n; i++) {
             given().
-                    expect().body( equalTo( expect ) ).
-                    when().get( url );
+                    expect().body(equalTo(expect)).
+                    when().get(url);
         }
     }
 
-    @Test(timeout=wait)
+    @Test(timeout = wait)
     public void stressWithRestAssuredPost() throws UnsupportedEncodingException {
-        for( int i=0, n=iterations; i<n; i++ ) {
-            given().contentType("text/plain; charset=UTF-8").body( post.getBytes( "UTF-8" ) ).
-                    expect().body( equalTo( expect ) ).
+        for (int i = 0, n = iterations; i < n; i++) {
+            given().contentType("text/plain; charset=UTF-8").body(post.getBytes("UTF-8")).
+                    expect().body(equalTo(expect)).
                     when().post(url);
         }
     }
 
-    @Test(timeout=wait)
-    @Ignore("Not working since upgrade of HTTP Client, is it a bug?")
+    @Test(timeout = wait)
+    public void stressWithRestAssuredPostWhenSameHttpClientInstanceIsReused() throws UnsupportedEncodingException {
+        RestAssured.config = newConfig().httpClient(httpClientConfig().reuseHttpClientInstance());
+
+        try {
+            for (int i = 0, n = iterations; i < n; i++) {
+                given().contentType("text/plain; charset=UTF-8").body(post.getBytes("UTF-8")).
+                        expect().body(equalTo(expect)).
+                        when().post(url);
+            }
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test(timeout = wait)
     public void stressWithRestAssuredGetManualClose() throws IOException, InterruptedException {
-        for( int i=0, n=iterations; i<n; i++ ) {
-            String body = IOUtils.toString(get(url).andReturn().body().asInputStream());
-            assertEquals(expect, body);
+        RestAssured.config = newConfig().httpClient(httpClientConfig().reuseHttpClientInstance());
+
+        try {
+            for (int i = 0, n = iterations; i < n; i++) {
+                String body = IOUtils.toString(get(url).andReturn().body().asInputStream());
+                assertEquals(expect, body);
+            }
+        } finally {
+            RestAssured.reset();
         }
     }
 }
