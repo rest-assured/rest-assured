@@ -49,7 +49,7 @@ public interface RequestSpecification extends RequestSender {
      * </p>
      * <p/>
      * <p>
-     * Note that {@link #body(String)} and {@link #content(String)} are the same except for the syntactic difference.
+     * Note that this method and {@link #content(String)} are the same except for the syntactic difference.
      * </p>
      *
      * @param body The body to send.
@@ -70,7 +70,7 @@ public interface RequestSpecification extends RequestSender {
      * </p>
      * <p/>
      * <p>
-     * Note that {@link #body(byte[])} and {@link #content(byte[])} are the same except for the syntactic difference.
+     * Note that this method and {@link #content(byte[])} are the same except for the syntactic difference.
      * </p>
      *
      * @param body The body to send.
@@ -112,7 +112,7 @@ public interface RequestSpecification extends RequestSender {
      * <li>JAXB</li>
      * </ol>
      * <p>
-     * Note that {@link #body(Object)}  and {@link #content(Object)} are the same except for the syntactic difference.
+     * Note that this method and {@link #content(Object)} are the same except for the syntactic difference.
      * </p>
      *
      * @param object The object to serialize and send with the request
@@ -137,7 +137,7 @@ public interface RequestSpecification extends RequestSender {
      *         post("/beautiful-message");
      * </pre>
      * </p>
-     * Note that {@link #body(Object, ObjectMapper)}  and {@link #content(Object, ObjectMapper)} are the same except for the syntactic difference.
+     * Note that this method and {@link #content(Object, com.jayway.restassured.internal.mapper.ObjectMapperType)} are the same except for the syntactic difference.
      * </p>
      *
      * @param object The object to serialize and send with the request
@@ -163,7 +163,7 @@ public interface RequestSpecification extends RequestSender {
      *         post("/beautiful-message");
      * </pre>
      * </p>
-     * Note that {@link #body(Object, com.jayway.restassured.internal.mapper.ObjectMapperType)}  and {@link #content(Object, ObjectMapperType)} are the same except for the syntactic difference.
+     * Note that method is the same as {@link #content(Object, ObjectMapperType)} are the same except for the syntactic difference.
      * </p>
      *
      * @param object     The object to serialize and send with the request
@@ -184,7 +184,7 @@ public interface RequestSpecification extends RequestSender {
      * </p>
      * <p/>
      * <p>
-     * Note that {@link #body(String)} and {@link #content(String)} are the same except for the syntactic difference.
+     * Note that {@link #body(String)} and this method are the same except for the syntactic difference.
      * </p>
      *
      * @param content The content to send.
@@ -205,7 +205,7 @@ public interface RequestSpecification extends RequestSender {
      * </p>
      * <p/>
      * <p>
-     * Note that {@link #body(byte[])} and {@link #content(byte[])} are the same except for the syntactic difference.
+     * Note that {@link #body(byte[])} and this method are the same except for the syntactic difference.
      * </p>
      *
      * @param content The content to send.
@@ -247,7 +247,7 @@ public interface RequestSpecification extends RequestSender {
      * <li>JAXB</li>
      * </ol>
      * <p>
-     * Note that {@link #body(Object)}  and {@link #content(Object)} are the same except for the syntactic difference.
+     * Note that {@link #body(Object)} and this method are the same except for the syntactic difference.
      * </p>
      *
      * @param object The object to serialize and send with the request
@@ -272,7 +272,7 @@ public interface RequestSpecification extends RequestSender {
      *         post("/beautiful-message");
      * </pre>
      * </p>
-     * Note that {@link #body(Object, ObjectMapperType)}  and {@link #content(Object, ObjectMapperType)} are the same except for the syntactic difference.
+     * Note that {@link #body(Object, ObjectMapperType)} and this method are the same except for the syntactic difference.
      * </p>
      *
      * @param object     The object to serialize and send with the request
@@ -298,7 +298,7 @@ public interface RequestSpecification extends RequestSender {
      *         post("/beautiful-message");
      * </pre>
      * </p>
-     * Note that {@link #body(Object, ObjectMapper)}  and {@link #content(Object, ObjectMapper)} are the same except for the syntactic difference.
+     * Note that {@link #body(Object, ObjectMapper)} and this method are the same except for the syntactic difference.
      * </p>
      *
      * @param object The object to serialize and send with the request
@@ -546,7 +546,7 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification param(String parameterName, Object... parameterValues);
 
     /**
-     * A slightly shorter version of {@link #parameter(String, java.util.Collection}  }.
+     * A slightly shorter version of {@link #parameter(String, java.util.Collection) }.
      *
      * @param parameterName   The parameter name
      * @param parameterValues The parameter values
@@ -619,7 +619,7 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification queryParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
 
     /**
-     * A slightly shorter version of {@link #queryParams(java.util.Map)}.
+     * A slightly shorter version of {@link #queryParameters(java.util.Map)}.
      *
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification
@@ -638,12 +638,12 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification queryParam(String parameterName, Object... parameterValues);
 
     /**
-     * A slightly shorter version of {@link #queryParameter(String, java.util.Collection}.
+     * A slightly shorter version of {@link #queryParameter(String, java.util.Collection)}.
      *
      * @param parameterName   The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
-     * @see #queryParam(String, java.util.List)
+     * @see #queryParam(String, java.util.Collection)
      */
     RequestSpecification queryParam(String parameterName, Collection<?> parameterValues);
 
@@ -712,7 +712,7 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification formParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
 
     /**
-     * A slightly shorter version of {@link #formParams(java.util.Map)}.
+     * A slightly shorter version of {@link #formParameters(java.util.Map)}.
      *
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification
@@ -731,12 +731,12 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification formParam(String parameterName, Object... parameterValues);
 
     /**
-     * A slightly shorter version of {@link #formParameter(String, java.util.Collection}.
+     * A slightly shorter version of {@link #formParameter(String, java.util.Collection)}.
      *
      * @param parameterName   The parameter name
      * @param parameterValues The parameter values
      * @return The request specification
-     * @see #formParam(String, java.util.List)
+     * @see #formParam(String, java.util.Collection)
      */
     RequestSpecification formParam(String parameterName, Collection<?> parameterValues);
 
@@ -1289,7 +1289,7 @@ public interface RequestSpecification extends RequestSender {
      * <li>Headers</li>
      * </ul>
      * <p/>
-     * This method is the same as {@link #specification(RequestSpecification)} but the name is a bit shorter.
+     * This method is the same as {@link #spec(RequestSpecification)} but the name is a bit longer and thus more descriptive.
      *
      * @param requestSpecificationToMerge The specification to merge with.
      * @return the request specification
@@ -1502,10 +1502,12 @@ public interface RequestSpecification extends RequestSender {
      * @return the request specification
      */
     RequestSpecification request();
+
     /**
      * Adding the baseUri Property from the RequestSpecification.
-     * instead of using static field RestAssured.baseURI 
-     * @param baseUri
+     * instead of using static field RestAssured.baseURI
+     *
+     * @param baseUri The uri
      * @return the request specification
      */
     RequestSpecification baseUri(String baseUri);

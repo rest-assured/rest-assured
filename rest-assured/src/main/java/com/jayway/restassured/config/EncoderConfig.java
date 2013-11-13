@@ -29,7 +29,7 @@ public class EncoderConfig {
     private final String defaultQueryParameterCharset;
 
     /**
-     * Configure the encoder config to use {@value HTTP#DEFAULT_CONTENT_CHARSET} for content encoding and {@value #UTF_8}.
+     * Configure the encoder config to use {@value org.apache.http.protocol.HTTP#DEFAULT_CONTENT_CHARSET} for content encoding and <code>UTF-8</code>.
      * for query parameter encoding.
      */
     public EncoderConfig() {

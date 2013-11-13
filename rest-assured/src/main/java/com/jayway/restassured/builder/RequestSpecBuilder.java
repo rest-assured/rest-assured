@@ -398,7 +398,7 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * A slightly shorter version of {@link #addParameter(String, java.util.Collection}.
+     * A slightly shorter version of {@link #addParameter(String, java.util.Collection)}.
      *
      * @param parameterName   The parameter key
      * @param parameterValues The parameter values
@@ -525,7 +525,7 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * A slightly shorter version of {@link #addFormParameter(String, java.util.Collection}.
+     * A slightly shorter version of {@link #addFormParameter(String, java.util.Collection)}.
      *
      * @param parameterName   The parameter key
      * @param parameterValues The parameter values

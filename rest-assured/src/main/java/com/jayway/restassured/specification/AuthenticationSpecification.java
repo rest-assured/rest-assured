@@ -74,7 +74,6 @@ public interface AuthenticationSpecification {
      * @param certURL  URL to a JKS keystore where the certificate is stored.
      * @param password password to decrypt the keystore
      * @return The request com.jayway.restassured.specification
-     * @see #certificate(java.lang.String, java.lang.String, java.lang.String, int, com.jayway.restassured.authentication.KeystoreProvider)
      */
     RequestSpecification certificate(String certURL, String password);
 

@@ -554,7 +554,7 @@ public class RestAssured {
      * Uses the user default keystore stored in @{user.home}/.keystore
      *
      * @param password - Use null for no password
-     * @return
+     * @return The keystore specification
      */
     public static KeystoreSpec keystore(String password) {
         return setKeyStore(null, password);

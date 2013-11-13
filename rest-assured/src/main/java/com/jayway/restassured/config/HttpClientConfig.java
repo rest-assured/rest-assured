@@ -69,7 +69,7 @@ public class HttpClientConfig {
     private volatile AbstractHttpClient httpClient;
 
     /**
-     * Creates a new  HttpClientConfig instance with the <code>{@value ClientPNames#COOKIE_POLICY}</code> parameter set to <code>{@value CookiePolicy#IGNORE_COOKIES}</code>.
+     * Creates a new  HttpClientConfig instance with the <code>{@value org.apache.http.client.params.ClientPNames#COOKIE_POLICY}</code> parameter set to <code>{@value org.apache.http.client.params.CookiePolicy#IGNORE_COOKIES}</code>.
      */
     public HttpClientConfig() {
         this.httpClientFactory = defaultHttpClientFactory();
