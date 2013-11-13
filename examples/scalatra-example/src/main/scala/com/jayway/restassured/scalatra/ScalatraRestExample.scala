@@ -21,6 +21,7 @@ import java.lang.String
 import xml.Elem
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.Printer._
+import net.liftweb.json.Extraction._
 import scala.collection.JavaConversions._
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import collection.mutable.ListBuffer
@@ -28,12 +29,14 @@ import org.apache.commons.io.IOUtils
 import java.util.{Scanner, Date}
 import org.apache.commons.lang3.StringUtils
 import javax.servlet.http.Cookie
+import scala.collection.mutable
 
 class ScalatraRestExample extends ScalatraServlet {
   // To allow for json extract
   implicit val formats = DefaultFormats
 
   case class Winner(id: Long, numbers: List[Int])
+
   case class Lotto(id: Long, winningNumbers: List[Int], winners: List[Winner], drawDate: Option[java.util.Date])
 
   val winners = List(Winner(23, List(2, 45, 34, 23, 3, 5)), Winner(54, List(52, 3, 12, 11, 18, 22)))
@@ -519,28 +522,28 @@ class ScalatraRestExample extends ScalatraServlet {
   post("/jsonBody") {
     contentType = "text/plain";
     val header: String = request.getHeader("Content-Type")
-    if(!header.contains("application/json")) {
+    if (!header.contains("application/json")) {
       "FAILURE"
     } else {
       val json = JsonParser.parse(request.body)
-      (json \  "message").extract[String]
+      (json \ "message").extract[String]
     }
   }
 
   post("/jsonBodyAcceptHeader") {
-    val accept : String = request.getHeader("Accept")
-    if(!accept.contains("application/json")) {
+    val accept: String = request.getHeader("Accept")
+    if (!accept.contains("application/json")) {
       "FAILURE"
     } else {
       val json = JsonParser.parse(request.body)
-      (json \  "message").extract[String]
+      (json \ "message").extract[String]
     }
   }
 
   get("/setCookies") {
     setCookies
   }
-  
+
    get("/setCommonIdCookies") {
     setCommonIdCookies
   }
@@ -553,13 +556,25 @@ class ScalatraRestExample extends ScalatraServlet {
     getHeaders
   }
 
+  get("/headersWithValues") {
+    contentType = "application/json"
+    val headerNames = request.getHeaderNames.map(_.toString)
+
+    val map: Map[String, List[String]] = headerNames.map(headerName => (headerName, request.getHeaders(headerName).map(_.toString).toList)).
+      foldLeft(mutable.HashMap[String, List[String]]())((map, header) => {
+      map.put(header._1, header._2.toList)
+      map
+    }).toMap // Convert map to an immutable map so that JSON gets rendered correctly, see http://stackoverflow.com/questions/6271386/how-do-you-serialize-a-map-to-json-in-scala
+    compact(render(decompose(map)))
+  }
+
   get("/multiHeaderReflect") {
     contentType = "text/plain"
     val headerNames = request.getHeaderNames()
-    while(headerNames.hasMoreElements()) {
+    while (headerNames.hasMoreElements()) {
       val name = headerNames.nextElement.toString
       val headerValues = request.getHeaders(name)
-      while(headerValues.hasMoreElements) {
+      while (headerValues.hasMoreElements) {
         val headerValue: String = headerValues.nextElement().toString
         response.addHeader(name, headerValue)
       }
@@ -608,12 +623,12 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/textXML") {
-    contentType ="text/xml"
+    contentType = "text/xml"
     <xml>something</xml>
   }
 
   get("/textHTML") {
-    contentType ="text/html"
+    contentType = "text/html"
     <html>
       <head>
         <title>my title</title>
@@ -626,7 +641,7 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/textHTML-not-formatted") {
-    contentType ="text/html"
+    contentType = "text/html"
     <html><head><title>my title</title></head><body><p>paragraph 1</p><p>paragraph 2</p></body></html>
   }
 
@@ -637,7 +652,7 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/rss") {
-    contentType ="application/rss+xml"
+    contentType = "application/rss+xml"
     <rss>
       <item>
         <title>rss title</title>
@@ -647,8 +662,8 @@ class ScalatraRestExample extends ScalatraServlet {
 
 
   get("/jsonp") {
-    contentType ="application/javascript"
-    params("callback")+"("+greetJson+");"
+    contentType = "application/javascript"
+    params("callback") + "(" + greetJson + ");"
   }
 
   get("/statusCode409WithNoBody") {
@@ -666,9 +681,9 @@ class ScalatraRestExample extends ScalatraServlet {
       setSessionId
     } else {
       val cookie = cookies.find(_.getName.equalsIgnoreCase("jsessionid"))
-      if(cookie == None) {
+      if (cookie == None) {
         setSessionId
-      } else if(cookie.get.getValue == "1234" ) {
+      } else if (cookie.get.getValue == "1234") {
         "Success"
       } else {
         response.sendError(409, "Invalid sessionid")
@@ -677,7 +692,7 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/bigRss") {
-    contentType ="application/rss+xml"
+    contentType = "application/rss+xml"
     <rss xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
       <channel>
         <title>something</title>
@@ -725,7 +740,7 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   post("/validateContentTypeIsDefinedAndReturnBody") {
-    if(request.getContentType == null) {
+    if (request.getContentType == null) {
       response.setStatus(304)
     }
     contentType = request.getContentType
@@ -741,7 +756,7 @@ class ScalatraRestExample extends ScalatraServlet {
     contentType = "text/plain"
     val headerNames = request.getHeaderNames()
     val names = ListBuffer[String]()
-    while(headerNames.hasMoreElements()) {
+    while (headerNames.hasMoreElements()) {
       val name = headerNames.nextElement.toString
       names.append(name)
     }
@@ -765,9 +780,9 @@ class ScalatraRestExample extends ScalatraServlet {
     response.addCookie(new Cookie("key3", "value3"))
     "ok"
   }
-  
-  def setCommonIdCookies:String={
-      contentType = "text/plain"
+
+  def setCommonIdCookies: String = {
+    contentType = "text/plain"
     response.addCookie(new Cookie("key1", "value1"))
     response.addCookie(new Cookie("key1", "value2"))
     response.addCookie(new Cookie("key1", "value3"))
@@ -789,7 +804,7 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(render(json))
   }
 
-  def loginPage : String = {
+  def loginPage: String = {
     contentType = "text/html"
     """<html>
       <head>
@@ -829,7 +844,7 @@ class ScalatraRestExample extends ScalatraServlet {
     val category = params("category")
     val userName = request.getCookies.filter(_.getName == "user")(0).getValue
 
-    if(category == "books" && userName == "admin") {
+    if (category == "books" && userName == "admin") {
       "Catch 22"
     } else {
       "Unknown entity"
@@ -885,9 +900,9 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   def findParamIn(content: String, param: String): String = {
-    var value: String = StringUtils.substringBetween(content, param+"=", "&")
-    if(value == null) {
-      value = StringUtils.substringAfter(content, param+"=")
+    var value: String = StringUtils.substringBetween(content, param + "=", "&")
+    if (value == null) {
+      value = StringUtils.substringAfter(content, param + "=")
     }
     return value
   }
@@ -895,7 +910,7 @@ class ScalatraRestExample extends ScalatraServlet {
   def findMultiParamIn(content: String, param: String): scala.collection.mutable.MutableList[String] = {
     val scanner: Scanner = new Scanner(content).useDelimiter("&")
     val myList = scala.collection.mutable.MutableList[String]()
-    while(scanner.hasNext) {
+    while (scanner.hasNext) {
       val next: String = scanner.next
       myList += next.split('=')(1)
     }

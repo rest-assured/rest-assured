@@ -17,7 +17,6 @@
 package com.jayway.restassured.builder;
 
 import com.jayway.restassured.authentication.AuthenticationScheme;
-import com.jayway.restassured.config.AcceptEncodingConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.http.ContentType;
@@ -513,7 +512,7 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Add a form parameter to be sent with the request. This method is the same as {@link #addParameter(String, java.util.Collection}
+     * Add a form parameter to be sent with the request. This method is the same as {@link #addParameter(String, java.util.Collection)}
      * for all HTTP methods except PUT where this method can be used to differentiate between form and query params.
      *
      * @param parameterName   The parameter key
@@ -1012,22 +1011,6 @@ public class RequestSpecBuilder {
         spec.sessionId(sessionIdName, sessionIdValue);
         return this;
     }
-    
-    /**
-     * Set the "Accept-Encoding" header value for this request. It'll override the default value from the configuration.
-     * You can configure the default "Accept-Encoding" value by using:
-     * <pre>
-     *     RestAssured.config = newConfig().acceptEncodingConfig(AcceptEncodingConfig.getXXX());
-     * </pre>
-     * and then you can use the {@link RequestSpecBuilder#setAcceptEncoding(AcceptEncodingConfig)} method to set the "Accept-Encoding" header value without specifying it for each request.
-     *
-     * @param acceptEncodingConfig  The AcceptEncoding configuration
-     * @return The request specification
-     */
-    public RequestSpecBuilder setAcceptEncoding(AcceptEncodingConfig acceptEncodingConfig) {
-        spec.acceptEncoding(acceptEncodingConfig);
-        return this;
-    }
 
     /**
      * Merge this builder with settings from another specification. Note that the supplied specification
@@ -1050,8 +1033,8 @@ public class RequestSpecBuilder {
      * @return The request specification builder
      */
     public RequestSpecBuilder addRequestSpecification(RequestSpecification specification) {
-        if (!(specification instanceof RequestSpecification)) {
-            throw new IllegalArgumentException("Specification must be of type " + RequestSpecification.class.getClass() + ".");
+        if (!(specification instanceof RequestSpecificationImpl)) {
+            throw new IllegalArgumentException("Specification must be of type " + RequestSpecificationImpl.class.getClass() + ".");
         }
 
         RequestSpecificationImpl rs = (RequestSpecificationImpl) specification;
@@ -1078,22 +1061,23 @@ public class RequestSpecBuilder {
     public RequestSpecification build() {
         return spec;
     }
+
     /**
      * Adding the baseUri Property from the RequestSpecBuilder.
-     * instead of using static field RestAssured.baseURI 
-     * 
+     * instead of using static field RestAssured.baseURI
+     * <p/>
      * <pre>
      * RequestSpecBuilder builder = new RequestSpecBuilder();
      * builder.setBaseUri("http://example.com");
-	 * RequestSpecification specs = builder.build();
-	 * given().specification(specs)
-	 *</pre>
-	 *
+     * RequestSpecification specs = builder.build();
+     * given().specification(specs)
+     * </pre>
+     *
      * @param uri
      * @return RequestSpecBuilder
      */
     public RequestSpecBuilder setBaseUri(String uri) {
-		spec.baseUri(uri);
-		return this;
-	}
+        spec.baseUri(uri);
+        return this;
+    }
 }

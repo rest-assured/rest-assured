@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.AuthenticationScheme
@@ -49,9 +46,7 @@ import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.impl.client.AbstractHttpClient
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner
 import org.apache.http.message.BasicHeader
-import org.codehaus.groovy.runtime.InvokerHelper
 
-import java.lang.reflect.InvocationHandler
 import java.util.Map.Entry
 import java.util.regex.Matcher
 import java.util.regex.Pattern
@@ -93,7 +88,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     private boolean urlEncodingEnabled
     private RestAssuredConfig restAssuredConfig;
     private List<MultiPartInternal> multiParts = [];
-    private ContentEncoding.Type[] acceptEncodings = null
 
     // This field should be removed once http://jira.codehaus.org/browse/GROOVY-4647 is resolved, merge with sha 9619c3b when it's fixed.
     private AbstractHttpClient httpClient
@@ -520,13 +514,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         return this
     }
 
-    def RequestSpecification acceptEncoding(AcceptEncodingConfig acceptEncodingConfig) {
-        notNull acceptEncodingConfig, "acceptEncodingConfig"
-        this.acceptEncodings = acceptEncodingConfig.getAcceptedEncodings()
-        this.header(ContentEncoding.ACCEPT_ENC_HDR, acceptEncodingConfig.toString())
-        return this
-    }
-
     def RequestSpecification headers(Map headers) {
         notNull headers, "headers"
         def headerList = []
@@ -799,9 +786,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         applyRestAssuredConfig(http)
         registerRestAssuredEncoders(http);
         setRequestHeadersToHttpBuilder(http)
-        if (acceptEncodings != null) {
-            setAcceptEncodingHeader(http)
-        }
 
         if (cookies.exist()) {
             http.getHeaders() << [Cookie: cookies.collect { it.toString() }.join("; ")]
@@ -855,12 +839,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
 
     def applyRestAssuredConfig(HTTPBuilder http) {
+        // Decoder config should always be applied regardless if restAssuredConfig is null or not because
+        // by default we should support GZIP and DEFLATE decoding.
+        applyContentDecoders(http, (restAssuredConfig?.getDecoderConfig() ?: new DecoderConfig()).contentDecoders());
         if (restAssuredConfig != null) {
             applyRedirectConfig(restAssuredConfig.getRedirectConfig())
             applyHttpClientConfig(restAssuredConfig.getHttpClientConfig())
             applyEncoderConfig(http, restAssuredConfig.getEncoderConfig())
             applySessionConfig(restAssuredConfig.getSessionConfig())
-            applyAcceptEncodingConfig(http, restAssuredConfig.getAcceptEncodingConfig())
         }
         if (!httpClientParams.isEmpty()) {
             def p = http.client.getParams();
@@ -871,8 +857,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         }
     }
 
-    private def applyAcceptEncodingConfig(HTTPBuilder httpBuilder, AcceptEncodingConfig config) {
-        httpBuilder.setContentEncoding(config.getAcceptedEncodings())
+    private def applyContentDecoders(HTTPBuilder httpBuilder, List<DecoderConfig.ContentDecoder> contentDecoders) {
+        def httpBuilderContentEncoders = contentDecoders.collect { contentDecoder -> ContentEncoding.Type.valueOf(contentDecoder.toString()) }.toArray()
+        httpBuilder.setContentEncoding(httpBuilderContentEncoders)
     }
 
     def applySessionConfig(SessionConfig sessionConfig) {
@@ -928,10 +915,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
                 httpHeaders.put(headerName, headerValue)
             }
         }
-    }
-
-    private def setAcceptEncodingHeader(HTTPBuilder http) {
-        http.setContentEncoding(acceptEncodings)
     }
 
     private def createBodyContent(bodyContent) {
