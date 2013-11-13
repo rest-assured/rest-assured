@@ -1304,7 +1304,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         return restAssuredConfig
     }
 
-    def HttpClient getHttpClient() {
+    def AbstractHttpClient getHttpClient() {
         return httpClient // @Delegate doesn't work because of http://jira.codehaus.org/browse/GROOVY-4647 (when it's fixed 9619c3b should be used instead)
     }
 

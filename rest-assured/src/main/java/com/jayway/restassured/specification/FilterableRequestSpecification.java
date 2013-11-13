@@ -21,7 +21,7 @@ import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Headers;
-import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.AbstractHttpClient;
 
 import java.util.List;
 import java.util.Map;
@@ -104,5 +104,5 @@ public interface FilterableRequestSpecification extends RequestSpecification {
     /**
      * @return The underlying http client. Only use this for advanced configuration which is not accessible from Rest Assured!
      */
-    HttpClient getHttpClient();
+    AbstractHttpClient getHttpClient();
 }
