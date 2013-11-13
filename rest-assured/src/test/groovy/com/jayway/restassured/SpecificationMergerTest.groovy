@@ -20,7 +20,6 @@ package com.jayway.restassured
 
 import com.jayway.restassured.authentication.ExplicitNoAuthScheme
 import com.jayway.restassured.builder.RequestSpecBuilder
-import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.builder.ResponseSpecBuilder
 import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.filter.Filter
@@ -32,6 +31,7 @@ import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
+import com.jayway.restassured.specification.RequestSpecification
 import org.junit.Test
 
 import static com.jayway.restassured.config.RedirectConfig.redirectConfig

@@ -23,10 +23,7 @@ import org.apache.http.cookie.params.CookieSpecPNames;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;

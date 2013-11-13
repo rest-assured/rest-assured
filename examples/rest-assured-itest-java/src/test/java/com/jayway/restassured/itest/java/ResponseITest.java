@@ -19,7 +19,6 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.parsing.Parser;
-import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.io.IOUtils;
