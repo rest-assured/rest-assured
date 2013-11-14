@@ -33,6 +33,9 @@ Change log next version
       when().
                get("/jsonStore");
   (issue 266)
+* Added method "htmlPath" to REST Assured Response which allows you to easily get values from an HTML page:
+      String pageTitle = get("/index.html").htmlPath().getString("html.head.title");
+  (issue 268)
 
 
 Change log 1.8.1 (2013-06-07)

@@ -184,6 +184,15 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
+    public void usingHtmlPathToParseHtmlFromTheResponse() throws Exception {
+        // When
+        final String title = get("/textHTML").htmlPath().getString("html.head.title");
+
+        // Then
+        assertThat(title, equalTo("my title"));
+    }
+
+    @Test
     public void usingPathWithContentTypeJsonFromTheResponse() throws Exception {
         final String hello = get("/hello").andReturn().path("hello");
 

@@ -125,6 +125,15 @@ public interface ResponseBody extends ResponseBodyData {
     XmlPath xmlPath(CompatibilityMode compatibilityMode);
 
     /**
+     * Get an XmlPath view of the response body that uses {@link CompatibilityMode} <code>HTML</code>.
+     * This is mainly useful when parsing HTML documents.
+     * <p>
+     * Note that this is the same as calling {@link #xmlPath(com.jayway.restassured.path.xml.XmlPath.CompatibilityMode)} with <code>CompatibilityMode</code> <code>HTML</code>.
+     * </p>
+     */
+    XmlPath htmlPath();
+
+    /**
      * Get a value from the response body using the JsonPath or XmlPath syntax. REST Assured will
      * automatically determine whether to use JsonPath or XmlPath based on the content-type of the response.
      * If no content-type is defined then REST Assured will try to look at the "default parser" if defined (RestAssured.defaultParser).

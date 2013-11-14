@@ -319,6 +319,10 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
         newXmlPath(compatibilityMode)
     }
 
+    XmlPath htmlPath() {
+        return xmlPath(CompatibilityMode.HTML)
+    }
+
     def <T> T path(String path) {
         notNull path, "Path"
         def contentType = findContentType {
