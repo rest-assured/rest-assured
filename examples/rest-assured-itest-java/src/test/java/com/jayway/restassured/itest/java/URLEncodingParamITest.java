@@ -18,7 +18,6 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.regex.Matcher;
@@ -30,8 +29,9 @@ import static org.junit.Assert.assertTrue;
 public class URLEncodingParamITest {
 
     private static final String HEISE_SEARCH = "http://www.heise.de/suche/?";
+    private static final String APACHE_404 = "http://www.apache.org/question-%3F";
 
-    private String search(String query, String... params) {
+    private String searchHeise(String query, String... params) {
         String html = RestAssured.given()
                 .expect()
                 .statusCode(200)
@@ -44,24 +44,48 @@ public class URLEncodingParamITest {
         Matcher m = p.matcher(html);
         assertTrue(m.find());
 
+        return m.group(1);
+    }
+
+    private String searchApache() {
+        String html = RestAssured.given()
+                .expect()
+                .statusCode(404)
+                .contentType(ContentType.HTML)
+                .get(APACHE_404)
+                .asString();
+
+        // find search term in search input element
+        Pattern p = Pattern.compile("/question-(.+?) ");
+        Matcher m = p.matcher(html);
+        assertTrue(m.find());
+
         String echo = m.group(1);
         return echo;
     }
 
     @Test
-    @Ignore("Truncated chunk exception, probably because of the server?")
-    public void testUrlEncoding() {
-        assertEquals("foo", search("q=foo"));
-        assertEquals("%3F", search("q=%3F"));
-        assertEquals("%3F", search("q={token}", "%3F"));
+    public void testUrlEncodingOnHeise() {
+        assertEquals("foo", searchHeise("q=foo"));
+        assertEquals("%3F", searchHeise("q=%3F"));
+        assertEquals("%3F", searchHeise("q={token}", "%3F"));
 
         RestAssured.urlEncodingEnabled = false;
         try {
-            assertEquals("foo", search("q=foo"));
-            assertEquals("?", search("q=%3F"));
-            assertEquals("?", search("q={token}", "%3F"));
+            assertEquals("foo", searchHeise("q=foo"));
+            assertEquals("?", searchHeise("q=%3F"));
+            assertEquals("?", searchHeise("q={token}", "%3F"));
         } finally {
             RestAssured.reset();
         }
+    }
+
+    @Test
+    public void testUrlEncodingOnApache() {
+        assertEquals("%3F", searchApache());
+
+        RestAssured.urlEncodingEnabled = false;
+
+        assertEquals("?", searchApache());
     }
 }
