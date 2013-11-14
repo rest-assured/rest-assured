@@ -66,8 +66,9 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         }
     }
 
-    def void validate(Response response) {
+    def Response validate(Response response) {
         assertionClosure.validate(response)
+        response
     }
 
     def ResponseSpecification content(Matcher matcher, Matcher... additionalMatchers) {

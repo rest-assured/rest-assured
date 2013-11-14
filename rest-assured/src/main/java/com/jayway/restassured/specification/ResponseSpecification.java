@@ -48,9 +48,10 @@ public interface ResponseSpecification extends RequestSender {
     /**
      * Validates the specified response against this ResponseSpecification
      *
-     *  @param response The response to validate
+     * @param response The response to validate
+     * @return The same response
      */
-    void validate(Response response);
+    Response validate(Response response);
 
     /**
      * Expect that the JSON or XML response content conforms to one or more Hamcrest matchers.<br>
