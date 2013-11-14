@@ -47,7 +47,8 @@ public interface ResponseSpecification extends RequestSender {
 
     /**
      * Validates the specified response against this ResponseSpecification
-     * @param response
+     *
+     *  @param response The response to validate
      */
     void validate(Response response);
 
@@ -528,6 +529,119 @@ public interface ResponseSpecification extends RequestSender {
      * @param rootPath The root path to use.
      */
     ResponseSpecification root(String rootPath);
+
+    /**
+     * Reset the root path of the response body so that you don't need to write the entire path for each expectation.
+     * For example:
+     *
+     * <pre>
+     * expect().
+     *          root("x.y").
+     *          body("firstName", is(..)).
+     *          body("lastName", is(..)).
+     *          noRoot()
+     *          body("z.something1", is(..)).
+     *          body("w.something2", is(..)).
+     * when().
+     *          get(..);
+     *</pre>
+     *
+     * This is the same as calling <code>rootPath("")</code> but more expressive.
+     * Note that this method is exactly the same as {@link #noRootPath()} but slightly shorter.
+     *
+     * @see #root(String)
+     */
+    ResponseSpecification noRoot();
+
+    /**
+     * Reset the root path of the response body so that you don't need to write the entire path for each expectation.
+     * For example:
+     *
+     * <pre>
+     * expect().
+     *          root("x.y").
+     *          body("firstName", is(..)).
+     *          body("lastName", is(..)).
+     *          noRoot()
+     *          body("z.something1", is(..)).
+     *          body("w.something2", is(..)).
+     * when().
+     *          get(..);
+     *</pre>
+     *
+     * This is the same as calling <code>rootPath("")</code> but more expressive.
+     * Note that this method is exactly the same as {@link #noRoot()} but slightly more expressive.
+     *
+     * @see #root(String)
+     */
+    ResponseSpecification noRootPath();
+
+    /**
+     * Append the given path to the root path of the response body so that you don't need to write the entire path for each expectation.
+     * E.g. instead of writing:
+     *
+     * <pre>
+     * expect().
+     *          root("x.y").
+     *          body("age", is(..)).
+     *          body("gender", is(..)).
+     *          body("name.firstName", is(..)).
+     *          body("name.lastName", is(..)).
+     * when().
+     *          get(..);
+     *</pre>
+     *
+     * you can use a append root and do:
+     * <pre>
+     * expect().
+     *          root("x.y").
+     *          body("age", is(..)).
+     *          body("gender", is(..)).
+     *          appendRoot("name").
+     *          body("firstName", is(..)).
+     *          body("lastName", is(..)).
+     * when().
+     *          get(..);
+     * </pre>
+     *
+     * @param pathToAppend The root path to use.
+     */
+    ResponseSpecification appendRoot(String pathToAppend);
+
+    /**
+     * Append the given path to the root path with arguments supplied of the response body so that you don't need to write the entire path for each expectation.
+     * This is mainly useful when you have parts of the path defined in variables.
+     * E.g. instead of writing:
+     *
+     * <pre>
+     * String namePath = "name";
+     * expect().
+     *          root("x.y").
+     *          body("age", is(..)).
+     *          body("gender", is(..)).
+     *          body(namePath + "first", is(..)).
+     *          body(namePath + "last", is(..)).
+     * when().
+     *          get(..);
+     *</pre>
+     *
+     * you can use a append root and do:
+     * <pre>
+     * String namePath = "name";
+     * expect().
+     *          root("x.y").
+     *          body("age", is(..)).
+     *          body("gender", is(..)).
+     *          appendRoot("%s", withArgs(namePath)).
+     *          body("first", is(..)).
+     *          body("last", is(..)).
+     * when().
+     *          get(..);
+     * </pre>
+     *
+     * @param pathToAppend The root path to use. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     */
+    ResponseSpecification appendRoot(String pathToAppend, List<Argument> arguments);
 
     /**
      * Set the response content type to be <code>contentType</code>.

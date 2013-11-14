@@ -61,16 +61,16 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         rootPath(bodyRootPath)
         this.contentType = responseContentType
         this.rpr = rpr
-        if(defaultSpec != null) {
+        if (defaultSpec != null) {
             spec(defaultSpec)
         }
     }
 
     def void validate(Response response) {
-      assertionClosure.validate(response)
+        assertionClosure.validate(response)
     }
 
-    def ResponseSpecification content(Matcher matcher, Matcher...additionalMatchers) {
+    def ResponseSpecification content(Matcher matcher, Matcher... additionalMatchers) {
         notNull(matcher, "matcher")
         bodyMatchers << new BodyMatcher(key: null, matcher: matcher, rpr: rpr)
         additionalMatchers?.each { hamcrestMatcher ->
@@ -79,7 +79,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         return this
     }
 
-    def ResponseSpecification content(String key, Matcher matcher, Object...additionalKeyMatcherPairs) {
+    def ResponseSpecification content(String key, Matcher matcher, Object... additionalKeyMatcherPairs) {
         content(key, Collections.emptyList(), matcher, additionalKeyMatcherPairs)
     }
 
@@ -100,7 +100,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         return this
     }
 
-    def ResponseSpecification headers(Map expectedHeaders){
+    def ResponseSpecification headers(Map expectedHeaders) {
         notNull(expectedHeaders, "expectedHeaders")
 
         expectedHeaders.each { headerName, matcher ->
@@ -109,7 +109,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         return this
     }
 
-    def ResponseSpecification headers(String firstExpectedHeaderName, Object firstExpectedHeaderValue, Object...expectedHeaders) {
+    def ResponseSpecification headers(String firstExpectedHeaderName, Object firstExpectedHeaderValue, Object... expectedHeaders) {
         notNull firstExpectedHeaderName, "firstExpectedHeaderName"
         notNull firstExpectedHeaderValue, "firstExpectedHeaderValue"
         return headers(MapCreator.createMapFromParams(firstExpectedHeaderName, firstExpectedHeaderValue, expectedHeaders))
@@ -122,6 +122,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         headerAssertions << new HeaderMatcher(headerName: headerName, matcher: expectedValueMatcher)
         this;
     }
+
     def ResponseSpecification header(String headerName, String expectedValue) {
         return header(headerName, equalTo(expectedValue))
     }
@@ -144,14 +145,14 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     }
 
     def ResponseSpecification cookie(String cookieName, Matcher expectedValueMatcher) {
-        notNull cookieName,"cookieName"
-        notNull expectedValueMatcher,"expectedValueMatcher"
+        notNull cookieName, "cookieName"
+        notNull expectedValueMatcher, "expectedValueMatcher"
         cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: expectedValueMatcher)
         this;
     }
 
     def ResponseSpecification cookie(String cookieName) {
-        notNull cookieName,"cookieName"
+        notNull cookieName, "cookieName"
         return cookie(cookieName, Matchers.<String> anything())
     }
 
@@ -172,11 +173,11 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         return statusLine(equalTo(expectedStatusLine))
     }
 
-    def ResponseSpecification body(Matcher matcher, Matcher...additionalMatchers) {
+    def ResponseSpecification body(Matcher matcher, Matcher... additionalMatchers) {
         return content(matcher, additionalMatchers);
     }
 
-    public ResponseSpecification body(String key, Matcher matcher, Object...additionalKeyMatcherPairs) {
+    public ResponseSpecification body(String key, Matcher matcher, Object... additionalKeyMatcherPairs) {
         return content(key, Collections.emptyList(), matcher, additionalKeyMatcherPairs);
     }
 
@@ -192,7 +193,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         mergedPath = applyArguments(mergedPath, arguments)
 
         bodyMatchers << new BodyMatcher(key: mergedPath, matcher: matcher, rpr: rpr)
-        if(additionalKeyMatcherPairs?.length > 0) {
+        if (additionalKeyMatcherPairs?.length > 0) {
             def pairs = MapCreator.createMapFromObjects(additionalKeyMatcherPairs)
             pairs.each { matchingKey, hamcrestMatcher ->
                 def keyWithRoot = mergeKeyWithRootPath(matchingKey)
@@ -226,31 +227,31 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         return requestSpecification;
     }
 
-    Response get(String path, Object...pathParams) {
+    Response get(String path, Object... pathParams) {
         requestSpecification.get(path, pathParams);
     }
 
-    Response post(String path, Object...pathParams) {
+    Response post(String path, Object... pathParams) {
         requestSpecification.post(path, pathParams);
     }
 
-    Response put(String path, Object...pathParams) {
+    Response put(String path, Object... pathParams) {
         requestSpecification.put(path, pathParams);
     }
 
-    Response delete(String path, Object...pathParams) {
+    Response delete(String path, Object... pathParams) {
         requestSpecification.delete(path, pathParams);
     }
 
-    Response patch(String path, Object...pathParams) {
+    Response patch(String path, Object... pathParams) {
         requestSpecification.patch(path, pathParams);
     }
 
-    Response options(String path, Object...pathParams) {
+    Response options(String path, Object... pathParams) {
         requestSpecification.options(path, pathParams);
     }
 
-    def Response head(String path, Object...pathParams) {
+    def Response head(String path, Object... pathParams) {
         requestSpecification.head(path, pathParams);
     }
 
@@ -311,6 +312,29 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         return this.rootPath(rootPath);
     }
 
+    def ResponseSpecification noRoot() {
+        return noRootPath()
+    }
+
+    def ResponseSpecification noRootPath() {
+        return rootPath("")
+    }
+
+    def ResponseSpecification appendRoot(String pathToAppend) {
+        return appendRoot(pathToAppend, [])
+    }
+
+    @Override
+    ResponseSpecification appendRoot(String pathToAppend, List<Argument> arguments) {
+        notNull pathToAppend, "Path to append to root path"
+        notNull arguments, "Arguments for path to append"
+        if (rootPath == null || rootPath.isEmpty()) {
+            throw new IllegalStateException("Cannot append path because root path is empty")
+        }
+        def mergedPath = mergeKeyWithRootPath(pathToAppend)
+        rootPath(mergedPath, arguments)
+    }
+
     def ResponseSpecification rootPath(String rootPath, List<Argument> arguments) {
         notNull rootPath, "Root path"
         notNull arguments, "Arguments"
@@ -327,7 +351,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     }
 
     def boolean hasAssertionsDefined() {
-        return  hasBodyAssertionsDefined() || !headerAssertions.isEmpty() ||
+        return hasBodyAssertionsDefined() || !headerAssertions.isEmpty() ||
                 !cookieAssertions.isEmpty() || expectedStatusCode != null || expectedStatusLine != null ||
                 contentType != null
     }
@@ -376,18 +400,19 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
         def getClosure() {
             return { response, content ->
-                restAssuredResponse.parseResponse( response, content, hasBodyAssertionsDefined(), rpr)
+                restAssuredResponse.parseResponse(response, content, hasBodyAssertionsDefined(), rpr)
             }
         }
+
         def validate(Response response) {
-            if(hasAssertionsDefined()) {
+            if (hasAssertionsDefined()) {
                 def validations = []
                 validations.addAll(validateStatusCodeAndStatusLine(response))
                 validations.addAll(validateHeadersAndCookies(response))
                 validations.addAll(validateContentType(response))
-                if(hasBodyAssertionsDefined()) {
+                if (hasBodyAssertionsDefined()) {
                     def content
-                    if(requiresTextParsing()) {
+                    if (requiresTextParsing()) {
                         content = response.asString()
                     } else {
                         content = new ContentParser().parse(response, rpr, config)
@@ -407,15 +432,15 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
         private def validateContentType(Response response) {
             def errors = []
-            if(contentType != null) {
+            if (contentType != null) {
                 def actualContentType = response.getContentType()
-                if(contentType instanceof Matcher) {
+                if (contentType instanceof Matcher) {
                     if (!contentType.matches(actualContentType)) {
-                        errors << [success : false, errorMessage: String.format("Expected content-type %s doesn't match actual content-type \"%s\".\n", contentType, actualContentType)]
+                        errors << [success: false, errorMessage: String.format("Expected content-type %s doesn't match actual content-type \"%s\".\n", contentType, actualContentType)]
                     }
-                } else if(contentType instanceof String) {
+                } else if (contentType instanceof String) {
                     if (!StringUtils.startsWith(actualContentType, contentType.toString())) {
-                        errors << [success: false, errorMessage:  String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", contentType, actualContentType)];
+                        errors << [success: false, errorMessage: String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", contentType, actualContentType)];
                     }
                 } else {
                     def name = contentType.name()
@@ -428,7 +453,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                         contentTypeToMatch = actualContentType
                     }
                     if (ContentType.fromContentType(contentTypeToMatch) != contentType) {
-                        errors << [success: false, errorMessage:  String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", name, actualContentType)];
+                        errors << [success: false, errorMessage: String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", name, actualContentType)];
                     }
                 }
             }
@@ -441,7 +466,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                 def actualStatusCode = response.getStatusCode()
                 if (!expectedStatusCode.matches(actualStatusCode)) {
                     def errorMessage = String.format("Expected status code %s doesn't match actual status code <%s>.\n", expectedStatusCode.toString(), actualStatusCode)
-                    errors << [success:false, errorMessage : errorMessage];
+                    errors << [success: false, errorMessage: errorMessage];
                 }
             }
 
@@ -449,7 +474,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                 def actualStatusLine = response.getStatusLine()
                 if (!expectedStatusLine.matches(actualStatusLine)) {
                     def errorMessage = String.format("Expected status line %s doesn't match actual status line \"%s\".\n", expectedStatusLine.toString(), actualStatusLine)
-                    errors << [success:false, errorMessage : errorMessage];
+                    errors << [success: false, errorMessage: errorMessage];
                 }
             }
             errors
@@ -505,10 +530,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     }
 
     private String mergeKeyWithRootPath(String key) {
-        if(bodyRootPath != EMPTY) {
-            if(bodyRootPath.endsWith(DOT) && key.startsWith(DOT)) {
+        if (bodyRootPath != EMPTY) {
+            if (bodyRootPath.endsWith(DOT) && key.startsWith(DOT)) {
                 return bodyRootPath + substringAfter(key, DOT);
-            } else if(!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT)) {
+            } else if (!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT)) {
                 return bodyRootPath + DOT + key
             }
             return bodyRootPath + key

@@ -18,13 +18,17 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class RootPathITest extends WithJetty {
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
     @Test
     public void specifyingRootPathInExpectationAddsTheRootPathForEachSubsequentBodyExpectation() throws Exception {
@@ -176,5 +180,35 @@ public class RootPathITest extends WithJetty {
                  ).
         when().
                  get("/jsonStore");
+    }
+
+    @Test
+    public void appendingRootPathWithoutArgumentsWorks() throws Exception {
+        expect().
+                 root("store.%s", withArgs("book")).
+                 body("category.size()", equalTo(4)).
+                 appendRoot("author").
+                 body("size()", equalTo(4)).
+        when().
+                 get("/jsonStore");
+    }
+
+    @Test
+    public void appendingRootPathWithArgumentsWorks() throws Exception {
+        expect().
+                 root("store.%s", withArgs("book")).
+                 body("category.size()", equalTo(4)).
+                 appendRoot("%s.%s", withArgs("author", "size()")).
+                 body("", equalTo(4)).
+        when().
+                 get("/jsonStore");
+    }
+
+    @Test
+    public void cannotAppendRootPathToEmptyRootPath() throws Exception {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Cannot append path because root path is empty");
+
+        expect().appendRoot("%s.%s", withArgs("author", "size()"));
     }
 }
