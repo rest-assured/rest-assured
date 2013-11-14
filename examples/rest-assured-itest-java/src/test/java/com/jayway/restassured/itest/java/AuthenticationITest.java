@@ -173,4 +173,23 @@ public class AuthenticationITest extends WithJetty {
             RestAssured.port = 8080;
         }
     }
+
+    /**
+     * Asserts that <a href="http://code.google.com/p/rest-assured/issues/detail?id=233">issue 233</a> is resolved.
+     */
+    @Test
+    public void canOverridePreemptiveBasicAuthFromStaticConfiguration() throws Exception {
+        RestAssured.authentication = preemptive().basic("invalid", "password");
+
+        try {
+            given().
+                     auth().preemptive().basic("jetty", "jetty").
+            expect().
+                     statusCode(200).
+            when().
+                    get("/secured/hello");
+        } finally {
+            RestAssured.reset();
+        }
+    }
 }

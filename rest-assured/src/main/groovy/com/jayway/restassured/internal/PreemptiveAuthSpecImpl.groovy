@@ -30,25 +30,26 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
  * Specify a preemptive authentication scheme to use when sending a request.
  */
 class PreemptiveAuthSpecImpl implements PreemptiveAuthSpec {
-  private static final String AUTHORIZATION_HEADER_NAME = "Authorization"
-  private RequestSpecification requestBuilder;
+    private static final String AUTHORIZATION_HEADER_NAME = "Authorization"
+    private RequestSpecification requestBuilder;
 
-  PreemptiveAuthSpecImpl(RequestSpecification requestBuilder) {
-    this.requestBuilder = requestBuilder
-  }
+    PreemptiveAuthSpecImpl(RequestSpecification requestBuilder) {
+        this.requestBuilder = requestBuilder
+    }
 
-  /**
-   * Use http basic authentication.
-   *
-   * @param userName The user name.
-   * @param password The password.
-   * @return The request builder
-   */
-  def RequestSpecification basic(String userName, String password) {
-    notNull userName, "userName"
-    notNull password, "password"
+    /**
+     * Use http basic authentication.
+     *
+     * @param userName The user name.
+     * @param password The password.
+     * @return The request builder
+     */
+    def RequestSpecification basic(String userName, String password) {
+        notNull userName, "userName"
+        notNull password, "password"
 
-    requestBuilder.header(AUTHORIZATION_HEADER_NAME, new PreemptiveBasicAuthScheme(userName: userName, password: password).generateAuthToken())
-    return requestBuilder
-  }
+        // Disable auth added by static configuration than specify the Authorization header
+        requestBuilder.auth().none().header(AUTHORIZATION_HEADER_NAME, new PreemptiveBasicAuthScheme(userName: userName, password: password).generateAuthToken())
+        return requestBuilder
+    }
 }
