@@ -37,6 +37,7 @@ Change log next version
       String pageTitle = get("/index.html").htmlPath().getString("html.head.title");
   (issue 268)
 * Fixed an issue where a static preemptive basic authentication couldn't be overridden by instance authentication (issue 233).
+* Fixed an issue where multi-valued query parameters defined in the URL now works. For example get("/x?y=1&y=2") (issue 169).
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------
@@ -509,7 +510,7 @@ Change log 1.1 ((2011-02-18)
 * Added support for specifying base path using "RestAssured.basePath = /resource". E.g. let's say that the base URI is http://localhost and base path is "/resource" will make create a request to "http://localhost/resource/something" when doing a 'get("/something")'. Default value is empty. (issue 13)
 * Support for specifying request/query parameters in the url, e.g. get("/something?param1=first&param2=second"). (issue 23)
 * Fixed a bug in RestAssuredResponse parser that caused a NPE when the input stream was null. (issue 25)
-* Major improvements to XML expecations. It now uses Groovy syntax for the expectation string to allow for much better expectations! Note that this fix will break backward compatibility on some expectations. E.g. given
+* Major improvements to XML expectations. It now uses Groovy syntax for the expectation string to allow for much better expectations! Note that this fix will break backward compatibility on some expectations. E.g. given
         <greeting>
 	    <name>
                 <firstName>John</firstName>

@@ -418,6 +418,29 @@ public class JSONGetITest extends WithJetty {
         with().queryParam("list", "1").queryParam("list", "2").queryParam("list", "3").expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 
+    /**
+     * Asserts that <a href="https://code.google.com/p/rest-assured/issues/detail?id=169">issue 169</a> is resolved
+     */
+    @Test
+    public void multiValueQueryParametersWorksWhenSpecifiedInTheUrl() throws Exception {
+        expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam?list=1&list=2&list=3");
+    }
+
+    /**
+     * Asserts that <a href="https://code.google.com/p/rest-assured/issues/detail?id=169">issue 169</a> is resolved
+     */
+    @Test
+    public void multiValueQueryParametersWorksWhenSpecifiedInInTheFluentAPIAsPathParameters() throws Exception {
+        given().
+                pathParam("one", "1").
+                pathParam("two", "2").
+                pathParam("three", "3").
+        expect().
+                body("list", equalTo("1,2,3")).
+        when().
+                get("/multiValueParam?list={one}&list={two}&list={three}");
+    }
+
     @Test
     public void multiValueQueryParametersWorksWhenPassingInMap() throws Exception {
         final HashMap<String, String> hashMap = new HashMap<String, String>();

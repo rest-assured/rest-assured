@@ -38,7 +38,6 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.Validate
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
-import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
@@ -1024,11 +1023,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
                     theKey = keyValue[0]
                     theValue = keyValue[1]
                 }
-                if (method == POST) {
-                    queryParameters.put(theKey, theValue)
-                } else {
-                    requestParameters.put(theKey, theValue);
-                }
+                queryParam(theKey, theValue)
             };
             path = path.substring(0, indexOfQuestionMark);
         }
@@ -1490,7 +1485,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
 
     private boolean isEmpty(Object[] objects) {
-        return objects == null || objects.length == 0
+        return objects == null || objects.length == 0 || (objects.length == 1 && objects[0] instanceof NoParameterValue)
     }
 
     // make client aware of JRE proxy settings http://freeside.co/betamax/
