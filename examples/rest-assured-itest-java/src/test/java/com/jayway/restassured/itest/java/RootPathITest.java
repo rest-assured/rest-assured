@@ -118,8 +118,8 @@ public class RootPathITest extends WithJetty {
     public void specifyingRootPathWithBodyArgs() throws Exception {
         expect().
                 rootPath("store.book.category[%d]").
-                body("", withArgs(0), equalTo("reference")).
-                body("", withArgs(1), equalTo("fiction")).
+                body(withArgs(0), equalTo("reference")).
+                body(withArgs(1), equalTo("fiction")).
         when().
                 get("/jsonStore");
     }
@@ -129,8 +129,8 @@ public class RootPathITest extends WithJetty {
         final String category = "category";
         expect().
                 rootPath("store.book.%s[%d]").
-                body("", withArgs(category, 0), equalTo("reference")).
-                body("", withArgs(category, 1), equalTo("fiction")).
+                body(withArgs(category, 0), equalTo("reference")).
+                body(withArgs(category, 1), equalTo("fiction")).
         when().
                 get("/jsonStore");
     }
@@ -140,8 +140,8 @@ public class RootPathITest extends WithJetty {
         final String category = "category";
         expect().
                 rootPath("store.book.%s[%d]").
-                content("", withArguments(category, 0), equalTo("reference")).
-                content("", withArguments(category, 1), equalTo("fiction")).
+                content(withArguments(category, 0), equalTo("reference")).
+                content(withArguments(category, 1), equalTo("fiction")).
         when().
                 get("/jsonStore");
     }
@@ -207,8 +207,25 @@ public class RootPathITest extends WithJetty {
     @Test
     public void cannotAppendRootPathToEmptyRootPath() throws Exception {
         exception.expect(IllegalStateException.class);
-        exception.expectMessage("Cannot append path because root path is empty");
+        exception.expectMessage("Cannot append path when root path is empty");
 
         expect().appendRoot("%s.%s", withArgs("author", "size()"));
+    }
+
+    @Test
+    public void usingBodyExpectationWithoutPath() throws Exception {
+        expect().
+                 root("store.%s").
+                 body(withArgs("book.category.size()"), equalTo(4)).
+        when().
+                 get("/jsonStore");
+    }
+
+    @Test
+    public void cannotUseBodyExpectationWithNoPathWhenRootPathIsEmpty() throws Exception {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Cannot specify arguments when root path is empty");
+
+        expect().body(withArgs("author", "size()"), equalTo("Something"));
     }
 }

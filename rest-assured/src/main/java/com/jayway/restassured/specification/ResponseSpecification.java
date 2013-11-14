@@ -44,6 +44,39 @@ public interface ResponseSpecification extends RequestSender {
      */
     ResponseSpecification content(Matcher<?> matcher, Matcher<?>...additionalMatchers);
 
+    /**
+     * This as special kind of expectation that is mainly useful when you've specified a root path with an argument placeholder.
+     * For example:
+     * <pre>
+     * expect().
+     *          root("x.%s"). // Root path with a placeholder
+     *          content(withArgs("firstName"), equalTo(..)).
+     *          content(withArgs("lastName"), equalTo(..)).
+     * when().
+     *          get(..);
+     * </pre>
+     *
+     * Note that this is the same as doing:
+     * <pre>
+     * expect().
+     *          root("x.%s"). // Root path with a placeholder
+     *          content(withArgs("firstName"), equalTo(..)).
+     *          content(withArgs("lastName"), equalTo(..)).
+     * when().
+     *          get(..);
+     *</pre>
+     *
+     * <p>
+     * Note that this method is the same as {@link #body(java.util.List, org.hamcrest.Matcher, Object...)} but with a method name.
+     * </p>
+     *
+     * @param arguments The arguments to apply to the root path.
+     * @param matcher The hamcrest matcher that must response body must match.
+     * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
+     * @see #body(String, org.hamcrest.Matcher, Object...)
+     * @return the response specification
+     */
+    ResponseSpecification content(List<Argument> arguments, Matcher matcher, Object...additionalKeyMatcherPairs);
 
     /**
      * Validates the specified response against this ResponseSpecification
@@ -146,8 +179,8 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().
      *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
-     *          body("", withArgs(0), hasItem("first")).
-     *          body("", withArgs(1), hasItem("second")).
+     *          body(withArgs(0), hasItem("first")).
+     *          body(withArgs(1), hasItem("second")).
      *          ..
      * </pre>
      *
@@ -157,12 +190,47 @@ public interface ResponseSpecification extends RequestSender {
      * </p>
      *
      * @param key The body key
+     * @param arguments The arguments to apply to the key
      * @param matcher The hamcrest matcher that must response body must match.
      * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
      * @see #body(String, org.hamcrest.Matcher, Object...)
      * @return the response specification
      */
     ResponseSpecification body(String key, List<Argument> arguments, Matcher matcher, Object...additionalKeyMatcherPairs);
+
+    /**
+     * This as special kind of expectation that is mainly useful when you've specified a root path with an argument placeholder.
+     * For example:
+     * <pre>
+     * expect().
+     *          root("x.%s"). // Root path with a placeholder
+     *          body(withArgs("firstName"), equalTo(..)).
+     *          body(withArgs("lastName"), equalTo(..)).
+     * when().
+     *          get(..);
+     * </pre>
+     *
+     * Note that this is the same as doing:
+     * <pre>
+     * expect().
+     *          root("x.%s"). // Root path with a placeholder
+     *          body(withArgs("firstName"), equalTo(..)).
+     *          body(withArgs("lastName"), equalTo(..)).
+     * when().
+     *          get(..);
+     *</pre>
+     *
+     * <p>
+     * Note that this method is the same as {@link #content(java.util.List, org.hamcrest.Matcher, Object...)} but with a method name.
+     * </p>
+     *
+     * @param arguments The arguments to apply to the root path.
+     * @param matcher The hamcrest matcher that must response body must match.
+     * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
+     * @see #body(String, org.hamcrest.Matcher, Object...)
+     * @return the response specification
+     */
+    ResponseSpecification body(List<Argument> arguments, Matcher matcher, Object...additionalKeyMatcherPairs);
 
     /**
      * Expect that the response status code matches the given Hamcrest matcher. E.g.
@@ -773,7 +841,7 @@ public interface ResponseSpecification extends RequestSender {
     ResponseSpecification body(String path, Matcher<?> matcher, Object...additionalKeyMatcherPairs);
 
     /**
-     * Same as {@link #content(String, java.util.List, org.hamcrest.Matcher, Object...)} expect that you can pass arguments to the path. This
+     * Same as {@link #body(String, java.util.List, org.hamcrest.Matcher, Object...)} expect that you can pass arguments to the path. This
      * is useful in situations where you have e.g. pre-defined variables that constitutes the path:
      * <pre>
      * String someSubPath = "else";
@@ -785,8 +853,8 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().
      *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
-     *          body("", withArgs(0), hasItem("first")).
-     *          body("", withArgs(1), hasItem("second")).
+     *          body(withArgs(0), hasItem("first")).
+     *          body(withArgs(1), hasItem("second")).
      *          ..
      * </pre>
      *

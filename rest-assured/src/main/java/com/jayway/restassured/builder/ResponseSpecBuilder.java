@@ -118,8 +118,8 @@ public class ResponseSpecBuilder {
      * <pre>
      * expect().
      *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
-     *          body("", withArgs(0), hasItem("first")).
-     *          body("", withArgs(1), hasItem("second")).
+     *          body(withArgs(0), hasItem("first")).
+     *          body(withArgs(1), hasItem("second")).
      *          ..
      * </pre>
      *
@@ -433,8 +433,8 @@ public class ResponseSpecBuilder {
      * <pre>
      * expect().
      *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
-     *          body("", withArgs(0), hasItem("first")).
-     *          body("", withArgs(1), hasItem("second")).
+     *          body(withArgs(0), hasItem("first")).
+     *          body(withArgs(1), hasItem("second")).
      *          ..
      * </pre>
      *

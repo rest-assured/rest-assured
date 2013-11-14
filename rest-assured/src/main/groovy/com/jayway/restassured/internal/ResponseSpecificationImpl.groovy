@@ -66,6 +66,11 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         }
     }
 
+    def ResponseSpecification content(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
+        throwIllegalStateExceptionIfRootPathIsNotDefined("specify arguments")
+        content("", arguments, matcher, additionalKeyMatcherPairs)
+    }
+
     def Response validate(Response response) {
         assertionClosure.validate(response)
         response
@@ -184,6 +189,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
     def ResponseSpecification body(String key, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
         return content(key, arguments, matcher, additionalKeyMatcherPairs)
+    }
+
+    def ResponseSpecification body(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
+        return content(arguments, matcher, additionalKeyMatcherPairs)
     }
 
     def ResponseSpecification content(String key, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
@@ -325,13 +334,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         return appendRoot(pathToAppend, [])
     }
 
-    @Override
-    ResponseSpecification appendRoot(String pathToAppend, List<Argument> arguments) {
+    def ResponseSpecification appendRoot(String pathToAppend, List<Argument> arguments) {
         notNull pathToAppend, "Path to append to root path"
         notNull arguments, "Arguments for path to append"
-        if (rootPath == null || rootPath.isEmpty()) {
-            throw new IllegalStateException("Cannot append path because root path is empty")
-        }
+        throwIllegalStateExceptionIfRootPathIsNotDefined("append path")
         def mergedPath = mergeKeyWithRootPath(pathToAppend)
         rootPath(mergedPath, arguments)
     }
@@ -540,5 +546,11 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
             return bodyRootPath + key
         }
         key
+    }
+
+    def void throwIllegalStateExceptionIfRootPathIsNotDefined(String description) {
+        if (rootPath == null || rootPath.isEmpty()) {
+            throw new IllegalStateException("Cannot $description when root path is empty")
+        }
     }
 }
