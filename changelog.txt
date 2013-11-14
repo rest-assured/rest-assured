@@ -23,7 +23,17 @@ Change log next version
 * Added support for appending a root path to an existing root path using "appendRoot" on the RequestSpecification, see javadoc for more info. (issue 248).
 * Added support for resetting an already defined root by using "noRoot" on the RequestSpecification, see javadoc for more info. (issue 248).
 * Added the "given(requestSpecification)" method to the RestAssured API (issue 56).
-* Add support for body expectations with empty path and only arguments, for example expect().root("x.y.%s").body(withArgs("z"), equalTo("w")). .. (issue 265)
+* Added support for body expectations with empty path and only arguments, for example expect().root("x.y.%s").body(withArgs("z"), equalTo("w")). .. (issue 265)
+* Added support for body expectations without any arguments using withNoArgs() or withNoArguments, for example:
+      expect().
+               root("store.%s", withArgs("book")).
+               body("category.size()", equalTo(4)).
+               appendRoot("%s.%s", withArgs("author", "size()")).
+               body(withNoArgs(), equalTo(4)).
+      when().
+               get("/jsonStore");
+  (issue 266)
+
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------

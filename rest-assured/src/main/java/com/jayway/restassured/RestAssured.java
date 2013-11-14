@@ -704,7 +704,7 @@ public class RestAssured {
      * <p/>
      * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      *
-     * @return A list of arguments that can be used to build up the
+     * @return A list of arguments that can be used to build up the response specification
      */
     public static List<Argument> withArguments(Object firstArgument, Object... additionalArguments) {
         Validate.notNull(firstArgument, "You need to supply at least one argument");
@@ -719,6 +719,26 @@ public class RestAssured {
     }
 
     /**
+     * Create a list of no arguments that can be used to create parts of the path in a response specification for JSON, XML or HTML validation.
+     * This is useful in situations where you have e.g. pre-defined variables that constitutes the key. For example:
+     * <pre>
+     * expect().
+     *          root("store.%s", withArgs("book")).
+     *          body("category.size()", equalTo(4)).
+     *          appendRoot("%s.%s", withArgs("author", "size()")).
+     *          body(withNoArguments(), equalTo(4)).
+     * when().
+     *          get("/jsonStore");
+     * </pre>
+     * <p/>
+     *
+     * @return A list of no arguments that can be used to build up the response specification
+     */
+    public static List<Argument> withNoArguments() {
+        return Collections.unmodifiableList(Collections.<Argument>emptyList());
+    }
+
+    /**
      * Slightly shorter version of {@link #withArguments(Object, Object...)}.
      *
      * @return A list of arguments.
@@ -726,6 +746,16 @@ public class RestAssured {
      */
     public static List<Argument> withArgs(Object firstArgument, Object... additionalArguments) {
         return withArguments(firstArgument, additionalArguments);
+    }
+
+    /**
+     * Slightly shorter version of {@link #withNoArguments()}.
+     *
+     * @return A list of no arguments.
+     * @see #withNoArguments()
+     */
+    public static List<Argument> withNoArgs() {
+        return withNoArguments();
     }
 
     /**

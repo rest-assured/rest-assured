@@ -199,7 +199,7 @@ public class RootPathITest extends WithJetty {
                  root("store.%s", withArgs("book")).
                  body("category.size()", equalTo(4)).
                  appendRoot("%s.%s", withArgs("author", "size()")).
-                 body("", equalTo(4)).
+                 body(withNoArgs(), equalTo(4)).
         when().
                  get("/jsonStore");
     }
