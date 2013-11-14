@@ -22,6 +22,7 @@ Change log next version
       RestAssured.config = newConfig().httpClient(httpClientConfig().reuseHttpClientInstance());
 * Added support for appending a root path to an existing root path using "appendRoot" on the RequestSpecification, see javadoc for more info. (issue 248).
 * Added support for resetting an already defined root by using "noRoot" on the RequestSpecification, see javadoc for more info. (issue 248).
+* Added the "given(requestSpecification)" method to the RestAssured API (issue 56).
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------

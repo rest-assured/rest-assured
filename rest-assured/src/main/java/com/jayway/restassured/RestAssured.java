@@ -765,6 +765,23 @@ public class RestAssured {
     }
 
     /**
+     * When you're only interested in supplying a predefined request specification without a response specification then you can use this method.
+     * For example:
+     * <p/>
+     * <pre>
+     * RequestSpecification requestSpecification = with().parameters("firstName", "John", "lastName", "Doe");
+     * given(requestSpecification).get("/greet"). ..;
+     * </pre>
+     * <p/>
+     * This will perform a GET request to "/greet" and without any validation (only a static response specification has been configured).
+     *
+     * @return A RequestSender
+     */
+    public static RequestSender given(RequestSpecification requestSpecification) {
+        return new TestSpecificationImpl(requestSpecification, createTestSpecification().getResponseSpecification());
+    }
+
+    /**
      * Perform a GET request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
