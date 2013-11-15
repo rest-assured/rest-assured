@@ -65,7 +65,7 @@ class RestAssuredResponseImpl implements Response {
         parseContentType(httpResponse)
         parseCookies()
         parseStatus(httpResponse)
-        if(hasBodyAssertions) {
+        if (hasBodyAssertions) {
             parseContent(content)
         } else {
             this.content = content
@@ -83,14 +83,14 @@ class RestAssuredResponseImpl implements Response {
     def parseContentType(httpResponse) {
         try {
             contentType = httpResponse.contentType?.toString()
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             // No content type was found, set it to empty
             contentType = ""
         }
     }
 
     def parseCookies() {
-        if(headers.hasHeaderWithName("Set-Cookie")) {
+        if (headers.hasHeaderWithName("Set-Cookie")) {
             cookies = CookieMatcher.getCookies(headers.getValues("Set-Cookie"))
         }
     }
@@ -109,9 +109,9 @@ class RestAssuredResponseImpl implements Response {
         try {
             if (content instanceof InputStream) {
                 this.content = convertToByteArray(content)
-            } else if(content instanceof Writable) {
+            } else if (content instanceof Writable) {
                 this.content = toString(content)
-            } else if(content instanceof String) {
+            } else if (content instanceof String) {
                 this.content = content
             } else {
                 this.content = convertToString(content)
@@ -148,7 +148,7 @@ class RestAssuredResponseImpl implements Response {
     }
 
     InputStream asInputStream() {
-        if(content == null || content instanceof InputStream) {
+        if (content == null || content instanceof InputStream) {
             new CloseHTTPClientConnectionInputStreamWrapper(connectionConfig, connectionManager, content)
         } else {
             content instanceof String ? new ByteArrayInputStream(content.getBytes(findCharset())) : new ByteArrayInputStream(content)
@@ -156,10 +156,10 @@ class RestAssuredResponseImpl implements Response {
     }
 
     byte[] asByteArray() {
-        if(content == null) {
+        if (content == null) {
             return new byte[0];
         }
-        if(hasExpectations) {
+        if (hasExpectations) {
             return content instanceof byte[] ? content : content.getBytes(findCharset())
         } else {
             return convertStreamToByteArray(content)
@@ -190,8 +190,8 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     private String findCharset() {
         String charset = CharsetExtractor.getCharsetFromContentType(isBlank(contentType) ? defaultContentType : contentType)
 
-        if ( charset == null || charset.trim().equals("") ) {
-            if(defaultCharset == null) {
+        if (charset == null || charset.trim().equals("")) {
+            if (defaultCharset == null) {
                 return Charset.defaultCharset()
             } else {
                 charset = defaultCharset
@@ -202,7 +202,7 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     }
 
     def Cookies detailedCookies() {
-        if(cookies == null) {
+        if (cookies == null) {
             return new Cookies()
         }
         return cookies
@@ -329,11 +329,11 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
             throw new IllegalStateException("""Cannot invoke the path method because no content-type was present in the response and no default parser has been set.\n
 You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n""")
         };
-        if(containsIgnoreCase(contentType, "xml")) {
+        if (containsIgnoreCase(contentType, "xml")) {
             return xmlPath().get(path)
-        } else if(containsIgnoreCase(contentType, "json")) {
+        } else if (containsIgnoreCase(contentType, "json")) {
             return jsonPath().get(path)
-        } else if(containsIgnoreCase(contentType, "html")) {
+        } else if (containsIgnoreCase(contentType, "html")) {
             return newXmlPath(CompatibilityMode.HTML)
         }
         throw new IllegalStateException("Cannot determine which path implementation to use because the content-type $contentType doesn't map to a path implementation.")
@@ -356,7 +356,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
     }
 
     private String convertToString(Reader reader) {
-        if(reader == null) {
+        if (reader == null) {
             return "";
         }
 
@@ -417,7 +417,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
             } else {
                 closure.call()
             }
-        } else if(rpr.hasCustomParserExludingDefaultParser(contentType)) {
+        } else if (rpr.hasCustomParserExludingDefaultParser(contentType)) {
             contentTypeToChose = rpr.getNonDefaultParser(contentType).contentType
         } else {
             contentTypeToChose = contentType
@@ -430,13 +430,16 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
     }
 
     private def charsetToString(charset) {
-        if(content == null) {
+        if (content == null) {
             return ""
         }
-        if(hasExpectations) {
-            return content instanceof String ? content : new String(content, charset)
+
+        if (content instanceof String) {
+            content
+        } else if (content instanceof byte[]) {
+            new String(content, charset)
         } else {
-            return convertStreamToString(content)
+            convertStreamToString(content)
         }
     }
 

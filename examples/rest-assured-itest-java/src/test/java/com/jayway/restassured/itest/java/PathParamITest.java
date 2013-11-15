@@ -60,18 +60,6 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    @Ignore("This is a bug and should be fixed")
-    public void urlEncodesQuestionMarksInNamedPathParams() throws Exception {
-        given().
-                pathParam("firstName", ":yo").
-                pathParam("lastName", "yo?").
-        expect().
-                body("fullName", equalTo(":yo yo?")).
-        when().
-                get("/{firstName}/{lastName}");
-    }
-
-    @Test
     public void doesntUrlEncodesPathParamsWhenUrlEncodingIsDisabled() throws Exception {
         RestAssured.urlEncodingEnabled = false;
         final String encoded = URLEncoder.encode("John:()", "UTF-8");
@@ -135,7 +123,7 @@ public class PathParamITest extends WithJetty {
     @Test
     public void throwsIAEWhenNumberOfSuppliedPathParamsAreLowerThanDefinedPathParams() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("You specified too few path parameters to the request.");
+        exception.expectMessage("You specified too few path parameters in the request.");
 
         get("/{firstName}/{lastName}", "John");
     }
@@ -145,9 +133,9 @@ public class PathParamITest extends WithJetty {
         given().
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
-                expect().
+        expect().
                 body("fullName", equalTo("John Doe")).
-                when().
+        when().
                 get("/{firstName}/{lastName}");
     }
 
@@ -156,9 +144,9 @@ public class PathParamITest extends WithJetty {
         given().
                 pathParam("firstName", "John").
                 pathParam("lastName", 42).
-                expect().
+        expect().
                 body("fullName", equalTo("John 42")).
-                when().
+        when().
                 get("/{firstName}/{lastName}");
     }
 
@@ -166,9 +154,9 @@ public class PathParamITest extends WithJetty {
     public void supportsPassingPathParamsWithGiven() throws Exception {
         given().
                 pathParams("firstName", "John", "lastName", "Doe").
-                expect().
+        expect().
                 body("fullName", equalTo("John Doe")).
-                when().
+        when().
                 get("/{firstName}/{lastName}");
     }
 
@@ -176,9 +164,9 @@ public class PathParamITest extends WithJetty {
     public void supportsPassingPathParamsWithIntWithGiven() throws Exception {
         given().
                 pathParams("firstName", "John", "lastName", 42).
-                expect().
+        expect().
                 body("fullName", equalTo("John 42")).
-                when().
+        when().
                 get("/{firstName}/{lastName}");
     }
 
@@ -190,9 +178,9 @@ public class PathParamITest extends WithJetty {
 
         given().
                 pathParams(params).
-                expect().
+        expect().
                 body("fullName", equalTo("John Doe")).
-                when().
+        when().
                 get("/{firstName}/{lastName}");
     }
 
@@ -204,9 +192,9 @@ public class PathParamITest extends WithJetty {
 
         given().
                 pathParams(params).
-                expect().
+        expect().
                 body("fullName", equalTo("John 42")).
-                when().
+        when().
                 get("/{firstName}/{lastName}");
     }
 
@@ -218,9 +206,9 @@ public class PathParamITest extends WithJetty {
         given().
                 pathParams(params).
                 pathParam("lastName", "Doe").
-                expect().
+        expect().
                 body("fullName", equalTo("John Doe")).
-                when().
+        when().
                 get("/{firstName}/{lastName}");
     }
 
@@ -231,37 +219,37 @@ public class PathParamITest extends WithJetty {
 
         given().
                 pathParam("lastName", "Doe").
-                expect().
+        expect().
                 body("fullName", equalTo("John Doe")).
-                when().
+        when().
                 get("/{firstName}/{lastName}", "John");
     }
 
     @Test
     public void passingInTwoManyPathParamsWithGivenThrowsIAE() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("You specified too many path parameters (3).");
+        exception.expectMessage("Illegal number of path parameters. Expected 2, was 3.");
 
         given().
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
                 pathParam("thirdName", "Not defined").
-                expect().
+        expect().
                 body("fullName", equalTo("John Doe")).
-                when().
+        when().
                 get("/{firstName}/{lastName}");
     }
 
     @Test
-    public void passingInTwoFewPathParamsWithGivenThrowsIAE() throws Exception {
+    public void passingInTooFewNamedPathParamsWithGivenThrowsIAE() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("You specified too few path parameters to the request.");
+        exception.expectMessage("You specified too few path parameters to the request, failed to find path parameter with name 'lastName'.");
 
         given().
                 pathParam("firstName", "John").
-                expect().
+        expect().
                 body("fullName", equalTo("John Doe")).
-                when().
+        when().
                 get("/{firstName}/{lastName}");
     }
 
@@ -271,7 +259,7 @@ public class PathParamITest extends WithJetty {
 
         expect().
                 body("fullName", equalTo("\\$£@\"){¤$ Last")).
-                when().
+        when().
                 get("/{firstName}/{lastName}", nonStandardChars, "Last");
 
     }
@@ -280,9 +268,9 @@ public class PathParamITest extends WithJetty {
     public void passingInSinglePathParamsThatHaveBeenDefinedMultipleTimesWorks() throws Exception {
         given().
                 pathParam("firstName", "John").
-                expect().
+        expect().
                 body("fullName", equalTo("John John")).
-                when().
+        when().
                 get("/{firstName}/{firstName}");
     }
 }

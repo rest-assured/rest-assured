@@ -38,6 +38,7 @@ Change log next version
   (issue 268)
 * Fixed an issue where a static preemptive basic authentication couldn't be overridden by instance authentication (issue 233).
 * Fixed an issue where multi-valued query parameters defined in the URL now works. For example get("/x?y=1&y=2") (issue 169).
+* Improved request logging so that query parametes are included in the complete path.
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------

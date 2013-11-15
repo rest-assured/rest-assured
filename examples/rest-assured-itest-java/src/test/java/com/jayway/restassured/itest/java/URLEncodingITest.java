@@ -18,10 +18,22 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.builder.ResponseBuilder;
+import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.filter.FilterContext;
+import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.FilterableRequestSpecification;
+import com.jayway.restassured.specification.FilterableResponseSpecification;
 import com.jayway.restassured.specification.RequestSpecification;
+import org.apache.commons.io.output.WriterOutputStream;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
+
+import java.io.PrintStream;
+import java.io.StringWriter;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
@@ -94,5 +106,36 @@ public class URLEncodingITest extends WithJetty {
                 body(equalTo("query param path param form param")).
         when().
                 post("/{pathParam}/manyParams?queryParam=query%20param", "path%20param");
+    }
+
+    @Test
+    public void doesntDoubleEncodeParamsWhenDefiningUrlEncodingToTrue() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                urlEncodingEnabled(true).
+                pathParam("pathParam", "path/param").
+                formParam("formParam", "form/param").
+                filter(new RequestLoggingFilter(captor)).
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        /*
+                         * Note that Scalatra cannot handle request with path parameters containing "/" (like path/param) even though it's URL encoded.
+                         * Scalatra decodes the path prior to finding the method to invoke and thus we'll get an error back (since no resource mapping to /path/param/manyParams exist).
+                         */
+                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                    }
+                }).
+        then().
+                body(equalTo("changed")).
+        when().
+                post("/{pathParam}/manyParams?queryParam=query/param");
+
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/path%2Fparam/manyParams?queryParam=query%2Fparam"));
+    }
+
+    private String loggedRequestPathIn(StringWriter writer) {
+        return StringUtils.substringBetween(writer.toString(), "Request path:", "\n").trim();
     }
 }

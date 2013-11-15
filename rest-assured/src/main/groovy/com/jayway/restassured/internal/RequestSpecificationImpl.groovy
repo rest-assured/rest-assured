@@ -48,7 +48,6 @@ import org.apache.http.message.BasicHeader
 
 import java.util.Map.Entry
 import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 import static com.jayway.restassured.http.ContentType.*
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
@@ -762,12 +761,28 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         }
 
         filters << new RootFilter()
-        def ctx = new FilterContextImpl(assembleCompleteTargetPath(path), path, method, assertionClosure, filters);
+
+        String requestUriForLogging = generateRequestUriToLog(path, method)
+        def ctx = new FilterContextImpl(requestUriForLogging, path, method, assertionClosure, filters);
         // We pass in this here because of a bug in the Groovy compiler, http://jira.codehaus.org/browse/GROOVY-4647 (when it's fixed 9619c3b should be used instead)
         httpClient = httpClientConfig().httpClientInstance()
         def response = ctx.next(this, responseSpecification)
         responseSpecification.assertionClosure.validate(response)
         return response;
+    }
+
+    private def String generateRequestUriToLog(path, method) {
+        def uriBuilder = new URIBuilder(URIBuilder.convertToURI(assembleCompleteTargetPath(path)), this.urlEncodingEnabled, encoderConfig())
+        if (method != POST && !requestParameters?.isEmpty()) {
+            uriBuilder.addQueryParams(requestParameters)
+        }
+
+        if (!queryParameters?.isEmpty()) {
+            uriBuilder.addQueryParams(queryParameters)
+        }
+        uriBuilder.urlDecodeQueryParametersIfNeeded()
+        def requestUriForLogging = uriBuilder.toString()
+        requestUriForLogging
     }
 
     private def Response sendRequest(path, method, assertionClosure, FilterableRequestSpecification requestSpecification) {
@@ -1157,53 +1172,112 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         notNull path, "path"
         notNull pathParams, "Path params"
 
-        path = applyPathParamsIfNeeded(path, pathParams)
+        if (path?.endsWith("?")) {
+            throw new IllegalArgumentException("Request URI cannot end with ?");
+        }
+        path = applyPathParamsAndEncodePath(path, pathParams)
         invokeFilterChain(path, method, responseSpecification.assertionClosure)
     }
 
-    private def String applyPathParamsIfNeeded(String path, Object... pathParams) {
-        def unnamedPathParamSize = pathParams.size()
+    private def String applyPathParamsAndEncodePath(String path, Object... unnamedPathParams) {
+        def unnamedPathParamSize = unnamedPathParams.size()
         def namedPathParamSize = this.pathParameters.size()
-        if (unnamedPathParamSize == 0 && namedPathParamSize == 0) {
-            return path
-        } else if (unnamedPathParamSize > 0 && namedPathParamSize > 0) {
+        def namedPathParams = this.pathParameters
+        if (unnamedPathParamSize > 0 && namedPathParamSize > 0) {
             throw new IllegalArgumentException("You cannot specify both named and unnamed path params at the same time")
         } else {
-            def matchPattern = ~/.*\{\w+\}.*/
-            if (unnamedPathParamSize > 0) {
+            def host = getTargetURI(path)
+            def pathWithoutQueryParams = StringUtils.substringBefore(getTargetPath(path), "?");
+            def queryParams = substringAfter(path, "?")
+            def usesNamedPathParameters = namedPathParamSize > unnamedPathParamSize
+
+            int numberOfUsedPathParameters = 0;
+            def pathParamNameUsageCount = [:].withDefault { 0 }
+
+            def pathTemplate = ~/.*\{\w+\}.*/
+            pathWithoutQueryParams = StringUtils.split(pathWithoutQueryParams, "/").inject("") { String acc, String subresource ->
+                if (subresource.startsWith("{") && subresource.endsWith("}") && subresource.length() >= 3) { // 3 means "{" and "}" and at least one character
+                    if (usesNamedPathParameters) {
+                        def pathParamName = subresource.substring(1, subresource.length() - 1)  // Get path parameter name, what's between the "{" and "}"
+                        def pathParamValue = findNamedPathParamValue(pathParamName, pathParamNameUsageCount)
+                        subresource = pathParamValue
+                    } else { // uses unnamed path params
+                        if (numberOfUsedPathParameters >= unnamedPathParams.size()) {
+                            throw new IllegalArgumentException("You specified too few path parameters in the request.")
+                        }
+                        subresource = unnamedPathParams[numberOfUsedPathParameters].toString()
+                    }
+                    numberOfUsedPathParameters += 1
+                }
+                format("%s/%s", acc, encode(subresource, EncodingTarget.QUERY)).toString()
+            }
+
+            if (queryParams.matches(pathTemplate)) {
+                def hasAnyTemplateLeft = ~/.*\{\w+\.*}/
                 def replacePattern = ~/\{\w+\}/
-                int current = 0;
-                pathParams.each {
-                    if (!path.matches(matchPattern)) {
+                def definedParams
+                if (usesNamedPathParameters) {
+                    definedParams = namedPathParams.keySet()
+                } else {
+                    definedParams = unnamedPathParams
+                }
+
+                definedParams.each { pathParamName ->
+                    def subresource
+                    if (!queryParams.matches(hasAnyTemplateLeft)) {
                         throw new IllegalArgumentException("Illegal number of path parameters. Expected $current, was $unnamedPathParamSize.")
                     }
-                    current++
-                    path = path.replaceFirst(replacePattern, Matcher.quoteReplacement(it.toString()))
-                }
-            } else {
-                this.pathParameters.each { key, value ->
-                    def literalizedKey = Matcher.quoteReplacement(key)
-                    def replacePattern = Pattern.compile("\\{$literalizedKey\\}")
-                    int current = 0;
-                    if (path.matches(".*\\{$literalizedKey\\}.*")) {
-                        path = path.replaceAll(replacePattern, value.toString())
-                        current++
-                    } else {
-                        throw new IllegalArgumentException("You specified too many path parameters ($namedPathParamSize).")
+                    if (usesNamedPathParameters) {
+                        def pathParamValue = findNamedPathParamValue(pathParamName, pathParamNameUsageCount)
+                        subresource = pathParamValue
+                    } else { // uses unnamed path params
+                        subresource = unnamedPathParams[numberOfUsedPathParameters].toString()
                     }
+                    // Note that we do NOT url encode query params here, that happens by UriBuilder at a later stage.
+                    queryParams = queryParams.replaceFirst(replacePattern, Matcher.quoteReplacement(subresource.toString()))
+                    numberOfUsedPathParameters += 1;
                 }
             }
-            if (path.matches(matchPattern)) {
-                throw new IllegalArgumentException("You specified too few path parameters to the request.")
+
+            path = host + (StringUtils.isEmpty(queryParams) ? pathWithoutQueryParams : pathWithoutQueryParams + "?" + queryParams)
+            def expectedNumberOfUsedPathParameters = usesNamedPathParameters ? namedPathParamSize : unnamedPathParamSize
+            if (numberOfUsedPathParameters != expectedNumberOfUsedPathParameters) {
+                if (usesNamedPathParameters && expectedNumberOfUsedPathParameters < numberOfUsedPathParameters && !containsUnresolvedTemplates(path)) {
+                    /* If we're using named path parameters but multiple templates, e.g. given().pathParam("x", 1).get("/{x}/{x}") then it's ok that
+                     * expectedNumberOfUsedPathParameters < numberOfUsedPathParameters there's no unresolved templates left.
+                     */
+                } else {
+                    throw new IllegalArgumentException("Illegal number of path parameters. Expected $numberOfUsedPathParameters, was $expectedNumberOfUsedPathParameters.")
+                }
             }
         }
         path
     }
 
+    private def boolean containsUnresolvedTemplates(String path) {
+        path.matches(~/.*\{\w+\}.*/)
+    }
+
+    private def String findNamedPathParamValue(String pathParamName, pathParamNameUsageCount) {
+        def pathParamValues = this.pathParameters.get(pathParamName);
+        def pathParamValue
+        if (pathParamValues instanceof Collection) {
+            def pathParamCount = pathParamNameUsageCount[pathParamName]
+            pathParamNameUsageCount[pathParamName] = pathParamCount++
+            pathParamValue = pathParamValues.get(pathParamCount)
+        } else {
+            pathParamValue = pathParamValues
+        }
+        if (StringUtils.isEmpty(pathParamValue?.toString())) {
+            throw new IllegalArgumentException("You specified too few path parameters to the request, failed to find path parameter with name '$pathParamName'.");
+        }
+        pathParamValue
+    }
+
     private String createFormParamBody(Map<String, Object> formParams) {
         final StringBuilder body = new StringBuilder();
         for (Entry<String, Object> entry : formParams.entrySet()) {
-            body.append(encode(entry.getKey()));
+            body.append(encode(entry.getKey(), EncodingTarget.BODY));
             if (!(entry.getValue() instanceof NoParameterValue)) {
                 body.append("=").append(handleMultiValueParamsIfNeeded(entry));
             }
@@ -1213,15 +1287,21 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         return body.toString();
     }
 
-    private def Object encode(Object string) {
+
+    private def Object encode(Object string, EncodingTarget encodingType) {
         string = string.toString()
         if (urlEncodingEnabled) {
-            def charset = config == null ? new EncoderConfig().defaultContentCharset() : config.getEncoderConfig().defaultContentCharset()
-            if (contentType instanceof String) {
-                def tempCharset = CharsetExtractor.getCharsetFromContentType(contentType as String)
-                if (tempCharset != null) {
-                    charset = tempCharset
+            def charset
+            if (encodingType == EncodingTarget.BODY) {
+                charset = encoderConfig().defaultContentCharset()
+                if (contentType instanceof String) {
+                    def tempCharset = CharsetExtractor.getCharsetFromContentType(contentType as String)
+                    if (tempCharset != null) {
+                        charset = tempCharset
+                    }
                 }
+            } else { // Query or path parameter
+                charset = encoderConfig().defaultQueryParameterCharset()
             }
             return URIBuilder.encode(string, charset)
         } else {
@@ -1232,17 +1312,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     private def handleMultiValueParamsIfNeeded(Entry<String, Object> entry) {
         def value = entry.getValue()
         if (value instanceof List) {
-            def key = encode(entry.getKey())
+            def key = encode(entry.getKey(), EncodingTarget.BODY)
             final StringBuilder multiValueList = new StringBuilder();
             value.eachWithIndex { val, index ->
-                multiValueList.append(encode(val.toString()))
+                multiValueList.append(encode(val.toString(), EncodingTarget.BODY))
                 if (index != value.size() - 1) {
                     multiValueList.append("&").append(key).append("=")
                 }
             }
             value = multiValueList.toString()
         } else {
-            value = encode(value)
+            value = encode(value, EncodingTarget.BODY)
         }
         return value
     }
@@ -1498,6 +1578,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         def targetPath = getTargetPath(path)
         if (isFullyQualified(requestPath)) {
             targetUri = ""
+            targetPath = ""
         }
         return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(targetUri, targetPath), requestPath);
     }
@@ -1522,4 +1603,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         return config == null ? ConnectionConfig.connectionConfig() : config.getConnectionConfig();
     }
 
+    private def EncoderConfig encoderConfig() {
+        return config == null ? EncoderConfig.encoderConfig() : config.getEncoderConfig();
+    }
+
+    private enum EncodingTarget {
+        BODY, QUERY
+    }
 }

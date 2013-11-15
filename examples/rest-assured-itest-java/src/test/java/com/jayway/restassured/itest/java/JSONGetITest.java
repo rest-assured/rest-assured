@@ -129,8 +129,11 @@ public class JSONGetITest extends WithJetty {
         expect().body("greeting", equalTo("Greetings John Doe")).when().get("http://localhost:8080/greet?firstName=John&lastName=Doe");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void iaeIsThrownWhenNoParamsSpecifiedAfterGetPath() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Request URI cannot end with ?");
+
         expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?");
     }
 

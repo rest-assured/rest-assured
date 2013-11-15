@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.equalTo;
 public class URLITest extends WithJetty {
 
     @Test
-    public void specifyingFullyQualifiedPathOverridesDefaultValues() throws Exception {
+    public void specifyingFullyQualifiedPathOverridesValues() throws Exception {
         RestAssured.basePath = "/something";
         RestAssured.baseURI = "http://www.google.com";
         RestAssured.port = 80;

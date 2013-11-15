@@ -23,6 +23,11 @@ import org.junit.Test;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.http.ContentType.HTML;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -32,12 +37,7 @@ public class URLEncodingParamITest {
     private static final String APACHE_404 = "http://www.apache.org/question-%3F";
 
     private String searchHeise(String query, String... params) {
-        String html = RestAssured.given()
-                .expect()
-                .statusCode(200)
-                .contentType(ContentType.HTML)
-                .get(HEISE_SEARCH + query, (Object[]) params)
-                .asString();
+        String html = expect().statusCode(200).and().contentType(HTML).get(HEISE_SEARCH + query, (Object[]) params).asString();
 
         // find search term in search input element
         Pattern p = Pattern.compile("<input[^>]+search_q[^>]+value=\"([^\"]*)\"");
@@ -51,7 +51,7 @@ public class URLEncodingParamITest {
         String html = RestAssured.given()
                 .expect()
                 .statusCode(404)
-                .contentType(ContentType.HTML)
+                .contentType(HTML)
                 .get(APACHE_404)
                 .asString();
 
@@ -67,14 +67,14 @@ public class URLEncodingParamITest {
     @Test
     public void testUrlEncodingOnHeise() {
         assertEquals("foo", searchHeise("q=foo"));
-        assertEquals("%3F", searchHeise("q=%3F"));
-        assertEquals("%3F", searchHeise("q={token}", "%3F"));
+        assertThat(searchHeise("q=%3F"), equalTo("%3F"));
+        assertThat(searchHeise("q={token}", "%3F"), equalTo("%3F"));
 
         RestAssured.urlEncodingEnabled = false;
         try {
             assertEquals("foo", searchHeise("q=foo"));
             assertEquals("?", searchHeise("q=%3F"));
-            assertEquals("?", searchHeise("q={token}", "%3F"));
+            assertEquals("%3F", searchHeise("q={token}", "%253F"));
         } finally {
             RestAssured.reset();
         }
@@ -86,6 +86,10 @@ public class URLEncodingParamITest {
 
         RestAssured.urlEncodingEnabled = false;
 
-        assertEquals("?", searchApache());
+        try {
+            assertEquals("?", searchApache());
+        } finally {
+            RestAssured.reset();
+        }
     }
 }
