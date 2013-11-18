@@ -4,6 +4,7 @@ Change log next version
 * Getting cookies as a Map now returns the last value returned instead of the first one if multiple cookies with the same name are sent from the server to comply with the HTTP specification (thanks to DeviKiran Setti for the patch) (issue 257).
 * Fixed an issue with merging session ids when merging request specifications.
 * Fixed an issue with merging baseUri and port when merging request specifications.
+* Added ability to set base uri on the RequestSpecBuilder (issue 252).
 * CookieMatcher initialized cookie version with -1 if value was "0" (thanks to Sergey Podgurskiy for the patch)
 * Fixed stackoverflow in certificate authentication (issue 262) (thanks to douglasdedo for the patch)
 * It's now possible to configure the HTTP Client instance to be used by REST Assured when making requests. Use the HttpClientConfig and specify a http client factory if you want to do this. This makes it possible for some advanced configuration not exposed by the REST Assured API (issue 203).
