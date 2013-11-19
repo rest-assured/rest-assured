@@ -64,6 +64,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     private static final String MULTIPART_FORM_DATA = "multipart/form-data"
     private static final String SLASH = "/"
     private static final String CONTENT_TYPE = "content-type"
+    private static final String DOUBLE_SLASH = "//"
 
     private String baseUri
     private String path = ""
@@ -1017,7 +1018,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
 
     private boolean isFullyQualified(String targetUri) {
-        return targetUri.contains("://")
+        if (StringUtils.isBlank(targetUri)) {
+            return false
+        }
+
+        def indexOfFirstSlash = targetUri.indexOf("/");
+        def indexOfScheme = targetUri.indexOf("://");
+        if (indexOfScheme == -1) {
+            // If we didn't find a single :// in the path then we know that the targetUri is not fully-qualified
+            return false
+        }
+        return indexOfScheme < indexOfFirstSlash
     }
 
     private String extractRequestParamsIfNeeded(Method method, String path) {
@@ -1195,7 +1206,18 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
             def pathParamNameUsageCount = [:].withDefault { 0 }
 
             def pathTemplate = ~/.*\{\w+\}.*/
-            pathWithoutQueryParams = StringUtils.split(pathWithoutQueryParams, "/").inject("") { String acc, String subresource ->
+            // If a path fragment contains double slash we need to replace it with something else to not mess up the path
+
+            def hasPathParameterWithDoubleSlash = StringUtils.indexOf(pathWithoutQueryParams, DOUBLE_SLASH) != -1
+
+            def tempParams;
+            if (hasPathParameterWithDoubleSlash) {
+                tempParams = StringUtils.replace(pathWithoutQueryParams, DOUBLE_SLASH, "RA_double_slash__");
+            } else {
+                tempParams = pathWithoutQueryParams
+            }
+
+            pathWithoutQueryParams = StringUtils.split(tempParams, "/").inject("") { String acc, String subresource ->
                 if (subresource.startsWith("{") && subresource.endsWith("}") && subresource.length() >= 3) { // 3 means "{" and "}" and at least one character
                     if (usesNamedPathParameters) {
                         def pathParamName = subresource.substring(1, subresource.length() - 1)  // Get path parameter name, what's between the "{" and "}"
@@ -1209,7 +1231,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
                     }
                     numberOfUsedPathParameters += 1
                 }
+
                 format("%s/%s", acc, encode(subresource, EncodingTarget.QUERY)).toString()
+            }
+
+            if (hasPathParameterWithDoubleSlash) {
+                // Now get the double slash replacement back to normal double slashes
+                pathWithoutQueryParams = StringUtils.replace(pathWithoutQueryParams, "RA_double_slash__", encode(DOUBLE_SLASH, EncodingTarget.QUERY))
             }
 
             if (queryParams.matches(pathTemplate)) {
@@ -1288,7 +1316,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
 
 
-    private def Object encode(Object string, EncodingTarget encodingType) {
+    private def String encode(Object string, EncodingTarget encodingType) {
         string = string.toString()
         if (urlEncodingEnabled) {
             def charset

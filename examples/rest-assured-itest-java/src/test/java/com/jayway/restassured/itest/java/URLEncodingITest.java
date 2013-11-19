@@ -139,25 +139,39 @@ public class URLEncodingITest extends WithJetty {
     }
 
     @Test
-    public void throwsMalformedUrlExceptionWhenUrlIsMalformedDueToUrlEncodingEnabled() throws Exception {
-        exception.expect(MalformedURLException.class);
-        exception.expectMessage("no protocol: /agents/probeUrl/https://localhost:9888");
-
+    public void urlsWithSchemeIsOkToSendInUrlWithoutBeingUrlEncoded() throws Exception {
         // Given
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
         String agentUrl = "https://localhost:9888";
         RestAssured.urlEncodingEnabled = false;
 
         // When
         try {
             given().
-                   contentType(JSON).
+                    contentType(JSON).
+                    filter(new RequestLoggingFilter(captor)).
+                    filter(new Filter() {
+                          public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                          /*
+                           * Note that Scalatra cannot handle request with path parameters containing "/" (like path/param) even though it's URL encoded.
+                           * Scalatra decodes the path prior to finding the method to invoke and thus we'll get an error back (since no resource mapping to /path/param/manyParams exist).
+                           */
+                              return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                          }
+                    }).
+                    log().all().
             expect().
-                   statusCode(200).
+                    statusCode(200).
+                    body(equalTo("changed")).
             when().
                    get("/agents/probeUrl/" + agentUrl);
         } finally {
             RestAssured.reset();
         }
+
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/agents/probeUrl/https://localhost:9888"));
     }
 
     @Test
