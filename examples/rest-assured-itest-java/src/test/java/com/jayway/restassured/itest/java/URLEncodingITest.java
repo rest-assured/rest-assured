@@ -34,9 +34,12 @@ import org.junit.Test;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.net.URLEncoder;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -133,6 +136,168 @@ public class URLEncodingITest extends WithJetty {
                 post("/{pathParam}/manyParams?queryParam=query/param");
 
         assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/path%2Fparam/manyParams?queryParam=query%2Fparam"));
+    }
+
+    @Test
+    public void throwsMalformedUrlExceptionWhenUrlIsMalformedDueToUrlEncodingEnabled() throws Exception {
+        exception.expect(MalformedURLException.class);
+        exception.expectMessage("no protocol: /agents/probeUrl/https://localhost:9888");
+
+        // Given
+        String agentUrl = "https://localhost:9888";
+        RestAssured.urlEncodingEnabled = false;
+
+        // When
+        try {
+            given().
+                   contentType(JSON).
+            expect().
+                   statusCode(200).
+            when().
+                   get("/agents/probeUrl/" + agentUrl);
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void urlEncodesNamedPathParameters() throws Exception {
+        // Given
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        String agentUrl = "https://localhost:9888";
+        RestAssured.urlEncodingEnabled = true;
+
+        // When
+        try {
+            given().
+                   contentType(JSON).
+                   pathParam("x", agentUrl).
+                   filter(new RequestLoggingFilter(captor)).
+                   filter(new Filter() {
+                         public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                         /*
+                          * Note that Scalatra cannot handle request with path parameters containing "/" (like path/param) even though it's URL encoded.
+                          * Scalatra decodes the path prior to finding the method to invoke and thus we'll get an error back (since no resource mapping to /path/param/manyParams exist).
+                          */
+                             return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                         }
+                   }).
+            expect().
+                   statusCode(200).
+            when().
+                   get("/agents/probeUrl/{x}");
+        } finally {
+            RestAssured.reset();
+        }
+
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/agents/probeUrl/https%3A%2F%2Flocalhost%3A9888"));
+    }
+
+    @Test
+    public void urlEncodesUnnamedPathParameters() throws Exception {
+        // Given
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        String agentUrl = "https://localhost:9888";
+        RestAssured.urlEncodingEnabled = true;
+
+        // When
+        try {
+            given().
+                   contentType(JSON).
+                   filter(new RequestLoggingFilter(captor)).
+                   filter(new Filter() {
+                         public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                         /*
+                          * Note that Scalatra cannot handle request with path parameters containing "/" (like path/param) even though it's URL encoded.
+                          * Scalatra decodes the path prior to finding the method to invoke and thus we'll get an error back (since no resource mapping to /path/param/manyParams exist).
+                          */
+                             return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                         }
+                   }).
+            expect().
+                   statusCode(200).
+            when().
+                   get("/agents/probeUrl/{x}", agentUrl);
+        } finally {
+            RestAssured.reset();
+        }
+
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/agents/probeUrl/https%3A%2F%2Flocalhost%3A9888"));
+    }
+
+    @Test
+    public void doesntUrlEncodePathFragmentsWhenUrlEncodingIsDisabled() throws Exception {
+        // Given
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        String agentUrl = URLEncoder.encode("https://localhost:9888", "UTF-8");
+        RestAssured.urlEncodingEnabled = false;
+        RestAssured.basePath = "/tmc/api";
+
+        // When
+        try {
+            given().
+                   contentType(JSON).
+                    filter(new RequestLoggingFilter(captor)).
+                    filter(new Filter() {
+                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        /*
+                         * Note that Scalatra cannot handle request with path parameters containing "/" (like path/param) even though it's URL encoded.
+                         * Scalatra decodes the path prior to finding the method to invoke and thus we'll get an error back (since no resource mapping to /path/param/manyParams exist).
+                         */
+                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                        }
+                    }).
+            expect().
+                    statusCode(200).
+                    body(equalTo("changed")).
+            when().
+                   get("/agents/probeUrl/" + agentUrl);
+        } finally {
+            RestAssured.reset();
+        }
+
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/tmc/api/agents/probeUrl/https%3A%2F%2Flocalhost%3A9888"));
+    }
+
+    @Test
+    public void urlEncodesPathFragmentsRegardlessIfTheyHaveBeenManuallyEncodedWhenUrlEncodingIsEnabled() throws Exception {
+        // Given
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        String agentUrl = URLEncoder.encode("https://localhost:9888", "UTF-8");
+        RestAssured.urlEncodingEnabled = true;
+
+        // When
+        try {
+            given().
+                   contentType(JSON).
+                    filter(new RequestLoggingFilter(captor)).
+                    filter(new Filter() {
+                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        /*
+                         * Note that Scalatra cannot handle request with path parameters containing "/" (like path/param) even though it's URL encoded.
+                         * Scalatra decodes the path prior to finding the method to invoke and thus we'll get an error back (since no resource mapping to /path/param/manyParams exist).
+                         */
+                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                        }
+                    }).
+            expect().
+                    statusCode(200).
+                    body(equalTo("changed")).
+            when().
+                   get("/agents/probeUrl/" + agentUrl);
+        } finally {
+            RestAssured.reset();
+        }
+
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/agents/probeUrl/https%253A%252F%252Flocalhost%253A9888"));
     }
 
     private String loggedRequestPathIn(StringWriter writer) {
