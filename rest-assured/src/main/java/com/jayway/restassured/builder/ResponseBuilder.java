@@ -50,6 +50,7 @@ public class ResponseBuilder {
             restAssuredResponse.setConnectionManager(raResponse.getConnectionManager());
             restAssuredResponse.setObjectMapperConfig(raResponse.getObjectMapperConfig());
             restAssuredResponse.setConnectionConfig(raResponse.getConnectionConfig());
+            restAssuredResponse.setXmlConfig(raResponse.getXmlConfig());
             restAssuredResponse.setRpr(raResponse.getRpr());
         } else {
             restAssuredResponse.setContent(response.asInputStream());

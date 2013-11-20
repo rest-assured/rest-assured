@@ -18,6 +18,7 @@ package com.jayway.restassured.internal
 import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.config.ConnectionConfig
 import com.jayway.restassured.config.ObjectMapperConfig
+import com.jayway.restassured.config.XmlConfig
 import com.jayway.restassured.internal.http.CharsetExtractor
 import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
@@ -59,6 +60,7 @@ class RestAssuredResponseImpl implements Response {
 
     def ObjectMapperConfig objectMapperConfig
     def ConnectionConfig connectionConfig
+    def XmlConfig xmlConfig
 
     public void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
         parseHeaders(httpResponse)
@@ -125,7 +127,7 @@ class RestAssuredResponseImpl implements Response {
     def toString(Writable node) {
         def writer = new StringWriter()
         writer << new StreamingMarkupBuilder().bind {
-            // mkp.declareNamespace('':node[0].namespaceURI())
+            // mkp.declareNamespace(dc: "http://purl.org/dc/elements/1.1/")
             mkp.yield node
         }
         return writer.toString();

@@ -109,7 +109,7 @@ class ScalatraRestExample extends ScalatraServlet {
       "      \"price\": 19.95,\n" +
       "    }\n" +
       "  }\n" +
-      "}";
+      "}"
   }
 
   get("/shopping") {
@@ -267,6 +267,15 @@ class ScalatraRestExample extends ScalatraServlet {
         <date-modified>2012-09-25T23:52:21.167Z</date-modified>
       </userFavorite>
     </user>
+  }
+
+  get("/package-db-xml") {
+    contentType = "application/xml"
+    <package-database xmlns="http://marklogic.com/manage/package/databases">
+      <metadata xmlns:db="http://marklogic.com/manage/package/databases">
+        <package-version>2.0</package-version>
+      </metadata>
+    </package-database>
   }
 
   put("/greetPut") {

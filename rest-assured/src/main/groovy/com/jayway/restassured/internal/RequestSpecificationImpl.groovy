@@ -814,6 +814,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         restAssuredResponse.setConnectionManager(http.client.connectionManager)
         restAssuredResponse.setObjectMapperConfig(objectMappingConfig())
         restAssuredResponse.setConnectionConfig(connectionConfig())
+        restAssuredResponse.setXmlConfig(xmlConfig())
         responseSpecification.restAssuredResponse = restAssuredResponse
         def responseContentType = assertionClosure.getResponseContentType()
 
@@ -1632,6 +1633,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     private def ConnectionConfig connectionConfig() {
         return config == null ? ConnectionConfig.connectionConfig() : config.getConnectionConfig();
+    }
+
+    private def XmlConfig xmlConfig() {
+        return config == null ? XmlConfig.xmlConfig() : config.getXmlConfig();
     }
 
     private def EncoderConfig encoderConfig() {

@@ -19,6 +19,7 @@
 package com.jayway.restassured.assertion
 
 import com.jayway.restassured.internal.ResponseParserRegistrar
+import com.jayway.restassured.internal.RestAssuredResponseImpl
 import com.jayway.restassured.response.Response
 import org.hamcrest.Matcher
 import org.hamcrest.StringDescription
@@ -40,9 +41,25 @@ class BodyMatcher {
         def errorMessage = "";
 
         content = fallbackToResponseBodyIfContentHasAlreadyBeenRead(response, content)
-        if(key == null) {
-            if(isXPathMatcher()) {
-                Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(response.asByteArray())).getDocumentElement();
+        if (key == null) {
+            if (isXPathMatcher()) {
+                boolean namespaceAware = false
+                def Map<String, Boolean> features = Collections.emptyMap()
+                if (response instanceof RestAssuredResponseImpl) {
+                    def xmlConfig = response.getXmlConfig();
+                    namespaceAware = xmlConfig.isNamespaceAware()
+                    features = xmlConfig.features()
+                }
+
+                def factory = DocumentBuilderFactory.newInstance()
+                factory.setNamespaceAware(namespaceAware)
+                if (!features.isEmpty()) {
+                    features.each { featureName, isEnabled ->
+                        factory.setFeature(featureName, isEnabled)
+                    }
+                }
+
+                Element node = factory.newDocumentBuilder().parse(new ByteArrayInputStream(response.asByteArray())).getDocumentElement();
                 if (!matcher.matches(node)) {
                     success = false
                     errorMessage = String.format("Expected: %s\n  Actual: %s\n", matcher.toString(), content)
@@ -54,13 +71,13 @@ class BodyMatcher {
         } else {
             def assertion = StreamVerifier.newAssertion(response, key, rpr)
             def result = null
-            if(content != null) {
+            if (content != null) {
                 result = assertion.getResult(content)
             }
 
             if (!matcher.matches(result)) {
                 success = false
-                if(result instanceof Object[]) {
+                if (result instanceof Object[]) {
                     result = result.join(",")
                 }
                 errorMessage = String.format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), result)
@@ -70,7 +87,7 @@ class BodyMatcher {
     }
 
     private String removeQuotesIfString(String string) {
-        if(startsWith(string, "\"") && endsWith(string, "\"")) {
+        if (startsWith(string, "\"") && endsWith(string, "\"")) {
             def start = removeStart(string, "\"")
             string = removeEnd(start, "\"")
         }
@@ -78,10 +95,10 @@ class BodyMatcher {
     }
 
     def fallbackToResponseBodyIfContentHasAlreadyBeenRead(Response response, content) {
-        if(content instanceof Reader || content instanceof InputStream) {
+        if (content instanceof Reader || content instanceof InputStream) {
             return response.asString()
         }
-        return  content
+        return content
     }
 
     private boolean isXPathMatcher() {
@@ -99,8 +116,8 @@ class BodyMatcher {
     }
 
     def String getDescription() {
-        String description = ""
-        if(key) {
+        String description
+        if (key) {
             description = "Body containing expression \"$key\" must match $matcher"
         } else {
             description = "Body must match $matcher"

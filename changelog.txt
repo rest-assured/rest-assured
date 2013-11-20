@@ -45,6 +45,15 @@ Change log next version
 * Fixed issues that made an incorrect port being used under certain conditions (issue 217).
 * Fixed so that Hamcrest's hasXPath() and not() can be combined (issue 215).
 * Fixed a bug in XmlPathConfig when setting charset.
+* It's now possible to use the Hamcrest XPath matcher with namespaces if XmlConfig in REST Assured is configured to be namespace aware, e.g.
+      given().
+              config(newConfig().xmlConfig(xmlConfig().with().namespaceAware(true))).
+      expect().
+              body(hasXPath("/db:package-database", namespaceContext)).
+      when().
+              get("/package-db-xml");
+  (issue 39)
+* Added possibility to add features to the javax.xml.parsers.DocumentBuilderFactory instance used by REST Assured when parsing XML for XPath validation. Use the XmlConfig to add achieve this.
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------
