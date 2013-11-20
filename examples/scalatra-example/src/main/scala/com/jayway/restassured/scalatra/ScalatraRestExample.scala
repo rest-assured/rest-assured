@@ -257,6 +257,18 @@ class ScalatraRestExample extends ScalatraServlet {
     "ERROR"
   }
 
+  get("/user-favorite-xml") {
+    contentType = "application/xml"
+    <user user-id="24985">
+      <date-created>2008-11-17T08:00:00Z</date-created>
+      <date-modified>2012-09-27T02:29:43.883Z</date-modified>
+      <userFavorite application-id="1" favorite-id="28" userData="someData" sequence-number="1">
+        <date-created>2011-01-20T19:59:47.887Z</date-created>
+        <date-modified>2012-09-25T23:52:21.167Z</date-modified>
+      </userFavorite>
+    </user>
+  }
+
   put("/greetPut") {
     // For some reason Scalatra doesn't seem to handle form parameters in PUT requests
     if(request.getParameterNames.exists { _ == "firstName" }) {

@@ -21,6 +21,7 @@ package com.jayway.restassured.assertion
 import com.jayway.restassured.internal.ResponseParserRegistrar
 import com.jayway.restassured.response.Response
 import org.hamcrest.Matcher
+import org.hamcrest.StringDescription
 import org.hamcrest.xml.HasXPath
 import org.w3c.dom.Element
 
@@ -29,6 +30,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 import static org.apache.commons.lang3.StringUtils.*
 
 class BodyMatcher {
+    private static final String XPATH = "XPath"
     def key
     def Matcher matcher
     def ResponseParserRegistrar rpr
@@ -83,7 +85,13 @@ class BodyMatcher {
     }
 
     private boolean isXPathMatcher() {
-        matcher instanceof HasXPath
+        def isNestedMatcherContainingXPathMatcher = {
+            def description = new StringDescription()
+            matcher.describeTo(description)
+            description.toString().contains(XPATH)
+        }
+
+        matcher instanceof HasXPath || isNestedMatcherContainingXPathMatcher()
     }
 
     def boolean requiresTextParsing() {
