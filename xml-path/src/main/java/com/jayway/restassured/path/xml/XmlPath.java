@@ -119,7 +119,7 @@ public class XmlPath {
     public static XmlPathConfig config = null;
 
     private final CompatibilityMode mode;
-    private LazyJsonParser lazyJsonParser;
+    private LazyXmlParser lazyXmlParser;
     private XmlPathConfig xmlPathConfig = null;
 
     private String rootPath = "";
@@ -188,7 +188,7 @@ public class XmlPath {
     public XmlPath(CompatibilityMode mode, String text) {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
-        lazyJsonParser = parseText(text);
+        lazyXmlParser = parseText(text);
     }
 
     /**
@@ -200,7 +200,7 @@ public class XmlPath {
     public XmlPath(CompatibilityMode mode, InputStream stream) {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
-        lazyJsonParser = parseInputStream(stream);
+        lazyXmlParser = parseInputStream(stream);
     }
 
     /**
@@ -212,7 +212,7 @@ public class XmlPath {
     public XmlPath(CompatibilityMode mode, InputSource source) {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
-        lazyJsonParser = parseInputSource(source);
+        lazyXmlParser = parseInputSource(source);
     }
 
     /**
@@ -224,7 +224,7 @@ public class XmlPath {
     public XmlPath(CompatibilityMode mode, File file) {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
-        lazyJsonParser = parseFile(file);
+        lazyXmlParser = parseFile(file);
     }
 
     /**
@@ -236,7 +236,7 @@ public class XmlPath {
     public XmlPath(CompatibilityMode mode, Reader reader) {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
-        lazyJsonParser = parseReader(reader);
+        lazyXmlParser = parseReader(reader);
     }
 
     /**
@@ -248,7 +248,7 @@ public class XmlPath {
     public XmlPath(CompatibilityMode mode, URI uri) {
         Validate.notNull(mode, "Compatibility mode cannot be null");
         this.mode = mode;
-        lazyJsonParser = parseURI(uri);
+        lazyXmlParser = parseURI(uri);
     }
 
     /**
@@ -274,7 +274,7 @@ public class XmlPath {
     private XmlPath(XmlPath xmlPath, XmlPathConfig config) {
         this.xmlPathConfig = config;
         this.mode = xmlPath.mode;
-        this.lazyJsonParser = xmlPath.lazyJsonParser.changeCompatibilityMode(mode).changeConfig(config);
+        this.lazyXmlParser = xmlPath.lazyXmlParser.changeCompatibilityMode(mode).changeConfig(config);
     }
 
     /**
@@ -404,7 +404,7 @@ public class XmlPath {
     }
 
     private <T> T getFromPath(String path, boolean convertToJavaObject) {
-        final GPathResult input = lazyJsonParser.invoke();
+        final GPathResult input = lazyXmlParser.invoke();
         final XMLAssertion xmlAssertion = new XMLAssertion();
         final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
         xmlAssertion.setKey(root + path);
@@ -558,7 +558,7 @@ public class XmlPath {
      * @return The XML as a prettified String.
      */
     public String prettify() {
-        return XmlPrettifier.prettify(lazyJsonParser.invoke());
+        return XmlPrettifier.prettify(lazyXmlParser.invoke());
     }
 
     /**
@@ -729,8 +729,8 @@ public class XmlPath {
         return new XmlPath(uri);
     }
 
-    private LazyJsonParser parseText(final String text) {
-        return new LazyJsonParser(getXmlPathConfig(), mode) {
+    private LazyXmlParser parseText(final String text) {
+        return new LazyXmlParser(getXmlPathConfig(), mode) {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parseText(text);
             }
@@ -806,40 +806,40 @@ public class XmlPath {
         return ObjectConverter.convertObjectTo(object, explicitType);
     }
 
-    private LazyJsonParser parseInputStream(final InputStream stream) {
-        return new LazyJsonParser(getXmlPathConfig(), mode) {
+    private LazyXmlParser parseInputStream(final InputStream stream) {
+        return new LazyXmlParser(getXmlPathConfig(), mode) {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(stream);
             }
         };
     }
 
-    private LazyJsonParser parseReader(final Reader reader) {
-        return new LazyJsonParser(getXmlPathConfig(), mode) {
+    private LazyXmlParser parseReader(final Reader reader) {
+        return new LazyXmlParser(getXmlPathConfig(), mode) {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(reader);
             }
         };
     }
 
-    private LazyJsonParser parseFile(final File file) {
-        return new LazyJsonParser(getXmlPathConfig(), mode) {
+    private LazyXmlParser parseFile(final File file) {
+        return new LazyXmlParser(getXmlPathConfig(), mode) {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(file);
             }
         };
     }
 
-    private LazyJsonParser parseURI(final URI uri) {
-        return new LazyJsonParser(getXmlPathConfig(), mode) {
+    private LazyXmlParser parseURI(final URI uri) {
+        return new LazyXmlParser(getXmlPathConfig(), mode) {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(uri.toString());
             }
         };
     }
 
-    private LazyJsonParser parseInputSource(final InputSource source) {
-        return new LazyJsonParser(getXmlPathConfig(), mode) {
+    private LazyXmlParser parseInputSource(final InputSource source) {
+        return new LazyXmlParser(getXmlPathConfig(), mode) {
             protected GPathResult method(XmlSlurper slurper) throws Exception {
                 return slurper.parse(source);
             }
@@ -858,23 +858,23 @@ public class XmlPath {
         return cfg;
     }
 
-    private static abstract class LazyJsonParser {
+    private static abstract class LazyXmlParser {
         protected abstract GPathResult method(XmlSlurper slurper) throws Exception;
 
         private volatile XmlPathConfig config;
         private volatile CompatibilityMode compatibilityMode;
 
-        protected LazyJsonParser(XmlPathConfig config, CompatibilityMode compatibilityMode) {
+        protected LazyXmlParser(XmlPathConfig config, CompatibilityMode compatibilityMode) {
             this.config = config;
             this.compatibilityMode = compatibilityMode;
         }
 
-        public LazyJsonParser changeCompatibilityMode(CompatibilityMode mode) {
+        public LazyXmlParser changeCompatibilityMode(CompatibilityMode mode) {
             this.compatibilityMode = mode;
             return this;
         }
 
-        public LazyJsonParser changeConfig(XmlPathConfig config) {
+        public LazyXmlParser changeConfig(XmlPathConfig config) {
             this.config = config;
             return this;
         }
