@@ -17,7 +17,10 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.config.LogConfig;
+import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.filter.log.ResponseLoggingFilter;
@@ -26,6 +29,9 @@ import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.objects.ScalatraObject;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.FilterableRequestSpecification;
+import com.jayway.restassured.specification.FilterableResponseSpecification;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.After;
 import org.junit.Before;
@@ -815,7 +821,14 @@ public class LoggingITest extends WithJetty {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
-        given().config(config().logConfig(new LogConfig(captor, true))).log().all().get("http://www.beijingchina.net.cn/transportation/train/train-to-shanghai.html");
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+                log().all().
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                    }
+                }).get("http://www.beijingchina.net.cn/transportation/train/train-to-shanghai.html");
 
         assertThat(writer.toString(), startsWith("Request method:\tGET\nRequest path:\thttp://www.beijingchina.net.cn/transportation/train/train-to-shanghai.html"));
     }
