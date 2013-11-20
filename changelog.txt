@@ -44,6 +44,7 @@ Change log next version
 * URL encoding (and disabling of URL encoding) has been completely re-written and will now work better (issue 181).
 * Fixed issues that made an incorrect port being used under certain conditions (issue 217).
 * Fixed so that Hamcrest's hasXPath() and not() can be combined (issue 215).
+* Fixed a bug in XmlPathConfig when setting charset.
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------

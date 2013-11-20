@@ -144,7 +144,7 @@ public class XmlPathConfig {
      * @return A new XmlPathConfig instance with that assumes the supplied charset when parsing XML documents.
      */
     public XmlPathConfig charset(String charset) {
-        return new XmlPathConfig();
+        return new XmlPathConfig(jaxbObjectMapperFactory, defaultParserType, defaultDeserializer, charset, features);
     }
 
     public XmlParserType defaultParserType() {
