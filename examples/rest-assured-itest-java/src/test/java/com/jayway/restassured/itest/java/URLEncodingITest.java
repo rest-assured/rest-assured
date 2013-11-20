@@ -40,6 +40,7 @@ import java.net.URLEncoder;
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
+import static com.jayway.restassured.itest.java.support.RequestPathFromLogExtractor.loggedRequestPathIn;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -224,13 +225,13 @@ public class URLEncodingITest extends WithJetty {
                    contentType(JSON).
                    filter(new RequestLoggingFilter(captor)).
                    filter(new Filter() {
-                         public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                       public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
                          /*
                           * Note that Scalatra cannot handle request with path parameters containing "/" (like path/param) even though it's URL encoded.
                           * Scalatra decodes the path prior to finding the method to invoke and thus we'll get an error back (since no resource mapping to /path/param/manyParams exist).
                           */
-                             return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                         }
+                           return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                       }
                    }).
             expect().
                    statusCode(200).
@@ -312,9 +313,5 @@ public class URLEncodingITest extends WithJetty {
         }
 
         assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/agents/probeUrl/https%253A%252F%252Flocalhost%253A9888"));
-    }
-
-    private String loggedRequestPathIn(StringWriter writer) {
-        return StringUtils.substringBetween(writer.toString(), "Request path:", "\n").trim();
     }
 }

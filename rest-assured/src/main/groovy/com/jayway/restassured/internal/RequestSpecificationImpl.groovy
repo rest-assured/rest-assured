@@ -65,6 +65,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     private static final String SLASH = "/"
     private static final String CONTENT_TYPE = "content-type"
     private static final String DOUBLE_SLASH = "//"
+    private static final String LOCALHOST = "localhost"
 
     private String baseUri
     private String path = ""
@@ -1086,36 +1087,38 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         def pathHasScheme = isFullyQualified(path)
         if (pathHasScheme) {
             def url = new URL(path)
-            uri = getTargetUriFromUrl(url)
+            uri = getTargetUriFromUrl(url, PathType.EXPLICIT)
         } else if (isFullyQualified(baseUri)) {
             def baseUriAsUrl = new URL(baseUri)
-            uri = getTargetUriFromUrl(baseUriAsUrl)
+            uri = getTargetUriFromUrl(baseUriAsUrl, PathType.BASE_URI)
         } else {
             uri = "$baseUri:$port"
         }
         return uri
     }
 
-    private String getTargetUriFromUrl(URL url) {
+    private String getTargetUriFromUrl(URL url, PathType pathType) {
         def builder = new StringBuilder();
         def protocol = url.getProtocol()
         def boolean useDefaultHttps = false
         if (port == DEFAULT_HTTP_TEST_PORT && protocol.equalsIgnoreCase("https")) {
             useDefaultHttps = true
         }
+
         builder.append(protocol)
         builder.append("://")
         builder.append(url.getAuthority())
-        if (!hasPortDefined(url) && !(port == DEFAULT_HTTP_PORT || hasPath(url)) && !useDefaultHttps) {
+
+        if (!hasPortDefined(url) && !useDefaultHttps && ((port != DEFAULT_HTTP_PORT && port != DEFAULT_HTTP_TEST_PORT)
+                || pathType == PathType.BASE_URI || hasAuthorityEqualToLocalhost(url))) {
             builder.append(":")
             builder.append(port)
         }
         return builder.toString()
     }
 
-    private def boolean hasPath(uri) {
-        def path = uri.getPath().trim()
-        path != "";
+    private def boolean hasAuthorityEqualToLocalhost(uri) {
+        uri.getAuthority().trim().equalsIgnoreCase(LOCALHOST)
     }
 
     private def boolean hasPortDefined(uri) {
@@ -1637,5 +1640,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     private enum EncodingTarget {
         BODY, QUERY
+    }
+
+    /**
+     * Specifies if the path was specified in the base uri or as an explicit path (for example get("http://www.google-com"))
+     */
+    private enum PathType {
+        BASE_URI, EXPLICIT
     }
 }
