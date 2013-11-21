@@ -34,7 +34,7 @@ class ContentParser {
         } else {
             switch (parser) {
                 case JSON:
-                    content = new ConfigurableJsonSlurper(config.getJsonPathConfig().shouldRepresentJsonNumbersAsBigDecimal()).
+                    content = new ConfigurableJsonSlurper(config.getJsonConfig().shouldRepresentJsonNumbersAsBigDecimal()).
                             parse(new InputStreamReader(new BufferedInputStream(bodyAsInputStream)))
                     break;
                 case XML:

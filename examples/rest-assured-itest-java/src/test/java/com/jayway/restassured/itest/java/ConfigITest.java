@@ -25,10 +25,10 @@ import java.math.BigDecimal;
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
+import static com.jayway.restassured.config.JsonConfig.jsonConfig;
 import static com.jayway.restassured.config.RedirectConfig.redirectConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.BIG_DECIMAL;
-import static com.jayway.restassured.path.json.config.JsonPathConfig.jsonPathConfig;
 import static org.hamcrest.Matchers.is;
 
 public class ConfigITest extends WithJetty {
@@ -57,9 +57,9 @@ public class ConfigITest extends WithJetty {
     }
 
     @Test
-    public void supportsConfiguringJsonPathProperties() throws Exception {
+    public void supportsConfiguringJsonConfigProperties() throws Exception {
         given().
-                config(newConfig().jsonPathConfig(jsonPathConfig().numberReturnType(BIG_DECIMAL))).
+                config(newConfig().jsonConfig(jsonConfig().numberReturnType(BIG_DECIMAL))).
         expect().
                 root("store.book").
                 body("price.min()", is(new BigDecimal("8.95"))).
@@ -69,8 +69,8 @@ public class ConfigITest extends WithJetty {
     }
 
     @Test
-    public void supportsConfiguringJsonPathStatically() throws Exception {
-        RestAssured.config = newConfig().jsonPathConfig(jsonPathConfig().numberReturnType(BIG_DECIMAL));
+    public void supportsConfiguringJsonConfigStatically() throws Exception {
+        RestAssured.config = newConfig().jsonConfig(jsonConfig().numberReturnType(BIG_DECIMAL));
 
         try {
         expect().
