@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -272,5 +273,26 @@ public class PathParamITest extends WithJetty {
                 body("fullName", equalTo("John John")).
         when().
                 get("/{firstName}/{firstName}");
+    }
+
+    @Test
+    public void unnamedQueryParametersWorks() throws Exception {
+        expect().statusCode(200).when().get("http://www.google.se/search?q={query}&hl=en", "query");
+    }
+
+    @Test
+    public void throwsIllegalArgumentExceptionWhenTooManyPathParametersAreUsed() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Illegal number of path parameters. Expected 1, was 2.");
+
+        expect().statusCode(200).when().get("http://www.google.se/search?q={query}&hl=en", "query", "ikk");
+    }
+
+    @Test
+    public void throwsIllegalArgumentExceptionWhenTooFewPathParametersAreUsed() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Illegal number of path parameters. Expected 1, was 0.");
+
+        expect().statusCode(200).when().get("http://www.google.se/search?q={query}&hl=en");
     }
 }

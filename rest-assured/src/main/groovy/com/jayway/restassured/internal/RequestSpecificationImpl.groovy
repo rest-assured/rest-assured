@@ -1246,7 +1246,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
             }
 
             if (queryParams.matches(pathTemplate)) {
-                def hasAnyTemplateLeft = ~/.*\{\w+\.*}/
+                def hasAnyTemplateLeft = ~/.*\{\w+\}.*/
                 def replacePattern = ~/\{\w+\}/
                 def definedParams
                 if (usesNamedPathParameters) {
@@ -1255,10 +1255,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
                     definedParams = unnamedPathParams
                 }
 
+                def originalQueryParams = queryParams
                 definedParams.each { pathParamName ->
                     def subresource
                     if (!queryParams.matches(hasAnyTemplateLeft)) {
-                        throw new IllegalArgumentException("Illegal number of path parameters. Expected $current, was $unnamedPathParamSize.")
+                        def expected = hasAnyTemplateLeft.matcher(originalQueryParams).getCount();
+                        throw new IllegalArgumentException("Illegal number of path parameters. Expected $expected, was $unnamedPathParamSize.")
                     }
                     if (usesNamedPathParameters) {
                         def pathParamValue = findNamedPathParamValue(pathParamName, pathParamNameUsageCount)
@@ -1269,6 +1271,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
                     // Note that we do NOT url encode query params here, that happens by UriBuilder at a later stage.
                     queryParams = queryParams.replaceFirst(replacePattern, Matcher.quoteReplacement(subresource.toString()))
                     numberOfUsedPathParameters += 1;
+                }
+
+                if (queryParams.matches(hasAnyTemplateLeft)) {
+                    def expected = hasAnyTemplateLeft.matcher(originalQueryParams).getCount();
+                    throw new IllegalArgumentException("Illegal number of path parameters. Expected $expected, was $unnamedPathParamSize.")
                 }
             }
 
