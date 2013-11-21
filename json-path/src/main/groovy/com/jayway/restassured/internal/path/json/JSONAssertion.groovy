@@ -25,7 +25,7 @@ import static com.jayway.restassured.internal.assertion.AssertionSupport.*
 class JSONAssertion implements Assertion {
   String key;
 
-  def Object getResult(Object object) {
+  def Object getResult(object, config) {
     Object result = getAsJsonObject(object)
     return result;
   }

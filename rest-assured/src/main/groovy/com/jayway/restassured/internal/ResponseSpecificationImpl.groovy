@@ -418,13 +418,14 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                 validations.addAll(validateHeadersAndCookies(response))
                 validations.addAll(validateContentType(response))
                 if (hasBodyAssertionsDefined()) {
+                    RestAssuredConfig cfg = config ?: new RestAssuredConfig()
                     def content
                     if (requiresTextParsing()) {
                         content = response.asString()
                     } else {
-                        content = new ContentParser().parse(response, rpr, config)
+                        content = new ContentParser().parse(response, rpr, cfg)
                     }
-                    validations.addAll(bodyMatchers.validate(response, content))
+                    validations.addAll(bodyMatchers.validate(response, content, cfg))
                 }
 
                 def errors = validations.findAll { !it.success }

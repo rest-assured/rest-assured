@@ -180,7 +180,7 @@ public class JsonPath {
     public <T> T get(String path) {
         final JSONAssertion jsonAssertion = createJsonAssertion(path);
         final Object json = jsonParser.parseWith(createConfigurableJsonSlurper());
-        return (T) jsonAssertion.getResult(json);
+        return (T) jsonAssertion.getResult(json, null);
     }
 
     /**

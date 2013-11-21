@@ -20,8 +20,8 @@ package com.jayway.restassured.internal.assertion
 
 public interface Assertion {
 
-  Object getResult(Object object);
+    Object getResult(object, config);
 
-  String description();
+    String description();
 
 }

@@ -30,16 +30,16 @@ class AssertionSupport {
 
     def static escapePath(key, Closure... closuresToEscape) {
         def pathFragments = key.split("(?<=\\')")
-        for(int i = 0; i < pathFragments.length; i++) {
+        for (int i = 0; i < pathFragments.length; i++) {
             String pathFragment = pathFragments[i]
-            if(!pathFragment?.endsWith("'") || pathFragment?.contains("**")) {
+            if (!pathFragment?.endsWith("'") || pathFragment?.contains("**")) {
                 def startedWithDot = pathFragment.startsWith(".")
                 def dotFragments = pathFragment.split("\\.")
                 for (int k = 0; k < dotFragments.length; k++) {
                     String dotFragment = dotFragments[k]
-                    for(int j = 0; j < closuresToEscape.length; j++) {
-                        if(closuresToEscape[j](dotFragment)) {
-                            dotFragments[k] = "'"+dotFragments[k].trim()+"'"
+                    for (int j = 0; j < closuresToEscape.length; j++) {
+                        if (closuresToEscape[j](dotFragment)) {
+                            dotFragments[k] = "'" + dotFragments[k].trim() + "'"
                             break;
                         }
                     }
@@ -75,6 +75,12 @@ class AssertionSupport {
         }
     }
 
+    def static colon() {
+        return { pathFragment ->
+            !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains(':') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexFragment])
+        }
+    }
+
     def static integer() {
         return { pathFragment ->
             NumberUtils.isDigits(pathFragment) && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, space, listGetterFragment, listIndexFragment])
@@ -82,16 +88,15 @@ class AssertionSupport {
     }
 
     def static String generateWhitespace(int number) {
-        if(number < 1) {
+        if (number < 1) {
             ""
         }
         StringBuilder builder = new StringBuilder();
-        for(int i = 0; i<number; i++) {
+        for (int i = 0; i < number; i++) {
             builder.append(' ');
         }
         return builder.toString();
     }
-
 
     /**
      * Copied from Apache commons lang (String utils)

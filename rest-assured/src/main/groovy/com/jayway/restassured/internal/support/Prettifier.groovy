@@ -58,7 +58,7 @@ class Prettifier {
                     prettifiedBody = JsonPrettifier.prettifyJson(body)
                     break
                 case Parser.XML:
-                    prettifiedBody = XmlPrettifier.prettify(new XmlParser(), body)
+                    prettifiedBody = XmlPrettifier.prettify(new XmlParser(false, false), body)
                     break
                 case Parser.HTML:
                     prettifiedBody = XmlPrettifier.prettify(new XmlParser(new org.ccil.cowan.tagsoup.Parser()), body)

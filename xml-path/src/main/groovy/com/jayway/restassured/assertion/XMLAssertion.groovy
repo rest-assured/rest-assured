@@ -44,7 +44,7 @@ class XMLAssertion implements Assertion {
         if (rootEvaluation) {
             key = key?.startsWith(DOT) ? key.substring(1) : key
         }
-        key = escapePath(key, minus(), attributeGetter(), doubleStar())
+        key = escapePath(key, minus(), attributeGetter(), doubleStar(), colon())
         def indexOfDot = key.indexOf(".")
         def baseString
         def evaluationString
@@ -100,8 +100,9 @@ class XMLAssertion implements Assertion {
         return preventTreatingRootObjectAsAList(convertedObject)
     }
 
-    def Object getResult(Object object) {
-        return getResult(object, true, true)
+    def Object getResult(object, config) {
+        boolean isRoot = config.getXmlConfig()?.declaredNamespaces()?.isEmpty() // Be root if no namespaces are declared
+        return getResult(object, true, isRoot)
     }
 
     def Object getChildResultAsJavaObject(Object object) {

@@ -393,7 +393,7 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/textHTML-not-formatted");
 
-        assertThat(writer.toString(), equalTo("<html xmlns=\"http://www.w3.org/1999/xhtml\">\n  <head>\n    <title>\n      my title\n    </title>\n  </head>\n  <body>\n    <p>\n      paragraph 1\n    </p>\n    <p>\n      paragraph 2\n    </p>\n  </body>\n</html>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("<html>\n  <head>\n    <title>\n      my title\n    </title>\n  </head>\n  <body>\n    <p>\n      paragraph 1\n    </p>\n    <p>\n      paragraph 2\n    </p>\n  </body>\n</html>" + LINE_SEPARATOR));
     }
 
     @Test
@@ -831,5 +831,20 @@ public class LoggingITest extends WithJetty {
                 }).get("http://www.beijingchina.net.cn/transportation/train/train-to-shanghai.html");
 
         assertThat(writer.toString(), startsWith("Request method:\tGET\nRequest path:\thttp://www.beijingchina.net.cn/transportation/train/train-to-shanghai.html"));
+    }
+
+    @Test
+    public void logsXmlNamespacesCorrectly() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                filter(logResponseTo(captor)).
+        expect().
+                statusCode(200).
+        when().
+                get("/namespace-example");
+
+        assertThat(writer.toString(), containsString("foo xmlns:ns=\"http://localhost/\">\n      <bar>sudo </bar>\n      <ns:bar>make me a sandwich!</ns:bar>\n    </foo>"));
     }
 }

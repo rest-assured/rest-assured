@@ -16,9 +16,11 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.config.RestAssuredConfig
+import com.jayway.restassured.config.XmlConfig
 import com.jayway.restassured.internal.path.json.ConfigurableJsonSlurper
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
+import groovy.util.slurpersupport.GPathResult
 
 import static com.jayway.restassured.parsing.Parser.*
 
@@ -36,10 +38,14 @@ class ContentParser {
                             parse(new InputStreamReader(new BufferedInputStream(bodyAsInputStream)))
                     break;
                 case XML:
-                    content = new XmlSlurper().parse(bodyAsInputStream)
+                    def xmlConfig = config.getXmlConfig()
+                    def slurper = configureXmlSlurper(new XmlSlurper(), xmlConfig)
+                    content = declareNamespacesIfNeeded(slurper.parse(bodyAsInputStream), xmlConfig)
                     break
                 case HTML:
-                    content = new XmlSlurper(new org.ccil.cowan.tagsoup.Parser()).parse(bodyAsInputStream);
+                    def xmlConfig = config.getXmlConfig()
+                    def slurper = configureXmlSlurper(new XmlSlurper(new org.ccil.cowan.tagsoup.Parser()), xmlConfig)
+                    content = declareNamespacesIfNeeded(slurper.parse(bodyAsInputStream), xmlConfig)
                     break
                 case TEXT:
                 default:
@@ -47,5 +53,22 @@ class ContentParser {
             }
         }
         content
+    }
+
+    def private static GPathResult declareNamespacesIfNeeded(GPathResult gPathResult, XmlConfig xmlConfig) {
+        if (xmlConfig.isNamespaceAware()) {
+            gPathResult.declareNamespace(xmlConfig.declaredNamespaces())
+        }
+        gPathResult
+    }
+
+    def private static XmlSlurper configureXmlSlurper(XmlSlurper xmlSlurper, XmlConfig xmlConfig) {
+        def features = xmlConfig.features();
+
+        features.each { name, isEnabled ->
+            xmlSlurper.setFeature(name, isEnabled)
+        }
+
+        xmlSlurper
     }
 }

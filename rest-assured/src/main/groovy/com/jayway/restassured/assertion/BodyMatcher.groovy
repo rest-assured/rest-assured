@@ -18,8 +18,8 @@
 
 package com.jayway.restassured.assertion
 
+import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.internal.ResponseParserRegistrar
-import com.jayway.restassured.internal.RestAssuredResponseImpl
 import com.jayway.restassured.response.Response
 import org.hamcrest.Matcher
 import org.hamcrest.StringDescription
@@ -36,20 +36,16 @@ class BodyMatcher {
     def Matcher matcher
     def ResponseParserRegistrar rpr
 
-    def validate(Response response, content) {
+    def validate(Response response, content, RestAssuredConfig config) {
         def success = true
         def errorMessage = "";
 
         content = fallbackToResponseBodyIfContentHasAlreadyBeenRead(response, content)
         if (key == null) {
             if (isXPathMatcher()) {
-                boolean namespaceAware = false
-                def Map<String, Boolean> features = Collections.emptyMap()
-                if (response instanceof RestAssuredResponseImpl) {
-                    def xmlConfig = response.getXmlConfig();
-                    namespaceAware = xmlConfig.isNamespaceAware()
-                    features = xmlConfig.features()
-                }
+                def xmlConfig = config.getXmlConfig();
+                boolean namespaceAware = xmlConfig.isNamespaceAware()
+                def Map<String, Boolean> features = xmlConfig.features()
 
                 def factory = DocumentBuilderFactory.newInstance()
                 factory.setNamespaceAware(namespaceAware)
@@ -72,7 +68,7 @@ class BodyMatcher {
             def assertion = StreamVerifier.newAssertion(response, key, rpr)
             def result = null
             if (content != null) {
-                result = assertion.getResult(content)
+                result = assertion.getResult(content, config)
             }
 
             if (!matcher.matches(result)) {

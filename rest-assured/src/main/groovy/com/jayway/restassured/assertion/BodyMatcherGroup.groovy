@@ -18,6 +18,7 @@
 
 package com.jayway.restassured.assertion
 
+import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.response.Response
 
 class BodyMatcherGroup {
@@ -38,8 +39,8 @@ class BodyMatcherGroup {
         bodyAssertions.size()
     }
 
-    def List validate(Response response, content) {
-        bodyAssertions.collect { it.validate(response, content) }
+    def List validate(Response response, content, RestAssuredConfig config) {
+        bodyAssertions.collect { it.validate(response, content, config) }
     }
 
     public boolean containsMatchers() {

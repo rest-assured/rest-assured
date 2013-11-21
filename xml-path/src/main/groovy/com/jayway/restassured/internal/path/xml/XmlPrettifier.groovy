@@ -3,13 +3,15 @@ package com.jayway.restassured.internal.path.xml
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.XmlUtil
 
-
 class XmlPrettifier {
 
     static def String prettify(XmlParser xmlParser, xml) {
         doPrettify { StringWriter stringWriter ->
-            def node = xmlParser.parseText(xml);
-            new XmlNodePrinter(new PrintWriter(stringWriter)).print(node)
+            def Node node = xmlParser.parseText(xml);
+            def printer = new XmlNodePrinter(new PrintWriter(stringWriter))
+            printer.setNamespaceAware(xmlParser.isNamespaceAware())
+            printer.setPreserveWhitespace(!xmlParser.isTrimWhitespace())
+            printer.print(node)
         }
     }
 

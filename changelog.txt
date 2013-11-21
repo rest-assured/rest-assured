@@ -54,6 +54,22 @@ Change log next version
               get("/package-db-xml");
   (issue 39)
 * Added possibility to add features to the javax.xml.parsers.DocumentBuilderFactory instance used by REST Assured when parsing XML for XPath validation. Use the XmlConfig to add achieve this.
+* Namespaces are now included when pretty printing or logging XML.
+* Added namespace support for body expectations if the namespace is declared correctly, for example given the following XML:
+      <foo xmlns:ns="http://localhost/">
+         <bar>sudo </bar>
+         <ns:bar>make me a sandwich!</ns:bar>
+      </foo>
+  you can verify it like this:
+      given().
+              config(newConfig().xmlConfig(xmlConfig().declaredNamespace("ns", "http://localhost/"))).
+      expect().
+              body("bar.text()", equalTo("sudo make me a sandwich!")).
+              body(":bar.text()", equalTo("sudo ")).
+              body("ns:bar.text()", equalTo("make me a sandwich!")).
+      when().
+              get("/namespace-example");
+  (issue 39)
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------

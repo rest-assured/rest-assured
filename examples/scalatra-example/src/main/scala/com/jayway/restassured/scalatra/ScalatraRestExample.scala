@@ -278,6 +278,14 @@ class ScalatraRestExample extends ScalatraServlet {
     </package-database>
   }
 
+  get("/namespace-example") {
+    contentType = "application/xml"
+    <foo xmlns:ns="http://localhost/">
+      <bar>sudo </bar>
+      <ns:bar>make me a sandwich!</ns:bar>
+    </foo>
+  }
+
   put("/greetPut") {
     // For some reason Scalatra doesn't seem to handle form parameters in PUT requests
     if(request.getParameterNames.exists { _ == "firstName" }) {
