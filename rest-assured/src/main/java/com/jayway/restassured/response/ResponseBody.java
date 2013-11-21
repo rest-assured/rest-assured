@@ -20,6 +20,7 @@ import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.path.xml.XmlPath;
+import com.jayway.restassured.path.xml.config.XmlPathConfig;
 
 import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode;
 
@@ -55,26 +56,26 @@ public interface ResponseBody extends ResponseBodyData {
     <T> T as(Class<T> cls);
 
     /**
-	 * Get the body and map it to a Java object using a specific object mapper type. It will use the supplied
-	 * mapper regardless of the response content-type.
+     * Get the body and map it to a Java object using a specific object mapper type. It will use the supplied
+     * mapper regardless of the response content-type.
+     *
+     * @return The object
+     */
+    <T> T as(Class<T> cls, ObjectMapperType mapperType);
 
-	 * @return The object
-	 */
-	<T> T as(Class<T> cls, ObjectMapperType mapperType);
-
-	/**
-	 * Get the body and map it to a Java object using a specific object mapper. It will use the supplied
-	 * mapper regardless of the response content-type.
-
-	 * @return The object
-	 */
-	<T> T as(Class<T> cls, ObjectMapper mapper);
+    /**
+     * Get the body and map it to a Java object using a specific object mapper. It will use the supplied
+     * mapper regardless of the response content-type.
+     *
+     * @return The object
+     */
+    <T> T as(Class<T> cls, ObjectMapper mapper);
 
     /**
      * Get a JsonPath view of the response body. This will let you use the JsonPath syntax to get values from the response.
      * Example:
      * <p>
-     *  Assume that the GET request (to <tt>http://localhost:8080/lotto</tt>) returns JSON as:
+     * Assume that the GET request (to <tt>http://localhost:8080/lotto</tt>) returns JSON as:
      * <pre>
      * {
      * "lotto":{
@@ -119,8 +120,20 @@ public interface ResponseBody extends ResponseBodyData {
     XmlPath xmlPath();
 
     /**
+     * Get an XmlPath view of the response body with a given configuration.
+     *
+     * @param config The configuration of the XmlPath
+     * @see #xmlPath()
+     */
+    XmlPath xmlPath(XmlPathConfig config);
+
+    /**
      * Get an XmlPath view of the response body but also pass in a {@link CompatibilityMode}.
      * This is mainly useful if you want to parse HTML documents.
+     *
+     * @param compatibilityMode The compatibility mode to use
+     * @see #htmlPath()
+     * @see #xmlPath()
      */
     XmlPath xmlPath(CompatibilityMode compatibilityMode);
 
@@ -139,7 +152,7 @@ public interface ResponseBody extends ResponseBodyData {
      * If no content-type is defined then REST Assured will try to look at the "default parser" if defined (RestAssured.defaultParser).
      *
      * @param path The json- or xml path
-     * @param <T> The return type
+     * @param <T>  The return type
      * @return The value returned by the path
      * @see #jsonPath()
      * @see #xmlPath()

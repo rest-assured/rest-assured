@@ -31,6 +31,7 @@ import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
 import com.jayway.restassured.path.json.JsonPath
 import com.jayway.restassured.path.xml.XmlPath
 import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
+import com.jayway.restassured.path.xml.config.XmlPathConfig
 import com.jayway.restassured.response.*
 import groovy.xml.StreamingMarkupBuilder
 
@@ -317,6 +318,10 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
         xmlPath(CompatibilityMode.XML)
     }
 
+    XmlPath xmlPath(XmlPathConfig config) {
+        newXmlPath(CompatibilityMode.XML, config)
+    }
+
     XmlPath xmlPath(CompatibilityMode compatibilityMode) {
         notNull(compatibilityMode, "Compatibility mode")
         newXmlPath(compatibilityMode)
@@ -429,10 +434,15 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
     }
 
     private def newXmlPath(CompatibilityMode xml) {
-        new XmlPath(xml, asInputStream()).using(xmlPathConfig().charset(findCharset()).
+        newXmlPath(xml, xmlPathConfig().charset(findCharset()).
                 features(xmlConfig.features()).
                 declareNamespaces(xmlConfig.declaredNamespaces()).
                 jaxbObjectMapperFactory(objectMapperConfig.jaxbObjectMapperFactory()))
+    }
+
+    private def newXmlPath(CompatibilityMode xml, XmlPathConfig config) {
+        notNull(config, "XmlPathConfig")
+        new XmlPath(xml, asInputStream()).using(config)
     }
 
     private def charsetToString(charset) {
