@@ -37,6 +37,7 @@ import groovy.xml.StreamingMarkupBuilder
 import java.nio.charset.Charset
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
+import static com.jayway.restassured.path.xml.config.XmlPathConfig.xmlPathConfig
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
 import static org.apache.commons.lang3.StringUtils.isBlank
 
@@ -123,7 +124,7 @@ class RestAssuredResponseImpl implements Response {
         }
     }
 
-    // TODO: Handle nachmespaces
+    // TODO: Handle namespaces
     def toString(Writable node) {
         def writer = new StringWriter()
         writer << new StreamingMarkupBuilder().bind {
@@ -428,7 +429,10 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
     }
 
     private def newXmlPath(CompatibilityMode xml) {
-        new XmlPath(xml, asInputStream())
+        new XmlPath(xml, asInputStream()).using(xmlPathConfig().charset(findCharset()).
+                features(xmlConfig.features()).
+                declareNamespaces(xmlConfig.declaredNamespaces()).
+                jaxbObjectMapperFactory(objectMapperConfig.jaxbObjectMapperFactory()))
     }
 
     private def charsetToString(charset) {

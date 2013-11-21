@@ -408,7 +408,7 @@ public class XmlPath {
         final XMLAssertion xmlAssertion = new XMLAssertion();
         final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
         xmlAssertion.setKey(root + path);
-        return (T) xmlAssertion.getResult(input, convertToJavaObject, true);
+        return (T) xmlAssertion.getResult(input, convertToJavaObject, !getXmlPathConfig().hasDeclaredNamespaces());
     }
 
     /**
@@ -902,7 +902,11 @@ public class XmlPath {
                     slurper.setFeature(feature.getKey(), feature.getValue());
                 }
 
-                input = method(slurper);
+                final GPathResult result = method(slurper);
+                if (config.hasDeclaredNamespaces()) {
+                    result.declareNamespace(config.declaredNamespaces());
+                }
+                input = result;
                 return input;
             } catch (Exception e) {
                 throw new XmlPathException("Failed to parse the XML document", e);

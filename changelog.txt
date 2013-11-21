@@ -70,6 +70,8 @@ Change log next version
       when().
               get("/namespace-example");
   (issue 39)
+* XmlPath returned from REST Assured Response now takes features, namespaces, charset etc into account.
+* XmlPathConfig supports declaring namespaces which means that XmlPath is now namespace aware if needed.
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------
