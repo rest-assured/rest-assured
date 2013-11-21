@@ -53,7 +53,6 @@ public class URLITest extends WithJetty {
         }
     }
 
-    @Ignore("Find a way to test this (port, because it's 8080, is messing things up)")
     @Test
     public void whenBaseURIEndsWithSlashAndPathBeginsWithSlashThenOneSlashIsRemoved() throws Exception {
         RestAssured.baseURI = "http://localhost/";
