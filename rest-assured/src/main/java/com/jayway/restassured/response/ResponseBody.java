@@ -19,6 +19,7 @@ package com.jayway.restassured.response;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.path.json.JsonPath;
+import com.jayway.restassured.path.json.config.JsonPathConfig;
 import com.jayway.restassured.path.xml.XmlPath;
 import com.jayway.restassured.path.xml.config.XmlPathConfig;
 
@@ -98,6 +99,14 @@ public interface ResponseBody extends ResponseBodyData {
      * </pre>
      */
     JsonPath jsonPath();
+
+    /**
+     * Get a JsonPath view of the response body using the specified configuration.
+     *
+     * @param config The configuration to use
+     * @see #jsonPath()
+     */
+    JsonPath jsonPath(JsonPathConfig config);
 
     /**
      * Get an XmlPath view of the response body. This will let you use the XmlPath syntax to get values from the response.

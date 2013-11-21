@@ -75,6 +75,9 @@ Change log next version
 * Added ability to supply an XmlPathConfig instance when using the xmlPath() method from a REST Assured Response object. For example :
       XmlPath xmlPath = get("/namespace-example").xmlPath(xmlPathConfig().with().declaredNamespace("ns", "http://localhost/"));
 * Non-backward compatible change: RestAssuredConfig no longer accepts a JsonPathConfig, it now uses a JsonConfig object instead.
+* Added ability to supply a JsonPathConfig instance when using the jsonPath() method from a REST Assured Response object. For example :
+      JsonPath jsonPath = get("/namespace-example").jsonPath(jsonPathConfig().with().numberReturnType(BIG_DECIMAL));
+
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------

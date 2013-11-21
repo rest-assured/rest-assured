@@ -19,6 +19,7 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.parsing.Parser;
+import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.io.IOUtils;
@@ -28,11 +29,16 @@ import org.junit.rules.ExpectedException;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.math.BigDecimal;
 
 import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.config.JsonConfig.jsonConfig;
+import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
+import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.BIG_DECIMAL;
+import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE;
+import static com.jayway.restassured.path.json.config.JsonPathConfig.jsonPathConfig;
 import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.HTML;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 public class ResponseITest extends WithJetty {
@@ -229,5 +235,38 @@ public class ResponseITest extends WithJetty {
         b.setContentType("application/json;charset=UTF-8");
         final Response response = b.build();
         assertThat("äöü", equalTo(response.asString()));
+    }
+
+    @Test
+    public void jsonPathReturnedByResponseUsesConfigurationFromRestAssured() throws Exception {
+        // When
+        final JsonPath jsonPath =
+        given().
+                config(newConfig().with().jsonConfig(jsonConfig().numberReturnType(BIG_DECIMAL))).
+        expect().
+                statusCode(200).
+        when().
+                get("/jsonStore").jsonPath();
+
+        // Then
+        assertThat(jsonPath.<BigDecimal>get("store.book.price.min()"), is(new BigDecimal("8.95")));
+        assertThat(jsonPath.<BigDecimal>get("store.book.price.max()"), is(new BigDecimal("22.99")));
+    }
+
+    @Test
+    public void jsonPathWithConfigReturnedByResponseOverridesConfigurationFromRestAssured() throws Exception {
+        // When
+        final JsonPath jsonPath =
+        given().
+                config(newConfig().with().jsonConfig(jsonConfig().with().numberReturnType(BIG_DECIMAL))).
+        expect().
+                statusCode(200).
+                body("store.book.price.min()", is(new BigDecimal("8.95"))).
+        when().
+                get("/jsonStore").jsonPath(jsonPathConfig().with().numberReturnType(FLOAT_AND_DOUBLE));
+
+        // Then
+        assertThat(jsonPath.<Float>get("store.book.price.min()"), is(8.95f));
+        assertThat(jsonPath.<Float>get("store.book.price.max()"), is(22.99f));
     }
 }

@@ -51,6 +51,7 @@ public class ResponseBuilder {
             restAssuredResponse.setObjectMapperConfig(raResponse.getObjectMapperConfig());
             restAssuredResponse.setConnectionConfig(raResponse.getConnectionConfig());
             restAssuredResponse.setXmlConfig(raResponse.getXmlConfig());
+            restAssuredResponse.setJsonConfig(raResponse.getJsonConfig());
             restAssuredResponse.setRpr(raResponse.getRpr());
         } else {
             restAssuredResponse.setContent(response.asInputStream());

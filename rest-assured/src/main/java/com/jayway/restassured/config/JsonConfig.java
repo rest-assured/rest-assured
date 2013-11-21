@@ -42,6 +42,15 @@ public class JsonConfig {
     }
 
     /**
+     * For syntactic sugar.
+     *
+     * @return The same JsonConfig instance
+     */
+    public JsonConfig with() {
+        return this;
+    }
+
+    /**
      * @return A static way to create a new JsonConfig instance without calling "new" explicitly. Mainly for syntactic sugar.
      */
     public static JsonConfig jsonConfig() {

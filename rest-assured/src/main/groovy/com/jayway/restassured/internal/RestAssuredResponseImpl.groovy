@@ -17,6 +17,7 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.config.ConnectionConfig
+import com.jayway.restassured.config.JsonConfig
 import com.jayway.restassured.config.ObjectMapperConfig
 import com.jayway.restassured.config.XmlConfig
 import com.jayway.restassured.internal.http.CharsetExtractor
@@ -29,6 +30,7 @@ import com.jayway.restassured.mapper.DataToDeserialize
 import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.mapper.ObjectMapperDeserializationContext
 import com.jayway.restassured.path.json.JsonPath
+import com.jayway.restassured.path.json.config.JsonPathConfig
 import com.jayway.restassured.path.xml.XmlPath
 import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
 import com.jayway.restassured.path.xml.config.XmlPathConfig
@@ -38,6 +40,7 @@ import groovy.xml.StreamingMarkupBuilder
 import java.nio.charset.Charset
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
+import static com.jayway.restassured.path.json.config.JsonPathConfig.jsonPathConfig
 import static com.jayway.restassured.path.xml.config.XmlPathConfig.xmlPathConfig
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
 import static org.apache.commons.lang3.StringUtils.isBlank
@@ -63,6 +66,7 @@ class RestAssuredResponseImpl implements Response {
     def ObjectMapperConfig objectMapperConfig
     def ConnectionConfig connectionConfig
     def XmlConfig xmlConfig
+    def JsonConfig jsonConfig
 
     public void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
         parseHeaders(httpResponse)
@@ -125,7 +129,7 @@ class RestAssuredResponseImpl implements Response {
         }
     }
 
-    // TODO: Handle namespaces
+    // TODO: Handle namespaces ??
     def toString(Writable node) {
         def writer = new StringWriter()
         writer << new StreamingMarkupBuilder().bind {
@@ -311,7 +315,16 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     }
 
     JsonPath jsonPath() {
-        new JsonPath(asInputStream())
+        jsonPath(jsonPathConfig().charset(findCharset()).
+                jackson1ObjectMapperFactory(objectMapperConfig.jackson1ObjectMapperFactory()).
+                jackson2ObjectMapperFactory(objectMapperConfig.jackson2ObjectMapperFactory()).
+                gsonObjectMapperFactory(objectMapperConfig.gsonObjectMapperFactory()).
+                numberReturnType(jsonConfig.numberReturnType()));
+    }
+
+    JsonPath jsonPath(JsonPathConfig config) {
+        notNull(config, "JsonPathConfig")
+        new JsonPath(asInputStream()).using(config)
     }
 
     XmlPath xmlPath() {

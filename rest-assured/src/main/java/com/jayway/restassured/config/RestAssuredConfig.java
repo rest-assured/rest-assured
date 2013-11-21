@@ -223,6 +223,15 @@ public class RestAssuredConfig {
     }
 
     /**
+     * Syntactic sugar.
+     *
+     * @return The same RestAssuredConfiguration instance.
+     */
+    public RestAssuredConfig with() {
+        return this;
+    }
+
+    /**
      * @return The RedirectConfig
      */
     public RedirectConfig getRedirectConfig() {

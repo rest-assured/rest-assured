@@ -228,6 +228,25 @@ public class JsonPathConfig {
         return new JsonPathConfig();
     }
 
+    /**
+     * For syntactic sugar.
+     *
+     * @return The same JsonPathConfig instance
+     */
+    public JsonPathConfig with() {
+        return this;
+    }
+
+    /**
+     * For syntactic sugar.
+     *
+     * @return The same JsonPathConfig instance
+     */
+    public JsonPathConfig and() {
+        return this;
+    }
+
+
     public static enum NumberReturnType {
         FLOAT_AND_DOUBLE, BIG_DECIMAL
     }
