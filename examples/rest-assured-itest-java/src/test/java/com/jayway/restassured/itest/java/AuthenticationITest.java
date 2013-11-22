@@ -17,14 +17,25 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.authentication.FormAuthConfig;
 import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.config.RestAssuredConfig;
+import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.FilterableRequestSpecification;
+import com.jayway.restassured.specification.FilterableResponseSpecification;
 import com.jayway.restassured.specification.RequestSpecification;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.authentication.FormAuthConfig.springSecurity;
+import static com.jayway.restassured.config.SessionConfig.sessionConfig;
+import static com.jayway.restassured.internal.filter.FormAuthFilter.FORM_AUTH_SESSION_ID;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class AuthenticationITest extends WithJetty {
 
@@ -121,6 +132,49 @@ public class AuthenticationITest extends WithJetty {
                 body(equalTo("OK")).
         when().
                 get("/formAuth");
+    }
+
+    @Test
+    public void formAuthenticationWritesSessionIdToFilterContext() throws Exception {
+        final MutableObject<String> object = new MutableObject<String>();
+
+        given().
+                auth().form("John", "Doe").
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        object.setValue(ctx.<String>getValue(FORM_AUTH_SESSION_ID));
+                        return ctx.next(requestSpec, responseSpec);
+                    }
+                }).
+        expect().
+                statusCode(200).
+                body(equalTo("OK")).
+        when().
+                get("/formAuth");
+
+        assertThat(object.getValue(), equalTo("1234"));
+    }
+
+    @Test
+    public void formAuthenticationWritesTheConfiguredSessionIdToFilterContext() throws Exception {
+        final MutableObject<String> object = new MutableObject<String>();
+
+        given().
+                config(RestAssuredConfig.newConfig().sessionConfig(sessionConfig().sessionIdName("phpsessionid"))).
+                auth().form("John", "Doe", new FormAuthConfig("/j_spring_security_check_phpsessionid", "j_username", "j_password")).
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        object.setValue(ctx.<String>getValue(FORM_AUTH_SESSION_ID));
+                        return ctx.next(requestSpec, responseSpec);
+                    }
+                }).
+        expect().
+                statusCode(200).
+                body(equalTo("OK")).
+        when().
+                get("/formAuth");
+
+        assertThat(object.getValue(), equalTo("1234"));
     }
 
     @Test

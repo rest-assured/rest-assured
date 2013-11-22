@@ -19,6 +19,7 @@
 package com.jayway.restassured.internal.filter
 
 import com.jayway.restassured.authentication.FormAuthConfig
+import com.jayway.restassured.config.SessionConfig
 import com.jayway.restassured.filter.FilterContext
 import com.jayway.restassured.path.xml.XmlPath
 import com.jayway.restassured.response.Response
@@ -31,42 +32,47 @@ import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.HTML
 import static java.lang.String.format
 
 class FormAuthFilter implements AuthFilter {
-  private static final String FIND_INPUT_TAG = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }"
-  private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action"
+    private static final String FIND_INPUT_TAG = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }"
+    private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action"
+    public static final String FORM_AUTH_SESSION_ID = "form_auth_session_id"
 
-  def userName
-  def password
-  def FormAuthConfig config
+    def userName
+    def password
+    def FormAuthConfig formAuthConfig
+    def SessionConfig sessionConfig
 
-  @Override
-  Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-    final String formAction;
-    final String userNameInputForm;
-    final String passwordInputForm;
-    if(config == null) {
-      def responseBody = ctx.send(given().spec(requestSpec).auth().none()).asString()
-      def html = new XmlPath(HTML, responseBody);
-      String tempFormAction = throwIfException { html.getString(FIND_FORM_ACTION) }
-      formAction = tempFormAction.startsWith("/") ? tempFormAction : "/"+ tempFormAction
-      userNameInputForm = throwIfException { html.getString(format(FIND_INPUT_TAG, "text")) }
-      passwordInputForm = throwIfException { html.getString(format(FIND_INPUT_TAG, "password")) }
-    } else {
-      formAction = config.getFormAction()
-      userNameInputForm = config.getUserInputTagName()
-      passwordInputForm = config.getPasswordInputTagName()
+    @Override
+    Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+        final String formAction;
+        final String userNameInputForm;
+        final String passwordInputForm;
+        if (formAuthConfig == null) {
+            def responseBody = ctx.send(given().spec(requestSpec).auth().none()).asString()
+            def html = new XmlPath(HTML, responseBody);
+            String tempFormAction = throwIfException { html.getString(FIND_FORM_ACTION) }
+            formAction = tempFormAction.startsWith("/") ? tempFormAction : "/" + tempFormAction
+            userNameInputForm = throwIfException { html.getString(format(FIND_INPUT_TAG, "text")) }
+            passwordInputForm = throwIfException { html.getString(format(FIND_INPUT_TAG, "password")) }
+        } else {
+            formAction = formAuthConfig.getFormAction()
+            userNameInputForm = formAuthConfig.getUserInputTagName()
+            passwordInputForm = formAuthConfig.getPasswordInputTagName()
+        }
+        final Response loginResponse = given().port(requestSpec.getPort()).with().auth().none().and().with().params(userNameInputForm, userName, passwordInputForm, password).then().post(formAction)
+        // Don't send the detailed cookies because they contain too many detail (such as Path which is a reserved token)
+        requestSpec.cookies(loginResponse.getCookies());
+        if (sessionConfig) {
+            ctx.setValue(FORM_AUTH_SESSION_ID, loginResponse.cookie(sessionConfig.sessionIdName()));
+        }
+        return ctx.next(requestSpec, responseSpec);
     }
-    final Response loginResponse = given().port(requestSpec.getPort()).with().auth().none().and().with().params(userNameInputForm, userName, passwordInputForm, password).then().post(formAction)
-    // Don't send the detailed cookies because they contain too many detail (such as Path which is a reserved token)
-    requestSpec.cookies(loginResponse.getCookies());
-    return ctx.next(requestSpec, responseSpec);
-  }
 
 
-  def throwIfException(Closure closure) {
-    try {
-      closure.call()
-    } catch(Exception e) {
-      throw new IllegalArgumentException("Failed to parse login page. Check for errors on the login page or specify FormAuthConfig.", e)
+    def throwIfException(Closure closure) {
+        try {
+            closure.call()
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to parse login page. Check for errors on the login page or specify FormAuthConfig.", e)
+        }
     }
-  }
 }

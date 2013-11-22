@@ -24,7 +24,7 @@ import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.FormAuthFilter
-import com.jayway.restassured.internal.filter.RootFilter
+import com.jayway.restassured.internal.filter.SendRequestFilter
 import com.jayway.restassured.internal.http.*
 import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl
@@ -753,7 +753,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
             // Form auth scheme is handled a bit differently than other auth schemes since it's implemented by a filter.
             def formAuthScheme = authenticationScheme as FormAuthScheme
             filters.removeAll { AuthFilter.class.isAssignableFrom(it.getClass()) }
-            filters << new FormAuthFilter(userName: formAuthScheme.userName, password: formAuthScheme.password, config: formAuthScheme.config)
+            filters.add(0, new FormAuthFilter(userName: formAuthScheme.userName, password: formAuthScheme.password, formAuthConfig: formAuthScheme.config, sessionConfig: sessionConfig()))
         }
 
         //If we are authenticating with Certificates, then provide the truststore spec (configured via request.keystore())
@@ -762,7 +762,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
             authenticationScheme.setTrustStoreProvider(this.keyStoreSpec)
         }
 
-        filters << new RootFilter()
+        filters << new SendRequestFilter()
 
         String requestUriForLogging = generateRequestUriToLog(path, method)
         def ctx = new FilterContextImpl(requestUriForLogging, path, method, assertionClosure, filters);
@@ -1653,6 +1653,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     private def EncoderConfig encoderConfig() {
         return config == null ? EncoderConfig.encoderConfig() : config.getEncoderConfig();
+    }
+
+    private def SessionConfig sessionConfig() {
+        return config == null ? SessionConfig.sessionConfig() : config.getSessionConfig();
     }
 
     private enum EncodingTarget {

@@ -24,7 +24,7 @@ import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
 
-class RootFilter implements Filter {
+class SendRequestFilter implements Filter {
 
     @Override
     Response filter(FilterableRequestSpecification requestSpecification, FilterableResponseSpecification responseSpecification, FilterContext context) {

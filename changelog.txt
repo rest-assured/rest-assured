@@ -79,7 +79,8 @@ Change log next version
       JsonPath jsonPath = get("/namespace-example").jsonPath(jsonPathConfig().with().numberReturnType(BIG_DECIMAL));
 * Added peek and prettyPeek support to XmlPath which allows you to print the content to system out but continue working with XmlPath afterwards (issue 271).
 * Added peek and prettyPeek support to JsonPath which allows you to print the content to system out but continue working with JsonPath afterwards (issue 272).
-
+* FormAuthFilter now "broadcasts" a found session id to other filters using the "form_auth_session_id" property.
+* FormAuthFilter is now added first when using form authentication so that subsequent filters are can read the "form_auth_session_id" property.
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------

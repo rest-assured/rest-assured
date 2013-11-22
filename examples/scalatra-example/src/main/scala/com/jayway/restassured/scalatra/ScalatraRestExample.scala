@@ -491,10 +491,20 @@ class ScalatraRestExample extends ScalatraServlet {
 
   post("/j_spring_security_check") {
     contentType = "text/plain"
+    securityCheck("jsessionid")
+  }
+
+  post("/j_spring_security_check_phpsessionid") {
+    contentType = "text/plain"
+    securityCheck("phpsessionid")
+  }
+
+
+  def securityCheck(sessionIdName: String) : Any = {
     val userName = params.get("j_username").get
     val password = params.get("j_password").get
     if (userName == "John" && password == "Doe") {
-      response.setHeader("Set-Cookie", "jsessionid=1234")
+      response.setHeader("Set-Cookie", sessionIdName+"=1234")
     } else {
       "NO"
     }
@@ -506,7 +516,7 @@ class ScalatraRestExample extends ScalatraServlet {
     if(cookies == null) {
       loginPage
     } else {
-      val cookie = cookies.find(_.getName == "jsessionid").get
+      val cookie = cookies.find(sessionName => sessionName.getName == "jsessionid" || sessionName.getName == "phpsessionid").get
       if(cookie == null) {
         loginPage
       } else if (cookie.getValue == "1234") {
