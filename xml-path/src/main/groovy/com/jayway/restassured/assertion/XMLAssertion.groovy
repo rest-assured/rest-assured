@@ -48,7 +48,6 @@ class XMLAssertion implements Assertion {
         }
         key = escapePath(key, minus(), attributeGetter(), doubleStar(), colon())
         def indexOfDot = key.indexOf(".")
-        def baseString
         def evaluationString
         def isRootOnly = rootEvaluation ? (indexOfDot < 0) : false
         if (!isRootOnly) {
@@ -56,17 +55,13 @@ class XMLAssertion implements Assertion {
             def firstFragment = fragments[0];
             if (isDoubleStarFragment(firstFragment) || !isPathFragment(firstFragment)) {
                 evaluationString = key.startsWith(DOT) ?: DOT + key; // Add a dot if needed because the first path fragment is actually a method invocation
-                baseString = firstFragment
             } else if (rootEvaluation) {
                 evaluationString = key.substring(indexOfDot);
-                baseString = key.substring(0, indexOfDot)
             } else {
                 evaluationString = key.startsWith(".") ? key : "." + key;
-                baseString = "";
             }
         } else {
             evaluationString = "";
-            baseString = key;
         }
 
         def result;
