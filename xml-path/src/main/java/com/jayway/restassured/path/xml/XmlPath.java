@@ -595,6 +595,12 @@ public class XmlPath {
 
     /**
      * Get the XML as a prettified string.
+     * <p/>
+     * <p>
+     * Note that the content is not guaranteed to be looking exactly like the it does at the source. This is because once you peek
+     * the content has been downloaded and transformed into another data structure (used by XmlPath) and the XML is rendered
+     * from this data structure.
+     * </p>
      *
      * @return The XML as a prettified String.
      */
@@ -604,6 +610,12 @@ public class XmlPath {
 
     /**
      * Get and print the XML as a prettified string.
+     *
+     * <p>
+     * Note that the content is not guaranteed to be looking exactly like the it does at the source. This is because once you peek
+     * the content has been downloaded and transformed into another data structure (used by XmlPath) and the XML is rendered
+     * from this data structure.
+     * </p>
      *
      * @return The XML as a prettified String.
      */
