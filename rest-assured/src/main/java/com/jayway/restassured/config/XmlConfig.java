@@ -95,7 +95,7 @@ public class XmlConfig {
      * @return A new XmlConfig instance
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */
-    public XmlConfig declaredNamespace(String prefix, String namespaceURI) {
+    public XmlConfig declareNamespace(String prefix, String namespaceURI) {
         Validate.notEmpty(prefix, "Prefix cannot be empty");
         Validate.notEmpty(namespaceURI, "Namespace URI cannot be empty");
         Map<String, String> updatedNamespaces = new HashMap<String, String>(declaredNamespaces);

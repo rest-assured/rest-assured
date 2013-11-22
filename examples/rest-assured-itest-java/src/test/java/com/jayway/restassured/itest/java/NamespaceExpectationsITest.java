@@ -32,7 +32,7 @@ public class NamespaceExpectationsITest extends WithJetty {
     @Test public void
     takes_namespaces_into_account_when_correct_namespace_is_declared() {
         given().
-                config(newConfig().xmlConfig(xmlConfig().declaredNamespace("ns", "http://localhost/"))).
+                config(newConfig().xmlConfig(xmlConfig().declareNamespace("ns", "http://localhost/"))).
         expect().
                 body("bar.text()", equalTo("sudo make me a sandwich!")).
                 body(":bar.text()", equalTo("sudo ")).
@@ -44,7 +44,7 @@ public class NamespaceExpectationsITest extends WithJetty {
     @Test public void
     takes_namespaces_into_account_when_correct_namespace_is_declared_with_different_name() {
         given().
-                config(newConfig().xmlConfig(xmlConfig().declaredNamespace("test", "http://localhost/"))).
+                config(newConfig().xmlConfig(xmlConfig().declareNamespace("test", "http://localhost/"))).
         expect().
                 body("bar.text()", equalTo("sudo make me a sandwich!")).
                 body(":bar.text()", equalTo("sudo ")).
@@ -78,7 +78,7 @@ public class NamespaceExpectationsITest extends WithJetty {
     @Test public void
     doesnt_take_namespaces_into_account_when_incorrect_namespace_is_declared() {
         given().
-                config(newConfig().xmlConfig(xmlConfig().declaredNamespace("ns", "http://something.com"))).
+                config(newConfig().xmlConfig(xmlConfig().declareNamespace("ns", "http://something.com"))).
         expect().
                 body("bar.text()", equalTo("sudo make me a sandwich!")).
                 body(":bar.text()", equalTo("sudo ")).

@@ -34,7 +34,7 @@ public class NamespaceResponseParsingITest extends WithJetty {
     takes_namespaces_into_account_when_correct_namespace_is_declared() {
         XmlPath xmlPath =
         given().
-                config(newConfig().xmlConfig(xmlConfig().declaredNamespace("ns", "http://localhost/"))).
+                config(newConfig().xmlConfig(xmlConfig().declareNamespace("ns", "http://localhost/"))).
         when().
                 get("/namespace-example").xmlPath();
 
