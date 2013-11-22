@@ -163,7 +163,7 @@ public class JsonPath {
      *     get("$");
      * </pre>
      *
-     * @return The object matching the Object graph. This may be any primitive type, a List or a Map.  A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object graph. This may be any primitive type, a List or a Map.  A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public <T> T get() {
@@ -174,7 +174,7 @@ public class JsonPath {
      * Get the result of an Object path expression as a boolean.
      *
      * @param path The Object path.
-     * @return The object matching the Object path. This may be any primitive type, a List or a Map.  A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object path. This may be any primitive type, a List or a Map.  A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public <T> T get(String path) {
@@ -187,7 +187,7 @@ public class JsonPath {
      * Get the result of an Object path expression as a boolean
      *
      * @param path The Object path.
-     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public boolean getBoolean(String path) {
@@ -198,7 +198,7 @@ public class JsonPath {
      * Get the result of an Object path expression as a char.
      *
      * @param path The Object path.
-     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public char getChar(String path) {
@@ -209,7 +209,7 @@ public class JsonPath {
      * Get the result of an Object path expression as an int.
      *
      * @param path The Object path.
-     * @return The int matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The int matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public int getInt(String path) {
@@ -230,7 +230,7 @@ public class JsonPath {
      * Get the result of an Object path expression as a byte.
      *
      * @param path The Object path.
-     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public byte getByte(String path) {
@@ -251,7 +251,7 @@ public class JsonPath {
      * Get the result of an Object path expression as a short.
      *
      * @param path The Object path.
-     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public short getShort(String path) {
@@ -272,7 +272,7 @@ public class JsonPath {
      * Get the result of an Object path expression as a float.
      *
      * @param path The Object path.
-     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public float getFloat(String path) {
@@ -289,7 +289,7 @@ public class JsonPath {
      * Get the result of an Object path expression as a double.
      *
      * @param path The Object path.
-     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public double getDouble(String path) {
@@ -304,7 +304,7 @@ public class JsonPath {
      * Get the result of an Object path expression as a long.
      *
      * @param path The Object path.
-     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public long getLong(String path) {
@@ -325,7 +325,7 @@ public class JsonPath {
      * Get the result of an Object path expression as a string.
      *
      * @param path The Object path.
-     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public String getString(String path) {
@@ -337,7 +337,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @param <T>  The list type
-     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path) {
@@ -350,7 +350,7 @@ public class JsonPath {
      * @param path        The Object path.
      * @param genericType The generic list type
      * @param <T>         The type
-     * @return The object matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path, Class<T> genericType) {
@@ -368,7 +368,7 @@ public class JsonPath {
      * @param path The Object path.
      * @param <K>  The type of the expected key
      * @param <V>  The type of the expected value
-     * @return The map matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The map matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public <K, V> Map<K, V> getMap(String path) {
@@ -383,7 +383,7 @@ public class JsonPath {
      * @param valueType The type of the expected value
      * @param <K>       The type of the expected key
      * @param <V>       The type of the expected value
-     * @return The map matching the Object path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The map matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public <K, V> Map<K, V> getMap(String path, Class<K> keyType, Class<V> valueType) {
