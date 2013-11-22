@@ -16,6 +16,8 @@
 
 
 
+
+
 package com.jayway.restassured.internal.assertion
 
 public interface Assertion {
