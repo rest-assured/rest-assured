@@ -282,7 +282,7 @@ public class XmlPath {
      * Get the entire XML graph as an Object
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
-     * @return The XML Node. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The XML Node. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public Node get() {
@@ -295,7 +295,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @param <T>  The type of the return value.
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public <T> T get(String path) {
@@ -309,7 +309,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @param <T>  The list type
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path) {
@@ -323,7 +323,7 @@ public class XmlPath {
      * @param path        The XML path.
      * @param genericType The generic list type
      * @param <T>         The type
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path, Class<T> genericType) {
@@ -337,7 +337,7 @@ public class XmlPath {
      * @param path The XML path.
      * @param <K>  The type of the expected key
      * @param <V>  The type of the expected value
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public <K, V> Map<K, V> getMap(String path) {
@@ -353,7 +353,7 @@ public class XmlPath {
      * @param valueType The type of the expected value
      * @param <K>       The type of the expected key
      * @param <V>       The type of the expected value
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public <K, V> Map<K, V> getMap(String path, Class<K> keyType, Class<V> valueType) {
@@ -417,7 +417,7 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public int getInt(String path) {
@@ -430,7 +430,7 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public boolean getBoolean(String path) {
@@ -443,7 +443,7 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public Node getNode(String path) {
@@ -455,7 +455,7 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public NodeChildren getNodeChildren(String path) {
@@ -467,7 +467,7 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public char getChar(String path) {
@@ -480,7 +480,7 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public byte getByte(String path) {
@@ -493,7 +493,7 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public short getShort(String path) {
@@ -506,7 +506,7 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public float getFloat(String path) {
@@ -519,7 +519,7 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public double getDouble(String path) {
@@ -532,7 +532,7 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public long getLong(String path) {
@@ -545,7 +545,7 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @param path The XML path.
-     * @return The object matching the XML path. A {@java.lang.ClassCastException} will be thrown if the object
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
      *         cannot be casted to the expected type.
      */
     public String getString(String path) {
