@@ -44,7 +44,7 @@ class FilterContextImpl implements FilterContext {
     }
 
     Response next(FilterableRequestSpecification request, FilterableResponseSpecification response) {
-        if(filters.hasNext()) {
+        if (filters.hasNext()) {
             def next = filters.next();
             return next.filter(request, response, this)
         }
@@ -68,6 +68,10 @@ class FilterContextImpl implements FilterContext {
 
     void setValue(String name, Object value) {
         properties.put(name, value)
+    }
+
+    boolean hasValue(String name) {
+        return getValue(name) != null
     }
 
     def getValue(String name) {

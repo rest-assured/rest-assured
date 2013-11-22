@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
 package com.jayway.restassured.internal.filter
 
 import com.jayway.restassured.authentication.FormAuthConfig
+import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.config.SessionConfig
 import com.jayway.restassured.filter.FilterContext
+import com.jayway.restassured.filter.session.SessionFilter
 import com.jayway.restassured.path.xml.XmlPath
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
+import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.spi.AuthFilter
 
 import static com.jayway.restassured.RestAssured.given
+import static com.jayway.restassured.config.SessionConfig.sessionConfig
 import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.HTML
 import static java.lang.String.format
 
 class FormAuthFilter implements AuthFilter {
     private static final String FIND_INPUT_TAG = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }"
     private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action"
-    public static final String FORM_AUTH_SESSION_ID = "form_auth_session_id"
 
     def userName
     def password
@@ -58,15 +58,26 @@ class FormAuthFilter implements AuthFilter {
             userNameInputForm = formAuthConfig.getUserInputTagName()
             passwordInputForm = formAuthConfig.getPasswordInputTagName()
         }
-        final Response loginResponse = given().port(requestSpec.getPort()).with().auth().none().and().with().params(userNameInputForm, userName, passwordInputForm, password).then().post(formAction)
+        def loginRequestSpec = given().port(requestSpec.getPort()).with().auth().none().and().
+                with().params(userNameInputForm, userName, passwordInputForm, password)
+        applySessionFilterFromOriginalRequestIfDefined(requestSpec, loginRequestSpec)
+        final Response loginResponse = loginRequestSpec.then().post(formAction)
         // Don't send the detailed cookies because they contain too many detail (such as Path which is a reserved token)
         requestSpec.cookies(loginResponse.getCookies());
-        if (sessionConfig) {
-            ctx.setValue(FORM_AUTH_SESSION_ID, loginResponse.cookie(sessionConfig.sessionIdName()));
-        }
         return ctx.next(requestSpec, responseSpec);
     }
 
+    def void applySessionFilterFromOriginalRequestIfDefined(FilterableRequestSpecification requestSpec, RequestSpecification loginRequestSpec) {
+        def filters = requestSpec.getDefinedFilters()
+        def sessionFilterInOriginalRequest = filters.find { it.class.isAssignableFrom(SessionFilter.class) }
+        if (sessionFilterInOriginalRequest) {
+            loginRequestSpec.noFiltersOfType(SessionFilter.class)
+            loginRequestSpec.filter(sessionFilterInOriginalRequest)
+            def sessionIdName = requestSpec.getConfig().getSessionConfig().sessionIdName();
+            def cfg = loginRequestSpec.config ?: new RestAssuredConfig()
+            loginRequestSpec.config(cfg.sessionConfig(sessionConfig().sessionIdName(sessionIdName)))
+        }
+    }
 
     def throwIfException(Closure closure) {
         try {

@@ -857,7 +857,7 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification pathParams(Map<String, ?> parameterNameValuePairs);
 
     /**
-     * Define a configuration for redirection settings and http client parameters. E.g.
+     * Define a REST Assured configuration. E.g.
      * <pre>
      * given().config(config().redirect(redirectConfig().followRedirects(true).and().maxRedirects(0))). ..
      * </pre>

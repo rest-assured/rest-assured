@@ -765,6 +765,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         filters << new SendRequestFilter()
 
         String requestUriForLogging = generateRequestUriToLog(path, method)
+        restAssuredConfig = config ?: new RestAssuredConfig()
         def ctx = new FilterContextImpl(requestUriForLogging, path, method, assertionClosure, filters);
         // We pass in this here because of a bug in the Groovy compiler, http://jira.codehaus.org/browse/GROOVY-4647 (when it's fixed 9619c3b should be used instead)
         httpClient = httpClientConfig().httpClientInstance()

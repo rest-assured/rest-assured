@@ -516,7 +516,7 @@ class ScalatraRestExample extends ScalatraServlet {
     if(cookies == null) {
       loginPage
     } else {
-      val cookie = cookies.find(sessionName => sessionName.getName == "jsessionid" || sessionName.getName == "phpsessionid").get
+      val cookie = cookies.find(sessionName => sessionName.getName.equalsIgnoreCase("jsessionid") || sessionName.getName.equalsIgnoreCase("phpsessionid")).get
       if(cookie == null) {
         loginPage
       } else if (cookie.getValue == "1234") {
