@@ -450,6 +450,20 @@ public class XmlPathTest {
     }
 
     @Test
+    public void xmlPathSupportsPrettyPeekingTheXML() throws Exception {
+        final String thing = with(NOT_PRETTY_XML).prettyPeek().getString("some.thing[0]");
+
+        assertThat(thing, equalTo("ikk"));
+    }
+
+    @Test
+    public void xmlPathSupportsPeekingTheXML() throws Exception {
+        final String thing = with(NOT_PRETTY_XML).peek().getString("some.thing[0]");
+
+        assertThat(thing, equalTo("ikk"));
+    }
+
+    @Test
     public void canParseXmlFilteredAttributes() throws Exception {
         final List<Integer> list = with(getClass().getResourceAsStream("/jmeter.jtl")).getList("testResults.httpSample.@t.findAll { it.text().toInteger() < 60000 }", int.class);
 

@@ -21,6 +21,7 @@ import com.jayway.restassured.internal.path.ObjectConverter;
 import com.jayway.restassured.internal.path.xml.GroovyNodeSerializer;
 import com.jayway.restassured.internal.path.xml.NodeBase;
 import com.jayway.restassured.internal.path.xml.XmlPrettifier;
+import com.jayway.restassured.internal.path.xml.XmlRenderer;
 import com.jayway.restassured.internal.path.xml.mapping.XmlObjectDeserializer;
 import com.jayway.restassured.mapper.factory.JAXBObjectMapperFactory;
 import com.jayway.restassured.path.xml.config.XmlParserType;
@@ -550,6 +551,46 @@ public class XmlPath {
     public String getString(String path) {
         Object object = get(path);
         return convertObjectTo(object, String.class);
+    }
+
+    /**
+     * Peeks into the XML/HTML that XmlPath will parse by printing it to the console. You can
+     * continue working with XmlPath afterwards. This is mainly for debug purposes. If you want to return a prettified version of the content
+     * see {@link #prettify()}. If you want to return a prettified version of the content and also print it to the console use {@link #prettyPrint()}.
+     * <p/>
+     * <p>
+     * Note that the content is not guaranteed to be looking exactly like the it does at the source. This is because once you peek
+     * the content has been downloaded and transformed into another data structure (used by XmlPath) and the XML is rendered
+     * from this data structure.
+     * </p>
+     *
+     * @return The same XmlPath instance
+     */
+    public XmlPath peek() {
+        final GPathResult result = lazyXmlParser.invoke();
+        final String render = XmlRenderer.render(result);
+        System.out.println(render);
+        return this;
+    }
+
+    /**
+     * Peeks into the XML/HTML that XmlPath will parse by printing it to the console in a prettified manner. You can
+     * continue working with XmlPath afterwards. This is mainly for debug purposes. If you want to return a prettified version of the content
+     * see {@link #prettify()}. If you want to return a prettified version of the content and also print it to the console use {@link #prettyPrint()}.
+     * <p/>
+     * <p>
+     * Note that the content is not guaranteed to be looking exactly like the it does at the source. This is because once you peek
+     * the content has been downloaded and transformed into another data structure (used by XmlPath) and the XML is rendered
+     * from this data structure.
+     * </p>
+     *
+     * @return The same XmlPath instance
+     */
+    public XmlPath prettyPeek() {
+        final GPathResult result = lazyXmlParser.invoke();
+        final String prettify = XmlPrettifier.prettify(result);
+        System.out.println(prettify);
+        return this;
     }
 
     /**
