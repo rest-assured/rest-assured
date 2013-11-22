@@ -78,6 +78,7 @@ Change log next version
 * Added ability to supply a JsonPathConfig instance when using the jsonPath() method from a REST Assured Response object. For example :
       JsonPath jsonPath = get("/namespace-example").jsonPath(jsonPathConfig().with().numberReturnType(BIG_DECIMAL));
 * Added peek and prettyPeek support to XmlPath which also you to print the content to system out but continue working with XmlPath afterwards (issue 271).
+* Added peek and prettyPeek support to JsonPath which also you to print the content to system out but continue working with JsonPath afterwards (issue 272).
 
 
 Change log 1.8.1 (2013-06-07)

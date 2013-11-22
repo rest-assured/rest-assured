@@ -38,7 +38,7 @@ import java.util.Map.Entry;
 
 /**
  * JsonPath is an alternative to using XPath for easily getting values from a Object document. It follows the
- * Groovy dot notation syntax when getting an object from the document. You can regard it as an alternative to XPath for XML.
+ * Groovy dot notation syntax when getting an object from the document. You can regard it as an alternative to XPath for JSON.
  * E.g. given the following Object document:
  * <pre>
  * { "store": {
@@ -525,25 +525,65 @@ public class JsonPath {
     }
 
     /**
-     * Get the XML as a prettified string.
+     * Peeks into the JSON that JsonPath will parse by printing it to the console. You can
+     * continue working with JsonPath afterwards. This is mainly for debug purposes. If you want to return a prettified version of the content
+     * see {@link #prettify()}. If you want to return a prettified version of the content and also print it to the console use {@link #prettyPrint()}.
+     * <p/>
+     * <p>
+     * Note that the content is not guaranteed to be looking exactly like the it does at the source. This is because once you peek
+     * the content has been downloaded and transformed into another data structure (used by JsonPath) and the JSON is rendered
+     * from this data structure.
+     * </p>
      *
-     * @return The XML as a prettified String.
+     * @return The same JsonPath instance
+     */
+    public JsonPath peek() {
+        System.out.println(toJsonString());
+        return this;
+    }
+
+    /**
+     * Peeks into the JSON that JsonPath will parse by printing it to the console in a prettified manner. You can
+     * continue working with JsonPath afterwards. This is mainly for debug purposes. If you want to return a prettified version of the content
+     * see {@link #prettify()}. If you want to return a prettified version of the content and also print it to the console use {@link #prettyPrint()}.
+     * <p/>
+     * <p>
+     * Note that the content is not guaranteed to be looking exactly like the it does at the source. This is because once you peek
+     * the content has been downloaded and transformed into another data structure (used by JsonPath) and the JSON is rendered
+     * from this data structure.
+     * </p>
+     *
+     * @return The same JsonPath instance
+     */
+    public JsonPath prettyPeek() {
+        prettyPrint();
+        return this;
+    }
+
+    /**
+     * Get the JSON as a prettified string.
+     * <p>
+     * Note that the content is not guaranteed to be looking exactly like the it does at the source. This is because once you peek
+     * the content has been downloaded and transformed into another data structure (used by JsonPath) and the JSON is rendered
+     * from this data structure.
+     * </p>
+     *
+     * @return The JSON as a prettified String.
      */
     public String prettify() {
-        final Object json = jsonParser.parseWith(createConfigurableJsonSlurper());
-        final String jsonString;
-        if(json instanceof Map) {
-            jsonString = JsonOutput.toJson((Map) json);
-        } else {
-            jsonString = JsonOutput.toJson(json);
-        }
+        final String jsonString = toJsonString();
         return JsonPrettifier.prettifyJson(jsonString);
     }
 
     /**
-     * Get and print the XML as a prettified string.
+     * Get and print the JSON as a prettified string.
+     * <p>
+     * Note that the content is not guaranteed to be looking exactly like the it does at the source. This is because once you peek
+     * the content has been downloaded and transformed into another data structure (used by JsonPath) and the JSON is rendered
+     * from this data structure.
+     * </p>
      *
-     * @return The XML as a prettified String.
+     * @return The JSON as a prettified String.
      */
     public String prettyPrint() {
         final String pretty = prettify();
@@ -888,5 +928,16 @@ public class JsonPath {
      */
     public static void reset() {
         JsonPath.config = null;
+    }
+
+    private String toJsonString() {
+        final Object json = jsonParser.parseWith(createConfigurableJsonSlurper());
+        final String jsonString;
+        if (json instanceof Map) {
+            jsonString = JsonOutput.toJson((Map) json);
+        } else {
+            jsonString = JsonOutput.toJson(json);
+        }
+        return jsonString;
     }
 }

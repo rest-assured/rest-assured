@@ -61,7 +61,7 @@ public class JsonPathTest {
             "    \"bicycle\": {\n" +
             "      \"color\": \"red\",\n" +
             "      \"price\": 19.95,\n" +
-            "      \"atoms\": "+Long.MAX_VALUE+",\n" +
+            "      \"atoms\": " + Long.MAX_VALUE + ",\n" +
             "    }\n" +
             "  }\n" +
             "}";
@@ -190,7 +190,7 @@ public class JsonPathTest {
     public void getRootObjectAsMap2() throws Exception {
         final Map<String, Object> store = from(JSON).get("store.book[0]");
         for (Map.Entry<String, Object> stringObjectEntry : store.entrySet()) {
-            System.out.println(stringObjectEntry.getKey() + " = "+stringObjectEntry.getValue());
+            System.out.println(stringObjectEntry.getKey() + " = " + stringObjectEntry.getValue());
         }
     }
 
@@ -368,6 +368,20 @@ public class JsonPathTest {
     }
 
     @Test
+    public void jsonPathSupportsPrettyPeekingJson() throws Exception {
+        final String phone = with(JSON2).prettyPeek().getString("phone[0]");
+
+        assertThat(phone, equalTo("3456789"));
+    }
+
+    @Test
+    public void jsonPathSupportsPeekingAtTheJson() throws Exception {
+        final String phone = with(JSON2).peek().getString("phone[0]");
+
+        assertThat(phone, equalTo("3456789"));
+    }
+
+    @Test
     public void canParseJsonDocumentWhenFirstKeyIsIntegerUsingManualEscaping() throws Exception {
         final float number = from(JSON_PATH_STARTING_WITH_NUMBER).getFloat("'0'");
 
@@ -404,7 +418,7 @@ public class JsonPathTest {
 
     @Test
     public void canParseJsonDocumentWhenPathIncludesMinusInsideEscaped() throws Exception {
-        JsonPath path = new JsonPath("{ \"a-b\"  : \"minus\" , \"a.b\" : \"dot\"  , \"a.b-c\" : \"both\"  }" );
+        JsonPath path = new JsonPath("{ \"a-b\"  : \"minus\" , \"a.b\" : \"dot\"  , \"a.b-c\" : \"both\"  }");
 
         assertThat(path.getString("'a.b-c'"), equalTo("both"));
     }
@@ -425,7 +439,8 @@ public class JsonPathTest {
         assertThat(string, equalTo("test"));
     }
 
-    @Test public void
+    @Test
+    public void
     can_parse_multiple_values() {
         // Given
         final JsonPath jsonPath = new JsonPath(JSON);
@@ -439,7 +454,8 @@ public class JsonPathTest {
         assertThat(category2, equalTo("fiction"));
     }
 
-    @Test public void
+    @Test
+    public void
     pretty_printing_works() {
         // Given
         String json = "{\"data\": [{" +
@@ -463,7 +479,8 @@ public class JsonPathTest {
                 "}"));
     }
 
-    @Test public void
+    @Test
+    public void
     parses_json_document_with_attribute_name_equal_to_properties() {
         // Given
         final String jsonWithPropertyAttribute = "[{\"properties\":\"test\"}]"; // properties is a reserved word in Groovy
@@ -475,7 +492,8 @@ public class JsonPathTest {
         assertThat(value, equalTo("test"));
     }
 
-    @Test public void
+    @Test
+    public void
     parses_json_document_with_attribute_name_equal_to_size() {
         // When
         final float anInt = new JsonPath(JSON_PATH_WITH_SIZE).getFloat("map.size");
