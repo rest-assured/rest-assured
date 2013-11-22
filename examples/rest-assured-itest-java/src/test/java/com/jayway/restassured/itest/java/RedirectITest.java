@@ -22,9 +22,12 @@ import org.apache.http.client.ClientProtocolException;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.config.HttpClientConfig.httpClientConfig;
 import static com.jayway.restassured.config.RedirectConfig.redirectConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.config;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
+import static org.apache.http.client.params.ClientPNames.COOKIE_POLICY;
+import static org.apache.http.client.params.CookiePolicy.BROWSER_COMPATIBILITY;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
@@ -99,5 +102,30 @@ public class RedirectITest extends WithJetty {
         } finally {
             RestAssured.reset();
         }
+    }
+
+    @Test
+    public void cookiesAreReceivedOnWhenServerReturns302() throws Exception {
+        given().
+                redirects().follow(false).
+                param("url", "/hello").
+        expect().
+                statusCode(302).
+                cookie("cookieName", "cookieValue").
+                header("location", "http://localhost:8080/hello").
+        when().
+                get("/redirect-and-set-cookie");
+    }
+
+    @Test
+    public void cookiesAreIncludedInRedirectsWhenCookiePolicyIsBrowserCompatibility() throws Exception {
+        given().
+                config(newConfig().httpClient(httpClientConfig().setParam(COOKIE_POLICY, BROWSER_COMPATIBILITY))).
+                param("url", "/reflect").
+        expect().
+                statusCode(200).
+                cookie("cookieName", "cookieValue").
+        when().
+                get("/redirect-and-set-cookie");
     }
 }

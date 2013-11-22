@@ -201,6 +201,14 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(render(json))
   }
 
+  get("/reflect") {
+    reflect
+  }
+
+  put("/reflect") {
+    reflect
+  }
+
   put("/reflect") {
     reflect
   }
@@ -402,6 +410,13 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/redirect") {
     val url: String = {params("url")}
+    redirect(url)
+  }
+
+  get("/redirect-and-set-cookie") {
+    val url: String = {params("url")}
+    val cookie: Cookie = new Cookie("cookieName", "cookieValue")
+    response.addCookie(cookie)
     redirect(url)
   }
 
