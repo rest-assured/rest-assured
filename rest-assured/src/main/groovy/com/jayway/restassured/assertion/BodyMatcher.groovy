@@ -21,6 +21,7 @@ package com.jayway.restassured.assertion
 import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.internal.ResponseParserRegistrar
 import com.jayway.restassured.response.Response
+import org.apache.commons.lang3.StringUtils
 import org.hamcrest.Matcher
 import org.hamcrest.StringDescription
 import org.hamcrest.xml.HasXPath
@@ -58,7 +59,7 @@ class BodyMatcher {
                 Element node = factory.newDocumentBuilder().parse(new ByteArrayInputStream(response.asByteArray())).getDocumentElement();
                 if (!matcher.matches(node)) {
                     success = false
-                    errorMessage = String.format("Expected: %s\n  Actual: %s\n", matcher.toString(), content)
+                    errorMessage = String.format("Expected: %s\n  Actual: %s\n", trim(matcher.toString()), content)
                 }
             } else if (!matcher.matches(response.asString())) {
                 success = false

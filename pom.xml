@@ -60,7 +60,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <groovy.version>2.2.0</groovy.version>
         <gmaven.version>1.5</gmaven.version>
-        <hamcrest.version>1.2.1</hamcrest.version>
+        <hamcrest.version>1.3</hamcrest.version>
         <jackson1.version>1.8.5</jackson1.version>
         <maven-javadoc.version>2.9.1</maven-javadoc.version>
     </properties>
