@@ -516,7 +516,9 @@ public class XmlPathTest {
                 "<LegacyService>Text</LegacyService>";
 
         // When
-        final XmlPath xmlPath = new XmlPath(xml).using(xmlPathConfig().with().feature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false));
+        final XmlPath xmlPath = new XmlPath(xml).using(xmlPathConfig().with().
+                feature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false).
+                feature("http://apache.org/xml/features/disallow-doctype-decl", false));
 
         // Then
         assertThat(xmlPath.getString("LegacyService"), equalTo("Text"));
@@ -531,6 +533,7 @@ public class XmlPathTest {
 
         Map<String, Boolean> features = new HashMap<String, Boolean>();
         features.put("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        features.put("http://apache.org/xml/features/disallow-doctype-decl", false);
         features.put("http://xml.org/sax/features/namespaces", false);
 
         // When

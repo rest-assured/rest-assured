@@ -99,6 +99,7 @@ Change log next version
       when().
               get("/formAuth");
   (issue 229, 273)
+* Upgraded to Groovy 2.2.0
 
 Change log 1.8.1 (2013-06-07)
 -----------------------------

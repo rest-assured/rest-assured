@@ -133,6 +133,7 @@ public class XmlPathConfig {
     public XmlPathConfig disableLoadingOfExternalDtd() {
         Map<String, Boolean> newFeatures = new HashMap<String, Boolean>(features);
         newFeatures.put("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+        newFeatures.put("http://apache.org/xml/features/disallow-doctype-decl", false);
         return new XmlPathConfig(jaxbObjectMapperFactory, defaultParserType, defaultDeserializer, charset, newFeatures, declaredNamespaces);
     }
 
