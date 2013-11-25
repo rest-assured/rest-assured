@@ -339,7 +339,29 @@ public class PathParamITest extends WithJetty {
                         return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
                     }
                 }).
-        get("/feed?canonicalName={groupCanonicalName}&platform=ed4", "{trackingName='trackingname1'}");
+        get("/feed?canonicalName={trackingName}&platform=ed4", "{trackingName='trackingname1'}");
+
+        // Then
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/feed?canonicalName=%7BtrackingName%3D%27trackingname1%27%7D&platform=ed4"));
+    }
+
+    @Test
+    public void urlEncodesNamedPathParametersThatContainsCurlyBracesAndEquals() throws Exception {
+        // When
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+                pathParam("trackingName", "{trackingName='trackingname1'}").
+                pathParam("platform", "platform").
+                log().all().
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                    }
+                }).
+        get("/feed?canonicalName={trackingName}&{platform}=ed4");
 
         // Then
         assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/feed?canonicalName=%7BtrackingName%3D%27trackingname1%27%7D&platform=ed4"));
