@@ -17,20 +17,34 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.builder.ResponseBuilder;
+import com.jayway.restassured.config.LogConfig;
+import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.filter.FilterContext;
+import com.jayway.restassured.itest.java.support.RequestPathFromLogExtractor;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Response;
+import com.jayway.restassured.specification.FilterableRequestSpecification;
+import com.jayway.restassured.specification.FilterableResponseSpecification;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.PrintStream;
+import java.io.StringWriter;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.config.RestAssuredConfig.config;
+import static com.jayway.restassured.itest.java.support.RequestPathFromLogExtractor.loggedRequestPathIn;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 public class PathParamITest extends WithJetty {
@@ -294,5 +308,24 @@ public class PathParamITest extends WithJetty {
         exception.expectMessage("Illegal number of path parameters. Expected 1, was 0.");
 
         expect().statusCode(200).when().get("http://www.google.se/search?q={query}&hl=en");
+    }
+
+    @Test
+    public void mixingUnnamedPathParametersAndQueryParametersWorks() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+                log().all().
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                    }
+                }).
+        get("/{channelName}/item-import/rss/import?source={url}", "games", "http://myurl.com");
+
+        // Then
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/games/item-import/rss/import?source=http%3A%2F%2Fmyurl.com"));
     }
 }

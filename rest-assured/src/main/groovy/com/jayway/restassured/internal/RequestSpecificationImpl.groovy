@@ -1246,6 +1246,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
                 pathWithoutQueryParams = StringUtils.replace(pathWithoutQueryParams, "RA_double_slash__", encode(DOUBLE_SLASH, EncodingTarget.QUERY))
             }
 
+            // Remove used unnamed path parameters if all parameters haven't already been used
+            if (!usesNamedPathParameters && unnamedPathParamSize != numberOfUsedPathParameters) {
+                def firstUnusedIndex = Math.max(0, numberOfUsedPathParameters)
+                def lastIndex = unnamedPathParams.size() - 1
+                unnamedPathParams = unnamedPathParams[firstUnusedIndex..lastIndex]
+            }
+
             if (queryParams.matches(pathTemplate)) {
                 def hasAnyTemplateLeft = ~/.*\{\w+\}.*/
                 def replacePattern = ~/\{\w+\}/
@@ -1257,7 +1264,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
                 }
 
                 def originalQueryParams = queryParams
-                definedParams.each { pathParamName ->
+                definedParams.eachWithIndex { pathParamName, index ->
                     def subresource
                     if (!queryParams.matches(hasAnyTemplateLeft)) {
                         def expected = hasAnyTemplateLeft.matcher(originalQueryParams).getCount();
@@ -1267,7 +1274,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
                         def pathParamValue = findNamedPathParamValue(pathParamName, pathParamNameUsageCount)
                         subresource = pathParamValue
                     } else { // uses unnamed path params
-                        subresource = unnamedPathParams[numberOfUsedPathParameters].toString()
+                        subresource = unnamedPathParams[index].toString()
                     }
                     // Note that we do NOT url encode query params here, that happens by UriBuilder at a later stage.
                     queryParams = queryParams.replaceFirst(replacePattern, Matcher.quoteReplacement(subresource.toString()))
