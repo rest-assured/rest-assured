@@ -28,7 +28,6 @@ import com.jayway.restassured.specification.FilterableResponseSpecification;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.http.Header;
 import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.SystemDefaultHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.junit.Test;
@@ -258,7 +257,7 @@ public class HttpClientConfigITest extends WithJetty {
         return new HttpClientConfig.HttpClientFactory() {
 
             @Override
-            public AbstractHttpClient createHttpClient() {
+            public HttpClient createHttpClient() {
                 return new SystemDefaultHttpClient();
             }
         };
