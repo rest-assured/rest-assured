@@ -18,7 +18,6 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.ResponseBuilder;
-import com.jayway.restassured.config.DecoderConfig;
 import com.jayway.restassured.config.HttpClientConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;

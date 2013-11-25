@@ -38,6 +38,7 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.Validate
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
+import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
@@ -1461,7 +1462,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         return restAssuredConfig
     }
 
-    def AbstractHttpClient getHttpClient() {
+    def HttpClient getHttpClient() {
         return httpClient // @Delegate doesn't work because of http://jira.codehaus.org/browse/GROOVY-4647 (when it's fixed 9619c3b should be used instead)
     }
 

@@ -28,13 +28,11 @@ import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
 import java.net.URLEncoder;
 
 import static com.jayway.restassured.RestAssured.expect;

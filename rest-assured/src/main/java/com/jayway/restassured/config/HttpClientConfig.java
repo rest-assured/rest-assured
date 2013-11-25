@@ -16,11 +16,11 @@
 
 package com.jayway.restassured.config;
 
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.cookie.params.CookieSpecPNames;
 import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.util.Collections;
@@ -60,13 +60,13 @@ import static java.util.Arrays.asList;
 public class HttpClientConfig {
 
     private static final boolean SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT = false;
-    private static final AbstractHttpClient NO_HTTP_CLIENT = null;
+    private static final HttpClient NO_HTTP_CLIENT = null;
 
     private final boolean shouldReuseHttpClientInstance;
     private final Map<String, ?> httpClientParams;
     private final HttpMultipartMode httpMultipartMode;
     private final HttpClientFactory httpClientFactory;
-    private volatile AbstractHttpClient httpClient;
+    private volatile HttpClient httpClient;
 
     /**
      * Creates a new  HttpClientConfig instance with the <code>{@value org.apache.http.client.params.ClientPNames#COOKIE_POLICY}</code> parameter set to <code>{@value org.apache.http.client.params.CookiePolicy#IGNORE_COOKIES}</code>.
@@ -87,7 +87,7 @@ public class HttpClientConfig {
     }
 
     private HttpClientConfig(HttpClientFactory httpClientFactory, Map<String, ?> httpClientParams, HttpMultipartMode httpMultipartMode,
-                             boolean shouldReuseHttpClientInstance, AbstractHttpClient abstractHttpClient) {
+                             boolean shouldReuseHttpClientInstance, HttpClient abstractHttpClient) {
         notNull(httpClientParams, "httpClientParams");
         notNull(httpMultipartMode, "httpMultipartMode");
         notNull(httpClientFactory, "Http Client factory");
@@ -223,7 +223,7 @@ public class HttpClientConfig {
     /**
      * @return The configured http client that will create an {@link org.apache.http.client.HttpClient} instances that's used by REST Assured when making a request.
      */
-    public AbstractHttpClient httpClientInstance() {
+    public HttpClient httpClientInstance() {
         if (isConfiguredToReuseTheSameHttpClientInstance()) {
             if (httpClient == NO_HTTP_CLIENT) {
                 httpClient = httpClientFactory.createHttpClient();
@@ -260,7 +260,7 @@ public class HttpClientConfig {
     private static HttpClientFactory defaultHttpClientFactory() {
         return new HttpClientFactory() {
             @Override
-            public AbstractHttpClient createHttpClient() {
+            public HttpClient createHttpClient() {
                 return new DefaultHttpClient();
             }
         };
@@ -271,11 +271,15 @@ public class HttpClientConfig {
      */
     public static abstract class HttpClientFactory {
         /**
-         * Create an instance of {@link AbstractHttpClient} that'll be used by REST Assured when making requests. By default
+         * Create an instance of {@link HttpClient} that'll be used by REST Assured when making requests. By default
          * REST Assured creates a {@link DefaultHttpClient}.
+         * <p>
+         * <b>Important: Version 1.9.0 of REST Assured ONLY supports instances of {@link org.apache.http.impl.client.AbstractHttpClient}</b>. The API is
+         * how ever prepared for future upgrades.
+         * </p>
          *
-         * @return An instance of {@link AbstractHttpClient}.
+         * @return An instance of {@link HttpClient}.
          */
-        public abstract AbstractHttpClient createHttpClient();
+        public abstract HttpClient createHttpClient();
     }
 }

@@ -17,14 +17,12 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
-import com.jayway.restassured.http.ContentType;
 import org.junit.Test;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.HTML;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;

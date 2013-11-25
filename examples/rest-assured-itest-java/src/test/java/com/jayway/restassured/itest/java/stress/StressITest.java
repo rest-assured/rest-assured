@@ -21,7 +21,6 @@ import com.jayway.restassured.config.ConnectionConfig;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.restlet.Component;
 import org.restlet.data.Protocol;
