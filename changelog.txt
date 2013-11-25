@@ -16,7 +16,7 @@ Change log next version
 * Added ability to set base uri from RequestSpecBuilder (issue 252).
 * Fixed a bug where RequestSpecification was not checked against the correct type when merging request specifications.
 * Fixed a bug with pretty printing that sometimes didn't take user supplied value into account.
-* It's now possible to configure content decoders. Before GZIP and DEFLATE were always activated and there was no way to disable them. It's now possible to configure which to use, for example to remove GZIP be retain DEFLATE you can do the following:
+* It's now possible to configure content decoders. Before GZIP and DEFLATE were always activated and there was no way to disable them. It's now possible to configure which to use, for example to remove GZIP but retain DEFLATE you can do the following:
 	  given().config(newConfig().decoderConfig(decoderConfig().contentDecoders(DEFLATE))). ..
   (issue 77)
 * The http client instance can now be reused between REST Assured requests. By default REST Assured creates a new instance for each "given" statement. To configure reuse do the following:
