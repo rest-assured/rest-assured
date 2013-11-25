@@ -775,21 +775,54 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
 
     private def String generateRequestUriToLog(path, method) {
-        def uriBuilder = new URIBuilder(URIBuilder.convertToURI(assembleCompleteTargetPath(path)), this.urlEncodingEnabled, encoderConfig())
+        def targetPath
+        def allQueryParams = [:]
+
+        if (path.contains("?")) {
+            def pathWithoutQueryParams = StringUtils.substringBefore(getTargetPath(path), "?");
+            def queryParamsDefinedInPath = substringAfter(path, "?")
+
+            targetPath = pathWithoutQueryParams
+
+            // Add query parameters defined in path to the allQueryParams map
+            if (!StringUtils.isBlank(queryParamsDefinedInPath)) {
+                def splittedQueryParams = StringUtils.split(queryParamsDefinedInPath, "&");
+                splittedQueryParams.each { queryNameWithPotentialValue ->
+                    def String[] splitted = StringUtils.split(queryNameWithPotentialValue, "=")
+                    def queryParamHasValue = splitted.size() > 1
+                    if (queryParamHasValue) {
+                        def value = StringUtils.join(splitted[1..splitted.size() - 1], "="); // If there are several "=" in the URL the merge them
+                        allQueryParams.put(splitted[0], value)
+                    } else {
+                        allQueryParams.put(splitted[0], new NoParameterValue());
+                    }
+                }
+            }
+        } else {
+            targetPath = path
+        }
+
+        def uri = URIBuilder.convertToURI(assembleCompleteTargetPath(targetPath))
+        def uriBuilder = new URIBuilder(uri, this.urlEncodingEnabled, encoderConfig())
+
         if (method != POST && !requestParameters?.isEmpty()) {
-            uriBuilder.addQueryParams(requestParameters)
+            allQueryParams << requestParameters
         }
 
         if (!queryParameters?.isEmpty()) {
-            uriBuilder.addQueryParams(queryParameters)
+            allQueryParams << queryParameters
         }
-        uriBuilder.urlDecodeQueryParametersIfNeeded()
+
+        if (!allQueryParams.isEmpty()) {
+            uriBuilder.addQueryParams(allQueryParams)
+        }
+
         def requestUriForLogging = uriBuilder.toString()
         requestUriForLogging
     }
 
     private def Response sendRequest(path, method, assertionClosure, FilterableRequestSpecification requestSpecification) {
-        path = extractRequestParamsIfNeeded(method, path);
+        path = extractRequestParamsIfNeeded(path);
         def isFullyQualifiedUri = isFullyQualified(path)
         def targetUri = getTargetURI(path);
         def targetPath = getTargetPath(path)
@@ -1035,7 +1068,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         return indexOfScheme < indexOfFirstSlash
     }
 
-    private String extractRequestParamsIfNeeded(Method method, String path) {
+    private String extractRequestParamsIfNeeded(String path) {
         if (path.contains("?")) {
             def indexOfQuestionMark = path.indexOf("?")
             String allParamAsString = path.substring(indexOfQuestionMark + 1);
@@ -1277,7 +1310,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
                         subresource = unnamedPathParams[index].toString()
                     }
                     // Note that we do NOT url encode query params here, that happens by UriBuilder at a later stage.
-                    queryParams = queryParams.replaceFirst(replacePattern, Matcher.quoteReplacement(subresource.toString()))
+                    def replacement = Matcher.quoteReplacement(subresource.toString())
+                    queryParams = queryParams.replaceFirst(replacePattern, replacement)
                     numberOfUsedPathParameters += 1;
                 }
 

@@ -21,13 +21,11 @@ import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
-import com.jayway.restassured.itest.java.support.RequestPathFromLogExtractor;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -39,12 +37,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
-import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.config.RestAssuredConfig.config;
 import static com.jayway.restassured.itest.java.support.RequestPathFromLogExtractor.loggedRequestPathIn;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 public class PathParamITest extends WithJetty {
@@ -327,5 +323,25 @@ public class PathParamITest extends WithJetty {
 
         // Then
         assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/games/item-import/rss/import?source=http%3A%2F%2Fmyurl.com"));
+    }
+
+    @Test
+    public void urlEncodesUnnamedPathParametersThatContainsCurlyBracesAndEquals() throws Exception {
+        // When
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(new LogConfig(captor, true))).
+                log().all().
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                    }
+                }).
+        get("/feed?canonicalName={groupCanonicalName}&platform=ed4", "{trackingName='trackingname1'}");
+
+        // Then
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/feed?canonicalName=%7BtrackingName%3D%27trackingname1%27%7D&platform=ed4"));
     }
 }

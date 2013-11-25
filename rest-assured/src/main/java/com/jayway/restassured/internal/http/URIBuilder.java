@@ -210,8 +210,7 @@ public class URIBuilder implements Cloneable {
      * <pre> uri.query.a = 'BCD'</pre>
      * You will not modify the query string but instead the generated map of
      * parameters.  Instead, you need to use {@link #removeQueryParam(String)}
-     * first, then {@link #addQueryParam(String, Object)}, or call
-     * {@link #setQuery(Map)} which will set the entire query string.
+     * first, then call {@link #setQuery(Map)} which will set the entire query string.
      *
      * @return a map of String name/value pairs representing the URI's query
      *         string.
@@ -278,36 +277,6 @@ public class URIBuilder implements Cloneable {
 
         if (found == null) throw new IllegalArgumentException("Param '" + param + "' not found");
         params.remove(found);
-        this.setQueryNVP(params);
-        return this;
-    }
-
-    protected URIBuilder addQueryParam(NameValuePair nvp) throws URISyntaxException {
-        List<NameValuePair> params = getQueryNVP();
-        params.add(nvp);
-        this.setQueryNVP(params);
-        return this;
-    }
-
-    /**
-     * This will append a query parameter to the existing query string.  If the given
-     * parameter is already part of the query string, it will be appended to.
-     * To replace the existing value of a certain parameter, either call
-     * {@link #removeQueryParam(String)} first, or use {@link #getQuery()},
-     * modify the value in the map, then call {@link #setQuery(Map)}.
-     *
-     * @param param query parameter name
-     * @param value query parameter value (will be converted to a string if
-     *              not null.  If <code>value</code> is null, it will be set as the empty
-     *              string.
-     * @return this URIBuilder instance, for method chaining.
-     * @throws URISyntaxException if the query parameter values cannot be
-     *                            converted to a valid URI.
-     * @see #setQuery(Map)
-     */
-    public URIBuilder addQueryParam(String param, Object value) throws URISyntaxException {
-        List<NameValuePair> params = getQueryNVP();
-        params.add(new BasicNameValuePairWithNoValueSupport(param, value));
         this.setQueryNVP(params);
         return this;
     }
@@ -509,16 +478,5 @@ public class URIBuilder implements Cloneable {
             }
         }
         return parameters;
-    }
-
-    public void urlDecodeQueryParametersIfNeeded() {
-        if (isUrlEncodingEnabled) {
-            Map<String, Object> query = this.getQuery();
-            try {
-                setQuery(query);
-            } catch (URISyntaxException e) {
-                throw new IllegalStateException(e);
-            }
-        }
     }
 }
