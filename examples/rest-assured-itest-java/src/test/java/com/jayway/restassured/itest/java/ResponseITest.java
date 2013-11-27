@@ -269,4 +269,74 @@ public class ResponseITest extends WithJetty {
         assertThat(jsonPath.<Float>get("store.book.price.min()"), is(8.95f));
         assertThat(jsonPath.<Float>get("store.book.price.max()"), is(22.99f));
     }
+
+    @Test
+    public void pathWorksForMultipleInvocationsWithJson() throws Exception {
+        Response response = get("/jsonStore");
+
+        float minPrice = response.path("store.book.price.min()");
+        float maxPrice = response.path("store.book.price.max()");
+
+        assertThat(minPrice, is(8.95f));
+        assertThat(maxPrice, is(22.99f));
+    }
+
+    @Test
+    public void pathThrowsExceptionWhenTryingToUseXmlPathAfterHavingUsedJsonPath() throws Exception {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Cannot create an XmlPath instance since a JsonPath instance has already been created for this response.");
+
+        Response response = get("/jsonStore");
+
+        response.path("store.book.price.min()");
+        response.xmlPath();
+    }
+
+    @Test
+    public void pathWorksForMultipleInvocationsWithXml() throws Exception {
+        Response response = get("/videos");
+
+        String title = response.path("videos.music[0].title.toString().trim()");
+        String artist = response.path("videos.music[0].artist.toString().trim()");
+
+        assertThat(title, equalTo("Video Title 1"));
+        assertThat(artist, equalTo("Artist 1"));
+    }
+
+    @Test
+    public void pathThrowsExceptionWhenTryingToUseJsonPathAfterHavingUsedXmlPath() throws Exception {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Cannot create a JsonPath instance since a XmlPath instance has already been created for this response.");
+
+        Response response = get("/videos");
+
+        response.path("videos.music[0].title.toString().trim()");
+        response.jsonPath();
+    }
+
+    @Test
+    public void canParsePathAfterPrettyPrint() throws Exception {
+        Response response = get("/videos");
+
+        response.prettyPrint();
+
+        String title = response.path("videos.music[0].title.toString().trim()");
+        String artist = response.path("videos.music[0].artist.toString().trim()");
+
+        assertThat(title, equalTo("Video Title 1"));
+        assertThat(artist, equalTo("Artist 1"));
+    }
+
+    @Test
+    public void canParsePathAfterPrint() throws Exception {
+        Response response = get("/videos");
+
+        response.print();
+
+        String title = response.path("videos.music[0].title.toString().trim()");
+        String artist = response.path("videos.music[0].artist.toString().trim()");
+
+        assertThat(title, equalTo("Video Title 1"));
+        assertThat(artist, equalTo("Artist 1"));
+    }
 }

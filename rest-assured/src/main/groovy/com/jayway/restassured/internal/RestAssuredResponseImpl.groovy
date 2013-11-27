@@ -68,6 +68,9 @@ class RestAssuredResponseImpl implements Response {
     def XmlConfig xmlConfig
     def JsonConfig jsonConfig
 
+    def JsonPath jsonPath
+    def XmlPath xmlPath
+
     public void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
         parseHeaders(httpResponse)
         parseContentType(httpResponse)
@@ -141,12 +144,14 @@ class RestAssuredResponseImpl implements Response {
 
     String print() {
         def string = asString();
+        content = string
         println string
         string
     }
 
     String prettyPrint() {
         def body = new Prettifier().getPrettifiedBodyIfPossible(this)
+        content = body
         println body
         body
     }
@@ -322,9 +327,15 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
                 numberReturnType(jsonConfig.numberReturnType()));
     }
 
-    JsonPath jsonPath(JsonPathConfig config) {
+    synchronized JsonPath jsonPath(JsonPathConfig config) {
         notNull(config, "JsonPathConfig")
-        new JsonPath(asInputStream()).using(config)
+        if (xmlPath != null) {
+            throw new IllegalStateException("Cannot create a ${JsonPath.class.getSimpleName()} instance since a ${XmlPath.class.getSimpleName()} instance has already been created for this response.")
+        }
+        if (jsonPath == null) {
+            jsonPath = new JsonPath(asInputStream())
+        }
+        jsonPath.using(config)
     }
 
     XmlPath xmlPath() {
@@ -453,9 +464,15 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
                 jaxbObjectMapperFactory(objectMapperConfig.jaxbObjectMapperFactory()))
     }
 
-    private def newXmlPath(CompatibilityMode xml, XmlPathConfig config) {
+    private synchronized def newXmlPath(CompatibilityMode mode, XmlPathConfig config) {
         notNull(config, "XmlPathConfig")
-        new XmlPath(xml, asInputStream()).using(config)
+        if (jsonPath != null) {
+            throw new IllegalStateException("Cannot create an ${XmlPath.class.getSimpleName()} instance since a ${JsonPath.class.getSimpleName()} instance has already been created for this response.")
+        }
+        if (xmlPath == null) {
+            xmlPath = new XmlPath(mode, asInputStream())
+        }
+        xmlPath.using(config)
     }
 
     private def charsetToString(charset) {

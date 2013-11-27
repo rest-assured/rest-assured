@@ -1,7 +1,12 @@
 Change log next version
 -----------------------
 * Fixed a regression bug where Rest Assured didn't respected trailing slashes in URL's (issue 276).
-
+* Fixed so that the path method in the Response can be invoked multiple times, for example:
+    Response response = get("/jsonStore");
+    float minPrice = response.path("store.book.price.min()");
+    float maxPrice = response.path("store.book.price.max()");
+  (issue 280)
+* Fixed so that JsonPath and XmlPath and path expressions work after the "prettyPrint" and "print" methods have been called on a Response instance.
 
 Change log 1.9.0 (2013-11-25)
 -----------------------------
