@@ -20,6 +20,8 @@ import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.path.json.JsonPath;
+import com.jayway.restassured.path.json.exception.JsonPathException;
+import com.jayway.restassured.path.xml.exception.XmlPathException;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.io.IOUtils;
@@ -283,13 +285,13 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void pathThrowsExceptionWhenTryingToUseXmlPathAfterHavingUsedJsonPath() throws Exception {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Cannot create an XmlPath instance since a JsonPath instance has already been created for this response.");
+        exception.expect(XmlPathException.class);
+        exception.expectMessage("Failed to parse the XML document");
 
         Response response = get("/jsonStore");
 
         response.path("store.book.price.min()");
-        response.xmlPath();
+        response.xmlPath().get("store.book.price.min()");
     }
 
     @Test
@@ -305,13 +307,13 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void pathThrowsExceptionWhenTryingToUseJsonPathAfterHavingUsedXmlPath() throws Exception {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Cannot create a JsonPath instance since a XmlPath instance has already been created for this response.");
+        exception.expect(JsonPathException.class);
+        exception.expectMessage("Failed to parse the JSON document");
 
         Response response = get("/videos");
 
         response.path("videos.music[0].title.toString().trim()");
-        response.jsonPath();
+        response.jsonPath().get("videos");
     }
 
     @Test
