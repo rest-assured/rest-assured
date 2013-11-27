@@ -1239,6 +1239,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         } else {
             def host = getTargetURI(path)
             def pathWithoutQueryParams = StringUtils.substringBefore(getTargetPath(path), "?");
+            def shouldAppendSlashAfterEncoding = pathWithoutQueryParams.endsWith("/") // The last slash is removed later so we may need to add it again
             def queryParams = substringAfter(path, "?")
             def usesNamedPathParameters = namedPathParamSize > unnamedPathParamSize
 
@@ -1278,6 +1279,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
             if (hasPathParameterWithDoubleSlash) {
                 // Now get the double slash replacement back to normal double slashes
                 pathWithoutQueryParams = StringUtils.replace(pathWithoutQueryParams, "RA_double_slash__", encode(DOUBLE_SLASH, EncodingTarget.QUERY))
+            }
+
+            if (shouldAppendSlashAfterEncoding) {
+                pathWithoutQueryParams += "/"
             }
 
             // Remove used unnamed path parameters if all parameters haven't already been used

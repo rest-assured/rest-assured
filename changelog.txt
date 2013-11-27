@@ -1,3 +1,8 @@
+Change log next version
+-----------------------
+* Fixed a regression bug where Rest Assured didn't respected trailing slashes in URL's (issue 276).
+
+
 Change log 1.9.0 (2013-11-25)
 -----------------------------
 * It's now possible to validate if the ResponseSpecification is fulfilled by calling the validate method and passing in a Response object (thanks to Ian Forsey for the patch).

@@ -171,7 +171,7 @@ public class URLITest extends WithJetty {
                 get("http://tototiti.alarmesomfy.net/");
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://tototiti.alarmesomfy.net"));
+        assertThat(loggedRequestPathIn(writer), equalTo("http://tototiti.alarmesomfy.net/"));
     }
 
     /**
@@ -205,7 +205,7 @@ public class URLITest extends WithJetty {
                 get("http://tototiti.alarmesomfy.net/");
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://tototiti.alarmesomfy.net")); // Should preferably be http://tototiti.alarmesomfy.net:8080 but we accept that it's not for now
+        assertThat(loggedRequestPathIn(writer), equalTo("http://tototiti.alarmesomfy.net/")); // Should preferably be http://tototiti.alarmesomfy.net:8080 but we accept that it's not for now
     }
 
     @Test
@@ -238,7 +238,7 @@ public class URLITest extends WithJetty {
         }
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://tototiti.alarmesomfy.net:8080/api"));
+        assertThat(loggedRequestPathIn(writer), equalTo("http://tototiti.alarmesomfy.net:8080/api/"));
     }
 
     @Test
@@ -264,7 +264,7 @@ public class URLITest extends WithJetty {
                 get("http://tototiti.alarmesomfy.net:8080/");
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://tototiti.alarmesomfy.net:8080"));
+        assertThat(loggedRequestPathIn(writer), equalTo("http://tototiti.alarmesomfy.net:8080/"));
     }
 
     @Test
@@ -290,7 +290,7 @@ public class URLITest extends WithJetty {
                 get("http://localhost:8082/");
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8082"));
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8082/"));
     }
 
     @Test
@@ -313,7 +313,7 @@ public class URLITest extends WithJetty {
                  statusCode(200).
                  body(equalTo("changed")).
         when().
-                get("http://localhost/");
+                get("http://localhost");
 
         // Then
         assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080"));
@@ -341,7 +341,7 @@ public class URLITest extends WithJetty {
                 get("/");
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080"));
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/"));
     }
 
     @Test
@@ -367,7 +367,7 @@ public class URLITest extends WithJetty {
                 get("/");
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8083"));
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8083/"));
     }
 
     @Test
@@ -394,7 +394,7 @@ public class URLITest extends WithJetty {
 
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8084"));
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8084/"));
     }
 
     @Test
@@ -454,7 +454,7 @@ public class URLITest extends WithJetty {
 
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8084"));
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8084/"));
     }
 
     @Test
@@ -488,7 +488,7 @@ public class URLITest extends WithJetty {
 
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/api"));
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/api/"));
     }
 
     @Test
@@ -519,7 +519,7 @@ public class URLITest extends WithJetty {
         }
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:9093"));
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:9093/"));
     }
 
     @Test
@@ -551,7 +551,7 @@ public class URLITest extends WithJetty {
         }
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://something.com:9093"));
+        assertThat(loggedRequestPathIn(writer), equalTo("http://something.com:9093/"));
     }
 
     @Test
@@ -579,5 +579,121 @@ public class URLITest extends WithJetty {
 
         // Then
         assertThat(loggedRequestPathIn(writer), equalTo("http://something.com:9093"));
+    }
+
+
+    @Test
+    public void trailingSlashesAreRetainedWhenConfiguredStatically() throws Exception {
+        // Given
+
+        RestAssured.basePath = "/v1/";
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        // When
+        try {
+            given().
+                    filter(new RequestLoggingFilter(captor)).
+                    filter(new Filter() {
+                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                        }
+                    }).
+            expect().
+                     statusCode(200).
+                     body(equalTo("changed")).
+            when().
+                    get("/");
+        } finally {
+            RestAssured.reset();
+        }
+
+        // Then
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/v1/"));
+    }
+
+    @Test
+    public void doesntAddTrailingSlashesWhenNoTrailingSlashIsUsed() throws Exception {
+        // Given
+
+        RestAssured.basePath = "/v1";
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        // When
+        try {
+            given().
+                    filter(new RequestLoggingFilter(captor)).
+                    filter(new Filter() {
+                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                        }
+                    }).
+            expect().
+                     statusCode(200).
+                     body(equalTo("changed")).
+            when().
+                    get("");
+        } finally {
+            RestAssured.reset();
+        }
+
+        // Then
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/v1"));
+    }
+
+    @Test
+    public void addsSingleTrailingSlashToPathWhenSlashIsUsedAsPathInGetMethod() throws Exception {
+        // Given
+
+        RestAssured.basePath = "/v1";
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        // When
+        try {
+            given().
+                    filter(new RequestLoggingFilter(captor)).
+                    filter(new Filter() {
+                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                        }
+                    }).
+            expect().
+                     statusCode(200).
+                     body(equalTo("changed")).
+            when().
+                    get("/");
+        } finally {
+            RestAssured.reset();
+        }
+
+        // Then
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/v1/"));
+    }
+
+    @Test
+    public void trailingSlashesAreRetainedWhenPassedAsArgumentToGetMethod() throws Exception {
+        // Given
+
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        // When
+        given().
+                filter(new RequestLoggingFilter(captor)).
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                    }
+                }).
+        expect().
+                 statusCode(200).
+                 body(equalTo("changed")).
+        when().
+                get("/v1/");
+
+        // Then
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/v1/"));
     }
 }
