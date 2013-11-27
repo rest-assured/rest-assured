@@ -15,6 +15,7 @@ Change log next version
     RestAssured.baseURI = "http://localhost:8080/hello";
     String y = get().path("x.y");
   (issue 279)
+* It's now possible to call asString() on a Response object after asByteArray() has been called and vice versa.
 
 Change log 1.9.0 (2013-11-25)
 -----------------------------

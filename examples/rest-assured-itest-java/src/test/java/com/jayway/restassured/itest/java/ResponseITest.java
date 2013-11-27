@@ -339,4 +339,54 @@ public class ResponseITest extends WithJetty {
         assertThat(title, equalTo("Video Title 1"));
         assertThat(artist, equalTo("Artist 1"));
     }
+
+    @Test
+    public void canGetAsStringMultipleTimes() throws Exception {
+        // When
+        Response response = get("/videos");
+
+        response.asString();
+        String string = response.asString();
+
+        // Then
+        assertThat(string, not(nullValue()));
+    }
+
+    @Test
+    public void canGetAsByteArrayMultipleTimes() throws Exception {
+        // When
+        Response response = get("/videos");
+
+        response.asByteArray();
+        final byte[] bytes = response.asByteArray();
+
+        // Then
+        assertThat(bytes, not(nullValue()));
+    }
+
+    @Test
+    public void canCombineAsByteArrayWithPrettyPrintAndAsString() throws Exception {
+        // When
+        Response response = get("/videos");
+
+        response.asByteArray();
+        response.prettyPrint();
+        String string = response.asString();
+
+        // Then
+        assertThat(string, not(nullValue()));
+    }
+
+    @Test
+    public void canCombineAsStringWithPrettyPrintAndAsByteArray() throws Exception {
+        // When
+        Response response = get("/videos");
+
+        response.asString();
+        response.prettyPrint();
+        byte[] bytes = response.asByteArray();
+
+        // Then
+        assertThat(bytes, not(nullValue()));
+    }
 }

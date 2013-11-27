@@ -164,8 +164,12 @@ class RestAssuredResponseImpl implements Response {
         if (content == null || content instanceof InputStream) {
             new CloseHTTPClientConnectionInputStreamWrapper(connectionConfig, connectionManager, content)
         } else {
-            content instanceof String ? new ByteArrayInputStream(content.getBytes(findCharset())) : new ByteArrayInputStream(content)
+            content instanceof String ? new ByteArrayInputStream(convertStringToByteArray(content)) : new ByteArrayInputStream(content)
         }
+    }
+
+    def byte[] convertStringToByteArray(string) {
+        string.getBytes(findCharset())
     }
 
     byte[] asByteArray() {
@@ -174,8 +178,13 @@ class RestAssuredResponseImpl implements Response {
         }
         if (hasExpectations) {
             return content instanceof byte[] ? content : content.getBytes(findCharset())
+        } else if (content instanceof byte[]) {
+            content
+        } else if (content instanceof String) {
+            convertStringToByteArray(content)
         } else {
-            return convertStreamToByteArray(content)
+            content = convertStreamToByteArray(content)
+            content
         }
     }
 
@@ -485,7 +494,8 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
         } else if (content instanceof byte[]) {
             new String(content, charset)
         } else {
-            convertStreamToString(content)
+            content = convertStreamToString(content)
+            content
         }
     }
 
