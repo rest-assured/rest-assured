@@ -30,6 +30,7 @@ import org.junit.Test;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
+import java.net.URI;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.http.ContentType.JSON;
@@ -695,5 +696,47 @@ public class URLITest extends WithJetty {
 
         // Then
         assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/v1/"));
+    }
+
+    @Test
+    public void canUseAGetRequestInDslForUris() throws Exception {
+        // Given
+        final URI uri = new URI("http://localhost:8080/greet?firstName=John&lastName=Doe");
+
+        // When
+        expect().body("greeting", equalTo("Greetings John Doe")).when().get(uri);
+    }
+
+    @Test
+    public void canUseAPostRequestInDslForUris() throws Exception {
+        // Given
+        final URI uri = new URI("http://localhost:8080/greet?firstName=John&lastName=Doe");
+
+        // When
+        expect().body("greeting", equalTo("Greetings John Doe")).when().post(uri);
+    }
+
+    @Test
+    public void canUseAStaticGetRequestWithUris() throws Exception {
+        // Given
+        final URI uri = new URI("http://localhost:8080/greet?firstName=John&lastName=Doe");
+
+        // When
+        String greeting = get(uri).andReturn().path("greeting");
+
+        // Then
+        assertThat(greeting, equalTo("Greetings John Doe"));
+    }
+
+    @Test
+    public void canUseAStaticPostRequestWithUris() throws Exception {
+        // Given
+        final URI uri = new URI("http://localhost:8080/greet?firstName=John&lastName=Doe");
+
+        // When
+        String greeting = post(uri).andReturn().path("greeting");
+
+        // Then
+        assertThat(greeting, equalTo("Greetings John Doe"));
     }
 }

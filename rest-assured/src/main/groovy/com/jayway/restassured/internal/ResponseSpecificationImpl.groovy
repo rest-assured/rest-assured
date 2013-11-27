@@ -261,6 +261,41 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         requestSpecification.options(path, pathParams);
     }
 
+
+    Response get(URI uri) {
+        get(notNull(uri, "URI").toString())
+    }
+
+
+    Response post(URI uri) {
+        post(notNull(uri, "URI").toString())
+    }
+
+
+    Response put(URI uri) {
+        put(notNull(uri, "URI").toString())
+    }
+
+
+    Response delete(URI uri) {
+        delete(notNull(uri, "URI").toString())
+    }
+
+
+    Response head(URI uri) {
+        head(notNull(uri, "URI").toString())
+    }
+
+
+    Response patch(URI uri) {
+        patch(notNull(uri, "URI").toString())
+    }
+
+
+    Response options(URI uri) {
+        options(notNull(uri, "URI").toString())
+    }
+
     def Response head(String path, Object... pathParams) {
         requestSpecification.head(path, pathParams);
     }

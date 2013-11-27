@@ -22,9 +22,10 @@ package com.jayway.restassured.internal.assertion
 
 class AssertParameter {
 
-  def static notNull(Object object, String parameterName) {
-    if (object == null) {
-      throw new IllegalArgumentException("$parameterName cannot be null")
+    def static notNull(Object object, String parameterName) {
+        if (object == null) {
+            throw new IllegalArgumentException("$parameterName cannot be null")
+        }
+        object
     }
-  }
 }

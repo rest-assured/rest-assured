@@ -160,6 +160,34 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         applyPathParamsAndSendRequest(OPTIONS, path, pathParams)
     }
 
+    def Response get(URI uri) {
+        get(notNull(uri, "URI").toString())
+    }
+
+    def Response post(URI uri) {
+        post(notNull(uri, "URI").toString())
+    }
+
+    def Response put(URI uri) {
+        put(notNull(uri, "URI").toString())
+    }
+
+    def Response delete(URI uri) {
+        delete(notNull(uri, "URI").toString())
+    }
+
+    def Response head(URI uri) {
+        head(notNull(uri, "URI").toString())
+    }
+
+    def Response patch(URI uri) {
+        patch(notNull(uri, "URI").toString())
+    }
+
+    def Response options(URI uri) {
+        options(notNull(uri, "URI").toString())
+    }
+
     def Response get(String path, Map pathParams) {
         pathParameters(pathParams)
         applyPathParamsAndSendRequest(GET, path)
@@ -1629,7 +1657,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
                     def entity = resp?.entity
                     if (entity != null) {
                         resp.entity = new HttpEntityWrapper(entity) {
-                            @Override
+
                             org.apache.http.Header getContentType() {
                                 // We don't use CONTENT_TYPE field because of issue 253 (no tests for this!)
                                 return new BasicHeader("Content-Type", definedDefaultParser.getContentType())
