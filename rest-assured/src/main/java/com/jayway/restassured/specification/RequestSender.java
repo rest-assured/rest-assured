@@ -168,7 +168,7 @@ public interface RequestSender {
      * Perform a GET request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the GET request.
      */
     Response get(URI uri);
 
@@ -176,7 +176,7 @@ public interface RequestSender {
      * Perform a POST request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response post(URI uri);
 
@@ -184,7 +184,7 @@ public interface RequestSender {
      * Perform a PUT request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response put(URI uri);
 
@@ -192,7 +192,7 @@ public interface RequestSender {
      * Perform a DELETE request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response delete(URI uri);
 
@@ -200,7 +200,7 @@ public interface RequestSender {
      * Perform a HEAD request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response head(URI uri);
 
@@ -208,7 +208,7 @@ public interface RequestSender {
      * Perform a PATCH request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response patch(URI uri);
 
@@ -216,15 +216,15 @@ public interface RequestSender {
      * Perform a OPTIONS request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response options(URI uri);
-    
+
     /**
      * Perform a GET request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the GET request.
      */
     Response get(URL url);
 
@@ -232,7 +232,7 @@ public interface RequestSender {
      * Perform a POST request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response post(URL url);
 
@@ -240,7 +240,7 @@ public interface RequestSender {
      * Perform a PUT request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response put(URL url);
 
@@ -248,7 +248,7 @@ public interface RequestSender {
      * Perform a DELETE request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response delete(URL url);
 
@@ -256,7 +256,7 @@ public interface RequestSender {
      * Perform a HEAD request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response head(URL url);
 
@@ -264,7 +264,7 @@ public interface RequestSender {
      * Perform a PATCH request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response patch(URL url);
 
@@ -272,7 +272,56 @@ public interface RequestSender {
      * Perform a OPTIONS request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     Response options(URL url);
+
+    /**
+     * Perform a GET request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the GET request.
+     */
+    Response get();
+
+    /**
+     * Perform a POST request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    Response post();
+
+    /**
+     * Perform a PUT request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    Response put();
+
+    /**
+     * Perform a DELETE request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    Response delete();
+
+    /**
+     * Perform a HEAD request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    Response head();
+
+    /**
+     * Perform a PATCH request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    Response patch();
+
+    /**
+     * Perform a OPTIONS request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    Response options();
 }

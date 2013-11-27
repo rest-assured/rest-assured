@@ -324,6 +324,34 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         options(notNull(url, "URL").toString())
     }
 
+    def Response get() {
+        get("")
+    }
+
+    def Response post() {
+        post("")
+    }
+
+    def Response put() {
+        put("")
+    }
+
+    def Response delete() {
+        delete("")
+    }
+
+    def Response head() {
+        head("")
+    }
+
+    def Response patch() {
+        patch("")
+    }
+
+    def Response options() {
+        options("")
+    }
+
     def Response head(String path, Object... pathParams) {
         requestSpecification.head(path, pathParams);
     }

@@ -11,6 +11,10 @@ Change log next version
     URI myUri = new URI(..)
     Response response = get(myUri);
   (issue 278)
+* Added possibility to call request methods without any parameters. This is useful if you want to call the root resource. For example:
+    RestAssured.baseURI = "http://localhost:8080/hello";
+    String y = get().path("x.y");
+  (issue 279)
 
 Change log 1.9.0 (2013-11-25)
 -----------------------------

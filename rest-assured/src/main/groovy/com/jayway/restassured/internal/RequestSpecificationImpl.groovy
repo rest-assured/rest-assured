@@ -216,6 +216,34 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         options(notNull(url, "URL").toString())
     }
 
+    def Response get() {
+        get("")
+    }
+
+    def Response post() {
+        post("")
+    }
+
+    def Response put() {
+        put("")
+    }
+
+    def Response delete() {
+        delete("")
+    }
+
+    def Response head() {
+        head("")
+    }
+
+    def Response patch() {
+        patch("")
+    }
+
+    def Response options() {
+        options("")
+    }
+
     def Response get(String path, Map pathParams) {
         pathParameters(pathParams)
         applyPathParamsAndSendRequest(GET, path)

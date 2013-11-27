@@ -782,4 +782,64 @@ public class URLITest extends WithJetty {
         // Then
         assertThat(greeting, equalTo("Greetings John Doe"));
     }
+
+    @Test
+    public void canUseAGetRequestWithoutAnyParametersInDsl() throws Exception {
+        // Given
+        RestAssured.baseURI = "http://localhost:8080/hello";
+
+        // When
+        try {
+            expect().body("hello", equalTo("Hello Scalatra")).when().get();
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void canUseAPostRequestWithoutAnyParametersInDsl() throws Exception {
+        // Given
+        RestAssured.baseURI = "http://localhost:8080/hello";
+
+        // When
+        try {
+            expect().body("hello", equalTo("Hello Scalatra")).when().post();
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void canUseAStaticGetRequestWithoutAnyParameters() throws Exception {
+        // Given
+        RestAssured.baseURI = "http://localhost:8080/hello";
+
+        // When
+        String greeting = null;
+        try {
+            greeting = get().path("hello");
+        } finally {
+            RestAssured.reset();
+        }
+
+        // Then
+        assertThat(greeting, equalTo("Hello Scalatra"));
+    }
+
+    @Test
+    public void canUseAStaticPostRequestWithoutAnyParameters() throws Exception {
+        // Given
+        RestAssured.baseURI = "http://localhost:8080/hello";
+
+        // When
+        String greeting = null;
+        try {
+            greeting = post().path("hello");
+        } finally {
+            RestAssured.reset();
+        }
+
+        // Then
+        assertThat(greeting, equalTo("Hello Scalatra"));
+    }
 }

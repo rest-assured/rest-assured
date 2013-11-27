@@ -164,6 +164,34 @@ class TestSpecificationImpl implements RequestSender {
         options(notNull(url, "URL").toString())
     }
 
+    def Response get() {
+        get("")
+    }
+
+    def Response post() {
+        post("")
+    }
+
+    def Response put() {
+        put("")
+    }
+
+    def Response delete() {
+        delete("")
+    }
+
+    def Response head() {
+        head("")
+    }
+
+    def Response patch() {
+        patch("")
+    }
+
+    def Response options() {
+        options("")
+    }
+
     Response get(String path, Map pathParams) {
         requestSpecification.get path, pathParams
     }

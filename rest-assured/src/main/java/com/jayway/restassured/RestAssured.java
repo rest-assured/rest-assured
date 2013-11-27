@@ -819,7 +819,7 @@ public class RestAssured {
      *
      * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>get("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
-     * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the GET request.
      */
     public static Response get(String path, Object... pathParams) {
         return given().get(path, pathParams);
@@ -831,7 +831,7 @@ public class RestAssured {
      *
      * @param path       The path to send the request to.
      * @param pathParams The path parameters.
-     * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the GET request.
      */
     public static Response get(String path, Map<String, ?> pathParams) {
         return given().get(path, pathParams);
@@ -843,7 +843,7 @@ public class RestAssured {
      *
      * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>post("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response post(String path, Object... pathParams) {
         return given().post(path, pathParams);
@@ -855,7 +855,7 @@ public class RestAssured {
      *
      * @param path       The path to send the request to.
      * @param pathParams The path parameters.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response post(String path, Map<String, ?> pathParams) {
         return given().post(path, pathParams);
@@ -867,7 +867,7 @@ public class RestAssured {
      *
      * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>put("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response put(String path, Object... pathParams) {
         return given().put(path, pathParams);
@@ -879,7 +879,7 @@ public class RestAssured {
      *
      * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>delete("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response delete(String path, Object... pathParams) {
         return given().delete(path, pathParams);
@@ -891,7 +891,7 @@ public class RestAssured {
      *
      * @param path       The path to send the request to.
      * @param pathParams The path parameters.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response delete(String path, Map<String, ?> pathParams) {
         return given().delete(path, pathParams);
@@ -903,7 +903,7 @@ public class RestAssured {
      *
      * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response head(String path, Object... pathParams) {
         return given().head(path, pathParams);
@@ -915,7 +915,7 @@ public class RestAssured {
      *
      * @param path       The path to send the request to.
      * @param pathParams The path parameters.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response head(String path, Map<String, ?> pathParams) {
         return given().head(path, pathParams);
@@ -927,7 +927,7 @@ public class RestAssured {
      *
      * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response patch(String path, Object... pathParams) {
         return given().patch(path, pathParams);
@@ -939,7 +939,7 @@ public class RestAssured {
      *
      * @param path       The path to send the request to.
      * @param pathParams The path parameters.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response patch(String path, Map<String, ?> pathParams) {
         return given().patch(path, pathParams);
@@ -951,7 +951,7 @@ public class RestAssured {
      *
      * @param path       The path to send the request to.
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response options(String path, Object... pathParams) {
         return given().options(path, pathParams);
@@ -963,7 +963,7 @@ public class RestAssured {
      *
      * @param path       The path to send the request to.
      * @param pathParams The path parameters.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response options(String path, Map<String, ?> pathParams) {
         return given().options(path, pathParams);
@@ -973,7 +973,7 @@ public class RestAssured {
      * Perform a GET request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the GET request.
      */
     public static Response get(URI uri) {
         return given().get(uri);
@@ -983,7 +983,7 @@ public class RestAssured {
      * Perform a POST request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response post(URI uri) {
         return given().post(uri);
@@ -993,7 +993,7 @@ public class RestAssured {
      * Perform a PUT request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response put(URI uri) {
         return given().put(uri);
@@ -1003,7 +1003,7 @@ public class RestAssured {
      * Perform a DELETE request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response delete(URI uri) {
         return given().delete(uri);
@@ -1013,7 +1013,7 @@ public class RestAssured {
      * Perform a HEAD request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response head(URI uri) {
         return given().head(uri);
@@ -1023,7 +1023,7 @@ public class RestAssured {
      * Perform a PATCH request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response patch(URI uri) {
         return given().patch(uri);
@@ -1033,7 +1033,7 @@ public class RestAssured {
      * Perform a OPTIONS request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response options(URI uri) {
         return given().options(uri);
@@ -1043,7 +1043,7 @@ public class RestAssured {
      * Perform a GET request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the GET request.
      */
     public static Response get(URL url) {
         return given().get(url);
@@ -1053,7 +1053,7 @@ public class RestAssured {
      * Perform a POST request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response post(URL url) {
         return given().post(url);
@@ -1063,7 +1063,7 @@ public class RestAssured {
      * Perform a PUT request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response put(URL url) {
         return given().put(url);
@@ -1073,7 +1073,7 @@ public class RestAssured {
      * Perform a DELETE request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response delete(URL url) {
         return given().delete(url);
@@ -1083,7 +1083,7 @@ public class RestAssured {
      * Perform a HEAD request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response head(URL url) {
         return given().head(url);
@@ -1093,7 +1093,7 @@ public class RestAssured {
      * Perform a PATCH request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response patch(URL url) {
         return given().patch(url);
@@ -1103,10 +1103,73 @@ public class RestAssured {
      * Perform a OPTIONS request to a <code>url</code>.
      *
      * @param url The url to send the request to.
-     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     * @return The response of the request.
      */
     public static Response options(URL url) {
         return given().options(url);
+    }
+    
+    /**
+     * Perform a GET request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the GET request.
+     */
+    public static Response get() {
+        return given().get();
+    }
+
+    /**
+     * Perform a POST request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    public static Response post() {
+        return given().post();
+    }
+
+    /**
+     * Perform a PUT request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    public static Response put() {
+        return given().put();
+    }
+
+    /**
+     * Perform a DELETE request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    public static Response delete() {
+        return given().delete();
+    }
+
+    /**
+     * Perform a HEAD request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    public static Response head() {
+        return given().head();
+    }
+
+    /**
+     * Perform a PATCH request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    public static Response patch() {
+        return given().patch();
+    }
+
+    /**
+     * Perform a OPTIONS request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    public static Response options() {
+        return given().options();
     }
 
     /**
