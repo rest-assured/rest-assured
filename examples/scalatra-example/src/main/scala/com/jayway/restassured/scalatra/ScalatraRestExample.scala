@@ -221,6 +221,10 @@ class ScalatraRestExample extends ScalatraServlet {
     reflect
   }
 
+  post("/param-reflect") {
+    compact(render(decompose(params)))
+  }
+
   post("/:pathParam/manyParams") {
     val queryParam = {params("queryParam")}
     val pathParam = {params("pathParam")}

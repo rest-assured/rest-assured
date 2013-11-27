@@ -286,6 +286,10 @@ public class JSONPostITest extends WithJetty {
                 body(equalTo("Some Text")).
         when().
                 put("/reflect");
+    }
 
+    @Test
+    public void queryParametersInPostAreUrlEncoded() throws Exception {
+        expect().body("first", equalTo("http://myurl.com")).when().post("/param-reflect?first=http://myurl.com");
     }
 }
