@@ -33,6 +33,7 @@ import org.apache.commons.lang3.Validate;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -969,7 +970,7 @@ public class RestAssured {
     }
 
     /**
-     * Perform a GET request to a <code>path</code>.
+     * Perform a GET request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
      * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
@@ -979,7 +980,7 @@ public class RestAssured {
     }
 
     /**
-     * Perform a POST request to a <code>path</code>.
+     * Perform a POST request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
@@ -989,7 +990,7 @@ public class RestAssured {
     }
 
     /**
-     * Perform a PUT request to a <code>path</code>.
+     * Perform a PUT request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
@@ -999,7 +1000,7 @@ public class RestAssured {
     }
 
     /**
-     * Perform a DELETE request to a <code>path</code>.
+     * Perform a DELETE request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
@@ -1009,7 +1010,7 @@ public class RestAssured {
     }
 
     /**
-     * Perform a HEAD request to a <code>path</code>.
+     * Perform a HEAD request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
@@ -1019,7 +1020,7 @@ public class RestAssured {
     }
 
     /**
-     * Perform a PATCH request to a <code>path</code>.
+     * Perform a PATCH request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
@@ -1029,13 +1030,83 @@ public class RestAssured {
     }
 
     /**
-     * Perform a OPTIONS request to a <code>path</code>.
+     * Perform a OPTIONS request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
     public static Response options(URI uri) {
         return given().options(uri);
+    }
+    
+    /**
+     * Perform a GET request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response get(URL url) {
+        return given().get(url);
+    }
+
+    /**
+     * Perform a POST request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response post(URL url) {
+        return given().post(url);
+    }
+
+    /**
+     * Perform a PUT request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response put(URL url) {
+        return given().put(url);
+    }
+
+    /**
+     * Perform a DELETE request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response delete(URL url) {
+        return given().delete(url);
+    }
+
+    /**
+     * Perform a HEAD request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response head(URL url) {
+        return given().head(url);
+    }
+
+    /**
+     * Perform a PATCH request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response patch(URL url) {
+        return given().patch(url);
+    }
+
+    /**
+     * Perform a OPTIONS request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    public static Response options(URL url) {
+        return given().options(url);
     }
 
     /**

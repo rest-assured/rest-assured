@@ -31,6 +31,7 @@ import org.junit.Test;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.URI;
+import java.net.URL;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.http.ContentType.JSON;
@@ -735,6 +736,48 @@ public class URLITest extends WithJetty {
 
         // When
         String greeting = post(uri).andReturn().path("greeting");
+
+        // Then
+        assertThat(greeting, equalTo("Greetings John Doe"));
+    }
+    
+    @Test
+    public void canUseAGetRequestInDslForUrls() throws Exception {
+        // Given
+        final URL url = new URL("http://localhost:8080/greet?firstName=John&lastName=Doe");
+
+        // When
+        expect().body("greeting", equalTo("Greetings John Doe")).when().get(url);
+    }
+
+    @Test
+    public void canUseAPostRequestInDslForUrls() throws Exception {
+        // Given
+        final URL url = new URL("http://localhost:8080/greet?firstName=John&lastName=Doe");
+
+        // When
+        expect().body("greeting", equalTo("Greetings John Doe")).when().post(url);
+    }
+
+    @Test
+    public void canUseAStaticGetRequestWithUrls() throws Exception {
+        // Given
+        final URL url = new URL("http://localhost:8080/greet?firstName=John&lastName=Doe");
+
+        // When
+        String greeting = get(url).andReturn().path("greeting");
+
+        // Then
+        assertThat(greeting, equalTo("Greetings John Doe"));
+    }
+
+    @Test
+    public void canUseAStaticPostRequestWithUrls() throws Exception {
+        // Given
+        final URL url = new URL("http://localhost:8080/greet?firstName=John&lastName=Doe");
+
+        // When
+        String greeting = post(url).andReturn().path("greeting");
 
         // Then
         assertThat(greeting, equalTo("Greetings John Doe"));

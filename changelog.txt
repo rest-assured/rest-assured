@@ -7,6 +7,10 @@ Change log next version
     float maxPrice = response.path("store.book.price.max()");
   (issue 280)
 * Fixed so that JsonPath and XmlPath and path expressions work after the "prettyPrint" and "print" methods have been called on a Response instance.
+* Added support for performing requests with URI's and URL's, for example:
+    URI myUri = new URI(..)
+    Response response = get(myUri);
+  (issue 278)
 
 Change log 1.9.0 (2013-11-25)
 -----------------------------

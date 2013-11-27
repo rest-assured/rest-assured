@@ -19,6 +19,7 @@ package com.jayway.restassured.specification;
 import com.jayway.restassured.response.Response;
 
 import java.net.URI;
+import java.net.URL;
 import java.util.Map;
 
 public interface RequestSender {
@@ -218,4 +219,60 @@ public interface RequestSender {
      * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
      */
     Response options(URI uri);
+    
+    /**
+     * Perform a GET request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the GET request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    Response get(URL url);
+
+    /**
+     * Perform a POST request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    Response post(URL url);
+
+    /**
+     * Perform a PUT request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    Response put(URL url);
+
+    /**
+     * Perform a DELETE request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    Response delete(URL url);
+
+    /**
+     * Perform a HEAD request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    Response head(URL url);
+
+    /**
+     * Perform a PATCH request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    Response patch(URL url);
+
+    /**
+     * Perform a OPTIONS request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request. The response can only be returned if you don't use any REST Assured response expectations.
+     */
+    Response options(URL url);
 }
