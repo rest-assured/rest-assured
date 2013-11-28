@@ -16,6 +16,7 @@ Change log next version
     String y = get().path("x.y");
   (issue 279)
 * It's now possible to call asString() on a Response object after asByteArray() has been called and vice versa.
+* given(requestSpecification) now returns the RequestSpecification instead of RequestSender
 
 Change log 1.9.0 (2013-11-25)
 -----------------------------

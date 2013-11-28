@@ -809,8 +809,8 @@ public class RestAssured {
      *
      * @return A RequestSender
      */
-    public static RequestSender given(RequestSpecification requestSpecification) {
-        return new TestSpecificationImpl(requestSpecification, createTestSpecification().getResponseSpecification());
+    public static RequestSpecification given(RequestSpecification requestSpecification) {
+        return new TestSpecificationImpl(requestSpecification, createTestSpecification().getResponseSpecification()).getRequestSpecification();
     }
 
     /**
