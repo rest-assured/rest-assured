@@ -17,10 +17,12 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.config.RestAssuredConfig
+import com.jayway.restassured.filter.log.LogDetail
 import com.jayway.restassured.internal.http.CharsetExtractor
 import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
 import com.jayway.restassured.internal.mapping.ObjectMapping
+import com.jayway.restassured.internal.print.ResponsePrinter
 import com.jayway.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper
 import com.jayway.restassured.internal.support.Prettifier
 import com.jayway.restassured.mapper.DataToDeserialize
@@ -146,6 +148,16 @@ class RestAssuredResponseImpl implements Response, ExtractableResponse {
         content = body
         println body
         body
+    }
+
+    Response peek() {
+        ResponsePrinter.print(this, System.out, LogDetail.ALL, false);
+        this
+    }
+
+    Response prettyPeek() {
+        ResponsePrinter.print(this, System.out, LogDetail.ALL, true);
+        this
     }
 
     String asString() {

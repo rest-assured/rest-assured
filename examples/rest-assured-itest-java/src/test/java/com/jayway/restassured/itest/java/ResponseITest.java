@@ -78,7 +78,7 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void whenNoExpectationsDefinedThenPostWithBodyCanReturnBodyAsString() throws Exception {
-        byte[] body = { 23, 42, 127, 123};
+        byte[] body = {23, 42, 127, 123};
         final String actual = given().body(body).then().post("/binaryBody").andReturn().asString();
         assertEquals("23, 42, 127, 123", actual);
     }
@@ -243,12 +243,12 @@ public class ResponseITest extends WithJetty {
     public void jsonPathReturnedByResponseUsesConfigurationFromRestAssured() throws Exception {
         // When
         final JsonPath jsonPath =
-        given().
-                config(newConfig().with().jsonConfig(jsonConfig().numberReturnType(BIG_DECIMAL))).
-        expect().
-                statusCode(200).
-        when().
-                get("/jsonStore").jsonPath();
+                given().
+                        config(newConfig().with().jsonConfig(jsonConfig().numberReturnType(BIG_DECIMAL))).
+                        expect().
+                        statusCode(200).
+                        when().
+                        get("/jsonStore").jsonPath();
 
         // Then
         assertThat(jsonPath.<BigDecimal>get("store.book.price.min()"), is(new BigDecimal("8.95")));
@@ -259,13 +259,13 @@ public class ResponseITest extends WithJetty {
     public void jsonPathWithConfigReturnedByResponseOverridesConfigurationFromRestAssured() throws Exception {
         // When
         final JsonPath jsonPath =
-        given().
-                config(newConfig().with().jsonConfig(jsonConfig().with().numberReturnType(BIG_DECIMAL))).
-        expect().
-                statusCode(200).
-                body("store.book.price.min()", is(new BigDecimal("8.95"))).
-        when().
-                get("/jsonStore").jsonPath(jsonPathConfig().with().numberReturnType(FLOAT_AND_DOUBLE));
+                given().
+                        config(newConfig().with().jsonConfig(jsonConfig().with().numberReturnType(BIG_DECIMAL))).
+                        expect().
+                        statusCode(200).
+                        body("store.book.price.min()", is(new BigDecimal("8.95"))).
+                        when().
+                        get("/jsonStore").jsonPath(jsonPathConfig().with().numberReturnType(FLOAT_AND_DOUBLE));
 
         // Then
         assertThat(jsonPath.<Float>get("store.book.price.min()"), is(8.95f));
@@ -390,5 +390,27 @@ public class ResponseITest extends WithJetty {
 
         // Then
         assertThat(bytes, not(nullValue()));
+    }
+
+    @Test
+    public void canParsePathAfterPrettyPeek() throws Exception {
+        Response response = get("/videos").prettyPeek();
+
+        String title = response.path("videos.music[0].title.toString().trim()");
+        String artist = response.path("videos.music[0].artist.toString().trim()");
+
+        assertThat(title, equalTo("Video Title 1"));
+        assertThat(artist, equalTo("Artist 1"));
+    }
+
+    @Test
+    public void canParsePathAfterPeek() throws Exception {
+        Response response = get("/videos").peek();
+
+        String title = response.path("videos.music[0].title.toString().trim()");
+        String artist = response.path("videos.music[0].artist.toString().trim()");
+
+        assertThat(title, equalTo("Video Title 1"));
+        assertThat(artist, equalTo("Artist 1"));
     }
 }

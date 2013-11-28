@@ -36,7 +36,7 @@ import java.util.Map;
  * </pre>
  * </p>
  */
-public interface Response extends ResponseBody {
+public interface Response extends ResponseBody<Response> {
 
     /**
      * Syntactic sugar, simply returns the same response instance.

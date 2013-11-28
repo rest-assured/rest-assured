@@ -1,27 +1,33 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.RestAssured
-import com.jayway.restassured.assertion.BodyMatcherGroup
 import com.jayway.restassured.config.RestAssuredConfig
+import com.jayway.restassured.filter.log.LogDetail
 import com.jayway.restassured.http.ContentType
+import com.jayway.restassured.internal.print.ResponsePrinter
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.ExtractableResponse
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.response.ValidatableResponse
+import com.jayway.restassured.response.ValidatableResponseLogSpec
 import com.jayway.restassured.specification.Argument
 import com.jayway.restassured.specification.ResponseSpecification
 import org.hamcrest.Matcher
 
-class ValidatableResponseImpl implements ValidatableResponse {
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 
-    private BodyMatcherGroup bodyMatchers = new BodyMatcherGroup()
-    private ResponseSpecificationImpl responseSpec
-    private ExtractableResponse extractableResponse
+class ValidatableResponseImpl implements ValidatableResponse, ValidatableResponseLogSpec {
+
+    private final ResponseSpecificationImpl responseSpec
+    private final ExtractableResponse extractableResponse
+    private final Response response
+    private final RestAssuredConfig config
 
     ValidatableResponseImpl(String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config, Response response, ExtractableResponse extractableResponse) {
+        this.config = config
+        this.response = response
         responseSpec = new ResponseSpecificationImpl(RestAssured.rootPath, contentType, RestAssured.responseSpecification, rpr, config, response)
         this.extractableResponse = extractableResponse
-        this.bodyMatchers = bodyMatchers
     }
 
     ValidatableResponse content(Matcher<?> matcher, Matcher<?>... additionalMatchers) {
@@ -245,4 +251,83 @@ class ValidatableResponseImpl implements ValidatableResponse {
     ExtractableResponse extract() {
         extractableResponse
     }
+
+    ValidatableResponseLogSpec log() {
+        this
+    }
+
+    ValidatableResponse status() {
+        logResponse(LogDetail.STATUS)
+    }
+
+    ValidatableResponse ifError() {
+        if (response.statusCode() >= 400) {
+            logResponse(LogDetail.ALL)
+        }
+        this
+    }
+
+    ValidatableResponse ifStatusCodeIsEqualTo(int statusCode) {
+        if (response.statusCode() == statusCode) {
+            logResponse(LogDetail.ALL)
+        }
+        this
+    }
+
+    ValidatableResponse ifStatusCodeMatches(Matcher<Integer> matcher) {
+        notNull(matcher, "Matcher");
+        if (matcher.matches(response.statusCode())) {
+            logResponse(LogDetail.ALL)
+        }
+        this
+    }
+
+    ValidatableResponse body() {
+        logResponse(LogDetail.BODY)
+    }
+
+
+    ValidatableResponse body(boolean shouldPrettyPrint) {
+        logResponse(LogDetail.BODY, shouldPrettyPrint)
+    }
+
+
+    ValidatableResponse all() {
+        logResponse(LogDetail.ALL)
+    }
+
+
+    ValidatableResponse all(boolean shouldPrettyPrint) {
+        logResponse(LogDetail.ALL, shouldPrettyPrint)
+    }
+
+
+    ValidatableResponse everything() {
+        all()
+    }
+
+
+    ValidatableResponse everything(boolean shouldPrettyPrint) {
+        all(shouldPrettyPrint)
+    }
+
+
+    ValidatableResponse headers() {
+        logResponse(LogDetail.HEADERS)
+    }
+
+
+    ValidatableResponse cookies() {
+        logResponse(LogDetail.COOKIES)
+    }
+
+    private def ValidatableResponse logResponse(LogDetail logDetail) {
+        logResponse(logDetail, config.getLogConfig().isPrettyPrintingEnabled())
+    }
+
+    private def ValidatableResponse logResponse(LogDetail logDetail, boolean shouldPrettyPrint) {
+        ResponsePrinter.print(response, config.getLogConfig().defaultStream(), logDetail, shouldPrettyPrint);
+        this
+    }
+
 }

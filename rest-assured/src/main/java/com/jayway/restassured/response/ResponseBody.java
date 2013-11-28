@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.response;
 
-public interface ResponseBody extends ResponseBodyExtractionOptions {
+public interface ResponseBody<T extends ResponseBody<T>> extends ResponseBodyExtractionOptions {
     /**
      * Print the response body and return it as string. Mainly useful for debug purposes when writing tests.
      *
@@ -31,4 +31,32 @@ public interface ResponseBody extends ResponseBodyExtractionOptions {
      * @return The body as a string.
      */
     String prettyPrint();
+
+    /**
+     * Peeks into the JSON that JsonPath will parse by printing it to the console. You can
+     * continue working with JsonPath afterwards. This is mainly for debug purposes. If you want to return a prettified version of the content
+     * see {@link #prettyPrint()}. If you want to return a prettified version of the content and also print it to the console use {@link #prettyPrint()}.
+     * <p/>
+     * <p>
+     * Note that the content is not guaranteed to be looking exactly like the it does at the source. This is because once you peek
+     * the content has is downloaded and transformed into another data structure and is rendered from this data structure.
+     * </p>
+     *
+     * @return The same response instance
+     */
+    T peek();
+
+    /**
+     * Peeks into the response body by printing it to the console in a prettified manner. You can
+     * continue working with response path afterwards. This is mainly for debug purposes. If you want to return a prettified version of the content
+     * see {@link #prettyPrint()}. If you want to return a prettified version of the content and also print it to the console use {@link #prettyPrint()}.
+     * <p/>
+     * <p>
+     * Note that the content is not guaranteed to be looking exactly like the it does at the source. This is because once you peek
+     * the content has is downloaded and transformed into another data structure and is rendered from this data structure.
+     * </p>
+     *
+     * @return The same response instance
+     */
+    T prettyPeek();
 }

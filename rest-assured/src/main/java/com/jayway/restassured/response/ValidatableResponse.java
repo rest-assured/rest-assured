@@ -1019,4 +1019,12 @@ public interface ValidatableResponse {
      * @return Ana instance of {@link ExtractableResponse}.
      */
     ExtractableResponse extract();
+
+    /**
+     * Returns the {@link ValidatableResponseLogSpec} that allows you to log different parts of the {@link Response}.
+     * This is mainly useful for debug purposes when writing your tests. I
+     *
+     * @return the validatable response log specification
+     */
+    ValidatableResponseLogSpec log();
 }

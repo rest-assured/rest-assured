@@ -20,10 +20,7 @@ import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
-import com.jayway.restassured.internal.support.Prettifier;
-import com.jayway.restassured.response.Cookies;
-import com.jayway.restassured.response.Header;
-import com.jayway.restassured.response.Headers;
+import com.jayway.restassured.internal.print.ResponsePrinter;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
@@ -33,12 +30,10 @@ import org.hamcrest.Matcher;
 import java.io.PrintStream;
 
 import static com.jayway.restassured.RestAssured.config;
-import static com.jayway.restassured.filter.log.LogDetail.*;
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import static com.jayway.restassured.filter.log.LogDetail.ALL;
+import static com.jayway.restassured.filter.log.LogDetail.PARAMS;
 
 class StatusCodeBasedLoggingFilter implements Filter {
-
-    private static final String HEADER_NAME_AND_VALUE_SEPARATOR = ": ";
 
     private final PrintStream stream;
     private final Matcher<?> matcher;
@@ -100,64 +95,11 @@ class StatusCodeBasedLoggingFilter implements Filter {
         Response response = ctx.next(requestSpec, responseSpec);
         final int statusCode = response.statusCode();
         if (matcher.matches(statusCode)) {
-            final String responseAsString = log(response);
+            final String responseAsString = ResponsePrinter.print(response, stream, logDetail, shouldPrettyPrint);
             response = cloneResponseIfNeeded(response, responseAsString);
         }
 
         return response;
-    }
-
-    private String log(Response response) {
-        final StringBuilder builder = new StringBuilder();
-        String responseBody = null;
-        if (logDetail == ALL || logDetail == STATUS) {
-            builder.append(response.statusLine());
-        }
-        if (logDetail == ALL || logDetail == HEADERS) {
-            final Headers headers = response.headers();
-            if (headers.exist()) {
-                appendNewLineIfAll(logDetail, builder).append(toString(headers));
-            }
-        } else if (logDetail == COOKIES) {
-            final Cookies cookies = response.detailedCookies();
-            if (cookies.exist()) {
-                appendNewLineIfAll(logDetail, builder).append(cookies.toString());
-            }
-        }
-        if (logDetail == ALL || logDetail == BODY) {
-            if (shouldPrettyPrint) {
-                responseBody = new Prettifier().getPrettifiedBodyIfPossible(response);
-            } else {
-                responseBody = response.asString();
-            }
-            if (logDetail == ALL && !isBlank(responseBody)) {
-                builder.append("\n\n");
-            }
-
-            builder.append(responseBody);
-        }
-        stream.println(builder.toString());
-        return responseBody;
-    }
-
-    private String toString(Headers headers) {
-        if (!headers.exist()) {
-            return "";
-        }
-
-        final StringBuilder builder = new StringBuilder();
-        for (Header header : headers) {
-            builder.append(header.getName()).append(HEADER_NAME_AND_VALUE_SEPARATOR).append(header.getValue()).append("\n");
-        }
-        builder.deleteCharAt(builder.length() - 1);
-        return builder.toString();
-    }
-
-    private StringBuilder appendNewLineIfAll(LogDetail logDetail, StringBuilder builder) {
-        if (logDetail == ALL) {
-            builder.append("\n");
-        }
-        return builder;
     }
 
     /*
