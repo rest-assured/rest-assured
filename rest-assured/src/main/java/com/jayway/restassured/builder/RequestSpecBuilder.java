@@ -32,6 +32,7 @@ import com.jayway.restassured.specification.RequestSpecification;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -63,8 +64,8 @@ public class RequestSpecBuilder {
     private RequestSpecification spec;
 
     public RequestSpecBuilder() {
-        this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters(), keystore(),
-                requestContentType(), requestSpecification, urlEncodingEnabled, config);
+        this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication, Collections.<Filter>emptyList(), keystore(),
+                requestContentType(), null, urlEncodingEnabled, null);
     }
 
     /**

@@ -1016,7 +1016,7 @@ public interface ValidatableResponse {
      * get(nextTitleLink). ..
      * </pre>
      *
-     * @return Ana instance of {@link ExtractableResponse}.
+     * @return An instance of {@link ExtractableResponse}.
      */
     ExtractableResponse extract();
 

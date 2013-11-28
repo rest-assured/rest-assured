@@ -20,6 +20,7 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.hamcrest.Matchers;
@@ -31,6 +32,7 @@ import static com.jayway.restassured.config.RedirectConfig.redirectConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class SpecificationBuilderITest extends WithJetty {
 
@@ -353,11 +355,47 @@ public class SpecificationBuilderITest extends WithJetty {
                 spec(spec).
         expect().
                 statusCode(302).
-                header("Location", Matchers.is("http://localhost:8080/hello")).
+                header("Location", is("http://localhost:8080/hello")).
         when().
                 get("/redirect");
     }
 
+    @Test
+    public void mergesStaticallyDefinedSpecificationsCorrectly() throws Exception {
+        RestAssured.requestSpecification = new RequestSpecBuilder().addCookie("Cookie1", "Value1").build();
+        RequestSpecification reqSpec1 = new RequestSpecBuilder().addCookie("Cookie2", "Value2").build();
+        RequestSpecification reqSpec2 = new RequestSpecBuilder().addCookie("Cookie3", "Value3").build();
+
+        try {
+            Cookies cookies =
+            given().
+                    spec(reqSpec1).
+            when().
+                    get("/reflect").
+            then().
+                    extract().
+                    detailedCookies();
+
+            assertThat(cookies.size(), is(2));
+            assertThat(cookies.hasCookieWithName("Cookie1"), is(true));
+            assertThat(cookies.hasCookieWithName("Cookie2"), is(true));
+
+            cookies =
+            given().
+                    spec(reqSpec2).
+            when().
+                    get("/reflect").
+            then().
+                    extract().
+                    detailedCookies();
+
+            assertThat(cookies.size(), is(2));
+            assertThat(cookies.hasCookieWithName("Cookie1"), is(true));
+            assertThat(cookies.hasCookieWithName("Cookie3"), is(true));
+        } finally {
+            RestAssured.reset();
+        }
+    }
 
     @Test
     @Ignore("https://dev.java.net/ is down atm")
