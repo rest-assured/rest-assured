@@ -158,7 +158,7 @@ Change log 1.8.0 (2013-04-01)
 	  JsonPath.config = new JsonPathConfig(..);  
   or per instance:
 	  new JsonPath().using(new JsonPathConfig(..)).get(..);
-* It's not possible to configure REST Assured to return BigDecimal instead of floats and doubles. You can do this either statically using:  
+* It's now possible to configure REST Assured to return BigDecimal instead of floats and doubles. You can do this either statically using:
 	  RestAssured.config = new RestAssuredConfig().jsonPathConfig(new JsonPathConfig(..));
 * Added support for automatically converting a String to BigDecimal in JsonPath
 * Non-backward compatible change: com.jayway.restassured.exception.ParsePathException was renamed to com.jayway.restassured.exception.PathException.
