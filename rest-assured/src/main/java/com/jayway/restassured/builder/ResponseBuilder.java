@@ -48,10 +48,7 @@ public class ResponseBuilder {
             restAssuredResponse.setDefaultCharset(raResponse.getDefaultCharset());
             restAssuredResponse.setSessionIdName(raResponse.getSessionIdName());
             restAssuredResponse.setConnectionManager(raResponse.getConnectionManager());
-            restAssuredResponse.setObjectMapperConfig(raResponse.getObjectMapperConfig());
-            restAssuredResponse.setConnectionConfig(raResponse.getConnectionConfig());
-            restAssuredResponse.setXmlConfig(raResponse.getXmlConfig());
-            restAssuredResponse.setJsonConfig(raResponse.getJsonConfig());
+            restAssuredResponse.setConfig(raResponse.getConfig());
             restAssuredResponse.setRpr(raResponse.getRpr());
         } else {
             restAssuredResponse.setContent(response.asInputStream());

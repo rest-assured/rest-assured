@@ -53,11 +53,18 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     private String bodyRootPath;
     private ResponseParserRegistrar rpr;
     private RestAssuredConfig config
+    private Response response
 
     ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
                               RestAssuredConfig config) {
+        this(bodyRootPath, responseContentType, defaultSpec, rpr, config, null)
+    }
+
+    ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
+                              RestAssuredConfig config, Response response) {
         Validate.notNull(config, "RestAssuredConfig cannot be null")
         this.config = config
+        this.response = response;
         rootPath(bodyRootPath)
         this.contentType = responseContentType
         this.rpr = rpr
@@ -92,6 +99,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     def ResponseSpecification statusCode(Matcher<? super Integer> expectedStatusCode) {
         notNull(expectedStatusCode, "expectedStatusCode")
         this.expectedStatusCode = expectedStatusCode
+        validateResponseIfRequired();
         return this
     }
 
@@ -103,6 +111,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     def ResponseSpecification statusLine(Matcher<? super String> expectedStatusLine) {
         notNull(expectedStatusLine, "expectedStatusLine")
         this.expectedStatusLine = expectedStatusLine
+        validateResponseIfRequired();
         return this
     }
 
@@ -112,6 +121,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         expectedHeaders.each { headerName, matcher ->
             headerAssertions << new HeaderMatcher(headerName: headerName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
         }
+        validateResponseIfRequired();
         return this
     }
 
@@ -126,6 +136,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         notNull expectedValueMatcher, "expectedValueMatcher"
 
         headerAssertions << new HeaderMatcher(headerName: headerName, matcher: expectedValueMatcher)
+        validateResponseIfRequired();
         this;
     }
 
@@ -139,6 +150,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         expectedCookies.each { cookieName, matcher ->
             cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
         }
+        validateResponseIfRequired();
         return this
     }
 
@@ -154,6 +166,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         notNull cookieName, "cookieName"
         notNull expectedValueMatcher, "expectedValueMatcher"
         cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: expectedValueMatcher)
+        validateResponseIfRequired();
         this;
     }
 
@@ -210,6 +223,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                 bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: hamcrestMatcher, rpr: rpr)
             }
         }
+
+        validateResponseIfRequired()
         return this
     }
 
@@ -463,18 +478,21 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     ResponseSpecification contentType(ContentType contentType) {
         notNull contentType, "contentType"
         this.contentType = contentType
+        validateResponseIfRequired();
         return this
     }
 
     ResponseSpecification contentType(String contentType) {
         notNull contentType, "contentType"
         this.contentType = contentType
+        validateResponseIfRequired();
         return this
     }
 
     ResponseSpecification contentType(Matcher<? super String> contentType) {
         notNull contentType, "contentType"
         this.contentType = contentType
+        validateResponseIfRequired();
         return this
     }
 
@@ -514,7 +532,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                     if (requiresTextParsing()) {
                         content = response.asString()
                     } else {
-                        content = new ContentParser().parse(response, rpr, cfg)
+                        content = new ContentParser().parse(response, rpr, cfg, isEagerAssert())
                     }
                     validations.addAll(bodyMatchers.validate(response, content, cfg))
                 }
@@ -522,9 +540,13 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                 def errors = validations.findAll { !it.success }
                 def numberOfErrors = errors.size()
                 if (numberOfErrors > 0) {
-                    def errorMessage = errors.collect { it.errorMessage }.join("\n")
-                    def s = numberOfErrors > 1 ? "s" : ""
-                    throw new AssertionError("$numberOfErrors expectation$s failed.\n$errorMessage")
+                    if (isEagerAssert()) {
+                        throw new AssertionError(errors[0].errorMessage)
+                    } else {
+                        def errorMessage = errors.collect { it.errorMessage }.join("\n")
+                        def s = numberOfErrors > 1 ? "s" : ""
+                        throw new AssertionError("$numberOfErrors expectation$s failed.\n$errorMessage")
+                    }
                 }
             }
         }
@@ -643,6 +665,16 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     def void throwIllegalStateExceptionIfRootPathIsNotDefined(String description) {
         if (rootPath == null || rootPath.isEmpty()) {
             throw new IllegalStateException("Cannot $description when root path is empty")
+        }
+    }
+
+    private isEagerAssert() {
+        return response != null
+    }
+
+    private void validateResponseIfRequired() {
+        if (isEagerAssert()) {
+            assertionClosure.validate(response)
         }
     }
 }

@@ -17,6 +17,15 @@ Change log next version
   (issue 279)
 * It's now possible to call asString() on a Response object after asByteArray() has been called and vice versa.
 * given(requestSpecification) now returns the RequestSpecification instead of RequestSender
+* Added support for given-when-then syntax, for example:
+      given().
+              param("firstName", "John").
+              param("lastName", "Doe").
+      when().
+              get("/greet").
+      then().
+              statusCode(200).
+              body("greeting", equalTo("Greetings John Doe"));
 
 Change log 1.9.0 (2013-11-25)
 -----------------------------

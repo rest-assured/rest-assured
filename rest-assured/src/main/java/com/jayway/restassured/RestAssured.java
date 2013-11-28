@@ -69,12 +69,12 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  * that <tt>lottoId</tt> is equal to 5 you can do like this:
  * <p/>
  * <pre>
- * expect().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
+ * get("/lotto").then().assertThat().body("lotto.lottoId", equalTo(5));
  * </pre>
  * <p/>
  * or perhaps you want to check that the winnerId's are 23 and 54:
  * <pre>
- *  expect().body("lotto.winners.winnerId", hasItems(23, 54)).when().get("/lotto");
+ * get("/lotto").then().assertThat().body("lotto.winners.winnerId", hasItems(23, 54));
  * </pre>
  * </li>
  * <li>
@@ -89,37 +89,37 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  * i.e. it sends back a greeting based on the <tt>firstName</tt> and <tt>lastName</tt> parameter sent in the request.
  * You can easily perform and verify e.g. the <tt>firstName</tt> with REST assured:
  * <pre>
- * with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
+ * with().parameters("firstName", "John", "lastName", "Doe").when().post("/greetXML").then().assertThat().body("greeting.firstName", equalTo("John"));
  * </pre>
  * <p/>
  * If you want to verify both <tt>firstName</tt> and <tt>lastName</tt> you may do like this:
  * <pre>
- * with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).and().body("greeting.lastName", equalTo("Doe")).when().post("/greetXML");
+ * with().parameters("firstName", "John", "lastName", "Doe").when().post("/greetXML").then().assertThat().body("greeting.firstName", equalTo("John")).and().body("greeting.lastName", equalTo("Doe"));
  * </pre>
  * <p/>
  * or a little shorter:
  * <pre>
- * with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John"), "greeting.lastName", equalTo("Doe")).when().post("/greetXML");
+ * with().parameters("firstName", "John", "lastName", "Doe").when().post("/greetXML").then().assertThat().body("greeting.firstName", equalTo("John"), "greeting.lastName", equalTo("Doe"));
  * </pre>
  * </li>
  * <li>
  * You can also verify XML responses using x-path. For example:
  * <pre>
- * expect().body(hasXPath("/greeting/firstName", containsString("Jo"))).given().parameters("firstName", "John", "lastName", "Doe").when().post("/greetXML");
+ * given().parameters("firstName", "John", "lastName", "Doe").when().post("/greetXML").then().assertThat().body(hasXPath("/greeting/firstName", containsString("Jo")));
  * </pre>
  * or
  * <pre>
- * expect().body(hasXPath("/greeting/firstName[text()='John']")).with().parameters("firstName", "John", "lastName", "Doe").post("/greetXML");
+ * with().parameters("firstName", "John", "lastName", "Doe").post("/greetXML").then().body(hasXPath("/greeting/firstName[text()='John']"));
  * </pre>
  * </li>
  * <li>
  * XML response bodies can also be verified against an XML Schema (XSD) or DTD. <br>XSD example:
  * <pre>
- * expect().body(matchesXsd(xsd)).when().get("/carRecords");
+ * get("/carRecords").then().assertThat().body(matchesXsd(xsd));
  * </pre>
  * DTD example:
  * <pre>
- * expect().body(matchesDtd(dtd)).when().get("/videos");
+ * get("/videos").then().assertThat().body(matchesDtd(dtd));
  * </pre>
  * <code>matchesXsd</code> and <code>matchesDtd</code> are Hamcrest matchers which you can import from {@link com.jayway.restassured.matcher.RestAssuredMatchers}.
  * </li>
@@ -129,7 +129,7 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  * <li>
  * Cookie:
  * <pre>
- * given().cookie("username", "John").then().expect().body(equalTo("username")).when().get("/cookie");
+ * given().cookie("username", "John").when().get("/cookie").then().assertThat().body(equalTo("username"));
  * </pre>
  * </li>
  * <li>
@@ -168,23 +168,23 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  * <li>
  * Status:
  * <pre>
- * expect().statusCode(200). ..
- * expect().statusLine("something"). ..
- * expect().statusLine(containsString("some")). ..
+ * get("/x").then().assertThat().statusCode(200). ..
+ * get("/x").then().assertThat().statusLine("something"). ..
+ * get("/x").then().assertThat().statusLine(containsString("some")). ..
  * </pre>
  * </li>
  * <li>
  * Headers:
  * <pre>
- * expect().header("headerName", "headerValue"). ..
- * expect().headers("headerName1", "headerValue1", "headerName2", "headerValue2"). ..
- * expect().headers("headerName1", "headerValue1", "headerName2", containsString("Value2")). ..
+ * get("/x").then().assertThat().header("headerName", "headerValue"). ..
+ * get("/x").then().assertThat().headers("headerName1", "headerValue1", "headerName2", "headerValue2"). ..
+ * get("/x").then().assertThat().headers("headerName1", "headerValue1", "headerName2", containsString("Value2")). ..
  * </pre>
  * </li>
  * <li>
  * Content-Type:
  * <pre>
- * expect().contentType(ContentType.JSON). ..
+ * get("/x").then().assertThat().contentType(ContentType.JSON). ..
  * </pre>
  * </li>
  * <li>
@@ -204,8 +204,8 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  * <li>
  * Full body/content matching:
  * <pre>
- * expect().body(equalsTo("something")). ..
- * expect().content(equalsTo("something")). .. // Same as above
+ * get("/x").then().assertThat().body(equalsTo("something")). ..
+ * get("/x").then().assertThat().content(equalsTo("something")). .. // Same as above
  * </pre>
  * </li>
  * </ul>
@@ -213,7 +213,7 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  * <li>
  * REST assured also supports some authentication schemes, for example basic authentication:
  * <pre>
- * given().auth().basic("username", "password").expect().statusCode(200).when().get("/secured/hello");
+ * given().auth().basic("username", "password").when().get("/secured/hello").then().statusCode(200);
  * </pre>
  * Other supported schemes are OAuth and certificate authentication.
  * </li>
@@ -270,13 +270,13 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  * <pre>
  * RestAssured.registerParser(&lt;content-type&gt;, &lt;parser&gt;);
  * </pre>
- * E.g. to register that content-type <code>'application/vnd.uoml+xml'</code> should be parsed using the XML parser do:
+ * E.g. to register that content-type <code>'application/custom'</code> should be parsed using the XML parser do:
  * <pre>
- * RestAssured.registerParser("application/vnd.uoml+xml", Parser.XML);
+ * RestAssured.registerParser("application/custom", Parser.XML);
  * </pre>
  * You can also unregister a parser using:
  * <pre>
- * RestAssured.unregisterParser("application/vnd.uoml+xml");
+ * RestAssured.unregisterParser("application/custom");
  * </pre>
  * If can also specify a default parser for all content-types that do not match a pre-defined or registered parser. This is also useful if the response doesn't contain a content-type at all:
  * <pre>
@@ -291,11 +291,11 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  *
  * given().
  *         spec(requestSpec).
- * expect().
- *         spec(responseSpec).
- *         body("x.y.z", equalTo("something")).
  * when().
  *        get("/something");
+ * then().
+ *         spec(responseSpec).
+ *         body("x.y.z", equalTo("something"));
  * </pre>
  * </li>
  * <li>You can also create filters and add to the request specification. A filter allows you to inspect and alter a request before it's actually committed and also inspect and alter the
@@ -415,25 +415,21 @@ public class RestAssured {
      * E.g. instead of writing:
      * <p/>
      * <pre>
-     * expect().
+     * get(..).then().assertThat().
      *          body("x.y.firstName", is(..)).
      *          body("x.y.lastName", is(..)).
      *          body("x.y.age", is(..)).
-     *          body("x.y.gender", is(..)).
-     * when().
-     *          get(..);
+     *          body("x.y.gender", is(..));
      * </pre>
      * <p/>
      * you can use a root and do:
      * <pre>
      * RestAssured.rootPath = "x.y";
-     * expect().
+     * get(..).then().assertThat().
      *          body("firstName", is(..)).
      *          body("lastName", is(..)).
      *          body("age", is(..)).
      *          body("gender", is(..)).
-     * when().
-     *          get(..);
      * </pre>
      */
     public static String rootPath = DEFAULT_BODY_ROOT_PATH;
@@ -672,7 +668,7 @@ public class RestAssured {
      * Start building the request part of the test com.jayway.restassured.specification. E.g.
      * <p/>
      * <pre>
-     * with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
+     * with().parameters("firstName", "John", "lastName", "Doe").when().post("/greetXML").then().assertThat().body("greeting.firstName", equalTo("John"));
      * </pre>
      * <p/>
      * will send a POST request to "/greetXML" with request parameters <tt>firstName=John</tt> and <tt>lastName=Doe</tt> and
@@ -697,7 +693,7 @@ public class RestAssured {
      * <p/>
      * or if you have complex root paths and don't wish to duplicate the path for small variations:
      * <pre>
-     * expect().
+     * get("/x").then().assertThat().
      *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
      *          body(withArgs(0), hasItem("first")).
      *          body(withArgs(1), hasItem("second")).
@@ -724,13 +720,11 @@ public class RestAssured {
      * Create a list of no arguments that can be used to create parts of the path in a response specification for JSON, XML or HTML validation.
      * This is useful in situations where you have e.g. pre-defined variables that constitutes the key. For example:
      * <pre>
-     * expect().
+     * get("/jsonStore").then().
      *          root("store.%s", withArgs("book")).
      *          body("category.size()", equalTo(4)).
      *          appendRoot("%s.%s", withArgs("author", "size()")).
-     *          body(withNoArguments(), equalTo(4)).
-     * when().
-     *          get("/jsonStore");
+     *          body(withNoArguments(), equalTo(4));
      * </pre>
      * <p/>
      *
@@ -764,7 +758,7 @@ public class RestAssured {
      * Start building the request part of the test com.jayway.restassured.specification. E.g.
      * <p/>
      * <pre>
-     * given().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
+     * given().parameters("firstName", "John", "lastName", "Doe").when().post("/greetXML").then().body("greeting.firstName", equalTo("John"));
      * </pre>
      * <p/>
      * will send a POST request to "/greetXML" with request parameters <tt>firstName=John</tt> and <tt>lastName=Doe</tt> and
@@ -1323,14 +1317,14 @@ public class RestAssured {
 
     /**
      * Register a custom content-type to be parsed using a predefined parser. E.g. let's say you want parse
-     * content-type <tt>application/vnd.uoml+xml</tt> with the XML parser to be able to verify the response using the XML dot notations:
+     * content-type <tt>application/custom</tt> with the XML parser to be able to verify the response using the XML dot notations:
      * <pre>
-     * expect().body("document.child", equalsTo("something"))..
+     * get("/x").then().assertThat().body("document.child", equalsTo("something"))..
      * </pre>
-     * Since <tt>application/vnd.uoml+xml</tt> is not registered to be processed by the XML parser by default you need to explicitly
+     * Since <tt>application/custom</tt> is not registered to be processed by the XML parser by default you need to explicitly
      * tell REST Assured to use this parser before making the request:
      * <pre>
-     * RestAssured.registerParser("application/vnd.uoml+xml, Parser.XML");
+     * RestAssured.registerParser("application/custom, Parser.XML");
      * </pre>
      *
      * @param contentType The content-type to register

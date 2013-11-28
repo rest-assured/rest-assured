@@ -25,34 +25,45 @@ import groovy.util.slurpersupport.GPathResult
 import static com.jayway.restassured.parsing.Parser.*
 
 class ContentParser {
-    def parse(Response response, ResponseParserRegistrar rpr, RestAssuredConfig config) {
+    def parse(Response response, ResponseParserRegistrar rpr, RestAssuredConfig config, boolean parseAsString) {
         Parser parser = rpr.getParser(response.contentType())
         def content;
-        def bodyAsInputStream = response.asInputStream()
         if (parser == null) {
-            content = bodyAsInputStream
+            content = response.asInputStream()
         } else {
             switch (parser) {
                 case JSON:
-                    content = new ConfigurableJsonSlurper(config.getJsonConfig().shouldRepresentJsonNumbersAsBigDecimal()).
-                            parse(new InputStreamReader(new BufferedInputStream(bodyAsInputStream)))
+                    def slurper = new ConfigurableJsonSlurper(config.getJsonConfig().shouldRepresentJsonNumbersAsBigDecimal())
+                    if (parseAsString) {
+                        content = slurper.parseText(response.asString())
+                    } else {
+                        content = slurper.parse(new InputStreamReader(new BufferedInputStream(response.asInputStream())))
+                    }
                     break;
                 case XML:
                     def xmlConfig = config.getXmlConfig()
                     def slurper = configureXmlSlurper(new XmlSlurper(), xmlConfig)
-                    content = declareNamespacesIfNeeded(slurper.parse(bodyAsInputStream), xmlConfig)
+                    content = declareNamespacesIfNeeded(parseXml(slurper, response, parseAsString), xmlConfig)
                     break
                 case HTML:
                     def xmlConfig = config.getXmlConfig()
                     def slurper = configureXmlSlurper(new XmlSlurper(new org.ccil.cowan.tagsoup.Parser()), xmlConfig)
-                    content = declareNamespacesIfNeeded(slurper.parse(bodyAsInputStream), xmlConfig)
+                    content = declareNamespacesIfNeeded(parseXml(slurper, response, parseAsString), xmlConfig)
                     break
                 case TEXT:
                 default:
-                    content = bodyAsInputStream
+                    content = response.asInputStream()
             }
         }
         content
+    }
+
+    def private static GPathResult parseXml(XmlSlurper xmlSlurper, Response response, boolean parseAsString) {
+        if (parseAsString) {
+            xmlSlurper.parseText(response.asString())
+        } else {
+            xmlSlurper.parse(response.asInputStream())
+        }
     }
 
     def private static GPathResult declareNamespacesIfNeeded(GPathResult gPathResult, XmlConfig xmlConfig) {

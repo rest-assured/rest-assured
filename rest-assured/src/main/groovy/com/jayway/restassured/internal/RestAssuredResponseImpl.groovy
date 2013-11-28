@@ -16,10 +16,7 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.assertion.CookieMatcher
-import com.jayway.restassured.config.ConnectionConfig
-import com.jayway.restassured.config.JsonConfig
-import com.jayway.restassured.config.ObjectMapperConfig
-import com.jayway.restassured.config.XmlConfig
+import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.internal.http.CharsetExtractor
 import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
@@ -35,6 +32,7 @@ import com.jayway.restassured.path.xml.XmlPath
 import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
 import com.jayway.restassured.path.xml.config.XmlPathConfig
 import com.jayway.restassured.response.*
+import com.jayway.restassured.specification.ResponseSpecification
 import groovy.xml.StreamingMarkupBuilder
 
 import java.nio.charset.Charset
@@ -45,7 +43,7 @@ import static com.jayway.restassured.path.xml.config.XmlPathConfig.xmlPathConfig
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
 import static org.apache.commons.lang3.StringUtils.isBlank
 
-class RestAssuredResponseImpl implements Response {
+class RestAssuredResponseImpl implements Response, ExtractableResponse {
     private static final String CANNOT_PARSE_MSG = "Failed to parse response."
     def responseHeaders
     def Cookies cookies
@@ -63,10 +61,7 @@ class RestAssuredResponseImpl implements Response {
 
     def boolean hasExpectations
 
-    def ObjectMapperConfig objectMapperConfig
-    def ConnectionConfig connectionConfig
-    def XmlConfig xmlConfig
-    def JsonConfig jsonConfig
+    def RestAssuredConfig config
 
     public void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
         parseHeaders(httpResponse)
@@ -159,7 +154,7 @@ class RestAssuredResponseImpl implements Response {
 
     InputStream asInputStream() {
         if (content == null || content instanceof InputStream) {
-            new CloseHTTPClientConnectionInputStreamWrapper(connectionConfig, connectionManager, content)
+            new CloseHTTPClientConnectionInputStreamWrapper(config.getConnectionConfig(), connectionManager, content)
         } else {
             content instanceof String ? new ByteArrayInputStream(convertStringToByteArray(content)) : new ByteArrayInputStream(content)
         }
@@ -191,13 +186,13 @@ class RestAssuredResponseImpl implements Response {
             throw new IllegalStateException("""Cannot parse content to $cls because no content-type was present in the response and no default parser has been set.\nYou can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n
 or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
         }
-        return ObjectMapping.deserialize(this, cls, contentTypeToChose, defaultContentType, charset, null, objectMapperConfig)
+        return ObjectMapping.deserialize(this, cls, contentTypeToChose, defaultContentType, charset, null, config.getObjectMapperConfig())
     }
 
     def <T> T "as"(Class<T> cls, ObjectMapperType mapperType) {
         notNull mapperType, "Object mapper type"
         def charset = findCharset()
-        return ObjectMapping.deserialize(this, cls, null, defaultContentType, charset, mapperType, objectMapperConfig)
+        return ObjectMapping.deserialize(this, cls, null, defaultContentType, charset, mapperType, config.getObjectMapperConfig())
     }
 
     def <T> T "as"(Class<T> cls, ObjectMapper mapper) {
@@ -309,6 +304,10 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
         return statusCode
     }
 
+    Response response() {
+        this
+    }
+
     String getStatusLine() {
         return statusLine()
     }
@@ -325,12 +324,20 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
         return statusCode()
     }
 
+    ValidatableResponse then() {
+        return new ValidatableResponseImpl(contentType, rpr, config, this, this);
+    }
+
+    Response then(ResponseSpecification responseSpecification) {
+        return responseSpecification.validate(this)
+    }
+
     JsonPath jsonPath() {
         jsonPath(jsonPathConfig().charset(findCharset()).
-                jackson1ObjectMapperFactory(objectMapperConfig.jackson1ObjectMapperFactory()).
-                jackson2ObjectMapperFactory(objectMapperConfig.jackson2ObjectMapperFactory()).
-                gsonObjectMapperFactory(objectMapperConfig.gsonObjectMapperFactory()).
-                numberReturnType(jsonConfig.numberReturnType()));
+                jackson1ObjectMapperFactory(config.getObjectMapperConfig().jackson1ObjectMapperFactory()).
+                jackson2ObjectMapperFactory(config.getObjectMapperConfig().jackson2ObjectMapperFactory()).
+                gsonObjectMapperFactory(config.getObjectMapperConfig().gsonObjectMapperFactory()).
+                numberReturnType(config.getJsonConfig().numberReturnType()));
     }
 
     JsonPath jsonPath(JsonPathConfig config) {
@@ -459,9 +466,9 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
 
     private def newXmlPath(CompatibilityMode xml) {
         newXmlPath(xml, xmlPathConfig().charset(findCharset()).
-                features(xmlConfig.features()).
-                declareNamespaces(xmlConfig.declaredNamespaces()).
-                jaxbObjectMapperFactory(objectMapperConfig.jaxbObjectMapperFactory()))
+                features(config.getXmlConfig().features()).
+                declareNamespaces(config.getXmlConfig().declaredNamespaces()).
+                jaxbObjectMapperFactory(config.getObjectMapperConfig().jaxbObjectMapperFactory()))
     }
 
     private def newXmlPath(CompatibilityMode mode, XmlPathConfig config) {
