@@ -361,7 +361,50 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void mergesStaticallyDefinedSpecificationsCorrectly() throws Exception {
+    public void mergesStaticallyDefinedResponseSpecificationsCorrectly() throws Exception {
+        RestAssured.responseSpecification = new ResponseSpecBuilder().expectCookie("Cookie1", "Value1").build();
+        ResponseSpecification reqSpec1 = new ResponseSpecBuilder().expectCookie("Cookie2", "Value2").build();
+        ResponseSpecification reqSpec2 = new ResponseSpecBuilder().expectCookie("Cookie3", "Value3").build();
+
+        try {
+            Cookies cookies =
+            given().
+                    cookie("Cookie1", "Value1").
+                    cookie("Cookie2", "Value2").
+            when().
+                    get("/reflect").
+            then().
+                    assertThat().
+                    spec(reqSpec1).
+            extract().
+                    detailedCookies();
+
+            assertThat(cookies.size(), is(2));
+            assertThat(cookies.hasCookieWithName("Cookie1"), is(true));
+            assertThat(cookies.hasCookieWithName("Cookie2"), is(true));
+
+            cookies =
+            given().
+                    cookie("Cookie1", "Value1").
+                    cookie("Cookie3", "Value3").
+            when().
+                    get("/reflect").
+            then().
+                    assertThat().
+                    spec(reqSpec2).
+            extract().
+                    detailedCookies();
+
+            assertThat(cookies.size(), is(2));
+            assertThat(cookies.hasCookieWithName("Cookie1"), is(true));
+            assertThat(cookies.hasCookieWithName("Cookie3"), is(true));
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void mergesStaticallyDefinedRequestSpecificationsCorrectly() throws Exception {
         RestAssured.requestSpecification = new RequestSpecBuilder().addCookie("Cookie1", "Value1").build();
         RequestSpecification reqSpec1 = new RequestSpecBuilder().addCookie("Cookie2", "Value2").build();
         RequestSpecification reqSpec2 = new RequestSpecBuilder().addCookie("Cookie3", "Value3").build();

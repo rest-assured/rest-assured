@@ -28,6 +28,7 @@ Change log next version
               body("greeting", equalTo("Greetings John Doe"));
 * Added peek and prettyPeek support to com.jayway.restassured.response.Response which allows you to print the response to system out but continue working with the Response instance afterwards.
 * Fixed a bug with RequestSpecBuilder that merged two too many cookies and headers when defined statically (issue 281).
+* Fixed a bug with ResponseSpecBuilder that didn't merge certain properties correctly.
 
 Change log 1.9.0 (2013-11-25)
 -----------------------------

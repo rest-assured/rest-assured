@@ -57,7 +57,7 @@ public class ResponseSpecBuilder {
     private final ResponseSpecification spec;
 
     public ResponseSpecBuilder() {
-        spec = new ResponseSpecificationImpl(rootPath, responseContentType(), responseSpecification, getResponseParserRegistrar(),
+        spec = new ResponseSpecificationImpl(rootPath, responseContentType(), null, getResponseParserRegistrar(),
                 restAssuredConfig());
     }
 
