@@ -40,7 +40,7 @@ public class GivenWhenThenITest extends WithJetty {
         given().
                 parameters("firstName", "John", "lastName", "Doe").
         when().
-                post("/greetMe").
+                get("/greetXML").
         then().
                 body(hasXPath("/greeting/firstName[text()='John']"));
     }
