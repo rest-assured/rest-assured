@@ -89,6 +89,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         additionalMatchers?.each { hamcrestMatcher ->
             bodyMatchers << new BodyMatcher(key: null, matcher: hamcrestMatcher, rpr: rpr)
         }
+        validateResponseIfRequired();
         return this
     }
 
