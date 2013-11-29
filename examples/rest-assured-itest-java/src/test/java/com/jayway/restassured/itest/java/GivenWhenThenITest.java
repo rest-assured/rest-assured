@@ -4,6 +4,7 @@ import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasXPath;
 
@@ -43,5 +44,16 @@ public class GivenWhenThenITest extends WithJetty {
                 get("/greetXML").
         then().
                 body(hasXPath("/greeting/firstName[text()='John']"));
+    }
+
+    @Test public void
+    given_when_then_works_with_multiple_body_assertions() {
+        given().
+                parameters("firstName", "John", "lastName", "Doe").
+        when().
+                get("/greetXML").
+        then().
+                body(containsString("greeting")).
+                body(containsString("John"));
     }
 }

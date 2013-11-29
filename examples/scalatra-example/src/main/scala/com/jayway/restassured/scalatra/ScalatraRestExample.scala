@@ -78,6 +78,10 @@ class ScalatraRestExample extends ScalatraServlet {
     </greeting>
   }
 
+  get("/i18n") {
+     """{ "ön" : "Är ån"}"""
+  }
+
   get("/jsonStore") {
     "{ \"store\": {\n" +
       "    \"book\": [ \n" +
