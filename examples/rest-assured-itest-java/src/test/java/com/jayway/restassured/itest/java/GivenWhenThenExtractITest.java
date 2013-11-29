@@ -32,4 +32,18 @@ public class GivenWhenThenExtractITest extends WithJetty {
 
         assertThat(response.getHeaders().hasHeaderWithName("content-type"), is(true));
     }
+
+    @Test public void
+    extract_single_path_works_after_body_validation() {
+        String hello = get("/hello").then().assertThat().contentType(JSON).and().body("hello", equalTo("Hello Scalatra")).extract().path("hello");
+
+        assertThat(hello, equalTo("Hello Scalatra"));
+    }
+
+    @Test public void
+    extract_single_path_works_after_body_validation2() {
+        String hello = get("/hello").then().assertThat().statusCode(200).and().body("hello", equalTo("Hello Scalatra")).extract().path("hello");
+
+        assertThat(hello, equalTo("Hello Scalatra"));
+    }
 }

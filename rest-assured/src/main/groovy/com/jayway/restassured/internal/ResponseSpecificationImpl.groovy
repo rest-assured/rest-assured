@@ -542,7 +542,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                     if (requiresTextParsing()) {
                         parsedContent = response.asString()
                     } else if (!isEagerAssert() || parsedContent == null) {
-                        parsedContent = new ContentParser().parse(response, rpr, cfg)
+                        parsedContent = new ContentParser().parse(response, rpr, cfg, isEagerAssert())
                     }
                     validations.addAll(bodyMatchers.validate(response, parsedContent, cfg))
                 }

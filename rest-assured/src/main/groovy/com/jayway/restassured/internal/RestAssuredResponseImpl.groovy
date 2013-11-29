@@ -161,7 +161,11 @@ class RestAssuredResponseImpl implements Response, ExtractableResponse {
     }
 
     String asString() {
-        charsetToString(findCharset())
+        asString(false)
+    }
+
+    def String asString(boolean forcePlatformDefaultCharsetIfNoCharsetIsSpecifiedInResponse) {
+        charsetToString(findCharset(forcePlatformDefaultCharsetIfNoCharsetIsSpecifiedInResponse))
     }
 
     InputStream asInputStream() {
@@ -213,17 +217,20 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
         return mapper.deserialize(ctx) as T
     }
 
-    private String findCharset() {
+    def String findCharset() {
+        return findCharset(false)
+    }
+
+    def String findCharset(boolean forcePlatformDefaultCharsetIfNoCharsetIsSpecifiedInResponse) {
         String charset = CharsetExtractor.getCharsetFromContentType(isBlank(contentType) ? defaultContentType : contentType)
 
         if (charset == null || charset.trim().equals("")) {
-            if (defaultCharset == null) {
+            if (defaultCharset == null || forcePlatformDefaultCharsetIfNoCharsetIsSpecifiedInResponse) {
                 return Charset.defaultCharset()
             } else {
                 charset = defaultCharset
             }
         }
-
         return charset;
     }
 
@@ -427,12 +434,12 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
         return writer.toString();
     }
 
-    private String convertStreamToString(InputStream is) throws IOException {
+    private String convertStreamToString(InputStream is, String charset) throws IOException {
         Writer writer = new StringWriter();
         char[] buffer = new char[1024];
         Reader reader = null;
         try {
-            reader = new InputStreamReader(is, findCharset());
+            reader = new InputStreamReader(is, charset);
             int n;
             while ((n = reader.read(buffer)) != -1) {
                 writer.write(buffer, 0, n);
@@ -491,7 +498,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
         new XmlPath(mode, asString()).using(config)
     }
 
-    private def charsetToString(charset) {
+    def charsetToString(charset) {
         if (content == null) {
             return ""
         }
@@ -501,7 +508,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
         } else if (content instanceof byte[]) {
             new String(content, charset)
         } else {
-            content = convertStreamToString(content)
+            content = convertStreamToString(content, charset)
             content
         }
     }

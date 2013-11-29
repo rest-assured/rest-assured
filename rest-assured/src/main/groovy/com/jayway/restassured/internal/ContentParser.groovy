@@ -25,7 +25,7 @@ import groovy.util.slurpersupport.GPathResult
 import static com.jayway.restassured.parsing.Parser.*
 
 class ContentParser {
-    def parse(Response response, ResponseParserRegistrar rpr, RestAssuredConfig config) {
+    def parse(Response response, ResponseParserRegistrar rpr, RestAssuredConfig config, boolean parseAsString) {
         Parser parser = rpr.getParser(response.contentType())
         def content;
         if (parser == null) {
@@ -34,17 +34,21 @@ class ContentParser {
             switch (parser) {
                 case JSON:
                     def slurper = new ConfigurableJsonSlurper(config.getJsonConfig().shouldRepresentJsonNumbersAsBigDecimal())
-                    content = slurper.parse(new InputStreamReader(new BufferedInputStream(response.asInputStream())))
+                    if (parseAsString) {
+                        content = slurper.parseText(response.asString(true)) // We force default charset to be backward compatible with "InputStream charset"
+                    } else {
+                        content = slurper.parse(new InputStreamReader(new BufferedInputStream(response.asInputStream())))
+                    }
                     break;
                 case XML:
                     def xmlConfig = config.getXmlConfig()
                     def slurper = configureXmlSlurper(new XmlSlurper(), xmlConfig)
-                    content = declareNamespacesIfNeeded(slurper.parse(response.asInputStream()), xmlConfig)
+                    content = declareNamespacesIfNeeded(parseXml(slurper, response, parseAsString), xmlConfig)
                     break
                 case HTML:
                     def xmlConfig = config.getXmlConfig()
                     def slurper = configureXmlSlurper(new XmlSlurper(new org.ccil.cowan.tagsoup.Parser()), xmlConfig)
-                    content = declareNamespacesIfNeeded(slurper.parse(response.asInputStream()), xmlConfig)
+                    content = declareNamespacesIfNeeded(parseXml(slurper, response, parseAsString), xmlConfig)
                     break
                 case TEXT:
                 default:
@@ -54,6 +58,14 @@ class ContentParser {
         content
     }
 
+    def private static GPathResult parseXml(XmlSlurper xmlSlurper, Response response, boolean parseAsString) {
+        if (parseAsString) {
+            // We force default charset to be backward compatible with "InputStream charset"
+            xmlSlurper.parseText(response.asString(true))
+        } else {
+            xmlSlurper.parse(response.asInputStream())
+        }
+    }
 
     def private static GPathResult declareNamespacesIfNeeded(GPathResult gPathResult, XmlConfig xmlConfig) {
         if (xmlConfig.isNamespaceAware()) {
