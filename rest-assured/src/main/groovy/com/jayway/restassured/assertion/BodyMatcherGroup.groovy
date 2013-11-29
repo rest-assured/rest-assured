@@ -34,6 +34,9 @@ class BodyMatcherGroup {
     }
 
 
+    def reset() {
+        bodyAssertions.clear()
+    }
 
     def size() {
         bodyAssertions.size()

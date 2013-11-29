@@ -85,11 +85,12 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
     def ResponseSpecification content(Matcher matcher, Matcher... additionalMatchers) {
         notNull(matcher, "matcher")
-        bodyMatchers << new BodyMatcher(key: null, matcher: matcher, rpr: rpr)
-        additionalMatchers?.each { hamcrestMatcher ->
-            bodyMatchers << new BodyMatcher(key: null, matcher: hamcrestMatcher, rpr: rpr)
+        validateResponseIfRequired {
+            bodyMatchers << new BodyMatcher(key: null, matcher: matcher, rpr: rpr)
+            additionalMatchers?.each { hamcrestMatcher ->
+                bodyMatchers << new BodyMatcher(key: null, matcher: hamcrestMatcher, rpr: rpr)
+            }
         }
-        validateResponseIfRequired();
         return this
     }
 
@@ -99,8 +100,9 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
     def ResponseSpecification statusCode(Matcher<? super Integer> expectedStatusCode) {
         notNull(expectedStatusCode, "expectedStatusCode")
-        this.expectedStatusCode = expectedStatusCode
-        validateResponseIfRequired();
+        validateResponseIfRequired {
+            this.expectedStatusCode = expectedStatusCode
+        }
         return this
     }
 
@@ -111,18 +113,19 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
     def ResponseSpecification statusLine(Matcher<? super String> expectedStatusLine) {
         notNull(expectedStatusLine, "expectedStatusLine")
-        this.expectedStatusLine = expectedStatusLine
-        validateResponseIfRequired();
+        validateResponseIfRequired {
+            this.expectedStatusLine = expectedStatusLine
+        }
         return this
     }
 
     def ResponseSpecification headers(Map expectedHeaders) {
         notNull(expectedHeaders, "expectedHeaders")
-
-        expectedHeaders.each { headerName, matcher ->
-            headerAssertions << new HeaderMatcher(headerName: headerName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
+        validateResponseIfRequired {
+            expectedHeaders.each { headerName, matcher ->
+                headerAssertions << new HeaderMatcher(headerName: headerName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
+            }
         }
-        validateResponseIfRequired();
         return this
     }
 
@@ -136,8 +139,9 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         notNull headerName, "headerName"
         notNull expectedValueMatcher, "expectedValueMatcher"
 
-        headerAssertions << new HeaderMatcher(headerName: headerName, matcher: expectedValueMatcher)
-        validateResponseIfRequired();
+        validateResponseIfRequired {
+            headerAssertions << new HeaderMatcher(headerName: headerName, matcher: expectedValueMatcher)
+        }
         this;
     }
 
@@ -148,10 +152,11 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     def ResponseSpecification cookies(Map expectedCookies) {
         notNull expectedCookies, "expectedCookies"
 
-        expectedCookies.each { cookieName, matcher ->
-            cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
+        validateResponseIfRequired {
+            expectedCookies.each { cookieName, matcher ->
+                cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
+            }
         }
-        validateResponseIfRequired();
         return this
     }
 
@@ -166,8 +171,9 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     def ResponseSpecification cookie(String cookieName, Matcher expectedValueMatcher) {
         notNull cookieName, "cookieName"
         notNull expectedValueMatcher, "expectedValueMatcher"
-        cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: expectedValueMatcher)
-        validateResponseIfRequired();
+        validateResponseIfRequired {
+            cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: expectedValueMatcher)
+        }
         this;
     }
 
@@ -215,17 +221,16 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
         def mergedPath = mergeKeyWithRootPath(key)
         mergedPath = applyArguments(mergedPath, arguments)
-
-        bodyMatchers << new BodyMatcher(key: mergedPath, matcher: matcher, rpr: rpr)
-        if (additionalKeyMatcherPairs?.length > 0) {
-            def pairs = MapCreator.createMapFromObjects(additionalKeyMatcherPairs)
-            pairs.each { matchingKey, hamcrestMatcher ->
-                def keyWithRoot = mergeKeyWithRootPath(matchingKey)
-                bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: hamcrestMatcher, rpr: rpr)
+        validateResponseIfRequired {
+            bodyMatchers << new BodyMatcher(key: mergedPath, matcher: matcher, rpr: rpr)
+            if (additionalKeyMatcherPairs?.length > 0) {
+                def pairs = MapCreator.createMapFromObjects(additionalKeyMatcherPairs)
+                pairs.each { matchingKey, hamcrestMatcher ->
+                    def keyWithRoot = mergeKeyWithRootPath(matchingKey)
+                    bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: hamcrestMatcher, rpr: rpr)
+                }
             }
         }
-
-        validateResponseIfRequired()
         return this
     }
 
@@ -478,22 +483,25 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
     ResponseSpecification contentType(ContentType contentType) {
         notNull contentType, "contentType"
-        this.contentType = contentType
-        validateResponseIfRequired();
+        validateResponseIfRequired {
+            this.contentType = contentType
+        }
         return this
     }
 
     ResponseSpecification contentType(String contentType) {
         notNull contentType, "contentType"
-        this.contentType = contentType
-        validateResponseIfRequired();
+        validateResponseIfRequired {
+            this.contentType = contentType
+        }
         return this
     }
 
     ResponseSpecification contentType(Matcher<? super String> contentType) {
         notNull contentType, "contentType"
-        this.contentType = contentType
-        validateResponseIfRequired();
+        validateResponseIfRequired {
+            this.contentType = contentType
+        }
         return this
     }
 
@@ -673,7 +681,11 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         return response != null
     }
 
-    private void validateResponseIfRequired() {
+    private void validateResponseIfRequired(Closure closure) {
+        if (isEagerAssert()) {
+            bodyMatchers.reset() // Reset the body matchers before each validation to avoid testing multiple matchers on each invocation
+        }
+        closure.call()
         if (isEagerAssert()) {
             assertionClosure.validate(response)
         }
