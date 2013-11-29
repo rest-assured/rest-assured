@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 2.0.0 (2013-11-29)
+-----------------------------
 * Fixed a regression bug where Rest Assured didn't respected trailing slashes in URL's (issue 276).
 * Fixed so that the path method in the Response can be invoked multiple times, for example:
     Response response = get("/jsonStore");
