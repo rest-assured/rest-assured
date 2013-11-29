@@ -131,7 +131,7 @@
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
-                    <encoding>ISO-8859-1</encoding>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
             <plugin>

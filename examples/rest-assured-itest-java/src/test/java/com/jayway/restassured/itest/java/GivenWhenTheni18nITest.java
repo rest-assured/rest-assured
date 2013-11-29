@@ -26,7 +26,6 @@ public class GivenWhenTheni18nITest extends WithJetty {
 
     @Test public void
     given_when_then_using_i18n_works() {
-        // When
         get("/i18n").then().assertThat().body("ön", equalTo("Är ån"));
     }
 
