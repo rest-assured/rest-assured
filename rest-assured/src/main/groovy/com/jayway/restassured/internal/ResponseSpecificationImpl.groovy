@@ -55,6 +55,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     private RestAssuredConfig config
     private Response response
 
+    private parsedContent
+
     ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
                               RestAssuredConfig config) {
         this(bodyRootPath, responseContentType, defaultSpec, rpr, config, null)
@@ -537,13 +539,12 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                 validations.addAll(validateContentType(response))
                 if (hasBodyAssertionsDefined()) {
                     RestAssuredConfig cfg = config ?: new RestAssuredConfig()
-                    def content
                     if (requiresTextParsing()) {
-                        content = response.asString()
-                    } else {
-                        content = new ContentParser().parse(response, rpr, cfg, isEagerAssert())
+                        parsedContent = response.asString()
+                    } else if (!isEagerAssert() || parsedContent == null) {
+                        parsedContent = new ContentParser().parse(response, rpr, cfg)
                     }
-                    validations.addAll(bodyMatchers.validate(response, content, cfg))
+                    validations.addAll(bodyMatchers.validate(response, parsedContent, cfg))
                 }
 
                 def errors = validations.findAll { !it.success }
