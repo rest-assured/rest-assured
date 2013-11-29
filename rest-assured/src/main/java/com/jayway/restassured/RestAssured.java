@@ -782,6 +782,9 @@ public class RestAssured {
      *        body("x.y.z1", equalTo("Z1")).
      *        body("x.y.z2", equalTo("Z2"));
      * </pre>
+     * <p>
+     * Note that if you need to add parameters, headers, cookies or other request properties use the {@link #given()} method.
+     * </p>
      *
      * @return A request sender interface that let's yuu call resources on the server
      */
