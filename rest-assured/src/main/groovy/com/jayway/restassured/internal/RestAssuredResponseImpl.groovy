@@ -374,8 +374,11 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
         return xmlPath(CompatibilityMode.HTML)
     }
 
-    def <T> T path(String path) {
+    def <T> T path(String path, String... arguments) {
         notNull path, "Path"
+        if (arguments?.length > 0) {
+            path = String.format(path, arguments);
+        }
         def contentType = findContentType {
             throw new IllegalStateException("""Cannot invoke the path method because no content-type was present in the response and no default parser has been set.\n
 You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n""")

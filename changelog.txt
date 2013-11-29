@@ -35,6 +35,8 @@ Change log next version
       then().
              body("x.y.z1", equalTo("Z1")).
              body("x.y.z2", equalTo("Z2"));
+* Added support for arguments when calling path("..") on a Response object, for example:
+      String z = get("/x").path("x.y.%s", "z");
 
 Change log 1.9.0 (2013-11-25)
 -----------------------------

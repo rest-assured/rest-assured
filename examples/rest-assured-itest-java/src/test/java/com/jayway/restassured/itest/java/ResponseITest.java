@@ -208,6 +208,13 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
+    public void usingPathWithParameters() throws Exception {
+        final String hello = get("/hello").andReturn().path("hel%s", "lo");
+
+        assertThat(hello, equalTo("Hello Scalatra"));
+    }
+
+    @Test
     public void usingPathWithContentTypeXmlFromTheResponse() throws Exception {
         final String firstName = with().parameters("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().path("greeting.firstName");
 

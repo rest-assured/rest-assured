@@ -126,12 +126,21 @@ public interface ResponseBodyExtractionOptions extends ResponseBodyData {
      * Get a value from the response body using the JsonPath or XmlPath syntax. REST Assured will
      * automatically determine whether to use JsonPath or XmlPath based on the content-type of the response.
      * If no content-type is defined then REST Assured will try to look at the "default parser" if defined (RestAssured.defaultParser).
+     * <p>
+     * Note that you can also also supply arguments, for example:
+     * <pre>
+     * String z = get("/x").path("x.y.%s", "z");
+     * </pre>
      *
-     * @param path The json- or xml path
-     * @param <T>  The return type
+     * The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * </p>
+     *
+     * @param path      The json- or xml path
+     * @param <T>       The return type
+     * @param arguments Options arguments
      * @return The value returned by the path
      * @see #jsonPath()
      * @see #xmlPath()
      */
-    <T> T path(String path);
+    <T> T path(String path, String... arguments);
 }
