@@ -7,6 +7,7 @@ import org.junit.Test;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -41,9 +42,17 @@ public class GivenWhenThenExtractITest extends WithJetty {
     }
 
     @Test public void
-    extract_single_path_works_after_body_validation2() {
+    extract_single_path_works_after_status_code_and_body_validation() {
         String hello = get("/hello").then().assertThat().statusCode(200).and().body("hello", equalTo("Hello Scalatra")).extract().path("hello");
 
         assertThat(hello, equalTo("Hello Scalatra"));
+    }
+
+    @Test public void
+    extract_single_path_works_after_multiple_body_validations() {
+        int lottoId = get("/lotto").then().assertThat().statusCode(200).and().body("lotto.lottoId", equalTo(5)).
+                and().body("lotto.winning-numbers", hasItems(2, 45, 34, 23, 7, 5, 3)).extract().path("lotto.lottoId");
+
+        assertThat(lottoId, is(5));
     }
 }
