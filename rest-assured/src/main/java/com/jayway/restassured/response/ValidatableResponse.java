@@ -1004,7 +1004,7 @@ public interface ValidatableResponse {
      * <pre>
      * String nextTitleLink =
      * given().
-     *         param("param_name", "param_value).
+     *         param("param_name", "param_value").
      * when().
      *         get("/title").
      * then().
