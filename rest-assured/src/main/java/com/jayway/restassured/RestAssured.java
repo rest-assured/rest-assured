@@ -786,7 +786,7 @@ public class RestAssured {
      * Note that if you need to add parameters, headers, cookies or other request properties use the {@link #given()} method.
      * </p>
      *
-     * @return A request sender interface that let's yuu call resources on the server
+     * @return A request sender interface that let's you call resources on the server
      */
     public static RequestSender when() {
         return createTestSpecification().getRequestSpecification();
