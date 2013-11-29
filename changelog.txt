@@ -29,6 +29,12 @@ Change log next version
 * Added peek and prettyPeek support to com.jayway.restassured.response.Response which allows you to print the response to system out but continue working with the Response instance afterwards.
 * Fixed a bug with RequestSpecBuilder that merged two too many cookies and headers when defined statically (issue 281).
 * Fixed a bug with ResponseSpecBuilder that didn't merge certain properties correctly.
+* Added static method "when" to com.jayway.restassured.RestAssured that allows you to write specifications without use of parameters, headers etc. For example:
+      when().
+             get("/x").
+      then().
+             body("x.y.z1", equalTo("Z1")).
+             body("x.y.z2", equalTo("Z2"));
 
 Change log 1.9.0 (2013-11-25)
 -----------------------------

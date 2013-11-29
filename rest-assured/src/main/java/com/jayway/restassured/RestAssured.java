@@ -773,6 +773,23 @@ public class RestAssured {
     }
 
     /**
+     * Start building the DSL expression by sending a request without any parameters or headers etc. E.g.
+     * <p/>
+     * <pre>
+     * when().
+     *        get("/x").
+     * then().
+     *        body("x.y.z1", equalTo("Z1")).
+     *        body("x.y.z2", equalTo("Z2"));
+     * </pre>
+     *
+     * @return A request sender interface that let's yuu call resources on the server
+     */
+    public static RequestSender when() {
+        return createTestSpecification().getRequestSpecification();
+    }
+
+    /**
      * When you have long specifications it can be better to split up the definition of response and request specifications in multiple lines.
      * You can then pass the response and request specifications to this method. E.g.
      * <p/>
@@ -1032,7 +1049,7 @@ public class RestAssured {
     public static Response options(URI uri) {
         return given().options(uri);
     }
-    
+
     /**
      * Perform a GET request to a <code>url</code>.
      *
@@ -1102,7 +1119,7 @@ public class RestAssured {
     public static Response options(URL url) {
         return given().options(url);
     }
-    
+
     /**
      * Perform a GET request to the statically configured path (by default <code>http://localhost:8080</code>).
      *
