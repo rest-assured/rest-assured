@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 2.0.1 (2013-11-29)
+-----------------------------
 * Fixed an issue which prevented extracting data from a response after body assertions had been used.
 
 Change log 2.0.0 (2013-11-29)
