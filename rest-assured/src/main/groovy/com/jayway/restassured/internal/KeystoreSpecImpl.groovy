@@ -28,42 +28,47 @@ import java.security.KeyStore
 
 class KeystoreSpecImpl implements KeystoreSpec, KeystoreProvider {
 
-  def path
-  def password
+    def path
+    def password
 
-  def void apply(HTTPBuilder builder, int port) {
-    def trustStore = build()
-    def factory = new SSLSocketFactory(trustStore)
-    factory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)
-    builder.client.connectionManager.schemeRegistry.register(
-      new Scheme("https", factory, port)
-    )
-  }
-
-  def Boolean canBuild() {
-    return true
-  }
-
-  def KeyStore build() {
-    def keyStore = KeyStore.getInstance(KeyStore.defaultType)
-    if (path == null)
-      path = System.getProperty("user.home") + File.separatorChar + ".keystore"
-
-    def resource
-    if(path instanceof File) {
-      resource = path
-    } else {
-      resource = Thread.currentThread().getContextClassLoader()?.getResource(path)
-      if (resource == null)
-        resource = new File(path)
+    def void apply(HTTPBuilder builder, int port) {
+        def trustStore = build()
+        def factory = new SSLSocketFactory(trustStore)
+        factory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)
+        builder.client.connectionManager.schemeRegistry.register(
+                new Scheme("https", factory, port)
+        )
     }
 
-    Validate.notNull(resource, "Couldn't find java keystore file at '$path'.")
-    resource.withInputStream {
-      keyStore.load(it, password.toCharArray())
+    def Boolean canBuild() {
+        return true
     }
 
-    return keyStore
-  }
+    def KeyStore build() {
+        def keyStore = KeyStore.getInstance(KeyStore.defaultType)
+        if (path == null)
+            path = System.getProperty("user.home") + File.separatorChar + ".keystore"
+
+        def resource
+        if (path instanceof File) {
+            resource = path
+        } else {
+            resource = Thread.currentThread().getContextClassLoader()?.getResource(path)
+            if (resource == null) { // To allow for backward compatibility
+                resource = getClass().getResource(path)
+            }
+
+            if (resource == null) { // Fallback to load path as file if not found in classpath
+                resource = new File(path)
+            }
+        }
+
+        Validate.notNull(resource, "Couldn't find java keystore file at '$path'.")
+        resource.withInputStream {
+            keyStore.load(it, password.toCharArray())
+        }
+
+        return keyStore
+    }
 
 }
