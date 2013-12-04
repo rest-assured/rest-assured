@@ -53,7 +53,7 @@ class KeystoreSpecImpl implements KeystoreSpec, KeystoreProvider {
     if(path instanceof File) {
       resource = path
     } else {
-      resource = Thread.currentThread().getContextClassLoader().getResource(path)
+      resource = Thread.currentThread().getContextClassLoader()?.getResource(path)
       if (resource == null)
         resource = new File(path)
     }
