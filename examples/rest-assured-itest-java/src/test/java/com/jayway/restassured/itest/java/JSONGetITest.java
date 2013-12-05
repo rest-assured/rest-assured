@@ -25,13 +25,11 @@ import com.jayway.restassured.specification.ResponseSpecification;
 import groovy.json.JsonException;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.parsing.Parser.JSON;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -565,5 +563,19 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void contentTypeButNoBodyWhenError() throws Exception {
         expect().contentType(ContentType.JSON).body("error", equalTo(null)).when().get("/statusCode409WithNoBody");
+    }
+
+    @Test
+    public void uuidIsTreatedAsString() throws Exception {
+        UUID uuid1 = UUID.randomUUID();
+        UUID uuid2 = UUID.randomUUID();
+
+        given().
+                queryParam("firstName", uuid1).
+                queryParam("lastName", uuid2).
+        when().
+                 get("/greet").
+        then().
+                 body("greeting", equalTo(format("Greetings %s %s", uuid1, uuid2)));
     }
 }

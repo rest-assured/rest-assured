@@ -2,6 +2,7 @@ Change log next version
 -----------------------
 * Changed the way REST Assured finds key stores in classpath. It now uses Thread context classloader to resolve the files instead of the class KeyStoreSpecImpl classloader.
   This means means that you're able to do e.g. "RestAssured.keystore("truststore.jks", "test1234")" where you before used "RestAssured.keystore("/truststore.jks", "test1234")".
+* java.util.UUID is now serialized as a String (issue 285).
 
 Change log 2.0.1 (2013-11-29)
 -----------------------------
