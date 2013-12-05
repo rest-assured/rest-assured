@@ -4,11 +4,10 @@ Change log next version
   This means means that you're able to do e.g. "RestAssured.keystore("truststore.jks", "test1234")" where you before used "RestAssured.keystore("/truststore.jks", "test1234")".
 * java.util.UUID is now serialized as a String (issue 285).
 * Added support for Json Schema validation.
-* Non backward compatible change: It's no longer possible to assert that an empty response object has a path that is null, for example let's say that the "/statusCode409WithNoBody" resource returns an empty body:
+* Non-backward compatible change: It's no longer possible to assert that an empty response object has a path that is null, for example let's say that the "/statusCode409WithNoBody" resource returns an empty body:
     expect().contentType(ContentType.JSON).body("error", equalTo(null)).when().get("/statusCode409WithNoBody"); // This will now throw assertion error
 * Added support to for mixing text and path assertions. For example:
     get("/lotto").then().body(containsString("\"numbers\":[52")).and().body("lotto.winners.winnerId", hasItems(23, 54));
-
 
 Change log 2.0.1 (2013-11-29)
 -----------------------------
