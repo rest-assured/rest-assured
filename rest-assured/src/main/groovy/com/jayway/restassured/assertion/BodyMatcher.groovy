@@ -28,6 +28,7 @@ import org.w3c.dom.Element
 
 import javax.xml.parsers.DocumentBuilderFactory
 
+import static java.lang.String.format
 import static org.apache.commons.lang3.StringUtils.*
 
 class BodyMatcher {
@@ -36,11 +37,11 @@ class BodyMatcher {
     def Matcher matcher
     def ResponseParserRegistrar rpr
 
-    def validate(Response response, content, RestAssuredConfig config) {
+    def validate(Response response, contentParser, RestAssuredConfig config) {
         def success = true
         def errorMessage = "";
 
-        content = fallbackToResponseBodyIfContentHasAlreadyBeenRead(response, content)
+        contentParser = fallbackToResponseBodyIfContentParserIsNull(response, contentParser)
         if (key == null) {
             if (isXPathMatcher()) {
                 def xmlConfig = config.getXmlConfig();
@@ -58,31 +59,38 @@ class BodyMatcher {
                 Element node = factory.newDocumentBuilder().parse(new ByteArrayInputStream(response.asByteArray())).getDocumentElement();
                 if (!matcher.matches(node)) {
                     success = false
-                    errorMessage = String.format("Expected: %s\n  Actual: %s\n", trim(matcher.toString()), content)
+                    errorMessage = format("Expected: %s\n  Actual: %s\n", trim(matcher.toString()), contentParser)
                 }
             } else if (!matcher.matches(response.asString())) {
                 success = false
-                errorMessage = "Response body doesn't match expectation.\nExpected: $matcher\n  Actual: $content\n"
+                errorMessage = "Response body doesn't match expectation.\nExpected: $matcher\n  Actual: $contentParser\n"
             }
         } else {
             def assertion = StreamVerifier.newAssertion(response, key, rpr)
             def result = null
-            if (content != null) {
-                result = assertion.getResult(content, config)
+            if (contentParser != null) {
+                if (contentParser instanceof String) {
+                    // This happens for example when expecting JSON/XML assertion but response content is empty
+                    def isEmpty = contentParser?.isEmpty()
+                    errorMessage = format("Cannot assert that path \"$key\" matches $matcher because the response body %s.", isEmpty ? "is empty" : "equal to \"$contentParser\"")
+                    success = false
+                } else {
+                    result = assertion.getResult(contentParser, config)
+                }
             }
 
-            if (!matcher.matches(result)) {
+            if (success && !matcher.matches(result)) {
                 success = false
                 if (result instanceof Object[]) {
                     result = result.join(",")
                 }
-                errorMessage = String.format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), result)
+                errorMessage = format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), result)
             }
         }
         return [success: success, errorMessage: errorMessage];
     }
 
-    private String removeQuotesIfString(String string) {
+    private static String removeQuotesIfString(String string) {
         if (startsWith(string, "\"") && endsWith(string, "\"")) {
             def start = removeStart(string, "\"")
             string = removeEnd(start, "\"")
@@ -90,11 +98,11 @@ class BodyMatcher {
         string
     }
 
-    def fallbackToResponseBodyIfContentHasAlreadyBeenRead(Response response, content) {
-        if (content instanceof Reader || content instanceof InputStream) {
+    static def fallbackToResponseBodyIfContentParserIsNull(Response response, contentParser) {
+        if (contentParser == null) {
             return response.asString()
         }
-        return content
+        return contentParser
     }
 
     private boolean isXPathMatcher() {
@@ -108,16 +116,6 @@ class BodyMatcher {
     }
 
     def boolean requiresTextParsing() {
-        isXPathMatcher() || key == null
-    }
-
-    def String getDescription() {
-        String description
-        if (key) {
-            description = "Body containing expression \"$key\" must match $matcher"
-        } else {
-            description = "Body must match $matcher"
-        }
-        return description
+        key == null || isXPathMatcher()
     }
 }

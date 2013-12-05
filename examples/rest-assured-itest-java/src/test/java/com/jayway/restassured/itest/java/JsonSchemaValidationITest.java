@@ -61,11 +61,11 @@ public class JsonSchemaValidationITest extends WithJetty {
         expect().body(matchesJsonSchemaInClasspath("products-schema.json")).when().get("/products");
     }
 
-//    @Test public void
-//    can_mix_json_schema_validation_and_body_validations() throws IOException {
-//        // When
-//        get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json")).and().body("store.book[0].author", equalTo("Nigel Rees"));
-//    }
+    @Test public void
+    can_mix_json_schema_validation_and_body_validations() throws IOException {
+        // When
+        get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json")).and().body("[0].name", equalTo("An ice sculpture"));
+    }
 
     @Test public void
     throws_assertion_error_when_schema_doesnt_match_json_content() throws IOException {

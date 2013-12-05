@@ -42,12 +42,12 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void ognlJSONAndHamcrestMatcher() throws Exception {
+    public void gpathJSONAndHamcrestMatcher() throws Exception {
         expect().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
     }
 
     @Test
-    public void ognlAssertionWithHamcrestMatcherAndJSONReturnsArray() throws Exception {
+    public void gpathAssertionWithHamcrestMatcherAndJSONReturnsArray() throws Exception {
         expect().body("lotto.winners.winnerId", hasItems(23, 54)).when().get("/lotto");
     }
 
@@ -197,18 +197,6 @@ public class JSONGetITest extends WithJetty {
     public void restAssuredSupportsFullyQualifiedURI() throws Exception {
         final String expectedBody = "{\"lotto\":{\"lottoId\":5,\"winning-numbers\":[2,45,34,23,7,5,3],\"winners\":[{\"winnerId\":23,\"numbers\":[2,45,34,23,3,5]},{\"winnerId\":54,\"numbers\":[52,3,12,11,18,22]}]}}";
         expect().body(equalTo(expectedBody)).when().get("http://localhost:8080/lotto");
-    }
-
-    @Test
-    public void whenMixingBodyMatchersRequiringContentTypeTextAndContentTypeAnyThenAnIllegalStateExceptionIsThrown() throws Exception {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage(equalTo("Currently you cannot mix body expectations that require different content types for matching.\n" +
-                "For example XPath and full body matching requires TEXT content and JSON/XML matching requires JSON/XML/ANY mapping. " +
-                "You need to split conflicting matchers into two tests. Your matchers are:\n" +
-                "Body containing expression \"lotto\" must match \"something\" which cannot be 'TEXT'\n" +
-                "Body must match \"somethingElse\" which requires 'TEXT'"));
-
-        expect().response().body("lotto", equalTo("something")).and().body(equalTo("somethingElse")).when().get("/lotto");
     }
 
     @Test
@@ -562,6 +550,9 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void contentTypeButNoBodyWhenError() throws Exception {
+        exception.expect(AssertionError.class);
+        exception.expectMessage("Cannot assert that path \"error\" matches null because the response body is empty.");
+
         expect().contentType(ContentType.JSON).body("error", equalTo(null)).when().get("/statusCode409WithNoBody");
     }
 

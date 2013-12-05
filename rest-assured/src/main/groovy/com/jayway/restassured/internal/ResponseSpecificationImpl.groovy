@@ -55,7 +55,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     private RestAssuredConfig config
     private Response response
 
-    private parsedContent
+    private contentParser
 
     ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
                               RestAssuredConfig config) {
@@ -539,12 +539,11 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                 validations.addAll(validateContentType(response))
                 if (hasBodyAssertionsDefined()) {
                     RestAssuredConfig cfg = config ?: new RestAssuredConfig()
-                    if (requiresTextParsing()) {
-                        parsedContent =  response.asString()
-                    } else if (!isEagerAssert() || parsedContent == null) {
-                        parsedContent = new ContentParser().parse(response, rpr, cfg, isEagerAssert())
+                    if (!requiresTextParsing() && (!isEagerAssert() || contentParser == null)) {
+                        contentParser = new ContentParser().parse(response, rpr, cfg, isEagerAssert())
                     }
-                    validations.addAll(bodyMatchers.validate(response, parsedContent, cfg))
+
+                    validations.addAll(bodyMatchers.validate(response, contentParser, cfg))
                 }
 
                 def errors = validations.findAll { !it.success }
@@ -684,7 +683,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
     private void validateResponseIfRequired(Closure closure) {
         if (isEagerAssert()) {
-            bodyMatchers.reset() // Reset the body matchers before each validation to avoid testing multiple matchers on each invocation
+            bodyMatchers.reset()
+            // Reset the body matchers before each validation to avoid testing multiple matchers on each invocation
         }
         closure.call()
         if (isEagerAssert()) {
