@@ -540,7 +540,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                 if (hasBodyAssertionsDefined()) {
                     RestAssuredConfig cfg = config ?: new RestAssuredConfig()
                     if (requiresTextParsing()) {
-                        parsedContent = response.asString()
+                        parsedContent =  response.asString()
                     } else if (!isEagerAssert() || parsedContent == null) {
                         parsedContent = new ContentParser().parse(response, rpr, cfg, isEagerAssert())
                     }
