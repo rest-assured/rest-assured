@@ -521,8 +521,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
             return contentType ?: ANY;
         }
 
-        private boolean requiresTextParsing() {
-            return bodyMatchers.requiresTextParsing()
+        private boolean requiresPathParsing() {
+            return bodyMatchers.requiresPathParsing()
         }
 
         def getClosure() {
@@ -539,7 +539,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                 validations.addAll(validateContentType(response))
                 if (hasBodyAssertionsDefined()) {
                     RestAssuredConfig cfg = config ?: new RestAssuredConfig()
-                    if (!requiresTextParsing() && (!isEagerAssert() || contentParser == null)) {
+                    if (requiresPathParsing() && (!isEagerAssert() || contentParser == null)) {
                         contentParser = new ContentParser().parse(response, rpr, cfg, isEagerAssert())
                     }
 

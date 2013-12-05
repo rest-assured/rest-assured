@@ -118,4 +118,8 @@ class BodyMatcher {
     def boolean requiresTextParsing() {
         key == null || isXPathMatcher()
     }
+
+    def boolean requiresPathParsing() {
+        !requiresTextParsing()
+    }
 }

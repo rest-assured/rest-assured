@@ -54,4 +54,8 @@ class BodyMatcherGroup {
     def boolean requiresTextParsing() {
         bodyAssertions.any { matcher -> matcher.requiresTextParsing() }
     }
+
+    def boolean requiresPathParsing() {
+        bodyAssertions.any { matcher -> matcher.requiresPathParsing() }
+    }
 }
