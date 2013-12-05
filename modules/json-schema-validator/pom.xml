@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.jayway.restassured</groupId>
-        <artifactId>modules-parent</artifactId>
+        <artifactId>modules</artifactId>
         <version>2.0.2-SNAPSHOT</version>
     </parent>
     <artifactId>json-schema-validator</artifactId>
