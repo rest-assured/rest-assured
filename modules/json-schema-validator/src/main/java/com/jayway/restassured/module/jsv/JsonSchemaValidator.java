@@ -33,7 +33,6 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
-// TODO Null checks!
 public class JsonSchemaValidator extends TypeSafeMatcher<String> {
 
     /**
@@ -49,6 +48,12 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
         this.schema = schema;
     }
 
+    /**
+     * Creates a Hamcrest matcher that validates that a JSON document conforms to the JSON schema provided to this method.
+     *
+     * @param schema The string defining the JSON schema
+     * @return A Hamcrest matcher
+     */
     public static Matcher<?> matchesJsonSchema(String schema) {
         return new JsonSchemaValidatorFactory<String>() {
             @Override
@@ -58,14 +63,32 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
         }.create(schema);
     }
 
+    /**
+     * Creates a Hamcrest matcher that validates that a JSON document conforms to the JSON schema provided to this method.
+     *
+     * @param pathToSchemaInClasspath The string that points to a JSON schema in classpath.
+     * @return A Hamcrest matcher
+     */
     public static Matcher<?> matchesJsonSchemaInClasspath(String pathToSchemaInClasspath) {
         return matchesJsonSchema(Thread.currentThread().getContextClassLoader().getResource(pathToSchemaInClasspath));
     }
 
+    /**
+     * Creates a Hamcrest matcher that validates that a JSON document conforms to the JSON schema provided to this method.
+     *
+     * @param schema The input stream that points to a JSON schema
+     * @return A Hamcrest matcher
+     */
     public static Matcher<?> matchesJsonSchema(InputStream schema) {
         return matchesJsonSchema(new InputStreamReader(schema));
     }
 
+    /**
+     * Creates a Hamcrest matcher that validates that a JSON document conforms to the JSON schema provided to this method.
+     *
+     * @param schema The reader that points to a JSON schema
+     * @return A Hamcrest matcher
+     */
     public static Matcher<?> matchesJsonSchema(Reader schema) {
         return new JsonSchemaValidatorFactory<Reader>() {
             @Override
@@ -75,6 +98,12 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
         }.create(schema);
     }
 
+    /**
+     * Creates a Hamcrest matcher that validates that a JSON document conforms to the JSON schema provided to this method.
+     *
+     * @param file The file that points to a JSON schema
+     * @return A Hamcrest matcher
+     */
     public static Matcher<?> matchesJsonSchema(File file) {
         return new JsonSchemaValidatorFactory<File>() {
             @Override
@@ -94,13 +123,13 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     }
 
     /**
-     * Creates a Hamcrest matcher that validates that a JSON document conforms to the JSON Schema loaded by the supplied URI.
+     * Creates a Hamcrest matcher that validates that a JSON document conforms to the JSON schema loaded by the supplied URI.
      * <p>
      * Note: Converts the URI to a URL and loads this URL.
      * </p>
      *
-     * @param uri
-     * @return
+     * @param uri The URI that points to a JSON schema
+     * @return A Hamcrest matcher
      */
     public static Matcher<?> matchesJsonSchema(URI uri) {
         return matchesJsonSchema(toURL(uri));

@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.jayway.restassured.examples</groupId>
         <artifactId>example-parent</artifactId>
@@ -25,7 +26,8 @@
 
     <artifactId>rest-assured-itest-java</artifactId>
     <name>REST Assured Java integration tests</name>
-    <description>REST Assured Java integration tests. Here you'll find various examples of how to use rest-assured.</description>
+    <description>REST Assured Java integration tests. Here you'll find various examples of how to use rest-assured.
+    </description>
 
     <dependencies>
         <dependency>
