@@ -28,6 +28,8 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
@@ -48,14 +50,12 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     }
 
     public static Matcher<?> matchesJsonSchema(String schema) {
-        JsonNode schemaNode;
-        try {
-            schemaNode = JsonLoader.fromString(schema);
-        } catch (IOException e) {
-            throw new JsonSchemaValidationException(e);
-        }
-
-        return new JsonSchemaValidator(schemaNode);
+        return new JsonSchemaValidatorFactory<String>() {
+            @Override
+            JsonNode createJsonNodeInstance(String schema) throws IOException {
+                return JsonLoader.fromString(schema);
+            }
+        }.create(schema);
     }
 
     public static Matcher<?> matchesJsonSchemaInClasspath(String pathToSchemaInClasspath) {
@@ -63,47 +63,56 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     }
 
     public static Matcher<?> matchesJsonSchema(InputStream schema) {
-        JsonNode schemaNode;
-        try {
-            schemaNode = JsonLoader.fromReader(new InputStreamReader(schema));
-        } catch (IOException e) {
-            throw new JsonSchemaValidationException(e);
-        }
-
-        return new JsonSchemaValidator(schemaNode);
+        return matchesJsonSchema(new InputStreamReader(schema));
     }
 
     public static Matcher<?> matchesJsonSchema(Reader schema) {
-        JsonNode schemaNode;
-        try {
-            schemaNode = JsonLoader.fromReader(schema);
-        } catch (IOException e) {
-            throw new JsonSchemaValidationException(e);
-        }
-
-        return new JsonSchemaValidator(schemaNode);
+        return new JsonSchemaValidatorFactory<Reader>() {
+            @Override
+            JsonNode createJsonNodeInstance(Reader schema) throws IOException {
+                return JsonLoader.fromReader(schema);
+            }
+        }.create(schema);
     }
 
     public static Matcher<?> matchesJsonSchema(File file) {
-        JsonNode schemaNode;
-        try {
-            schemaNode = JsonLoader.fromFile(file);
-        } catch (IOException e) {
-            throw new JsonSchemaValidationException(e);
-        }
-
-        return new JsonSchemaValidator(schemaNode);
+        return new JsonSchemaValidatorFactory<File>() {
+            @Override
+            JsonNode createJsonNodeInstance(File schema) throws IOException {
+                return JsonLoader.fromFile(schema);
+            }
+        }.create(file);
     }
 
     public static Matcher<?> matchesJsonSchema(URL url) {
-        JsonNode schemaNode;
-        try {
-            schemaNode = JsonLoader.fromURL(url);
-        } catch (IOException e) {
-            throw new JsonSchemaValidationException(e);
-        }
+        return new JsonSchemaValidatorFactory<URL>() {
+            @Override
+            JsonNode createJsonNodeInstance(URL schema) throws IOException {
+                return JsonLoader.fromURL(schema);
+            }
+        }.create(url);
+    }
 
-        return new JsonSchemaValidator(schemaNode);
+    /**
+     * Creates a Hamcrest matcher that validates that a JSON document conforms to the JSON Schema loaded by the supplied URI.
+     * <p>
+     * Note: Converts the URI to a URL and loads this URL.
+     * </p>
+     *
+     * @param uri
+     * @return
+     */
+    public static Matcher<?> matchesJsonSchema(URI uri) {
+        return matchesJsonSchema(toURL(uri));
+    }
+
+    private static URL toURL(URI uri) {
+        validateSchemaIsNotNull(uri);
+        try {
+            return uri.toURL();
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("Can't convert the supplied URI to a URL", e);
+        }
     }
 
     @Override
@@ -132,4 +141,30 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     private JsonSchemaFactory jsonSchemaFactory() {
         return jsonSchemaFactory == null ? JsonSchemaFactory.byDefault() : jsonSchemaFactory;
     }
+
+    private static void validateSchemaIsNotNull(Object schema) {
+        if (schema == null) {
+            throw new IllegalArgumentException("Schema to use cannot be null");
+        }
+    }
+
+
+    private static abstract class JsonSchemaValidatorFactory<T> {
+
+        public JsonSchemaValidator create(T schema) {
+            validateSchemaIsNotNull(schema);
+            JsonNode schemaNode;
+            try {
+                schemaNode = createJsonNodeInstance(schema);
+            } catch (IOException e) {
+                throw new JsonSchemaValidationException(e);
+            }
+
+            return new JsonSchemaValidator(schemaNode);
+        }
+
+        abstract JsonNode createJsonNodeInstance(T schema) throws IOException;
+
+    }
+
 }
