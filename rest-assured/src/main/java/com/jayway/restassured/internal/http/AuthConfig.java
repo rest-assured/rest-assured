@@ -86,7 +86,7 @@ public class AuthConfig {
 
     /**
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
-     * on the classpath.
+     * on the classpath. The hostname of the server will be checked against the certificate subject.
      *
      * @param certURL            URL to a JKS keystore where the certificate is stored.
      * @param password           password to decrypt the keystore
@@ -95,6 +95,21 @@ public class AuthConfig {
      * @param trustStoreProvider The provider
      */
     public void certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
+        certificate(certURL, password, certType, port, trustStoreProvider, true);
+    }
+
+    /**
+     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
+     * on the classpath.
+     *
+     * @param certURL             URL to a JKS keystore where the certificate is stored.
+     * @param password            password to decrypt the keystore
+     * @param certType            The certificate type
+     * @param port                The SSL port
+     * @param trustStoreProvider  The provider
+     * @param checkServerHostname Whether to check if the certificate subject matches the server hostname
+     */
+    public void certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider, boolean checkServerHostname) {
         try {
             KeyStore keyStore = KeyStore.getInstance(certType);
             InputStream jksStream = new URL(certURL).openStream();
@@ -112,7 +127,7 @@ public class AuthConfig {
 
             }
 
-            ssl.setHostnameVerifier(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
+            ssl.setHostnameVerifier(checkServerHostname ? SSLSocketFactory.STRICT_HOSTNAME_VERIFIER : SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
 
             SchemeRegistry registry = builder.getClient().getConnectionManager().getSchemeRegistry();
             registry.register(new Scheme("https", ssl, port));
