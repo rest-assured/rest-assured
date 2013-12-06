@@ -17,8 +17,8 @@
 package com.jayway.restassured.config;
 
 import org.apache.commons.lang3.Validate;
-import org.apache.http.protocol.HTTP;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -32,10 +32,10 @@ public class DecoderConfig {
     private final List<ContentDecoder> contentDecoders;
 
     /**
-     * Configure the decoder config to use {@value org.apache.http.protocol.HTTP#DEFAULT_CONTENT_CHARSET} for content decoding.
+     * Configure the decoder config to use the default charset as specified by {@link java.nio.charset.Charset#defaultCharset()} for content decoding.
      */
     public DecoderConfig() {
-        this(HTTP.DEFAULT_CONTENT_CHARSET, defaultContentEncoders());
+        this(Charset.defaultCharset().toString(), defaultContentEncoders());
     }
 
     /**
@@ -48,7 +48,7 @@ public class DecoderConfig {
     }
 
     /**
-     * Configure the decoder config to use {@value org.apache.http.protocol.HTTP#DEFAULT_CONTENT_CHARSET} for content decoding.
+     * Configure the decoder config to use {@link java.nio.charset.Charset#defaultCharset()} for content decoding.
      * Also specify the content decoders that will be presented to the server when making a request (using the <code>Accept-Encoding</code> header).
      * If the server supports any of these encodings then REST Assured will automatically perform decoding of the response accordingly.
      * <p>
@@ -60,7 +60,7 @@ public class DecoderConfig {
      * @return A new instance of the DecoderConfig.
      */
     public DecoderConfig(ContentDecoder contentDecoder, ContentDecoder... additionalContentDecoders) {
-        this(HTTP.DEFAULT_CONTENT_CHARSET, merge(contentDecoder, additionalContentDecoders));
+        this(Charset.defaultCharset().toString(), merge(contentDecoder, additionalContentDecoders));
     }
 
     private DecoderConfig(String defaultContentCharset, ContentDecoder... contentDecoders) {

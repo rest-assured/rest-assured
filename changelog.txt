@@ -8,6 +8,8 @@ Change log next version
     expect().contentType(ContentType.JSON).body("error", equalTo(null)).when().get("/statusCode409WithNoBody"); // This will now throw assertion error
 * Added support to for mixing text and path assertions. For example:
     get("/lotto").then().body(containsString("\"numbers\":[52")).and().body("lotto.winners.winnerId", hasItems(23, 54));
+* Non-backward compatible change: Changed default response content charset from ISO-8859-1 to system default charset. The reason for this that most users would probably expect the system default charset. To change the behavior use the DecoderConfig.
+
 
 Change log 2.0.1 (2013-11-29)
 -----------------------------
