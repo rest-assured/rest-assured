@@ -19,7 +19,6 @@ package com.jayway.restassured.module.jsv;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
 import com.github.fge.jsonschema.main.JsonSchema;
-import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.github.fge.jsonschema.report.ProcessingMessage;
 import com.github.fge.jsonschema.report.ProcessingReport;
 import com.google.common.collect.Lists;
@@ -182,7 +181,6 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
         }
     }
 
-
     private static abstract class JsonSchemaValidatorFactory<T> {
 
         public JsonSchemaValidator create(T schema) {
@@ -198,7 +196,13 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
         }
 
         abstract JsonNode createJsonNodeInstance(T schema) throws IOException;
+    }
 
+    /**
+     * Reset the static {@link #jsonSchemaValidatorSettings} to <code>null</code>.
+     */
+    public static void reset() {
+        jsonSchemaValidatorSettings = null;
     }
 
 }

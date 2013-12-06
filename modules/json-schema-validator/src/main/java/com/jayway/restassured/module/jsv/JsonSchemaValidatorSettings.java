@@ -63,6 +63,20 @@ public class JsonSchemaValidatorSettings {
         return this;
     }
 
+    /**
+     * Syntactic sugar.
+     *
+     * @return The same settings instance.
+     */
+    public JsonSchemaValidatorSettings with() {
+        return this;
+    }
+
+    /**
+     * Create a new instance of {@link com.jayway.restassured.module.jsv.JsonSchemaValidatorSettings}. Same as calling {@link #JsonSchemaValidatorSettings()}.
+     *
+     * @return A default instance of the {@link com.jayway.restassured.module.jsv.JsonSchemaValidatorSettings}.
+     */
     public static JsonSchemaValidatorSettings settings() {
         return new JsonSchemaValidatorSettings();
     }

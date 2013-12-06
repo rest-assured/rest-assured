@@ -16,17 +16,22 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.github.fge.jsonschema.cfg.ValidationConfiguration;
+import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.module.jsv.JsonSchemaValidator;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 
+import static com.github.fge.jsonschema.SchemaVersion.DRAFTV3;
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static com.jayway.restassured.module.jsv.JsonSchemaValidatorSettings.settings;
 import static org.hamcrest.Matchers.equalTo;
 
 public class JsonSchemaValidationITest extends WithJetty {
@@ -115,4 +120,45 @@ public class JsonSchemaValidationITest extends WithJetty {
         get("/jsonStore").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json"));
     }
 
+    @Test public void
+    json_schema_validator_supports_disabling_checked_validation_statically() {
+        // Given
+        JsonSchemaValidator.jsonSchemaValidatorSettings = settings().with().checkedValidation(false);
+
+        // When
+        try {
+            get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json"));
+        } finally {
+            JsonSchemaValidator.reset();
+        }
+    }
+
+    @Test public void
+    json_schema_validator_supports_specifying_json_schema_factory_instance_statically() {
+        // Given
+        JsonSchemaValidator.jsonSchemaValidatorSettings = settings().with().jsonSchemaFactory(
+                JsonSchemaFactory.newBuilder().setValidationConfiguration(ValidationConfiguration.newBuilder().setDefaultVersion(DRAFTV3).freeze()).freeze());
+
+        // When
+        try {
+            get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json"));
+        } finally {
+            JsonSchemaValidator.reset();
+        }
+    }
+
+    @Test public void
+    json_schema_validator_supports_specifying_json_schema_factory_instance_and_disabling_checked_validation_statically() {
+        // Given
+        JsonSchemaValidator.jsonSchemaValidatorSettings = settings().with().jsonSchemaFactory(
+                JsonSchemaFactory.newBuilder().setValidationConfiguration(ValidationConfiguration.newBuilder().setDefaultVersion(DRAFTV3).freeze()).freeze()).
+                and().with().checkedValidation(false);
+
+        // When
+        try {
+            get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json"));
+        } finally {
+            JsonSchemaValidator.reset();
+        }
+    }
 }
