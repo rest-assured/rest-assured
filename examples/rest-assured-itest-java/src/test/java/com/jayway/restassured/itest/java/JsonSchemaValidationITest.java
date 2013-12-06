@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static com.github.fge.jsonschema.SchemaVersion.DRAFTV3;
+import static com.github.fge.jsonschema.SchemaVersion.DRAFTV4;
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
@@ -123,7 +124,7 @@ public class JsonSchemaValidationITest extends WithJetty {
     @Test public void
     json_schema_validator_supports_disabling_checked_validation_statically() {
         // Given
-        JsonSchemaValidator.jsonSchemaValidatorSettings = settings().with().checkedValidation(false);
+        JsonSchemaValidator.settings = settings().with().checkedValidation(false);
 
         // When
         try {
@@ -136,7 +137,7 @@ public class JsonSchemaValidationITest extends WithJetty {
     @Test public void
     json_schema_validator_supports_specifying_json_schema_factory_instance_statically() {
         // Given
-        JsonSchemaValidator.jsonSchemaValidatorSettings = settings().with().jsonSchemaFactory(
+        JsonSchemaValidator.settings = settings().with().jsonSchemaFactory(
                 JsonSchemaFactory.newBuilder().setValidationConfiguration(ValidationConfiguration.newBuilder().setDefaultVersion(DRAFTV3).freeze()).freeze());
 
         // When
@@ -150,7 +151,7 @@ public class JsonSchemaValidationITest extends WithJetty {
     @Test public void
     json_schema_validator_supports_specifying_json_schema_factory_instance_and_disabling_checked_validation_statically() {
         // Given
-        JsonSchemaValidator.jsonSchemaValidatorSettings = settings().with().jsonSchemaFactory(
+        JsonSchemaValidator.settings = settings().with().jsonSchemaFactory(
                 JsonSchemaFactory.newBuilder().setValidationConfiguration(ValidationConfiguration.newBuilder().setDefaultVersion(DRAFTV3).freeze()).freeze()).
                 and().with().checkedValidation(false);
 
@@ -160,5 +161,20 @@ public class JsonSchemaValidationITest extends WithJetty {
         } finally {
             JsonSchemaValidator.reset();
         }
+    }
+
+    @Test public void
+    json_schema_validator_supports_using_a_supplied_json_schema_factory_instance() {
+        // Given
+        JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.newBuilder().setValidationConfiguration(ValidationConfiguration.newBuilder().setDefaultVersion(DRAFTV4).freeze()).freeze();
+
+        // When
+        get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json").using(jsonSchemaFactory));
+    }
+
+    @Test public void
+    json_schema_validator_supports_using_the_supplied_json_schema_validator_settings() {
+        // When
+        get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json").using(settings().with().checkedValidation(false)));
     }
 }

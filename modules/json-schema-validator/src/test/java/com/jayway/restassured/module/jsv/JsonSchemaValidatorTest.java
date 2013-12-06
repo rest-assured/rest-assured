@@ -12,16 +12,16 @@ public class JsonSchemaValidatorTest {
     public void
     reset_sets_static_json_schema_validator_settings_to_null() {
         // Given
-        JsonSchemaValidator.jsonSchemaValidatorSettings = new JsonSchemaValidatorSettings();
+        JsonSchemaValidator.settings = new JsonSchemaValidatorSettings();
 
         // When
         JsonSchemaValidator.reset();
 
         // Then
         try {
-            assertThat(JsonSchemaValidator.jsonSchemaValidatorSettings, nullValue());
+            assertThat(JsonSchemaValidator.settings, nullValue());
         } finally {
-            JsonSchemaValidator.jsonSchemaValidatorSettings = null;
+            JsonSchemaValidator.settings = null;
         }
     }
 

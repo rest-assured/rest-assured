@@ -19,6 +19,7 @@ package com.jayway.restassured.module.jsv;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jackson.JsonLoader;
 import com.github.fge.jsonschema.main.JsonSchema;
+import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.github.fge.jsonschema.report.ProcessingMessage;
 import com.github.fge.jsonschema.report.ProcessingReport;
 import com.google.common.collect.Lists;
@@ -37,14 +38,19 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     /**
      * Default json schema factory instance
      */
-    public static JsonSchemaValidatorSettings jsonSchemaValidatorSettings;
+    public static JsonSchemaValidatorSettings settings;
 
     private final JsonNode schema;
+    private final JsonSchemaValidatorSettings instanceSettings;
 
     private ProcessingReport report;
 
-    private JsonSchemaValidator(JsonNode schema) {
+    private JsonSchemaValidator(JsonNode schema, JsonSchemaValidatorSettings jsonSchemaValidatorSettings) {
+        if (jsonSchemaValidatorSettings == null) {
+            throw new IllegalArgumentException(JsonSchemaValidatorSettings.class.getSimpleName() + " cannot be null.");
+        }
         this.schema = schema;
+        this.instanceSettings = jsonSchemaValidatorSettings;
     }
 
     /**
@@ -53,7 +59,7 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
      * @param schema The string defining the JSON schema
      * @return A Hamcrest matcher
      */
-    public static Matcher<?> matchesJsonSchema(String schema) {
+    public static JsonSchemaValidator matchesJsonSchema(String schema) {
         return new JsonSchemaValidatorFactory<String>() {
             @Override
             JsonNode createJsonNodeInstance(String schema) throws IOException {
@@ -68,7 +74,7 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
      * @param pathToSchemaInClasspath The string that points to a JSON schema in classpath.
      * @return A Hamcrest matcher
      */
-    public static Matcher<?> matchesJsonSchemaInClasspath(String pathToSchemaInClasspath) {
+    public static JsonSchemaValidator matchesJsonSchemaInClasspath(String pathToSchemaInClasspath) {
         return matchesJsonSchema(Thread.currentThread().getContextClassLoader().getResource(pathToSchemaInClasspath));
     }
 
@@ -78,7 +84,7 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
      * @param schema The input stream that points to a JSON schema
      * @return A Hamcrest matcher
      */
-    public static Matcher<?> matchesJsonSchema(InputStream schema) {
+    public static JsonSchemaValidator matchesJsonSchema(InputStream schema) {
         return matchesJsonSchema(new InputStreamReader(schema));
     }
 
@@ -88,7 +94,7 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
      * @param schema The reader that points to a JSON schema
      * @return A Hamcrest matcher
      */
-    public static Matcher<?> matchesJsonSchema(Reader schema) {
+    public static JsonSchemaValidator matchesJsonSchema(Reader schema) {
         return new JsonSchemaValidatorFactory<Reader>() {
             @Override
             JsonNode createJsonNodeInstance(Reader schema) throws IOException {
@@ -103,7 +109,7 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
      * @param file The file that points to a JSON schema
      * @return A Hamcrest matcher
      */
-    public static Matcher<?> matchesJsonSchema(File file) {
+    public static JsonSchemaValidator matchesJsonSchema(File file) {
         return new JsonSchemaValidatorFactory<File>() {
             @Override
             JsonNode createJsonNodeInstance(File schema) throws IOException {
@@ -112,7 +118,7 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
         }.create(file);
     }
 
-    public static Matcher<?> matchesJsonSchema(URL url) {
+    public static JsonSchemaValidator matchesJsonSchema(URL url) {
         return new JsonSchemaValidatorFactory<URL>() {
             @Override
             JsonNode createJsonNodeInstance(URL schema) throws IOException {
@@ -130,8 +136,28 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
      * @param uri The URI that points to a JSON schema
      * @return A Hamcrest matcher
      */
-    public static Matcher<?> matchesJsonSchema(URI uri) {
+    public static JsonSchemaValidator matchesJsonSchema(URI uri) {
         return matchesJsonSchema(toURL(uri));
+    }
+
+    /**
+     * Validate the JSON document using the supplied <code>jsonSchemaFactory</code> instance.
+     *
+     * @param jsonSchemaFactory The json schema factory instance to use.
+     * @return A Hamcrest matcher
+     */
+    public Matcher<?> using(JsonSchemaFactory jsonSchemaFactory) {
+        return new JsonSchemaValidator(schema, instanceSettings.jsonSchemaFactory(jsonSchemaFactory));
+    }
+
+    /**
+     * Validate the JSON document using the supplied <code>jsonSchemaValidatorSettings</code> instance.
+     *
+     * @param jsonSchemaValidatorSettings The json schema validator settings instance to use.
+     * @return A Hamcrest matcher
+     */
+    public Matcher<?> using(JsonSchemaValidatorSettings jsonSchemaValidatorSettings) {
+        return new JsonSchemaValidator(schema, jsonSchemaValidatorSettings);
     }
 
     private static URL toURL(URI uri) {
@@ -147,9 +173,8 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     protected boolean matchesSafely(String content) {
         try {
             JsonNode contentAsJsonNode = JsonLoader.fromString(content);
-            JsonSchemaValidatorSettings settings = settings();
-            JsonSchema jsonSchema = settings.jsonSchemaFactory().getJsonSchema(schema);
-            if (settings.shouldUseCheckedValidation()) {
+            JsonSchema jsonSchema = instanceSettings.jsonSchemaFactory().getJsonSchema(schema);
+            if (instanceSettings.shouldUseCheckedValidation()) {
                 report = jsonSchema.validate(contentAsJsonNode);
             } else {
                 report = jsonSchema.validateUnchecked(contentAsJsonNode);
@@ -171,10 +196,6 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
         }
     }
 
-    private JsonSchemaValidatorSettings settings() {
-        return jsonSchemaValidatorSettings == null ? new JsonSchemaValidatorSettings() : jsonSchemaValidatorSettings;
-    }
-
     private static void validateSchemaIsNotNull(Object schema) {
         if (schema == null) {
             throw new IllegalArgumentException("Schema to use cannot be null");
@@ -182,6 +203,10 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     }
 
     private static abstract class JsonSchemaValidatorFactory<T> {
+
+        private JsonSchemaValidatorSettings createSettings() {
+            return settings == null ? new JsonSchemaValidatorSettings() : settings;
+        }
 
         public JsonSchemaValidator create(T schema) {
             validateSchemaIsNotNull(schema);
@@ -192,17 +217,16 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
                 throw new JsonSchemaValidationException(e);
             }
 
-            return new JsonSchemaValidator(schemaNode);
+            return new JsonSchemaValidator(schemaNode, createSettings());
         }
 
         abstract JsonNode createJsonNodeInstance(T schema) throws IOException;
     }
 
     /**
-     * Reset the static {@link #jsonSchemaValidatorSettings} to <code>null</code>.
+     * Reset the static {@link #settings} to <code>null</code>.
      */
     public static void reset() {
-        jsonSchemaValidatorSettings = null;
+        settings = null;
     }
-
 }
