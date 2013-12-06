@@ -38,7 +38,7 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     /**
      * Default json schema factory instance
      */
-    public static JsonSchemaFactory jsonSchemaFactory;
+    public static JsonSchemaValidatorSettings jsonSchemaValidatorSettings;
 
     private final JsonNode schema;
 
@@ -148,8 +148,13 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     protected boolean matchesSafely(String content) {
         try {
             JsonNode contentAsJsonNode = JsonLoader.fromString(content);
-            JsonSchema jsonSchema = jsonSchemaFactory().getJsonSchema(schema);
-            report = jsonSchema.validate(contentAsJsonNode);
+            JsonSchemaValidatorSettings settings = settings();
+            JsonSchema jsonSchema = settings.jsonSchemaFactory().getJsonSchema(schema);
+            if (settings.shouldUseCheckedValidation()) {
+                report = jsonSchema.validate(contentAsJsonNode);
+            } else {
+                report = jsonSchema.validateUnchecked(contentAsJsonNode);
+            }
             return report.isSuccess();
         } catch (Exception e) {
             throw new JsonSchemaValidationException(e);
@@ -167,8 +172,8 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
         }
     }
 
-    private JsonSchemaFactory jsonSchemaFactory() {
-        return jsonSchemaFactory == null ? JsonSchemaFactory.byDefault() : jsonSchemaFactory;
+    private JsonSchemaValidatorSettings settings() {
+        return jsonSchemaValidatorSettings == null ? new JsonSchemaValidatorSettings() : jsonSchemaValidatorSettings;
     }
 
     private static void validateSchemaIsNotNull(Object schema) {
