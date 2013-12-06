@@ -33,6 +33,45 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
+/**
+ * A Hamcrest matcher that can be used to validate that a JSON document matches a given <a href="http://json-schema.org/">JSON schema</a>.
+ * Typical use-case in REST Assured:
+ * <pre>
+ * get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json"));
+ * </pre>
+ * <p/>
+ * The {@link #matchesJsonSchemaInClasspath(String)} is defined in this class and validates that the response body of the request to "<tt>/products</tt>"
+ * matches the <tt>products-schema.json</tt> schema located in classpath. It's also possible to supply some settings, for example the {@link com.github.fge.jsonschema.main.JsonSchemaFactory}
+ * that the matcher will use when validating the schema:
+ * <pre>
+ * JsonSchemaFactory jsonSchemaFactory = JsonSchemaFactory.newBuilder().setValidationConfiguration(ValidationConfiguration.newBuilder().setDefaultVersion(DRAFTV4).freeze()).freeze();
+ * get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json").using(jsonSchemaFactory));
+ * </pre>
+ * or:
+ * <pre>
+ * get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json").using(settings().with().checkedValidation(false)))
+ * </pre>
+ * where "settings" is found in {@link JsonSchemaValidatorSettings#settings()}.
+ * <p>
+ * It's also possible to specify static configuration that is reused for all matcher invocations. For example if you never wish to use checked validation you can configure
+ * that {@link com.jayway.restassured.module.jsv.JsonSchemaValidator} like this:
+ * <p/>
+ * <pre>
+ * JsonSchemaValidator.settings = settings().with().checkedValidation(false);
+ * </pre>
+ * This means that
+ * <pre>
+ * get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json"));
+ * </pre>
+ * will use unchecked validation (since it was configured statically).
+ * <p>
+ * To reset the {@link com.jayway.restassured.module.jsv.JsonSchemaValidator} to its default state you can call {@link #reset()}:
+ * </p>
+ * <pre>
+ * JsonSchemaValidator.reset();
+ * </pre>
+ * </p>
+ */
 public class JsonSchemaValidator extends TypeSafeMatcher<String> {
 
     /**
