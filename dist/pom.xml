@@ -12,6 +12,7 @@
         <module>dist-rest-assured</module>
         <module>dist-json-path</module>
         <module>dist-xml-path</module>
+        <module>dist-json-schema-validator</module>
     </modules>
     <artifactId>dist</artifactId>
 
