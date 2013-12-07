@@ -25,9 +25,10 @@ class CertAuthScheme implements AuthenticationScheme {
     def String certType = KeyStore.getDefaultType()
     def int port = 443
     def KeystoreProvider trustStoreProvider
+    def boolean checkServerHostname = true
 
     @Override
     void authenticate(HTTPBuilder httpBuilder) {
-        httpBuilder.auth.certificate(certURL, password, certType, port, trustStoreProvider)
+        httpBuilder.auth.certificate(certURL, password, certType, port, trustStoreProvider, checkServerHostname)
     }
 }

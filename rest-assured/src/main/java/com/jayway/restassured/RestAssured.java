@@ -1280,12 +1280,28 @@ public class RestAssured {
      * @param trustStoreProvider The provider
      */
     public static AuthenticationScheme certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
+        return certificate(certURL, password, certType, port, trustStoreProvider, true);
+    }
+
+    /**
+     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
+     * on the classpath.
+     *
+     * @param certURL             URL to a JKS keystore where the certificate is stored.
+     * @param password            password to decrypt the keystore
+     * @param certType            The certificate type
+     * @param port                The SSL port
+     * @param trustStoreProvider  The provider
+     * @param checkServerHostname Whether to check that the server hostname matches the certificate subject
+     */
+    public static AuthenticationScheme certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider, boolean checkServerHostname) {
         final CertAuthScheme scheme = new CertAuthScheme();
         scheme.setCertURL(certURL);
         scheme.setPassword(password);
         scheme.setCertType(certType);
         scheme.setPort(port);
         scheme.setTrustStoreProvider(trustStoreProvider);
+        scheme.setCheckServerHostname(checkServerHostname);
         return scheme;
     }
 
