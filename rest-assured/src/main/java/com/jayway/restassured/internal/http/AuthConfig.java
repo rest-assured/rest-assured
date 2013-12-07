@@ -106,10 +106,10 @@ public class AuthConfig {
      * @param password            password to decrypt the keystore
      * @param certType            The certificate type
      * @param port                The SSL port
-     * @param trustStoreProvider  The provider
+     * @param keyStoreProvider    The provider
      * @param checkServerHostname Whether to check if the certificate subject matches the server hostname
      */
-    public void certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider, boolean checkServerHostname) {
+    public void certificate(String certURL, String password, String certType, int port, KeystoreProvider keyStoreProvider, boolean checkServerHostname) {
         try {
             KeyStore keyStore = KeyStore.getInstance(certType);
             InputStream jksStream = new URL(certURL).openStream();
@@ -120,10 +120,10 @@ public class AuthConfig {
             }
 
             final SSLSocketFactory ssl;
-            if (trustStoreProvider == null || !trustStoreProvider.canBuild()) {
+            if (keyStoreProvider == null || !keyStoreProvider.canBuild()) {
                 ssl = new SSLSocketFactory(keyStore, password);
             } else {
-                ssl = new SSLSocketFactory(keyStore, password, trustStoreProvider.build());
+                ssl = new SSLSocketFactory(keyStore, password, keyStoreProvider.build());
 
             }
 

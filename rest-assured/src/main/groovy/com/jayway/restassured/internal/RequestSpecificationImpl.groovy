@@ -844,7 +844,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         //If we are authenticating with Certificates, then provide the truststore spec (configured via request.keystore())
         //as we will need to apply it when creating the SSLSocketFactory
         if (authenticationScheme instanceof CertAuthScheme) {
-            authenticationScheme.setTrustStoreProvider(this.keyStoreSpec)
+            authenticationScheme.setKeyStoreProvider(this.keyStoreSpec)
         }
 
         filters << new SendRequestFilter()

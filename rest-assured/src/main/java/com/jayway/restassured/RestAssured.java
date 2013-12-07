@@ -21,6 +21,7 @@ import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.*;
+import com.jayway.restassured.internal.assertion.AssertParameter;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.Response;
@@ -39,6 +40,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfig;
 
 /**
@@ -1257,65 +1259,38 @@ public class RestAssured {
      * Uses keystore: <code>KeyStore.getDefaultType()</code>.<br/>
      * Uses port: 443<br/>
      * Uses keystore provider: <code>none</code><br/>
+     * Uses server hostname checking<br/>
      * </p>
      *
-     * @param certURL URL to a JKS keystore where the certificate is stored.
+     * @param certURL  URL to a JKS keystore where the certificate is stored.
+     * @param password The password for the keystore
      * @return The request com.jayway.restassured.specification
      */
     public static AuthenticationScheme certificate(String certURL, String password) {
+        return certificate(certURL, password, certAuthSettings());
+    }
+
+    /**
+     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
+     * on the classpath.
+     * <p/>
+     *
+     * @param certURL                 URL to a JKS keystore where the certificate is stored.
+     * @param password                The password for the keystore
+     * @param certificateAuthSettings More advanced settings for the certificate authentication
+     */
+    public static AuthenticationScheme certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings) {
+        AssertParameter.notNull(certURL, "Certificate URL");
+        AssertParameter.notNull(password, "Certificate password");
+        AssertParameter.notNull(certificateAuthSettings, CertificateAuthSettings.class);
         final CertAuthScheme scheme = new CertAuthScheme();
         scheme.setCertURL(certURL);
         scheme.setPassword(password);
+        scheme.setCertType(certificateAuthSettings.getCertType());
+        scheme.setPort(certificateAuthSettings.getPort());
+        scheme.setKeyStoreProvider(certificateAuthSettings.getKeyStoreProvider());
+        scheme.setCheckServerHostname(certificateAuthSettings.shouldCheckServerHostname());
         return scheme;
-    }
-
-    /**
-     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
-     * on the classpath.
-     *
-     * @param certURL            URL to a JKS keystore where the certificate is stored.
-     * @param password           password to decrypt the keystore
-     * @param certType           The certificate type
-     * @param port               The SSL port
-     * @param trustStoreProvider The provider
-     */
-    public static AuthenticationScheme certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
-        return certificate(certURL, password, certType, port, trustStoreProvider, true);
-    }
-
-    /**
-     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
-     * on the classpath.
-     *
-     * @param certURL             URL to a JKS keystore where the certificate is stored.
-     * @param password            password to decrypt the keystore
-     * @param certType            The certificate type
-     * @param port                The SSL port
-     * @param trustStoreProvider  The provider
-     * @param checkServerHostname Whether to check that the server hostname matches the certificate subject
-     */
-    public static AuthenticationScheme certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider, boolean checkServerHostname) {
-        final CertAuthScheme scheme = new CertAuthScheme();
-        scheme.setCertURL(certURL);
-        scheme.setPassword(password);
-        scheme.setCertType(certType);
-        scheme.setPort(port);
-        scheme.setTrustStoreProvider(trustStoreProvider);
-        scheme.setCheckServerHostname(checkServerHostname);
-        return scheme;
-    }
-
-    /**
-     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
-     * on the classpath.
-     *
-     * @param certURL  URL to a JKS keystore where the certificate is stored.
-     * @param password password to decrypt the keystore
-     * @param certType The certificate type
-     * @param port     The SSL port
-     */
-    public static AuthenticationScheme certificate(String certURL, String password, String certType, int port) {
-        return certificate(certURL, password, certType, port, new NoKeystoreSpecImpl());
     }
 
     /**

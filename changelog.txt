@@ -13,6 +13,13 @@ Change log next version
 * REST Assured now supports JSON schema validation (http://json-schema.org/). To allow for this you need to add the json schema validator module to classpath. Once you done that you should statically import "com.jayway.restassured.module.jsv.JsonSchemaValidator.*" and then you can do e.g.
     get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json"));
   (issue 284)
+* Non-backward compatible change: Removed the following methods from the RestAssured API: "certificate(String certURL, String password, String certType, int port)", "certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider, boolean checkServerHostname)" and "certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider)". They are replaced by the "certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings)" method. For example:
+    RestAssured.authentication = certificate(certUrl, password, certAuthSettings().with().port(435));
+* Non-backward compatible change: Removed the following methods from the AuthenticationSpecification API: "certificate(String certURL, String password, String certType, int port)", "certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider, boolean checkServerHostname)" and "certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider)". They are replaced by the "certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings)" method. For example:
+    given().auth().certificate(certUrl, password, certAuthSettings().with().port(435)). ..
+* Added support for disabling hostname verification by disabling this using the CertificateAuthSettings:
+    given().auth().certificate(certUrl, password, certAuthSettings().with().checkServerHostname(false). ..
+  (issue 182)
 
 Change log 2.0.1 (2013-11-29)
 -----------------------------
