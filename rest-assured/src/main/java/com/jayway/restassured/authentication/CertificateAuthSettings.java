@@ -19,12 +19,12 @@ public class CertificateAuthSettings {
      * <li>certType = {@link java.security.KeyStore#getDefaultType()}</li>
      * <li>port = 443</li>
      * <li>keyStoreProvider = null</li>
-     * <li>checkServerHostname = true</li>
+     * <li>checkServerHostname = false</li>
      * </ul>
      * @see #certAuthSettings()
      */
     public CertificateAuthSettings() {
-        this(KeyStore.getDefaultType(), 443, null, true);
+        this(KeyStore.getDefaultType(), 443, null, false);
     }
 
     /**

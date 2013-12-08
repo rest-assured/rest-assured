@@ -1259,7 +1259,7 @@ public class RestAssured {
      * Uses keystore: <code>KeyStore.getDefaultType()</code>.<br/>
      * Uses port: 443<br/>
      * Uses keystore provider: <code>none</code><br/>
-     * Uses server hostname checking<br/>
+     * Uses server hostname checking: <code>false</code><br/>
      * </p>
      *
      * @param certURL  URL to a JKS keystore where the certificate is stored.
