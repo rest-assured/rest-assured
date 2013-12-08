@@ -1,7 +1,7 @@
 Change log next version
 -----------------------
 * Changed the way REST Assured finds key stores in classpath. It now uses thread context classloader to resolve the files instead of the class KeyStoreSpecImpl classloader.
-  This means means that you're able to do e.g. "RestAssured.keystore("truststore.jks", "test1234")" where you before used "RestAssured.keystore("/truststore.jks", "test1234")".
+  This means means that you're able to do e.g. "RestAssured.keystore("keystore.jks", "test1234")" where you before used "RestAssured.keystore("/keystore.jks", "test1234")".
 * java.util.UUID is now serialized as a String (issue 285).
 * Added support for Json Schema validation.
 * Non-backward compatible change: It's no longer possible to assert that an empty response object has a path that is null, for example let's say that the "/statusCode409WithNoBody" resource returns an empty body:
