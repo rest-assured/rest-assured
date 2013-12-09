@@ -196,8 +196,8 @@ public class SSLConfig {
      *
      * @param x509HostnameVerifier The X509HostnameVerifier to use.
      * @return A new SSLConfig instance
-     * @see #allowAllHostNames()
-     * @see #strictHostNames()
+     * @see #allowAllHostnames()
+     * @see #strictHostnames()
      */
     public SSLConfig x509HostnameVerifier(X509HostnameVerifier x509HostnameVerifier) {
         return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, x509HostnameVerifier, true);
@@ -209,7 +209,7 @@ public class SSLConfig {
      * @return A new SSLConfig instance
      * @see org.apache.http.conn.ssl.SSLSocketFactory#STRICT_HOSTNAME_VERIFIER
      */
-    public SSLConfig strictHostNames() {
+    public SSLConfig strictHostnames() {
         return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, STRICT_HOSTNAME_VERIFIER, true);
     }
 
@@ -219,7 +219,7 @@ public class SSLConfig {
      * @return A new SSLConfig instance
      * @see org.apache.http.conn.ssl.SSLSocketFactory#ALLOW_ALL_HOSTNAME_VERIFIER
      */
-    public SSLConfig allowAllHostNames() {
+    public SSLConfig allowAllHostnames() {
         return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, ALLOW_ALL_HOSTNAME_VERIFIER, true);
     }
 

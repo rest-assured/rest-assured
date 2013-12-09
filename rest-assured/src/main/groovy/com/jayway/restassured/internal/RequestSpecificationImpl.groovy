@@ -442,14 +442,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification keystore(String pathToJks, String password) {
     def sslConfig = restAssuredConfig().getSSLConfig()
     // Allow all host names in order to be backward compatible
-    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keystore(pathToJks, password).allowAllHostNames())
+    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keystore(pathToJks, password).allowAllHostnames())
     this
   }
 
   def RequestSpecification keystore(File pathToJks, String password) {
     def sslConfig = restAssuredConfig().getSSLConfig()
     // Allow all host names in order to be backward compatible
-    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keystore(pathToJks, password).allowAllHostNames())
+    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keystore(pathToJks, password).allowAllHostnames())
     this
   }
 

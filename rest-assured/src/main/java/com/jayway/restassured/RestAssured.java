@@ -1439,7 +1439,7 @@ public class RestAssured {
         } else {
             updatedSSLConfig = restAssuredConfig.getSSLConfig().keystore((String) pathToJks, password);
         }
-        config = config().sslConfig(updatedSSLConfig.allowAllHostNames()); // Allow all host names to be backward-compatible
+        config = config().sslConfig(updatedSSLConfig.allowAllHostnames()); // Allow all host names to be backward-compatible
     }
 
 

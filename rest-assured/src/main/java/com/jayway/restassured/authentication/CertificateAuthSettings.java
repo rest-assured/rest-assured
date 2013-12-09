@@ -69,7 +69,7 @@ public class CertificateAuthSettings {
      * @return A new CertificateAuthSettings instance
      * @see org.apache.http.conn.ssl.SSLSocketFactory#STRICT_HOSTNAME_VERIFIER
      */
-    public CertificateAuthSettings strictHostNames() {
+    public CertificateAuthSettings strictHostnames() {
         return new CertificateAuthSettings(keystoreType, port, trustStore, STRICT_HOSTNAME_VERIFIER);
     }
 
@@ -79,7 +79,7 @@ public class CertificateAuthSettings {
      * @return A new CertificateAuthSettings instance
      * @see org.apache.http.conn.ssl.SSLSocketFactory#ALLOW_ALL_HOSTNAME_VERIFIER
      */
-    public CertificateAuthSettings allowAllHostNames() {
+    public CertificateAuthSettings allowAllHostnames() {
         return new CertificateAuthSettings(keystoreType, port, trustStore, ALLOW_ALL_HOSTNAME_VERIFIER);
     }
 
@@ -88,7 +88,7 @@ public class CertificateAuthSettings {
      *
      * @return A new CertificateAuthSettings instance
      * @see org.apache.http.conn.ssl.SSLSocketFactory#ALLOW_ALL_HOSTNAME_VERIFIER
-     * @see #allowAllHostNames()
+     * @see #allowAllHostnames()
      */
     public CertificateAuthSettings x509HostnameVerifier(X509HostnameVerifier x509HostnameVerifier) {
         return new CertificateAuthSettings(keystoreType, port, trustStore, x509HostnameVerifier);

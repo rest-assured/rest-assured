@@ -61,7 +61,7 @@ public class SSLITest {
 
     @Test
     public void whenEnablingAllowAllHostNamesVerifierWithoutActivatingAKeyStoreTheCallTo() throws Exception {
-        RestAssured.config = config().sslConfig(sslConfig().allowAllHostNames());
+        RestAssured.config = config().sslConfig(sslConfig().allowAllHostnames());
         try {
             get("https://tv.eurosport.com/").then().body(containsString("EUROSPORT PLAYER"));
         } finally {
@@ -71,7 +71,7 @@ public class SSLITest {
 
     @Test
     public void usingStaticallyConfiguredCertificateAuthenticationWorks() throws Exception {
-        RestAssured.authentication = certificate("truststore_eurosport.jks", "test4321", certAuthSettings().allowAllHostNames());
+        RestAssured.authentication = certificate("truststore_eurosport.jks", "test4321", certAuthSettings().allowAllHostnames());
         try {
             get("https://tv.eurosport.com/").then().body(containsString("EUROSPORT PLAYER"));
         } finally {
@@ -91,7 +91,7 @@ public class SSLITest {
 
     @Test
     public void usingStaticallyConfiguredCertificateAuthenticationWithIllegalHostNameInCertWorksWhenSSLConfigIsConfiguredToAllowAllHostNames() throws Exception {
-        RestAssured.config = newConfig().sslConfig(sslConfig().allowAllHostNames());
+        RestAssured.config = newConfig().sslConfig(sslConfig().allowAllHostnames());
         RestAssured.authentication = certificate("truststore_eurosport.jks", "test4321");
         try {
             get("https://tv.eurosport.com/").then().body(containsString("EUROSPORT PLAYER"));
@@ -121,7 +121,7 @@ public class SSLITest {
     @Test
     public void certificateAuthenticationWorks() throws Exception {
         given().
-                auth().certificate("truststore_eurosport.jks", "test4321", certAuthSettings().allowAllHostNames()).
+                auth().certificate("truststore_eurosport.jks", "test4321", certAuthSettings().allowAllHostnames()).
         when().
                 get("https://tv.eurosport.com/").
         then().
