@@ -7,8 +7,8 @@ Change log next version
     expect().contentType(ContentType.JSON).body("error", equalTo(null)).when().get("/statusCode409WithNoBody"); // This will now throw assertion error
 * Added support to for mixing text and path assertions. For example:
     get("/lotto").then().body(containsString("\"numbers\":[52")).and().body("lotto.winners.winnerId", hasItems(23, 54));
-* Non-backward compatible change: Changed default response content charset from ISO-8859-1 to system default charset. The reason for this that most users would probably expect the system default charset. To change the behavior use the DecoderConfig.
-* Non-backward compatible change: Changed default request content charset from ISO-8859-1 to system default charset. The reason for this that most users would probably expect the system default charset. To change the behavior use the EncoderConfig.
+* Non-backward compatible change: Changed default response content charset from ISO-8859-1 to system default charset. The reason for this that most users would probably expect the system default charset. To change the behavior use the DecoderConfig (issue 283).
+* Non-backward compatible change: Changed default request content charset from ISO-8859-1 to system default charset. The reason for this that most users would probably expect the system default charset. To change the behavior use the EncoderConfig (issue 283).
 * REST Assured now supports JSON schema validation (http://json-schema.org/). To allow for this you need to add the json schema validator module to classpath. Once you done that you should statically import "com.jayway.restassured.module.jsv.JsonSchemaValidator.*" and then you can do e.g.
     get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json"));
   (issue 284)
