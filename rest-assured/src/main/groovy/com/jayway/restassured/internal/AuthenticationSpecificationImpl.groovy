@@ -84,6 +84,21 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
     return requestSpecification
 
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  RequestSpecification certificate(String certURL, String password, String certType, int port) {
+    return certificate(certURL, password, certAuthSettings().certType(certType).port(port).keyStoreProvider(new NoKeystoreSpecImpl()).checkServerHostname(true))
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  RequestSpecification certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
+    return certificate(certURL, password, certAuthSettings().certType(certType).port(port).keyStoreProvider(trustStoreProvider).checkServerHostname(true))
+  }
+
 /**
  * {@inheritDoc}
  */

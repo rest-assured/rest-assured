@@ -91,6 +91,33 @@ public interface AuthenticationSpecification {
     RequestSpecification certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings);
 
     /**
+     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
+     * on the classpath.
+     *
+     * @param certURL  URL to a JKS keystore where the certificate is stored.
+     * @param password password to decrypt the keystore
+     * @param certType The certificate type
+     * @param port     The SSL port
+     * @deprecated Use {@link #certificate(String, String, com.jayway.restassured.authentication.CertificateAuthSettings)} instead.
+     */
+    @Deprecated
+    RequestSpecification certificate(String certURL, String password, String certType, int port);
+
+    /**
+     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
+     * on the classpath.
+     *
+     * @param certURL            URL to a JKS keystore where the certificate is stored.
+     * @param password           password to decrypt the keystore
+     * @param certType           The certificate type
+     * @param port               The SSL port
+     * @param trustStoreProvider The provider
+     * @deprecated Use {@link #certificate(String, String, com.jayway.restassured.authentication.CertificateAuthSettings)} instead.
+     */
+    @Deprecated
+    RequestSpecification certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider);
+
+    /**
      * Excerpt from the HttpBuilder docs:<br>
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
      * All requests to all domains will be signed for this instance.

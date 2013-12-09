@@ -1294,6 +1294,38 @@ public class RestAssured {
     }
 
     /**
+     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
+     * on the classpath.
+     *
+     * @param certURL            URL to a JKS keystore where the certificate is stored.
+     * @param password           password to decrypt the keystore
+     * @param certType           The certificate type
+     * @param port               The SSL port
+     * @param trustStoreProvider The provider
+     * @deprecated Use {@link #certificate(String, String, com.jayway.restassured.authentication.CertificateAuthSettings)} instead.
+     */
+    @Deprecated
+    public static AuthenticationScheme certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
+        return certificate(certURL, password, certAuthSettings().certType(certType).port(port).keyStoreProvider(trustStoreProvider).checkServerHostname(true));
+    }
+
+    /**
+     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
+     * on the classpath.
+     *
+     * @param certURL  URL to a JKS keystore where the certificate is stored.
+     * @param password password to decrypt the keystore
+     * @param certType The certificate type
+     * @param port     The SSL port
+     * @deprecated Use {@link #certificate(String, String, com.jayway.restassured.authentication.CertificateAuthSettings)} instead.
+     */
+    @Deprecated
+    public static AuthenticationScheme certificate(String certURL, String password, String certType, int port) {
+        return certificate(certURL, password, certType, port, new NoKeystoreSpecImpl());
+    }
+
+
+    /**
      * Use http digest authentication. Note that you need to encode the password yourself.
      *
      * @param userName The user name.
