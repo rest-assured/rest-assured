@@ -64,7 +64,7 @@ public class RequestSpecBuilder {
     private RequestSpecification spec;
 
     public RequestSpecBuilder() {
-        this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication, Collections.<Filter>emptyList(), keystore(),
+        this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication, Collections.<Filter>emptyList(),
                 requestContentType(), null, urlEncodingEnabled, null);
     }
 
@@ -724,7 +724,7 @@ public class RequestSpecBuilder {
      * </pre>
      * Now, import that into a Java keystore file:
      * <pre>
-     * $ keytool -importcert -alias "equifax-ca" -file EquifaxSecureGlobaleBusinessCA-1.crt -keystore truststore.jks -storepass test1234
+     * $ keytool -importcert -alias "equifax-ca" -file EquifaxSecureGlobaleBusinessCA-1.crt -keystore truststore_javanet.jks -storepass test1234
      * Owner: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
      * Issuer: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
      * Serial number: 1
@@ -740,11 +740,11 @@ public class RequestSpecBuilder {
      * </pre>
      * Now you want to use this truststore in your client:
      * <pre>
-     * RestAssured.keystore("/truststore.jks", "test1234");
+     * RestAssured.keystore("/truststore_javanet.jks", "test1234");
      * </pre>
      * or
      * <pre>
-     * given().keystore("/truststore.jks", "test1234"). ..
+     * given().keystore("/truststore_javanet.jks", "test1234"). ..
      * </pre>
      * </p>
      *

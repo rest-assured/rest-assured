@@ -18,9 +18,13 @@ package com.jayway.restassured;
 
 import com.jayway.restassured.authentication.*;
 import com.jayway.restassured.config.RestAssuredConfig;
+import com.jayway.restassured.config.SSLConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.internal.*;
+import com.jayway.restassured.internal.RequestSpecificationImpl;
+import com.jayway.restassured.internal.ResponseParserRegistrar;
+import com.jayway.restassured.internal.ResponseSpecificationImpl;
+import com.jayway.restassured.internal.TestSpecificationImpl;
 import com.jayway.restassured.internal.assertion.AssertParameter;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.parsing.Parser;
@@ -318,7 +322,7 @@ import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfi
  * </pre>
  * This means that a request like e.g. <code>get("/hello")</code> goes to: <tt>http://myhost.org:8080/resource/hello</tt>
  * which basic authentication credentials "username" and "password". See {@link #rootPath} for more info about setting the root paths, {@link #filters(java.util.List)} for setting
- * default filters and {@link #keystore(String, String)} for setting the default keystore when using SSL.<br>
+ * default filters<br>
  * You can reset to the standard baseURI (localhost), basePath (empty), standard port (8080), default authentication scheme (none), default parser (none) and default root path (empty string) using:
  * <pre>
  * RestAssured.reset();
@@ -401,16 +405,16 @@ public class RestAssured {
     public static AuthenticationScheme authentication = DEFAULT_AUTH;
 
     /**
-     * Define a configuration for redirection settings and http client parameters (default is <code>null</code>). E.g.
+     * Define a configuration for redirection settings and http client parameters (default is <code>new RestAssuredConfig()</code>). E.g.
      * <pre>
      * RestAssured.config = config().redirect(redirectConfig().followRedirects(true).and().maxRedirects(0));
      * </pre>
      * <p/>
-     * <code>config()</code> can be statically imported from {@link RestAssuredConfig}.
+     * <code>config()</code> can be statically imported from {@link com.jayway.restassured.config.RestAssuredConfig}.
      * <p/>
      * </pre>
      */
-    public static RestAssuredConfig config = null;
+    public static RestAssuredConfig config = new RestAssuredConfig();
 
     /**
      * Set the default root path of the response body so that you don't need to write the entire path for each expectation.
@@ -474,91 +478,7 @@ public class RestAssured {
 
     private static Object responseContentType = null;
 
-    private static KeystoreSpec keystoreSpec = new NoKeystoreSpecImpl();
-
     private static List<Filter> filters = new LinkedList<Filter>();
-
-    /**
-     * The following documentation is taken from <a href="HTTP Builder">http://groovy.codehaus.org/modules/http-builder/doc/ssl.html</a>:
-     * <p>
-     * <h1>SSL Configuration</h1>
-     * <p/>
-     * SSL should, for the most part, "just work." There are a few situations where it is not completely intuitive. You can follow the example below, or see HttpClient's SSLSocketFactory documentation for more information.
-     * <p/>
-     * <h1>SSLPeerUnverifiedException</h1>
-     * <p/>
-     * If you can't connect to an SSL website, it is likely because the certificate chain is not trusted. This is an Apache HttpClient issue, but explained here for convenience. To correct the untrusted certificate, you need to import a certificate into an SSL truststore.
-     * <p/>
-     * First, export a certificate from the website using your browser. For example, if you go to https://dev.java.net in Firefox, you will probably get a warning in your browser. Choose "Add Exception," "Get Certificate," "View," "Details tab." Choose a certificate in the chain and export it as a PEM file. You can view the details of the exported certificate like so:
-     * <pre>
-     * $ keytool -printcert -file EquifaxSecureGlobaleBusinessCA-1.crt
-     * Owner: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
-     * Issuer: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
-     * Serial number: 1
-     * Valid from: Mon Jun 21 00:00:00 EDT 1999 until: Sun Jun 21 00:00:00 EDT 2020
-     * Certificate fingerprints:
-     * MD5:  8F:5D:77:06:27:C4:98:3C:5B:93:78:E7:D7:7D:9B:CC
-     * SHA1: 7E:78:4A:10:1C:82:65:CC:2D:E1:F1:6D:47:B4:40:CA:D9:0A:19:45
-     * Signature algorithm name: MD5withRSA
-     * Version: 3
-     * ....
-     * </pre>
-     * Now, import that into a Java keystore file:
-     * <pre>
-     * $ keytool -importcert -alias "equifax-ca" -file EquifaxSecureGlobaleBusinessCA-1.crt -keystore truststore.jks -storepass test1234
-     * Owner: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
-     * Issuer: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
-     * Serial number: 1
-     * Valid from: Mon Jun 21 00:00:00 EDT 1999 until: Sun Jun 21 00:00:00 EDT 2020
-     * Certificate fingerprints:
-     * MD5:  8F:5D:77:06:27:C4:98:3C:5B:93:78:E7:D7:7D:9B:CC
-     * SHA1: 7E:78:4A:10:1C:82:65:CC:2D:E1:F1:6D:47:B4:40:CA:D9:0A:19:45
-     * Signature algorithm name: MD5withRSA
-     * Version: 3
-     * ...
-     * Trust this certificate? [no]:  yes
-     * Certificate was added to keystore
-     * </pre>
-     * Now you want to use this truststore in your client:
-     * <pre>
-     * RestAssured.keystore("/truststore.jks", "test1234");
-     * </pre>
-     * or
-     * <pre>
-     * given().keystore("/truststore.jks", "test1234"). ..
-     * </pre>
-     * </p>
-     *
-     * @param pathToJks The path to the JKS. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system
-     * @param password  The store pass
-     */
-    public static KeystoreSpec keystore(String pathToJks, String password) {
-        Validate.notEmpty(password, "Password cannot be empty");
-        return setKeyStore(pathToJks, password);
-    }
-
-    /**
-     * Use a keystore located on the file-system. See {@link #keystore(String, String)} for more details.
-     *
-     * @param pathToJks The path to JKS file on the file-system
-     * @param password  The password for the keystore
-     * @return The request specification
-     * @see #keystore(String, String)
-     */
-    public static KeystoreSpec keystore(File pathToJks, String password) {
-        Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
-        return setKeyStore(pathToJks, password);
-    }
-
-    /**
-     * Uses the user default keystore stored in @{user.home}/.keystore
-     *
-     * @param password - Use null for no password
-     * @return The keystore specification
-     */
-    public static KeystoreSpec keystore(String password) {
-        return setKeyStore(null, password);
-    }
 
     /**
      * The the default filters to apply to each request.
@@ -608,10 +528,6 @@ public class RestAssured {
 
     public static Object responseContentType() {
         return responseContentType;
-    }
-
-    public static KeystoreSpec keystore() {
-        return keystoreSpec;
     }
 
     /**
@@ -1256,10 +1172,7 @@ public class RestAssured {
      * Sets a certificate to be used for SSL authentication. See {@link java.lang.Class#getResource(String)}
      * for how to get a URL from a resource on the classpath.
      * <p>
-     * Uses keystore: <code>KeyStore.getDefaultType()</code>.<br/>
-     * Uses port: 443<br/>
-     * Uses keystore provider: <code>none</code><br/>
-     * Uses server hostname checking: <code>false</code><br/>
+     * Uses SSL settings defined in {@link com.jayway.restassured.config.SSLConfig}.
      * </p>
      *
      * @param certURL  URL to a JKS keystore where the certificate is stored.
@@ -1267,7 +1180,9 @@ public class RestAssured {
      * @return The request com.jayway.restassured.specification
      */
     public static AuthenticationScheme certificate(String certURL, String password) {
-        return certificate(certURL, password, certAuthSettings());
+        SSLConfig sslConfig = config().getSSLConfig();
+        return certificate(certURL, password, certAuthSettings().certType(sslConfig.getCertType()).trustStore(sslConfig.getTrustStore()).
+                x509HostnameVerifier(sslConfig.getX509HostnameVerifier()).port(sslConfig.getPort()));
     }
 
     /**
@@ -1284,29 +1199,13 @@ public class RestAssured {
         AssertParameter.notNull(password, "Certificate password");
         AssertParameter.notNull(certificateAuthSettings, CertificateAuthSettings.class);
         final CertAuthScheme scheme = new CertAuthScheme();
-        scheme.setCertURL(certURL);
+        scheme.setPathToKeyStore(certURL);
         scheme.setPassword(password);
         scheme.setCertType(certificateAuthSettings.getCertType());
         scheme.setPort(certificateAuthSettings.getPort());
-        scheme.setTrustStoreProvider(certificateAuthSettings.getTrustStoreProvider());
-        scheme.setCheckServerHostname(certificateAuthSettings.shouldCheckServerHostname());
+        scheme.setTrustStore(certificateAuthSettings.getTrustStore());
+        scheme.setX509HostnameVerifier(certificateAuthSettings.getX509HostnameVerifier());
         return scheme;
-    }
-
-    /**
-     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
-     * on the classpath.
-     *
-     * @param certURL            URL to a JKS keystore where the certificate is stored.
-     * @param password           password to decrypt the keystore
-     * @param certType           The certificate type
-     * @param port               The SSL port
-     * @param trustStoreProvider The provider
-     * @deprecated Use {@link #certificate(String, String, com.jayway.restassured.authentication.CertificateAuthSettings)} instead.
-     */
-    @Deprecated
-    public static AuthenticationScheme certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
-        return certificate(certURL, password, certAuthSettings().certType(certType).port(port).keyStoreProvider(trustStoreProvider).checkServerHostname(true));
     }
 
     /**
@@ -1321,9 +1220,8 @@ public class RestAssured {
      */
     @Deprecated
     public static AuthenticationScheme certificate(String certURL, String password, String certType, int port) {
-        return certificate(certURL, password, certType, port, new NoKeystoreSpecImpl());
+        return certificate(certURL, password, certAuthSettings().certType(certType).port(port));
     }
-
 
     /**
      * Use http digest authentication. Note that you need to encode the password yourself.
@@ -1388,9 +1286,9 @@ public class RestAssured {
 
     /**
      * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath}, {@link #requestContentType(com.jayway.restassured.http.ContentType)},
-     * {@link #responseContentType(com.jayway.restassured.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification}. {@link #keystore(String, String)},
+     * {@link #responseContentType(com.jayway.restassured.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification},
      * {@link #urlEncodingEnabled} , {@link #config} and {@link #sessionId} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, "", <code>null</code>, <code>null</code>,
-     * "empty list", <code>null</code>, <code>null</code>, <code>none</code>, <code>true</code>, <code>null</code>, <code>null</code>
+     * "empty list", <code>null</code>, <code>null</code>, <code>none</code>, <code>true</code>, <code>new RestAssuredConfig()</code>, <code>null</code>
      */
     public static void reset() {
         baseURI = DEFAULT_URI;
@@ -1403,11 +1301,10 @@ public class RestAssured {
         responseContentType = null;
         requestSpecification = null;
         responseSpecification = null;
-        keystoreSpec = new NoKeystoreSpecImpl();
         urlEncodingEnabled = DEFAULT_URL_ENCODING_ENABLED;
         RESPONSE_PARSER_REGISTRAR = new ResponseParserRegistrar();
         defaultParser = null;
-        config = null;
+        config = new RestAssuredConfig();
         sessionId = DEFAULT_SESSION_ID_VALUE;
     }
 
@@ -1418,7 +1315,7 @@ public class RestAssured {
         final ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(RESPONSE_PARSER_REGISTRAR);
         applySessionIdIfApplicable();
         return new TestSpecificationImpl(
-                new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters, keystoreSpec,
+                new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters,
                         requestContentType, requestSpecification, urlEncodingEnabled, config),
                 new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, responseParserRegistrar,
                         config()));
@@ -1436,16 +1333,117 @@ public class RestAssured {
         }
     }
 
-    private static KeystoreSpec setKeyStore(Object pathToJks, String password) {
-        final KeystoreSpecImpl spec = new KeystoreSpecImpl();
-        spec.setPath(pathToJks);
-        spec.setPassword(password);
-        RestAssured.keystoreSpec = spec;
-
-        return keystoreSpec;
+    /**
+     * The following documentation is taken from <a href="HTTP Builder">http://groovy.codehaus.org/modules/http-builder/doc/ssl.html</a>:
+     * <p>
+     * <h1>SSL Configuration</h1>
+     * <p/>
+     * SSL should, for the most part, "just work." There are a few situations where it is not completely intuitive. You can follow the example below, or see HttpClient's SSLSocketFactory documentation for more information.
+     * <p/>
+     * <h1>SSLPeerUnverifiedException</h1>
+     * <p/>
+     * If you can't connect to an SSL website, it is likely because the certificate chain is not trusted. This is an Apache HttpClient issue, but explained here for convenience. To correct the untrusted certificate, you need to import a certificate into an SSL truststore.
+     * <p/>
+     * First, export a certificate from the website using your browser. For example, if you go to https://dev.java.net in Firefox, you will probably get a warning in your browser. Choose "Add Exception," "Get Certificate," "View," "Details tab." Choose a certificate in the chain and export it as a PEM file. You can view the details of the exported certificate like so:
+     * <pre>
+     * $ keytool -printcert -file EquifaxSecureGlobaleBusinessCA-1.crt
+     * Owner: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Issuer: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Serial number: 1
+     * Valid from: Mon Jun 21 00:00:00 EDT 1999 until: Sun Jun 21 00:00:00 EDT 2020
+     * Certificate fingerprints:
+     * MD5:  8F:5D:77:06:27:C4:98:3C:5B:93:78:E7:D7:7D:9B:CC
+     * SHA1: 7E:78:4A:10:1C:82:65:CC:2D:E1:F1:6D:47:B4:40:CA:D9:0A:19:45
+     * Signature algorithm name: MD5withRSA
+     * Version: 3
+     * ....
+     * </pre>
+     * Now, import that into a Java keystore file:
+     * <pre>
+     * $ keytool -importcert -alias "equifax-ca" -file EquifaxSecureGlobaleBusinessCA-1.crt -keystore truststore_javanet.jks -storepass test1234
+     * Owner: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Issuer: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Serial number: 1
+     * Valid from: Mon Jun 21 00:00:00 EDT 1999 until: Sun Jun 21 00:00:00 EDT 2020
+     * Certificate fingerprints:
+     * MD5:  8F:5D:77:06:27:C4:98:3C:5B:93:78:E7:D7:7D:9B:CC
+     * SHA1: 7E:78:4A:10:1C:82:65:CC:2D:E1:F1:6D:47:B4:40:CA:D9:0A:19:45
+     * Signature algorithm name: MD5withRSA
+     * Version: 3
+     * ...
+     * Trust this certificate? [no]:  yes
+     * Certificate was added to keystore
+     * </pre>
+     * Now you want to use this truststore in your client:
+     * <pre>
+     * RestAssured.keystore("/truststore_javanet.jks", "test1234");
+     * </pre>
+     * or
+     * <pre>
+     * given().keystore("/truststore_javanet.jks", "test1234"). ..
+     * </pre>
+     * </p>
+     * <p>
+     * Note that this is just a shortcut for:
+     * </p>
+     * <pre>
+     * RestAssured.config = RestAssured.config().sslConfig(sslConfig().keystore(pathToJks, password));
+     * </pre>
+     *
+     * @param pathToJks The path to the JKS. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system
+     * @param password  The store pass
+     */
+    public static void keystore(String pathToJks, String password) {
+        Validate.notEmpty(password, "Password cannot be empty");
+        applyKeyStore(pathToJks, password);
     }
 
-    private static RestAssuredConfig config() {
+    /**
+     * Use a keystore located on the file-system. See {@link #keystore(String, String)} for more details.
+     * * <p>
+     * Note that this is just a shortcut for:
+     * </p>
+     * <pre>
+     * RestAssured.config = RestAssured.config().sslConfig(sslConfig().keystore(pathToJks, password));
+     * </pre>
+     *
+     * @param pathToJks The path to JKS file on the file-system
+     * @param password  The password for the keystore
+     * @see #keystore(String, String)
+     */
+    public static void keystore(File pathToJks, String password) {
+        Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
+        applyKeyStore(pathToJks, password);
+    }
+
+    /**
+     * Uses the user default keystore stored in @{user.home}/.keystore
+     * * <p>
+     * Note that this is just a shortcut for:
+     * </p>
+     * <pre>
+     * RestAssured.config = RestAssured.config().sslConfig(sslConfig().keystore(password));
+     * </pre>
+     *
+     * @param password - Use null for no password
+     */
+    public static void keystore(String password) {
+        applyKeyStore(null, password);
+    }
+
+    private static void applyKeyStore(Object pathToJks, String password) {
+        RestAssuredConfig restAssuredConfig = config();
+        final SSLConfig updatedSSLConfig;
+        if (pathToJks instanceof File) {
+            updatedSSLConfig = restAssuredConfig.getSSLConfig().keystore((File) pathToJks, password);
+        } else {
+            updatedSSLConfig = restAssuredConfig.getSSLConfig().keystore((String) pathToJks, password);
+        }
+        config = config().sslConfig(updatedSSLConfig.allowAllHostNames()); // Allow all host names to be backward-compatible
+    }
+
+
+    public static RestAssuredConfig config() {
         return config == null ? new RestAssuredConfig() : config;
     }
 }

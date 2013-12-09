@@ -16,10 +16,8 @@
 
 package com.jayway.restassured.specification;
 
-import com.jayway.restassured.authentication.AuthenticationScheme;
 import com.jayway.restassured.authentication.CertificateAuthSettings;
 import com.jayway.restassured.authentication.FormAuthConfig;
-import com.jayway.restassured.authentication.KeystoreProvider;
 
 /**
  * Specify an authentication scheme to use when sending a request.
@@ -102,20 +100,6 @@ public interface AuthenticationSpecification {
      */
     @Deprecated
     RequestSpecification certificate(String certURL, String password, String certType, int port);
-
-    /**
-     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
-     * on the classpath.
-     *
-     * @param certURL            URL to a JKS keystore where the certificate is stored.
-     * @param password           password to decrypt the keystore
-     * @param certType           The certificate type
-     * @param port               The SSL port
-     * @param trustStoreProvider The provider
-     * @deprecated Use {@link #certificate(String, String, com.jayway.restassured.authentication.CertificateAuthSettings)} instead.
-     */
-    @Deprecated
-    RequestSpecification certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider);
 
     /**
      * Excerpt from the HttpBuilder docs:<br>

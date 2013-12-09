@@ -16,7 +16,7 @@
 
 package com.jayway.restassured.internal.http;
 
-import com.jayway.restassured.authentication.KeystoreProvider;
+import com.jayway.restassured.internal.KeystoreSpecImpl;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
 import oauth.signpost.OAuthConsumer;
 import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
@@ -29,16 +29,12 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.KeyStore;
 
 /**
@@ -48,6 +44,8 @@ import java.security.KeyStore;
  * @author johanhaleby
  */
 public class AuthConfig {
+    private static final int UNDEFINED_PORT = -1;
+    private static final int DEFAULT_HTTPS_PORT = 443;
     protected HTTPBuilder builder;
 
     public AuthConfig(HTTPBuilder builder) {
@@ -86,54 +84,27 @@ public class AuthConfig {
 
     /**
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
-     * on the classpath. The hostname of the server will be checked against the certificate subject.
-     *
-     * @param certURL            URL to a JKS keystore where the certificate is stored.
-     * @param password           password to decrypt the keystore
-     * @param certType           The certificate type
-     * @param port               The SSL port
-     * @param trustStoreProvider The provider
-     */
-    public void certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
-        certificate(certURL, password, certType, port, trustStoreProvider, true);
-    }
-
-    /**
-     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
      * on the classpath.
      *
-     * @param certURL             URL to a JKS keystore where the certificate is stored.
-     * @param password            password to decrypt the keystore
-     * @param certType            The certificate type
-     * @param port                The SSL port
-     * @param trustStoreProvider  The provider
-     * @param checkServerHostname Whether to check if the certificate subject matches the server hostname
+     * @param certURL              URL to a JKS keystore where the certificate is stored.
+     * @param password             password to decrypt the keystore
+     * @param certType             The certificate type
+     * @param port                 The SSL port
+     * @param trustStore           The trust store
+     * @param x509HostnameVerifier The X509HostnameVerifier to use
      */
-    public void certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider, boolean checkServerHostname) {
-        try {
-            KeyStore keyStore = KeyStore.getInstance(certType);
-            InputStream jksStream = new URL(certURL).openStream();
-            try {
-                keyStore.load(jksStream, password.toCharArray());
-            } finally {
-                jksStream.close();
-            }
-
-            final SSLSocketFactory ssl;
-            if (trustStoreProvider == null || !trustStoreProvider.canBuild()) {
-                ssl = new SSLSocketFactory(keyStore, password);
-            } else {
-                ssl = new SSLSocketFactory(keyStore, password, trustStoreProvider.build());
-
-            }
-
-            ssl.setHostnameVerifier(checkServerHostname ? SSLSocketFactory.STRICT_HOSTNAME_VERIFIER : SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-
-            SchemeRegistry registry = builder.getClient().getConnectionManager().getSchemeRegistry();
-            registry.register(new Scheme("https", ssl, port));
-        } catch (Exception e) {
-            SafeExceptionRethrower.safeRethrow(e);
-        }
+    public void certificate(String certURL, String password, String certType, int port, KeyStore trustStore, X509HostnameVerifier x509HostnameVerifier) {
+        KeystoreSpecImpl keystoreSpec = new KeystoreSpecImpl();
+        URI uri = ((URIBuilder) builder.getUri()).toURI();
+        if (uri == null) throw new IllegalStateException("a default URI must be set");
+        keystoreSpec.setCertType(certType);
+        keystoreSpec.setPassword(password);
+        keystoreSpec.setPath(certURL);
+        keystoreSpec.setTrustStore(trustStore);
+        keystoreSpec.setPort(port);
+        keystoreSpec.setX509HostnameVerifier(x509HostnameVerifier);
+        int portSpecifiedInUri = uri.getPort();
+        keystoreSpec.apply(builder, portSpecifiedInUri == UNDEFINED_PORT ? DEFAULT_HTTPS_PORT : portSpecifiedInUri);
     }
 
     /**

@@ -19,6 +19,16 @@ Change log next version
 * Added support for disabling hostname verification by disabling this using the CertificateAuthSettings:
     given().auth().certificate(certUrl, password, certAuthSettings().with().checkServerHostname(false). ..
   (issue 182)
+* Non-backward compatible change: Removed static method "RestAssured.keystore()". You can now get the keystore settings from the SSL configuration instead.
+* Non-backward compatible changes: Removed all "keystore" methods from the RestAssured class. Use the com.jayway.restassured.config.SSLConfig instead, for example:
+    RestAssured.config = newConfig().sslConfig(sslConfig().keystore(pathToJks, password));
+* Non-backward compatible change: Removed all "keystore" methods from RequestSpecification, use certificate authentication or SSL Config instead. For example:
+    given().auth().certificate(pathToJks, password). ..
+  or
+    given().config(newConfig().sslConfig(sslConfig().keystore(pathToJks, password))). ..
+* Non-backward compatible change: Removed all keystore methods from RequestSpecBuilder. Use RequestSpecBuilder.setConfig(..) and pass in a com.jayway.restassured.config.SSLConfig instead.
+* Non-backward compatible change: Removed the com.jayway.restassured.authentication.KeyStoreProvider interface. They KeyStoreProvider was actually NOT used to create a KeyStore but rather a trust store. To specify the trust store after this change use the SSLConfig or certificate authentication.
+* You can now get the current REST Assured configuration by calling RestAssured.config()
 
 Change log 2.0.1 (2013-11-29)
 -----------------------------
