@@ -30,7 +30,7 @@ class KeystoreSpecImpl implements KeystoreSpec {
   def path
   def password
 
-  def String certType
+  def String keyStoreType
   def int port
   KeyStore trustStore
   X509HostnameVerifier x509HostnameVerifier;
@@ -57,7 +57,7 @@ class KeystoreSpecImpl implements KeystoreSpec {
   }
 
   def KeyStore createKeyStore() {
-    def keyStore = KeyStore.getInstance(certType)
+    def keyStore = KeyStore.getInstance(keyStoreType)
     if (path == null)
       return null
 

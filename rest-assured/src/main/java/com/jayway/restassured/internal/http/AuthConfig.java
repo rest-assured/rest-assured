@@ -97,7 +97,7 @@ public class AuthConfig {
         KeystoreSpecImpl keystoreSpec = new KeystoreSpecImpl();
         URI uri = ((URIBuilder) builder.getUri()).toURI();
         if (uri == null) throw new IllegalStateException("a default URI must be set");
-        keystoreSpec.setCertType(certType);
+        keystoreSpec.setKeyStoreType(certType);
         keystoreSpec.setPassword(password);
         keystoreSpec.setPath(certURL);
         keystoreSpec.setTrustStore(trustStore);

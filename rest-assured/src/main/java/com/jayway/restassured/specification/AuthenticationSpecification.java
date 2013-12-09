@@ -92,14 +92,14 @@ public interface AuthenticationSpecification {
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
      * on the classpath.
      *
-     * @param certURL  URL to a JKS keystore where the certificate is stored.
-     * @param password password to decrypt the keystore
-     * @param certType The certificate type
-     * @param port     The SSL port
+     * @param certURL      URL to a JKS keystore where the certificate is stored.
+     * @param password     password to decrypt the keystore
+     * @param keystoreType The keystore type
+     * @param port         The SSL port
      * @deprecated Use {@link #certificate(String, String, com.jayway.restassured.authentication.CertificateAuthSettings)} instead.
      */
     @Deprecated
-    RequestSpecification certificate(String certURL, String password, String certType, int port);
+    RequestSpecification certificate(String certURL, String password, String keystoreType, int port);
 
     /**
      * Excerpt from the HttpBuilder docs:<br>

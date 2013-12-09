@@ -84,7 +84,7 @@ public class SSLConfig {
     private static final int UNDEFINED_PORT = -1;
     private final Object pathToKeyStore;
     private final String password;
-    private final String certType;
+    private final String keyStoreType;
     private final int port;
     private final KeyStore trustStore;
     private final X509HostnameVerifier x509HostnameVerifier;
@@ -98,7 +98,7 @@ public class SSLConfig {
     public SSLConfig keystore(String pathToJks, String password) {
         Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
-        return new SSLConfig(pathToJks, password, certType, port, trustStore, x509HostnameVerifier, true);
+        return new SSLConfig(pathToJks, password, keyStoreType, port, trustStore, x509HostnameVerifier, true);
     }
 
     /**
@@ -112,7 +112,7 @@ public class SSLConfig {
     public SSLConfig keystore(File pathToJks, String password) {
         Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
-        return new SSLConfig(pathToJks, password, certType, port, trustStore, x509HostnameVerifier, true);
+        return new SSLConfig(pathToJks, password, keyStoreType, port, trustStore, x509HostnameVerifier, true);
     }
 
     /**
@@ -141,12 +141,12 @@ public class SSLConfig {
         this(null, null, KeyStore.getDefaultType(), UNDEFINED_PORT, null, STRICT_HOSTNAME_VERIFIER, false);
     }
 
-    private SSLConfig(Object pathToKeyStore, String password, String certType, int port, KeyStore trustStore, X509HostnameVerifier x509HostnameVerifier, boolean isUserConfigured) {
-        notNull(certType, "Certificate type");
+    private SSLConfig(Object pathToKeyStore, String password, String keyStoreType, int port, KeyStore trustStore, X509HostnameVerifier x509HostnameVerifier, boolean isUserConfigured) {
+        notNull(keyStoreType, "Certificate type");
         notNull(x509HostnameVerifier, X509HostnameVerifier.class);
         this.pathToKeyStore = pathToKeyStore;
         this.password = password;
-        this.certType = certType;
+        this.keyStoreType = keyStoreType;
         this.port = port;
         this.trustStore = trustStore;
         this.x509HostnameVerifier = x509HostnameVerifier;
@@ -156,11 +156,11 @@ public class SSLConfig {
     /**
      * The certificate type, will use {@link java.security.KeyStore#getDefaultType()} by default.
      *
-     * @param certType The certificate type.
+     * @param keystoreType The keystore type.
      * @return A new SSLConfig instance
      */
-    public SSLConfig certType(String certType) {
-        return new SSLConfig(pathToKeyStore, password, certType, port, trustStore, x509HostnameVerifier, true);
+    public SSLConfig keystoreType(String keystoreType) {
+        return new SSLConfig(pathToKeyStore, password, keystoreType, port, trustStore, x509HostnameVerifier, true);
     }
 
     /**
@@ -171,7 +171,7 @@ public class SSLConfig {
      * @return A new SSLConfig instance
      */
     public SSLConfig port(int port) {
-        return new SSLConfig(pathToKeyStore, password, certType, port, trustStore, x509HostnameVerifier, true);
+        return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, x509HostnameVerifier, true);
     }
 
     /**
@@ -187,7 +187,7 @@ public class SSLConfig {
      * @return A new SSLConfig instance
      */
     public SSLConfig trustStore(KeyStore trustStore) {
-        return new SSLConfig(pathToKeyStore, password, certType, port, trustStore, x509HostnameVerifier, true);
+        return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, x509HostnameVerifier, true);
     }
 
     /**
@@ -200,7 +200,7 @@ public class SSLConfig {
      * @see #strictHostNames()
      */
     public SSLConfig x509HostnameVerifier(X509HostnameVerifier x509HostnameVerifier) {
-        return new SSLConfig(pathToKeyStore, password, certType, port, trustStore, x509HostnameVerifier, true);
+        return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, x509HostnameVerifier, true);
     }
 
     /**
@@ -210,7 +210,7 @@ public class SSLConfig {
      * @see org.apache.http.conn.ssl.SSLSocketFactory#STRICT_HOSTNAME_VERIFIER
      */
     public SSLConfig strictHostNames() {
-        return new SSLConfig(pathToKeyStore, password, certType, port, trustStore, STRICT_HOSTNAME_VERIFIER, true);
+        return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, STRICT_HOSTNAME_VERIFIER, true);
     }
 
     /**
@@ -220,7 +220,7 @@ public class SSLConfig {
      * @see org.apache.http.conn.ssl.SSLSocketFactory#ALLOW_ALL_HOSTNAME_VERIFIER
      */
     public SSLConfig allowAllHostNames() {
-        return new SSLConfig(pathToKeyStore, password, certType, port, trustStore, ALLOW_ALL_HOSTNAME_VERIFIER, true);
+        return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, ALLOW_ALL_HOSTNAME_VERIFIER, true);
     }
 
     /**
@@ -274,8 +274,8 @@ public class SSLConfig {
     /**
      * @return The certificate type
      */
-    public String getCertType() {
-        return certType;
+    public String getKeyStoreType() {
+        return keyStoreType;
     }
 
     /**

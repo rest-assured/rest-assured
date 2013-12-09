@@ -1181,7 +1181,7 @@ public class RestAssured {
      */
     public static AuthenticationScheme certificate(String certURL, String password) {
         SSLConfig sslConfig = config().getSSLConfig();
-        return certificate(certURL, password, certAuthSettings().certType(sslConfig.getCertType()).trustStore(sslConfig.getTrustStore()).
+        return certificate(certURL, password, certAuthSettings().keystoreType(sslConfig.getKeyStoreType()).trustStore(sslConfig.getTrustStore()).
                 x509HostnameVerifier(sslConfig.getX509HostnameVerifier()).port(sslConfig.getPort()));
     }
 
@@ -1201,7 +1201,7 @@ public class RestAssured {
         final CertAuthScheme scheme = new CertAuthScheme();
         scheme.setPathToKeyStore(certURL);
         scheme.setPassword(password);
-        scheme.setCertType(certificateAuthSettings.getCertType());
+        scheme.setKeystoreType(certificateAuthSettings.getKeystoreType());
         scheme.setPort(certificateAuthSettings.getPort());
         scheme.setTrustStore(certificateAuthSettings.getTrustStore());
         scheme.setX509HostnameVerifier(certificateAuthSettings.getX509HostnameVerifier());
@@ -1212,15 +1212,15 @@ public class RestAssured {
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
      * on the classpath.
      *
-     * @param certURL  URL to a JKS keystore where the certificate is stored.
-     * @param password password to decrypt the keystore
-     * @param certType The certificate type
-     * @param port     The SSL port
+     * @param certURL      URL to a JKS keystore where the certificate is stored.
+     * @param password     password to decrypt the keystore
+     * @param keystoreType The keystore type
+     * @param port         The SSL port
      * @deprecated Use {@link #certificate(String, String, com.jayway.restassured.authentication.CertificateAuthSettings)} instead.
      */
     @Deprecated
-    public static AuthenticationScheme certificate(String certURL, String password, String certType, int port) {
-        return certificate(certURL, password, certAuthSettings().certType(certType).port(port));
+    public static AuthenticationScheme certificate(String certURL, String password, String keystoreType, int port) {
+        return certificate(certURL, password, certAuthSettings().keystoreType(keystoreType).port(port));
     }
 
     /**
