@@ -12,9 +12,11 @@ Change log next version
 * REST Assured now supports JSON schema validation (http://json-schema.org/). To allow for this you need to add the json schema validator module to classpath. Once you done that you should statically import "com.jayway.restassured.module.jsv.JsonSchemaValidator.*" and then you can do e.g.
     get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json"));
   (issue 284)
-* Deprecated the following methods from the RestAssured API: "certificate(String certURL, String password, String certType, int port)", "certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider, boolean checkServerHostname)" and "certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider)". They are replaced by the "certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings)" method. For example:
+* Non-backward compatible change: Removed the following method from the RestAssured API: "certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider, boolean checkServerHostname)" and "certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider)".
+* Deprecated the following method from the RestAssured API: "certificate(String certURL, String password, String certType, int port)", "certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider, boolean checkServerHostname)". It's replaced by the "certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings)" method. For example:
     RestAssured.authentication = certificate(certUrl, password, certAuthSettings().with().port(435));
-* Deprecated the following methods from the AuthenticationSpecification API: "certificate(String certURL, String password, String certType, int port)", "certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider, boolean checkServerHostname)" and "certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider)". They are replaced by the "certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings)" method. For example:
+* Non-backward compatible change: Removed the following method from the AuthenticationSpecification API: "certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider, boolean checkServerHostname)" and "certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider)".
+* Deprecated the following method from the AuthenticationSpecification API: "certificate(String certURL, String password, String certType, int port)". It's replaced by the "certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings)" method. For example:
     given().auth().certificate(certUrl, password, certAuthSettings().with().port(435)). ..
 * Added support for disabling hostname verification by disabling this using the CertificateAuthSettings:
     given().auth().certificate(certUrl, password, certAuthSettings().with().checkServerHostname(false). ..
@@ -26,9 +28,10 @@ Change log next version
     given().auth().certificate(pathToJks, password). ..
   or
     given().config(newConfig().sslConfig(sslConfig().keystore(pathToJks, password))). ..
-* Non-backward compatible change: Removed all keystore methods from RequestSpecBuilder. Use RequestSpecBuilder.setConfig(..) and pass in a com.jayway.restassured.config.SSLConfig instead.
 * Non-backward compatible change: Removed the com.jayway.restassured.authentication.KeyStoreProvider interface. They KeyStoreProvider was actually NOT used to create a KeyStore but rather a trust store. To specify the trust store after this change use the SSLConfig or certificate authentication.
+* Non-backward compatible change: All keystore related methods in the RestAssured API now returns void instead of KeyStoreSpec.
 * You can now get the current REST Assured configuration by calling RestAssured.config()
+* Non-backward compatible change: Removed method "RestAssured.keyStore()". If you want to get the configured "keystore" configuration you can now call "RestAssured.config().getSSLConfig();".
 
 Change log 2.0.1 (2013-11-29)
 -----------------------------
