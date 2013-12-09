@@ -80,7 +80,7 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
     notNull settings, CertificateAuthSettings.class
 
     requestSpecification.authenticationScheme = new CertAuthScheme(certURL: certURL, password: password, certType: settings.certType,
-            port: settings.port, keyStoreProvider: settings.keyStoreProvider, checkServerHostname: settings.shouldCheckServerHostname())
+            port: settings.port, trustStoreProvider: settings.trustStoreProvider, checkServerHostname: settings.shouldCheckServerHostname())
     return requestSpecification
 
   }

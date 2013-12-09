@@ -10,7 +10,7 @@ import java.security.KeyStore;
 public class CertificateAuthSettings {
     private final String certType;
     private final int port;
-    private final KeystoreProvider keyStoreProvider;
+    private final KeystoreProvider trustStoreProvider;
     private final boolean checkServerHostname;
 
     /**
@@ -18,7 +18,7 @@ public class CertificateAuthSettings {
      * <ul>
      * <li>certType = {@link java.security.KeyStore#getDefaultType()}</li>
      * <li>port = 443</li>
-     * <li>keyStoreProvider = null</li>
+     * <li>trustStoreProvider = null</li>
      * <li>checkServerHostname = false</li>
      * </ul>
      * @see #certAuthSettings()
@@ -30,14 +30,14 @@ public class CertificateAuthSettings {
     /**
      * @param certType            The certificate type, by default {@link java.security.KeyStore#getDefaultType()}.
      * @param port                The port, by default 443.
-     * @param keyStoreProvider    The keystore provider, by default no provider is used.
+     * @param trustStoreProvider    The trust store provider, by default no provider is used.
      * @param checkServerHostname <code>true</code> REST Assured should verify that the host name of the server match the host name of the certificate, <code>false</code> otherwise.
      */
-    private CertificateAuthSettings(String certType, int port, KeystoreProvider keyStoreProvider, boolean checkServerHostname) {
+    private CertificateAuthSettings(String certType, int port, KeystoreProvider trustStoreProvider, boolean checkServerHostname) {
         AssertParameter.notNull(certType, "Certificate type");
         this.certType = certType;
         this.port = port;
-        this.keyStoreProvider = keyStoreProvider;
+        this.trustStoreProvider = trustStoreProvider;
         this.checkServerHostname = checkServerHostname;
     }
 
@@ -49,8 +49,8 @@ public class CertificateAuthSettings {
         return port;
     }
 
-    public KeystoreProvider getKeyStoreProvider() {
-        return keyStoreProvider;
+    public KeystoreProvider getTrustStoreProvider() {
+        return trustStoreProvider;
     }
 
     public boolean shouldCheckServerHostname() {
@@ -62,7 +62,7 @@ public class CertificateAuthSettings {
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
     public CertificateAuthSettings checkServerHostname(boolean checkServerHostname) {
-        return new CertificateAuthSettings(certType, port, keyStoreProvider, checkServerHostname);
+        return new CertificateAuthSettings(certType, port, trustStoreProvider, checkServerHostname);
     }
 
     /**
@@ -70,7 +70,7 @@ public class CertificateAuthSettings {
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
     public CertificateAuthSettings certType(String certType) {
-        return new CertificateAuthSettings(certType, port, keyStoreProvider, checkServerHostname);
+        return new CertificateAuthSettings(certType, port, trustStoreProvider, checkServerHostname);
     }
 
     /**
@@ -78,7 +78,7 @@ public class CertificateAuthSettings {
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
     public CertificateAuthSettings port(int port) {
-        return new CertificateAuthSettings(certType, port, keyStoreProvider, checkServerHostname);
+        return new CertificateAuthSettings(certType, port, trustStoreProvider, checkServerHostname);
     }
 
     /**

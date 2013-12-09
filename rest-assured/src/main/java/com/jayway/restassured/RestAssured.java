@@ -1288,7 +1288,7 @@ public class RestAssured {
         scheme.setPassword(password);
         scheme.setCertType(certificateAuthSettings.getCertType());
         scheme.setPort(certificateAuthSettings.getPort());
-        scheme.setKeyStoreProvider(certificateAuthSettings.getKeyStoreProvider());
+        scheme.setTrustStoreProvider(certificateAuthSettings.getTrustStoreProvider());
         scheme.setCheckServerHostname(certificateAuthSettings.shouldCheckServerHostname());
         return scheme;
     }
