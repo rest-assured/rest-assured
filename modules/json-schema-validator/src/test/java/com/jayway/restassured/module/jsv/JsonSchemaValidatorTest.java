@@ -26,7 +26,7 @@ public class JsonSchemaValidatorTest {
     }
 
     @Test public void
-    validates_schema_is_classpath() {
+    validates_schema_in_classpath() {
         // Given
         String greetingJson = "{\n" +
                 "    \"greeting\": {\n" +
