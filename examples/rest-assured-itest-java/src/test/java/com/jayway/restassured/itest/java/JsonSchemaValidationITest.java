@@ -30,6 +30,7 @@ import static com.github.fge.jsonschema.SchemaVersion.DRAFTV3;
 import static com.github.fge.jsonschema.SchemaVersion.DRAFTV4;
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.get;
+import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidatorSettings.settings;
@@ -231,5 +232,16 @@ public class JsonSchemaValidationITest extends WithJetty {
 
         // when
         get("/jsonStore").then().assertThat().body(matchesJsonSchemaInClasspath("store-schema-isbn-required.json"));
+    }
+
+    @Test public void
+    greet_json_resource_conforms_to_the_greeting_schema() {
+        given().
+                param("firstName", "John").
+                param("lastName", "Doe").
+        when().
+                get("/greetJSON").
+        then().
+                body(matchesJsonSchemaInClasspath("greeting-schema.json"));
     }
 }
