@@ -21,6 +21,13 @@ public class GivenWhenThenXsdITest extends WithJetty {
     }
 
     @Test
+    public void validatesXsdInputStream() throws Exception {
+        InputStream inputstream = Thread.currentThread().getContextClassLoader().getResourceAsStream("car-records.xsd");
+
+        get("/carRecords").then().body(matchesXsd(inputstream));
+    }
+
+    @Test
     public void validatesXsdStringAndPath() throws Exception {
         final InputStream inputstream = getClass().getResourceAsStream("/car-records.xsd");
         final String xsd = IOUtils.toString(inputstream);
