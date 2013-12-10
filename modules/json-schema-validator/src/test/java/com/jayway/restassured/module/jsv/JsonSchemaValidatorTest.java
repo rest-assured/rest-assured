@@ -3,13 +3,13 @@ package com.jayway.restassured.module.jsv;
 
 import org.junit.Test;
 
+import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.nullValue;
 
 public class JsonSchemaValidatorTest {
 
-    @Test
-    public void
+    @Test public void
     reset_sets_static_json_schema_validator_settings_to_null() {
         // Given
         JsonSchemaValidator.settings = new JsonSchemaValidatorSettings();
@@ -23,6 +23,20 @@ public class JsonSchemaValidatorTest {
         } finally {
             JsonSchemaValidator.settings = null;
         }
+    }
+
+    @Test public void
+    validates_schema_is_classpath() {
+        // Given
+        String greetingJson = "{\n" +
+                "    \"greeting\": {\n" +
+                "        \"firstName\": \"John\",\n" +
+                "        \"lastName\": \"Doe\"\n" +
+                "    }\n" +
+                "}";
+
+        // Then
+        assertThat(greetingJson, matchesJsonSchemaInClasspath("greeting-schema.json"));
     }
 
 }
