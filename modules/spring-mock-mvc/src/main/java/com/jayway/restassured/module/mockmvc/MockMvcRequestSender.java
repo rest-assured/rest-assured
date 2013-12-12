@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 class MockMvcRequestSender implements RequestSender {
@@ -34,32 +35,6 @@ class MockMvcRequestSender implements RequestSender {
         this.mockMvc = mockMvc;
         this.params = params;
     }
-
-    private String applyParamsAsQueryParameters(String path) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(path);
-        if (!params.isEmpty()) {
-            builder.append("?");
-        }
-        builder.append(paramsToString(params));
-        return builder.toString();
-    }
-
-    private String paramsToString(MultiValueMap<String, Object> map) {
-        if (map.isEmpty()) {
-            return "";
-        }
-        StringBuilder builder = new StringBuilder();
-        for (Map.Entry<String, List<Object>> entry : map.entrySet()) {
-            List<Object> values = entry.getValue();
-            for (Object value : values) {
-                builder.append(entry.getKey()).append("=").append(value.toString()).append("&");
-            }
-        }
-        builder.replace(builder.length() - 1, builder.length(), "");
-        return builder.toString();
-    }
-
 
     private Object assembleHeaders(MockHttpServletResponse response) {
         Collection<String> headerNames = response.getHeaderNames();
@@ -109,27 +84,34 @@ class MockMvcRequestSender implements RequestSender {
         return map.values().toArray(new Object[map.values().size()]);
     }
 
-    public Response get(String path, Object... pathParams) {
-        return performRequest(MockMvcRequestBuilders.get(applyParamsAsQueryParameters(path), pathParams));
+    private Response sendRequest(HttpMethod method, String path, Object[] pathParams) {
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.request(method, path, pathParams);
+        if (!params.isEmpty()) {
+            for (Map.Entry<String, List<Object>> listEntry : params.entrySet()) {
+                List<Object> values = listEntry.getValue();
+                String[] stringValues = new String[values.size()];
+                for (int i = 0; i < values.size(); i++) {
+                    stringValues[i] = values.get(i).toString();
+
+                }
+                request.param(listEntry.getKey(), stringValues);
+            }
+
+            request.contentType(APPLICATION_FORM_URLENCODED);
+        }
+        return performRequest(request);
     }
 
+    public Response get(String path, Object... pathParams) {
+        return sendRequest(GET, path, pathParams);
+    }
 
     public Response get(String path, Map<String, ?> pathParams) {
         return get(path, mapToArray(pathParams));
     }
 
     public Response post(String path, Object... pathParams) {
-        MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.post(path, pathParams).contentType(APPLICATION_FORM_URLENCODED);
-        for (Map.Entry<String, List<Object>> listEntry : params.entrySet()) {
-            List<Object> values = listEntry.getValue();
-            String[] stringValues = new String[values.size()];
-            for (int i = 0; i < values.size(); i++) {
-                  stringValues[i] = values.get(i).toString();
-
-            }
-            builder.param(listEntry.getKey(), stringValues);
-        }
-        return performRequest(builder);
+        return sendRequest(POST, path, pathParams);
     }
 
     public Response post(String path, Map<String, ?> pathParams) {
@@ -137,7 +119,7 @@ class MockMvcRequestSender implements RequestSender {
     }
 
     public Response put(String path, Object... pathParams) {
-        return performRequest(MockMvcRequestBuilders.put(applyParamsAsQueryParameters(path), pathParams));
+        return sendRequest(PUT, path, pathParams);
     }
 
     public Response put(String path, Map<String, ?> pathParams) {
@@ -145,7 +127,7 @@ class MockMvcRequestSender implements RequestSender {
     }
 
     public Response delete(String path, Object... pathParams) {
-        return performRequest(MockMvcRequestBuilders.delete(applyParamsAsQueryParameters(path), pathParams));
+        return sendRequest(DELETE, path, pathParams);
     }
 
     public Response delete(String path, Map<String, ?> pathParams) {
@@ -153,7 +135,7 @@ class MockMvcRequestSender implements RequestSender {
     }
 
     public Response head(String path, Object... pathParams) {
-        return performRequest(MockMvcRequestBuilders.request(HttpMethod.HEAD, applyParamsAsQueryParameters(path), pathParams));
+        return sendRequest(HEAD, path, pathParams);
     }
 
     public Response head(String path, Map<String, ?> pathParams) {
@@ -161,7 +143,7 @@ class MockMvcRequestSender implements RequestSender {
     }
 
     public Response patch(String path, Object... pathParams) {
-        return performRequest(MockMvcRequestBuilders.request(HttpMethod.PATCH, applyParamsAsQueryParameters(path), pathParams));
+        return sendRequest(PATCH, path, pathParams);
     }
 
     public Response patch(String path, Map<String, ?> pathParams) {
@@ -169,7 +151,7 @@ class MockMvcRequestSender implements RequestSender {
     }
 
     public Response options(String path, Object... pathParams) {
-        return performRequest(MockMvcRequestBuilders.options(applyParamsAsQueryParameters(path), pathParams));
+        return sendRequest(OPTIONS, path, pathParams);
     }
 
     public Response options(String path, Map<String, ?> pathParams) {
