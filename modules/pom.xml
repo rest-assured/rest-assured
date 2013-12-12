@@ -27,5 +27,6 @@
     <name>REST Assured Modules</name>
     <modules>
         <module>json-schema-validator</module>
+        <module>spring-mock-mvc</module>
     </modules>
 </project>
