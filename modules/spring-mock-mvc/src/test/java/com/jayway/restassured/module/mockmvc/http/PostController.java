@@ -16,6 +16,7 @@
 package com.jayway.restassured.module.mockmvc.http;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -23,11 +24,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-/**
- * This controller has been copied from <a href="http://spring.io/guides/gs/rest-service/">Spring Guides</a>.
- */
 @Controller
 public class PostController {
 
@@ -37,5 +36,15 @@ public class PostController {
     @RequestMapping(value = "/greetingPost", method = POST, consumes = APPLICATION_FORM_URLENCODED_VALUE)
     public @ResponseBody Greeting greeting(@RequestParam("name") String name) {
         return new Greeting(counter.incrementAndGet(), String.format(template, name));
+    }
+
+    @RequestMapping(value = "/stringBody", method = POST)
+    public @ResponseBody String stringBody(@RequestBody String body) {
+        return body;
+    }
+
+    @RequestMapping(value = "/jsonReflect", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody String jsonReflect(@RequestBody String body) {
+        return body;
     }
 }

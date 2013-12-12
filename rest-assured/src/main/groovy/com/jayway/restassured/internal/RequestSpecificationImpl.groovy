@@ -52,6 +52,7 @@ import java.util.regex.Matcher
 import static com.jayway.restassured.http.ContentType.*
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static com.jayway.restassured.internal.http.Method.*
+import static com.jayway.restassured.internal.serialization.SerializationSupport.isSerializableCandidate
 import static java.lang.String.format
 import static java.util.Arrays.asList
 import static org.apache.commons.lang3.StringUtils.substringAfter
@@ -1570,17 +1571,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     notNull filterType, "Filter type"
     this.filters.removeAll { filterType.isAssignableFrom(it.getClass()) }
     this
-  }
-
-  private boolean isSerializableCandidate(object) {
-    if (object == null) {
-      return false
-    }
-    def clazz = object.getClass()
-    return !(Number.class.isAssignableFrom(clazz) || String.class.isAssignableFrom(clazz)
-            || GString.class.isAssignableFrom(clazz) || Boolean.class.isAssignableFrom(clazz)
-            || Character.class.isAssignableFrom(clazz) || clazz.isEnum() ||
-            Locale.class.isAssignableFrom(clazz) || Class.isAssignableFrom(clazz) || UUID.isAssignableFrom(clazz));
   }
 
   def private String mergeAndRemoveDoubleSlash(String thisOne, String otherOne) {

@@ -8,9 +8,13 @@ import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.RequestSender;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.MultiValueMap;
@@ -28,12 +32,17 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 class MockMvcRequestSender implements RequestSender {
     private final MockMvc mockMvc;
-
     private final MultiValueMap<String, Object> params;
+    private final RestAssuredConfig config;
+    private final Object requestBody;
+    private final String requestContentType;
 
-    MockMvcRequestSender(MockMvc mockMvc, MultiValueMap<String, Object> params) {
+    MockMvcRequestSender(MockMvc mockMvc, MultiValueMap<String, Object> params, RestAssuredConfig config, Object requestBody, String requestContentType) {
         this.mockMvc = mockMvc;
         this.params = params;
+        this.config = config;
+        this.requestBody = requestBody;
+        this.requestContentType = requestContentType;
     }
 
     private Object assembleHeaders(MockHttpServletResponse response) {
@@ -53,8 +62,12 @@ class MockMvcRequestSender implements RequestSender {
         MockHttpServletResponse response;
         RestAssuredResponseImpl restAssuredResponse = new RestAssuredResponseImpl();
         try {
-            response = mockMvc.perform(requestBuilder).andReturn().getResponse();
-            restAssuredResponse.setConfig(new RestAssuredConfig());
+            ResultActions perform = mockMvc.perform(requestBuilder);
+            System.out.println(perform);
+            MvcResult mvcResult = perform.andReturn();
+            response = mvcResult.getResponse();
+            System.out.println(mvcResult);
+            restAssuredResponse.setConfig(config);
             restAssuredResponse.setContent(response.getContentAsString());
             restAssuredResponse.setContentType(response.getContentType());
             restAssuredResponse.setHasExpectations(false);
@@ -97,8 +110,22 @@ class MockMvcRequestSender implements RequestSender {
                 request.param(listEntry.getKey(), stringValues);
             }
 
-            request.contentType(APPLICATION_FORM_URLENCODED);
+            if (method == POST) {
+                request.contentType(APPLICATION_FORM_URLENCODED);
+            }
         }
+        if (StringUtils.isNotBlank(requestContentType)) {
+            request.contentType(MediaType.parseMediaType(requestContentType));
+        }
+
+        if (requestBody != null) {
+            if (requestBody instanceof byte[]) {
+                request.content((byte[]) requestBody);
+            } else {
+                request.content(requestBody.toString());
+            }
+        }
+
         return performRequest(request);
     }
 
