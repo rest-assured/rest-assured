@@ -19,6 +19,7 @@
 package com.jayway.restassured.authentication
 
 import com.jayway.restassured.internal.http.HTTPBuilder
+import com.jayway.restassured.spi.Signature
 
 class OAuthScheme implements AuthenticationScheme {
   def String consumerKey
