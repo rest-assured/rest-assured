@@ -20,17 +20,14 @@ package com.jayway.restassured.authentication
 
 import com.jayway.restassured.internal.http.HTTPBuilder
 
-class OAuthScheme implements AuthenticationScheme {
-  def String consumerKey
-  def String consumerSecret
+class OAuth2Scheme implements AuthenticationScheme {
   def String accessToken
-  def String secretToken
-  def Signature signature;
+  def Signature signature; 
 
   @Override void authenticate(HTTPBuilder httpBuilder) {
 	  if(signature != null)
-	  httpBuilder.auth.oauth(consumerKey, consumerSecret, accessToken, secretToken, signature)
+	  httpBuilder.auth.oauth2(accessToken,signature)
 	  else
-	  httpBuilder.auth.oauth(consumerKey, consumerSecret, accessToken, secretToken)
+	  httpBuilder.auth.oauth2(accessToken)
   }
 }

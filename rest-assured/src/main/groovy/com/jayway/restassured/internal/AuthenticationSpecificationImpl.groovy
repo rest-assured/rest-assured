@@ -20,6 +20,7 @@ import com.jayway.restassured.specification.AuthenticationSpecification
 import com.jayway.restassured.specification.PreemptiveAuthSpec
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.spi.AuthFilter
+import com.jayway.restassured.spi.Signature;
 
 import java.security.KeyStore
 
@@ -116,7 +117,60 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
         requestSpecification.authenticationScheme = new OAuthScheme(consumerKey: consumerKey, consumerSecret: consumerSecret, accessToken: accessToken, secretToken: secretToken)
         return requestSpecification
     }
+	/**
+	 * Excerpt from the HttpBuilder docs:<br>
+	 * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
+	 * All requests to all domains will be signed for this instance.
+	 * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
+	 * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+	 *
+	 * @param consumerKey
+	 * @param consumerSecret
+	 * @param accessToken
+	 * @param secretToken
+	 * @param signature
+	 * @return The request com.jayway.restassured.specification
+	 */
+		def RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken, Signature signature) {
+			notNull consumerKey, "consumerKey"
+			notNull consumerSecret, "consumerSecret"
+			notNull accessToken, "accessToken"
+			notNull secretToken, "secretToken"
+			notNull signature, "signature"
+	
+			requestSpecification.authenticationScheme = new OAuthScheme(consumerKey: consumerKey, consumerSecret: consumerSecret, accessToken: accessToken, secretToken: secretToken, signature:signature)
+			return requestSpecification
+			}
+		/**
+		 * Excerpt from the HttpBuilder docs:<br>
+		 * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
+		 * All requests to all domains will be signed for this instance.
+		 * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
+		 * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+		 * @param accessToken
+		 * @return The request com.jayway.restassured.specification
+		 */
+		def RequestSpecification oauth2(String accessToken) {
+		notNull accessToken, "accessToken"
 
+		requestSpecification.authenticationScheme = new OAuth2Scheme(accessToken: accessToken)
+		return requestSpecification
+		}
+		/**
+		 * Excerpt from the HttpBuilder docs:<br>
+		 * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
+		 * All requests to all domains will be signed for this instance.
+		 * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
+		 * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+		 * @param accessToken
+		 * @return The request com.jayway.restassured.specification
+		 */
+		def RequestSpecification oauth2(String accessToken, Signature signature) {
+		notNull accessToken, "accessToken"
+	
+		requestSpecification.authenticationScheme = new OAuth2Scheme(accessToken: accessToken, signature: signature)
+		return requestSpecification
+}
     def RequestSpecification none() {
         requestSpecification.authenticationScheme = new ExplicitNoAuthScheme();
         requestSpecification.filters.removeAll { it instanceof AuthFilter }

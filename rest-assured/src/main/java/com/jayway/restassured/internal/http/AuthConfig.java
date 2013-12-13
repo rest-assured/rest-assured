@@ -16,30 +16,47 @@
 
 package com.jayway.restassured.internal.http;
 
-import com.jayway.restassured.authentication.KeystoreProvider;
-import com.jayway.restassured.internal.util.SafeExceptionRethrower;
-import oauth.signpost.OAuthConsumer;
-import oauth.signpost.commonshttp.CommonsHttpOAuthConsumer;
-import oauth.signpost.commonshttp.HttpRequestAdapter;
-import oauth.signpost.exception.OAuthException;
-import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.protocol.ExecutionContext;
-import org.apache.http.protocol.HttpContext;
-
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.KeyStore;
+import java.util.List;
+import java.util.Map;
+
+import javax.print.URIException;
+
+import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.NameValuePair;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.impl.client.RequestWrapper;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.protocol.HttpContext;
+import org.scribe.builder.api.DefaultApi10a;
+import org.scribe.builder.api.DefaultApi20;
+import org.scribe.model.OAuthConfig;
+import org.scribe.model.OAuthRequest;
+import org.scribe.model.SignatureType;
+import org.scribe.model.Token;
+import org.scribe.model.Verb;
+import org.scribe.oauth.OAuth10aServiceImpl;
+import org.scribe.oauth.OAuth20ServiceImpl;
+import org.scribe.oauth.OAuthService;
+
+import com.jayway.restassured.authentication.KeystoreProvider;
+import com.jayway.restassured.internal.util.SafeExceptionRethrower;
+import com.jayway.restassured.spi.Signature;
 
 /**
  * Encapsulates all configuration related to HTTP authentication methods.
@@ -49,7 +66,6 @@ import java.security.KeyStore;
  */
 public class AuthConfig {
     protected HTTPBuilder builder;
-
     public AuthConfig(HTTPBuilder builder) {
         this.builder = builder;
     }
@@ -130,7 +146,7 @@ public class AuthConfig {
      * <p>This assumes you've already generated an <code>accessToken</code> and
      * <code>secretToken</code> for the site you're targeting.  For More information
      * on how to achieve this, see the
-     * <a href='http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost'>Signpost documentation</a>.</p>
+     * <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
      *
      * @param consumerKey    <code>null</code> if you want to <strong>unset</strong>
      *                       OAuth handling and stop signing requests.
@@ -139,52 +155,176 @@ public class AuthConfig {
      * @param secretToken
      * @since 0.5.1
      */
-    public void oauth(String consumerKey, String consumerSecret,
-                      String accessToken, String secretToken) {
-        this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
-        if (consumerKey != null)
-            this.builder.client.addRequestInterceptor(new OAuthSigner(
-                    consumerKey, consumerSecret, accessToken, secretToken));
+     public void oauth(String consumerKey, String consumerSecret,
+    						String accessToken, String secretToken) {
+    	 this.builder.client. removeRequestInterceptorByClass( OAuthSigner.class );
+    	if (consumerKey != null){
+    		this.builder.client.addRequestInterceptor( new OAuthSigner(
+    				consumerKey, consumerSecret, accessToken, secretToken, Signature.Header ) );
+    	}
     }
-
-    /**
-     * This class is used to sign all requests via an {@link HttpRequestInterceptor}
-     * until the context-aware AuthScheme is released in HttpClient 4.1.
-     *
-     * @since 0.5.1
-     */
+     
+     public void oauth(String consumerKey, String consumerSecret,
+			String accessToken, String secretToken, Signature signature) {
+		this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
+		if (consumerKey != null) {
+			this.builder.client.addRequestInterceptor(new OAuthSigner(
+					consumerKey, consumerSecret, accessToken, secretToken,
+					signature));
+		}
+	}
+    
+     
+     /**
+      * </p>OAuth2 sign all requests.  Note that this currently does <strong>not</strong>
+      * wait for a <code>WWW-Authenticate</code> challenge before sending the
+      * the OAuth header.  All requests to all domains will be signed for this
+      * instance.</p>
+      * <p/>
+      * <p>This assumes you've already generated an <code>accessToken</code> 
+      * for the site you're targeting.  For More information
+      * on how to achieve this, see the
+      * <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
+      * @param accessToken
+      * @since 0.5.1
+      */
+      public void oauth2(String accessToken) {
+    	  this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class );
+     	if (accessToken != null)
+     	{
+        		this.builder.client.addRequestInterceptor(new OAuthSigner(accessToken, Signature.Header));
+     	}
+     }
+      
+     
+	public void oauth2(String accessToken, Signature signature) {
+		this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
+		if (accessToken != null) {
+			this.builder.client.addRequestInterceptor(new OAuthSigner(
+					accessToken, signature));
+		}
+	}
+    
+    
+    
+    
     static class OAuthSigner implements HttpRequestInterceptor {
-        protected OAuthConsumer oauth;
-
+    	protected OAuthConfig oauthConfig;
+    	protected Token token;
+        protected OAuthService service;
+        protected SignatureType type = SignatureType.Header;
+        protected Signature signature;
+        protected boolean oauth1 = true;
+        
         public OAuthSigner(String consumerKey, String consumerSecret,
-                           String accessToken, String secretToken) {
-            this.oauth = new CommonsHttpOAuthConsumer(consumerKey, consumerSecret);
-            oauth.setTokenWithSecret(accessToken, secretToken);
-        }
+				String accessToken, String secretToken, Signature signature) {
+        	     		
+			this.oauthConfig = new OAuthConfig(consumerKey, consumerSecret,
+					null, getOAuthSigntureType(signature), null, null);
+			this.token = new Token(accessToken, secretToken);
+			this.signature = signature;
+		}
+        	
+		public OAuthSigner(String accessToken, Signature signature) {
+			this.token = new Token(accessToken, "");
+			this.signature = signature;
+			oauth1 = false;
 
-        public void process(HttpRequest request, HttpContext ctx) {
-            /* The full request URI must be reconstructed between the context and the request URI.
-             * Best we can do until AuthScheme supports HttpContext.  See:
-			 * https://issues.apache.org/jira/browse/HTTPCLIENT-901 */
-            try {
-                HttpUriRequest uriRequest = (HttpUriRequest) request;
-                HttpHost host = (HttpHost) ctx.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
+		}
+        public void process(HttpRequest request, HttpContext ctx) throws HttpException, IOException  {
+        	
+			try {
+				HttpHost host = (HttpHost) ctx
+						.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
+				final URI requestURI = new URI(host.toURI()).resolve(request
+						.getRequestLine().getUri());
 
-                final URI requestURI = new URI(host.toURI()).resolve(uriRequest.getURI());
-                HttpRequestAdapter oAuthRequest = new HttpRequestAdapter(uriRequest) {
-                    /* @Override */
-                    public String getRequestUrl() {
-                        return requestURI.toString();
-                    }
-                };
-                this.oauth.sign(oAuthRequest);
-            } catch (ClassCastException ex) {
-                SafeExceptionRethrower.safeRethrow(new HttpException("Request must be an instance of HttpUriRequest", ex));
-            } catch (URISyntaxException ex) {
-                SafeExceptionRethrower.safeRethrow(new HttpException("Error rebuilding request URI", ex));
-            } catch (OAuthException e) {
-                SafeExceptionRethrower.safeRethrow(new HttpException("OAuth signing error", e));
-            }
+				OAuthRequest oauthRequest = new OAuthRequest(Verb.GET,
+						requestURI.toString());
+				this.service = getOauthService(oauth1);
+				service.signRequest(token, oauthRequest);
+				if (signature == Signature.Header) {
+					//If signature is to be added as header
+					for (Map.Entry<String, String> entry : oauthRequest.getHeaders().entrySet()) {
+						request.setHeader(entry.getKey(), entry.getValue());
+					}
+				}
+				else
+				{
+					//If signature is to be added as query param
+					URI uri = new URI(oauthRequest.getCompleteUrl());
+					HttpParams params = new BasicHttpParams();
+					for (NameValuePair entry : URLEncodedUtils.parse(uri, "UTF-8")) {
+						params.setParameter(entry.getName(), entry.getValue());
+						
+					}
+					request.setParams(params);
+					//request.setParams(arg0)
+				}
+				
+			}
+			catch ( URISyntaxException ex ) {
+				throw new HttpException( "Error rebuilding request URI", ex );
+			}
         }
+        
+        private OAuthService getOauthService(boolean oauth1)
+        {
+        	OAuthService service = null;
+        	if(oauth1)
+        	{
+        		DefaultApi10a api = new DefaultApi10a() {
+					@Override
+					public String getRequestTokenEndpoint() {
+						return null;
+					}
+					@Override
+					public String getAuthorizationUrl(Token arg0) {
+						return null;
+					}
+					@Override
+					public String getAccessTokenEndpoint() {
+						return null;
+					}
+				};
+				service = new OAuth10aServiceImpl(api, oauthConfig);
+        	}
+        	else
+        	{
+        		DefaultApi20 api = new DefaultApi20() {
+					
+					@Override
+					public String getAuthorizationUrl(OAuthConfig arg0) {
+						// TODO Auto-generated method stub
+						return null;
+					}
+					
+					@Override
+					public String getAccessTokenEndpoint() {
+						// TODO Auto-generated method stub
+						return null;
+					}
+				}; 
+				service = new OAuth20ServiceImpl(api, oauthConfig);
+        	}
+        	return service;
+        }
+        
+        private static SignatureType getOAuthSigntureType(Signature signature)
+        {
+        	SignatureType signatureType;
+        	if(signature == Signature.Header)
+            	signatureType = SignatureType.Header;
+            	else
+            		signatureType = SignatureType.QueryString;
+        	return signatureType;
+        }
+        
+        
     }
+    
+    
+    
+    
+     
 }

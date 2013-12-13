@@ -18,6 +18,7 @@ package com.jayway.restassured.specification;
 
 import com.jayway.restassured.authentication.FormAuthConfig;
 import com.jayway.restassured.authentication.KeystoreProvider;
+import com.jayway.restassured.spi.Signature;
 
 /**
  * Specify an authentication scheme to use when sending a request.
@@ -106,6 +107,29 @@ public interface AuthenticationSpecification {
      * All requests to all domains will be signed for this instance.
      * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
      * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+     * @param accessToken
+     * @return The request com.jayway.restassured.specification
+     */
+     RequestSpecification oauth2(String secretToken);
+     
+     /**
+      * Excerpt from the HttpBuilder docs:<br>
+      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
+      * All requests to all domains will be signed for this instance.
+      * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
+      * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+      * @param accessToken
+      * @param signature
+      * @return The request com.jayway.restassured.specification
+      */
+      RequestSpecification oauth2(String secretToken, Signature signature);
+    
+    /**
+     * Excerpt from the HttpBuilder docs:<br>
+     * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
+     * All requests to all domains will be signed for this instance.
+     * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
+     * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
      *
      * @param consumerKey
      * @param consumerSecret
@@ -114,6 +138,22 @@ public interface AuthenticationSpecification {
      * @return The request com.jayway.restassured.specification
      */
     RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken);
+    
+    /**
+     * Excerpt from the HttpBuilder docs:<br>
+     * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
+     * All requests to all domains will be signed for this instance.
+     * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
+     * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+     *
+     * @param consumerKey
+     * @param consumerSecret
+     * @param accessToken
+     * @param secretToken
+     * @param signature
+     * @return The request com.jayway.restassured.specification
+     */
+    RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken, Signature signature);
 
     /**
      * Returns the preemptive authentication view. This means that the authentication details are sent in the request
