@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Fixed an issue with content-type identification when passing in content-type header manually using a header.
+
 Change log 2.1.0 (2013-12-09)
 -----------------------------
 * Changed the way REST Assured finds key stores in classpath. It now uses thread context classloader to resolve the files instead of the class KeyStoreSpecImpl classloader.

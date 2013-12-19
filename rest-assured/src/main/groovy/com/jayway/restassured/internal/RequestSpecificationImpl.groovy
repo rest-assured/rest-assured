@@ -626,7 +626,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   private def void filterContentTypeHeader(List<Header> headerList) {
     def contentHeader = headerList.find {
-      CONTENT_TYPE.equals(it.name)
+      CONTENT_TYPE.equalsIgnoreCase(it.name)
     };
     if (contentHeader != null) {
       contentType(contentHeader.value)
@@ -638,7 +638,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     notNull headerName, "Header name"
     notNull headerValue, "Header value"
 
-    if (CONTENT_TYPE.equals(headerName)) {
+    if (CONTENT_TYPE.equalsIgnoreCase(headerName)) {
       return contentType(headerValue)
     }
 
@@ -653,7 +653,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification header(Header header) {
     notNull header, "Header"
 
-    if (CONTENT_TYPE.equals(header.name)) {
+    if (CONTENT_TYPE.equalsIgnoreCase(header.name)) {
       return contentType(header.value)
     }
 
