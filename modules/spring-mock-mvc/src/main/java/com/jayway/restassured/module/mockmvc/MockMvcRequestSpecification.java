@@ -6,6 +6,8 @@ import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.specification.RequestSender;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.Map;
 
@@ -265,4 +267,10 @@ public interface MockMvcRequestSpecification {
 
 
     RequestSender when();
+
+    MockMvcRequestSpecification standaloneSetup(Object... controllers);
+
+    MockMvcRequestSpecification mockMvc(MockMvc mockMvc);
+
+    MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context);
 }

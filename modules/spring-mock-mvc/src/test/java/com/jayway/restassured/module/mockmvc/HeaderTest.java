@@ -12,13 +12,12 @@ import java.util.Map;
 
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 public class HeaderTest {
 
     @BeforeClass
     public static void configureMockMvcInstance() {
-        RestAssuredMockMvc.mockMvc = standaloneSetup(new HeaderController()).build();
+        RestAssuredMockMvc.standaloneSetup(new HeaderController());
     }
 
     @AfterClass
