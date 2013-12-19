@@ -602,7 +602,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       headerList.addAll(this.requestHeaders.list())
     }
     headers.each {
-      headerList << new Header(it.key, it.value)
+      headerList << new Header(it.key, serializeIfNeeded(it.value))
     }
     filterContentTypeHeader(headerList)
     this.requestHeaders = new Headers(headerList)
