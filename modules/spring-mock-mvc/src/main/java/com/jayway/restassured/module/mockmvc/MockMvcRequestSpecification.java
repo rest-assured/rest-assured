@@ -3,7 +3,11 @@ package com.jayway.restassured.module.mockmvc;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.response.Header;
+import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.specification.RequestSender;
+
+import java.util.Map;
 
 public interface MockMvcRequestSpecification {
     /**
@@ -23,6 +27,111 @@ public interface MockMvcRequestSpecification {
      * @see ContentType
      */
     MockMvcRequestSpecification contentType(String contentType);
+
+    /**
+     * Specify the headers that'll be sent with the request. This is done by specifying the headers in name-value pairs, e.g:
+     * <pre>
+     * given().headers("headerName1", "headerValue1", "headerName2", "headerValue2").then().expect().body(equalTo("something")).when().get("/headers");
+     * </pre>
+     * <p/>
+     * This will send a GET request to "/headers" with two headers:
+     * <ol>
+     * <li>headerName1=headerValue1</li>
+     * <li>headerName2=headerValue2</li>
+     * </ol>
+     * and expect that the response body is equal to "something".
+     *
+     * @param firstHeaderName      The name of the first header
+     * @param firstHeaderValue     The value of the first header
+     * @param headerNameValuePairs Additional headers in name-value pairs.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification headers(String firstHeaderName, Object firstHeaderValue, Object... headerNameValuePairs);
+
+    /**
+     * Specify the headers that'll be sent with the request as Map e.g:
+     * <pre>
+     * Map&lt;String, String&gt; headers = new HashMap&lt;String, String&gt;();
+     * parameters.put("headerName1", "headerValue1");
+     * parameters.put("headerName2", "headerValue2");
+     * given().headers(headers).then().expect().body(equalTo("something")).when().get("/headers");
+     * </pre>
+     * <p/>
+     * This will send a GET request to "/headers" with two headers:
+     * <ol>
+     * <li>headerName1=headerValue1</li>
+     * <li>headerName2=headerValue2</li>
+     * </ol>
+     * and expect that the response body is equal to "something".
+     *
+     * @param headers The Map containing the header names and their values to send with the request.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification headers(Map<String, ?> headers);
+
+    /**
+     * Specify the headers that'll be sent with the request as {@link com.jayway.restassured.response.Headers}, e.g:
+     * <pre>
+     * Header first = new Header("headerName1", "headerValue1");
+     * Header second = new Header("headerName2", "headerValue2");
+     * Headers headers = new Header(first, second);
+     * given().headers(headers).then().expect().body(equalTo("something")).when().get("/headers");
+     * </pre>
+     * <p/>
+     * This will send a GET request to "/headers" with two headers:
+     * <ol>
+     * <li>headerName1=headerValue1</li>
+     * <li>headerName2=headerValue2</li>
+     * </ol>
+     * and expect that the response body is equal to "something".
+     *
+     * @param headers The headers to use in the request
+     * @return The request specification
+     */
+    MockMvcRequestSpecification headers(Headers headers);
+
+    /**
+     * Specify a header that'll be sent with the request e.g:
+     * <p>
+     * <pre>
+     * given().header("username", "John").and().expect().body(equalTo("something")).when().get("/header");
+     * </pre>
+     * This will set the header <code>username=John</code> in the GET request to "/header".
+     * </p>
+     * <p/>
+     * <p>
+     * You can also specify several headers like this:
+     * <pre>
+     * given().header("username", "John").and().header("zipCode", "12345").and().expect().body(equalTo("something")).when().get("/header");
+     * </pre>
+     * </p>
+     * <p/>
+     * If you specify <code>additionalHeaderValues</code> then the Header will be a multi-value header. This means that you'll create several headers with the
+     * same name but with different values.
+     *
+     * @param headerName             The header name
+     * @param headerValue            The header value
+     * @param additionalHeaderValues Additional header values. This will actually create two headers with the same name but with different values.
+     * @return The request specification
+     * @see #headers(String, Object, Object...)
+     */
+    MockMvcRequestSpecification header(String headerName, Object headerValue, Object... additionalHeaderValues);
+
+    /**
+     * Specify  a {@link com.jayway.restassured.response.Header} to send with the request.
+     * <p>
+     * <pre>
+     * Header someHeader = new Header("some_name", "some_value");
+     * given().header(someHeader).and().expect().body(equalTo("x")).when().get("/header");
+     * </pre>
+     * This will set the header <code>some_name=some_value</code> in the GET request to "/header".
+     * </p>
+     *
+     * @param header The header to add to the request
+     * @return The request specification
+     * @see #headers(com.jayway.restassured.response.Headers)
+     */
+    MockMvcRequestSpecification header(Header header);
 
 
     /**

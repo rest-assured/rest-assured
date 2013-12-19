@@ -36,13 +36,15 @@ class MockMvcRequestSender implements RequestSender {
     private final RestAssuredConfig config;
     private final Object requestBody;
     private final String requestContentType;
+    private final Headers headers;
 
-    MockMvcRequestSender(MockMvc mockMvc, MultiValueMap<String, Object> params, RestAssuredConfig config, Object requestBody, String requestContentType) {
+    MockMvcRequestSender(MockMvc mockMvc, MultiValueMap<String, Object> params, RestAssuredConfig config, Object requestBody, String requestContentType, Headers headers) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.config = config;
         this.requestBody = requestBody;
         this.requestContentType = requestContentType;
+        this.headers = headers;
     }
 
     private Object assembleHeaders(MockHttpServletResponse response) {
@@ -63,10 +65,8 @@ class MockMvcRequestSender implements RequestSender {
         RestAssuredResponseImpl restAssuredResponse = new RestAssuredResponseImpl();
         try {
             ResultActions perform = mockMvc.perform(requestBuilder);
-            System.out.println(perform);
             MvcResult mvcResult = perform.andReturn();
             response = mvcResult.getResponse();
-            System.out.println(mvcResult);
             restAssuredResponse.setConfig(config);
             restAssuredResponse.setContent(response.getContentAsString());
             restAssuredResponse.setContentType(response.getContentType());
@@ -116,6 +116,12 @@ class MockMvcRequestSender implements RequestSender {
         }
         if (StringUtils.isNotBlank(requestContentType)) {
             request.contentType(MediaType.parseMediaType(requestContentType));
+        }
+
+        if (headers.exist()) {
+            for (Header header : headers) {
+                request.header(header.getName(), header.getValue());
+            }
         }
 
         if (requestBody != null) {

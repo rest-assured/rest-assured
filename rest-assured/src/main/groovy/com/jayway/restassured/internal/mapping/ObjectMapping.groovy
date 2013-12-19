@@ -38,7 +38,7 @@ class ObjectMapping {
 
     public static <T> T deserialize(ResponseBodyData response, Class<T> cls, String contentType, String defaultContentType, String charset, ObjectMapperType mapperType,
                                     ObjectMapperConfig objectMapperConfig) {
-        Validate.notNull(objectMapperConfig, "Object mapper configuration wasn't found, cannot deserialize.")
+        Validate.notNull(objectMapperConfig, "String mapper configuration wasn't found, cannot deserialize.")
         def deserializationCtx = deserializationContext(response, cls, contentType, charset)
         if (objectMapperConfig.hasDefaultObjectMapper()) {
             return objectMapperConfig.defaultObjectMapper().deserialize(deserializationContext(response, cls, contentType, charset)) as T;
@@ -93,9 +93,9 @@ class ObjectMapping {
         }
     }
 
-    public static Object serialize(Object object, String contentType, String charset, ObjectMapperType mapperType, ObjectMapperConfig config) {
-        notNull(object, "Object to serialize")
-        notNull(config, "Object mapper configuration not found, cannot serialize object.")
+    public static String serialize(Object object, String contentType, String charset, ObjectMapperType mapperType, ObjectMapperConfig config) {
+        notNull(object, "String to serialize")
+        notNull(config, "String mapper configuration not found, cannot serialize object.")
 
         def serializationCtx = serializationContext(object, contentType, charset)
         if (config.hasDefaultObjectMapper()) {
@@ -155,20 +155,20 @@ class ObjectMapping {
         }
     }
 
-    private static Object serializeWithGson(ObjectMapperSerializationContext ctx, GsonObjectMapperFactory factory) {
+    private static String serializeWithGson(ObjectMapperSerializationContext ctx, GsonObjectMapperFactory factory) {
         new GsonMapper(factory).serialize(ctx)
     }
 
-    private static Object serializeWithJackson1(ObjectMapperSerializationContext ctx, Jackson1ObjectMapperFactory factory) {
+    private static String serializeWithJackson1(ObjectMapperSerializationContext ctx, Jackson1ObjectMapperFactory factory) {
         new Jackson1Mapper(factory).serialize(ctx)
     }
 
-    private static Object serializeWithJackson2(ObjectMapperSerializationContext ctx, Jackson2ObjectMapperFactory factory) {
+    private static String serializeWithJackson2(ObjectMapperSerializationContext ctx, Jackson2ObjectMapperFactory factory) {
         new Jackson2Mapper(factory).serialize(ctx)
     }
 
 
-    private static Object serializeWithJaxb(ObjectMapperSerializationContext ctx, JAXBObjectMapperFactory factory) {
+    private static String serializeWithJaxb(ObjectMapperSerializationContext ctx, JAXBObjectMapperFactory factory) {
         new JaxbMapper(factory).serialize(ctx)
     }
 
