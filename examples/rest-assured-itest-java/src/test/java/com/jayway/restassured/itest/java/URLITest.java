@@ -460,6 +460,36 @@ public class URLITest extends WithJetty {
     }
 
     @Test
+    public void takesPortIntoAccountWhenSpecifiedInTheURLUsingLocalhostHost() throws Exception {
+        // Given
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        // When
+        try {
+            given().
+                    contentType(JSON).
+                    auth().digest("username", "password").
+                    filter(new RequestLoggingFilter(captor)).
+                    filter(new Filter() {
+                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                        }
+                    }).
+            expect().
+                     statusCode(200).
+                     body(equalTo("changed")).
+            when().
+                    head("http://localhost:8084/something");
+        } finally {
+            RestAssured.reset();
+        }
+
+        // Then
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8084/something"));
+    }
+
+    @Test
     public void takesSpecificationPortIntoAccountWhenLocalhostHostAndPort8080IsSpecifiedStatically() throws Exception {
         // Given
         final StringWriter writer = new StringWriter();
