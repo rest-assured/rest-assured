@@ -127,7 +127,23 @@ class MockMvcRequestSender implements RequestSender {
 
         if (cookies.exist()) {
             for (Cookie cookie : cookies) {
-                request.cookie(new javax.servlet.http.Cookie(cookie.getName(), cookie.getValue()));
+                javax.servlet.http.Cookie servletCookie = new javax.servlet.http.Cookie(cookie.getName(), cookie.getValue());
+                if (cookie.hasComment()) {
+                    servletCookie.setComment(cookie.getComment());
+                }
+                if (cookie.hasDomain()) {
+                    servletCookie.setDomain(cookie.getDomain());
+                }
+                if (cookie.hasMaxAge()) {
+                    servletCookie.setMaxAge(cookie.getMaxAge());
+                }
+                if (cookie.hasPath()) {
+                    servletCookie.setPath(cookie.getPath());
+                }
+                if (cookie.hasVersion()) {
+                    servletCookie.setVersion(cookie.getVersion());
+                }
+                request.cookie(servletCookie);
             }
         }
 
