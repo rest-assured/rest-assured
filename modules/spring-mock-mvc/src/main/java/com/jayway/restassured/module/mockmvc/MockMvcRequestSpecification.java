@@ -3,6 +3,8 @@ package com.jayway.restassured.module.mockmvc;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.response.Cookie;
+import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.specification.RequestSender;
@@ -264,6 +266,111 @@ public interface MockMvcRequestSpecification {
      * @return The request specification
      */
     MockMvcRequestSpecification body(Object object, ObjectMapperType mapperType);
+
+    /**
+     * Specify the cookies that'll be sent with the request. This is done by specifying the cookies in name-value pairs, e.g:
+     * <pre>
+     * given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().get("/cookie");
+     * </pre>
+     * <p/>
+     * This will send a GET request to "/cookie" with two cookies:
+     * <ol>
+     * <li>username=John</li>
+     * <li>token=1234</li>
+     * </ol>
+     * and expect that the response body is equal to "username, token".
+     *
+     * @param firstCookieName      The name of the first cookie
+     * @param firstCookieValue     The value of the first cookie
+     * @param cookieNameValuePairs Additional cookies in name-value pairs.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification cookies(String firstCookieName, Object firstCookieValue, Object... cookieNameValuePairs);
+
+    /**
+     * Specify the cookies that'll be sent with the request as Map e.g:
+     * <pre>
+     * Map&lt;String, String&gt; cookies = new HashMap&lt;String, String&gt;();
+     * cookies.put("username", "John");
+     * cookies.put("token", "1234");
+     * given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
+     * </pre>
+     * <p/>
+     * This will send a GET request to "/cookie" with two cookies:
+     * <ol>
+     * <li>username=John</li>
+     * <li>token=1234</li>
+     * </ol>
+     * and expect that the response body is equal to "username, token".
+     *
+     * @param cookies The Map containing the cookie names and their values to set in the request.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification cookies(Map<String, ?> cookies);
+
+    /**
+     * Specify the cookies that'll be sent with the request as {@link com.jayway.restassured.response.Cookies}:
+     * <pre>
+     * Cookie cookie1 = Cookie.Builder("username", "John").setComment("comment 1").build();
+     * Cookie cookie2 = Cookie.Builder("token", 1234).setComment("comment 2").build();
+     * Cookies cookies = new Cookies(cookie1, cookie2);
+     * given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
+     * </pre>
+     * <p/>
+     * This will send a GET request to "/cookie" with two cookies:
+     * <ol>
+     * <li>username=John</li>
+     * <li>token=1234</li>
+     * </ol>
+     * and expect that the response body is equal to "username, token".
+     *
+     * @param cookies The cookies to set in the request.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification cookies(Cookies cookies);
+
+    /**
+     * Specify a cookie that'll be sent with the request e.g:
+     * <p>
+     * <pre>
+     * given().cookie("username", "John").and().expect().body(equalTo("username")).when().get("/cookie");
+     * </pre>
+     * This will set the cookie <code>username=John</code> in the GET request to "/cookie".
+     * </p>
+     * <p/>
+     * <p>
+     * You can also specify several cookies like this:
+     * <pre>
+     * given().cookie("username", "John").and().cookie("password", "1234").and().expect().body(equalTo("username")).when().get("/cookie");
+     * </pre>
+     * </p>
+     * <p/>
+     * If you specify <code>additionalValues</code> then the Cookie will be a multi-value cookie. This means that you'll create several cookies with the
+     * same name but with different values.
+     *
+     * @param cookieName       The cookie cookieName
+     * @param value            The cookie value
+     * @param additionalValues Additional cookies values. This will actually create two cookies with the same name but with different values.
+     * @return The request specification
+     * @see #cookies(String, Object, Object...)
+     */
+    MockMvcRequestSpecification cookie(String cookieName, Object value, Object... additionalValues);
+
+    /**
+     * Specify  a {@link com.jayway.restassured.response.Cookie} to send with the request.
+     * <p>
+     * <pre>
+     * Cookie someCookie = new Cookie.Builder("some_cookie", "some_value").setSecured(true).build();
+     * given().cookie(someCookie).and().expect().body(equalTo("x")).when().get("/cookie");
+     * </pre>
+     * This will set the cookie <code>someCookie</code> in the GET request to "/cookie".
+     * </p>
+     *
+     * @param cookie The cookie to add to the request
+     * @return The request specification
+     * @see #cookies(com.jayway.restassured.response.Cookies)
+     */
+    MockMvcRequestSpecification cookie(Cookie cookie);
 
 
     RequestSender when();

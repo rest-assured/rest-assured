@@ -4,9 +4,7 @@ import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
-import com.jayway.restassured.response.Header;
-import com.jayway.restassured.response.Headers;
-import com.jayway.restassured.response.Response;
+import com.jayway.restassured.response.*;
 import com.jayway.restassured.specification.RequestSender;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
@@ -37,14 +35,17 @@ class MockMvcRequestSender implements RequestSender {
     private final Object requestBody;
     private final String requestContentType;
     private final Headers headers;
+    private final Cookies cookies;
 
-    MockMvcRequestSender(MockMvc mockMvc, MultiValueMap<String, Object> params, RestAssuredConfig config, Object requestBody, String requestContentType, Headers headers) {
+    MockMvcRequestSender(MockMvc mockMvc, MultiValueMap<String, Object> params, RestAssuredConfig config, Object requestBody,
+                         String requestContentType, Headers headers, Cookies cookies) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.config = config;
         this.requestBody = requestBody;
         this.requestContentType = requestContentType;
         this.headers = headers;
+        this.cookies = cookies;
     }
 
     private Object assembleHeaders(MockHttpServletResponse response) {
@@ -121,6 +122,12 @@ class MockMvcRequestSender implements RequestSender {
         if (headers.exist()) {
             for (Header header : headers) {
                 request.header(header.getName(), header.getValue());
+            }
+        }
+
+        if (cookies.exist()) {
+            for (Cookie cookie : cookies) {
+                request.cookie(new javax.servlet.http.Cookie(cookie.getName(), cookie.getValue()));
             }
         }
 

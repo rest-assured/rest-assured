@@ -1,3 +1,4 @@
+// @formatter:off
 package com.jayway.restassured.module.mockmvc;
 
 import com.jayway.restassured.module.mockmvc.http.HeaderController;
@@ -88,3 +89,5 @@ public class HeaderTest {
                 body("user-agent", equalTo("rest assured"));
     }
 }
+
+// @formatter:on

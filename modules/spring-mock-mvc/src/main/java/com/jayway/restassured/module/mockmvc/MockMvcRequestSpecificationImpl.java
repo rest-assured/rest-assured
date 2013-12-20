@@ -8,6 +8,8 @@ import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
 import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.response.Cookie;
+import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.specification.RequestSender;
@@ -39,6 +41,9 @@ class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification {
     private RestAssuredConfig restAssuredConfig;
 
     private Headers requestHeaders = new Headers();
+
+    private Cookies cookies = new Cookies();
+
     private String requestContentType;
 
     MockMvcRequestSpecificationImpl(MockMvc mockMvc) {
@@ -200,8 +205,74 @@ class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification {
         return this;
     }
 
+    public MockMvcRequestSpecification cookies(String firstCookieName, Object firstCookieValue, Object... cookieNameValuePairs) {
+        return cookies(MapCreator.createMapFromParams(firstCookieName, firstCookieValue, cookieNameValuePairs));
+    }
+
+    public MockMvcRequestSpecification cookies(Map<String, ?> cookies) {
+        notNull(cookies, "cookies");
+        List<Cookie> cookieList = new ArrayList<Cookie>();
+        if (this.cookies.exist()) {
+            for (Cookie requestCookie : this.cookies) {
+                cookieList.add(requestCookie);
+            }
+        }
+
+        for (Map.Entry<String, ?> stringEntry : cookies.entrySet()) {
+            cookieList.add(new Cookie.Builder(stringEntry.getKey(), serializeIfNeeded(stringEntry.getValue())).build());
+        }
+
+        this.cookies = new Cookies(cookieList);
+        return this;
+    }
+
+    public MockMvcRequestSpecification cookies(Cookies cookies) {
+        notNull(cookies, "Cookies");
+        if (cookies.exist()) {
+            List<Cookie> cookieList = new ArrayList<Cookie>();
+            if (this.cookies.exist()) {
+                for (Cookie cookie : this.cookies) {
+                    cookieList.add(cookie);
+                }
+            }
+
+            for (Cookie cookie : cookies) {
+                cookieList.add(cookie);
+            }
+
+            this.cookies = new Cookies(cookieList);
+        }
+        return this;
+    }
+
+    public MockMvcRequestSpecification cookie(final String cookieName, final Object cookieValue, Object... additionalValues) {
+        notNull(cookieName, "Cookie name");
+        notNull(cookieValue, "Cookie value");
+
+        if (CONTENT_TYPE.equalsIgnoreCase(cookieName)) {
+            return contentType(cookieValue.toString());
+        }
+
+        List<Cookie> cookieList = new ArrayList<Cookie>() {{
+            add(new Cookie.Builder(cookieName, serializeIfNeeded(cookieValue)).build());
+        }};
+
+        if (additionalValues != null) {
+            for (Object additionalCookieValue : additionalValues) {
+                cookieList.add(new Cookie.Builder(cookieName, serializeIfNeeded(additionalCookieValue)).build());
+            }
+        }
+
+        return cookies(new Cookies(cookieList));
+    }
+
+    public MockMvcRequestSpecification cookie(Cookie cookie) {
+        notNull(cookie, "Cookie");
+        return cookies(new Cookies(asList(cookie)));
+    }
+
     public RequestSender when() {
-        return new MockMvcRequestSender(instanceMockMvc, params, restAssuredConfig, requestBody, requestContentType, requestHeaders);
+        return new MockMvcRequestSender(instanceMockMvc, params, restAssuredConfig, requestBody, requestContentType, requestHeaders, cookies);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {
