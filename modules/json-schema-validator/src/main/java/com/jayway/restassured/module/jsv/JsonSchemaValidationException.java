@@ -14,25 +14,14 @@
  * limitations under the License.
  */
 
+package com.jayway.restassured.module.jsv;
 
+/**
+ * Exception thrown when something goes wrong during JSON Schema validation
+ */
+public class JsonSchemaValidationException extends RuntimeException {
 
-package com.jayway.restassured.internal
-
-import com.jayway.restassured.authentication.KeystoreProvider
-import com.jayway.restassured.internal.http.HTTPBuilder
-
-import java.security.KeyStore
-
-class NoKeystoreSpecImpl implements KeystoreSpec, KeystoreProvider {
-
-    void apply(HTTPBuilder builder, int port) {
-    }
-
-    def Boolean canBuild() {
-        return false
-    }
-
-    def KeyStore build() {
-        throw new IllegalArgumentException("Cannot use this key store specification to build a KeyStore")
+    public JsonSchemaValidationException(Throwable cause) {
+        super(cause);
     }
 }

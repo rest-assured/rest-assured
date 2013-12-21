@@ -25,6 +25,7 @@ import groovy.util.slurpersupport.GPathResult
 import static com.jayway.restassured.parsing.Parser.*
 
 class ContentParser {
+
     def parse(Response response, ResponseParserRegistrar rpr, RestAssuredConfig config, boolean parseAsString) {
         Parser parser = rpr.getParser(response.contentType())
         def content;

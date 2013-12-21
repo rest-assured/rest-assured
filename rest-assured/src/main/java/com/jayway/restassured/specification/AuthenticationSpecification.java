@@ -16,8 +16,8 @@
 
 package com.jayway.restassured.specification;
 
+import com.jayway.restassured.authentication.CertificateAuthSettings;
 import com.jayway.restassured.authentication.FormAuthConfig;
-import com.jayway.restassured.authentication.KeystoreProvider;
 import com.jayway.restassured.spi.Signature;
 
 /**
@@ -81,55 +81,57 @@ public interface AuthenticationSpecification {
     /**
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
      * on the classpath.
+     * <p/>
      *
-     * @param certURL  URL to a JKS keystore where the certificate is stored.
-     * @param password password to decrypt the keystore
-     * @param certType The certificate type
-     * @param port     The SSL port
+     * @param certURL                 URL to a JKS keystore where the certificate is stored.
+     * @param password                The password for the keystore
+     * @param certificateAuthSettings More advanced settings for the certificate authentication
      */
-    RequestSpecification certificate(String certURL, String password, String certType, int port);
+    RequestSpecification certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings);
 
     /**
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
      * on the classpath.
      *
-     * @param certURL            URL to a JKS keystore where the certificate is stored.
-     * @param password           password to decrypt the keystore
-     * @param certType           The certificate type
-     * @param port               The SSL port
-     * @param trustStoreProvider The provider
+     * @param certURL      URL to a JKS keystore where the certificate is stored.
+     * @param password     password to decrypt the keystore
+     * @param keystoreType The keystore type
+     * @param port         The SSL port
+     * @deprecated Use {@link #certificate(String, String, com.jayway.restassured.authentication.CertificateAuthSettings)} instead.
      */
-    RequestSpecification certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider);
+    @Deprecated
+    RequestSpecification certificate(String certURL, String password, String keystoreType, int port);
+
+    /**
+     * Excerpt from the HttpBuilder docs:<br>
+     * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
+     * All requests to all domains will be signed for this instance.
+     * For more information on how to achieve this, see the <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
+     *
+     * @param accessToken The access token
+     * @return The request com.jayway.restassured.specification
+     */
+    RequestSpecification oauth2(String accessToken);
 
     /**
      * Excerpt from the HttpBuilder docs:<br>
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
      * All requests to all domains will be signed for this instance.
      * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-     * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+     * For more information on how to achieve this, see the <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
+     *
      * @param accessToken
+     * @param signature
      * @return The request com.jayway.restassured.specification
      */
-     RequestSpecification oauth2(String secretToken);
-     
-     /**
-      * Excerpt from the HttpBuilder docs:<br>
-      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
-      * All requests to all domains will be signed for this instance.
-      * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-      * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
-      * @param accessToken
-      * @param signature
-      * @return The request com.jayway.restassured.specification
-      */
-      RequestSpecification oauth2(String secretToken, Signature signature);
-    
+    RequestSpecification oauth2(String accessToken, Signature signature);
+
     /**
      * Excerpt from the HttpBuilder docs:<br>
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
      * All requests to all domains will be signed for this instance.
      * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-     * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+     * For more information on how to achieve this, see the <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
      *
      * @param consumerKey
      * @param consumerSecret
@@ -138,13 +140,13 @@ public interface AuthenticationSpecification {
      * @return The request com.jayway.restassured.specification
      */
     RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken);
-    
+
     /**
      * Excerpt from the HttpBuilder docs:<br>
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
      * All requests to all domains will be signed for this instance.
      * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-     * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+     * For more information on how to achieve this, see the <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
      *
      * @param consumerKey
      * @param consumerSecret

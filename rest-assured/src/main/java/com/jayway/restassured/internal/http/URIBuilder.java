@@ -22,10 +22,10 @@ import org.apache.commons.lang3.Validate;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
 
 import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.nio.charset.Charset;
 import java.util.*;
 
 import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
@@ -438,7 +438,7 @@ public class URIBuilder implements Cloneable {
     // Copy of  the private method in URLEncodedUtils
     public static String encode(final String content, final String encoding) {
         try {
-            String encoded = URLEncoder.encode(content, encoding != null ? encoding : HTTP.DEFAULT_CONTENT_CHARSET);
+            String encoded = URLEncoder.encode(content, encoding != null ? encoding : Charset.defaultCharset().toString());
             // We replace spaces encoded as "+" to %20 because some server (such as Scalatra) doesn't decode "+" correctly.
             encoded = StringUtils.replace(encoded, PLUS, PERCENTAGE_20);
             return encoded;

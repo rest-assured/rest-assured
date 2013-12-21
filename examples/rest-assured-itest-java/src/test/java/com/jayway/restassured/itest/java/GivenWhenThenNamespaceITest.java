@@ -26,9 +26,7 @@ import java.util.Iterator;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static com.jayway.restassured.config.XmlConfig.xmlConfig;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasXPath;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 
 public class GivenWhenThenNamespaceITest extends WithJetty {
 

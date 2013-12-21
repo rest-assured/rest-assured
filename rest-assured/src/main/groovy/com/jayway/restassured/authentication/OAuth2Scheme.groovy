@@ -23,12 +23,14 @@ import com.jayway.restassured.spi.Signature
 
 class OAuth2Scheme implements AuthenticationScheme {
   def String accessToken
-  def Signature signature; 
+  def Signature signature;
 
-  @Override void authenticate(HTTPBuilder httpBuilder) {
-	  if(signature != null)
-	  httpBuilder.auth.oauth2(accessToken,signature)
-	  else
-	  httpBuilder.auth.oauth2(accessToken)
+  @Override
+  void authenticate(HTTPBuilder httpBuilder) {
+    if (signature != null) {
+      httpBuilder.auth.oauth2(accessToken, signature)
+    } else {
+      httpBuilder.auth.oauth2(accessToken)
+    }
   }
 }

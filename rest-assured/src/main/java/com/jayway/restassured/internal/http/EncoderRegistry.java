@@ -31,7 +31,6 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
 
@@ -67,7 +66,7 @@ import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
  */
 public class EncoderRegistry {
 
-    Charset charset = Charset.forName(HTTP.DEFAULT_CONTENT_CHARSET);
+    Charset charset = Charset.defaultCharset();
     private Map<String,Closure> registeredEncoders = buildDefaultEncoderMap();
 
     /**

@@ -16,55 +16,39 @@
 
 package com.jayway.restassured.internal.http;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.KeyStore;
-import java.util.List;
-import java.util.Map;
-
-import javax.print.URIException;
-
-import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.NameValuePair;
+import com.jayway.restassured.internal.KeystoreSpecImpl;
+import com.jayway.restassured.spi.Signature;
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.RequestWrapper;
+import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.scribe.builder.api.DefaultApi10a;
 import org.scribe.builder.api.DefaultApi20;
-import org.scribe.model.OAuthConfig;
-import org.scribe.model.OAuthRequest;
-import org.scribe.model.SignatureType;
-import org.scribe.model.Token;
-import org.scribe.model.Verb;
+import org.scribe.model.*;
 import org.scribe.oauth.OAuth10aServiceImpl;
 import org.scribe.oauth.OAuth20ServiceImpl;
 import org.scribe.oauth.OAuthService;
 
-import com.jayway.restassured.authentication.KeystoreProvider;
-import com.jayway.restassured.internal.util.SafeExceptionRethrower;
-import com.jayway.restassured.spi.Signature;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.security.KeyStore;
+import java.util.Map;
 
 /**
  * Encapsulates all configuration related to HTTP authentication methods.
  *
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
- * @see HTTPBuilder#getAuth()
+ * @author johanhaleby
  */
 public class AuthConfig {
+    private static final int UNDEFINED_PORT = -1;
+    private static final int DEFAULT_HTTPS_PORT = 443;
     protected HTTPBuilder builder;
     public AuthConfig(HTTPBuilder builder) {
         this.builder = builder;
@@ -104,37 +88,25 @@ public class AuthConfig {
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
      * on the classpath.
      *
-     * @param certURL            URL to a JKS keystore where the certificate is stored.
-     * @param password           password to decrypt the keystore
-     * @param certType           The certificate type
-     * @param port               The SSL port
-     * @param trustStoreProvider The provider
+     * @param certURL              URL to a JKS keystore where the certificate is stored.
+     * @param password             password to decrypt the keystore
+     * @param certType             The certificate type
+     * @param port                 The SSL port
+     * @param trustStore           The trust store
+     * @param x509HostnameVerifier The X509HostnameVerifier to use
      */
-    public void certificate(String certURL, String password, String certType, int port, KeystoreProvider trustStoreProvider) {
-        try {
-            KeyStore keyStore = KeyStore.getInstance(certType);
-            InputStream jksStream = new URL(certURL).openStream();
-            try {
-                keyStore.load(jksStream, password.toCharArray());
-            } finally {
-                jksStream.close();
-            }
-
-            final SSLSocketFactory ssl;
-            if (trustStoreProvider == null || !trustStoreProvider.canBuild()) {
-                ssl = new SSLSocketFactory(keyStore, password);
-            } else {
-                ssl = new SSLSocketFactory(keyStore, password, trustStoreProvider.build());
-
-            }
-
-            ssl.setHostnameVerifier(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
-
-            SchemeRegistry registry = builder.getClient().getConnectionManager().getSchemeRegistry();
-            registry.register(new Scheme("https", ssl, port));
-        } catch (Exception e) {
-            SafeExceptionRethrower.safeRethrow(e);
-        }
+    public void certificate(String certURL, String password, String certType, int port, KeyStore trustStore, X509HostnameVerifier x509HostnameVerifier) {
+        KeystoreSpecImpl keystoreSpec = new KeystoreSpecImpl();
+        URI uri = ((URIBuilder) builder.getUri()).toURI();
+        if (uri == null) throw new IllegalStateException("a default URI must be set");
+        keystoreSpec.setKeyStoreType(certType);
+        keystoreSpec.setPassword(password);
+        keystoreSpec.setPath(certURL);
+        keystoreSpec.setTrustStore(trustStore);
+        keystoreSpec.setPort(port);
+        keystoreSpec.setX509HostnameVerifier(x509HostnameVerifier);
+        int portSpecifiedInUri = uri.getPort();
+        keystoreSpec.apply(builder, portSpecifiedInUri == UNDEFINED_PORT ? DEFAULT_HTTPS_PORT : portSpecifiedInUri);
     }
 
     /**
@@ -160,7 +132,7 @@ public class AuthConfig {
     	 this.builder.client. removeRequestInterceptorByClass( OAuthSigner.class );
     	if (consumerKey != null){
     		this.builder.client.addRequestInterceptor( new OAuthSigner(
-    				consumerKey, consumerSecret, accessToken, secretToken, Signature.Header ) );
+    				consumerKey, consumerSecret, accessToken, secretToken, Signature.HEADER) );
     	}
     }
      
@@ -192,11 +164,10 @@ public class AuthConfig {
     	  this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class );
      	if (accessToken != null)
      	{
-        		this.builder.client.addRequestInterceptor(new OAuthSigner(accessToken, Signature.Header));
+        		this.builder.client.addRequestInterceptor(new OAuthSigner(accessToken, Signature.HEADER));
      	}
      }
-      
-     
+
 	public void oauth2(String accessToken, Signature signature) {
 		this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
 		if (accessToken != null) {
@@ -204,9 +175,6 @@ public class AuthConfig {
 					accessToken, signature));
 		}
 	}
-    
-    
-    
     
     static class OAuthSigner implements HttpRequestInterceptor {
     	protected OAuthConfig oauthConfig;
@@ -243,7 +211,7 @@ public class AuthConfig {
 						requestURI.toString());
 				this.service = getOauthService(oauth1);
 				service.signRequest(token, oauthRequest);
-				if (signature == Signature.Header) {
+				if (signature == Signature.HEADER) {
 					//If signature is to be added as header
 					for (Map.Entry<String, String> entry : oauthRequest.getHeaders().entrySet()) {
 						request.setHeader(entry.getKey(), entry.getValue());
@@ -313,7 +281,7 @@ public class AuthConfig {
         private static SignatureType getOAuthSigntureType(Signature signature)
         {
         	SignatureType signatureType;
-        	if(signature == Signature.Header)
+        	if(signature == Signature.HEADER)
             	signatureType = SignatureType.Header;
             	else
             		signatureType = SignatureType.QueryString;

@@ -6,9 +6,7 @@ import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class GivenWhenThenExtractITest extends WithJetty {

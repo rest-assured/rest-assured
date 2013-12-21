@@ -896,7 +896,7 @@ public interface RequestSpecification extends RequestSender {
      * </pre>
      * Now, import that into a Java keystore file:
      * <pre>
-     * $ keytool -importcert -alias "equifax-ca" -file EquifaxSecureGlobaleBusinessCA-1.crt -keystore truststore.jks -storepass test1234
+     * $ keytool -importcert -alias "equifax-ca" -file EquifaxSecureGlobaleBusinessCA-1.crt -keystore truststore_javanet.jks -storepass test1234
      * Owner: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
      * Issuer: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
      * Serial number: 1
@@ -912,11 +912,17 @@ public interface RequestSpecification extends RequestSender {
      * </pre>
      * Now you want to use this truststore in your client:
      * <pre>
-     * RestAssured.keystore("/truststore.jks", "test1234");
+     * RestAssured.keystore("/truststore_javanet.jks", "test1234");
      * </pre>
      * or
      * <pre>
-     * given().keystore("/truststore.jks", "test1234"). ..
+     * given().keystore("/truststore_javanet.jks", "test1234"). ..
+     * </pre>
+     * </p>
+     * <p>
+     * Note that this is just a shortcut for:
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().keystore(pathToJks, password));
      * </pre>
      * </p>
      *
@@ -928,6 +934,12 @@ public interface RequestSpecification extends RequestSender {
 
     /**
      * Use a keystore located on the file-system. See {@link #keystore(String, String)} for more details.
+     * <p>
+     * Note that this is just a shortcut for:
+     * </p>
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().keystore(pathToJks, password));
+     * </pre>
      *
      * @param pathToJks The path to JKS file on the file-system
      * @param password  The password for the keystore

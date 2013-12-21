@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
-
-
 package com.jayway.restassured.internal.assertion
 
 class AssertParameter {
 
-    def static notNull(Object object, String parameterName) {
-        if (object == null) {
-            throw new IllegalArgumentException("$parameterName cannot be null")
-        }
-        object
+  def static notNull(Object object, Class aClass) {
+    notNull(object, aClass.getSimpleName())
+  }
+
+  def static notNull(Object object, String parameterName) {
+    if (object == null) {
+      throw new IllegalArgumentException("$parameterName cannot be null")
     }
+    object
+  }
 }

@@ -13,62 +13,73 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
 package com.jayway.restassured.internal
 
-import com.jayway.restassured.authentication.KeystoreProvider
 import com.jayway.restassured.internal.http.HTTPBuilder
 import org.apache.commons.lang3.Validate
 import org.apache.http.conn.scheme.Scheme
 import org.apache.http.conn.ssl.SSLSocketFactory
+import org.apache.http.conn.ssl.X509HostnameVerifier
 
 import java.security.KeyStore
 
-class KeystoreSpecImpl implements KeystoreSpec, KeystoreProvider {
+import static org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER
 
-    def path
-    def password
+class KeystoreSpecImpl implements KeystoreSpec {
 
-    def void apply(HTTPBuilder builder, int port) {
-        def trustStore = build()
-        def factory = new SSLSocketFactory(trustStore)
-        factory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)
-        builder.client.connectionManager.schemeRegistry.register(
-                new Scheme("https", factory, port)
-        )
+  def path
+  def password
+
+  def String keyStoreType
+  def int port
+  KeyStore trustStore
+  X509HostnameVerifier x509HostnameVerifier;
+
+  def void apply(HTTPBuilder builder, int port) {
+    def keyStore = createKeyStore()
+    def factory = createSSLSocketFactory(keyStore)
+    factory.setHostnameVerifier(x509HostnameVerifier ?: ALLOW_ALL_HOSTNAME_VERIFIER)
+    int portToUse = this.port == -1 ? port : this.port
+    builder.client.connectionManager.schemeRegistry.register(new Scheme("https", portToUse, factory)
+    )
+  }
+
+  private def createSSLSocketFactory(KeyStore keyStore) {
+    final SSLSocketFactory ssl;
+    if (keyStore == null) {
+      ssl = SSLSocketFactory.getSocketFactory()
+    } else if (trustStore == null) {
+      ssl = new SSLSocketFactory(keyStore, password);
+    } else {
+      ssl = new SSLSocketFactory(keyStore, password, trustStore);
+    }
+    ssl
+  }
+
+  def KeyStore createKeyStore() {
+    def keyStore = KeyStore.getInstance(keyStoreType)
+    if (path == null)
+      return null
+
+    def resource
+    if (path instanceof File) {
+      resource = path
+    } else {
+      resource = Thread.currentThread().getContextClassLoader()?.getResource(path)
+      if (resource == null) { // To allow for backward compatibility
+        resource = getClass().getResource(path)
+      }
+
+      if (resource == null) { // Fallback to load path as file if not found in classpath
+        resource = new File(path)
+      }
     }
 
-    def Boolean canBuild() {
-        return true
+    Validate.notNull(resource, "Couldn't find java keystore file at '$path'.")
+    resource.withInputStream {
+      keyStore.load(it, password?.toCharArray())
     }
 
-    def KeyStore build() {
-        def keyStore = KeyStore.getInstance(KeyStore.defaultType)
-        if (path == null)
-            path = System.getProperty("user.home") + File.separatorChar + ".keystore"
-
-        def resource
-        if (path instanceof File) {
-            resource = path
-        } else {
-            resource = Thread.currentThread().getContextClassLoader()?.getResource(path)
-            if (resource == null) { // To allow for backward compatibility
-                resource = getClass().getResource(path)
-            }
-
-            if (resource == null) { // Fallback to load path as file if not found in classpath
-                resource = new File(path)
-            }
-        }
-
-        Validate.notNull(resource, "Couldn't find java keystore file at '$path'.")
-        resource.withInputStream {
-            keyStore.load(it, password.toCharArray())
-        }
-
-        return keyStore
-    }
-
+    return keyStore
+  }
 }

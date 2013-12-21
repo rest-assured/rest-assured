@@ -97,7 +97,6 @@ class SpecificationMerger {
         thisOne.pathParameters.putAll(with.pathParams)
         thisOne.multiParts.addAll(with.multiParts)
         thisOne.authenticationScheme = with.authenticationScheme
-        thisOne.keyStoreSpec = with.keyStoreSpec
         thisOne.contentType = with.contentType
         thisOne.headers(with.requestHeaders)
         mergeSessionId(thisOne, with)

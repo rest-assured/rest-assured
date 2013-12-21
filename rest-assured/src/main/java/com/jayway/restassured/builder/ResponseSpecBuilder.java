@@ -31,7 +31,8 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.RestAssured.responseContentType;
+import static com.jayway.restassured.RestAssured.rootPath;
 
 /**
  * You can use the builder to construct a response specification. The specification can be used as e.g.
