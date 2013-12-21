@@ -19,11 +19,10 @@
 package com.jayway.restassured.authentication
 
 import com.jayway.restassured.internal.http.HTTPBuilder
-import com.jayway.restassured.spi.Signature
 
 class OAuth2Scheme implements AuthenticationScheme {
   def String accessToken
-  def Signature signature;
+  def OAuthSignature signature;
 
   @Override
   void authenticate(HTTPBuilder httpBuilder) {

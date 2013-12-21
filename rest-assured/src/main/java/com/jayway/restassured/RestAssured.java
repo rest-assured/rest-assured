@@ -33,7 +33,7 @@ import com.jayway.restassured.specification.Argument;
 import com.jayway.restassured.specification.RequestSender;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
-import com.jayway.restassured.spi.Signature;
+import com.jayway.restassured.authentication.OAuthSignature;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -1272,7 +1272,7 @@ public class RestAssured {
      * @param signature
      * @return The authentication scheme
      */
-    public static AuthenticationScheme oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken, Signature signature) {
+    public static AuthenticationScheme oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken, OAuthSignature signature) {
         OAuthScheme scheme = new OAuthScheme();
         scheme.setConsumerKey(consumerKey);
         scheme.setConsumerSecret(consumerSecret);
@@ -1301,7 +1301,7 @@ public class RestAssured {
      *  @param signature
      *  @return The authentication scheme
      */
-    public static AuthenticationScheme oauth2(String accessToken, Signature signature ) {
+    public static AuthenticationScheme oauth2(String accessToken, OAuthSignature signature ) {
         OAuth2Scheme scheme = new OAuth2Scheme();
         scheme.setAccessToken(accessToken);
         scheme.setSignature(signature);

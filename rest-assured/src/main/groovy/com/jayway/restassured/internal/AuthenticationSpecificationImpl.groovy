@@ -20,7 +20,7 @@ import com.jayway.restassured.specification.AuthenticationSpecification
 import com.jayway.restassured.specification.PreemptiveAuthSpec
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.spi.AuthFilter
-import com.jayway.restassured.spi.Signature
+import com.jayway.restassured.authentication.OAuthSignature
 
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
@@ -119,7 +119,7 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
    * @param signature
    * @return The request com.jayway.restassured.specification
    */
-  def RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken, Signature signature) {
+  def RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken, OAuthSignature signature) {
     notNull consumerKey, "consumerKey"
     notNull consumerSecret, "consumerSecret"
     notNull accessToken, "accessToken"
@@ -152,7 +152,7 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
    * @param accessToken
    * @return The request com.jayway.restassured.specification
    */
-  def RequestSpecification oauth2(String accessToken, Signature signature) {
+  def RequestSpecification oauth2(String accessToken, OAuthSignature signature) {
     notNull accessToken, "accessToken"
 
     requestSpecification.authenticationScheme = new OAuth2Scheme(accessToken: accessToken, signature: signature)

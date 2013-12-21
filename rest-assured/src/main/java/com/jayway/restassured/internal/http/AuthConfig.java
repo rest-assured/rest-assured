@@ -16,8 +16,8 @@
 
 package com.jayway.restassured.internal.http;
 
+import com.jayway.restassured.authentication.OAuthSignature;
 import com.jayway.restassured.internal.KeystoreSpecImpl;
-import com.jayway.restassured.spi.Signature;
 import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -50,6 +50,7 @@ public class AuthConfig {
     private static final int UNDEFINED_PORT = -1;
     private static final int DEFAULT_HTTPS_PORT = 443;
     protected HTTPBuilder builder;
+
     public AuthConfig(HTTPBuilder builder) {
         this.builder = builder;
     }
@@ -127,172 +128,163 @@ public class AuthConfig {
      * @param secretToken
      * @since 0.5.1
      */
-     public void oauth(String consumerKey, String consumerSecret,
-    						String accessToken, String secretToken) {
-    	 this.builder.client. removeRequestInterceptorByClass( OAuthSigner.class );
-    	if (consumerKey != null){
-    		this.builder.client.addRequestInterceptor( new OAuthSigner(
-    				consumerKey, consumerSecret, accessToken, secretToken, Signature.HEADER) );
-    	}
+    public void oauth(String consumerKey, String consumerSecret,
+                      String accessToken, String secretToken) {
+        this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
+        if (consumerKey != null) {
+            this.builder.client.addRequestInterceptor(new OAuthSigner(
+                    consumerKey, consumerSecret, accessToken, secretToken, OAuthSignature.HEADER));
+        }
     }
-     
-     public void oauth(String consumerKey, String consumerSecret,
-			String accessToken, String secretToken, Signature signature) {
-		this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
-		if (consumerKey != null) {
-			this.builder.client.addRequestInterceptor(new OAuthSigner(
-					consumerKey, consumerSecret, accessToken, secretToken,
-					signature));
-		}
-	}
-    
-     
-     /**
-      * </p>OAuth2 sign all requests.  Note that this currently does <strong>not</strong>
-      * wait for a <code>WWW-Authenticate</code> challenge before sending the
-      * the OAuth header.  All requests to all domains will be signed for this
-      * instance.</p>
-      * <p/>
-      * <p>This assumes you've already generated an <code>accessToken</code> 
-      * for the site you're targeting.  For More information
-      * on how to achieve this, see the
-      * <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
-      * @param accessToken
-      * @since 0.5.1
-      */
-      public void oauth2(String accessToken) {
-    	  this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class );
-     	if (accessToken != null)
-     	{
-        		this.builder.client.addRequestInterceptor(new OAuthSigner(accessToken, Signature.HEADER));
-     	}
-     }
 
-	public void oauth2(String accessToken, Signature signature) {
-		this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
-		if (accessToken != null) {
-			this.builder.client.addRequestInterceptor(new OAuthSigner(
-					accessToken, signature));
-		}
-	}
-    
+    public void oauth(String consumerKey, String consumerSecret,
+                      String accessToken, String secretToken, OAuthSignature signature) {
+        this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
+        if (consumerKey != null) {
+            this.builder.client.addRequestInterceptor(new OAuthSigner(
+                    consumerKey, consumerSecret, accessToken, secretToken,
+                    signature));
+        }
+    }
+
+
+    /**
+     * </p>OAuth2 sign all requests.  Note that this currently does <strong>not</strong>
+     * wait for a <code>WWW-Authenticate</code> challenge before sending the
+     * the OAuth header.  All requests to all domains will be signed for this
+     * instance.</p>
+     * <p/>
+     * <p>This assumes you've already generated an <code>accessToken</code>
+     * for the site you're targeting.  For More information
+     * on how to achieve this, see the
+     * <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
+     *
+     * @param accessToken
+     * @since 0.5.1
+     */
+    public void oauth2(String accessToken) {
+        this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
+        if (accessToken != null) {
+            this.builder.client.addRequestInterceptor(new OAuthSigner(accessToken, OAuthSignature.HEADER));
+        }
+    }
+
+    public void oauth2(String accessToken, OAuthSignature signature) {
+        this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
+        if (accessToken != null) {
+            this.builder.client.addRequestInterceptor(new OAuthSigner(
+                    accessToken, signature));
+        }
+    }
+
     static class OAuthSigner implements HttpRequestInterceptor {
-    	protected OAuthConfig oauthConfig;
-    	protected Token token;
+        protected OAuthConfig oauthConfig;
+        protected Token token;
         protected OAuthService service;
         protected SignatureType type = SignatureType.Header;
-        protected Signature signature;
+        protected OAuthSignature signature;
         protected boolean oauth1 = true;
-        
+
         public OAuthSigner(String consumerKey, String consumerSecret,
-				String accessToken, String secretToken, Signature signature) {
-        	     		
-			this.oauthConfig = new OAuthConfig(consumerKey, consumerSecret,
-					null, getOAuthSigntureType(signature), null, null);
-			this.token = new Token(accessToken, secretToken);
-			this.signature = signature;
-		}
-        	
-		public OAuthSigner(String accessToken, Signature signature) {
-			this.token = new Token(accessToken, "");
-			this.signature = signature;
-			oauth1 = false;
+                           String accessToken, String secretToken, OAuthSignature signature) {
 
-		}
-        public void process(HttpRequest request, HttpContext ctx) throws HttpException, IOException  {
-        	
-			try {
-				HttpHost host = (HttpHost) ctx
-						.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
-				final URI requestURI = new URI(host.toURI()).resolve(request
-						.getRequestLine().getUri());
+            this.oauthConfig = new OAuthConfig(consumerKey, consumerSecret,
+                    null, getOAuthSigntureType(signature), null, null);
+            this.token = new Token(accessToken, secretToken);
+            this.signature = signature;
+        }
 
-				OAuthRequest oauthRequest = new OAuthRequest(Verb.GET,
-						requestURI.toString());
-				this.service = getOauthService(oauth1);
-				service.signRequest(token, oauthRequest);
-				if (signature == Signature.HEADER) {
-					//If signature is to be added as header
-					for (Map.Entry<String, String> entry : oauthRequest.getHeaders().entrySet()) {
-						request.setHeader(entry.getKey(), entry.getValue());
-					}
-				}
-				else
-				{
-					//If signature is to be added as query param
-					URI uri = new URI(oauthRequest.getCompleteUrl());
-					HttpParams params = new BasicHttpParams();
-					for (NameValuePair entry : URLEncodedUtils.parse(uri, "UTF-8")) {
-						params.setParameter(entry.getName(), entry.getValue());
-						
-					}
-					request.setParams(params);
-					//request.setParams(arg0)
-				}
-				
-			}
-			catch ( URISyntaxException ex ) {
-				throw new HttpException( "Error rebuilding request URI", ex );
-			}
+        public OAuthSigner(String accessToken, OAuthSignature signature) {
+            this.token = new Token(accessToken, "");
+            this.signature = signature;
+            oauth1 = false;
+
         }
-        
-        private OAuthService getOauthService(boolean oauth1)
-        {
-        	OAuthService service = null;
-        	if(oauth1)
-        	{
-        		DefaultApi10a api = new DefaultApi10a() {
-					@Override
-					public String getRequestTokenEndpoint() {
-						return null;
-					}
-					@Override
-					public String getAuthorizationUrl(Token arg0) {
-						return null;
-					}
-					@Override
-					public String getAccessTokenEndpoint() {
-						return null;
-					}
-				};
-				service = new OAuth10aServiceImpl(api, oauthConfig);
-        	}
-        	else
-        	{
-        		DefaultApi20 api = new DefaultApi20() {
-					
-					@Override
-					public String getAuthorizationUrl(OAuthConfig arg0) {
-						// TODO Auto-generated method stub
-						return null;
-					}
-					
-					@Override
-					public String getAccessTokenEndpoint() {
-						// TODO Auto-generated method stub
-						return null;
-					}
-				}; 
-				service = new OAuth20ServiceImpl(api, oauthConfig);
-        	}
-        	return service;
+
+        public void process(HttpRequest request, HttpContext ctx) throws HttpException, IOException {
+
+            try {
+                HttpHost host = (HttpHost) ctx
+                        .getAttribute(ExecutionContext.HTTP_TARGET_HOST);
+                final URI requestURI = new URI(host.toURI()).resolve(request
+                        .getRequestLine().getUri());
+
+                OAuthRequest oauthRequest = new OAuthRequest(Verb.GET,
+                        requestURI.toString());
+                this.service = getOauthService(oauth1);
+                service.signRequest(token, oauthRequest);
+                if (signature == OAuthSignature.HEADER) {
+                    //If signature is to be added as header
+                    for (Map.Entry<String, String> entry : oauthRequest.getHeaders().entrySet()) {
+                        request.setHeader(entry.getKey(), entry.getValue());
+                    }
+                } else {
+                    //If signature is to be added as query param
+                    URI uri = new URI(oauthRequest.getCompleteUrl());
+                    HttpParams params = new BasicHttpParams();
+                    for (NameValuePair entry : URLEncodedUtils.parse(uri, "UTF-8")) {
+                        params.setParameter(entry.getName(), entry.getValue());
+
+                    }
+                    request.setParams(params);
+                }
+
+            } catch (URISyntaxException ex) {
+                throw new HttpException("Error rebuilding request URI", ex);
+            }
         }
-        
-        private static SignatureType getOAuthSigntureType(Signature signature)
-        {
-        	SignatureType signatureType;
-        	if(signature == Signature.HEADER)
-            	signatureType = SignatureType.Header;
-            	else
-            		signatureType = SignatureType.QueryString;
-        	return signatureType;
+
+        private OAuthService getOauthService(boolean oauth1) {
+            OAuthService service = null;
+            if (oauth1) {
+                DefaultApi10a api = new DefaultApi10a() {
+                    @Override
+                    public String getRequestTokenEndpoint() {
+                        return null;
+                    }
+
+                    @Override
+                    public String getAuthorizationUrl(Token arg0) {
+                        return null;
+                    }
+
+                    @Override
+                    public String getAccessTokenEndpoint() {
+                        return null;
+                    }
+                };
+                service = new OAuth10aServiceImpl(api, oauthConfig);
+            } else {
+                DefaultApi20 api = new DefaultApi20() {
+
+                    @Override
+                    public String getAuthorizationUrl(OAuthConfig arg0) {
+                        // TODO Auto-generated method stub
+                        return null;
+                    }
+
+                    @Override
+                    public String getAccessTokenEndpoint() {
+                        // TODO Auto-generated method stub
+                        return null;
+                    }
+                };
+                service = new OAuth20ServiceImpl(api, oauthConfig);
+            }
+            return service;
         }
-        
-        
+
+        private static SignatureType getOAuthSigntureType(OAuthSignature signature) {
+            SignatureType signatureType;
+            if (signature == OAuthSignature.HEADER)
+                signatureType = SignatureType.Header;
+            else
+                signatureType = SignatureType.QueryString;
+            return signatureType;
+        }
+
+
     }
-    
-    
-    
-    
-     
+
+
 }

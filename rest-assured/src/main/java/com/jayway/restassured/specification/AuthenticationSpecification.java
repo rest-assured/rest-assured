@@ -18,7 +18,7 @@ package com.jayway.restassured.specification;
 
 import com.jayway.restassured.authentication.CertificateAuthSettings;
 import com.jayway.restassured.authentication.FormAuthConfig;
-import com.jayway.restassured.spi.Signature;
+import com.jayway.restassured.authentication.OAuthSignature;
 
 /**
  * Specify an authentication scheme to use when sending a request.
@@ -124,7 +124,7 @@ public interface AuthenticationSpecification {
      * @param signature
      * @return The request com.jayway.restassured.specification
      */
-    RequestSpecification oauth2(String accessToken, Signature signature);
+    RequestSpecification oauth2(String accessToken, OAuthSignature signature);
 
     /**
      * Excerpt from the HttpBuilder docs:<br>
@@ -155,7 +155,7 @@ public interface AuthenticationSpecification {
      * @param signature
      * @return The request com.jayway.restassured.specification
      */
-    RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken, Signature signature);
+    RequestSpecification oauth(String consumerKey, String consumerSecret, String accessToken, String secretToken, OAuthSignature signature);
 
     /**
      * Returns the preemptive authentication view. This means that the authentication details are sent in the request

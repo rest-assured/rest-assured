@@ -19,14 +19,13 @@
 package com.jayway.restassured.authentication
 
 import com.jayway.restassured.internal.http.HTTPBuilder
-import com.jayway.restassured.spi.Signature
 
 class OAuthScheme implements AuthenticationScheme {
   def String consumerKey
   def String consumerSecret
   def String accessToken
   def String secretToken
-  def Signature signature;
+  def OAuthSignature signature;
 
   @Override void authenticate(HTTPBuilder httpBuilder) {
 	  if(signature != null)
