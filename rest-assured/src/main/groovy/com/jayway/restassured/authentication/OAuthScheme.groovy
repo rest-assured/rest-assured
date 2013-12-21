@@ -27,10 +27,12 @@ class OAuthScheme implements AuthenticationScheme {
   def String secretToken
   def OAuthSignature signature;
 
-  @Override void authenticate(HTTPBuilder httpBuilder) {
-	  if(signature != null)
-	  httpBuilder.auth.oauth(consumerKey, consumerSecret, accessToken, secretToken, signature)
-	  else
-	  httpBuilder.auth.oauth(consumerKey, consumerSecret, accessToken, secretToken)
+  @Override
+  void authenticate(HTTPBuilder httpBuilder) {
+    if (signature != null) {
+      httpBuilder.auth.oauth(consumerKey, consumerSecret, accessToken, secretToken, signature)
+    } else {
+      httpBuilder.auth.oauth(consumerKey, consumerSecret, accessToken, secretToken)
+    }
   }
 }

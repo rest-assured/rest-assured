@@ -18,13 +18,14 @@ package com.jayway.restassured.internal.http;
 
 import com.jayway.restassured.authentication.OAuthSignature;
 import com.jayway.restassured.internal.KeystoreSpecImpl;
-import org.apache.http.*;
+import org.apache.http.HttpException;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
+import org.apache.http.impl.client.RequestWrapper;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.scribe.builder.api.DefaultApi10a;
@@ -209,7 +210,8 @@ public class AuthConfig {
                 final URI requestURI = new URI(host.toURI()).resolve(request
                         .getRequestLine().getUri());
 
-                OAuthRequest oauthRequest = new OAuthRequest(Verb.GET,
+                Verb verb = Verb.valueOf(request.getRequestLine().getMethod().toUpperCase());
+                OAuthRequest oauthRequest = new OAuthRequest(verb,
                         requestURI.toString());
                 this.service = getOauthService(oauth1);
                 service.signRequest(token, oauthRequest);
@@ -221,12 +223,7 @@ public class AuthConfig {
                 } else {
                     //If signature is to be added as query param
                     URI uri = new URI(oauthRequest.getCompleteUrl());
-                    HttpParams params = new BasicHttpParams();
-                    for (NameValuePair entry : URLEncodedUtils.parse(uri, "UTF-8")) {
-                        params.setParameter(entry.getName(), entry.getValue());
-
-                    }
-                    request.setParams(params);
+                    ((RequestWrapper) request).setURI(uri);
                 }
 
             } catch (URISyntaxException ex) {
