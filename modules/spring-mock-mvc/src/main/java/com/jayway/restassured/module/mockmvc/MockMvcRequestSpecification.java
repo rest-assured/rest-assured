@@ -11,6 +11,8 @@ import com.jayway.restassured.specification.RequestSender;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.Map;
 
 public interface MockMvcRequestSpecification {
@@ -371,6 +373,124 @@ public interface MockMvcRequestSpecification {
      * @see #cookies(com.jayway.restassured.response.Cookies)
      */
     MockMvcRequestSpecification cookie(Cookie cookie);
+
+    /**
+     * Specify a file to upload to the server using multi-part form data uploading.
+     * It will assume that the control name is <tt>file</tt> and the mime-type is <tt>application/octet-stream</tt>.
+     * If this is not what you want please use an overloaded method.
+     *
+     * @param file The file to upload
+     * @return The request specification
+     */
+    MockMvcRequestSpecification multiPart(File file);
+
+    /**
+     * Specify a file to upload to the server using multi-part form data uploading with a specific
+     * control name. It will use the mime-type <tt>application/octet-stream</tt>.
+     * If this is not what you want please use an overloaded method.
+     *
+     * @param file        The file to upload
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification multiPart(String controlName, File file);
+
+    /**
+     * Specify a file to upload to the server using multi-part form data uploading with a specific
+     * control name and mime-type.
+     *
+     * @param file        The file to upload
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param mimeType    The mime-type
+     * @return The request specification
+     */
+    MockMvcRequestSpecification multiPart(String controlName, File file, String mimeType);
+
+    /**
+     * Specify an object that will be serialized to JSON and uploaded to the server using multi-part form data
+     * uploading with a specific control name. It will use mime-type <tt>application/json</tt>.
+     * If this is not what you want please use an overloaded method.
+     *
+     * @param object      The object to serialize to JSON or XML and send to the server
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification multiPart(String controlName, Object object);
+
+    /**
+     * Specify an object that will be serialized and uploaded to the server using multi-part form data
+     * uploading with a specific control name.
+     *
+     * @param object      The object to serialize to JSON or XML and send to the server
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param mimeType    The mime-type
+     * @return The request specification
+     */
+    MockMvcRequestSpecification multiPart(String controlName, Object object, String mimeType);
+
+    /**
+     * Specify a byte-array to upload to the server using multi-part form data.
+     * It will use the mime-type <tt>application/octet-stream</tt>. If this is not what you want please use an overloaded method.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param fileName    The name of the content you're uploading
+     * @param bytes       The bytes you want to send
+     * @return The request specification
+     */
+    MockMvcRequestSpecification multiPart(String controlName, String fileName, byte[] bytes);
+
+    /**
+     * Specify a byte-array to upload to the server using multi-part form data.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param fileName    The name of the content you're uploading
+     * @param bytes       The bytes you want to send
+     * @param mimeType    The mime-type
+     * @return The request specification
+     */
+    MockMvcRequestSpecification multiPart(String controlName, String fileName, byte[] bytes, String mimeType);
+
+    /**
+     * Specify an inputstream to upload to the server using multi-part form data.
+     * It will use the mime-type <tt>application/octet-stream</tt>. If this is not what you want please use an overloaded method.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param fileName    The name of the content you're uploading
+     * @param stream      The stream you want to send
+     * @return The request specification
+     */
+    MockMvcRequestSpecification multiPart(String controlName, String fileName, InputStream stream);
+
+    /**
+     * Specify an inputstream to upload to the server using multi-part form data.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param fileName    The name of the content you're uploading
+     * @param stream      The stream you want to send
+     * @param mimeType    The mime-type
+     * @return The request specification
+     */
+    MockMvcRequestSpecification multiPart(String controlName, String fileName, InputStream stream, String mimeType);
+
+    /**
+     * Specify a string to send to the server using multi-part form data.
+     * It will use the mime-type <tt>text/plain</tt>. If this is not what you want please use an overloaded method.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param contentBody The string to send
+     * @return The request specification
+     */
+    MockMvcRequestSpecification multiPart(String controlName, String contentBody);
+
+    /**
+     * Specify a string to send to the server using multi-part form data with a specific mime-type.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param contentBody The string to send
+     * @param mimeType    The mime-type
+     * @return The request specification
+     */
+    MockMvcRequestSpecification multiPart(String controlName, String contentBody, String mimeType);
 
 
     RequestSender when();

@@ -1,4 +1,5 @@
-package com.jayway.restassured.module.mockmvc;
+
+package com.jayway.restassured.module.mockmvc.internal;
 
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
@@ -10,13 +11,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.MultiValueMap;
 
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -36,9 +40,10 @@ class MockMvcRequestSender implements RequestSender {
     private final String requestContentType;
     private final Headers headers;
     private final Cookies cookies;
+    private final List<MvcMultiPart> multiParts;
 
     MockMvcRequestSender(MockMvc mockMvc, MultiValueMap<String, Object> params, RestAssuredConfig config, Object requestBody,
-                         String requestContentType, Headers headers, Cookies cookies) {
+                         String requestContentType, Headers headers, Cookies cookies, List<MvcMultiPart> multiParts) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.config = config;
@@ -46,6 +51,7 @@ class MockMvcRequestSender implements RequestSender {
         this.requestContentType = requestContentType;
         this.headers = headers;
         this.cookies = cookies;
+        this.multiParts = multiParts;
     }
 
     private Object assembleHeaders(MockHttpServletResponse response) {
@@ -64,6 +70,9 @@ class MockMvcRequestSender implements RequestSender {
     private Response performRequest(MockHttpServletRequestBuilder requestBuilder) {
         MockHttpServletResponse response;
         RestAssuredResponseImpl restAssuredResponse = new RestAssuredResponseImpl();
+        if (mockMvc == null) {
+            throw new IllegalStateException("You haven't configured a MockMVC instance. You can do this statically\n\nRestAssured.mockMvc = ..\nRestAssured.standaloneSetup(..);\nRestAssured.webAppContextSetup(..);\n\nor using the DSL:\n\ngiven().\n\t\tmockMvc(..). ..\n");
+        }
         try {
             ResultActions perform = mockMvc.perform(requestBuilder);
             MvcResult mvcResult = perform.andReturn();
@@ -99,7 +108,19 @@ class MockMvcRequestSender implements RequestSender {
     }
 
     private Response sendRequest(HttpMethod method, String path, Object[] pathParams) {
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.request(method, path, pathParams);
+        if (requestBody != null && !multiParts.isEmpty()) {
+            throw new IllegalStateException("You cannot specify a request body and a multi-part body in the same request. Perhaps you want to change the body to a mutli part?");
+        }
+
+        MockHttpServletRequestBuilder request;
+        if (multiParts.isEmpty()) {
+            request = MockMvcRequestBuilders.request(method, path, pathParams);
+        } else if (method != POST) {
+            throw new IllegalArgumentException("Currently multi-part file data uploading only works for " + POST);
+        } else {
+            request = MockMvcRequestBuilders.fileUpload(path, pathParams);
+        }
+
         if (!params.isEmpty()) {
             for (Map.Entry<String, List<Object>> listEntry : params.entrySet()) {
                 List<Object> values = listEntry.getValue();
@@ -144,6 +165,39 @@ class MockMvcRequestSender implements RequestSender {
                     servletCookie.setVersion(cookie.getVersion());
                 }
                 request.cookie(servletCookie);
+            }
+        }
+
+
+        if (!multiParts.isEmpty()) {
+            MockMultipartHttpServletRequestBuilder multiPartRequest = (MockMultipartHttpServletRequestBuilder) request;
+            for (MvcMultiPart multiPart : multiParts) {
+                MockMultipartFile multipartFile;
+                String fileName = multiPart.getFileName();
+                String controlName = multiPart.getControlName();
+                String mimeType = multiPart.getMimeType();
+                if (multiPart.isByteArray()) {
+                    multipartFile = new MockMultipartFile(controlName, fileName, mimeType, (byte[]) multiPart.getContent());
+                } else if (multiPart.isFile() || multiPart.isInputStream()) {
+                    InputStream inputStream;
+                    if (multiPart.isFile()) {
+                        try {
+                            inputStream = new FileInputStream((File) multiPart.getContent());
+                        } catch (FileNotFoundException e) {
+                            return SafeExceptionRethrower.safeRethrow(e);
+                        }
+                    } else {
+                        inputStream = (InputStream) multiPart.getContent();
+                    }
+                    try {
+                        multipartFile = new MockMultipartFile(controlName, fileName, mimeType, inputStream);
+                    } catch (IOException e) {
+                        return SafeExceptionRethrower.safeRethrow(e);
+                    }
+                } else { // String
+                    multipartFile = new MockMultipartFile(controlName, fileName, mimeType, ((String) multiPart.getContent()).getBytes());
+                }
+                multiPartRequest.file(multipartFile);
             }
         }
 

@@ -38,7 +38,7 @@ class StreamVerifier {
             assertion = new XMLAssertion(key: key)
         } else {
             def content = response.asString()
-            if(contentType.isEmpty()) {
+            if(contentType?.isEmpty()) {
                 throw new IllegalStateException("""Expected response body to be verified as JSON, HTML or XML but no content-type was defined in the response.
 Try registering a default parser using:
    RestAssured.defaultParser(<parser type>);

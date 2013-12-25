@@ -1,5 +1,6 @@
 package com.jayway.restassured.module.mockmvc;
 
+import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;

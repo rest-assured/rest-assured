@@ -1,4 +1,4 @@
-package com.jayway.restassured.module.mockmvc;
+package com.jayway.restassured.module.mockmvc.internal;
 
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.http.ContentType;
@@ -8,6 +8,7 @@ import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
 import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.module.mockmvc.MockMvcRequestSpecification;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
@@ -19,6 +20,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -28,7 +31,7 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;
 import static java.util.Arrays.asList;
 
-class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification {
+public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification {
 
     private static final String CONTENT_TYPE = "content-type";
 
@@ -46,7 +49,9 @@ class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification {
 
     private String requestContentType;
 
-    MockMvcRequestSpecificationImpl(MockMvc mockMvc) {
+    private List<MvcMultiPart> multiParts = new ArrayList<MvcMultiPart>();
+
+    public MockMvcRequestSpecificationImpl(MockMvc mockMvc) {
         this.instanceMockMvc = mockMvc;
         restAssuredConfig = new RestAssuredConfig();
     }
@@ -271,8 +276,63 @@ class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification {
         return cookies(new Cookies(asList(cookie)));
     }
 
+    public MockMvcRequestSpecification multiPart(File file) {
+        multiParts.add(new MvcMultiPart(file));
+        return this;
+    }
+
+    public MockMvcRequestSpecification multiPart(String controlName, File file) {
+        multiParts.add(new MvcMultiPart(controlName, file));
+        return this;
+    }
+
+    public MockMvcRequestSpecification multiPart(String controlName, File file, String mimeType) {
+        multiParts.add(new MvcMultiPart(controlName, file, mimeType));
+        return this;
+    }
+
+    public MockMvcRequestSpecification multiPart(String controlName, Object object) {
+        multiParts.add(new MvcMultiPart(controlName, serializeIfNeeded(object)));
+        return this;
+    }
+
+    public MockMvcRequestSpecification multiPart(String controlName, Object object, String mimeType) {
+        multiParts.add(new MvcMultiPart(controlName, serializeIfNeeded(object), mimeType));
+        return this;
+    }
+
+    public MockMvcRequestSpecification multiPart(String controlName, String fileName, byte[] bytes) {
+        multiParts.add(new MvcMultiPart(controlName, fileName, bytes));
+        return this;
+    }
+
+    public MockMvcRequestSpecification multiPart(String controlName, String fileName, byte[] bytes, String mimeType) {
+        multiParts.add(new MvcMultiPart(controlName, fileName, bytes, mimeType));
+        return this;
+    }
+
+    public MockMvcRequestSpecification multiPart(String controlName, String fileName, InputStream stream) {
+        multiParts.add(new MvcMultiPart(controlName, fileName, stream));
+        return this;
+    }
+
+    public MockMvcRequestSpecification multiPart(String controlName, String fileName, InputStream stream, String mimeType) {
+        multiParts.add(new MvcMultiPart(controlName, fileName, stream, mimeType));
+        return this;
+    }
+
+    public MockMvcRequestSpecification multiPart(String controlName, String contentBody) {
+        multiParts.add(new MvcMultiPart(controlName, contentBody));
+        return this;
+    }
+
+    public MockMvcRequestSpecification multiPart(String controlName, String contentBody, String mimeType) {
+        multiParts.add(new MvcMultiPart(controlName, contentBody, mimeType));
+        return this;
+    }
+
     public RequestSender when() {
-        return new MockMvcRequestSender(instanceMockMvc, params, restAssuredConfig, requestBody, requestContentType, requestHeaders, cookies);
+        return new MockMvcRequestSender(instanceMockMvc, params, restAssuredConfig, requestBody, requestContentType, requestHeaders, cookies, multiParts);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {
