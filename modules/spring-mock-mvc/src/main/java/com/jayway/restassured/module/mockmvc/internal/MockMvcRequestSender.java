@@ -1,9 +1,16 @@
 
 package com.jayway.restassured.module.mockmvc.internal;
 
+import com.jayway.restassured.authentication.NoAuthScheme;
+import com.jayway.restassured.builder.MultiPartSpecBuilder;
 import com.jayway.restassured.config.RestAssuredConfig;
+import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.filter.log.RequestLoggingFilter;
+import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
+import com.jayway.restassured.internal.filter.FilterContextImpl;
+import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
 import com.jayway.restassured.response.*;
 import com.jayway.restassured.specification.RequestSender;
@@ -23,10 +30,7 @@ import org.springframework.util.MultiValueMap;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.HttpMethod.*;
@@ -41,9 +45,11 @@ class MockMvcRequestSender implements RequestSender {
     private final Headers headers;
     private final Cookies cookies;
     private final List<MvcMultiPart> multiParts;
+    private final RequestLoggingFilter requestLoggingFilter;
 
     MockMvcRequestSender(MockMvc mockMvc, MultiValueMap<String, Object> params, RestAssuredConfig config, Object requestBody,
-                         String requestContentType, Headers headers, Cookies cookies, List<MvcMultiPart> multiParts) {
+                         String requestContentType, Headers headers, Cookies cookies, List<MvcMultiPart> multiParts,
+                         RequestLoggingFilter requestLoggingFilter) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.config = config;
@@ -52,6 +58,7 @@ class MockMvcRequestSender implements RequestSender {
         this.headers = headers;
         this.cookies = cookies;
         this.multiParts = multiParts;
+        this.requestLoggingFilter = requestLoggingFilter;
     }
 
     private Object assembleHeaders(MockHttpServletResponse response) {
@@ -210,7 +217,57 @@ class MockMvcRequestSender implements RequestSender {
             }
         }
 
+        logRequestIfApplicable(method, path, pathParams);
+
         return performRequest(request);
+    }
+
+    private void logRequestIfApplicable(HttpMethod method, String path, Object[] pathParams) {
+        if (requestLoggingFilter == null) {
+            return;
+        }
+
+        RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, path, new NoAuthScheme(), Collections.<Filter>emptyList(), requestContentType, null, true, config);
+        if (params != null) {
+            for (Map.Entry<String, List<Object>> stringListEntry : params.entrySet()) {
+                List<Object> values = stringListEntry.getValue();
+                for (Object value : values) {
+                    reqSpec.param(stringListEntry.getKey(), value);
+                }
+            }
+        }
+
+        if (headers != null) {
+            for (Header header : headers) {
+                reqSpec.header(header);
+            }
+        }
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                reqSpec.cookie(cookie);
+            }
+        }
+
+        if (requestBody != null) {
+            if (requestBody instanceof byte[]) {
+                reqSpec.body((byte[]) requestBody);
+            } else {
+                reqSpec.body(requestBody);
+            }
+        }
+
+        if (multiParts != null) {
+            for (MvcMultiPart multiPart : multiParts) {
+                reqSpec.multiPart(new MultiPartSpecBuilder(multiPart.getContent()).
+                        controlName(multiPart.getControlName()).
+                        fileName(multiPart.getFileName()).
+                        mimeType(multiPart.getMimeType()).
+                        build());
+            }
+        }
+
+        requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(path, path, Method.valueOf(method.toString()), null, Collections.<Filter>emptyList()));
     }
 
     public Response get(String path, Object... pathParams) {

@@ -3,6 +3,7 @@ package com.jayway.restassured.module.mockmvc;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
@@ -15,7 +16,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Map;
 
-public interface MockMvcRequestSpecification {
+public interface MockMvcRequestSpecification extends RequestSender {
     /**
      * Specify the content type of the request.
      *
@@ -139,6 +140,13 @@ public interface MockMvcRequestSpecification {
      */
     MockMvcRequestSpecification header(Header header);
 
+    /**
+     * Returns the {@link com.jayway.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification} that allows you to log different parts of the {@link MockMvcRequestSpecification}.
+     * This is mainly useful for debug purposes when writing your tests.
+     *
+     * @return the request log specification
+     */
+    MockMvcRequestLogSpecification log();
 
     /**
      * A slightly shorter version of .

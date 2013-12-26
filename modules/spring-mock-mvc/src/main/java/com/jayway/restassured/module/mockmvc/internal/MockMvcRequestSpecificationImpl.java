@@ -1,6 +1,7 @@
 package com.jayway.restassured.module.mockmvc.internal;
 
 import com.jayway.restassured.config.RestAssuredConfig;
+import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.MapCreator;
 import com.jayway.restassured.internal.http.CharsetExtractor;
@@ -9,10 +10,8 @@ import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextI
 import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.MockMvcRequestSpecification;
-import com.jayway.restassured.response.Cookie;
-import com.jayway.restassured.response.Cookies;
-import com.jayway.restassured.response.Header;
-import com.jayway.restassured.response.Headers;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
+import com.jayway.restassured.response.*;
 import com.jayway.restassured.specification.RequestSender;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -22,6 +21,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -50,6 +51,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     private String requestContentType;
 
     private List<MvcMultiPart> multiParts = new ArrayList<MvcMultiPart>();
+
+    private RequestLoggingFilter requestLoggingFilter;
 
     public MockMvcRequestSpecificationImpl(MockMvc mockMvc) {
         this.instanceMockMvc = mockMvc;
@@ -152,6 +155,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
 
         return headers(new Headers(asList(header)));
+    }
+
+    public MockMvcRequestLogSpecification log() {
+        return new MockMvcRequestLogSpecificationImpl(this);
     }
 
     private void filterContentTypeHeader(List<Header> headerList) {
@@ -332,7 +339,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public RequestSender when() {
-        return new MockMvcRequestSender(instanceMockMvc, params, restAssuredConfig, requestBody, requestContentType, requestHeaders, cookies, multiParts);
+        return new MockMvcRequestSender(instanceMockMvc, params, restAssuredConfig, requestBody, requestContentType, requestHeaders, cookies, multiParts, requestLoggingFilter);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {
@@ -349,5 +356,157 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private String serializeIfNeeded(Object object, String contentType) {
         return isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, restAssuredConfig.getObjectMapperConfig()) : object.toString();
+    }
+
+    public Response get(String path, Object... pathParams) {
+        return when().get(path, pathParams);
+    }
+
+    public Response get(String path, Map<String, ?> pathParams) {
+        return when().get(path, pathParams);
+    }
+
+    public Response post(String path, Object... pathParams) {
+        return when().post(path, pathParams);
+    }
+
+    public Response post(String path, Map<String, ?> pathParams) {
+        return when().post(path, pathParams);
+    }
+
+    public Response put(String path, Object... pathParams) {
+        return when().put(path, pathParams);
+    }
+
+    public Response put(String path, Map<String, ?> pathParams) {
+        return when().put(path, pathParams);
+    }
+
+    public Response delete(String path, Object... pathParams) {
+        return when().delete(path, pathParams);
+    }
+
+    public Response delete(String path, Map<String, ?> pathParams) {
+        return when().delete(path, pathParams);
+    }
+
+    public Response head(String path, Object... pathParams) {
+        return when().head(path, pathParams);
+    }
+
+    public Response head(String path, Map<String, ?> pathParams) {
+        return when().head(path, pathParams);
+    }
+
+    public Response patch(String path, Object... pathParams) {
+        return when().patch(path, pathParams);
+    }
+
+    public Response patch(String path, Map<String, ?> pathParams) {
+        return when().patch(path, pathParams);
+    }
+
+    public Response options(String path, Object... pathParams) {
+        return when().options(path, pathParams);
+    }
+
+    public Response options(String path, Map<String, ?> pathParams) {
+        return when().options(path, pathParams);
+    }
+
+    public Response get(URI uri) {
+        return when().get(uri);
+    }
+
+    public Response post(URI uri) {
+        return when().post(uri);
+    }
+
+    public Response put(URI uri) {
+        return when().put(uri);
+    }
+
+    public Response delete(URI uri) {
+        return when().delete(uri);
+    }
+
+    public Response head(URI uri) {
+        return when().head(uri);
+    }
+
+    public Response patch(URI uri) {
+        return when().patch(uri);
+    }
+
+    public Response options(URI uri) {
+        return when().options(uri);
+    }
+
+    public Response get(URL url) {
+        return when().get(url);
+    }
+
+    public Response post(URL url) {
+        return when().post(url);
+    }
+
+    public Response put(URL url) {
+        return when().put(url);
+    }
+
+    public Response delete(URL url) {
+        return when().delete(url);
+    }
+
+    public Response head(URL url) {
+        return when().head(url);
+    }
+
+    public Response patch(URL url) {
+        return when().patch(url);
+    }
+
+    public Response options(URL url) {
+        return when().options(url);
+    }
+
+    public Response get() {
+        return when().get();
+    }
+
+    public Response post() {
+        return when().post();
+    }
+
+    public Response put() {
+        return when().put();
+    }
+
+    public Response delete() {
+        return when().delete();
+    }
+
+    public Response head() {
+        return when().head();
+    }
+
+    public Response patch() {
+        return when().patch();
+    }
+
+    public Response options() {
+        return when().options();
+    }
+
+    public RestAssuredConfig getConfig() {
+        return restAssuredConfig;
+    }
+
+    public void setRequestLoggingFilter(RequestLoggingFilter requestLoggingFilter) {
+        this.requestLoggingFilter = requestLoggingFilter;
+    }
+
+    public RequestLoggingFilter getRequestLoggingFilter() {
+        return requestLoggingFilter;
     }
 }

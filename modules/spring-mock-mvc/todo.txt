@@ -1,6 +1,6 @@
-file upload with param (given().param(x, y).multiPart(..))
 Request logging
 query params
 form param
 config
 javadoc
+Add static methods (e.g. get) to RestAssuredMockMvc
