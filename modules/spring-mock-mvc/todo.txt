@@ -1,6 +1,6 @@
 Request logging
-query params
-form param
+query params (+ log)
+form param (+ log)
 config
 javadoc
 Add static methods (e.g. get) to RestAssuredMockMvc
