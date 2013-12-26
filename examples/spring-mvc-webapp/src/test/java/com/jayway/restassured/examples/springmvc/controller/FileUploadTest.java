@@ -133,7 +133,7 @@ public class FileUploadTest {
     }
 
     @Test public void
-    object_serialization_works()throws IOException {
+    object_serialization_works() throws IOException {
         File file = folder.newFile("something");
         IOUtils.write("Something3210", new FileOutputStream(file));
 
