@@ -297,7 +297,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification multiPart(String controlName, Object object, String mimeType) {
-        multiParts.add(new MvcMultiPart(controlName, serializeIfNeeded(object), mimeType));
+        multiParts.add(new MvcMultiPart(controlName, serializeIfNeeded(object, mimeType), mimeType));
         return this;
     }
 
