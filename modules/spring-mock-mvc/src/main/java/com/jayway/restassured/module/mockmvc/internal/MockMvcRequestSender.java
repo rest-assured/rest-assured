@@ -132,7 +132,8 @@ class MockMvcRequestSender implements RequestSender {
                 request.param(listEntry.getKey(), stringValues);
             }
 
-            if (method == POST) {
+            boolean isInMultiPartMode = request instanceof MockMultipartHttpServletRequestBuilder;
+            if (method == POST && !isInMultiPartMode) {
                 request.contentType(APPLICATION_FORM_URLENCODED);
             }
         }

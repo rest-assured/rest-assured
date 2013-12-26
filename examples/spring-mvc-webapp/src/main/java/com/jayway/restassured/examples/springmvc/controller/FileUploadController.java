@@ -59,4 +59,20 @@ public class FileUploadController {
         fd2.setSize(file2.getSize());
         return asList(fd1, fd2);
     }
+
+    @RequestMapping(value = "/fileUploadWithParam", method = POST, consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody FileWithParam fileUploadWithParam(@RequestParam(value = "controlName") MultipartFile file, @RequestParam(value = "param", required = false) String param) throws IOException {
+        FileDescription fd1 = new FileDescription();
+        fd1.setContent(new String(file.getBytes()));
+        fd1.setName(file.getName());
+        fd1.setMimeType(file.getContentType());
+        fd1.setOriginalName(file.getOriginalFilename());
+        fd1.setSize(file.getSize());
+
+        FileWithParam fileWithParam = new FileWithParam();
+        fileWithParam.setFile(fd1);
+        fileWithParam.setParam(param);
+
+        return fileWithParam;
+    }
 }

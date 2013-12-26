@@ -24,9 +24,7 @@ import java.io.IOException;
 
 import static com.jayway.restassured.RestAssured.withArgs;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
@@ -148,7 +146,6 @@ public class FileUploadTest {
         when().
                 post("/multiFileUpload").
         then().
-                log().all().
                 root("[%d]").
                 body("size", withArgs(0), is(13)).
                 body("name", withArgs(0), equalTo("controlName1")).
@@ -168,5 +165,23 @@ public class FileUploadTest {
         assertThat(jsonPath.getString("firstName"), equalTo("John"));
         assertThat(jsonPath.getString("lastName"), equalTo("Doe"));
     }
+
+    @Test public void
+    file_upload_and_param_mixing_works() {
+        given().
+                multiPart("controlName", "original", "something32".getBytes(), "mime-type").
+                param("param", "paramValue").
+        when().
+                post("/fileUploadWithParam").
+        then().
+                root("file").
+                body("size", greaterThan(10)).
+                body("name", equalTo("controlName")).
+                body("originalName", equalTo("original")).
+                body("mimeType", equalTo("mime-type")).
+                noRoot().
+                body("param", equalTo("paramValue"));
+
+        }
 }
 // @formatter:on
