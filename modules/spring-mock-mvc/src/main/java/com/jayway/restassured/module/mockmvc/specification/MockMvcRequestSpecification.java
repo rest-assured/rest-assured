@@ -3,6 +3,7 @@ package com.jayway.restassured.module.mockmvc.specification;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.module.mockmvc.config.MockMvcRestAssuredConfig;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
@@ -499,6 +500,18 @@ public interface MockMvcRequestSpecification extends RequestSender {
      */
     MockMvcRequestSpecification multiPart(String controlName, String contentBody, String mimeType);
 
+    /**
+     * Define a REST Assured Mock Mvc configuration. E.g.
+     * <pre>
+     * given().config(newConfig().logConfig(new LogConfig(captor, true))). ..
+     * </pre>
+     * <p/>
+     * <code>newConfig()</code> can be statically imported from {@link com.jayway.restassured.module.mockmvc.config.MockMvcRestAssuredConfig}.
+     *
+     * @param config The configuration to use for this request. If <code>null</code> no config will be used.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification config(MockMvcRestAssuredConfig config);
 
     RequestSender when();
 

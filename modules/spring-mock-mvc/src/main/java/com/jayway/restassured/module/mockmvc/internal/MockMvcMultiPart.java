@@ -21,7 +21,7 @@ import java.io.InputStream;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
-class MvcMultiPart {
+class MockMvcMultiPart {
     private static final String OCTET_STREAM = "application/octet-stream";
     private static final String TEXT_PLAIN = "text/plain";
 
@@ -32,15 +32,15 @@ class MvcMultiPart {
     private final Object content;
     private final String mimeType;
 
-    MvcMultiPart(File file) {
+    MockMvcMultiPart(File file) {
         this(DEFAULT_CONTROL_NAME, file);
     }
 
-    MvcMultiPart(String controlName, File file) {
+    MockMvcMultiPart(String controlName, File file) {
         this(controlName, file, OCTET_STREAM);
     }
 
-    MvcMultiPart(String controlName, File file, String mimeType) {
+    MockMvcMultiPart(String controlName, File file, String mimeType) {
         notNull(controlName, "Control name");
         notNull(file, File.class);
         notNull(mimeType, "Mime-Type");
@@ -50,7 +50,7 @@ class MvcMultiPart {
         this.mimeType = mimeType;
     }
 
-    MvcMultiPart(String controlName, String content) {
+    MockMvcMultiPart(String controlName, String content) {
         notNull(controlName, "Control name");
         notNull(content, "Content");
         this.controlName = controlName;
@@ -59,7 +59,7 @@ class MvcMultiPart {
         this.mimeType = TEXT_PLAIN;
     }
 
-    MvcMultiPart(String controlName, String content, String mimeType) {
+    MockMvcMultiPart(String controlName, String content, String mimeType) {
         notNull(controlName, "Control name");
         notNull(mimeType, "Mime-Type");
         notNull(content, "Content");
@@ -69,7 +69,7 @@ class MvcMultiPart {
         this.mimeType = mimeType;
     }
 
-    MvcMultiPart(String controlName, String fileName, Object content) {
+    MockMvcMultiPart(String controlName, String fileName, Object content) {
         notNull(controlName, "Control name");
         notNull(content, "Content");
         this.controlName = controlName;
@@ -78,7 +78,7 @@ class MvcMultiPart {
         this.mimeType = OCTET_STREAM;
     }
 
-    MvcMultiPart(String controlName, String fileName, Object content, String mimeType) {
+    MockMvcMultiPart(String controlName, String fileName, Object content, String mimeType) {
         notNull(mimeType, "Mime-Type");
         notNull(content, "Content");
         this.controlName = controlName;

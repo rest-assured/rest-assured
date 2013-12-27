@@ -3,7 +3,6 @@ package com.jayway.restassured.module.mockmvc.internal;
 
 import com.jayway.restassured.authentication.NoAuthScheme;
 import com.jayway.restassured.builder.MultiPartSpecBuilder;
-import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
@@ -12,6 +11,7 @@ import com.jayway.restassured.internal.RestAssuredResponseImpl;
 import com.jayway.restassured.internal.filter.FilterContextImpl;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
+import com.jayway.restassured.module.mockmvc.config.MockMvcRestAssuredConfig;
 import com.jayway.restassured.response.*;
 import com.jayway.restassured.specification.RequestSender;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +32,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.*;
 
+import static com.jayway.restassured.module.mockmvc.internal.ConfigConverter.convertToRestAssuredConfig;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
@@ -39,16 +40,16 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 class MockMvcRequestSender implements RequestSender {
     private final MockMvc mockMvc;
     private final MultiValueMap<String, Object> params;
-    private final RestAssuredConfig config;
+    private final MockMvcRestAssuredConfig config;
     private final Object requestBody;
     private final String requestContentType;
     private final Headers headers;
     private final Cookies cookies;
-    private final List<MvcMultiPart> multiParts;
+    private final List<MockMvcMultiPart> multiParts;
     private final RequestLoggingFilter requestLoggingFilter;
 
-    MockMvcRequestSender(MockMvc mockMvc, MultiValueMap<String, Object> params, RestAssuredConfig config, Object requestBody,
-                         String requestContentType, Headers headers, Cookies cookies, List<MvcMultiPart> multiParts,
+    MockMvcRequestSender(MockMvc mockMvc, MultiValueMap<String, Object> params, MockMvcRestAssuredConfig config, Object requestBody,
+                         String requestContentType, Headers headers, Cookies cookies, List<MockMvcMultiPart> multiParts,
                          RequestLoggingFilter requestLoggingFilter) {
         this.mockMvc = mockMvc;
         this.params = params;
@@ -84,7 +85,7 @@ class MockMvcRequestSender implements RequestSender {
             ResultActions perform = mockMvc.perform(requestBuilder);
             MvcResult mvcResult = perform.andReturn();
             response = mvcResult.getResponse();
-            restAssuredResponse.setConfig(config);
+            restAssuredResponse.setConfig(convertToRestAssuredConfig(config));
             restAssuredResponse.setContent(response.getContentAsString());
             restAssuredResponse.setContentType(response.getContentType());
             restAssuredResponse.setHasExpectations(false);
@@ -116,7 +117,7 @@ class MockMvcRequestSender implements RequestSender {
 
     private Response sendRequest(HttpMethod method, String path, Object[] pathParams) {
         if (requestBody != null && !multiParts.isEmpty()) {
-            throw new IllegalStateException("You cannot specify a request body and a multi-part body in the same request. Perhaps you want to change the body to a mutli part?");
+            throw new IllegalStateException("You cannot specify a request body and a multi-part body in the same request. Perhaps you want to change the body to a multi part?");
         }
 
         MockHttpServletRequestBuilder request;
@@ -179,7 +180,7 @@ class MockMvcRequestSender implements RequestSender {
 
         if (!multiParts.isEmpty()) {
             MockMultipartHttpServletRequestBuilder multiPartRequest = (MockMultipartHttpServletRequestBuilder) request;
-            for (MvcMultiPart multiPart : multiParts) {
+            for (MockMvcMultiPart multiPart : multiParts) {
                 MockMultipartFile multipartFile;
                 String fileName = multiPart.getFileName();
                 String controlName = multiPart.getControlName();
@@ -227,7 +228,7 @@ class MockMvcRequestSender implements RequestSender {
             return;
         }
 
-        RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, path, new NoAuthScheme(), Collections.<Filter>emptyList(), requestContentType, null, true, config);
+        RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, path, new NoAuthScheme(), Collections.<Filter>emptyList(), requestContentType, null, true, convertToRestAssuredConfig(config));
         if (params != null) {
             for (Map.Entry<String, List<Object>> stringListEntry : params.entrySet()) {
                 List<Object> values = stringListEntry.getValue();
@@ -258,7 +259,7 @@ class MockMvcRequestSender implements RequestSender {
         }
 
         if (multiParts != null) {
-            for (MvcMultiPart multiPart : multiParts) {
+            for (MockMvcMultiPart multiPart : multiParts) {
                 reqSpec.multiPart(new MultiPartSpecBuilder(multiPart.getContent()).
                         controlName(multiPart.getControlName()).
                         fileName(multiPart.getFileName()).
