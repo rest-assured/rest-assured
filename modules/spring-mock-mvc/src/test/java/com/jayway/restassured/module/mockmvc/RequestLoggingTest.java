@@ -16,17 +16,40 @@
 
 package com.jayway.restassured.module.mockmvc;
 
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.config.LogConfig;
+import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.module.mockmvc.http.PostController;
+import org.apache.commons.io.output.WriterOutputStream;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.io.PrintStream;
+import java.io.StringWriter;
 
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 // @formatter:off
 public class RequestLoggingTest {
+    private StringWriter writer;
+
+    @Before public void
+    given_config_is_stored_in_writer() {
+        writer = new StringWriter();
+        PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        RestAssuredMockMvc.config = new RestAssuredConfig().logConfig(new LogConfig(captor, true));
+    }
+
+    @After public void
+    reset_rest_assured() throws Exception {
+        RestAssured.reset();
+    }
 
     @Test public void
-    logging_works() {
+    logging_param_works() {
         given().
                 log().all().
                 standaloneSetup(new PostController()).
@@ -36,6 +59,22 @@ public class RequestLoggingTest {
         then().
                 body("id", equalTo(1)).
                 body("content", equalTo("Hello, Johan!"));
+
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/greetingPost\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
+    }
+
+    @Test public void
+    can_supply_string_as_body_for_post() {
+        given().
+                standaloneSetup(new PostController()).
+                log().all().
+                body("a string").
+        when().
+                post("/stringBody").
+        then().
+                body(equalTo("a string"));
+
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/stringBody\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\na string\n"));
     }
 }
 

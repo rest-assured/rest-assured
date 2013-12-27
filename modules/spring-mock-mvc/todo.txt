@@ -3,5 +3,5 @@ query params (+ log)
 form param (+ log)
 config
 javadoc
-baseUri
+baseUri (+ log)
 Add static methods (e.g. get) to RestAssuredMockMvc

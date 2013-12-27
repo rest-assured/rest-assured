@@ -36,7 +36,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private static final String CONTENT_TYPE = "content-type";
 
-    private final MockMvc instanceMockMvc;
+    private MockMvc instanceMockMvc;
 
     private final MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
 
@@ -54,22 +54,22 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private RequestLoggingFilter requestLoggingFilter;
 
-    public MockMvcRequestSpecificationImpl(MockMvc mockMvc) {
+    public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredConfig config) {
         this.instanceMockMvc = mockMvc;
-        restAssuredConfig = new RestAssuredConfig();
+        restAssuredConfig = config == null ? new RestAssuredConfig() : config;
     }
 
     public MockMvcRequestSpecification mockMvc(MockMvc mockMvc) {
         notNull(mockMvc, MockMvc.class);
-        return new MockMvcRequestSpecificationImpl(mockMvc);
+        return changeMockMvcInstanceTo(mockMvc);
     }
 
     public MockMvcRequestSpecification standaloneSetup(Object... controllers) {
-        return new MockMvcRequestSpecificationImpl(MockMvcBuilders.standaloneSetup(controllers).build());
+        return changeMockMvcInstanceTo(MockMvcBuilders.standaloneSetup(controllers).build());
     }
 
     public MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context) {
-        return new MockMvcRequestSpecificationImpl(MockMvcBuilders.webAppContextSetup(context).build());
+        return changeMockMvcInstanceTo(MockMvcBuilders.webAppContextSetup(context).build());
     }
 
     public MockMvcRequestSpecification contentType(ContentType contentType) {
@@ -508,5 +508,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public RequestLoggingFilter getRequestLoggingFilter() {
         return requestLoggingFilter;
+    }
+
+    private MockMvcRequestSpecification changeMockMvcInstanceTo(MockMvc mockMvc) {
+        this.instanceMockMvc = mockMvc;
+        return this;
     }
 }
