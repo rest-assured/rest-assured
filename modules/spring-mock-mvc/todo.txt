@@ -1,4 +1,3 @@
-config (static + instance)
 query params (+ log)
 form param (+ log)
 javadoc
