@@ -27,7 +27,7 @@
     <packaging>pom</packaging>
     <name>REST Assured Examples</name>
     <modules>
-        <!--<module>scalatra-example</module>-->
+        <module>scalatra-example</module>
         <module>scalatra-webapp</module>
         <module>rest-assured-itest-java</module>
         <module>spring-mvc-webapp</module>
