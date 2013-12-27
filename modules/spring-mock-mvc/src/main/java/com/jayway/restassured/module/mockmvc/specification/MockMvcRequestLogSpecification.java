@@ -17,7 +17,6 @@
 package com.jayway.restassured.module.mockmvc.specification;
 
 
-import com.jayway.restassured.module.mockmvc.MockMvcRequestSpecification;
 import com.jayway.restassured.specification.LogSpecification;
 
 /**

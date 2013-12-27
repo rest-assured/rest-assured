@@ -1,9 +1,8 @@
-package com.jayway.restassured.module.mockmvc;
+package com.jayway.restassured.module.mockmvc.specification;
 
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;

@@ -9,7 +9,7 @@ import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
 import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.mapper.ObjectMapper;
-import com.jayway.restassured.module.mockmvc.MockMvcRequestSpecification;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
 import com.jayway.restassured.response.*;
 import com.jayway.restassured.specification.RequestSender;
