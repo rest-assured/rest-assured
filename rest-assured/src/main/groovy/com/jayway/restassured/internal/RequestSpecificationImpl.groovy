@@ -898,7 +898,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   private def Response sendRequest(path, method, assertionClosure, FilterableRequestSpecification requestSpecification) {
     path = extractRequestParamsIfNeeded(path);
-    def isFullyQualifiedUri = isFullyQualified(path)
     def targetUri = getTargetURI(path);
     def targetPath = getTargetPath(path)
 

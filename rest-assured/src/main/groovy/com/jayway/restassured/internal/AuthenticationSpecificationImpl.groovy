@@ -20,7 +20,6 @@ import com.jayway.restassured.specification.AuthenticationSpecification
 import com.jayway.restassured.specification.PreemptiveAuthSpec
 import com.jayway.restassured.specification.RequestSpecification
 import com.jayway.restassured.spi.AuthFilter
-import com.jayway.restassured.authentication.OAuthSignature
 
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
@@ -105,6 +104,7 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
     requestSpecification.authenticationScheme = new OAuthScheme(consumerKey: consumerKey, consumerSecret: consumerSecret, accessToken: accessToken, secretToken: secretToken)
     return requestSpecification
   }
+
   /**
    * Excerpt from the HttpBuilder docs:<br>
    * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
