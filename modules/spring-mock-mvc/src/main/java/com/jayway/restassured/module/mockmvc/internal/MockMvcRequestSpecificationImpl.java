@@ -10,7 +10,7 @@ import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextI
 import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.internal.support.ParameterAppender;
 import com.jayway.restassured.mapper.ObjectMapper;
-import com.jayway.restassured.module.mockmvc.config.MockMvcRestAssuredConfig;
+import com.jayway.restassured.module.mockmvc.config.RestAssuredConfigMockMvc;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import com.jayway.restassured.response.*;
@@ -41,7 +41,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private Object requestBody = null;
 
-    private MockMvcRestAssuredConfig mockMvcRestAssuredConfig;
+    private RestAssuredConfigMockMvc restAssuredConfigMockMvc;
 
     private Headers requestHeaders = new Headers();
 
@@ -59,9 +59,9 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
     });
 
-    public MockMvcRequestSpecificationImpl(MockMvc mockMvc, MockMvcRestAssuredConfig config) {
+    public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredConfigMockMvc config) {
         this.instanceMockMvc = mockMvc;
-        mockMvcRestAssuredConfig = config == null ? new MockMvcRestAssuredConfig() : config;
+        restAssuredConfigMockMvc = config == null ? new RestAssuredConfigMockMvc() : config;
     }
 
     public MockMvcRequestSpecification mockMvc(MockMvc mockMvc) {
@@ -224,7 +224,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
             return body(object.toString());
         }
 
-        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, mockMvcRestAssuredConfig.getObjectMapperConfig());
+        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, restAssuredConfigMockMvc.getObjectMapperConfig());
         return this;
     }
 
@@ -242,7 +242,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification body(Object object, ObjectMapperType mapperType) {
         notNull(object, "object");
         notNull(mapperType, "Object mapper type");
-        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType, mockMvcRestAssuredConfig.getObjectMapperConfig());
+        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType, restAssuredConfigMockMvc.getObjectMapperConfig());
         return this;
     }
 
@@ -367,19 +367,19 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return this;
     }
 
-    public MockMvcRequestSpecification config(MockMvcRestAssuredConfig config) {
-        this.mockMvcRestAssuredConfig = config == null ? new MockMvcRestAssuredConfig() : config;
+    public MockMvcRequestSpecification config(RestAssuredConfigMockMvc config) {
+        this.restAssuredConfigMockMvc = config == null ? new RestAssuredConfigMockMvc() : config;
         return this;
     }
 
     public RequestSender when() {
-        return new MockMvcRequestSender(instanceMockMvc, params, queryParams, mockMvcRestAssuredConfig, requestBody, requestContentType, requestHeaders, cookies, multiParts, requestLoggingFilter);
+        return new MockMvcRequestSender(instanceMockMvc, params, queryParams, restAssuredConfigMockMvc, requestBody, requestContentType, requestHeaders, cookies, multiParts, requestLoggingFilter);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {
         String charset = CharsetExtractor.getCharsetFromContentType(contentType);
         if (charset == null) {
-            charset = mockMvcRestAssuredConfig.getEncoderConfig().defaultContentCharset();
+            charset = restAssuredConfigMockMvc.getEncoderConfig().defaultContentCharset();
         }
         return charset;
     }
@@ -389,7 +389,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     private String serializeIfNeeded(Object object, String contentType) {
-        return isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, mockMvcRestAssuredConfig.getObjectMapperConfig()) : object.toString();
+        return isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, restAssuredConfigMockMvc.getObjectMapperConfig()) : object.toString();
     }
 
     public Response get(String path, Object... pathParams) {
@@ -533,7 +533,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public RestAssuredConfig getRestAssuredConfig() {
-        return convertToRestAssuredConfig(mockMvcRestAssuredConfig);
+        return convertToRestAssuredConfig(restAssuredConfigMockMvc);
     }
 
     public void setRequestLoggingFilter(RequestLoggingFilter requestLoggingFilter) {
