@@ -17,11 +17,11 @@
 package com.jayway.restassured.module.mockmvc.internal;
 
 import com.jayway.restassured.config.RestAssuredConfig;
-import com.jayway.restassured.module.mockmvc.config.RestAssuredConfigMockMvc;
+import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 
 class ConfigConverter {
 
-    public static RestAssuredConfig convertToRestAssuredConfig(RestAssuredConfigMockMvc mvcConfig) {
+    public static RestAssuredConfig convertToRestAssuredConfig(RestAssuredMockMvcConfig mvcConfig) {
         return new RestAssuredConfig().jsonConfig(mvcConfig.getJsonConfig()).xmlConfig(mvcConfig.getXmlConfig()).sessionConfig(mvcConfig.getSessionConfig()).
                 objectMapperConfig(mvcConfig.getObjectMapperConfig()).logConfig(mvcConfig.getLogConfig()).encoderConfig(mvcConfig.getEncoderConfig()).
                 decoderConfig(mvcConfig.getDecoderConfig());

@@ -18,7 +18,7 @@ package com.jayway.restassured.module.mockmvc;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.LogConfig;
-import com.jayway.restassured.module.mockmvc.config.RestAssuredConfigMockMvc;
+import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.http.PostController;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.After;
@@ -40,7 +40,7 @@ public class RequestLoggingTest {
     given_config_is_stored_in_writer() {
         writer = new StringWriter();
         PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
-        RestAssuredMockMvc.config = new RestAssuredConfigMockMvc().logConfig(new LogConfig(captor, true));
+        RestAssuredMockMvc.config = new RestAssuredMockMvcConfig().logConfig(new LogConfig(captor, true));
     }
 
     @After public void

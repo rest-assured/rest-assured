@@ -11,7 +11,7 @@ import com.jayway.restassured.internal.RestAssuredResponseImpl;
 import com.jayway.restassured.internal.filter.FilterContextImpl;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
-import com.jayway.restassured.module.mockmvc.config.RestAssuredConfigMockMvc;
+import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.response.*;
 import com.jayway.restassured.specification.RequestSender;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +41,7 @@ class MockMvcRequestSender implements RequestSender {
     private final MockMvc mockMvc;
     private final Map<String, Object> params;
     private final Map<String, Object> queryParams;
-    private final RestAssuredConfigMockMvc config;
+    private final RestAssuredMockMvcConfig config;
     private final Object requestBody;
     private final String requestContentType;
     private final Headers headers;
@@ -50,7 +50,7 @@ class MockMvcRequestSender implements RequestSender {
     private final RequestLoggingFilter requestLoggingFilter;
     private final List<ResultHandler> resultHandlers;
 
-    MockMvcRequestSender(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, RestAssuredConfigMockMvc config, Object requestBody,
+    MockMvcRequestSender(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, RestAssuredMockMvcConfig config, Object requestBody,
                          String requestContentType, Headers headers, Cookies cookies, List<MockMvcMultiPart> multiParts,
                          RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers) {
         this.mockMvc = mockMvc;

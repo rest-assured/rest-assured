@@ -1,6 +1,6 @@
 package com.jayway.restassured.module.mockmvc;
 
-import com.jayway.restassured.module.mockmvc.config.RestAssuredConfigMockMvc;
+import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,7 +16,7 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
 public class RestAssuredMockMvc {
     public static MockMvc mockMvc = null;
-    public static RestAssuredConfigMockMvc config;
+    public static RestAssuredMockMvcConfig config;
     private static List<ResultHandler> resultHandlers = new ArrayList<ResultHandler>();
 
     public static MockMvcRequestSpecification given() {

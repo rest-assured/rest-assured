@@ -25,11 +25,11 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
  * <p>
  * Usage example:
  * <pre>
- * RestAssuredMockMvc.config = new RestAssuredConfigMockMvc().logConfig(new LogConfig(captor, true));
+ * RestAssuredMockMvc.config = new RestAssuredMockMvcConfig().logConfig(new LogConfig(captor, true));
  * </pre>
  * </p>
  */
-public class RestAssuredConfigMockMvc {
+public class RestAssuredMockMvcConfig {
 
     private final LogConfig logConfig;
     private final EncoderConfig encoderConfig;
@@ -42,14 +42,14 @@ public class RestAssuredConfigMockMvc {
     /**
      * Create a new RestAssuredConfiguration with the default configurations.
      */
-    public RestAssuredConfigMockMvc() {
+    public RestAssuredMockMvcConfig() {
         this(new LogConfig(), new EncoderConfig(), new DecoderConfig(), new SessionConfig(), new ObjectMapperConfig(), new JsonConfig(), new XmlConfig());
     }
 
     /**
-     * Create a new RestAssuredConfigMockMvc with the supplied configs.
+     * Create a new RestAssuredMockMvcConfig with the supplied configs.
      */
-    public RestAssuredConfigMockMvc(LogConfig logConfig,
+    public RestAssuredMockMvcConfig(LogConfig logConfig,
                                     EncoderConfig encoderConfig,
                                     DecoderConfig decoderConfig,
                                     SessionConfig sessionConfig,
@@ -78,9 +78,9 @@ public class RestAssuredConfigMockMvc {
      * @param logConfig The {@link com.jayway.restassured.config.LogConfig} to set
      * @return An updated RestAssuredConfiguration
      */
-    public RestAssuredConfigMockMvc logConfig(LogConfig logConfig) {
+    public RestAssuredMockMvcConfig logConfig(LogConfig logConfig) {
         notNull(logConfig, "Log config");
-        return new RestAssuredConfigMockMvc(logConfig, encoderConfig, decoderConfig, sessionConfig, objectMapperConfig, jsonConfig, xmlConfig);
+        return new RestAssuredMockMvcConfig(logConfig, encoderConfig, decoderConfig, sessionConfig, objectMapperConfig, jsonConfig, xmlConfig);
     }
 
     /**
@@ -89,9 +89,9 @@ public class RestAssuredConfigMockMvc {
      * @param sessionConfig The {@link com.jayway.restassured.config.SessionConfig} to set
      * @return An updated RestAssuredConfiguration
      */
-    public RestAssuredConfigMockMvc sessionConfig(SessionConfig sessionConfig) {
+    public RestAssuredMockMvcConfig sessionConfig(SessionConfig sessionConfig) {
         notNull(sessionConfig, "Session config");
-        return new RestAssuredConfigMockMvc(logConfig, encoderConfig, decoderConfig, sessionConfig, objectMapperConfig, jsonConfig, xmlConfig);
+        return new RestAssuredMockMvcConfig(logConfig, encoderConfig, decoderConfig, sessionConfig, objectMapperConfig, jsonConfig, xmlConfig);
     }
 
     /**
@@ -100,9 +100,9 @@ public class RestAssuredConfigMockMvc {
      * @param objectMapperConfig The {@link com.jayway.restassured.config.ObjectMapperConfig} to set
      * @return An updated RestAssuredConfiguration
      */
-    public RestAssuredConfigMockMvc objectMapperConfig(ObjectMapperConfig objectMapperConfig) {
+    public RestAssuredMockMvcConfig objectMapperConfig(ObjectMapperConfig objectMapperConfig) {
         notNull(objectMapperConfig, "Object mapper config");
-        return new RestAssuredConfigMockMvc(logConfig, encoderConfig, decoderConfig, sessionConfig, objectMapperConfig, jsonConfig, xmlConfig);
+        return new RestAssuredMockMvcConfig(logConfig, encoderConfig, decoderConfig, sessionConfig, objectMapperConfig, jsonConfig, xmlConfig);
     }
 
     /**
@@ -111,9 +111,9 @@ public class RestAssuredConfigMockMvc {
      * @param jsonConfig The {@link com.jayway.restassured.config.JsonConfig} to set
      * @return An updated RestAssuredConfiguration
      */
-    public RestAssuredConfigMockMvc jsonConfig(JsonConfig jsonConfig) {
+    public RestAssuredMockMvcConfig jsonConfig(JsonConfig jsonConfig) {
         notNull(jsonConfig, "JsonConfig");
-        return new RestAssuredConfigMockMvc(logConfig, encoderConfig, decoderConfig, sessionConfig,
+        return new RestAssuredMockMvcConfig(logConfig, encoderConfig, decoderConfig, sessionConfig,
                 objectMapperConfig, jsonConfig, xmlConfig);
     }
 
@@ -123,9 +123,9 @@ public class RestAssuredConfigMockMvc {
      * @param xmlConfig The {@link com.jayway.restassured.config.XmlConfig} to set
      * @return An updated RestAssuredConfiguration
      */
-    public RestAssuredConfigMockMvc xmlConfig(XmlConfig xmlConfig) {
+    public RestAssuredMockMvcConfig xmlConfig(XmlConfig xmlConfig) {
         notNull(xmlConfig, "XmlConfig");
-        return new RestAssuredConfigMockMvc(logConfig, encoderConfig, decoderConfig, sessionConfig,
+        return new RestAssuredMockMvcConfig(logConfig, encoderConfig, decoderConfig, sessionConfig,
                 objectMapperConfig, jsonConfig, xmlConfig);
     }
 
@@ -134,7 +134,7 @@ public class RestAssuredConfigMockMvc {
      *
      * @return The same RestAssuredConfiguration instance.
      */
-    public RestAssuredConfigMockMvc and() {
+    public RestAssuredMockMvcConfig and() {
         return this;
     }
 
@@ -143,7 +143,7 @@ public class RestAssuredConfigMockMvc {
      *
      * @return The same RestAssuredConfiguration instance.
      */
-    public RestAssuredConfigMockMvc set() {
+    public RestAssuredMockMvcConfig set() {
         return this;
     }
 
@@ -152,7 +152,7 @@ public class RestAssuredConfigMockMvc {
      *
      * @return The same RestAssuredConfiguration instance.
      */
-    public RestAssuredConfigMockMvc with() {
+    public RestAssuredMockMvcConfig with() {
         return this;
     }
 
@@ -208,14 +208,14 @@ public class RestAssuredConfigMockMvc {
     /**
      * @return A static way to create a new RestAssuredMockMvcConfiguration instance without calling "new" explicitly. Mainly for syntactic sugar.
      */
-    public static RestAssuredConfigMockMvc newConfig() {
-        return new RestAssuredConfigMockMvc();
+    public static RestAssuredMockMvcConfig newConfig() {
+        return new RestAssuredMockMvcConfig();
     }
 
     /**
      * @return A static way to create a new RestAssuredMockMvcConfiguration instance without calling "new" explicitly. Mainly for syntactic sugar.
      */
-    public static RestAssuredConfigMockMvc config() {
-        return new RestAssuredConfigMockMvc();
+    public static RestAssuredMockMvcConfig config() {
+        return new RestAssuredMockMvcConfig();
     }
 }
