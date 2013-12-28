@@ -93,18 +93,20 @@ class MockMvcRequestSender implements RequestSender {
             restAssuredResponse.setStatusCode(response.getStatus());
             restAssuredResponse.setResponseHeaders(assembleHeaders(response));
             restAssuredResponse.setRpr(new ResponseParserRegistrar());
-            restAssuredResponse.setStatusLine(assembleStatusLine(response));
+            restAssuredResponse.setStatusLine(assembleStatusLine(response, mvcResult.getResolvedException()));
         } catch (Exception e) {
             return SafeExceptionRethrower.safeRethrow(e);
         }
         return restAssuredResponse;
     }
 
-    private String assembleStatusLine(MockHttpServletResponse response) {
+    private String assembleStatusLine(MockHttpServletResponse response, Exception resolvedException) {
         StringBuilder builder = new StringBuilder();
         builder.append(response.getStatus());
         if (isNotBlank(response.getErrorMessage())) {
             builder.append(" ").append(response.getErrorMessage());
+        } else if (resolvedException != null) {
+            builder.append(" ").append(resolvedException.getMessage());
         }
         return builder.toString();
     }
