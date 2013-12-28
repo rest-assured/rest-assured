@@ -25,7 +25,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.util.MultiValueMap;
 
 import java.io.*;
 import java.net.URI;
@@ -39,7 +38,8 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
 class MockMvcRequestSender implements RequestSender {
     private final MockMvc mockMvc;
-    private final MultiValueMap<String, Object> params;
+    private final Map<String, Object> params;
+    private final Map<String, Object> queryParams;
     private final MockMvcRestAssuredConfig config;
     private final Object requestBody;
     private final String requestContentType;
@@ -48,11 +48,12 @@ class MockMvcRequestSender implements RequestSender {
     private final List<MockMvcMultiPart> multiParts;
     private final RequestLoggingFilter requestLoggingFilter;
 
-    MockMvcRequestSender(MockMvc mockMvc, MultiValueMap<String, Object> params, MockMvcRestAssuredConfig config, Object requestBody,
+    MockMvcRequestSender(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, MockMvcRestAssuredConfig config, Object requestBody,
                          String requestContentType, Headers headers, Cookies cookies, List<MockMvcMultiPart> multiParts,
                          RequestLoggingFilter requestLoggingFilter) {
         this.mockMvc = mockMvc;
         this.params = params;
+        this.queryParams = queryParams;
         this.config = config;
         this.requestBody = requestBody;
         this.requestContentType = requestContentType;
@@ -130,21 +131,29 @@ class MockMvcRequestSender implements RequestSender {
         }
 
         if (!params.isEmpty()) {
-            for (Map.Entry<String, List<Object>> listEntry : params.entrySet()) {
-                List<Object> values = listEntry.getValue();
-                String[] stringValues = new String[values.size()];
-                for (int i = 0; i < values.size(); i++) {
-                    stringValues[i] = values.get(i).toString();
-
+            for (Map.Entry<String, Object> listEntry : params.entrySet()) {
+                Object value = listEntry.getValue();
+                String[] stringValues;
+                if (value instanceof Collection) {
+                    Collection col = (Collection) value;
+                    stringValues = new String[col.size()];
+                    int index = 0;
+                    for (Object val : col) {
+                        stringValues[index] = val == null ? null : val.toString();
+                        index++;
+                    }
+                } else {
+                    stringValues = new String[1];
+                    stringValues[0] = value == null ? null : value.toString();
                 }
                 request.param(listEntry.getKey(), stringValues);
             }
 
-            boolean isInMultiPartMode = request instanceof MockMultipartHttpServletRequestBuilder;
-            if (method == POST && !isInMultiPartMode) {
+            if (method == POST) {
                 request.contentType(APPLICATION_FORM_URLENCODED);
             }
         }
+
         if (StringUtils.isNotBlank(requestContentType)) {
             request.contentType(MediaType.parseMediaType(requestContentType));
         }
@@ -230,10 +239,18 @@ class MockMvcRequestSender implements RequestSender {
 
         RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, path, new NoAuthScheme(), Collections.<Filter>emptyList(), requestContentType, null, true, convertToRestAssuredConfig(config));
         if (params != null) {
-            for (Map.Entry<String, List<Object>> stringListEntry : params.entrySet()) {
-                List<Object> values = stringListEntry.getValue();
-                for (Object value : values) {
-                    reqSpec.param(stringListEntry.getKey(), value);
+            for (Map.Entry<String, Object> stringListEntry : params.entrySet()) {
+                Object value = stringListEntry.getValue();
+                Collection<Object> values;
+                if (value instanceof Collection) {
+                    values = (Collection<Object>) value;
+                } else {
+                    values = new ArrayList<Object>();
+                    values.add(value);
+                }
+
+                for (Object theValue : values) {
+                    reqSpec.param(stringListEntry.getKey(), theValue);
                 }
             }
         }

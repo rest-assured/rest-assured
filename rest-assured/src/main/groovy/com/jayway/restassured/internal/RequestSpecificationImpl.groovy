@@ -29,6 +29,7 @@ import com.jayway.restassured.internal.http.*
 import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl
 import com.jayway.restassured.internal.mapping.ObjectMapping
+import com.jayway.restassured.internal.support.ParameterAppender
 import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.*
@@ -87,6 +88,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private boolean urlEncodingEnabled
   private RestAssuredConfig restAssuredConfig;
   private List<MultiPartInternal> multiParts = [];
+  private ParameterAppender parameterAppender = new ParameterAppender(new ParameterAppender.Serializer() {
+    String serializeIfNeeded(Object value) {
+      return RequestSpecificationImpl.this.serializeIfNeeded(value)
+    }
+  });
 
   // This field should be removed once http://jira.codehaus.org/browse/GROOVY-4647 is resolved, merge with sha 9619c3b when it's fixed.
   private AbstractHttpClient httpClient
@@ -283,7 +289,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification parameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
-    appendParameters(parametersMap, requestParameters)
+    parameterAppender.appendParameters(parametersMap, requestParameters)
     return this
   }
 
@@ -302,7 +308,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification parameter(String parameterName, Collection<?> parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
-    appendCollectionParameter(requestParameters, parameterName, parameterValues)
+    parameterAppender.appendCollectionParameter(requestParameters, parameterName, parameterValues)
     return this
   }
 
@@ -313,7 +319,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification queryParameter(String parameterName, Collection<?> parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
-    appendCollectionParameter(queryParameters, parameterName, parameterValues)
+    parameterAppender.appendCollectionParameter(queryParameters, parameterName, parameterValues)
     return this
   }
 
@@ -323,7 +329,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification parameter(String parameterName, Object... parameterValues) {
     notNull parameterName, "parameterName"
-    addZeroToManyParameters(requestParameters, parameterName, parameterValues)
+    parameterAppender.appendZeroToManyParameters(requestParameters, parameterName, parameterValues)
     return this
   }
 
@@ -335,13 +341,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification queryParameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
-    appendParameters(parametersMap, queryParameters)
+    parameterAppender.appendParameters(parametersMap, queryParameters)
     return this
   }
 
   def RequestSpecification queryParameter(String parameterName, Object... parameterValues) {
     notNull parameterName, "parameterName"
-    addZeroToManyParameters(queryParameters, parameterName, parameterValues)
+    parameterAppender.appendZeroToManyParameters(queryParameters, parameterName, parameterValues)
     return this
   }
 
@@ -360,7 +366,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification formParameter(String parameterName, Collection<?> parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
-    appendCollectionParameter(formParameters, parameterName, parameterValues)
+    parameterAppender.appendCollectionParameter(formParameters, parameterName, parameterValues)
     return this
   }
 
@@ -376,13 +382,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification formParameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
-    appendParameters(parametersMap, formParameters)
+    parameterAppender.appendParameters(parametersMap, formParameters)
     return this
   }
 
   def RequestSpecification formParameter(String parameterName, Object... additionalParameterValues) {
     notNull parameterName, "parameterName"
-    addZeroToManyParameters(formParameters, parameterName, additionalParameterValues)
+    parameterAppender.appendZeroToManyParameters(formParameters, parameterName, additionalParameterValues)
     return this
   }
 
@@ -406,7 +412,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification pathParameter(String parameterName, Object parameterValue) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
-    appendStandardParameter(pathParameters, parameterName, parameterValue)
+    parameterAppender.appendStandardParameter(pathParameters, parameterName, parameterValue)
     return this
   }
 
@@ -418,7 +424,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification pathParameters(Map parameterNameValuePairs) {
     notNull parameterNameValuePairs, "parameterNameValuePairs"
-    appendParameters(parameterNameValuePairs, pathParameters)
+    parameterAppender.appendParameters(parameterNameValuePairs, pathParameters)
     return this
   }
 
@@ -1244,54 +1250,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return uri.getPort() != -1;
   }
 
-  private def appendParameters(Map<String, Object> from, Map<String, Object> to) {
-    notNull from, "Map to copy from"
-    notNull to, "Map to copy to"
-    from.each { key, value ->
-      appendStandardParameter(to, key, value)
-    }
-  }
-
-  private def appendCollectionParameter(Map<String, String> to, String key, Collection<Object> values) {
-    if (values == null || values.isEmpty()) {
-      to.put(key, new NoParameterValue())
-      return;
-    }
-
-    def convertedValues = values.collect { serializeIfNeeded(it) }
-    if (to.containsKey(key)) {
-      def currentValue = to.get(key)
-      if (currentValue instanceof Collection) {
-        currentValue.addAll(convertedValues)
-      } else {
-        to.put(key, [currentValue, convertedValues].flatten())
-      }
-    } else {
-      to.put(key, new LinkedList<Object>(convertedValues))
-    }
-  }
-
-  private def appendStandardParameter(Map<String, Object> to, String key) {
-    appendStandardParameter(to, key, null)
-  }
-
-  private def appendStandardParameter(Map<String, Object> to, String key, Object value) {
-    if (value == null) {
-      to.put(key, new NoParameterValue())
-      return;
-    }
-    def newValue = serializeIfNeeded(value)
-    if (to.containsKey(key)) {
-      def currentValue = to.get(key)
-      if (currentValue instanceof List) {
-        currentValue << newValue
-      } else {
-        to.put(key, [currentValue, newValue])
-      }
-    } else {
-      to.put(key, newValue)
-    }
-  }
 
   private def serializeIfNeeded(Object object) {
     serializeIfNeeded(object, requestContentType)
@@ -1715,20 +1673,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       }
       return super.parseResponse(resp, contentType)
     }
-  }
-
-  private def addZeroToManyParameters(Map<String, Object> to, String parameterName, Object... parameterValues) {
-    if (isEmpty(parameterValues)) {
-      appendStandardParameter(to, parameterName)
-    } else if (parameterValues.length == 1) {
-      appendStandardParameter(to, parameterName, parameterValues[0])
-    } else {
-      appendCollectionParameter(to, parameterName, asList(parameterValues))
-    }
-  }
-
-  private boolean isEmpty(Object[] objects) {
-    return objects == null || objects.length == 0 || (objects.length == 1 && objects[0] instanceof NoParameterValue)
   }
 
   // make client aware of JRE proxy settings http://freeside.co/betamax/

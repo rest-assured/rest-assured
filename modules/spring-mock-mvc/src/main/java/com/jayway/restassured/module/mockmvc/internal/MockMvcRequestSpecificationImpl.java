@@ -8,6 +8,7 @@ import com.jayway.restassured.internal.http.CharsetExtractor;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
 import com.jayway.restassured.internal.mapping.ObjectMapping;
+import com.jayway.restassured.internal.support.ParameterAppender;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.config.MockMvcRestAssuredConfig;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
@@ -16,18 +17,13 @@ import com.jayway.restassured.response.*;
 import com.jayway.restassured.specification.RequestSender;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;
@@ -40,7 +36,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private MockMvc instanceMockMvc;
 
-    private final MultiValueMap<String, Object> params = new LinkedMultiValueMap<String, Object>();
+    private final Map<String, Object> params = new LinkedHashMap<String, Object>();
+    private final Map<String, Object> queryParams = new LinkedHashMap<String, Object>();
 
     private Object requestBody = null;
 
@@ -55,6 +52,12 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     private List<MockMvcMultiPart> multiParts = new ArrayList<MockMvcMultiPart>();
 
     private RequestLoggingFilter requestLoggingFilter;
+
+    private ParameterAppender parameterAppender = new ParameterAppender(new ParameterAppender.Serializer() {
+        public String serializeIfNeeded(Object value) {
+            return MockMvcRequestSpecificationImpl.this.serializeIfNeeded(value);
+        }
+    });
 
     public MockMvcRequestSpecificationImpl(MockMvc mockMvc, MockMvcRestAssuredConfig config) {
         this.instanceMockMvc = mockMvc;
@@ -175,9 +178,33 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification param(String parameterName, Object... parameterValues) {
-        for (Object parameterValue : parameterValues) {
-            params.add(parameterName, parameterValue);
-        }
+        notNull(parameterName, "parameterName");
+        parameterAppender.appendZeroToManyParameters(params, parameterName, parameterValues);
+        return this;
+    }
+
+    public MockMvcRequestSpecification queryParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+        notNull(firstParameterName, "firstParameterName");
+        notNull(firstParameterValue, "firstParameterValue");
+        return queryParams(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs));
+    }
+
+    public MockMvcRequestSpecification queryParams(Map<String, ?> parametersMap) {
+        notNull(parametersMap, "parametersMap");
+        parameterAppender.appendParameters((Map<String, Object>) parametersMap, queryParams);
+        return this;
+    }
+
+    public MockMvcRequestSpecification queryParam(String parameterName, Object... parameterValues) {
+        notNull(parameterName, "parameterName");
+        parameterAppender.appendZeroToManyParameters(queryParams, parameterName, parameterValues);
+        return this;
+    }
+
+    public MockMvcRequestSpecification queryParam(String parameterName, Collection<?> parameterValues) {
+        notNull(parameterName, "parameterName");
+        notNull(parameterValues, "parameterValues");
+        parameterAppender.appendCollectionParameter(queryParams, parameterName, (Collection<Object>) parameterValues);
         return this;
     }
 
@@ -346,7 +373,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public RequestSender when() {
-        return new MockMvcRequestSender(instanceMockMvc, params, mockMvcRestAssuredConfig, requestBody, requestContentType, requestHeaders, cookies, multiParts, requestLoggingFilter);
+        return new MockMvcRequestSender(instanceMockMvc, params, queryParams, mockMvcRestAssuredConfig, requestBody, requestContentType, requestHeaders, cookies, multiParts, requestLoggingFilter);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {

@@ -14,6 +14,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.Map;
 
 public interface MockMvcRequestSpecification extends RequestSender {
@@ -156,6 +157,59 @@ public interface MockMvcRequestSpecification extends RequestSender {
      * @return The request specification
      */
     MockMvcRequestSpecification param(String parameterName, Object... parameterValues);
+
+    /**
+     * Specify the query parameters that'll be sent with the request. Note that this method is the same as {@link #params(String, Object, Object...)}
+     * for all http methods except for POST where {@link #params(String, Object, Object...)} sets the form parameters and this method sets the
+     * query parameters.
+     *
+     * @param firstParameterName      The name of the first parameter
+     * @param firstParameterValue     The value of the first parameter
+     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification queryParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
+
+    /**
+     * Specify the query parameters that'll be sent with the request. Note that this method is the same as {@link #params(Map)}
+     * for all http methods except for POST where {@link #params(Map)} sets the form parameters and this method sets the
+     * query parameters.
+     *
+     * @param parametersMap The Map containing the parameter names and their values to send with the request.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification queryParams(Map<String, ?> parametersMap);
+
+    /**
+     * Specify a query parameter that'll be sent with the request. Note that this method is the same as {@link #param(String, Object...)}
+     * for all http methods except for POST where {@link #param(String, Object...)} adds a form parameter and this method sets a
+     * query parameter.
+     *
+     * @param parameterName   The parameter name
+     * @param parameterValues Zero to many parameter values, i.e. you can specify multiple values for the same parameter
+     * @return The request specification
+     * @see #param(String, Object...)
+     */
+    MockMvcRequestSpecification queryParam(String parameterName, Object... parameterValues);
+
+    /**
+     * Specify a multi-value query parameter that'll be sent with the request e.g:
+     * <p>
+     * <pre>
+     * given().queryParam("cars", asList("Volvo", "Saab"))..;
+     * </pre>
+     * This will set the parameter <code>cars=Volvo</code> and <code>cars=Saab</code>.
+     * </p>
+     * <p/>
+     * Note that this method is the same as {@link #param(String, java.util.Collection)}
+     * for all http methods except for POST where {@link #param(String, java.util.Collection)} adds a form parameter and
+     * this method sets a query parameter.
+     *
+     * @param parameterName   The parameter name
+     * @param parameterValues The parameter values
+     * @return The request specification
+     */
+    MockMvcRequestSpecification queryParam(String parameterName, Collection<?> parameterValues);
 
     /**
      * Specify a String request body (such as e.g. JSON or XML) that'll be sent with the request. This works for the
