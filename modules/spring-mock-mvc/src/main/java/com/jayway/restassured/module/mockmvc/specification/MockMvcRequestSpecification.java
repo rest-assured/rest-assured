@@ -10,6 +10,7 @@ import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.specification.RequestSender;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
@@ -566,6 +567,8 @@ public interface MockMvcRequestSpecification extends RequestSender {
      * @return The request specification
      */
     MockMvcRequestSpecification config(RestAssuredConfigMockMvc config);
+
+    MockMvcRequestSpecification resultHandlers(ResultHandler resultHandler, ResultHandler... resultHandlers);
 
     RequestSender when();
 

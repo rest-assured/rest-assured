@@ -22,6 +22,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -35,7 +36,6 @@ import static com.jayway.restassured.module.mockmvc.internal.ConfigConverter.con
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 class MockMvcRequestSender implements RequestSender {
     private final MockMvc mockMvc;
@@ -48,10 +48,11 @@ class MockMvcRequestSender implements RequestSender {
     private final Cookies cookies;
     private final List<MockMvcMultiPart> multiParts;
     private final RequestLoggingFilter requestLoggingFilter;
+    private final List<ResultHandler> resultHandlers;
 
     MockMvcRequestSender(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, RestAssuredConfigMockMvc config, Object requestBody,
                          String requestContentType, Headers headers, Cookies cookies, List<MockMvcMultiPart> multiParts,
-                         RequestLoggingFilter requestLoggingFilter) {
+                         RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.queryParams = queryParams;
@@ -62,6 +63,7 @@ class MockMvcRequestSender implements RequestSender {
         this.cookies = cookies;
         this.multiParts = multiParts;
         this.requestLoggingFilter = requestLoggingFilter;
+        this.resultHandlers = resultHandlers;
     }
 
     private Object assembleHeaders(MockHttpServletResponse response) {
@@ -84,7 +86,12 @@ class MockMvcRequestSender implements RequestSender {
             throw new IllegalStateException("You haven't configured a MockMVC instance. You can do this statically\n\nRestAssured.mockMvc = ..\nRestAssured.standaloneSetup(..);\nRestAssured.webAppContextSetup(..);\n\nor using the DSL:\n\ngiven().\n\t\tmockMvc(..). ..\n");
         }
         try {
-            ResultActions perform = mockMvc.perform(requestBuilder).andDo(print());
+            ResultActions perform = mockMvc.perform(requestBuilder);
+            if (!resultHandlers.isEmpty()) {
+                for (ResultHandler resultHandler : resultHandlers) {
+                    perform.andDo(resultHandler);
+                }
+            }
             MvcResult mvcResult = perform.andReturn();
             response = mvcResult.getResponse();
             restAssuredResponse.setConfig(convertToRestAssuredConfig(config));

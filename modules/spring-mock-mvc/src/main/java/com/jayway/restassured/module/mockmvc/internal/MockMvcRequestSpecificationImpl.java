@@ -16,6 +16,7 @@ import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecifi
 import com.jayway.restassured.response.*;
 import com.jayway.restassured.specification.RequestSender;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -59,9 +60,12 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
     });
 
-    public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredConfigMockMvc config) {
+    private final List<ResultHandler> resultHandlers = new ArrayList<ResultHandler>();
+
+    public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredConfigMockMvc config, List<ResultHandler> resultHandlers) {
         this.instanceMockMvc = mockMvc;
         restAssuredConfigMockMvc = config == null ? new RestAssuredConfigMockMvc() : config;
+        this.resultHandlers.addAll(resultHandlers);
     }
 
     public MockMvcRequestSpecification mockMvc(MockMvc mockMvc) {
@@ -372,8 +376,17 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return this;
     }
 
+    public MockMvcRequestSpecification resultHandlers(ResultHandler resultHandler, ResultHandler... resultHandlers) {
+        notNull(resultHandler, ResultHandler.class);
+        this.resultHandlers.add(resultHandler);
+        if (resultHandlers != null && resultHandlers.length >= 1) {
+            Collections.addAll(this.resultHandlers, resultHandlers);
+        }
+        return this;
+    }
+
     public RequestSender when() {
-        return new MockMvcRequestSender(instanceMockMvc, params, queryParams, restAssuredConfigMockMvc, requestBody, requestContentType, requestHeaders, cookies, multiParts, requestLoggingFilter);
+        return new MockMvcRequestSender(instanceMockMvc, params, queryParams, restAssuredConfigMockMvc, requestBody, requestContentType, requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {
