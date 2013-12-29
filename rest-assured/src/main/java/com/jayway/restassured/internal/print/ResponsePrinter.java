@@ -17,10 +17,7 @@ package com.jayway.restassured.internal.print;
 
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.internal.support.Prettifier;
-import com.jayway.restassured.response.Cookies;
-import com.jayway.restassured.response.Header;
-import com.jayway.restassured.response.Headers;
-import com.jayway.restassured.response.Response;
+import com.jayway.restassured.response.*;
 
 import java.io.PrintStream;
 
@@ -39,37 +36,37 @@ public class ResponsePrinter {
      *
      * @return A string of representing the response
      */
-    public static String print(Response response, PrintStream stream, LogDetail logDetail, boolean shouldPrettyPrint) {
+    public static String print(ResponseOptions responseOptions, ResponseBody responseBody, PrintStream stream, LogDetail logDetail, boolean shouldPrettyPrint) {
         final StringBuilder builder = new StringBuilder();
-        String responseBody = null;
+        String responseBodyToReturn = null;
         if (logDetail == ALL || logDetail == STATUS) {
-            builder.append(response.statusLine());
+            builder.append(responseOptions.statusLine());
         }
         if (logDetail == ALL || logDetail == HEADERS) {
-            final Headers headers = response.headers();
+            final Headers headers = responseOptions.headers();
             if (headers.exist()) {
                 appendNewLineIfAll(logDetail, builder).append(toString(headers));
             }
         } else if (logDetail == COOKIES) {
-            final Cookies cookies = response.detailedCookies();
+            final Cookies cookies = responseOptions.detailedCookies();
             if (cookies.exist()) {
                 appendNewLineIfAll(logDetail, builder).append(cookies.toString());
             }
         }
         if (logDetail == ALL || logDetail == BODY) {
             if (shouldPrettyPrint) {
-                responseBody = new Prettifier().getPrettifiedBodyIfPossible(response);
+                responseBodyToReturn = new Prettifier().getPrettifiedBodyIfPossible(responseOptions, responseBody);
             } else {
-                responseBody = response.asString();
+                responseBodyToReturn = responseBody.asString();
             }
-            if (logDetail == ALL && !isBlank(responseBody)) {
+            if (logDetail == ALL && !isBlank(responseBodyToReturn)) {
                 builder.append("\n\n");
             }
 
-            builder.append(responseBody);
+            builder.append(responseBodyToReturn);
         }
         stream.println(builder.toString());
-        return responseBody;
+        return responseBodyToReturn;
     }
 
     private static String toString(Headers headers) {

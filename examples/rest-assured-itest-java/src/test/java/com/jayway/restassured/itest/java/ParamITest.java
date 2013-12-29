@@ -37,7 +37,8 @@ public class ParamITest extends WithJetty {
 
     @Test
     public void multipleNoValueQueryParamWhenUsingQueryParamInUrlForGetRequest() throws Exception {
-        expect().body(is("Params: some1=some=")).when().get("/noValueParam?some&some1");
+        // For some reason Scalatra returns the order different when running in Intellij and Maven
+        expect().body(anyOf(is("Params: some=some1="), is("Params: some1=some="))).when().get("/noValueParam?some&some1");
     }
 
     @Test
@@ -67,7 +68,8 @@ public class ParamITest extends WithJetty {
 
     @Test
     public void multipleNoValueParamWhenUsingFormParamWithPostRequest() throws Exception {
-        given().formParam("some").and().formParam("some1").expect().body(is("Params: some1=some=")).when().post("/noValueParam");
+        // For some reason Scalatra returns the order different when running in Intellij and Maven
+        given().formParam("some").and().formParam("some1").expect().body(anyOf(is("Params: some=some1="), is("Params: some1=some="))).when().post("/noValueParam");
     }
 
     @Test
@@ -118,7 +120,8 @@ public class ParamITest extends WithJetty {
 
     @Test
     public void mixingNoValueAndValueParamWhenUsingFormParamWithPostRequest() throws Exception {
-        given().formParam("some").and().formParam("some1", "one").expect().body(is("Params: some1=onesome=")).when().post("/noValueParam");
+        // For some reason Scalatra returns the order different when running in Intellij and Maven
+        given().formParam("some").and().formParam("some1", "one").expect().body(anyOf(is("Params: some=some1=one"), is("Params: some1=onesome="))).when().post("/noValueParam");
     }
 
     @Test

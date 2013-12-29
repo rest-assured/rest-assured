@@ -95,7 +95,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
         Response response = ctx.next(requestSpec, responseSpec);
         final int statusCode = response.statusCode();
         if (matcher.matches(statusCode)) {
-            final String responseAsString = ResponsePrinter.print(response, stream, logDetail, shouldPrettyPrint);
+            final String responseAsString = ResponsePrinter.print(response, response, stream, logDetail, shouldPrettyPrint);
             response = cloneResponseIfNeeded(response, responseAsString);
         }
 

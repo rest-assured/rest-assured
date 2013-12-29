@@ -17,12 +17,13 @@
 package com.jayway.restassured.module.mockmvc.specification;
 
 
+import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.specification.LogSpecification;
 
 /**
  * The request logging specification
  */
-public interface MockMvcRequestLogSpecification extends LogSpecification<MockMvcRequestSpecification> {
+public interface MockMvcRequestLogSpecification extends LogSpecification<MockMvcRequestSpecification, MockMvcResponse> {
 
     /**
      * Logs only the parameters of the request. Same as {@link #parameters()} but slightly shorter syntax.

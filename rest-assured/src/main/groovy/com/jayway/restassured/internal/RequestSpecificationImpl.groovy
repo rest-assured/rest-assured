@@ -73,9 +73,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private String basePath
   private AuthenticationScheme defaultAuthScheme
   private int port
-  private Map<String, Object> requestParameters = [:]
-  private Map<String, Object> queryParameters = [:]
-  private Map<String, Object> formParameters = [:]
+  private Map<String, Object> requestParameters = new LinkedHashMap()
+  private Map<String, Object> queryParameters = new LinkedHashMap()
+  private Map<String, Object> formParameters = new LinkedHashMap()
   private Map<String, Object> pathParameters = [:]
   private Map<String, Object> httpClientParams = [:]
   def AuthenticationScheme authenticationScheme = new NoAuthScheme()
@@ -1034,12 +1034,23 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def assembleBodyContent(httpMethod) {
     if (hasFormParams()) {
-      httpMethod == Method.POST ? requestParameters += formParameters : formParameters
+      if(httpMethod == Method.POST) {
+        mergeMapsAndRetainOrder(requestParameters, formParameters)
+      } else {
+        formParameters
+      }
     } else if (multiParts.isEmpty()) {
       requestBody
     } else {
       new byte[0]
     }
+  }
+
+  def mergeMapsAndRetainOrder(Map<String, Object> map1, Map<String, Object> map2) {
+    def newMap = new LinkedHashMap()
+    newMap.putAll(map1)
+    newMap.putAll(map2)
+    newMap
   }
 
   def setRequestHeadersToHttpBuilder(HTTPBuilder http) {
@@ -1105,7 +1116,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private def convertFormParamsToMultiPartParams() {
-    def allFormParams = requestParameters += formParameters
+    def allFormParams = mergeMapsAndRetainOrder(requestParameters, formParameters)
     allFormParams.each {
       multiPart(it.key, it.value)
     }
@@ -1114,7 +1125,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private def sendHttpRequest(HTTPBuilder http, method, responseContentType, targetPath, assertionClosure) {
-    def allQueryParams = requestParameters += queryParameters
+    def allQueryParams = mergeMapsAndRetainOrder(requestParameters, queryParameters)
     http.request(method, responseContentType) {
       uri.path = targetPath
 
@@ -1619,8 +1630,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
                 returnVal = responseClosure.call(resp, this.parseResponse(resp, contentType1));
               }
             } catch (Exception ex) {
-              org.apache.http.Header h = entity.getContentType();
-              String respContentType = h != null ? h.getValue() : null;
               throw new ResponseParseException(resp, ex);
             }
             break;

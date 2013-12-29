@@ -14,16 +14,10 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.response;
+package com.jayway.restassured.module.mockmvc.specification;
 
-/**
- * A validatable response of a request made by REST Assured.
- * <p>
- * Usage example:
- * <pre>
- * get("/lotto").then().body("lotto.lottoId", is(5));
- * </pre>
- * </p>
- */
-public interface ValidatableResponse extends ValidatableResponseOptions<ValidatableResponse, Response> {
+import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
+import com.jayway.restassured.specification.RequestSenderOptions;
+
+public interface MockMvcRequestSender extends RequestSenderOptions<MockMvcResponse> {
 }

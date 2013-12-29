@@ -7,13 +7,16 @@ import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
-import com.jayway.restassured.internal.RestAssuredResponseImpl;
 import com.jayway.restassured.internal.filter.FilterContextImpl;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
-import com.jayway.restassured.response.*;
-import com.jayway.restassured.specification.RequestSender;
+import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSender;
+import com.jayway.restassured.response.Cookie;
+import com.jayway.restassured.response.Cookies;
+import com.jayway.restassured.response.Header;
+import com.jayway.restassured.response.Headers;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -37,7 +40,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
 
-class MockMvcRequestSender implements RequestSender {
+class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final MockMvc mockMvc;
     private final Map<String, Object> params;
     private final Map<String, Object> queryParams;
@@ -50,9 +53,9 @@ class MockMvcRequestSender implements RequestSender {
     private final RequestLoggingFilter requestLoggingFilter;
     private final List<ResultHandler> resultHandlers;
 
-    MockMvcRequestSender(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, RestAssuredMockMvcConfig config, Object requestBody,
-                         String requestContentType, Headers headers, Cookies cookies, List<MockMvcMultiPart> multiParts,
-                         RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers) {
+    MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, RestAssuredMockMvcConfig config, Object requestBody,
+                             String requestContentType, Headers headers, Cookies cookies, List<MockMvcMultiPart> multiParts,
+                             RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.queryParams = queryParams;
@@ -79,12 +82,12 @@ class MockMvcRequestSender implements RequestSender {
         return new Headers(headers);
     }
 
-    private Response performRequest(MockHttpServletRequestBuilder requestBuilder) {
+    private MockMvcResponse performRequest(MockHttpServletRequestBuilder requestBuilder) {
         MockHttpServletResponse response;
-        RestAssuredResponseImpl restAssuredResponse = new RestAssuredResponseImpl();
         if (mockMvc == null) {
             throw new IllegalStateException("You haven't configured a MockMVC instance. You can do this statically\n\nRestAssured.mockMvc = ..\nRestAssured.standaloneSetup(..);\nRestAssured.webAppContextSetup(..);\n\nor using the DSL:\n\ngiven().\n\t\tmockMvc(..). ..\n");
         }
+        MockMvcRestAssuredResponseImpl restAssuredResponse;
         try {
             ResultActions perform = mockMvc.perform(requestBuilder);
             if (!resultHandlers.isEmpty()) {
@@ -94,6 +97,7 @@ class MockMvcRequestSender implements RequestSender {
             }
             MvcResult mvcResult = perform.andReturn();
             response = mvcResult.getResponse();
+            restAssuredResponse = new MockMvcRestAssuredResponseImpl(perform);
             restAssuredResponse.setConfig(convertToRestAssuredConfig(config));
             restAssuredResponse.setContent(response.getContentAsString());
             restAssuredResponse.setContentType(response.getContentType());
@@ -126,7 +130,7 @@ class MockMvcRequestSender implements RequestSender {
         return map.values().toArray(new Object[map.values().size()]);
     }
 
-    private Response sendRequest(HttpMethod method, String path, Object[] pathParams) {
+    private MockMvcResponse sendRequest(HttpMethod method, String path, Object[] pathParams) {
         if (requestBody != null && !multiParts.isEmpty()) {
             throw new IllegalStateException("You cannot specify a request body and a multi-part body in the same request. Perhaps you want to change the body to a multi part?");
         }
@@ -299,143 +303,143 @@ class MockMvcRequestSender implements RequestSender {
         requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(path, path, Method.valueOf(method.toString()), null, Collections.<Filter>emptyList()));
     }
 
-    public Response get(String path, Object... pathParams) {
+    public MockMvcResponse get(String path, Object... pathParams) {
         return sendRequest(GET, path, pathParams);
     }
 
-    public Response get(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse get(String path, Map<String, ?> pathParams) {
         return get(path, mapToArray(pathParams));
     }
 
-    public Response post(String path, Object... pathParams) {
+    public MockMvcResponse post(String path, Object... pathParams) {
         return sendRequest(POST, path, pathParams);
     }
 
-    public Response post(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse post(String path, Map<String, ?> pathParams) {
         return post(path, mapToArray(pathParams));
     }
 
-    public Response put(String path, Object... pathParams) {
+    public MockMvcResponse put(String path, Object... pathParams) {
         return sendRequest(PUT, path, pathParams);
     }
 
-    public Response put(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse put(String path, Map<String, ?> pathParams) {
         return put(path, mapToArray(pathParams));
     }
 
-    public Response delete(String path, Object... pathParams) {
+    public MockMvcResponse delete(String path, Object... pathParams) {
         return sendRequest(DELETE, path, pathParams);
     }
 
-    public Response delete(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse delete(String path, Map<String, ?> pathParams) {
         return delete(path, mapToArray(pathParams));
     }
 
-    public Response head(String path, Object... pathParams) {
+    public MockMvcResponse head(String path, Object... pathParams) {
         return sendRequest(HEAD, path, pathParams);
     }
 
-    public Response head(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse head(String path, Map<String, ?> pathParams) {
         return head(path, mapToArray(pathParams));
     }
 
-    public Response patch(String path, Object... pathParams) {
+    public MockMvcResponse patch(String path, Object... pathParams) {
         return sendRequest(PATCH, path, pathParams);
     }
 
-    public Response patch(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse patch(String path, Map<String, ?> pathParams) {
         return patch(path, mapToArray(pathParams));
     }
 
-    public Response options(String path, Object... pathParams) {
+    public MockMvcResponse options(String path, Object... pathParams) {
         return sendRequest(OPTIONS, path, pathParams);
     }
 
-    public Response options(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse options(String path, Map<String, ?> pathParams) {
         return options(path, mapToArray(pathParams));
     }
 
-    public Response get(URI uri) {
+    public MockMvcResponse get(URI uri) {
         return get(uri.toString());
     }
 
-    public Response post(URI uri) {
+    public MockMvcResponse post(URI uri) {
         return post(uri.toString());
     }
 
-    public Response put(URI uri) {
+    public MockMvcResponse put(URI uri) {
         return put(uri.toString());
     }
 
-    public Response delete(URI uri) {
+    public MockMvcResponse delete(URI uri) {
         return delete(uri.toString());
     }
 
-    public Response head(URI uri) {
+    public MockMvcResponse head(URI uri) {
         return head(uri.toString());
     }
 
-    public Response patch(URI uri) {
+    public MockMvcResponse patch(URI uri) {
         return patch(uri.toString());
     }
 
-    public Response options(URI uri) {
+    public MockMvcResponse options(URI uri) {
         return options(uri.toString());
     }
 
-    public Response get(URL url) {
+    public MockMvcResponse get(URL url) {
         return get(url.toString());
     }
 
-    public Response post(URL url) {
+    public MockMvcResponse post(URL url) {
         return post(url.toString());
     }
 
-    public Response put(URL url) {
+    public MockMvcResponse put(URL url) {
         return put(url.toString());
     }
 
-    public Response delete(URL url) {
+    public MockMvcResponse delete(URL url) {
         return delete(url.toString());
     }
 
-    public Response head(URL url) {
+    public MockMvcResponse head(URL url) {
         return head(url.toString());
     }
 
-    public Response patch(URL url) {
+    public MockMvcResponse patch(URL url) {
         return patch(url.toString());
     }
 
-    public Response options(URL url) {
+    public MockMvcResponse options(URL url) {
         return options(url.toString());
     }
 
-    public Response get() {
+    public MockMvcResponse get() {
         return get("");
     }
 
-    public Response post() {
+    public MockMvcResponse post() {
         return post("");
     }
 
-    public Response put() {
+    public MockMvcResponse put() {
         return put("");
     }
 
-    public Response delete() {
+    public MockMvcResponse delete() {
         return delete("");
     }
 
-    public Response head() {
+    public MockMvcResponse head() {
         return head("");
     }
 
-    public Response patch() {
+    public MockMvcResponse patch() {
         return patch("");
     }
 
-    public Response options() {
+    public MockMvcResponse options() {
         return options("");
     }
 }

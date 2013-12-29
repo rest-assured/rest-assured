@@ -17,10 +17,12 @@
 package com.jayway.restassured.specification;
 
 
+import com.jayway.restassured.response.Response;
+
 /**
  * The request logging specification
  */
-public interface RequestLogSpecification extends LogSpecification<RequestSpecification> {
+public interface RequestLogSpecification extends LogSpecification<RequestSpecification, Response> {
 
     /**
      * Logs only the parameters of the request. Same as {@link #parameters()} but slightly shorter syntax.

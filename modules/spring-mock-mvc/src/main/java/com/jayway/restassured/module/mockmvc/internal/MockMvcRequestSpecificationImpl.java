@@ -11,10 +11,14 @@ import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.internal.support.ParameterAppender;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSender;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import com.jayway.restassured.response.*;
-import com.jayway.restassured.specification.RequestSender;
+import com.jayway.restassured.response.Cookie;
+import com.jayway.restassured.response.Cookies;
+import com.jayway.restassured.response.Header;
+import com.jayway.restassured.response.Headers;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -385,8 +389,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return this;
     }
 
-    public RequestSender when() {
-        return new MockMvcRequestSender(instanceMockMvc, params, queryParams, restAssuredMockMvcConfig, requestBody, requestContentType, requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers);
+    public MockMvcRequestSender when() {
+        return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, restAssuredMockMvcConfig, requestBody, requestContentType, requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {
@@ -405,143 +409,143 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, restAssuredMockMvcConfig.getObjectMapperConfig()) : object.toString();
     }
 
-    public Response get(String path, Object... pathParams) {
+    public MockMvcResponse get(String path, Object... pathParams) {
         return when().get(path, pathParams);
     }
 
-    public Response get(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse get(String path, Map<String, ?> pathParams) {
         return when().get(path, pathParams);
     }
 
-    public Response post(String path, Object... pathParams) {
+    public MockMvcResponse post(String path, Object... pathParams) {
         return when().post(path, pathParams);
     }
 
-    public Response post(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse post(String path, Map<String, ?> pathParams) {
         return when().post(path, pathParams);
     }
 
-    public Response put(String path, Object... pathParams) {
+    public MockMvcResponse put(String path, Object... pathParams) {
         return when().put(path, pathParams);
     }
 
-    public Response put(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse put(String path, Map<String, ?> pathParams) {
         return when().put(path, pathParams);
     }
 
-    public Response delete(String path, Object... pathParams) {
+    public MockMvcResponse delete(String path, Object... pathParams) {
         return when().delete(path, pathParams);
     }
 
-    public Response delete(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse delete(String path, Map<String, ?> pathParams) {
         return when().delete(path, pathParams);
     }
 
-    public Response head(String path, Object... pathParams) {
+    public MockMvcResponse head(String path, Object... pathParams) {
         return when().head(path, pathParams);
     }
 
-    public Response head(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse head(String path, Map<String, ?> pathParams) {
         return when().head(path, pathParams);
     }
 
-    public Response patch(String path, Object... pathParams) {
+    public MockMvcResponse patch(String path, Object... pathParams) {
         return when().patch(path, pathParams);
     }
 
-    public Response patch(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse patch(String path, Map<String, ?> pathParams) {
         return when().patch(path, pathParams);
     }
 
-    public Response options(String path, Object... pathParams) {
+    public MockMvcResponse options(String path, Object... pathParams) {
         return when().options(path, pathParams);
     }
 
-    public Response options(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse options(String path, Map<String, ?> pathParams) {
         return when().options(path, pathParams);
     }
 
-    public Response get(URI uri) {
+    public MockMvcResponse get(URI uri) {
         return when().get(uri);
     }
 
-    public Response post(URI uri) {
+    public MockMvcResponse post(URI uri) {
         return when().post(uri);
     }
 
-    public Response put(URI uri) {
+    public MockMvcResponse put(URI uri) {
         return when().put(uri);
     }
 
-    public Response delete(URI uri) {
+    public MockMvcResponse delete(URI uri) {
         return when().delete(uri);
     }
 
-    public Response head(URI uri) {
+    public MockMvcResponse head(URI uri) {
         return when().head(uri);
     }
 
-    public Response patch(URI uri) {
+    public MockMvcResponse patch(URI uri) {
         return when().patch(uri);
     }
 
-    public Response options(URI uri) {
+    public MockMvcResponse options(URI uri) {
         return when().options(uri);
     }
 
-    public Response get(URL url) {
+    public MockMvcResponse get(URL url) {
         return when().get(url);
     }
 
-    public Response post(URL url) {
+    public MockMvcResponse post(URL url) {
         return when().post(url);
     }
 
-    public Response put(URL url) {
+    public MockMvcResponse put(URL url) {
         return when().put(url);
     }
 
-    public Response delete(URL url) {
+    public MockMvcResponse delete(URL url) {
         return when().delete(url);
     }
 
-    public Response head(URL url) {
+    public MockMvcResponse head(URL url) {
         return when().head(url);
     }
 
-    public Response patch(URL url) {
+    public MockMvcResponse patch(URL url) {
         return when().patch(url);
     }
 
-    public Response options(URL url) {
+    public MockMvcResponse options(URL url) {
         return when().options(url);
     }
 
-    public Response get() {
+    public MockMvcResponse get() {
         return when().get();
     }
 
-    public Response post() {
+    public MockMvcResponse post() {
         return when().post();
     }
 
-    public Response put() {
+    public MockMvcResponse put() {
         return when().put();
     }
 
-    public Response delete() {
+    public MockMvcResponse delete() {
         return when().delete();
     }
 
-    public Response head() {
+    public MockMvcResponse head() {
         return when().head();
     }
 
-    public Response patch() {
+    public MockMvcResponse patch() {
         return when().patch();
     }
 
-    public Response options() {
+    public MockMvcResponse options() {
         return when().options();
     }
 

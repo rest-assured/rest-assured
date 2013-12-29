@@ -20,6 +20,7 @@ import com.jayway.restassured.config.XmlConfig
 import com.jayway.restassured.internal.path.json.ConfigurableJsonSlurper
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
+import com.jayway.restassured.response.ResponseBodyExtractionOptions
 import groovy.util.slurpersupport.GPathResult
 
 import static com.jayway.restassured.parsing.Parser.*
@@ -59,7 +60,7 @@ class ContentParser {
         content
     }
 
-    def private static GPathResult parseXml(XmlSlurper xmlSlurper, Response response, boolean parseAsString) {
+    def private static GPathResult parseXml(XmlSlurper xmlSlurper, ResponseBodyExtractionOptions response, boolean parseAsString) {
         if (parseAsString) {
             // We force default charset to be backward compatible with "InputStream charset"
             xmlSlurper.parseText(response.asString(true))

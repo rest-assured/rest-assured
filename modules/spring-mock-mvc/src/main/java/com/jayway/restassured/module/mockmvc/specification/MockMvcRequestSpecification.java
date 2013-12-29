@@ -8,7 +8,6 @@ import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
-import com.jayway.restassured.specification.RequestSender;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.web.context.WebApplicationContext;
@@ -18,7 +17,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 
-public interface MockMvcRequestSpecification extends RequestSender {
+public interface MockMvcRequestSpecification extends MockMvcRequestSender {
     /**
      * Specify the content type of the request.
      *
@@ -570,7 +569,7 @@ public interface MockMvcRequestSpecification extends RequestSender {
 
     MockMvcRequestSpecification resultHandlers(ResultHandler resultHandler, ResultHandler... resultHandlers);
 
-    RequestSender when();
+    MockMvcRequestSender when();
 
     MockMvcRequestSpecification standaloneSetup(Object... controllers);
 

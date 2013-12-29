@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.response;
+package com.jayway.restassured.module.mockmvc.response;
+
+import com.jayway.restassured.response.ValidatableResponseOptions;
+import org.springframework.test.web.servlet.ResultMatcher;
 
 /**
- * A validatable response of a request made by REST Assured.
+ * A validatable response of a request made by REST Assured Mock Mvc.
  * <p>
  * Usage example:
  * <pre>
@@ -25,5 +28,7 @@ package com.jayway.restassured.response;
  * </pre>
  * </p>
  */
-public interface ValidatableResponse extends ValidatableResponseOptions<ValidatableResponse, Response> {
+public interface ValidatableMockMvcResponse extends ValidatableResponseOptions<ValidatableMockMvcResponse, MockMvcResponse> {
+    // TODO Rename to assertThat ?
+    ValidatableMockMvcResponse expect(ResultMatcher resultMatcher);
 }

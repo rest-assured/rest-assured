@@ -16,10 +16,12 @@
 
 package com.jayway.restassured.specification;
 
+import com.jayway.restassured.response.ResponseOptions;
+
 /**
  * Base interface for request- and response log specifications.
  */
-public interface LogSpecification<T extends RequestSender> {
+public interface LogSpecification<T extends RequestSenderOptions<R>, R extends ResponseOptions<R>> {
 
     /**
      * Logs only the content of the body. The body will be pretty-printed by default if content-type is either XML, JSON or HTML.

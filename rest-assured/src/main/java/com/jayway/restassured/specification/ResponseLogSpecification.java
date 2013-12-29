@@ -17,12 +17,13 @@
 package com.jayway.restassured.specification;
 
 
+import com.jayway.restassured.response.Response;
 import org.hamcrest.Matcher;
 
 /**
  * The response logging specification
  */
-public interface ResponseLogSpecification extends LogSpecification<ResponseSpecification> {
+public interface ResponseLogSpecification extends LogSpecification<ResponseSpecification, Response> {
 
     /**
      * Logs only the status line (includes the status code)
