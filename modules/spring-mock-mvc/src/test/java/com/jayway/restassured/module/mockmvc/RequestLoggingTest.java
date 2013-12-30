@@ -19,6 +19,7 @@ package com.jayway.restassured.module.mockmvc;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import com.jayway.restassured.module.mockmvc.http.GreetingController;
 import com.jayway.restassured.module.mockmvc.http.PostController;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.After;
@@ -61,6 +62,21 @@ public class RequestLoggingTest {
                 body("content", equalTo("Hello, Johan!"));
 
         assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/greetingPost\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
+    }
+
+    @Test public void
+    logging_query_param_works() {
+        given().
+                log().all().
+                standaloneSetup(new GreetingController()).
+                queryParam("name", "Johan").
+        when().
+                get("/greeting").
+        then().
+                body("id", equalTo(1)).
+                body("content", equalTo("Hello, Johan!"));
+
+        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\t/greeting\nRequest params:\t<none>\nQuery params:\tname=Johan\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
     }
 
     @Test public void

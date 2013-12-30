@@ -1,4 +1,3 @@
-query params (+ log)
 form param (+ log)
 javadoc
 baseUri (+ log)

@@ -251,22 +251,21 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
             return;
         }
 
-        RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, path, new NoAuthScheme(), Collections.<Filter>emptyList(), requestContentType, null, true, convertToRestAssuredConfig(config));
+        final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, path, new NoAuthScheme(), Collections.<Filter>emptyList(), requestContentType, null, true, convertToRestAssuredConfig(config));
         if (params != null) {
-            for (Map.Entry<String, Object> stringListEntry : params.entrySet()) {
-                Object value = stringListEntry.getValue();
-                Collection<Object> values;
-                if (value instanceof Collection) {
-                    values = (Collection<Object>) value;
-                } else {
-                    values = new ArrayList<Object>();
-                    values.add(value);
+            new ParamLogger(params) {
+                protected void logParam(String paramName, Object paramValue) {
+                    reqSpec.param(paramName, paramValue);
                 }
+            }.logParams();
+        }
 
-                for (Object theValue : values) {
-                    reqSpec.param(stringListEntry.getKey(), theValue);
+        if (queryParams != null) {
+            new ParamLogger(queryParams) {
+                protected void logParam(String paramName, Object paramValue) {
+                    reqSpec.queryParam(paramName, paramValue);
                 }
-            }
+            }.logParams();
         }
 
         if (headers != null) {
@@ -470,5 +469,32 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         }
 
         protected abstract void applyParam(String paramName, String[] paramValues);
+    }
+
+    private abstract static class ParamLogger {
+        private Map<String, Object> map;
+
+        protected ParamLogger(Map<String, Object> parameters) {
+            this.map = parameters;
+        }
+
+        public void logParams() {
+            for (Map.Entry<String, Object> stringListEntry : map.entrySet()) {
+                Object value = stringListEntry.getValue();
+                Collection<Object> values;
+                if (value instanceof Collection) {
+                    values = (Collection<Object>) value;
+                } else {
+                    values = new ArrayList<Object>();
+                    values.add(value);
+                }
+
+                for (Object theValue : values) {
+                    logParam(stringListEntry.getKey(), theValue);
+                }
+            }
+        }
+
+        protected abstract void logParam(String paramName, Object paramValue);
     }
 }
