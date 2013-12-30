@@ -21,8 +21,8 @@ import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.internal.LogSpecificationImpl;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 
 import java.util.Collections;
 

@@ -2,11 +2,9 @@ package com.jayway.restassured.module.mockmvc;
 
 import com.jayway.restassured.module.mockmvc.http.GreetingController;
 import org.junit.Test;
-import org.springframework.test.web.servlet.MockMvc;
 
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 public class GetTest {
 
