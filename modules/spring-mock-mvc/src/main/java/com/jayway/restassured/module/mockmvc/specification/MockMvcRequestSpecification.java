@@ -150,13 +150,83 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
     MockMvcRequestLogSpecification log();
 
     /**
-     * A slightly shorter version of .
+     * Specify the parameters that'll be sent with the request. This is done by specifying the parameters in name-value pairs, e.g:
+     * <pre>
+     * given().params("username", "John", "token", "1234").when().get("/parameters").then().assertThat().body(equalTo("username, token"));
+     * </pre>
+     * <p/>
+     * This will send a GET request to "/parameters" with two parameters:
+     * <ol>
+     * <li>username=John</li>
+     * <li>token=1234</li>
+     * </ol>
+     * and expect that the response body is equal to "username, token".
      *
-     * @param parameterName   The parameter name
-     * @param parameterValues Parameter values, one to many if you want to specify multiple values for the same parameter.
+     * @param firstParameterName      The name of the first parameter
+     * @param firstParameterValue     The value of the first parameter
+     * @param parameterNameValuePairs Additional parameters in name-value pairs.
      * @return The request specification
      */
+    MockMvcRequestSpecification params(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
+
+    /**
+     * Specify the parameters that'll be sent with the request as Map e.g:
+     * <pre>
+     * Map&lt;String, String&gt; parameters = new HashMap&lt;String, String&gt;();
+     * parameters.put("username", "John");
+     * parameters.put("token", "1234");
+     * given().params(parameters).when().get("/cookie").then().assertThat().body(equalTo("username, token")).;
+     * </pre>
+     * <p/>
+     * This will send a GET request to "/cookie" with two parameters:
+     * <ol>
+     * <li>username=John</li>
+     * <li>token=1234</li>
+     * </ol>
+     * and expect that the response body is equal to "username, token".
+     *
+     * @param parametersMap The Map containing the parameter names and their values to send with the request.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification params(Map<String, ?> parametersMap);
+
+    /**
+     * Specify a parameter that'll be sent with the request e.g:
+     * <p>
+     * <pre>
+     * given().parameter("username", "John").and().expect().body(equalTo("username")).when().get("/cookie");
+     * </pre>
+     * This will set the parameter <code>username=John</code> in the GET request to "/cookie".
+     * </p>
+     * <p/>
+     * <p>
+     * You can also specify several parameters like this:
+     * <pre>
+     * given().param("username", "John").and().param("password", "1234").when().get("/cookie").then().assertThat().body(equalTo("username")).;
+     * </pre>
+     * </p>
+     *
+     * @param parameterName   The parameter name
+     * @param parameterValues Zero to many parameter values for this parameter name
+     * @return The request specification
+     * @see #params(String, Object, Object...)
+     */
     MockMvcRequestSpecification param(String parameterName, Object... parameterValues);
+
+    /**
+     * Specify a multi-value parameter that'll be sent with the request e.g:
+     * <p>
+     * <pre>
+     * given().param("cars", asList("Volvo", "Saab"))..;
+     * </pre>
+     * This will set the parameter <code>cars=Volvo</code> and <code>cars=Saab</code>.
+     * </p>
+     *
+     * @param parameterName   The parameter name
+     * @param parameterValues The parameter values
+     * @return The request specification
+     */
+    MockMvcRequestSpecification param(String parameterName, Collection<?> parameterValues);
 
     /**
      * Specify the query parameters that'll be sent with the request. Note that this method is the same as {@link #params(String, Object, Object...)}

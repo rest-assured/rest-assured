@@ -174,6 +174,18 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return new MockMvcRequestLogSpecificationImpl(this);
     }
 
+    public MockMvcRequestSpecification params(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+        notNull(firstParameterName, "firstParameterName");
+        notNull(firstParameterValue, "firstParameterValue");
+        return params(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs));
+    }
+
+    public MockMvcRequestSpecification params(Map<String, ?> parametersMap) {
+        notNull(parametersMap, "parametersMap");
+        parameterAppender.appendParameters((Map<String, Object>) parametersMap, params);
+        return this;
+    }
+
     private void filterContentTypeHeader(List<Header> headerList) {
         ListIterator<Header> headerListIterator = headerList.listIterator();
         while (headerListIterator.hasNext()) {
@@ -188,6 +200,13 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification param(String parameterName, Object... parameterValues) {
         notNull(parameterName, "parameterName");
         parameterAppender.appendZeroToManyParameters(params, parameterName, parameterValues);
+        return this;
+    }
+
+    public MockMvcRequestSpecification param(String parameterName, Collection<?> parameterValues) {
+        notNull(parameterName, "parameterName");
+        notNull(parameterValues, "parameterValues");
+        parameterAppender.appendCollectionParameter(params, parameterName, (Collection<Object>) parameterValues);
         return this;
     }
 

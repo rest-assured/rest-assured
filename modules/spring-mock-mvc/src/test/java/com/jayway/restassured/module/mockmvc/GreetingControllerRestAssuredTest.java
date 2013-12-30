@@ -26,6 +26,20 @@ public class GreetingControllerRestAssuredTest {
     }
 
     @Test public void
+    param_with_int() throws Exception {
+        MockMvc mockMvc = standaloneSetup(new GreetingController()).build();
+
+        given().
+                mockMvc(mockMvc).
+                param("name", 1).
+        when().
+                get("/greeting").
+        then().
+                body("id", equalTo(1)).
+                body("content", equalTo("Hello, 1!"));
+    }
+
+    @Test public void
     uses_predefined_standalone() throws Exception {
         given().
                 standaloneSetup(new GreetingController()).
