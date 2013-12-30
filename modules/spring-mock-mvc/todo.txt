@@ -3,4 +3,3 @@ form param (+ log)
 javadoc
 baseUri (+ log)
 Add static methods (e.g. get) to RestAssuredMockMvc
-ResultMatcher support
