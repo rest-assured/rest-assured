@@ -11,6 +11,7 @@ import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.internal.support.ParameterAppender;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSender;
@@ -66,6 +67,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private final List<ResultHandler> resultHandlers = new ArrayList<ResultHandler>();
 
+    private MockHttpServletRequestBuilderInterceptor interceptor;
+
     public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers) {
         this.instanceMockMvc = mockMvc;
         restAssuredMockMvcConfig = config == null ? new RestAssuredMockMvcConfig() : config;
@@ -83,6 +86,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context) {
         return changeMockMvcInstanceTo(MockMvcBuilders.webAppContextSetup(context).build());
+    }
+
+    public MockMvcRequestSpecification intercept(MockHttpServletRequestBuilderInterceptor interceptor) {
+        this.interceptor = interceptor;
+        return this;
     }
 
     public MockMvcRequestSpecification contentType(ContentType contentType) {
@@ -409,7 +417,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSender when() {
-        return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, restAssuredMockMvcConfig, requestBody, requestContentType, requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers);
+        return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, restAssuredMockMvcConfig, requestBody, requestContentType,
+                requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {

@@ -11,6 +11,7 @@ import com.jayway.restassured.internal.filter.FilterContextImpl;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSender;
 import com.jayway.restassured.response.Cookie;
@@ -52,10 +53,11 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final List<MockMvcMultiPart> multiParts;
     private final RequestLoggingFilter requestLoggingFilter;
     private final List<ResultHandler> resultHandlers;
+    private final MockHttpServletRequestBuilderInterceptor interceptor;
 
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, RestAssuredMockMvcConfig config, Object requestBody,
                              String requestContentType, Headers headers, Cookies cookies, List<MockMvcMultiPart> multiParts,
-                             RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers) {
+                             RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers, MockHttpServletRequestBuilderInterceptor interceptor) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.queryParams = queryParams;
@@ -67,6 +69,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         this.multiParts = multiParts;
         this.requestLoggingFilter = requestLoggingFilter;
         this.resultHandlers = resultHandlers;
+        this.interceptor = interceptor;
     }
 
     private Object assembleHeaders(MockHttpServletResponse response) {
@@ -87,6 +90,11 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         if (mockMvc == null) {
             throw new IllegalStateException("You haven't configured a MockMVC instance. You can do this statically\n\nRestAssured.mockMvc = ..\nRestAssured.standaloneSetup(..);\nRestAssured.webAppContextSetup(..);\n\nor using the DSL:\n\ngiven().\n\t\tmockMvc(..). ..\n");
         }
+
+        if (interceptor != null) {
+            interceptor.intercept(requestBuilder);
+        }
+
         MockMvcRestAssuredResponseImpl restAssuredResponse;
         try {
             ResultActions perform = mockMvc.perform(requestBuilder);

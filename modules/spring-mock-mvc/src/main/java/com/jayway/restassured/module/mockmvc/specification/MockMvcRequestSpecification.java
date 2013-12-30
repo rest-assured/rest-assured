@@ -4,6 +4,7 @@ import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
@@ -646,4 +647,13 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
     MockMvcRequestSpecification mockMvc(MockMvc mockMvc);
 
     MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context);
+
+    /**
+     * Intercept the {@link org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder} created by REST Assured before it's
+     * used to perform the request.
+     *
+     * @param interceptor The interceptor
+     * @return The request specification
+     */
+    MockMvcRequestSpecification intercept(MockHttpServletRequestBuilderInterceptor interceptor);
 }
