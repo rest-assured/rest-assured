@@ -1,2 +1,1 @@
 javadoc
-Add static methods (e.g. get) to RestAssuredMockMvc
