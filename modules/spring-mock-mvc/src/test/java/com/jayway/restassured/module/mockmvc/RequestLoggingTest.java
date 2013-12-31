@@ -19,6 +19,7 @@ package com.jayway.restassured.module.mockmvc;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import com.jayway.restassured.module.mockmvc.http.BasePathController;
 import com.jayway.restassured.module.mockmvc.http.GreetingController;
 import com.jayway.restassured.module.mockmvc.http.PostController;
 import org.apache.commons.io.output.WriterOutputStream;
@@ -106,6 +107,27 @@ public class RequestLoggingTest {
                 body(equalTo("a string"));
 
         assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/stringBody\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\na string\n"));
+    }
+
+    @Test public void
+    base_path_is_prepended_to_path_when_logging() {
+        RestAssuredMockMvc.basePath = "/my-path";
+
+        try {
+            given().
+                    log().all().
+                    standaloneSetup(new BasePathController()).
+                    param("name", "Johan").
+            when().
+                    get("/greetingPath").
+            then().
+                    statusCode(200).
+                    body("content", equalTo("Hello, Johan!"));
+        } finally {
+            RestAssuredMockMvc.reset();
+        }
+
+        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\t/my-path/greetingPath\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
     }
 }
 

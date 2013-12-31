@@ -54,6 +54,8 @@ import static com.jayway.restassured.http.ContentType.*
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static com.jayway.restassured.internal.http.Method.*
 import static com.jayway.restassured.internal.serialization.SerializationSupport.isSerializableCandidate
+import static com.jayway.restassured.internal.support.PathSupport.isFullyQualified
+import static com.jayway.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash
 import static java.lang.String.format
 import static java.util.Arrays.asList
 import static org.apache.commons.lang3.StringUtils.substringAfter
@@ -63,7 +65,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private static final int DEFAULT_HTTP_PORT = 80
   private static final int DEFAULT_HTTP_TEST_PORT = 8080
   private static final String MULTIPART_FORM_DATA = "multipart/form-data"
-  private static final String SLASH = "/"
   private static final String CONTENT_TYPE = "content-type"
   private static final String DOUBLE_SLASH = "//"
   private static final String LOCALHOST = "localhost"
@@ -1034,7 +1035,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def assembleBodyContent(httpMethod) {
     if (hasFormParams()) {
-      if(httpMethod == Method.POST) {
+      if (httpMethod == Method.POST) {
         mergeMapsAndRetainOrder(requestParameters, formParameters)
       } else {
         formParameters
@@ -1152,20 +1153,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   private boolean mayHaveBody(method) {
     return POST.equals(method) || formParameters.size() > 0 || multiParts.size() > 0
-  }
-
-  private boolean isFullyQualified(String targetUri) {
-    if (StringUtils.isBlank(targetUri)) {
-      return false
-    }
-
-    def indexOfFirstSlash = targetUri.indexOf("/");
-    def indexOfScheme = targetUri.indexOf("://");
-    if (indexOfScheme == -1) {
-      // If we didn't find a single :// in the path then we know that the targetUri is not fully-qualified
-      return false
-    }
-    return indexOfScheme < indexOfFirstSlash
   }
 
   private String extractRequestParamsIfNeeded(String path) {
@@ -1539,21 +1526,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     notNull filterType, "Filter type"
     this.filters.removeAll { filterType.isAssignableFrom(it.getClass()) }
     this
-  }
-
-  def private String mergeAndRemoveDoubleSlash(String thisOne, String otherOne) {
-    thisOne = thisOne.trim()
-    otherOne = otherOne.trim()
-    final boolean otherOneStartsWithSlash = otherOne.startsWith(SLASH);
-    final boolean thisOneEndsWithSlash = thisOne.endsWith(SLASH)
-    if (thisOneEndsWithSlash && otherOneStartsWithSlash) {
-      return thisOne + substringAfter(otherOne, SLASH);
-    } else if (thisOneEndsWithSlash && isFullyQualified(otherOne)) {
-      thisOne = ""
-    } else if (!thisOneEndsWithSlash && !otherOneStartsWithSlash && !(otherOne == "" ^ thisOne == "")) {
-      return "$thisOne/$otherOne"
-    }
-    return thisOne + otherOne;
   }
 
   private class RestAssuredHttpBuilder extends HTTPBuilder {

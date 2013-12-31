@@ -42,6 +42,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private MockMvc instanceMockMvc;
 
+    private final String basePath;
+
     private final Map<String, Object> params = new LinkedHashMap<String, Object>();
     private final Map<String, Object> queryParams = new LinkedHashMap<String, Object>();
     private final Map<String, Object> formParams = new LinkedHashMap<String, Object>();
@@ -70,8 +72,9 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private MockHttpServletRequestBuilderInterceptor interceptor;
 
-    public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers) {
+    public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers, String basePath) {
         this.instanceMockMvc = mockMvc;
+        this.basePath = basePath;
         restAssuredMockMvcConfig = config == null ? new RestAssuredMockMvcConfig() : config;
         this.resultHandlers.addAll(resultHandlers);
     }
@@ -444,7 +447,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSender when() {
         return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, restAssuredMockMvcConfig, requestBody, requestContentType,
-                requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor);
+                requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {

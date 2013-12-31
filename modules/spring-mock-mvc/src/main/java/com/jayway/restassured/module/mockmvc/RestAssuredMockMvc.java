@@ -18,9 +18,14 @@ public class RestAssuredMockMvc {
     public static MockMvc mockMvc = null;
     public static RestAssuredMockMvcConfig config;
     private static List<ResultHandler> resultHandlers = new ArrayList<ResultHandler>();
+    /**
+     * The base path that's used by REST assured when making requests. The base path is prepended to the request path.
+     * Default value is <code>null</code> (which means no base path).
+     */
+    public static String basePath = null;
 
     public static MockMvcRequestSpecification given() {
-        return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers);
+        return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers, basePath);
     }
 
     public static void standaloneSetup(Object... controllers) {
@@ -42,6 +47,7 @@ public class RestAssuredMockMvc {
     public static void reset() {
         mockMvc = null;
         config = null;
+        basePath = null;
         resultHandlers.clear();
     }
 }

@@ -36,6 +36,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.*;
 
+import static com.jayway.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash;
 import static com.jayway.restassured.module.mockmvc.internal.ConfigConverter.convertToRestAssuredConfig;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.HttpMethod.*;
@@ -55,11 +56,12 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final RequestLoggingFilter requestLoggingFilter;
     private final List<ResultHandler> resultHandlers;
     private final MockHttpServletRequestBuilderInterceptor interceptor;
+    private final String basePath;
 
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams,
                              RestAssuredMockMvcConfig config, Object requestBody, String requestContentType, Headers headers, Cookies cookies,
                              List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
-                             MockHttpServletRequestBuilderInterceptor interceptor) {
+                             MockHttpServletRequestBuilderInterceptor interceptor, String basePath) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.queryParams = queryParams;
@@ -73,6 +75,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         this.requestLoggingFilter = requestLoggingFilter;
         this.resultHandlers = resultHandlers;
         this.interceptor = interceptor;
+        this.basePath = basePath;
     }
 
     private Object assembleHeaders(MockHttpServletResponse response) {
@@ -144,6 +147,10 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private MockMvcResponse sendRequest(HttpMethod method, String path, Object[] pathParams) {
         if (requestBody != null && !multiParts.isEmpty()) {
             throw new IllegalStateException("You cannot specify a request body and a multi-part body in the same request. Perhaps you want to change the body to a multi part?");
+        }
+
+        if (isNotBlank(basePath)) {
+            path = mergeAndRemoveDoubleSlash(basePath, path);
         }
 
         final MockHttpServletRequestBuilder request;
