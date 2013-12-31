@@ -80,6 +80,21 @@ public class RequestLoggingTest {
     }
 
     @Test public void
+    logging_form_param_works() {
+        given().
+                log().all().
+                standaloneSetup(new PostController()).
+                formParam("name", "Johan").
+        when().
+                post("/greetingPost").
+        then().
+                body("id", equalTo(1)).
+                body("content", equalTo("Hello, Johan!"));
+
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/greetingPost\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\tname=Johan\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
+    }
+
+    @Test public void
     can_supply_string_as_body_for_post() {
         given().
                 standaloneSetup(new PostController()).

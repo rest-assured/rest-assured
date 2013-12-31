@@ -45,6 +45,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final MockMvc mockMvc;
     private final Map<String, Object> params;
     private final Map<String, Object> queryParams;
+    private final Map<String, Object> formParams;
     private final RestAssuredMockMvcConfig config;
     private final Object requestBody;
     private final String requestContentType;
@@ -55,12 +56,14 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final List<ResultHandler> resultHandlers;
     private final MockHttpServletRequestBuilderInterceptor interceptor;
 
-    MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, RestAssuredMockMvcConfig config, Object requestBody,
-                             String requestContentType, Headers headers, Cookies cookies, List<MockMvcMultiPart> multiParts,
-                             RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers, MockHttpServletRequestBuilderInterceptor interceptor) {
+    MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams,
+                             RestAssuredMockMvcConfig config, Object requestBody, String requestContentType, Headers headers, Cookies cookies,
+                             List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
+                             MockHttpServletRequestBuilderInterceptor interceptor) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.queryParams = queryParams;
+        this.formParams = formParams;
         this.config = config;
         this.requestBody = requestBody;
         this.requestContentType = requestContentType;
@@ -160,8 +163,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
                 }
             }.applyParams();
 
-            boolean isInMultiPartMode = request instanceof MockMultipartHttpServletRequestBuilder;
-            if (method == POST && !isInMultiPartMode) {
+            if (method == POST && !isInMultiPartMode(request)) {
                 request.contentType(APPLICATION_FORM_URLENCODED);
             }
         }
@@ -174,6 +176,23 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
                     request.param(paramName, paramValues);
                 }
             }.applyParams();
+        }
+
+        if (!formParams.isEmpty()) {
+            if (method == GET) {
+                throw new IllegalArgumentException("Cannot use form parameters in a GET request");
+            }
+            new ParamApplier(formParams) {
+                @Override
+                protected void applyParam(String paramName, String[] paramValues) {
+                    request.param(paramName, paramValues);
+                }
+            }.applyParams();
+
+            boolean isInMultiPartMode = isInMultiPartMode(request);
+            if (!isInMultiPartMode) {
+                request.contentType(APPLICATION_FORM_URLENCODED);
+            }
         }
 
         if (StringUtils.isNotBlank(requestContentType)) {
@@ -254,6 +273,10 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         return performRequest(request);
     }
 
+    private boolean isInMultiPartMode(MockHttpServletRequestBuilder request) {
+        return request instanceof MockMultipartHttpServletRequestBuilder;
+    }
+
     private void logRequestIfApplicable(HttpMethod method, String path, Object[] pathParams) {
         if (requestLoggingFilter == null) {
             return;
@@ -272,6 +295,14 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
             new ParamLogger(queryParams) {
                 protected void logParam(String paramName, Object paramValue) {
                     reqSpec.queryParam(paramName, paramValue);
+                }
+            }.logParams();
+        }
+
+        if (formParams != null) {
+            new ParamLogger(formParams) {
+                protected void logParam(String paramName, Object paramValue) {
+                    reqSpec.formParam(paramName, paramValue);
                 }
             }.logParams();
         }

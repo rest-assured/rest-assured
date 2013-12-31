@@ -44,6 +44,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private final Map<String, Object> params = new LinkedHashMap<String, Object>();
     private final Map<String, Object> queryParams = new LinkedHashMap<String, Object>();
+    private final Map<String, Object> formParams = new LinkedHashMap<String, Object>();
 
     private Object requestBody = null;
 
@@ -243,6 +244,31 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return this;
     }
 
+    public MockMvcRequestSpecification formParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+        notNull(firstParameterName, "firstParameterName");
+        notNull(firstParameterValue, "firstParameterValue");
+        return formParams(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs));
+    }
+
+    public MockMvcRequestSpecification formParams(Map<String, ?> parametersMap) {
+        notNull(parametersMap, "parametersMap");
+        parameterAppender.appendParameters((Map<String, Object>) parametersMap, formParams);
+        return this;
+    }
+
+    public MockMvcRequestSpecification formParam(String parameterName, Object... parameterValues) {
+        notNull(parameterName, "parameterName");
+        parameterAppender.appendZeroToManyParameters(formParams, parameterName, parameterValues);
+        return this;
+    }
+
+    public MockMvcRequestSpecification formParam(String parameterName, Collection<?> parameterValues) {
+        notNull(parameterName, "parameterName");
+        notNull(parameterValues, "parameterValues");
+        parameterAppender.appendCollectionParameter(formParams, parameterName, (Collection<Object>) parameterValues);
+        return this;
+    }
+
     public MockMvcRequestSpecification body(String body) {
         this.requestBody = body;
         return this;
@@ -417,7 +443,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSender when() {
-        return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, restAssuredMockMvcConfig, requestBody, requestContentType,
+        return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, restAssuredMockMvcConfig, requestBody, requestContentType,
                 requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor);
     }
 

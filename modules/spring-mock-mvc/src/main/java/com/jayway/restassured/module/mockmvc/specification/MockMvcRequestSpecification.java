@@ -281,6 +281,59 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * @return The request specification
      */
     MockMvcRequestSpecification queryParam(String parameterName, Collection<?> parameterValues);
+    
+    /**
+     * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #params(String, Object, Object...)}
+     * for all http methods except for POST where {@link #params(String, Object, Object...)} sets the form parameters and this method sets the
+     * form parameters.
+     *
+     * @param firstParameterName      The name of the first parameter
+     * @param firstParameterValue     The value of the first parameter
+     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification formParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
+
+    /**
+     * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #params(Map)}
+     * for all http methods except for POST where {@link #params(Map)} sets the form parameters and this method sets the
+     * form parameters.
+     *
+     * @param parametersMap The Map containing the parameter names and their values to send with the request.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification formParams(Map<String, ?> parametersMap);
+
+    /**
+     * Specify a form parameter that'll be sent with the request. Note that this method is the same as {@link #param(String, Object...)}
+     * for all http methods except for POST where {@link #param(String, Object...)} adds a form parameter and this method sets a
+     * form parameter.
+     *
+     * @param parameterName   The parameter name
+     * @param parameterValues Zero to many parameter values, i.e. you can specify multiple values for the same parameter
+     * @return The request specification
+     * @see #param(String, Object...)
+     */
+    MockMvcRequestSpecification formParam(String parameterName, Object... parameterValues);
+
+    /**
+     * Specify a multi-value form parameter that'll be sent with the request e.g:
+     * <p>
+     * <pre>
+     * given().formParam("cars", asList("Volvo", "Saab"))..;
+     * </pre>
+     * This will set the parameter <code>cars=Volvo</code> and <code>cars=Saab</code>.
+     * </p>
+     * <p/>
+     * Note that this method is the same as {@link #param(String, java.util.Collection)}
+     * for all http methods except for POST where {@link #param(String, java.util.Collection)} adds a form parameter and
+     * this method sets a form parameter.
+     *
+     * @param parameterName   The parameter name
+     * @param parameterValues The parameter values
+     * @return The request specification
+     */
+    MockMvcRequestSpecification formParam(String parameterName, Collection<?> parameterValues);
 
     /**
      * Specify a String request body (such as e.g. JSON or XML) that'll be sent with the request. This works for the
