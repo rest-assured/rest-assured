@@ -2,6 +2,7 @@ Change log next version
 -----------------------
 * Fixed an issue with content-type identification when passing in content-type header manually using a header.
 * Header values supplied to request specification using a java.util.Map are now serialized if needed.
+* Path parameters can now be used in the entire path, not just between two slashes (issue 275, 292).
 
 Change log 2.1.0 (2013-12-09)
 -----------------------------

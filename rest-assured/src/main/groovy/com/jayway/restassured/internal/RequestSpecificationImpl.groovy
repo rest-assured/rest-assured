@@ -1298,19 +1298,35 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       }
 
       pathWithoutQueryParams = StringUtils.split(tempParams, "/").inject("") { String acc, String subresource ->
-        if (subresource.startsWith("{") && subresource.endsWith("}") && subresource.length() >= 3) {
+        def indexOfStartBracket = subresource.indexOf("{")
+        def indexOfEndBracket = subresource.indexOf("}", indexOfStartBracket)
+        if (indexOfStartBracket >= 0 && indexOfEndBracket >= 0 && subresource.length() >= 3) {
           // 3 means "{" and "}" and at least one character
+          def pathParamValue = ""
           if (usesNamedPathParameters) {
-            def pathParamName = subresource.substring(1, subresource.length() - 1)
+            def pathParamName = subresource.substring(indexOfStartBracket + 1, indexOfEndBracket)
             // Get path parameter name, what's between the "{" and "}"
-            def pathParamValue = findNamedPathParamValue(pathParamName, pathParamNameUsageCount)
-            subresource = pathParamValue
+            pathParamValue = findNamedPathParamValue(pathParamName, pathParamNameUsageCount)
           } else { // uses unnamed path params
             if (numberOfUsedPathParameters >= unnamedPathParams.size()) {
               throw new IllegalArgumentException("You specified too few path parameters in the request.")
             }
-            subresource = unnamedPathParams[numberOfUsedPathParameters].toString()
+            pathParamValue = unnamedPathParams[numberOfUsedPathParameters].toString()
           }
+
+          def pathToPrepend = ""
+          // If declared subresource has values before the first bracket then let's find it.
+          if (indexOfStartBracket != 0) {
+            pathToPrepend = subresource.substring(0, indexOfStartBracket)
+          }
+
+          def pathToAppend = ""
+          // If declared subresource has values after the first bracket then let's find it.
+          if (subresource.length() > indexOfEndBracket) {
+            pathToAppend = subresource.substring(indexOfEndBracket + 1, subresource.length())
+          }
+
+          subresource = pathToPrepend + pathParamValue + pathToAppend
           numberOfUsedPathParameters += 1
         }
 

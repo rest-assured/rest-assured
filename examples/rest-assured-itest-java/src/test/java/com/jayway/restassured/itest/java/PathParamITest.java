@@ -41,6 +41,7 @@ import static com.jayway.restassured.config.RestAssuredConfig.config;
 import static com.jayway.restassured.itest.java.support.RequestPathFromLogExtractor.loggedRequestPathIn;
 import static com.jayway.restassured.path.json.JsonPath.from;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class PathParamITest extends WithJetty {
@@ -365,5 +366,25 @@ public class PathParamITest extends WithJetty {
 
         // Then
         assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/feed?canonicalName=%7BtrackingName%3D%27trackingname1%27%7D&platform=ed4"));
+    }
+
+    @Test
+    public void unnamedPathParametersCanBeAppendedBeforeSubPath() throws Exception {
+        get("/{path}.json", "something").then().assertThat().statusCode(is(200)).and().body("value", equalTo("something"));
+    }
+
+    @Test
+    public void namedPathParametersCanBeAppendedBeforeSubPath() throws Exception {
+        given().pathParam("path", "something").when().get("/{path}.json").then().assertThat().statusCode(is(200)).and().body("value", equalTo("something"));
+    }
+
+    @Test
+    public void unnamedPathParametersCanBeAppendedAfterSubPath() throws Exception {
+        get("/something.{format}", "json").then().assertThat().statusCode(is(200)).and().body("value", equalTo("something"));
+    }
+
+    @Test
+    public void namedPathParametersCanBeAppendedAfterSubPath() throws Exception {
+        given().pathParam("format", "json").when().get("/something.{format}").then().assertThat().statusCode(is(200)).and().body("value", equalTo("something"));
     }
 }
