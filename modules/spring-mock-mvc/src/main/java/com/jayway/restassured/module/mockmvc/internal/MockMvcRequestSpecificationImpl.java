@@ -22,6 +22,7 @@ import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultHandler;
+import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -35,14 +36,18 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;
 import static com.jayway.restassured.module.mockmvc.internal.ConfigConverter.convertToRestAssuredConfig;
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification {
 
     private static final String CONTENT_TYPE = "content-type";
 
+    // Config was created by REST Assured Mock MVC and not by the user
+    private boolean hasDefaultConfig;
+
     private MockMvc instanceMockMvc;
 
-    private final String basePath;
+    private String basePath;
 
     private final Map<String, Object> params = new LinkedHashMap<String, Object>();
     private final Map<String, Object> queryParams = new LinkedHashMap<String, Object>();
@@ -62,7 +67,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private RequestLoggingFilter requestLoggingFilter;
 
-    private ParameterAppender parameterAppender = new ParameterAppender(new ParameterAppender.Serializer() {
+    private final ParameterAppender parameterAppender = new ParameterAppender(new ParameterAppender.Serializer() {
         public String serializeIfNeeded(Object value) {
             return MockMvcRequestSpecificationImpl.this.serializeIfNeeded(value);
         }
@@ -75,8 +80,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers, String basePath) {
         this.instanceMockMvc = mockMvc;
         this.basePath = basePath;
-        restAssuredMockMvcConfig = config == null ? new RestAssuredMockMvcConfig() : config;
-        this.resultHandlers.addAll(resultHandlers);
+        assignConfig(config);
+        if (resultHandlers != null) {
+            this.resultHandlers.addAll(resultHandlers);
+        }
     }
 
     public MockMvcRequestSpecification mockMvc(MockMvc mockMvc) {
@@ -89,10 +96,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context) {
-        return changeMockMvcInstanceTo(MockMvcBuilders.webAppContextSetup(context).build());
+        DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(context);
+        return changeMockMvcInstanceTo(builder.build());
     }
 
-    public MockMvcRequestSpecification intercept(MockHttpServletRequestBuilderInterceptor interceptor) {
+    public MockMvcRequestSpecification interceptor(MockHttpServletRequestBuilderInterceptor interceptor) {
         this.interceptor = interceptor;
         return this;
     }
@@ -432,7 +440,86 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification config(RestAssuredMockMvcConfig config) {
-        this.restAssuredMockMvcConfig = config == null ? new RestAssuredMockMvcConfig() : config;
+        assignConfig(config);
+        return this;
+    }
+
+    public MockMvcRequestSpecification spec(MockMvcRequestSpecification requestSpecificationToMerge) {
+        notNull(requestSpecificationToMerge, MockMvcRequestSpecification.class);
+
+        if (!(requestSpecificationToMerge instanceof MockMvcRequestSpecificationImpl)) {
+            throw new IllegalArgumentException("requestSpecificationToMerge must be an instance of " + MockMvcRequestSpecificationImpl.class.getName());
+        }
+        MockMvcRequestSpecificationImpl that = (MockMvcRequestSpecificationImpl) requestSpecificationToMerge;
+
+        Object otherRequestBody = that.getRequestBody();
+        if (otherRequestBody != null) {
+            this.requestBody = otherRequestBody;
+
+        }
+
+        if (isNotEmpty(that.getBasePath())) {
+            this.basePath = that.getBasePath();
+        }
+
+        MockMvc otherInstanceMockMvc = that.getInstanceMockMvc();
+        if (otherInstanceMockMvc != null) {
+            this.changeMockMvcInstanceTo(otherInstanceMockMvc);
+        }
+
+        this.cookies(that.getCookies());
+
+        String otherContentType = that.getRequestContentType();
+        if (otherContentType != null) {
+            this.contentType(otherContentType);
+        }
+
+        this.headers(that.getRequestHeaders());
+
+        if (!that.hasDefaultConfig()) {
+            RestAssuredMockMvcConfig otherConfig = that.getRestAssuredMockMvcConfig();
+            this.config(otherConfig);
+        }
+
+        MockHttpServletRequestBuilderInterceptor otherInterceptor = that.getInterceptor();
+        if (otherInterceptor != null) {
+            this.interceptor = otherInterceptor;
+        }
+
+        this.formParams(that.getFormParams());
+        this.queryParams(that.getQueryParams());
+        this.params(that.getParams());
+
+        this.multiParts.addAll(that.getMultiParts());
+        this.resultHandlers.addAll(that.getResultHandlers());
+
+        RequestLoggingFilter otherRequestLoggingFilter = that.getRequestLoggingFilter();
+        if (otherRequestLoggingFilter != null) {
+            this.requestLoggingFilter = otherRequestLoggingFilter;
+        }
+
+        return this;
+    }
+
+    public MockMvcRequestSpecification sessionId(String sessionIdValue) {
+        return sessionId(restAssuredMockMvcConfig.getSessionConfig().sessionIdName(), sessionIdValue);
+    }
+
+    public MockMvcRequestSpecification sessionId(String sessionIdName, String sessionIdValue) {
+        notNull(sessionIdName, "Session id name");
+        notNull(sessionIdValue, "Session id value");
+        if (cookies.hasCookieWithName(sessionIdName)) {
+            List<Cookie> allOtherCookies = new ArrayList<Cookie>();
+            for (Cookie cookie : cookies) {
+                if (!cookie.getName().equalsIgnoreCase(sessionIdName)) {
+                    allOtherCookies.add(cookie);
+                }
+            }
+            allOtherCookies.add(new Cookie.Builder(sessionIdName, sessionIdValue).build());
+            this.cookies = new Cookies(allOtherCookies);
+        } else {
+            cookie(sessionIdName, sessionIdValue);
+        }
         return this;
     }
 
@@ -616,6 +703,83 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private MockMvcRequestSpecification changeMockMvcInstanceTo(MockMvc mockMvc) {
         this.instanceMockMvc = mockMvc;
+        return this;
+    }
+
+    private void assignConfig(RestAssuredMockMvcConfig config) {
+        if (config == null) {
+            this.restAssuredMockMvcConfig = new RestAssuredMockMvcConfig();
+            hasDefaultConfig = true;
+        } else {
+            this.restAssuredMockMvcConfig = config;
+            hasDefaultConfig = false;
+        }
+    }
+
+    // Getters
+    public boolean hasDefaultConfig() {
+        return hasDefaultConfig;
+    }
+
+    public MockMvc getInstanceMockMvc() {
+        return instanceMockMvc;
+    }
+
+    public String getBasePath() {
+        return basePath;
+    }
+
+    public Map<String, Object> getParams() {
+        return params;
+    }
+
+    public Map<String, Object> getQueryParams() {
+        return queryParams;
+    }
+
+    public Map<String, Object> getFormParams() {
+        return formParams;
+    }
+
+    public Object getRequestBody() {
+        return requestBody;
+    }
+
+    public RestAssuredMockMvcConfig getRestAssuredMockMvcConfig() {
+        return restAssuredMockMvcConfig;
+    }
+
+    public Headers getRequestHeaders() {
+        return requestHeaders;
+    }
+
+    public Cookies getCookies() {
+        return cookies;
+    }
+
+    public String getRequestContentType() {
+        return requestContentType;
+    }
+
+    public List<MockMvcMultiPart> getMultiParts() {
+        return multiParts;
+    }
+
+    public RequestLoggingFilter getRequestLoggingFilter() {
+        return requestLoggingFilter;
+    }
+
+    public List<ResultHandler> getResultHandlers() {
+        return resultHandlers;
+    }
+
+    public MockHttpServletRequestBuilderInterceptor getInterceptor() {
+        return interceptor;
+    }
+
+    public MockMvcRequestSpecification basePath(String path) {
+        notNull(path, "Base path");
+        this.basePath = path;
         return this;
     }
 }

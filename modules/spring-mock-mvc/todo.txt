@@ -1,1 +1,4 @@
+Response spec using Mock Mvc response spec
+Static request and response spec
 javadoc
+

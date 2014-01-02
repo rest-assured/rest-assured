@@ -281,7 +281,7 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * @return The request specification
      */
     MockMvcRequestSpecification queryParam(String parameterName, Collection<?> parameterValues);
-    
+
     /**
      * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #params(String, Object, Object...)}
      * for all http methods except for POST where {@link #params(String, Object, Object...)} sets the form parameters and this method sets the
@@ -691,6 +691,69 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      */
     MockMvcRequestSpecification config(RestAssuredMockMvcConfig config);
 
+    /**
+     * Add request data from a pre-defined specification. E.g.
+     * <pre>
+     * MockMvcRequestSpecification requestSpec = new MockMvcRequestSpecBuilder().addParam("parameter1", "value1").build();
+     *
+     * given().
+     *         spec(requestSpec).
+     *         param("parameter2", "value2").
+     * when().
+     *        get("/something");
+     * </pre>
+     * <p/>
+     * This is useful when you want to reuse an entire specification across multiple requests.
+     * <p/>
+     * The specification passed to this method is merged with the current specification. Note that the supplied specification
+     * can overwrite data in the current specification. The following settings are overwritten:
+     * <ul>
+     * <li>Content type</li>
+     * <li>Request body</li>
+     * <li>Interceptions</li>
+     * <li>Log (if defined in <code>requestSpecificationToMerge</code>)</li>
+     * <li>Config</li>
+     * </ul>
+     * The following settings are merged:
+     * <ul>
+     * <li>Parameters</li>
+     * <li>Cookies</li>
+     * <li>Headers</li>
+     * </ul>
+     * <p/>
+     *
+     * @param requestSpecificationToMerge The specification to merge with.
+     * @return the request specification
+     */
+    MockMvcRequestSpecification spec(MockMvcRequestSpecification requestSpecificationToMerge);
+
+    /**
+     * Set the session id for this request. It will use the configured session id name from the configuration (by default this is {@value com.jayway.restassured.config.SessionConfig#DEFAULT_SESSION_ID_NAME}).
+     * You can configure the session id name by using:
+     * <pre>
+     *     RestAssured.config = newConfig().sessionConfig(new SessionConfig().sessionIdName(&lt;sessionIdName&gt;));
+     * </pre>
+     * or you can use the {@link #sessionId(String, String)} method to set it for this request only.
+     *
+     * @param sessionIdValue The session id value.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification sessionId(String sessionIdValue);
+
+    /**
+     * Set the session id name and value for this request. It'll override the default session id name from the configuration (by default this is {@value com.jayway.restassured.config.SessionConfig#DEFAULT_SESSION_ID_NAME}).
+     * You can configure the default session id name by using:
+     * <pre>
+     *     RestAssured.config = newConfig().sessionConfig(new SessionConfig().sessionIdName(&lt;sessionIdName&gt;));
+     * </pre>
+     * and then you can use the {@link #sessionId(String)} method to set the session id value without specifying the name for each request.
+     *
+     * @param sessionIdName  The session id name
+     * @param sessionIdValue The session id value.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification sessionId(String sessionIdName, String sessionIdValue);
+
     MockMvcRequestSpecification resultHandlers(ResultHandler resultHandler, ResultHandler... resultHandlers);
 
     MockMvcRequestSender when();
@@ -708,5 +771,5 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * @param interceptor The interceptor
      * @return The request specification
      */
-    MockMvcRequestSpecification intercept(MockHttpServletRequestBuilderInterceptor interceptor);
+    MockMvcRequestSpecification interceptor(MockHttpServletRequestBuilderInterceptor interceptor);
 }

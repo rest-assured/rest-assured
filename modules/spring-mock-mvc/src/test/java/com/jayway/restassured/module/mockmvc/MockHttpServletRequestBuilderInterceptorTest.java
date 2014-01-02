@@ -30,7 +30,7 @@ public class MockHttpServletRequestBuilderInterceptorTest {
     mock_http_servlet_request_builder_interceptor_works() {
         given().
                 standaloneSetup(new GreetingController()).
-                intercept(new MockHttpServletRequestBuilderInterceptor() {
+                interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
                         requestBuilder.param("name", "John");
                     }

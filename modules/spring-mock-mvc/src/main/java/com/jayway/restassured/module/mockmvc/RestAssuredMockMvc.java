@@ -6,7 +6,9 @@ import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultHandler;
+import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.net.URI;
@@ -37,7 +39,8 @@ public class RestAssuredMockMvc {
     }
 
     public static void webAppContextSetup(WebApplicationContext context) {
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+        DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(context);  // To avoid compile-time errors
+        mockMvc = builder.build();
     }
 
     public static void resultHandlers(ResultHandler resultHandler, ResultHandler... resultHandlers) {
@@ -46,6 +49,10 @@ public class RestAssuredMockMvc {
         if (resultHandlers != null && resultHandlers.length >= 1) {
             Collections.addAll(RestAssuredMockMvc.resultHandlers, resultHandlers);
         }
+    }
+
+    public static List<ResultHandler> resultHandlers() {
+        return Collections.unmodifiableList(resultHandlers);
     }
 
     public static void reset() {
