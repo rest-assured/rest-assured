@@ -25,6 +25,7 @@ import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecBui
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Header;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -33,14 +34,21 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.io.PrintStream;
+import java.io.StringWriter;
+
 import static com.jayway.restassured.config.JsonConfig.jsonConfig;
+import static com.jayway.restassured.config.LogConfig.logConfig;
+import static com.jayway.restassured.filter.log.LogDetail.ALL;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static com.jayway.restassured.http.ContentType.XML;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig.newConfig;
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.BIG_DECIMAL;
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.hamcrest.Matchers.equalTo;
 
 public class MockMvcRequestSpecificationMergingTest {
 
@@ -340,6 +348,62 @@ public class MockMvcRequestSpecificationMergingTest {
         // Then
         assertThat(implOf(spec).getInterceptor()).isEqualTo(thisInterceptor);
         assertThat(implOf(spec).getQueryParams()).containsOnly(entry("param1", "value1"));
+    }
+
+    @Test public void
+    logging_is_overwritten_when_defined_in_specification() {
+        // Given
+        StringWriter writer = new StringWriter();
+        PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().setConfig(newConfig().logConfig(logConfig().defaultStream(captor))).and().log(ALL).build();
+
+        // When
+        given().
+                log().params().
+                spec(specToMerge).
+                standaloneSetup(new GreetingController()).
+        when().
+                get("/greeting?name={name}", "Johan").
+        then().
+                body("id", equalTo(1)).
+                body("content", equalTo("Hello, Johan!"));
+
+        // Then
+        assertThat(writer.toString()).isEqualTo("Request method:\tGET\n" +
+                "Request path:\t/greeting?name={name}\n" +
+                "Request params:\t<none>\n" +
+                "Query params:\t<none>\n" +
+                "Form params:\t<none>\n" +
+                "Path params:\t<none>\n" +
+                "Headers:\t\tContent-Type=*/*\n" +
+                "Cookies:\t\t<none>\n" +
+                "Body:\t\t\t<none>\n");
+    }
+
+    @Test public void
+    logging_is_not_overwritten_when_not_defined_in_specification() {
+        // Given
+        StringWriter writer = new StringWriter();
+        PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().setConfig(newConfig().logConfig(logConfig().defaultStream(captor))).
+                addQueryParam("name", "Johan").build();
+
+        // When
+        given().
+                spec(specToMerge).
+                log().params().
+                standaloneSetup(new GreetingController()).
+        when().
+                get("/greeting").
+        then().
+                body("id", equalTo(1)).
+                body("content", equalTo("Hello, Johan!"));
+
+        // Then
+        assertThat(writer.toString()).isEqualTo("Request params:\t<none>\n" +
+                "Query params:\tname=Johan\n" +
+                "Form params:\t<none>\n" +
+                "Path params:\t<none>\n");
     }
     // @formatter:on
 

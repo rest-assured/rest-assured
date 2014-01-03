@@ -16,6 +16,9 @@
 
 package com.jayway.restassured.module.mockmvc.specification;
 
+import com.jayway.restassured.config.LogConfig;
+import com.jayway.restassured.filter.log.LogDetail;
+import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
@@ -30,8 +33,11 @@ import org.springframework.test.web.servlet.ResultHandler;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Map;
+
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
  * You can use the builder to construct a request specification. The specification can be used as e.g.
@@ -580,6 +586,30 @@ public class MockMvcRequestSpecBuilder {
      */
     public MockMvcRequestSpecBuilder addResultHandlers(ResultHandler resultHandler, ResultHandler... additionalResultHandlers) {
         spec.resultHandlers(resultHandler, additionalResultHandlers);
+        return this;
+    }
+
+    /**
+     * Enabled logging with the specified log detail. Set a {@link com.jayway.restassured.config.LogConfig} to configure the print stream and pretty printing options.
+     *
+     * @param logDetail The log detail.
+     * @return MockMvcRequestSpecBuilder
+     */
+    public MockMvcRequestSpecBuilder log(LogDetail logDetail) {
+        notNull(logDetail, LogDetail.class);
+        LogConfig logConfig = spec.getRestAssuredMockMvcConfig().getLogConfig();
+        PrintStream printStream = logConfig.defaultStream();
+        boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
+        spec.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream));
+        return this;
+    }
+
+    /**
+     * Returns the same MockMvcRequestSpecBuilder instance for syntactic sugar.
+     *
+     * @return MockMvcRequestSpecBuilder
+     */
+    public MockMvcRequestSpecBuilder and() {
         return this;
     }
 }
