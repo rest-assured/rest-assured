@@ -23,12 +23,18 @@ import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
+import java.io.PrintStream;
+import java.io.StringWriter;
+
 import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.config.LogConfig.logConfig;
 import static com.jayway.restassured.config.RedirectConfig.redirectConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
+import static com.jayway.restassured.filter.log.LogDetail.ALL;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -339,10 +345,28 @@ public class SpecificationBuilderITest extends WithJetty {
         given().
                 spec(spec).
                 pathParameter("firstName", "John").
-         expect().
+        expect().
                 body("fullName", equalTo("John Doe")).
         when().
                get("/{firstName}/{lastName}");
+    }
+
+    @Test
+    public void supportsSettingLoggingWhenUsingRequestSpecBuilder() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final RequestSpecification spec = new RequestSpecBuilder().setConfig(newConfig().logConfig(logConfig().defaultStream(captor))).and().log(ALL).build();
+
+        given().
+                spec(spec).
+                pathParameter("firstName", "John").
+                pathParameter("lastName", "Doe").
+        when().
+               get("/{firstName}/{lastName}").
+        then().
+                body("fullName", equalTo("John Doe"));
+
+        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\thttp://localhost:8080/John/Doe\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\tfirstName=John\n\t\t\t\tlastName=Doe\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
     }
 
     @Test

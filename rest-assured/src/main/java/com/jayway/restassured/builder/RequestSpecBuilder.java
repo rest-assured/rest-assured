@@ -17,8 +17,11 @@
 package com.jayway.restassured.builder;
 
 import com.jayway.restassured.authentication.AuthenticationScheme;
+import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.filter.log.LogDetail;
+import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.SpecificationMerger;
@@ -31,12 +34,14 @@ import com.jayway.restassured.specification.RequestSpecification;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
  * You can use the builder to construct a request specification. The specification can be used as e.g.
@@ -61,7 +66,7 @@ import static com.jayway.restassured.RestAssured.*;
  */
 public class RequestSpecBuilder {
 
-    private RequestSpecification spec;
+    private RequestSpecificationImpl spec;
 
     public RequestSpecBuilder() {
         this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication, Collections.<Filter>emptyList(),
@@ -1074,11 +1079,41 @@ public class RequestSpecBuilder {
      * given().specification(specs)
      * </pre>
      *
-     * @param uri
+     * @param uri The URI
      * @return RequestSpecBuilder
      */
     public RequestSpecBuilder setBaseUri(String uri) {
         spec.baseUri(uri);
+        return this;
+    }
+
+    /**
+     * Enabled logging with the specified log detail. Set a {@link com.jayway.restassured.config.LogConfig} to configure the print stream and pretty printing options.
+     *
+     * @param logDetail The log detail.
+     * @return RequestSpecBuilder
+     */
+    public RequestSpecBuilder log(LogDetail logDetail) {
+        notNull(logDetail, LogDetail.class);
+        RestAssuredConfig restAssuredConfig = spec.getConfig();
+        LogConfig logConfig;
+        if (restAssuredConfig == null) {
+            logConfig = new RestAssuredConfig().getLogConfig();
+        } else {
+            logConfig = restAssuredConfig.getLogConfig();
+        }
+        PrintStream printStream = logConfig.defaultStream();
+        boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
+        spec.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream));
+        return this;
+    }
+
+    /**
+     * Syntactic sugar.
+     *
+     * @return the same RequestSpecBuilder instance
+     */
+    public RequestSpecBuilder and() {
         return this;
     }
 }
