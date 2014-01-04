@@ -20,9 +20,6 @@ import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.response.ExtractableResponse
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.response.ValidatableResponse
-import com.jayway.restassured.specification.ResponseSpecification
-
-import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 
 class ValidatableResponseImpl extends ValidatableResponseOptionsImpl<ValidatableResponse, Response> implements ValidatableResponse {
 
@@ -30,13 +27,4 @@ class ValidatableResponseImpl extends ValidatableResponseOptionsImpl<Validatable
     super(contentType, rpr, config, response, extractableResponse)
   }
 
-  ValidatableResponse spec(ResponseSpecification responseSpecification) {
-    return specification(responseSpecification)
-  }
-
-  ValidatableResponse specification(ResponseSpecification responseSpecification) {
-    notNull(responseSpecification, ResponseSpecification.class)
-    responseSpecification.validate(response);
-    this
-  }
 }

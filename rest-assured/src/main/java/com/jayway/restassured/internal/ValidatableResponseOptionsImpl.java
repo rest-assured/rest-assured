@@ -239,18 +239,15 @@ public class ValidatableResponseOptionsImpl<T extends ValidatableResponseOptions
         return (T) this;
     }
 
-
-    public T spec(ResponseSpecification responseSpecificationToMerge) {
-        responseSpec.spec(responseSpecificationToMerge);
-        return (T) this;
+    public T spec(ResponseSpecification responseSpecification) {
+        return specification(responseSpecification);
     }
 
-
-    public T specification(ResponseSpecification responseSpecificationToMerge) {
-        responseSpec.spec(responseSpecificationToMerge);
+    public T specification(ResponseSpecification responseSpecification) {
+        notNull(responseSpecification, ResponseSpecification.class);
+        responseSpecification.validate(response);
         return (T) this;
     }
-
 
     public T parser(String contentType, Parser parser) {
         responseSpec.parser(contentType, parser);
