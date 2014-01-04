@@ -4,6 +4,15 @@ Change log next version
 * Header values supplied to request specification using a java.util.Map are now serialized if needed.
 * Path parameters can now be used in the entire path, not just between two slashes (issue 275, 292).
 * Added ability to set logging from the RequestSpecBuilder, for example new RequestSpecBuilder().log(ALL).build();
+* Response specifications are now validated correctly when passed to spec or specification method after then is called. For example:
+    ResponseSpecification specification = new ResponseSpecBuilder().expectStatusCode(200).expectBody("greeting", equalTo("Greetings John Doe")).build();
+    given().
+            param("firstName", "John").
+            param("lastName", "Doe").
+    when().
+            get("/greet").
+    then().
+            spec(specification);
 
 Change log 2.1.0 (2013-12-09)
 -----------------------------

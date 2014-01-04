@@ -36,7 +36,7 @@ public class ValidatableResponseOptionsImpl<T extends ValidatableResponseOptions
 
     private final ResponseSpecificationImpl responseSpec;
     private final ExtractableResponse<R> extractableResponse;
-    private final Response response;
+    protected final Response response;
     private final RestAssuredConfig config;
 
     public ValidatableResponseOptionsImpl(String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config, Response response, ExtractableResponse<R> extractableResponse) {
