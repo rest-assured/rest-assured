@@ -26,7 +26,7 @@ import org.junit.rules.ExpectedException;
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
-public class GivenWhenThenSpecITest extends WithJetty {
+public class GivenWhenThenResponseSpecITest extends WithJetty {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
