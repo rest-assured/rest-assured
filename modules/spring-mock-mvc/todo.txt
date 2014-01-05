@@ -1,5 +1,2 @@
-Add logging support in request- and response spec builders
-Response spec should use Mock Mvc response spec
-Static request and response spec
 javadoc
 

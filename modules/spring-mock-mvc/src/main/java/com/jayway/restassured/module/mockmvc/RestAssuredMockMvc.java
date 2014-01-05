@@ -4,11 +4,11 @@ import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import com.jayway.restassured.specification.ResponseSpecification;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.net.URI;
@@ -23,6 +23,26 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 public class RestAssuredMockMvc {
     public static MockMvc mockMvc = null;
     public static RestAssuredMockMvcConfig config;
+    /**
+     * Specify a default request specification that will be sent with each request. E,g.
+     * <pre>
+     * RestAssuredMockMvc.requestSpecification = new MockMvcRequestSpecBuilder().addParam("parameter1", "value1").build();
+     * </pre>
+     * <p/>
+     * means that for each request by Rest Assured "parameter1" will be equal to "value1".
+     */
+    public static MockMvcRequestSpecification requestSpecification;
+
+    /**
+     * Specify a default response specification that will be sent with each request. E,g.
+     * <pre>
+     * RestAssuredMockMvc.responseSpecification = new ResponseSpecBuilder().expectStatusCode(200).build();
+     * </pre>
+     * <p/>
+     * means that for each response Rest Assured will assert that the status code is equal to 200.
+     */
+    public static ResponseSpecification responseSpecification = null;
+
     private static List<ResultHandler> resultHandlers = new ArrayList<ResultHandler>();
     /**
      * The base path that's used by REST assured when making requests. The base path is prepended to the request path.
@@ -31,7 +51,7 @@ public class RestAssuredMockMvc {
     public static String basePath = null;
 
     public static MockMvcRequestSpecification given() {
-        return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers, basePath);
+        return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers, basePath, requestSpecification, responseSpecification);
     }
 
     public static void standaloneSetup(Object... controllers) {
@@ -55,11 +75,16 @@ public class RestAssuredMockMvc {
         return Collections.unmodifiableList(resultHandlers);
     }
 
+    /**
+     * Reset all static configurations to their default values.
+     */
     public static void reset() {
         mockMvc = null;
         config = null;
         basePath = null;
         resultHandlers.clear();
+        responseSpecification = null;
+        requestSpecification = null;
     }
 
     /**

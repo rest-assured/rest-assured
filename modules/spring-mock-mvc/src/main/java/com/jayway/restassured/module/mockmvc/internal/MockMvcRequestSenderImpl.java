@@ -7,6 +7,7 @@ import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
+import com.jayway.restassured.internal.ResponseSpecificationImpl;
 import com.jayway.restassured.internal.filter.FilterContextImpl;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
@@ -18,6 +19,7 @@ import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
+import com.jayway.restassured.specification.ResponseSpecification;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -57,11 +59,12 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final List<ResultHandler> resultHandlers;
     private final MockHttpServletRequestBuilderInterceptor interceptor;
     private final String basePath;
+    private final ResponseSpecification responseSpecification;
 
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams,
                              RestAssuredMockMvcConfig config, Object requestBody, String requestContentType, Headers headers, Cookies cookies,
                              List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
-                             MockHttpServletRequestBuilderInterceptor interceptor, String basePath) {
+                             MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.queryParams = queryParams;
@@ -76,6 +79,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         this.resultHandlers = resultHandlers;
         this.interceptor = interceptor;
         this.basePath = basePath;
+        this.responseSpecification = responseSpecification;
     }
 
     private Object assembleHeaders(MockHttpServletResponse response) {
@@ -118,12 +122,24 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
             restAssuredResponse.setHasExpectations(false);
             restAssuredResponse.setStatusCode(response.getStatus());
             restAssuredResponse.setResponseHeaders(assembleHeaders(response));
-            restAssuredResponse.setRpr(new ResponseParserRegistrar());
+            restAssuredResponse.setRpr(getRpr());
             restAssuredResponse.setStatusLine(assembleStatusLine(response, mvcResult.getResolvedException()));
+
+            if (responseSpecification != null) {
+                responseSpecification.validate(ResponseConverter.toStandardResponse(restAssuredResponse));
+            }
+
         } catch (Exception e) {
             return SafeExceptionRethrower.safeRethrow(e);
         }
         return restAssuredResponse;
+    }
+
+    private ResponseParserRegistrar getRpr() {
+        if (responseSpecification != null && responseSpecification instanceof ResponseSpecificationImpl) {
+            return ((ResponseSpecificationImpl) responseSpecification).getRpr();
+        }
+        return new ResponseParserRegistrar();
     }
 
     private String assembleStatusLine(MockHttpServletResponse response, Exception resolvedException) {

@@ -18,17 +18,16 @@ package com.jayway.restassured.module.mockmvc.internal;
 
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
-import com.jayway.restassured.internal.RestAssuredResponseImpl;
 import com.jayway.restassured.internal.ValidatableResponseOptionsImpl;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
 import com.jayway.restassured.response.ExtractableResponse;
-import com.jayway.restassured.response.Response;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
+import static com.jayway.restassured.module.mockmvc.internal.ResponseConverter.toStandardResponse;
 
 public class ValidatableMockMvcResponseImpl extends ValidatableResponseOptionsImpl<ValidatableMockMvcResponse, MockMvcResponse> implements ValidatableMockMvcResponse {
 
@@ -38,28 +37,6 @@ public class ValidatableMockMvcResponseImpl extends ValidatableResponseOptionsIm
         super(contentType, rpr, config, toStandardResponse(response), extractableResponse);
         notNull(resultActions, ResultActions.class);
         this.resultActions = resultActions;
-    }
-
-    private static Response toStandardResponse(MockMvcResponse response) {
-        if (!(response instanceof MockMvcRestAssuredResponseImpl)) {
-            throw new IllegalArgumentException(MockMvcResponse.class.getName() + " must be an instance of " + MockMvcRestAssuredResponseImpl.class.getName());
-        }
-        MockMvcRestAssuredResponseImpl mvc = (MockMvcRestAssuredResponseImpl) response;
-
-        RestAssuredResponseImpl std = new RestAssuredResponseImpl();
-        std.setConnectionManager(mvc.getConnectionManager());
-        std.setContent(mvc.getContent());
-        std.setContentType(mvc.getContentType());
-        std.setCookies(mvc.detailedCookies());
-        std.setDefaultCharset(mvc.getDefaultCharset());
-        std.setDefaultContentType(mvc.getDefaultContentType());
-        std.setHasExpectations(mvc.getHasExpectations());
-        std.setResponseHeaders(mvc.getResponseHeaders());
-        std.setSessionIdName(mvc.getSessionIdName());
-        std.setStatusCode(mvc.getStatusCode());
-        std.setStatusLine(mvc.getStatusLine());
-        std.setRpr(mvc.getRpr());
-        return std;
     }
 
     public ValidatableMockMvcResponse expect(ResultMatcher resultMatcher) {

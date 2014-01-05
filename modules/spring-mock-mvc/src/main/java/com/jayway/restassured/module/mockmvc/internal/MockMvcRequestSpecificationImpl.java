@@ -20,6 +20,7 @@ import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
+import com.jayway.restassured.specification.ResponseSpecification;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
@@ -49,6 +50,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private String basePath;
 
+    private final ResponseSpecification responseSpecification;
+
     private final Map<String, Object> params = new LinkedHashMap<String, Object>();
     private final Map<String, Object> queryParams = new LinkedHashMap<String, Object>();
     private final Map<String, Object> formParams = new LinkedHashMap<String, Object>();
@@ -77,12 +80,17 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private MockHttpServletRequestBuilderInterceptor interceptor;
 
-    public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers, String basePath) {
+    public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers, String basePath,
+                                           MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
         this.instanceMockMvc = mockMvc;
         this.basePath = basePath;
+        this.responseSpecification = responseSpecification;
         assignConfig(config);
         if (resultHandlers != null) {
             this.resultHandlers.addAll(resultHandlers);
+        }
+        if (requestSpecification != null) {
+            spec(requestSpecification);
         }
     }
 
@@ -534,7 +542,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSender when() {
         return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, restAssuredMockMvcConfig, requestBody, requestContentType,
-                requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath);
+                requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath, responseSpecification);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {

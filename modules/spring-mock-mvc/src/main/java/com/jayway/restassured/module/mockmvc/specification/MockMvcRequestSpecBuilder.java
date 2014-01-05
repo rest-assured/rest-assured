@@ -65,7 +65,8 @@ public class MockMvcRequestSpecBuilder {
     private MockMvcRequestSpecificationImpl spec;
 
     public MockMvcRequestSpecBuilder() {
-        this.spec = new MockMvcRequestSpecificationImpl(RestAssuredMockMvc.mockMvc, RestAssuredMockMvc.config, RestAssuredMockMvc.resultHandlers(), RestAssuredMockMvc.basePath);
+        this.spec = new MockMvcRequestSpecificationImpl(RestAssuredMockMvc.mockMvc, RestAssuredMockMvc.config, RestAssuredMockMvc.resultHandlers(),
+                RestAssuredMockMvc.basePath, RestAssuredMockMvc.requestSpecification, RestAssuredMockMvc.responseSpecification);
     }
 
     /**

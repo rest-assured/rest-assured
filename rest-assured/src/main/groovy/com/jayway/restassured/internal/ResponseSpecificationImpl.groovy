@@ -51,7 +51,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     private def contentType;
     private Response restAssuredResponse;
     private String bodyRootPath;
-    private ResponseParserRegistrar rpr;
+    def ResponseParserRegistrar rpr;
     private RestAssuredConfig config
     private Response response
 
