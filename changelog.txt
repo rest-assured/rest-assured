@@ -13,6 +13,8 @@ Change log next version
             get("/greet").
     then().
             spec(specification);
+* REST Assured now supports OAuth2 authentication using the Scribe framework (https://github.com/fernandezpablo85/scribe-java). Big thanks to Waseem Shaik for all the help!
+* Non-backward compatible change: REST Assured now use the Scribe framework (https://github.com/fernandezpablo85/scribe-java) instead of Signpost for oauth1 authentication so you need to update your classpath dependencies. Please read the release notes for more info.
 
 Change log 2.1.0 (2013-12-09)
 -----------------------------
