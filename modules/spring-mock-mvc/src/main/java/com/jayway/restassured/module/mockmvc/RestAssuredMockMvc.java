@@ -20,6 +20,10 @@ import java.util.Map;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
+/**
+ * The Spring MVC module's equivalent of {@link com.jayway.restassured.RestAssured}. This is the starting point of the DSL.
+ * <p>Note tnat some Javadoc is copied from Spring MVC's test documentation.</p>
+ */
 public class RestAssuredMockMvc {
     public static MockMvc mockMvc = null;
     public static RestAssuredMockMvcConfig config;
@@ -54,15 +58,50 @@ public class RestAssuredMockMvc {
         return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers, basePath, requestSpecification, responseSpecification);
     }
 
+    /**
+     * Build a {@link MockMvc} by registering one or more {@code @Controller}'s
+     * instances and configuring Spring MVC infrastructure programmatically.
+     * This allows full control over the instantiation and initialization of
+     * controllers, and their dependencies, similar to plain unit tests while
+     * also making it possible to test one controller at a time.
+     * <p/>
+     * <p>When this option is used, the minimum infrastructure required by the
+     * {@link org.springframework.web.servlet.DispatcherServlet} to serve requests with annotated controllers is
+     * automatically created, and can be customized, resulting in configuration
+     * that is equivalent to what the MVC Java configuration provides except
+     * using builder style methods.
+     * <p/>
+     * <p>If the Spring MVC configuration of an application is relatively
+     * straight-forward, for example when using the MVC namespace or the MVC
+     * Java config, then using this builder might be a good option for testing
+     * a majority of controllers. A much smaller number of tests can be used
+     * to focus on testing and verifying the actual Spring MVC configuration.
+     *
+     * @param controllers one or more {@link org.springframework.stereotype.Controller @Controller}'s to test
+     */
     public static void standaloneSetup(Object... controllers) {
         mockMvc = MockMvcBuilders.standaloneSetup(controllers).build();
     }
 
+    /**
+     * Build a {@link MockMvc} using the given, fully initialized, i.e.
+     * refreshed, {@link WebApplicationContext} and assign it to REST Assured.
+     * The {@link org.springframework.web.servlet.DispatcherServlet}
+     * will use the context to discover Spring MVC infrastructure and
+     * application controllers in it. The context must have been configured with
+     * a {@link javax.servlet.ServletContext}.
+     */
     public static void webAppContextSetup(WebApplicationContext context) {
         DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(context);  // To avoid compile-time errors
         mockMvc = builder.build();
     }
 
+    /**
+     * Assign one or more {@link org.springframework.test.web.servlet.ResultHandler} that'll be executes after a request has been made.
+     *
+     * @param resultHandler  The result handler
+     * @param resultHandlers Additional result handlers (optional)
+     */
     public static void resultHandlers(ResultHandler resultHandler, ResultHandler... resultHandlers) {
         notNull(resultHandler, ResultHandler.class);
         RestAssuredMockMvc.resultHandlers.add(resultHandler);
@@ -71,6 +110,9 @@ public class RestAssuredMockMvc {
         }
     }
 
+    /**
+     * @return The defined list of result handlers
+     */
     public static List<ResultHandler> resultHandlers() {
         return Collections.unmodifiableList(resultHandlers);
     }
