@@ -13,6 +13,7 @@
         <module>dist-json-path</module>
         <module>dist-xml-path</module>
         <module>dist-json-schema-validator</module>
+        <module>dist-spring-mock-mvc</module>
     </modules>
     <artifactId>dist</artifactId>
 
