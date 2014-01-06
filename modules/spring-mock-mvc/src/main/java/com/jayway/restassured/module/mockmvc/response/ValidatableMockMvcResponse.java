@@ -29,6 +29,23 @@ import org.springframework.test.web.servlet.ResultMatcher;
  * </p>
  */
 public interface ValidatableMockMvcResponse extends ValidatableResponseOptions<ValidatableMockMvcResponse, MockMvcResponse> {
-    // TODO Rename to assertThat ?
+    /**
+     * Expect a {@link org.springframework.test.web.servlet.ResultMatcher} to match the response.
+     * <p/>
+     * <p>Note same as {@link #assertThat(org.springframework.test.web.servlet.ResultMatcher)} but a different syntax.</p>
+     *
+     * @param resultMatcher The result matcher
+     * @return The {@link ValidatableMockMvcResponse} instance.
+     */
     ValidatableMockMvcResponse expect(ResultMatcher resultMatcher);
+
+    /**
+     * Assert that a {@link org.springframework.test.web.servlet.ResultMatcher} matches the response.
+     * <p/>
+     * <p>Note same as {@link #expect(org.springframework.test.web.servlet.ResultMatcher)} but a different syntax.</p>
+     *
+     * @param resultMatcher The result matcher
+     * @return The {@link ValidatableMockMvcResponse} instance.
+     */
+    ValidatableMockMvcResponse assertThat(ResultMatcher resultMatcher);
 }

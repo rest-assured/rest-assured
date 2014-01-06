@@ -48,4 +48,8 @@ public class ValidatableMockMvcResponseImpl extends ValidatableResponseOptionsIm
         }
         return this;
     }
+
+    public ValidatableMockMvcResponse assertThat(ResultMatcher resultMatcher) {
+        return expect(resultMatcher);
+    }
 }

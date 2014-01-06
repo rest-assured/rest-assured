@@ -405,7 +405,7 @@ public class RestAssured {
     public static AuthenticationScheme authentication = DEFAULT_AUTH;
 
     /**
-     * Define a configuration for redirection settings and http client parameters (default is <code>new RestAssuredConfig()</code>). E.g.
+     * Define a configuration for e.g. redirection settings and http client parameters (default is <code>new RestAssuredConfig()</code>). E.g.
      * <pre>
      * RestAssured.config = config().redirect(redirectConfig().followRedirects(true).and().maxRedirects(0));
      * </pre>

@@ -19,5 +19,10 @@ package com.jayway.restassured.module.mockmvc.specification;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.specification.RequestSenderOptions;
 
+/**
+ * Options available when sending a request using Mock MVC module.
+ *
+ * @see RequestSenderOptions
+ */
 public interface MockMvcRequestSender extends RequestSenderOptions<MockMvcResponse> {
 }

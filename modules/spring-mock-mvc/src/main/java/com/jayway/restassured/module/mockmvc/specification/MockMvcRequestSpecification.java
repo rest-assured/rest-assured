@@ -18,6 +18,9 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
 
+/**
+ * Allows you to specify how the request will look like.
+ */
 public interface MockMvcRequestSpecification extends MockMvcRequestSender {
     /**
      * Specify the content type of the request.
@@ -754,14 +757,60 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      */
     MockMvcRequestSpecification sessionId(String sessionIdName, String sessionIdValue);
 
+    /**
+     * Add one or more result handlers. They will be executed after when the response is received.
+     *
+     * @return The request specification
+     * @see ResultHandler
+     */
     MockMvcRequestSpecification resultHandlers(ResultHandler resultHandler, ResultHandler... resultHandlers);
 
+    /**
+     * Call this method when you're done setting up the request specification.
+     *
+     * @return The {@link MockMvcRequestSender} that let's you send the request.
+     */
     MockMvcRequestSender when();
 
+    /**
+     * Build a {@link MockMvc} by registering one or more {@code @Controller}'s
+     * instances and configuring Spring MVC infrastructure programmatically.
+     * This allows full control over the instantiation and initialization of
+     * controllers, and their dependencies, similar to plain unit tests while
+     * also making it possible to test one controller at a time.
+     * <p/>
+     * <p>When this option is used, the minimum infrastructure required by the
+     * {@link org.springframework.web.servlet.DispatcherServlet} to serve requests with annotated controllers is
+     * automatically created, and can be customized, resulting in configuration
+     * that is equivalent to what the MVC Java configuration provides except
+     * using builder style methods.
+     * <p/>
+     * <p>If the Spring MVC configuration of an application is relatively
+     * straight-forward, for example when using the MVC namespace or the MVC
+     * Java config, then using this builder might be a good option for testing
+     * a majority of controllers. A much smaller number of tests can be used
+     * to focus on testing and verifying the actual Spring MVC configuration.
+     *
+     * @param controllers one or more {@link org.springframework.stereotype.Controller @Controller}'s to test
+     */
     MockMvcRequestSpecification standaloneSetup(Object... controllers);
 
+    /**
+     * Provide a {@link org.springframework.test.web.servlet.MockMvc} instance to that REST Assured will use when making this request.
+     *
+     * @param mockMvc The mock mvc instance to use.
+     * @return The request specification
+     */
     MockMvcRequestSpecification mockMvc(MockMvc mockMvc);
 
+    /**
+     * Build a {@link MockMvc} using the given, fully initialized, i.e.
+     * refreshed, {@link WebApplicationContext} and assign it to REST Assured.
+     * The {@link org.springframework.web.servlet.DispatcherServlet}
+     * will use the context to discover Spring MVC infrastructure and
+     * application controllers in it. The context must have been configured with
+     * a {@link javax.servlet.ServletContext}.
+     */
     MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context);
 
     /**

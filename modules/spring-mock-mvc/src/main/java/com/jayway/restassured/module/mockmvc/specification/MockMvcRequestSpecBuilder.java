@@ -42,14 +42,6 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 /**
  * You can use the builder to construct a request specification. The specification can be used as e.g.
  * <pre>
- * ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).build();
- * RequestSpecification requestSpec = new MockMvcRequestSpecBuilder().addParam("parameter1", "value1").build();
- *
- * given(responseSpec, requestSpec).post("/something");
- * </pre>
- * <p/>
- * or
- * <pre>
  * RequestSpecification requestSpec = new MockMvcRequestSpecBuilder().addParameter("parameter1", "value1").build();
  *
  * given().

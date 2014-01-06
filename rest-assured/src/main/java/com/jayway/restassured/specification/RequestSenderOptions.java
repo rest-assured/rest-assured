@@ -22,6 +22,10 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Map;
 
+/**
+ * Options available when sending a request.
+ * @param <R>   The type of response options.
+ */
 public interface RequestSenderOptions<R extends ResponseOptions<R>> {
     /**
      * Perform a GET request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to

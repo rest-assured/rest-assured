@@ -22,10 +22,23 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
  * The Spring MVC module's equivalent of {@link com.jayway.restassured.RestAssured}. This is the starting point of the DSL.
- * <p>Note tnat some Javadoc is copied from Spring MVC's test documentation.</p>
+ * <p>Note that some Javadoc is copied from Spring MVC's test documentation.</p>
  */
 public class RestAssuredMockMvc {
+    /**
+     * Set a {@link org.springframework.test.web.servlet.MockMvc} instance that REST Assured will use when making requests unless overwritten
+     * by a {@link com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification}.
+     */
     public static MockMvc mockMvc = null;
+
+    /**
+     * Define a REST Assured Mock Mvc configuration. E.g.
+     * <pre>
+     * given().config(newConfig().logConfig(new LogConfig(captor, true))). ..
+     * </pre>
+     * <p/>
+     * <code>newConfig()</code> can be statically imported from {@link com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig}.
+     */
     public static RestAssuredMockMvcConfig config;
     /**
      * Specify a default request specification that will be sent with each request. E,g.
@@ -48,6 +61,7 @@ public class RestAssuredMockMvc {
     public static ResponseSpecification responseSpecification = null;
 
     private static List<ResultHandler> resultHandlers = new ArrayList<ResultHandler>();
+
     /**
      * The base path that's used by REST assured when making requests. The base path is prepended to the request path.
      * Default value is <code>null</code> (which means no base path).

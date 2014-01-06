@@ -19,6 +19,24 @@ package com.jayway.restassured.module.mockmvc.response;
 import com.jayway.restassured.response.ResponseBody;
 import com.jayway.restassured.response.ResponseOptions;
 
+/**
+ * The response of a request made by REST Assured Mock MVC.
+ * <p>
+ * Usage example:
+ * <pre>
+ * Response response = get("/lotto");
+ * String body = response.getBody().asString();
+ * String headerValue = response.getHeader("headerName");
+ * String cookieValue = response.getCookie("cookieName");
+ * </pre>
+ * <p>
+ * You can also map the response body to a Java object automatically. REST Assured will use
+ * Jackson, Gson and JAXB to accommodate this:
+ * <pre>
+ * Message message = get("/message").as(Message.class);
+ * </pre>
+ * </p>
+ */
 public interface MockMvcResponse extends ResponseBody<MockMvcResponse>, ResponseOptions<MockMvcResponse> {
 
     /**
