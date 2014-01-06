@@ -15,6 +15,7 @@ Change log next version
             spec(specification);
 * REST Assured now supports OAuth2 authentication using the Scribe framework (https://github.com/fernandezpablo85/scribe-java). Big thanks to Waseem Shaik for all the help!
 * Non-backward compatible change: REST Assured now use the Scribe framework (https://github.com/fernandezpablo85/scribe-java) instead of Signpost for oauth1 authentication so you need to update your classpath dependencies. Please read the release notes for more info.
+* Added Spring Mock Mvc (Spring test) module which let's you unit test Spring MVC controllers using the REST Assured DSL. Depend on artifact id "spring-mock-mvc" using group id "com.jayway.restassured" from Maven to use it.
 
 Change log 2.1.0 (2013-12-09)
 -----------------------------
