@@ -742,7 +742,7 @@ public class RestAssured {
      * @return A RequestSender
      */
     public static RequestSpecification given(RequestSpecification requestSpecification) {
-        return new TestSpecificationImpl(requestSpecification, createTestSpecification().getResponseSpecification()).getRequestSpecification();
+        return given().spec(requestSpecification);
     }
 
     /**

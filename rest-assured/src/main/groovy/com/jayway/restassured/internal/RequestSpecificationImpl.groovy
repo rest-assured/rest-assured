@@ -1571,10 +1571,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       }
       final HttpRequestBase reqMethod = delegate.getRequest()
       Object contentType1 = delegate.getContentType()
-      String acceptContentTypes = contentType1.toString()
-      if (contentType1 instanceof ContentType)
-        acceptContentTypes = ((ContentType) contentType1).getAcceptHeader()
-      reqMethod.setHeader("Accept", acceptContentTypes)
+      if (!requestHeaders.hasHeaderWithName("Accept")) {
+        String acceptContentTypes = contentType1.toString()
+        if (contentType1 instanceof ContentType)
+          acceptContentTypes = ((ContentType) contentType1).getAcceptHeader()
+        reqMethod.setHeader("Accept", acceptContentTypes)
+      }
       reqMethod.setURI(delegate.getUri().toURI())
       if (reqMethod.getURI() == null)
         throw new IllegalStateException("Request URI cannot be null")
