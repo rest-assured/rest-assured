@@ -42,6 +42,8 @@
     <dependencySets>
         <dependencySet>
             <excludes>
+                <!-- Spring Mock MVC -->
+                <exclude>com.jayway.restassured:spring-mock-mvc</exclude>
                 <!-- JsonPath -->
                 <exclude>com.jayway.restassured:json-path</exclude>
                 <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
