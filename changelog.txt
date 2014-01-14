@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Fixed an IllegalArgumentException with reusable response specifications when defined before other body expectations when using the given-when-then API.
+
 Change log 2.2.0 (2014-01-08)
 -----------------------------
 * Fixed an issue with content-type identification when passing in content-type header manually using a header.

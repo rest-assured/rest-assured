@@ -56,4 +56,19 @@ public class SpecificationsDemoITest extends WithJetty {
         when().
                  get("/demoResponseSpecification");
     }
+
+    @Test
+    public void demoResponseSpecificationUsingGivenWhenThen() throws Exception {
+        final ResponseSpecification spec = new ResponseSpecBuilder().
+                expectStatusCode(200).expectBody("responseType", equalTo("simple")).build();
+
+        given().
+                 param("name", "John Doe").
+        when().
+                 get("/demoResponseSpecification").
+        then().
+                 specification(spec).
+                 body("firstName", is("John")).
+                 body("lastName", is("Doe"));
+    }
 }
