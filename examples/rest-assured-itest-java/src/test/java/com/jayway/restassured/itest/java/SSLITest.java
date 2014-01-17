@@ -50,16 +50,6 @@ public class SSLITest {
     }
 
     @Test
-    public void givenKeystoreDefinedStaticallyWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseOtherSSLDomains() throws Exception {
-        RestAssured.keystore("/truststore_mjvmobile.jks", "test4321");
-        try {
-            expect().body(containsString("EUROSPORT PLAYER")).get("https://tv.eurosport.com/");
-        } finally {
-            RestAssured.reset();
-        }
-    }
-
-    @Test
     public void whenEnablingAllowAllHostNamesVerifierWithoutActivatingAKeyStoreTheCallTo() throws Exception {
         RestAssured.config = config().sslConfig(sslConfig().allowAllHostnames());
         try {

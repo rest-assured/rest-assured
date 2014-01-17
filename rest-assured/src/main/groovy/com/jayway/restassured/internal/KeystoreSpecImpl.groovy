@@ -32,31 +32,32 @@ class KeystoreSpecImpl implements KeystoreSpec {
 
   def String keyStoreType
   def int port
+  SSLSocketFactory factory
   KeyStore trustStore
   X509HostnameVerifier x509HostnameVerifier;
 
   def void apply(HTTPBuilder builder, int port) {
-    def keyStore = createKeyStore()
-    def factory = createSSLSocketFactory(keyStore)
+    if (factory == null) {
+      def trustStore = trustStore ?: createTrustStore()
+      factory = createSSLSocketFactory(trustStore)
+    }
     factory.setHostnameVerifier(x509HostnameVerifier ?: ALLOW_ALL_HOSTNAME_VERIFIER)
     int portToUse = this.port == -1 ? port : this.port
     builder.client.connectionManager.schemeRegistry.register(new Scheme("https", portToUse, factory)
     )
   }
 
-  private def createSSLSocketFactory(KeyStore keyStore) {
+  private static def createSSLSocketFactory(KeyStore truststore) {
     final SSLSocketFactory ssl;
-    if (keyStore == null) {
+    if (truststore == null) {
       ssl = SSLSocketFactory.getSocketFactory()
-    } else if (trustStore == null) {
-      ssl = new SSLSocketFactory(keyStore, password);
     } else {
-      ssl = new SSLSocketFactory(keyStore, password, trustStore);
+      ssl = new SSLSocketFactory(truststore);
     }
     ssl
   }
 
-  def KeyStore createKeyStore() {
+  def KeyStore createTrustStore() {
     def keyStore = KeyStore.getInstance(keyStoreType)
     if (path == null)
       return null

@@ -936,7 +936,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       def sslConfig = cfg.getSSLConfig();
       new CertAuthScheme(pathToKeyStore: sslConfig.getPathToKeyStore(), password: sslConfig.getPassword(),
               keystoreType: sslConfig.getKeyStoreType(), port: sslConfig.getPort(), trustStore: sslConfig.getTrustStore(),
-              x509HostnameVerifier: sslConfig.getX509HostnameVerifier()).authenticate(http)
+              sslSocketFactory: sslConfig.getSSLSocketFactory(), x509HostnameVerifier: sslConfig.getX509HostnameVerifier()).authenticate(http)
     }
 
     authenticationScheme.authenticate(http)

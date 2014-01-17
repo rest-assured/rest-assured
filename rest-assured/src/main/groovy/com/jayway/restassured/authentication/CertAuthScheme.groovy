@@ -16,20 +16,22 @@
 package com.jayway.restassured.authentication
 
 import com.jayway.restassured.internal.http.HTTPBuilder
+import org.apache.http.conn.ssl.SSLSocketFactory
 import org.apache.http.conn.ssl.X509HostnameVerifier
 
 import java.security.KeyStore
 
 class CertAuthScheme implements AuthenticationScheme {
-    def pathToKeyStore
-    def String password
-    def String keystoreType = KeyStore.getDefaultType()
-    def int port = -1
-    def KeyStore trustStore
-    def X509HostnameVerifier x509HostnameVerifier
+  def pathToKeyStore
+  def String password
+  def String keystoreType = KeyStore.getDefaultType()
+  def int port = -1
+  def KeyStore trustStore
+  def X509HostnameVerifier x509HostnameVerifier
+  def SSLSocketFactory sslSocketFactory;
 
-    @Override
-    void authenticate(HTTPBuilder httpBuilder) {
-        httpBuilder.auth.certificate(pathToKeyStore, password, keystoreType, port, trustStore, x509HostnameVerifier)
-    }
+  @Override
+  void authenticate(HTTPBuilder httpBuilder) {
+    httpBuilder.auth.certificate(pathToKeyStore, password, keystoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory)
+  }
 }

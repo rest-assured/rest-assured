@@ -24,6 +24,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.RequestWrapper;
 import org.apache.http.protocol.ExecutionContext;
@@ -96,8 +97,10 @@ public class AuthConfig {
      * @param port                 The SSL port
      * @param trustStore           The trust store
      * @param x509HostnameVerifier The X509HostnameVerifier to use
+     * @param sslSocketFactory     The SSLSocketFactory to use
      */
-    public void certificate(String certURL, String password, String certType, int port, KeyStore trustStore, X509HostnameVerifier x509HostnameVerifier) {
+    public void certificate(String certURL, String password, String certType, int port, KeyStore trustStore, X509HostnameVerifier x509HostnameVerifier,
+                            SSLSocketFactory sslSocketFactory) {
         KeystoreSpecImpl keystoreSpec = new KeystoreSpecImpl();
         URI uri = ((URIBuilder) builder.getUri()).toURI();
         if (uri == null) throw new IllegalStateException("a default URI must be set");
@@ -107,6 +110,7 @@ public class AuthConfig {
         keystoreSpec.setTrustStore(trustStore);
         keystoreSpec.setPort(port);
         keystoreSpec.setX509HostnameVerifier(x509HostnameVerifier);
+        keystoreSpec.setFactory(sslSocketFactory);
         int portSpecifiedInUri = uri.getPort();
         keystoreSpec.apply(builder, portSpecifiedInUri == UNDEFINED_PORT ? DEFAULT_HTTPS_PORT : portSpecifiedInUri);
     }

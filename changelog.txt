@@ -2,6 +2,8 @@ Change log next version
 -----------------------
 * Fixed an IllegalArgumentException with reusable response specifications when defined before other body expectations when using the given-when-then API.
 * Non-backward compatible change: The json-path module accidentally depended on faster-jackson, jackson, gson and simple-json and brought then in as transitive dependencies. This has now been resolved which means that these dependencies are optional as intended (issue 297).
+* Fixed serious issues with SSL config and certificate authentication. A TrustStore as accidentally used as a KeyStore which caused errors like: "sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target".
+* Added support for adding a SSLSocketFactory to SSLConfig
 
 Change log 2.2.0 (2014-01-08)
 -----------------------------

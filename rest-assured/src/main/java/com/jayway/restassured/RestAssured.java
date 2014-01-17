@@ -1182,7 +1182,7 @@ public class RestAssured {
     public static AuthenticationScheme certificate(String certURL, String password) {
         SSLConfig sslConfig = config().getSSLConfig();
         return certificate(certURL, password, certAuthSettings().keystoreType(sslConfig.getKeyStoreType()).trustStore(sslConfig.getTrustStore()).
-                x509HostnameVerifier(sslConfig.getX509HostnameVerifier()).port(sslConfig.getPort()));
+                x509HostnameVerifier(sslConfig.getX509HostnameVerifier()).port(sslConfig.getPort()).sslSocketFactory(sslConfig.getSSLSocketFactory()));
     }
 
     /**
@@ -1205,6 +1205,7 @@ public class RestAssured {
         scheme.setPort(certificateAuthSettings.getPort());
         scheme.setTrustStore(certificateAuthSettings.getTrustStore());
         scheme.setX509HostnameVerifier(certificateAuthSettings.getX509HostnameVerifier());
+        scheme.setSslSocketFactory(certificateAuthSettings.getSSLSocketFactory());
         return scheme;
     }
 
@@ -1255,6 +1256,7 @@ public class RestAssured {
         scheme.setSecretToken(secretToken);
         return scheme;
     }
+
     /**
      * Excerpt from the HttpBuilder docs:<br>
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
@@ -1278,27 +1280,29 @@ public class RestAssured {
         scheme.setSignature(signature);
         return scheme;
     }
-    
+
     /**
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
      * All requests to all domains will be signed for this instance.
-     *  @param accessToken
-     *  @return The authentication scheme
+     *
+     * @param accessToken
+     * @return The authentication scheme
      */
     public static AuthenticationScheme oauth2(String accessToken) {
         OAuth2Scheme scheme = new OAuth2Scheme();
         scheme.setAccessToken(accessToken);
         return scheme;
     }
-    
+
     /**
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
      * All requests to all domains will be signed for this instance.
-     *  @param accessToken
-     *  @param signature
-     *  @return The authentication scheme
+     *
+     * @param accessToken
+     * @param signature
+     * @return The authentication scheme
      */
-    public static AuthenticationScheme oauth2(String accessToken, OAuthSignature signature ) {
+    public static AuthenticationScheme oauth2(String accessToken, OAuthSignature signature) {
         OAuth2Scheme scheme = new OAuth2Scheme();
         scheme.setAccessToken(accessToken);
         scheme.setSignature(signature);

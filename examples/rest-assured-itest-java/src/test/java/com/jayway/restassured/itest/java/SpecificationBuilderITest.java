@@ -465,13 +465,13 @@ public class SpecificationBuilderITest extends WithJetty {
 
     @Test
     public void supportsSpecifyingKeystore() throws Exception {
-        final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/truststore_javanet.jks", "test1234").build();
+        final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/truststore_eurosport.jks", "test4321").build();
         given().spec(spec).expect().body(containsString("EUROSPORT PLAYER")).get("https://tv.eurosport.com/");
     }
 
     @Test
     public void supportsOverridingKeystore() throws Exception {
-        final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/truststore_javanet.jks", "wrong pw").build();
-        given().spec(spec).keystore("/truststore_javanet.jks", "test1234").expect().body(containsString("EUROSPORT PLAYER")).get("https://tv.eurosport.com/");
+        final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/truststore_eurosport.jks", "wrong pw").build();
+        given().spec(spec).keystore("/truststore_eurosport.jks", "test4321").expect().body(containsString("EUROSPORT PLAYER")).get("https://tv.eurosport.com/");
     }
 }
