@@ -36,4 +36,10 @@ public class BasePathController {
             @RequestParam(value="name", required=false, defaultValue="World") String name) {
         return new Greeting(0, String.format(template, name));
     }
+
+    @RequestMapping(value = "/", method = GET)
+    public @ResponseBody Greeting greeting2(
+            @RequestParam(value="name", required=false, defaultValue="World") String name) {
+        return new Greeting(1, String.format(template, name));
+    }
 }

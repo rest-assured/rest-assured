@@ -49,6 +49,17 @@ public class BasePathTest {
     }
 
     @Test public void
+    default_base_path_is_slash() {
+        given().
+                param("name", "Johan").
+        when().
+                get().
+        then().
+                statusCode(200).
+                body("content", equalTo("Hello, Johan!"));
+    }
+
+    @Test public void
     double_slashes_are_prevented() {
         RestAssuredMockMvc.basePath = "/my-path/";
 

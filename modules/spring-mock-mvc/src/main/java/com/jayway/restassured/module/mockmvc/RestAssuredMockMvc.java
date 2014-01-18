@@ -64,9 +64,9 @@ public class RestAssuredMockMvc {
 
     /**
      * The base path that's used by REST assured when making requests. The base path is prepended to the request path.
-     * Default value is <code>null</code> (which means no base path).
+     * Default value is <code>/</code>.
      */
-    public static String basePath = null;
+    public static String basePath = "/";
 
     public static MockMvcRequestSpecification given() {
         return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers, basePath, requestSpecification, responseSpecification);
@@ -137,7 +137,7 @@ public class RestAssuredMockMvc {
     public static void reset() {
         mockMvc = null;
         config = null;
-        basePath = null;
+        basePath = "/";
         resultHandlers.clear();
         responseSpecification = null;
         requestSpecification = null;
