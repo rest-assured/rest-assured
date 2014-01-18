@@ -175,6 +175,44 @@ public class SSLITest {
         }
     }
 
+    @Test public void
+    relaxed_https_validation_works_when_defined_statically_with_base_uri() {
+        RestAssured.useRelaxedHTTPSValidation();
+        RestAssured.baseURI = "https://bunny.cloudamqp.com";
+
+        try {
+            get("/api/").then().statusCode(200);
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test public void
+    keystore_works_with_static_base_uri() {
+        RestAssured.baseURI = "https://tv.eurosport.com/";
+
+        try {
+            given().keystore("/truststore_eurosport.jks", "test4321").when().get().then().statusCode(200).and().body(containsString("EUROSPORT PLAYER"));
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test public void
+    truststrore_works_with_static_base_uri() throws Exception{
+        RestAssured.baseURI = "https://bunny.cloudamqp.com/";
+
+        InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("truststore_cloudamqp.jks");
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(keyStoreStream, "cloud1234".toCharArray());
+
+        try {
+            given().trustStore(keyStore).when().get("/api/").then().statusCode(200);
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
 
     @Test public void
     can_make_request_to_sites_that_with_valid_ssl_cert() {
