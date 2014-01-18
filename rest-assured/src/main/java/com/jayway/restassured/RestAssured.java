@@ -39,6 +39,7 @@ import org.apache.commons.lang3.Validate;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.security.KeyStore;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,6 +47,7 @@ import java.util.Map;
 
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
 import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfig;
+import static com.jayway.restassured.config.SSLConfig.sslConfig;
 
 /**
  * REST Assured is a Java DSL for simplifying testing of REST based services built on top of
@@ -1449,6 +1451,19 @@ public class RestAssured {
     public static void keystore(String pathToJks, String password) {
         Validate.notEmpty(password, "Password cannot be empty");
         applyKeyStore(pathToJks, password);
+    }
+
+    /**
+     * Specify a trust store that'll be used for HTTPS requests. A trust store is a {@link java.security.KeyStore} that has been loaded with the password.
+     * If you wish that REST Assured loads the KeyStore store and applies the password (thus making it a trust store) please see some of the
+     * <code>keystore</code> methods such as {@link #keystore(java.io.File, String)}.
+     *
+     * @param truststore A pre-loaded {@link java.security.KeyStore}.
+     * @see #keystore(String, String)
+     */
+    public static void trustStore(KeyStore truststore) {
+        Validate.notNull(truststore, "Truststore cannot be null");
+        config = config().sslConfig(sslConfig().trustStore(truststore));
     }
 
     /**

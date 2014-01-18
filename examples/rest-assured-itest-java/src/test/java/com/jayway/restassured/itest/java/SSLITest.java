@@ -23,6 +23,8 @@ import org.junit.rules.ExpectedException;
 
 import javax.net.ssl.SSLException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
@@ -116,5 +118,44 @@ public class SSLITest {
                 get("https://tv.eurosport.com/").
         then().
                 body(containsString("EUROSPORT PLAYER"));
+    }
+
+    @Test public void
+    allows_specifying_trust_store_in_dsl() throws Exception {
+        InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("truststore_cloudamqp.jks");
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(keyStoreStream, "cloud1234".toCharArray());
+
+        given().trustStore(keyStore).then().get("https://bunny.cloudamqp.com/api/").then().statusCode(200);
+    }
+
+    @Test public void
+    allows_specifying_trust_store_statically() throws Exception {
+
+        InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("truststore_cloudamqp.jks");
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(keyStoreStream, "cloud1234".toCharArray());
+
+        RestAssured.trustStore(keyStore);
+
+        try {
+            get("https://bunny.cloudamqp.com/api/").then().statusCode(200);
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test public void
+    allows_specifying_trust_store_and_allow_all_host_names_in_config_using_dsl() throws Exception {
+        InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("truststore_eurosport.jks");
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(keyStoreStream, "test4321".toCharArray());
+
+        given().config(config().sslConfig(sslConfig().trustStore(keyStore).and().allowAllHostnames())).then().get("https://tv.eurosport.com/").then().statusCode(200);
+    }
+
+    @Test public void
+    can_make_request_to_sites_that_with_valid_ssl_cert() {
+        get("https://duckduckgo.com/").then().statusCode(200);
     }
 }

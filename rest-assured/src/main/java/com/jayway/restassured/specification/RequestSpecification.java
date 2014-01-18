@@ -28,6 +28,7 @@ import com.jayway.restassured.response.Headers;
 
 import java.io.File;
 import java.io.InputStream;
+import java.security.KeyStore;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -947,6 +948,21 @@ public interface RequestSpecification extends RequestSender {
      * @see #keystore(String, String)
      */
     RequestSpecification keystore(File pathToJks, String password);
+
+    /**
+     * Use the supplied truststore for HTTPS requests.
+     * given().config(RestAssured.config().sslConfig(sslConfig().trustStore(truststore));
+     * <p>
+     * A trust store is a KeyStore that has been loaded with the password.
+     * If you wish that REST Assured loads the KeyStore store and applies the password (thus making it a trust store) please see some of the
+     * <code>keystore</code> methods such as {@link #keystore(String, String)}.
+     * </p>
+     *
+     * @param trustStore The truststore.
+     * @return The request specification
+     * @see #keystore(String, String)
+     */
+    RequestSpecification trustStore(KeyStore trustStore);
 
     /**
      * Specify the headers that'll be sent with the request. This is done by specifying the headers in name-value pairs, e.g:

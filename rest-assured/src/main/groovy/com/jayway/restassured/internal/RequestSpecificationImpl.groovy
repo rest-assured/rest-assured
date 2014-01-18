@@ -47,6 +47,7 @@ import org.apache.http.impl.client.AbstractHttpClient
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner
 import org.apache.http.message.BasicHeader
 
+import java.security.KeyStore
 import java.util.Map.Entry
 import java.util.regex.Matcher
 
@@ -458,6 +459,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def sslConfig = restAssuredConfig().getSSLConfig()
     // Allow all host names in order to be backward compatible
     restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keystore(pathToJks, password).allowAllHostnames())
+    this
+  }
+
+  def RequestSpecification trustStore(KeyStore trustStore) {
+    def sslConfig = restAssuredConfig().getSSLConfig()
+    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.trustStore(trustStore))
     this
   }
 

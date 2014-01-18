@@ -167,7 +167,7 @@ public class MockMvcRequestSpecificationMergingTest {
         MockMvcRequestSpecification spec = given().body("body1").spec(specToMerge);
 
         // Then
-        assertThat(implOf(spec).getBasePath()).isNullOrEmpty();
+        assertThat(implOf(spec).getBasePath()).isEqualTo(RestAssuredMockMvc.basePath);
         assertThat(implOf(spec).getQueryParams()).containsOnly(entry("param1", "value1"));
     }
 
