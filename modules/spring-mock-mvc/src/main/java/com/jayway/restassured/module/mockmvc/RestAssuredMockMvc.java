@@ -3,6 +3,7 @@ package com.jayway.restassured.module.mockmvc;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSender;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.springframework.test.web.servlet.MockMvc;
@@ -68,8 +69,42 @@ public class RestAssuredMockMvc {
      */
     public static String basePath = "/";
 
+    /**
+     * This is usually the entry-point of the API if you need to specify parameters or a body in the request. For example:
+     *
+     * <pre>
+     * given().
+     *         param("x", "y").
+     * when().
+     *         get("/something").
+     * then().
+     *        statusCode(200).
+     *        body("x.y", notNullValue());
+     * </pre>
+     * @return A {@link MockMvcRequestSpecification}.
+     */
     public static MockMvcRequestSpecification given() {
         return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers, basePath, requestSpecification, responseSpecification);
+    }
+
+    /**
+     * This is usually the entry-point of the API if you need to specify parameters or a body in the request. For example:
+     * <p/>
+     * <pre>
+     * when().
+     *        get("/x").
+     * then().
+     *        body("x.y.z1", equalTo("Z1")).
+     *        body("x.y.z2", equalTo("Z2"));
+     * </pre>
+     * <p>
+     * Note that if you need to add parameters, headers, cookies or other request properties use the {@link #given()} method.
+     * </p>
+     *
+     * @return A request sender interface that let's you call resources on the server
+     */
+    public static MockMvcRequestSender when() {
+        return given().when();
     }
 
     /**

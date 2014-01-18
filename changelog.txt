@@ -5,6 +5,7 @@ Change log next version
 * Fixed serious issues with SSL config and certificate authentication. A TrustStore as accidentally used as a KeyStore which caused errors like: "sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target".
 * Added support for adding a SSLSocketFactory to SSLConfig
 * RestAssuredMockMvc is now using "/" as default basePath so that you can use non-arg HTTP methods (such as get()) without first defining a basePath (issue 296).
+* Add static "when" method to RestAssuredMockMvc (issue 295)
 
 Change log 2.2.0 (2014-01-08)
 -----------------------------
