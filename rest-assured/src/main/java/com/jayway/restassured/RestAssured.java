@@ -1389,6 +1389,20 @@ public class RestAssured {
     }
 
     /**
+     * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
+     * method you don't need to specify a keystore (see {@link #keystore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
+     * <p>
+     * This is just a shortcut for:
+     * </p>
+     * <pre>
+     * RestAssured.config = RestAssured.config().sslConfig(sslConfig().relaxedHTTPSValidation());
+     * </pre>
+     */
+    public static void useRelaxedHTTPSValidation() {
+        config = RestAssured.config().sslConfig(sslConfig().relaxedHTTPSValidation());
+    }
+
+    /**
      * The following documentation is taken from <a href="HTTP Builder">http://groovy.codehaus.org/modules/http-builder/doc/ssl.html</a>:
      * <p>
      * <h1>SSL Configuration</h1>

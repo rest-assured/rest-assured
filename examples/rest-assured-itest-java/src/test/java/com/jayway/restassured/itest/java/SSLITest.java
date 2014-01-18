@@ -155,6 +155,28 @@ public class SSLITest {
     }
 
     @Test public void
+    relaxed_https_validation_works_using_instance_config() {
+        given().config(config().sslConfig(sslConfig().relaxedHTTPSValidation())).then().get("https://tv.eurosport.com/").then().statusCode(200);
+    }
+
+    @Test public void
+    relaxed_https_validation_works_using_instance_dsl() {
+        given().relaxedHTTPSValidation().then().get("https://bunny.cloudamqp.com/api/").then().statusCode(200);
+    }
+
+    @Test public void
+    relaxed_https_validation_works_when_defined_statically() {
+        RestAssured.useRelaxedHTTPSValidation();
+
+        try {
+            get("https://bunny.cloudamqp.com/api/").then().statusCode(200);
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+
+    @Test public void
     can_make_request_to_sites_that_with_valid_ssl_cert() {
         get("https://duckduckgo.com/").then().statusCode(200);
     }

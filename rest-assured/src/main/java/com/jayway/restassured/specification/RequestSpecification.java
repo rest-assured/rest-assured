@@ -950,11 +950,15 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification keystore(File pathToJks, String password);
 
     /**
-     * Use the supplied truststore for HTTPS requests.
+     * Use the supplied truststore for HTTPS requests. Shortcut for:
+     * <p>
+     * <pre>
      * given().config(RestAssured.config().sslConfig(sslConfig().trustStore(truststore));
+     * </pre>
+     * </p>
      * <p>
      * A trust store is a KeyStore that has been loaded with the password.
-     * If you wish that REST Assured loads the KeyStore store and applies the password (thus making it a trust store) please see some of the
+     * If you wish that REST Assured loads the KeyStore store and applies the password (thus making it a trust store) please see one of the
      * <code>keystore</code> methods such as {@link #keystore(String, String)}.
      * </p>
      *
@@ -963,6 +967,20 @@ public interface RequestSpecification extends RequestSender {
      * @see #keystore(String, String)
      */
     RequestSpecification trustStore(KeyStore trustStore);
+
+    /**
+     * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
+     * method you don't need to specify a keystore (see {@link #keystore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
+     * <p>
+     * This is just a shortcut for:
+     * </p>
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().relaxedHTTPSValidation())). ..;
+     * </pre>
+     *
+     * @return The request specification
+     */
+    RequestSpecification relaxedHTTPSValidation();
 
     /**
      * Specify the headers that'll be sent with the request. This is done by specifying the headers in name-value pairs, e.g:

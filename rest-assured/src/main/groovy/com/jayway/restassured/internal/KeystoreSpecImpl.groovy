@@ -40,8 +40,8 @@ class KeystoreSpecImpl implements KeystoreSpec {
     if (factory == null) {
       def trustStore = trustStore ?: createTrustStore()
       factory = createSSLSocketFactory(trustStore)
+      factory.setHostnameVerifier(x509HostnameVerifier ?: ALLOW_ALL_HOSTNAME_VERIFIER)
     }
-    factory.setHostnameVerifier(x509HostnameVerifier ?: ALLOW_ALL_HOSTNAME_VERIFIER)
     int portToUse = this.port == -1 ? port : this.port
     builder.client.connectionManager.schemeRegistry.register(new Scheme("https", portToUse, factory)
     )

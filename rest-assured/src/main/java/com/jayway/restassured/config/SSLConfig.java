@@ -16,12 +16,20 @@
 
 package com.jayway.restassured.config;
 
+import com.jayway.restassured.internal.util.SafeExceptionRethrower;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.File;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
@@ -187,6 +195,42 @@ public class SSLConfig {
      */
     public SSLConfig trustStore(KeyStore trustStore) {
         return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory, true);
+    }
+
+
+    /**
+     * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
+     * method you don't need to specify a keystore (see {@link #keystore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
+     *
+     * @return A new SSLConfig instance
+     */
+    public SSLConfig relaxedHTTPSValidation() {
+        SSLContext sslContext;
+        try {
+            sslContext = SSLContext.getInstance("SSL");
+        } catch (NoSuchAlgorithmException e) {
+            return SafeExceptionRethrower.safeRethrow(e);
+        }
+
+        // Set up a TrustManager that trusts everything
+        try {
+            sslContext.init(null, new TrustManager[]{new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+            }}, new SecureRandom());
+        } catch (KeyManagementException e) {
+            return SafeExceptionRethrower.safeRethrow(e);
+        }
+
+        SSLSocketFactory sf = new SSLSocketFactory(sslContext, ALLOW_ALL_HOSTNAME_VERIFIER);
+        return sslSocketFactory(sf);
     }
 
     /**

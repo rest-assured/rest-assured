@@ -7,6 +7,11 @@ Change log next version
 * RestAssuredMockMvc is now using "/" as default basePath so that you can use non-arg HTTP methods (such as get()) without first defining a basePath (issue 296).
 * Add static "when" method to RestAssuredMockMvc (issue 295).
 * Added support for specifying a trust store, either using the DSL using given().trustStore(..), or statically using RestAssured.trustStore(..) (issue 299).
+* Added support for relaxed https validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this you don't need to specify a keystore or trust store. For example:
+    given().relaxedHTTPSValidation().when().get("https://some-url-with-invalid-cert.com"). ..
+  You can also define it statically for all requests:
+    RestAssured.usrRelaxedHTTPValidation();
+  (issue 298)
 
 Change log 2.2.0 (2014-01-08)
 -----------------------------

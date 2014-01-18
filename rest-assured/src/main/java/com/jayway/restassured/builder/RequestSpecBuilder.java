@@ -35,6 +35,7 @@ import com.jayway.restassured.specification.RequestSpecification;
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.security.KeyStore;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -1105,6 +1106,45 @@ public class RequestSpecBuilder {
         PrintStream printStream = logConfig.defaultStream();
         boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
         spec.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream));
+        return this;
+    }
+
+    /**
+     * Use the supplied truststore for HTTPS requests. Shortcut for:
+     * <p>
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().trustStore(truststore));
+     * </pre>
+     * </p>
+     * <p>
+     * A trust store is a KeyStore that has been loaded with the password.
+     * If you wish that REST Assured loads the KeyStore store and applies the password (thus making it a trust store) please see one of the
+     * <code>keystore</code> methods such as {@link #setKeystore(String, String)}.
+     * </p>
+     *
+     * @param trustStore The truststore.
+     * @return RequestSpecBuilder
+     * @see #setKeystore(String, String)
+     */
+    public RequestSpecBuilder setTrustStore(KeyStore trustStore) {
+        spec.trustStore(trustStore);
+        return this;
+    }
+
+    /**
+     * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
+     * method you don't need to specify a keystore (see {@link #setKeystore(String, String)} or trust store (see {@link #setTrustStore(java.security.KeyStore)}.
+     * <p>
+     * This is just a shortcut for:
+     * </p>
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().relaxedHTTPSValidation())). ..;
+     * </pre>
+     *
+     * @return RequestSpecBuilder
+     */
+    public RequestSpecBuilder setRelaxedHTTPSValidation() {
+        spec.relaxedHTTPSValidation();
         return this;
     }
 

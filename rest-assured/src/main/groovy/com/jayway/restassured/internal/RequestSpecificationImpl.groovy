@@ -468,6 +468,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
+  def RequestSpecification relaxedHTTPSValidation() {
+    def sslConfig = restAssuredConfig().getSSLConfig()
+    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.relaxedHTTPSValidation())
+    this
+  }
+
   def RequestSpecification filter(Filter filter) {
     notNull filter, "Filter"
     filters << filter
