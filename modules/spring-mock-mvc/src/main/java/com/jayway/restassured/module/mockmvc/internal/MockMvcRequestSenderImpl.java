@@ -36,10 +36,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
+import java.security.Principal;
 import java.util.*;
 
 import static com.jayway.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash;
 import static com.jayway.restassured.module.mockmvc.internal.ConfigConverter.convertToRestAssuredConfig;
+import static com.jayway.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
@@ -60,11 +62,13 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final MockHttpServletRequestBuilderInterceptor interceptor;
     private final String basePath;
     private final ResponseSpecification responseSpecification;
+    private final Object authentication;
 
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams,
                              RestAssuredMockMvcConfig config, Object requestBody, String requestContentType, Headers headers, Cookies cookies,
                              List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
-                             MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification) {
+                             MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
+                             Object authentication) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.queryParams = queryParams;
@@ -80,6 +84,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         this.interceptor = interceptor;
         this.basePath = basePath;
         this.responseSpecification = responseSpecification;
+        this.authentication = authentication;
     }
 
     private Object assembleHeaders(MockHttpServletResponse response) {
@@ -103,6 +108,12 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
 
         if (interceptor != null) {
             interceptor.intercept(requestBuilder);
+        }
+
+        if (isSpringSecurityInClasspath() && authentication instanceof org.springframework.security.core.Authentication) {
+            org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication((org.springframework.security.core.Authentication) authentication);
+        } else if (authentication instanceof Principal) {
+            requestBuilder.principal((Principal) authentication);
         }
 
         MockMvcRestAssuredResponseImpl restAssuredResponse;
@@ -131,6 +142,10 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
 
         } catch (Exception e) {
             return SafeExceptionRethrower.safeRethrow(e);
+        } finally {
+            if (isSpringSecurityInClasspath()) {
+                org.springframework.security.core.context.SecurityContextHolder.clearContext();
+            }
         }
         return restAssuredResponse;
     }

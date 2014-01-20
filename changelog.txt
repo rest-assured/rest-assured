@@ -10,8 +10,9 @@ Change log next version
 * Added support for relaxed https validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this you don't need to specify a keystore or trust store. For example:
     given().relaxedHTTPSValidation().when().get("https://some-url-with-invalid-cert.com"). ..
   You can also define it statically for all requests:
-    RestAssured.usrRelaxedHTTPValidation();
+    RestAssured.useRelaxedHTTPValidation();
   (issue 298)
+* Added support for authentication in RestAssuredMockMvc. You can now do e.g. given().auth().principal(..). Some auth methods require Spring Security to be on the classpath (optional).
 
 Change log 2.2.0 (2014-01-08)
 -----------------------------

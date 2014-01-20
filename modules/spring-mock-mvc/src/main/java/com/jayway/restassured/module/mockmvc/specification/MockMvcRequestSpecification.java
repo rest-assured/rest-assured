@@ -22,6 +22,14 @@ import java.util.Map;
  * Allows you to specify how the request will look like.
  */
 public interface MockMvcRequestSpecification extends MockMvcRequestSender {
+
+    /**
+     * Specify authentication details that'll be used in the request.
+     *
+     * @return A {@link MockMvcAuthenticationSpecification}.
+     */
+    MockMvcAuthenticationSpecification auth();
+
     /**
      * Specify the content type of the request.
      *

@@ -13,6 +13,7 @@ import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationSpecification;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSender;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
@@ -31,15 +32,17 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
+import java.security.Principal;
 import java.util.*;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;
 import static com.jayway.restassured.module.mockmvc.internal.ConfigConverter.convertToRestAssuredConfig;
+import static com.jayway.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification {
+public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification, MockMvcAuthenticationSpecification {
 
     private static final String CONTENT_TYPE = "content-type";
 
@@ -80,6 +83,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private MockHttpServletRequestBuilderInterceptor interceptor;
 
+    private Object authentication;
+
     public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers, String basePath,
                                            MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
         this.instanceMockMvc = mockMvc;
@@ -110,6 +115,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification interceptor(MockHttpServletRequestBuilderInterceptor interceptor) {
         this.interceptor = interceptor;
+        return this;
+    }
+
+    public MockMvcAuthenticationSpecification auth() {
         return this;
     }
 
@@ -542,7 +551,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSender when() {
         return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, restAssuredMockMvcConfig, requestBody, requestContentType,
-                requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath, responseSpecification);
+                requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath, responseSpecification, authentication);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {
@@ -788,6 +797,37 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification basePath(String path) {
         notNull(path, "Base path");
         this.basePath = path;
+        return this;
+    }
+
+    public MockMvcRequestSpecification principal(Principal principal) {
+        notNull(principal, Principal.class);
+        this.authentication = principal;
+        return this;
+    }
+
+    public MockMvcRequestSpecification principal(Object principal) {
+        return principalWithCredentials(principal, "");
+    }
+
+    public MockMvcRequestSpecification principalWithCredentials(Object principal, Object credentials, String... authorities) {
+        return authentication(new org.springframework.security.authentication.TestingAuthenticationToken(principal, credentials, authorities));
+    }
+
+    public MockMvcRequestSpecification authentication(Object authentication) {
+        if (!isSpringSecurityInClasspath()) {
+            throw new IllegalArgumentException("Cannot use this authentication method since Spring Security was not found in classpath.");
+        }
+        notNull(authentication, org.springframework.security.core.Authentication.class);
+        if (!(authentication instanceof org.springframework.security.core.Authentication)) {
+            throw new IllegalArgumentException("authentication object must be an instance of "+org.springframework.security.core.Authentication.class.getName());
+        }
+        this.authentication = authentication;
+        return this;
+    }
+
+    public MockMvcRequestSpecification none() {
+        this.authentication = null;
         return this;
     }
 }

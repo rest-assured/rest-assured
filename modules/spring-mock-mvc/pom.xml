@@ -30,6 +30,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>4.0.0.RELEASE</spring.version>
+        <spring.security.version>3.2.0.RELEASE</spring.security.version>
     </properties>
 
     <dependencies>
@@ -47,6 +48,12 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
             <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${spring.security.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
