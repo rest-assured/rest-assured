@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.builder;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.authentication.AuthenticationScheme;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
@@ -70,8 +71,8 @@ public class RequestSpecBuilder {
     private RequestSpecificationImpl spec;
 
     public RequestSpecBuilder() {
-        this.spec = new RequestSpecificationImpl(baseURI, port, basePath, authentication, Collections.<Filter>emptyList(),
-                requestContentType(), null, urlEncodingEnabled, null);
+        this.spec = (RequestSpecificationImpl) new RequestSpecificationImpl(baseURI, port, basePath, authentication, Collections.<Filter>emptyList(),
+                requestContentType(), null, urlEncodingEnabled, null).config(RestAssured.config());
     }
 
     /**

@@ -17,6 +17,8 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.specification.RequestSpecification;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -218,4 +220,19 @@ public class SSLITest {
     can_make_request_to_sites_that_with_valid_ssl_cert() {
         get("https://duckduckgo.com/").then().statusCode(200);
     }
+
+    @Test public void
+    allows_specifying_trust_store_statically_with_request_builder() throws Exception {
+        // Load the trust store
+        InputStream trustStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("truststore_eurosport.jks");
+        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        trustStore.load(trustStoreStream, "test4321".toCharArray());
+
+        // Set the truststore on the global config
+        RestAssured.config = RestAssured.config().sslConfig(sslConfig().trustStore(trustStore).and().allowAllHostnames());
+
+        final RequestSpecification spec = new RequestSpecBuilder().build();
+        given().spec(spec).get("https://tv.eurosport.com/").then().statusCode(200);
+    }
+
 }
