@@ -19,6 +19,7 @@ Change log next version
 * Non-backward compatible change: Statically defined configuration (such as RestAssured.config = ..) is now automatically applied to RequestSpecBuilders in both RestAssured and RestAssuredMockMvc. To revert to previous behavior you can do
     new RequestSpecBuilder.config(newConfig()). ..
 * Updated Groovy dependency to 2.2.1.
+* MockMvcResponse now allows you to extract the MvcResult and MockHttpServletResponse (issue 294).
 
 Change log 2.2.0 (2014-01-08)
 -----------------------------

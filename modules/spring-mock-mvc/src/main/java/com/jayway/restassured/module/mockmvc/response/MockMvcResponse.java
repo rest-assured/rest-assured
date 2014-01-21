@@ -18,6 +18,8 @@ package com.jayway.restassured.module.mockmvc.response;
 
 import com.jayway.restassured.response.ResponseBody;
 import com.jayway.restassured.response.ResponseOptions;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.web.servlet.MvcResult;
 
 /**
  * The response of a request made by REST Assured Mock MVC.
@@ -55,4 +57,44 @@ public interface MockMvcResponse extends ResponseBody<MockMvcResponse>, Response
      * @return A validatable response
      */
     ValidatableMockMvcResponse then();
+
+    /**
+     * Return the {@link org.springframework.test.web.servlet.MvcResult} as returned by Spring MockMvc.
+     * <p>
+     * This method is the same as {@link #getMvcResult()} except for syntactic differences.
+     * </p>
+     *
+     * @return The {@link org.springframework.test.web.servlet.MvcResult} as returned by Spring MockMvc.
+     */
+    MvcResult mvcResult();
+
+    /**
+     * Return the {@link org.springframework.test.web.servlet.MvcResult} as returned by Spring MockMvc.
+     * <p>
+     * This method is the same as {@link #mvcResult()} except for syntactic differences.
+     * </p>
+     *
+     * @return The {@link org.springframework.test.web.servlet.MvcResult} as returned by Spring MockMvc.
+     */
+    MvcResult getMvcResult();
+
+    /**
+     * Return the {@link org.springframework.mock.web.MockHttpServletResponse} as returned by Spring MockMvc.
+     * <p>
+     * This method is the same as {@link #getMockHttpServletResponse()} except for syntactic differences.
+     * </p>
+     *
+     * @return The {@link org.springframework.mock.web.MockHttpServletResponse} as returned by Spring MockMvc.
+     */
+    MockHttpServletResponse mockHttpServletResponse();
+
+    /**
+     * Return the {@link org.springframework.mock.web.MockHttpServletResponse} as returned by Spring MockMvc.
+     * <p>
+     * This method is the same as {@link #mockHttpServletResponse()} except for syntactic differences.
+     * </p>
+     *
+     * @return The {@link org.springframework.mock.web.MockHttpServletResponse} as returned by Spring MockMvc.
+     */
+    MockHttpServletResponse getMockHttpServletResponse();
 }
