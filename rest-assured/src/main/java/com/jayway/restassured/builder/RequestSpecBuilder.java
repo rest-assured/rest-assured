@@ -949,7 +949,7 @@ public class RequestSpecBuilder {
      * @return The request specification builder
      */
     public RequestSpecBuilder setAuthentication(AuthenticationScheme auth) {
-        ((RequestSpecificationImpl) spec).setAuthenticationScheme(auth);
+        spec.setAuthenticationScheme(auth);
         return this;
     }
 

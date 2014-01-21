@@ -42,7 +42,7 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 /**
  * You can use the builder to construct a request specification. The specification can be used as e.g.
  * <pre>
- * RequestSpecification requestSpec = new MockMvcRequestSpecBuilder().addParameter("parameter1", "value1").build();
+ * MockMvcRequestSpecification requestSpec = new MockMvcRequestSpecBuilder().addParameter("parameter1", "value1").build();
  *
  * given().
  *         spec(requestSpec).
@@ -58,7 +58,18 @@ public class MockMvcRequestSpecBuilder {
 
     public MockMvcRequestSpecBuilder() {
         this.spec = (MockMvcRequestSpecificationImpl) new MockMvcRequestSpecificationImpl(RestAssuredMockMvc.mockMvc, RestAssuredMockMvc.config, RestAssuredMockMvc.resultHandlers(),
-                RestAssuredMockMvc.basePath, RestAssuredMockMvc.requestSpecification, RestAssuredMockMvc.responseSpecification).config(RestAssuredMockMvc.config);
+                RestAssuredMockMvc.basePath, RestAssuredMockMvc.requestSpecification, RestAssuredMockMvc.responseSpecification, RestAssuredMockMvc.authentication).
+                config(RestAssuredMockMvc.config);
+    }
+
+    /**
+     * If you need to specify some credentials when performing a request.
+     *
+     * @return The request specification builder
+     */
+    public MockMvcRequestSpecBuilder setAuth(MockMvcAuthenticationScheme auth) {
+        auth.authenticate(spec);
+        return this;
     }
 
     /**

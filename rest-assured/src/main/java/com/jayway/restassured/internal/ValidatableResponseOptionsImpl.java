@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
-import static org.hamcrest.Matchers.anything;
 
 public class ValidatableResponseOptionsImpl<T extends ValidatableResponseOptions<T, R>, R extends ResponseOptions<R>> implements ValidatableResponseLogSpec<T, R> {
 

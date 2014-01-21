@@ -3,6 +3,7 @@ package com.jayway.restassured.module.mockmvc;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSender;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
@@ -14,6 +15,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.net.URI;
 import java.net.URL;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -70,8 +72,21 @@ public class RestAssuredMockMvc {
     public static String basePath = "/";
 
     /**
-     * This is usually the entry-point of the API if you need to specify parameters or a body in the request. For example:
+     * Defines a global authentication scheme that'll be used for all requests (if not overridden). Usage example:
+     * <pre>
+     * RestAssured.authentication = principal(myPrincipal);
+     * </pre>
      *
+     * @see #principal(java.security.Principal)
+     * @see #principal(Object)
+     * @see #principalWithCredentials(Object, Object, String...)
+     * @see #authentication(Object)
+     */
+    public static MockMvcAuthenticationScheme authentication;
+
+    /**
+     * This is usually the entry-point of the API if you need to specify parameters or a body in the request. For example:
+     * <p/>
      * <pre>
      * given().
      *         param("x", "y").
@@ -81,10 +96,11 @@ public class RestAssuredMockMvc {
      *        statusCode(200).
      *        body("x.y", notNullValue());
      * </pre>
+     *
      * @return A {@link MockMvcRequestSpecification}.
      */
     public static MockMvcRequestSpecification given() {
-        return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers, basePath, requestSpecification, responseSpecification);
+        return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers, basePath, requestSpecification, responseSpecification, authentication);
     }
 
     /**
@@ -176,6 +192,7 @@ public class RestAssuredMockMvc {
         resultHandlers.clear();
         responseSpecification = null;
         requestSpecification = null;
+        authentication = null;
     }
 
     /**
@@ -535,5 +552,95 @@ public class RestAssuredMockMvc {
      */
     public static MockMvcResponse options() {
         return given().options();
+    }
+
+    /**
+     * Authenticate using the given principal. Used as:
+     * <pre>
+     * RestAssured.authentication = principal(myPrincipal);
+     * </pre>
+     * or in a {@link com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder}:
+     * <pre>
+     * MockMvcRequestSpecification req = new MockMvcRequestSpecBuilder().setAuth(principal(myPrincipal)). ..
+     * </pre>
+     *
+     * @param principal The principal to use.
+     * @return A {@link com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme} instance.
+     * @see com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationSpecification#principal(java.security.Principal)
+     */
+    public static MockMvcAuthenticationScheme principal(final Principal principal) {
+        return new MockMvcAuthenticationScheme() {
+            public void authenticate(MockMvcRequestSpecification mockMvcRequestSpecification) {
+                mockMvcRequestSpecification.auth().principal(principal);
+            }
+        };
+    }
+
+    /**
+     * Authenticate using the given principal. Used as:
+     * <pre>
+     * RestAssured.authentication = principal(myPrincipal);
+     * </pre>
+     * or in a {@link com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder}:
+     * <pre>
+     * MockMvcRequestSpecification req = new MockMvcRequestSpecBuilder().setAuth(principal(myPrincipal)). ..
+     * </pre>
+     *
+     * @param principal The principal to use.
+     * @return A {@link com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme} instance.
+     * @see com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationSpecification#principal(Object)
+     */
+    public static MockMvcAuthenticationScheme principal(final Object principal) {
+        return new MockMvcAuthenticationScheme() {
+            public void authenticate(MockMvcRequestSpecification mockMvcRequestSpecification) {
+                mockMvcRequestSpecification.auth().principal(principal);
+            }
+        };
+    }
+
+    /**
+     * Authenticate using the given principal and credentials. Used as:
+     * <pre>
+     * RestAssured.authentication = principalWithCredentials(myPrincipal, myCredentials);
+     * </pre>
+     * or in a {@link com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder}:
+     * <pre>
+     * MockMvcRequestSpecification req = new MockMvcRequestSpecBuilder().setAuth(principalWithCredentials(myPrincipal, myCredentials)). ..
+     * </pre>
+     *
+     * @param principal   The principal to use.
+     * @param credentials The credentials to use
+     * @param authorities Optional list of authorities
+     * @return A {@link com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme} instance.
+     * @see com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationSpecification#principalWithCredentials(Object, Object, String...)
+     */
+    public static MockMvcAuthenticationScheme principalWithCredentials(final Object principal, final Object credentials, final String... authorities) {
+        return new MockMvcAuthenticationScheme() {
+            public void authenticate(MockMvcRequestSpecification mockMvcRequestSpecification) {
+                mockMvcRequestSpecification.auth().principalWithCredentials(principal, credentials, authorities);
+            }
+        };
+    }
+
+    /**
+     * Authenticate using the supplied authentication instance (<code>org.springframework.security.core.Authentication</code> from Spring Security). Used as:
+     * <pre>
+     * RestAssured.authentication = authentication(myAuth);
+     * </pre>
+     * or in a {@link com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder}:
+     * <pre>
+     * MockMvcRequestSpecification req = new MockMvcRequestSpecBuilder().setAuth(authentication(myAuth)). ..
+     * </pre>
+     *
+     * @param authentication The authentication instance to use.
+     * @return A {@link com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme} instance.
+     * @see com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationSpecification#authentication(Object)
+     */
+    public static MockMvcAuthenticationScheme authentication(final Object authentication) {
+        return new MockMvcAuthenticationScheme() {
+            public void authenticate(MockMvcRequestSpecification mockMvcRequestSpecification) {
+                mockMvcRequestSpecification.auth().authentication(authentication);
+            }
+        };
     }
 }

@@ -64,7 +64,7 @@ public interface MockMvcAuthenticationSpecification {
     MockMvcRequestSpecification principalWithCredentials(Object principal, Object credentials, String... authorities);
 
     /**
-     * Authenticate using the given principal and credentials. The principal and credentials will be used like this:
+     * Authenticate using the given authentication instance. The authentication instance will be used like this:
      * <pre>
      * SecurityContextHolder.getContext().setAuthentication(authentication);
      * </pre>

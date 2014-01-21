@@ -21,12 +21,14 @@ import com.jayway.restassured.module.mockmvc.http.GreetingController;
 import com.jayway.restassured.module.mockmvc.http.PostController;
 import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Header;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultHandler;
@@ -43,6 +45,7 @@ import static com.jayway.restassured.filter.log.LogDetail.ALL;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static com.jayway.restassured.http.ContentType.XML;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.principal;
 import static com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig.newConfig;
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.BIG_DECIMAL;
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE;
@@ -405,6 +408,48 @@ public class MockMvcRequestSpecificationMergingTest {
                 "Form params:\t<none>\n" +
                 "Path params:\t<none>\n");
     }
+
+    @Test public void
+    authentication_is_overwritten_when_defined_in_specification() {
+        // Given
+        MockMvcAuthenticationScheme otherAuth = principal("other");
+        MockMvcAuthenticationScheme thisAuth = principal("this");
+        MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().setAuth(otherAuth).build();
+
+        // When
+        MockMvcRequestSpecification spec = given().spec(new MockMvcRequestSpecBuilder().setAuth(thisAuth).build()).spec(specToMerge);
+
+        // Then
+        assertThat(((TestingAuthenticationToken) implOf(spec).getAuthentication()).getPrincipal()).isEqualTo("other");
+    }
+
+    @Test public void
+    authentication_is_overwritten_when_using_dsl_and_defined_in_specification() {
+        // Given
+        MockMvcAuthenticationScheme otherAuth = principal("other");
+        MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().setAuth(otherAuth).build();
+
+        // When
+        MockMvcRequestSpecification spec = given().auth().principal("this").and().spec(specToMerge);
+
+        // Then
+        assertThat(((TestingAuthenticationToken) implOf(spec).getAuthentication()).getPrincipal()).isEqualTo("other");
+    }
+
+    @Test public void
+    authentication_is_not_overwritten_when_not_defined_in_specification() {
+        // Given
+        MockMvcAuthenticationScheme thisAuth = principal("this");
+        MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().addQueryParam("param1", "value1").build();
+
+        // When
+        MockMvcRequestSpecification spec = given().spec(new MockMvcRequestSpecBuilder().setAuth(thisAuth).build()).spec(specToMerge);
+
+        // Then
+        assertThat(((TestingAuthenticationToken) implOf(spec).getAuthentication()).getPrincipal()).isEqualTo("this");
+        assertThat(implOf(spec).getQueryParams()).containsOnly(entry("param1", "value1"));
+    }
+
     // @formatter:on
 
     private MockMvcRequestSpecificationImpl implOf(MockMvcRequestSpecification spec) {

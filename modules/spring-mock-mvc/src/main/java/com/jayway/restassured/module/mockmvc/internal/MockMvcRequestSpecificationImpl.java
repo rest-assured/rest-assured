@@ -13,10 +13,7 @@ import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationSpecification;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSender;
-import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import com.jayway.restassured.module.mockmvc.specification.*;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
@@ -86,7 +83,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     private Object authentication;
 
     public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers, String basePath,
-                                           MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification) {
+                                           MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification,
+                                           MockMvcAuthenticationScheme authentication) {
         this.instanceMockMvc = mockMvc;
         this.basePath = basePath;
         this.responseSpecification = responseSpecification;
@@ -94,8 +92,13 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         if (resultHandlers != null) {
             this.resultHandlers.addAll(resultHandlers);
         }
+
         if (requestSpecification != null) {
             spec(requestSpecification);
+        }
+
+        if (authentication != null) {
+            authentication.authenticate(this);
         }
     }
 
@@ -115,6 +118,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification interceptor(MockHttpServletRequestBuilderInterceptor interceptor) {
         this.interceptor = interceptor;
+        return this;
+    }
+
+    public MockMvcRequestSpecification and() {
         return this;
     }
 
@@ -515,6 +522,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
             this.requestLoggingFilter = otherRequestLoggingFilter;
         }
 
+        Object otherAuth = that.getAuthentication();
+        if (otherAuth != null) {
+            this.authentication = otherAuth;
+        }
+
         return this;
     }
 
@@ -762,6 +774,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return requestBody;
     }
 
+    public Object getAuthentication() {
+        return authentication;
+    }
+
     public RestAssuredMockMvcConfig getRestAssuredMockMvcConfig() {
         return restAssuredMockMvcConfig;
     }
@@ -820,7 +836,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
         notNull(authentication, org.springframework.security.core.Authentication.class);
         if (!(authentication instanceof org.springframework.security.core.Authentication)) {
-            throw new IllegalArgumentException("authentication object must be an instance of "+org.springframework.security.core.Authentication.class.getName());
+            throw new IllegalArgumentException("authentication object must be an instance of " + org.springframework.security.core.Authentication.class.getName());
         }
         this.authentication = authentication;
         return this;

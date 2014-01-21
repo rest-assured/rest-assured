@@ -36,7 +36,7 @@ public class SecuredController {
     @RequestMapping(value = "/springSecurityGreeting", method = GET)
     public @ResponseBody Greeting greeting(@RequestParam(value = "name", required = false, defaultValue = "World") String name) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (!user.getUsername().equals("authorized_user")) {
+        if (user == null || !user.getUsername().equals("authorized_user")) {
             throw new IllegalArgumentException("Not authorized");
         }
 
@@ -45,7 +45,7 @@ public class SecuredController {
 
     @RequestMapping(value = "/principalGreeting", method = GET)
     public @ResponseBody Greeting greeting(@RequestParam(value = "name", required = false, defaultValue = "World") String name, Principal principal) {
-        if (!principal.getName().equals("authorized_user")) {
+        if (principal == null || !principal.getName().equals("authorized_user")) {
             throw new IllegalArgumentException("Not authorized");
         }
 

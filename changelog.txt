@@ -12,7 +12,10 @@ Change log next version
   You can also define it statically for all requests:
     RestAssured.useRelaxedHTTPValidation();
   (issue 298)
-* Added support for authentication in RestAssuredMockMvc. You can now do e.g. given().auth().principal(..). Some auth methods require Spring Security to be on the classpath (optional).
+* Added support for authentication in RestAssuredMockMvc. You can now do e.g. given().auth().principal(..). Some auth methods require Spring Security to be on the classpath (optional). It's also possible to defined authentication statically:
+    RestAssuredMockMvc.authentication = principal("username", "password");
+  where the "principal" method is statically imported from RestAssuredMockMvc. It's also possible to define an authentication scheme in a request builder:
+    MockMvcRequestSpecification spec = new MockMvcRequestSpecBuilder.setAuth(principal("username", "password")).build();
 * Non-backward compatible change: Statically defined configuration (such as RestAssured.config = ..) is now automatically applied to RequestSpecBuilders in both RestAssured and RestAssuredMockMvc. To revert to previous behavior you can do
     new RequestSpecBuilder.config(newConfig()). ..
 

@@ -829,4 +829,11 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * @return The request specification
      */
     MockMvcRequestSpecification interceptor(MockHttpServletRequestBuilderInterceptor interceptor);
+
+    /**
+     * Syntactic sugar
+     *
+     * @return The same {@link com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification} instance.
+     */
+    MockMvcRequestSpecification and();
 }
