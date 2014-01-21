@@ -18,6 +18,7 @@ Change log next version
     MockMvcRequestSpecification spec = new MockMvcRequestSpecBuilder.setAuth(principal("username", "password")).build();
 * Non-backward compatible change: Statically defined configuration (such as RestAssured.config = ..) is now automatically applied to RequestSpecBuilders in both RestAssured and RestAssuredMockMvc. To revert to previous behavior you can do
     new RequestSpecBuilder.config(newConfig()). ..
+* Updated Groovy dependency to 2.2.1.
 
 Change log 2.2.0 (2014-01-08)
 -----------------------------
