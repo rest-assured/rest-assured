@@ -341,6 +341,26 @@ class ScalatraRestExample extends ScalatraServlet {
     </foo>
   }
 
+  get("/game") {
+    """{
+         "playerOneId": "a084a81a-6bc9-418d-b107-5cb5ce249b77",
+         "playerTwoId": "88867e23-0b38-4c43-ad8e-161ba5062c7d",
+          "status": "ongoing",
+          "rounds": [
+
+          ],
+          "_links": {
+              "self": {
+                  "href": "http://localhost:8080/2dd68f2d-37df-4eed-9fce-5d9ce23a6745"
+              },
+              "make-move": {
+                  "href": "http://localhost:8080/2dd68f2d-37df-4eed-9fce-5d9ce23a6745/make-move"
+              }
+          },
+          "id": "2dd68f2d-37df-4eed-9fce-5d9ce23a6745"
+      }"""
+  }
+
   put("/greetPut") {
     // For some reason Scalatra doesn't seem to handle form parameters in PUT requests
     if(request.getParameterNames.exists { _ == "firstName" }) {

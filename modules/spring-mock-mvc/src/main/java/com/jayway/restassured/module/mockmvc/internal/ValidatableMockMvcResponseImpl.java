@@ -32,9 +32,12 @@ import static com.jayway.restassured.module.mockmvc.internal.ResponseConverter.t
 public class ValidatableMockMvcResponseImpl extends ValidatableResponseOptionsImpl<ValidatableMockMvcResponse, MockMvcResponse> implements ValidatableMockMvcResponse {
 
     private final ResultActions resultActions;
+    private final MockMvcResponse mockMvcResponse;
 
-    public ValidatableMockMvcResponseImpl(ResultActions resultActions, String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config, MockMvcResponse response, ExtractableResponse<MockMvcResponse> extractableResponse) {
+    public ValidatableMockMvcResponseImpl(ResultActions resultActions, String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config,
+                                          MockMvcResponse response, ExtractableResponse<MockMvcResponse> extractableResponse) {
         super(contentType, rpr, config, toStandardResponse(response), extractableResponse);
+        this.mockMvcResponse = response;
         notNull(resultActions, ResultActions.class);
         this.resultActions = resultActions;
     }
@@ -51,5 +54,9 @@ public class ValidatableMockMvcResponseImpl extends ValidatableResponseOptionsIm
 
     public ValidatableMockMvcResponse assertThat(ResultMatcher resultMatcher) {
         return expect(resultMatcher);
+    }
+
+    public MockMvcResponse originalResponse() {
+        return mockMvcResponse;
     }
 }

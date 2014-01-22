@@ -27,4 +27,7 @@ class ValidatableResponseImpl extends ValidatableResponseOptionsImpl<Validatable
     super(contentType, rpr, config, response, extractableResponse)
   }
 
+  Response originalResponse() {
+    response
+  }
 }

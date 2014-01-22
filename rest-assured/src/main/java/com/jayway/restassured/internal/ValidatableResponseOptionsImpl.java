@@ -21,6 +21,8 @@ import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.print.ResponsePrinter;
+import com.jayway.restassured.internal.util.SafeExceptionRethrower;
+import com.jayway.restassured.matcher.ResponseAwareMatcher;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.*;
 import com.jayway.restassured.specification.Argument;
@@ -32,7 +34,7 @@ import java.util.Map;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
-public class ValidatableResponseOptionsImpl<T extends ValidatableResponseOptions<T, R>, R extends ResponseOptions<R>> implements ValidatableResponseLogSpec<T, R> {
+public abstract class ValidatableResponseOptionsImpl<T extends ValidatableResponseOptions<T, R>, R extends ResponseBody<R> & ResponseOptions<R>> implements ValidatableResponseLogSpec<T, R> {
 
     private final ResponseSpecificationImpl responseSpec;
     private final ExtractableResponse<R> extractableResponse;
@@ -44,6 +46,33 @@ public class ValidatableResponseOptionsImpl<T extends ValidatableResponseOptions
         this.response = response;
         responseSpec = new ResponseSpecificationImpl(RestAssured.rootPath, contentType, RestAssured.responseSpecification, rpr, config, response);
         this.extractableResponse = extractableResponse;
+    }
+
+    public T content(List<Argument> arguments, ResponseAwareMatcher<R> responseAwareMatcher) {
+        return content(arguments, getMatcherFromResponseAwareMatcher(responseAwareMatcher));
+    }
+
+    public T body(List<Argument> arguments, ResponseAwareMatcher<R> responseAwareMatcher) {
+        return body(arguments, getMatcherFromResponseAwareMatcher(responseAwareMatcher));
+    }
+
+    public T body(String key, List<Argument> arguments, ResponseAwareMatcher<R> responseAwareMatcher) {
+        return body(key, arguments, getMatcherFromResponseAwareMatcher(responseAwareMatcher));
+    }
+
+    public T body(String key, ResponseAwareMatcher<R> responseAwareMatcher) {
+        notNull(responseAwareMatcher, ResponseAwareMatcher.class);
+        return body(key, getMatcherFromResponseAwareMatcher(responseAwareMatcher));
+    }
+
+    public T content(String path, List<Argument> arguments, ResponseAwareMatcher<R> responseAwareMatcher) {
+        notNull(responseAwareMatcher, ResponseAwareMatcher.class);
+        return content(path, arguments, getMatcherFromResponseAwareMatcher(responseAwareMatcher));
+    }
+
+    public T content(String path, ResponseAwareMatcher<R> responseAwareMatcher) {
+        notNull(responseAwareMatcher, ResponseAwareMatcher.class);
+        return content(path, getMatcherFromResponseAwareMatcher(responseAwareMatcher));
     }
 
     public T content(Matcher<?> matcher, Matcher<?>... additionalMatchers) {
@@ -61,8 +90,8 @@ public class ValidatableResponseOptionsImpl<T extends ValidatableResponseOptions
         return (T) this;
     }
 
-    public T body(String key, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
-        responseSpec.body(key, arguments, matcher, additionalKeyMatcherPairs);
+    public T body(String path, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
+        responseSpec.body(path, arguments, matcher, additionalKeyMatcherPairs);
         return (T) this;
     }
 
@@ -344,4 +373,16 @@ public class ValidatableResponseOptionsImpl<T extends ValidatableResponseOptions
         ResponsePrinter.print(response, response, config.getLogConfig().defaultStream(), logDetail, shouldPrettyPrint);
         return (T) this;
     }
+
+    public abstract R originalResponse();
+
+    private Matcher<?> getMatcherFromResponseAwareMatcher(ResponseAwareMatcher<R> responseAwareMatcher) {
+        notNull(responseAwareMatcher, ResponseAwareMatcher.class);
+        try {
+            return responseAwareMatcher.matcher(originalResponse());
+        } catch (Exception e) {
+            return SafeExceptionRethrower.safeRethrow(e);
+        }
+    }
+
 }

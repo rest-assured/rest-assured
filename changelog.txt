@@ -20,6 +20,17 @@ Change log next version
     new RequestSpecBuilder.config(newConfig()). ..
 * Updated Groovy dependency to 2.2.1.
 * MockMvcResponse now allows you to extract the MvcResult and MockHttpServletResponse (issue 294).
+* Added support for using parts of the response when verifying the response. For example consider the following JSON document returned from service x:
+    { "userId" : "some-id", "href" : "http://localhost:8080/some-id" }
+  You may notice that the "href" attribute ends with the value of the "userId" attribute. If we want to verify this we can implement a com.jayway.restassured.matcher.ResponseAwareMatcher and use it like this:
+    get("/x").then().body("href", new ResponseAwareMatcher<Response>() {
+                                        public Matcher<?> matcher(Response response) {
+                                              return equalTo("http://localhost:8080/" + response.path("userId"));
+                                        }
+                                  });
+  There are some predefined matchers that you can use defined in the com.jayway.restassured.matcher.RestAssuredMatchers (or com.jayway.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers if using the spring-mock-mvc module). For example:
+    get("/x").then().body("href", endsWithPath("userId"));
+  (issue 288).
 
 Change log 2.2.0 (2014-01-08)
 -----------------------------

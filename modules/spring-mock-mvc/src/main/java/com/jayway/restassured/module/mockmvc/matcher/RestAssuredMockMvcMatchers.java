@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 the original author or authors.
+ * Copyright 2014 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.matcher;
+package com.jayway.restassured.module.mockmvc.matcher;
 
-import com.jayway.restassured.internal.matcher.xml.XmlDtdMatcher;
-import com.jayway.restassured.internal.matcher.xml.XmlXsdMatcher;
-import com.jayway.restassured.response.Response;
+import com.jayway.restassured.matcher.ResponseAwareMatcher;
+import com.jayway.restassured.matcher.RestAssuredMatchers;
+import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import org.hamcrest.Matcher;
 
 import java.io.File;
@@ -29,9 +29,9 @@ import java.net.URL;
 import static org.hamcrest.Matchers.*;
 
 /**
- * Providers Hamcrest matchers that may be useful when validating a response.
+ * Providers Hamcrest matchers that may be useful when validating a MockMvc response.
  */
-public class RestAssuredMatchers {
+public class RestAssuredMockMvcMatchers {
 
     /**
      * Evaluates to true if an XML string matches the supplied XSD (Xml Schema).
@@ -40,7 +40,7 @@ public class RestAssuredMatchers {
      * @return The XSD matcher
      */
     public static Matcher<String> matchesXsd(String xsd) {
-        return XmlXsdMatcher.matchesXsd(xsd);
+        return RestAssuredMatchers.matchesXsd(xsd);
     }
 
     /**
@@ -50,7 +50,7 @@ public class RestAssuredMatchers {
      * @return The XSD matcher
      */
     public static Matcher<String> matchesXsd(InputStream xsd) {
-        return XmlXsdMatcher.matchesXsd(xsd);
+        return RestAssuredMatchers.matchesXsd(xsd);
     }
 
     /**
@@ -60,7 +60,7 @@ public class RestAssuredMatchers {
      * @return The XSD matcher
      */
     public static Matcher<String> matchesXsd(Reader xsd) {
-        return XmlXsdMatcher.matchesXsd(xsd);
+        return RestAssuredMatchers.matchesXsd(xsd);
     }
 
     /**
@@ -70,7 +70,7 @@ public class RestAssuredMatchers {
      * @return The XSD matcher
      */
     public static Matcher<String> matchesXsd(File xsd) {
-        return XmlXsdMatcher.matchesXsd(xsd);
+        return RestAssuredMatchers.matchesXsd(xsd);
     }
 
     /**
@@ -80,7 +80,7 @@ public class RestAssuredMatchers {
      * @return The DTD matcher
      */
     public static Matcher<String> matchesDtd(String dtd) {
-        return XmlDtdMatcher.matchesDtd(dtd);
+        return RestAssuredMatchers.matchesDtd(dtd);
     }
 
     /**
@@ -90,7 +90,7 @@ public class RestAssuredMatchers {
      * @return The DTD matcher
      */
     public static Matcher<String> matchesDtd(InputStream dtd) {
-        return XmlDtdMatcher.matchesDtd(dtd);
+        return RestAssuredMatchers.matchesDtd(dtd);
     }
 
     /**
@@ -100,7 +100,7 @@ public class RestAssuredMatchers {
      * @return The DTD matcher
      */
     public static Matcher<String> matchesDtd(File dtd) {
-        return XmlDtdMatcher.matchesDtd(dtd);
+        return RestAssuredMatchers.matchesDtd(dtd);
     }
 
     /**
@@ -110,7 +110,7 @@ public class RestAssuredMatchers {
      * @return The DTD matcher
      */
     public static Matcher<String> matchesDtd(URL url) {
-        return XmlDtdMatcher.matchesDtd(url);
+        return RestAssuredMatchers.matchesDtd(url);
     }
 
     /**
@@ -130,9 +130,9 @@ public class RestAssuredMatchers {
      * @param path The path to check
      * @return A {@link com.jayway.restassured.matcher.ResponseAwareMatcher}
      */
-    public static ResponseAwareMatcher<Response> equalToPath(final String path) {
-        return new ResponseAwareMatcher<Response>() {
-            public Matcher<?> matcher(Response response) {
+    public static ResponseAwareMatcher<MockMvcResponse> equalToPath(final String path) {
+        return new ResponseAwareMatcher<MockMvcResponse>() {
+            public Matcher<?> matcher(MockMvcResponse response) {
                 return equalTo(response.path(path));
             }
         };
@@ -155,9 +155,9 @@ public class RestAssuredMatchers {
      * @param path The path to check
      * @return A {@link com.jayway.restassured.matcher.ResponseAwareMatcher}
      */
-    public static ResponseAwareMatcher<Response> endsWithPath(final String path) {
-        return new ResponseAwareMatcher<Response>() {
-            public Matcher<?> matcher(Response response) {
+    public static ResponseAwareMatcher<MockMvcResponse> endsWithPath(final String path) {
+        return new ResponseAwareMatcher<MockMvcResponse>() {
+            public Matcher<?> matcher(MockMvcResponse response) {
                 return endsWith(response.<String>path(path));
             }
         };
@@ -181,9 +181,9 @@ public class RestAssuredMatchers {
      * @param path The path to check
      * @return A {@link com.jayway.restassured.matcher.ResponseAwareMatcher}
      */
-    public static ResponseAwareMatcher<Response> startsWithPath(final String path) {
-        return new ResponseAwareMatcher<Response>() {
-            public Matcher<?> matcher(Response response) {
+    public static ResponseAwareMatcher<MockMvcResponse> startsWithPath(final String path) {
+        return new ResponseAwareMatcher<MockMvcResponse>() {
+            public Matcher<?> matcher(MockMvcResponse response) {
                 return startsWith(response.<String>path(path));
             }
         };
@@ -206,12 +206,11 @@ public class RestAssuredMatchers {
      * @param path The path to check
      * @return A {@link com.jayway.restassured.matcher.ResponseAwareMatcher}
      */
-    public static ResponseAwareMatcher<Response> containsPath(final String path) {
-        return new ResponseAwareMatcher<Response>() {
-            public Matcher<?> matcher(Response response) {
+    public static ResponseAwareMatcher<MockMvcResponse> containsPath(final String path) {
+        return new ResponseAwareMatcher<MockMvcResponse>() {
+            public Matcher<?> matcher(MockMvcResponse response) {
                 return containsString(response.<String>path(path));
             }
         };
     }
-
 }

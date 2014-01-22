@@ -18,7 +18,7 @@ package com.jayway.restassured.response;
 
 import org.hamcrest.Matcher;
 
-public interface ValidatableResponseLogSpec<T extends ValidatableResponseOptions<T, R>, R extends ResponseOptions<R>> {
+public interface ValidatableResponseLogSpec<T extends ValidatableResponseOptions<T, R>, R extends ResponseBody<R> & ResponseOptions<R>> {
 
     /**
      * Logs only the status line (includes the status code)

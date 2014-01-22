@@ -17,6 +17,7 @@
 package com.jayway.restassured.response;
 
 import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.matcher.ResponseAwareMatcher;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.specification.Argument;
 import com.jayway.restassured.specification.ResponseSpecification;
@@ -34,7 +35,7 @@ import java.util.Map;
  * </pre>
  * </p>
  */
-public interface ValidatableResponseOptions<T extends ValidatableResponseOptions<T, R>, R extends ResponseOptions<R>> {
+public interface ValidatableResponseOptions<T extends ValidatableResponseOptions<T, R>, R extends ResponseBody<R> & ResponseOptions<R>> {
 
     /**
      * Validate that the response content conforms to one or more Hamcrest matchers. E.g.
@@ -81,6 +82,50 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * @see #body(String, org.hamcrest.Matcher, Object...)
      */
     T content(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs);
+
+    /**
+     * Compare a path in the response body to something available in the response using arguments when root path is used.
+     * For example imagine that a resource "/x" returns the following JSON document:
+     * <pre>
+     * {
+     *    "data" : {
+     *        "user1" : {
+     *             "userId" : "my-id1",
+     *             "href" : "http://localhost:8080/my-id1"
+     *        },
+     *        "user2" : {
+     *             "userId" : "my-id2",
+     *             "href" : "http://localhost:8080/my-id2"
+     *        },
+     *    }
+     * }
+     * </pre>
+     * you can then verify the href using:
+     * <pre>
+     * when().
+     *        get("/x").
+     * then().
+     *        root("data.%s").
+     *        content(withArgs("user1"), new ResponseAwareMatcher<Response>() {
+     *                       public Matcher<?> matcher(Response response) {
+     *                           return equalTo("http://localhost:8080/" + response.path("userId"));
+     *                       }
+     *                  });
+     * </pre>
+     * Note that you can also use some of the predefined methods in {@link com.jayway.restassured.matcher.RestAssuredMatchers}.
+     * <p>
+     * Note that this method is the same as {@link #body(java.util.List, com.jayway.restassured.matcher.ResponseAwareMatcher)} expect for syntactic differences.
+     * </p>
+     *
+     * @param responseAwareMatcher The {@link com.jayway.restassured.matcher.ResponseAwareMatcher} that creates the Hamcrest matcher.
+     * @return the response specification
+     * @see #content(String, com.jayway.restassured.matcher.ResponseAwareMatcher)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#endsWithPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#startsWithPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#containsPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#equalToPath(String)
+     */
+    T content(List<Argument> arguments, ResponseAwareMatcher<R> responseAwareMatcher);
 
     /**
      * Validate that the JSON or XML response content conforms to one or more Hamcrest matchers.<br>
@@ -185,14 +230,14 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * Note that <code>withArgs</code> can be statically imported from the <code>com.jayway.restassured.RestAssured</code> class.
      * </p>
      *
-     * @param key                       The body key
+     * @param path                      The body path
      * @param arguments                 The arguments to apply to the key
      * @param matcher                   The hamcrest matcher that must response body must match.
      * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
      * @return the response specification
      * @see #body(String, org.hamcrest.Matcher, Object...)
      */
-    T body(String key, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs);
+    T body(String path, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs);
 
     /**
      * This as special kind of expectation that is mainly useful when you've specified a root path with an argument placeholder.
@@ -223,6 +268,50 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * @see #body(String, org.hamcrest.Matcher, Object...)
      */
     T body(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs);
+
+    /**
+     * Compare a path in the response body to something available in the response using arguments when root path is used.
+     * For example imagine that a resource "/x" returns the following JSON document:
+     * <pre>
+     * {
+     *    "data" : {
+     *        "user1" : {
+     *             "userId" : "my-id1",
+     *             "href" : "http://localhost:8080/my-id1"
+     *        },
+     *        "user2" : {
+     *             "userId" : "my-id2",
+     *             "href" : "http://localhost:8080/my-id2"
+     *        },
+     *    }
+     * }
+     * </pre>
+     * you can then verify the href using:
+     * <pre>
+     * when().
+     *        get("/x").
+     * then().
+     *        root("data.%s").
+     *        body(withArgs("user1"), new ResponseAwareMatcher<Response>() {
+     *                       public Matcher<?> matcher(Response response) {
+     *                           return equalTo("http://localhost:8080/" + response.path("userId"));
+     *                       }
+     *                  });
+     * </pre>
+     * Note that you can also use some of the predefined methods in {@link com.jayway.restassured.matcher.RestAssuredMatchers}.
+     * <p>
+     * Note that this method is the same as {@link #content(java.util.List, com.jayway.restassured.matcher.ResponseAwareMatcher)} expect for syntactic differences.
+     * </p>
+     *
+     * @param responseAwareMatcher The {@link com.jayway.restassured.matcher.ResponseAwareMatcher} that creates the Hamcrest matcher.
+     * @return the response specification
+     * @see #body(String, com.jayway.restassured.matcher.ResponseAwareMatcher)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#endsWithPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#startsWithPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#containsPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#equalToPath(String)
+     */
+    T body(List<Argument> arguments, ResponseAwareMatcher<R> responseAwareMatcher);
 
     /**
      * Validate that the response status code matches the given Hamcrest matcher. E.g.
@@ -724,6 +813,69 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
     T body(Matcher<?> matcher, Matcher<?>... additionalMatchers);
 
     /**
+     * Compare a path in the response body to something available in the response using arguments.
+     * For example imagine that a resource "/x" returns the following JSON document:
+     * <pre>
+     * {
+     *      "userId" : "my-id",
+     *      "my.href" : "http://localhost:8080/my-id"
+     * }
+     * </pre>
+     * you can then verify the href using:
+     * <pre>
+     * get("/x").then().body("%s.href", withArgs("my"), new ResponseAwareMatcher<Response>() {
+     *                       public Matcher<?> matcher(Response response) {
+     *                           return equalTo("http://localhost:8080/" + response.path("userId"));
+     *                       }
+     *                  });
+     * </pre>
+     * Note that you can also use some of the predefined methods in {@link com.jayway.restassured.matcher.RestAssuredMatchers}.
+     *
+     * @param path                 The body path
+     * @param responseAwareMatcher The {@link com.jayway.restassured.matcher.ResponseAwareMatcher} that creates the Hamcrest matcher.
+     * @return the response specification
+     * @see #body(String, com.jayway.restassured.matcher.ResponseAwareMatcher)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#endsWithPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#startsWithPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#containsPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#equalToPath(String)
+     */
+    T body(String path, List<Argument> arguments, ResponseAwareMatcher<R> responseAwareMatcher);
+
+    /**
+     * Compare a path in the response body to something available in the response, for example another path.
+     * For example imagine that a resource "/x" returns the following JSON document:
+     * <pre>
+     * {
+     *      "userId" : "my-id",
+     *      "href" : "http://localhost:8080/my-id"
+     * }
+     * </pre>
+     * you can then verify the href using:
+     * <pre>
+     * get("/x").then().body("href", new ResponseAwareMatcher<Response>() {
+     *                       public Matcher<?> matcher(Response response) {
+     *                           return equalTo("http://localhost:8080/" + response.path("userId"));
+     *                       }
+     *                  });
+     * </pre>
+     * Note that you can also use some of the predefined methods in {@link com.jayway.restassured.matcher.RestAssuredMatchers}.
+     * <p>
+     * Note that this method is the same as {@link #content(String, com.jayway.restassured.matcher.ResponseAwareMatcher)}  expect for syntactic differences.
+     * </p>
+     *
+     * @param path                 The body path
+     * @param responseAwareMatcher The {@link com.jayway.restassured.matcher.ResponseAwareMatcher} that creates the Hamcrest matcher.
+     * @return the response specification
+     * @see #body(String, java.util.List, com.jayway.restassured.matcher.ResponseAwareMatcher)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#endsWithPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#startsWithPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#containsPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#equalToPath(String)
+     */
+    T body(String path, ResponseAwareMatcher<R> responseAwareMatcher);
+
+    /**
      * Validate that the JSON or XML response body conforms to one or more Hamcrest matchers.<br>
      * <h3>JSON example</h3>
      * <p>
@@ -834,6 +986,72 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * @see #content(String, org.hamcrest.Matcher, Object...)
      */
     T content(String path, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs);
+
+    /**
+     * Compare a path in the response body to something available in the response using arguments.
+     * For example imagine that a resource "/x" returns the following JSON document:
+     * <pre>
+     * {
+     *      "userId" : "my-id",
+     *      "my.href" : "http://localhost:8080/my-id"
+     * }
+     * </pre>
+     * you can then verify the href using:
+     * <pre>
+     * get("/x").then().content("%s.href", withArgs("my"), new ResponseAwareMatcher<Response>() {
+     *                       public Matcher<?> matcher(Response response) {
+     *                           return equalTo("http://localhost:8080/" + response.path("userId"));
+     *                       }
+     *                  });
+     * </pre>
+     * Note that you can also use some of the predefined methods in {@link com.jayway.restassured.matcher.RestAssuredMatchers}.
+     * * <p>
+     * Note that this method is the same as {@link #body(String, java.util.List, com.jayway.restassured.matcher.ResponseAwareMatcher)} expect for syntactic differences.
+     * </p>
+     *
+     * @param path                 The body path
+     * @param responseAwareMatcher The {@link com.jayway.restassured.matcher.ResponseAwareMatcher} that creates the Hamcrest matcher.
+     * @return the response specification
+     * @see #content(String, com.jayway.restassured.matcher.ResponseAwareMatcher)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#endsWithPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#startsWithPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#containsPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#equalToPath(String)
+     */
+    T content(String path, List<Argument> arguments, ResponseAwareMatcher<R> responseAwareMatcher);
+
+    /**
+     * Compare a path in the response body to something available in the response, for example another path.
+     * For example imagine that a resource "/x" returns the following JSON document:
+     * <pre>
+     * {
+     *      "userId" : "my-id",
+     *      "href" : "http://localhost:8080/my-id"
+     * }
+     * </pre>
+     * you can then verify the href using:
+     * <pre>
+     * get("/x").then().content("href", new ResponseAwareMatcher<Response>() {
+     *                       public Matcher<?> matcher(Response response) {
+     *                           return equalTo("http://localhost:8080/" + response.path("userId"));
+     *                       }
+     *                  });
+     * </pre>
+     * Note that you can also use some of the predefined methods in {@link com.jayway.restassured.matcher.RestAssuredMatchers}.
+     * <p>
+     * Note that this method is the same as {@link #body(String, com.jayway.restassured.matcher.ResponseAwareMatcher)} expect for syntactic differences.
+     * </p>
+     *
+     * @param path                 The body path
+     * @param responseAwareMatcher The {@link com.jayway.restassured.matcher.ResponseAwareMatcher} that creates the Hamcrest matcher.
+     * @return the response specification
+     * @see #content(String, java.util.List, com.jayway.restassured.matcher.ResponseAwareMatcher)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#endsWithPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#startsWithPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#containsPath(String)
+     * @see com.jayway.restassured.matcher.RestAssuredMatchers#equalToPath(String)
+     */
+    T content(String path, ResponseAwareMatcher<R> responseAwareMatcher);
 
     /**
      * Syntactic sugar, e.g.
