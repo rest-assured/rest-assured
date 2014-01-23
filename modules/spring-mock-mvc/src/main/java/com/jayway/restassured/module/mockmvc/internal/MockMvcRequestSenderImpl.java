@@ -39,6 +39,7 @@ import java.net.URL;
 import java.security.Principal;
 import java.util.*;
 
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash;
 import static com.jayway.restassured.module.mockmvc.internal.ConfigConverter.convertToRestAssuredConfig;
 import static com.jayway.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
@@ -176,6 +177,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     }
 
     private MockMvcResponse sendRequest(HttpMethod method, String path, Object[] pathParams) {
+        notNull(path, "Path");
         if (requestBody != null && !multiParts.isEmpty()) {
             throw new IllegalStateException("You cannot specify a request body and a multi-part body in the same request. Perhaps you want to change the body to a multi part?");
         }

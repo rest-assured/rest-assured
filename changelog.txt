@@ -31,6 +31,7 @@ Change log next version
   There are some predefined matchers that you can use defined in the com.jayway.restassured.matcher.RestAssuredMatchers (or com.jayway.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers if using the spring-mock-mvc module). For example:
     get("/x").then().body("href", endsWithPath("userId"));
   (issue 288).
+* Fixed NPE in RestAssuredMockMvc when path is null.
 
 Change log 2.2.0 (2014-01-08)
 -----------------------------
