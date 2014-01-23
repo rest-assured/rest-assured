@@ -25,7 +25,7 @@ import org.junit.Test;
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.RestAssured.withArgs;
 import static com.jayway.restassured.matcher.RestAssuredMatchers.endsWithPath;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 
 public class ResponseAwareMatcherITest extends WithJetty {
 
@@ -61,5 +61,50 @@ public class ResponseAwareMatcherITest extends WithJetty {
                 statusCode(200).
                 root("_links.%s.href").
                 body(withArgs("self"), endsWithPath("id"));
+    }
+
+    @Test public void
+    response_aware_matchers_are_composable_with_hamcrest_matchers() {
+        when().
+                get("/game").
+        then().
+                statusCode(200).
+                body("_links.self.href", endsWithPath("id").and(startsWith("http://localhost:8081")).or(containsString("localhost"))).
+                body("status", equalTo("ongoing"));
+    }
+
+    @Test public void
+    response_aware_matchers_are_composable_with_other_response_aware_matchers() {
+        when().
+                get("/game").
+        then().
+                statusCode(200).
+                body("_links.self.href", endsWithPath("id").and(new ResponseAwareMatcher<Response>() {
+                    @Override
+                    public Matcher<?> matcher(Response response) throws Exception {
+                        return containsString("localhost");
+                    }
+                })).
+                body("status", equalTo("ongoing"));
+    }
+
+    @Test public void
+    response_aware_matchers_are_composable_with_other_response_aware_matchers_and_hamcrest_matchers() {
+        when().
+                get("/game").
+        then().
+                statusCode(200).
+                body("_links.self.href", endsWithPath("id").and(new ResponseAwareMatcher<Response>() {
+                    @Override
+                    public Matcher<?> matcher(Response response) throws Exception {
+                        return containsString("localhost2");
+                    }
+                }).or(new ResponseAwareMatcher<Response>() {
+                    @Override
+                    public Matcher<?> matcher(Response response) throws Exception {
+                        return startsWith("http://");
+                    }
+                }).and(containsString("/"))).
+                body("status", equalTo("ongoing"));
     }
 }
