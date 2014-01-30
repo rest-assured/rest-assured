@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Fixed a bug where fully-qualified URLs showed up as localhost in the request path in logging (issue 304).
+
 Change log 2.3.0 (2014-01-23)
 -----------------------------
 * Fixed an IllegalArgumentException with reusable response specifications when defined before other body expectations when using the given-when-then API.

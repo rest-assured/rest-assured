@@ -874,10 +874,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def allQueryParams = [:]
 
     if (path.contains("?")) {
-      def pathWithoutQueryParams = StringUtils.substringBefore(getTargetPath(path), "?");
-      def queryParamsDefinedInPath = substringAfter(path, "?")
+      def pathToUse
+      if (isFullyQualified(path)) {
+        pathToUse = path
+      } else {
+        pathToUse = getTargetPath(path)
+      }
 
-      targetPath = pathWithoutQueryParams
+      targetPath = StringUtils.substringBefore(pathToUse, "?")
+      def queryParamsDefinedInPath = substringAfter(path, "?")
 
       // Add query parameters defined in path to the allQueryParams map
       if (!StringUtils.isBlank(queryParamsDefinedInPath)) {

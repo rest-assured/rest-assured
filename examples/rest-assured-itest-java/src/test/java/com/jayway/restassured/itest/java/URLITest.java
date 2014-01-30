@@ -729,6 +729,33 @@ public class URLITest extends WithJetty {
         assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/v1/"));
     }
 
+    /**
+     * See issue 304
+     */
+    @Test
+    public void fullyQualifiedUrlIsHandledCorrectlyInLog() throws Exception {
+        // Given
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        // When
+        given().
+                filter(new RequestLoggingFilter(captor)).
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                    }
+                }).
+        expect().
+                 statusCode(200).
+                 body(equalTo("changed")).
+        when().
+                get("http://ya.ru/bla/?param");
+
+        // Then
+        assertThat(loggedRequestPathIn(writer), equalTo("http://ya.ru/bla/?param"));
+    }
+
     @Test
     public void canUseAGetRequestInDslForUris() throws Exception {
         // Given
