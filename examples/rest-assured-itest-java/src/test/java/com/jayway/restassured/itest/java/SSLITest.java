@@ -47,7 +47,7 @@ public class SSLITest {
     public void givenKeystoreDefinedStaticallyWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
         RestAssured.keystore("truststore_eurosport.jks", "test4321");
         try {
-            expect().body(containsString("EUROSPORT PLAYER")).get("https://tv.eurosport.com/");
+            expect().body(containsString("eurosport")).get("https://tv.eurosport.com/");
         } finally {
             RestAssured.reset();
         }
@@ -57,7 +57,7 @@ public class SSLITest {
     public void whenEnablingAllowAllHostNamesVerifierWithoutActivatingAKeyStoreTheCallTo() throws Exception {
         RestAssured.config = config().sslConfig(sslConfig().allowAllHostnames());
         try {
-            get("https://tv.eurosport.com/").then().body(containsString("EUROSPORT PLAYER"));
+            get("https://tv.eurosport.com/").then().body(containsString("eurosport"));
         } finally {
             RestAssured.reset();
         }
@@ -67,7 +67,7 @@ public class SSLITest {
     public void usingStaticallyConfiguredCertificateAuthenticationWorks() throws Exception {
         RestAssured.authentication = certificate("truststore_eurosport.jks", "test4321", certAuthSettings().allowAllHostnames());
         try {
-            get("https://tv.eurosport.com/").then().body(containsString("EUROSPORT PLAYER"));
+            get("https://tv.eurosport.com/").then().body(containsString("eurosport"));
         } finally {
             RestAssured.reset();
         }
@@ -77,7 +77,7 @@ public class SSLITest {
     public void usingStaticallyConfiguredCertificateAuthenticationWithIllegalHostNameInCertDoesntWork() throws Exception {
         RestAssured.authentication = certificate("truststore_mjvmobile.jks", "test4321");
         try {
-            get("https://tv.eurosport.com/").then().body(containsString("EUROSPORT PLAYER"));
+            get("https://tv.eurosport.com/").then().body(containsString("eurosport"));
         } finally {
             RestAssured.reset();
         }
@@ -88,7 +88,7 @@ public class SSLITest {
         RestAssured.config = newConfig().sslConfig(sslConfig().allowAllHostnames());
         RestAssured.authentication = certificate("truststore_eurosport.jks", "test4321");
         try {
-            get("https://tv.eurosport.com/").then().body(containsString("EUROSPORT PLAYER"));
+            get("https://tv.eurosport.com/").then().body(containsString("eurosport"));
         } finally {
             RestAssured.reset();
         }
@@ -96,7 +96,7 @@ public class SSLITest {
 
     @Test
     public void givenKeystoreDefinedUsingGivenWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
-        given().keystore("/truststore_eurosport.jks", "test4321").then().expect().body(containsString("EUROSPORT PLAYER")).get("https://tv.eurosport.com/");
+        given().keystore("/truststore_eurosport.jks", "test4321").then().expect().body(containsString("eurosport")).get("https://tv.eurosport.com/");
     }
 
     @Test
@@ -109,7 +109,7 @@ public class SSLITest {
         when().
                 get("https://tv.eurosport.com/").
         then().
-                body(containsString("EUROSPORT PLAYER"));
+                body(containsString("eurosport"));
     }
 
     @Test
@@ -119,7 +119,7 @@ public class SSLITest {
         when().
                 get("https://tv.eurosport.com/").
         then().
-                body(containsString("EUROSPORT PLAYER"));
+                body(containsString("eurosport"));
     }
 
     @Test public void
@@ -194,7 +194,7 @@ public class SSLITest {
         RestAssured.baseURI = "https://tv.eurosport.com/";
 
         try {
-            given().keystore("/truststore_eurosport.jks", "test4321").when().get().then().statusCode(200).and().body(containsString("EUROSPORT PLAYER"));
+            given().keystore("/truststore_eurosport.jks", "test4321").when().get().then().statusCode(200).and().body(containsString("eurosport"));
         } finally {
             RestAssured.reset();
         }
