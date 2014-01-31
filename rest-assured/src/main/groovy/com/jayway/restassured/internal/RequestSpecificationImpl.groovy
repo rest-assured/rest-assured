@@ -888,7 +888,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       if (!StringUtils.isBlank(queryParamsDefinedInPath)) {
         def splittedQueryParams = StringUtils.split(queryParamsDefinedInPath, "&");
         splittedQueryParams.each { queryNameWithPotentialValue ->
-          def String[] splitted = StringUtils.split(queryNameWithPotentialValue, "=")
+          def String[] splitted = StringUtils.split(queryNameWithPotentialValue, "=", 2)
           def queryParamHasValue = splitted.size() > 1
           if (queryParamHasValue) {
             def value = StringUtils.join(splitted[1..splitted.size() - 1], "="); // If there are several "=" in the URL the merge them
