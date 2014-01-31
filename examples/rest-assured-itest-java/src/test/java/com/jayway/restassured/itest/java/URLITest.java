@@ -730,7 +730,7 @@ public class URLITest extends WithJetty {
     }
 
     /**
-     * See issue 304
+     * See issue 304 & 305
      */
     @Test
     public void fullyQualifiedUrlIsHandledCorrectlyInLog() throws Exception {
@@ -750,10 +750,10 @@ public class URLITest extends WithJetty {
                  statusCode(200).
                  body(equalTo("changed")).
         when().
-                get("http://ya.ru/bla/?param");
+                get("http://ya.ru/bla/?param=value=");
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://ya.ru/bla/?param"));
+        assertThat(loggedRequestPathIn(writer), equalTo("http://ya.ru/bla/?param=value%3D"));
     }
 
     @Test
