@@ -757,6 +757,30 @@ public class URLITest extends WithJetty {
     }
 
     @Test
+    public void fullyQualifiedUrlIsHandledCorrectlyInLogWithNoValueParam() throws Exception {
+        // Given
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        // When
+        given().
+                filter(new RequestLoggingFilter(captor)).
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                    }
+                }).
+        expect().
+                 statusCode(200).
+                 body(equalTo("changed")).
+        when().
+                get("http://ya.ru/bla/?param=value=&ikk");
+
+        // Then
+        assertThat(loggedRequestPathIn(writer), equalTo("http://ya.ru/bla/?param=value%3D&ikk"));
+    }
+
+    @Test
     public void canUseAGetRequestInDslForUris() throws Exception {
         // Given
         final URI uri = new URI("http://localhost:8080/greet?firstName=John&lastName=Doe");
