@@ -2,12 +2,16 @@ package com.jayway.restassured.assertion;
 
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 /**
  * @author Sergey Podgurskiy
@@ -35,5 +39,19 @@ public class CookieMatcherTest {
         assertEquals(".test.com", deviceCookie.getDomain());
         assertEquals("/", deviceCookie.getPath());
         assertEquals(new SimpleDateFormat("EEE, d-MMM-yyyy HH:mm:ss Z").parse("Thu, 12-Oct-2023 09:34:31 GMT"), deviceCookie.getExpiryDate());
+    }
+
+    @Test public void
+    deals_with_empty_cookie_values() {
+        // Given
+        String[] cookiesAsString = new String[]{
+                "un=bob; domain=bob.com; path=/", "", "_session_id=asdfwerwersdfwere; domain=bob.com; path=/; HttpOnly"};
+
+        // When
+        Cookies cookies = CookieMatcher.getCookies(cookiesAsString);
+
+        // Then
+        assertThat(cookies.size(), is(3));
+        assertThat(cookies, Matchers.<Cookie>hasItem(nullValue()));
     }
 }
