@@ -78,7 +78,7 @@ class CookieMatcher {
                     setCookieProperty(cookieBuilder, part, null)
                 }
             }
-            cookieList << cookieBuilder.build()
+            cookieList << cookieBuilder?.build()
         }
         return new Cookies(cookieList)
     }
