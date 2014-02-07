@@ -20,6 +20,7 @@ import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.*;
 
 public class AdvancedValidationITest extends WithJetty {
@@ -64,5 +65,16 @@ public class AdvancedValidationITest extends WithJetty {
                 body("author*.length().sum(2, { it * 2 })", is(108)).
         when().
                 get("/jsonStore");
+    }
+
+    @Test
+    public void products() throws Exception {
+        when().
+                get("/products").
+        then().
+                body("price.sum()", is(38.0d)).
+                body("dimensions.width.min()", is(1.0f)).
+                body("name.collect { it.length() }.max()", is(16)).
+                body("dimensions.multiply(2).height.sum()", is(21));
     }
 }
