@@ -45,6 +45,7 @@ public class Cookie implements NameAndValue {
     public static final String DOMAIN = "Domain";
     public static final String MAX_AGE = "Max-Age";
     public static final String SECURE = "Secure";
+    public static final String HTTP_ONLY = "HttpOnly";
     public static final String EXPIRES = "Expires";
     public static final String VERSION = "Version";
 
@@ -59,11 +60,12 @@ public class Cookie implements NameAndValue {
     private final String domain;
     private final String path;
     private final boolean secured;
+    private final boolean httpOnly;
     private final int version;
     private final int maxAge;
 
     private Cookie(String name, String value, String comment, Date expiryDate,
-                   String domain, String path, boolean secured, int version,
+                   String domain, String path, boolean secured, boolean httpOnly, int version,
                    int maxAge) {
         this.name = name;
         this.value = value;
@@ -72,6 +74,7 @@ public class Cookie implements NameAndValue {
         this.domain = domain;
         this.path = path;
         this.secured = secured;
+        this.httpOnly = httpOnly;
         this.version = version < 0 ? UNDEFINED : version;
         this.maxAge = maxAge;
     }
@@ -178,6 +181,15 @@ public class Cookie implements NameAndValue {
     }
 
     /**
+     * Indicates that the cookie is only readable by the HTTP server and not other API's such as JavaScript.
+     * The default value is false.
+     * @return <code>true</code> if httpOnly
+     */
+    public boolean isHttpOnly(){
+        return httpOnly;
+    }
+
+    /**
      * Gets the version of the cookie protocol this cookie complies with. Version 0 complies with the original Netscape cookie specification. Version 1 complies with RFC 2109.
      * @return The version of this cookie or -1 if version is undefined.
      */
@@ -222,6 +234,7 @@ public class Cookie implements NameAndValue {
 
         if (maxAge != cookie.maxAge) return false;
         if (secured != cookie.secured) return false;
+        if (httpOnly != cookie.httpOnly) return false;
         if (version != cookie.version) return false;
         if (comment != null ? !comment.equals(cookie.comment) : cookie.comment != null) return false;
         if (domain != null ? !domain.equals(cookie.domain) : cookie.domain != null) return false;
@@ -242,6 +255,7 @@ public class Cookie implements NameAndValue {
         result = 31 * result + (domain != null ? domain.hashCode() : 0);
         result = 31 * result + (path != null ? path.hashCode() : 0);
         result = 31 * result + (secured ? 1 : 0);
+        result = 31 * result + (httpOnly ? 1 : 0);
         result = 31 * result + version;
         result = 31 * result + maxAge;
         return result;
@@ -269,6 +283,9 @@ public class Cookie implements NameAndValue {
         if(isSecured()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(SECURE);
         }
+        if(isHttpOnly()) {
+            builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(HTTP_ONLY);
+        }
         if(hasExpiryDate()) {
             final SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
             simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -288,6 +305,7 @@ public class Cookie implements NameAndValue {
         private String domain;
         private String path;
         private boolean secured = false;
+        private boolean httpOnly = false;
         private int version = UNDEFINED;
         private int maxAge = UNDEFINED;
 
@@ -382,11 +400,22 @@ public class Cookie implements NameAndValue {
         /**
          * Indicates to the browser whether the cookie should only be sent using a secure protocol, such as HTTPS or SSL.
          * The default value is false.
-         * @param secured <code>true</code> if sectured
+         * @param secured <code>true</code> if secured
          * @return The builder
          */
         public Builder setSecured(boolean secured) {
             this.secured = secured;
+            return this;
+        }
+
+        /**
+         * Indicates that the cookie is only readable by the HTTP server and not other API's such as JavaScript.
+         * The default value is false.
+         * @param httpOnly <code>true</code> if httpOnly
+         * @return The builder
+         */
+        public Builder setHttpOnly(boolean httpOnly) {
+            this.httpOnly = httpOnly;
             return this;
         }
 
@@ -412,7 +441,7 @@ public class Cookie implements NameAndValue {
          * @return The Cookie
          */
         public Cookie build() {
-            return new Cookie(name, value, comment, expiryDate, domain, path, secured, version, maxAge);
+            return new Cookie(name, value, comment, expiryDate, domain, path, secured, httpOnly, version, maxAge);
         }
     }
 }
