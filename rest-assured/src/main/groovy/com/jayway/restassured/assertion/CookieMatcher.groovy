@@ -98,7 +98,7 @@ class CookieMatcher {
 
     private static def setCookieProperty(Cookie.Builder builder, name, value) {
         name = trim(name);
-        if(value != null || name == SECURE) {
+        if(value != null || equalsIgnoreCase(name, SECURE) || equalsIgnoreCase(name, HTTP_ONLY)) {
             if(equalsIgnoreCase(name, COMMENT)) {
                 builder.setComment(value)
             } else if(equalsIgnoreCase(name, VERSION)) {
@@ -111,6 +111,8 @@ class CookieMatcher {
                 builder.setMaxAge(Integer.parseInt(value))
             } else if(equalsIgnoreCase(name, SECURE)) {
                 builder.setSecured(true)
+            } else if(equalsIgnoreCase(name, HTTP_ONLY)) {
+                builder.setHttpOnly(true)
             } else if(equalsIgnoreCase(name, EXPIRES)) {
                 builder.setExpiryDate(DateUtils.parseDate(value))
             }
