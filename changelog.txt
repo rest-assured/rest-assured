@@ -3,6 +3,7 @@ Change log next version
 * Fixed a bug where fully-qualified URLs showed up as localhost in the request path in logging (issue 304).
 * Fixed a NPE when parsing no-value cookies in HTTP response (issue 306).
 * Query params and values now splits the '=' with max count 2 (issue 305).
+* Added support for HttpOnly cookies (thanks to Luke Bunselmeyer for pull request).
 
 Change log 2.3.0 (2014-01-23)
 -----------------------------
