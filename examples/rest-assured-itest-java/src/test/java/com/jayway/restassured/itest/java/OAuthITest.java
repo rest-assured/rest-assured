@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class OAuthITest {
 
-    @Test public void
+    @Ignore("Site seems to be down atm") @Test public void
     oauth1_works_with_header_signing() {
         given().
                 auth().oauth("key", "secret", "accesskey", "accesssecret").
@@ -19,7 +19,7 @@ public class OAuthITest {
                 body("html.body", equalTo("works=true"));
     }
 
-    @Ignore @Test public void
+    @Ignore("Site seems to be down atm") @Test public void
     oauth1_works_with_query_signing() {
         given().
                 auth().oauth("key", "secret", "accesskey", "accesssecret", QUERY_STRING).

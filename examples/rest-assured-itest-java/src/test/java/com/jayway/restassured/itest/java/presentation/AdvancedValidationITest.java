@@ -75,6 +75,6 @@ public class AdvancedValidationITest extends WithJetty {
                 body("price.sum()", is(38.0d)).
                 body("dimensions.width.min()", is(1.0f)).
                 body("name.collect { it.length() }.max()", is(16)).
-                body("dimensions.multiply(2).height.sum()", is(21));
+                body("dimensions.multiply(2).height.sum()", is(21.0));
     }
 }
