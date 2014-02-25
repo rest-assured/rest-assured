@@ -9,6 +9,7 @@ import java.util.Map;
  * Allows you to configure properties of XML and HTML parsing.
  */
 public class XmlConfig {
+    private final Map<String, Object> properties;
     private final Map<String, Boolean> features;
     private final Map<String, String> declaredNamespaces;
     private final boolean namespaceAware;
@@ -17,15 +18,17 @@ public class XmlConfig {
      * Create a new instance of XmlConfig without any features and that is namespace unaware.
      */
     public XmlConfig() {
-        this(new HashMap<String, Boolean>(), new HashMap<String, String>(), false);
+        this(new HashMap<String, Boolean>(), new HashMap<String, String>(), new HashMap<String, Object>(), false);
     }
 
-    private XmlConfig(Map<String, Boolean> features, Map<String, String> declaredNamespaces, boolean namespaceAware) {
+    private XmlConfig(Map<String, Boolean> features, Map<String, String> declaredNamespaces, Map<String, Object> properties, boolean namespaceAware) {
         Validate.notNull(features, "Features cannot be null");
         Validate.notNull(declaredNamespaces, "Declared namespaces cannot be null");
+        Validate.notNull(properties, "Properties cannot be null");
         this.namespaceAware = namespaceAware;
         this.features = features;
         this.declaredNamespaces = declaredNamespaces;
+        this.properties = properties;
     }
 
     /**
@@ -37,6 +40,14 @@ public class XmlConfig {
     }
 
     /**
+     * @return A map containing properties that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @see org.xml.sax.XMLReader#setProperty(String, Object)
+     */
+    public Map<String, Object> properties() {
+        return new HashMap<String, Object>(properties);
+    }
+
+    /**
      * Specify features that will be used when parsing XML.
      *
      * @param features A map containing features that will be used by the underlying {@link groovy.util.XmlSlurper}.
@@ -44,7 +55,18 @@ public class XmlConfig {
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */
     public XmlConfig features(Map<String, Boolean> features) {
-        return new XmlConfig(features, declaredNamespaces, namespaceAware);
+        return new XmlConfig(features, declaredNamespaces, properties, namespaceAware);
+    }
+
+    /**
+     * Specify properties that will be used when parsing XML.
+     *
+     * @param properties A map containing properties that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @return
+     * @see org.xml.sax.XMLReader#setProperty(String, Object)
+     */
+    public XmlConfig properties(Map<String, Object> properties) {
+        return new XmlConfig(features, declaredNamespaces, this.properties, namespaceAware);
     }
 
     /**
@@ -59,7 +81,22 @@ public class XmlConfig {
         Validate.notEmpty(uri, "URI cannot be empty");
         Map<String, Boolean> newFeatures = new HashMap<String, Boolean>(features);
         newFeatures.put(uri, enabled);
-        return new XmlConfig(newFeatures, declaredNamespaces, namespaceAware);
+        return new XmlConfig(newFeatures, declaredNamespaces, properties, namespaceAware);
+    }
+
+    /**
+     * Set a value of a property.
+     *
+     * @param name     The property name.
+     * @param value The requested value of the feature (true or false).
+     * @return A new XmlConfig instance
+     * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
+     */
+    public XmlConfig property(String name, Object value) {
+        Validate.notEmpty(name, "Name cannot be empty");
+        Map<String, Object> newProperties = new HashMap<String, Object>(properties);
+        newProperties.put(name, value);
+        return new XmlConfig(features, declaredNamespaces, newProperties, namespaceAware);
     }
 
     /**
@@ -81,7 +118,7 @@ public class XmlConfig {
      */
     public XmlConfig declareNamespaces(Map<String, String> namespacesToDeclare) {
         final boolean shouldBeNamespaceAware = namespacesToDeclare == null ? namespaceAware : !namespacesToDeclare.isEmpty();
-        return new XmlConfig(features, namespacesToDeclare, shouldBeNamespaceAware);
+        return new XmlConfig(features, namespacesToDeclare, properties, shouldBeNamespaceAware);
     }
 
     /**
@@ -100,7 +137,7 @@ public class XmlConfig {
         Validate.notEmpty(namespaceURI, "Namespace URI cannot be empty");
         Map<String, String> updatedNamespaces = new HashMap<String, String>(declaredNamespaces);
         updatedNamespaces.put(prefix, namespaceURI);
-        return new XmlConfig(features, updatedNamespaces, true);
+        return new XmlConfig(features, updatedNamespaces, properties, true);
     }
 
     /**
@@ -118,7 +155,7 @@ public class XmlConfig {
     public XmlConfig disableLoadingOfExternalDtd() {
         Map<String, Boolean> newFeatures = new HashMap<String, Boolean>(features);
         newFeatures.put("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        return new XmlConfig(newFeatures, declaredNamespaces, namespaceAware);
+        return new XmlConfig(newFeatures, declaredNamespaces, properties, namespaceAware);
     }
 
     /**
@@ -128,7 +165,7 @@ public class XmlConfig {
      * @return A new XmlConfig instance
      */
     public XmlConfig namespaceAware(boolean shouldBeAwareOfNamespaces) {
-        return new XmlConfig(features, declaredNamespaces, shouldBeAwareOfNamespaces);
+        return new XmlConfig(features, declaredNamespaces, properties, shouldBeAwareOfNamespaces);
     }
 
     /**

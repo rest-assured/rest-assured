@@ -32,94 +32,101 @@ import static java.lang.String.format
 import static org.apache.commons.lang3.StringUtils.*
 
 class BodyMatcher {
-    private static final String XPATH = "XPath"
-    def key
-    def Matcher matcher
-    def ResponseParserRegistrar rpr
+  private static final String XPATH = "XPath"
+  def key
+  def Matcher matcher
+  def ResponseParserRegistrar rpr
 
-    def validate(Response response, contentParser, RestAssuredConfig config) {
-        def success = true
-        def errorMessage = "";
+  def validate(Response response, contentParser, RestAssuredConfig config) {
+    def success = true
+    def errorMessage = "";
 
-        contentParser = fallbackToResponseBodyIfContentParserIsNull(response, contentParser)
-        if (key == null) {
-            if (isXPathMatcher()) {
-                def xmlConfig = config.getXmlConfig();
-                boolean namespaceAware = xmlConfig.isNamespaceAware()
-                def Map<String, Boolean> features = xmlConfig.features()
+    contentParser = fallbackToResponseBodyIfContentParserIsNull(response, contentParser)
+    if (key == null) {
+      if (isXPathMatcher()) {
+        def xmlConfig = config.getXmlConfig();
+        boolean namespaceAware = xmlConfig.isNamespaceAware()
+        def Map<String, Boolean> features = xmlConfig.features()
 
-                def factory = DocumentBuilderFactory.newInstance()
-                factory.setNamespaceAware(namespaceAware)
-                if (!features.isEmpty()) {
-                    features.each { featureName, isEnabled ->
-                        factory.setFeature(featureName, isEnabled)
-                    }
-                }
+        def factory = DocumentBuilderFactory.newInstance()
+        factory.setNamespaceAware(namespaceAware)
+        if (!features.isEmpty()) {
+          features.each { featureName, isEnabled ->
+            factory.setFeature(featureName, isEnabled)
+          }
+        }
 
-                Element node = factory.newDocumentBuilder().parse(new ByteArrayInputStream(response.asByteArray())).getDocumentElement();
-                if (!matcher.matches(node)) {
-                    success = false
-                    errorMessage = format("Expected: %s\n  Actual: %s\n", trim(matcher.toString()), contentParser)
-                }
-            } else if (!matcher.matches(response.asString())) {
-                success = false
-                errorMessage = "Response body doesn't match expectation.\nExpected: $matcher\n  Actual: $contentParser\n"
-            }
+        def properties = xmlConfig.properties();
+        if (!properties.isEmpty()) {
+          properties.each { name, value ->
+            factory.setAttribute(name, value)
+          }
+        }
+
+        Element node = factory.newDocumentBuilder().parse(new ByteArrayInputStream(response.asByteArray())).getDocumentElement();
+        if (!matcher.matches(node)) {
+          success = false
+          errorMessage = format("Expected: %s\n  Actual: %s\n", trim(matcher.toString()), contentParser)
+        }
+      } else if (!matcher.matches(response.asString())) {
+        success = false
+        errorMessage = "Response body doesn't match expectation.\nExpected: $matcher\n  Actual: $contentParser\n"
+      }
+    } else {
+      def assertion = StreamVerifier.newAssertion(response, key, rpr)
+      def result = null
+      if (contentParser != null) {
+        if (contentParser instanceof String) {
+          // This happens for example when expecting JSON/XML assertion but response content is empty
+          def isEmpty = contentParser?.isEmpty()
+          errorMessage = format("Cannot assert that path \"$key\" matches $matcher because the response body %s.", isEmpty ? "is empty" : "equal to \"$contentParser\"")
+          success = false
         } else {
-            def assertion = StreamVerifier.newAssertion(response, key, rpr)
-            def result = null
-            if (contentParser != null) {
-                if (contentParser instanceof String) {
-                    // This happens for example when expecting JSON/XML assertion but response content is empty
-                    def isEmpty = contentParser?.isEmpty()
-                    errorMessage = format("Cannot assert that path \"$key\" matches $matcher because the response body %s.", isEmpty ? "is empty" : "equal to \"$contentParser\"")
-                    success = false
-                } else {
-                    result = assertion.getResult(contentParser, config)
-                }
-            }
-
-            if (success && !matcher.matches(result)) {
-                success = false
-                if (result instanceof Object[]) {
-                    result = result.join(",")
-                }
-                errorMessage = format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), result)
-            }
+          result = assertion.getResult(contentParser, config)
         }
-        return [success: success, errorMessage: errorMessage];
-    }
+      }
 
-    private static String removeQuotesIfString(String string) {
-        if (startsWith(string, "\"") && endsWith(string, "\"")) {
-            def start = removeStart(string, "\"")
-            string = removeEnd(start, "\"")
+      if (success && !matcher.matches(result)) {
+        success = false
+        if (result instanceof Object[]) {
+          result = result.join(",")
         }
-        string
+        errorMessage = format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), result)
+      }
+    }
+    return [success: success, errorMessage: errorMessage];
+  }
+
+  private static String removeQuotesIfString(String string) {
+    if (startsWith(string, "\"") && endsWith(string, "\"")) {
+      def start = removeStart(string, "\"")
+      string = removeEnd(start, "\"")
+    }
+    string
+  }
+
+  static def fallbackToResponseBodyIfContentParserIsNull(Response response, contentParser) {
+    if (contentParser == null) {
+      return response.asString()
+    }
+    return contentParser
+  }
+
+  private boolean isXPathMatcher() {
+    def isNestedMatcherContainingXPathMatcher = {
+      def description = new StringDescription()
+      matcher.describeTo(description)
+      description.toString().contains(XPATH)
     }
 
-    static def fallbackToResponseBodyIfContentParserIsNull(Response response, contentParser) {
-        if (contentParser == null) {
-            return response.asString()
-        }
-        return contentParser
-    }
+    matcher instanceof HasXPath || isNestedMatcherContainingXPathMatcher()
+  }
 
-    private boolean isXPathMatcher() {
-        def isNestedMatcherContainingXPathMatcher = {
-            def description = new StringDescription()
-            matcher.describeTo(description)
-            description.toString().contains(XPATH)
-        }
+  def boolean requiresTextParsing() {
+    key == null || isXPathMatcher()
+  }
 
-        matcher instanceof HasXPath || isNestedMatcherContainingXPathMatcher()
-    }
-
-    def boolean requiresTextParsing() {
-        key == null || isXPathMatcher()
-    }
-
-    def boolean requiresPathParsing() {
-        !requiresTextParsing()
-    }
+  def boolean requiresPathParsing() {
+    !requiresTextParsing()
+  }
 }

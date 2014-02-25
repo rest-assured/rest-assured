@@ -27,62 +27,68 @@ import static com.jayway.restassured.parsing.Parser.*
 
 class ContentParser {
 
-    def parse(Response response, ResponseParserRegistrar rpr, RestAssuredConfig config, boolean parseAsString) {
-        Parser parser = rpr.getParser(response.contentType())
-        def content;
-        if (parser == null) {
-            content = response.asInputStream()
-        } else {
-            switch (parser) {
-                case JSON:
-                    def slurper = new ConfigurableJsonSlurper(config.getJsonConfig().shouldRepresentJsonNumbersAsBigDecimal())
-                    if (parseAsString) {
-                        content = slurper.parseText(response.asString(true)) // We force default charset to be backward compatible with "InputStream charset"
-                    } else {
-                        content = slurper.parse(new InputStreamReader(new BufferedInputStream(response.asInputStream())))
-                    }
-                    break;
-                case XML:
-                    def xmlConfig = config.getXmlConfig()
-                    def slurper = configureXmlSlurper(new XmlSlurper(), xmlConfig)
-                    content = declareNamespacesIfNeeded(parseXml(slurper, response, parseAsString), xmlConfig)
-                    break
-                case HTML:
-                    def xmlConfig = config.getXmlConfig()
-                    def slurper = configureXmlSlurper(new XmlSlurper(new org.ccil.cowan.tagsoup.Parser()), xmlConfig)
-                    content = declareNamespacesIfNeeded(parseXml(slurper, response, parseAsString), xmlConfig)
-                    break
-                case TEXT:
-                default:
-                    content = response.asInputStream()
-            }
-        }
-        content
-    }
-
-    def private static GPathResult parseXml(XmlSlurper xmlSlurper, ResponseBodyExtractionOptions response, boolean parseAsString) {
-        if (parseAsString) {
+  def parse(Response response, ResponseParserRegistrar rpr, RestAssuredConfig config, boolean parseAsString) {
+    Parser parser = rpr.getParser(response.contentType())
+    def content;
+    if (parser == null) {
+      content = response.asInputStream()
+    } else {
+      switch (parser) {
+        case JSON:
+          def slurper = new ConfigurableJsonSlurper(config.getJsonConfig().shouldRepresentJsonNumbersAsBigDecimal())
+          if (parseAsString) {
+            content = slurper.parseText(response.asString(true))
             // We force default charset to be backward compatible with "InputStream charset"
-            xmlSlurper.parseText(response.asString(true))
-        } else {
-            xmlSlurper.parse(response.asInputStream())
-        }
+          } else {
+            content = slurper.parse(new InputStreamReader(new BufferedInputStream(response.asInputStream())))
+          }
+          break;
+        case XML:
+          def xmlConfig = config.getXmlConfig()
+          def slurper = configureXmlSlurper(new XmlSlurper(), xmlConfig)
+          content = declareNamespacesIfNeeded(parseXml(slurper, response, parseAsString), xmlConfig)
+          break
+        case HTML:
+          def xmlConfig = config.getXmlConfig()
+          def slurper = configureXmlSlurper(new XmlSlurper(new org.ccil.cowan.tagsoup.Parser()), xmlConfig)
+          content = declareNamespacesIfNeeded(parseXml(slurper, response, parseAsString), xmlConfig)
+          break
+        case TEXT:
+        default:
+          content = response.asInputStream()
+      }
+    }
+    content
+  }
+
+  def private static GPathResult parseXml(XmlSlurper xmlSlurper, ResponseBodyExtractionOptions response, boolean parseAsString) {
+    if (parseAsString) {
+      // We force default charset to be backward compatible with "InputStream charset"
+      xmlSlurper.parseText(response.asString(true))
+    } else {
+      xmlSlurper.parse(response.asInputStream())
+    }
+  }
+
+  def private static GPathResult declareNamespacesIfNeeded(GPathResult gPathResult, XmlConfig xmlConfig) {
+    if (xmlConfig.isNamespaceAware()) {
+      gPathResult.declareNamespace(xmlConfig.declaredNamespaces())
+    }
+    gPathResult
+  }
+
+  def private static XmlSlurper configureXmlSlurper(XmlSlurper xmlSlurper, XmlConfig xmlConfig) {
+    def features = xmlConfig.features();
+    def properties = xmlConfig.properties()
+
+    properties.each { name, value ->
+      xmlSlurper.setProperty(name, value)
     }
 
-    def private static GPathResult declareNamespacesIfNeeded(GPathResult gPathResult, XmlConfig xmlConfig) {
-        if (xmlConfig.isNamespaceAware()) {
-            gPathResult.declareNamespace(xmlConfig.declaredNamespaces())
-        }
-        gPathResult
+    features.each { name, isEnabled ->
+      xmlSlurper.setFeature(name, isEnabled)
     }
 
-    def private static XmlSlurper configureXmlSlurper(XmlSlurper xmlSlurper, XmlConfig xmlConfig) {
-        def features = xmlConfig.features();
-
-        features.each { name, isEnabled ->
-            xmlSlurper.setFeature(name, isEnabled)
-        }
-
-        xmlSlurper
-    }
+    xmlSlurper
+  }
 }

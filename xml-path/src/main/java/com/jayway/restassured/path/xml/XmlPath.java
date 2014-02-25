@@ -283,7 +283,7 @@ public class XmlPath {
      * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
      *
      * @return The XML Node. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public Node get() {
         return (Node) get("$");
@@ -296,7 +296,7 @@ public class XmlPath {
      * @param path The XML path.
      * @param <T>  The type of the return value.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public <T> T get(String path) {
         notNull(path, "path");
@@ -310,7 +310,7 @@ public class XmlPath {
      * @param path The XML path.
      * @param <T>  The list type
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path) {
         return getAsList(path);
@@ -324,7 +324,7 @@ public class XmlPath {
      * @param genericType The generic list type
      * @param <T>         The type
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path, Class<T> genericType) {
         return getAsList(path, genericType);
@@ -338,7 +338,7 @@ public class XmlPath {
      * @param <K>  The type of the expected key
      * @param <V>  The type of the expected value
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public <K, V> Map<K, V> getMap(String path) {
         return get(path);
@@ -354,7 +354,7 @@ public class XmlPath {
      * @param <K>       The type of the expected key
      * @param <V>       The type of the expected value
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public <K, V> Map<K, V> getMap(String path, Class<K> keyType, Class<V> valueType) {
         final Map<K, V> originalMap = get(path);
@@ -418,7 +418,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public int getInt(String path) {
         final Object object = get(path);
@@ -431,7 +431,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public boolean getBoolean(String path) {
         Object object = get(path);
@@ -444,7 +444,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public Node getNode(String path) {
         return convertObjectTo(get(path), Node.class);
@@ -456,7 +456,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public NodeChildren getNodeChildren(String path) {
         return convertObjectTo(get(path), NodeChildren.class);
@@ -468,7 +468,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public char getChar(String path) {
         Object object = get(path);
@@ -481,7 +481,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public byte getByte(String path) {
         Object object = get(path);
@@ -494,7 +494,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public short getShort(String path) {
         Object object = get(path);
@@ -507,7 +507,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public float getFloat(String path) {
         Object object = get(path);
@@ -520,7 +520,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public double getDouble(String path) {
         Object object = get(path);
@@ -533,7 +533,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public long getLong(String path) {
         Object object = get(path);
@@ -546,7 +546,7 @@ public class XmlPath {
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public String getString(String path) {
         Object object = get(path);
@@ -610,7 +610,7 @@ public class XmlPath {
 
     /**
      * Get and print the XML as a prettified string.
-     *
+     * <p/>
      * <p>
      * Note that the content is not guaranteed to be looking exactly like the it does at the source. This is because once you peek
      * the content has been downloaded and transformed into another data structure (used by XmlPath) and the XML is rendered
@@ -953,6 +953,12 @@ public class XmlPath {
                 Map<String, Boolean> features = config.features();
                 for (Entry<String, Boolean> feature : features.entrySet()) {
                     slurper.setFeature(feature.getKey(), feature.getValue());
+                }
+
+                // Apply properties
+                Map<String, Object> properties = config.properties();
+                for (Entry<String, Object> feature : properties.entrySet()) {
+                    slurper.setProperty(feature.getKey(), feature.getValue());
                 }
 
                 final GPathResult result = method(slurper);

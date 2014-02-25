@@ -468,6 +468,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
   private def newXmlPath(CompatibilityMode xml) {
     newXmlPath(xml, xmlPathConfig().charset(findCharset()).
             features(config.getXmlConfig().features()).
+            properties(config.getXmlConfig().properties()).
             declareNamespaces(config.getXmlConfig().declaredNamespaces()).
             jaxbObjectMapperFactory(config.getObjectMapperConfig().jaxbObjectMapperFactory()))
   }
