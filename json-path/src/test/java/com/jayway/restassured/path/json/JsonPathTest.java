@@ -501,4 +501,49 @@ public class JsonPathTest {
         // Then
         assertThat(anInt, is(12.3f));
     }
+
+    @Test public void
+    can_find_if_a_key_exists_in_json_object() {
+        // Given
+        String json = "{\n" +
+                "\"status\": \"success\",\n" +
+                "\"fund_code\":\"00200\",\n" +
+                "\"fund_name\":\"My Fund Name\",\n" +
+                "\"models\": [\n" +
+                "  {\n" +
+                "    \"model_id\": 639506,\n" +
+                "    \"model_name\": \"New Validated Model\",\n" +
+                "    \"model_type\": null,\n" +
+                "    \"portfolios\": null,\n" +
+                "    \"created_date\": 1390978800000,\n" +
+                "    \"display_create_date\": \"01/29/2014\",\n" +
+                "    \"updated_date\": 1392274800000,\n" +
+                "    \"display_update_date\": \"02/13/2014\",\n" +
+                "    \"number_of_clients\": 1,\n" +
+                "    \"risk\": \"N/A\",\n" +
+                "    \"time_frame\": \"N/A\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"model_id\": 639507,\n" +
+                "    \"model_name\": \"My Validated Model\",\n" +
+                "    \"model_type\": null,\n" +
+                "    \"portfolios\": null,\n" +
+                "    \"created_date\": 1390978800000,\n" +
+                "    \"display_create_date\": \"01/29/2014\",\n" +
+                "    \"updated_date\": 1392274800000,\n" +
+                "    \"display_update_date\": \"02/13/2014\",\n" +
+                "    \"number_of_clients\": 1,\n" +
+                "    \"risk\": \"N/A\",\n" +
+                "    \"time_frame\": \"N/A\"\n" +
+                "  }\n" +
+                "]\n" +
+                "}";
+
+        // When
+        JsonPath jsonPath = new JsonPath(json);
+
+        // Then
+        assertThat(jsonPath.getBoolean("any { it.key == 'fund_code' }"), is(true));
+        assertThat(jsonPath.getBoolean("models.any { it.containsKey('number_of_clients') }"), is(true));
+    }
 }
