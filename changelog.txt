@@ -5,6 +5,7 @@ Change log next version
 * Query params and values now splits the '=' with max count 2 (issue 305).
 * Added support for HttpOnly cookies (thanks to Luke Bunselmeyer for pull request).
 * Added support for specifying properties in XmlConfig and XmlPathConfig.
+* Updated json-schema-validator module to use version 2.1.8 of FGE's json schema validator project.
 
 Change log 2.3.0 (2014-01-23)
 -----------------------------
