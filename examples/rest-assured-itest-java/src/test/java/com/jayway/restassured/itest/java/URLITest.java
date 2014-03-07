@@ -923,4 +923,26 @@ public class URLITest extends WithJetty {
         // Then
         assertThat(greeting, equalTo("Hello Scalatra"));
     }
+
+    /**
+     * Asserts that issue 314 is resolved
+     */
+    @Test public void
+    query_param_name_with_empty_value_is_not_treated_as_no_value_query_param() {
+        // Given
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        // When
+        given().
+                filter(new RequestLoggingFilter(captor)).
+        when().
+                get("/requestUrl?param1=1&voidparam=&param3=3").
+        then().
+                 statusCode(200).
+                 body(equalTo("http://localhost:8080/requestUrl?param1=1&voidparam=&param3=3"));
+
+        // Then
+        assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/requestUrl?param1=1&voidparam=&param3=3"));
+    }
 }

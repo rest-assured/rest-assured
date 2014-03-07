@@ -6,6 +6,7 @@ Change log next version
 * Added support for HttpOnly cookies (thanks to Luke Bunselmeyer for pull request).
 * Added support for specifying properties in XmlConfig and XmlPathConfig.
 * Updated json-schema-validator module to use version 2.1.8 of FGE's json schema validator project.
+* Fixed bug where query parameters with an empty value are no longer treated as query parameters without a value (issue 314).
 
 Change log 2.3.0 (2014-01-23)
 -----------------------------

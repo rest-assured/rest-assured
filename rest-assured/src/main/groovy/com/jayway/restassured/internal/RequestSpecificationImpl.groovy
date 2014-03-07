@@ -889,9 +889,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         def splittedQueryParams = StringUtils.split(queryParamsDefinedInPath, "&");
         splittedQueryParams.each { queryNameWithPotentialValue ->
           def String[] splitted = StringUtils.split(queryNameWithPotentialValue, "=", 2)
-          def queryParamHasValue = splitted.size() > 1
-          if (queryParamHasValue) {
-            def value = StringUtils.join(splitted[1..splitted.size() - 1], "="); // If there are several "=" in the URL the merge them
+          def queryParamHasValueDefined = splitted.size() > 1 || queryNameWithPotentialValue.contains("=")
+          if (queryParamHasValueDefined) {
+            // Handles the special case where the query param is defined with an empty value
+            def value = splitted.size() == 1 ? "" : splitted[1]
             allQueryParams.put(splitted[0], value)
           } else {
             allQueryParams.put(splitted[0], new NoParameterValue());
@@ -1187,7 +1188,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
           throw new IllegalArgumentException("Illegal parameters passed to REST Assured. Parameters was: $keyValueParams")
         } else if (keyValue.length == 1) {
           theKey = keyValue[0]
-          theValue = new NoParameterValue();
+          theValue = it.contains("=") ? "" : new NoParameterValue();
         } else {
           theKey = keyValue[0]
           theValue = keyValue[1]

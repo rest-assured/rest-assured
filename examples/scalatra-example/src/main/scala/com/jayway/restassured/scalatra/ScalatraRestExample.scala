@@ -120,6 +120,10 @@ class ScalatraRestExample extends ScalatraServlet {
       "}"
   }
 
+  get("/requestUrl") {
+    request.getRequestURL + "?" + request.getQueryString
+  }
+
   get("/products") {
     contentType = "application/json"
     """[
