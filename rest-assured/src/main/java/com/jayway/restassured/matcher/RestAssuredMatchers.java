@@ -39,7 +39,7 @@ public class RestAssuredMatchers {
      * @param xsd The XSD to match
      * @return The XSD matcher
      */
-    public static Matcher<String> matchesXsd(String xsd) {
+    public static XmlXsdMatcher matchesXsd(String xsd) {
         return XmlXsdMatcher.matchesXsd(xsd);
     }
 
@@ -49,7 +49,7 @@ public class RestAssuredMatchers {
      * @param xsd The XSD to match
      * @return The XSD matcher
      */
-    public static Matcher<String> matchesXsd(InputStream xsd) {
+    public static XmlXsdMatcher matchesXsd(InputStream xsd) {
         return XmlXsdMatcher.matchesXsd(xsd);
     }
 
@@ -59,7 +59,7 @@ public class RestAssuredMatchers {
      * @param xsd The XSD to match
      * @return The XSD matcher
      */
-    public static Matcher<String> matchesXsd(Reader xsd) {
+    public static XmlXsdMatcher matchesXsd(Reader xsd) {
         return XmlXsdMatcher.matchesXsd(xsd);
     }
 
@@ -69,7 +69,7 @@ public class RestAssuredMatchers {
      * @param xsd The XSD to match
      * @return The XSD matcher
      */
-    public static Matcher<String> matchesXsd(File xsd) {
+    public static XmlXsdMatcher matchesXsd(File xsd) {
         return XmlXsdMatcher.matchesXsd(xsd);
     }
 

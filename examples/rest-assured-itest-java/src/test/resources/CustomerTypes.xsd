@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema     xmlns:cmn="http://NS.com/Common" 
+               targetNamespace="http://NS.com/CustomerTypes" 
+               xmlns:xs="http://www.w3.org/2001/XMLSchema"
+               elementFormDefault="qualified">
+ <xs:import schemaLocation="CommonTypes.xsd" namespace="http://NS.com/Common"/>
+  <xs:complexType name="CustomerType">
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string" />
+	  <xs:element name="BillingAddress" type="cmn:AddressType" />
+      <xs:element name="ShippingAddress" type="cmn:AddressType" />
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

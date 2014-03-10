@@ -87,7 +87,7 @@ public class XmlConfig {
     /**
      * Set a value of a property.
      *
-     * @param name     The property name.
+     * @param name  The property name.
      * @param value The requested value of the feature (true or false).
      * @return A new XmlConfig instance
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)

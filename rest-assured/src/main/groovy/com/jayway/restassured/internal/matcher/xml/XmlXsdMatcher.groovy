@@ -20,7 +20,7 @@ package com.jayway.restassured.internal.matcher.xml
 
 import org.hamcrest.BaseMatcher
 import org.hamcrest.Description
-import org.hamcrest.Matcher
+import org.w3c.dom.ls.LSResourceResolver
 
 import javax.xml.XMLConstants
 import javax.xml.transform.stream.StreamSource
@@ -30,34 +30,46 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 
 class XmlXsdMatcher extends BaseMatcher<String> {
 
-  def xsd;
+  def xsd
+  def resourceResolver
 
   private XmlXsdMatcher(Object xsd) {
     notNull(xsd, "xsd")
     this.xsd = xsd
   }
 
-  public static Matcher<String> matchesXsd(String xsd) {
+  public XmlXsdMatcher using(LSResourceResolver resourceResolver) {
+    notNull(resourceResolver, LSResourceResolver.class)
+    def matcher = new XmlXsdMatcher(xsd)
+    matcher.setResourceResolver(resourceResolver)
+    matcher
+  }
+
+  public XmlXsdMatcher with(LSResourceResolver resourceResolver) {
+    using(resourceResolver)
+  }
+
+  public static XmlXsdMatcher matchesXsd(String xsd) {
     notNull(xsd, "xsd")
     return new XmlXsdMatcher(new StreamSource(new StringReader(xsd.trim())))
   }
 
-  public static Matcher<String> matchesXsd(InputStream xsd) {
+  public static XmlXsdMatcher matchesXsd(InputStream xsd) {
     notNull(xsd, "xsd")
     return new XmlXsdMatcher(new StreamSource(xsd))
   }
 
-  public static Matcher<String> matchesXsd(Reader xsd) {
+  public static XmlXsdMatcher matchesXsd(Reader xsd) {
     notNull(xsd, "xsd")
     return new XmlXsdMatcher(new StreamSource(xsd))
   }
 
-  public static Matcher<String> matchesXsd(File xsd) {
+  public static XmlXsdMatcher matchesXsd(File xsd) {
     notNull(xsd, "xsd")
     return new XmlXsdMatcher(xsd)
   }
 
-  public static Matcher<String> matchesXsd(URL url) {
+  public static XmlXsdMatcher matchesXsd(URL url) {
     notNull(url, "url")
     return new XmlXsdMatcher(url)
   }
@@ -65,6 +77,9 @@ class XmlXsdMatcher extends BaseMatcher<String> {
   @Override
   boolean matches(Object item) {
     def factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+    if (resourceResolver != null) {
+      factory.setResourceResolver(resourceResolver)
+    }
     def schema = factory.newSchema(xsd)
     def validator = schema.newValidator()
     return validator.validate(new StreamSource(new StringReader(item))) == null

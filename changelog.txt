@@ -7,6 +7,10 @@ Change log next version
 * Added support for specifying properties in XmlConfig and XmlPathConfig.
 * Updated json-schema-validator module to use version 2.1.8 of FGE's json schema validator project.
 * Fixed bug where query parameters with an empty value are no longer treated as query parameters without a value (issue 314).
+* Fixed issue where response could not be created using the ResponseBuilder if using the given-when-then syntax.
+* It's now possible to supply a resource resolver when matching XSD. For example:
+    get("/x").then().body(matchesXsd(load("main.xsd")).using(new ClasspathResourceResolver()));
+  (issue 317).
 
 Change log 2.3.0 (2014-01-23)
 -----------------------------
