@@ -12,6 +12,7 @@ Change log next version
     get("/x").then().body(matchesXsd(load("main.xsd")).using(new ClasspathResourceResolver()));
   (issue 317).
 * Upgraded Spring MVC module to depend on Spring 4.0.2.RELEASE.
+* Fixed a bug with JsonPath that prevented parsing of JSON attributes starting with a number (issue 318).
 
 Change log 2.3.0 (2014-01-23)
 -----------------------------

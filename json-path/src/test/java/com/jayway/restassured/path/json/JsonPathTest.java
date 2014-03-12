@@ -546,4 +546,22 @@ public class JsonPathTest {
         assertThat(jsonPath.getBoolean("any { it.key == 'fund_code' }"), is(true));
         assertThat(jsonPath.getBoolean("models.any { it.containsKey('number_of_clients') }"), is(true));
     }
+
+    @Test public void
+    can_parse_json_attributes_starting_with_a_number() {
+        // Given
+        String json = "{\n" +
+                "   \"6269f15a0bb9b1b7d86ae718e84cddcd\" : {\n" +
+                "            \"attr1\":\"val1\",\n" +
+                "            \"attr2\":\"val2\",\n" +
+                "            \"attrx\":\"valx\"\n" +
+                "   }\n" +
+                "}";
+
+        // When
+        JsonPath jsonPath = new JsonPath(json);
+
+        // Then
+        assertThat(jsonPath.getString("6269f15a0bb9b1b7d86ae718e84cddcd.attr1"), equalTo("val1"));
+    }
 }
