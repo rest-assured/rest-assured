@@ -42,7 +42,7 @@ import static com.jayway.restassured.RestAssured.rootPath;
  *
  * given(responseSpec, requestSpec).post("/something");
  * </pre>
- *
+ * <p/>
  * or
  * <pre>
  * ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).build();
@@ -75,7 +75,7 @@ public class ResponseSpecBuilder {
     /**
      * Expect that the JSON or XML response content conforms to one or more Hamcrest matchers.<br>
      * <h3>JSON example</h3>
-     * <p>
+     * <p/>
      * Assume that a GET request to "/lotto" returns a JSON response containing:
      * <pre>
      * { "lotto":{
@@ -90,7 +90,7 @@ public class ResponseSpecBuilder {
      *   }]
      *  }}
      * </pre>
-     *
+     * <p/>
      * You can verify that the lottoId is equal to 5 like this:
      * <pre>
      * ResponseSpecBuilder builder = new ResponseSpecBuilder();
@@ -113,7 +113,7 @@ public class ResponseSpecBuilder {
      * int index = 1;
      * expect().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
      * </pre>
-     *
+     * <p/>
      * or if you have complex root paths and don't wish to duplicate the path for small variations:
      * <pre>
      * expect().
@@ -122,16 +122,16 @@ public class ResponseSpecBuilder {
      *          body(withArgs(1), hasItem("second")).
      *          ..
      * </pre>
-     *
+     * <p/>
      * The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * <p>
      * Note that <code>withArgs</code> can be statically imported from the <code>com.jayway.restassured.RestAssured</code> class.
      * </p>
      *
-     * @param path The body path
+     * @param path    The body path
      * @param matcher The hamcrest matcher that must response body must match.
-     * @see #expectContent(String, org.hamcrest.Matcher)
      * @return the response specification
+     * @see #expectContent(String, org.hamcrest.Matcher)
      */
     public ResponseSpecBuilder expectContent(String path, List<Argument> arguments, Matcher<?> matcher) {
         spec.content(path, arguments, matcher);
@@ -193,7 +193,7 @@ public class ResponseSpecBuilder {
      * expectedHeaders.put("headerName2", "headerValue2");
      * </pre>
      * </p>
-     *
+     * <p/>
      * <p>
      * You can also use Hamcrest matchers:
      * <pre>
@@ -214,7 +214,7 @@ public class ResponseSpecBuilder {
     /**
      * Expect that a response header matches the supplied header name and hamcrest matcher.
      *
-     * @param headerName The name of the expected header
+     * @param headerName           The name of the expected header
      * @param expectedValueMatcher The Hamcrest matcher that must conform to the value
      * @return The builder
      */
@@ -226,7 +226,7 @@ public class ResponseSpecBuilder {
     /**
      * Expect that a response header matches the supplied name and value.
      *
-     * @param headerName The name of the expected header
+     * @param headerName    The name of the expected header
      * @param expectedValue The value of the expected header
      * @return The builder
      */
@@ -268,7 +268,7 @@ public class ResponseSpecBuilder {
      * E.g. <tt>cookieName1=cookieValue1</tt>
      * </p>
      *
-     * @param cookieName The name of the expected cookie
+     * @param cookieName           The name of the expected cookie
      * @param expectedValueMatcher The Hamcrest matcher that must conform to the value
      * @return The builder
      */
@@ -280,7 +280,7 @@ public class ResponseSpecBuilder {
     /**
      * Expect that a response cookie matches the supplied name and value.
      *
-     * @param cookieName The name of the expected cookie
+     * @param cookieName    The name of the expected cookie
      * @param expectedValue The value of the expected cookie
      * @return The builder
      */
@@ -303,7 +303,7 @@ public class ResponseSpecBuilder {
     /**
      * Set the root path of the response body so that you don't need to write the entire path for each expectation.
      * E.g. instead of writing:
-     *
+     * <p/>
      * <pre>
      * expect().
      *          body("x.y.firstName", is(..)).
@@ -312,8 +312,8 @@ public class ResponseSpecBuilder {
      *          body("x.y.gender", is(..)).
      * when().
      *          get(..);
-     *</pre>
-     *
+     * </pre>
+     * <p/>
      * you can use a root path and do:
      * <pre>
      * expect().
@@ -337,12 +337,85 @@ public class ResponseSpecBuilder {
      * Set the root path of the response body so that you don't need to write the entire path for each expectation. The same as {@link #rootPath(String)}
      * but also provides a way to defined arguments.
      *
-     * @param rootPath The root path to use.
+     * @param rootPath  The root path to use.
      * @param arguments The arguments.
      * @see ResponseSpecification#rootPath(String, java.util.List)
      */
     public ResponseSpecBuilder rootPath(String rootPath, List<Argument> arguments) {
         spec.rootPath(rootPath, arguments);
+        return this;
+    }
+
+    /**
+     * Append the given path to the root path of the response body so that you don't need to write the entire path for each expectation.
+     * E.g. instead of writing:
+     * <p/>
+     * <pre>
+     * expect().
+     *          root("x.y").
+     *          body("age", is(..)).
+     *          body("gender", is(..)).
+     *          body("name.firstName", is(..)).
+     *          body("name.lastName", is(..)).
+     * when().
+     *          get(..);
+     * </pre>
+     * <p/>
+     * you can use a append root and do:
+     * <pre>
+     * expect().
+     *          root("x.y").
+     *          body("age", is(..)).
+     *          body("gender", is(..)).
+     *          appendRoot("name").
+     *          body("firstName", is(..)).
+     *          body("lastName", is(..)).
+     * when().
+     *          get(..);
+     * </pre>
+     *
+     * @param pathToAppend The root path to append.
+     */
+    public ResponseSpecBuilder appendRootPath(String pathToAppend) {
+        spec.appendRoot(pathToAppend);
+        return this;
+    }
+
+    /**
+     * Append the given path to the root path with arguments supplied of the response body so that you don't need to write the entire path for each expectation.
+     * This is mainly useful when you have parts of the path defined in variables.
+     * E.g. instead of writing:
+     * <p/>
+     * <pre>
+     * String namePath = "name";
+     * expect().
+     *          root("x.y").
+     *          body("age", is(..)).
+     *          body("gender", is(..)).
+     *          body(namePath + "first", is(..)).
+     *          body(namePath + "last", is(..)).
+     * when().
+     *          get(..);
+     * </pre>
+     * <p/>
+     * you can use a append root and do:
+     * <pre>
+     * String namePath = "name";
+     * expect().
+     *          root("x.y").
+     *          body("age", is(..)).
+     *          body("gender", is(..)).
+     *          appendRoot("%s", withArgs(namePath)).
+     *          body("first", is(..)).
+     *          body("last", is(..)).
+     * when().
+     *          get(..);
+     * </pre>
+     *
+     * @param pathToAppend The root path to use. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     */
+    public ResponseSpecBuilder appendRootPath(String pathToAppend, List<Argument> arguments) {
+        spec.appendRoot(pathToAppend, arguments);
         return this;
     }
 
@@ -390,7 +463,7 @@ public class ResponseSpecBuilder {
     /**
      * Expect that the JSON or XML response content conforms to one or more Hamcrest matchers.<br>
      * <h3>JSON example</h3>
-     * <p>
+     * <p/>
      * Assume that a GET request to "/lotto" returns a JSON response containing:
      * <pre>
      * { "lotto":{
@@ -405,7 +478,7 @@ public class ResponseSpecBuilder {
      *   }]
      *  }}
      * </pre>
-     *
+     * <p/>
      * You can verify that the lottoId is equal to 5 like this:
      * <pre>
      * ResponseSpecBuilder builder = new ResponseSpecBuilder();
@@ -428,7 +501,7 @@ public class ResponseSpecBuilder {
      * int index = 1;
      * expect().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
      * </pre>
-     *
+     * <p/>
      * or if you have complex root paths and don't wish to duplicate the path for small variations:
      * <pre>
      * expect().
@@ -437,16 +510,16 @@ public class ResponseSpecBuilder {
      *          body(withArgs(1), hasItem("second")).
      *          ..
      * </pre>
-     *
+     * <p/>
      * The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * <p>
      * Note that <code>withArgs</code> can be statically imported from the <code>com.jayway.restassured.RestAssured</code> class.
      * </p>
      *
-     * @param path The body path
+     * @param path    The body path
      * @param matcher The hamcrest matcher that must response body must match.
-     * @see #expectBody(String, org.hamcrest.Matcher)
      * @return the response specification
+     * @see #expectBody(String, org.hamcrest.Matcher)
      */
     public ResponseSpecBuilder expectBody(String path, List<Argument> arguments, Matcher<?> matcher) {
         spec.body(path, arguments, matcher);
@@ -458,23 +531,24 @@ public class ResponseSpecBuilder {
      * Merge this builder with settings from another specification. Note that the supplied specification
      * can overwrite data in the current specification. The following settings are overwritten:
      * <ul>
-     *     <li>Content type</li>
-     *     <li>Root path</
-     *     <li>Status code</li>
-     *     <li>Status line</li>
+     * <li>Content type</li>
+     * <li>Root path</
+     * <li>Status code</li>
+     * <li>Status line</li>
      * </ul>
      * The following settings are merged:
      * <ul>
-     *     <li>Response body expectations</li>
-     *     <li>Cookies</li>
-     *     <li>Headers</li>
+     * <li>Response body expectations</li>
+     * <li>Cookies</li>
+     * <li>Headers</li>
      * </ul>
+     *
      * @param specification The specification the add.
      * @return The builder
      */
     public ResponseSpecBuilder addResponseSpecification(ResponseSpecification specification) {
-        if(!(specification instanceof ResponseSpecificationImpl)) {
-            throw new IllegalArgumentException("specification must be of type "+ResponseSpecificationImpl.class.getClass()+".");
+        if (!(specification instanceof ResponseSpecificationImpl)) {
+            throw new IllegalArgumentException("specification must be of type " + ResponseSpecificationImpl.class.getClass() + ".");
         }
 
         ResponseSpecificationImpl rs = (ResponseSpecificationImpl) specification;
@@ -493,14 +567,14 @@ public class ResponseSpecBuilder {
      * <pre>
      * expect().parser("application/vnd.uoml+xml", Parser.XML").when(). ..;
      * </pre>
-     *
+     * <p/>
      * You can also specify by default by using:
      * <pre>
      * RestAssured.registerParser("application/vnd.uoml+xml, Parser.XML");
      * </pre>
      *
      * @param contentType The content-type to register
-     * @param parser The parser to use when verifying the response.
+     * @param parser      The parser to use when verifying the response.
      * @return The builder
      */
     public ResponseSpecBuilder registerParser(String contentType, Parser parser) {
@@ -515,7 +589,7 @@ public class ResponseSpecBuilder {
      * <pre>
      * expect().defaultParser(Parser.JSON).when(). ..;
      * </pre>
-     *
+     * <p/>
      * You can also specify it for every response by using:
      * <pre>
      * RestAssured.defaultParser(Parser.JSON);

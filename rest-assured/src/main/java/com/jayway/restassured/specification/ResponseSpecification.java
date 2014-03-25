@@ -673,7 +673,7 @@ public interface ResponseSpecification extends RequestSender {
      *          get(..);
      * </pre>
      *
-     * @param pathToAppend The root path to use.
+     * @param pathToAppend The root path to append.
      */
     ResponseSpecification appendRoot(String pathToAppend);
 
