@@ -420,6 +420,31 @@ public class ResponseSpecBuilder {
     }
 
     /**
+     * Reset the root path of the response body so that you don't need to write the entire path for each expectation.
+     * For example:
+     * <p/>
+     * <pre>
+     * expect().
+     *          root("x.y").
+     *          body("firstName", is(..)).
+     *          body("lastName", is(..)).
+     *          noRoot()
+     *          body("z.something1", is(..)).
+     *          body("w.something2", is(..)).
+     * when().
+     *          get(..);
+     * </pre>
+     * <p/>
+     * This is the same as calling <code>rootPath("")</code> but more expressive.
+     *
+     * @see #rootPath(String)
+     */
+    public ResponseSpecBuilder noRootPath() {
+        spec.noRootPath();
+        return this;
+    }
+
+    /**
      * Set the response content type to be <code>contentType</code>.
      * <p>Note that this will affect the way the response is decoded.
      * E,g. if you can't use JSON/XML matching (see e.g. {@link #expectBody(String, org.hamcrest.Matcher)}) if you specify a
