@@ -765,6 +765,40 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
     T appendRoot(String pathToAppend, List<Argument> arguments);
 
     /**
+     * Detach the given path from the root path.
+     * E.g. instead of writing:
+     * <p/>
+     * <pre>
+     * when().
+     *          get(..);
+     * then().
+     *          root("x.y").
+     *          body("age", is(..)).
+     *          body("gender", is(..)).
+     *          root("x").
+     *          body("firstName", is(..)).
+     *          body("lastName", is(..)).
+     * </pre>
+     * <p/>
+     * you can use a append root and do:
+     * <pre>
+     * when().
+     *          get(..);
+     * then().
+     *          root("x.y").
+     *          body("age", is(..)).
+     *          body("gender", is(..)).
+     *          detachRoot("y").
+     *          body("firstName", is(..)).
+     *          body("lastName", is(..)).
+     * </pre>
+     *
+     * @param pathToDetach The root path to detach.
+     */
+    T detachRoot(String pathToDetach);
+
+
+    /**
      * Set the response content type to be <code>contentType</code>.
      * <p>Note that this will affect the way the response is decoded.
      * E,g. if you can't use JSON/XML matching (see e.g. {@link #body(String, org.hamcrest.Matcher, Object...)}) if you specify a

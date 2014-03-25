@@ -38,11 +38,12 @@ public interface ResponseSpecification extends RequestSender {
      * // Expect that the response content (body) contains the string "winning-numbers" and "winners"
      * expect().content(containsString("winning-numbers"), containsString("winners")).when().get("/lotto");
      * </pre>
-     * @param matcher The hamcrest matcher that must response content must match.
+     *
+     * @param matcher            The hamcrest matcher that must response content must match.
      * @param additionalMatchers Optionally additional hamcrest matchers that must return <code>true</code>.
      * @return the response specification
      */
-    ResponseSpecification content(Matcher<?> matcher, Matcher<?>...additionalMatchers);
+    ResponseSpecification content(Matcher<?> matcher, Matcher<?>... additionalMatchers);
 
     /**
      * This as special kind of expectation that is mainly useful when you've specified a root path with an argument placeholder.
@@ -55,7 +56,7 @@ public interface ResponseSpecification extends RequestSender {
      * when().
      *          get(..);
      * </pre>
-     *
+     * <p/>
      * Note that this is the same as doing:
      * <pre>
      * expect().
@@ -64,19 +65,19 @@ public interface ResponseSpecification extends RequestSender {
      *          content(withArgs("lastName"), equalTo(..)).
      * when().
      *          get(..);
-     *</pre>
-     *
+     * </pre>
+     * <p/>
      * <p>
      * Note that this method is the same as {@link #body(java.util.List, org.hamcrest.Matcher, Object...)} but with a method name.
      * </p>
      *
-     * @param arguments The arguments to apply to the root path.
-     * @param matcher The hamcrest matcher that must response body must match.
+     * @param arguments                 The arguments to apply to the root path.
+     * @param matcher                   The hamcrest matcher that must response body must match.
      * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
-     * @see #body(String, org.hamcrest.Matcher, Object...)
      * @return the response specification
+     * @see #body(String, org.hamcrest.Matcher, Object...)
      */
-    ResponseSpecification content(List<Argument> arguments, Matcher matcher, Object...additionalKeyMatcherPairs);
+    ResponseSpecification content(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs);
 
     /**
      * Validates the specified response against this ResponseSpecification
@@ -104,22 +105,22 @@ public interface ResponseSpecification extends RequestSender {
      *   }]
      *  }}
      * </pre>
-     *
+     * <p/>
      * You can verify that the lottoId is equal to 5 like this:
      * <pre>
      * expect().content("lotto.lottoId", equalTo(5)).when().get("/lotto");
      * </pre>
-     *
+     * <p/>
      * You can also verify that e.g. one of the the winning numbers is 45.
      * <pre>
      * expect().content("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
      * </pre>
-     *
+     * <p/>
      * Or both at the same time:
      * <pre>
      * expect().content("lotto.lottoId", equalTo(5)).and().content("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
      * </pre>
-     *
+     * <p/>
      * or a slightly short version:
      * <pre>
      * expect().content("lotto.lottoId", equalTo(5), "lotto.winning-numbers", hasItem(45)).when().get("/lotto");
@@ -135,17 +136,17 @@ public interface ResponseSpecification extends RequestSender {
      * &lt;/greeting&gt;
      * </pre>
      * </p>
-     *
+     * <p/>
      * You can now verify that the firstName is equal to "John" like this:
      * <pre>
      * expect().content("greeting.firstName", equalTo("John")).when().get("/xml");
      * </pre>
-     *
+     * <p/>
      * To verify both the first name and last name you can do like this:
      * <pre>
      * expect().content("greeting.firstName", equalTo("John")).and().content("greeting.lastName", equalTo("Doe")).when().get("/xml");
      * </pre>
-     *
+     * <p/>
      * Or the slightly shorter version of:
      * <pre>
      * expect().content("greeting.firstName", equalTo("John"), "greeting.lastName", equalTo("Doe")).when().get("/xml");
@@ -155,16 +156,16 @@ public interface ResponseSpecification extends RequestSender {
      * Note that if the response content type is not of type <tt>application/xml</tt> or <tt>application/json</tt> you
      * <i>cannot</i> use this verification.
      * </p>
-     *
+     * <p/>
      * <p>
      * The only difference between the <code>content</code> and <code>body</code> methods are of syntactic nature.
      * </p>
      *
-     * @param matcher The hamcrest matcher that must response content must match.
+     * @param matcher                   The hamcrest matcher that must response content must match.
      * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
      * @return the response specification
      */
-    ResponseSpecification content(String key, Matcher<?> matcher, Object...additionalKeyMatcherPairs);
+    ResponseSpecification content(String key, Matcher<?> matcher, Object... additionalKeyMatcherPairs);
 
     /**
      * Same as {@link #body(String, org.hamcrest.Matcher, Object...)} expect that you can pass arguments to the key. This
@@ -174,7 +175,7 @@ public interface ResponseSpecification extends RequestSender {
      * int index = 1;
      * expect().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
      * </pre>
-     *
+     * <p/>
      * or if you have complex root paths and don't wish to duplicate the path for small variations:
      * <pre>
      * expect().
@@ -183,20 +184,20 @@ public interface ResponseSpecification extends RequestSender {
      *          body(withArgs(1), hasItem("second")).
      *          ..
      * </pre>
-     *
+     * <p/>
      * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * <p>
      * Note that <code>withArgs</code> can be statically imported from the <code>com.jayway.restassured.RestAssured</code> class.
      * </p>
      *
-     * @param key The body key
-     * @param arguments The arguments to apply to the key
-     * @param matcher The hamcrest matcher that must response body must match.
+     * @param key                       The body key
+     * @param arguments                 The arguments to apply to the key
+     * @param matcher                   The hamcrest matcher that must response body must match.
      * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
-     * @see #body(String, org.hamcrest.Matcher, Object...)
      * @return the response specification
+     * @see #body(String, org.hamcrest.Matcher, Object...)
      */
-    ResponseSpecification body(String key, List<Argument> arguments, Matcher matcher, Object...additionalKeyMatcherPairs);
+    ResponseSpecification body(String key, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs);
 
     /**
      * This as special kind of expectation that is mainly useful when you've specified a root path with an argument placeholder.
@@ -209,7 +210,7 @@ public interface ResponseSpecification extends RequestSender {
      * when().
      *          get(..);
      * </pre>
-     *
+     * <p/>
      * Note that this is the same as doing:
      * <pre>
      * expect().
@@ -218,19 +219,19 @@ public interface ResponseSpecification extends RequestSender {
      *          body(withArgs("lastName"), equalTo(..)).
      * when().
      *          get(..);
-     *</pre>
-     *
+     * </pre>
+     * <p/>
      * <p>
      * Note that this method is the same as {@link #content(java.util.List, org.hamcrest.Matcher, Object...)} but with a method name.
      * </p>
      *
-     * @param arguments The arguments to apply to the root path.
-     * @param matcher The hamcrest matcher that must response body must match.
+     * @param arguments                 The arguments to apply to the root path.
+     * @param matcher                   The hamcrest matcher that must response body must match.
      * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
-     * @see #body(String, org.hamcrest.Matcher, Object...)
      * @return the response specification
+     * @see #body(String, org.hamcrest.Matcher, Object...)
      */
-    ResponseSpecification body(List<Argument> arguments, Matcher matcher, Object...additionalKeyMatcherPairs);
+    ResponseSpecification body(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs);
 
     /**
      * Expect that the response status code matches the given Hamcrest matcher. E.g.
@@ -248,11 +249,12 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().statusCode(200).when().get("/something");
      * </pre>
-     *
+     * <p/>
      * This is the same as:
      * <pre>
      * expect().statusCode(equalTo(200)).when().get("/something");
      * </pre>
+     *
      * @param expectedStatusCode The expected status code.
      * @return the response specification
      */
@@ -274,7 +276,7 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().statusLine("No Content").when().get("/something");
      * </pre>
-     *
+     * <p/>
      * This is the same as:
      * <pre>
      * expect().statusLine(equalTo("No Content")).when().get("/something");
@@ -288,7 +290,7 @@ public interface ResponseSpecification extends RequestSender {
     /**
      * Expect that response headers matches those specified in a Map.
      * <p>
-     *  E.g. expect that the response of the GET request to "/something" contains header <tt>headerName1=headerValue1</tt>
+     * E.g. expect that the response of the GET request to "/something" contains header <tt>headerName1=headerValue1</tt>
      * and <tt>headerName2=headerValue2</tt>:
      * <pre>
      * Map expectedHeaders = new HashMap();
@@ -298,7 +300,7 @@ public interface ResponseSpecification extends RequestSender {
      * expect().response().headers(expectedHeaders).when().get("/something");
      * </pre>
      * </p>
-     *
+     * <p/>
      * <p>
      * You can also use Hamcrest matchers:
      * <pre>
@@ -324,25 +326,25 @@ public interface ResponseSpecification extends RequestSender {
      * expect().headers("Pragma", "no-cache", "Content-Encoding", "gzip").when().get("/something");
      * </pre>
      * </p>
-     *
+     * <p/>
      * <p>
      * You can also use Hamcrest matchers:
      * <pre>
      * expect().response().headers("Content-Type", containsString("application/json"), "Pragma", equalsTo("no-cache")).when().get("/something");
      * </pre>
-     *
+     * <p/>
      * and you can even mix string matching and hamcrest matching:
      * <pre>
      * expect().headers("Content-Type", containsString("application/json"), "Pragma", "no-cache").when().get("/something");
      * </pre>
      * </p>
      *
-     * @param firstExpectedHeaderName The name of the first header
+     * @param firstExpectedHeaderName  The name of the first header
      * @param firstExpectedHeaderValue The value of the first header
-     * @param expectedHeaders A list of expected "header name" - "header value" pairs.
+     * @param expectedHeaders          A list of expected "header name" - "header value" pairs.
      * @return the response specification
      */
-    ResponseSpecification headers(String firstExpectedHeaderName, Object firstExpectedHeaderValue, Object...expectedHeaders);
+    ResponseSpecification headers(String firstExpectedHeaderName, Object firstExpectedHeaderValue, Object... expectedHeaders);
 
     /**
      * Expect that a response header matches the supplied header name and hamcrest matcher.
@@ -352,7 +354,7 @@ public interface ResponseSpecification extends RequestSender {
      * expect().header("Pragma", containsString("no")).when().get("/something");
      * </pre>
      * </p>
-     *
+     * <p/>
      * <p>
      * You can also expect several headers:
      * <pre>
@@ -361,7 +363,7 @@ public interface ResponseSpecification extends RequestSender {
      * Also take a look at {@link #headers(String, Object, Object...)} )} for a short version of passing multiple headers.
      * </p>
      *
-     * @param headerName The name of the expected header
+     * @param headerName           The name of the expected header
      * @param expectedValueMatcher The Hamcrest matcher that must conform to the value
      * @return the response specification
      */
@@ -375,7 +377,7 @@ public interface ResponseSpecification extends RequestSender {
      * expect().header("Pragma", "no-cache").when().get("/something");
      * </pre>
      * </p>
-     *
+     * <p/>
      * <p>
      * You can also expect several headers:
      * <pre>
@@ -384,7 +386,7 @@ public interface ResponseSpecification extends RequestSender {
      * Also take a look at {@link #headers(String, Object, Object...)} for a short version of passing multiple headers.
      * </p>
      *
-     * @param headerName The name of the expected header
+     * @param headerName    The name of the expected header
      * @param expectedValue The value of the expected header
      * @return the response specification
      */
@@ -403,7 +405,7 @@ public interface ResponseSpecification extends RequestSender {
      * expect().response().cookies(expectedCookies).when().get("/something");
      * </pre>
      * </p>
-     *
+     * <p/>
      * <p>
      * You can also use Hamcrest matchers:
      * <pre>
@@ -437,25 +439,25 @@ public interface ResponseSpecification extends RequestSender {
      * expect().cookies("cookieName1", "cookieValue1", "cookieName2", "cookieValue2").when().get("/something");
      * </pre>
      * </p>
-     *
+     * <p/>
      * <p>
      * You can also use Hamcrest matchers:
      * <pre>
      * expect().response().cookies("cookieName1", containsString("Value1"), "cookieName2", equalsTo("cookieValue2")).when().get("/something");
      * </pre>
-     *
+     * <p/>
      * and you can even mix string matching and hamcrest matching:
      * <pre>
      * expect().cookies("cookieName1", containsString("Value1"), "cookieName2", "cookieValue2").when().get("/something");
      * </pre>
      * </p>
      *
-     * @param firstExpectedCookieName The name of the first cookie
-     * @param firstExpectedCookieValue The value of the first cookie
+     * @param firstExpectedCookieName      The name of the first cookie
+     * @param firstExpectedCookieValue     The value of the first cookie
      * @param expectedCookieNameValuePairs A list of expected "cookie name" - "cookie value" pairs.
      * @return the response specification
      */
-    ResponseSpecification cookies(String firstExpectedCookieName, Object firstExpectedCookieValue, Object...expectedCookieNameValuePairs);
+    ResponseSpecification cookies(String firstExpectedCookieName, Object firstExpectedCookieValue, Object... expectedCookieNameValuePairs);
 
     /**
      * Expect that a response cookie matches the supplied cookie name and hamcrest matcher.
@@ -465,7 +467,7 @@ public interface ResponseSpecification extends RequestSender {
      * expect().cookie("cookieName1", containsString("Value1")).when().get("/something");
      * </pre>
      * </p>
-     *
+     * <p/>
      * <p>
      * You can also expect several cookies:
      * <pre>
@@ -474,7 +476,7 @@ public interface ResponseSpecification extends RequestSender {
      * Also take a look at {@link #cookies(String, Object, Object...)} for a short version of passing multiple cookies.
      * </p>
      *
-     * @param cookieName The name of the expected cookie
+     * @param cookieName           The name of the expected cookie
      * @param expectedValueMatcher The Hamcrest matcher that must conform to the value
      * @return the response specification
      */
@@ -488,7 +490,7 @@ public interface ResponseSpecification extends RequestSender {
      * expect().cookie("cookieName1", "cookieValue1").when().get("/something");
      * </pre>
      * </p>
-     *
+     * <p/>
      * <p>
      * You can also expect several cookies:
      * <pre>
@@ -497,19 +499,19 @@ public interface ResponseSpecification extends RequestSender {
      * Also take a look at {@link #cookies(String, Object, Object...)} for a short version of passing multiple cookies.
      * </p>
      *
-     *
-     * @param cookieName The name of the expected cookie
+     * @param cookieName    The name of the expected cookie
      * @param expectedValue The value of the expected cookie
      * @return the response specification
      */
     ResponseSpecification cookie(String cookieName, Object expectedValue);
 
     /**
-     *  Returns the {@link ResponseLogSpecification} that allows you to log different parts of the {@link ResponseSpecification}.
+     * Returns the {@link ResponseLogSpecification} that allows you to log different parts of the {@link ResponseSpecification}.
      * This is mainly useful for debug purposes when writing your tests. It's a shortcut for:
      * <pre>
      * given().filter(ResponseLoggingFilter.responseLogger()). ..
      * </pre>
+     *
      * @return the response log specification
      */
     ResponseLogSpecification log();
@@ -517,7 +519,7 @@ public interface ResponseSpecification extends RequestSender {
     /**
      * Set the root path of the response body so that you don't need to write the entire path for each expectation.
      * E.g. instead of writing:
-     *
+     * <p/>
      * <pre>
      * expect().
      *          body("x.y.firstName", is(..)).
@@ -526,8 +528,8 @@ public interface ResponseSpecification extends RequestSender {
      *          body("x.y.gender", is(..)).
      * when().
      *          get(..);
-     *</pre>
-     *
+     * </pre>
+     * <p/>
      * you can use a root path and do:
      * <pre>
      * expect().
@@ -539,7 +541,7 @@ public interface ResponseSpecification extends RequestSender {
      * when().
      *          get(..);
      * </pre>
-     *
+     * <p/>
      * Note that this method is exactly the same as {@link #root(String)}.
      *
      * @param rootPath The root path to use.
@@ -548,10 +550,10 @@ public interface ResponseSpecification extends RequestSender {
 
     /**
      * Set the root path with arguments of the response body so that you don't need to write the entire path for each expectation.
-     *
+     * <p/>
      * Note that this method is exactly the same as {@link #root(String, java.util.List)}.
      *
-     * @param rootPath The root path to use.
+     * @param rootPath  The root path to use.
      * @param arguments A list of arguments. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * @see #rootPath(String)
      */
@@ -559,10 +561,10 @@ public interface ResponseSpecification extends RequestSender {
 
     /**
      * Set the root path with arguments of the response body so that you don't need to write the entire path for each expectation.
-     *
+     * <p/>
      * Note that this method is exactly the same as {@link #rootPath(String, java.util.List)}.
      *
-     * @param rootPath The root path to use.
+     * @param rootPath  The root path to use.
      * @param arguments The list of substitution arguments. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java..
      * @see #rootPath(String)
      */
@@ -571,7 +573,7 @@ public interface ResponseSpecification extends RequestSender {
     /**
      * Set the root path of the response body so that you don't need to write the entire path for each expectation.
      * E.g. instead of writing:
-     *
+     * <p/>
      * <pre>
      * expect().
      *          body("x.y.firstName", is(..)).
@@ -580,8 +582,8 @@ public interface ResponseSpecification extends RequestSender {
      *          body("x.y.gender", is(..)).
      * when().
      *          get(..);
-     *</pre>
-     *
+     * </pre>
+     * <p/>
      * you can use a root and do:
      * <pre>
      * expect().root("x.y").
@@ -592,7 +594,7 @@ public interface ResponseSpecification extends RequestSender {
      * when().
      *          get(..);
      * </pre>
-     *
+     * <p/>
      * Note that this method is exactly the same as {@link #rootPath(String)} but slightly shorter.
      *
      * @param rootPath The root path to use.
@@ -602,7 +604,7 @@ public interface ResponseSpecification extends RequestSender {
     /**
      * Reset the root path of the response body so that you don't need to write the entire path for each expectation.
      * For example:
-     *
+     * <p/>
      * <pre>
      * expect().
      *          root("x.y").
@@ -613,8 +615,8 @@ public interface ResponseSpecification extends RequestSender {
      *          body("w.something2", is(..)).
      * when().
      *          get(..);
-     *</pre>
-     *
+     * </pre>
+     * <p/>
      * This is the same as calling <code>rootPath("")</code> but more expressive.
      * Note that this method is exactly the same as {@link #noRootPath()} but slightly shorter.
      *
@@ -625,7 +627,7 @@ public interface ResponseSpecification extends RequestSender {
     /**
      * Reset the root path of the response body so that you don't need to write the entire path for each expectation.
      * For example:
-     *
+     * <p/>
      * <pre>
      * expect().
      *          root("x.y").
@@ -636,8 +638,8 @@ public interface ResponseSpecification extends RequestSender {
      *          body("w.something2", is(..)).
      * when().
      *          get(..);
-     *</pre>
-     *
+     * </pre>
+     * <p/>
      * This is the same as calling <code>rootPath("")</code> but more expressive.
      * Note that this method is exactly the same as {@link #noRoot()} but slightly more expressive.
      *
@@ -648,7 +650,7 @@ public interface ResponseSpecification extends RequestSender {
     /**
      * Append the given path to the root path of the response body so that you don't need to write the entire path for each expectation.
      * E.g. instead of writing:
-     *
+     * <p/>
      * <pre>
      * expect().
      *          root("x.y").
@@ -658,8 +660,8 @@ public interface ResponseSpecification extends RequestSender {
      *          body("name.lastName", is(..)).
      * when().
      *          get(..);
-     *</pre>
-     *
+     * </pre>
+     * <p/>
      * you can use a append root and do:
      * <pre>
      * expect().
@@ -681,7 +683,7 @@ public interface ResponseSpecification extends RequestSender {
      * Append the given path to the root path with arguments supplied of the response body so that you don't need to write the entire path for each expectation.
      * This is mainly useful when you have parts of the path defined in variables.
      * E.g. instead of writing:
-     *
+     * <p/>
      * <pre>
      * String namePath = "name";
      * expect().
@@ -692,8 +694,8 @@ public interface ResponseSpecification extends RequestSender {
      *          body(namePath + "last", is(..)).
      * when().
      *          get(..);
-     *</pre>
-     *
+     * </pre>
+     * <p/>
      * you can use a append root and do:
      * <pre>
      * String namePath = "name";
@@ -711,6 +713,39 @@ public interface ResponseSpecification extends RequestSender {
      * @param pathToAppend The root path to use. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      */
     ResponseSpecification appendRoot(String pathToAppend, List<Argument> arguments);
+
+    /**
+     * Detach the given path from the root path.
+     * E.g. instead of writing:
+     * <p/>
+     * <pre>
+     * when().
+     *          get(..);
+     * then().
+     *          root("x.y").
+     *          body("age", is(..)).
+     *          body("gender", is(..)).
+     *          root("x").
+     *          body("firstName", is(..)).
+     *          body("lastName", is(..)).
+     * </pre>
+     * <p/>
+     * you can use a append root and do:
+     * <pre>
+     * when().
+     *          get(..);
+     * then().
+     *          root("x.y").
+     *          body("age", is(..)).
+     *          body("gender", is(..)).
+     *          detachRoot("y").
+     *          body("firstName", is(..)).
+     *          body("lastName", is(..)).
+     * </pre>
+     *
+     * @param pathToDetach The root path to detach.
+     */
+    ResponseSpecification detachRoot(String pathToDetach);
 
     /**
      * Set the response content type to be <code>contentType</code>.
@@ -753,11 +788,12 @@ public interface ResponseSpecification extends RequestSender {
      * // Expect that the response body (content) contains the string "winning-numbers" and "winners"
      * expect().body(containsString("winning-numbers"), containsString("winners")).when().get("/lotto");
      * </pre>
-     * @param matcher The hamcrest matcher that must response body must match.
+     *
+     * @param matcher            The hamcrest matcher that must response body must match.
      * @param additionalMatchers Optionally additional hamcrest matchers that must return <code>true</code>.
      * @return the response specification
      */
-    ResponseSpecification body(Matcher<?> matcher, Matcher<?>...additionalMatchers);
+    ResponseSpecification body(Matcher<?> matcher, Matcher<?>... additionalMatchers);
 
     /**
      * Expect that the JSON or XML response body conforms to one or more Hamcrest matchers.<br>
@@ -777,22 +813,22 @@ public interface ResponseSpecification extends RequestSender {
      *   }]
      *  }}
      * </pre>
-     *
+     * <p/>
      * You can verify that the lottoId is equal to 5 like this:
      * <pre>
      * expect().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
      * </pre>
-     *
+     * <p/>
      * You can also verify that e.g. one of the the winning numbers is 45.
      * <pre>
      * expect().body("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
      * </pre>
-     *
+     * <p/>
      * Or both at the same time:
      * <pre>
      * expect().body("lotto.lottoId", equalTo(5)).and().body("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
      * </pre>
-     *
+     * <p/>
      * or a slightly short version:
      * <pre>
      * expect().body("lotto.lottoId", equalTo(5), "lotto.winning-numbers", hasItem(45)).when().get("/lotto");
@@ -808,17 +844,17 @@ public interface ResponseSpecification extends RequestSender {
      * &lt;/greeting&gt;
      * </pre>
      * </p>
-     *
+     * <p/>
      * You can now verify that the firstName is equal to "John" like this:
      * <pre>
      * expect().body("greeting.firstName", equalTo("John")).when().get("/xml");
      * </pre>
-     *
+     * <p/>
      * To verify both the first name and last name you can do like this:
      * <pre>
      * expect().body("greeting.firstName", equalTo("John")).and().body("greeting.lastName", equalTo("Doe")).when().get("/xml");
      * </pre>
-     *
+     * <p/>
      * Or the slightly shorter version of:
      * <pre>
      * expect().body("greeting.firstName", equalTo("John"), "greeting.lastName", equalTo("Doe")).when().get("/xml");
@@ -828,17 +864,17 @@ public interface ResponseSpecification extends RequestSender {
      * Note that if the response body type is not of type <tt>application/xml</tt> or <tt>application/json</tt> you
      * <i>cannot</i> use this verification.
      * </p>
-     *
+     * <p/>
      * <p>
      * The only difference between the <code>content</code> and <code>body</code> methods are of syntactic nature.
      * </p>
      *
-     * @param path The body path
-     * @param matcher The hamcrest matcher that must response body must match.
+     * @param path                      The body path
+     * @param matcher                   The hamcrest matcher that must response body must match.
      * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
      * @return the response specification
      */
-    ResponseSpecification body(String path, Matcher<?> matcher, Object...additionalKeyMatcherPairs);
+    ResponseSpecification body(String path, Matcher<?> matcher, Object... additionalKeyMatcherPairs);
 
     /**
      * Same as {@link #body(String, java.util.List, org.hamcrest.Matcher, Object...)} expect that you can pass arguments to the path. This
@@ -848,7 +884,7 @@ public interface ResponseSpecification extends RequestSender {
      * int index = 1;
      * expect().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
      * </pre>
-     *
+     * <p/>
      * or if you have complex root paths and don't wish to duplicate the path for small variations:
      * <pre>
      * expect().
@@ -857,26 +893,26 @@ public interface ResponseSpecification extends RequestSender {
      *          body(withArgs(1), hasItem("second")).
      *          ..
      * </pre>
-     *
+     * <p/>
      * The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * <p>
      * Note that <code>withArgs</code> can be statically imported from the <code>com.jayway.restassured.RestAssured</code> class.
      * </p>
      *
-     * @param path The body path
-     * @param matcher The hamcrest matcher that must response body must match.
+     * @param path                      The body path
+     * @param matcher                   The hamcrest matcher that must response body must match.
      * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
-     * @see #content(String, org.hamcrest.Matcher, Object...)
      * @return the response specification
+     * @see #content(String, org.hamcrest.Matcher, Object...)
      */
-    ResponseSpecification content(String path, List<Argument> arguments, Matcher matcher, Object...additionalKeyMatcherPairs);
+    ResponseSpecification content(String path, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs);
 
     /**
      * Syntactic sugar, e.g.
      * <pre>
      * expect().body(containsString("OK")).when().get("/something");
      * </pre>
-     *
+     * <p/>
      * is that same as:
      * <pre>
      * expect().body(containsString("OK")).get("/something");
@@ -901,7 +937,7 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().that().body(containsString("OK")).when().get("/something");
      * </pre>
-     *
+     * <p/>
      * is that same as:
      * <pre>
      * expect().body(containsString("OK")).get("/something");
@@ -926,7 +962,7 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().response().body(containsString("OK")).when().get("/something");
      * </pre>
-     *
+     * <p/>
      * is that same as:
      * <pre>
      * expect().body(containsString("OK")).get("/something");
@@ -941,7 +977,7 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().body(containsString("OK")).and().body(containsString("something else")).when().get("/something");
      * </pre>
-     *
+     * <p/>
      * is that same as:
      * <pre>
      * expect().body(containsString("OK")).body(containsString("something else")).when().get("/something");
@@ -966,7 +1002,7 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().body(containsString("OK")).then().get("/something");
      * </pre>
-     *
+     * <p/>
      * is that same as:
      * <pre>
      * expect().body(containsString("OK")).get("/something");
@@ -981,7 +1017,7 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().body(containsString("OK")).and().expect().body(containsString("something else")).when().get("/something");
      * </pre>
-     *
+     * <p/>
      * is that same as:
      * <pre>
      * * expect().body(containsString("OK")).and().body(containsString("something else")).when().get("/something");
@@ -1002,24 +1038,24 @@ public interface ResponseSpecification extends RequestSender {
      * when().
      *        get("/something");
      * </pre>
-     *
+     * <p/>
      * This is useful when you want to reuse multiple different expectations in several tests.
-     * <p>
+     * <p/>
      * The specification passed to this method is merged with the current specification. Note that the supplied specification
      * can overwrite data in the current specification. The following settings are overwritten:
      * <ul>
-     *     <li>Content type</li>
-     *     <li>Root path</
-     *     <li>Status code</li>
-     *     <li>Status line</li>
+     * <li>Content type</li>
+     * <li>Root path</
+     * <li>Status code</li>
+     * <li>Status line</li>
      * </ul>
      * The following settings are merged:
      * <ul>
-     *     <li>Response body expectations</li>
-     *     <li>Cookies</li>
-     *     <li>Headers</li>
+     * <li>Response body expectations</li>
+     * <li>Cookies</li>
+     * <li>Headers</li>
      * </ul>
-     *
+     * <p/>
      * This method is the same as {@link #specification(ResponseSpecification)} but the name is a bit shorter.
      *
      * @param responseSpecificationToMerge The specification to merge with.
@@ -1038,25 +1074,25 @@ public interface ResponseSpecification extends RequestSender {
      * when().
      *        get("/something");
      * </pre>
-     *
+     * <p/>
      * This is useful when you want to reuse multiple different expectations in several tests.
-     * <p>
+     * <p/>
      * The specification passed to this method is merged with the current specification. Note that the supplied specification
      * can overwrite data in the current specification. The following settings are overwritten:
      * <ul>
-     *     <li>Content type</li>
-     *     <li>Root path</
-     *     <li>Status code</li>
-     *     <li>Status line</li>
+     * <li>Content type</li>
+     * <li>Root path</
+     * <li>Status code</li>
+     * <li>Status line</li>
      * </ul>
      * The following settings are merged:
      * <ul>
-     *     <li>Response body expectations</li>
-     *     <li>Cookies</li>
-     *     <li>Headers</li>
+     * <li>Response body expectations</li>
+     * <li>Cookies</li>
+     * <li>Headers</li>
      * </ul>
-     *
-     *
+     * <p/>
+     * <p/>
      * This method is the same as {@link #spec(ResponseSpecification)} but the name is a bit longer.
      *
      * @param responseSpecificationToMerge The specification to merge with.
@@ -1075,14 +1111,14 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().parser("application/vnd.uoml+xml", Parser.XML).when(). ..;
      * </pre>
-     *
+     * <p/>
      * You can also specify by it for every response by using:
      * <pre>
      * RestAssured.registerParser("application/vnd.uoml+xml", Parser.XML);
      * </pre>
      *
      * @param contentType The content-type to register
-     * @param parser The parser to use when verifying the response.
+     * @param parser      The parser to use when verifying the response.
      */
     ResponseSpecification parser(String contentType, Parser parser);
 
@@ -1093,7 +1129,7 @@ public interface ResponseSpecification extends RequestSender {
      * <pre>
      * expect().defaultParser(Parser.JSON).when(). ..;
      * </pre>
-     *
+     * <p/>
      * You can also specify it for every response by using:
      * <pre>
      * RestAssured.defaultParser(Parser.JSON);

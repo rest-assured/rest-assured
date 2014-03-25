@@ -15,6 +15,7 @@ Change log next version
 * Fixed a bug with JsonPath that prevented parsing of JSON attributes starting with a number (issue 318).
 * Added appendRootPath method to ResponseSpecBuilder
 * Added noRootPath method to ResponseSpecBuilder
+* Added detachRoot method to ResponseSpecification that allows you to detach parts of the root paths (issue 319).
 
 Change log 2.3.0 (2014-01-23)
 -----------------------------

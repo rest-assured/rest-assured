@@ -219,6 +219,10 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         return (T) this;
     }
 
+    public T detachRoot(String pathToDetach) {
+        responseSpec.detachRoot(pathToDetach);
+        return (T) this;
+    }
 
     public T contentType(ContentType contentType) {
         responseSpec.contentType(contentType);

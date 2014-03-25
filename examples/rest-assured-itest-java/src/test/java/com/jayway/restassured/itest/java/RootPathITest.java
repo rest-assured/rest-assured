@@ -228,4 +228,59 @@ public class RootPathITest extends WithJetty {
 
         expect().body(withArgs("author", "size()"), equalTo("Something"));
     }
+
+    @Test
+    public void cannotDetachRootPathToFromRootPath() throws Exception {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Cannot detach path when root path is empty");
+
+        expect().detachRoot("path");
+    }
+
+    @Test
+    public void detachingRootPathWorksWithOldSyntax() throws Exception {
+        expect().
+                root("store.%s", withArgs("book")).
+                body("category.size()", equalTo(4)).
+                detachRoot("book").
+                body("size()", equalTo(2)).
+        when().
+                get("/jsonStore");
+    }
+
+    @Test
+    public void detachingRootPathWorksWithNewSyntax() throws Exception {
+        when().
+                get("/jsonStore").
+        then().
+                root("store.%s", withArgs("book")).
+                body("category.size()", equalTo(4)).
+                detachRoot("book").
+                body("size()", equalTo(2));
+    }
+
+    @Test
+    public void detachingRootPathWorksWhenSpecifyingDot() throws Exception {
+        when().
+                get("/jsonStore").
+        then().
+                root("store.%s", withArgs("book")).
+                body("category.size()", equalTo(4)).
+                detachRoot(".book").
+                body("size()", equalTo(2));
+    }
+
+    @Test
+    public void detachingRootPathThrowsISERootPathDoesntEndWithPathToDetach() throws Exception {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Cannot detach path 'another' since root path 'store.book' doesn't end with 'another'.");
+
+        when().
+                get("/jsonStore").
+        then().
+                root("store.%s", withArgs("book")).
+                body("category.size()", equalTo(4)).
+                detachRoot("another").
+                body("size()", equalTo(2));
+    }
 }
