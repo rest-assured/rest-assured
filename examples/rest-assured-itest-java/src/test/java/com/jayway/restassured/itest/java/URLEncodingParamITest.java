@@ -17,6 +17,7 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.regex.Matcher;
@@ -78,6 +79,7 @@ public class URLEncodingParamITest {
         }
     }
 
+    @Ignore("Server is down atm")
     @Test
     public void testUrlEncodingOnApache() {
         assertEquals("%3F", searchApache());
