@@ -450,7 +450,6 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   def ResponseSpecification appendRoot(String pathToAppend, List<Argument> arguments) {
     notNull pathToAppend, "Path to append to root path"
     notNull arguments, "Arguments for path to append"
-    throwIllegalStateExceptionIfRootPathIsNotDefined("append path")
     def mergedPath = mergeKeyWithRootPath(pathToAppend)
     rootPath(mergedPath, arguments)
   }
@@ -673,7 +672,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   }
 
   private String mergeKeyWithRootPath(String key) {
-    if (bodyRootPath != EMPTY) {
+    if (bodyRootPath != null && bodyRootPath != EMPTY) {
       if (bodyRootPath.endsWith(DOT) && key.startsWith(DOT)) {
         return bodyRootPath + substringAfter(key, DOT);
       } else if (!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT)) {

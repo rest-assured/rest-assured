@@ -205,11 +205,12 @@ public class RootPathITest extends WithJetty {
     }
 
     @Test
-    public void cannotAppendRootPathToEmptyRootPath() throws Exception {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Cannot append path when root path is empty");
-
-        expect().appendRoot("%s.%s", withArgs("author", "size()"));
+    public void canAppendRootPathToEmptyRootPath() throws Exception {
+        expect().
+                appendRoot("store.%s").
+                body(withArgs("book.category.size()"), equalTo(4)).
+        when().
+                get("/jsonStore");
     }
 
     @Test

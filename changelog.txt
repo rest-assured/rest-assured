@@ -17,6 +17,7 @@ Change log next version
 * Added noRootPath method to ResponseSpecBuilder
 * Added detachRoot method to ResponseSpecification that allows you to detach parts of the root paths (issue 319).
 * Added detachRootPath method to ResponseSpecBuilder.
+* "appendRoot" method in ResponseSpecification can now be used even though no root path has previously been set.
 
 Change log 2.3.0 (2014-01-23)
 -----------------------------
