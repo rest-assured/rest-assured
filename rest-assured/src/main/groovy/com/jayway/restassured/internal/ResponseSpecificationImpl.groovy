@@ -561,6 +561,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         def errors = validations.findAll { !it.success }
         def numberOfErrors = errors.size()
         if (numberOfErrors > 0) {
+
           if (isEagerAssert()) {
             throw new AssertionError(errors[0].errorMessage)
           } else {

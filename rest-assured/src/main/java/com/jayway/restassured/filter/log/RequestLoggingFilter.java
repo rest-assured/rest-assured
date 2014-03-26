@@ -18,19 +18,16 @@ package com.jayway.restassured.filter.log;
 
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
-import com.jayway.restassured.internal.NoParameterValue;
-import com.jayway.restassured.internal.support.Prettifier;
-import com.jayway.restassured.response.*;
+import com.jayway.restassured.internal.print.RequestPrinter;
+import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import java.io.PrintStream;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import static com.jayway.restassured.filter.log.LogDetail.*;
+import static com.jayway.restassured.filter.log.LogDetail.ALL;
+import static com.jayway.restassured.filter.log.LogDetail.STATUS;
 
 /**
  * Will log the request before it's passed to HTTP Builder. Note that HTTP Builder and HTTP Client will add additional headers. This filter will <i>only</i>
@@ -40,12 +37,6 @@ import static com.jayway.restassured.filter.log.LogDetail.*;
  * <a href="http://www.wireshark.org/">Wireshark</a>.
  */
 public class RequestLoggingFilter implements Filter {
-
-    private static final String TAB = "\t";
-    private static final String NEW_LINE = "\n";
-    private static final String EQUALS = "=";
-    private static final String NONE = "<none>";
-    private static final String CONTENT_TYPE = "Content-Type";
 
     private final LogDetail logDetail;
     private final PrintStream stream;
@@ -106,120 +97,7 @@ public class RequestLoggingFilter implements Filter {
     }
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-        final StringBuilder builder = new StringBuilder();
-        if(logDetail == ALL) {
-            addSingle(builder, "Request method:", ctx.getRequestMethod().toString());
-            addSingle(builder, "Request path:", ctx.getCompleteRequestPath());
-        }
-        if(logDetail == ALL || logDetail == PARAMS) {
-            addMapDetails(builder, "Request params:", requestSpec.getRequestParams());
-            addMapDetails(builder, "Query params:", requestSpec.getQueryParams());
-            addMapDetails(builder, "Form params:", requestSpec.getFormParams());
-            addMapDetails(builder, "Path params:", requestSpec.getPathParams());
-        }
-        if(logDetail == ALL || logDetail == HEADERS) {
-            addHeaders(requestSpec, builder);
-        }
-        if(logDetail == ALL || logDetail == COOKIES) {
-            addCookies(requestSpec, builder);
-        }
-        if(logDetail == ALL || logDetail == BODY) {
-            addBody(requestSpec, builder);
-        }
-        String logString = builder.toString();
-        if(logString.endsWith("\n")) {
-            logString = StringUtils.removeEnd(logString, "\n");
-        }
-        stream.println(logString);
+        RequestPrinter.print(requestSpec, ctx.getRequestMethod().toString(), ctx.getCompleteRequestPath(), logDetail, stream, shouldPrettyPrint);
         return ctx.next(requestSpec, responseSpec);
-    }
-
-    private void addBody(FilterableRequestSpecification requestSpec, StringBuilder builder) {
-        builder.append("Body:");
-        if(requestSpec.getBody() != null) {
-            final String body;
-            if(shouldPrettyPrint) {
-                body = new Prettifier().getPrettifiedBodyIfPossible(requestSpec);
-            } else {
-                body = requestSpec.getBody();
-            }
-            builder.append(NEW_LINE).append(body);
-        } else {
-            appendTab(appendTwoTabs(builder)).append(NONE);
-        }
-    }
-
-    private void addCookies(FilterableRequestSpecification requestSpec, StringBuilder builder) {
-        builder.append("Cookies:");
-        final Cookies cookies = requestSpec.getCookies();
-        if(!cookies.exist()) {
-            appendTwoTabs(builder).append(NONE).append(NEW_LINE);
-        }
-        int i = 0;
-        for (Cookie cookie : cookies) {
-            if(i++ == 0) {
-                appendTwoTabs(builder);
-            } else {
-                appendFourTabs(builder);
-            }
-            builder.append(cookie).append(NEW_LINE);
-        }
-    }
-
-    private void addHeaders(FilterableRequestSpecification requestSpec, StringBuilder builder) {
-        builder.append("Headers:");
-        final Headers headers = requestSpec.getHeaders();
-        final boolean hasContentTypeHeader = headers.hasHeaderWithName(CONTENT_TYPE);
-        if(!hasContentTypeHeader) {
-            appendTwoTabs(builder);
-            builder.append(CONTENT_TYPE).append(EQUALS).append(requestSpec.getRequestContentType()).append(NEW_LINE);
-        }
-        int i = 0;
-        for (Header header : headers) {
-            if(i++ == 0 && hasContentTypeHeader) {
-                appendTwoTabs(builder);
-            } else {
-                appendFourTabs(builder);
-            }
-            builder.append(header).append(NEW_LINE);
-        }
-    }
-
-    private void addSingle(StringBuilder builder, String str, String requestPath) {
-        appendTab(builder.append(str)).append(requestPath).append(NEW_LINE);
-    }
-
-    private void addMapDetails(StringBuilder builder, String title, Map<String, ?> map) {
-        appendTab(builder.append(title));
-        if(map.isEmpty()) {
-            builder.append(NONE).append(NEW_LINE);
-        } else {
-            int i = 0;
-            for (Entry<String, ?> entry : map.entrySet()) {
-                if(i++ != 0) {
-                    appendFourTabs(builder);
-                }
-                final Object value = entry.getValue();
-                builder.append(entry.getKey());
-                if(!(value instanceof NoParameterValue)) {
-                    builder.append(EQUALS).append(value);
-                }
-                builder.append(NEW_LINE);
-            }
-        }
-    }
-
-    private StringBuilder appendFourTabs(StringBuilder builder) {
-        appendTwoTabs(appendTwoTabs(builder));
-        return builder;
-    }
-
-    private StringBuilder appendTwoTabs(StringBuilder builder) {
-        appendTab(appendTab(builder));
-        return builder;
-    }
-
-    private StringBuilder appendTab(StringBuilder builder) {
-        return builder.append(TAB);
     }
 }

@@ -25,7 +25,7 @@ import static com.jayway.restassured.filter.log.LogDetail.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
- * A response filter can be used to print a response.
+ * A response printer can be used to print a response.
  */
 public class ResponsePrinter {
 
