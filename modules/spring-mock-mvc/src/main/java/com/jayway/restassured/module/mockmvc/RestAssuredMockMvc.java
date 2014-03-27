@@ -149,6 +149,25 @@ public class RestAssuredMockMvc {
     }
 
     /**
+     * Build a {@link MockMvc} by using a provided {@code DefaultMockMvcBuilder}
+     * for configuring Spring MVC infrastructure programmatically.
+     * This allows full control over the instantiation and initialization of
+     * controllers, and their dependencies, similar to plain unit tests while
+     * also making it possible to test one controller at a time.
+     * <p/>
+     * <p>If the Spring MVC configuration of an application is relatively
+     * straight-forward, for example when using the MVC namespace or the MVC
+     * Java config, then using this builder might be a good option for testing
+     * a majority of controllers. A much smaller number of tests can be used
+     * to focus on testing and verifying the actual Spring MVC configuration.
+     *
+     * @param builder {@link org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder} to build the MVC mock
+     */
+    public static void standaloneSetup(DefaultMockMvcBuilder builder) {
+        mockMvc = builder.build();
+    }
+
+    /**
      * Build a {@link MockMvc} using the given, fully initialized, i.e.
      * refreshed, {@link WebApplicationContext} and assign it to REST Assured.
      * The {@link org.springframework.web.servlet.DispatcherServlet}
