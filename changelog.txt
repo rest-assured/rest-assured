@@ -19,6 +19,7 @@ Change log next version
 * Added detachRootPath method to ResponseSpecBuilder.
 * "appendRoot" method in ResponseSpecification can now be used even though no root path has previously been set.
 * Added a RestAssuredMockMvc.standaloneSetup(DefaultMockMvcBuilder) method in order to allow more flexible customization of the spring context (thanks to Martin Ahrer for the pull request) (issue 321).
+* Added static "with" method to RestAssuredMockMvc that can be used instead of "given" if needed (issue 320).
 
 Change log 2.3.0 (2014-01-23)
 -----------------------------

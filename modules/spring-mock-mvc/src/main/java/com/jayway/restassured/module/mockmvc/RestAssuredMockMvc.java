@@ -96,11 +96,33 @@ public class RestAssuredMockMvc {
      *        statusCode(200).
      *        body("x.y", notNullValue());
      * </pre>
+     * Note that this method is the same as {@link #with()} but with another syntax.
      *
      * @return A {@link MockMvcRequestSpecification}.
      */
     public static MockMvcRequestSpecification given() {
         return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers, basePath, requestSpecification, responseSpecification, authentication);
+    }
+
+    /**
+     * This is usually the entry-point of the API if you need to specify parameters or a body in the request. For example:
+     * <p/>
+     * <pre>
+     * given().
+     *         param("x", "y").
+     * when().
+     *         get("/something").
+     * then().
+     *        statusCode(200).
+     *        body("x.y", notNullValue());
+     * </pre>
+     * <p/>
+     * Note that this method is the same as {@link #given()} but with another syntax.
+     *
+     * @return A {@link MockMvcRequestSpecification}.
+     */
+    public static MockMvcRequestSpecification with() {
+        return given();
     }
 
     /**
