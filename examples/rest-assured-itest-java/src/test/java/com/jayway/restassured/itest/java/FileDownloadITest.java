@@ -16,15 +16,21 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.PrintStream;
+import java.io.StringWriter;
 
 import static com.jayway.restassured.RestAssured.expect;
-import static org.hamcrest.Matchers.equalTo;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.config.RestAssuredConfig.config;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class FileDownloadITest extends WithJetty {
@@ -41,5 +47,26 @@ public class FileDownloadITest extends WithJetty {
         IOUtils.closeQuietly(inputStream);
 
         assertThat(byteArrayOutputStream.size(), equalTo(expectedSize));
+    }
+
+    @Test
+    public void loggingWithBinaryCharsetWorks() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        final InputStream inputStream =
+        given().
+                config(config().logConfig(new LogConfig(captor, false))).
+        expect().
+                log().all().
+        when().
+                get("http://powermock.googlecode.com/files/powermock-easymock-junit-1.4.12.zip").asInputStream();
+
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        IOUtils.copy(inputStream, byteArrayOutputStream);
+        IOUtils.closeQuietly(byteArrayOutputStream);
+        IOUtils.closeQuietly(inputStream);
+
+        assertThat(writer.toString(), not(isEmptyOrNullString()));
     }
 }

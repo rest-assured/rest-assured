@@ -37,6 +37,7 @@ import com.jayway.restassured.path.xml.XmlPath.CompatibilityMode
 import com.jayway.restassured.path.xml.config.XmlPathConfig
 import com.jayway.restassured.response.*
 import groovy.xml.StreamingMarkupBuilder
+import org.apache.commons.lang3.StringUtils
 
 import java.nio.charset.Charset
 
@@ -48,6 +49,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank
 
 class RestAssuredResponseOptionsGroovyImpl {
   private static final String CANNOT_PARSE_MSG = "Failed to parse response."
+  public static final String BINARY = "binary"
   def responseHeaders
   def Cookies cookies
   def content
@@ -230,6 +232,11 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
         charset = defaultCharset
       }
     }
+
+    if (StringUtils.equalsIgnoreCase(charset, BINARY)) {
+      charset = defaultCharset
+    }
+
     return charset;
   }
 
