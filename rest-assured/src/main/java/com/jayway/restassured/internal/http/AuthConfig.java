@@ -260,13 +260,11 @@ public class AuthConfig {
 
                     @Override
                     public String getAuthorizationUrl(OAuthConfig arg0) {
-                        // TODO Auto-generated method stub
                         return null;
                     }
 
                     @Override
                     public String getAccessTokenEndpoint() {
-                        // TODO Auto-generated method stub
                         return null;
                     }
                 };
