@@ -30,8 +30,7 @@ import org.hamcrest.Matcher;
 import java.io.PrintStream;
 
 import static com.jayway.restassured.RestAssured.config;
-import static com.jayway.restassured.filter.log.LogDetail.ALL;
-import static com.jayway.restassured.filter.log.LogDetail.PARAMS;
+import static com.jayway.restassured.filter.log.LogDetail.*;
 
 class StatusCodeBasedLoggingFilter implements Filter {
 
@@ -95,8 +94,14 @@ class StatusCodeBasedLoggingFilter implements Filter {
         Response response = ctx.next(requestSpec, responseSpec);
         final int statusCode = response.statusCode();
         if (matcher.matches(statusCode)) {
-            final String responseAsString = ResponsePrinter.print(response, response, stream, logDetail, shouldPrettyPrint);
-            response = cloneResponseIfNeeded(response, responseAsString);
+            ResponsePrinter.print(response, response, stream, logDetail, shouldPrettyPrint);
+            final String responseBody;
+            if (logDetail == BODY || logDetail == ALL) {
+                responseBody = response.asString();
+            } else {
+                responseBody = null;
+            }
+            response = cloneResponseIfNeeded(response, responseBody);
         }
 
         return response;

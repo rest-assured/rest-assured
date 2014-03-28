@@ -283,4 +283,18 @@ public class LogIfValidationFailsITest extends WithJetty {
                     "Content-Type: application/json; charset=UTF-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(6.1.14)"+LINE_SEPARATOR));
           }
     }
+
+    @Test public void
+    logging_doesnt_change_original_content_by_pretty_printing() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(RestAssured.config().logConfig(logConfig().defaultStream(captor).and().enableLoggingOfRequestAndResponseIfValidationFails())).
+                param("name", "Johan").
+        when().
+                get("/mimeTypeWithPlusHtml").
+        then().
+                body("html.head.title", equalTo("my title"));
+    }
 }

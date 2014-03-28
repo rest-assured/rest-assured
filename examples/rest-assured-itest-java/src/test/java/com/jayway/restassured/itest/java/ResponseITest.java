@@ -165,7 +165,7 @@ public class ResponseITest extends WithJetty {
         final InputStream inputStream = expect().log().all().then().get("/hello").asInputStream();
         final String string = IOUtils.toString(inputStream);
 
-        assertThat(string, equalTo("{\n    \"hello\": \"Hello Scalatra\"\n}"));
+        assertThat(string, equalTo("{\"hello\":\"Hello Scalatra\"}"));
     }
 
     @Test
