@@ -321,6 +321,10 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     }
 
     private void logRequestIfApplicable(HttpMethod method, String path, Object[] pathParams) {
+        if (requestLoggingFilter == null) {
+            return;
+        }
+
         final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, path, new NoAuthScheme(), Collections.<Filter>emptyList(),
                 requestContentType, null, true, convertToRestAssuredConfig(config), logRepository);
         if (params != null) {
