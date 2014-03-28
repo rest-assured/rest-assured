@@ -20,6 +20,14 @@ Change log next version
 * "appendRoot" method in ResponseSpecification can now be used even though no root path has previously been set.
 * Added a RestAssuredMockMvc.standaloneSetup(DefaultMockMvcBuilder) method in order to allow more flexible customization of the spring context (thanks to Martin Ahrer for the pull request) (issue 321).
 * Added static "with" method to RestAssuredMockMvc that can be used instead of "given" if needed (issue 320).
+* Added support for logging the request specification or response specification if the test validation fails. For example:
+    given().log().ifValidationFails(). ..
+  will log the request only if REST Assured's validations fail. It's also applicable for the response. This works in both vanilla REST Assured and REST Assured Mock Mvc (issue 212).
+* Added support for logging both the request specification and response specification if the test validation fails. For example:
+    RestAssured.config = RestAssured.config().logConfig(logConfig().enableLoggingOfRequestAndResponseIfValidationFails());
+  There's also a shortcut for this:
+    RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+  This has also been implemented in RestAssuredMockMvc (issue 212).
 
 Change log 2.3.0 (2014-01-23)
 -----------------------------
