@@ -23,6 +23,7 @@ import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.assertion.HeaderMatcher
 import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.http.ContentType
+import com.jayway.restassured.internal.log.LogRepository
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.*
@@ -55,14 +56,15 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   private Response response
 
   private contentParser
+  private LogRepository logRepository
 
   ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
-                            RestAssuredConfig config) {
-    this(bodyRootPath, responseContentType, defaultSpec, rpr, config, null)
+                            RestAssuredConfig config, LogRepository logRepository) {
+    this(bodyRootPath, responseContentType, defaultSpec, rpr, config, null, logRepository)
   }
 
   ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
-                            RestAssuredConfig config, Response response) {
+                            RestAssuredConfig config, Response response, LogRepository logRepository) {
     Validate.notNull(config, "RestAssuredConfig cannot be null")
     this.config = config
     this.response = response;
@@ -72,6 +74,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     if (defaultSpec != null) {
       spec(defaultSpec)
     }
+    this.logRepository = logRepository
   }
 
   def ResponseSpecification content(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
@@ -236,7 +239,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   }
 
   def ResponseLogSpecification log() {
-    return new ResponseLogSpecificationImpl(responseSpecification: this)
+    return new ResponseLogSpecificationImpl(responseSpecification: this, logRepository: logRepository)
   }
 
   def ResponseSpecification when() {
@@ -561,7 +564,9 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         def errors = validations.findAll { !it.success }
         def numberOfErrors = errors.size()
         if (numberOfErrors > 0) {
-
+          if (logRepository != null) {
+            config.getLogConfig().defaultStream().print(logRepository.requestLog)
+          }
           if (isEagerAssert()) {
             throw new AssertionError(errors[0].errorMessage)
           } else {
@@ -635,10 +640,6 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
       })
       validations
     }
-  }
-
-  def void setRequestSpec(RequestSpecification requestSpecification) {
-    this.requestSpecification = requestSpecification
   }
 
   Matcher<Integer> getStatusCode() {

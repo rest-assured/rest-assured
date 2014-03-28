@@ -19,6 +19,7 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.filter.log.LogDetail
 import com.jayway.restassured.filter.log.ResponseLoggingFilter
+import com.jayway.restassured.internal.log.LogRepository
 import com.jayway.restassured.specification.ResponseLogSpecification
 import com.jayway.restassured.specification.ResponseSpecification
 import org.hamcrest.Matcher
@@ -27,7 +28,8 @@ import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.greaterThanOrEqualTo
 
 class ResponseLogSpecificationImpl extends LogSpecificationImpl implements ResponseLogSpecification {
-  private ResponseSpecification responseSpecification
+  def ResponseSpecification responseSpecification
+  def LogRepository logRepository
 
   ResponseSpecification body() {
     body(shouldPrettyPrint())
@@ -61,6 +63,21 @@ class ResponseLogSpecificationImpl extends LogSpecificationImpl implements Respo
     logWith(LogDetail.COOKIES)
   }
 
+  ResponseSpecification ifValidationFails() {
+    ifValidationFails(LogDetail.ALL)
+  }
+
+  ResponseSpecification ifValidationFails(LogDetail logDetail) {
+    ifValidationFails(LogDetail.ALL, shouldPrettyPrint())
+  }
+
+  ResponseSpecification ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream ps = new PrintStream(baos);
+    logRepository.registerRequestLog(baos);
+    logWith(logDetail, shouldPrettyPrint, ps)
+  }
+
   ResponseSpecification status() {
     logWith(LogDetail.STATUS)
   }
@@ -82,7 +99,11 @@ class ResponseLogSpecificationImpl extends LogSpecificationImpl implements Respo
   }
 
   private def logWith(LogDetail logDetail, boolean prettyPrintingEnabled) {
-    logWith(new ResponseLoggingFilter(logDetail, prettyPrintingEnabled, getPrintStream()))
+    logWith(logDetail, prettyPrintingEnabled, getPrintStream())
+  }
+
+  private def logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
+    logWith(new ResponseLoggingFilter(logDetail, prettyPrintingEnabled, printStream))
   }
 
   private def logWith(ResponseLoggingFilter filter) {

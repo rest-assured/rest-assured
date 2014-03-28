@@ -20,6 +20,7 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.internal.print.ResponsePrinter;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
 import com.jayway.restassured.matcher.ResponseAwareMatcher;
@@ -41,10 +42,11 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
     protected final Response response;
     private final RestAssuredConfig config;
 
-    public ValidatableResponseOptionsImpl(String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config, Response response, ExtractableResponse<R> extractableResponse) {
+    public ValidatableResponseOptionsImpl(String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config, Response response,
+                                          ExtractableResponse<R> extractableResponse, LogRepository logRepository) {
         this.config = config == null ? RestAssuredConfig.config() : config;
         this.response = response;
-        responseSpec = new ResponseSpecificationImpl(RestAssured.rootPath, contentType, RestAssured.responseSpecification, rpr, this.config, response);
+        responseSpec = new ResponseSpecificationImpl(RestAssured.rootPath, contentType, RestAssured.responseSpecification, rpr, this.config, response, logRepository);
         this.extractableResponse = extractableResponse;
     }
 

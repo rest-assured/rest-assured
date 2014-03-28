@@ -17,6 +17,7 @@
 package com.jayway.restassured.module.mockmvc.internal;
 
 import com.jayway.restassured.internal.RestAssuredResponseOptionsImpl;
+import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -28,14 +29,17 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 public class MockMvcRestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<MockMvcResponse> implements MockMvcResponse {
 
     private final ResultActions resultActions;
+    private final LogRepository logRepository;
 
-    public MockMvcRestAssuredResponseImpl(ResultActions resultActions) {
+    public MockMvcRestAssuredResponseImpl(ResultActions resultActions, LogRepository logRepository) {
         notNull(resultActions, ResultActions.class);
+        notNull(logRepository, LogRepository.class);
         this.resultActions = resultActions;
+        this.logRepository = logRepository;
     }
 
     public ValidatableMockMvcResponse then() {
-        return new ValidatableMockMvcResponseImpl(resultActions, getContentType(), getRpr(), getConfig(), this, this);
+        return new ValidatableMockMvcResponseImpl(resultActions, getContentType(), getRpr(), getConfig(), this, this, logRepository);
     }
 
     public MvcResult mvcResult() {

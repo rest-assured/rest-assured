@@ -22,6 +22,7 @@ import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.ResponseSpecificationImpl;
 import com.jayway.restassured.internal.SpecificationMerger;
+import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.specification.Argument;
 import com.jayway.restassured.specification.ResponseSpecification;
@@ -58,7 +59,7 @@ public class ResponseSpecBuilder {
     private final ResponseSpecification spec;
 
     public ResponseSpecBuilder() {
-        spec = new ResponseSpecificationImpl(rootPath, responseContentType(), null, getResponseParserRegistrar(), restAssuredConfig());
+        spec = new ResponseSpecificationImpl(rootPath, responseContentType(), null, getResponseParserRegistrar(), restAssuredConfig(), new LogRepository());
     }
 
     /**

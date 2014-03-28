@@ -19,6 +19,7 @@ package com.jayway.restassured.module.mockmvc.internal;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.ValidatableResponseOptionsImpl;
+import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
@@ -35,8 +36,8 @@ public class ValidatableMockMvcResponseImpl extends ValidatableResponseOptionsIm
     private final MockMvcResponse mockMvcResponse;
 
     public ValidatableMockMvcResponseImpl(ResultActions resultActions, String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config,
-                                          MockMvcResponse response, ExtractableResponse<MockMvcResponse> extractableResponse) {
-        super(contentType, rpr, config, toStandardResponse(response), extractableResponse);
+                                          MockMvcResponse response, ExtractableResponse<MockMvcResponse> extractableResponse, LogRepository logRepository) {
+        super(contentType, rpr, config, toStandardResponse(response), extractableResponse, logRepository);
         this.mockMvcResponse = response;
         notNull(resultActions, ResultActions.class);
         this.resultActions = resultActions;

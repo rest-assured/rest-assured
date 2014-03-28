@@ -26,6 +26,7 @@ import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.ResponseSpecificationImpl;
 import com.jayway.restassured.internal.TestSpecificationImpl;
 import com.jayway.restassured.internal.assertion.AssertParameter;
+import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.Response;
@@ -1369,11 +1370,12 @@ public class RestAssured {
         }
         final ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(RESPONSE_PARSER_REGISTRAR);
         applySessionIdIfApplicable();
+        LogRepository logRepository = new LogRepository();
         return new TestSpecificationImpl(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters,
-                        requestContentType, requestSpecification, urlEncodingEnabled, config),
+                        requestContentType, requestSpecification, urlEncodingEnabled, config, logRepository),
                 new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, responseParserRegistrar,
-                        config()));
+                        config(), logRepository));
     }
 
     private static void applySessionIdIfApplicable() {

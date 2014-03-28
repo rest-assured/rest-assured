@@ -50,6 +50,7 @@ public class ResponseBuilder {
             restAssuredResponse.setConnectionManager(raResponse.getConnectionManager());
             restAssuredResponse.setConfig(raResponse.getConfig());
             restAssuredResponse.setRpr(raResponse.getRpr());
+            restAssuredResponse.setLogRepository(raResponse.getLogRepository());
         } else {
             restAssuredResponse.setContent(response.asInputStream());
         }

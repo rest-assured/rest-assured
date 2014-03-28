@@ -26,6 +26,7 @@ import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.SpecificationMerger;
+import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.response.Cookie;
@@ -72,7 +73,7 @@ public class RequestSpecBuilder {
 
     public RequestSpecBuilder() {
         this.spec = (RequestSpecificationImpl) new RequestSpecificationImpl(baseURI, port, basePath, authentication, Collections.<Filter>emptyList(),
-                requestContentType(), null, urlEncodingEnabled, null).config(RestAssured.config());
+                requestContentType(), null, urlEncodingEnabled, null, new LogRepository()).config(RestAssured.config());
     }
 
     /**

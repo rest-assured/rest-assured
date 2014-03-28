@@ -40,6 +40,7 @@ class ResponseConverter {
         std.setStatusCode(mvc.getStatusCode());
         std.setStatusLine(mvc.getStatusLine());
         std.setRpr(mvc.getRpr());
+        std.setLogRepository(mvc.getLogRepository());
         return std;
     }
 }

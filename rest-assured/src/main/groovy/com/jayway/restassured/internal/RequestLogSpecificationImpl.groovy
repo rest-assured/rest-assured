@@ -15,16 +15,17 @@
  */
 
 
-
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.filter.log.LogDetail
 import com.jayway.restassured.filter.log.RequestLoggingFilter
+import com.jayway.restassured.internal.log.LogRepository
 import com.jayway.restassured.specification.RequestLogSpecification
 import com.jayway.restassured.specification.RequestSpecification
 
 class RequestLogSpecificationImpl extends LogSpecificationImpl implements RequestLogSpecification {
-  private RequestSpecification requestSpecification
+  def RequestSpecification requestSpecification
+  def LogRepository logRepository
 
   RequestSpecification params() {
     logWith(LogDetail.PARAMS)
@@ -66,12 +67,32 @@ class RequestLogSpecificationImpl extends LogSpecificationImpl implements Reques
     logWith(LogDetail.COOKIES)
   }
 
+  RequestSpecification ifValidationFails() {
+    ifValidationFails(LogDetail.ALL)
+  }
+
+
+  RequestSpecification ifValidationFails(LogDetail logDetail) {
+    ifValidationFails(logDetail, shouldPrettyPrint(requestSpecification));
+  }
+
+  RequestSpecification ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    PrintStream ps = new PrintStream(baos);
+    logRepository.registerRequestLog(baos);
+    logWith(logDetail, shouldPrettyPrint, ps)
+  }
+
   private def logWith(LogDetail logDetail) {
     logWith(logDetail, shouldPrettyPrint(requestSpecification))
   }
 
   private def logWith(LogDetail logDetail, boolean prettyPrintingEnabled) {
-    requestSpecification.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, getPrintStream(requestSpecification)))
+    return logWith(logDetail, prettyPrintingEnabled, getPrintStream(requestSpecification));
+  }
+
+  private def logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
+    requestSpecification.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream))
     requestSpecification
   }
 }

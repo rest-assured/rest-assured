@@ -5,6 +5,7 @@ import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.MapCreator;
 import com.jayway.restassured.internal.http.CharsetExtractor;
+import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
 import com.jayway.restassured.internal.mapping.ObjectMapping;
@@ -42,6 +43,8 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification, MockMvcAuthenticationSpecification {
 
     private static final String CONTENT_TYPE = "content-type";
+
+    private LogRepository logRepository;
 
     // Config was created by REST Assured Mock MVC and not by the user
     private boolean hasDefaultConfig;
@@ -85,6 +88,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers, String basePath,
                                            MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification,
                                            MockMvcAuthenticationScheme authentication) {
+        this.logRepository = new LogRepository();
         this.instanceMockMvc = mockMvc;
         this.basePath = basePath;
         this.responseSpecification = responseSpecification;
@@ -563,7 +567,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSender when() {
         return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, restAssuredMockMvcConfig, requestBody, requestContentType,
-                requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath, responseSpecification, authentication);
+                requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath, responseSpecification, authentication,
+                logRepository);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {
@@ -845,5 +850,9 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification none() {
         this.authentication = null;
         return this;
+    }
+
+    public LogRepository getLogRepository() {
+        return logRepository;
     }
 }

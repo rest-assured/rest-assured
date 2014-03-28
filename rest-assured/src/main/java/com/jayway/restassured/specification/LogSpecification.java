@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.specification;
 
+import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.response.ResponseOptions;
 
 /**
@@ -56,14 +57,14 @@ public interface LogSpecification<T extends RequestSenderOptions<R>, R extends R
     T all(boolean shouldPrettyPrint);
 
     /**
-     ** Logs everything in the specification, including e.g. headers, cookies, body. Pretty-prints the body if content-type is either either XML, JSON or HTML..
+     * * Logs everything in the specification, including e.g. headers, cookies, body. Pretty-prints the body if content-type is either either XML, JSON or HTML..
      *
      * @return The specification
      */
     T everything();
 
     /**
-     ** Logs everything in the specification, including e.g. headers, cookies, body with the option to pretty-print the body if the content-type is
+     * * Logs everything in the specification, including e.g. headers, cookies, body with the option to pretty-print the body if the content-type is
      * either XML, JSON or HTML..
      *
      * @param shouldPrettyPrint <code>true</code> if the body should be pretty-printed, <code>false</code> otherwise.
@@ -84,4 +85,28 @@ public interface LogSpecification<T extends RequestSenderOptions<R>, R extends R
      * @return The specification
      */
     T cookies();
+
+    /**
+     * Logs everything if a test validation fails.
+     *
+     * @return The specification
+     */
+    T ifValidationFails();
+
+    /**
+     * Logs with the supplied log detail only if the validation fails.
+     *
+     * @param logDetail The log detail
+     * @return The specification
+     */
+    T ifValidationFails(LogDetail logDetail);
+
+    /**
+     * Logs all parameters only if the validations fail.
+     *
+     * @param logDetail         The log detail
+     * @param shouldPrettyPrint <code>true</code> if the body should be pretty-printed, <code>false</code> otherwise.
+     * @return The specification
+     */
+    T ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint);
 }

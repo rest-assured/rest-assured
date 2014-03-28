@@ -10,6 +10,7 @@ import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.ResponseSpecificationImpl;
 import com.jayway.restassured.internal.filter.FilterContextImpl;
 import com.jayway.restassured.internal.http.Method;
+import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
@@ -64,12 +65,13 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final String basePath;
     private final ResponseSpecification responseSpecification;
     private final Object authentication;
+    private final LogRepository logRepository;
 
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams,
                              RestAssuredMockMvcConfig config, Object requestBody, String requestContentType, Headers headers, Cookies cookies,
                              List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
                              MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
-                             Object authentication) {
+                             Object authentication, LogRepository logRepository) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.queryParams = queryParams;
@@ -86,6 +88,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         this.basePath = basePath;
         this.responseSpecification = responseSpecification;
         this.authentication = authentication;
+        this.logRepository = logRepository;
     }
 
     private Object assembleHeaders(MockHttpServletResponse response) {
@@ -127,7 +130,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
             }
             MvcResult mvcResult = perform.andReturn();
             response = mvcResult.getResponse();
-            restAssuredResponse = new MockMvcRestAssuredResponseImpl(perform);
+            restAssuredResponse = new MockMvcRestAssuredResponseImpl(perform, logRepository);
             restAssuredResponse.setConfig(convertToRestAssuredConfig(config));
             restAssuredResponse.setContent(response.getContentAsString());
             restAssuredResponse.setContentType(response.getContentType());
@@ -322,7 +325,8 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
             return;
         }
 
-        final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, path, new NoAuthScheme(), Collections.<Filter>emptyList(), requestContentType, null, true, convertToRestAssuredConfig(config));
+        final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, path, new NoAuthScheme(), Collections.<Filter>emptyList(),
+                requestContentType, null, true, convertToRestAssuredConfig(config), logRepository);
         if (params != null) {
             new ParamLogger(params) {
                 protected void logParam(String paramName, Object paramValue) {

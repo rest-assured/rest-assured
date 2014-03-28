@@ -17,6 +17,7 @@
 package com.jayway.restassured.internal;
 
 import com.jayway.restassured.config.RestAssuredConfig;
+import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.path.json.JsonPath;
@@ -33,6 +34,9 @@ import java.util.Map;
  * let the Groovy implementation implement our interfaces directly.
  */
 public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implements ExtractableResponse<R> {
+
+    private LogRepository logRepository;
+
     protected RestAssuredResponseOptionsGroovyImpl groovyResponse = new RestAssuredResponseOptionsGroovyImpl();
 
     public void setResponseHeaders(Object responseHeaders) {
@@ -297,5 +301,21 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public Object getResponseHeaders() {
         return groovyResponse.getResponseHeaders();
+    }
+
+    public LogRepository getLogRepository() {
+        return logRepository;
+    }
+
+    public void setLogRepository(LogRepository logRepository) {
+        this.logRepository = logRepository;
+    }
+
+    public RestAssuredResponseOptionsGroovyImpl getGroovyResponse() {
+        return groovyResponse;
+    }
+
+    public void setGroovyResponse(RestAssuredResponseOptionsGroovyImpl groovyResponse) {
+        this.groovyResponse = groovyResponse;
     }
 }

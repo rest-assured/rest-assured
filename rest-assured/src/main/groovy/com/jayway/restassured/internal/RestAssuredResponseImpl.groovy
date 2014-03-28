@@ -25,6 +25,6 @@ class RestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<Response> i
   }
 
   ValidatableResponse then() {
-    return new ValidatableResponseImpl(contentType, rpr, config, this, this);
+    return new ValidatableResponseImpl(contentType, rpr, config, this, this, logRepository);
   }
 }

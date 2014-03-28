@@ -24,6 +24,8 @@ import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.Collections;
 
 public class MockMvcRequestLogSpecificationImpl extends LogSpecificationImpl implements MockMvcRequestLogSpecification {
@@ -73,17 +75,38 @@ public class MockMvcRequestLogSpecificationImpl extends LogSpecificationImpl imp
         return logWith(LogDetail.COOKIES);
     }
 
+    public MockMvcRequestSpecification ifValidationFails() {
+        return ifValidationFails(LogDetail.ALL);
+    }
+
+    public MockMvcRequestSpecification ifValidationFails(LogDetail logDetail) {
+        return ifValidationFails(logDetail, shouldPrettyPrint(toRequestSpecification()));
+    }
+
+    public MockMvcRequestSpecification ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        logWith(logDetail, shouldPrettyPrint, ps);
+        requestSpecification.getLogRepository().registerRequestLog(baos);
+        return requestSpecification;
+    }
+
     private MockMvcRequestSpecification logWith(LogDetail logDetail) {
         RequestSpecificationImpl reqSpec = toRequestSpecification();
         return logWith(logDetail, shouldPrettyPrint(reqSpec));
     }
 
     private MockMvcRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled) {
-        requestSpecification.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, getPrintStream(toRequestSpecification())));
+        return logWith(logDetail, prettyPrintingEnabled, getPrintStream(toRequestSpecification()));
+    }
+
+    private MockMvcRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
+        requestSpecification.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream));
         return requestSpecification;
     }
 
     private RequestSpecificationImpl toRequestSpecification() {
-        return new RequestSpecificationImpl("", 8080, "", new NoAuthScheme(), Collections.<Filter>emptyList(), null, null, true, requestSpecification.getRestAssuredConfig());
+        return new RequestSpecificationImpl("", 8080, "", new NoAuthScheme(), Collections.<Filter>emptyList(), null, null, true,
+                requestSpecification.getRestAssuredConfig(), requestSpecification.getLogRepository());
     }
 }

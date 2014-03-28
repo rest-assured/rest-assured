@@ -26,6 +26,7 @@ import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.FormAuthFilter
 import com.jayway.restassured.internal.filter.SendRequestFilter
 import com.jayway.restassured.internal.http.*
+import com.jayway.restassured.internal.log.LogRepository
 import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl
 import com.jayway.restassured.internal.mapping.ObjectMapping
@@ -96,12 +97,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
   });
 
+  private LogRepository logRepository
+
   // This field should be removed once http://jira.codehaus.org/browse/GROOVY-4647 is resolved, merge with sha 9619c3b when it's fixed.
   private AbstractHttpClient httpClient
 
   public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
                                   List<Filter> filters, defaultRequestContentType, RequestSpecification defaultSpec,
-                                  boolean urlEncode, RestAssuredConfig restAssuredConfig) {
+                                  boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository) {
     notNull(baseURI, "baseURI");
     notNull(basePath, "basePath");
     notNull(defaultAuthScheme, "defaultAuthScheme");
@@ -118,6 +121,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     if (defaultSpec != null) {
       spec(defaultSpec)
     }
+    this.logRepository = logRepository
   }
 
   def RequestSpecification when() {
@@ -496,7 +500,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   def RequestLogSpecification log() {
-    return new RequestLogSpecificationImpl(requestSpecification: this)
+    return new RequestLogSpecificationImpl(requestSpecification: this, logRepository: logRepository)
   }
 
   def RequestSpecification and() {
@@ -943,7 +947,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
 
     // Allow returning a the response
-    def restAssuredResponse = new RestAssuredResponseImpl()
+    def restAssuredResponse = new RestAssuredResponseImpl(logRepository: logRepository)
     def RestAssuredConfig cfg = config ?: new RestAssuredConfig();
     restAssuredResponse.setSessionIdName(cfg.getSessionConfig().sessionIdName())
     restAssuredResponse.setDefaultCharset(cfg.getDecoderConfig().defaultContentCharset())

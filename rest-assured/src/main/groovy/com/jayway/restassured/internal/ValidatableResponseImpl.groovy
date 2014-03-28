@@ -17,14 +17,16 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.config.RestAssuredConfig
+import com.jayway.restassured.internal.log.LogRepository
 import com.jayway.restassured.response.ExtractableResponse
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.response.ValidatableResponse
 
 class ValidatableResponseImpl extends ValidatableResponseOptionsImpl<ValidatableResponse, Response> implements ValidatableResponse {
 
-  ValidatableResponseImpl(String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config, Response response, ExtractableResponse<Response> extractableResponse) {
-    super(contentType, rpr, config, response, extractableResponse)
+  ValidatableResponseImpl(String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config, Response response,
+                          ExtractableResponse<Response> extractableResponse, LogRepository logRepository) {
+    super(contentType, rpr, config, response, extractableResponse, logRepository)
   }
 
   Response originalResponse() {
