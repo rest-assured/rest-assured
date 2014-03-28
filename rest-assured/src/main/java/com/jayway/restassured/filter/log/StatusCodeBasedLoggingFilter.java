@@ -95,9 +95,9 @@ class StatusCodeBasedLoggingFilter implements Filter {
         final int statusCode = response.statusCode();
         if (matcher.matches(statusCode)) {
             ResponsePrinter.print(response, response, stream, logDetail, shouldPrettyPrint);
-            final String responseBody;
+            final byte[] responseBody;
             if (logDetail == BODY || logDetail == ALL) {
-                responseBody = response.asString();
+                responseBody = response.asByteArray();
             } else {
                 responseBody = null;
             }
@@ -111,7 +111,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * If body expectations are defined we need to return a new Response otherwise the stream
      * has been closed due to the logging.
      */
-    private Response cloneResponseIfNeeded(Response response, String responseAsString) {
+    private Response cloneResponseIfNeeded(Response response, byte[] responseAsString) {
         if (responseAsString != null && response instanceof RestAssuredResponseImpl && !((RestAssuredResponseImpl) response).getHasExpectations()) {
             final Response build = new ResponseBuilder().clone(response).setBody(responseAsString).build();
             ((RestAssuredResponseImpl) build).setHasExpectations(true);

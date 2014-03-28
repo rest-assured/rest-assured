@@ -420,23 +420,6 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
     return writer.toString();
   }
 
-  private String convertStreamToString(InputStream is, String charset) throws IOException {
-    Writer writer = new StringWriter();
-    char[] buffer = new char[1024];
-    Reader reader = null;
-    try {
-      reader = new InputStreamReader(is, charset);
-      int n;
-      while ((n = reader.read(buffer)) != -1) {
-        writer.write(buffer, 0, n);
-      }
-    } finally {
-      is?.close();
-      reader?.close();
-    }
-    return writer.toString();
-  }
-
   private static byte[] convertStreamToByteArray(InputStream is) throws IOException {
     ByteArrayOutputStream buffer = new ByteArrayOutputStream();
     try {
@@ -495,8 +478,8 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
     } else if (content instanceof byte[]) {
       new String(content, charset)
     } else {
-      content = convertStreamToString(content, charset)
-      content
+      content = convertStreamToByteArray(content)
+      new String(content, charset)
     }
   }
 

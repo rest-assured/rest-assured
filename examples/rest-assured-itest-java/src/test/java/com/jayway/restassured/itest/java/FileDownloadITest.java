@@ -27,8 +27,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.StringWriter;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.config.RestAssuredConfig.config;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -50,7 +49,23 @@ public class FileDownloadITest extends WithJetty {
     }
 
     @Test
+    public void canDownloadLargeFilesWhenLoggingIfValidationFailsIsEnabled() throws Exception {
+        int expectedSize = IOUtils.toByteArray(getClass().getResourceAsStream("/powermock-easymock-junit-1.4.12.zip")).length;
+        final InputStream inputStream = when().get("http://powermock.googlecode.com/files/powermock-easymock-junit-1.4.12.zip").then().log().ifValidationFails().extract().asInputStream();
+
+
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        IOUtils.copy(inputStream, byteArrayOutputStream);
+        IOUtils.closeQuietly(byteArrayOutputStream);
+        IOUtils.closeQuietly(inputStream);
+
+        assertThat(byteArrayOutputStream.size(), equalTo(expectedSize));
+    }
+
+    @Test
     public void loggingWithBinaryCharsetWorks() throws Exception {
+        int expectedSize = IOUtils.toByteArray(getClass().getResourceAsStream("/powermock-easymock-junit-1.4.12.zip")).length;
+
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -68,5 +83,6 @@ public class FileDownloadITest extends WithJetty {
         IOUtils.closeQuietly(inputStream);
 
         assertThat(writer.toString(), not(isEmptyOrNullString()));
+        assertThat(byteArrayOutputStream.size(), equalTo(expectedSize));
     }
 }
