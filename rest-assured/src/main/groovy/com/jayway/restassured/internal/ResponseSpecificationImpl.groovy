@@ -565,7 +565,15 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         def numberOfErrors = errors.size()
         if (numberOfErrors > 0) {
           if (logRepository != null) {
-            config.getLogConfig().defaultStream().print(logRepository.requestLog)
+            def stream = config.getLogConfig().defaultStream()
+            def requestLog = logRepository.requestLog
+            def responseLog = logRepository.responseLog
+            if (StringUtils.isNotEmpty(requestLog)) {
+              stream.print(requestLog)
+            }
+            if (StringUtils.isNotEmpty(responseLog)) {
+              stream.print(responseLog)
+            }
           }
           if (isEagerAssert()) {
             throw new AssertionError(errors[0].errorMessage)

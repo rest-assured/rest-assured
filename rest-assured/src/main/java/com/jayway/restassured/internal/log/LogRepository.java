@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 
 public class LogRepository {
 
+    private static final String EMPTY = "";
     private ByteArrayOutputStream requestLog;
     private ByteArrayOutputStream responseLog;
 
@@ -28,14 +29,20 @@ public class LogRepository {
     }
 
     public void registerResponseLog(ByteArrayOutputStream baos) {
-        this.requestLog = baos;
+        this.responseLog = baos;
     }
 
     public String getRequestLog() {
+        if (requestLog == null) {
+            return EMPTY;
+        }
         return requestLog.toString();
     }
 
     public String getResponseLog() {
+        if (responseLog == null) {
+            return EMPTY;
+        }
         return responseLog.toString();
     }
 }

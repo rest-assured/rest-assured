@@ -74,7 +74,7 @@ class ResponseLogSpecificationImpl extends LogSpecificationImpl implements Respo
   ResponseSpecification ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     PrintStream ps = new PrintStream(baos);
-    logRepository.registerRequestLog(baos);
+    logRepository.registerResponseLog(baos);
     logWith(logDetail, shouldPrettyPrint, ps)
   }
 

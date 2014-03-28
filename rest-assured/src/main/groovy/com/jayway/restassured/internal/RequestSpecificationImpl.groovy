@@ -21,6 +21,8 @@ import com.jayway.restassured.authentication.FormAuthScheme
 import com.jayway.restassured.authentication.NoAuthScheme
 import com.jayway.restassured.config.*
 import com.jayway.restassured.filter.Filter
+import com.jayway.restassured.filter.log.RequestLoggingFilter
+import com.jayway.restassured.filter.log.ResponseLoggingFilter
 import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.FormAuthFilter
@@ -859,6 +861,16 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       def formAuthScheme = authenticationScheme as FormAuthScheme
       filters.removeAll { AuthFilter.class.isAssignableFrom(it.getClass()) }
       filters.add(0, new FormAuthFilter(userName: formAuthScheme.userName, password: formAuthScheme.password, formAuthConfig: formAuthScheme.config, sessionConfig: sessionConfig()))
+    }
+
+    def logConfig = restAssuredConfig().getLogConfig()
+    if (logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
+      if (!filters.any { RequestLoggingFilter.class.isAssignableFrom(it.getClass()) }) {
+        log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled())
+      }
+      if (!filters.any { ResponseLoggingFilter.class.isAssignableFrom(it.getClass()) }) {
+        responseSpecification.log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled())
+      }
     }
 
     filters << new SendRequestFilter()

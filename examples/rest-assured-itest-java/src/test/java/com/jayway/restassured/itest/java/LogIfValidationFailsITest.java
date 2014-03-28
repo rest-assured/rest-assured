@@ -31,6 +31,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.config.LogConfig.logConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.config;
 import static com.jayway.restassured.filter.log.LogDetail.BODY;
+import static com.jayway.restassured.filter.log.LogDetail.HEADERS;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertThat;
@@ -69,7 +70,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe\nRequest params:\tfirstName=John\n\t\t\t\tlastName=Doe\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/json\nCookies:\t\t<none>\nBody:\t\t\t<none>" + LINE_SEPARATOR));
+            assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+"Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Headers:\t\tContent-Type=application/json"+LINE_SEPARATOR+"Cookies:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR));
         }
     }
 
@@ -92,7 +93,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe\nRequest params:\tfirstName=John\n\t\t\t\tlastName=Doe\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/json\nCookies:\t\t<none>\nBody:\t\t\t<none>" + LINE_SEPARATOR));
+            assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+"Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Headers:\t\tContent-Type=application/json"+LINE_SEPARATOR+"Cookies:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR));
         }
     }
 
@@ -211,5 +212,51 @@ public class LogIfValidationFailsITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
         assertThat(writer.toString(), isEmptyString());
+    }
+
+    @Test
+    public void configuringLogConfigToEnableLoggingOfRequestAndResponseIfValidationFailsWorksAsExpected() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        try {
+            given().
+                    config(RestAssured.config().logConfig(logConfig().defaultStream(captor).and().enableLoggingOfRequestAndResponseIfValidationFails())).
+                    param("firstName", "John").
+                    param("lastName", "Doe").
+                    header("Content-type", "application/json").
+            when().
+                    get("/greet").
+            then().
+                    statusCode(400);
+
+              fail("Should throw AssertionError");
+          } catch (AssertionError e) {
+              assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+"Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Headers:\t\tContent-Type=application/json"+LINE_SEPARATOR+"Cookies:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR+
+                      "HTTP/1.1 200 OK"+LINE_SEPARATOR+"Content-Type: application/json; charset=UTF-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(6.1.14)"+LINE_SEPARATOR+""+LINE_SEPARATOR+"{"+LINE_SEPARATOR+"    \"greeting\": \"Greetings John Doe\""+LINE_SEPARATOR+"}"+LINE_SEPARATOR+""));
+          }
+    }
+
+    @Test
+    public void configuringLogConfigToEnableLoggingOfRequestAndResponseIfValidationFailsWorksAsExpectedWhenSpecifyingLogDetail() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        try {
+            given().
+                    config(RestAssured.config().logConfig(logConfig().defaultStream(captor).and().enableLoggingOfRequestAndResponseIfValidationFails(HEADERS))).
+                    param("firstName", "John").
+                    param("lastName", "Doe").
+                    header("Content-type", "application/json").
+            when().
+                    get("/greet").
+            then().
+                    statusCode(400);
+
+              fail("Should throw AssertionError");
+          } catch (AssertionError e) {
+            assertThat(writer.toString(), equalTo("Headers:\t\tContent-Type=application/json"+LINE_SEPARATOR+
+                    "Content-Type: application/json; charset=UTF-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(6.1.14)"+LINE_SEPARATOR));
+          }
     }
 }

@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.config;
 
+import com.jayway.restassured.filter.log.LogDetail;
 import org.apache.commons.lang3.Validate;
 
 import java.io.PrintStream;
@@ -30,6 +31,7 @@ public class LogConfig {
 
     private final PrintStream defaultPrintStream;
     private final boolean prettyPrintingEnabled;
+    private final LogDetail logDetailIfValidationFails;
 
     /**
      * Configure the default stream to use the System.out stream (default).
@@ -48,16 +50,37 @@ public class LogConfig {
      * <pre>
      * expect().log.ifError(). ..
      * </pre>
-     *
+     * <p/>
      * It will not override explicit streams defined by using the {@link com.jayway.restassured.filter.log.RequestLoggingFilter} or the {@link com.jayway.restassured.filter.log.ResponseLoggingFilter}.
      *
-     * @param defaultPrintStream The default print stream to use for the {@link com.jayway.restassured.specification.LogSpecification}'s.
+     * @param defaultPrintStream    The default print stream to use for the {@link com.jayway.restassured.specification.LogSpecification}'s.
      * @param prettyPrintingEnabled Enable or disable pretty printing when logging. Pretty printing is only possible when content-type is XML, JSON or HTML.
      */
     public LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled) {
+        this(defaultPrintStream, prettyPrintingEnabled, null);
+    }
+
+    /**
+     * Configure pretty printing and the default stream where logs should be written if <i>not</i> specified explicitly by a filter. I.e. this stream will be used in cases
+     * where the log specification DSL is used, e.g.
+     * <pre>
+     * given().log().all()...
+     * </pre>
+     * or
+     * <pre>
+     * expect().log.ifError(). ..
+     * </pre>
+     * <p/>
+     * It will not override explicit streams defined by using the {@link com.jayway.restassured.filter.log.RequestLoggingFilter} or the {@link com.jayway.restassured.filter.log.ResponseLoggingFilter}.
+     *
+     * @param defaultPrintStream    The default print stream to use for the {@link com.jayway.restassured.specification.LogSpecification}'s.
+     * @param prettyPrintingEnabled Enable or disable pretty printing when logging. Pretty printing is only possible when content-type is XML, JSON or HTML.
+     */
+    private LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled, LogDetail logDetailIfValidationFails) {
         Validate.notNull(defaultPrintStream, "Stream to write logs to cannot be null");
         this.defaultPrintStream = defaultPrintStream;
         this.prettyPrintingEnabled = prettyPrintingEnabled;
+        this.logDetailIfValidationFails = logDetailIfValidationFails;
     }
 
     /**
@@ -69,18 +92,33 @@ public class LogConfig {
 
     /**
      * Specify a new default stream to the print to.
+     *
      * @param printStream The stream
      * @return A new LogConfig instance
      */
     public LogConfig defaultStream(PrintStream printStream) {
-        return new LogConfig(printStream, true);
+        return new LogConfig(printStream, true, logDetailIfValidationFails);
     }
 
     /**
-     * @return The default stream to use
+     * @return <code>true</code> if pretty printing is enabled, <code>false</code> otherwise.
      */
     public boolean isPrettyPrintingEnabled() {
         return prettyPrintingEnabled;
+    }
+
+    /**
+     * @return <code>true</code> if request and response logging is enabled if test validation fails, <code>false</code> otherwise.
+     */
+    public boolean isLoggingOfRequestAndResponseIfValidationFailsEnabled() {
+        return logDetailIfValidationFails != null;
+    }
+
+    /**
+     * @return The log detail to use if request and response logging is enabled if test validation fails.
+     */
+    public LogDetail logDetailOfRequestAndResponseIfValidationFails() {
+        return logDetailIfValidationFails;
     }
 
     /**
@@ -90,7 +128,26 @@ public class LogConfig {
      * @return A new LogConfig instance
      */
     public LogConfig enablePrettyPrinting(boolean shouldEnable) {
-        return new LogConfig(defaultPrintStream, shouldEnable);
+        return new LogConfig(defaultPrintStream, shouldEnable, logDetailIfValidationFails);
+    }
+
+    /**
+     * Enable logging of both the request and the response if REST Assureds test validation fails.
+     *
+     * @return A new LogConfig instance
+     */
+    public LogConfig enableLoggingOfRequestAndResponseIfValidationFails() {
+        return enableLoggingOfRequestAndResponseIfValidationFails(LogDetail.ALL);
+    }
+
+    /**
+     * Enable logging of both the request and the response if REST Assureds test validation fails with the specified log detail
+     *
+     * @param logDetail The log detail to show in the log
+     * @return A new LogConfig instance
+     */
+    public LogConfig enableLoggingOfRequestAndResponseIfValidationFails(LogDetail logDetail) {
+        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetail);
     }
 
     /**
