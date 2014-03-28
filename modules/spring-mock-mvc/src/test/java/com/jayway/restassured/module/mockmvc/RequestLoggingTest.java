@@ -32,7 +32,9 @@ import java.io.StringWriter;
 
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 // @formatter:off
 public class RequestLoggingTest {
@@ -128,6 +130,40 @@ public class RequestLoggingTest {
         }
 
         assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\t/my-path/greetingPath\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
+    }
+
+    @Test public void
+    logging_if_request_validation_fails_works() {
+        try {
+            given().
+                    log().ifValidationFails().
+                    standaloneSetup(new PostController()).
+                    param("name", "Johan").
+            when().
+                    post("/greetingPost").
+            then().
+                    body("id", equalTo(1)).
+                    body("content", equalTo("Hello, Johan2!"));
+
+            fail("Should throw AssertionError");
+        } catch (AssertionError e) {
+            assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/greetingPost\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
+        }
+    }
+
+    @Test public void
+    doesnt_log_if_request_validation_succeeds_when_request_logging_if_validation_fails_is_enabled() {
+        given().
+                log().ifValidationFails().
+                standaloneSetup(new PostController()).
+                param("name", "Johan").
+        when().
+                post("/greetingPost").
+        then().
+                body("id", equalTo(1)).
+                body("content", equalTo("Hello, Johan!"));
+
+        assertThat(writer.toString(), isEmptyString());
     }
 }
 
