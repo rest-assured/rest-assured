@@ -20,6 +20,7 @@ import com.jayway.restassured.authentication.*;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.config.SSLConfig;
 import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
@@ -47,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
+import static com.jayway.restassured.config.LogConfig.logConfig;
 import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfig;
 import static com.jayway.restassured.config.SSLConfig.sslConfig;
 
@@ -1375,7 +1377,8 @@ public class RestAssured {
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters,
                         requestContentType, requestSpecification, urlEncodingEnabled, config, logRepository),
                 new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, responseParserRegistrar,
-                        config(), logRepository));
+                        config(), logRepository)
+        );
     }
 
     private static void applySessionIdIfApplicable() {
@@ -1402,6 +1405,36 @@ public class RestAssured {
      */
     public static void useRelaxedHTTPSValidation() {
         config = RestAssured.config().sslConfig(sslConfig().relaxedHTTPSValidation());
+    }
+
+    /**
+     * Enable logging of both the request and the response if REST Assureds test validation fails with log detail equal to {@link com.jayway.restassured.filter.log.LogDetail#ALL}.
+     * <p/>
+     * <p>
+     * This is just a shortcut for:
+     * </p>
+     * <pre>
+     * RestAssured.config = RestAssured.config().logConfig(logConfig().enableLoggingOfRequestAndResponseIfValidationFails());
+     * </pre>
+     */
+    public static void enableLoggingOfRequestAndResponseIfValidationFails() {
+        enableLoggingOfRequestAndResponseIfValidationFails(LogDetail.ALL);
+    }
+
+    /**
+     * Enable logging of both the request and the response if REST Assureds test validation fails with the specified log detail.
+     * <p/>
+     * <p>
+     * This is just a shortcut for:
+     * </p>
+     * <pre>
+     * RestAssured.config = RestAssured.config().logConfig(logConfig().enableLoggingOfRequestAndResponseIfValidationFails(logDetail));
+     * </pre>
+     *
+     * @param logDetail The log detail to show in the log
+     */
+    public static void enableLoggingOfRequestAndResponseIfValidationFails(LogDetail logDetail) {
+        config = RestAssured.config().logConfig(logConfig().enableLoggingOfRequestAndResponseIfValidationFails(logDetail));
     }
 
     /**
