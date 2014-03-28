@@ -30,6 +30,8 @@ import com.jayway.restassured.specification.Argument;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.hamcrest.Matcher;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 
@@ -370,13 +372,31 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         return logResponse(LogDetail.COOKIES);
     }
 
+    public T ifValidationFails() {
+        return ifValidationFails(LogDetail.ALL);
+    }
+
+    public T ifValidationFails(LogDetail logDetail) {
+        return ifValidationFails(logDetail, config.getLogConfig().isPrettyPrintingEnabled());
+    }
+
+    public T ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        responseSpec.getLogRepository().registerResponseLog(baos);
+        return logResponse(logDetail, shouldPrettyPrint, ps);
+    }
 
     private T logResponse(LogDetail logDetail) {
         return logResponse(logDetail, config.getLogConfig().isPrettyPrintingEnabled());
     }
 
     private T logResponse(LogDetail logDetail, boolean shouldPrettyPrint) {
-        ResponsePrinter.print(response, response, config.getLogConfig().defaultStream(), logDetail, shouldPrettyPrint);
+        return logResponse(logDetail, shouldPrettyPrint, config.getLogConfig().defaultStream());
+    }
+
+    private T logResponse(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream printStream) {
+        ResponsePrinter.print(response, response, printStream, logDetail, shouldPrettyPrint);
         return (T) this;
     }
 

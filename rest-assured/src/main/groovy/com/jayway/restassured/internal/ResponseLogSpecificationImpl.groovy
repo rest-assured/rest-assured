@@ -68,7 +68,7 @@ class ResponseLogSpecificationImpl extends LogSpecificationImpl implements Respo
   }
 
   ResponseSpecification ifValidationFails(LogDetail logDetail) {
-    ifValidationFails(LogDetail.ALL, shouldPrettyPrint())
+    ifValidationFails(logDetail, shouldPrettyPrint())
   }
 
   ResponseSpecification ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {

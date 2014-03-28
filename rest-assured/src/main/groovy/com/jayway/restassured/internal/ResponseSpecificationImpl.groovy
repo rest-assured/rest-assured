@@ -695,6 +695,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return response != null
   }
 
+  LogRepository getLogRepository() {
+    return logRepository
+  }
+
   private void validateResponseIfRequired(Closure closure) {
     if (isEagerAssert()) {
       bodyMatchers.reset()

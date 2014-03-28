@@ -16,6 +16,7 @@
 package com.jayway.restassured.response;
 
 
+import com.jayway.restassured.filter.log.LogDetail;
 import org.hamcrest.Matcher;
 
 public interface ValidatableResponseLogSpec<T extends ValidatableResponseOptions<T, R>, R extends ResponseBody<R> & ResponseOptions<R>> {
@@ -111,4 +112,29 @@ public interface ValidatableResponseLogSpec<T extends ValidatableResponseOptions
      * @return The specification
      */
     T cookies();
+
+    /**
+     * Logs everything if a test validation fails.
+     *
+     * @return The specification
+     */
+    T ifValidationFails();
+
+    /**
+     * Logs with the supplied log detail only if the validation fails.
+     *
+     * @param logDetail The log detail
+     * @return The specification
+     */
+    T ifValidationFails(LogDetail logDetail);
+
+    /**
+     * Logs all parameters only if the validations fail.
+     *
+     * @param logDetail         The log detail
+     * @param shouldPrettyPrint <code>true</code> if the body should be pretty-printed, <code>false</code> otherwise.
+     * @return The specification
+     */
+    T ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint);
+
 }
