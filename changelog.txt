@@ -11,7 +11,7 @@ Change log next version
 * It's now possible to supply a resource resolver when matching XSD. For example:
     get("/x").then().body(matchesXsd(load("main.xsd")).using(new ClasspathResourceResolver()));
   (issue 317).
-* Upgraded Spring MVC module to depend on Spring 4.0.2.RELEASE.
+* Upgraded Spring MVC module to depend on Spring 4.0.3.RELEASE.
 * Fixed a bug with JsonPath that prevented parsing of JSON attributes starting with a number (issue 318).
 * Added appendRootPath method to ResponseSpecBuilder
 * Added noRootPath method to ResponseSpecBuilder
