@@ -1,5 +1,6 @@
 package com.jayway.restassured.module.mockmvc.internal;
 
+import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.http.ContentType;
@@ -566,6 +567,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSender when() {
+        LogConfig logConfig = restAssuredMockMvcConfig.getLogConfig();
+        if (requestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
+            log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
+        }
         return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, restAssuredMockMvcConfig, requestBody, requestContentType,
                 requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath, responseSpecification, authentication,
                 logRepository);

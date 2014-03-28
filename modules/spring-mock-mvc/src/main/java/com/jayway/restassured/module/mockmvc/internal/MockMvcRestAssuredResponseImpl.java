@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.module.mockmvc.internal;
 
+import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.internal.RestAssuredResponseOptionsImpl;
 import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
@@ -39,7 +40,12 @@ public class MockMvcRestAssuredResponseImpl extends RestAssuredResponseOptionsIm
     }
 
     public ValidatableMockMvcResponse then() {
-        return new ValidatableMockMvcResponseImpl(resultActions, getContentType(), getRpr(), getConfig(), this, this, logRepository);
+        ValidatableMockMvcResponseImpl response = new ValidatableMockMvcResponseImpl(resultActions, getContentType(), getRpr(), getConfig(), this, this, logRepository);
+        LogConfig logConfig = getConfig().getLogConfig();
+        if (logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
+            response.log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
+        }
+        return response;
     }
 
     public MvcResult mvcResult() {

@@ -1,5 +1,6 @@
 package com.jayway.restassured.module.mockmvc;
 
+import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
@@ -21,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.jayway.restassured.config.LogConfig.logConfig;
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
@@ -683,5 +685,36 @@ public class RestAssuredMockMvc {
                 mockMvcRequestSpecification.auth().authentication(authentication);
             }
         };
+    }
+
+    /**
+     * Enable logging of both the request and the response if REST Assureds test validation fails with log detail equal to {@link com.jayway.restassured.filter.log.LogDetail#ALL}.
+     * <p/>
+     * <p>
+     * This is just a shortcut for:
+     * </p>
+     * <pre>
+     * RestAssuredMockMvc.config = new RestAssuredMockMvcConfig().logConfig(logConfig().enableLoggingOfRequestAndResponseIfValidationFails());
+     * </pre>
+     */
+    public static void enableLoggingOfRequestAndResponseIfValidationFails() {
+        enableLoggingOfRequestAndResponseIfValidationFails(LogDetail.ALL);
+    }
+
+    /**
+     * Enable logging of both the request and the response if REST Assureds test validation fails with the specified log detail.
+     * <p/>
+     * <p>
+     * This is just a shortcut for:
+     * </p>
+     * <pre>
+     * RestAssured.config = new RestAssuredMockMvcConfig().logConfig(logConfig().enableLoggingOfRequestAndResponseIfValidationFails(logDetail));
+     * </pre>
+     *
+     * @param logDetail The log detail to show in the log
+     */
+    public static void enableLoggingOfRequestAndResponseIfValidationFails(LogDetail logDetail) {
+        config = config == null ? new RestAssuredMockMvcConfig() : config;
+        config = config.logConfig(logConfig().enableLoggingOfRequestAndResponseIfValidationFails(logDetail));
     }
 }

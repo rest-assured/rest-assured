@@ -86,9 +86,8 @@ public class MockMvcRequestLogSpecificationImpl extends LogSpecificationImpl imp
     public MockMvcRequestSpecification ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
-        logWith(logDetail, shouldPrettyPrint, ps);
         requestSpecification.getLogRepository().registerRequestLog(baos);
-        return requestSpecification;
+        return logWith(logDetail, shouldPrettyPrint, ps);
     }
 
     private MockMvcRequestSpecification logWith(LogDetail logDetail) {

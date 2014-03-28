@@ -232,7 +232,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
               fail("Should throw AssertionError");
           } catch (AssertionError e) {
-              assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+"Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Headers:\t\tContent-Type=application/json"+LINE_SEPARATOR+"Cookies:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR+
+              assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+"Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Headers:\t\tContent-Type=application/json"+LINE_SEPARATOR+"Cookies:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR+LINE_SEPARATOR+
                       "HTTP/1.1 200 OK"+LINE_SEPARATOR+"Content-Type: application/json; charset=UTF-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(6.1.14)"+LINE_SEPARATOR+""+LINE_SEPARATOR+"{"+LINE_SEPARATOR+"    \"greeting\": \"Greetings John Doe\""+LINE_SEPARATOR+"}"+LINE_SEPARATOR+""));
           }
     }
@@ -255,7 +255,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
               fail("Should throw AssertionError");
           } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Headers:\t\tContent-Type=application/json"+LINE_SEPARATOR+
+            assertThat(writer.toString(), equalTo("Headers:\t\tContent-Type=application/json"+LINE_SEPARATOR+LINE_SEPARATOR+
                     "Content-Type: application/json; charset=UTF-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(6.1.14)"+LINE_SEPARATOR));
           }
     }

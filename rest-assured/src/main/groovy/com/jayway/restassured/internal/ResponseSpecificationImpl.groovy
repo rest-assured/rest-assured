@@ -568,10 +568,14 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
             def stream = config.getLogConfig().defaultStream()
             def requestLog = logRepository.requestLog
             def responseLog = logRepository.responseLog
-            if (StringUtils.isNotEmpty(requestLog)) {
+            def requestLogHasText = StringUtils.isNotEmpty(requestLog)
+            if (requestLogHasText) {
               stream.print(requestLog)
             }
             if (StringUtils.isNotEmpty(responseLog)) {
+              if(requestLogHasText) {
+                stream.print("\n");
+              }
               stream.print(responseLog)
             }
           }
