@@ -20,6 +20,7 @@ package com.jayway.restassured
 
 import com.jayway.restassured.authentication.NoAuthScheme
 import com.jayway.restassured.internal.RequestSpecificationImpl
+import com.jayway.restassured.internal.log.LogRepository
 import org.junit.Before
 import org.junit.Test
 
@@ -30,7 +31,7 @@ class ParameterMapBuilderTest {
 
   @Before
   public void setup() throws Exception {
-    requestBuilder = new RequestSpecificationImpl("baseURI", 20, "", new NoAuthScheme(), [], null, null, true, null);
+    requestBuilder = new RequestSpecificationImpl("baseURI", 20, "", new NoAuthScheme(), [], null, null, true, null, new LogRepository());
   }
 
   @Test(expected = IllegalArgumentException.class)
