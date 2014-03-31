@@ -31,6 +31,7 @@ Change log next version
 * Fixed so that pretty logging of the response body doesn't change the body returned to the matchers.
 * Fixed so that it's possible to log data with charset binary.
 * Getting a String from the response now stores the content as a byte-array internally to avoid messing up binary content.
+* Added tagsoup as transitive dependency to XmlPath so that it's easier to get started with HTML parsing (issue 311).
 
 Change log 2.3.0 (2014-01-23)
 -----------------------------

@@ -56,7 +56,6 @@
         <dependency>
             <groupId>org.ccil.cowan.tagsoup</groupId>
             <artifactId>tagsoup</artifactId>
-            <optional>true</optional>
         </dependency>
         <!-- Test -->
         <dependency>
