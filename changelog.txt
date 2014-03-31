@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 2.3.1 (2014-03-31)
+-----------------------------
 * Fixed a bug where fully-qualified URLs showed up as localhost in the request path in logging (issue 304).
 * Fixed a NPE when parsing no-value cookies in HTTP response (issue 306).
 * Query params and values now splits the '=' with max count 2 (issue 305).
