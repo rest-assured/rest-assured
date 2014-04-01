@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Fixed an issue with logging of request and response using RestAssured.enableLoggingOfRequestAndResponseIfValidationFails() when a path was invalid.
+
 Change log 2.3.1 (2014-03-31)
 -----------------------------
 * Fixed a bug where fully-qualified URLs showed up as localhost in the request path in logging (issue 304).

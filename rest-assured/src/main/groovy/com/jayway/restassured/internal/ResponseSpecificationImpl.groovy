@@ -558,27 +558,18 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
             contentParser = new ContentParser().parse(response, rpr, cfg, isEagerAssert())
           }
 
-          validations.addAll(bodyMatchers.validate(response, contentParser, cfg))
+          try {
+            validations.addAll(bodyMatchers.validate(response, contentParser, cfg))
+          } catch (Exception e) {
+            logRequestAndResponseIfEnabled();
+            throw e;
+          }
         }
 
         def errors = validations.findAll { !it.success }
         def numberOfErrors = errors.size()
         if (numberOfErrors > 0) {
-          if (logRepository != null) {
-            def stream = config.getLogConfig().defaultStream()
-            def requestLog = logRepository.requestLog
-            def responseLog = logRepository.responseLog
-            def requestLogHasText = StringUtils.isNotEmpty(requestLog)
-            if (requestLogHasText) {
-              stream.print(requestLog)
-            }
-            if (StringUtils.isNotEmpty(responseLog)) {
-              if(requestLogHasText) {
-                stream.print("\n");
-              }
-              stream.print(responseLog)
-            }
-          }
+          logRequestAndResponseIfEnabled()
           if (isEagerAssert()) {
             throw new AssertionError(errors[0].errorMessage)
           } else {
@@ -586,6 +577,24 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
             def s = numberOfErrors > 1 ? "s" : ""
             throw new AssertionError("$numberOfErrors expectation$s failed.\n$errorMessage")
           }
+        }
+      }
+    }
+
+    private def void logRequestAndResponseIfEnabled() {
+      if (logRepository != null) {
+        def stream = config.getLogConfig().defaultStream()
+        def requestLog = logRepository.requestLog
+        def responseLog = logRepository.responseLog
+        def requestLogHasText = StringUtils.isNotEmpty(requestLog)
+        if (requestLogHasText) {
+          stream.print(requestLog)
+        }
+        if (StringUtils.isNotEmpty(responseLog)) {
+          if (requestLogHasText) {
+            stream.print("\n");
+          }
+          stream.print(responseLog)
         }
       }
     }
