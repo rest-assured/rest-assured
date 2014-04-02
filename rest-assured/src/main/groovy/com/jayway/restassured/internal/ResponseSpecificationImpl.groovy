@@ -614,7 +614,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         } else {
           def name = contentType.name()
           def pattern = ~/(^[\w\d_\-]+\/[\w\d_\-]+)\s*(?:;)/
-          def matcher = pattern.matcher(actualContentType);
+          def matcher = pattern.matcher(actualContentType ?: "");
           def contentTypeToMatch
           if (matcher.find()) {
             contentTypeToMatch = matcher.group(1);
