@@ -549,21 +549,20 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     def validate(Response response) {
       if (hasAssertionsDefined()) {
         def validations = []
-        validations.addAll(validateStatusCodeAndStatusLine(response))
-        validations.addAll(validateHeadersAndCookies(response))
-        validations.addAll(validateContentType(response))
-        if (hasBodyAssertionsDefined()) {
-          RestAssuredConfig cfg = config ?: new RestAssuredConfig()
-          if (requiresPathParsing() && (!isEagerAssert() || contentParser == null)) {
-            contentParser = new ContentParser().parse(response, rpr, cfg, isEagerAssert())
-          }
-
-          try {
+        try {
+          validations.addAll(validateStatusCodeAndStatusLine(response))
+          validations.addAll(validateHeadersAndCookies(response))
+          validations.addAll(validateContentType(response))
+          if (hasBodyAssertionsDefined()) {
+            RestAssuredConfig cfg = config ?: new RestAssuredConfig()
+            if (requiresPathParsing() && (!isEagerAssert() || contentParser == null)) {
+              contentParser = new ContentParser().parse(response, rpr, cfg, isEagerAssert())
+            }
             validations.addAll(bodyMatchers.validate(response, contentParser, cfg))
-          } catch (Exception e) {
-            logRequestAndResponseIfEnabled();
-            throw e;
           }
+        } catch (Exception e) {
+          logRequestAndResponseIfEnabled();
+          throw e;
         }
 
         def errors = validations.findAll { !it.success }

@@ -1,6 +1,6 @@
 Change log next version
 -----------------------
-* Fixed an issue with logging of request and response using RestAssured.enableLoggingOfRequestAndResponseIfValidationFails() when a path was invalid.
+* Fixed an issue with logging of request and response using RestAssured.enableLoggingOfRequestAndResponseIfValidationFails() for certain validations.
 * Fixed issue with content-type validation when no content-type was sent from the server.
 
 Change log 2.3.1 (2014-03-31)
