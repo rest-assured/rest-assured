@@ -10,6 +10,7 @@ import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecifi
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultHandler;
+import org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -173,7 +174,7 @@ public class RestAssuredMockMvc {
     }
 
     /**
-     * Build a {@link MockMvc} by using a provided {@code DefaultMockMvcBuilder}
+     * Build a {@link MockMvc} by using a provided {@code AbstractMockMvcBuilder}
      * for configuring Spring MVC infrastructure programmatically.
      * This allows full control over the instantiation and initialization of
      * controllers, and their dependencies, similar to plain unit tests while
@@ -185,9 +186,9 @@ public class RestAssuredMockMvc {
      * a majority of controllers. A much smaller number of tests can be used
      * to focus on testing and verifying the actual Spring MVC configuration.
      *
-     * @param builder {@link org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder} to build the MVC mock
+     * @param builder {@link org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder} to build the MVC mock
      */
-    public static void standaloneSetup(DefaultMockMvcBuilder builder) {
+    public static void standaloneSetup(AbstractMockMvcBuilder builder) {
         mockMvc = builder.build();
     }
 
