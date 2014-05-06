@@ -3,6 +3,7 @@ Change log next version
 * Fixed an issue with logging of request and response using RestAssured.enableLoggingOfRequestAndResponseIfValidationFails() for certain validations.
 * Fixed issue with content-type validation when no content-type was sent from the server.
 * Updated Groovy to version 2.2.2
+* Widen the standaloneSetup builder method in Spring MVC module to accept a AbstractMockMvcBuilder (issue 321).
 
 Change log 2.3.1 (2014-03-31)
 -----------------------------
