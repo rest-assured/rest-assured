@@ -92,6 +92,18 @@ import java.util.Map.Entry;
  * <pre>
  * List&lt;Map&gt; books = with(Object).get("store.book.findAll { book -> book.price >= 5 && book.price <= 15 }");
  * </pre>
+ * <p/>
+ * The JsonPath implementation of rest-assured uses a Groovy shell to evaluate expressions so be careful when injecting
+ * user input into the expression. For example avoid doing this:
+ * <pre>
+ * String name = System.console().readLine();
+ * List&lt;Map&gt; books = with(Object).get("store.book.findAll { book -> book.author == " + name + " }");
+ * </pre>
+ * Instead use the {@link #param(java.lang.String, java.lang.Object)} method like this:
+ * <pre>
+ * String name = System.console().readLine();
+ * List&lt;Map&gt; books = with(Object).param("name", name).get("store.book.findAll { book -> book.author == name }");
+ * </pre>
  */
 public class JsonPath {
 
@@ -100,6 +112,10 @@ public class JsonPath {
     private final JsonParser jsonParser;
     private JsonPathConfig jsonPathConfig = null;
     private String rootPath = "";
+    /**
+     * Parameters for groovy console (not initialized here to save memory for queries that don't use params)
+     */
+    private Map<String, Object> params;
 
     /**
      * Instantiate a new JsonPath instance.
@@ -150,6 +166,9 @@ public class JsonPath {
         this.jsonPathConfig = jsonPathConfig;
         this.jsonParser = jsonPath.jsonParser;
         this.rootPath = jsonPath.rootPath;
+        if(jsonPath.params!=null) {
+            this.params = new HashMap<String, Object>(jsonPath.params);
+        }
     }
 
     /**
@@ -178,7 +197,7 @@ public class JsonPath {
      *         cannot be casted to the expected type.
      */
     public <T> T get(String path) {
-        final JSONAssertion jsonAssertion = createJsonAssertion(path);
+        final JSONAssertion jsonAssertion = createJsonAssertion(path, params);
         final Object json = jsonParser.parseWith(createConfigurableJsonSlurper());
         return (T) jsonAssertion.getResult(json, null);
     }
@@ -522,6 +541,26 @@ public class JsonPath {
         }
 
         return JsonObjectDeserializer.deserialize((String) object, objectType, cfg);
+    }
+
+    /**
+     * Add a parameter for the expression. Example:
+     * <pre>
+     * String name = System.console().readLine();
+     * List&lt;Map&gt; books = with(Object).param("name", name).get("store.book.findAll { book -> book.author == name }");
+     * </pre>
+     *
+     * @param key The name of the parameter. Just use this name in your expression as a variable
+     * @param value The value of the parameter
+     * @return New JsonPath instance with the parameter set
+     */
+    public JsonPath param(String key, Object value) {
+        JsonPath newP=new JsonPath(this, config);
+        if(newP.params==null) {
+            newP.params=new HashMap<String, Object>();
+        }
+        newP.params.put(key, value);
+        return newP;
     }
 
     /**
@@ -879,16 +918,19 @@ public class JsonPath {
     }
 
     public <T> T getJsonObject(String path) {
-        final JSONAssertion jsonAssertion = createJsonAssertion(path);
+        final JSONAssertion jsonAssertion = createJsonAssertion(path, params);
         final Object json = jsonParser.parseWith(createConfigurableJsonSlurper());
         return (T) jsonAssertion.getAsJsonObject(json);
     }
 
-    private JSONAssertion createJsonAssertion(String path) {
+    private JSONAssertion createJsonAssertion(String path, Map<String, Object> params) {
         AssertParameter.notNull(path, "path");
         final JSONAssertion jsonAssertion = new JSONAssertion();
         final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
         jsonAssertion.setKey(root + path);
+        if(params != null) {
+            jsonAssertion.setParams(params);
+        }
         return jsonAssertion;
     }
 
