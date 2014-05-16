@@ -26,6 +26,7 @@ import static com.jayway.restassured.internal.assertion.AssertionSupport.*
 
 class JSONAssertion implements Assertion {
   String key;
+  Map<String, Object> params;
 
   def Object getResult(object, config) {
     Object result = getAsJsonObject(object)
@@ -46,9 +47,14 @@ class JSONAssertion implements Assertion {
         } else {
           expr = "$root.$key"
         }
-        result = Eval.me(root, object, expr)
+        result = eval(root, object, expr)
+      } catch (MissingPropertyException e) {
+        // This means that a param was used that was not defined
+        String error = String.format("The parameter \"%s\" was used but not defined. Define parameters using the JsonPath.params(...) function", e.property);
+        throw new IllegalArgumentException(error, e);
       } catch (Exception e) {
-        throw new IllegalArgumentException(e.getMessage().replace("startup failed:","Invalid JSON expression:").replace("$root.", generateWhitespace(root.length())));
+        String error = e.getMessage().replace("startup failed:","Invalid JSON expression:").replace("$root.", generateWhitespace(root.length()));
+        throw new IllegalArgumentException(error, e);
       }
     }
     return result
@@ -56,5 +62,21 @@ class JSONAssertion implements Assertion {
 
   def String description() {
     return "JSON path"
+  }
+
+  private def eval(root, object, expr) {
+      Map<String, Object> newParams;
+      // Create parameters from given ones
+      if(params!=null) {
+          newParams=new HashMap<>(params);
+      } else {
+          newParams=new HashMap<>();
+      }
+      // Add object to evaluate
+      newParams.put(root, object);
+      // Create shell with variables set
+      GroovyShell sh = new GroovyShell(new Binding(newParams));
+      // Run
+      return sh.evaluate(expr);
   }
 }
