@@ -115,6 +115,17 @@ import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.XML;
  * <pre>
  * XmlPath xmlPath = new XmlPath(CompatibilityMode.HTML,&lt;some html&gt;);
  * </pre>
+ * The XmlPath implementation of rest-assured uses a Groovy shell to evaluate expressions so be careful when injecting
+ * user input into the expression. For example avoid doing this:
+ * <pre>
+ * String type = System.console().readLine();
+ * List&lt;Map&gt; books = with(Object).get("shopping.category.findAll { it.@type == '"+type+"' }");
+ * </pre>
+ * Instead use the {@link #param(java.lang.String, java.lang.Object)} method like this:
+ * <pre>
+ * String type = System.console().readLine();
+ * List&lt;Map&gt; books = with(Object).param("type", type).get("shopping.category.findAll { it.@type == type}");
+ * </pre>
  */
 public class XmlPath {
     public static XmlPathConfig config = null;
@@ -122,6 +133,10 @@ public class XmlPath {
     private final CompatibilityMode mode;
     private LazyXmlParser lazyXmlParser;
     private XmlPathConfig xmlPathConfig = null;
+    /**
+     * Parameters for groovy console (not initialized here to save memory for queries that don't use params)
+     */
+    private Map<String, Object> params;
 
     private String rootPath = "";
 
@@ -276,6 +291,9 @@ public class XmlPath {
         this.xmlPathConfig = config;
         this.mode = xmlPath.mode;
         this.lazyXmlParser = xmlPath.lazyXmlParser.changeCompatibilityMode(mode).changeConfig(config);
+        if(xmlPath.params!=null) {
+            this.params = new HashMap<String, Object>(xmlPath.params);
+        }
     }
 
     /**
@@ -407,6 +425,9 @@ public class XmlPath {
     private <T> T getFromPath(String path, boolean convertToJavaObject) {
         final GPathResult input = lazyXmlParser.invoke();
         final XMLAssertion xmlAssertion = new XMLAssertion();
+        if(params != null) {
+            xmlAssertion.setParams(params);
+        }
         final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
         xmlAssertion.setKey(root + path);
         return (T) xmlAssertion.getResult(input, convertToJavaObject, !getXmlPathConfig().hasDeclaredNamespaces());
@@ -551,6 +572,26 @@ public class XmlPath {
     public String getString(String path) {
         Object object = get(path);
         return convertObjectTo(object, String.class);
+    }
+
+    /**
+     * Add a parameter for the expression. Example:
+     * <pre>
+     * String type = System.console().readLine();
+     * List&lt;Map&gt; books = with(Object).param("type", type).get("shopping.category.findAll { it.@type == type}");
+     * </pre>
+     *
+     * @param key The name of the parameter. Just use this name in your expression as a variable
+     * @param value The value of the parameter
+     * @return New XmlPath instance with the parameter set
+     */
+    public XmlPath param(String key, Object value) {
+        XmlPath newP=new XmlPath(this, getXmlPathConfig());
+        if(newP.params==null) {
+            newP.params=new HashMap<String, Object>();
+        }
+        newP.params.put(key, value);
+        return newP;
     }
 
     /**

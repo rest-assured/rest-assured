@@ -30,6 +30,7 @@ class XMLAssertion implements Assertion {
     private static final String DOT = "."
     private static final String EXPLICIT_LIST_CONVERSION = 'list()'
     String key;
+    Map<String, Object> params;
 
     /* Matches fragment such as children() or size(2) */
     private def isInvocationFragment = ~/.*\(\d*\)|.*(\{|\}).*/
@@ -67,7 +68,11 @@ class XMLAssertion implements Assertion {
         def result;
         def rootObjectVariableName = "restAssuredXmlRootObject"
         try {
-            result = Eval.me(rootObjectVariableName, objectToUse, "$rootObjectVariableName$evaluationString")
+            result = eval(rootObjectVariableName, objectToUse, "$rootObjectVariableName$evaluationString")
+        } catch (MissingPropertyException e) {
+            // This means that a param was used that was not defined
+            String error = String.format("The parameter \"%s\" was used but not defined. Define parameters using the JsonPath.params(...) function", e.property);
+            throw new IllegalArgumentException(error, e);
         } catch (Exception e) {
             def errorMessage = e.getMessage();
             if (errorMessage.startsWith("No signature of method:")) {
@@ -222,6 +227,22 @@ class XMLAssertion implements Assertion {
             }
         }
         nodeList
+    }
+
+    private def eval(root, object, expr) {
+        Map<String, Object> newParams;
+        // Create parameters from given ones
+        if(params!=null) {
+            newParams=new HashMap<>(params);
+        } else {
+            newParams=new HashMap<>();
+        }
+        // Add object to evaluate
+        newParams.put(root, object);
+        // Create shell with variables set
+        GroovyShell sh = new GroovyShell(new Binding(newParams));
+        // Run
+        return sh.evaluate(expr);
     }
 
     def String description() {
