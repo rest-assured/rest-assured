@@ -1,4 +1,4 @@
-# REST-assured
+# REST-assured [![Build Status](https://travis-ci.org/tguzik/rest-assured.svg?branch=test-travis)](https://travis-ci.org/tguzik/rest-assured)
 
 Testing and validating REST services in Java is harder than in dynamic languages 
 such as Ruby and Groovy. REST Assured brings the simplicity of using these 
