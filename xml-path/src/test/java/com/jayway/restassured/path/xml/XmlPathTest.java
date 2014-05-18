@@ -328,6 +328,15 @@ public class XmlPathTest {
     }
 
     @Test
+    public void depthFirstSearchDoubleStarWithParam() throws Exception {
+        final int chocolatePrice = from(XML)
+                .param("itemName", "Chocolate")
+                .getInt("shopping.'**'.find { it.name == itemName }.price");
+
+        assertThat(chocolatePrice, equalTo(10));
+    }
+
+    @Test
     public void getListReturnsListWhenNodeChildrenFound() {
         final List<String> groceries = from(XML).getList("shopping.category[0].item.name");
         assertThat(groceries, hasItems("Chocolate", "Coffee"));

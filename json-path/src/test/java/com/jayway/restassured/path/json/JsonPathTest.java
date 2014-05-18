@@ -111,6 +111,18 @@ public class JsonPathTest {
     }
 
     @Test
+    public void booksWithArgAuthor() throws Exception {
+        String author = "Herman Melville";
+        final List<Map<String, ?>> books = with(JSON)
+                .param("author", author)
+                .get("store.book.findAll { book -> book.author == author }");
+        assertThat(books.size(), equalTo(1));
+
+        final String authorActual = (String) books.get(0).get("author");
+        assertThat(authorActual, equalTo(author));
+    }
+
+    @Test
     public void booksBetween5And15() throws Exception {
         final List<Map<String, ?>> books = with(JSON).get("store.book.findAll { book -> book.price >= 5 && book.price <= 15 }");
         assertThat(books.size(), equalTo(3));

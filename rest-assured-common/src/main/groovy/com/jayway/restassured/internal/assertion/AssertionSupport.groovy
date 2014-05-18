@@ -29,12 +29,11 @@ class AssertionSupport {
 
   def static escapePath(key, Closure... closuresToEscape) {
     def pathFragments = key.split("(?<=\\')")
-    for (int i = 0; i < pathFragments.length; i++) {
+    for (int i = 0; i < pathFragments.size(); i++) {
       String pathFragment = pathFragments[i]
       if (!pathFragment?.endsWith("'") || pathFragment?.contains("**")) {
-        def startedWithDot = pathFragment.startsWith(".")
         def dotFragments = pathFragment.split("\\.")
-        for (int k = 0; k < dotFragments.length; k++) {
+        for (int k = 0; k < dotFragments.size(); k++) {
           String dotFragment = dotFragments[k]
           for (int j = 0; j < closuresToEscape.length; j++) {
             if (closuresToEscape[j](dotFragment)) {
@@ -44,7 +43,7 @@ class AssertionSupport {
           }
 
         }
-        pathFragments[i] = (startedWithDot ? "." : "") + dotFragments.join(".")
+        pathFragments[i] = dotFragments.join(".")
       }
     }
     pathFragments.join("")
