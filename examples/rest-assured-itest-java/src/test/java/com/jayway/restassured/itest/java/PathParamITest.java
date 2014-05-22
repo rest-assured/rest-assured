@@ -18,7 +18,6 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.ResponseBuilder;
-import com.jayway.restassured.config.EncoderConfig;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
@@ -38,7 +37,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.jayway.restassured.RestAssured.*;
-import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.config;
 import static com.jayway.restassured.itest.java.support.RequestPathFromLogExtractor.loggedRequestPathIn;
 import static com.jayway.restassured.path.json.JsonPath.from;
@@ -90,12 +88,7 @@ public class PathParamITest extends WithJetty {
         params.put("firstName", "John: å");
         params.put("lastName", "Doe");
 
-        given().
-                config(config().encoderConfig(encoderConfig().defaultQueryParameterCharset("UTF-8"))).
-        when().
-                get("/{firstName}/{lastName}", params).
-        then().
-                body("fullName", equalTo("John: å Doe"));
+        expect().body("fullName", equalTo("John: å Doe")).when().get("/{firstName}/{lastName}", params);
     }
 
     @Test
@@ -276,12 +269,10 @@ public class PathParamITest extends WithJetty {
     public void canUsePathParamsWithNonStandardChars() throws Exception {
         final String nonStandardChars = "\\$£@\"){¤$";
 
-        given().
-                config(config().encoderConfig(encoderConfig().defaultQueryParameterCharset("UTF-8"))).
+        expect().
+                body("fullName", equalTo("\\$£@\"){¤$ Last")).
         when().
-                get("/{firstName}/{lastName}", nonStandardChars, "Last").
-        then().
-                body("fullName", equalTo("\\$£@\"){¤$ Last"));
+                get("/{firstName}/{lastName}", nonStandardChars, "Last");
 
     }
 

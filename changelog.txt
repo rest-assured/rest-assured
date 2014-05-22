@@ -5,7 +5,6 @@ Change log next version
 * Updated Groovy to version 2.3.0
 * Widen the standaloneSetup builder method in Spring MVC module to accept a AbstractMockMvcBuilder (issue 321).
 * Added possibility to include parameters in JsonPath and XmlPath to prevent injection weaknesses (issue 328).
-* Potential backward incompatible change: Changed default query/request parameter encoding from UTF-8 to US-ASCII to conform with the URI Syntax specification (details can be found in can be found in sections 2 and 2.1).
 
 Change log 2.3.1 (2014-03-31)
 -----------------------------

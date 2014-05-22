@@ -24,16 +24,16 @@ import org.apache.http.protocol.HTTP;
  */
 public class EncoderConfig {
 
-    private static final String US_ASCII = "US-ASCII";
+    private static final String UTF_8 = "UTF-8";
     private final String defaultContentCharset;
     private final String defaultQueryParameterCharset;
 
     /**
-     * Configure the encoder config to use {@value org.apache.http.protocol.HTTP#DEFAULT_CONTENT_CHARSET} for content encoding and <code>US_ASCII</code>.
+     * Configure the encoder config to use {@value org.apache.http.protocol.HTTP#DEFAULT_CONTENT_CHARSET} for content encoding and <code>UTF-8</code>.
      * for query parameter encoding.
      */
     public EncoderConfig() {
-        this(HTTP.DEF_CONTENT_CHARSET.toString(), US_ASCII);
+        this(HTTP.DEF_CONTENT_CHARSET.toString(), UTF_8);
     }
 
     public EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset) {
