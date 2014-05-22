@@ -31,6 +31,12 @@ public class EncoderConfig {
     /**
      * Configure the encoder config to use {@value org.apache.http.protocol.HTTP#DEFAULT_CONTENT_CHARSET} for content encoding and <code>UTF-8</code>.
      * for query parameter encoding.
+     * <p>
+     * The reason for choosing UTF-8 as default for query parameters even though US-ASCII is standard according to the URI Syntax specification is
+     * that it's nowadays <a href="http://www.w3.org/TR/html40/appendix/notes.html#non-ascii-chars">recommended</a> by w3 to use UTF-8. Different web servers
+     * seem to take different approaches though, for example Jetty uses UTF-8 as default but Tomcat uses US-ASCII. Since REST Assured is a test
+     * framework first and Jetty is more popular for testing REST Assured uses UTF-8.
+     * </p>
      */
     public EncoderConfig() {
         this(HTTP.DEF_CONTENT_CHARSET.toString(), UTF_8);
