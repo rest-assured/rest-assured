@@ -31,7 +31,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.is;
 
-public class MultiPartUploadITest extends WithJetty {
+public class  MultiPartUploadITest extends WithJetty {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
