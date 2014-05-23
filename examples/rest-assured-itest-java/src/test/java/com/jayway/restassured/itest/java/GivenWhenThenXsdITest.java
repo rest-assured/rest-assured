@@ -19,6 +19,7 @@ import java.io.InputStream;
 import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.matcher.RestAssuredMatchers.matchesXsd;
+import static com.jayway.restassured.matcher.RestAssuredMatchers.matchesXsdInClasspath;
 import static org.hamcrest.Matchers.equalTo;
 
 public class GivenWhenThenXsdITest extends WithJetty {
@@ -29,6 +30,16 @@ public class GivenWhenThenXsdITest extends WithJetty {
         final String xsd = IOUtils.toString(inputstream);
 
         get("/carRecords").then().body(matchesXsd(xsd));
+    }
+
+    @Test
+    public void validatesXsdStringInClasspathWhenPathStartsWithSlash() throws Exception {
+        get("/carRecords").then().body(matchesXsdInClasspath("/car-records.xsd"));
+    }
+
+    @Test
+    public void validatesXsdStringInClasspathWhenPathDoesntStartWithSlash() throws Exception {
+        get("/carRecords").then().body(matchesXsdInClasspath("car-records.xsd"));
     }
 
     @Test

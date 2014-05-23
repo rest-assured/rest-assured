@@ -74,6 +74,16 @@ public class RestAssuredMatchers {
     }
 
     /**
+     * Evaluates to true if an XML file in classpath matches the supplied XSD.
+     *
+     * @param path The path to the XSD located in classpath
+     * @return The DTD matcher
+     */
+    public static Matcher<String> matchesXsdInClasspath(String path) {
+        return XmlXsdMatcher.matchesXsdInClasspath(path);
+    }
+
+    /**
      * Evaluates to true if an XML string matches the supplied DTD.
      *
      * @param dtd The DTD to match
@@ -111,6 +121,16 @@ public class RestAssuredMatchers {
      */
     public static Matcher<String> matchesDtd(URL url) {
         return XmlDtdMatcher.matchesDtd(url);
+    }
+
+    /**
+     * Evaluates to true if an XML file in classpath matches the supplied DTD.
+     *
+     * @param path The path to the DTD file in classpath
+     * @return The DTD matcher
+     */
+    public static Matcher<String> matchesDtdInClasspath(String path) {
+        return XmlDtdMatcher.matchesDtdInClasspath(path);
     }
 
     /**

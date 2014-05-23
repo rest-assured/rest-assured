@@ -15,7 +15,6 @@
  */
 
 
-
 package com.jayway.restassured.internal.matcher.xml
 
 import org.hamcrest.BaseMatcher
@@ -57,6 +56,7 @@ class XmlDtdMatcher extends BaseMatcher<String> {
     notNull(dtd, "file")
     return new XmlDtdMatcher(new FileInputStream(dtd))
   }
+
   public static Matcher<String> matchesDtd(URL url) {
     notNull(url, "url")
     return new XmlDtdMatcher(url.toString())
@@ -99,10 +99,10 @@ class XmlDtdMatcher extends BaseMatcher<String> {
     file.deleteOnExit();
     OutputStream out = new FileOutputStream(file);
 
-    int read=0;
+    int read = 0;
     byte[] bytes = new byte[1024];
 
-    while((read = inputStream.read(bytes))!= -1){
+    while ((read = inputStream.read(bytes)) != -1) {
       out.write(bytes, 0, read);
     }
 
@@ -113,7 +113,7 @@ class XmlDtdMatcher extends BaseMatcher<String> {
   }
 
   private InputStream getInputStream(dtd) {
-    if(dtd instanceof URL) {
+    if (dtd instanceof URL) {
       URLConnection uc = dtd.openConnection();
       return uc.getInputStream();
     }
@@ -127,6 +127,16 @@ class XmlDtdMatcher extends BaseMatcher<String> {
 
   private static ByteArrayInputStream toInputStream(String dtd) {
     return new ByteArrayInputStream(dtd.getBytes())
+  }
+
+  static Matcher<String> matchesDtdInClasspath(String path) {
+    notNull(path, "Path that points to the DTD in classpath")
+    InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path)
+    if (!stream) {
+      // Fallback if not found (this enables paths starting with slash)
+      stream = getClass().getResourceAsStream(path)
+    }
+    return matchesDtd(stream);
   }
 
   private static class ExceptionThrowingErrorHandler implements ErrorHandler {

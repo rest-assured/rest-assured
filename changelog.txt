@@ -5,6 +5,8 @@ Change log next version
 * Updated Groovy to version 2.3.0
 * Widen the standaloneSetup builder method in Spring MVC module to accept a AbstractMockMvcBuilder (issue 321).
 * Added possibility to include parameters in JsonPath and XmlPath to prevent injection weaknesses (issue 328).
+* Added "matchesXsdFromClasspath" to com.jayway.restassured.matcher.RestAssuredMatchers and com.jayway.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers (issue 330).
+* Added "matchesDtdFromClasspath" to com.jayway.restassured.matcher.RestAssuredMatchers and com.jayway.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers (issue 331).
 
 Change log 2.3.1 (2014-03-31)
 -----------------------------

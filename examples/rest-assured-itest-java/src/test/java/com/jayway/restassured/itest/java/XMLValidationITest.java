@@ -26,8 +26,7 @@ import org.xml.sax.SAXParseException;
 import java.io.InputStream;
 
 import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.matcher.RestAssuredMatchers.matchesDtd;
-import static com.jayway.restassured.matcher.RestAssuredMatchers.matchesXsd;
+import static com.jayway.restassured.matcher.RestAssuredMatchers.*;
 
 public class XMLValidationITest extends WithJetty {
 
@@ -72,6 +71,16 @@ public class XMLValidationITest extends WithJetty {
         final String dtd = IOUtils.toString(inputstream);
 
         expect().body(matchesDtd(dtd)).when().get("/videos");
+    }
+
+    @Test
+    public void validatesDtdStringInClasspathWhenPathStartsWithSlash() throws Exception {
+        expect().body(matchesDtdInClasspath("/videos.dtd")).when().get("/videos");
+    }
+
+    @Test
+    public void validatesDtdStringInClasspathWhenPathDoesntStartsWithSlash() throws Exception {
+        expect().body(matchesDtdInClasspath("videos.dtd")).when().get("/videos");
     }
 
     @Test
