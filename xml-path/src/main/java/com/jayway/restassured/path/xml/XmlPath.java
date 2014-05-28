@@ -48,7 +48,7 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.XML;
 
 /**
- * XmlPath is an alternative to using XPath for easily getting values from an XML document. It follows the Groovy syntax
+ * XmlPath is an alternative to using XPath for easily getting values from an XML document. It follows the Groovy <a href="http://groovy.codehaus.org/GPath">GPath</a> syntax
  * described <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">here</a>. <br>Let's say we have an XML defined as;
  * <pre>
  * &lt;shopping&gt;
