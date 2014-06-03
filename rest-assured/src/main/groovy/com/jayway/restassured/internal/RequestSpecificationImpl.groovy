@@ -553,8 +553,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return this
   }
 
-  def RequestSpecification baseUri(String baseUriparam) {
-    this.baseUri = baseUriparam;
+  def RequestSpecification baseUri(String baseUri) {
+    notNull baseUri, "Base URI"
+    this.baseUri = baseUri;
+    return this;
+  }
+
+  def RequestSpecification basePath(String basePath) {
+    notNull basePath, "Base Path"
+    this.basePath = basePath;
     return this;
   }
 
