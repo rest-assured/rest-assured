@@ -377,7 +377,7 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/videos-not-formatted");
 
-        assertThat(writer.toString(), equalTo("<videos>\n  <music>\n    <title>\n      Video Title 1\n    </title>\n    <artist>\n      Artist 1\n    </artist>\n  </music>\n  <music>\n    <title>\n      Video Title 2\n    </title>\n    <artist>\n      Artist 2\n    </artist>\n    <artist>\n      Artist 3\n    </artist>\n  </music>\n</videos>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("<videos>\n  <music>\n    <title>Video Title 1</title>\n    <artist>Artist 1</artist>\n  </music>\n  <music>\n    <title>Video Title 2</title>\n    <artist>Artist 2</artist>\n    <artist>Artist 3</artist>\n  </music>\n</videos>" + LINE_SEPARATOR));
     }
 
     @Test
@@ -393,7 +393,7 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/textHTML-not-formatted");
 
-        assertThat(writer.toString(), equalTo("<html>\n  <head>\n    <title>\n      my title\n    </title>\n  </head>\n  <body>\n    <p>\n      paragraph 1\n    </p>\n    <p>\n      paragraph 2\n    </p>\n  </body>\n</html>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("<html>\n  <head>\n    <title>my title</title>\n  </head>\n  <body>\n    <p>paragraph 1</p>\n    <p>paragraph 2</p>\n  </body>\n</html>" + LINE_SEPARATOR));
     }
 
     @Test
@@ -466,7 +466,7 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/videos-not-formatted");
 
-        assertThat(writer.toString(), equalTo("<videos>\n  <music>\n    <title>\n      Video Title 1\n    </title>\n    <artist>\n      Artist 1\n    </artist>\n  </music>\n  <music>\n    <title>\n      Video Title 2\n    </title>\n    <artist>\n      Artist 2\n    </artist>\n    <artist>\n      Artist 3\n    </artist>\n  </music>\n</videos>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("<videos>\n  <music>\n    <title>Video Title 1</title>\n    <artist>Artist 1</artist>\n  </music>\n  <music>\n    <title>Video Title 2</title>\n    <artist>Artist 2</artist>\n    <artist>Artist 3</artist>\n  </music>\n</videos>" + LINE_SEPARATOR));
     }
 
     @Test
@@ -701,7 +701,7 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/body");
 
-        assertThat(writer.toString(), equalTo("Body:\n<greeting>\n  <firstName>\n    John\n  </firstName>\n  <lastName>\n    Doe\n  </lastName>\n</greeting>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("Body:\n<greeting>\n  <firstName>John</firstName>\n  <lastName>Doe</lastName>\n</greeting>" + LINE_SEPARATOR));
     }
 
     @Test
