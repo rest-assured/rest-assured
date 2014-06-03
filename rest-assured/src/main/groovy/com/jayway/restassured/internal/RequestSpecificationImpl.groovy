@@ -1584,7 +1584,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def assertionClosure
 
     RestAssuredHttpBuilder(Object defaultURI, assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config, AbstractHttpClient client) throws URISyntaxException {
-      super(defaultURI, urlEncodingEnabled, config?.getEncoderConfig(), client)
+      super(defaultURI, urlEncodingEnabled, config?.getEncoderConfig(), config?.getDecoderConfig(), client)
       this.assertionClosure = assertionClosure
     }
 

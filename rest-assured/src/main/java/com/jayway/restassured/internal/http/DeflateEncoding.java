@@ -22,50 +22,62 @@ import org.apache.http.entity.HttpEntityWrapper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 /**
  * Content encoding used to handle Deflate responses.
+ *
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
  */
 public class DeflateEncoding extends ContentEncoding {
-	
-	/**
-	 * Returns the {@link ContentEncoding.Type#DEFLATE} encoding string which is 
-	 * added to the <code>Accept-Encoding</code> header by the base class.
-	 */
-	@Override
-	public String getContentEncoding() {
-		return Type.DEFLATE.toString();
-	}
-	
-	
-	/**
-	 * Wraps the raw entity in a {@link InflaterEntity}.
-	 */
-	@Override
-	public HttpEntity wrapResponseEntity( HttpEntity raw ) {
-		return new InflaterEntity( raw );
-	}
 
-	/**
-	 * Entity used to interpret a Deflate-encoded response
-	 * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
-	 */
+    private final boolean useNoWrapForInflatedStreams;
+
+    public DeflateEncoding(boolean useNoWrapForInflatedStreams) {
+        this.useNoWrapForInflatedStreams = useNoWrapForInflatedStreams;
+    }
+
+    /**
+     * Returns the {@link ContentEncoding.Type#DEFLATE} encoding string which is
+     * added to the <code>Accept-Encoding</code> header by the base class.
+     */
+    @Override
+    public String getContentEncoding() {
+        return Type.DEFLATE.toString();
+    }
+
+
+    /**
+     * Wraps the raw entity in a {@link InflaterEntity}.
+     */
+    @Override
+    public HttpEntity wrapResponseEntity(HttpEntity raw) {
+        return new InflaterEntity(raw, useNoWrapForInflatedStreams);
+    }
+
+    /**
+     * Entity used to interpret a Deflate-encoded response
+     *
+     * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
+     */
     public static class InflaterEntity extends HttpEntityWrapper {
 
-        public InflaterEntity(final HttpEntity entity) {
+        private final boolean useNoWrapForInflatedStreams;
+
+        public InflaterEntity(final HttpEntity entity, boolean useNoWrapForInflatedStreams) {
             super(entity);
+            this.useNoWrapForInflatedStreams = useNoWrapForInflatedStreams;
         }
-    
+
         /**
-         * returns a {@link InflaterInputStream} which wraps the original entity's
-         * content stream
+         * returns a {@link InflaterInputStream} which wraps the original entity's content stream
+         *
          * @see HttpEntity#getContent()
          */
         @Override
         public InputStream getContent() throws IOException, IllegalStateException {
-            return new InflaterInputStream( wrappedEntity.getContent() );
+            return new InflaterInputStream(wrappedEntity.getContent(), new Inflater(useNoWrapForInflatedStreams));
         }
 
         /**
@@ -77,5 +89,4 @@ public class DeflateEncoding extends ContentEncoding {
             return -1;
         }
     }
-
 }

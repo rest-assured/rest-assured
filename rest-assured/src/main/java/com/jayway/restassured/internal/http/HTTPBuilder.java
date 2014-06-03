@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.internal.http;
 
+import com.jayway.restassured.config.DecoderConfig;
 import com.jayway.restassured.config.EncoderConfig;
 import com.jayway.restassured.http.ContentType;
 import groovy.lang.Closure;
@@ -155,9 +156,8 @@ public abstract class HTTPBuilder {
 
     protected Object defaultContentType = ContentType.ANY;
     protected Object defaultRequestContentType = null;
-    protected final Map<Object,Closure> defaultResponseHandlers =
-            new StringHashMap<Closure>( buildDefaultResponseHandlers() );
-    protected ContentEncodingRegistry contentEncodingHandler = new ContentEncodingRegistry();
+    protected final Map<Object,Closure> defaultResponseHandlers = new StringHashMap<Closure>( buildDefaultResponseHandlers() );
+    protected ContentEncodingRegistry contentEncodingHandler;
 
     protected final Map<Object,Object> defaultRequestHeaders = new StringHashMap<Object>();
 
@@ -166,11 +166,10 @@ public abstract class HTTPBuilder {
     private EncoderConfig encoderConfig;
     private boolean urlEncodingEnabled;
 
-    public HTTPBuilder(boolean urlEncodingEnabled, EncoderConfig encoderConfig, AbstractHttpClient client) {
-        super();
+    public HTTPBuilder(boolean urlEncodingEnabled, EncoderConfig encoderConfig, DecoderConfig decoderConfig, AbstractHttpClient client) {
         this.client = client;
-        this.setContentEncoding( ContentEncoding.Type.GZIP,
-                ContentEncoding.Type.DEFLATE );
+        this.contentEncodingHandler = new ContentEncodingRegistry(decoderConfig);
+        this.setContentEncoding( ContentEncoding.Type.GZIP, ContentEncoding.Type.DEFLATE );
         this.encoderConfig = encoderConfig == null ? new EncoderConfig() : encoderConfig;
         this.urlEncodingEnabled = urlEncodingEnabled;
     }
@@ -183,8 +182,8 @@ public abstract class HTTPBuilder {
      * 	{@link URIBuilder#convertToURI(Object)}.
      * @throws URISyntaxException if the given argument does not represent a valid URI
      */
-    public HTTPBuilder( Object defaultURI, boolean urlEncodingEnabled, EncoderConfig encoderConfig, AbstractHttpClient client) {
-        this(urlEncodingEnabled, encoderConfig, client);
+    public HTTPBuilder( Object defaultURI, boolean urlEncodingEnabled, EncoderConfig encoderConfig, DecoderConfig decoderConfig, AbstractHttpClient client) {
+        this(urlEncodingEnabled, encoderConfig, decoderConfig, client);
         try {
             this.defaultURI = new URIBuilder( URIBuilder.convertToURI(defaultURI), this.urlEncodingEnabled, this.encoderConfig);
         } catch (URISyntaxException e) {
@@ -203,8 +202,9 @@ public abstract class HTTPBuilder {
      *   for common types.
      * @throws URISyntaxException if the uri argument does not represent a valid URI
      */
-    public HTTPBuilder( Object defaultURI, Object defaultContentType, boolean urlEncodingEnabled, EncoderConfig encoderConfig, AbstractHttpClient client) throws URISyntaxException {
-        this(urlEncodingEnabled, encoderConfig, client);
+    public HTTPBuilder( Object defaultURI, Object defaultContentType, boolean urlEncodingEnabled, EncoderConfig encoderConfig,
+                        DecoderConfig decoderConfig, AbstractHttpClient client) throws URISyntaxException {
+        this(urlEncodingEnabled, encoderConfig, decoderConfig, client);
         this.defaultURI = new URIBuilder( URIBuilder.convertToURI(defaultURI), urlEncodingEnabled, this.encoderConfig);
         this.defaultContentType = defaultContentType;
     }

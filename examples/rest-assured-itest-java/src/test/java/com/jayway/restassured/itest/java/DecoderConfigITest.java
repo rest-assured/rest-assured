@@ -27,8 +27,7 @@ import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
 import org.junit.Test;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.config.DecoderConfig.ContentDecoder.DEFLATE;
 import static com.jayway.restassured.config.DecoderConfig.ContentDecoder.GZIP;
 import static com.jayway.restassured.config.DecoderConfig.decoderConfig;
@@ -99,5 +98,26 @@ public class DecoderConfigITest extends WithJetty {
                 body("Accept-Encoding", contains("deflate")).
         when().
                 get("/headersWithValues");
+    }
+
+    @Test  public void
+    use_no_wrap_for_inflated_streams_supports_gzdeflate_method() {
+        RestAssured.baseURI = "https://charitablegift.fidelity.com";
+
+        RestAssured.port = 443;
+        RestAssured.basePath = "/externalApps/public";
+
+        String path = "/mobile";
+
+        Response response = expect().statusCode(200).given().relaxedHTTPSValidation()
+                .parameters("Oper_Name", "getConfigInfo",
+                        "Config_Ver", "1.0",
+                        "Os_Ver", "5.0.1",
+                        "Device_Type", "iPhone OS",
+                        "App_Ver", "1.0",
+                        "uApp_Id", "MDNR")
+               .config(config().decoderConfig(decoderConfig().useNoWrapForInflatedStreams(true))).when().get(path);
+
+        assertThat(response.getBody().asString(), not(isEmptyOrNullString()));
     }
 }
