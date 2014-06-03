@@ -291,7 +291,7 @@ public class XmlPath {
         this.xmlPathConfig = config;
         this.mode = xmlPath.mode;
         this.lazyXmlParser = xmlPath.lazyXmlParser.changeCompatibilityMode(mode).changeConfig(config);
-        if(xmlPath.params!=null) {
+        if (xmlPath.params != null) {
             this.params = new HashMap<String, Object>(xmlPath.params);
         }
     }
@@ -425,7 +425,7 @@ public class XmlPath {
     private <T> T getFromPath(String path, boolean convertToJavaObject) {
         final GPathResult input = lazyXmlParser.invoke();
         final XMLAssertion xmlAssertion = new XMLAssertion();
-        if(params != null) {
+        if (params != null) {
             xmlAssertion.setParams(params);
         }
         final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
@@ -581,14 +581,14 @@ public class XmlPath {
      * List&lt;Map&gt; books = with(Object).param("type", type).get("shopping.category.findAll { it.@type == type}");
      * </pre>
      *
-     * @param key The name of the parameter. Just use this name in your expression as a variable
+     * @param key   The name of the parameter. Just use this name in your expression as a variable
      * @param value The value of the parameter
      * @return New XmlPath instance with the parameter set
      */
     public XmlPath param(String key, Object value) {
-        XmlPath newP=new XmlPath(this, getXmlPathConfig());
-        if(newP.params==null) {
-            newP.params=new HashMap<String, Object>();
+        XmlPath newP = new XmlPath(this, getXmlPathConfig());
+        if (newP.params == null) {
+            newP.params = new HashMap<String, Object>();
         }
         newP.params.put(key, value);
         return newP;
