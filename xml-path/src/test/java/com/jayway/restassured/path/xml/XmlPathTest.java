@@ -551,4 +551,34 @@ public class XmlPathTest {
         // Then
         assertThat(xmlPath.getString("LegacyService"), equalTo("Text"));
     }
+
+    @Test
+    public void xmlPathWorksWithSoap() throws Exception {
+        // Given
+        String soap = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+                "<env:Envelope \n" +
+                "    xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\" \n" +
+                "    xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" \n" +
+                "    xmlns:env=\"http://schemas.xmlsoap.org/soap/envelope/\" \n" +
+                "    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n" +
+                "    <env:Header/>\n" +
+                "\n" +
+                "<env:Body>\n" +
+                "    <n1:importProjectResponse \n" +
+                "        xmlns:n1=\"n1\" \n" +
+                "        xmlns:n2=\"n2\" \n" +
+                "        xsi:type=\"n2:ArrayOfProjectImportResultCode\">\n" +
+                "        <n2:ProjectImportResultCode>\n" +
+                "            <n2:code>1</n2:code>\n" +
+                "            <n2:message>Project 'test1' import was successful.</n2:message>\n" +
+                "        </n2:ProjectImportResultCode>\n" +
+                "    </n1:importProjectResponse>\n" +
+                "</env:Body></env:Envelope>";
+        // When
+
+        XmlPath xmlPath = new XmlPath(soap);
+
+        // Then
+        assertThat(xmlPath.getString("Envelope.Body.importProjectResponse.ProjectImportResultCode.code"), equalTo("1"));
+    }
 }
