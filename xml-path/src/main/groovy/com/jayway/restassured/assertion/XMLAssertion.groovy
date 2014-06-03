@@ -71,7 +71,7 @@ class XMLAssertion implements Assertion {
             result = eval(rootObjectVariableName, objectToUse, "$rootObjectVariableName$evaluationString")
         } catch (MissingPropertyException e) {
             // This means that a param was used that was not defined
-            String error = String.format("The parameter \"%s\" was used but not defined. Define parameters using the JsonPath.params(...) function", e.property);
+            String error = String.format("The parameter \"%s\" was used but not defined. Define parameters using the XmlPath.params(...) function", e.property);
             throw new IllegalArgumentException(error, e);
         } catch (Exception e) {
             def errorMessage = e.getMessage();
