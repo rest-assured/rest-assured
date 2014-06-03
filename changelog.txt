@@ -7,7 +7,7 @@ Change log next version
 * Added possibility to include parameters in JsonPath and XmlPath to prevent injection weaknesses (issue 328).
 * Added "matchesXsdFromClasspath" to com.jayway.restassured.matcher.RestAssuredMatchers and com.jayway.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers (issue 330).
 * Added "matchesDtdFromClasspath" to com.jayway.restassured.matcher.RestAssuredMatchers and com.jayway.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers (issue 331).
-* Upgraded Spring MVC module to depend on Spring 4.0.5.
+* Upgraded Spring MVC module to depend on Spring 4.0.5. (issue 335)
 
 Change log 2.3.1 (2014-03-31)
 -----------------------------
