@@ -13,7 +13,7 @@ Change log next version
 * Static usage of "enableLoggingOfRequestAndResponseIfValidationFails" can now be assign after static request and response configurations (issue 323).
 * Multipart parameters are now logged when logging the request specification (issue 144).
 * Added ability to get multipart parameters from com.jayway.restassured.specification.FilterableRequestSpecification using the "getMultiPartParams" method.
-* Added "replaceFiltersWith" method to RestAssured which makes it possible to remove statically defined filters (issue 174).
+* Added "replaceFiltersWith" method to RestAssured which makes it possible to replace statically defined filters (issue 174).
 
 Change log 2.3.1 (2014-03-31)
 -----------------------------
