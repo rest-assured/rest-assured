@@ -100,7 +100,6 @@ public class RedirectConfig {
 
     /**
      *  The same RedirectConfig instance. This method is only provided as syntactic sugar.
-     * @return
      */
     public RedirectConfig and() {
         return this;
