@@ -16,6 +16,9 @@
 
 package com.jayway.restassured.authentication;
 
+import com.jayway.restassured.config.LogConfig;
+import com.jayway.restassured.filter.log.LogDetail;
+
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
@@ -26,6 +29,8 @@ public class FormAuthConfig {
     private final String formAction;
     private final String userInputTagName;
     private final String passwordInputTagName;
+    private final LogConfig logConfig;
+    private final LogDetail logDetail;
 
     /**
      * Create a form auth config with a pre-defined form action, username input tag, password input tag.
@@ -43,21 +48,27 @@ public class FormAuthConfig {
      *     &lt;input type=&quot;submit&quot; value=&quot;Login&quot;/&gt;
      * &lt;/form&gt;
      * </pre>
-     *
+     * <p/>
      * This means that <code>formAction</code> should be set to <code>/j_spring_security_check</code>, <code>userNameInputTagName</code>
      * should be set to <code>j_username</code> and <code>passwordInputTagName</code> should be set to <code>j_password</code>.
      *
-     * @param formAction The action of the form
+     * @param formAction           The action of the form
      * @param userNameInputTagName The name of the username input tag in the login form
      * @param passwordInputTagName The name of the password input tag in the login form
      */
     public FormAuthConfig(String formAction, String userNameInputTagName, String passwordInputTagName) {
+        this(formAction, userNameInputTagName, passwordInputTagName, null, null);
+    }
+
+    private FormAuthConfig(String formAction, String userNameInputTagName, String passwordInputTagName, LogDetail logDetail, LogConfig logConfig) {
         notNull(formAction, "Form action");
         notNull(userNameInputTagName, "User input tag name");
         notNull(passwordInputTagName, "Password input tag name");
         this.formAction = formAction;
         this.userInputTagName = userNameInputTagName;
         this.passwordInputTagName = passwordInputTagName;
+        this.logDetail = logDetail;
+        this.logConfig = logConfig;
     }
 
     /**
@@ -65,6 +76,57 @@ public class FormAuthConfig {
      */
     public static FormAuthConfig springSecurity() {
         return new FormAuthConfig("/j_spring_security_check", "j_username", "j_password");
+    }
+
+    /**
+     * Enables logging with log level {@link com.jayway.restassured.filter.log.LogDetail#ALL} of the request made to authenticate using
+     * form authentication. Both the request and the response is logged.
+     *
+     * @return A new FormAuthConfig instance.
+     */
+    public FormAuthConfig withLoggingEnabled() {
+        return withLoggingEnabled(LogDetail.ALL);
+    }
+
+    /**
+     * Enables logging with the supplied logDetail of the request made to authenticate using form authentication.
+     * Both the request and the response is logged.
+     *
+     * @return A new FormAuthConfig instance.
+     */
+    public FormAuthConfig withLoggingEnabled(LogDetail logDetail) {
+        return withLoggingEnabled(logDetail, new LogConfig());
+    }
+
+    /**
+     * Enables logging with log level {@link com.jayway.restassured.filter.log.LogDetail#ALL} of the request made to authenticate using
+     * form authentication using the specified {@link com.jayway.restassured.config.LogConfig}. Both the request and the response is logged.
+     *
+     * @return A new FormAuthConfig instance.
+     */
+    public FormAuthConfig withLoggingEnabled(LogConfig logConfig) {
+        return withLoggingEnabled(LogDetail.ALL, logConfig);
+    }
+
+    /**
+     * Enables logging with the supplied log detail of the request made to authenticate using form authentication using the
+     * specified {@link com.jayway.restassured.config.LogConfig}. Both the request and the response is logged.
+     *
+     * @return A new FormAuthConfig instance.
+     */
+    public FormAuthConfig withLoggingEnabled(LogDetail logDetail, LogConfig logConfig) {
+        notNull(logDetail, LogDetail.class);
+        notNull(logConfig, LogConfig.class);
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig);
+    }
+
+    /**
+     * Syntactic sugar
+     *
+     * @return The same FormAuthConfig instance
+     */
+    public FormAuthConfig and() {
+        return this;
     }
 
     public String getFormAction() {
@@ -77,5 +139,17 @@ public class FormAuthConfig {
 
     public String getPasswordInputTagName() {
         return passwordInputTagName;
+    }
+
+    public LogConfig getLogConfig() {
+        return logConfig;
+    }
+
+    public boolean isLoggingEnabled() {
+        return logConfig != null && logDetail != null;
+    }
+
+    public LogDetail getLogDetail() {
+        return logDetail;
     }
 }

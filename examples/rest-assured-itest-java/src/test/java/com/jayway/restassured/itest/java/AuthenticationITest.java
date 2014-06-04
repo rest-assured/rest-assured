@@ -19,10 +19,16 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.authentication.FormAuthConfig;
 import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.config.LogConfig;
+import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.filter.session.SessionFilter;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
+
+import java.io.PrintStream;
+import java.io.StringWriter;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.authentication.FormAuthConfig.springSecurity;
@@ -102,6 +108,54 @@ public class AuthenticationITest extends WithJetty {
                 body(equalTo("OK")).
         when().
                 get("/formAuth");
+    }
+
+    @Test
+    public void formAuthenticationUsingLogging() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                auth().form("John", "Doe", springSecurity().withLoggingEnabled(new LogConfig(captor, true))).
+        when().
+                get("/formAuth").
+        then().
+                statusCode(200).
+                body(equalTo("OK"));
+
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/j_spring_security_check\nRequest params:\tj_username=John\n\t\t\t\tj_password=Doe\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\nHTTP/1.1 200 OK\nContent-Type: text/plain; charset=utf-8\nSet-Cookie: jsessionid=1234\nContent-Length: 0\nServer: Jetty(6.1.14)\n"));
+    }
+
+    @Test
+    public void formAuthenticationUsingLoggingWithLogDetailEqualToParams() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                auth().form("John", "Doe", springSecurity().withLoggingEnabled(LogDetail.PARAMS, new LogConfig(captor, true))).
+        when().
+                get("/formAuth").
+        then().
+                statusCode(200).
+                body(equalTo("OK"));
+
+        assertThat(writer.toString(), equalTo("Request params:\tj_username=John\n\t\t\t\tj_password=Doe\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\n"));
+    }
+
+    @Test
+    public void formAuthenticationUsingLoggingWithLogDetailEqualToStatus() throws Exception {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                auth().form("John", "Doe", springSecurity().withLoggingEnabled(LogDetail.STATUS, new LogConfig(captor, true))).
+        when().
+                get("/formAuth").
+        then().
+                statusCode(200).
+                body(equalTo("OK"));
+
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\n"));
     }
 
     @Test

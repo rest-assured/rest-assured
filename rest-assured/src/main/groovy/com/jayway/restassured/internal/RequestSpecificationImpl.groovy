@@ -1764,7 +1764,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return config == null ? SessionConfig.sessionConfig() : config.getSessionConfig();
   }
 
-  private def RestAssuredConfig restAssuredConfig() {
+  def RestAssuredConfig restAssuredConfig() {
     config ?: new RestAssuredConfig()
   }
 
