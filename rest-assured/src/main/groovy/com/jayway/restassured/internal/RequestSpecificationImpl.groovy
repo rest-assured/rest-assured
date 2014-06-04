@@ -1547,6 +1547,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return Collections.unmodifiableMap(queryParameters)
   }
 
+  List<MultiPartSpecification> getMultiPartParams() {
+    return multiParts.collect { new MultiPartSpecificationImpl(content: it.content, charset: it.charset, fileName: it.fileName, mimeType: it.mimeType, controlName: it.name) }
+  }
+
   Headers getHeaders() {
     return requestHeaders
   }

@@ -22,41 +22,57 @@ import org.apache.http.entity.mime.content.StringBody
 import java.nio.charset.Charset
 
 class MultiPartInternal {
-    private static final String OCTET_STREAM = "application/octet-stream"
-    private static final String TEXT_PLAIN = "text/plain"
+  private static final String OCTET_STREAM = "application/octet-stream"
+  private static final String TEXT_PLAIN = "text/plain"
 
-    def content
-    def String name
-    def String fileName
-    def String mimeType
-    def String charset
+  def content
+  def String name
+  def String fileName
+  def String mimeType
+  def String charset
 
-    def getContentBody() {
-        if(content instanceof NoParameterValue) {
-            content = "";
-        }
-
-        if(content instanceof File) {
-            new FileBody(content, fileName, mimeType ?: OCTET_STREAM, charset)
-        } else if(content instanceof InputStream) {
-            returnInputStreamBody()
-        } else if(content instanceof byte[]) {
-            content = new ByteArrayInputStream(content)
-            returnInputStreamBody()
-        } else if(content instanceof String) {
-            returnStringBody(content)
-        } else if(content != null) {
-            returnStringBody(content.toString())
-        } else {
-            throw new IllegalArgumentException("Illegal content: $content")
-        }
+  def getContentBody() {
+    if (content instanceof NoParameterValue) {
+      content = "";
     }
 
-    private def returnStringBody(String content) {
-        StringBody.create(content, mimeType ?: TEXT_PLAIN, charset == null ? null : Charset.forName(charset))
+    if (content instanceof File) {
+      new FileBody(content, fileName, mimeType ?: OCTET_STREAM, charset)
+    } else if (content instanceof InputStream) {
+      returnInputStreamBody()
+    } else if (content instanceof byte[]) {
+      content = new ByteArrayInputStream(content)
+      returnInputStreamBody()
+    } else if (content instanceof String) {
+      returnStringBody(content)
+    } else if (content != null) {
+      returnStringBody(content.toString())
+    } else {
+      throw new IllegalArgumentException("Illegal content: $content")
     }
+  }
 
-    private def returnInputStreamBody() {
-        new InputStreamBody(content, mimeType ?: OCTET_STREAM, fileName ?: "file")
+  String getMimeType() {
+    if (content instanceof File) {
+      mimeType ?: OCTET_STREAM
+    } else if (content instanceof InputStream) {
+      mimeType ?: OCTET_STREAM
+    } else if (content instanceof byte[]) {
+      mimeType ?: OCTET_STREAM
+    } else if (content instanceof String) {
+      mimeType ?: TEXT_PLAIN
+    } else if (content != null) {
+      mimeType ?: TEXT_PLAIN
+    } else {
+      mimeType
     }
+  }
+
+  private def returnStringBody(String content) {
+    StringBody.create(content, mimeType ?: TEXT_PLAIN, charset == null ? null : Charset.forName(charset))
+  }
+
+  private def returnInputStreamBody() {
+    new InputStreamBody(content, mimeType ?: OCTET_STREAM, fileName ?: "file")
+  }
 }

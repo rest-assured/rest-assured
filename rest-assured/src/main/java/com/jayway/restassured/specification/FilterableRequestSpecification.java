@@ -77,6 +77,11 @@ public interface FilterableRequestSpecification extends RequestSpecification {
     Map<String, ?> getQueryParams();
 
     /**
+     * @return The multipart segments defined in the request specification
+     */
+    List<MultiPartSpecification> getMultiPartParams();
+
+    /**
      * @return The headers defined in the request specification
      */
     Headers getHeaders();

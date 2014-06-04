@@ -24,9 +24,11 @@ import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
+import com.jayway.restassured.specification.MultiPartSpecification;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Map;
 
 import static com.jayway.restassured.filter.log.LogDetail.*;
@@ -36,7 +38,7 @@ import static com.jayway.restassured.filter.log.LogDetail.*;
  */
 public class RequestPrinter {
     private static final String TAB = "\t";
-    private static final String NEW_LINE = "\n";
+    private static final String NEW_LINE = System.getProperty("line.separator");
     private static final String EQUALS = "=";
     private static final String NONE = "<none>";
     private static final String CONTENT_TYPE = "Content-Type";
@@ -54,7 +56,9 @@ public class RequestPrinter {
             addMapDetails(builder, "Query params:", requestSpec.getQueryParams());
             addMapDetails(builder, "Form params:", requestSpec.getFormParams());
             addMapDetails(builder, "Path params:", requestSpec.getPathParams());
+            addMultiParts(requestSpec, builder);
         }
+
         if (logDetail == ALL || logDetail == HEADERS) {
             addHeaders(requestSpec, builder);
         }
@@ -120,6 +124,25 @@ public class RequestPrinter {
                 appendFourTabs(builder);
             }
             builder.append(header).append(NEW_LINE);
+        }
+    }
+
+
+    private static void addMultiParts(FilterableRequestSpecification requestSpec, StringBuilder builder) {
+        builder.append("Multiparts:");
+        final List<MultiPartSpecification> multiParts = requestSpec.getMultiPartParams();
+        if (multiParts.isEmpty()) {
+            appendTwoTabs(builder).append(NONE).append(NEW_LINE);
+        } else {
+            int i = 0;
+            for (MultiPartSpecification multiPart : multiParts) {
+                if (i++ == 0) {
+                    appendTwoTabs(builder);
+                } else {
+                    appendFourTabs(builder);
+                }
+                builder.append(multiPart).append(NEW_LINE);
+            }
         }
     }
 
