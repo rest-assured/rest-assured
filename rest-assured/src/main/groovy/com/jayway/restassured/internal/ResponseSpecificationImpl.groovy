@@ -688,6 +688,13 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   private String applyArguments(String path, List<Argument> arguments) {
     if (arguments?.size() > 0) {
+      def numberArgsOfAfterMerge = StringUtils.countMatches(path, "%s");
+      if (numberArgsOfAfterMerge > arguments.size()) {
+        arguments = new ArrayList<>(arguments);
+        for (int i = 0; i < (numberArgsOfAfterMerge - arguments.size()); i++) {
+          arguments.add(new Argument("%s"));
+        }
+      }
       path = String.format(path, arguments.collect { it.getArgument() }.toArray(new Object[arguments.size()]))
     }
     return path

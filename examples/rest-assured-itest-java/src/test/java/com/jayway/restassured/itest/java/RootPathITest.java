@@ -284,4 +284,24 @@ public class RootPathITest extends WithJetty {
                 detachRoot("another").
                 body("size()", equalTo(2));
     }
+
+    @Test
+    public void supportsAppendingArgumentsDefinedInAppendRootAtALaterStage() throws Exception {
+        when().
+                 get("/jsonStore").
+        then().
+                 root("store.%s", withArgs("book")).
+                 body("category.size()", equalTo(4)).
+                 appendRoot("%s.%s", withArgs("author")).
+                 body(withArgs("size()"), equalTo(4));
+    }
+
+    @Test
+    public void supportsAppendingArgumentsDefinedInRootAtALaterStage() throws Exception {
+        when().
+                 get("/jsonStore").
+        then().
+                 root("store.%s.%s", withArgs("book")).
+                 body("size()", withArgs("category"), equalTo(4));
+    }
 }

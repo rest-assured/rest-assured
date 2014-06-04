@@ -14,6 +14,15 @@ Change log next version
 * Multipart parameters are now logged when logging the request specification (issue 144).
 * Added ability to get multipart parameters from com.jayway.restassured.specification.FilterableRequestSpecification using the "getMultiPartParams" method.
 * Added "replaceFiltersWith" method to RestAssured which makes it possible to replace statically defined filters (issue 174).
+* Added support for specifying arguments to root or append paths at a later stage, for example:
+    when().
+         get("/jsonStore").
+    then().
+         root("store.%s", withArgs("book")).
+         body("category.size()", equalTo(4)).
+         appendRoot("%s.%s", withArgs("author")).
+         body(withArgs("size()"), equalTo(4)); // The last argument defined in "appendRoot" is applied here
+ (issue 267).
 
 Change log 2.3.1 (2014-03-31)
 -----------------------------
