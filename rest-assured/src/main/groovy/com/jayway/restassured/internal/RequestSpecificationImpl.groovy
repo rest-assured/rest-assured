@@ -118,8 +118,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this.filters.addAll(filters)
     this.contentType = defaultRequestContentType
     this.urlEncodingEnabled = urlEncode
-    this.restAssuredConfig = restAssuredConfig
     port(requestPort)
+    this.restAssuredConfig = restAssuredConfig
     if (defaultSpec != null) {
       spec(defaultSpec)
     }

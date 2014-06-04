@@ -1,5 +1,6 @@
 package com.jayway.restassured.module.mockmvc;
 
+import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
@@ -717,5 +718,17 @@ public class RestAssuredMockMvc {
     public static void enableLoggingOfRequestAndResponseIfValidationFails(LogDetail logDetail) {
         config = config == null ? new RestAssuredMockMvcConfig() : config;
         config = config.logConfig(logConfig().enableLoggingOfRequestAndResponseIfValidationFails(logDetail));
+        // Update request specification if already defined otherwise it'll override the configs.
+        // Note that request spec also influence response spec when it comes to logging if validation fails due to the way filters work
+        if (requestSpecification != null && requestSpecification instanceof MockMvcRequestSpecificationImpl) {
+            RestAssuredMockMvcConfig restAssuredConfig = ((MockMvcRequestSpecificationImpl) requestSpecification).getRestAssuredMockMvcConfig();
+            if (restAssuredConfig == null) {
+                restAssuredConfig = config;
+            } else {
+                LogConfig logConfigForRequestSpec = restAssuredConfig.getLogConfig().enableLoggingOfRequestAndResponseIfValidationFails(logDetail);
+                restAssuredConfig = restAssuredConfig.logConfig(logConfigForRequestSpec);
+            }
+            requestSpecification.config(restAssuredConfig);
+        }
     }
 }

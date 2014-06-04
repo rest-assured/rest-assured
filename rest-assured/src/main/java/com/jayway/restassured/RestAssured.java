@@ -17,6 +17,7 @@
 package com.jayway.restassured;
 
 import com.jayway.restassured.authentication.*;
+import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.config.SSLConfig;
 import com.jayway.restassured.filter.Filter;
@@ -1373,11 +1374,12 @@ public class RestAssured {
         final ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(RESPONSE_PARSER_REGISTRAR);
         applySessionIdIfApplicable();
         LogRepository logRepository = new LogRepository();
+        RestAssuredConfig restAssuredConfig = config();
         return new TestSpecificationImpl(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters,
-                        requestContentType, requestSpecification, urlEncodingEnabled, config, logRepository),
+                        requestContentType, requestSpecification, urlEncodingEnabled, restAssuredConfig, logRepository),
                 new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, responseParserRegistrar,
-                        config(), logRepository)
+                        restAssuredConfig, logRepository)
         );
     }
 
@@ -1434,7 +1436,21 @@ public class RestAssured {
      * @param logDetail The log detail to show in the log
      */
     public static void enableLoggingOfRequestAndResponseIfValidationFails(LogDetail logDetail) {
-        config = RestAssured.config().logConfig(logConfig().enableLoggingOfRequestAndResponseIfValidationFails(logDetail));
+        LogConfig logConfig = logConfig().enableLoggingOfRequestAndResponseIfValidationFails(logDetail);
+        config = RestAssured.config().logConfig(logConfig);
+
+        // Update request specification if already defined otherwise it'll override the configs.
+        // Note that request spec also influence response spec when it comes to logging if validation fails due to the way filters work
+        if (requestSpecification != null && requestSpecification instanceof RequestSpecificationImpl) {
+            RestAssuredConfig restAssuredConfig = ((RequestSpecificationImpl) requestSpecification).getConfig();
+            if (restAssuredConfig == null) {
+                restAssuredConfig = config;
+            } else {
+                LogConfig logConfigForRequestSpec = restAssuredConfig.getLogConfig().enableLoggingOfRequestAndResponseIfValidationFails(logDetail);
+                restAssuredConfig = restAssuredConfig.logConfig(logConfigForRequestSpec);
+            }
+            requestSpecification.config(restAssuredConfig);
+        }
     }
 
     /**

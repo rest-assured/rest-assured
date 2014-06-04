@@ -17,6 +17,8 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.output.WriterOutputStream;
@@ -304,6 +306,65 @@ public class LogIfValidationFailsITest extends WithJetty {
             assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+"Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Headers:\t\tContent-Type=application/json"+LINE_SEPARATOR+"Cookies:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR +
                     "Content-Type: application/json; charset=UTF-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(6.1.14)"+LINE_SEPARATOR));
           }
+    }
+
+    @Test public void
+    logging_of_both_request_and_response_validation_works_when_test_fails_when_using_static_response_and_request_specs_declared_before_enable_logging() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        RestAssured.responseSpecification = new ResponseSpecBuilder().expectStatusCode(200).build();
+        RestAssured.requestSpecification = new RequestSpecBuilder().setConfig(config().logConfig(new LogConfig(captor, true))).
+                addHeader("Api-Key", "1234").build();
+
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails(HEADERS);
+
+        try {
+            given().
+                    param("firstName", "John").
+                    param("lastName", "Doe").
+                    header("Content-type", "application/json").
+            when().
+                    get("/greet").
+            then().
+                    body("firstName", equalTo("Hello, Johan2!"));
+
+            fail("Should throw AssertionError");
+        } catch (AssertionError e) {
+            assertThat(writer.toString(), equalTo("Headers:\t\tContent-Type=application/json\n\t\t\t\tApi-Key=1234\n\nContent-Type: application/json; charset=UTF-8\nContent-Length: 33\nServer: Jetty(6.1.14)\n"));
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test public void
+    logging_of_both_request_and_response_validation_works_when_test_fails_when_using_static_response_and_request_specs_declared_after_enable_logging() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails(HEADERS);
+
+        RestAssured.responseSpecification = new ResponseSpecBuilder().expectStatusCode(200).build();
+        RestAssured.requestSpecification = new RequestSpecBuilder().setConfig(config().logConfig(new LogConfig(captor, true))).
+                addHeader("Api-Key", "1234").build();
+
+
+        try {
+            given().
+                    param("firstName", "John").
+                    param("lastName", "Doe").
+                    header("Content-type", "application/json").
+            when().
+                    get("/greet").
+            then().
+                    body("firstName", equalTo("Hello, Johan2!"));
+
+            fail("Should throw AssertionError");
+        } catch (AssertionError e) {
+            assertThat(writer.toString(), equalTo("Headers:\t\tContent-Type=application/json\n\t\t\t\tApi-Key=1234\n\nContent-Type: application/json; charset=UTF-8\nContent-Length: 33\nServer: Jetty(6.1.14)\n"));
+        } finally {
+            RestAssured.reset();
+        }
     }
 
     @Test public void

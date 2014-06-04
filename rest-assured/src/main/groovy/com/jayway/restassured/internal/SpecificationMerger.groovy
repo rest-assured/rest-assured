@@ -119,7 +119,7 @@ class SpecificationMerger {
             oldSessionIdName = thisOneConfig.sessionConfig.sessionIdName()
         }
 
-        def shouldRemoveSessionFromThis = false
+        def shouldRemoveSessionFromThis
         if (otherConfig == null) {
             shouldRemoveSessionFromThis = otherCookies.hasCookieWithName(oldSessionIdName);
         } else {
