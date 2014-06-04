@@ -487,7 +487,7 @@ public class RestAssured {
     private static List<Filter> filters = new LinkedList<Filter>();
 
     /**
-     * The the default filters to apply to each request.
+     * Add default filters that will be applied to each request.
      *
      * @param filters The filter list
      */
@@ -497,10 +497,10 @@ public class RestAssured {
     }
 
     /**
-     * The the default filters to apply to each request.
+     * Add default filters to apply to each request.
      *
-     * @param filter            The filter to set
-     * @param additionalFilters An optional array of additional filters to set
+     * @param filter            The filter to add
+     * @param additionalFilters An optional array of additional filters to add
      */
     public static void filters(Filter filter, Filter... additionalFilters) {
         Validate.notNull(filter, "Filter cannot be null");
@@ -508,6 +508,29 @@ public class RestAssured {
         if (additionalFilters != null) {
             Collections.addAll(RestAssured.filters, additionalFilters);
         }
+    }
+
+    /**
+     * Sets the default filters to apply to each request.
+     *
+     * @param filters The filter list
+     */
+    public static void replaceFiltersWith(List<Filter> filters) {
+        Validate.notNull(filters, "Filter list cannot be null");
+        RestAssured.filters.clear();
+        filters(filters);
+    }
+
+    /**
+     * Sets the default filters to apply to each request.
+     *
+     * @param filter            The filter to set
+     * @param additionalFilters An optional array of additional filters to set
+     */
+    public static void replaceFiltersWith(Filter filter, Filter... additionalFilters) {
+        Validate.notNull(filter, "Filter cannot be null");
+        RestAssured.filters.clear();
+        filters(filter, additionalFilters);
     }
 
     /**
