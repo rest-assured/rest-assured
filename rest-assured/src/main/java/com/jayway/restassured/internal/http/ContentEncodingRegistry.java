@@ -31,11 +31,11 @@ import java.util.Map;
  */
 public class ContentEncodingRegistry {
 
-    private final boolean useNoWrapForInflatedStreams;
+    private final boolean useNoWrapForInflateDecoding;
     protected Map<String, ContentEncoding> availableEncoders;
 
     public ContentEncodingRegistry(DecoderConfig decoderConfig) {
-        useNoWrapForInflatedStreams = (decoderConfig == null ? DecoderConfig.decoderConfig() : decoderConfig).shouldUseNoWrapForInflatedStreams();
+        useNoWrapForInflateDecoding = (decoderConfig == null ? DecoderConfig.decoderConfig() : decoderConfig).shouldUseNoWrapForInflateDecoding();
         availableEncoders = getDefaultEncoders();
     }
 
@@ -50,7 +50,7 @@ public class ContentEncodingRegistry {
     protected Map<String, ContentEncoding> getDefaultEncoders() {
         Map<String, ContentEncoding> map = new HashMap<String, ContentEncoding>();
         map.put(Type.GZIP.toString(), new GZIPEncoding());
-        map.put(Type.DEFLATE.toString(), new DeflateEncoding(useNoWrapForInflatedStreams));
+        map.put(Type.DEFLATE.toString(), new DeflateEncoding(useNoWrapForInflateDecoding));
         return map;
     }
 

@@ -8,7 +8,7 @@ Change log next version
 * Added "matchesXsdFromClasspath" to com.jayway.restassured.matcher.RestAssuredMatchers and com.jayway.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers (issue 330).
 * Added "matchesDtdFromClasspath" to com.jayway.restassured.matcher.RestAssuredMatchers and com.jayway.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers (issue 331).
 * Upgraded Spring MVC module to depend on Spring 4.0.5. (issue 335)
-* Added possibility to use "no wrap" for inflated streams to support gzdeflate (RFC 1951) used by e.g. PHP. Usage example: given().config(config().decoderConfig(decoderConfig().useNoWrapForInflatedStreams(true))).when().get("/x"). (issue 327).
+* Added possibility to use "no wrap" for inflated streams to support gzdeflate (RFC 1951) used by e.g. PHP. Usage example: given().config(config().decoderConfig(decoderConfig().useNoWrapForInflateDecoding(true))).when().get("/x"). (issue 327).
 * basePath can now be set in the RequestSpecification as well as RequestSpecBuilder (issue 325).
 * Static usage of "enableLoggingOfRequestAndResponseIfValidationFails" can now be assign after static request and response configurations (issue 323).
 

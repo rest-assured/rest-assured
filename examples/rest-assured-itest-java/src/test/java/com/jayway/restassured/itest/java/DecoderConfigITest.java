@@ -116,7 +116,7 @@ public class DecoderConfigITest extends WithJetty {
                         "Device_Type", "iPhone OS",
                         "App_Ver", "1.0",
                         "uApp_Id", "MDNR")
-               .config(config().decoderConfig(decoderConfig().useNoWrapForInflatedStreams(true))).when().get(path);
+               .config(config().decoderConfig(decoderConfig().useNoWrapForInflateDecoding(true))).when().get(path);
 
         assertThat(response.getBody().asString(), not(isEmptyOrNullString()));
     }

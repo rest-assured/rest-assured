@@ -32,10 +32,10 @@ import java.util.zip.InflaterInputStream;
  */
 public class DeflateEncoding extends ContentEncoding {
 
-    private final boolean useNoWrapForInflatedStreams;
+    private final boolean useNoWrapForInflateDecoding;
 
-    public DeflateEncoding(boolean useNoWrapForInflatedStreams) {
-        this.useNoWrapForInflatedStreams = useNoWrapForInflatedStreams;
+    public DeflateEncoding(boolean useNoWrapForInflateDecoding) {
+        this.useNoWrapForInflateDecoding = useNoWrapForInflateDecoding;
     }
 
     /**
@@ -53,7 +53,7 @@ public class DeflateEncoding extends ContentEncoding {
      */
     @Override
     public HttpEntity wrapResponseEntity(HttpEntity raw) {
-        return new InflaterEntity(raw, useNoWrapForInflatedStreams);
+        return new InflaterEntity(raw, useNoWrapForInflateDecoding);
     }
 
     /**
@@ -63,11 +63,11 @@ public class DeflateEncoding extends ContentEncoding {
      */
     public static class InflaterEntity extends HttpEntityWrapper {
 
-        private final boolean useNoWrapForInflatedStreams;
+        private final boolean useNoWrapForInflateDecoding;
 
-        public InflaterEntity(final HttpEntity entity, boolean useNoWrapForInflatedStreams) {
+        public InflaterEntity(final HttpEntity entity, boolean useNoWrapForInflateDecoding) {
             super(entity);
-            this.useNoWrapForInflatedStreams = useNoWrapForInflatedStreams;
+            this.useNoWrapForInflateDecoding = useNoWrapForInflateDecoding;
         }
 
         /**
@@ -77,7 +77,7 @@ public class DeflateEncoding extends ContentEncoding {
          */
         @Override
         public InputStream getContent() throws IOException, IllegalStateException {
-            return new InflaterInputStream(wrappedEntity.getContent(), new Inflater(useNoWrapForInflatedStreams));
+            return new InflaterInputStream(wrappedEntity.getContent(), new Inflater(useNoWrapForInflateDecoding));
         }
 
         /**

@@ -28,17 +28,17 @@ import java.util.List;
  */
 public class DecoderConfig {
 
-    private static final boolean DEFAULT_NO_WRAP_FOR_INFLATED_STREAMS = false;
+    private static final boolean DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS = false;
 
     private final String defaultContentCharset;
     private final List<ContentDecoder> contentDecoders;
-    private final boolean useNoWrapForInflatedStreams;
+    private final boolean useNoWrapForInflateDecoding;
 
     /**
      * Configure the decoder config to use the default charset as specified by {@link java.nio.charset.Charset#defaultCharset()} for content decoding.
      */
     public DecoderConfig() {
-        this(Charset.defaultCharset().toString(), DEFAULT_NO_WRAP_FOR_INFLATED_STREAMS, defaultContentEncoders());
+        this(Charset.defaultCharset().toString(), DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, defaultContentEncoders());
     }
 
     /**
@@ -47,7 +47,7 @@ public class DecoderConfig {
      * @param defaultContentCharset The charset to use if not specifically specified in the response.
      */
     public DecoderConfig(String defaultContentCharset) {
-        this(defaultContentCharset, DEFAULT_NO_WRAP_FOR_INFLATED_STREAMS, defaultContentEncoders());
+        this(defaultContentCharset, DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, defaultContentEncoders());
     }
 
     /**
@@ -63,18 +63,18 @@ public class DecoderConfig {
      * @return A new instance of the DecoderConfig.
      */
     public DecoderConfig(ContentDecoder contentDecoder, ContentDecoder... additionalContentDecoders) {
-        this(Charset.defaultCharset().toString(), DEFAULT_NO_WRAP_FOR_INFLATED_STREAMS, merge(contentDecoder, additionalContentDecoders));
+        this(Charset.defaultCharset().toString(), DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, merge(contentDecoder, additionalContentDecoders));
     }
 
-    private DecoderConfig(String defaultContentCharset, boolean useNoWrapForInflatedStreams, ContentDecoder... contentDecoders) {
-        this(defaultContentCharset, useNoWrapForInflatedStreams, contentDecoders == null ? Collections.<ContentDecoder>emptyList() : Arrays.asList(contentDecoders));
+    private DecoderConfig(String defaultContentCharset, boolean useNoWrapForInflateDecoding, ContentDecoder... contentDecoders) {
+        this(defaultContentCharset, useNoWrapForInflateDecoding, contentDecoders == null ? Collections.<ContentDecoder>emptyList() : Arrays.asList(contentDecoders));
     }
 
-    private DecoderConfig(String defaultContentCharset, boolean useNoWrapForInflatedStreams, List<ContentDecoder> contentDecoders) {
+    private DecoderConfig(String defaultContentCharset, boolean useNoWrapForInflateDecoding, List<ContentDecoder> contentDecoders) {
         Validate.notBlank(defaultContentCharset, "Default decoder content charset to cannot be blank");
         this.defaultContentCharset = defaultContentCharset;
         this.contentDecoders = Collections.unmodifiableList(contentDecoders == null ? Collections.<ContentDecoder>emptyList() : contentDecoders);
-        this.useNoWrapForInflatedStreams = useNoWrapForInflatedStreams;
+        this.useNoWrapForInflateDecoding = useNoWrapForInflateDecoding;
     }
 
     /**
@@ -102,21 +102,21 @@ public class DecoderConfig {
      * Setting no wrap to <code>true</code> is required when communicating with servers not using RFC 1950 (such as PHP which uses RFC 1951).
      * See <a href=" http://stackoverflow.com/a/11401785">stackoverflow</a> for more details.
      * <p/>
-     * Default is {@value #DEFAULT_NO_WRAP_FOR_INFLATED_STREAMS}.
+     * Default is {@value #DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS}.
      *
      * @param nowrap if true then support GZIP compatible compression
      * @return A new instance of the DecoderConfig.
      */
-    public DecoderConfig useNoWrapForInflatedStreams(boolean nowrap) {
+    public DecoderConfig useNoWrapForInflateDecoding(boolean nowrap) {
         return new DecoderConfig(defaultContentCharset, nowrap, contentDecoders);
     }
 
     /**
-     * @return <code>true</code> if no wrap should be used for inflated streams.
-     * @see #useNoWrapForInflatedStreams(boolean)
+     * @return <code>true</code> if no wrap should be used for inflate encoded streams.
+     * @see #useNoWrapForInflateDecoding(boolean)
      */
-    public boolean shouldUseNoWrapForInflatedStreams() {
-        return useNoWrapForInflatedStreams;
+    public boolean shouldUseNoWrapForInflateDecoding() {
+        return useNoWrapForInflateDecoding;
     }
 
     /**
@@ -126,7 +126,7 @@ public class DecoderConfig {
      * @return A new instance of the DecoderConfig.
      */
     public DecoderConfig defaultContentCharset(String charset) {
-        return new DecoderConfig(charset, useNoWrapForInflatedStreams, contentDecoders);
+        return new DecoderConfig(charset, useNoWrapForInflateDecoding, contentDecoders);
     }
 
     /**
@@ -141,7 +141,7 @@ public class DecoderConfig {
      * @return A new instance of the DecoderConfig.
      */
     public DecoderConfig contentDecoders(ContentDecoder contentDecoder, ContentDecoder... additionalContentDecoders) {
-        return new DecoderConfig(defaultContentCharset, useNoWrapForInflatedStreams, merge(contentDecoder, additionalContentDecoders));
+        return new DecoderConfig(defaultContentCharset, useNoWrapForInflateDecoding, merge(contentDecoder, additionalContentDecoders));
     }
 
     /**
@@ -151,7 +151,7 @@ public class DecoderConfig {
      * @see #contentDecoders(com.jayway.restassured.config.DecoderConfig.ContentDecoder, com.jayway.restassured.config.DecoderConfig.ContentDecoder...)
      */
     public DecoderConfig noContentDecoders() {
-        return new DecoderConfig(defaultContentCharset, useNoWrapForInflatedStreams);
+        return new DecoderConfig(defaultContentCharset, useNoWrapForInflateDecoding);
     }
 
     /**
