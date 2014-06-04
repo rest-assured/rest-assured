@@ -16,6 +16,11 @@ class CharsetExtractorTest {
         assertEquals "UTF-8", CharsetExtractor.getCharsetFromContentType("application/ld+json; qs=0.5; charset=UTF-8")
     }
 
+  @Test
+  def void shouldExtractCharsetFromTheEndOfTheDeclarationWhenCharsetIsNotLowercase() throws Exception {
+    assertEquals "UTF-8", CharsetExtractor.getCharsetFromContentType("application/ld+json; qs=0.5; CharseT=UTF-8")
+  }
+
     @Test
     def void shouldExtractNullCharsetWhenNotPresent() throws Exception {
         assertEquals null, CharsetExtractor.getCharsetFromContentType("application/ld+json; qs=0.5")

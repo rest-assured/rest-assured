@@ -33,7 +33,7 @@ class CharsetExtractor {
             contentType.split(";").each {
                 if(StringUtils.containsIgnoreCase(contentType, CHARSET)) {
                     def questionMark = it.split("=")
-                    if(questionMark != null && questionMark.length == 2 && questionMark[0].trim().equals("charset")) {
+                    if(questionMark != null && questionMark.length == 2 && questionMark[0].trim().equalsIgnoreCase("charset")) {
                         foundCharset = questionMark[1]?.trim();
                     }
                 }

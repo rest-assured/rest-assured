@@ -32,6 +32,7 @@ Change log next version
             statusCode(200).
             body(equalTo("OK"));
   (issue 274).
+* Fixed so that CharsetExtractor no longer fails to extract the charset when more than one key=value pair present in the content-type header (issue 337).
 
 Change log 2.3.1 (2014-03-31)
 -----------------------------
