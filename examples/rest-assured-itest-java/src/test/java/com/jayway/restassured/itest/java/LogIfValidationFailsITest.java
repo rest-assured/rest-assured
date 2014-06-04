@@ -21,6 +21,7 @@ import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.specification.RequestSpecification;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.After;
 import org.junit.Before;
@@ -338,19 +339,49 @@ public class LogIfValidationFailsITest extends WithJetty {
     }
 
     @Test public void
-    logging_of_both_request_and_response_validation_works_when_test_fails_when_using_static_response_and_request_specs_declared_after_enable_logging() {
+    doesnt_log_request_or_response_when_test_fails_when_using_non_static_request_spec_declared_before_enable_logging_since_config_is_immutable_and_spec_config_has_precedence_over_global_config() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        RequestSpecification specification = new RequestSpecBuilder().
+                setConfig(RestAssured.config().logConfig(RestAssured.config().getLogConfig().defaultStream(captor).and().enablePrettyPrinting(true))).
+                addHeader("Api-Key", "1234").build();
+
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails(HEADERS);
+
+        try {
+            given().
+                    spec(specification).
+                    param("firstName", "John").
+                    param("lastName", "Doe").
+                    header("Content-type", "application/json").
+            when().
+                    get("/greet").
+            then().
+                    body("firstName", equalTo("Hello, Johan2!"));
+
+            fail("Should throw AssertionError");
+        } catch (AssertionError e) {
+            assertThat(writer.toString(), isEmptyString());
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test public void
+    logging_of_both_request_and_response_validation_works_when_test_fails_when_using_non_static_request_spec_declared_after_enable_logging() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails(HEADERS);
 
-        RestAssured.responseSpecification = new ResponseSpecBuilder().expectStatusCode(200).build();
-        RestAssured.requestSpecification = new RequestSpecBuilder().setConfig(config().logConfig(new LogConfig(captor, true))).
+        RequestSpecification specification = new RequestSpecBuilder().
+                setConfig(RestAssured.config().logConfig(RestAssured.config().getLogConfig().defaultStream(captor).and().enablePrettyPrinting(true))).
                 addHeader("Api-Key", "1234").build();
-
 
         try {
             given().
+                    spec(specification).
                     param("firstName", "John").
                     param("lastName", "Doe").
                     header("Content-type", "application/json").
@@ -366,6 +397,7 @@ public class LogIfValidationFailsITest extends WithJetty {
             RestAssured.reset();
         }
     }
+
 
     @Test public void
     logging_doesnt_change_original_content_by_pretty_printing() {
