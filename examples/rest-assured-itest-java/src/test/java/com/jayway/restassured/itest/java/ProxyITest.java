@@ -16,9 +16,11 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
+import org.apache.http.conn.HttpHostConnectException;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -29,7 +31,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.specification.ProxySpecification.host;
 import static org.hamcrest.Matchers.equalTo;
 
-//@Ignore("Removed when manually having setup a Proxy such as Charles on port 8888")
+//@Ignore("Ignored since a manual proxy setup such as Charles is expected on port 8888")
 public class ProxyITest extends WithJetty {
 
     @Test public void
@@ -124,5 +126,61 @@ public class ProxyITest extends WithJetty {
         then().
                 body("greeting.firstName", equalTo("John")).
                 body("greeting.lastName", equalTo("Doe"));
+    }
+
+    @Test public void
+    using_statically_configured_proxy_defined_using_method() {
+        RestAssured.proxy("http://127.0.0.1:8888");
+
+        try {
+            given().
+                    param("firstName", "John").
+                    param("lastName", "Doe").
+            when().
+                    get("/greetJSON").
+            then().
+                    body("greeting.firstName", equalTo("John")).
+                    body("greeting.lastName", equalTo("Doe"));
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test public void
+    using_statically_configured_proxy_defined_using_field() {
+        RestAssured.proxy = host("127.0.0.1").withPort(8888);
+
+        try {
+            given().
+                    param("firstName", "John").
+                    param("lastName", "Doe").
+            when().
+                    get("/greetJSON").
+            then().
+                    body("greeting.firstName", equalTo("John")).
+                    body("greeting.lastName", equalTo("Doe"));
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test public void
+    using_statically_configured_proxy_defined_using_string_uri_without_port() {
+        exception.expect(HttpHostConnectException.class); // Because it will try to connect to port 80
+
+        RestAssured.proxy("http://127.0.0.1");
+
+        try {
+            given().
+                    param("firstName", "John").
+                    param("lastName", "Doe").
+            when().
+                    get("/greetJSON").
+            then().
+                    body("greeting.firstName", equalTo("John")).
+                    body("greeting.lastName", equalTo("Doe"));
+        } finally {
+            RestAssured.reset();
+        }
     }
 }

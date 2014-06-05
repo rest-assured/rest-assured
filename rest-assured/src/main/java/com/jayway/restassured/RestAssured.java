@@ -23,24 +23,19 @@ import com.jayway.restassured.config.SSLConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.internal.RequestSpecificationImpl;
-import com.jayway.restassured.internal.ResponseParserRegistrar;
-import com.jayway.restassured.internal.ResponseSpecificationImpl;
-import com.jayway.restassured.internal.TestSpecificationImpl;
+import com.jayway.restassured.internal.*;
 import com.jayway.restassured.internal.assertion.AssertParameter;
 import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.Argument;
-import com.jayway.restassured.specification.RequestSender;
-import com.jayway.restassured.specification.RequestSpecification;
-import com.jayway.restassured.specification.ResponseSpecification;
+import com.jayway.restassured.specification.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.KeyStore;
 import java.util.Collections;
@@ -52,6 +47,7 @@ import static com.jayway.restassured.authentication.CertificateAuthSettings.cert
 import static com.jayway.restassured.config.LogConfig.logConfig;
 import static com.jayway.restassured.config.ObjectMapperConfig.objectMapperConfig;
 import static com.jayway.restassured.config.SSLConfig.sslConfig;
+import static com.jayway.restassured.specification.ProxySpecification.host;
 
 /**
  * REST Assured is a Java DSL for simplifying testing of REST based services built on top of
@@ -480,11 +476,27 @@ public class RestAssured {
      */
     public static String sessionId = DEFAULT_SESSION_ID_VALUE;
 
+    /**
+     * Specify a default proxy that REST Assured will use for all requests (unless overridden by individual tests). For example:
+     * <p/>
+     * <pre>
+     * RestAssured.proxy = host("127.0.0.1").withPort(8888);
+     * </pre>
+     * where <code>host</code> is statically imported from {@link com.jayway.restassured.specification.ProxySpecification#host(String)}.
+     * @see #proxy(String)
+     * @see #proxy(String, int)
+     * @see #proxy(String, int, String)
+     * @see #proxy(java.net.URI)
+     * @see #proxy(com.jayway.restassured.specification.ProxySpecification)
+     */
+    public static ProxySpecification proxy = null;
+
     private static Object requestContentType = null;
 
     private static Object responseContentType = null;
 
     private static List<Filter> filters = new LinkedList<Filter>();
+
 
     /**
      * Add default filters that will be applied to each request.
@@ -1369,8 +1381,8 @@ public class RestAssured {
     /**
      * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath}, {@link #requestContentType(com.jayway.restassured.http.ContentType)},
      * {@link #responseContentType(com.jayway.restassured.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification},
-     * {@link #urlEncodingEnabled} , {@link #config} and {@link #sessionId} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, "", <code>null</code>, <code>null</code>,
-     * "empty list", <code>null</code>, <code>null</code>, <code>none</code>, <code>true</code>, <code>new RestAssuredConfig()</code>, <code>null</code>
+     * {@link #urlEncodingEnabled}, {@link #config}, {@link #sessionId} and {@link #proxy} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, &lt;empty string&gt;, <code>null</code>, <code>null</code>,
+     * &lt;empty list&gt;, <code>null</code>, <code>null</code>, <code>none</code>, <code>true</code>, <code>new RestAssuredConfig()</code>, <code>null</code> and <code>null</code>.
      */
     public static void reset() {
         baseURI = DEFAULT_URI;
@@ -1388,6 +1400,7 @@ public class RestAssured {
         defaultParser = null;
         config = new RestAssuredConfig();
         sessionId = DEFAULT_SESSION_ID_VALUE;
+        proxy = null;
     }
 
     private static TestSpecificationImpl createTestSpecification() {
@@ -1400,7 +1413,7 @@ public class RestAssured {
         RestAssuredConfig restAssuredConfig = config();
         return new TestSpecificationImpl(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters,
-                        requestContentType, requestSpecification, urlEncodingEnabled, restAssuredConfig, logRepository),
+                        requestContentType, requestSpecification, urlEncodingEnabled, restAssuredConfig, logRepository, proxy),
                 new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, responseParserRegistrar,
                         restAssuredConfig, logRepository)
         );
@@ -1585,6 +1598,77 @@ public class RestAssured {
      */
     public static void keystore(String password) {
         applyKeyStore(null, password);
+    }
+
+    /**
+     * Instruct REST Assured to connect to a proxy on the specified host and port.
+     *
+     * @param host The hostname of the proxy to connect to (for example <code>127.0.0.1</code>)
+     * @param port The port of the proxy to connect to (for example <code>8888</code>)
+     */
+    public static void proxy(String host, int port) {
+        proxy(host(host).withPort(port));
+    }
+
+    /**
+     * Instruct REST Assured to connect to a proxy on the specified host on port <code>8888</code>.
+     *
+     * @param host The hostname of the proxy to connect to (for example <code>127.0.0.1</code>). Can also be a URI represented as a String.
+     * @see #proxy(String, int)
+     */
+    public static void proxy(String host) {
+        if (UriValidator.isUri(host)) {
+            try {
+                proxy(new URI(host));
+            } catch (URISyntaxException e) {
+                throw new RuntimeException("Internal error in REST Assured when constructing URI for Proxy.", e);
+            }
+        } else {
+            proxy(host(host));
+        }
+    }
+
+    /**
+     * Instruct REST Assured to connect to a proxy on the specified port on localhost.
+     *
+     * @param port The port of the proxy to connect to (for example <code>8888</code>)
+     * @see #proxy(String, int)
+     */
+    public static void proxy(int port) {
+        proxy(ProxySpecification.port(port));
+    }
+
+    /**
+     * Instruct REST Assured to connect to a proxy on the specified port on localhost with a specific scheme.
+     *
+     * @param host   The hostname of the proxy to connect to (for example <code>127.0.0.1</code>)
+     * @param port   The port of the proxy to connect to (for example <code>8888</code>)
+     * @param scheme The http scheme (http or https)
+     */
+    public static void proxy(String host, int port, String scheme) {
+        proxy(new ProxySpecification(host, port, scheme));
+    }
+
+    /**
+     * Instruct REST Assured to connect to a proxy using a URI.
+     *
+     * @param uri The URI of the proxy
+     */
+    public static void proxy(URI uri) {
+        if (uri == null) {
+            throw new IllegalArgumentException("Proxy URI cannot be null");
+        }
+        proxy(new ProxySpecification(uri.getHost(), uri.getPort(), uri.getScheme()));
+    }
+
+    /**
+     * Instruct REST Assured to connect to a proxy using a {@link com.jayway.restassured.specification.ProxySpecification}.
+     *
+     * @param proxySpecification The proxy specification to use.
+     * @see com.jayway.restassured.specification.RequestSpecification#proxy(com.jayway.restassured.specification.ProxySpecification)
+     */
+    public static void proxy(ProxySpecification proxySpecification) {
+        RestAssured.proxy = proxySpecification;
     }
 
     private static void applyKeyStore(Object pathToJks, String password) {

@@ -106,6 +106,6 @@ public class MockMvcRequestLogSpecificationImpl extends LogSpecificationImpl imp
 
     private RequestSpecificationImpl toRequestSpecification() {
         return new RequestSpecificationImpl("", 8080, "", new NoAuthScheme(), Collections.<Filter>emptyList(), null, null, true,
-                requestSpecification.getRestAssuredConfig(), requestSpecification.getLogRepository());
+                requestSpecification.getRestAssuredConfig(), requestSpecification.getLogRepository(), null);
     }
 }

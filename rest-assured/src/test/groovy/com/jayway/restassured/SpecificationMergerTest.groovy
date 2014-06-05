@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-
 package com.jayway.restassured
 
 import com.jayway.restassured.authentication.ExplicitNoAuthScheme

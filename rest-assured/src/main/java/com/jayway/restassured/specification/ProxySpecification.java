@@ -25,9 +25,14 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
  */
 public class ProxySpecification {
 
-    private static final String DEFAULT_SCHEME = "http";
+    private static final String HTTP = "http";
+    private static final String HTTPS = "https";
+    private static final String DEFAULT_SCHEME = HTTP;
     private static final int DEFAULT_PORT = 8888;
     private static final String DEFAULT_HOST = "127.0.0.1";
+    private static final int DEFAULT_HTTP_PORT = 80;
+    private static final int DEFAULT_HTTPS_PORT = 443;
+
 
     private final String host;
     private final int port;
@@ -44,10 +49,16 @@ public class ProxySpecification {
         this.host = StringUtils.trimToNull(host);
         this.scheme = StringUtils.trimToNull(scheme);
         notNull(this.host, "Proxy host");
-        if (port < 1) {
-            throw new IllegalArgumentException("Proxy port must be greater than 0");
-        }
         notNull(this.scheme, "Proxy scheme");
+        if (port < 1) {
+            if (scheme.equalsIgnoreCase(HTTP)) {
+                port = DEFAULT_HTTP_PORT;
+            } else if (scheme.equalsIgnoreCase(HTTPS)) {
+                port = DEFAULT_HTTPS_PORT;
+            } else {
+                throw new IllegalArgumentException("Cannot determine proxy port");
+            }
+        }
         this.port = port;
     }
 

@@ -109,7 +109,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
                                   List<Filter> filters, defaultRequestContentType, RequestSpecification defaultSpec,
-                                  boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository) {
+                                  boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
+                                  ProxySpecification proxySpecification) {
     notNull(baseURI, "baseURI");
     notNull(basePath, "basePath");
     notNull(defaultAuthScheme, "defaultAuthScheme");
@@ -127,6 +128,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       spec(defaultSpec)
     }
     this.logRepository = logRepository
+    this.proxySpecification = proxySpecification
   }
 
   def RequestSpecification when() {
