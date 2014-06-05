@@ -1614,6 +1614,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     // @Delegate doesn't work because of http://jira.codehaus.org/browse/GROOVY-4647 (when it's fixed 9619c3b should be used instead)
   }
 
+  ProxySpecification getProxySpecification() {
+    return proxySpecification
+  }
+
   String getRequestContentType() {
     return contentType != null ? contentType instanceof String ? contentType : contentType.toString() : ANY.toString()
   }

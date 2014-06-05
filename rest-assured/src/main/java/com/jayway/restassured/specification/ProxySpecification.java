@@ -163,4 +163,9 @@ public class ProxySpecification {
         result = 31 * result + (scheme != null ? scheme.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return scheme + "://" + host + ":" + port;
+    }
 }

@@ -18,8 +18,10 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.http.conn.HttpHostConnectException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -28,12 +30,15 @@ import org.junit.Test;
 import org.littleshoot.proxy.HttpProxyServer;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
+import java.io.PrintStream;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.specification.ProxySpecification.host;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 
 public class ProxyITest extends WithJetty {
 
@@ -191,5 +196,23 @@ public class ProxyITest extends WithJetty {
         } finally {
             RestAssured.reset();
         }
+    }
+
+    @Test public void
+    proxy_details_are_shown_in_the_request_log() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                filter(new RequestLoggingFilter(captor)).
+                proxy("127.0.0.1").
+                param("firstName", "John").
+                param("lastName", "Doe").
+        when().
+                get("/greetJSON").
+        then().
+                header("Via", not(isEmptyOrNullString()));
+
+        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\thttp://localhost:8080/greetJSON?firstName=John&lastName=Doe\nProxy:\t\t\thttp://127.0.0.1:8888\nRequest params:\tfirstName=John\n\t\t\t\tlastName=Doe\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n"));
     }
 }

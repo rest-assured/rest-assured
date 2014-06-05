@@ -44,6 +44,7 @@ Change log next version
   or using a RequestSpecification:
     RequestSpecification specification = new RequestSpecBuilder().setProxy("localhost").build();
     given().spec(specification). ..
+  The proxy details are also visible in the request log and are available from the com.jayway.restassured.specification.FilterableRequestSpecification.
   (issue 214).
 
 Change log 2.3.1 (2014-03-31)

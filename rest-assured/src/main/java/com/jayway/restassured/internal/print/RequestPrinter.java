@@ -25,6 +25,7 @@ import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.MultiPartSpecification;
+import com.jayway.restassured.specification.ProxySpecification;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.PrintStream;
@@ -50,6 +51,7 @@ public class RequestPrinter {
         if (logDetail == ALL) {
             addSingle(builder, "Request method:", requestMethod);
             addSingle(builder, "Request path:", completeRequestPath);
+            addProxy(requestSpec, builder);
         }
         if (logDetail == ALL || logDetail == PARAMS) {
             addMapDetails(builder, "Request params:", requestSpec.getRequestParams());
@@ -74,6 +76,18 @@ public class RequestPrinter {
         }
         stream.println(logString);
         return logString;
+    }
+
+    private static void addProxy(FilterableRequestSpecification requestSpec, StringBuilder builder) {
+        builder.append("Proxy:");
+        ProxySpecification proxySpec = requestSpec.getProxySpecification();
+        appendThreeTabs(builder);
+        if (proxySpec == null) {
+            builder.append(NONE);
+        } else {
+            builder.append(proxySpec.toString());
+        }
+        builder.append(NEW_LINE);
     }
 
     private static void addBody(FilterableRequestSpecification requestSpec, StringBuilder builder, boolean shouldPrettyPrint) {
@@ -177,6 +191,11 @@ public class RequestPrinter {
 
     private static StringBuilder appendTwoTabs(StringBuilder builder) {
         appendTab(appendTab(builder));
+        return builder;
+    }
+
+    private static StringBuilder appendThreeTabs(StringBuilder builder) {
+        appendTwoTabs(appendTab(builder));
         return builder;
     }
 

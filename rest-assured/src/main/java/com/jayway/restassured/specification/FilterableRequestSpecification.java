@@ -110,4 +110,9 @@ public interface FilterableRequestSpecification extends RequestSpecification {
      * @return The underlying http client. Only use this for advanced configuration which is not accessible from Rest Assured! By default an instance of {@link org.apache.http.impl.client.AbstractHttpClient} is used by REST Assured.
      */
     HttpClient getHttpClient();
+
+    /**
+     * @return The defined proxy specification or <code>null</code> if undefined.
+     */
+    ProxySpecification getProxySpecification();
 }

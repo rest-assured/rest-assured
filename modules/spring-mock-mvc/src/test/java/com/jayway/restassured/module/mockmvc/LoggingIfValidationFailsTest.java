@@ -71,7 +71,7 @@ public class LoggingIfValidationFailsTest {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/greetingPost\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n\n"+"" +
+            assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\t/greetingPost\nProxy:\t\t\t<none>\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\n\n"+"" +
                     "200\nContent-Type: application/json;charset=UTF-8\n\n{\n    \"id\": 1,\n    \"content\": \"Hello, Johan!\"\n}\n"));
         }
     }
