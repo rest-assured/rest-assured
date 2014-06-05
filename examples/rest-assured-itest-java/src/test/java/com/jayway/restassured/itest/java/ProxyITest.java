@@ -16,7 +16,9 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.specification.RequestSpecification;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -100,6 +102,21 @@ public class ProxyITest extends WithJetty {
     using_proxy_with_proxy_specification() {
         given().
                 proxy(host("localhost").and().withPort(8888).and().withScheme("http")).
+                param("firstName", "John").
+                param("lastName", "Doe").
+        when().
+                get("/greetJSON").
+        then().
+                body("greeting.firstName", equalTo("John")).
+                body("greeting.lastName", equalTo("Doe"));
+    }
+
+    @Test public void
+    using_proxy_with_specification() {
+        RequestSpecification specification = new RequestSpecBuilder().setProxy("localhost").build();
+
+        given().
+                specification(specification).
                 param("firstName", "John").
                 param("lastName", "Doe").
         when().

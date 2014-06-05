@@ -83,19 +83,19 @@ class SpecificationMergerTest {
 
         assertEquals merge.filters.size(), 5
     }
-    
-    
-    @Test 
+
+
+    @Test
     def void sameFilterNotAddedTwice() throws Exception {
         Filter filter = newFilter();
         def merge = new RequestSpecBuilder().addFilter(filter).build();
         def with = new RequestSpecBuilder().addFilter(filter).build();
 
         SpecificationMerger.merge(merge, with)
-        
+
         assertEquals 1, merge.filters.size
     }
- 
+
     @Test
     public void overwritesContentType() throws Exception {
         def merge = new ResponseSpecBuilder().expectContentType(ContentType.ANY).build();
@@ -258,14 +258,30 @@ class SpecificationMergerTest {
 
         assertEquals merge.cookies.get("ikk2").getValue(), "value2"
     }
-	
+
 	@Test
-	def void mergeRequestSpecsOveridebaseUri() throws Exception{
+	def void mergeRequestSpecsOverrideBaseUri() throws Exception{
 		RequestSpecification merge =  new RequestSpecBuilder().setBaseUri("http://www.exampleSpec.com").build();
 		RequestSpecification with  = new RequestSpecBuilder().setBaseUri("http://www.exampleSpec2.com").build();;
 		SpecificationMerger.merge(merge, with);
-		assertEquals merge.getProperties().get("baseUri"), "http://www.exampleSpec2.com"
+		assertEquals "http://www.exampleSpec2.com", merge.getProperties().get("baseUri")
 	}
+
+    @Test
+    def void mergeRequestSpecsOverrideBasePath() throws Exception{
+		RequestSpecification merge =  new RequestSpecBuilder().setBasePath("http://www.exampleSpec.com").build();
+		RequestSpecification with  = new RequestSpecBuilder().setBasePath("http://www.exampleSpec2.com").build();;
+		SpecificationMerger.merge(merge, with);
+		assertEquals "http://www.exampleSpec2.com", merge.getProperties().get("basePath")
+	}
+
+    @Test
+  	def void mergeRequestSpecsOverrideProxySpecification() throws Exception {
+      RequestSpecification merge =  new RequestSpecBuilder().setProxy("127.0.0.1").build();
+      RequestSpecification with =  new RequestSpecBuilder().setProxy("localhost").build();
+      SpecificationMerger.merge(merge, with);
+      assertEquals "localhost", merge.proxySpecification.host
+    }
 
     private Filter newFilter() {
         return new Filter() {

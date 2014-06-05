@@ -32,11 +32,13 @@ import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.specification.MultiPartSpecification;
+import com.jayway.restassured.specification.ProxySpecification;
 import com.jayway.restassured.specification.RequestSpecification;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collection;
 import java.util.Collections;
@@ -330,7 +332,7 @@ public class RequestSpecBuilder {
      * Add a filter that will be used in the request.
      *
      * @param filter The filter to add
-     * @return the request specification builder
+     * @return RequestSpecBuilder builder
      */
     public RequestSpecBuilder addFilter(Filter filter) {
         spec.filter(filter);
@@ -341,7 +343,7 @@ public class RequestSpecBuilder {
      * Add filters that will be used in the request.
      *
      * @param filters The filters to add
-     * @return the request specification builder
+     * @return RequestSpecBuilder builder
      */
     public RequestSpecBuilder addFilters(List<Filter> filters) {
         spec.filters(filters);
@@ -1063,7 +1065,7 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Build the request specification.
+     * Build RequestSpecBuilder.
      *
      * @return The assembled request specification
      */
@@ -1165,6 +1167,78 @@ public class RequestSpecBuilder {
      */
     public RequestSpecBuilder setRelaxedHTTPSValidation() {
         spec.relaxedHTTPSValidation();
+        return this;
+    }
+
+    /**
+     * Instruct REST Assured to connect to a proxy on the specified host and port.
+     *
+     * @param host The hostname of the proxy to connect to (for example <code>127.0.0.1</code>)
+     * @param port The port of the proxy to connect to (for example <code>8888</code>)
+     * @return RequestSpecBuilder
+     */
+    public RequestSpecBuilder setProxy(String host, int port) {
+        spec.proxy(host, port);
+        return this;
+    }
+
+    /**
+     * Instruct REST Assured to connect to a proxy on the specified host on port <code>8888</code>.
+     *
+     * @param host The hostname of the proxy to connect to (for example <code>127.0.0.1</code>). Can also be a URI represented as a String.
+     * @return RequestSpecBuilder
+     * @see #setProxy(String)
+     */
+    public RequestSpecBuilder setProxy(String host) {
+        spec.proxy(host);
+        return this;
+    }
+
+    /**
+     * Instruct REST Assured to connect to a proxy on the specified port on localhost.
+     *
+     * @param port The port of the proxy to connect to (for example <code>8888</code>)
+     * @return RequestSpecBuilder
+     * @see #setProxy(int)
+     */
+    public RequestSpecBuilder setProxy(int port) {
+        spec.proxy(port);
+        return this;
+    }
+
+    /**
+     * Instruct REST Assured to connect to a proxy on the specified port on localhost with a specific scheme.
+     *
+     * @param host   The hostname of the proxy to connect to (for example <code>127.0.0.1</code>)
+     * @param port   The port of the proxy to connect to (for example <code>8888</code>)
+     * @param scheme The http scheme (http or https)
+     * @return RequestSpecBuilder
+     */
+    public RequestSpecBuilder setProxy(String host, int port, String scheme) {
+        spec.proxy(host, port, scheme);
+        return this;
+    }
+
+    /**
+     * Instruct REST Assured to connect to a proxy using a URI.
+     *
+     * @param uri The URI of the proxy
+     * @return RequestSpecBuilder
+     */
+    public RequestSpecBuilder setProxy(URI uri) {
+        spec.proxy(uri);
+        return this;
+    }
+
+    /**
+     * Instruct REST Assured to connect to a proxy using a {@link com.jayway.restassured.specification.ProxySpecification}.
+     *
+     * @param proxySpecification The proxy specification to use.
+     * @return RequestSpecBuilder
+     * @see com.jayway.restassured.specification.RequestSpecification#proxy(com.jayway.restassured.specification.ProxySpecification)
+     */
+    public RequestSpecBuilder setProxy(ProxySpecification proxySpecification) {
+        spec.proxy(proxySpecification);
         return this;
     }
 

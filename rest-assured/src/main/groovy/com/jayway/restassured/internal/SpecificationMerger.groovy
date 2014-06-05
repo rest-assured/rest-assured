@@ -71,6 +71,7 @@ class SpecificationMerger {
      *     <li>Keystore</li>
      *     <li>URL Encoding enabled/disabled</li>
      *     <li>Config</li>
+     *     <li>Proxy Specification</li>
      * </ul>
      * The following settings are merged:
      * <ul>
@@ -105,6 +106,7 @@ class SpecificationMerger {
         mergeFilters(thisOne, with)
         thisOne.urlEncodingEnabled = with.urlEncodingEnabled
         thisOne.restAssuredConfig = with.restAssuredConfig
+        thisOne.proxySpecification = with.proxySpecification
     }
 
     private static def mergeSessionId(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {
