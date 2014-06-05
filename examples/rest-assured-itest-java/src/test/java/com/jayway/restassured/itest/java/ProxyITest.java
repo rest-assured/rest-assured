@@ -31,7 +31,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.specification.ProxySpecification.host;
 import static org.hamcrest.Matchers.equalTo;
 
-//@Ignore("Ignored since a manual proxy setup such as Charles is expected on port 8888")
+@Ignore("Ignored since a manual proxy setup such as Charles is expected on port 8888")
 public class ProxyITest extends WithJetty {
 
     @Test public void
