@@ -36,6 +36,15 @@ Change log next version
 * Updated json-schema-validator module to use version 2.2.5 of FGE's json schema validator project.
 * Updated commons-lang3 dependency to version 3.3.2.
 * Added static compilation to inner class PathType to avoid IncompatibleClassChangeError because of a bug in Groovy (GROOVY-6080) (issue 336).
+* Added better proxy support. For example:
+    given().proxy("localhost", 8888). ..
+  or for all requests:
+    RestAssured.proxy("localhost", 8888);
+    RestAssured.proxy = host("localhost").withPort(8888); // "host" is statically imported from com.jayway.restassured.specification.ProxySpecification.
+  or using a RequestSpecification:
+    RequestSpecification specification = new RequestSpecBuilder().setProxy("localhost").build();
+    given().spec(specification). ..
+  (issue 214).
 
 Change log 2.3.1 (2014-03-31)
 -----------------------------
