@@ -28,6 +28,7 @@ import com.jayway.restassured.response.Headers;
 
 import java.io.File;
 import java.io.InputStream;
+import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collection;
 import java.util.List;
@@ -1564,4 +1565,70 @@ public interface RequestSpecification extends RequestSender {
      * @return the request specification
      */
     RequestSpecification basePath(String basePath);
+
+    /**
+     * Instruct REST Assured to connect to a proxy on the specified host and port.
+     *
+     * @param host The hostname of the proxy to connect to (for example <code>127.0.0.1</code>)
+     * @param port The port of the proxy to connect to (for example <code>8888</code>)
+     * @return the request specification
+     */
+    RequestSpecification proxy(String host, int port);
+
+    /**
+     * Instruct REST Assured to connect to a proxy on the specified host on port <code>8888</code>.
+     *
+     * @param host The hostname of the proxy to connect to (for example <code>127.0.0.1</code>). Can also be a URI represented as a String.
+     * @return the request specification
+     * @see #proxy(String, int)
+     */
+    RequestSpecification proxy(String host);
+
+    /**
+     * Instruct REST Assured to connect to a proxy on the specified port on localhost.
+     *
+     * @param port The port of the proxy to connect to (for example <code>8888</code>)
+     * @return the request specification
+     * @see #proxy(String, int)
+     */
+    RequestSpecification proxy(int port);
+
+    /**
+     * Instruct REST Assured to connect to a proxy on the specified port on localhost with a specific scheme.
+     *
+     * @param host   The hostname of the proxy to connect to (for example <code>127.0.0.1</code>)
+     * @param port   The port of the proxy to connect to (for example <code>8888</code>)
+     * @param scheme The http scheme (http or https)
+     * @return the request specification
+     */
+    RequestSpecification proxy(String host, int port, String scheme);
+
+    /**
+     * Instruct REST Assured to connect to a proxy using a URI.
+     *
+     * @param uri The URI of the proxy
+     * @return the request specification
+     */
+    RequestSpecification proxy(URI uri);
+
+    /**
+     * Instruct REST Assured to connect to a proxy using a {@link com.jayway.restassured.specification.ProxySpecification}.
+     * For example:
+     * <pre>
+     * given().
+     *         proxy(host("localhost").and().withPort(8888).and().withScheme("http")).
+     *         param("firstName", "John").
+     *         param("lastName", "Doe").
+     * when().
+     *         get("/greetJSON").
+     * then().
+     *         body("greeting.firstName", equalTo("John")).
+     *         body("greeting.lastName", equalTo("Doe"));
+     * </pre>
+     * where <code>host</code> is statically imported from {@link com.jayway.restassured.specification.ProxySpecification#host(String)}.
+     *
+     * @param proxySpecification The proxy specification to use.
+     * @return the request specification
+     */
+    RequestSpecification proxy(ProxySpecification proxySpecification);
 }

@@ -32,6 +32,8 @@ import com.jayway.restassured.internal.log.LogRepository
 import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl
 import com.jayway.restassured.internal.mapping.ObjectMapping
+import com.jayway.restassured.internal.proxy.RestAssuredProxySelector
+import com.jayway.restassured.internal.proxy.RestAssuredProxySelectorRoutePlanner
 import com.jayway.restassured.internal.support.ParameterAppender
 import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.parsing.Parser
@@ -48,7 +50,6 @@ import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
 import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.impl.client.AbstractHttpClient
-import org.apache.http.impl.conn.ProxySelectorRoutePlanner
 import org.apache.http.message.BasicHeader
 
 import java.security.KeyStore
@@ -99,6 +100,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       return RequestSpecificationImpl.this.serializeIfNeeded(value)
     }
   });
+  private ProxySpecification proxySpecification = null
 
   private LogRepository logRepository
 
@@ -566,6 +568,37 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return this;
   }
 
+  def RequestSpecification proxy(String host, int port) {
+    proxy(ProxySpecification.host(host).withPort(port))
+  }
+
+  def RequestSpecification proxy(String host) {
+    if (UriValidator.isUri(host)) {
+      proxy(new URI(host))
+    } else {
+      proxy(ProxySpecification.host(host))
+    }
+  }
+
+  def RequestSpecification proxy(int port) {
+    proxy(ProxySpecification.port(port))
+  }
+
+  def RequestSpecification proxy(String host, int port, String scheme) {
+    proxy(new org.apache.http.client.utils.URIBuilder().setHost(host).setPort(port).setScheme(scheme).build())
+  }
+
+  def RequestSpecification proxy(URI uri) {
+    notNull(uri, URI.class)
+    proxy(new ProxySpecification(uri.host, uri.port, uri.scheme));
+  }
+
+  def RequestSpecification proxy(ProxySpecification proxySpecification) {
+    notNull(proxySpecification, ProxySpecification.class)
+    this.proxySpecification = proxySpecification
+    this
+  }
+
   def RequestSpecification body(byte[] body) {
     notNull body, "body"
     this.requestBody = body;
@@ -957,7 +990,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
 
     def http = new RestAssuredHttpBuilder(targetUri, assertionClosure, urlEncodingEnabled, config, requestSpecification.getHttpClient() as AbstractHttpClient);
-    allowJreProxySettings(http)
+    applyProxySettings(http)
     applyRestAssuredConfig(http)
     registerRestAssuredEncoders(http);
     setRequestHeadersToHttpBuilder(http)
@@ -1549,7 +1582,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   List<MultiPartSpecification> getMultiPartParams() {
-    return multiParts.collect { new MultiPartSpecificationImpl(content: it.content, charset: it.charset, fileName: it.fileName, mimeType: it.mimeType, controlName: it.name) }
+    return multiParts.collect {
+      new MultiPartSpecificationImpl(content: it.content, charset: it.charset, fileName: it.fileName, mimeType: it.mimeType, controlName: it.name)
+    }
   }
 
   Headers getHeaders() {
@@ -1722,9 +1757,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
   }
 
-  // make client aware of JRE proxy settings http://freeside.co/betamax/
-  private def allowJreProxySettings(RestAssuredHttpBuilder http) {
-    http.client.routePlanner = new ProxySelectorRoutePlanner(http.client.connectionManager.schemeRegistry, ProxySelector.default)
+  private def applyProxySettings(RestAssuredHttpBuilder http) {
+    // make client aware of JRE proxy settings http://freeside.co/betamax/
+    http.client.routePlanner = new RestAssuredProxySelectorRoutePlanner(http.client.connectionManager.schemeRegistry,
+            new RestAssuredProxySelector(delegatingProxySelector: ProxySelector.default, proxySpecification: proxySpecification), proxySpecification)
   }
 
   private def String assembleCompleteTargetPath(requestPath) {
