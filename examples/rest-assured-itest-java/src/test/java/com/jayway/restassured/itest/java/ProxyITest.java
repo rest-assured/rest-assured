@@ -21,18 +21,34 @@ import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.apache.http.conn.HttpHostConnectException;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.littleshoot.proxy.HttpProxyServer;
+import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.specification.ProxySpecification.host;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 
-@Ignore("Ignored since a manual proxy setup such as Charles is expected on port 8888")
 public class ProxyITest extends WithJetty {
+
+    static HttpProxyServer proxyServer;
+
+    @BeforeClass public static void
+    create_proxy_server() {
+        proxyServer = DefaultHttpProxyServer.bootstrap().withPort(8888).start();
+    }
+
+    @AfterClass public static void
+    stop_proxy_server() {
+        proxyServer.stop();
+        proxyServer = null;
+    }
 
     @Test public void
     using_proxy_with_hostname_and_port() {
@@ -43,8 +59,7 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                body("greeting.firstName", equalTo("John")).
-                body("greeting.lastName", equalTo("Doe"));
+                header("Via", not(isEmptyOrNullString()));
     }
 
     @Test public void
@@ -56,8 +71,8 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                body("greeting.firstName", equalTo("John")).
-                body("greeting.lastName", equalTo("Doe"));
+                header("Via", not(isEmptyOrNullString()));
+
     }
 
     @Test public void
@@ -69,11 +84,10 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                body("greeting.firstName", equalTo("John")).
-                body("greeting.lastName", equalTo("Doe"));
+                header("Via", not(isEmptyOrNullString()));
     }
 
-    @Ignore("Doesnt work with Charles?")
+    @Ignore("Doesnt work with Proxy?")
     @Test public void
     using_proxy_with_https_scheme() {
         given().
@@ -83,8 +97,7 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                body("greeting.firstName", equalTo("John")).
-                body("greeting.lastName", equalTo("Doe"));
+                header("Via", not(isEmptyOrNullString()));
     }
 
     @Test public void
@@ -96,8 +109,7 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                body("greeting.firstName", equalTo("John")).
-                body("greeting.lastName", equalTo("Doe"));
+                header("Via", not(isEmptyOrNullString()));
     }
 
     @Test public void
@@ -109,6 +121,7 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
+                header("Via", not(isEmptyOrNullString())).
                 body("greeting.firstName", equalTo("John")).
                 body("greeting.lastName", equalTo("Doe"));
     }
@@ -124,8 +137,7 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                body("greeting.firstName", equalTo("John")).
-                body("greeting.lastName", equalTo("Doe"));
+                header("Via", not(isEmptyOrNullString()));
     }
 
     @Test public void
@@ -139,8 +151,7 @@ public class ProxyITest extends WithJetty {
             when().
                     get("/greetJSON").
             then().
-                    body("greeting.firstName", equalTo("John")).
-                    body("greeting.lastName", equalTo("Doe"));
+                    header("Via", not(isEmptyOrNullString()));
         } finally {
             RestAssured.reset();
         }
@@ -157,8 +168,7 @@ public class ProxyITest extends WithJetty {
             when().
                     get("/greetJSON").
             then().
-                    body("greeting.firstName", equalTo("John")).
-                    body("greeting.lastName", equalTo("Doe"));
+                    header("Via", not(isEmptyOrNullString()));
         } finally {
             RestAssured.reset();
         }
@@ -177,8 +187,7 @@ public class ProxyITest extends WithJetty {
             when().
                     get("/greetJSON").
             then().
-                    body("greeting.firstName", equalTo("John")).
-                    body("greeting.lastName", equalTo("Doe"));
+                    header("Via", not(isEmptyOrNullString()));
         } finally {
             RestAssured.reset();
         }
