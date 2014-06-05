@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
-<c:CustomerDetails xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-            xmlns:c="http://NS.com/main"
-			xmlns:ct="http://NS.com/CustomerTypes"
-			xmlns:cmn="http://NS.com/Common">
+<c:CustomerDetails
+        xmlns:c="http://NS.com/main"
+        xmlns:ct="http://NS.com/CustomerTypes"
+        xmlns:cmn="http://NS.com/Common">
 <ct:Name>JOHN DOE</ct:Name>
 <ct:BillingAddress>
    <cmn:Line1>15 Somerset Road</cmn:Line1>

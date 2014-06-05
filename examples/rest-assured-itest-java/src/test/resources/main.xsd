@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema                   targetNamespace="http://NS.com/main" 
-               xmlns:cmn="http://NS.com/CommonTypes"
-               xmlns:cust="http://NS.com/CustomerTypes"
-               xmlns:xs="http://www.w3.org/2001/XMLSchema"
-               elementFormDefault="qualified">
+<xs:schema targetNamespace="http://NS.com/main"
+           xmlns:cust="http://NS.com/CustomerTypes"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           elementFormDefault="qualified">
  <xs:import schemaLocation="CommonTypes.xsd" namespace="http://NS.com/Common" />
  <xs:import schemaLocation="CustomerTypes.xsd" namespace="http://NS.com/CustomerTypes" />
  <xs:element name="CustomerDetails" type="cust:CustomerType"/>
