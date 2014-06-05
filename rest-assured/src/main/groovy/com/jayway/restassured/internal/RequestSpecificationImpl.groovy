@@ -38,6 +38,7 @@ import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.*
 import com.jayway.restassured.specification.*
 import com.jayway.restassured.spi.AuthFilter
+import groovy.transform.CompileStatic
 import org.apache.commons.lang3.StringUtils
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
@@ -1774,8 +1775,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   /**
    * Specifies if the path was specified in the base uri or as an explicit path (for example get("http://www.google-com"))
+   * <p/>
+   * We use compile static to avoid IncompatibleClassChangeError (see https://jira.codehaus.org/browse/GROOVY-6080).
    */
-  private enum PathType {
+  @CompileStatic
+  private static enum PathType {
     BASE_URI, EXPLICIT
   }
 }

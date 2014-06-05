@@ -35,6 +35,7 @@ Change log next version
 * Fixed so that CharsetExtractor no longer fails to extract the charset when more than one key=value pair present in the content-type header (issue 337).
 * Updated json-schema-validator module to use version 2.2.5 of FGE's json schema validator project.
 * Updated commons-lang3 dependency to version 3.3.2.
+* Added static compilation to inner class PathType to avoid IncompatibleClassChangeError because of a bug in Groovy (GROOVY-6080) (issue 336).
 
 Change log 2.3.1 (2014-03-31)
 -----------------------------
