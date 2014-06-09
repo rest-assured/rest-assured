@@ -10,7 +10,7 @@ Change log 2.3.2 (2014-06-09)
 * Upgraded Spring MVC module to depend on Spring 4.0.5. (issue 335)
 * Added possibility to use "no wrap" for response streams of type gzdeflate (RFC 1951) used by e.g. PHP. Usage example: given().config(config().decoderConfig(decoderConfig().useNoWrapForInflateDecoding(true))).when().get("/x"). (issue 327).
 * basePath can now be set in the RequestSpecification as well as RequestSpecBuilder (issue 325).
-* Static usage of "enableLoggingOfRequestAndResponseIfValidationFails" can now be assign after static request and response configurations (issue 323).
+* Static usage of "enableLoggingOfRequestAndResponseIfValidationFails" can now be assigned after static request and response configurations (issue 323).
 * Multipart parameters are now logged when logging the request specification (issue 144).
 * Added ability to get multipart parameters from com.jayway.restassured.specification.FilterableRequestSpecification using the "getMultiPartParams" method.
 * Added "replaceFiltersWith" method to RestAssured which makes it possible to replace statically defined filters (issue 174).
