@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 2.3.2 (2014-06-09)
+-----------------------------
 * Fixed an issue with logging of request and response using RestAssured.enableLoggingOfRequestAndResponseIfValidationFails() for certain validations.
 * Fixed issue with content-type validation when no content-type was sent from the server.
 * Updated Groovy to version 2.3.2
