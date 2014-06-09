@@ -21,6 +21,7 @@ import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.http.conn.HttpHostConnectException;
 import org.junit.AfterClass;
@@ -30,6 +31,7 @@ import org.junit.Test;
 import org.littleshoot.proxy.HttpProxyServer;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
+import java.io.File;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.URI;
@@ -46,13 +48,15 @@ public class ProxyITest extends WithJetty {
 
     @BeforeClass public static void
     create_proxy_server() {
-        proxyServer = DefaultHttpProxyServer.bootstrap().withPort(8888).start();
+        proxyServer = DefaultHttpProxyServer.bootstrap().withPort(8888).withAllowLocalOnly(true).start();
     }
 
     @AfterClass public static void
     stop_proxy_server() {
         proxyServer.stop();
         proxyServer = null;
+        FileUtils.deleteQuietly(new File("littleproxy_cert"));
+        FileUtils.deleteQuietly(new File("littleproxy_keystore.jks"));
     }
 
     @Test public void
