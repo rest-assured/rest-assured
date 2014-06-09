@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.jayway.restassured.examples</groupId>
         <artifactId>example-parent</artifactId>
@@ -23,15 +24,15 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.jayway.restassured.examples</groupId>
     <artifactId>scalatra-example</artifactId>
     <packaging>jar</packaging>
     <name>Scalatra Example</name>
     <description>Scalatra service example that's used for integration testing rest-assured</description>
 
     <properties>
-        <scala.version>2.9.1</scala.version>
-        <scalatra.version>2.0.1</scalatra.version>
+        <scala.version>2.10.2</scala.version>
+        <scalatra.scala.version>2.10</scalatra.scala.version>
+        <scalatra.version>2.3.0.RC3</scalatra.version>
     </properties>
 
     <build>
@@ -63,26 +64,25 @@
         </dependency>
         <dependency>
             <groupId>org.scalatra</groupId>
-            <artifactId>scalatra_${scala.version}</artifactId>
+            <artifactId>scalatra_${scalatra.scala.version}</artifactId>
             <version>${scalatra.version}</version>
         </dependency>
         <dependency>
             <groupId>org.scalatra</groupId>
-            <artifactId>scalatra-fileupload_${scala.version}</artifactId>
+            <artifactId>scalatra-fileupload_${scalatra.scala.version}</artifactId>
             <version>${scalatra.version}</version>
         </dependency>
         <dependency>
             <groupId>net.liftweb</groupId>
-            <artifactId>lift-json_${scala.version}</artifactId>
+            <artifactId>lift-json_${scalatra.scala.version}</artifactId>
             <version>2.6-M2</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.1</version>
