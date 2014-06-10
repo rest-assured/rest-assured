@@ -102,7 +102,7 @@ public class DecoderConfig {
      * Setting no wrap to <code>true</code> is required when communicating with servers not using RFC 1950 (such as PHP which uses RFC 1951).
      * See <a href=" http://stackoverflow.com/a/11401785">stackoverflow</a> for more details.
      * <p/>
-     * Default is {@value #DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS}.
+     * Default is {@value com.jayway.restassured.config.DecoderConfig#DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS}.
      *
      * @param nowrap if true then support GZIP compatible compression
      * @return A new instance of the DecoderConfig.
