@@ -31,6 +31,7 @@ import java.io.PrintStream;
 import java.io.StringWriter;
 
 import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.authentication.FormAuthConfig.formAuthConfig;
 import static com.jayway.restassured.authentication.FormAuthConfig.springSecurity;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static com.jayway.restassured.config.SessionConfig.sessionConfig;
@@ -111,6 +112,39 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
+    public void formAuthenticationWithAutoFormDetailsAndAutoCsrfDetection() throws Exception {
+        given().
+                auth().form("John", "Doe", formAuthConfig().withAutoDetectionOfCsrf()).
+        when().
+                get("/formAuthCsrf").
+        then().
+                statusCode(200).
+                body(equalTo("OK"));
+    }
+
+    @Test
+    public void formAuthenticationWithDefinedCsrfField() throws Exception {
+        given().
+                auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf", "j_username", "j_password").withCsrfFieldName("_csrf")).
+        when().
+                get("/formAuthCsrf").
+        then().
+                statusCode(200).
+                body(equalTo("OK"));
+    }
+
+    @Test
+    public void formAuthenticationWithCsrfAutoDetectionButSpecifiedFormDetails() throws Exception {
+        given().
+                auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf", "j_username", "j_password").withAutoDetectionOfCsrf()).
+        when().
+                get("/formAuthCsrf").
+        then().
+                statusCode(200).
+                body(equalTo("OK"));
+    }
+
+    @Test
     public void formAuthenticationUsingLogging() throws Exception {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -123,7 +157,7 @@ public class AuthenticationITest extends WithJetty {
                 statusCode(200).
                 body(equalTo("OK"));
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/j_spring_security_check\nProxy:\t\t\t<none>\nRequest params:\tj_username=John\n\t\t\t\tj_password=Doe\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\nHTTP/1.1 200 OK\nContent-Type: text/plain; charset=utf-8\nSet-Cookie: jsessionid=1234\nContent-Length: 0\nServer: Jetty(6.1.14)\n"));
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/j_spring_security_check\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\tj_username=John\n\t\t\t\tj_password=Doe\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tContent-Type=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\nHTTP/1.1 200 OK\nContent-Type: text/plain; charset=utf-8\nSet-Cookie: jsessionid=1234\nContent-Length: 0\nServer: Jetty(6.1.14)\n"));
     }
 
     @Test
@@ -139,7 +173,7 @@ public class AuthenticationITest extends WithJetty {
                 statusCode(200).
                 body(equalTo("OK"));
 
-        assertThat(writer.toString(), equalTo("Request params:\tj_username=John\n\t\t\t\tj_password=Doe\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\n"));
+        assertThat(writer.toString(), equalTo("Request params:\t<none>\nQuery params:\t<none>\nForm params:\tj_username=John\n\t\t\t\tj_password=Doe\nPath params:\t<none>\nMultiparts:\t\t<none>\n"));
     }
 
     @Test

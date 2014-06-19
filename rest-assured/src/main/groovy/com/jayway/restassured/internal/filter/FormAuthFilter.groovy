@@ -38,6 +38,10 @@ import static java.lang.String.format
 
 class FormAuthFilter implements AuthFilter {
   private static final String FIND_INPUT_TAG = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }"
+  private static
+  final String FIND_INPUT_TAG_VALUE = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@value }"
+  private static
+  final String FIND_INPUT_FIELD_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }.get(0)"
   private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action"
 
   def userName
@@ -47,23 +51,56 @@ class FormAuthFilter implements AuthFilter {
 
   @Override
   Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-    final String formAction;
-    final String userNameInputForm;
-    final String passwordInputForm;
+    String formAction;
+    String userNameInputField;
+    String passwordInputField;
+    String csrfFieldName;
+    String csrfValue;
+
     if (formAuthConfig == null) {
-      def responseBody = ctx.send(given().spec(requestSpec).auth().none()).asString()
-      def html = new XmlPath(HTML, responseBody);
-      String tempFormAction = throwIfException { html.getString(FIND_FORM_ACTION) }
-      formAction = tempFormAction.startsWith("/") ? tempFormAction : "/" + tempFormAction
-      userNameInputForm = throwIfException { html.getString(format(FIND_INPUT_TAG, "text")) }
-      passwordInputForm = throwIfException { html.getString(format(FIND_INPUT_TAG, "password")) }
+      formAuthConfig = new FormAuthConfig();
+    }
+
+    if (formAuthConfig.requiresParsingOfLoginPage()) {
+      def response = ctx.send(given().spec(requestSpec).auth().none())
+      def html = new XmlPath(HTML, response.asString())
+
+      formAction = formAuthConfig.hasFormAction() ? formAuthConfig.getFormAction() : {
+        String tempFormAction = throwIfException { html.getString(FIND_FORM_ACTION) }
+        tempFormAction.startsWith("/") ? tempFormAction : "/" + tempFormAction
+      }.call()
+      userNameInputField = formAuthConfig.hasUserInputTagName() ? formAuthConfig.getUserInputTagName() : throwIfException {
+        html.getString(format(FIND_INPUT_TAG, "text"))
+      }
+      passwordInputField = formAuthConfig.hasPasswordInputTagName() ? formAuthConfig.getPasswordInputTagName() : throwIfException {
+        html.getString(format(FIND_INPUT_TAG, "password"))
+      }
+
+      if (formAuthConfig.hasCsrfFieldName() || formAuthConfig.isAutoDetectCsrfFieldName()) {
+        csrfFieldName = formAuthConfig.hasCsrfFieldName() ? formAuthConfig.csrfFieldName : nullIfException {
+          html.getString(format(FIND_INPUT_TAG, "hidden"))
+        }
+        csrfValue = nullIfException { html.getString(format(FIND_INPUT_FIELD_WITH_NAME, csrfFieldName)) }
+        if (!csrfValue) {
+          throw new IllegalArgumentException("Couldn't find the CSRF input field with name $csrfFieldName in response. Response was:\n${response.prettyPrint()}")
+        }
+      }
     } else {
       formAction = formAuthConfig.getFormAction()
-      userNameInputForm = formAuthConfig.getUserInputTagName()
-      passwordInputForm = formAuthConfig.getPasswordInputTagName()
+      userNameInputField = formAuthConfig.getUserInputTagName()
+      passwordInputField = formAuthConfig.getPasswordInputTagName()
+      csrfFieldName = null
+      csrfValue = null
     }
+
+
+
     def loginRequestSpec = given().port(requestSpec.getPort()).with().auth().none().and().
-            with().params(userNameInputForm, userName, passwordInputForm, password)
+            with().formParams(userNameInputField, userName, passwordInputField, password)
+
+    if (csrfValue && csrfFieldName) {
+      loginRequestSpec.formParam(csrfFieldName, csrfValue)
+    }
 
     if (formAuthConfig?.isLoggingEnabled()) {
       def logConfig = formAuthConfig.getLogConfig()
@@ -78,12 +115,13 @@ class FormAuthFilter implements AuthFilter {
     }
 
     applySessionFilterFromOriginalRequestIfDefined(requestSpec, loginRequestSpec)
-    final Response loginResponse = loginRequestSpec.then().expect().post(formAction)
+    final Response loginResponse = loginRequestSpec.post(formAction)
     // Don't send the detailed cookies because they contain too many detail (such as Path which is a reserved token)
     requestSpec.cookies(loginResponse.getCookies());
     return ctx.next(requestSpec, responseSpec);
   }
 
+  static
   def void applySessionFilterFromOriginalRequestIfDefined(FilterableRequestSpecification requestSpec, RequestSpecification loginRequestSpec) {
     def filters = requestSpec.getDefinedFilters()
     def sessionFilterInOriginalRequest = filters.find { it.class.isAssignableFrom(SessionFilter.class) }
@@ -96,11 +134,20 @@ class FormAuthFilter implements AuthFilter {
     }
   }
 
-  def throwIfException(Closure closure) {
+  static def throwIfException(Closure closure) {
     try {
       closure.call()
     } catch (Exception e) {
       throw new IllegalArgumentException("Failed to parse login page. Check for errors on the login page or specify FormAuthConfig.", e)
     }
   }
+
+  static def nullIfException(Closure closure) {
+    try {
+      closure.call()
+    } catch (Exception e) {
+      null
+    }
+  }
+
 }

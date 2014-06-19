@@ -562,20 +562,29 @@ class ScalatraRestExample extends ScalatraServlet {
 
   post("/j_spring_security_check") {
     contentType = "text/plain"
-    securityCheck("jsessionid")
+    securityCheck("jsessionid", checkCsrf = false)
+  }
+
+  post("/j_spring_security_check_with_csrf") {
+      contentType = "text/plain"
+      securityCheck("jsessionid", checkCsrf = true)
   }
 
   post("/j_spring_security_check_phpsessionid") {
     contentType = "text/plain"
-    securityCheck("phpsessionid")
+    securityCheck("phpsessionid", checkCsrf = false)
   }
 
 
-  def securityCheck(sessionIdName: String) : Any = {
+  def securityCheck(sessionIdName: String, checkCsrf: Boolean) : Any = {
     val userName = params.get("j_username").get
     val password = params.get("j_password").get
     if (userName == "John" && password == "Doe") {
-      response.setHeader("Set-Cookie", sessionIdName+"=1234")
+      if (checkCsrf && params.get("_csrf").get != "8adf2ea1-b246-40aa-8e13-a85fb7914341") {
+        "NO"
+      } else {
+        response.setHeader("Set-Cookie", sessionIdName + "=1234")
+      }
     } else {
       "NO"
     }
@@ -590,6 +599,23 @@ class ScalatraRestExample extends ScalatraServlet {
       val cookie = cookies.find(sessionName => sessionName.getName.equalsIgnoreCase("jsessionid") || sessionName.getName.equalsIgnoreCase("phpsessionid")).get
       if(cookie == null) {
         loginPage
+      } else if (cookie.getValue == "1234") {
+        "OK"
+      } else {
+        "NOT AUTHORIZED"
+      }
+    }
+  }
+
+  get("/formAuthCsrf") {
+    contentType = "text/plain"
+    val cookies: Array[Cookie] = request.getCookies
+    if(cookies == null) {
+      loginPageWithCsrf
+    } else {
+      val cookie = cookies.find(sessionName => sessionName.getName.equalsIgnoreCase("jsessionid") || sessionName.getName.equalsIgnoreCase("phpsessionid")).get
+      if(cookie == null) {
+        loginPageWithCsrf
       } else if (cookie.getValue == "1234") {
         "OK"
       } else {
@@ -943,6 +969,26 @@ class ScalatraRestExample extends ScalatraServlet {
             <tr><td>Password:</td><td><input type='password' name='j_password'></td></tr>
               <tr><td colspan='2'><input name="submit" type="submit"/></td></tr>
            </table>
+            </form>
+          </body>
+     </html>"""
+  }
+
+  def loginPageWithCsrf: String = {
+    contentType = "text/html"
+    """<html>
+      <head>
+        <title>Login</title>
+      </head>
+
+      <body>
+        <form action="j_spring_security_check_with_csrf" method="POST">
+          <table>
+            <tr><td>User:&nbsp;</td><td><input type='text' name='j_username'></td></tr>
+            <tr><td>Password:</td><td><input type='password' name='j_password'></td></tr>
+              <tr><td colspan='2'><input name="submit" type="submit"/></td></tr>
+           </table>
+            <input type="hidden" name="_csrf" value="8adf2ea1-b246-40aa-8e13-a85fb7914341"/>
             </form>
           </body>
      </html>"""

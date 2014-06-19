@@ -18,8 +18,10 @@ package com.jayway.restassured.authentication;
 
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.filter.log.LogDetail;
+import org.apache.commons.lang3.StringUtils;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
+import static java.lang.String.format;
 
 /**
  * Configuration of form authentication to correctly identify which form that contains the username and password
@@ -31,6 +33,8 @@ public class FormAuthConfig {
     private final String passwordInputTagName;
     private final LogConfig logConfig;
     private final LogDetail logDetail;
+    private final String csrfFieldName;
+    private final boolean autoDetectCsrfFieldName;
 
     /**
      * Create a form auth config with a pre-defined form action, username input tag, password input tag.
@@ -57,25 +61,121 @@ public class FormAuthConfig {
      * @param passwordInputTagName The name of the password input tag in the login form
      */
     public FormAuthConfig(String formAction, String userNameInputTagName, String passwordInputTagName) {
-        this(formAction, userNameInputTagName, passwordInputTagName, null, null);
+        this(formAction, userNameInputTagName, passwordInputTagName, null, null, null, false);
     }
 
-    private FormAuthConfig(String formAction, String userNameInputTagName, String passwordInputTagName, LogDetail logDetail, LogConfig logConfig) {
-        notNull(formAction, "Form action");
-        notNull(userNameInputTagName, "User input tag name");
-        notNull(passwordInputTagName, "Password input tag name");
+    /**
+     * Creates a new empty {@link com.jayway.restassured.authentication.FormAuthConfig}.
+     */
+    public FormAuthConfig() {
+        this(null, null, null);
+    }
+
+    private FormAuthConfig(String formAction, String userNameInputTagName, String passwordInputTagName, LogDetail logDetail, LogConfig logConfig,
+                           String csrfFieldName, boolean autoDetectCsrfFieldName) {
         this.formAction = formAction;
         this.userInputTagName = userNameInputTagName;
         this.passwordInputTagName = passwordInputTagName;
         this.logDetail = logDetail;
         this.logConfig = logConfig;
+        this.csrfFieldName = csrfFieldName;
+        this.autoDetectCsrfFieldName = autoDetectCsrfFieldName;
     }
 
     /**
-     * @return A predefined form authentication config for default Spring Security configuration (tested in version 3.0.5).
+     * @return A predefined form authentication config for default Spring Security configuration (tested in version 3.0.5) (no CSRF detection).
      */
     public static FormAuthConfig springSecurity() {
         return new FormAuthConfig("/j_spring_security_check", "j_username", "j_password");
+    }
+
+    /**
+     * Enable Cross-site request forgery (csrf) support when using form authentication by including the csrf value of the input field with the specified name.
+     * For example if the login page looks like this:
+     * <pre>
+     * &lt;html&gt;
+     * &lt;head&gt;
+     *     &lt;title&gt;Login&lt;/title&gt;
+     * &lt;/head&gt;
+     * &lt;body&gt;
+     * &lt;form action=&quot;j_spring_security_check_with_csrf&quot; method=&quot;POST&quot;&gt;
+     *     &lt;table&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;User:&amp;nbsp;&lt;/td&gt;
+     *             &lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;j_username&quot;&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;Password:&lt;/td&gt;
+     *             &lt;td&gt;&lt;input type=&quot;password&quot; name=&quot;j_password&quot;&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td colspan=&quot;2&quot;&gt;&lt;input name=&quot;submit&quot; type=&quot;submit&quot;/&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *     &lt;/table&gt;
+     *     &lt;input type=&quot;hidden&quot; name=&quot;_csrf&quot; value=&quot;8adf2ea1-b246-40aa-8e13-a85fb7914341&quot;/&gt;
+     * &lt;/form&gt;
+     * &lt;/body&gt;
+     * &lt;/html&gt;
+     * </pre>
+     * The csrf field name is called <code>_csrf</code>.
+     * <p/>
+     * <b>Important:</b> When enabling csrf support then REST Assured <b>must always</b> make an additional request to the server in order to
+     * be able to include in the csrf value which will slow down the tests.
+     *
+     * @param fieldName The csrf field name as specified in the login page.
+     * @return A new FormAuthConfig instance.
+     * @see #withAutoDetectionOfCsrf()
+     */
+    public FormAuthConfig withCsrfFieldName(String fieldName) {
+        notNull(fieldName, "CSRF field name");
+        if (autoDetectCsrfFieldName) {
+            throw new IllegalStateException("Cannot defined a CSRF field name since the CSRF field name has been marked as auto-detected.");
+        }
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, fieldName, false);
+    }
+
+    /**
+     * Enable Cross-site request forgery (csrf) support when using form authentication by automatically trying to find the name and value of the csrf input field.
+     * For example if the login page looks like this:
+     * <pre>
+     * &lt;html&gt;
+     * &lt;head&gt;
+     *     &lt;title&gt;Login&lt;/title&gt;
+     * &lt;/head&gt;
+     * &lt;body&gt;
+     * &lt;form action=&quot;j_spring_security_check_with_csrf&quot; method=&quot;POST&quot;&gt;
+     *     &lt;table&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;User:&amp;nbsp;&lt;/td&gt;
+     *             &lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;j_username&quot;&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;Password:&lt;/td&gt;
+     *             &lt;td&gt;&lt;input type=&quot;password&quot; name=&quot;j_password&quot;&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td colspan=&quot;2&quot;&gt;&lt;input name=&quot;submit&quot; type=&quot;submit&quot;/&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *     &lt;/table&gt;
+     *     &lt;input type=&quot;hidden&quot; name=&quot;_csrf&quot; value=&quot;8adf2ea1-b246-40aa-8e13-a85fb7914341&quot;/&gt;
+     * &lt;/form&gt;
+     * &lt;/body&gt;
+     * &lt;/html&gt;
+     * </pre>
+     * The csrf field name is called <code>_csrf</code> and REST Assured will autodetect its name since the field name is the only <code>hidden</code> field on this page.
+     * If auto-detection fails you can consider using {@link #withCsrfFieldName(String)}.
+     * <p/>
+     * <b>Important:</b> When enabling csrf support then REST Assured <b>must always</b> make an additional request to the server in order to
+     * be able to include in the csrf value which will slow down the tests.
+     *
+     * @return A new FormAuthConfig instance.
+     * @see #withCsrfFieldName(String)
+     */
+    public FormAuthConfig withAutoDetectionOfCsrf() {
+        if (hasCsrfFieldName()) {
+            throw new IllegalStateException(format("Cannot use auto-detection of CSRF field name since a CSRF field name was already defined as '%s'", csrfFieldName));
+        }
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, true);
     }
 
     /**
@@ -84,6 +184,7 @@ public class FormAuthConfig {
      *
      * @return A new FormAuthConfig instance.
      */
+
     public FormAuthConfig withLoggingEnabled() {
         return withLoggingEnabled(LogDetail.ALL);
     }
@@ -117,7 +218,16 @@ public class FormAuthConfig {
     public FormAuthConfig withLoggingEnabled(LogDetail logDetail, LogConfig logConfig) {
         notNull(logDetail, LogDetail.class);
         notNull(logConfig, LogConfig.class);
-        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig);
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, autoDetectCsrfFieldName);
+    }
+
+    /**
+     * Creates a new empty {@link com.jayway.restassured.authentication.FormAuthConfig}.
+     *
+     * @return A new FormAuthConfig instance.
+     */
+    public static FormAuthConfig formAuthConfig() {
+        return new FormAuthConfig(null, null, null);
     }
 
     /**
@@ -137,19 +247,80 @@ public class FormAuthConfig {
         return userInputTagName;
     }
 
+    /**
+     * @return The password input tag name or <code>null</code> if undefined
+     */
     public String getPasswordInputTagName() {
         return passwordInputTagName;
     }
 
+    /**
+     * @return The logging configuration
+     */
     public LogConfig getLogConfig() {
         return logConfig;
     }
 
+    /**
+     * @return <code>true</code> if logging is enabled or <code>false</code> otherwise.
+     */
     public boolean isLoggingEnabled() {
         return logConfig != null && logDetail != null;
     }
 
+    /**
+     * @return The specified log detail or <code>null</code> if undefined
+     */
     public LogDetail getLogDetail() {
         return logDetail;
+    }
+
+    /**
+     * @return The specified csrf field name or <code>null</code> if undefined
+     */
+    public String getCsrfFieldName() {
+        return csrfFieldName;
+    }
+
+    /**
+     * @return <code>true</code> if csrf field name is defined or <code>false</code> otherwise.
+     */
+    public boolean hasCsrfFieldName() {
+        return StringUtils.isNotBlank(csrfFieldName);
+    }
+
+    /**
+     * @return <code>true</code> if auto detection of csrf field name is enabled, <code>false</code> otherwise.
+     */
+    public boolean isAutoDetectCsrfFieldName() {
+        return autoDetectCsrfFieldName;
+    }
+
+    /**
+     * @return <code>true</code> if the user input tag name is defined or <code>false</code> otherwise.
+     */
+    public boolean hasUserInputTagName() {
+        return StringUtils.isNotBlank(userInputTagName);
+    }
+
+    /**
+     * @return <code>true</code> if the password input tag name is defined or <code>false</code> otherwise.
+     */
+    public boolean hasPasswordInputTagName() {
+        return StringUtils.isNotBlank(passwordInputTagName);
+    }
+
+    /**
+     * @return <code>true</code> if the form action is defined or <code>false</code> otherwise.
+     */
+    public boolean hasFormAction() {
+        return StringUtils.isNotBlank(formAction);
+    }
+
+    /**
+     * @return <code>true</code> if the {@link com.jayway.restassured.authentication.FormAuthConfig} instance contains settings that require REST Assured to make a request to the server before applying form authentication, <code>false</code> otherwise.
+     */
+    public boolean requiresParsingOfLoginPage() {
+        return !hasFormAction() || !hasUserInputTagName() || !hasPasswordInputTagName() || isAutoDetectCsrfFieldName() || hasCsrfFieldName();
     }
 }

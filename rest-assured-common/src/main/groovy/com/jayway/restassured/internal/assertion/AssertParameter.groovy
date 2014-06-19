@@ -17,11 +17,11 @@ package com.jayway.restassured.internal.assertion
 
 class AssertParameter {
 
-  def static notNull(Object object, Class aClass) {
+  def static <T> T notNull(T object, Class aClass) {
     notNull(object, aClass.getSimpleName())
   }
 
-  def static notNull(Object object, String parameterName) {
+  def static <T> T notNull(T object, String parameterName) {
     if (object == null) {
       throw new IllegalArgumentException("$parameterName cannot be null")
     }

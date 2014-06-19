@@ -1,3 +1,14 @@
+Change log next version
+-----------------------
+* Added CSRF (cross-site request forgery) support to form authentication config. For example:
+    given().
+            auth().form("John", "Doe", formAuthConfig().withAutoDetectionOfCsrf()).
+    when().
+            get("/formAuthCsrf");
+  This example tries to find the field specifying the CSRF token automatically but it's also possible to define it:
+    given(). auth().form("John", "Doe", formAuthConfig().withCsrfFieldName("_csrf")). ..
+  Note that REST Assured must always make an additional request to the server if enabling CSRF support.
+
 Change log 2.3.2 (2014-06-09)
 -----------------------------
 * Fixed an issue with logging of request and response using RestAssured.enableLoggingOfRequestAndResponseIfValidationFails() for certain validations.
