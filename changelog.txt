@@ -8,6 +8,8 @@ Change log next version
   This example tries to find the field specifying the CSRF token automatically but it's also possible to define it:
     given(). auth().form("John", "Doe", formAuthConfig().withCsrfFieldName("_csrf")). ..
   Note that REST Assured must always make an additional request to the server if enabling CSRF support.
+* com.jayway.restassured.internal.print.ResponsePrinter now returns the entire response (including headers, parameters etc) and not just the body.
+
 
 Change log 2.3.2 (2014-06-09)
 -----------------------------

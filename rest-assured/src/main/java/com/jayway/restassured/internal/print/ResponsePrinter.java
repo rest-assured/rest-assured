@@ -38,7 +38,6 @@ public class ResponsePrinter {
      */
     public static String print(ResponseOptions responseOptions, ResponseBody responseBody, PrintStream stream, LogDetail logDetail, boolean shouldPrettyPrint) {
         final StringBuilder builder = new StringBuilder();
-        String responseBodyToReturn = null;
         if (logDetail == ALL || logDetail == STATUS) {
             builder.append(responseOptions.statusLine());
         }
@@ -54,19 +53,21 @@ public class ResponsePrinter {
             }
         }
         if (logDetail == ALL || logDetail == BODY) {
+            String responseBodyToAppend;
             if (shouldPrettyPrint) {
-                responseBodyToReturn = new Prettifier().getPrettifiedBodyIfPossible(responseOptions, responseBody);
+                responseBodyToAppend = new Prettifier().getPrettifiedBodyIfPossible(responseOptions, responseBody);
             } else {
-                responseBodyToReturn = responseBody.asString();
+                responseBodyToAppend = responseBody.asString();
             }
-            if (logDetail == ALL && !isBlank(responseBodyToReturn)) {
+            if (logDetail == ALL && !isBlank(responseBodyToAppend)) {
                 builder.append("\n\n");
             }
 
-            builder.append(responseBodyToReturn);
+            builder.append(responseBodyToAppend);
         }
-        stream.println(builder.toString());
-        return responseBodyToReturn;
+        String response = builder.toString();
+        stream.println(response);
+        return response;
     }
 
     private static String toString(Headers headers) {
