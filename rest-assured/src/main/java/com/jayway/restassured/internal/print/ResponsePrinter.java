@@ -66,7 +66,7 @@ public class ResponsePrinter {
             builder.append(responseBodyToReturn);
         }
         stream.println(builder.toString());
-        return responseBodyToReturn;
+        return builder.toString();
     }
 
     private static String toString(Headers headers) {
