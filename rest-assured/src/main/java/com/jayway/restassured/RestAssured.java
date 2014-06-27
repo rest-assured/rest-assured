@@ -50,7 +50,7 @@ import static com.jayway.restassured.config.SSLConfig.sslConfig;
 import static com.jayway.restassured.specification.ProxySpecification.host;
 
 /**
- * RESTY Assured is a Java DSL for simplifying testing of REST based services built on top of
+ * REST Assured is a Java DSL for simplifying testing of REST based services built on top of
  * <a href="http://groovy.codehaus.org/modules/http-builder/">HTTP Builder</a>.
  * It supports POST, GET, PUT, DELETE, HEAD, PATCH  and OPTIONS
  * requests and to verify the response of these requests. Usage examples:
