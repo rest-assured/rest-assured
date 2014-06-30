@@ -7,13 +7,7 @@ languages into the Java domain.
 
 ## News 
 
-* **2014-05-14**: REST Assured was be presented at Geecon in Krakow.
-* **2014-03-31**: REST Assured 2.3.1 is released with support for logging if validation 
-  fails, root detach as well as bug fixes and other improvements. See change log for 
-  more info on what has changed in this release.
-* **2014-02-06**: REST Assured will be presented at Geecon in Krakow in May.
-
-[older news](https://code.google.com/p/rest-assured/wiki/OldNews)
+Refer to the REST Assured <a href="https://code.google.com/p/rest-assured/">homepage</a>.
 
 ## Examples
 Here's an example of how to make a GET request and validate the JSON or XML response:
