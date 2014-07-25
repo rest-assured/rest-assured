@@ -9,6 +9,7 @@ Change log next version
     given(). auth().form("John", "Doe", formAuthConfig().withCsrfFieldName("_csrf")). ..
   Note that REST Assured must always make an additional request to the server if enabling CSRF support.
 * com.jayway.restassured.internal.print.ResponsePrinter now returns the entire response (including headers, parameters etc) and not just the body.
+* Fixed so that all parameters are taken into account in RequestSpecBuilder when adding a multi-part with the controlName, contentBody, mimeType signature (issue 343).
 
 
 Change log 2.3.2 (2014-06-09)

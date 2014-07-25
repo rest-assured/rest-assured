@@ -942,7 +942,7 @@ public class RequestSpecBuilder {
      * @return The request specification
      */
     public RequestSpecBuilder addMultiPart(String controlName, String contentBody, String mimeType) {
-        spec.multiPart(controlName, mimeType);
+        spec.multiPart(controlName, contentBody, mimeType);
         return this;
     }
 
