@@ -31,7 +31,7 @@
     <properties>
         <scala.version>2.10.2</scala.version>
         <scalatra.scala.version>2.10</scalatra.scala.version>
-        <scalatra.version>2.3.0.RC3</scalatra.version>
+        <scalatra.version>2.3.0</scalatra.version>
     </properties>
 
     <build>
