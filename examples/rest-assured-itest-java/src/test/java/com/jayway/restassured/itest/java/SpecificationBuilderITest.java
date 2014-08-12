@@ -25,7 +25,6 @@ import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.hamcrest.Matchers;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.PrintStream;
@@ -464,14 +463,12 @@ public class SpecificationBuilderITest extends WithJetty {
         }
     }
 
-    @Ignore
     @Test
     public void supportsSpecifyingKeystore() throws Exception {
         final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/truststore_eurosport.jks", "test4321").build();
         given().spec(spec).expect().body(containsString("eurosport")).get("https://tv.eurosport.com/");
     }
 
-    @Ignore
     @Test
     public void supportsOverridingKeystore() throws Exception {
         final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/truststore_eurosport.jks", "wrong pw").build();
