@@ -16,12 +16,16 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 public class ContentTypeITest extends WithJetty {
@@ -40,5 +44,51 @@ public class ContentTypeITest extends WithJetty {
     @Test
     public void canValidateResponseContentTypeWithHamcrestMatcher() throws Exception {
         expect().contentType(is("application/json; charset=UTF-8")).when().get("/hello");
+    }
+
+    @Test
+    public void doesntAppendCharsetToContentTypeWhenContentTypeIsNotExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+        given().
+                config(RestAssured.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToStreamingContentTypeIfUndefined(false))).
+                body(new byte[] {42}).
+        when().
+                post("/returnContentTypeAsBody").
+        then().
+                body(equalTo("application/octet-stream"));
+    }
+
+    @Test
+    public void doesntAppendCharsetToContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+        given().
+                config(RestAssured.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToStreamingContentTypeIfUndefined(false))).
+                contentType("application/zip").
+                body(new byte[] {42}).
+        when().
+                post("/returnContentTypeAsBody").
+        then().
+                body(equalTo("application/zip"));
+    }
+
+    @Test
+    public void appendsCharsetToContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+        given().
+                config(RestAssured.config().encoderConfig(encoderConfig().defaultContentCharset("UTF-8").appendDefaultContentCharsetToStreamingContentTypeIfUndefined(true))).
+                contentType("application/zip").
+                body(new byte[] {42}).
+        when().
+                post("/returnContentTypeAsBody").
+        then().
+                body(equalTo("application/zip; charset=UTF-8"));
+    }
+
+    @Test
+    public void appendCharsetToContentTypeWhenContentTypeIsNotExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+        given().
+                config(RestAssured.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToStreamingContentTypeIfUndefined(true))).
+                body(new byte[] {42}).
+        when().
+                post("/returnContentTypeAsBody").
+        then().
+                body(equalTo("application/octet-stream; charset=ISO-8859-1"));
     }
 }

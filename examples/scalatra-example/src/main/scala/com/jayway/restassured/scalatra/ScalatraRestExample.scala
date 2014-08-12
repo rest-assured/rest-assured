@@ -1059,6 +1059,11 @@ class ScalatraRestExample extends ScalatraServlet {
       0"""
   }
 
+  post("/returnContentTypeAsBody") {
+      contentType = "text/plain"
+      request.getContentType
+    }
+
   def reflect: String = {
     contentType = request.getContentType
     val cookies = request.getCookies

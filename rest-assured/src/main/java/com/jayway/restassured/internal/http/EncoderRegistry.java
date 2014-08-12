@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.internal.http;
 
+import com.jayway.restassured.config.EncoderConfig;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.http.HTTPBuilder.RequestConfigDelegate;
 import groovy.json.JsonBuilder;
@@ -42,32 +43,37 @@ import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 
 /**
- * <p>This class handles creation of the request body (i.e. for a 
- * PUT or POST operation) based on content-type.   When a 
+ * <p>This class handles creation of the request body (i.e. for a
+ * PUT or POST operation) based on content-type.   When a
  * {@link RequestConfigDelegate#setBody(Object) body} is set from the builder, it is
  * processed based on the {@link RequestConfigDelegate#getRequestContentType()
- * request content-type}.  For instance, the {@link #encodeForm(Map)} method 
- * will be invoked if the request content-type is form-urlencoded, which will 
- * cause the following:<code>body=[a:1, b:'two']</code> to be encoded as 
+ * request content-type}.  For instance, the {@link #encodeForm(Map)} method
+ * will be invoked if the request content-type is form-urlencoded, which will
+ * cause the following:<code>body=[a:1, b:'two']</code> to be encoded as
  * the equivalent <code>a=1&b=two</code> in the request body.</p>
  *
- * <p>Most default encoders can handle a closure as a request body.  In this 
- * case, the closure is executed and a suitable 'builder' passed to the 
- * closure that is  used for constructing the content.  In the case of 
+ * <p>Most default encoders can handle a closure as a request body.  In this
+ * case, the closure is executed and a suitable 'builder' passed to the
+ * closure that is  used for constructing the content.  In the case of
  * binary encoding this would be an OutputStream; for TEXT encoding it would
- * be a PrintWriter, and for XML it would be an already-bound 
- * {@link StreamingMarkupBuilder}. See each <code>encode...</code> method 
+ * be a PrintWriter, and for XML it would be an already-bound
+ * {@link StreamingMarkupBuilder}. See each <code>encode...</code> method
  * for details for each particular content-type.</p>
  *
- * <p>Contrary to its name, this class does not have anything to do with the 
+ * <p>Contrary to its name, this class does not have anything to do with the
  * <code>content-encoding</code> HTTP header.  </p>
  *
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
  */
 public class EncoderRegistry {
 
+    private final EncoderConfig encoderConfig;
     Charset charset = Charset.defaultCharset();
     private Map<String,Closure> registeredEncoders = buildDefaultEncoderMap();
+
+    EncoderRegistry(EncoderConfig encoderConfig) {
+        this.encoderConfig = encoderConfig;
+    }
 
     /**
      * Set the charset used in the content-type header of all requests that send
@@ -125,7 +131,7 @@ public class EncoderRegistry {
         if ( entity == null ) throw new IllegalArgumentException(
                 "Don't know how to encode " + data + " as a byte stream" );
 
-        entity.setContentType(useContentTypeIfDefinedOrElseUse(contentType, ContentType.BINARY));
+        entity.setContentType(useContentTypeIfDefinedOrElseUse(contentType, ContentType.BINARY, encoderConfig.shouldAppendDefaultContentCharsetToStreamingContentTypeIfUndefined()));
         return entity;
     }
 
@@ -169,7 +175,7 @@ public class EncoderRegistry {
             data = out;
         }
         // if data is a String, we are already covered.
-        return createEntity( useContentTypeIfDefinedOrElseUse(contentType, ContentType.TEXT), data );
+        return createEntity( useContentTypeIfDefinedOrElseUse(contentType, ContentType.TEXT, true), data );
     }
 
     /**
@@ -209,7 +215,7 @@ public class EncoderRegistry {
      * @throws UnsupportedEncodingException
      */
     public HttpEntity encodeForm( Object contentType, String formData ) throws UnsupportedEncodingException {
-        return this.createEntity(useContentTypeIfDefinedOrElseUse(contentType, ContentType.URLENC), formData );
+        return this.createEntity(useContentTypeIfDefinedOrElseUse(contentType, ContentType.URLENC, true), formData );
     }
 
     /**
@@ -225,7 +231,7 @@ public class EncoderRegistry {
             StreamingMarkupBuilder smb = new StreamingMarkupBuilder();
             xml = smb.bind( xml );
         }
-        return createEntity( useContentTypeIfDefinedOrElseUse(contentType, ContentType.XML), xml );
+        return createEntity( useContentTypeIfDefinedOrElseUse(contentType, ContentType.XML, true), xml );
     }
 
     /**
@@ -273,7 +279,7 @@ public class EncoderRegistry {
             throw new UnsupportedOperationException("Internal error: Can't encode "+model+" to JSON.");
         }
 
-        return createEntity(useContentTypeIfDefinedOrElseUse(contentType, ContentType.JSON), json);
+        return createEntity(useContentTypeIfDefinedOrElseUse(contentType, ContentType.JSON, true), json);
     }
 
     private HttpEntity createEntity(String ct, Object object) throws UnsupportedEncodingException {
@@ -404,9 +410,9 @@ public class EncoderRegistry {
         return this.registeredEncoders.entrySet().iterator();
     }
 
-    private String useContentTypeIfDefinedOrElseUse(Object contentType, ContentType defaultContentType) {
+    private String useContentTypeIfDefinedOrElseUse(Object contentType, ContentType defaultContentType, boolean appendCharsetToContentTypeIfUndefined) {
         String tempContentType = contentType == null ? defaultContentType.toString() : contentType.toString();
-        if(!containsIgnoreCase(tempContentType, "charset")) {
+        if (appendCharsetToContentTypeIfUndefined && !containsIgnoreCase(tempContentType, "charset")) {
             tempContentType = tempContentType + "; charset="+charset.toString();
         }
         return tempContentType;

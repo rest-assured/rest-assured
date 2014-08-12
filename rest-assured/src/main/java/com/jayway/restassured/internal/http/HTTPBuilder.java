@@ -161,7 +161,7 @@ public abstract class HTTPBuilder {
 
     protected final Map<Object,Object> defaultRequestHeaders = new StringHashMap<Object>();
 
-    protected EncoderRegistry encoders = new EncoderRegistry();
+    protected EncoderRegistry encoders;
     protected HttpResponseContentTypeFinder parsers = new HttpResponseContentTypeFinder();
     private EncoderConfig encoderConfig;
     private boolean urlEncodingEnabled;
@@ -172,6 +172,7 @@ public abstract class HTTPBuilder {
         this.setContentEncoding( ContentEncoding.Type.GZIP, ContentEncoding.Type.DEFLATE );
         this.encoderConfig = encoderConfig == null ? new EncoderConfig() : encoderConfig;
         this.urlEncodingEnabled = urlEncodingEnabled;
+        encoders = new EncoderRegistry(encoderConfig);
     }
 
     /**
