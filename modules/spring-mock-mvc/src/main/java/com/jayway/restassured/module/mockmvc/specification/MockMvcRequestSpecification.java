@@ -347,6 +347,23 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
     MockMvcRequestSpecification formParam(String parameterName, Collection<?> parameterValues);
 
     /**
+     * Specify a single-value request attribute
+     *
+     * @param attributeName The attribute name
+     * @param attributeValue The attribute value
+     * @return The request specification
+     */
+    MockMvcRequestSpecification attribute(String attributeName, Object attributeValue);
+
+    /**
+     * Specify request attributes as a map
+     *
+     * @param attributesMap The Map containing the request attribute names and their values
+     * @return The request specification
+     */
+    MockMvcRequestSpecification attributes(Map<String, ?> attributesMap);
+
+    /**
      * Specify a String request body (such as e.g. JSON or XML) that'll be sent with the request. This works for the
      * POST and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
      * <p>
@@ -728,6 +745,7 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * The following settings are merged:
      * <ul>
      * <li>Parameters</li>
+     * <li>Attributes</li>
      * <li>Cookies</li>
      * <li>Headers</li>
      * </ul>

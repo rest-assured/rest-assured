@@ -286,6 +286,29 @@ public class MockMvcRequestSpecBuilder {
     }
 
     /**
+     * Add request attribute
+     *
+     * @param attributeName The attribute name
+     * @param attributeValue The attribute value
+     * @return The request specification builder
+     */
+    public MockMvcRequestSpecBuilder addAttribute(String attributeName, Object attributeValue) {
+        spec.attribute(attributeName, attributeValue);
+        return this;
+    }
+
+    /**
+     * Add request attributes
+     *
+     * @param attributesMap The Map containing the request attribute names and their values
+     * @return The request specification builder
+     */
+    public MockMvcRequestSpecBuilder addAttributes(Map<String, ?> attributesMap) {
+        spec.attributes(attributesMap);
+        return this;
+    }
+
+    /**
      * Add headers to be sent with the request as Map.
      *
      * @param headers The Map containing the header names and their values to send with the request.

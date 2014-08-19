@@ -93,6 +93,18 @@ public class MockMvcRequestSpecificationMergingTest {
     }
 
     @Test public void
+    attributes_are_merged() {
+        // Given
+        MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().addAttribute("param1", "value1").build();
+
+        // When
+        MockMvcRequestSpecification spec = given().attribute("param2", "value2").spec(specToMerge);
+
+        // Then
+        assertThat(implOf(spec).getAttributes()).containsOnly(entry("param1", "value1"), entry("param2", "value2"));
+    }
+
+    @Test public void
     multi_parts_are_merged() {
         // Given
         MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().addMultiPart("param1", "value1").build();
