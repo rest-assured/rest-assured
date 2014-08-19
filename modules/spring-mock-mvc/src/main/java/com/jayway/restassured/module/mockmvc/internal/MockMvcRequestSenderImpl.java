@@ -53,6 +53,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final Map<String, Object> params;
     private final Map<String, Object> queryParams;
     private final Map<String, Object> formParams;
+    private final Map<String, Object> attributes;
     private final RestAssuredMockMvcConfig config;
     private final Object requestBody;
     private final String requestContentType;
@@ -67,7 +68,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final Object authentication;
     private final LogRepository logRepository;
 
-    MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams,
+    MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
                              RestAssuredMockMvcConfig config, Object requestBody, String requestContentType, Headers headers, Cookies cookies,
                              List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
                              MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
@@ -76,6 +77,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         this.params = params;
         this.queryParams = queryParams;
         this.formParams = formParams;
+        this.attributes = attributes;
         this.config = config;
         this.requestBody = requestBody;
         this.requestContentType = requestContentType;
@@ -236,6 +238,15 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
             if (!isInMultiPartMode) {
                 request.contentType(APPLICATION_FORM_URLENCODED);
             }
+        }
+
+        if (!attributes.isEmpty()) {
+            new ParamApplier(attributes) {
+                @Override
+                protected void applyParam(String paramName, String[] paramValues) {
+                    request.requestAttr(paramName, paramValues[0]);
+                }
+            }.applyParams();
         }
 
         if (StringUtils.isNotBlank(requestContentType)) {

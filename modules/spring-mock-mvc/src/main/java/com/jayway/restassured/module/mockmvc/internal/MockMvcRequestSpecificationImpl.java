@@ -59,6 +59,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     private final Map<String, Object> params = new LinkedHashMap<String, Object>();
     private final Map<String, Object> queryParams = new LinkedHashMap<String, Object>();
     private final Map<String, Object> formParams = new LinkedHashMap<String, Object>();
+    private final Map<String, Object> attributes = new LinkedHashMap<String, Object>();
 
     private Object requestBody = null;
 
@@ -309,6 +310,19 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return this;
     }
 
+    public MockMvcRequestSpecification attribute(String attributeName, Object attributeValue) {
+        notNull(attributeName, "attributeName");
+        notNull(attributeValue, "attributeValue");
+        parameterAppender.appendZeroToManyParameters(attributes, attributeName, attributeValue);
+        return this;
+    }
+
+    public MockMvcRequestSpecification attributes(Map<String, ?> attributesMap) {
+        notNull(attributesMap, "attributesMap");
+        parameterAppender.appendParameters((Map<String, Object>) attributesMap, attributes);
+        return this;
+    }
+
     public MockMvcRequestSpecification body(String body) {
         this.requestBody = body;
         return this;
@@ -518,6 +532,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         this.formParams(that.getFormParams());
         this.queryParams(that.getQueryParams());
         this.params(that.getParams());
+        this.attributes(that.getAttributes());
 
         this.multiParts.addAll(that.getMultiParts());
         this.resultHandlers.addAll(that.getResultHandlers());
@@ -571,7 +586,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         if (requestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
             log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
         }
-        return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, restAssuredMockMvcConfig, requestBody, requestContentType,
+        return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, attributes, restAssuredMockMvcConfig, requestBody, requestContentType,
                 requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath, responseSpecification, authentication,
                 logRepository);
     }
@@ -778,6 +793,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public Map<String, Object> getFormParams() {
         return formParams;
+    }
+
+    public Map<String, Object> getAttributes() {
+        return attributes;
     }
 
     public Object getRequestBody() {
