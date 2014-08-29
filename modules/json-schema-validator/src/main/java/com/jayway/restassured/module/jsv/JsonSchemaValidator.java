@@ -79,12 +79,12 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
      */
     public static JsonSchemaValidatorSettings settings;
 
-    private final JsonNode schema;
+    private final Object schema;
     private final JsonSchemaValidatorSettings instanceSettings;
 
     private ProcessingReport report;
 
-    private JsonSchemaValidator(JsonNode schema, JsonSchemaValidatorSettings jsonSchemaValidatorSettings) {
+    private JsonSchemaValidator(Object schema, JsonSchemaValidatorSettings jsonSchemaValidatorSettings) {
         if (jsonSchemaValidatorSettings == null) {
             throw new IllegalArgumentException(JsonSchemaValidatorSettings.class.getSimpleName() + " cannot be null.");
         }
@@ -101,8 +101,8 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     public static JsonSchemaValidator matchesJsonSchema(String schema) {
         return new JsonSchemaValidatorFactory<String>() {
             @Override
-            JsonNode createJsonNodeInstance(String schema) throws IOException {
-                return JsonLoader.fromString(schema);
+            JsonNode createSchemaInstance(String input) throws IOException {
+                return JsonLoader.fromString(input);
             }
         }.create(schema);
     }
@@ -136,8 +136,8 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     public static JsonSchemaValidator matchesJsonSchema(Reader schema) {
         return new JsonSchemaValidatorFactory<Reader>() {
             @Override
-            JsonNode createJsonNodeInstance(Reader schema) throws IOException {
-                return JsonLoader.fromReader(schema);
+            JsonNode createSchemaInstance(Reader input) throws IOException {
+                return JsonLoader.fromReader(input);
             }
         }.create(schema);
     }
@@ -151,8 +151,8 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     public static JsonSchemaValidator matchesJsonSchema(File file) {
         return new JsonSchemaValidatorFactory<File>() {
             @Override
-            JsonNode createJsonNodeInstance(File schema) throws IOException {
-                return JsonLoader.fromFile(schema);
+            JsonNode createSchemaInstance(File input) throws IOException {
+                return JsonLoader.fromFile(input);
             }
         }.create(file);
     }
@@ -160,8 +160,8 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     public static JsonSchemaValidator matchesJsonSchema(URL url) {
         return new JsonSchemaValidatorFactory<URL>() {
             @Override
-            JsonNode createJsonNodeInstance(URL schema) throws IOException {
-                return JsonLoader.fromURL(schema);
+            Object createSchemaInstance(URL input) throws IOException {
+                return input;
             }
         }.create(url);
     }
@@ -212,7 +212,17 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     protected boolean matchesSafely(String content) {
         try {
             JsonNode contentAsJsonNode = JsonLoader.fromString(content);
-            JsonSchema jsonSchema = instanceSettings.jsonSchemaFactory().getJsonSchema(schema);
+            JsonSchemaFactory jsonSchemaFactory = instanceSettings.jsonSchemaFactory();
+            Schema loadedSchema = loadSchema(schema, instanceSettings);
+            final JsonSchema jsonSchema;
+            if (loadedSchema.hasType(JsonNode.class)) {
+                jsonSchema = jsonSchemaFactory.getJsonSchema(JsonNode.class.cast(loadedSchema.schema));
+            } else if (loadedSchema.hasType(String.class)) {
+                jsonSchema = jsonSchemaFactory.getJsonSchema(String.class.cast(loadedSchema.schema));
+            } else {
+                throw new RuntimeException("Internal error when loading schema from factory. Type was " + loadedSchema.schema.getClass().getName());
+            }
+
             if (instanceSettings.shouldUseCheckedValidation()) {
                 report = jsonSchema.validate(contentAsJsonNode);
             } else {
@@ -235,6 +245,26 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
         }
     }
 
+    private Schema loadSchema(Object input, JsonSchemaValidatorSettings instanceSettings) {
+        if (input instanceof JsonNode) {
+            return new Schema(input);
+        } else if (input instanceof URL) {
+            final Object loadedSchema;
+            if (instanceSettings.shouldParseUriAndUrlsAsJsonNode()) {
+                try {
+                    loadedSchema = JsonLoader.fromURL((URL) input);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                loadedSchema = input.toString();
+            }
+            return new Schema(loadedSchema);
+        } else {
+            throw new RuntimeException("Internal error when loading schema: Input was instance of " + input.getClass().getName());
+        }
+    }
+
     private static void validateSchemaIsNotNull(Object schema) {
         if (schema == null) {
             throw new IllegalArgumentException("Schema to use cannot be null");
@@ -249,17 +279,33 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
 
         public JsonSchemaValidator create(T schema) {
             validateSchemaIsNotNull(schema);
-            JsonNode schemaNode;
+            Object loadedSchema;
             try {
-                schemaNode = createJsonNodeInstance(schema);
+                loadedSchema = createSchemaInstance(schema);
             } catch (IOException e) {
                 throw new JsonSchemaValidationException(e);
             }
 
-            return new JsonSchemaValidator(schemaNode, createSettings());
+            return new JsonSchemaValidator(loadedSchema, createSettings());
         }
 
-        abstract JsonNode createJsonNodeInstance(T schema) throws IOException;
+        abstract Object createSchemaInstance(T input) throws IOException;
+    }
+
+    private static class Schema {
+        private final Object schema;
+
+        private Schema(Object result) {
+            this.schema = result;
+        }
+
+        public boolean hasType(Class<?> type) {
+            return type.isAssignableFrom(schema.getClass());
+        }
+
+        public <T> T as(Class<T> type) {
+            return type.cast(schema);
+        }
     }
 
     /**

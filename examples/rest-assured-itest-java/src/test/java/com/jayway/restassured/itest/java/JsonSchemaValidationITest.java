@@ -20,11 +20,14 @@ import com.github.fge.jsonschema.cfg.ValidationConfiguration;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.module.jsv.JsonSchemaValidator;
+import com.squareup.okhttp.mockwebserver.MockResponse;
+import com.squareup.okhttp.mockwebserver.MockWebServer;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 
 import static com.github.fge.jsonschema.SchemaVersion.DRAFTV3;
 import static com.github.fge.jsonschema.SchemaVersion.DRAFTV4;
@@ -33,6 +36,7 @@ import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonS
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidatorSettings.settings;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
 
 public class JsonSchemaValidationITest extends WithJetty {
 
@@ -117,7 +121,7 @@ public class JsonSchemaValidationITest extends WithJetty {
                 "}");
 
         // When
-        get("/jsonStore").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json"));
+        get("/jsonStore").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json").using(settings().parseUriAndUrlsAsJsonNode(true)));
     }
 
     @Test public void
@@ -186,11 +190,12 @@ public class JsonSchemaValidationITest extends WithJetty {
     @Test public void
     json_schema_validator_supports_draft_03_failures() {
         exception.expect(AssertionError.class);
-        exception.expectMessage("Response body doesn't match expectation.\n" +
+        exception.expectMessage(startsWith("Response body doesn't match expectation.\n" +
                 "Expected: The content to match the given JSON schema.\n" +
                 "error: object has missing required properties ([\"isbn\"])\n" +
                 "    level: \"error\"\n" +
-                "    schema: {\"loadingURI\":\"#\",\"pointer\":\"/properties/store/properties/book/items/1\"}\n" +
+                "    schema: {\"loadingURI\":\""));
+        exception.expectMessage("\",\"pointer\":\"/properties/store/properties/book/items/1\"}\n" +
                 "    instance: {\"pointer\":\"/store/book/1\"}\n" +
                 "    domain: \"validation\"\n" +
                 "    keyword: \"properties\"\n" +
@@ -241,5 +246,33 @@ public class JsonSchemaValidationITest extends WithJetty {
                 get("/greetJSON").
         then().
                 body(matchesJsonSchemaInClasspath("greeting-schema.json"));
+    }
+
+    @Test public void
+    json_schema_validator_supports_matching_uri_json_schema_as_json_node() throws Exception {
+        // Given
+        String schema = IOUtils.toString(Thread.currentThread().getContextClassLoader().getResourceAsStream("products-schema.json"));
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(schema));
+        server.play();
+        try {
+            get("/products").then().assertThat().body(matchesJsonSchema(new URI("http://localhost:"+server.getPort())).using(settings().parseUriAndUrlsAsJsonNode(true)));
+        } finally {
+            server.shutdown();
+        }
+    }
+
+    @Test public void
+    json_schema_validator_supports_matching_uri_json_schema_as_string_to_uri() throws Exception {
+        // Given
+        String schema = IOUtils.toString(Thread.currentThread().getContextClassLoader().getResourceAsStream("products-schema.json"));
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setResponseCode(200).setBody(schema));
+        server.play();
+        try {
+            get("/products").then().assertThat().body(matchesJsonSchema(new URI("http://localhost:"+server.getPort())).using(settings().parseUriAndUrlsAsJsonNode(false)));
+        } finally {
+            server.shutdown();
+        }
     }
 }
