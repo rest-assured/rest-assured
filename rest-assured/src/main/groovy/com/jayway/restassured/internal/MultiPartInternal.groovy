@@ -37,7 +37,7 @@ class MultiPartInternal {
     }
 
     if (content instanceof File) {
-      new FileBody(content, fileName, mimeType ?: OCTET_STREAM, charset)
+      new FileBody(content, fileName ?: content.getName(), mimeType ?: OCTET_STREAM, charset)
     } else if (content instanceof InputStream) {
       returnInputStreamBody()
     } else if (content instanceof byte[]) {

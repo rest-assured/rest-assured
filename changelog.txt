@@ -14,11 +14,13 @@ Change log next version
 * Upgraded Spring Security optional dependency from version 3.2.0 to 3.2.5.RELEASE.
 * Upgraded faster Jackson optional dependency from version 2.4.0 to 2.4.2.
 * Upgraded commons-lang3 from version 3.1 to 3.3.2.
-* Upgraded Groovy to version from version 2.3.2 to 2.3.6.
+* Upgraded Groovy from version 2.3.2 to 2.3.6.
+* Upgraded Http Client from version 4.2.6 to 4.3.5.
 * Made it possible to configure whether to automatically append charset to content-type for streaming content using the EncoderConfig (issue 345).
 * Support for request attributes in spring-mock-mvc (thanks to Jacek Kunicki for the pull request)
 * JsonSchemaValidator no longer parse URI's and URL's as JsonNode's by default since prevented resolving relative $ref in a parent schema. This is configurable using the JsonSchemaValidatorSettings (issue 346).
 * Fixed so that request and response is logged when "enableLoggingOfRequestAndResponseIfValidationFails" is defined when a response specifications fails to validate (issue 350).
+* Fixed so that multi-part file data uploading works for files without specifying an explicit filename when using HTTP Client version 4.3 and above (issue 351).
 
 Change log 2.3.2 (2014-06-09)
 -----------------------------

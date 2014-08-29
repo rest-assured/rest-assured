@@ -23,7 +23,6 @@ import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.apache.http.conn.HttpHostConnectException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -34,6 +33,7 @@ import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import java.io.File;
 import java.io.PrintStream;
 import java.io.StringWriter;
+import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -185,7 +185,7 @@ public class ProxyITest extends WithJetty {
 
     @Test public void
     using_statically_configured_proxy_defined_using_string_uri_without_port() {
-        exception.expect(HttpHostConnectException.class); // Because it will try to connect to port 80
+        exception.expect(ConnectException.class); // Because it will try to connect to port 80
 
         RestAssured.proxy("http://127.0.0.1");
 
