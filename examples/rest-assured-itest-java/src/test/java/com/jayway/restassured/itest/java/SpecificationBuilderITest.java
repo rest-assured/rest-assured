@@ -35,6 +35,7 @@ import static com.jayway.restassured.config.LogConfig.logConfig;
 import static com.jayway.restassured.config.RedirectConfig.redirectConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static com.jayway.restassured.filter.log.LogDetail.ALL;
+import static com.jayway.restassured.itest.java.SSLITest.eurosportSpec;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -466,12 +467,12 @@ public class SpecificationBuilderITest extends WithJetty {
     @Test
     public void supportsSpecifyingKeystore() throws Exception {
         final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/truststore_eurosport.jks", "test4321").build();
-        given().spec(spec).expect().body(containsString("eurosport")).get("https://tv.eurosport.com/");
+        given().spec(spec).expect().spec(eurosportSpec()).get("https://tv.eurosport.com/");
     }
 
     @Test
     public void supportsOverridingKeystore() throws Exception {
         final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/truststore_eurosport.jks", "wrong pw").build();
-        given().spec(spec).keystore("/truststore_eurosport.jks", "test4321").expect().body(containsString("eurosport")).get("https://tv.eurosport.com/");
+        given().spec(spec).keystore("/truststore_eurosport.jks", "test4321").expect().spec(eurosportSpec()).get("https://tv.eurosport.com/");
     }
 }
