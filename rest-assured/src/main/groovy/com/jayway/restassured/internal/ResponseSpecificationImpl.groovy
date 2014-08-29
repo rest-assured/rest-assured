@@ -56,7 +56,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   private Response response
 
   private contentParser
-  private LogRepository logRepository
+  def LogRepository logRepository
 
   ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
                             RestAssuredConfig config, LogRepository logRepository) {
@@ -720,10 +720,6 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   private isEagerAssert() {
     return response != null
-  }
-
-  LogRepository getLogRepository() {
-    return logRepository
   }
 
   private void validateResponseIfRequired(Closure closure) {

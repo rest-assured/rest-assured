@@ -17,6 +17,7 @@
 package com.jayway.restassured.internal;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.http.ContentType;
@@ -284,6 +285,18 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         notNull(responseSpecification, ResponseSpecification.class);
         // We parse the response as a string here because we need to enforce it otherwise specs won't work
         response.asString();
+
+        // The following is a work-around to enable logging of request and response if validation fails
+        if (responseSpecification instanceof ResponseSpecificationImpl) {
+            ResponseSpecificationImpl impl = (ResponseSpecificationImpl) responseSpecification;
+            LogConfig globalLogConfig = responseSpec.getConfig().getLogConfig();
+            if (globalLogConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
+                impl.setConfig(impl.getConfig().logConfig(globalLogConfig));
+                impl.setLogRepository(responseSpec.getLogRepository());
+            }
+        }
+
+        // Finally validate the response
         responseSpecification.validate(response);
         return (T) this;
     }

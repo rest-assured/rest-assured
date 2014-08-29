@@ -333,8 +333,6 @@ public class LogIfValidationFailsITest extends WithJetty {
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
             assertThat(writer.toString(), equalTo("Headers:\t\tContent-Type=application/json\n\t\t\t\tApi-Key=1234\n\nContent-Type: application/json; charset=UTF-8\nContent-Length: 33\nServer: Jetty(6.1.14)\n"));
-        } finally {
-            RestAssured.reset();
         }
     }
 
@@ -363,8 +361,6 @@ public class LogIfValidationFailsITest extends WithJetty {
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
             assertThat(writer.toString(), isEmptyString());
-        } finally {
-            RestAssured.reset();
         }
     }
 
@@ -393,11 +389,8 @@ public class LogIfValidationFailsITest extends WithJetty {
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
             assertThat(writer.toString(), equalTo("Headers:\t\tContent-Type=application/json\n\t\t\t\tApi-Key=1234\n\nContent-Type: application/json; charset=UTF-8\nContent-Length: 33\nServer: Jetty(6.1.14)\n"));
-        } finally {
-            RestAssured.reset();
         }
     }
-
 
     @Test public void
     logging_doesnt_change_original_content_by_pretty_printing() {
@@ -411,5 +404,26 @@ public class LogIfValidationFailsITest extends WithJetty {
                 get("/mimeTypeWithPlusHtml").
         then().
                 body("html.head.title", equalTo("my title"));
+    }
+
+    @Test public void
+    logging_is_applied_when_using_non_static_response_specifications() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        try {
+            given().
+                    config(RestAssured.config().logConfig(logConfig().defaultStream(captor).and().enableLoggingOfRequestAndResponseIfValidationFails())).
+                    param("firstName", "John").
+                    param("lastName", "Doe").
+            when().
+                    get("/greet").
+            then().
+                    spec(new ResponseSpecBuilder().expectStatusCode(400).build());
+
+            fail("Test out to have failed by now");
+        } catch (AssertionError e) {
+            assertThat(writer.toString(), not(isEmptyOrNullString()));
+        }
     }
 }

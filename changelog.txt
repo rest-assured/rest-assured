@@ -18,6 +18,7 @@ Change log next version
 * Made it possible to configure whether to automatically append charset to content-type for streaming content using the EncoderConfig (issue 345).
 * Support for request attributes in spring-mock-mvc (thanks to Jacek Kunicki for the pull request)
 * JsonSchemaValidator no longer parse URI's and URL's as JsonNode's by default since prevented resolving relative $ref in a parent schema. This is configurable using the JsonSchemaValidatorSettings (issue 346).
+* Fixed so that request and response is logged when "enableLoggingOfRequestAndResponseIfValidationFails" is defined when a response specifications fails to validate (issue 350).
 
 Change log 2.3.2 (2014-06-09)
 -----------------------------

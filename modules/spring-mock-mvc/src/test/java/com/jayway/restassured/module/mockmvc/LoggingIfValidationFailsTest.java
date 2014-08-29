@@ -16,7 +16,6 @@
 
 package com.jayway.restassured.module.mockmvc;
 
-import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.filter.log.LogDetail;
@@ -34,8 +33,7 @@ import java.io.StringWriter;
 import static com.jayway.restassured.filter.log.LogDetail.HEADERS;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig.config;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -52,7 +50,7 @@ public class LoggingIfValidationFailsTest {
 
     @After public void
     reset_rest_assured() throws Exception {
-        RestAssured.reset();
+        RestAssuredMockMvc.reset();
     }
 
     @Test public void
@@ -121,8 +119,6 @@ public class LoggingIfValidationFailsTest {
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
             assertThat(writer.toString(), equalTo("Headers:\t\tContent-Type=*/*\n\t\t\t\tApi-Key=1234\n\nContent-Type: application/json;charset=UTF-8\n"));
-        } finally {
-            RestAssuredMockMvc.reset();
         }
     }
 
@@ -141,6 +137,26 @@ public class LoggingIfValidationFailsTest {
 
         assertThat(writer.toString(), isEmptyString());
     }
-}
 
+    @Test public void
+    logging_is_applied_when_using_non_static_response_specifications() {
+        RestAssuredMockMvc.config = new RestAssuredMockMvcConfig().logConfig(new LogConfig(captor, true).enableLoggingOfRequestAndResponseIfValidationFails());
+
+        try {
+        given().
+                standaloneSetup(new PostController()).
+                param("name", "Johan").
+        when().
+                post("/greetingPost").
+        then().
+                spec(new ResponseSpecBuilder().
+                        expectBody("id", equalTo(2)).
+                        expectBody("content", equalTo("Hello, Johan2!")).
+                        build());
+            fail("Should throw AssertionError");
+        } catch (AssertionError e) {
+            assertThat(writer.toString(), not(isEmptyOrNullString()));
+        }
+    }
+}
 // @formatter:on
