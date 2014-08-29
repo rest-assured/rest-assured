@@ -15,21 +15,22 @@
  */
 package com.jayway.restassured.scalatra
 
-import org.scalatra.ScalatraServlet
-import net.liftweb.json.JsonDSL._
-import java.lang.String
-import xml.Elem
-import net.liftweb.json.JsonAST._
-import net.liftweb.json.Printer._
-import net.liftweb.json.Extraction._
-import scala.collection.JavaConversions._
-import net.liftweb.json.{DefaultFormats, JsonParser}
-import collection.mutable.ListBuffer
-import org.apache.commons.io.IOUtils
-import java.util.{Scanner, Date}
-import org.apache.commons.lang3.StringUtils
+import java.util.{Date, Scanner}
 import javax.servlet.http.Cookie
+
+import net.liftweb.json.Extraction._
+import net.liftweb.json.JsonAST._
+import net.liftweb.json.JsonDSL._
+import net.liftweb.json.Printer._
+import net.liftweb.json.{DefaultFormats, JsonParser}
+import org.apache.commons.io.IOUtils
+import org.apache.commons.lang3.StringUtils
+import org.scalatra.ScalatraServlet
+
+import scala.collection.JavaConversions._
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
+import scala.xml.Elem
 
 class ScalatraRestExample extends ScalatraServlet {
   // To allow for json extract
@@ -562,25 +563,30 @@ class ScalatraRestExample extends ScalatraServlet {
 
   post("/j_spring_security_check") {
     contentType = "text/plain"
-    securityCheck("jsessionid", checkCsrf = false)
+    securityCheck("jsessionid", () => true)
   }
 
   post("/j_spring_security_check_with_csrf") {
       contentType = "text/plain"
-      securityCheck("jsessionid", checkCsrf = true)
+      securityCheck("jsessionid", () => params.get("_csrf").get == "8adf2ea1-b246-40aa-8e13-a85fb7914341")
+  }
+
+  post("/j_spring_security_check_with_csrf_header") {
+      contentType = "text/plain"
+      securityCheck("jsessionid", () => request.getHeader("_csrf") == "8adf2ea1-b246-40aa-8e13-a85fb7914341")
   }
 
   post("/j_spring_security_check_phpsessionid") {
     contentType = "text/plain"
-    securityCheck("phpsessionid", checkCsrf = false)
+    securityCheck("phpsessionid", () => true)
   }
 
 
-  def securityCheck(sessionIdName: String, checkCsrf: Boolean) : Any = {
+  def securityCheck(sessionIdName: String, additionalChecks: () => Boolean) : Any = {
     val userName = params.get("j_username").get
     val password = params.get("j_password").get
     if (userName == "John" && password == "Doe") {
-      if (checkCsrf && params.get("_csrf").get != "8adf2ea1-b246-40aa-8e13-a85fb7914341") {
+      if (!additionalChecks.apply()) {
         "NO"
       } else {
         response.setHeader("Set-Cookie", sessionIdName + "=1234")
@@ -591,37 +597,15 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/formAuth") {
-    contentType = "text/plain"
-    val cookies: Array[Cookie] = request.getCookies
-    if(cookies == null) {
-      loginPage
-    } else {
-      val cookie = cookies.find(sessionName => sessionName.getName.equalsIgnoreCase("jsessionid") || sessionName.getName.equalsIgnoreCase("phpsessionid")).get
-      if(cookie == null) {
-        loginPage
-      } else if (cookie.getValue == "1234") {
-        "OK"
-      } else {
-        "NOT AUTHORIZED"
-      }
-    }
+    formAuth(() => loginPage)
   }
 
   get("/formAuthCsrf") {
-    contentType = "text/plain"
-    val cookies: Array[Cookie] = request.getCookies
-    if(cookies == null) {
-      loginPageWithCsrf
-    } else {
-      val cookie = cookies.find(sessionName => sessionName.getName.equalsIgnoreCase("jsessionid") || sessionName.getName.equalsIgnoreCase("phpsessionid")).get
-      if(cookie == null) {
-        loginPageWithCsrf
-      } else if (cookie.getValue == "1234") {
-        "OK"
-      } else {
-        "NOT AUTHORIZED"
-      }
-    }
+    formAuth(() => loginPageWithCsrf)
+  }
+
+  get("/formAuthCsrfInHeader") {
+    formAuth(() => loginPageWithCsrfHeader)
   }
 
   get("/jsonWithAtSign") {
@@ -993,6 +977,26 @@ class ScalatraRestExample extends ScalatraServlet {
           </body>
      </html>"""
   }
+  
+  def loginPageWithCsrfHeader: String = {
+    contentType = "text/html"
+    """<html>
+      <head>
+        <title>Login</title>
+      </head>
+
+      <body>
+        <form action="j_spring_security_check_with_csrf_header" method="POST">
+          <table>
+            <tr><td>User:&nbsp;</td><td><input type='text' name='j_username'></td></tr>
+            <tr><td>Password:</td><td><input type='password' name='j_password'></td></tr>
+              <tr><td colspan='2'><input name="submit" type="submit"/></td></tr>
+           </table>
+            <input type="hidden" name="_csrf" value="8adf2ea1-b246-40aa-8e13-a85fb7914341"/>
+            </form>
+          </body>
+     </html>"""
+  }
 
   def greetXML: Elem = {
     contentType = "application/xml"
@@ -1063,6 +1067,23 @@ class ScalatraRestExample extends ScalatraServlet {
       contentType = "text/plain"
       request.getContentType
     }
+
+  def formAuth(loginPage: () => String) = {
+    contentType = "text/plain"
+    val cookies: Array[Cookie] = request.getCookies
+    if(cookies == null) {
+      loginPage.apply()
+    } else {
+      val cookie = cookies.find(sessionName => sessionName.getName.equalsIgnoreCase("jsessionid") || sessionName.getName.equalsIgnoreCase("phpsessionid")).get
+      if(cookie == null) {
+        loginPageWithCsrf
+      } else if (cookie.getValue == "1234") {
+        "OK"
+      } else {
+        "NOT AUTHORIZED"
+      }
+    }
+  }
 
   def reflect: String = {
     contentType = request.getContentType

@@ -35,6 +35,7 @@ public class FormAuthConfig {
     private final LogDetail logDetail;
     private final String csrfFieldName;
     private final boolean autoDetectCsrfFieldName;
+    private final boolean sendCsrfTokenAsFormParam;
 
     /**
      * Create a form auth config with a pre-defined form action, username input tag, password input tag.
@@ -61,7 +62,7 @@ public class FormAuthConfig {
      * @param passwordInputTagName The name of the password input tag in the login form
      */
     public FormAuthConfig(String formAction, String userNameInputTagName, String passwordInputTagName) {
-        this(formAction, userNameInputTagName, passwordInputTagName, null, null, null, false);
+        this(formAction, userNameInputTagName, passwordInputTagName, null, null, null, false, true);
     }
 
     /**
@@ -72,7 +73,7 @@ public class FormAuthConfig {
     }
 
     private FormAuthConfig(String formAction, String userNameInputTagName, String passwordInputTagName, LogDetail logDetail, LogConfig logConfig,
-                           String csrfFieldName, boolean autoDetectCsrfFieldName) {
+                           String csrfFieldName, boolean autoDetectCsrfFieldName, boolean sendCsrfTokenAsFormParam) {
         this.formAction = formAction;
         this.userInputTagName = userNameInputTagName;
         this.passwordInputTagName = passwordInputTagName;
@@ -80,6 +81,7 @@ public class FormAuthConfig {
         this.logConfig = logConfig;
         this.csrfFieldName = csrfFieldName;
         this.autoDetectCsrfFieldName = autoDetectCsrfFieldName;
+        this.sendCsrfTokenAsFormParam = sendCsrfTokenAsFormParam;
     }
 
     /**
@@ -131,7 +133,21 @@ public class FormAuthConfig {
         if (autoDetectCsrfFieldName) {
             throw new IllegalStateException("Cannot defined a CSRF field name since the CSRF field name has been marked as auto-detected.");
         }
-        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, fieldName, false);
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, fieldName, false, sendCsrfTokenAsFormParam);
+    }
+
+    /**
+     * @return Configure form authentication to send the csrf token in a header.
+     */
+    public FormAuthConfig sendCsrfTokenAsHeader() {
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, autoDetectCsrfFieldName, false);
+    }
+
+    /**
+     * @return Configure form authentication to send the csrf token as a form parameter (default setting).
+     */
+    public FormAuthConfig sendCsrfTokenAsFormParam() {
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, autoDetectCsrfFieldName, true);
     }
 
     /**
@@ -175,7 +191,7 @@ public class FormAuthConfig {
         if (hasCsrfFieldName()) {
             throw new IllegalStateException(format("Cannot use auto-detection of CSRF field name since a CSRF field name was already defined as '%s'", csrfFieldName));
         }
-        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, true);
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, true, sendCsrfTokenAsFormParam);
     }
 
     /**
@@ -218,7 +234,7 @@ public class FormAuthConfig {
     public FormAuthConfig withLoggingEnabled(LogDetail logDetail, LogConfig logConfig) {
         notNull(logDetail, LogDetail.class);
         notNull(logConfig, LogConfig.class);
-        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, autoDetectCsrfFieldName);
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, autoDetectCsrfFieldName, sendCsrfTokenAsFormParam);
     }
 
     /**
@@ -322,5 +338,12 @@ public class FormAuthConfig {
      */
     public boolean requiresParsingOfLoginPage() {
         return !hasFormAction() || !hasUserInputTagName() || !hasPasswordInputTagName() || isAutoDetectCsrfFieldName() || hasCsrfFieldName();
+    }
+
+    /**
+     * @return <code>true</code> if the csrf token should be sent as a form param or <code>false</code> if it's sent as a header.
+     */
+    public boolean shouldSendCsrfTokenAsFormParam() {
+        return sendCsrfTokenAsFormParam;
     }
 }

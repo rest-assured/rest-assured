@@ -93,13 +93,15 @@ class FormAuthFilter implements AuthFilter {
       csrfValue = null
     }
 
-
-
     def loginRequestSpec = given().port(requestSpec.getPort()).with().auth().none().and().
             with().formParams(userNameInputField, userName, passwordInputField, password)
 
     if (csrfValue && csrfFieldName) {
-      loginRequestSpec.formParam(csrfFieldName, csrfValue)
+      if (formAuthConfig.shouldSendCsrfTokenAsFormParam()) {
+        loginRequestSpec.formParam(csrfFieldName, csrfValue)
+      } else {
+        loginRequestSpec.header(csrfFieldName, csrfValue)
+      }
     }
 
     if (formAuthConfig?.isLoggingEnabled()) {

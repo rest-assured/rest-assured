@@ -134,6 +134,17 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
+    public void formAuthenticationWithDefinedCsrfFieldAsHeader() throws Exception {
+        given().
+                auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf_header", "j_username", "j_password").withCsrfFieldName("_csrf").sendCsrfTokenAsHeader()).
+        when().
+                get("/formAuthCsrfInHeader").
+        then().
+                statusCode(200).
+                body(equalTo("OK"));
+    }
+
+    @Test
     public void formAuthenticationWithCsrfAutoDetectionButSpecifiedFormDetails() throws Exception {
         given().
                 auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf", "j_username", "j_password").withAutoDetectionOfCsrf()).
