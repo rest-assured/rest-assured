@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 2.3.3 (2014-08-29)
+----------------------------
 * Added CSRF (cross-site request forgery) support to form authentication config. For example:
     given().
             auth().form("John", "Doe", formAuthConfig().withAutoDetectionOfCsrf()).
