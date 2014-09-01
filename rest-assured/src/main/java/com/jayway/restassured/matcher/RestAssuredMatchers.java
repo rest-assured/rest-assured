@@ -79,7 +79,7 @@ public class RestAssuredMatchers {
      * @param path The path to the XSD located in classpath
      * @return The DTD matcher
      */
-    public static Matcher<String> matchesXsdInClasspath(String path) {
+    public static XmlXsdMatcher matchesXsdInClasspath(String path) {
         return XmlXsdMatcher.matchesXsdInClasspath(path);
     }
 

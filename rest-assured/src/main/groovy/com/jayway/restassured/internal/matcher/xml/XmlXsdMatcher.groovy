@@ -19,7 +19,6 @@ package com.jayway.restassured.internal.matcher.xml
 
 import org.hamcrest.BaseMatcher
 import org.hamcrest.Description
-import org.hamcrest.Matcher
 import org.w3c.dom.ls.LSResourceResolver
 
 import javax.xml.XMLConstants
@@ -90,7 +89,7 @@ class XmlXsdMatcher extends BaseMatcher<String> {
     description.appendText("the supplied XSD")
   }
 
-  static Matcher<String> matchesXsdInClasspath(String path) {
+  public static XmlXsdMatcher matchesXsdInClasspath(String path) {
     notNull(path, "Path that points to the XSD in classpath")
     InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path)
     if (!stream) {

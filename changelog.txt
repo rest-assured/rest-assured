@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* XmlXsdMatcher#matchesXsdInClasspath(..) now returns an instance of XmlXsdMatcher so that you easily can supply a LSResourceResolver.
+
 Change log 2.3.3 (2014-08-29)
 ----------------------------
 * Added CSRF (cross-site request forgery) support to form authentication config. For example:
