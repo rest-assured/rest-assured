@@ -23,10 +23,14 @@ public class ObjectMapperResolver {
     private static final boolean isGsonPresent = existInCP("com.google.gson.Gson");
 
     private static boolean existInCP(String className) {
+        return existsInCP(className, ObjectMapperResolver.class.getClassLoader()) || existsInCP(className, Thread.currentThread().getContextClassLoader());
+    }
+
+    private static boolean existsInCP(String className, ClassLoader classLoader) {
         try {
-            Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+            Class.forName(className, false, classLoader);
             return true;
-        } catch(Throwable e) {
+        } catch (Throwable e) {
             return false;
         }
     }

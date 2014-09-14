@@ -1,6 +1,7 @@
 Change log next version
 -----------------------
 * XmlXsdMatcher#matchesXsdInClasspath(..) now returns an instance of XmlXsdMatcher so that you easily can supply a LSResourceResolver.
+* ObjectMapperResolver looks for third party libraries in both thread context- and ObjectMapperResolver classloader.
 
 Change log 2.3.3 (2014-08-29)
 ----------------------------
