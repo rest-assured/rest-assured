@@ -16,12 +16,14 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.config.MatcherConfig;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static com.jayway.restassured.RestAssured.expect;
+import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.config.MatcherConfig.ErrorDescriptionType.HAMCREST;
 import static org.hamcrest.Matchers.*;
 
 public class ErrorMessageITest extends WithJetty {
@@ -119,5 +121,22 @@ public class ErrorMessageITest extends WithJetty {
                 "    </greeting>\n");
 
         expect().body(containsString("something")).with().parameters("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
+    }
+
+    @Test public void
+    rest_assured_is_configurable_to_use_default_hamcrest_error_messages() {
+        exception.expect(AssertionError.class);
+        exception.expectMessage("JSON path lotto.lottoId doesn't match.\n" +
+                "\n" +
+                "Expected: a value less than <2>\n" +
+                "  Actual: <5> was greater than <2>");
+
+        given().
+                config(config().matcherConfig(new MatcherConfig(HAMCREST))).
+        when().
+                get("/lotto").
+        then().
+                statusCode(200).
+                body("lotto.lottoId", lessThan(2));
     }
 }

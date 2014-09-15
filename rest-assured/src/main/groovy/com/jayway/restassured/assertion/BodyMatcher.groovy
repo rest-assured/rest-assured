@@ -15,12 +15,12 @@
  */
 
 
-
 package com.jayway.restassured.assertion
 
 import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.internal.ResponseParserRegistrar
 import com.jayway.restassured.response.Response
+import org.hamcrest.Description
 import org.hamcrest.Matcher
 import org.hamcrest.StringDescription
 import org.hamcrest.xml.HasXPath
@@ -28,6 +28,7 @@ import org.w3c.dom.Element
 
 import javax.xml.parsers.DocumentBuilderFactory
 
+import static com.jayway.restassured.config.MatcherConfig.ErrorDescriptionType.REST_ASSURED
 import static java.lang.String.format
 import static org.apache.commons.lang3.StringUtils.*
 
@@ -66,11 +67,19 @@ class BodyMatcher {
         Element node = factory.newDocumentBuilder().parse(new ByteArrayInputStream(response.asByteArray())).getDocumentElement();
         if (!matcher.matches(node)) {
           success = false
-          errorMessage = format("Expected: %s\n  Actual: %s\n", trim(matcher.toString()), contentParser)
+          if (config.matcherConfig.hasErrorDescriptionType(REST_ASSURED)) {
+            errorMessage = format("Expected: %s\n  Actual: %s\n", trim(matcher.toString()), contentParser)
+          } else {
+            errorMessage = getDescription(matcher, contentParser)
+          }
         }
       } else if (!matcher.matches(response.asString())) {
         success = false
-        errorMessage = "Response body doesn't match expectation.\nExpected: $matcher\n  Actual: $contentParser\n"
+        if (config.matcherConfig.hasErrorDescriptionType(REST_ASSURED)) {
+          errorMessage = "Response body doesn't match expectation.\nExpected: $matcher\n  Actual: $contentParser\n"
+        } else {
+          errorMessage = format("Response body doesn't match expectation.\n%s", getDescription(matcher, response.asString()))
+        }
       }
     } else {
       def assertion = StreamVerifier.newAssertion(response, key, rpr)
@@ -88,13 +97,26 @@ class BodyMatcher {
 
       if (success && !matcher.matches(result)) {
         success = false
-        if (result instanceof Object[]) {
-          result = result.join(",")
+        if (config.matcherConfig.hasErrorDescriptionType(REST_ASSURED)) {
+          if (result instanceof Object[]) {
+            result = result.join(",")
+          }
+          errorMessage = format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), result)
+        } else {
+          errorMessage = format("%s %s doesn't match.\n%s", assertion.description(), key, getDescription(matcher, result))
         }
-        errorMessage = format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), result)
       }
     }
     return [success: success, errorMessage: errorMessage];
+  }
+
+  private static String getDescription(Matcher matcher, Object actual) {
+    Description description = new StringDescription();
+    description.appendText("\nExpected: ")
+            .appendDescriptionOf(matcher)
+            .appendText("\n  Actual: ");
+    matcher.describeMismatch(actual, description);
+    return description.toString()
   }
 
   private static String removeQuotesIfString(String string) {
