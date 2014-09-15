@@ -49,8 +49,8 @@ public class ContentTypeITest extends WithJetty {
     @Test
     public void doesntAppendCharsetToContentTypeWhenContentTypeIsNotExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
         given().
-                config(RestAssured.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToStreamingContentTypeIfUndefined(false))).
-                body(new byte[] {42}).
+                config(RestAssured.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
+                body(new byte[]{42}).
         when().
                 post("/returnContentTypeAsBody").
         then().
@@ -60,7 +60,7 @@ public class ContentTypeITest extends WithJetty {
     @Test
     public void doesntAppendCharsetToContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
         given().
-                config(RestAssured.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToStreamingContentTypeIfUndefined(false))).
+                config(RestAssured.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
                 contentType("application/zip").
                 body(new byte[] {42}).
         when().
@@ -72,7 +72,7 @@ public class ContentTypeITest extends WithJetty {
     @Test
     public void appendsCharsetToContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
         given().
-                config(RestAssured.config().encoderConfig(encoderConfig().defaultContentCharset("UTF-8").appendDefaultContentCharsetToStreamingContentTypeIfUndefined(true))).
+                config(RestAssured.config().encoderConfig(encoderConfig().defaultContentCharset("UTF-8").appendDefaultContentCharsetToContentTypeIfUndefined(true))).
                 contentType("application/zip").
                 body(new byte[] {42}).
         when().
@@ -90,5 +90,41 @@ public class ContentTypeITest extends WithJetty {
                 post("/returnContentTypeAsBody").
         then().
                 body(equalTo("application/octet-stream; charset=ISO-8859-1"));
+    }
+
+    @Test
+    public void doesntAppendCharsetToNonStreamingContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+        given().
+                config(RestAssured.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
+                contentType("application/vnd.com.example-v1+json").
+                body("something").
+        when().
+                post("/returnContentTypeAsBody").
+        then().
+                body(equalTo("application/vnd.com.example-v1+json"));
+    }
+
+    @Test
+    public void appendsCharsetToNonStreamingContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+        given().
+                config(RestAssured.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(true))).
+                contentType("application/vnd.com.example-v1+xml").
+                body("something").
+        when().
+                post("/returnContentTypeAsBody").
+        then().
+                body(equalTo("application/vnd.com.example-v1+xml; charset=ISO-8859-1"));
+    }
+
+    @Test
+    public void doesntOverrideDefinedCharsetForNonStreamingContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+        given().
+                config(RestAssured.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(true))).
+                contentType("application/vnd.com.example-v1+json; charSet=UTF-16").
+                body("something").
+        when().
+                post("/returnContentTypeAsBody").
+        then().
+                body(equalTo("application/vnd.com.example-v1+json; charSet=UTF-16"));
     }
 }

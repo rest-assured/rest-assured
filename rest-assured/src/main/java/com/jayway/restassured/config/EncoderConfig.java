@@ -27,7 +27,7 @@ public class EncoderConfig {
     private static final String UTF_8 = "UTF-8";
     private final String defaultContentCharset;
     private final String defaultQueryParameterCharset;
-    private final boolean shouldAppendDefaultContentCharsetToStreamingContentTypeIfUndefined;
+    private final boolean shouldAppendDefaultContentCharsetToContentTypeIfUndefined;
 
     /**
      * Configure the encoder config to use {@value org.apache.http.protocol.HTTP#DEFAULT_CONTENT_CHARSET} for content encoding and <code>UTF-8</code>.
@@ -47,12 +47,12 @@ public class EncoderConfig {
         this(defaultContentCharset, defaultQueryParameterCharset, true);
     }
 
-    private EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset, boolean shouldAppendDefaultContentCharsetToStreamingContentTypeIfUndefined) {
+    private EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset, boolean shouldAppendDefaultContentCharsetToContentTypeIfUndefined) {
         Validate.notBlank(defaultContentCharset, "Default encoder content charset to cannot be blank. See \"appendDefaultContentCharsetToContentTypeIfMissing\" method if you like to disable automatically appending the charset to the content-type.");
         Validate.notBlank(defaultQueryParameterCharset, "Default protocol charset to cannot be blank.");
         this.defaultContentCharset = defaultContentCharset;
         this.defaultQueryParameterCharset = defaultQueryParameterCharset;
-        this.shouldAppendDefaultContentCharsetToStreamingContentTypeIfUndefined = shouldAppendDefaultContentCharsetToStreamingContentTypeIfUndefined;
+        this.shouldAppendDefaultContentCharsetToContentTypeIfUndefined = shouldAppendDefaultContentCharsetToContentTypeIfUndefined;
     }
 
     public String defaultContentCharset() {
@@ -64,17 +64,17 @@ public class EncoderConfig {
     }
 
     public EncoderConfig defaultContentCharset(String charset) {
-        return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToStreamingContentTypeIfUndefined);
+        return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined);
     }
 
     public EncoderConfig defaultQueryParameterCharset(String charset) {
-        return new EncoderConfig(defaultContentCharset, charset, shouldAppendDefaultContentCharsetToStreamingContentTypeIfUndefined);
+        return new EncoderConfig(defaultContentCharset, charset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined);
     }
 
     /**
      * Tells whether REST Assured should automatically append the content charset to the content-type header if not defined explicitly.
      * <p>
-     * Note that this is only applicable for streaming data, such as byte arrays and input streams and does not affect multipart form data.
+     * Note that this does not affect multipart form data.
      * </p>
      * <p>
      * Default is <code>true</code>.
@@ -83,6 +83,18 @@ public class EncoderConfig {
      * @param shouldAddDefaultContentCharsetToContentTypeIfMissing Whether REST Assured should automatically append the content charset to the content-type header if not defined explicitly.
      * @return A new {@link com.jayway.restassured.config.EncoderConfig} instance
      */
+    public EncoderConfig appendDefaultContentCharsetToContentTypeIfUndefined(boolean shouldAddDefaultContentCharsetToContentTypeIfMissing) {
+        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAddDefaultContentCharsetToContentTypeIfMissing);
+    }
+
+    /**
+     * Tells whether REST Assured should automatically append the content charset to the content-type header if not defined explicitly.
+     *
+     * @param shouldAddDefaultContentCharsetToContentTypeIfMissing Whether REST Assured should automatically append the content charset to the content-type header if not defined explicitly.
+     * @return A new {@link com.jayway.restassured.config.EncoderConfig} instance
+     * @deprecated Use {@link #appendDefaultContentCharsetToContentTypeIfUndefined(boolean)} instead.
+     */
+    @Deprecated
     public EncoderConfig appendDefaultContentCharsetToStreamingContentTypeIfUndefined(boolean shouldAddDefaultContentCharsetToContentTypeIfMissing) {
         return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAddDefaultContentCharsetToContentTypeIfMissing);
     }
@@ -90,13 +102,13 @@ public class EncoderConfig {
     /**
      * Tells whether REST Assured should automatically append the content charset to the content-type header if not defined explicitly.
      * <p>
-     * Note that this is only applicable for streaming data, such as byte arrays and input streams and does not affect multipart form data.
+     * Note that this does not affect multipart form data.
      * </p>
      *
      * @return <code>true</code> if REST Assured should automatically append the content charset to the content-type header if not defined explicitly.
      */
-    public boolean shouldAppendDefaultContentCharsetToStreamingContentTypeIfUndefined() {
-        return shouldAppendDefaultContentCharsetToStreamingContentTypeIfUndefined;
+    public boolean shouldAppendDefaultContentCharsetToContentTypeIfUndefined() {
+        return shouldAppendDefaultContentCharsetToContentTypeIfUndefined;
     }
 
     /**
