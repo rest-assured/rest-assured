@@ -1092,6 +1092,23 @@ public class RequestSpecBuilder {
     }
 
     /**
+     * Add the baseUri property from the RequestSpecBuilder instead of using static field RestAssured.baseURI.
+     * <p/>
+     * <pre>
+     * RequestSpecification specs = new RequestSpecBuilder()
+     *                                  .setBaseUri(URI.create("http://example.com"))
+     *                                  .build();
+     * given().specification(specs)
+     * </pre>
+     * uses {@link #setBaseUri(String)}
+     * @param uri The URI
+     * @return RequestSpecBuilder
+     */
+    public RequestSpecBuilder setBaseUri(URI uri) {
+        return setBaseUri(notNull(uri, "Base URI").toString());
+    }
+
+    /**
      * Set the base path that's prepended to each path by REST assured when making requests. E.g. let's say that
      * the base uri is <code>http://localhost</code> and <code>basePath</code> is <code>/resource</code>
      * then
