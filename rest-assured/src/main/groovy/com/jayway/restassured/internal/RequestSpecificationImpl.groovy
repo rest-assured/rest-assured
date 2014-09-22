@@ -318,7 +318,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return parameter(parameterName, parameterValues)
   }
 
-  def RequestSpecification clearParam(String parameterName) {
+  def RequestSpecification removeParam(String parameterName) {
     notNull parameterName, "parameterName"
     requestParameters.remove(parameterName)
     return this
@@ -346,7 +346,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return queryParameter(parameterName, parameterValues)
   }
 
-  def RequestSpecification clearQueryParam(String parameterName) {
+  def RequestSpecification removeQueryParam(String parameterName) {
     notNull parameterName, "parameterName"
     queryParameters.remove(parameterName)
     return this
@@ -399,7 +399,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return formParameter(parameterName, parameterValues)
   }
 
-  def RequestSpecification clearFormParam(String parameterName) {
+  def RequestSpecification removeFormParam(String parameterName) {
     notNull parameterName, "parameterName"
     formParameters.remove(parameterName)
     return this
@@ -469,6 +469,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification pathParams(Map parameterNameValuePairs) {
     return pathParameters(parameterNameValuePairs)
+  }
+
+  def RequestSpecification removePathParam(String parameterName) {
+    notNull parameterName, "parameterName"
+    pathParameters.remove(parameterName)
+    return this
   }
 
   def RequestSpecification config(RestAssuredConfig config) {

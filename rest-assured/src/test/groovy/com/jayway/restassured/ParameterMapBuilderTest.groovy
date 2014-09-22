@@ -49,25 +49,33 @@ class ParameterMapBuilderTest {
   }
 
   @Test
-  def void shouldClearParamOnClearParamMethod() throws Exception {
+  def void removesParamOnRemoveParamMethod() throws Exception {
     requestBuilder.parameters("key1", "value1");
-    def map = requestBuilder.clearParam("key1").requestParameters
+    def map = requestBuilder.removeParam("key1").requestParameters
 
     assertEquals 0, map.size()
   }
 
   @Test
-  def void shouldClearQueryParamOnClearQueryParamMethod() throws Exception {
+  def void removesQueryParamOnRemoveQueryParamMethod() throws Exception {
     requestBuilder.queryParameters("key1", "value1");
-    def map = requestBuilder.clearQueryParam("key1").queryParameters
+    def map = requestBuilder.removeQueryParam("key1").queryParameters
 
     assertEquals 0, map.size()
   }
 
   @Test
-  def void shouldClearFormParamOnClearFormParamMethod() throws Exception {
+  def void removesFormParamOnRemoveFormParamMethod() throws Exception {
     requestBuilder.queryParameters("key1", "value1");
-    def map = requestBuilder.clearFormParam("key1").formParameters
+    def map = requestBuilder.removeFormParam("key1").formParameters
+
+    assertEquals 0, map.size()
+  }
+
+  @Test
+  def void removesPathParamOnRemoveFormPathMethod() throws Exception {
+    requestBuilder.pathParameters("key1", "value1");
+    def map = requestBuilder.removePathParam("key1").pathParameters
 
     assertEquals 0, map.size()
   }
