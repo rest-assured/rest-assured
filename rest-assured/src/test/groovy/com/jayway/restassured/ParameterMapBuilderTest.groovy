@@ -47,4 +47,28 @@ class ParameterMapBuilderTest {
     assertEquals "value1", map.get("key1")
     assertEquals "value2", map.get("key2")
   }
+
+  @Test
+  def void shouldClearParamOnClearParamMethod() throws Exception {
+    requestBuilder.parameters("key1", "value1");
+    def map = requestBuilder.clearParam("key1").requestParameters
+
+    assertEquals 0, map.size()
+  }
+
+  @Test
+  def void shouldClearQueryParamOnClearQueryParamMethod() throws Exception {
+    requestBuilder.queryParameters("key1", "value1");
+    def map = requestBuilder.clearQueryParam("key1").queryParameters
+
+    assertEquals 0, map.size()
+  }
+
+  @Test
+  def void shouldClearFormParamOnClearFormParamMethod() throws Exception {
+    requestBuilder.queryParameters("key1", "value1");
+    def map = requestBuilder.clearFormParam("key1").formParameters
+
+    assertEquals 0, map.size()
+  }
 }

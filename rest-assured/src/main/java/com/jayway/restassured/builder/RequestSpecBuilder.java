@@ -422,6 +422,18 @@ public class RequestSpecBuilder {
     }
 
     /**
+     * Method to remove parameter added with {@link #addParameter(String, Object...)} from map.
+     * Removes all values of this parameter
+     *
+     * @param parameterName   The parameter key
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder clearParam(String parameterName) {
+        spec.clearParam(parameterName);
+        return this;
+    }
+
+    /**
      * Add query parameters to be sent with the request as a Map. This method is the same as {@link #addParameters(java.util.Map)}
      * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
      *
@@ -496,6 +508,20 @@ public class RequestSpecBuilder {
         spec.queryParam(parameterName, parameterValues);
         return this;
     }
+
+
+    /**
+     * Method to remove parameter added with {@link #addQueryParameter(String, Object...)} from map.
+     * Removes all values of this parameter
+     *
+     * @param parameterName   The parameter key
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder clearQueryParam(String parameterName) {
+        spec.clearQueryParam(parameterName);
+        return this;
+    }
+
 
     /**
      * Add query parameters to be sent with the request as a Map. This method is the same as {@link #addParameters(java.util.Map)}
@@ -572,6 +598,21 @@ public class RequestSpecBuilder {
         spec.formParam(parameterName, parameterValues);
         return this;
     }
+
+
+    /**
+     * Method to remove parameter added with {@link #addFormParameter(String, Object...)} from map.
+     * Removes all values of this parameter
+     *
+     * @param parameterName   The parameter key
+     * @return The request specification builder
+     */
+    public RequestSpecBuilder clearFormParam(String parameterName) {
+        spec.clearFormParam(parameterName);
+        return this;
+    }
+
+
 
     /**
      * Specify a path parameter. Path parameters are used to improve readability of the request path. E.g. instead
@@ -1089,6 +1130,23 @@ public class RequestSpecBuilder {
     public RequestSpecBuilder setBaseUri(String uri) {
         spec.baseUri(uri);
         return this;
+    }
+
+    /**
+     * Add the baseUri property from the RequestSpecBuilder instead of using static field RestAssured.baseURI.
+     * <p/>
+     * <pre>
+     * RequestSpecification specs = new RequestSpecBuilder()
+     *                                  .setBaseUri(URI.create("http://example.com"))
+     *                                  .build();
+     * given().specification(specs)
+     * </pre>
+     * uses {@link #setBaseUri(String)}
+     * @param uri The URI
+     * @return RequestSpecBuilder
+     */
+    public RequestSpecBuilder setBaseUri(URI uri) {
+        return setBaseUri(notNull(uri, "Base URI").toString());
     }
 
     /**
