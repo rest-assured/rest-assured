@@ -188,7 +188,7 @@ public class AuthConfig {
         protected OAuthService service;
         protected SignatureType type = SignatureType.Header;
         protected OAuthSignature signature;
-        protected boolean oauth1 = true;
+        protected boolean isOAuth1 = true;
 
         public OAuthSigner(String consumerKey, String consumerSecret,
                            String accessToken, String secretToken, OAuthSignature signature) {
@@ -202,22 +202,17 @@ public class AuthConfig {
         public OAuthSigner(String accessToken, OAuthSignature signature) {
             this.token = new Token(accessToken, "");
             this.signature = signature;
-            oauth1 = false;
-
+            isOAuth1 = false;
         }
 
         public void process(HttpRequest request, HttpContext ctx) throws HttpException, IOException {
-
             try {
-                HttpHost host = (HttpHost) ctx
-                        .getAttribute(ExecutionContext.HTTP_TARGET_HOST);
-                final URI requestURI = new URI(host.toURI()).resolve(request
-                        .getRequestLine().getUri());
+                HttpHost host = (HttpHost) ctx.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
+                final URI requestURI = new URI(host.toURI()).resolve(request.getRequestLine().getUri());
 
                 Verb verb = Verb.valueOf(request.getRequestLine().getMethod().toUpperCase());
-                OAuthRequest oauthRequest = new OAuthRequest(verb,
-                        requestURI.toString());
-                this.service = getOauthService(oauth1);
+                OAuthRequest oauthRequest = new OAuthRequest(verb, requestURI.toString());
+                this.service = getOauthService(isOAuth1);
                 service.signRequest(token, oauthRequest);
                 if (signature == OAuthSignature.HEADER) {
                     //If signature is to be added as header
@@ -236,7 +231,7 @@ public class AuthConfig {
         }
 
         private OAuthService getOauthService(boolean oauth1) {
-            OAuthService service = null;
+            OAuthService service;
             if (oauth1) {
                 DefaultApi10a api = new DefaultApi10a() {
                     @Override
@@ -257,7 +252,6 @@ public class AuthConfig {
                 service = new OAuth10aServiceImpl(api, oauthConfig);
             } else {
                 DefaultApi20 api = new DefaultApi20() {
-
                     @Override
                     public String getAuthorizationUrl(OAuthConfig arg0) {
                         return null;
@@ -284,6 +278,4 @@ public class AuthConfig {
 
 
     }
-
-
 }
