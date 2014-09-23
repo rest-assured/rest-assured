@@ -176,14 +176,6 @@ public class URLITest extends WithJetty {
         assertThat(loggedRequestPathIn(writer), equalTo("http://tototiti.alarmesomfy.net/"));
     }
 
-    /**
-     * We don't add the port to fully-qualified URL's specified explicitly in the verb method (get in this case).
-     * This is because fully-qualified URL's have priority over the configuration in most cases! Although we could
-     * make this test work as expected (i.e. that the port will be 8080) it's not worth the effort because of the
-     * complexity involved to fix it and easy workarounds exist (specify the URL statically or just defined the port in the URL).
-     * The fix would involve adding state remembering if the port method has been called explicitly and if so it should ALWAYS
-     * override the port specified in the URL. This state would also have to be merged correctly when merging specifications.
-     */
     @Test
     public void doesntAddPort8080ToFullyQualifiedUrlDefinedInHttpVerbMethod() throws Exception {
         // Given
@@ -207,7 +199,7 @@ public class URLITest extends WithJetty {
                 get("http://tototiti.alarmesomfy.net/");
 
         // Then
-        assertThat(loggedRequestPathIn(writer), equalTo("http://tototiti.alarmesomfy.net/")); // Should preferably be http://tototiti.alarmesomfy.net:8080 but we accept that it's not for now
+        assertThat(loggedRequestPathIn(writer), equalTo("http://tototiti.alarmesomfy.net:8080/"));
     }
 
     @Test
@@ -944,5 +936,55 @@ public class URLITest extends WithJetty {
 
         // Then
         assertThat(loggedRequestPathIn(writer), equalTo("http://localhost:8080/requestUrl?param1=1&voidparam=&param3=3"));
+    }
+
+    @Test public void
+    given_a_base_uri_with_fully_qualified_url_defaults_to_using_port_80_if_port_is_not_explicitly_defined() {
+        // Given
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        // When
+        given().
+                baseUri("http://httpbin.org/get").
+                filter(new RequestLoggingFilter(captor)).
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                    }
+                }).
+        when().
+                get().
+        then().
+                statusCode(200).
+                body(equalTo("changed"));
+
+        // Then
+        assertThat(loggedRequestPathIn(writer), equalTo("http://httpbin.org/get"));
+    }
+
+    @Test public void
+    get_using_fully_qualified_url_uses_port_80() {
+        // Given
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        // When
+        given().
+                baseUri("http://httpbin.org/get").
+                filter(new RequestLoggingFilter(captor)).
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
+                    }
+                }).
+        when().
+                get().
+        then().
+                statusCode(200).
+                body(equalTo("changed"));
+
+        // Then
+        assertThat(loggedRequestPathIn(writer), equalTo("http://httpbin.org/get"));
     }
 }

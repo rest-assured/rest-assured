@@ -15,6 +15,7 @@
  */
 package com.jayway.restassured.internal
 
+import com.jayway.restassured.RestAssured
 import com.jayway.restassured.authentication.AuthenticationScheme
 import com.jayway.restassured.authentication.CertAuthScheme
 import com.jayway.restassured.authentication.FormAuthScheme
@@ -40,7 +41,6 @@ import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.*
 import com.jayway.restassured.specification.*
 import com.jayway.restassured.spi.AuthFilter
-import groovy.transform.CompileStatic
 import org.apache.commons.lang3.StringUtils
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
@@ -563,7 +563,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   def RequestSpecification port(int port) {
-    if (port < 1) {
+    if (port < 1 && port != RestAssured.UNDEFINED_PORT) {
       throw new IllegalArgumentException("Port must be greater than 0")
     }
     this.port = port
@@ -1306,24 +1306,22 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private String getTargetURI(String path) {
-    if (port <= 0) {
-      throw new IllegalArgumentException("Port must be greater than 0")
-    }
     def uri
     def pathHasScheme = isFullyQualified(path)
     if (pathHasScheme) {
       def url = new URL(path)
-      uri = getTargetUriFromUrl(url, PathType.EXPLICIT)
+      uri = getTargetUriFromUrl(url)
     } else if (isFullyQualified(baseUri)) {
       def baseUriAsUrl = new URL(baseUri)
-      uri = getTargetUriFromUrl(baseUriAsUrl, PathType.BASE_URI)
+      uri = getTargetUriFromUrl(baseUriAsUrl)
     } else {
       uri = "$baseUri:$port"
     }
     return uri
   }
 
-  private String getTargetUriFromUrl(URL url, PathType pathType) {
+  private String getTargetUriFromUrl(URL url) {
+    def hasSpecifiedPortExplicitly = port != RestAssured.UNDEFINED_PORT
     def builder = new StringBuilder();
     def protocol = url.getProtocol()
     def boolean useDefaultHttps = false
@@ -1335,10 +1333,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     builder.append("://")
     builder.append(url.getAuthority())
 
-    if (!hasPortDefined(url) && !useDefaultHttps && ((port != DEFAULT_HTTP_PORT && port != DEFAULT_HTTP_TEST_PORT)
-            || pathType == PathType.BASE_URI || hasAuthorityEqualToLocalhost(url))) {
-      builder.append(":")
-      builder.append(port)
+    if (!hasPortDefined(url) && !useDefaultHttps) {
+      if (hasSpecifiedPortExplicitly) {
+        builder.append(":")
+        builder.append(port)
+      } else if (!isFullyQualified(url.toString()) || hasAuthorityEqualToLocalhost(url)) {
+        builder.append(":")
+        builder.append(DEFAULT_HTTP_TEST_PORT)
+      }
     }
     return builder.toString()
   }
@@ -1837,15 +1839,5 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   private enum EncodingTarget {
     BODY, QUERY
-  }
-
-  /**
-   * Specifies if the path was specified in the base uri or as an explicit path (for example get("http://www.google-com"))
-   * <p/>
-   * We use compile static to avoid IncompatibleClassChangeError (see https://jira.codehaus.org/browse/GROOVY-6080).
-   */
-  @CompileStatic
-  private static enum PathType {
-    BASE_URI, EXPLICIT
   }
 }

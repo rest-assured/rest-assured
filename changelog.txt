@@ -8,6 +8,7 @@ Change log next version
 * Made it possible to configure whether to automatically append charset to content-type for all content types using the EncoderConfig (issue 355).
 * Deprecated "appendDefaultContentCharsetToStreamingContentTypeIfUndefined" in EncoderConfig. Just use "appendDefaultContentCharsetToContentTypeIfUndefined" instead.
 * Added ability to remove parameters from a request specification using the RequestSpecBuilder (thanks to Merkushev Kirill for the help).
+* Fully-qualified baseUris will no longer have to use explicit port 80 (issue 353)
 
 Change log 2.3.3 (2014-08-29)
 ----------------------------

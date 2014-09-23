@@ -348,6 +348,7 @@ public class RestAssured {
     public static final String DEFAULT_URI = "http://localhost";
     public static final String DEFAULT_BODY_ROOT_PATH = "";
     public static final int DEFAULT_PORT = 8080;
+    public static final int UNDEFINED_PORT = -1;
     public static final String DEFAULT_PATH = "";
     public static final AuthenticationScheme DEFAULT_AUTH = new NoAuthScheme();
     public static final boolean DEFAULT_URL_ENCODING_ENABLED = true;
@@ -363,7 +364,7 @@ public class RestAssured {
      * The port that's used by REST assured when it's left out of the specified URI when making a request.
      * Default value is {@value #DEFAULT_PORT}.
      */
-    public static int port = DEFAULT_PORT;
+    public static int port = UNDEFINED_PORT;
 
     /**
      * A base path that's added to the {@link #baseURI} by REST assured when making requests. E.g. let's say that
@@ -1381,12 +1382,13 @@ public class RestAssured {
     /**
      * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath}, {@link #requestContentType(com.jayway.restassured.http.ContentType)},
      * {@link #responseContentType(com.jayway.restassured.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification},
-     * {@link #urlEncodingEnabled}, {@link #config}, {@link #sessionId} and {@link #proxy} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #DEFAULT_PORT}, <code>no authentication</code>, &lt;empty string&gt;, <code>null</code>, <code>null</code>,
+     * {@link #urlEncodingEnabled}, {@link #config}, {@link #sessionId} and {@link #proxy} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #UNDEFINED_PORT},
+     * <code>no authentication</code>, &lt;empty string&gt;, <code>null</code>, <code>null</code>,
      * &lt;empty list&gt;, <code>null</code>, <code>null</code>, <code>none</code>, <code>true</code>, <code>new RestAssuredConfig()</code>, <code>null</code> and <code>null</code>.
      */
     public static void reset() {
         baseURI = DEFAULT_URI;
-        port = DEFAULT_PORT;
+        port = UNDEFINED_PORT;
         basePath = DEFAULT_PATH;
         authentication = DEFAULT_AUTH;
         rootPath = DEFAULT_BODY_ROOT_PATH;
