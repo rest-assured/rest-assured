@@ -24,6 +24,7 @@ import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.filter.session.SessionFilter;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
 
@@ -36,6 +37,7 @@ import static com.jayway.restassured.authentication.FormAuthConfig.springSecurit
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static com.jayway.restassured.config.SessionConfig.sessionConfig;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class AuthenticationITest extends WithJetty {
@@ -350,5 +352,22 @@ public class AuthenticationITest extends WithJetty {
         } finally {
             RestAssured.reset();
         }
+    }
+
+    @Test
+    public void test() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                auth().basic("jetty", "jetty").
+                multiPart("file", "myFile", bytes).
+        when().
+                post("/secured/file").
+        then().
+                log().all().
+                statusCode(200).
+                body(is(new String(bytes)));
     }
 }

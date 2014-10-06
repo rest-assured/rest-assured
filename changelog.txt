@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 2.3.4 (2014-10-06)
+-----------------------------
 * XmlXsdMatcher#matchesXsdInClasspath(..) now returns an instance of XmlXsdMatcher so that you can easily set a LSResourceResolver.
 * ObjectMapperResolver looks for third party libraries in both thread context- and ObjectMapperResolver classloader.
 * It's now possible to configure the way error messages are generated in REST Assured using the com.jayway.restassured.config.MatcherConfig. For example:
