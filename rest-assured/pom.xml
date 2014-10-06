@@ -22,12 +22,12 @@
     <parent>
         <groupId>com.jayway.restassured</groupId>
         <artifactId>rest-assured-parent</artifactId>
-        <version>2.3.4-SNAPSHOT</version>
+        <version>2.3.4</version>
     </parent>
 
     <groupId>com.jayway.restassured</groupId>
     <artifactId>rest-assured</artifactId>
-    <version>2.3.4-SNAPSHOT</version>
+    <version>2.3.4</version>
     <packaging>jar</packaging>
 
     <name>REST Assured</name>
@@ -84,12 +84,12 @@
         <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>json-path</artifactId>
-            <version>2.3.4-SNAPSHOT</version>
+            <version>2.3.4</version>
         </dependency>
         <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>xml-path</artifactId>
-            <version>2.3.4-SNAPSHOT</version>
+            <version>2.3.4</version>
         </dependency>
         <!-- Optional dependencies -->
         <dependency>
