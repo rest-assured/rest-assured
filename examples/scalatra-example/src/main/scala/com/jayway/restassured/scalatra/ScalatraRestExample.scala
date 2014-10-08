@@ -346,6 +346,12 @@ class ScalatraRestExample extends ScalatraServlet {
     </foo>
   }
 
+  get("/amount") {
+    """{
+        "amount": 250.00
+    }"""
+  }
+
   get("/game") {
     """{
          "playerOneId": "a084a81a-6bc9-418d-b107-5cb5ce249b77",
