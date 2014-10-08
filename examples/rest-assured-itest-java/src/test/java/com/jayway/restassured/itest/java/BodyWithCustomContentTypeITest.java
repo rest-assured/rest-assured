@@ -25,8 +25,8 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class BodyWithCustomContentTypeITest extends WithJetty {
 
-    @Test
-    public void bodyIsUrlEncodedWhenSettingBody() throws Exception {
+    @Test public void
+    body_is_url_encoded_when_setting_body() throws Exception {
         given().
                 contentType(URLENC).
                 body("firstName=John&lastName=Doe&").
