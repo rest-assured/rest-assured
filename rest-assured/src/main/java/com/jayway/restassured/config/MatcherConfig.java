@@ -87,7 +87,7 @@ public class MatcherConfig {
         HAMCREST
     }
 
-    public MatcherConfig matcherConfig() {
+    public static MatcherConfig matcherConfig() {
         return new MatcherConfig();
     }
 }
