@@ -25,6 +25,7 @@ import javax.xml.bind.JAXBContext
 import javax.xml.bind.JAXBElement
 import javax.xml.bind.Unmarshaller
 import javax.xml.bind.annotation.XmlRootElement
+import javax.xml.transform.stream.StreamSource
 
 class XmlPathJaxbObjectDeserializer implements XmlPathObjectDeserializer {
 
@@ -44,7 +45,7 @@ class XmlPathJaxbObjectDeserializer implements XmlPathObjectDeserializer {
         if (cls.isAnnotationPresent(XmlRootElement.class)) {
             return unmarshaller.unmarshal(reader) as T
         } else {
-            JAXBElement jaxbElement = unmarshaller.unmarshal(reader, cls)
+            JAXBElement jaxbElement = unmarshaller.unmarshal(new StreamSource(reader), cls)
             return jaxbElement.getValue() as T
         }
     }
