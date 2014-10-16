@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
+
 /**
  * Allows you to specify configuration for the decoder.
  */
@@ -125,8 +127,21 @@ public class DecoderConfig {
      * @param charset The expected charset
      * @return A new instance of the DecoderConfig.
      */
+    @SuppressWarnings("UnusedDeclaration")
     public DecoderConfig defaultContentCharset(String charset) {
         return new DecoderConfig(charset, useNoWrapForInflateDecoding, contentDecoders);
+    }
+
+    /**
+     * Specify the default charset of the content in the response that's assumed if no charset is explicitly specified in the response.
+     *
+     * @param charset The expected charset
+     * @return A new instance of the DecoderConfig.
+     */
+    @SuppressWarnings("UnusedDeclaration")
+    public DecoderConfig defaultContentCharset(Charset charset) {
+        String charsetAsString = notNull(charset, Charset.class).toString();
+        return new DecoderConfig(charsetAsString, useNoWrapForInflateDecoding, contentDecoders);
     }
 
     /**
