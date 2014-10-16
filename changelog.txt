@@ -4,6 +4,8 @@ Change log next version
 * Fixed an issue in com.jayway.restassured.internal.path.xml.mapping.XmlPathJaxbObjectDeserializer that prevented parsing when XmlRootElement wasn't used.
 * defaultContentCharset and defaultQueryParameterCharset in com.jayway.restassured.config.EncoderConfig now accepts a java.nio.charset.Charset as parameter (issue 363).
 * com.jayway.restassured.config.DecoderConfig now accepts a java.nio.charset.Charset as parameter (issue 363).
+* Content-Type expectations are now matched by using ignore case.
+* Content-Type is now sent to the server if explicitly defined by a GET request (issue 362).
 
 Change log 2.3.4 (2014-10-06)
 -----------------------------

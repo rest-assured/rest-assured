@@ -65,6 +65,7 @@ import static com.jayway.restassured.internal.support.PathSupport.mergeAndRemove
 import static java.lang.String.format
 import static java.util.Arrays.asList
 import static org.apache.commons.lang3.StringUtils.substringAfter
+import static org.apache.commons.lang3.StringUtils.trim
 import static org.apache.http.client.params.ClientPNames.*
 
 class RequestSpecificationImpl implements FilterableRequestSpecification, GroovyInterceptable {
@@ -1284,7 +1285,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private def defineRequestContentTypeAsString(Method method) {
-    return defineRequestContentType(method).toString()
+    return defineRequestContentType(method)?.toString()
   }
 
   private def defineRequestContentType(Method method) {
@@ -1685,14 +1686,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         delegate.uri.query = queryParameters
       }
       final HttpRequestBase reqMethod = delegate.getRequest()
-      Object contentType1 = delegate.getContentType()
+      Object acceptContentType = delegate.getContentType()
       if (!requestHeaders.hasHeaderWithName("Accept")) {
-        String acceptContentTypes = contentType1.toString()
-        if (contentType1 instanceof ContentType)
-          acceptContentTypes = ((ContentType) contentType1).getAcceptHeader()
+        String acceptContentTypes = acceptContentType.toString()
+        if (acceptContentType instanceof ContentType)
+          acceptContentTypes = ((ContentType) acceptContentType).getAcceptHeader()
         reqMethod.setHeader("Accept", acceptContentTypes)
       }
       reqMethod.setURI(delegate.getUri().toURI())
+      if (shouldApplyContentTypeFromRestAssuredConfigDelegate(delegate, reqMethod)) {
+        reqMethod.setHeader(CONTENT_TYPE, trim(delegate.getRequestContentType()));
+      }
       if (reqMethod.getURI() == null)
         throw new IllegalStateException("Request URI cannot be null")
       Map<?, ?> headers1 = delegate.getHeaders()
@@ -1732,7 +1736,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
               if (entity == null || entity.getContentLength() == 0) {
                 returnVal = responseClosure.call(resp, null);
               } else {
-                returnVal = responseClosure.call(resp, this.parseResponse(resp, contentType1));
+                returnVal = responseClosure.call(resp, this.parseResponse(resp, acceptContentType));
               }
             } catch (Exception ex) {
               throw new ResponseParseException(resp, ex);
@@ -1758,6 +1762,16 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       }
     }
 
+    /*
+     * Is is for
+     */
+    private def boolean shouldApplyContentTypeFromRestAssuredConfigDelegate(delegate, HttpRequestBase reqMethod) {
+      def requestContentType = delegate.getRequestContentType()
+      requestContentType != null && requestContentType != ANY.toString() &&
+              (!reqMethod.hasProperty("entity") || reqMethod.entity?.contentType == null) &&
+              !reqMethod.getAllHeaders().any { it.getName().equalsIgnoreCase(CONTENT_TYPE) }
+    }
+
     /**
      * We override this method because ParserRegistry.getContentType(..) called by
      * the super method throws an exception if no content-type is available in the response
@@ -1771,7 +1785,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       if (definedDefaultParser != null && ANY.toString().equals(contentType.toString())) {
         try {
           HttpResponseContentTypeFinder.findContentType(resp);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ignored) {
           // This means that no content-type is defined the response
           def entity = resp?.entity
           if (entity != null) {

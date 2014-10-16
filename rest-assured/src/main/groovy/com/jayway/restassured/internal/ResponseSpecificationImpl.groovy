@@ -607,7 +607,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
             errors << [success: false, errorMessage: String.format("Expected content-type %s doesn't match actual content-type \"%s\".\n", contentType, actualContentType)]
           }
         } else if (contentType instanceof String) {
-          if (!StringUtils.startsWith(actualContentType, contentType.toString())) {
+          if (!StringUtils.startsWithIgnoreCase(actualContentType, contentType.toString())) {
             errors << [success: false, errorMessage: String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", contentType, actualContentType)];
           }
         } else {

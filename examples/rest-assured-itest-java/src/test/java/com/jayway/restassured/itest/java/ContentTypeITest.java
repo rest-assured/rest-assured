@@ -17,6 +17,7 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,8 +25,7 @@ import org.junit.rules.ExpectedException;
 
 import java.nio.charset.Charset;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -95,6 +95,7 @@ public class ContentTypeITest extends WithJetty {
                 body(equalTo("application/zip; charset=UTF-8"));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void appendCharsetToContentTypeWhenContentTypeIsNotExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
         given().
@@ -140,5 +141,57 @@ public class ContentTypeITest extends WithJetty {
                 post("/returnContentTypeAsBody").
         then().
                 body(equalTo("application/vnd.com.example-v1+json; charSet=UTF-16"));
+    }
+
+    @Test public void
+    content_type_is_sent_to_the_server_when_using_a_get_request() {
+        given().
+                param("foo", "bar").
+                contentType(ContentType.XML.withCharset("utf-8")).
+        when().
+                get("/reflect").
+        then().
+                contentType(ContentType.XML.withCharset("utf-8"));
+    }
+
+    @Test public void
+    content_type_is_text_plain_with_default_charset_when_no_content_type_is_specified_for_get_requests() {
+        given().
+                param("foo", "bar").
+        when().
+                get("/reflect").
+        then().
+                contentType(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset()));
+    }
+
+    @Test public void
+    content_type_is_sent_to_the_server_when_using_a_post_request() {
+        given().
+                param("foo", "bar").
+                contentType(ContentType.XML).
+        when().
+                post("/reflect").
+        then().
+                contentType(ContentType.XML);
+    }
+
+    @Test public void
+    content_type_is_application_x_www_form_urlencoded_with_default_charset_when_no_content_type_is_specified_for_post_requests() {
+        given().
+                param("foo", "bar").
+        when().
+               post("/reflect").
+        then().
+                contentType(ContentType.URLENC.withCharset(config().getEncoderConfig().defaultContentCharset()));
+    }
+
+    @Test public void
+    content_type_is_text_plain_with_default_charset_when_no_content_type_is_specified_for_put_requests() {
+        given().
+                param("foo", "bar").
+        when().
+                put("/reflect").
+        then().
+                contentType(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset()));
     }
 }
