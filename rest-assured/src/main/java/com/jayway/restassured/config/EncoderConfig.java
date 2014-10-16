@@ -19,6 +19,10 @@ package com.jayway.restassured.config;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.protocol.HTTP;
 
+import java.nio.charset.Charset;
+
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
+
 /**
  * Allows you to specify configuration for the encoder
  */
@@ -67,8 +71,19 @@ public class EncoderConfig {
         return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined);
     }
 
+    public EncoderConfig defaultContentCharset(Charset charset) {
+        String charsetAsString = notNull(charset, Charset.class).toString();
+        return new EncoderConfig(charsetAsString, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined);
+    }
+
     public EncoderConfig defaultQueryParameterCharset(String charset) {
         return new EncoderConfig(defaultContentCharset, charset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined);
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public EncoderConfig defaultQueryParameterCharset(Charset charset) {
+        String charsetAsString = notNull(charset, Charset.class).toString();
+        return new EncoderConfig(defaultContentCharset, charsetAsString, shouldAppendDefaultContentCharsetToContentTypeIfUndefined);
     }
 
     /**

@@ -22,6 +22,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.nio.charset.Charset;
+
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
@@ -73,6 +75,18 @@ public class ContentTypeITest extends WithJetty {
     public void appendsCharsetToContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
         given().
                 config(RestAssured.config().encoderConfig(encoderConfig().defaultContentCharset("UTF-8").appendDefaultContentCharsetToContentTypeIfUndefined(true))).
+                contentType("application/zip").
+                body(new byte[] {42}).
+        when().
+                post("/returnContentTypeAsBody").
+        then().
+                body(equalTo("application/zip; charset=UTF-8"));
+    }
+
+    @Test
+    public void appendsJavaNioCharsetToContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+        given().
+                config(RestAssured.config().encoderConfig(encoderConfig().defaultContentCharset(Charset.forName("UTF-8")).appendDefaultContentCharsetToContentTypeIfUndefined(true))).
                 contentType("application/zip").
                 body(new byte[] {42}).
         when().

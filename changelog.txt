@@ -2,6 +2,7 @@ Change log next version
 -----------------------
 * The "matcherConfig" method in com.jayway.restassured.config.MatcherConfig is now static as intended.
 * Fixed an issue in com.jayway.restassured.internal.path.xml.mapping.XmlPathJaxbObjectDeserializer that prevented parsing when XmlRootElement wasn't used.
+* defaultContentCharset and defaultQueryParameterCharset in com.jayway.restassured.config.EncoderConfig now accepts a java.nio.charset.Charset as parameter.
 
 Change log 2.3.4 (2014-10-06)
 -----------------------------
