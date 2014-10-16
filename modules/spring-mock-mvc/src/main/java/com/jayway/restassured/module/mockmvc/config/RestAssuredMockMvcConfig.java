@@ -130,6 +130,18 @@ public class RestAssuredMockMvcConfig {
     }
 
     /**
+     * Set the encoder config
+     *
+     * @param encoderConfig The {@link com.jayway.restassured.config.XmlConfig} to set
+     * @return An updated RestAssuredConfiguration
+     */
+    public RestAssuredMockMvcConfig encoderConfig(EncoderConfig encoderConfig) {
+        notNull(encoderConfig, "EncoderConfig");
+        return new RestAssuredMockMvcConfig(logConfig, encoderConfig, decoderConfig, sessionConfig,
+                objectMapperConfig, jsonConfig, xmlConfig);
+    }
+
+    /**
      * Syntactic sugar.
      *
      * @return The same RestAssuredConfiguration instance.
