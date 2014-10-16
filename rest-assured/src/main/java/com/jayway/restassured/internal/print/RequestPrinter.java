@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.internal.print;
 
+import com.jayway.restassured.config.EncoderConfig;
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.internal.NoParameterValue;
 import com.jayway.restassured.internal.support.Prettifier;
@@ -43,6 +44,7 @@ public class RequestPrinter {
     private static final String EQUALS = "=";
     private static final String NONE = "<none>";
     private static final String CONTENT_TYPE = "Content-Type";
+    private static final String CHARSET = "charset";
 
 
     public static String print(FilterableRequestSpecification requestSpec, String requestMethod, String completeRequestPath,
@@ -128,7 +130,14 @@ public class RequestPrinter {
         final boolean hasContentTypeHeader = headers.hasHeaderWithName(CONTENT_TYPE);
         if (!hasContentTypeHeader) {
             appendTwoTabs(builder);
-            builder.append(CONTENT_TYPE).append(EQUALS).append(requestSpec.getRequestContentType()).append(NEW_LINE);
+            String contentType = requestSpec.getRequestContentType();
+            builder.append(CONTENT_TYPE).append(EQUALS).append(contentType);
+            EncoderConfig encoderConfig = requestSpec.getConfig().getEncoderConfig();
+            if (!StringUtils.containsIgnoreCase(contentType, CHARSET) &&
+                    encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()) {
+                builder.append("; ").append(CHARSET).append(EQUALS).append(encoderConfig.defaultContentCharset());
+            }
+            builder.append(NEW_LINE);
         }
         int i = 0;
         for (Header header : headers) {

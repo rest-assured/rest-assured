@@ -6,6 +6,8 @@ Change log next version
 * com.jayway.restassured.config.DecoderConfig now accepts a java.nio.charset.Charset as parameter (issue 363).
 * Content-Type expectations are now matched by using ignore case.
 * Content-Type is now sent to the server if explicitly defined by a GET request (issue 362).
+* Added syntactic sugar method "logRequestTo" to com.jayway.restassured.filter.log.RequestLoggingFilter as a shortcut for doing "new RequestLoggingFilter(printStream)".
+* Default Content-Type charset is now visible in the request log.
 
 Change log 2.3.4 (2014-10-06)
 -----------------------------

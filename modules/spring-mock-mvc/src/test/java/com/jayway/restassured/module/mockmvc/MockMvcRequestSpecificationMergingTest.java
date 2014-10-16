@@ -395,7 +395,7 @@ public class MockMvcRequestSpecificationMergingTest {
                 "Form params:\t<none>\n" +
                 "Path params:\t<none>\n" +
                 "Multiparts:\t\t<none>\n" +
-                "Headers:\t\tContent-Type=*/*\n" +
+                "Headers:\t\tContent-Type=*/*; charset="+ RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset()+"\n" +
                 "Cookies:\t\t<none>\n" +
                 "Body:\t\t\t<none>\n");
     }

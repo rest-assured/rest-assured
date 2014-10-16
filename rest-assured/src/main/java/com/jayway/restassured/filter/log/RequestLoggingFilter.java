@@ -71,7 +71,7 @@ public class RequestLoggingFilter implements Filter {
      * Instantiate a  logger using a specific print stream and a specific log detail. Pretty-printing will be enabled if possible.
      *
      * @param logDetail The log detail
-     * @param stream The stream to log to.
+     * @param stream    The stream to log to.
      */
     public RequestLoggingFilter(LogDetail logDetail, PrintStream stream) {
         this(logDetail, true, stream);
@@ -79,16 +79,16 @@ public class RequestLoggingFilter implements Filter {
 
 
     /**
-     * Instantiate a  logger using a specific print stream and a specific log detail
+     * Instantiate a logger using a specific print stream and a specific log detail
      *
-     * @param logDetail The log detail
+     * @param logDetail         The log detail
      * @param shouldPrettyPrint <code>true</code> if pretty-printing of the body should occur.
-     * @param stream The stream to log to.
+     * @param stream            The stream to log to.
      */
     public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream) {
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(logDetail, "Log details cannot be null");
-        if(logDetail == STATUS) {
+        if (logDetail == STATUS) {
             throw new IllegalArgumentException(String.format("%s is not a valid %s for a request.", STATUS, LogDetail.class.getSimpleName()));
         }
         this.stream = stream;
@@ -99,5 +99,15 @@ public class RequestLoggingFilter implements Filter {
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
         RequestPrinter.print(requestSpec, ctx.getRequestMethod().toString(), ctx.getCompleteRequestPath(), logDetail, stream, shouldPrettyPrint);
         return ctx.next(requestSpec, responseSpec);
+    }
+
+    /**
+     * Syntactic sugar for doing <code>new RequestLoggingFilter(stream)</code>
+     *
+     * @param stream The stream to log the request to.
+     * @return A new instance of {@link RequestLoggingFilter}.
+     */
+    public static RequestLoggingFilter logRequestTo(PrintStream stream) {
+        return new RequestLoggingFilter(stream);
     }
 }
