@@ -302,6 +302,14 @@ class ScalatraRestExample extends ScalatraServlet {
     contentType = "application/json"
   }
 
+  get("/contentTypeAsBody") {
+    request.contentType.getOrElse("null")
+  }
+
+  post("/contentTypeAsBody") {
+    request.contentType.getOrElse("null")
+  }
+
   get("/:firstName/:lastName") {
     val firstName = {params("firstName")}
     val lastName = {params("lastName")}

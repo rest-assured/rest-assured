@@ -149,30 +149,32 @@ public class ContentTypeITest extends WithJetty {
                 param("foo", "bar").
                 contentType(ContentType.XML.withCharset("utf-8")).
         when().
-                get("/reflect").
+                get("/contentTypeAsBody").
         then().
-                contentType(ContentType.XML.withCharset("utf-8"));
+                body(equalTo(ContentType.XML.withCharset("utf-8")));
     }
 
     @Test public void
-    content_type_is_text_plain_with_default_charset_when_no_content_type_is_specified_for_get_requests() {
+    no_content_type_is_sent_by_default_when_using_get_request() {
         given().
                 param("foo", "bar").
         when().
-                get("/reflect").
+                get("/contentTypeAsBody").
         then().
-                contentType(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset()));
+                body(equalTo("null"));
+
     }
 
     @Test public void
     content_type_is_sent_to_the_server_when_using_a_post_request() {
         given().
+                config(config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
                 param("foo", "bar").
                 contentType(ContentType.XML).
         when().
-                post("/reflect").
+                post("/contentTypeAsBody").
         then().
-                contentType(ContentType.XML);
+                body(equalTo(ContentType.XML.toString()));
     }
 
     @Test public void
@@ -180,9 +182,9 @@ public class ContentTypeITest extends WithJetty {
         given().
                 param("foo", "bar").
         when().
-               post("/reflect").
+                post("/contentTypeAsBody").
         then().
-                contentType(ContentType.URLENC.withCharset(config().getEncoderConfig().defaultContentCharset()));
+                body(equalTo(ContentType.URLENC.withCharset(config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test public void
@@ -191,6 +193,18 @@ public class ContentTypeITest extends WithJetty {
                 param("foo", "bar").
         when().
                 put("/reflect").
+        then().
+                contentType(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset()));
+    }
+
+    @Test public void
+    content_type_validation_is_case_insensitive() {
+        // Since we provide no content-type (null) Scalatra will return a default content-type which is the
+        // same as specified in config().getEncoderConfig().defaultContentCharset() but with charset as lower case.
+        given().
+                param("foo", "bar").
+        when().
+                get("/reflect").
         then().
                 contentType(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset()));
     }
