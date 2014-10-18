@@ -11,6 +11,7 @@ Change log next version
 * Default Content-Type charset is now appended to Content-Type header in Spring MockMvc module by default. Use "given().config(RestAssuredMockMvcConfig.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))). .." to revert to previous behavior.
 * PUT now uses content-type application/x-www-form-urlencoded by default when using form parameters.
 * Content-Type is now correctly displayed in request log when not explicitly defined.
+* Content-Type charset is now available in Filters when calling getRequestContentType() on the request specification.
 
 Change log 2.3.4 (2014-10-06)
 -----------------------------

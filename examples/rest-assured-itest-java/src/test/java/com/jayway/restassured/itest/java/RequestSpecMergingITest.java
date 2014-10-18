@@ -80,7 +80,7 @@ public class RequestSpecMergingITest {
         given(jsonRequest).filter(new Filter() {
             public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
                 Headers headers = requestSpec.getHeaders();
-                assertThat(requestSpec.getRequestContentType(), equalTo("application/json"));
+                assertThat(requestSpec.getRequestContentType(), equalTo("application/json; charset=ISO-8859-1"));
                 assertThat(headers.getValue("authorization"), equalTo("abracadabra"));
                 assertThat(headers.getValue("accept"), equalTo("application/json+json"));
                 assertThat(headers.size(), is(2));
@@ -94,7 +94,7 @@ public class RequestSpecMergingITest {
         given().spec(jsonRequest).filter(new Filter() {
             public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
                 Headers headers = requestSpec.getHeaders();
-                assertThat(requestSpec.getRequestContentType(), equalTo("application/json"));
+                assertThat(requestSpec.getRequestContentType(), equalTo("application/json; charset=ISO-8859-1"));
                 assertThat(headers.getValue("authorization"), equalTo("abracadabra"));
                 assertThat(headers.getValue("accept"), equalTo("application/json+json"));
                 assertThat(headers.size(), is(2));

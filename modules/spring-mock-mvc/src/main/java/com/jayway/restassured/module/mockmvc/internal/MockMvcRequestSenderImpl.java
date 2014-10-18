@@ -2,6 +2,7 @@ package com.jayway.restassured.module.mockmvc.internal;
 
 import com.jayway.restassured.authentication.NoAuthScheme;
 import com.jayway.restassured.builder.MultiPartSpecBuilder;
+import com.jayway.restassured.config.EncoderConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.log.RequestLoggingFilter;
 import com.jayway.restassured.internal.RequestSpecificationImpl;
@@ -45,7 +46,7 @@ import static com.jayway.restassured.module.mockmvc.internal.ConfigConverter.con
 import static com.jayway.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.HttpMethod.*;
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED;
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
 class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final MockMvc mockMvc;
@@ -208,9 +209,8 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
                 }
             }.applyParams();
 
-            if (StringUtils.isBlank(requestContentType) &&  method == POST && !isInMultiPartMode(request)) {
-                contentTypeToLog = APPLICATION_FORM_URLENCODED.toString();
-                request.contentType(APPLICATION_FORM_URLENCODED);
+            if (StringUtils.isBlank(requestContentType) && method == POST && !isInMultiPartMode(request)) {
+                contentTypeToLog = setContentTypeToApplicationFormUrlEncoded(request);
             }
         }
 
@@ -237,8 +237,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
 
             boolean isInMultiPartMode = isInMultiPartMode(request);
             if (StringUtils.isBlank(requestContentType) && !isInMultiPartMode) {
-                contentTypeToLog = APPLICATION_FORM_URLENCODED.toString();
-                request.contentType(APPLICATION_FORM_URLENCODED);
+                contentTypeToLog = setContentTypeToApplicationFormUrlEncoded(request);
             }
         }
 
@@ -328,6 +327,17 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         logRequestIfApplicable(method, path, contentTypeToLog);
 
         return performRequest(request);
+    }
+
+    private String setContentTypeToApplicationFormUrlEncoded(MockHttpServletRequestBuilder request) {
+        String contentType = APPLICATION_FORM_URLENCODED_VALUE;
+        EncoderConfig encoderConfig = config.getEncoderConfig();
+        if (encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()) {
+            contentType += "; charset=" + encoderConfig.defaultContentCharset();
+        }
+        MediaType mediaType = MediaType.parseMediaType(contentType);
+        request.contentType(mediaType);
+        return mediaType.toString();
     }
 
     private boolean isInMultiPartMode(MockHttpServletRequestBuilder request) {

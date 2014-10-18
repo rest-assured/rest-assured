@@ -64,8 +64,7 @@ import static com.jayway.restassured.internal.support.PathSupport.isFullyQualifi
 import static com.jayway.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash
 import static java.lang.String.format
 import static java.util.Arrays.asList
-import static org.apache.commons.lang3.StringUtils.substringAfter
-import static org.apache.commons.lang3.StringUtils.trim
+import static org.apache.commons.lang3.StringUtils.*
 import static org.apache.http.client.params.ClientPNames.*
 
 class RequestSpecificationImpl implements FilterableRequestSpecification, GroovyInterceptable {
@@ -75,6 +74,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private static final String CONTENT_TYPE = "content-type"
   private static final String DOUBLE_SLASH = "//"
   private static final String LOCALHOST = "localhost"
+  public static final String CHARSET = "charset"
 
   private String baseUri
   private String path = ""
@@ -1303,7 +1303,20 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         contentType = TEXT
       }
     }
+
+    if (shouldAppendCharsetToContentType(contentType)) {
+      def charset = findEncoderCharsetOrReturnDefault(contentType.toString())
+      if (contentType instanceof String) {
+        contentType = contentType + "; " + CHARSET + "=" + charset
+      } else {
+        contentType = contentType.withCharset(charset)
+      }
+    }
     contentType
+  }
+
+  private boolean shouldAppendCharsetToContentType(contentType) {
+    contentType != null && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !containsIgnoreCase(contentType.toString(), CHARSET)
   }
 
   private String getTargetURI(String path) {

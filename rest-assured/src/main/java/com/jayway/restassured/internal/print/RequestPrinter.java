@@ -16,7 +16,6 @@
 
 package com.jayway.restassured.internal.print;
 
-import com.jayway.restassured.config.EncoderConfig;
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.internal.NoParameterValue;
 import com.jayway.restassured.internal.support.Prettifier;
@@ -136,11 +135,6 @@ public class RequestPrinter {
                 builder.append(NONE);
             } else {
                 builder.append(contentType);
-                EncoderConfig encoderConfig = requestSpec.getConfig().getEncoderConfig();
-                if (!StringUtils.containsIgnoreCase(contentType, CHARSET) &&
-                        encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()) {
-                    builder.append("; ").append(CHARSET).append(EQUALS).append(encoderConfig.defaultContentCharset());
-                }
             }
             builder.append(NEW_LINE);
         }

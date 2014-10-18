@@ -19,6 +19,7 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseBuilder;
+import com.jayway.restassured.config.EncoderConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
@@ -37,9 +38,11 @@ import org.junit.Test;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
 import static com.jayway.restassured.filter.log.ErrorLoggingFilter.logErrorsTo;
 import static com.jayway.restassured.filter.log.ResponseLoggingFilter.logResponseTo;
 import static java.util.Arrays.asList;
@@ -132,6 +135,49 @@ public class FilterITest extends WithJetty {
 
         // Then
         assertThat(client.getValue(), instanceOf(DefaultHttpClient.class));
+    }
+
+    @Test
+    public void content_type_in_filter_contains_charset_by_default() {
+        final AtomicReference<String> contentType = new AtomicReference<String>();
+
+        given().
+                filter(new Filter() {
+                   public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                       contentType.set(requestSpec.getRequestContentType());
+                       return ctx.next(requestSpec, responseSpec);
+                   }
+                }).
+                formParam("firstName", "John").
+                formParam("lastName", "Doe").
+        when().
+                post("/greet").
+        then().
+                statusCode(200);
+
+        assertThat(contentType.get(), equalTo("application/x-www-form-urlencoded; charset=ISO-8859-1"));
+    }
+
+    @Test
+    public void content_type_in_filter_doesnt_contain_charset_if_configured_not_to() {
+        final AtomicReference<String> contentType = new AtomicReference<String>();
+
+        given().
+                config(RestAssuredConfig.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
+                filter(new Filter() {
+                   public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                       contentType.set(requestSpec.getRequestContentType());
+                       return ctx.next(requestSpec, responseSpec);
+                   }
+                }).
+                formParam("firstName", "John").
+                formParam("lastName", "Doe").
+        when().
+                post("/greet").
+        then().
+                statusCode(200);
+
+        assertThat(contentType.get(), equalTo("application/x-www-form-urlencoded"));
     }
 
     public static class CountingFilter implements Filter {
