@@ -563,7 +563,7 @@ Change log 1.5 (2011-12-20)
   In this case REST Assured will first try to find the keystore in the classpath but if it was not found it will look in the file-system (issue 136).
 * Status code and status line are now validated before headers and cookies (issue 131).
 * Quotes from strings in error messages has been removed.
-* Added possibility for more some more advanced configuration by providing a RestAssuredConfig instance. Right now you can configure the parameters of HTTP Client, Redirect and Log settings. Examples:
+* Added possibility for more advanced configuration by providing a RestAssuredConfig instance. Right now you can configure the parameters of HTTP Client, Redirect and Log settings. Examples:
   For a specific request:
 	given().config(newConfig().redirect(redirectConfig().followRedirects(false))). ..
   or using a RequestSpecBuilder:
