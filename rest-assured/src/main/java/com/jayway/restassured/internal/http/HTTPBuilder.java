@@ -172,7 +172,7 @@ public abstract class HTTPBuilder {
         this.setContentEncoding( ContentEncoding.Type.GZIP, ContentEncoding.Type.DEFLATE );
         this.encoderConfig = encoderConfig == null ? new EncoderConfig() : encoderConfig;
         this.urlEncodingEnabled = urlEncodingEnabled;
-        encoders = new EncoderRegistry(encoderConfig);
+        encoders = new EncoderRegistry();
     }
 
     /**

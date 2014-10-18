@@ -16,7 +16,6 @@
 
 package com.jayway.restassured.internal.http;
 
-import com.jayway.restassured.config.EncoderConfig;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.http.HTTPBuilder.RequestConfigDelegate;
 import groovy.json.JsonBuilder;
@@ -38,8 +37,6 @@ import org.codehaus.groovy.runtime.MethodClosure;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
-
-import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
 
 
 /**
@@ -67,17 +64,12 @@ import static org.apache.commons.lang3.StringUtils.containsIgnoreCase;
  */
 public class EncoderRegistry {
 
-    private final EncoderConfig encoderConfig;
     Charset charset = Charset.defaultCharset();
     private Map<String, Closure> registeredEncoders = buildDefaultEncoderMap();
 
-    EncoderRegistry(EncoderConfig encoderConfig) {
-        this.encoderConfig = encoderConfig;
-    }
-
     /**
      * Set the charset used in the content-type header of all requests that send
-     * textual data.  This must be a chaset supported by the Java platform
+     * textual data.  This must be a charset supported by the Java platform
      *
      * @param charset
      * @see Charset#forName(String)
@@ -129,7 +121,7 @@ public class EncoderRegistry {
         if (entity == null) throw new IllegalArgumentException(
                 "Don't know how to encode " + data + " as a byte stream");
 
-        entity.setContentType(useContentTypeIfDefinedOrElseUse(contentType, ContentType.BINARY, encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()));
+        entity.setContentType(contentTypeToString(contentType));
         return entity;
     }
 
@@ -172,7 +164,7 @@ public class EncoderRegistry {
             data = out;
         }
         // if data is a String, we are already covered.
-        return createEntity(useContentTypeIfDefinedOrElseUse(contentType, ContentType.TEXT, encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()), data);
+        return createEntity(contentTypeToString(contentType), data);
     }
 
     /**
@@ -214,7 +206,7 @@ public class EncoderRegistry {
      * @throws UnsupportedEncodingException
      */
     public HttpEntity encodeForm(Object contentType, String formData) throws UnsupportedEncodingException {
-        return this.createEntity(useContentTypeIfDefinedOrElseUse(contentType, ContentType.URLENC, encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()), formData);
+        return this.createEntity(contentTypeToString(contentType), formData);
     }
 
     /**
@@ -231,7 +223,7 @@ public class EncoderRegistry {
             StreamingMarkupBuilder smb = new StreamingMarkupBuilder();
             xml = smb.bind(xml);
         }
-        return createEntity(useContentTypeIfDefinedOrElseUse(contentType, ContentType.XML, encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()), xml);
+        return createEntity(contentTypeToString(contentType), xml);
     }
 
     /**
@@ -279,7 +271,7 @@ public class EncoderRegistry {
             throw new UnsupportedOperationException("Internal error: Can't encode " + model + " to JSON.");
         }
 
-        return createEntity(useContentTypeIfDefinedOrElseUse(contentType, ContentType.JSON, encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()), json);
+        return createEntity(contentTypeToString(contentType), json);
     }
 
     private HttpEntity createEntity(String ct, Object object) throws UnsupportedEncodingException {
@@ -310,8 +302,11 @@ public class EncoderRegistry {
      */
     protected HttpEntity createEntity(String ct, String data)
             throws UnsupportedEncodingException {
-        String charsetToUse = findCharsetOrUseDefault(ct);
-        StringEntity entity = new StringEntity(data, charsetToUse);
+        String charset = CharsetExtractor.getCharsetFromContentType(ct);
+        if (charset == null) {
+            charset = this.charset.toString();
+        }
+        StringEntity entity = new StringEntity(data, charset);
         entity.setContentType(ct);
         return entity;
     }
@@ -382,7 +377,7 @@ public class EncoderRegistry {
         if (contentType instanceof ContentType) {
             for (String ct : ((ContentType) contentType).getContentTypeStrings())
                 this.registeredEncoders.put(ct, value);
-        } else this.registeredEncoders.put(contentType.toString(), value);
+        } else this.registeredEncoders.put(contentTypeToString(contentType), value);
     }
 
     /**
@@ -414,19 +409,7 @@ public class EncoderRegistry {
         return this.registeredEncoders.entrySet().iterator();
     }
 
-    private String useContentTypeIfDefinedOrElseUse(Object contentType, ContentType defaultContentType, boolean appendCharsetToContentTypeIfUndefined) {
-        String tempContentType = contentType == null ? defaultContentType.toString() : contentType.toString();
-        if (appendCharsetToContentTypeIfUndefined && !containsIgnoreCase(tempContentType, "charset")) {
-            tempContentType = tempContentType + "; charset=" + charset.toString();
-        }
-        return tempContentType;
-    }
-
-    private String findCharsetOrUseDefault(String ct) {
-        String charsetToUse = CharsetExtractor.getCharsetFromContentType(ct);
-        if (charsetToUse == null) {
-            charsetToUse = charset.toString();
-        }
-        return charsetToUse;
+    private String contentTypeToString(Object contentType) {
+        return contentType == null ? null : contentType.toString();
     }
 }
