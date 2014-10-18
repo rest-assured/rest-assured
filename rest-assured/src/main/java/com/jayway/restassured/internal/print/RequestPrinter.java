@@ -131,11 +131,16 @@ public class RequestPrinter {
         if (!hasContentTypeHeader) {
             appendTwoTabs(builder);
             String contentType = requestSpec.getRequestContentType();
-            builder.append(CONTENT_TYPE).append(EQUALS).append(contentType);
-            EncoderConfig encoderConfig = requestSpec.getConfig().getEncoderConfig();
-            if (!StringUtils.containsIgnoreCase(contentType, CHARSET) &&
-                    encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()) {
-                builder.append("; ").append(CHARSET).append(EQUALS).append(encoderConfig.defaultContentCharset());
+            builder.append(CONTENT_TYPE).append(EQUALS);
+            if (contentType == null) {
+                builder.append(NONE);
+            } else {
+                builder.append(contentType);
+                EncoderConfig encoderConfig = requestSpec.getConfig().getEncoderConfig();
+                if (!StringUtils.containsIgnoreCase(contentType, CHARSET) &&
+                        encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()) {
+                    builder.append("; ").append(CHARSET).append(EQUALS).append(encoderConfig.defaultContentCharset());
+                }
             }
             builder.append(NEW_LINE);
         }

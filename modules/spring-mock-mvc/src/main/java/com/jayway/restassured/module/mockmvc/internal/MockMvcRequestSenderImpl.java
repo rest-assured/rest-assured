@@ -1,4 +1,3 @@
-
 package com.jayway.restassured.module.mockmvc.internal;
 
 import com.jayway.restassured.authentication.NoAuthScheme;
@@ -200,6 +199,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
             request = MockMvcRequestBuilders.fileUpload(path, pathParams);
         }
 
+        String contentTypeToLog = null;
         if (!params.isEmpty()) {
             new ParamApplier(params) {
                 @Override
@@ -208,7 +208,8 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
                 }
             }.applyParams();
 
-            if (method == POST && !isInMultiPartMode(request)) {
+            if (StringUtils.isBlank(requestContentType) &&  method == POST && !isInMultiPartMode(request)) {
+                contentTypeToLog = APPLICATION_FORM_URLENCODED.toString();
                 request.contentType(APPLICATION_FORM_URLENCODED);
             }
         }
@@ -235,7 +236,8 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
             }.applyParams();
 
             boolean isInMultiPartMode = isInMultiPartMode(request);
-            if (!isInMultiPartMode) {
+            if (StringUtils.isBlank(requestContentType) && !isInMultiPartMode) {
+                contentTypeToLog = APPLICATION_FORM_URLENCODED.toString();
                 request.contentType(APPLICATION_FORM_URLENCODED);
             }
         }
@@ -250,6 +252,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         }
 
         if (StringUtils.isNotBlank(requestContentType)) {
+            contentTypeToLog = requestContentType;
             request.contentType(MediaType.parseMediaType(requestContentType));
         }
 
@@ -322,7 +325,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
             }
         }
 
-        logRequestIfApplicable(method, path, pathParams);
+        logRequestIfApplicable(method, path, contentTypeToLog);
 
         return performRequest(request);
     }
@@ -331,13 +334,13 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         return request instanceof MockMultipartHttpServletRequestBuilder;
     }
 
-    private void logRequestIfApplicable(HttpMethod method, String path, Object[] pathParams) {
+    private void logRequestIfApplicable(HttpMethod method, String path, String contentTypeToLog) {
         if (requestLoggingFilter == null) {
             return;
         }
 
         final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, path, new NoAuthScheme(), Collections.<Filter>emptyList(),
-                requestContentType, null, true, convertToRestAssuredConfig(config), logRepository, null);
+                contentTypeToLog, null, true, convertToRestAssuredConfig(config), logRepository, null);
         if (params != null) {
             new ParamLogger(params) {
                 protected void logParam(String paramName, Object paramValue) {

@@ -1293,7 +1293,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       if (multiParts.size() > 0) {
         contentType = MULTIPART_FORM_DATA
       } else if (requestBody == null) {
-        contentType = mayHaveBody(method) ? URLENC : ANY
+        contentType = mayHaveBody(method) ? URLENC : null
       } else if (requestBody instanceof byte[]) {
         if (method != POST && method != PUT && method != DELETE && method != PATCH) {
           throw new IllegalStateException("$method doesn't support binary request data.");
@@ -1371,6 +1371,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       throw new IllegalArgumentException("Request URI cannot end with ?");
     }
     path = applyPathParamsAndEncodePath(path, pathParams)
+    this.contentType = defineRequestContentTypeAsString(method)
     invokeFilterChain(path, method, responseSpecification.assertionClosure)
   }
 
@@ -1646,7 +1647,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   String getRequestContentType() {
-    return contentType != null ? contentType instanceof String ? contentType : contentType.toString() : ANY.toString()
+    if (contentType == null) {
+      null
+    } else {
+      contentType.toString()
+    }
   }
 
   def RequestSpecification noFilters() {
@@ -1695,7 +1700,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       }
       reqMethod.setURI(delegate.getUri().toURI())
       if (shouldApplyContentTypeFromRestAssuredConfigDelegate(delegate, reqMethod)) {
-        reqMethod.setHeader(CONTENT_TYPE, trim(delegate.getRequestContentType()));
+        def contentTypeToUse = trim(delegate.getRequestContentType())
+        reqMethod.setHeader(CONTENT_TYPE, contentTypeToUse);
       }
       if (reqMethod.getURI() == null)
         throw new IllegalStateException("Request URI cannot be null")
@@ -1765,6 +1771,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     /*
      * Is is for
      */
+
     private def boolean shouldApplyContentTypeFromRestAssuredConfigDelegate(delegate, HttpRequestBase reqMethod) {
       def requestContentType = delegate.getRequestContentType()
       requestContentType != null && requestContentType != ANY.toString() &&

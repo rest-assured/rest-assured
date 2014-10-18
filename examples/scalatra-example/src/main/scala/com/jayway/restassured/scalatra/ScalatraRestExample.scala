@@ -16,7 +16,7 @@
 package com.jayway.restassured.scalatra
 
 import java.util.{Date, Scanner}
-import javax.servlet.http.Cookie
+import javax.servlet.http.{HttpServletRequest, Cookie}
 
 import net.liftweb.json.Extraction._
 import net.liftweb.json.JsonAST._
@@ -218,21 +218,19 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/multiValueParam") {
-    "{ \"list\" : \""+{multiParams("list")}.mkString(",") +"\" }"
+    "{ \"list\" : \""+multiParams("list").mkString(",") +"\" }"
   }
 
   put("/multiValueParam") {
-    val content: String = IOUtils.toString(request.getInputStream)
-    "{ \"list\" : \""+{findMultiParamIn(content, "list")}.mkString(",") +"\" }"
+    "{ \"list\" : \""+multiParams("list").mkString(",") +"\" }"
   }
 
   post("/multiValueParam") {
-    "{ \"list\" : \""+{multiParams("list")}.mkString(",") +"\" }"
+    "{ \"list\" : \""+multiParams("list").mkString(",") +"\" }"
   }
 
   patch("/multiValueParam") {
-    val content: String = IOUtils.toString(request.getInputStream)
-    "{ \"list\" : \""+{findMultiParamIn(content, "list")}.mkString(",") +"\" }"
+    "{ \"list\" : \""+findMultiParamIn(request.body, "list").mkString(",") +"\" }"
   }
 
   get("/hello") {

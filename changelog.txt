@@ -9,6 +9,8 @@ Change log next version
 * Added syntactic sugar method "logRequestTo" to com.jayway.restassured.filter.log.RequestLoggingFilter as a shortcut for doing "new RequestLoggingFilter(printStream)".
 * Default Content-Type charset is now visible in the request log.
 * Default Content-Type charset is now appended to Content-Type header in Spring MockMvc module by default. Use "given().config(RestAssuredMockMvcConfig.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))). .." to revert to previous behavior.
+* PUT now uses content-type application/x-www-form-urlencoded by default when using form parameters.
+* Content-Type is now correctly displayed in request log when not explicitly defined.
 
 Change log 2.3.4 (2014-10-06)
 -----------------------------

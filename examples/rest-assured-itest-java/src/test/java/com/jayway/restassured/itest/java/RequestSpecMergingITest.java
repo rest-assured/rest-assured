@@ -33,6 +33,7 @@ import org.junit.Test;
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class RequestSpecMergingITest {
@@ -66,7 +67,7 @@ public class RequestSpecMergingITest {
         given().filter(new Filter() {
             public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
                 Headers headers = requestSpec.getHeaders();
-                assertThat(requestSpec.getRequestContentType(), equalTo("*/*"));
+                assertThat(requestSpec.getRequestContentType(), nullValue());
                 assertThat(headers.getValue("authorization"), equalTo("abracadabra"));
                 assertThat(headers.size(), is(1));
                 return new ResponseBuilder().setStatusCode(200).build();
