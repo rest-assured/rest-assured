@@ -16,7 +16,7 @@
 package com.jayway.restassured.scalatra
 
 import java.util.{Date, Scanner}
-import javax.servlet.http.{HttpServletRequest, Cookie}
+import javax.servlet.http.Cookie
 
 import net.liftweb.json.Extraction._
 import net.liftweb.json.JsonAST._
@@ -123,6 +123,11 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/requestUrl") {
     request.getRequestURL + "?" + request.getQueryString
+  }
+
+  get("/anonymous_list_with_numbers") {
+    contentType = "application/json"
+    """[100, 50, 31.0]"""
   }
 
   get("/products") {

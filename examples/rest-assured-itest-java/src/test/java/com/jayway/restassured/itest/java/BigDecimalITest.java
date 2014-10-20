@@ -18,17 +18,19 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import org.apache.http.HttpStatus;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.config.JsonConfig.jsonConfig;
-import static com.jayway.restassured.config.MatcherConfig.ErrorDescriptionType.HAMCREST;
-import static com.jayway.restassured.config.MatcherConfig.matcherConfig;
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.BIG_DECIMAL;
+import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItems;
 
 public class BigDecimalITest extends WithJetty {
 
@@ -37,13 +39,25 @@ public class BigDecimalITest extends WithJetty {
         RestAssured.reset();
     }
 
+    @Before public void
+    given_rest_assured_is_configured_with_big_decimal_as_return_type() {
+        RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(BIG_DECIMAL));
+    }
+
     @Test public void
     big_decimal_works() {
-        RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(BIG_DECIMAL)).matcherConfig(matcherConfig().errorDescriptionType(HAMCREST));
-
         when().
                 get("/amount").
         then().
                 body("amount", equalTo(new BigDecimal("250.00")));
+    }
+
+    @Test public void
+    floats_are_used_as_big_decimal_in_anonymous_list_with_numbers_when_configured_accordingly() {
+        when().
+                get("/anonymous_list_with_numbers").
+        then().
+                statusCode(HttpStatus.SC_OK).
+                content("$", hasItems(100, 50, BigDecimal.valueOf(31.0)));
     }
 }
