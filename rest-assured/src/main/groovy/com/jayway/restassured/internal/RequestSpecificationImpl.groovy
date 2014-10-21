@@ -68,7 +68,6 @@ import static org.apache.commons.lang3.StringUtils.*
 import static org.apache.http.client.params.ClientPNames.*
 
 class RequestSpecificationImpl implements FilterableRequestSpecification, GroovyInterceptable {
-  private static final int DEFAULT_HTTP_PORT = 80
   private static final int DEFAULT_HTTP_TEST_PORT = 8080
   private static final String MULTIPART_FORM_DATA = "multipart/form-data"
   private static final String CONTENT_TYPE = "content-type"
