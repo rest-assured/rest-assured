@@ -73,7 +73,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private static final String CONTENT_TYPE = "content-type"
   private static final String DOUBLE_SLASH = "//"
   private static final String LOCALHOST = "localhost"
-  public static final String CHARSET = "charset"
+  private static final String CHARSET = "charset"
 
   private String baseUri
   private String path = ""
