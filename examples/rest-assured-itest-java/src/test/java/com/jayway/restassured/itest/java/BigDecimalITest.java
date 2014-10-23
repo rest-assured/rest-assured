@@ -28,7 +28,6 @@ import java.math.BigDecimal;
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.config.JsonConfig.jsonConfig;
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.BIG_DECIMAL;
-import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItems;
 

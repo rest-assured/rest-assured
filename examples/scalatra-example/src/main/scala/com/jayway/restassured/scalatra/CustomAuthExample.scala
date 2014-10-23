@@ -17,8 +17,9 @@
 package com.jayway.restassured.scalatra
 
 import org.scalatra.ScalatraServlet
-import collection.mutable.HashMap
-import util.Random
+
+import scala.collection.mutable.HashMap
+import scala.util.Random
 
 class CustomAuthExample extends ScalatraServlet {
 
