@@ -181,12 +181,12 @@ public class JSONPostITest extends WithJetty {
 
     @Test
     public void responseSpecificationAllowsSpecifyingJsonBodyForPost() throws Exception {
-        given().body("{ \"message\" : \"hello world\"}").expect().contentType(JSON).and().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
+        given().header("accept", "application/json").body("{ \"message\" : \"hello world\"}").expect().contentType(JSON).and().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
     }
 
     @Test
     public void responseSpecificationAllowsSpecifyingJsonBodyAsStringForPost() throws Exception {
-        given().body("{ \"message\" : \"hello world\"}").expect().contentType("application/json").and().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
+        given().header("accept", "application/json").body("{ \"message\" : \"hello world\"}").expect().contentType("application/json").and().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
     }
 
     @Test
@@ -198,7 +198,7 @@ public class JSONPostITest extends WithJetty {
     public void allowsSpecifyingDefaultResponseContentType() throws Exception {
         RestAssured.responseContentType(JSON);
         try {
-            given().body("{ \"message\" : \"hello world\"}").expect().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
+            given().header("accept", "application/json").body("{ \"message\" : \"hello world\"}").expect().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
         } finally {
             RestAssured.reset();
         }
@@ -208,7 +208,7 @@ public class JSONPostITest extends WithJetty {
     public void allowsSpecifyingDefaultResponseContentTypeAsString() throws Exception {
         RestAssured.responseContentType("application/json");
         try {
-            given().body("{ \"message\" : \"hello world\"}").expect().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
+            given().header("accept", "application/json").body("{ \"message\" : \"hello world\"}").expect().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
         } finally {
             RestAssured.reset();
         }

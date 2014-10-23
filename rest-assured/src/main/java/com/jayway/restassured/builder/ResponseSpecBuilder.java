@@ -32,7 +32,6 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
-import static com.jayway.restassured.RestAssured.responseContentType;
 import static com.jayway.restassured.RestAssured.rootPath;
 
 /**
@@ -59,7 +58,7 @@ public class ResponseSpecBuilder {
     private final ResponseSpecification spec;
 
     public ResponseSpecBuilder() {
-        spec = new ResponseSpecificationImpl(rootPath, responseContentType(), null, getResponseParserRegistrar(), restAssuredConfig(), new LogRepository());
+        spec = new ResponseSpecificationImpl(rootPath, null, getResponseParserRegistrar(), restAssuredConfig(), new LogRepository());
     }
 
     /**

@@ -74,6 +74,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private static final String DOUBLE_SLASH = "//"
   private static final String LOCALHOST = "localhost"
   private static final String CHARSET = "charset"
+  private static final String ACCEPT_HEADER_NAME = "Accept"
 
   private String baseUri
   private String path = ""
@@ -1005,6 +1006,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     requestUriForLogging
   }
 
+  @SuppressWarnings("GroovyUnusedDeclaration")
   private def Response sendRequest(path, method, assertionClosure, FilterableRequestSpecification requestSpecification) {
     notNull path, "Path"
     path = extractRequestParamsIfNeeded(path);
@@ -1033,7 +1035,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     restAssuredResponse.setConnectionManager(http.client.connectionManager)
     restAssuredResponse.setConfig(cfg)
     responseSpecification.restAssuredResponse = restAssuredResponse
-    def responseContentType = assertionClosure.getResponseContentType()
+    def acceptContentType = assertionClosure.getResponseContentType()
 
     if (shouldApplySSLConfig(http, cfg)) {
       def sslConfig = cfg.getSSLConfig();
@@ -1054,7 +1056,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       if (method == POST) {
         http.post(path: targetPath, body: bodyContent,
                 requestContentType: defineRequestContentType(method),
-                contentType: responseContentType) { response, content ->
+                contentType: acceptContentType) { response, content ->
           if (assertionClosure != null) {
             assertionClosure.call(response, content)
           }
@@ -1062,17 +1064,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       } else if (method == PATCH) {
         http.patch(path: targetPath, body: bodyContent,
                 requestContentType: defineRequestContentType(method),
-                contentType: responseContentType) { response, content ->
+                contentType: acceptContentType) { response, content ->
           if (assertionClosure != null) {
             assertionClosure.call(response, content)
           }
         }
       } else {
         requestBody = bodyContent
-        sendHttpRequest(http, method, responseContentType, targetPath, assertionClosure)
+        sendHttpRequest(http, method, acceptContentType, targetPath, assertionClosure)
       }
     } else {
-      sendHttpRequest(http, method, responseContentType, targetPath, assertionClosure)
+      sendHttpRequest(http, method, acceptContentType, targetPath, assertionClosure)
     }
     return restAssuredResponse
   }
@@ -1383,6 +1385,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       throw new IllegalArgumentException("Request URI cannot end with ?");
     }
     path = applyPathParamsAndEncodePath(path, pathParams)
+
+    // Set default accept header if undefined
+    if (!headers.hasHeaderWithName(ACCEPT_HEADER_NAME)) {
+      header(ACCEPT_HEADER_NAME, ANY.getAcceptHeader())
+    }
+
     this.contentType = defineRequestContentTypeAsString(method)
     invokeFilterChain(path, method, responseSpecification.assertionClosure)
   }

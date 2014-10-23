@@ -168,7 +168,7 @@ public class AuthenticationITest extends WithJetty {
                 statusCode(200).
                 body(equalTo("OK"));
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/j_spring_security_check\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\tj_username=John\n\t\t\t\tj_password=Doe\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tContent-Type=application/x-www-form-urlencoded; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nBody:\t\t\t<none>\nHTTP/1.1 200 OK\nContent-Type: text/plain; charset=utf-8\nSet-Cookie: jsessionid=1234\nContent-Length: 0\nServer: Jetty(6.1.14)\n"));
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/j_spring_security_check\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\tj_username=John\n\t\t\t\tj_password=Doe\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tContent-Type=application/x-www-form-urlencoded; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\n\t\t\t\tAccept=*/*\nCookies:\t\t<none>\nBody:\t\t\t<none>\nHTTP/1.1 200 OK\nContent-Type: text/plain; charset=utf-8\nSet-Cookie: jsessionid=1234\nContent-Length: 0\nServer: Jetty(6.1.14)\n"));
     }
 
     @Test

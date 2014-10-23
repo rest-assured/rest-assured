@@ -26,7 +26,7 @@ class ValidatableResponseImpl extends ValidatableResponseOptionsImpl<Validatable
 
   ValidatableResponseImpl(String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config, Response response,
                           ExtractableResponse<Response> extractableResponse, LogRepository logRepository) {
-    super(contentType, rpr, config, response, extractableResponse, logRepository)
+    super(rpr, config, response, extractableResponse, logRepository)
   }
 
   Response originalResponse() {

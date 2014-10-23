@@ -749,10 +749,6 @@ public interface ResponseSpecification extends RequestSender {
 
     /**
      * Set the response content type to be <code>contentType</code>.
-     * <p>Note that this will affect the way the response is decoded.
-     * E,g. if you can't use JSON/XML matching (see e.g. {@link #body(String, Matcher, Object...)}) if you specify a
-     * content-type of "text/plain". If you don't specify the response content type REST Assured will automatically try to
-     * figure out which content type to use.</p>
      *
      * @param contentType The content type of the response.
      * @return the response specification
@@ -761,10 +757,6 @@ public interface ResponseSpecification extends RequestSender {
 
     /**
      * Set the response content type to be <code>contentType</code>.
-     * <p>Note that this will affect the way the response is decoded.
-     * E,g. if you can't use JSON/XML matching (see e.g. {@link #body(String, Matcher, Object...)}) if you specify a
-     * content-type of "text/plain". If you don't specify the response content type REST Assured will automatically try to
-     * figure out which content type to use.</p>
      *
      * @param contentType The content type of the response.
      * @return the response specification

@@ -45,11 +45,11 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
     protected final Response response;
     private final RestAssuredConfig config;
 
-    public ValidatableResponseOptionsImpl(String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config, Response response,
+    public ValidatableResponseOptionsImpl(ResponseParserRegistrar rpr, RestAssuredConfig config, Response response,
                                           ExtractableResponse<R> extractableResponse, LogRepository logRepository) {
         this.config = config == null ? RestAssuredConfig.config() : config;
         this.response = response;
-        responseSpec = new ResponseSpecificationImpl(RestAssured.rootPath, contentType, RestAssured.responseSpecification, rpr, this.config, response, logRepository);
+        responseSpec = new ResponseSpecificationImpl(RestAssured.rootPath, RestAssured.responseSpecification, rpr, this.config, response, logRepository);
         this.extractableResponse = extractableResponse;
     }
 

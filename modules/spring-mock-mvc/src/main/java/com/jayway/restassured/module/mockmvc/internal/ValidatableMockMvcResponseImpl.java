@@ -37,7 +37,7 @@ public class ValidatableMockMvcResponseImpl extends ValidatableResponseOptionsIm
 
     public ValidatableMockMvcResponseImpl(ResultActions resultActions, String contentType, ResponseParserRegistrar rpr, RestAssuredConfig config,
                                           MockMvcResponse response, ExtractableResponse<MockMvcResponse> extractableResponse, LogRepository logRepository) {
-        super(contentType, rpr, config, toStandardResponse(response), extractableResponse, logRepository);
+        super(rpr, config, toStandardResponse(response), extractableResponse, logRepository);
         this.mockMvcResponse = response;
         notNull(resultActions, ResultActions.class);
         this.resultActions = resultActions;

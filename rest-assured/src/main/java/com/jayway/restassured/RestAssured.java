@@ -17,6 +17,7 @@
 package com.jayway.restassured;
 
 import com.jayway.restassured.authentication.*;
+import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.config.SSLConfig;
@@ -484,6 +485,7 @@ public class RestAssured {
      * RestAssured.proxy = host("127.0.0.1").withPort(8888);
      * </pre>
      * where <code>host</code> is statically imported from {@link com.jayway.restassured.specification.ProxySpecification#host(String)}.
+     *
      * @see #proxy(String)
      * @see #proxy(String, int)
      * @see #proxy(String, int, String)
@@ -493,8 +495,6 @@ public class RestAssured {
     public static ProxySpecification proxy = null;
 
     private static Object requestContentType = null;
-
-    private static Object responseContentType = null;
 
     private static List<Filter> filters = new LinkedList<Filter>();
 
@@ -568,10 +568,6 @@ public class RestAssured {
         return requestContentType;
     }
 
-    public static Object responseContentType() {
-        return responseContentType;
-    }
-
     /**
      * Specify the default content type
      *
@@ -591,21 +587,25 @@ public class RestAssured {
     }
 
     /**
-     * Specify the default content type (also sets the accept header).
+     * Specify the expected response content type.
      *
      * @param contentType The content type
+     * @deprecated Use {@link com.jayway.restassured.builder.ResponseSpecBuilder#expectContentType(com.jayway.restassured.http.ContentType)} and assign it to {@link #responseSpecification} instead.
      */
+    @Deprecated
     public static void responseContentType(ContentType contentType) {
-        responseContentType = contentType;
+        responseSpecification = (responseSpecification == null ? new ResponseSpecBuilder().build() : responseSpecification).contentType(contentType);
     }
 
     /**
-     * Specify the default content type (also sets the accept header).
+     * Specify the expected response content type.
      *
      * @param contentType The content type
+     * @deprecated Use {@link com.jayway.restassured.builder.ResponseSpecBuilder#expectContentType(com.jayway.restassured.http.ContentType)} and assign it to {@link #responseSpecification} instead.
      */
+    @Deprecated
     public static void responseContentType(String contentType) {
-        responseContentType = contentType;
+        responseSpecification = (responseSpecification == null ? new ResponseSpecBuilder().build() : responseSpecification).contentType(contentType);
     }
 
     /**
@@ -1394,7 +1394,6 @@ public class RestAssured {
         rootPath = DEFAULT_BODY_ROOT_PATH;
         filters = new LinkedList<Filter>();
         requestContentType = null;
-        responseContentType = null;
         requestSpecification = null;
         responseSpecification = null;
         urlEncodingEnabled = DEFAULT_URL_ENCODING_ENABLED;
@@ -1416,8 +1415,7 @@ public class RestAssured {
         return new TestSpecificationImpl(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters,
                         requestContentType, requestSpecification, urlEncodingEnabled, restAssuredConfig, logRepository, proxy),
-                new ResponseSpecificationImpl(rootPath, responseContentType, responseSpecification, responseParserRegistrar,
-                        restAssuredConfig, logRepository)
+                new ResponseSpecificationImpl(rootPath, responseSpecification, responseParserRegistrar, restAssuredConfig, logRepository)
         );
     }
 

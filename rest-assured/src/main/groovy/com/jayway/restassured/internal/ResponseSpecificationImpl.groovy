@@ -58,18 +58,17 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   private contentParser
   def LogRepository logRepository
 
-  ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
+  ResponseSpecificationImpl(String bodyRootPath, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
                             RestAssuredConfig config, LogRepository logRepository) {
-    this(bodyRootPath, responseContentType, defaultSpec, rpr, config, null, logRepository)
+    this(bodyRootPath, defaultSpec, rpr, config, null, logRepository)
   }
 
-  ResponseSpecificationImpl(String bodyRootPath, responseContentType, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
+  ResponseSpecificationImpl(String bodyRootPath, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
                             RestAssuredConfig config, Response response, LogRepository logRepository) {
     Validate.notNull(config, "RestAssuredConfig cannot be null")
     this.config = config
     this.response = response;
     rootPath(bodyRootPath)
-    this.contentType = responseContentType
     this.rpr = rpr
     if (defaultSpec != null) {
       spec(defaultSpec)

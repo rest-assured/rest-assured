@@ -12,6 +12,8 @@ Change log next version
 * PUT now uses content-type application/x-www-form-urlencoded by default when using form parameters.
 * Content-Type is now correctly displayed in request log when not explicitly defined.
 * Content-Type charset is now available in Filters when calling getRequestContentType() on the request specification.
+* Deprecated RestAssured.responseContentType(..). Use com.jayway.restassured.builder.ResponseSpecBuilder#expectContentType(com.jayway.restassured.http.ContentType) and assign it to RestAssured.responseSpecification instead.
+* Non-backward compatible change: Setting contentType on a ResponseSpecification no longer sets the accept header automatically. Previously this led to confusion and prevented separation between the ResponseSpecification and the RequestSpecification.
 
 Change log 2.3.4 (2014-10-06)
 -----------------------------
