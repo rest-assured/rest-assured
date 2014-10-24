@@ -709,6 +709,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       headerList << new Header(it.key, serializeIfNeeded(it.value))
     }
     filterContentTypeHeader(headerList)
+    headerList = removeMergedHeadersIfNeeded(headerList)
     this.requestHeaders = new Headers(headerList)
     return this;
   }
@@ -723,9 +724,23 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
       headerList.addAll(headers.headers.list())
       filterContentTypeHeader(headerList)
+      headerList = removeMergedHeadersIfNeeded(headerList)
       this.requestHeaders = new Headers(headerList)
     }
     this
+  }
+
+  private def List removeMergedHeadersIfNeeded(List headerList) {
+    headerList = headerList.inject([], { acc, header ->
+      def headerConfig = restAssuredConfig().getHeaderConfig()
+      def headerName = header.getName()
+      if (headerConfig.shouldOverwriteHeaderWithName(headerName)) {
+        acc = acc.findAll { it.getName() != headerName }
+      }
+      acc.add(header)
+      acc
+    })
+    headerList
   }
 
   private def void filterContentTypeHeader(List<Header> headerList) {
@@ -743,7 +758,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     notNull headerValue, "Header value"
 
     if (CONTENT_TYPE.equalsIgnoreCase(headerName)) {
-      return contentType(headerValue)
+      return contentType(headerValue.toString())
     }
 
     def headerList = [new Header(headerName, serializeIfNeeded(headerValue))]

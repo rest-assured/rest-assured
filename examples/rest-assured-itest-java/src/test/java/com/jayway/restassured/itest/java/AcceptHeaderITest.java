@@ -17,6 +17,7 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.itest.java.support.WithJetty;
@@ -30,6 +31,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.config.HeaderConfig.headerConfig;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
@@ -85,14 +87,38 @@ public class AcceptHeaderITest extends WithJetty {
                 body(equalTo("hello world"));
     }
 
+    @Test public void
+    accept_headers_are_overwritten_from_request_spec_by_default() {
+        RequestSpecification spec = new RequestSpecBuilder().setAccept(JSON).build();
+
+        final MutableObject<List<String>> headers = new MutableObject<List<String>>();
+
+        given().
+                accept("text/jux").
+                spec(spec).
+                body("{ \"message\" : \"hello world\"}").
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        headers.setValue(requestSpec.getHeaders().getValues("Accept"));
+                        return ctx.next(requestSpec, responseSpec);
+                    }
+                }).
+        when().
+                post("/jsonBodyAcceptHeader").
+        then().
+                body(equalTo("hello world"));
+
+        assertThat(headers.getValue(), contains("application/json, application/javascript, text/javascript"));
+    }
 
     @Test public void
-    accept_headers_are_merged_from_request_spec_and_request() {
+    accept_headers_are_merged_from_request_spec_and_request_when_configured_to() {
         RequestSpecification spec = new RequestSpecBuilder().setAccept("text/jux").build();
 
         final MutableObject<List<String>> headers = new MutableObject<List<String>>();
 
         given().
+                config(RestAssuredConfig.config().headerConfig(headerConfig().mergeHeadersWithName("Accept"))).
                 accept(JSON).
                 spec(spec).
                 body("{ \"message\" : \"hello world\"}").

@@ -104,8 +104,8 @@ class SpecificationMerger {
         thisOne.cookies(with.cookies)
         thisOne.requestBody = with.requestBody
         mergeFilters(thisOne, with)
-        thisOne.urlEncodingEnabled = with.urlEncodingEnabled
         thisOne.restAssuredConfig = with.restAssuredConfig
+        thisOne.urlEncodingEnabled = with.urlEncodingEnabled
         thisOne.proxySpecification = with.proxySpecification
     }
 
