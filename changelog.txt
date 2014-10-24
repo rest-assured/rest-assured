@@ -14,6 +14,7 @@ Change log next version
 * Content-Type charset is now available in Filters when calling getRequestContentType() on the request specification.
 * Deprecated RestAssured.responseContentType(..). Use com.jayway.restassured.builder.ResponseSpecBuilder#expectContentType(com.jayway.restassured.http.ContentType) and assign it to RestAssured.responseSpecification instead.
 * Non-backward compatible change: Setting contentType on a ResponseSpecification no longer sets the accept header automatically. Previously this led to confusion and prevented separation between the ResponseSpecification and the RequestSpecification.
+* Added "accept" method to RequestSpecification to easier allow setting the Accept header. Also added setAccept to RequestSpecBuilder.
 
 Change log 2.3.4 (2014-10-06)
 -----------------------------

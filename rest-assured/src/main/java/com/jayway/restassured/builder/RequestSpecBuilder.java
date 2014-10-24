@@ -863,6 +863,38 @@ public class RequestSpecBuilder {
     }
 
     /**
+     * Specify the accept header of the request. This just a shortcut for:
+     * <pre>
+     * addHeader("Accept", contentType);
+     * </pre>
+     *
+     * @param contentType The content type whose accept header {@link com.jayway.restassured.http.ContentType#getAcceptHeader()} will be used as Accept header in the request.
+     * @return The request specification
+     * @see ContentType
+     * @see #addHeader(String, String)
+     */
+    public RequestSpecBuilder setAccept(ContentType contentType) {
+        spec.accept(contentType);
+        return this;
+    }
+
+    /**
+     * Specify the accept header of the request. This just a shortcut for:
+     * <pre>
+     * header("Accept", contentType);
+     * </pre>
+     *
+     * @param mediaTypes The media type(s) that will be used as Accept header in the request.
+     * @return The request specification
+     * @see ContentType
+     * @see #addHeader(String, String)
+     */
+    public RequestSpecBuilder setAccept(String mediaTypes) {
+        spec.accept(mediaTypes);
+        return this;
+    }
+
+    /**
      * Specify a multi-part specification. Use this method if you need to specify content-type etc.
      *
      * @param multiPartSpecification Multipart specification

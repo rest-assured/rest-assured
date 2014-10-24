@@ -689,6 +689,16 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return this
   }
 
+  def RequestSpecification accept(ContentType contentType) {
+    notNull contentType, "Accept header"
+    accept(contentType.getAcceptHeader())
+  }
+
+  def RequestSpecification accept(String mediaTypes) {
+    notNull mediaTypes, "Accept header media range"
+    header(ACCEPT_HEADER_NAME, mediaTypes)
+  }
+
   def RequestSpecification headers(Map headers) {
     notNull headers, "headers"
     def headerList = []
