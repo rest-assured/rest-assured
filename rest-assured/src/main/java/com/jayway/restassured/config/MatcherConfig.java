@@ -22,16 +22,17 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 /**
  * Allow you to configure settings for response matchers.
  */
-public class MatcherConfig {
+public class MatcherConfig implements Config {
 
     private final ErrorDescriptionType errorDescriptionType;
+    private final boolean isUserDefined;
 
     /**
      * Creates a new instance of {@link com.jayway.restassured.config.MatcherConfig} that uses {@link ErrorDescriptionType#REST_ASSURED} as
      * error description type.
      */
     public MatcherConfig() {
-        this(REST_ASSURED);
+        this(REST_ASSURED, false);
     }
 
     /**
@@ -41,8 +42,13 @@ public class MatcherConfig {
      * @param errorDescriptionType The error description type to use.
      */
     public MatcherConfig(ErrorDescriptionType errorDescriptionType) {
+        this(errorDescriptionType, true);
+    }
+
+    private MatcherConfig(ErrorDescriptionType errorDescriptionType, boolean isUserDefined) {
         notNull(errorDescriptionType, ErrorDescriptionType.class);
         this.errorDescriptionType = errorDescriptionType;
+        this.isUserDefined = isUserDefined;
     }
 
     /**
@@ -50,7 +56,7 @@ public class MatcherConfig {
      * @return A new instance of MatcherConfig.
      */
     public MatcherConfig errorDescriptionType(ErrorDescriptionType errorDescriptionType) {
-        return new MatcherConfig(errorDescriptionType);
+        return new MatcherConfig(errorDescriptionType, true);
     }
 
     /**
@@ -68,6 +74,10 @@ public class MatcherConfig {
      */
     public boolean hasErrorDescriptionType(ErrorDescriptionType errorDescriptionType) {
         return this.errorDescriptionType == errorDescriptionType;
+    }
+
+    public boolean isUserConfigured() {
+        return isUserDefined;
     }
 
     /**

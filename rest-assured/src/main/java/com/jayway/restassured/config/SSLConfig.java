@@ -88,7 +88,7 @@ import static org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER
  * </pre>
  * </p>
  */
-public class SSLConfig {
+public class SSLConfig implements Config {
 
     private static final int UNDEFINED_PORT = -1;
     private final Object pathToKeyStore;

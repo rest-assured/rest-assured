@@ -22,12 +22,13 @@ package com.jayway.restassured.config;
  * @see RestAssuredConfig
  * @see org.apache.http.client.params.ClientPNames
  */
-public class RedirectConfig {
+public class RedirectConfig implements Config {
 
     private final boolean followRedirects;
     private final boolean allowCircularRedirects;
     private final boolean rejectRelativeRedirect;
     private final int maxRedirects;
+    private final boolean isUserConfigured;
 
     /**
      * Create a new RedirectConfig instance with the following configuration by default:
@@ -39,23 +40,29 @@ public class RedirectConfig {
      * </ol>
      */
     public RedirectConfig() {
-        this(true, false, false, 100);
+        this(true, false, false, 100, false);
     }
 
     /**
      * Create a new instance of a RedirectConfig with the supplied settings.
      *
-     * @param followRedirects Configure if REST Assured should follow redirects
+     * @param followRedirects        Configure if REST Assured should follow redirects
      * @param allowCircularRedirects Configure if REST Assured should allow circular redirects
      * @param rejectRelativeRedirect Configure if REST Assured should reject relative redirects
-     * @param maxRedirects Configure the REST Assured maximum number of redirect
+     * @param maxRedirects           Configure the REST Assured maximum number of redirect
      */
     public RedirectConfig(boolean followRedirects, boolean allowCircularRedirects,
                           boolean rejectRelativeRedirect, int maxRedirects) {
+        this(followRedirects, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, true);
+    }
+
+    private RedirectConfig(boolean followRedirects, boolean allowCircularRedirects,
+                           boolean rejectRelativeRedirect, int maxRedirects, boolean isUserConfigured) {
         this.followRedirects = followRedirects;
         this.allowCircularRedirects = allowCircularRedirects;
         this.rejectRelativeRedirect = rejectRelativeRedirect;
         this.maxRedirects = maxRedirects;
+        this.isUserConfigured = isUserConfigured;
     }
 
     /**
@@ -65,7 +72,7 @@ public class RedirectConfig {
      * @return An updated RedirectConfig
      */
     public RedirectConfig followRedirects(boolean value) {
-        return new RedirectConfig(value, allowCircularRedirects, rejectRelativeRedirect, maxRedirects);
+        return new RedirectConfig(value, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, true);
     }
 
     /**
@@ -75,7 +82,7 @@ public class RedirectConfig {
      * @return An updated RedirectConfig
      */
     public RedirectConfig allowCircularRedirects(boolean value) {
-        return new RedirectConfig(followRedirects, value, rejectRelativeRedirect, maxRedirects);
+        return new RedirectConfig(followRedirects, value, rejectRelativeRedirect, maxRedirects, true);
     }
 
     /**
@@ -85,7 +92,7 @@ public class RedirectConfig {
      * @return An updated RedirectConfig
      */
     public RedirectConfig rejectRelativeRedirect(boolean value) {
-        return new RedirectConfig(followRedirects, allowCircularRedirects, value, maxRedirects);
+        return new RedirectConfig(followRedirects, allowCircularRedirects, value, maxRedirects, true);
     }
 
     /**
@@ -95,11 +102,11 @@ public class RedirectConfig {
      * @return An updated RedirectConfig
      */
     public RedirectConfig maxRedirects(int value) {
-        return new RedirectConfig(followRedirects, allowCircularRedirects, rejectRelativeRedirect, value);
+        return new RedirectConfig(followRedirects, allowCircularRedirects, rejectRelativeRedirect, value, true);
     }
 
     /**
-     *  The same RedirectConfig instance. This method is only provided as syntactic sugar.
+     * The same RedirectConfig instance. This method is only provided as syntactic sugar.
      */
     public RedirectConfig and() {
         return this;
@@ -138,5 +145,12 @@ public class RedirectConfig {
      */
     public static RedirectConfig redirectConfig() {
         return new RedirectConfig();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isUserConfigured() {
+        return isUserConfigured;
     }
 }

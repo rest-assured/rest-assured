@@ -27,17 +27,18 @@ import java.io.PrintStream;
  * refer to the <a href="http://hc.apache.org/httpcomponents-client-ga/logging.html">HTTP Client logging docs</a> or use an external tool such as
  * <a href="http://www.wireshark.org/">Wireshark</a>.</p>
  */
-public class LogConfig {
+public class LogConfig implements Config {
 
     private final PrintStream defaultPrintStream;
     private final boolean prettyPrintingEnabled;
     private final LogDetail logDetailIfValidationFails;
+    private final boolean isUserDefined;
 
     /**
      * Configure the default stream to use the System.out stream (default).
      */
     public LogConfig() {
-        this(System.out, true);
+        this(System.out, true, null, false);
     }
 
     /**
@@ -57,7 +58,7 @@ public class LogConfig {
      * @param prettyPrintingEnabled Enable or disable pretty printing when logging. Pretty printing is only possible when content-type is XML, JSON or HTML.
      */
     public LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled) {
-        this(defaultPrintStream, prettyPrintingEnabled, null);
+        this(defaultPrintStream, prettyPrintingEnabled, null, true);
     }
 
     /**
@@ -76,11 +77,12 @@ public class LogConfig {
      * @param defaultPrintStream    The default print stream to use for the {@link com.jayway.restassured.specification.LogSpecification}'s.
      * @param prettyPrintingEnabled Enable or disable pretty printing when logging. Pretty printing is only possible when content-type is XML, JSON or HTML.
      */
-    private LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled, LogDetail logDetailIfValidationFails) {
+    private LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled, LogDetail logDetailIfValidationFails, boolean isUserDefined) {
         Validate.notNull(defaultPrintStream, "Stream to write logs to cannot be null");
         this.defaultPrintStream = defaultPrintStream;
         this.prettyPrintingEnabled = prettyPrintingEnabled;
         this.logDetailIfValidationFails = logDetailIfValidationFails;
+        this.isUserDefined = isUserDefined;
     }
 
     /**
@@ -97,7 +99,7 @@ public class LogConfig {
      * @return A new LogConfig instance
      */
     public LogConfig defaultStream(PrintStream printStream) {
-        return new LogConfig(printStream, true, logDetailIfValidationFails);
+        return new LogConfig(printStream, true, logDetailIfValidationFails, true);
     }
 
     /**
@@ -128,7 +130,7 @@ public class LogConfig {
      * @return A new LogConfig instance
      */
     public LogConfig enablePrettyPrinting(boolean shouldEnable) {
-        return new LogConfig(defaultPrintStream, shouldEnable, logDetailIfValidationFails);
+        return new LogConfig(defaultPrintStream, shouldEnable, logDetailIfValidationFails, true);
     }
 
     /**
@@ -147,7 +149,7 @@ public class LogConfig {
      * @return A new LogConfig instance
      */
     public LogConfig enableLoggingOfRequestAndResponseIfValidationFails(LogDetail logDetail) {
-        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetail);
+        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetail, true);
     }
 
     /**
@@ -164,5 +166,9 @@ public class LogConfig {
      */
     public LogConfig and() {
         return this;
+    }
+
+    public boolean isUserConfigured() {
+        return isUserDefined;
     }
 }

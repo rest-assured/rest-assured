@@ -28,19 +28,20 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 /**
  * Allows you to specify configuration for the decoder.
  */
-public class DecoderConfig {
+public class DecoderConfig implements Config {
 
     private static final boolean DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS = false;
 
     private final String defaultContentCharset;
     private final List<ContentDecoder> contentDecoders;
     private final boolean useNoWrapForInflateDecoding;
+    private final boolean isUserConfigured;
 
     /**
      * Configure the decoder config to use the default charset as specified by {@link java.nio.charset.Charset#defaultCharset()} for content decoding.
      */
     public DecoderConfig() {
-        this(Charset.defaultCharset().toString(), DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, defaultContentEncoders());
+        this(Charset.defaultCharset().toString(), DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, false, defaultContentEncoders());
     }
 
     /**
@@ -49,7 +50,7 @@ public class DecoderConfig {
      * @param defaultContentCharset The charset to use if not specifically specified in the response.
      */
     public DecoderConfig(String defaultContentCharset) {
-        this(defaultContentCharset, DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, defaultContentEncoders());
+        this(defaultContentCharset, DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, true, defaultContentEncoders());
     }
 
     /**
@@ -65,18 +66,19 @@ public class DecoderConfig {
      * @return A new instance of the DecoderConfig.
      */
     public DecoderConfig(ContentDecoder contentDecoder, ContentDecoder... additionalContentDecoders) {
-        this(Charset.defaultCharset().toString(), DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, merge(contentDecoder, additionalContentDecoders));
+        this(Charset.defaultCharset().toString(), DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, true, merge(contentDecoder, additionalContentDecoders));
     }
 
-    private DecoderConfig(String defaultContentCharset, boolean useNoWrapForInflateDecoding, ContentDecoder... contentDecoders) {
-        this(defaultContentCharset, useNoWrapForInflateDecoding, contentDecoders == null ? Collections.<ContentDecoder>emptyList() : Arrays.asList(contentDecoders));
+    private DecoderConfig(String defaultContentCharset, boolean useNoWrapForInflateDecoding, boolean isUserConfigured, ContentDecoder... contentDecoders) {
+        this(defaultContentCharset, useNoWrapForInflateDecoding, isUserConfigured, contentDecoders == null ? Collections.<ContentDecoder>emptyList() : Arrays.asList(contentDecoders));
     }
 
-    private DecoderConfig(String defaultContentCharset, boolean useNoWrapForInflateDecoding, List<ContentDecoder> contentDecoders) {
+    private DecoderConfig(String defaultContentCharset, boolean useNoWrapForInflateDecoding, boolean isUserConfigured, List<ContentDecoder> contentDecoders) {
         Validate.notBlank(defaultContentCharset, "Default decoder content charset to cannot be blank");
         this.defaultContentCharset = defaultContentCharset;
         this.contentDecoders = Collections.unmodifiableList(contentDecoders == null ? Collections.<ContentDecoder>emptyList() : contentDecoders);
         this.useNoWrapForInflateDecoding = useNoWrapForInflateDecoding;
+        this.isUserConfigured = isUserConfigured;
     }
 
     /**
@@ -110,7 +112,7 @@ public class DecoderConfig {
      * @return A new instance of the DecoderConfig.
      */
     public DecoderConfig useNoWrapForInflateDecoding(boolean nowrap) {
-        return new DecoderConfig(defaultContentCharset, nowrap, contentDecoders);
+        return new DecoderConfig(defaultContentCharset, nowrap, true, contentDecoders);
     }
 
     /**
@@ -129,7 +131,7 @@ public class DecoderConfig {
      */
     @SuppressWarnings("UnusedDeclaration")
     public DecoderConfig defaultContentCharset(String charset) {
-        return new DecoderConfig(charset, useNoWrapForInflateDecoding, contentDecoders);
+        return new DecoderConfig(charset, useNoWrapForInflateDecoding, true, contentDecoders);
     }
 
     /**
@@ -141,7 +143,7 @@ public class DecoderConfig {
     @SuppressWarnings("UnusedDeclaration")
     public DecoderConfig defaultContentCharset(Charset charset) {
         String charsetAsString = notNull(charset, Charset.class).toString();
-        return new DecoderConfig(charsetAsString, useNoWrapForInflateDecoding, contentDecoders);
+        return new DecoderConfig(charsetAsString, useNoWrapForInflateDecoding, true, contentDecoders);
     }
 
     /**
@@ -156,7 +158,7 @@ public class DecoderConfig {
      * @return A new instance of the DecoderConfig.
      */
     public DecoderConfig contentDecoders(ContentDecoder contentDecoder, ContentDecoder... additionalContentDecoders) {
-        return new DecoderConfig(defaultContentCharset, useNoWrapForInflateDecoding, merge(contentDecoder, additionalContentDecoders));
+        return new DecoderConfig(defaultContentCharset, useNoWrapForInflateDecoding, true, merge(contentDecoder, additionalContentDecoders));
     }
 
     /**
@@ -166,7 +168,7 @@ public class DecoderConfig {
      * @see #contentDecoders(com.jayway.restassured.config.DecoderConfig.ContentDecoder, com.jayway.restassured.config.DecoderConfig.ContentDecoder...)
      */
     public DecoderConfig noContentDecoders() {
-        return new DecoderConfig(defaultContentCharset, useNoWrapForInflateDecoding);
+        return new DecoderConfig(defaultContentCharset, useNoWrapForInflateDecoding, true);
     }
 
     /**
@@ -210,6 +212,10 @@ public class DecoderConfig {
             System.arraycopy(additionalContentDecoders, 0, contentDecoders, 1, additionalContentDecoders.length);
         }
         return contentDecoders;
+    }
+
+    public boolean isUserConfigured() {
+        return isUserConfigured;
     }
 
     /**

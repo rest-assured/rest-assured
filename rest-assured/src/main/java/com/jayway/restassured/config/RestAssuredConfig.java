@@ -16,6 +16,9 @@
 
 package com.jayway.restassured.config;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
@@ -27,21 +30,9 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
  * </pre>
  * </p>
  */
-public class RestAssuredConfig {
+public class RestAssuredConfig implements Config {
 
-    private final RedirectConfig redirectConfig;
-    private final HttpClientConfig httpClientConfig;
-    private final LogConfig logConfig;
-    private final EncoderConfig encoderConfig;
-    private final DecoderConfig decoderConfig;
-    private final SessionConfig sessionConfig;
-    private final ObjectMapperConfig objectMapperConfig;
-    private final ConnectionConfig connectionConfig;
-    private final JsonConfig jsonConfig;
-    private final XmlConfig xmlConfig;
-    private final SSLConfig sslConfig;
-    private final MatcherConfig matcherConfig;
-    private final HeaderConfig headerConfig;
+    final Map<Class<? extends Config>, Config> configs = new HashMap<Class<? extends Config>, Config>();
 
     /**
      * Create a new RestAssuredConfiguration with the default configurations.
@@ -84,19 +75,19 @@ public class RestAssuredConfig {
         notNull(sslConfig, "SSL config");
         notNull(matcherConfig, "Matcher config");
         notNull(headerConfig, "Header config");
-        this.httpClientConfig = httpClientConfig;
-        this.redirectConfig = redirectConfig;
-        this.logConfig = logConfig;
-        this.encoderConfig = encoderConfig;
-        this.decoderConfig = decoderConfig;
-        this.sessionConfig = sessionConfig;
-        this.objectMapperConfig = objectMapperConfig;
-        this.connectionConfig = connectionConfig;
-        this.jsonConfig = jsonConfig;
-        this.xmlConfig = xmlConfig;
-        this.sslConfig = sslConfig;
-        this.matcherConfig = matcherConfig;
-        this.headerConfig = headerConfig;
+        configs.put(HttpClientConfig.class, httpClientConfig);
+        configs.put(RedirectConfig.class, redirectConfig);
+        configs.put(LogConfig.class, logConfig);
+        configs.put(EncoderConfig.class, encoderConfig);
+        configs.put(DecoderConfig.class, decoderConfig);
+        configs.put(SessionConfig.class, sessionConfig);
+        configs.put(ObjectMapperConfig.class, objectMapperConfig);
+        configs.put(ConnectionConfig.class, connectionConfig);
+        configs.put(JsonConfig.class, jsonConfig);
+        configs.put(XmlConfig.class, xmlConfig);
+        configs.put(SSLConfig.class, sslConfig);
+        configs.put(MatcherConfig.class, matcherConfig);
+        configs.put(HeaderConfig.class, headerConfig);
     }
 
     /**
@@ -107,8 +98,10 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig redirect(RedirectConfig redirectConfig) {
         notNull(redirectConfig, "Redirect config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig, jsonConfig, xmlConfig, sslConfig, matcherConfig, headerConfig);
+        return new RestAssuredConfig(redirectConfig, conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
+                conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
+                conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
+                conf(HeaderConfig.class));
     }
 
     /**
@@ -119,8 +112,10 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig httpClient(HttpClientConfig httpClientConfig) {
         notNull(httpClientConfig, "HTTP Client Config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig, jsonConfig, xmlConfig, sslConfig, matcherConfig, headerConfig);
+        return new RestAssuredConfig(conf(RedirectConfig.class), httpClientConfig, conf(LogConfig.class), conf(EncoderConfig.class),
+                conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
+                conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
+                conf(HeaderConfig.class));
     }
 
     /**
@@ -131,8 +126,10 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig logConfig(LogConfig logConfig) {
         notNull(logConfig, "Log config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig, jsonConfig, xmlConfig, sslConfig, matcherConfig, headerConfig);
+        return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), logConfig, conf(EncoderConfig.class),
+                conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
+                conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
+                conf(HeaderConfig.class));
     }
 
     /**
@@ -143,8 +140,10 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig encoderConfig(EncoderConfig encoderConfig) {
         notNull(encoderConfig, "Encoder config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig, jsonConfig, xmlConfig, sslConfig, matcherConfig, headerConfig);
+        return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), encoderConfig,
+                conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
+                conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
+                conf(HeaderConfig.class));
     }
 
     /**
@@ -155,8 +154,10 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig decoderConfig(DecoderConfig decoderConfig) {
         notNull(decoderConfig, "Decoder config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig, jsonConfig, xmlConfig, sslConfig, matcherConfig, headerConfig);
+        return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
+                decoderConfig, conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
+                conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
+                conf(HeaderConfig.class));
     }
 
     /**
@@ -167,8 +168,10 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig sessionConfig(SessionConfig sessionConfig) {
         notNull(sessionConfig, "Session config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig, jsonConfig, xmlConfig, sslConfig, matcherConfig, headerConfig);
+        return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
+                conf(DecoderConfig.class), sessionConfig, conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
+                conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
+                conf(HeaderConfig.class));
     }
 
     /**
@@ -179,8 +182,10 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig objectMapperConfig(ObjectMapperConfig objectMapperConfig) {
         notNull(objectMapperConfig, "Object mapper config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig, jsonConfig, xmlConfig, sslConfig, matcherConfig, headerConfig);
+        return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
+                conf(DecoderConfig.class), conf(SessionConfig.class), objectMapperConfig, conf(ConnectionConfig.class),
+                conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
+                conf(HeaderConfig.class));
     }
 
     /**
@@ -191,8 +196,10 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig connectionConfig(ConnectionConfig connectionConfig) {
         notNull(connectionConfig, "Connection config");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig, jsonConfig, xmlConfig, sslConfig, matcherConfig, headerConfig);
+        return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
+                conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), connectionConfig,
+                conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
+                conf(HeaderConfig.class));
     }
 
     /**
@@ -203,8 +210,10 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig jsonConfig(JsonConfig jsonConfig) {
         notNull(jsonConfig, "JsonConfig");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig, jsonConfig, xmlConfig, sslConfig, matcherConfig, headerConfig);
+        return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
+                conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
+                jsonConfig, conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
+                conf(HeaderConfig.class));
     }
 
     /**
@@ -215,8 +224,9 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig xmlConfig(XmlConfig xmlConfig) {
         notNull(xmlConfig, "XmlConfig");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig, jsonConfig, xmlConfig, sslConfig, matcherConfig, headerConfig);
+        return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
+                conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
+                conf(JsonConfig.class), xmlConfig, conf(SSLConfig.class), conf(MatcherConfig.class), conf(HeaderConfig.class));
     }
 
     /**
@@ -227,8 +237,9 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig sslConfig(SSLConfig sslConfig) {
         notNull(sslConfig, "SSLConfig");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig, jsonConfig, xmlConfig, sslConfig, matcherConfig, headerConfig);
+        return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
+                conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
+                conf(JsonConfig.class), conf(XmlConfig.class), sslConfig, conf(MatcherConfig.class), conf(HeaderConfig.class));
     }
 
     /**
@@ -239,8 +250,9 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig matcherConfig(MatcherConfig matcherConfig) {
         notNull(matcherConfig, "MatcherConfig");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig, jsonConfig, xmlConfig, sslConfig, matcherConfig, headerConfig);
+        return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
+                conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
+                conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), matcherConfig, conf(HeaderConfig.class));
     }
 
     /**
@@ -251,8 +263,9 @@ public class RestAssuredConfig {
      */
     public RestAssuredConfig headerConfig(HeaderConfig headerConfig) {
         notNull(headerConfig, "HeaderConfig");
-        return new RestAssuredConfig(redirectConfig, httpClientConfig, logConfig, encoderConfig, decoderConfig, sessionConfig,
-                objectMapperConfig, connectionConfig, jsonConfig, xmlConfig, sslConfig, matcherConfig, headerConfig);
+        return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
+                conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
+                conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class), headerConfig);
     }
 
     /**
@@ -286,91 +299,91 @@ public class RestAssuredConfig {
      * @return The RedirectConfig
      */
     public RedirectConfig getRedirectConfig() {
-        return redirectConfig;
+        return conf(RedirectConfig.class);
     }
 
     /**
      * @return The LogConfig
      */
     public LogConfig getLogConfig() {
-        return logConfig;
+        return conf(LogConfig.class);
     }
 
     /**
      * @return The HttpClientConfig
      */
     public HttpClientConfig getHttpClientConfig() {
-        return httpClientConfig;
+        return conf(HttpClientConfig.class);
     }
 
     /**
      * @return The EncoderConfig
      */
     public EncoderConfig getEncoderConfig() {
-        return encoderConfig;
+        return conf(EncoderConfig.class);
     }
 
     /**
      * @return The DecoderConfig
      */
     public DecoderConfig getDecoderConfig() {
-        return decoderConfig;
+        return conf(DecoderConfig.class);
     }
 
     /**
      * @return The SessionConfig
      */
     public SessionConfig getSessionConfig() {
-        return sessionConfig;
+        return conf(SessionConfig.class);
     }
 
     /**
      * @return The ObjectMapperConfig
      */
     public ObjectMapperConfig getObjectMapperConfig() {
-        return objectMapperConfig;
+        return conf(ObjectMapperConfig.class);
     }
 
     /**
      * @return The ConnectionConfig
      */
     public ConnectionConfig getConnectionConfig() {
-        return connectionConfig;
+        return conf(ConnectionConfig.class);
     }
 
     /**
      * @return The JsonPath Config
      */
     public JsonConfig getJsonConfig() {
-        return jsonConfig;
+        return conf(JsonConfig.class);
     }
 
     /**
      * @return The Xml Config
      */
     public XmlConfig getXmlConfig() {
-        return xmlConfig;
+        return conf(XmlConfig.class);
     }
 
     /**
      * @return The SSL Config
      */
     public SSLConfig getSSLConfig() {
-        return sslConfig;
+        return conf(SSLConfig.class);
     }
 
     /**
      * @return The matcher config
      */
     public MatcherConfig getMatcherConfig() {
-        return matcherConfig;
+        return conf(MatcherConfig.class);
     }
 
     /**
      * @return The header config
      */
     public HeaderConfig getHeaderConfig() {
-        return headerConfig;
+        return conf(HeaderConfig.class);
     }
 
     /**
@@ -385,5 +398,22 @@ public class RestAssuredConfig {
      */
     public static RestAssuredConfig config() {
         return new RestAssuredConfig();
+    }
+
+    /**
+     * @return <code>true</code> if this instance is carrying any config that is user configured.
+     */
+    public boolean isUserConfigured() {
+        for (Config cfg : configs.values()) {
+            if (cfg.isUserConfigured()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Config> T conf(Class<T> type) {
+        return (T) configs.get(type);
     }
 }

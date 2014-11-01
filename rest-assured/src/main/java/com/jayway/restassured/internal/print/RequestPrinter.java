@@ -126,26 +126,18 @@ public class RequestPrinter {
     private static void addHeaders(FilterableRequestSpecification requestSpec, StringBuilder builder) {
         builder.append("Headers:");
         final Headers headers = requestSpec.getHeaders();
-        final boolean hasContentTypeHeader = headers.hasHeaderWithName(CONTENT_TYPE);
-        if (!hasContentTypeHeader) {
-            appendTwoTabs(builder);
-            String contentType = requestSpec.getRequestContentType();
-            builder.append(CONTENT_TYPE).append(EQUALS);
-            if (contentType == null) {
-                builder.append(NONE);
-            } else {
-                builder.append(contentType);
+        if (!headers.exist()) {
+            appendTwoTabs(builder).append(NONE).append(NEW_LINE);
+        } else {
+            int i = 0;
+            for (Header header : headers) {
+                if (i++ == 0) {
+                    appendTwoTabs(builder);
+                } else {
+                    appendFourTabs(builder);
+                }
+                builder.append(header).append(NEW_LINE);
             }
-            builder.append(NEW_LINE);
-        }
-        int i = 0;
-        for (Header header : headers) {
-            if (i++ == 0 && hasContentTypeHeader) {
-                appendTwoTabs(builder);
-            } else {
-                appendFourTabs(builder);
-            }
-            builder.append(header).append(NEW_LINE);
         }
     }
 

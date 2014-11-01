@@ -1,3 +1,19 @@
+/*
+ * Copyright 2013 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.jayway.restassured.config;
 
 import org.apache.commons.lang3.Validate;
@@ -8,20 +24,22 @@ import java.util.Map;
 /**
  * Allows you to configure properties of XML and HTML parsing.
  */
-public class XmlConfig {
+public class XmlConfig implements Config {
     private final Map<String, Object> properties;
     private final Map<String, Boolean> features;
     private final Map<String, String> declaredNamespaces;
     private final boolean namespaceAware;
+    private final boolean isUserConfigured;
 
     /**
      * Create a new instance of XmlConfig without any features and that is namespace unaware.
      */
     public XmlConfig() {
-        this(new HashMap<String, Boolean>(), new HashMap<String, String>(), new HashMap<String, Object>(), false);
+        this(new HashMap<String, Boolean>(), new HashMap<String, String>(), new HashMap<String, Object>(), false, false);
     }
 
-    private XmlConfig(Map<String, Boolean> features, Map<String, String> declaredNamespaces, Map<String, Object> properties, boolean namespaceAware) {
+    private XmlConfig(Map<String, Boolean> features, Map<String, String> declaredNamespaces, Map<String, Object> properties,
+                      boolean namespaceAware, boolean isUserConfigured) {
         Validate.notNull(features, "Features cannot be null");
         Validate.notNull(declaredNamespaces, "Declared namespaces cannot be null");
         Validate.notNull(properties, "Properties cannot be null");
@@ -29,6 +47,7 @@ public class XmlConfig {
         this.features = features;
         this.declaredNamespaces = declaredNamespaces;
         this.properties = properties;
+        this.isUserConfigured = isUserConfigured;
     }
 
     /**
@@ -55,7 +74,7 @@ public class XmlConfig {
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */
     public XmlConfig features(Map<String, Boolean> features) {
-        return new XmlConfig(features, declaredNamespaces, properties, namespaceAware);
+        return new XmlConfig(features, declaredNamespaces, properties, namespaceAware, true);
     }
 
     /**
@@ -66,7 +85,7 @@ public class XmlConfig {
      * @see org.xml.sax.XMLReader#setProperty(String, Object)
      */
     public XmlConfig properties(Map<String, Object> properties) {
-        return new XmlConfig(features, declaredNamespaces, this.properties, namespaceAware);
+        return new XmlConfig(features, declaredNamespaces, this.properties, namespaceAware, true);
     }
 
     /**
@@ -81,7 +100,7 @@ public class XmlConfig {
         Validate.notEmpty(uri, "URI cannot be empty");
         Map<String, Boolean> newFeatures = new HashMap<String, Boolean>(features);
         newFeatures.put(uri, enabled);
-        return new XmlConfig(newFeatures, declaredNamespaces, properties, namespaceAware);
+        return new XmlConfig(newFeatures, declaredNamespaces, properties, namespaceAware, true);
     }
 
     /**
@@ -96,7 +115,7 @@ public class XmlConfig {
         Validate.notEmpty(name, "Name cannot be empty");
         Map<String, Object> newProperties = new HashMap<String, Object>(properties);
         newProperties.put(name, value);
-        return new XmlConfig(features, declaredNamespaces, newProperties, namespaceAware);
+        return new XmlConfig(features, declaredNamespaces, newProperties, namespaceAware, true);
     }
 
     /**
@@ -118,7 +137,7 @@ public class XmlConfig {
      */
     public XmlConfig declareNamespaces(Map<String, String> namespacesToDeclare) {
         final boolean shouldBeNamespaceAware = namespacesToDeclare == null ? namespaceAware : !namespacesToDeclare.isEmpty();
-        return new XmlConfig(features, namespacesToDeclare, properties, shouldBeNamespaceAware);
+        return new XmlConfig(features, namespacesToDeclare, properties, shouldBeNamespaceAware, true);
     }
 
     /**
@@ -137,7 +156,7 @@ public class XmlConfig {
         Validate.notEmpty(namespaceURI, "Namespace URI cannot be empty");
         Map<String, String> updatedNamespaces = new HashMap<String, String>(declaredNamespaces);
         updatedNamespaces.put(prefix, namespaceURI);
-        return new XmlConfig(features, updatedNamespaces, properties, true);
+        return new XmlConfig(features, updatedNamespaces, properties, true, true);
     }
 
     /**
@@ -155,7 +174,7 @@ public class XmlConfig {
     public XmlConfig disableLoadingOfExternalDtd() {
         Map<String, Boolean> newFeatures = new HashMap<String, Boolean>(features);
         newFeatures.put("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        return new XmlConfig(newFeatures, declaredNamespaces, properties, namespaceAware);
+        return new XmlConfig(newFeatures, declaredNamespaces, properties, namespaceAware, true);
     }
 
     /**
@@ -165,7 +184,7 @@ public class XmlConfig {
      * @return A new XmlConfig instance
      */
     public XmlConfig namespaceAware(boolean shouldBeAwareOfNamespaces) {
-        return new XmlConfig(features, declaredNamespaces, properties, shouldBeAwareOfNamespaces);
+        return new XmlConfig(features, declaredNamespaces, properties, shouldBeAwareOfNamespaces, true);
     }
 
     /**
@@ -201,5 +220,11 @@ public class XmlConfig {
         return new XmlConfig();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public boolean isUserConfigured() {
+        return isUserConfigured;
+    }
 }
 

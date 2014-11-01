@@ -58,7 +58,7 @@ class RequestSpecificationTest {
   public void contentTypeAsHeaderParameter() {
     def requestSpec = given().header(CONTENT_TYPE, CONTENT_TYPE_TEST_VALUE)
 
-    assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.contentType)
+    assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.requestHeaders.get(CONTENT_TYPE).getValue())
   }
 
   @Test
@@ -66,7 +66,7 @@ class RequestSpecificationTest {
     def header = new Header(CONTENT_TYPE, CONTENT_TYPE_TEST_VALUE)
     def requestSpec = given().header(header);
 
-    assertEquals(header.value, requestSpec.contentType)
+    assertEquals(header.value, requestSpec.requestHeaders.get(CONTENT_TYPE).getValue())
   }
 
   @Test
@@ -75,7 +75,7 @@ class RequestSpecificationTest {
 
     def requestSpec = given().headers(header)
 
-    assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.contentType)
+    assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.requestHeaders.get(CONTENT_TYPE).getValue())
   }
 
   @Test
@@ -85,7 +85,7 @@ class RequestSpecificationTest {
 
       def requestSpec = given().headers(headerMap)
 
-      assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.contentType)
+      assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.requestHeaders.get(CONTENT_TYPE).getValue())
   }
 
   @Ignore

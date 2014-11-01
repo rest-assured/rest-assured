@@ -24,22 +24,24 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 /**
  * Allow you to configure settings for headers.
  */
-public class HeaderConfig {
+public class HeaderConfig implements Config {
 
     private static final String ACCEPT_HEADER_NAME = "accept";
     private static final String CONTENT_TYPE_HEADER_NAME = "content-type";
 
     private final Map<String, Boolean> headersToOverwrite;
+    private final boolean isUserDefined;
 
     /**
      * Create a new instance of {@link com.jayway.restassured.config.HeaderConfig}.
      */
     public HeaderConfig() {
-        this(newHashMapReturningFalseByDefault(CONTENT_TYPE_HEADER_NAME, ACCEPT_HEADER_NAME));
+        this(newHashMapReturningFalseByDefault(CONTENT_TYPE_HEADER_NAME, ACCEPT_HEADER_NAME), false);
     }
 
-    private HeaderConfig(Map<String, Boolean> headersToOverwrite) {
+    private HeaderConfig(Map<String, Boolean> headersToOverwrite, boolean isUserDefined) {
         this.headersToOverwrite = headersToOverwrite;
+        this.isUserDefined = isUserDefined;
     }
 
     /**
@@ -81,7 +83,7 @@ public class HeaderConfig {
                 map.put(additionalHeaderName.toUpperCase(), true);
             }
         }
-        return new HeaderConfig(map);
+        return new HeaderConfig(map, true);
     }
 
     /**
@@ -103,14 +105,14 @@ public class HeaderConfig {
                 map.put(additionalHeaderName.toUpperCase(), false);
             }
         }
-        return new HeaderConfig(map);
+        return new HeaderConfig(map, true);
     }
 
     /**
      * Returns whether or not the specified header should be returned
      *
-     * @param headerName
-     * @return
+     * @param headerName The header name to check.
+     * @return <code>true</code> if header should be overwritten, <code>false</code> otherwise.
      */
     public boolean shouldOverwriteHeaderWithName(String headerName) {
         notNull(headerName, "Header name");
@@ -143,5 +145,9 @@ public class HeaderConfig {
                 return aBoolean;
             }
         };
+    }
+
+    public boolean isUserConfigured() {
+        return isUserDefined;
     }
 }

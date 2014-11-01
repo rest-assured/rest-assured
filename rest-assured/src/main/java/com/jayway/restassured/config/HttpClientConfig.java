@@ -57,7 +57,7 @@ import static java.util.Arrays.asList;
  * @see org.apache.http.client.params.CookiePolicy
  * @see org.apache.http.params.CoreProtocolPNames
  */
-public class HttpClientConfig {
+public class HttpClientConfig implements Config {
 
     private static final boolean SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT = false;
     private static final HttpClient NO_HTTP_CLIENT = null;
@@ -66,6 +66,7 @@ public class HttpClientConfig {
     private final Map<String, ?> httpClientParams;
     private final HttpMultipartMode httpMultipartMode;
     private final HttpClientFactory httpClientFactory;
+    private final boolean isUserConfigured;
     private volatile HttpClient httpClient;
 
     /**
@@ -84,10 +85,11 @@ public class HttpClientConfig {
         this.httpMultipartMode = HttpMultipartMode.STRICT;
         this.shouldReuseHttpClientInstance = SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT;
         this.httpClient = null;
+        this.isUserConfigured = false;
     }
 
     private HttpClientConfig(HttpClientFactory httpClientFactory, Map<String, ?> httpClientParams, HttpMultipartMode httpMultipartMode,
-                             boolean shouldReuseHttpClientInstance, HttpClient abstractHttpClient) {
+                             boolean shouldReuseHttpClientInstance, HttpClient abstractHttpClient, boolean isUserConfigured) {
         notNull(httpClientParams, "httpClientParams");
         notNull(httpMultipartMode, "httpMultipartMode");
         notNull(httpClientFactory, "Http Client factory");
@@ -96,13 +98,14 @@ public class HttpClientConfig {
         this.httpClientParams = new HashMap<String, Object>(httpClientParams);
         this.httpMultipartMode = httpMultipartMode;
         this.httpClient = abstractHttpClient;
+        this.isUserConfigured = isUserConfigured;
     }
 
     /**
      * Creates a new  HttpClientConfig instance with the parameters defined by the <code>httpClientParams</code>.
      */
     public HttpClientConfig(Map<String, ?> httpClientParams) {
-        this(defaultHttpClientFactory(), httpClientParams, HttpMultipartMode.STRICT, SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT, NO_HTTP_CLIENT);
+        this(defaultHttpClientFactory(), httpClientParams, HttpMultipartMode.STRICT, SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT, NO_HTTP_CLIENT, true);
     }
 
     /**
@@ -132,7 +135,7 @@ public class HttpClientConfig {
      * @see #httpClientFactory(com.jayway.restassured.config.HttpClientConfig.HttpClientFactory)
      */
     public HttpClientConfig reuseHttpClientInstance() {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, true, httpClient);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, true, httpClient, true);
     }
 
     /**
@@ -142,7 +145,7 @@ public class HttpClientConfig {
      * @see #reuseHttpClientInstance()
      */
     public HttpClientConfig dontReuseHttpClientInstance() {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, false, NO_HTTP_CLIENT);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, false, NO_HTTP_CLIENT, true);
     }
 
     /**
@@ -217,7 +220,7 @@ public class HttpClientConfig {
      * @return An updated HttpClientConfig
      */
     public HttpClientConfig httpClientFactory(HttpClientFactory httpClientFactory) {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
     }
 
     /**
@@ -240,7 +243,7 @@ public class HttpClientConfig {
      * @return An updated HttpClientConfig
      */
     public HttpClientConfig httpMultipartMode(HttpMultipartMode httpMultipartMode) {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, httpClient);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, httpClient, true);
     }
 
     /**
@@ -264,6 +267,10 @@ public class HttpClientConfig {
                 return new DefaultHttpClient();
             }
         };
+    }
+
+    public boolean isUserConfigured() {
+        return isUserConfigured;
     }
 
     /**

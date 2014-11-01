@@ -26,12 +26,13 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 /**
  * Allows you to specify configuration for the encoder
  */
-public class EncoderConfig {
+public class EncoderConfig implements Config {
 
     private static final String UTF_8 = "UTF-8";
     private final String defaultContentCharset;
     private final String defaultQueryParameterCharset;
     private final boolean shouldAppendDefaultContentCharsetToContentTypeIfUndefined;
+    private final boolean isUserDefined;
 
     /**
      * Configure the encoder config to use {@value org.apache.http.protocol.HTTP#DEFAULT_CONTENT_CHARSET} for content encoding and <code>UTF-8</code>.
@@ -44,19 +45,22 @@ public class EncoderConfig {
      * </p>
      */
     public EncoderConfig() {
-        this(HTTP.DEF_CONTENT_CHARSET.toString(), UTF_8);
+        this(HTTP.DEF_CONTENT_CHARSET.toString(), UTF_8, true, true);
     }
 
     public EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset) {
-        this(defaultContentCharset, defaultQueryParameterCharset, true);
+        this(defaultContentCharset, defaultQueryParameterCharset, true, true);
     }
 
-    private EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset, boolean shouldAppendDefaultContentCharsetToContentTypeIfUndefined) {
+    private EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset,
+                          boolean shouldAppendDefaultContentCharsetToContentTypeIfUndefined,
+                          boolean isUserDefined) {
         Validate.notBlank(defaultContentCharset, "Default encoder content charset to cannot be blank. See \"appendDefaultContentCharsetToContentTypeIfMissing\" method if you like to disable automatically appending the charset to the content-type.");
         Validate.notBlank(defaultQueryParameterCharset, "Default protocol charset to cannot be blank.");
         this.defaultContentCharset = defaultContentCharset;
         this.defaultQueryParameterCharset = defaultQueryParameterCharset;
         this.shouldAppendDefaultContentCharsetToContentTypeIfUndefined = shouldAppendDefaultContentCharsetToContentTypeIfUndefined;
+        this.isUserDefined = isUserDefined;
     }
 
     public String defaultContentCharset() {
@@ -68,22 +72,22 @@ public class EncoderConfig {
     }
 
     public EncoderConfig defaultContentCharset(String charset) {
-        return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined);
+        return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, true);
     }
 
     public EncoderConfig defaultContentCharset(Charset charset) {
         String charsetAsString = notNull(charset, Charset.class).toString();
-        return new EncoderConfig(charsetAsString, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined);
+        return new EncoderConfig(charsetAsString, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, true);
     }
 
     public EncoderConfig defaultQueryParameterCharset(String charset) {
-        return new EncoderConfig(defaultContentCharset, charset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined);
+        return new EncoderConfig(defaultContentCharset, charset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, true);
     }
 
     @SuppressWarnings("UnusedDeclaration")
     public EncoderConfig defaultQueryParameterCharset(Charset charset) {
         String charsetAsString = notNull(charset, Charset.class).toString();
-        return new EncoderConfig(defaultContentCharset, charsetAsString, shouldAppendDefaultContentCharsetToContentTypeIfUndefined);
+        return new EncoderConfig(defaultContentCharset, charsetAsString, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, true);
     }
 
     /**
@@ -99,7 +103,7 @@ public class EncoderConfig {
      * @return A new {@link com.jayway.restassured.config.EncoderConfig} instance
      */
     public EncoderConfig appendDefaultContentCharsetToContentTypeIfUndefined(boolean shouldAddDefaultContentCharsetToContentTypeIfMissing) {
-        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAddDefaultContentCharsetToContentTypeIfMissing);
+        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAddDefaultContentCharsetToContentTypeIfMissing, true);
     }
 
     /**
@@ -111,7 +115,7 @@ public class EncoderConfig {
      */
     @Deprecated
     public EncoderConfig appendDefaultContentCharsetToStreamingContentTypeIfUndefined(boolean shouldAddDefaultContentCharsetToContentTypeIfMissing) {
-        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAddDefaultContentCharsetToContentTypeIfMissing);
+        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAddDefaultContentCharsetToContentTypeIfMissing, true);
     }
 
     /**
@@ -140,5 +144,9 @@ public class EncoderConfig {
      */
     public EncoderConfig and() {
         return this;
+    }
+
+    public boolean isUserConfigured() {
+        return isUserDefined;
     }
 }

@@ -70,7 +70,7 @@ import static org.apache.http.client.params.ClientPNames.*
 class RequestSpecificationImpl implements FilterableRequestSpecification, GroovyInterceptable {
   private static final int DEFAULT_HTTP_TEST_PORT = 8080
   private static final String MULTIPART_FORM_DATA = "multipart/form-data"
-  private static final String CONTENT_TYPE = "content-type"
+  private static final String CONTENT_TYPE = "Content-Type"
   private static final String DOUBLE_SLASH = "//"
   private static final String LOCALHOST = "localhost"
   private static final String CHARSET = "charset"
@@ -88,7 +88,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private Map<String, Object> httpClientParams = [:]
   def AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private FilterableResponseSpecification responseSpecification;
-  private Object contentType;
   private Headers requestHeaders = new Headers([])
   private Cookies cookies = new Cookies([])
   private Object requestBody;
@@ -108,9 +107,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   // This field should be removed once http://jira.codehaus.org/browse/GROOVY-4647 is resolved, merge with sha 9619c3b when it's fixed.
   private AbstractHttpClient httpClient
 
-  public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme,
-                                  List<Filter> filters, defaultRequestContentType, RequestSpecification defaultSpec,
-                                  boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
+  public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters,
+                                  RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
                                   ProxySpecification proxySpecification) {
     notNull(baseURI, "baseURI");
     notNull(basePath, "basePath");
@@ -121,7 +119,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this.basePath = basePath
     this.defaultAuthScheme = defaultAuthScheme
     this.filters.addAll(filters)
-    this.contentType = defaultRequestContentType
     this.urlEncodingEnabled = urlEncode
     port(requestPort)
     this.restAssuredConfig = restAssuredConfig
@@ -678,15 +675,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   def RequestSpecification contentType(ContentType contentType) {
-    notNull contentType, "contentType"
-    this.contentType = contentType
-    return this
+    notNull contentType, ContentType.class
+    header(CONTENT_TYPE, contentType)
   }
 
   def RequestSpecification contentType(String contentType) {
-    notNull contentType, "contentType"
-    this.contentType = contentType
-    return this
+    notNull contentType, "Content-Type header cannot be null"
+    header(CONTENT_TYPE, contentType)
   }
 
   def RequestSpecification accept(ContentType contentType) {
@@ -708,7 +703,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     headers.each {
       headerList << new Header(it.key, serializeIfNeeded(it.value))
     }
-    filterContentTypeHeader(headerList)
     headerList = removeMergedHeadersIfNeeded(headerList)
     this.requestHeaders = new Headers(headerList)
     return this;
@@ -723,7 +717,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       }
 
       headerList.addAll(headers.headers.list())
-      filterContentTypeHeader(headerList)
       headerList = removeMergedHeadersIfNeeded(headerList)
       this.requestHeaders = new Headers(headerList)
     }
@@ -731,35 +724,21 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private def List removeMergedHeadersIfNeeded(List headerList) {
-    headerList = headerList.inject([], { acc, header ->
+    def headers = headerList.inject([], { acc, header ->
       def headerConfig = restAssuredConfig().getHeaderConfig()
-      def headerName = header.getName()
+      def String headerName = header.getName()
       if (headerConfig.shouldOverwriteHeaderWithName(headerName)) {
-        acc = acc.findAll { it.getName() != headerName }
+        acc = acc.findAll { !headerName.equalsIgnoreCase(it.getName()) }
       }
       acc.add(header)
       acc
     })
-    headerList
-  }
-
-  private def void filterContentTypeHeader(List<Header> headerList) {
-    def contentHeader = headerList.find {
-      CONTENT_TYPE.equalsIgnoreCase(it.name)
-    };
-    if (contentHeader != null) {
-      contentType(contentHeader.value)
-      headerList.remove(contentHeader)
-    }
+    headers
   }
 
   RequestSpecification header(String headerName, Object headerValue, Object... additionalHeaderValues) {
     notNull headerName, "Header name"
     notNull headerValue, "Header value"
-
-    if (CONTENT_TYPE.equalsIgnoreCase(headerName)) {
-      return contentType(headerValue.toString())
-    }
 
     def headerList = [new Header(headerName, serializeIfNeeded(headerValue))]
     additionalHeaderValues?.each {
@@ -1080,7 +1059,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       def bodyContent = createBodyContent(assembleBodyContent(method))
       if (method == POST) {
         http.post(path: targetPath, body: bodyContent,
-                requestContentType: defineRequestContentType(method),
+                requestContentType: requestHeaders.getValue(CONTENT_TYPE),
                 contentType: acceptContentType) { response, content ->
           if (assertionClosure != null) {
             assertionClosure.call(response, content)
@@ -1088,7 +1067,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         }
       } else if (method == PATCH) {
         http.patch(path: targetPath, body: bodyContent,
-                requestContentType: defineRequestContentType(method),
+                requestContentType: requestHeaders.getValue(CONTENT_TYPE),
                 contentType: acceptContentType) { response, content ->
           if (assertionClosure != null) {
             assertionClosure.call(response, content)
@@ -1242,7 +1221,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         entity.addPart(name, body);
       }
 
-      return entity;
+      entity;
     }
   }
 
@@ -1315,6 +1294,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private def defineRequestContentType(Method method) {
+    def contentType = headers.getValue(CONTENT_TYPE)
     if (contentType == null) {
       if (multiParts.size() > 0) {
         contentType = MULTIPART_FORM_DATA
@@ -1342,7 +1322,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private boolean shouldAppendCharsetToContentType(contentType) {
-    contentType != null && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !containsIgnoreCase(contentType.toString(), CHARSET)
+    contentType != null && contentType != MULTIPART_FORM_DATA && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !containsIgnoreCase(contentType.toString(), CHARSET)
   }
 
   private String getTargetURI(String path) {
@@ -1399,7 +1379,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private def serializeIfNeeded(Object object, contentType) {
-    isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, objectMappingConfig()) : object
+    isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, objectMappingConfig()) : object.toString()
   }
 
   private def applyPathParamsAndSendRequest(Method method, String path, Object... pathParams) {
@@ -1416,7 +1396,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       header(ACCEPT_HEADER_NAME, ANY.getAcceptHeader())
     }
 
-    this.contentType = defineRequestContentTypeAsString(method)
+    def tempContentType = defineRequestContentTypeAsString(method)
+    if (tempContentType != null) {
+      header(CONTENT_TYPE, tempContentType)
+    }
+
     invokeFilterChain(path, method, responseSpecification.assertionClosure)
   }
 
@@ -1591,6 +1575,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       def charset
       if (encodingType == EncodingTarget.BODY) {
         charset = encoderConfig().defaultContentCharset()
+        def contentType = headers.getValue(CONTENT_TYPE)
         if (contentType instanceof String) {
           def tempCharset = CharsetExtractor.getCharsetFromContentType(contentType as String)
           if (tempCharset != null) {
@@ -1692,11 +1677,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   String getRequestContentType() {
-    if (contentType == null) {
-      null
-    } else {
-      contentType.toString()
-    }
+    requestHeaders.getValue(CONTENT_TYPE)
   }
 
   def RequestSpecification noFilters() {
@@ -1752,11 +1733,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         throw new IllegalStateException("Request URI cannot be null")
       Map<?, ?> headers1 = delegate.getHeaders()
       for (Object key : headers1.keySet()) {
-        Object val = headers1.get(key);
         if (key == null) continue;
+        Object val = headers1.get(key);
         if (val == null) {
           reqMethod.removeHeaders(key.toString())
-        } else {
+        } else if (!key.toString().equalsIgnoreCase(CONTENT_TYPE) || !val.toString().contains(MULTIPART_FORM_DATA)) {
+          // Don't overwrite multipart header because HTTP Client have added boundary
           def keyAsString = key.toString()
           if (val instanceof Collection) {
             val = val.flatten().collect { it?.toString() }
@@ -1906,4 +1888,5 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private enum EncodingTarget {
     BODY, QUERY
   }
+
 }

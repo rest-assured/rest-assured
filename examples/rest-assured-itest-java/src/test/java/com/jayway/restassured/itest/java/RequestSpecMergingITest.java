@@ -82,7 +82,8 @@ public class RequestSpecMergingITest {
                 assertThat(requestSpec.getRequestContentType(), equalTo("application/json; charset=ISO-8859-1"));
                 assertThat(headers.getValue("authorization"), equalTo("abracadabra"));
                 assertThat(headers.getValue("accept"), equalTo("application/json+json"));
-                assertThat(headers.size(), is(2));
+                assertThat(headers.getValue("content-type"), equalTo("application/json; charset=ISO-8859-1"));
+                assertThat(headers.size(), is(3));
                 return new ResponseBuilder().setStatusCode(200).build();
             }
         }).when().get();
@@ -96,7 +97,8 @@ public class RequestSpecMergingITest {
                 assertThat(requestSpec.getRequestContentType(), equalTo("application/json; charset=ISO-8859-1"));
                 assertThat(headers.getValue("authorization"), equalTo("abracadabra"));
                 assertThat(headers.getValue("accept"), equalTo("application/json+json"));
-                assertThat(headers.size(), is(2));
+                assertThat(headers.getValue("content-type"), equalTo("application/json; charset=ISO-8859-1"));
+                assertThat(headers.size(), is(3));
                 return new ResponseBuilder().setStatusCode(200).build();
             }
         }).when().get();

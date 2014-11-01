@@ -20,6 +20,7 @@ import org.apache.commons.lang3.Validate;
 
 import java.util.concurrent.TimeUnit;
 
+import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**
@@ -28,27 +29,32 @@ import static java.util.concurrent.TimeUnit.NANOSECONDS;
  * How ever if you're downloading large amount of (chunked) data you must not close connections after each response. By default
  * connections are <i>not</i> closed after each response.
  */
-public class ConnectionConfig {
+public class ConnectionConfig implements Config {
 
     private final CloseIdleConnectionConfig closeIdleConnectionConfig;
+    private final boolean isUserConfigured;
 
     /**
      * Create a new connection configuration that doesn't close the HTTP connections after each response.
      */
     public ConnectionConfig() {
-        this(null);
+        this(null, false);
     }
 
     /**
      * Create a new Connection configuration with the supplied settings.
      *
      * @param closeIdleConnectionConfig Configures REST Assured to close idle connections after each response.
-     *                              If <code>null</code> (default) then connections are not close after each response.
+     *                                  If <code>null</code> (default) then connections are not close after each response.
      */
     public ConnectionConfig(CloseIdleConnectionConfig closeIdleConnectionConfig) {
-        this.closeIdleConnectionConfig = closeIdleConnectionConfig;
+        this(notNull(closeIdleConnectionConfig, CloseIdleConnectionConfig.class), true);
     }
 
+    private ConnectionConfig(CloseIdleConnectionConfig closeIdleConnectionConfig, boolean isUserConfigured) {
+        this.closeIdleConnectionConfig = closeIdleConnectionConfig;
+        this.isUserConfigured = isUserConfigured;
+    }
 
     /**
      * Close open connections after each response. This is required if you plan to make a lot of
@@ -117,6 +123,10 @@ public class ConnectionConfig {
         return this;
     }
 
+    public boolean isUserConfigured() {
+        return isUserConfigured;
+    }
+
     /**
      * Close open connections that have idled for the amount of time specified in this config.
      */
@@ -131,7 +141,7 @@ public class ConnectionConfig {
          * @param timeUnit The time unit to for <code>idleTime</code>
          */
         public CloseIdleConnectionConfig(long idleTime, TimeUnit timeUnit) {
-            if(idleTime < 0) {
+            if (idleTime < 0) {
                 throw new IllegalArgumentException("Idle time cannot be less than 0.");
             }
             Validate.notNull(timeUnit, "Timeunit cannot be null");

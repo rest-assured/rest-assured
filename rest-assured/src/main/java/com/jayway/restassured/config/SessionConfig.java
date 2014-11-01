@@ -23,17 +23,18 @@ import org.apache.commons.lang3.Validate;
  * Configure session management for REST Assured. Here you can define a default session id value that'll be used for each request as well as
  * defining the default session id name (by default it's {@value SessionConfig#DEFAULT_SESSION_ID_NAME}).
  */
-public class SessionConfig {
+public class SessionConfig implements Config {
 
     public static final String DEFAULT_SESSION_ID_NAME = "JSESSIONID";
     private final String sessionIdName;
     private final String sessionIdValue;
+    private final boolean isUserDefined;
 
     /**
      * Create a new session configuration  with session id name {@value #DEFAULT_SESSION_ID_NAME} and no session id value.
      */
     public SessionConfig() {
-        this(DEFAULT_SESSION_ID_NAME, null);
+        this(DEFAULT_SESSION_ID_NAME, null, false);
     }
 
     /**
@@ -42,20 +43,25 @@ public class SessionConfig {
      * @param sessionIdValue The session id to use for each request.
      */
     public SessionConfig(String sessionIdValue) {
-        this(DEFAULT_SESSION_ID_NAME, sessionIdValue);
+        this(DEFAULT_SESSION_ID_NAME, sessionIdValue, true);
     }
 
     /**
      * Create a new session config with the given session id name and value.
      *
-     * @param sessionIdName The name of the session id, by default it's {@value #DEFAULT_SESSION_ID_NAME} 
+     * @param sessionIdName  The name of the session id, by default it's {@value #DEFAULT_SESSION_ID_NAME}
      * @param sessionIdValue The value of the session id. This session id will be used for each request that uses this session configuration instance (unless it's overwritten by the DSL).
-     *                         Default is <code>null</code>.  
+     *                       Default is <code>null</code>.
      */
     public SessionConfig(String sessionIdName, String sessionIdValue) {
+        this(sessionIdName, sessionIdValue, true);
+    }
+
+    private SessionConfig(String sessionIdName, String sessionIdValue, boolean isUserDefined) {
         Validate.notEmpty(sessionIdName, "Session id name cannot be empty.");
         this.sessionIdName = sessionIdName;
         this.sessionIdValue = sessionIdValue;
+        this.isUserDefined = isUserDefined;
     }
 
     public boolean isSessionIdValueDefined() {
@@ -69,7 +75,7 @@ public class SessionConfig {
      * @return A new SessionConfig instance
      */
     public SessionConfig sessionIdValue(String defaultSessionId) {
-        return new SessionConfig(sessionIdName, defaultSessionId);
+        return new SessionConfig(sessionIdName, defaultSessionId, true);
     }
 
 
@@ -80,7 +86,7 @@ public class SessionConfig {
      * @return A new SessionConfig instance
      */
     public SessionConfig sessionIdName(String sessionIdName) {
-        return new SessionConfig(sessionIdName, sessionIdValue);
+        return new SessionConfig(sessionIdName, sessionIdValue, true);
     }
 
     /**
@@ -111,5 +117,9 @@ public class SessionConfig {
      */
     public SessionConfig and() {
         return this;
+    }
+
+    public boolean isUserConfigured() {
+        return false;
     }
 }

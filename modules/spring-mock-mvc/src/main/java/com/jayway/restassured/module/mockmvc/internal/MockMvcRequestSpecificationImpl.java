@@ -72,8 +72,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private Cookies cookies = new Cookies();
 
-    private String requestContentType;
-
     private List<MockMvcMultiPart> multiParts = new ArrayList<MockMvcMultiPart>();
 
     private RequestLoggingFilter requestLoggingFilter;
@@ -140,14 +138,12 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification contentType(ContentType contentType) {
         notNull(contentType, "contentType");
-        this.requestContentType = contentType.toString();
-        return this;
+        return header(CONTENT_TYPE, contentType.toString());
     }
 
     public MockMvcRequestSpecification contentType(String contentType) {
         notNull(contentType, "contentType");
-        this.requestContentType = contentType;
-        return this;
+        return header(CONTENT_TYPE, contentType);
     }
 
     public MockMvcRequestSpecification headers(String firstHeaderName, Object firstHeaderValue, Object... headerNameValuePairs) {
@@ -167,7 +163,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
             headerList.add(new Header(stringEntry.getKey(), serializeIfNeeded(stringEntry.getValue())));
         }
 
-        filterContentTypeHeader(headerList);
         this.requestHeaders = new Headers(headerList);
         return this;
     }
@@ -186,7 +181,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
                 headerList.add(requestHeader);
             }
 
-            filterContentTypeHeader(headerList);
             this.requestHeaders = new Headers(headerList);
         }
         return this;
@@ -195,10 +189,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification header(final String headerName, final Object headerValue, Object... additionalHeaderValues) {
         notNull(headerName, "Header name");
         notNull(headerValue, "Header value");
-
-        if (CONTENT_TYPE.equalsIgnoreCase(headerName)) {
-            return contentType(headerValue.toString());
-        }
 
         List<Header> headerList = new ArrayList<Header>() {{
             add(new Header(headerName, serializeIfNeeded(headerValue)));
@@ -215,11 +205,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification header(Header header) {
         notNull(header, "Header");
-
-        if (CONTENT_TYPE.equalsIgnoreCase(header.getName())) {
-            return contentType(header.getName());
-        }
-
         return headers(new Headers(asList(header)));
     }
 
@@ -237,17 +222,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         notNull(parametersMap, "parametersMap");
         parameterAppender.appendParameters((Map<String, Object>) parametersMap, params);
         return this;
-    }
-
-    private void filterContentTypeHeader(List<Header> headerList) {
-        ListIterator<Header> headerListIterator = headerList.listIterator();
-        while (headerListIterator.hasNext()) {
-            Header header = headerListIterator.next();
-            if (CONTENT_TYPE.equalsIgnoreCase(header.getName())) {
-                contentType(header.getValue());
-                headerListIterator.remove();
-            }
-        }
     }
 
     public MockMvcRequestSpecification param(String parameterName, Object... parameterValues) {
@@ -342,6 +316,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
             return body(object.toString());
         }
 
+        String requestContentType = getRequestContentType();
         this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, restAssuredMockMvcConfig.getObjectMapperConfig());
         return this;
     }
@@ -349,6 +324,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification body(Object object, ObjectMapper mapper) {
         notNull(object, "object");
         notNull(mapper, "Object mapper");
+        String requestContentType = getRequestContentType();
         ObjectMapperSerializationContextImpl ctx = new ObjectMapperSerializationContextImpl();
         ctx.setObject(object);
         ctx.setCharset(findEncoderCharsetOrReturnDefault(requestContentType));
@@ -360,6 +336,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification body(Object object, ObjectMapperType mapperType) {
         notNull(object, "object");
         notNull(mapperType, "Object mapper type");
+        String requestContentType = getRequestContentType();
         this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType, restAssuredMockMvcConfig.getObjectMapperConfig());
         return this;
     }
@@ -591,6 +568,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
 
         EncoderConfig encoderConfig = restAssuredMockMvcConfig.getEncoderConfig();
+        String requestContentType = getRequestContentType();
         if (requestContentType != null && encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !StringUtils.containsIgnoreCase(requestContentType, CHARSET)) {
             // Append default charset to request content type
             requestContentType += "; charset=" + encoderConfig.defaultContentCharset();
@@ -610,7 +588,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     private String serializeIfNeeded(Object object) {
-        return serializeIfNeeded(object, requestContentType);
+        return serializeIfNeeded(object, getRequestContentType());
     }
 
     private String serializeIfNeeded(Object object, String contentType) {
@@ -830,7 +808,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public String getRequestContentType() {
-        return requestContentType;
+        Header header = requestHeaders.get(CONTENT_TYPE);
+        if (header != null) {
+            return header.getValue();
+        }
+        return null;
     }
 
     public List<MockMvcMultiPart> getMultiParts() {

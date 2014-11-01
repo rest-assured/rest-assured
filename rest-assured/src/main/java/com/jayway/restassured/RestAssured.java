@@ -17,6 +17,7 @@
 package com.jayway.restassured;
 
 import com.jayway.restassured.authentication.*;
+import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
@@ -494,8 +495,6 @@ public class RestAssured {
      */
     public static ProxySpecification proxy = null;
 
-    private static Object requestContentType = null;
-
     private static List<Filter> filters = new LinkedList<Filter>();
 
 
@@ -564,26 +563,35 @@ public class RestAssured {
         config = config().objectMapperConfig(objectMapperConfig().defaultObjectMapper(objectMapper));
     }
 
+    /**
+     * @return The the default content-type that'll be used by all requests.
+     * @deprecated This method is eligible for removal. If you use it please send a mail to the mailing list.
+     */
+    @Deprecated
     public static Object requestContentType() {
-        return requestContentType;
+        return requestSpecification == null ? null : ((FilterableRequestSpecification) requestSpecification).getRequestContentType();
     }
 
     /**
      * Specify the default content type
      *
      * @param contentType The content type
+     * @deprecated Use a {@link com.jayway.restassured.builder.RequestSpecBuilder} to set the content-type and then set the created {@link com.jayway.restassured.specification.RequestSpecification} to {@link #requestSpecification}.
      */
+    @Deprecated
     public static void requestContentType(ContentType contentType) {
-        requestContentType = contentType;
+        requestSpecification = (requestSpecification == null ? new RequestSpecBuilder().build() : requestSpecification).contentType(contentType);
     }
 
     /**
      * Specify the default content type
      *
      * @param contentType The content type
+     * @deprecated Use a {@link com.jayway.restassured.builder.RequestSpecBuilder} to set the content-type and then set the created {@link com.jayway.restassured.specification.RequestSpecification} to {@link #requestSpecification}.
      */
+    @Deprecated
     public static void requestContentType(String contentType) {
-        requestContentType = contentType;
+        requestSpecification = (requestSpecification == null ? new RequestSpecBuilder().build() : requestSpecification).contentType(contentType);
     }
 
     /**
@@ -1393,7 +1401,6 @@ public class RestAssured {
         authentication = DEFAULT_AUTH;
         rootPath = DEFAULT_BODY_ROOT_PATH;
         filters = new LinkedList<Filter>();
-        requestContentType = null;
         requestSpecification = null;
         responseSpecification = null;
         urlEncodingEnabled = DEFAULT_URL_ENCODING_ENABLED;
@@ -1414,7 +1421,7 @@ public class RestAssured {
         RestAssuredConfig restAssuredConfig = config();
         return new TestSpecificationImpl(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters,
-                        requestContentType, requestSpecification, urlEncodingEnabled, restAssuredConfig, logRepository, proxy),
+                        requestSpecification, urlEncodingEnabled, restAssuredConfig, logRepository, proxy),
                 new ResponseSpecificationImpl(rootPath, responseSpecification, responseParserRegistrar, restAssuredConfig, logRepository)
         );
     }
