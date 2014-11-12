@@ -89,7 +89,6 @@ class SpecificationMerger {
     notNull thisOne, "Specification to merge"
     notNull with, "Specification to merge with"
 
-    mergeConfig(thisOne, with)
     thisOne.port = with.port
     thisOne.baseUri = with.baseUri
     thisOne.basePath = with.basePath
@@ -99,13 +98,15 @@ class SpecificationMerger {
     thisOne.pathParameters.putAll(with.pathParams)
     thisOne.multiParts.addAll(with.multiParts)
     thisOne.authenticationScheme = with.authenticationScheme
-    thisOne.headers(with.requestHeaders)
     mergeSessionId(thisOne, with)
     thisOne.cookies(with.cookies)
     thisOne.requestBody = with.requestBody
     mergeFilters(thisOne, with)
     thisOne.urlEncodingEnabled = with.urlEncodingEnabled
     thisOne.proxySpecification = with.proxySpecification
+    mergeConfig(thisOne, with)
+    // It's important that headers are merged after the configs are merged since HeaderConfig affects that way headers are merged.
+    thisOne.headers(with.requestHeaders)
   }
 
   private static def mergeConfig(RequestSpecificationImpl thisOne, RequestSpecificationImpl other) {

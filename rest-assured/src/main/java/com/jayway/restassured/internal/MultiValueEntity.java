@@ -129,6 +129,10 @@ public class MultiValueEntity<T extends NameAndValue> implements Iterable<T> {
         return entities.iterator();
     }
 
+    public List<T> asList() {
+        return Collections.unmodifiableList(entities);
+    }
+
     @Override
     public String toString() {
         if(!exist()) {

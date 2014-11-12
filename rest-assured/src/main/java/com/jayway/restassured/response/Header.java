@@ -30,10 +30,10 @@ public class Header implements NameAndValue {
     /**
      * Create a new header with the given name and value.
      *
-     * @param name The header name, cannot be null.
+     * @param name  The header name, cannot be null.
      * @param value The value (can be null)
      */
-    public Header(String name, String value)  {
+    public Header(String name, String value) {
         AssertParameter.notNull(name, "Header name");
         this.name = name;
         this.value = value;
@@ -45,6 +45,11 @@ public class Header implements NameAndValue {
 
     public String getValue() {
         return value;
+    }
+
+    public boolean hasSameNameAs(Header header) {
+        AssertParameter.notNull(header, Header.class);
+        return this.name.equalsIgnoreCase(header.getName());
     }
 
     @Override
@@ -71,7 +76,7 @@ public class Header implements NameAndValue {
     public String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append(name);
-        if(value != null) {
+        if (value != null) {
             builder.append("=").append(value);
         }
         return builder.toString();

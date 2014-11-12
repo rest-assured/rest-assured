@@ -18,12 +18,9 @@ package com.jayway.restassured.response;
 
 import com.jayway.restassured.internal.MultiValueEntity;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
-import static java.util.Arrays.asList;
 
 /**
  * Represents the a number of response headers
@@ -32,8 +29,8 @@ public class Headers implements Iterable<Header> {
 
     private final MultiValueEntity<Header> headers;
 
-    public Headers(Header...headers) {
-        this(asList(headers));
+    public Headers(Header... headers) {
+        this(Arrays.asList(headers));
     }
 
     public Headers(List<Header> headers) {
@@ -73,9 +70,8 @@ public class Headers implements Iterable<Header> {
     }
 
     /**
-     *  Get a single header with the supplied name. If there are several headers match the <code>headerName</code> then
-     *  the first one is returned.
-     *
+     * Get a single header with the supplied name. If there are several headers match the <code>headerName</code> then
+     * the first one is returned.
      *
      * @param headerName The name of the header to find
      * @return The found header or <code>null</code> if no header was found.
@@ -86,8 +82,8 @@ public class Headers implements Iterable<Header> {
     }
 
     /**
-     *  Get a single header with the supplied name. If there are several headers match the <code>headerName</code> then
-     *  the first one is returned.
+     * Get a single header with the supplied name. If there are several headers match the <code>headerName</code> then
+     * the first one is returned.
      *
      * @param headerName The name of the header to find
      * @return The found header value or <code>null</code> if no header was found.
@@ -97,19 +93,19 @@ public class Headers implements Iterable<Header> {
     }
 
     /**
-     *  Get all header values of the header with supplied name. If there's only one header matching the <code>headerName</code> then
-     *  a list with only that header value is returned.
+     * Get all header values of the header with supplied name. If there's only one header matching the <code>headerName</code> then
+     * a list with only that header value is returned.
      *
      * @param headerName The name of the header to find
      * @return The found header values or empty list if no header was found.
      */
     public List<String> getValues(String headerName) {
-       return headers.getValues(headerName);
+        return headers.getValues(headerName);
     }
 
     /**
-     *  Get all headers with the supplied name. If there's only one header matching the <code>headerName</code> then
-     *  a list with only that header is returned.
+     * Get all headers with the supplied name. If there's only one header matching the <code>headerName</code> then
+     * a list with only that header is returned.
      *
      * @param headerName The name of the header to find
      * @return The found headers or empty list if no header was found.
@@ -126,9 +122,16 @@ public class Headers implements Iterable<Header> {
     }
 
     /**
-     *  An alternative way to create a Headers object from the constructor.
+     * @return All headers as a list
+     */
+    public List<Header> asList() {
+        return headers.asList();
+    }
+
+    /**
+     * An alternative way to create a Headers object from the constructor.
      *
-     * @param header The header to be included
+     * @param header            The header to be included
      * @param additionalHeaders Additional headers to be included (optional)
      * @return A new headers object containing the specified headers
      */
@@ -136,10 +139,8 @@ public class Headers implements Iterable<Header> {
         notNull(header, "Header");
         final List<Header> headerList = new LinkedList<Header>();
         headerList.add(header);
-        if(headerList != null) {
-            for (Header additionalHeader : additionalHeaders) {
-                headerList.add(additionalHeader);
-            }
+        if (additionalHeaders != null) {
+            Collections.addAll(headerList, additionalHeaders);
         }
         return new Headers(headerList);
     }

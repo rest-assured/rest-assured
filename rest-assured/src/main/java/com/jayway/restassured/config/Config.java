@@ -21,7 +21,7 @@ package com.jayway.restassured.config;
  *
  * @since 2.4.0
  */
-interface Config {
+public interface Config {
     /**
      * @return <code>true</code> if this config instance has been explicitly configured by the user, <code>false</code> if it has the default values.
      */

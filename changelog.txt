@@ -26,6 +26,19 @@ Change log next version
 
     will only send one header, "header1" with value "value2".
 * Fixed an issue in com.jayway.restassured.config.ObjectMapperConfig#defaultObjectMapperType(..) that reset state to default values.
+* Added asList method to Headers to make easier to transform them to a list.
+* Added method "hasSameNameAs" to com.jayway.restassured.response.Header.
+* Configurations are now overwritten only if they've been explicitly configured when applying a specification. For example:
+    RequestSpecification spec = new RequestSpecBuilder.config(config().headerConfig().overwriteHeadersWithName("header1")).build();
+
+    given().
+            config(config().sessionConfig(sessionConfig().sessionIdName("phpsessionid"))).
+            spec(spec).
+            ..
+    when().
+            get(..)
+
+    This will not cause the resulting config to include both the header config and session config. Before this change ONLY header config would be applied since all configs from the specs were overwritten. This also applies to the MockMvc extension.
 
 Change log 2.3.4 (2014-10-06)
 -----------------------------

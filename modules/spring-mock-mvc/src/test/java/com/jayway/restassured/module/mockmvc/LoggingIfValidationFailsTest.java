@@ -118,7 +118,7 @@ public class LoggingIfValidationFailsTest {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Headers:\t\tContent-Type=application/x-www-form-urlencoded;charset="+ RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset()+"\n\t\t\t\tApi-Key=1234\n\nContent-Type: application/json;charset=UTF-8\n"));
+            assertThat(writer.toString(), equalTo("Headers:\t\tApi-Key=1234\n\t\t\t\tContent-Type=application/x-www-form-urlencoded;charset="+ RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset()+"\n\nContent-Type: application/json;charset=UTF-8\n"));
         }
     }
 

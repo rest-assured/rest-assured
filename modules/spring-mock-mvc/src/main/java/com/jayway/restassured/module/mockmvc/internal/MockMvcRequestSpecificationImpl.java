@@ -1,6 +1,6 @@
 package com.jayway.restassured.module.mockmvc.internal;
 
-import com.jayway.restassured.config.EncoderConfig;
+import com.jayway.restassured.config.HeaderConfig;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.log.RequestLoggingFilter;
@@ -22,7 +22,6 @@ import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.specification.ResponseSpecification;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
@@ -45,8 +44,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification, MockMvcAuthenticationSpecification {
 
-    private static final String CONTENT_TYPE = "content-type";
-    private static final String CHARSET = "charset";
+    private static final String CONTENT_TYPE = "Content-Type";
 
     private LogRepository logRepository;
 
@@ -181,10 +179,36 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
                 headerList.add(requestHeader);
             }
 
-            this.requestHeaders = new Headers(headerList);
+            this.requestHeaders = new Headers(removeMergedHeadersIfNeeded(headerList));
         }
         return this;
     }
+
+    private List<Header> removeMergedHeadersIfNeeded(List<Header> headerList) {
+        HeaderConfig headerConfig = restAssuredMockMvcConfig.getHeaderConfig();
+        List<Header> filteredList = new ArrayList<Header>();
+        for (Header header : headerList) {
+            String headerName = header.getName();
+            if (headerConfig.shouldOverwriteHeaderWithName(headerName)) {
+                int index = -1;
+                for (int i = 0; i < filteredList.size(); i++) {
+                    Header filteredHeader = filteredList.get(i);
+                    if (filteredHeader.hasSameNameAs(header)) {
+                        index = i;
+                        break;
+                    }
+                }
+
+                if (index != -1) {
+                    filteredList.remove(index);
+                }
+            }
+
+            filteredList.add(header);
+        }
+        return filteredList;
+    }
+
 
     public MockMvcRequestSpecification header(final String headerName, final Object headerValue, Object... additionalHeaderValues) {
         notNull(headerName, "Header name");
@@ -385,10 +409,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         notNull(cookieName, "Cookie name");
         notNull(cookieValue, "Cookie value");
 
-        if (CONTENT_TYPE.equalsIgnoreCase(cookieName)) {
-            return contentType(cookieValue.toString());
-        }
-
         List<Cookie> cookieList = new ArrayList<Cookie>() {{
             add(new Cookie.Builder(cookieName, serializeIfNeeded(cookieValue)).build());
         }};
@@ -492,11 +512,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
         this.cookies(that.getCookies());
 
-        String otherContentType = that.getRequestContentType();
-        if (otherContentType != null) {
-            this.contentType(otherContentType);
-        }
-
         this.headers(that.getRequestHeaders());
 
         if (!that.hasDefaultConfig()) {
@@ -567,14 +582,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
             log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
         }
 
-        EncoderConfig encoderConfig = restAssuredMockMvcConfig.getEncoderConfig();
-        String requestContentType = getRequestContentType();
-        if (requestContentType != null && encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !StringUtils.containsIgnoreCase(requestContentType, CHARSET)) {
-            // Append default charset to request content type
-            requestContentType += "; charset=" + encoderConfig.defaultContentCharset();
-        }
-
-        return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, attributes, restAssuredMockMvcConfig, requestBody, requestContentType,
+        return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, attributes, restAssuredMockMvcConfig, requestBody,
                 requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath, responseSpecification, authentication,
                 logRepository);
     }

@@ -751,10 +751,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification header(Header header) {
     notNull header, "Header"
 
-    if (CONTENT_TYPE.equalsIgnoreCase(header.name)) {
-      return contentType(header.value)
-    }
-
     return headers(new Headers(asList(header)));
   }
 

@@ -49,6 +49,9 @@ import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 
 class MockMvcRequestSenderImpl implements MockMvcRequestSender {
+    private static final String CONTENT_TYPE = "Content-Type";
+    private static final String CHARSET = "charset";
+
     private final MockMvc mockMvc;
     private final Map<String, Object> params;
     private final Map<String, Object> queryParams;
@@ -56,8 +59,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final Map<String, Object> attributes;
     private final RestAssuredMockMvcConfig config;
     private final Object requestBody;
-    private final String requestContentType;
-    private final Headers headers;
+    private Headers headers;
     private final Cookies cookies;
     private final List<MockMvcMultiPart> multiParts;
     private final RequestLoggingFilter requestLoggingFilter;
@@ -69,7 +71,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final LogRepository logRepository;
 
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
-                             RestAssuredMockMvcConfig config, Object requestBody, String requestContentType, Headers headers, Cookies cookies,
+                             RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
                              List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
                              MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
                              Object authentication, LogRepository logRepository) {
@@ -80,7 +82,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         this.attributes = attributes;
         this.config = config;
         this.requestBody = requestBody;
-        this.requestContentType = requestContentType;
         this.headers = headers;
         this.cookies = cookies;
         this.multiParts = multiParts;
@@ -200,7 +201,14 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
             request = MockMvcRequestBuilders.fileUpload(path, pathParams);
         }
 
-        String contentTypeToLog = null;
+        // TODO Extract content-type from headers and apply charset if needed!
+        EncoderConfig encoderConfig = config.getEncoderConfig();
+        String requestContentType = headers.getValue(CONTENT_TYPE);
+        if (requestContentType != null && encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !StringUtils.containsIgnoreCase(requestContentType, CHARSET)) {
+            // Append default charset to request content type
+            requestContentType += "; charset=" + encoderConfig.defaultContentCharset();
+        }
+
         if (!params.isEmpty()) {
             new ParamApplier(params) {
                 @Override
@@ -210,7 +218,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
             }.applyParams();
 
             if (StringUtils.isBlank(requestContentType) && method == POST && !isInMultiPartMode(request)) {
-                contentTypeToLog = setContentTypeToApplicationFormUrlEncoded(request);
+                setContentTypeToApplicationFormUrlEncoded(request);
             }
         }
 
@@ -237,7 +245,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
 
             boolean isInMultiPartMode = isInMultiPartMode(request);
             if (StringUtils.isBlank(requestContentType) && !isInMultiPartMode) {
-                contentTypeToLog = setContentTypeToApplicationFormUrlEncoded(request);
+                setContentTypeToApplicationFormUrlEncoded(request);
             }
         }
 
@@ -251,7 +259,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         }
 
         if (StringUtils.isNotBlank(requestContentType)) {
-            contentTypeToLog = requestContentType;
             request.contentType(MediaType.parseMediaType(requestContentType));
         }
 
@@ -324,12 +331,12 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
             }
         }
 
-        logRequestIfApplicable(method, path, contentTypeToLog);
+        logRequestIfApplicable(method, path);
 
         return performRequest(request);
     }
 
-    private String setContentTypeToApplicationFormUrlEncoded(MockHttpServletRequestBuilder request) {
+    private void setContentTypeToApplicationFormUrlEncoded(MockHttpServletRequestBuilder request) {
         String contentType = APPLICATION_FORM_URLENCODED_VALUE;
         EncoderConfig encoderConfig = config.getEncoderConfig();
         if (encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()) {
@@ -337,14 +344,16 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         }
         MediaType mediaType = MediaType.parseMediaType(contentType);
         request.contentType(mediaType);
-        return mediaType.toString();
+        List<Header> newHeaders = new ArrayList<Header>(headers.asList());
+        newHeaders.add(new Header(CONTENT_TYPE, mediaType.toString()));
+        headers = new Headers(newHeaders);
     }
 
     private boolean isInMultiPartMode(MockHttpServletRequestBuilder request) {
         return request instanceof MockMultipartHttpServletRequestBuilder;
     }
 
-    private void logRequestIfApplicable(HttpMethod method, String path, String contentTypeToLog) {
+    private void logRequestIfApplicable(HttpMethod method, String path) {
         if (requestLoggingFilter == null) {
             return;
         }

@@ -120,6 +120,6 @@ public class SessionConfig implements Config {
     }
 
     public boolean isUserConfigured() {
-        return false;
+        return isUserDefined;
     }
 }
