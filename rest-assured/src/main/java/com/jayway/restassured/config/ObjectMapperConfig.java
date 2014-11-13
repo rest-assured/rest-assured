@@ -195,6 +195,6 @@ public class ObjectMapperConfig implements Config {
     }
 
     public boolean isUserConfigured() {
-        return false;
+        return isUserConfigured;
     }
 }
