@@ -227,6 +227,19 @@ class SpecificationMergerTest {
     }
 
     @Test
+    def void overwritesSessionIdWhenMergingMultipleTimes() throws Exception {
+        def merge = new RequestSpecBuilder().setSessionId("value1").build();
+        def with1 = new RequestSpecBuilder().setSessionId("value2").build();
+        def with2 = new RequestSpecBuilder().setSessionId("value3").build();
+
+        SpecificationMerger.merge(merge, with1)
+        assertEquals merge.cookies.get(DEFAULT_SESSION_ID_NAME).getValue(), "value2"
+
+        SpecificationMerger.merge(merge, with2)
+        assertEquals merge.cookies.get(DEFAULT_SESSION_ID_NAME).getValue(), "value3"
+    }
+
+    @Test
     def void overwritesSessionIdWhenDefinedInConfig() throws Exception {
         def merge = new RequestSpecBuilder().setConfig(newConfig().sessionConfig(sessionConfig().sessionIdName("ikk"))).setSessionId("ikk", "value1").build();
         def with = new RequestSpecBuilder().setConfig(newConfig().sessionConfig(sessionConfig().sessionIdName("ikk2"))).setSessionId("ikk2", "value2").build();
