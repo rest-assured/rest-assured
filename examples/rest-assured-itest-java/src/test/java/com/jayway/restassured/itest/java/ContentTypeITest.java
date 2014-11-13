@@ -210,7 +210,7 @@ public class ContentTypeITest extends WithJetty {
     }
 
     @Test public void
-    headerWithContentTypeEnumWorks() throws Exception {
+    header_with_content_type_enum_works() throws Exception {
         given().
                 header("Content-Type", ContentType.JSON).
         when().
