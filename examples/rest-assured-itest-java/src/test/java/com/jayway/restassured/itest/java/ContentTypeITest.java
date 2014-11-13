@@ -208,4 +208,14 @@ public class ContentTypeITest extends WithJetty {
         then().
                 contentType(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset()));
     }
+
+    @Test public void
+    headerWithContentTypeEnumWorks() throws Exception {
+        given().
+                header("Content-Type", ContentType.JSON).
+        when().
+                post("/returnContentTypeAsBody").
+        then().
+                body(equalTo(ContentType.JSON.withCharset(config().getEncoderConfig().defaultContentCharset())));
+    }
 }
