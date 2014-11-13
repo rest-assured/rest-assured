@@ -39,6 +39,7 @@ Change log next version
             get(..)
 
     This will not cause the resulting config to include both the header config and session config. Before this change ONLY header config would be applied since all configs from the specs were overwritten. This also applies to the MockMvc extension.
+* Upgraded Spring version for RestAssuredMockMvc from version 4.0.6.RELEASE to 4.1.2.RELEASE.
 
 Change log 2.3.4 (2014-10-06)
 -----------------------------
