@@ -31,6 +31,7 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
  */
 public class RestAssuredMockMvcConfig implements Config {
 
+    // When adding a config here don't forget to update isUserConfigured method
     private final LogConfig logConfig;
     private final EncoderConfig encoderConfig;
     private final DecoderConfig decoderConfig;
@@ -148,6 +149,18 @@ public class RestAssuredMockMvcConfig implements Config {
     }
 
     /**
+     * Set the decoder config
+     *
+     * @param decoderConfig The {@link com.jayway.restassured.config.DecoderConfig} to set
+     * @return An updated RestAssuredConfiguration
+     */
+    public RestAssuredMockMvcConfig decoderConfig(DecoderConfig decoderConfig) {
+        notNull(encoderConfig, DecoderConfig.class);
+        return new RestAssuredMockMvcConfig(logConfig, encoderConfig, decoderConfig, sessionConfig,
+                objectMapperConfig, jsonConfig, xmlConfig, headerConfig);
+    }
+
+    /**
      * Set the header config
      *
      * @param headerConfig The {@link com.jayway.restassured.config.HeaderConfig} to set
@@ -257,6 +270,7 @@ public class RestAssuredMockMvcConfig implements Config {
     }
 
     public boolean isUserConfigured() {
+        // When adding a config here don't forget to update merging in MockMvcRequestSpecificationImpl#mergeConfig
         return decoderConfig.isUserConfigured() || encoderConfig.isUserConfigured() || logConfig.isUserConfigured() || sessionConfig.isUserConfigured()
                 || objectMapperConfig.isUserConfigured() || xmlConfig.isUserConfigured() || jsonConfig.isUserConfigured() || headerConfig.isUserConfigured();
     }

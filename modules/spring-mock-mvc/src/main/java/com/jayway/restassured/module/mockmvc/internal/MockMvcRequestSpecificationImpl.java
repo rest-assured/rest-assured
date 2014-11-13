@@ -48,9 +48,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private LogRepository logRepository;
 
-    // Config was created by REST Assured Mock MVC and not by the user
-    private boolean hasDefaultConfig;
-
     private MockMvc instanceMockMvc;
 
     private String basePath;
@@ -514,10 +511,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
         this.headers(that.getRequestHeaders());
 
-        if (!that.hasDefaultConfig()) {
-            RestAssuredMockMvcConfig otherConfig = that.getRestAssuredMockMvcConfig();
-            this.config(otherConfig);
-        }
+        mergeConfig(this, that);
 
         MockHttpServletRequestBuilderInterceptor otherInterceptor = that.getInterceptor();
         if (otherInterceptor != null) {
@@ -543,6 +537,54 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
 
         return this;
+    }
+
+    private static void mergeConfig(MockMvcRequestSpecificationImpl thisOne, MockMvcRequestSpecificationImpl other) {
+        RestAssuredMockMvcConfig thisConfig = thisOne.getRestAssuredMockMvcConfig();
+        RestAssuredMockMvcConfig otherConfig = other.getRestAssuredMockMvcConfig();
+        boolean thisIsUserConfigured = thisConfig.isUserConfigured();
+        boolean otherIsUserConfigured = otherConfig.isUserConfigured();
+        if (thisIsUserConfigured && otherIsUserConfigured) {
+            if (otherConfig.getDecoderConfig().isUserConfigured()) {
+                thisConfig = thisConfig.decoderConfig(otherConfig.getDecoderConfig());
+            }
+
+            if (otherConfig.getEncoderConfig().isUserConfigured()) {
+                thisConfig = thisConfig.encoderConfig(otherConfig.getEncoderConfig());
+            }
+
+            if (otherConfig.getHeaderConfig().isUserConfigured()) {
+                thisConfig = thisConfig.headerConfig(otherConfig.getHeaderConfig());
+            }
+
+            if (otherConfig.getHeaderConfig().isUserConfigured()) {
+                thisConfig = thisConfig.headerConfig(otherConfig.getHeaderConfig());
+            }
+
+            if (otherConfig.getJsonConfig().isUserConfigured()) {
+                thisConfig = thisConfig.jsonConfig(otherConfig.getJsonConfig());
+            }
+
+            if (otherConfig.getLogConfig().isUserConfigured()) {
+                thisConfig = thisConfig.logConfig(otherConfig.getLogConfig());
+            }
+
+            if (otherConfig.getObjectMapperConfig().isUserConfigured()) {
+                thisConfig = thisConfig.objectMapperConfig(otherConfig.getObjectMapperConfig());
+            }
+
+            if (otherConfig.getSessionConfig().isUserConfigured()) {
+                thisConfig = thisConfig.sessionConfig(otherConfig.getSessionConfig());
+            }
+
+            if (otherConfig.getXmlConfig().isUserConfigured()) {
+                thisConfig = thisConfig.xmlConfig(otherConfig.getXmlConfig());
+            }
+
+            thisOne.config(thisConfig);
+        } else if (!thisIsUserConfigured && otherIsUserConfigured) {
+            thisOne.config(otherConfig);
+        }
     }
 
     public MockMvcRequestSpecification sessionId(String sessionIdValue) {
@@ -759,16 +801,9 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     private void assignConfig(RestAssuredMockMvcConfig config) {
         if (config == null) {
             this.restAssuredMockMvcConfig = new RestAssuredMockMvcConfig();
-            hasDefaultConfig = true;
         } else {
             this.restAssuredMockMvcConfig = config;
-            hasDefaultConfig = false;
         }
-    }
-
-    // Getters
-    public boolean hasDefaultConfig() {
-        return hasDefaultConfig;
     }
 
     public MockMvc getInstanceMockMvc() {
