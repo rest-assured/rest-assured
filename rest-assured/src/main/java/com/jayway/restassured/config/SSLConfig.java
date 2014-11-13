@@ -90,7 +90,9 @@ import static org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER
  */
 public class SSLConfig implements Config {
 
+    private static final String SSL = "SSL";
     private static final int UNDEFINED_PORT = -1;
+
     private final Object pathToKeyStore;
     private final String password;
     private final String keyStoreType;
@@ -197,17 +199,29 @@ public class SSLConfig implements Config {
         return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory, true);
     }
 
+    /**
+     * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
+     * method you don't need to specify a keystore (see {@link #keystore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
+     * This method assumes that the protocol for the {@link SSLContext} instance is {@value #SSL}. If this is not the case use {@link #relaxedHTTPSValidation(String)}.
+     *
+     * @return A new SSLConfig instance.
+     */
+    public SSLConfig relaxedHTTPSValidation() {
+        return relaxedHTTPSValidation(SSL);
+    }
 
     /**
      * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
      * method you don't need to specify a keystore (see {@link #keystore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
      *
+     * @param protocol The standard name of the requested protocol. See the SSLContext section in the <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java Cryptography Architecture Standard Algorithm Name Documentation</a> for information about standard protocol names.
      * @return A new SSLConfig instance
      */
-    public SSLConfig relaxedHTTPSValidation() {
+    public SSLConfig relaxedHTTPSValidation(String protocol) {
+        notNull(protocol, "Protocol");
         SSLContext sslContext;
         try {
-            sslContext = SSLContext.getInstance("SSL");
+            sslContext = SSLContext.getInstance(protocol);
         } catch (NoSuchAlgorithmException e) {
             return SafeExceptionRethrower.safeRethrow(e);
         }
