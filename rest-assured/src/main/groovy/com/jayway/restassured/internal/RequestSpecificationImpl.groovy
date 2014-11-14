@@ -1884,5 +1884,4 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private enum EncodingTarget {
     BODY, QUERY
   }
-
 }
