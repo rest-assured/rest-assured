@@ -43,5 +43,13 @@ public enum LogDetail {
     /**
      * Logs only the request parameters (only works for requests)
      */
-    PARAMS
+    PARAMS,
+    /**
+     * Logs only the request method (only works for requests)
+     */
+    METHOD,
+    /**
+     * Logs only the request path (only works for requests)
+     */
+    PATH
 }

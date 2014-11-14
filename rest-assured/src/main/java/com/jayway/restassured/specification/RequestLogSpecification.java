@@ -27,14 +27,28 @@ public interface RequestLogSpecification extends LogSpecification<RequestSpecifi
     /**
      * Logs only the parameters of the request. Same as {@link #parameters()} but slightly shorter syntax.
      *
-     * @return The response specification
+     * @return The request specification
      */
     RequestSpecification params();
 
     /**
      * Logs only the parameters of the request. Same as {@link #params()} but more explicit syntax.
      *
-     * @return The response specification
+     * @return The request specification
      */
     RequestSpecification parameters();
+
+    /**
+     * Only logs the request path.
+     *
+     * @return The request specification
+     */
+    RequestSpecification path();
+
+    /**
+     * Only logs the request method.
+     *
+     * @return The request specification
+     */
+    RequestSpecification method();
 }

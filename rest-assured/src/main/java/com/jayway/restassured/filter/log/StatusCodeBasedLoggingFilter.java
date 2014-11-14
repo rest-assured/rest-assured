@@ -81,8 +81,8 @@ class StatusCodeBasedLoggingFilter implements Filter {
         Validate.notNull(logDetail, "Log details cannot be null");
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(matcher, "Matcher cannot be null");
-        if (logDetail == PARAMS) {
-            throw new IllegalArgumentException(String.format("%s is not a valid %s for a response.", PARAMS, LogDetail.class.getSimpleName()));
+        if (logDetail == PARAMS || logDetail == PATH || logDetail == METHOD) {
+            throw new IllegalArgumentException(String.format("%s is not a valid %s for a response.", logDetail, LogDetail.class.getSimpleName()));
         }
         this.shouldPrettyPrint = prettyPrint;
         this.logDetail = logDetail;
@@ -121,6 +121,10 @@ class StatusCodeBasedLoggingFilter implements Filter {
     }
 
     private static boolean isPrettyPrintingEnabled() {
-        return config == null ? true : config.getLogConfig().isPrettyPrintingEnabled();
+        return config == null || config.getLogConfig().isPrettyPrintingEnabled();
+    }
+
+    private void throwIAE(LogDetail params) {
+        throw new IllegalArgumentException(String.format("%s is not a valid %s for a response.", params, LogDetail.class.getSimpleName()));
     }
 }

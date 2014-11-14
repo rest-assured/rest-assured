@@ -928,4 +928,38 @@ public class LoggingITest extends WithJetty {
 
         assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\tfirstName=John\n\t\t\t\tlastName=Doe\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/x-www-form-urlencoded; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nBody:\t\t\t<none>"+LINE_SEPARATOR));
     }
+
+    @Test public void
+    using_log_detail_method_only_logs_the_request_method() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                filter(new RequestLoggingFilter(LogDetail.METHOD, captor)).
+                queryParam("firstName", "John").
+                queryParam("lastName", "Doe").
+        when().
+                get("/greet").
+        then().
+                statusCode(200);
+
+        assertThat(writer.toString(), equalTo("Request method:\tGET" + LINE_SEPARATOR));
+    }
+
+    @Test public void
+    using_log_detail_path_only_logs_the_request_path() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                filter(new RequestLoggingFilter(LogDetail.PATH, captor)).
+                queryParam("firstName", "John").
+                queryParam("lastName", "Doe").
+        when().
+                get("/greet").
+        then().
+                statusCode(200);
+
+        assertThat(writer.toString(), equalTo("Request path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe" + LINE_SEPARATOR));
+    }
 }

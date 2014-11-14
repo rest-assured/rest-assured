@@ -45,6 +45,7 @@ Change log next version
 * Upgraded httpclient from version 4.3.5 to version 4.3.6.
 * It's now possible to specify the SSLContext protocol when configuring "relaxedHTTPSValidation" in SSLConfig. For example sslConfig.relaxedHTTPSValidation("TLS"). Default is SSL just as in previous versions. (issue 367).
 * You can now send form parameters with a GET request in accordance with RFC1866 (page 46, HTML 4.x section 17.13.3). Form parameters will be added a query parameters for a GET request and Content-Type will automatically be set to "application/x-www-form-urlencoded" with the default charset.
+* Added ability to log request method and request path. Use "given().log().method()" and "given().log().path()" (issue 368).
 
 Change log 2.3.4 (2014-10-06)
 -----------------------------
