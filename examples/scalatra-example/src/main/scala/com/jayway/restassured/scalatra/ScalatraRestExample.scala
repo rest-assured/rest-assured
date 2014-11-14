@@ -1083,7 +1083,12 @@ class ScalatraRestExample extends ScalatraServlet {
   post("/returnContentTypeAsBody") {
       contentType = "text/plain"
       request.getContentType
-    }
+  }
+
+  get("/returnContentTypeAsBody") {
+      contentType = "text/plain"
+      request.getContentType
+  }
 
   def formAuth(loginPage: () => String) = {
     contentType = "text/plain"

@@ -998,6 +998,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       allQueryParams << queryParameters
     }
 
+    if (method == GET && !formParameters?.isEmpty()) {
+      allQueryParams << formParameters
+    }
+
     if (!allQueryParams.isEmpty()) {
       uriBuilder.addQueryParams(allQueryParams)
     }
@@ -1139,8 +1143,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   def assembleBodyContent(httpMethod) {
-    if (hasFormParams()) {
-      if (httpMethod == Method.POST) {
+    if (hasFormParams() && httpMethod != GET) {
+      if (httpMethod == POST) {
         mergeMapsAndRetainOrder(requestParameters, formParameters)
       } else {
         formParameters
@@ -1232,6 +1236,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   private def sendHttpRequest(HTTPBuilder http, method, responseContentType, targetPath, assertionClosure) {
     def allQueryParams = mergeMapsAndRetainOrder(requestParameters, queryParameters)
+    if (method == GET) {
+      allQueryParams = mergeMapsAndRetainOrder(allQueryParams, formParameters)
+    }
     http.request(method, responseContentType) {
       uri.path = targetPath
 
@@ -1257,7 +1264,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private boolean mayHaveBody(method) {
-    return POST.equals(method) || formParameters.size() > 0 || multiParts.size() > 0
+    return (POST.equals(method) || formParameters.size() > 0 || multiParts.size() > 0) && !GET.equals(method)
   }
 
   private String extractRequestParamsIfNeeded(String path) {
@@ -1294,6 +1301,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     if (contentType == null) {
       if (multiParts.size() > 0) {
         contentType = MULTIPART_FORM_DATA
+      } else if (GET.equals(method) && !formParameters.isEmpty()) {
+        contentType = URLENC
       } else if (requestBody == null) {
         contentType = mayHaveBody(method) ? URLENC : null
       } else if (requestBody instanceof byte[]) {

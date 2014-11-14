@@ -911,4 +911,21 @@ public class LoggingITest extends WithJetty {
 
         assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/contentTypeAsBody\nProxy:\t\t\t<none>\nRequest params:\tfoo=bar\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/xml; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nBody:\t\t\t<none>"+LINE_SEPARATOR));
     }
+
+    @Test public void
+    form_param_are_logged_as_query_params_for_get_requests() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                filter(logRequestTo(captor)).
+                formParam("firstName", "John").
+                formParam("lastName", "Doe").
+        when().
+                get("/greet").
+        then().
+                body("greeting", equalTo("Greetings John Doe"));
+
+        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\tfirstName=John\n\t\t\t\tlastName=Doe\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/x-www-form-urlencoded; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nBody:\t\t\t<none>"+LINE_SEPARATOR));
+    }
 }

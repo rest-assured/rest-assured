@@ -79,6 +79,17 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
+    public void formParamAreTreatedAsQueryParamsForGetRequests() throws Exception {
+        given().
+                formParam("firstName", "John").
+                formParam("lastName", "Doe").
+        when().
+                 get("/greet").
+        then().
+                 body("greeting", equalTo("Greetings John Doe"));
+    }
+
+    @Test
     public void parameterSupportWithMapBuilder() throws Exception {
         with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }

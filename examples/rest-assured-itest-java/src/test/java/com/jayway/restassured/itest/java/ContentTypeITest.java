@@ -218,4 +218,27 @@ public class ContentTypeITest extends WithJetty {
         then().
                 body(equalTo(ContentType.JSON.withCharset(config().getEncoderConfig().defaultContentCharset())));
     }
+
+    @Test public void
+    when_form_param_are_supplied_with_a_get_request_the_content_type_is_automatically_set_to_form_encoded() {
+        given().
+                formParam("firstName", "John").
+                formParam("lastName", "Doe").
+        when().
+                 get("/returnContentTypeAsBody").
+        then().
+                 body(equalTo(ContentType.URLENC.withCharset(config().getEncoderConfig().defaultContentCharset())));
+    }
+
+    @Test public void
+    when_form_param_are_supplied_with_a_get_request_and_content_type_is_explicitly_defined_then_content_type_is_not_automatically_set_to_form_encoded() {
+        given().
+                formParam("firstName", "John").
+                formParam("lastName", "Doe").
+                contentType(ContentType.JSON).
+        when().
+                 get("/returnContentTypeAsBody").
+        then().
+                 body(equalTo(ContentType.JSON.withCharset(config().getEncoderConfig().defaultContentCharset())));
+    }
 }
