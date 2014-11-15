@@ -345,6 +345,7 @@ import static com.jayway.restassured.specification.ProxySpecification.host;
  */
 public class RestAssured {
 
+    private static final String SSL = "SSL";
     private static ResponseParserRegistrar RESPONSE_PARSER_REGISTRAR = new ResponseParserRegistrar();
 
     public static final String DEFAULT_URI = "http://localhost";
@@ -1439,7 +1440,7 @@ public class RestAssured {
     }
 
     /**
-     * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
+     * Use relaxed HTTP validation with protocol {@value #SSL}. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
      * method you don't need to specify a keystore (see {@link #keystore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
      * <p>
      * This is just a shortcut for:
@@ -1449,7 +1450,23 @@ public class RestAssured {
      * </pre>
      */
     public static void useRelaxedHTTPSValidation() {
-        config = RestAssured.config().sslConfig(sslConfig().relaxedHTTPSValidation());
+        useRelaxedHTTPSValidation(SSL);
+    }
+
+    /**
+     * Use relaxed HTTP validation with a specific protocol. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
+     * method you don't need to specify a keystore (see {@link #keystore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
+     * <p>
+     * This is just a shortcut for:
+     * </p>
+     * <pre>
+     * RestAssured.config = RestAssured.config().sslConfig(sslConfig().relaxedHTTPSValidation(&lt;protocol&gt;));
+     * </pre>
+     *
+     * @param protocol The standard name of the requested protocol. See the SSLContext section in the <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java Cryptography Architecture Standard Algorithm Name Documentation</a> for information about standard protocol names.
+     */
+    public static void useRelaxedHTTPSValidation(String protocol) {
+        config = RestAssured.config().sslConfig(sslConfig().relaxedHTTPSValidation(protocol));
     }
 
     /**
