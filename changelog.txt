@@ -21,6 +21,7 @@ Change log 2.4.0 (2014-11-15)
     given().
             config(RestAssuredConfig.config().headerConfig(headerConfig().overwriteHeadersWithName("header1"))).
             header("header1", "value1").
+            spec(spec).
     when().
             get(..)
 
