@@ -71,6 +71,7 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
  */
 public class RequestSpecBuilder {
 
+    private static final String SSL = "SSL";
     private RequestSpecificationImpl spec;
 
     public RequestSpecBuilder() {
@@ -1254,7 +1255,7 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
+     * Use relaxed HTTP validation with SSLContext protocol {@value #SSL}. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
      * method you don't need to specify a keystore (see {@link #setKeystore(String, String)} or trust store (see {@link #setTrustStore(java.security.KeyStore)}.
      * <p>
      * This is just a shortcut for:
@@ -1266,7 +1267,24 @@ public class RequestSpecBuilder {
      * @return RequestSpecBuilder
      */
     public RequestSpecBuilder setRelaxedHTTPSValidation() {
-        spec.relaxedHTTPSValidation();
+        return setRelaxedHTTPSValidation(SSL);
+    }
+
+    /**
+     * Use relaxed HTTP validation with a given SSLContext protocol. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
+     * method you don't need to specify a keystore (see {@link #setKeystore(String, String)} or trust store (see {@link #setTrustStore(java.security.KeyStore)}.
+     * <p>
+     * This is just a shortcut for:
+     * </p>
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().relaxedHTTPSValidation())). ..;
+     * </pre>
+     *
+     * @param protocol The standard name of the requested protocol. See the SSLContext section in the <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java Cryptography Architecture Standard Algorithm Name Documentation</a> for information about standard protocol names.
+     * @return RequestSpecBuilder
+     */
+    public RequestSpecBuilder setRelaxedHTTPSValidation(String protocol) {
+        spec.relaxedHTTPSValidation(protocol);
         return this;
     }
 

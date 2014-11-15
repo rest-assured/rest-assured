@@ -75,6 +75,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private static final String LOCALHOST = "localhost"
   private static final String CHARSET = "charset"
   private static final String ACCEPT_HEADER_NAME = "Accept"
+  public static final String SSL = "SSL"
 
   private String baseUri
   private String path = ""
@@ -502,8 +503,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   def RequestSpecification relaxedHTTPSValidation() {
+    relaxedHTTPSValidation(SSL)
+  }
+
+  def RequestSpecification relaxedHTTPSValidation(String protocol) {
     def sslConfig = restAssuredConfig().getSSLConfig()
-    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.relaxedHTTPSValidation())
+    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.relaxedHTTPSValidation(protocol))
     this
   }
 

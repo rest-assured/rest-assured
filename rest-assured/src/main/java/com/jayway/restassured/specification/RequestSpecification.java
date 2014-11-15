@@ -970,7 +970,7 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification trustStore(KeyStore trustStore);
 
     /**
-     * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
+     * Use relaxed HTTP validation with SSLContext protocol SSL. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
      * method you don't need to specify a keystore (see {@link #keystore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
      * <p>
      * This is just a shortcut for:
@@ -982,6 +982,21 @@ public interface RequestSpecification extends RequestSender {
      * @return The request specification
      */
     RequestSpecification relaxedHTTPSValidation();
+
+    /**
+     * Use relaxed HTTP validation with the given SSLContext protocol. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
+     * method you don't need to specify a keystore (see {@link #keystore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
+     * <p>
+     * This is just a shortcut for:
+     * </p>
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().relaxedHTTPSValidation(&lt;protocol&gt;))). ..;
+     * </pre>
+     *
+     * @param protocol The standard name of the requested protocol. See the SSLContext section in the <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java Cryptography Architecture Standard Algorithm Name Documentation</a> for information about standard protocol names.
+     * @return The request specification
+     */
+    RequestSpecification relaxedHTTPSValidation(String protocol);
 
     /**
      * Specify the headers that'll be sent with the request. This is done by specifying the headers in name-value pairs, e.g:
