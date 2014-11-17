@@ -39,7 +39,7 @@ Change log 2.4.0 (2014-11-15)
     when().
             get(..)
 
-    This will not cause the resulting config to include both the header config and session config. Before this change ONLY header config would be applied since all configs from the specs were overwritten. This also applies to the MockMvc extension.
+    This will now cause the resulting config to include both the header config and session config. Before this change ONLY header config would be applied since all configs from the specs were overwritten. This also applies to the MockMvc extension.
 * Upgraded Spring version for RestAssuredMockMvc from version 4.0.6.RELEASE to 4.1.2.RELEASE.
 * Upgraded Groovy from version 2.3.6 to 2.3.7.
 * Upgraded commons-fileupload for RestAssuredMockMvc from version 1.2.2 to version 1.3.1.
