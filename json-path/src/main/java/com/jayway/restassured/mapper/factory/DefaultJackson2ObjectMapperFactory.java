@@ -24,6 +24,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 public class DefaultJackson2ObjectMapperFactory implements Jackson2ObjectMapperFactory {
     public ObjectMapper create(Class cls, String charset) {
-        return new ObjectMapper();
+        return new ObjectMapper().findAndRegisterModules();
     }
 }
