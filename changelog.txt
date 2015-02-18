@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* DefaultJackson2ObjectMapperFactory now scans and registers additional modules (issue 385)
+
 Change log 2.4.0 (2014-11-15)
 -----------------------------
 * The "matcherConfig" method in com.jayway.restassured.config.MatcherConfig is now static as intended.
