@@ -1,6 +1,7 @@
 Change log next version
 -----------------------
 * DefaultJackson2ObjectMapperFactory now scans and registers additional modules (issue 385)
+* Upgraded to Groovy 2.4.1
 
 Change log 2.4.0 (2014-11-15)
 -----------------------------
