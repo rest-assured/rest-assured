@@ -21,6 +21,7 @@ import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -132,7 +133,7 @@ public class SSLITest {
                 spec(eurosportSpec());
     }
 
-    @Test public void
+    @Ignore("Temporary ignored since site has changed") @Test public void
     allows_specifying_trust_store_in_dsl() throws Exception {
         InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("truststore_cloudamqp.jks");
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -141,7 +142,7 @@ public class SSLITest {
         given().trustStore(keyStore).then().get("https://bunny.cloudamqp.com/api/").then().statusCode(200);
     }
 
-    @Test public void
+    @Ignore("Temporary ignored since site has changed") @Test public void
     allows_specifying_trust_store_statically() throws Exception {
 
         InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("truststore_cloudamqp.jks");
@@ -210,7 +211,7 @@ public class SSLITest {
         }
     }
 
-    @Test public void
+    @Ignore("Temporary ignored since site has changed") @Test public void
     truststrore_works_with_static_base_uri() throws Exception{
         RestAssured.baseURI = "https://bunny.cloudamqp.com/";
 
