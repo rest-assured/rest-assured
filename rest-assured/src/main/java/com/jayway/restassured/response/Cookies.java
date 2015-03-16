@@ -18,6 +18,7 @@ package com.jayway.restassured.response;
 
 import com.jayway.restassured.internal.MultiValueEntity;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,7 +33,7 @@ public class Cookies implements Iterable<Cookie> {
 
     private final MultiValueEntity<Cookie> cookies;
 
-    public Cookies(Cookie...cookies) {
+    public Cookies(Cookie... cookies) {
         this(asList(cookies));
     }
 
@@ -73,8 +74,8 @@ public class Cookies implements Iterable<Cookie> {
     }
 
     /**
-     *  Get a single cookie with the supplied name. If there are several cookies match the <code>cookieName</code> then
-     *  the first one is returned.
+     * Get a single cookie with the supplied name. If there are several cookies match the <code>cookieName</code> then
+     * the first one is returned.
      *
      * @param cookieName The name of the cookie to find
      * @return The found cookie or <code>null</code> if no cookie was found.
@@ -85,8 +86,8 @@ public class Cookies implements Iterable<Cookie> {
     }
 
     /**
-     *  Get a single cookie <i>value</i> with the supplied name. If there are several cookies matching the <code>cookieName</code> then
-     *  the first one is returned.
+     * Get a single cookie <i>value</i> with the supplied name. If there are several cookies matching the <code>cookieName</code> then
+     * the first one is returned.
      *
      * @param cookieName The name of the cookie to find
      * @return The found cookie or <code>null</code> if no cookie was found.
@@ -97,8 +98,8 @@ public class Cookies implements Iterable<Cookie> {
     }
 
     /**
-     *  Get all cookies with the supplied name. If there's only one cookie matching the <code>cookieName</code> then
-     *  a list with only that cookie is returned.
+     * Get all cookies with the supplied name. If there's only one cookie matching the <code>cookieName</code> then
+     * a list with only that cookie is returned.
      *
      * @param cookieName The name of the cookie to find
      * @return The found cookies or empty list if no cookie was found.
@@ -108,8 +109,8 @@ public class Cookies implements Iterable<Cookie> {
     }
 
     /**
-     *  Get all cookie values of the cookie with the supplied name. If there's only one header matching the <code>cookieName</code> then
-     *  a list with only that cookie value is returned.
+     * Get all cookie values of the cookie with the supplied name. If there's only one header matching the <code>cookieName</code> then
+     * a list with only that cookie value is returned.
      *
      * @param cookieName The name of the header to find
      * @return The found header values or empty list if no header was found.
@@ -126,9 +127,9 @@ public class Cookies implements Iterable<Cookie> {
     }
 
     /**
-     *  An alternative way to create a Cookies object from the constructor.
+     * An alternative way to create a Cookies object from the constructor.
      *
-     * @param cookie The cookie to be included
+     * @param cookie            The cookie to be included
      * @param additionalCookies Additional cookies to be included (optional)
      * @return A new cookies object containing the specified cookies
      */
@@ -136,11 +137,7 @@ public class Cookies implements Iterable<Cookie> {
         notNull(cookie, "Cookie");
         final List<Cookie> cookieList = new LinkedList<Cookie>();
         cookieList.add(cookie);
-        if(cookieList != null) {
-            for (Cookie additionalCookie : additionalCookies) {
-                cookieList.add(additionalCookie);
-            }
-        }
+        Collections.addAll(cookieList, additionalCookies);
         return new Cookies(cookieList);
     }
 
