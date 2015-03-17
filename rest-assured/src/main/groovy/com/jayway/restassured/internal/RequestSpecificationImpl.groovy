@@ -1351,7 +1351,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private String getTargetUriFromUrl(URL url) {
-    def hasSpecifiedPortExplicitly = port != RestAssured.UNDEFINED_PORT
     def builder = new StringBuilder();
     def protocol = url.getProtocol()
     def boolean useDefaultHttps = false
@@ -1363,6 +1362,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     builder.append("://")
     builder.append(url.getAuthority())
 
+    def hasSpecifiedPortExplicitly = port != RestAssured.UNDEFINED_PORT
     if (!hasPortDefined(url) && !useDefaultHttps) {
       if (hasSpecifiedPortExplicitly) {
         builder.append(":")
@@ -1632,7 +1632,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   int getPort() {
-    return port
+    def host = new URL(getTargetURI(path))
+    return host.getPort()
   }
 
   def Map<String, Object> getFormParams() {

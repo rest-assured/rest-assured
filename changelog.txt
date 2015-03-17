@@ -1,6 +1,7 @@
 Change log next version
 -----------------------
 * DefaultJackson2ObjectMapperFactory now scans and registers additional modules (issue 385)
+* FilterableRequestSpecification#getPort now returns the correct port and not just -1.
 * Upgraded to Groovy 2.4.1
 * Upgraded Spring dependencies from 4.1.2.RELEASE to version 4.1.5.RELEASE in the Spring MockMvc module.
 
