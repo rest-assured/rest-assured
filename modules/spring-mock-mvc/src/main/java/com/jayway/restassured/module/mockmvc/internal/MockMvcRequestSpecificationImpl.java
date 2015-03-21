@@ -331,6 +331,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return this;
     }
 
+    public MockMvcRequestSpecification body(File body) {
+        this.requestBody = body;
+        return this;
+    }
+
     public MockMvcRequestSpecification body(Object object) {
         notNull(object, "object");
         if (!isSerializableCandidate(object)) {

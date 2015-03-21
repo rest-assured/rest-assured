@@ -4,7 +4,8 @@ Change log next version
 * FilterableRequestSpecification#getPort now returns the correct port and not just -1.
 * Upgraded to Groovy 2.4.1
 * Upgraded Spring dependencies from 4.1.2.RELEASE to version 4.1.5.RELEASE in the Spring MockMvc module.
-* Rest Assured now allows specifying "File" and "InputStream" as request body.
+* REST Assured now allows specifying "File" and "InputStream" as request body.
+* REST Assured MockMvc now allows specifying "File" as body.
 
 Change log 2.4.0 (2014-11-15)
 -----------------------------

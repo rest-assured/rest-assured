@@ -9,6 +9,7 @@ import com.jayway.restassured.internal.RequestSpecificationImpl;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.ResponseSpecificationImpl;
 import com.jayway.restassured.internal.filter.FilterContextImpl;
+import com.jayway.restassured.internal.http.CharsetExtractor;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
@@ -37,6 +38,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.io.*;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.security.Principal;
 import java.util.*;
 
@@ -51,6 +53,7 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
 class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CHARSET = "charset";
+    private static final String LINE_SEPARATOR = "line.separator";
 
     private final MockMvc mockMvc;
     private final Map<String, Object> params;
@@ -201,13 +204,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
             request = MockMvcRequestBuilders.fileUpload(path, pathParams);
         }
 
-        // TODO Extract content-type from headers and apply charset if needed!
-        EncoderConfig encoderConfig = config.getEncoderConfig();
-        String requestContentType = headers.getValue(CONTENT_TYPE);
-        if (requestContentType != null && encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !StringUtils.containsIgnoreCase(requestContentType, CHARSET)) {
-            // Append default charset to request content type
-            requestContentType += "; charset=" + encoderConfig.defaultContentCharset();
-        }
+        String requestContentType = findContentType();
 
         if (!params.isEmpty()) {
             new ParamApplier(params) {
@@ -326,6 +323,9 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         if (requestBody != null) {
             if (requestBody instanceof byte[]) {
                 request.content((byte[]) requestBody);
+            } else if (requestBody instanceof File) {
+                byte[] bytes = toByteArray((File) requestBody);
+                request.content(bytes);
             } else {
                 request.content(requestBody.toString());
             }
@@ -334,6 +334,46 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         logRequestIfApplicable(method, path);
 
         return performRequest(request);
+    }
+
+    // TODO Extract content-type from headers and apply charset if needed!
+    private String findContentType() {
+        EncoderConfig encoderConfig = config.getEncoderConfig();
+        String requestContentType = headers.getValue(CONTENT_TYPE);
+        if (requestContentType != null && encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !StringUtils.containsIgnoreCase(requestContentType, CHARSET)) {
+            // Append default charset to request content type
+            requestContentType += "; charset=" + encoderConfig.defaultContentCharset();
+        }
+        return requestContentType;
+    }
+
+
+    private static byte[] toByteArray(File file) {
+        ByteArrayOutputStream ous = null;
+        InputStream ios = null;
+        try {
+            byte[] buffer = new byte[4096];
+            ous = new ByteArrayOutputStream();
+            ios = new FileInputStream(file);
+            int read = 0;
+            while ((read = ios.read(buffer)) != -1) {
+                ous.write(buffer, 0, read);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (ous != null) {
+                    ous.close();
+                }
+                if (ios != null) {
+                    ios.close();
+                }
+            } catch (IOException ignored) {
+            }
+        }
+
+        return ous.toByteArray();
     }
 
     private void setContentTypeToApplicationFormUrlEncoded(MockHttpServletRequestBuilder request) {
@@ -399,6 +439,19 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         if (requestBody != null) {
             if (requestBody instanceof byte[]) {
                 reqSpec.body((byte[]) requestBody);
+            } else if (requestBody instanceof File) {
+                String contentType = findContentType();
+                String charset = null;
+                if (StringUtils.isNotBlank(contentType)) {
+                    charset = CharsetExtractor.getCharsetFromContentType(contentType);
+                }
+
+                if (charset == null) {
+                    charset = Charset.defaultCharset().toString();
+                }
+
+                String string = fileToString((File) requestBody, charset);
+                reqSpec.body(string);
             } else {
                 reqSpec.body(requestBody);
             }
@@ -415,6 +468,26 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         }
 
         requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(path, path, Method.valueOf(method.toString()), null, Collections.<Filter>emptyList()));
+    }
+
+    private String fileToString(File file, String charset) {
+        StringBuilder fileContents = new StringBuilder((int) file.length());
+        Scanner scanner;
+        try {
+            scanner = new Scanner(file, charset);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        String lineSeparator = System.getProperty(LINE_SEPARATOR);
+
+        try {
+            while (scanner.hasNextLine()) {
+                fileContents.append(scanner.nextLine()).append(lineSeparator);
+            }
+            return fileContents.toString();
+        } finally {
+            scanner.close();
+        }
     }
 
     public MockMvcResponse get(String path, Object... pathParams) {

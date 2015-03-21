@@ -16,6 +16,7 @@
 package com.jayway.restassured.examples.springmvc.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -25,8 +26,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+import static org.springframework.http.MediaType.*;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
@@ -50,7 +50,7 @@ public class FileUploadController {
         fd1.setMimeType(file1.getContentType());
         fd1.setOriginalName(file1.getOriginalFilename());
         fd1.setSize(file1.getSize());
-        
+
         FileDescription fd2 = new FileDescription();
         fd2.setContent(new String(file2.getBytes()));
         fd2.setName(file2.getName());
@@ -75,4 +75,10 @@ public class FileUploadController {
 
         return fileWithParam;
     }
+
+    @RequestMapping(value = "/nonMultipartFileUpload", method = POST, consumes = APPLICATION_OCTET_STREAM_VALUE, produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody String nonMultipartFileUpload(@RequestBody String is) throws IOException {
+        return "{ \"size\" : " + is.length() + ", \"content\":\"" + is + "\" }";
+    }
+
 }

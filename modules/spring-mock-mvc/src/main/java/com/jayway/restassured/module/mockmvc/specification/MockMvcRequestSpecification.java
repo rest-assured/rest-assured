@@ -349,7 +349,7 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
     /**
      * Specify a single-value request attribute
      *
-     * @param attributeName The attribute name
+     * @param attributeName  The attribute name
      * @param attributeValue The attribute value
      * @return The request specification
      */
@@ -397,6 +397,24 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * @return The request specification
      */
     MockMvcRequestSpecification body(byte[] body);
+
+    /**
+     * Specify file content that'll be sent with the request. This only works for the
+     * POST, PATCH and PUT http method. Trying to do this for the other http methods will cause an exception to be thrown.
+     * <p>
+     * Example of use:
+     * <pre>
+     * File myFile = ..
+     * given().content(myFile).when().post("/json").then().content(equalTo("hello world"));
+     * </pre>
+     * This will POST a request containing <code>myFile</code> to "/json" and expect that the response content equals to "hello world".
+     * </p>
+     * <p/>
+     *
+     * @param body The content to send.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification body(File body);
 
     /**
      * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request.

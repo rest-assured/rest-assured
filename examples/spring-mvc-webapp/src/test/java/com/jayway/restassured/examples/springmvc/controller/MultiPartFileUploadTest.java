@@ -32,7 +32,7 @@ import static org.junit.Assert.assertThat;
 @ContextConfiguration(classes = MainConfiguration.class)
 @WebAppConfiguration
 // @formatter:off
-public class FileUploadTest {
+public class MultiPartFileUploadTest {
 
     @Autowired
     protected WebApplicationContext wac;
