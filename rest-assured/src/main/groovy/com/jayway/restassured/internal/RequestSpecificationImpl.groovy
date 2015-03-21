@@ -634,7 +634,29 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return this;
   }
 
+  def RequestSpecification body(File body) {
+    notNull body, "body"
+    this.requestBody = body;
+    return this;
+  }
+
+  def RequestSpecification body(InputStream body) {
+    notNull body, "body"
+    this.requestBody = body;
+    return this;
+  }
+
   def RequestSpecification content(byte[] content) {
+    notNull content, "content"
+    return body(content);
+  }
+
+  def RequestSpecification content(File content) {
+    notNull content, "content"
+    return body(content);
+  }
+
+  def RequestSpecification content(InputStream content) {
     notNull content, "content"
     return body(content);
   }

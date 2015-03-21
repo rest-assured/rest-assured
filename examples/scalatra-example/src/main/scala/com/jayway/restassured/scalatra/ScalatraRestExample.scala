@@ -899,6 +899,16 @@ class ScalatraRestExample extends ScalatraServlet {
     request.body
   }
 
+  post("/file") {
+    val content: String = IOUtils.toString(request.getInputStream)
+    content
+  }
+
+  post("/put") {
+    val content: String = IOUtils.toString(request.getInputStream)
+    content
+  }
+
   def getBinaryBodyResponse: String = {
     contentType = "text/plain";
     Stream.continually(request.getInputStream().read).takeWhile(_ != -1).map(_.toByte).toList.mkString(", ")

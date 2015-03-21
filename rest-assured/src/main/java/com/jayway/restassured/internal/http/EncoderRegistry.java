@@ -103,6 +103,15 @@ public class EncoderRegistry {
             entity = new InputStreamEntity(in, in.available());
         } else if (data instanceof InputStream) {
             entity = new InputStreamEntity((InputStream) data, -1);
+        } else if (data instanceof File) {
+            FileInputStream fileInputStream;
+            File file = (File) data;
+            try {
+                fileInputStream = new FileInputStream(file);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException("File " + file.getPath() +  " not found", e);
+            }
+            entity = new InputStreamEntity(fileInputStream, -1);
         } else if (data instanceof byte[]) {
             byte[] out = ((byte[]) data);
             entity = new InputStreamEntity(new ByteArrayInputStream(

@@ -81,6 +81,48 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification body(byte[] body);
 
     /**
+     * Specify file content that'll be sent with the request. This only works for the
+     * POST, PATCH and PUT http method. Trying to do this for the other http methods will cause an exception to be thrown.
+     * <p>
+     * Example of use:
+     * <pre>
+     * File myFile = ..
+     * given().content(myFile).when().post("/json").then().content(equalTo("hello world"));
+     * </pre>
+     * This will POST a request containing <code>myFile</code> to "/json" and expect that the response content equals to "hello world".
+     * </p>
+     * <p/>
+     * <p>
+     * Note that {@link #content(File)} and this method are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param body The content to send.
+     * @return The request specification
+     */
+    RequestSpecification body(File body);
+
+    /**
+     * Specify file content that'll be sent with the request. This only works for the
+     * POST, PATCH and PUT http method. Trying to do this for the other http methods will cause an exception to be thrown.
+     * <p>
+     * Example of use:
+     * <pre>
+     * InputStream myInputStream = ..
+     * given().content(myInputStream).when().post("/json").then().content(equalTo("hello world"));
+     * </pre>
+     * This will POST a request containing <code>myInputStream</code> to "/json" and expect that the response content equals to "hello world".
+     * </p>
+     * <p/>
+     * <p>
+     * Note that {@link #content(java.io.InputStream)} and this method are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param body The content to send.
+     * @return The request specification
+     */
+    RequestSpecification body(InputStream body);
+
+    /**
      * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request.
      * If the object is a primitive or <a href="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html">Number</a> the object will
      * be converted to a String and put in the request body. This works for the POST and PUT methods only.
@@ -214,6 +256,48 @@ public interface RequestSpecification extends RequestSender {
      * @return The request specification
      */
     RequestSpecification content(byte[] content);
+
+    /**
+     * Specify file content that'll be sent with the request. This only works for the
+     * POST, PATCH and PUT http method. Trying to do this for the other http methods will cause an exception to be thrown.
+     * <p>
+     * Example of use:
+     * <pre>
+     * File myFile = ..
+     * given().content(myFile).when().post("/json").then().content(equalTo("hello world"));
+     * </pre>
+     * This will POST a request containing <code>myFile</code> to "/json" and expect that the response content equals to "hello world".
+     * </p>
+     * <p/>
+     * <p>
+     * Note that {@link #body(File)} and this method are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param content The content to send.
+     * @return The request specification
+     */
+    RequestSpecification content(File content);
+
+    /**
+     * Specify file content that'll be sent with the request. This only works for the
+     * POST, PATCH and PUT http method. Trying to do this for the other http methods will cause an exception to be thrown.
+     * <p>
+     * Example of use:
+     * <pre>
+     * InputStream myInputStream = ..
+     * given().content(myInputStream).when().post("/json").then().content(equalTo("hello world"));
+     * </pre>
+     * This will POST a request containing <code>myInputStream</code> to "/json" and expect that the response content equals to "hello world".
+     * </p>
+     * <p/>
+     * <p>
+     * Note that {@link #body(java.io.InputStream)} and this method are the same except for the syntactic difference.
+     * </p>
+     *
+     * @param content The content to send.
+     * @return The request specification
+     */
+    RequestSpecification content(InputStream content);
 
     /**
      * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request.
