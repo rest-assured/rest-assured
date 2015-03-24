@@ -61,7 +61,7 @@ public class NonMultiPartUploadITest extends WithJetty {
         given().
                 content(bytes).
         when().
-                post("/file").
+                put("/file").
         then().
                 statusCode(200).
                 body(is(new String(bytes)));
@@ -108,7 +108,7 @@ public class NonMultiPartUploadITest extends WithJetty {
                 contentType(ContentType.BINARY).
                 content(file).
         when().
-                post("/file").
+                put("/file").
         then().
                 statusCode(200).
                 body(equalTo(FileUtils.readFileToString(file)));
@@ -140,7 +140,7 @@ public class NonMultiPartUploadITest extends WithJetty {
                 contentType(ContentType.BINARY).
                 content(inputStream).
         when().
-                post("/file").
+                put("/file").
         then().
                 statusCode(200).
                 body(equalTo(IOUtils.toString(getClass().getResourceAsStream("/car-records.xsd"))));

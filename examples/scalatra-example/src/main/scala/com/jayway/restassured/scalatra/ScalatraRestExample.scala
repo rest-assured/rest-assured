@@ -904,7 +904,7 @@ class ScalatraRestExample extends ScalatraServlet {
     content
   }
 
-  post("/put") {
+  put("/file") {
     val content: String = IOUtils.toString(request.getInputStream)
     content
   }
