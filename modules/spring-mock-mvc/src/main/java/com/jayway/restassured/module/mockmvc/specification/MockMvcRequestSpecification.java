@@ -814,7 +814,7 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      *
      * @return The {@link MockMvcRequestSender} that let's you send the request.
      */
-    MockMvcRequestSender when();
+    MockMvcRequestAsyncSender when();
 
     /**
      * Build a {@link MockMvc} by registering one or more {@code @Controller}'s

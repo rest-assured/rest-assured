@@ -13,6 +13,7 @@ import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextI
 import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.internal.support.ParameterAppender;
 import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.module.mockmvc.config.MockMvcAsyncConfig;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
@@ -82,6 +83,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     private MockHttpServletRequestBuilderInterceptor interceptor;
 
     private Object authentication;
+
+    private MockMvcAsyncConfig mockMvcAsyncConfig;
 
     public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers, String basePath,
                                            MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification,
@@ -206,7 +209,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return filteredList;
     }
 
-
     public MockMvcRequestSpecification header(final String headerName, final Object headerValue, Object... additionalHeaderValues) {
         notNull(headerName, "Header name");
         notNull(headerValue, "Header value");
@@ -223,6 +225,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
         return headers(new Headers(headerList));
     }
+
 
     public MockMvcRequestSpecification header(Header header) {
         notNull(header, "Header");
@@ -541,6 +544,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
             this.authentication = otherAuth;
         }
 
+        MockMvcAsyncConfig otherMockMvcAsyncConfig = that.getMockMvcAsyncConfig();
+        if (otherMockMvcAsyncConfig != null) {
+            this.mockMvcAsyncConfig = otherMockMvcAsyncConfig;
+        }
+
         return this;
     }
 
@@ -623,15 +631,16 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return this;
     }
 
-    public MockMvcRequestSender when() {
+    public MockMvcRequestAsyncSender when() {
         LogConfig logConfig = restAssuredMockMvcConfig.getLogConfig();
+        MockMvcAsyncConfig mockMvcAsyncConfig = restAssuredMockMvcConfig.getMockMvcAsyncConfig();
         if (requestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
             log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
         }
 
         return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, attributes, restAssuredMockMvcConfig, requestBody,
                 requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath, responseSpecification, authentication,
-                logRepository);
+                logRepository, mockMvcAsyncConfig);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {
@@ -918,5 +927,9 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public LogRepository getLogRepository() {
         return logRepository;
+    }
+
+    public MockMvcAsyncConfig getMockMvcAsyncConfig() {
+        return mockMvcAsyncConfig;
     }
 }
