@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 2.4.1 (2015-04-12)
+----------------------------
 * DefaultJackson2ObjectMapperFactory now scans and registers additional modules (issue 385)
 * FilterableRequestSpecification#getPort now returns the correct port and not just -1.
 * Upgraded to Groovy 2.4.3
