@@ -19,7 +19,7 @@
     <parent>
         <groupId>com.jayway.restassured.examples</groupId>
         <artifactId>example-parent</artifactId>
-        <version>2.4.1-SNAPSHOT</version>
+        <version>2.4.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -32,23 +32,23 @@
         <dependency>
             <groupId>com.jayway.restassured.examples</groupId>
             <artifactId>scalatra-webapp</artifactId>
-            <version>2.4.1-SNAPSHOT</version>
+            <version>2.4.1</version>
             <type>war</type>
         </dependency>
         <dependency>
             <groupId>com.jayway.restassured.examples</groupId>
             <artifactId>scalatra-example</artifactId>
-            <version>2.4.1-SNAPSHOT</version>
+            <version>2.4.1</version>
         </dependency>
         <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>2.4.1-SNAPSHOT</version>
+            <version>2.4.1</version>
         </dependency>
         <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>2.4.1-SNAPSHOT</version>
+            <version>2.4.1</version>
         </dependency>
         <dependency>
             <groupId>org.mortbay.jetty</groupId>
