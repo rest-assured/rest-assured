@@ -83,6 +83,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private Object authentication;
 
+    private MockMvcAsyncConfig mockMvcAsyncConfig;
+
     public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers, String basePath,
                                            MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification,
                                            MockMvcAuthenticationScheme authentication) {
@@ -128,6 +130,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcAuthenticationSpecification auth() {
+        return this;
+    }
+
+    public MockMvcRequestSpecification asyncTimeout(long timeoutInMillis) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(true, timeoutInMillis);
         return this;
     }
 
@@ -206,7 +213,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return filteredList;
     }
 
-
     public MockMvcRequestSpecification header(final String headerName, final Object headerValue, Object... additionalHeaderValues) {
         notNull(headerName, "Header name");
         notNull(headerValue, "Header value");
@@ -223,6 +229,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
         return headers(new Headers(headerList));
     }
+
 
     public MockMvcRequestSpecification header(Header header) {
         notNull(header, "Header");
@@ -541,6 +548,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
             this.authentication = otherAuth;
         }
 
+        MockMvcAsyncConfig otherMockMvcAsyncConfig = that.getMockMvcAsyncConfig();
+        if (otherMockMvcAsyncConfig != null) {
+            this.mockMvcAsyncConfig = otherMockMvcAsyncConfig;
+        }
+
         return this;
     }
 
@@ -631,7 +643,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
         return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, attributes, restAssuredMockMvcConfig, requestBody,
                 requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath, responseSpecification, authentication,
-                logRepository);
+                logRepository, mockMvcAsyncConfig);
     }
 
     private String findEncoderCharsetOrReturnDefault(String contentType) {
@@ -918,5 +930,9 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public LogRepository getLogRepository() {
         return logRepository;
+    }
+
+    public MockMvcAsyncConfig getMockMvcAsyncConfig() {
+        return mockMvcAsyncConfig;
     }
 }

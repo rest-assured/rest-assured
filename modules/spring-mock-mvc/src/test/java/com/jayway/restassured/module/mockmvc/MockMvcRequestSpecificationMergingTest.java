@@ -149,6 +149,30 @@ public class MockMvcRequestSpecificationMergingTest {
     }
 
     @Test public void
+    request_async_timeout_is_overwritten_when_defined_in_specification() {
+        // Given
+        MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().setAsyncTimeout(1000).build();
+
+        // When
+        MockMvcRequestSpecification spec = given().asyncTimeout(100).spec(specToMerge);
+
+        // Then
+        assertThat(implOf(spec).getMockMvcAsyncConfig().getTimeoutInMs()).isEqualTo(1000);
+    }
+
+    @Test public void
+    request_async_timeout_is_set_properly_when_not_defined_in_specification_and_defined_in_spec() {
+        // Given
+        MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().build();
+
+        // When
+        MockMvcRequestSpecification spec = given().asyncTimeout(100).spec(specToMerge);
+
+        // Then
+        assertThat(implOf(spec).getMockMvcAsyncConfig().getTimeoutInMs()).isEqualTo(100);
+    }
+
+    @Test public void
     request_body_is_not_overwritten_when_not_defined_in_specification() {
         // Given
         MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().addQueryParam("param1", "value1").build();
