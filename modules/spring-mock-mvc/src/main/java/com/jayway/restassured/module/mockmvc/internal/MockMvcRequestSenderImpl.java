@@ -13,6 +13,7 @@ import com.jayway.restassured.internal.http.CharsetExtractor;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
+import com.jayway.restassured.module.mockmvc.config.MockMvcAsyncConfig;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
@@ -182,7 +183,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
 
     private MvcResult getMvcResult(ResultActions perform) throws Exception {
         MvcResult mvcResult;
-        if (mockMvcAsyncConfig != null && mockMvcAsyncConfig.isAsync()) {
+        if (mockMvcAsyncConfig != null) {
             MvcResult startedAsyncRequestProcessing = perform.andExpect(request().asyncStarted()).andReturn();
             startedAsyncRequestProcessing.getAsyncResult(mockMvcAsyncConfig.getTimeoutInMs());
             mvcResult = mockMvc.perform(asyncDispatch(startedAsyncRequestProcessing)).andReturn();

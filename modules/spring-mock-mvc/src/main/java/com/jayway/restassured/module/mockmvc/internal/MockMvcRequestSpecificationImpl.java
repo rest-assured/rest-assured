@@ -13,6 +13,7 @@ import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextI
 import com.jayway.restassured.internal.mapping.ObjectMapping;
 import com.jayway.restassured.internal.support.ParameterAppender;
 import com.jayway.restassured.mapper.ObjectMapper;
+import com.jayway.restassured.module.mockmvc.config.MockMvcAsyncConfig;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
@@ -134,7 +135,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification asyncTimeout(long timeoutInMillis) {
-        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(true, timeoutInMillis);
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(timeoutInMillis);
         return this;
     }
 
