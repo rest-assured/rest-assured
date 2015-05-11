@@ -17,6 +17,7 @@ import com.jayway.restassured.module.mockmvc.config.MockMvcAsyncConfig;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcAsyncRequestSender;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSender;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
@@ -69,7 +70,7 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 
-class MockMvcRequestSenderImpl implements MockMvcRequestSender {
+class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcAsyncRequestSender {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CHARSET = "charset";
     private static final String LINE_SEPARATOR = "line.separator";
@@ -91,7 +92,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final ResponseSpecification responseSpecification;
     private final Object authentication;
     private final LogRepository logRepository;
-    private final MockMvcAsyncConfig mockMvcAsyncConfig;
+    private MockMvcAsyncConfig mockMvcAsyncConfig;
 
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
                              RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
@@ -635,6 +636,181 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
         return options(url.toString());
     }
 
+    public MockMvcResponse get(Timeout withTimeout, String path, Object... pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return get(path, pathParams);
+    }
+
+    public MockMvcResponse get(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return get(path, pathParams);
+    }
+
+    public MockMvcResponse post(Timeout withTimeout, String path, Object... pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return post(path, pathParams);
+    }
+
+    public MockMvcResponse post(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return post(path, pathParams);
+    }
+
+    public MockMvcResponse put(Timeout withTimeout, String path, Object... pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return put(path, pathParams);
+    }
+
+    public MockMvcResponse put(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return put(path, pathParams);
+    }
+
+    public MockMvcResponse delete(Timeout withTimeout, String path, Object... pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return delete(path, pathParams);
+    }
+
+    public MockMvcResponse delete(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return delete(path, pathParams);
+    }
+
+    public MockMvcResponse head(Timeout withTimeout, String path, Object... pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return head(path, pathParams);
+    }
+
+    public MockMvcResponse head(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return head(path, pathParams);
+    }
+
+    public MockMvcResponse patch(Timeout withTimeout, String path, Object... pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return patch(path, pathParams);
+    }
+
+    public MockMvcResponse patch(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return patch(path, pathParams);
+    }
+
+    public MockMvcResponse options(Timeout withTimeout, String path, Object... pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return options(path, pathParams);
+    }
+
+    public MockMvcResponse options(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return options(path, pathParams);
+    }
+
+    public MockMvcResponse get(Timeout withTimeout, URI uri) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return get(uri);
+    }
+
+    public MockMvcResponse post(Timeout withTimeout, URI uri) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return post(uri);
+    }
+
+    public MockMvcResponse put(Timeout withTimeout, URI uri) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return put(uri);
+    }
+
+    public MockMvcResponse delete(Timeout withTimeout, URI uri) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return delete(uri);
+    }
+
+    public MockMvcResponse head(Timeout withTimeout, URI uri) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return head(uri);
+    }
+
+    public MockMvcResponse patch(Timeout withTimeout, URI uri) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return patch(uri);
+    }
+
+    public MockMvcResponse options(Timeout withTimeout, URI uri) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return options(uri);
+    }
+
+    public MockMvcResponse get(Timeout withTimeout, URL url) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return get(url);
+    }
+
+    public MockMvcResponse post(Timeout withTimeout, URL url) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return post(url);
+    }
+
+    public MockMvcResponse put(Timeout withTimeout, URL url) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return put(url);
+    }
+
+    public MockMvcResponse delete(Timeout withTimeout, URL url) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return delete(url);
+    }
+
+    public MockMvcResponse head(Timeout withTimeout, URL url) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return head(url);
+    }
+
+    public MockMvcResponse patch(Timeout withTimeout, URL url) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return patch(url);
+    }
+
+    public MockMvcResponse options(Timeout withTimeout, URL url) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return options(url);
+    }
+
+    public MockMvcResponse get(Timeout withTimeout) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return get(withTimeout);
+    }
+
+    public MockMvcResponse post(Timeout withTimeout) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return post(withTimeout);
+    }
+
+    public MockMvcResponse put(Timeout withTimeout) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return put(withTimeout);
+    }
+
+    public MockMvcResponse delete(Timeout withTimeout) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return delete(withTimeout);
+    }
+
+    public MockMvcResponse head(Timeout withTimeout) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return head(withTimeout);
+    }
+
+    public MockMvcResponse patch(Timeout withTimeout) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return patch(withTimeout);
+    }
+
+    public MockMvcResponse options(Timeout withTimeout) {
+        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(withTimeout.getTimeoutInMs());
+        return options(withTimeout);
+    }
+
     public MockMvcResponse get() {
         return get("");
     }
@@ -661,6 +837,13 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
 
     public MockMvcResponse options() {
         return options("");
+    }
+
+    public MockMvcAsyncRequestSender async() {
+        if (this.mockMvcAsyncConfig == null) {
+            this.mockMvcAsyncConfig = new MockMvcAsyncConfig();
+        }
+        return this;
     }
 
     private abstract static class ParamApplier {

@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Allows you to specify how the request will look like.
  */
-public interface MockMvcRequestSpecification extends MockMvcRequestSender {
+public interface MockMvcRequestSpecification extends MockMvcRequestSender, MockMvcAsyncRequestSender {
 
     /**
      * Specify authentication details that'll be used in the request.
@@ -29,14 +29,6 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * @return A {@link MockMvcAuthenticationSpecification}.
      */
     MockMvcAuthenticationSpecification auth();
-
-    /**
-     * Specify the timeout during which you will wait for async response.
-     *
-     * @param timeoutInMillis timeout in millis to wait for async response.
-     * @return A {@link MockMvcAuthenticationSpecification}.
-     */
-    MockMvcRequestSpecification asyncTimeout(long timeoutInMillis);
 
     /**
      * Specify the content type of the request.

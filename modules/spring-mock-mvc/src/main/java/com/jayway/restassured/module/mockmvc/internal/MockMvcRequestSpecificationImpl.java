@@ -134,11 +134,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return this;
     }
 
-    public MockMvcRequestSpecification asyncTimeout(long timeoutInMillis) {
-        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(timeoutInMillis);
-        return this;
-    }
-
     public MockMvcRequestSpecification contentType(ContentType contentType) {
         notNull(contentType, "contentType");
         return header(CONTENT_TYPE, contentType.toString());
@@ -775,6 +770,146 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return when().options(url);
     }
 
+    public MockMvcResponse get(Timeout withTimeout, String path, Object... pathParams) {
+        return when().async().get(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse get(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        return when().async().get(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse post(Timeout withTimeout, String path, Object... pathParams) {
+        return when().async().post(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse post(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        return when().async().post(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse put(Timeout withTimeout, String path, Object... pathParams) {
+        return when().async().put(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse put(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        return when().async().put(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse delete(Timeout withTimeout, String path, Object... pathParams) {
+        return when().async().delete(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse delete(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        return when().async().delete(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse head(Timeout withTimeout, String path, Object... pathParams) {
+        return when().async().head(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse head(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        return when().async().head(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse patch(Timeout withTimeout, String path, Object... pathParams) {
+        return when().async().patch(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse patch(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        return when().async().patch(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse options(Timeout withTimeout, String path, Object... pathParams) {
+        return when().async().options(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse options(Timeout withTimeout, String path, Map<String, ?> pathParams) {
+        return when().async().options(withTimeout, path, pathParams);
+    }
+
+    public MockMvcResponse get(Timeout withTimeout, URI uri) {
+        return when().async().get(withTimeout, uri);
+    }
+
+    public MockMvcResponse post(Timeout withTimeout, URI uri) {
+        return when().async().post(withTimeout, uri);
+    }
+
+    public MockMvcResponse put(Timeout withTimeout, URI uri) {
+        return when().async().put(withTimeout, uri);
+    }
+
+    public MockMvcResponse delete(Timeout withTimeout, URI uri) {
+        return when().async().delete(withTimeout, uri);
+    }
+
+    public MockMvcResponse head(Timeout withTimeout, URI uri) {
+        return when().async().head(withTimeout, uri);
+    }
+
+    public MockMvcResponse patch(Timeout withTimeout, URI uri) {
+        return when().async().patch(withTimeout, uri);
+    }
+
+    public MockMvcResponse options(Timeout withTimeout, URI uri) {
+        return when().async().options(withTimeout, uri);
+    }
+
+    public MockMvcResponse get(Timeout withTimeout, URL url) {
+        return when().async().get(withTimeout, url);
+    }
+
+    public MockMvcResponse post(Timeout withTimeout, URL url) {
+        return when().async().post(withTimeout, url);
+    }
+
+    public MockMvcResponse put(Timeout withTimeout, URL url) {
+        return when().async().put(withTimeout, url);
+    }
+
+    public MockMvcResponse delete(Timeout withTimeout, URL url) {
+        return when().async().delete(withTimeout, url);
+    }
+
+    public MockMvcResponse head(Timeout withTimeout, URL url) {
+        return when().async().head(withTimeout, url);
+    }
+
+    public MockMvcResponse patch(Timeout withTimeout, URL url) {
+        return when().async().patch(withTimeout, url);
+    }
+
+    public MockMvcResponse options(Timeout withTimeout, URL url) {
+        return when().async().options(withTimeout, url);
+    }
+
+    public MockMvcResponse get(Timeout withTimeout) {
+        return when().async().get(withTimeout);
+    }
+
+    public MockMvcResponse post(Timeout withTimeout) {
+        return when().async().post(withTimeout);
+    }
+
+    public MockMvcResponse put(Timeout withTimeout) {
+        return when().async().put(withTimeout);
+    }
+
+    public MockMvcResponse delete(Timeout withTimeout) {
+        return when().async().delete(withTimeout);
+    }
+
+    public MockMvcResponse head(Timeout withTimeout) {
+        return when().async().head(withTimeout);
+    }
+
+    public MockMvcResponse patch(Timeout withTimeout) {
+        return when().async().patch(withTimeout);
+    }
+
+    public MockMvcResponse options(Timeout withTimeout) {
+        return when().async().options(withTimeout);
+    }
+
     public MockMvcResponse get() {
         return when().get();
     }
@@ -935,5 +1070,12 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcAsyncConfig getMockMvcAsyncConfig() {
         return mockMvcAsyncConfig;
+    }
+
+    public MockMvcAsyncRequestSender async() {
+        if (this.mockMvcAsyncConfig == null) {
+            this.mockMvcAsyncConfig = new MockMvcAsyncConfig();
+        }
+        return this;
     }
 }
