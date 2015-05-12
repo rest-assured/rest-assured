@@ -31,14 +31,6 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
     MockMvcAuthenticationSpecification auth();
 
     /**
-     * Specify the timeout during which you will wait for async response.
-     *
-     * @param timeoutInMillis timeout in millis to wait for async response.
-     * @return A {@link MockMvcAuthenticationSpecification}.
-     */
-    MockMvcRequestSpecification asyncTimeout(long timeoutInMillis);
-
-    /**
      * Specify the content type of the request.
      *
      * @param contentType The content type of the request
@@ -822,7 +814,7 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      *
      * @return The {@link MockMvcRequestSender} that let's you send the request.
      */
-    MockMvcRequestSender when();
+    MockMvcRequestAsyncSender when();
 
     /**
      * Build a {@link MockMvc} by registering one or more {@code @Controller}'s

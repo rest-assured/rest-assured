@@ -17,6 +17,8 @@ import com.jayway.restassured.module.mockmvc.config.MockMvcAsyncConfig;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestAsyncConfigurer;
+import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestAsyncSender;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSender;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
@@ -52,6 +54,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash;
@@ -69,7 +72,7 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 
-class MockMvcRequestSenderImpl implements MockMvcRequestSender {
+class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAsyncConfigurer, MockMvcRequestAsyncSender {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CHARSET = "charset";
     private static final String LINE_SEPARATOR = "line.separator";
@@ -91,7 +94,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
     private final ResponseSpecification responseSpecification;
     private final Object authentication;
     private final LogRepository logRepository;
-    private final MockMvcAsyncConfig mockMvcAsyncConfig;
+    private MockMvcAsyncConfig mockMvcAsyncConfig;
 
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
                              RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
@@ -661,6 +664,24 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender {
 
     public MockMvcResponse options() {
         return options("");
+    }
+
+    public MockMvcRequestAsyncConfigurer with() {
+        return this;
+    }
+
+    public MockMvcRequestAsyncConfigurer and() {
+        return this;
+    }
+
+    public MockMvcRequestAsyncConfigurer timeout(long duration, TimeUnit timeUnit) {
+        mockMvcAsyncConfig = new MockMvcAsyncConfig(timeUnit.toMillis(duration));
+        return this;
+    }
+
+    public MockMvcRequestAsyncConfigurer async() {
+        mockMvcAsyncConfig = new MockMvcAsyncConfig();
+        return this;
     }
 
     private abstract static class ParamApplier {

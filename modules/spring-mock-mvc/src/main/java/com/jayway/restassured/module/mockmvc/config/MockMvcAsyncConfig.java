@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 public class MockMvcAsyncConfig implements Config {
 
     private static final long DEFAULT_TIMEOUT = TimeUnit.SECONDS.toMillis(1);
+
     private final long timeoutInMs;
     private final boolean userConfigured;
 
@@ -26,5 +27,9 @@ public class MockMvcAsyncConfig implements Config {
 
     public boolean isUserConfigured() {
         return userConfigured;
+    }
+
+    public static MockMvcAsyncConfig withTimeout(long duration, TimeUnit timeUnit) {
+        return new MockMvcAsyncConfig(timeUnit.toMillis(duration));
     }
 }

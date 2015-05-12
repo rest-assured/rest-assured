@@ -134,11 +134,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return this;
     }
 
-    public MockMvcRequestSpecification asyncTimeout(long timeoutInMillis) {
-        this.mockMvcAsyncConfig = new MockMvcAsyncConfig(timeoutInMillis);
-        return this;
-    }
-
     public MockMvcRequestSpecification contentType(ContentType contentType) {
         notNull(contentType, "contentType");
         return header(CONTENT_TYPE, contentType.toString());
@@ -636,8 +631,9 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return this;
     }
 
-    public MockMvcRequestSender when() {
+    public MockMvcRequestAsyncSender when() {
         LogConfig logConfig = restAssuredMockMvcConfig.getLogConfig();
+        MockMvcAsyncConfig mockMvcAsyncConfig = restAssuredMockMvcConfig.getMockMvcAsyncConfig();
         if (requestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
             log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
         }

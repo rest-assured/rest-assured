@@ -47,7 +47,7 @@ public class RestAssuredMockMvcConfig implements Config {
      */
     public RestAssuredMockMvcConfig() {
         this(new LogConfig(), new EncoderConfig(), new DecoderConfig(), new SessionConfig(), new ObjectMapperConfig(), new JsonConfig(), new XmlConfig()
-                , new HeaderConfig(), new MockMvcAsyncConfig());
+                , new HeaderConfig(), null);
     }
 
     /**
@@ -70,7 +70,6 @@ public class RestAssuredMockMvcConfig implements Config {
         notNull(jsonConfig, "Json config");
         notNull(xmlConfig, "Xml config");
         notNull(headerConfig, "Header config");
-        notNull(mockMvcAsyncConfig, "Async config");
         this.logConfig = logConfig;
         this.encoderConfig = encoderConfig;
         this.decoderConfig = decoderConfig;
@@ -269,6 +268,13 @@ public class RestAssuredMockMvcConfig implements Config {
      */
     public HeaderConfig getHeaderConfig() {
         return headerConfig;
+    }
+
+    /**
+     * @return The MockMvcAsync Config
+     */
+    public MockMvcAsyncConfig getMockMvcAsyncConfig() {
+        return mockMvcAsyncConfig;
     }
 
     /**
