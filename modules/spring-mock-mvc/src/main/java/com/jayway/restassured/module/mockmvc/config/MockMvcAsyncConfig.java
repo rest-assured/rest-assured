@@ -25,6 +25,6 @@ public class MockMvcAsyncConfig implements Config {
     }
 
     public boolean isUserConfigured() {
-        return false;
+        return userConfigured;
     }
 }
