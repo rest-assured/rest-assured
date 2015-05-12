@@ -73,6 +73,17 @@ public class MockMvcRequestSpecBuilder {
     }
 
     /**
+     * If you need to specify async timeout.
+     *
+     * @param timeoutInMillis timeout in millis to wait for async response.
+     * @return The request specification builder
+     */
+    public MockMvcRequestSpecBuilder setAsyncTimeout(long timeoutInMillis) {
+        spec.asyncTimeout(timeoutInMillis);
+        return this;
+    }
+
+    /**
      * Specify a String request body (such as e.g. JSON or XML) to be sent with the request. This works for the
      * POST, PUT and PATCH methods only. Trying to do this for the other http methods will cause an exception to be thrown.
      * <p/>

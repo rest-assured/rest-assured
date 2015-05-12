@@ -6,8 +6,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static com.jayway.restassured.module.mockmvc.specification.MockMvcAsyncRequestSender.Timeout.withTimeout;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
@@ -27,10 +25,10 @@ public class AsyncTest {
     @Test public void
     can_supply_string_as_body_for_async_post() {
         given().
+                asyncTimeout(10).
                 body("a string").
         when().
-            async().
-                post(withTimeout(10, MILLISECONDS), "/stringBody").
+                post("/stringBody").
         then().
                 body(equalTo("a string"));
     }
@@ -43,10 +41,10 @@ public class AsyncTest {
         // when
         try {
             given().
+                    asyncTimeout(0).
                     body("a string").
             when().
-                async().
-                    post(withTimeout(0, MILLISECONDS), "/tooLongAwaiting").
+                    post("/tooLongAwaiting").
             then().
                     body(equalTo("a string"));
         } catch (IllegalStateException e) {

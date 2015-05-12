@@ -21,12 +21,8 @@ import com.jayway.restassured.specification.RequestSenderOptions;
 
 /**
  * Options available when sending a request using Mock MVC module.
- * Has also async option available.
  *
  * @see RequestSenderOptions
  */
 public interface MockMvcRequestSender extends RequestSenderOptions<MockMvcResponse> {
-
-    MockMvcAsyncRequestSender async();
-
 }
