@@ -679,6 +679,10 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return this;
     }
 
+    public MockMvcRequestSender then() {
+        return this;
+    }
+
     public MockMvcRequestAsyncConfigurer async() {
         mockMvcAsyncConfig = new MockMvcAsyncConfig();
         return this;

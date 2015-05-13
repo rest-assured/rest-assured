@@ -64,7 +64,7 @@ public class AsyncTest {
         given().
                 body("a string").
         when().
-            async().
+            async().and().then().
                 post("/stringBody").
         then().
                 body(equalTo("a string"));
@@ -81,7 +81,7 @@ public class AsyncTest {
                     body("a string").
             when().
                 async().
-                    with().timeout(0, TimeUnit.MILLISECONDS).
+                    with().timeout(0, TimeUnit.MILLISECONDS).and().then().
                     post("/tooLongAwaiting").
             then().
                     body(equalTo("a string"));

@@ -23,8 +23,10 @@ import java.util.concurrent.TimeUnit;
  * Includes possibility to send an async request.
  *
  * @see MockMvcRequestSender
+ *
+ * @author Marcin Grzejszczak
  */
-public interface MockMvcRequestAsyncConfigurer extends MockMvcRequestSender {
+public interface MockMvcRequestAsyncConfigurer {
 
     /**
      * Syntactic sugar
@@ -42,5 +44,11 @@ public interface MockMvcRequestAsyncConfigurer extends MockMvcRequestSender {
      * @param timeUnit of the duration
      */
     MockMvcRequestAsyncConfigurer timeout(long duration, TimeUnit timeUnit);
+
+
+    /**
+     * Helper method to return back to request sending
+     */
+    MockMvcRequestSender then();
 
 }
