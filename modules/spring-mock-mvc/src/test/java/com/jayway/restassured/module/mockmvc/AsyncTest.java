@@ -71,6 +71,17 @@ public class AsyncTest {
     }
 
     @Test public void
+    can_supply_string_as_body_for_async_post_without_syntactic_sugar() {
+        given().
+                body("a string").
+        when().
+            async().
+                post("/stringBody").
+        then().
+                body(equalTo("a string"));
+    }
+
+    @Test public void
     exception_will_be_thrown_if_async_data_has_not_been_provided_in_defined_time() {
         // given
         Exception exception = null;
