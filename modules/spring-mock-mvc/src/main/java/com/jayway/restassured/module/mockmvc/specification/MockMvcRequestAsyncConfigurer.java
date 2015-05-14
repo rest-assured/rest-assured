@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Marcin Grzejszczak
  */
-public interface MockMvcRequestAsyncConfigurer {
+public interface MockMvcRequestAsyncConfigurer extends MockMvcRequestSender {
 
     /**
      * Syntactic sugar
