@@ -22,9 +22,8 @@ import java.util.concurrent.TimeUnit;
  * Options available when sending a request using Mock MVC module.
  * Includes possibility to send an async request.
  *
- * @see MockMvcRequestSender
- *
  * @author Marcin Grzejszczak
+ * @see MockMvcRequestSender
  */
 public interface MockMvcRequestAsyncConfigurer extends MockMvcRequestSender {
 
@@ -40,14 +39,21 @@ public interface MockMvcRequestAsyncConfigurer extends MockMvcRequestSender {
 
     /**
      * Add timeout to async execution - takes precedence over the default setup
-     * @param duration in ms
+     *
+     * @param duration The duration
      * @param timeUnit of the duration
      */
     MockMvcRequestAsyncConfigurer timeout(long duration, TimeUnit timeUnit);
 
+    /**
+     * Add timeout to async execution - takes precedence over the default setup
+     *
+     * @param durationInMs The duration in milliseconds
+     */
+    MockMvcRequestAsyncConfigurer timeout(long durationInMs);
 
     /**
-     * Helper method to return back to request sending
+     * Return back to request sender
      */
     MockMvcRequestSender then();
 

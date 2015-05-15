@@ -13,7 +13,7 @@ import com.jayway.restassured.internal.http.CharsetExtractor;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
-import com.jayway.restassured.module.mockmvc.config.MockMvcAsyncConfig;
+import com.jayway.restassured.module.mockmvc.config.AsyncConfig;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
@@ -38,22 +38,12 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
@@ -61,13 +51,7 @@ import static com.jayway.restassured.internal.support.PathSupport.mergeAndRemove
 import static com.jayway.restassured.module.mockmvc.internal.ConfigConverter.convertToRestAssuredConfig;
 import static com.jayway.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.HEAD;
-import static org.springframework.http.HttpMethod.OPTIONS;
-import static org.springframework.http.HttpMethod.PATCH;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
@@ -94,13 +78,22 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     private final ResponseSpecification responseSpecification;
     private final Object authentication;
     private final LogRepository logRepository;
-    private MockMvcAsyncConfig mockMvcAsyncConfig;
+    private final boolean isAsyncRequest;
 
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
                              RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
                              List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
                              MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
-                             Object authentication, LogRepository logRepository, MockMvcAsyncConfig mockMvcAsyncConfig) {
+                             Object authentication, LogRepository logRepository) {
+        this(mockMvc, params, queryParams, formParams, attributes, config, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor,
+                basePath, responseSpecification, authentication, logRepository, false);
+    }
+
+    private MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
+                             RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
+                             List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
+                             MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
+                             Object authentication, LogRepository logRepository, boolean isAsyncRequest) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.queryParams = queryParams;
@@ -118,7 +111,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         this.responseSpecification = responseSpecification;
         this.authentication = authentication;
         this.logRepository = logRepository;
-        this.mockMvcAsyncConfig = mockMvcAsyncConfig;
+        this.isAsyncRequest = isAsyncRequest;
     }
 
     private Object assembleHeaders(MockHttpServletResponse response) {
@@ -158,7 +151,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
                     perform.andDo(resultHandler);
                 }
             }
-            MvcResult mvcResult = getMvcResult(perform);
+            MvcResult mvcResult = getMvcResult(perform, isAsyncRequest);
             response = mvcResult.getResponse();
             restAssuredResponse = new MockMvcRestAssuredResponseImpl(perform, logRepository);
             restAssuredResponse.setConfig(convertToRestAssuredConfig(config));
@@ -184,11 +177,11 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return restAssuredResponse;
     }
 
-    private MvcResult getMvcResult(ResultActions perform) throws Exception {
+    private MvcResult getMvcResult(ResultActions perform, boolean isAsyncRequest) throws Exception {
         MvcResult mvcResult;
-        if (mockMvcAsyncConfig != null) {
+        if (isAsyncRequest) {
             MvcResult startedAsyncRequestProcessing = perform.andExpect(request().asyncStarted()).andReturn();
-            startedAsyncRequestProcessing.getAsyncResult(mockMvcAsyncConfig.getTimeoutInMs());
+            startedAsyncRequestProcessing.getAsyncResult(config.getAsyncConfig().timeoutInMs());
             mvcResult = mockMvc.perform(asyncDispatch(startedAsyncRequestProcessing)).andReturn();
         } else {
             mvcResult = perform.andReturn();
@@ -675,8 +668,14 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     }
 
     public MockMvcRequestAsyncConfigurer timeout(long duration, TimeUnit timeUnit) {
-        mockMvcAsyncConfig = new MockMvcAsyncConfig(timeUnit.toMillis(duration));
-        return this;
+        RestAssuredMockMvcConfig newConfig = config.asyncConfig(new AsyncConfig(duration, timeUnit));
+        return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams,
+                attributes, newConfig, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor,
+                basePath, responseSpecification, authentication, logRepository, isAsyncRequest);
+    }
+
+    public MockMvcRequestAsyncConfigurer timeout(long durationInMs) {
+        return timeout(durationInMs, TimeUnit.MILLISECONDS);
     }
 
     public MockMvcRequestSender then() {
@@ -684,8 +683,9 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     }
 
     public MockMvcRequestAsyncConfigurer async() {
-        mockMvcAsyncConfig = new MockMvcAsyncConfig();
-        return this;
+        return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams,
+                attributes, config, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor,
+                basePath, responseSpecification, authentication, logRepository, true);
     }
 
     private abstract static class ParamApplier {

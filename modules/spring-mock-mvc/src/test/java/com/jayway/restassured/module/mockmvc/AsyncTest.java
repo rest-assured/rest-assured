@@ -8,8 +8,9 @@ import org.junit.Test;
 import java.util.concurrent.TimeUnit;
 
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static com.jayway.restassured.module.mockmvc.config.MockMvcAsyncConfig.withTimeout;
+import static com.jayway.restassured.module.mockmvc.config.AsyncConfig.withTimeout;
 import static com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig.newConfig;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
@@ -32,7 +33,27 @@ public class AsyncTest {
                 config(newConfig().asyncConfig(withTimeout(10, TimeUnit.MILLISECONDS))).
                 body("a string").
         when().
-                post("/stringBody").
+                async().post("/stringBody").
+        then().
+                body(equalTo("a string"));
+    }
+
+    @Test public void
+    can_configure_timeout_with_time_unit_using_the_async_dsl() {
+        given().
+                body("a string").
+        when().
+                async().with().timeout(2, DAYS).then().post("/stringBody").
+        then().
+                body(equalTo("a string"));
+    }
+
+    @Test public void
+    can_configure_timeout_in_milliseconds_using_the_async_dsl() {
+        given().
+                body("a string").
+        when().
+                async().timeout(600).then().post("/stringBody").
         then().
                 body(equalTo("a string"));
     }
@@ -48,7 +69,7 @@ public class AsyncTest {
                     config(newConfig().asyncConfig(withTimeout(0, TimeUnit.MILLISECONDS))).
                     body("a string").
             when().
-                    post("/tooLongAwaiting").
+                    async().post("/tooLongAwaiting").
             then().
                     body(equalTo("a string"));
         } catch (IllegalStateException e) {
