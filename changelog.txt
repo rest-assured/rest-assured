@@ -774,7 +774,7 @@ Change log 1.2.2 (2011-06-28)
  (issue 36)
 * Support for specifying a Java keystore when using SSL. This is useful when you run into e.g. SSLPeerUnverifiedException when the server has an invalid certificate. Usage: 
   given().keystore("/pathToJksInClassPath", <password>)
-  For more info refer to http://groovy.codehaus.org/modules/http-builder/doc/ssl.html (issue 79).
+  For more info refer to https://github.com/jgritman/httpbuilder/wiki/SSL (issue 79).
 * Fixed an issue that could cause parameters to be treated as lists parameters.
 
 Change log 1.2.1 (2011-05-23)
@@ -898,7 +898,7 @@ Change log 1.1 ((2011-02-18)
         expect().body("greeting.name.children()", hasItems("John", "Doe"))..
   But this also means that you can do:
         expect().body("greeting.name.size()", equalsTo(2))..
-  See http://groovy.codehaus.org/Updating+XML+with+XmlSlurper for more info about the syntax.
+  See http://docs.codehaus.org/display/GROOVY/Updating+XML+with+XmlSlurper for more info about the syntax.
 * Support for expecting on XML attributes, e.g. expect().body("greeting.name.@firstName", equalTo("John")).when().get("/greetXMLAttribute?firstName=John&lastName=Doe");
 * When forcing plain text verification for e.g. JSON or XML responses the response content type is no longer changed. Before this could cause Jersey to refuse to refuse the return a response. (issue 10)
 * PUT requests now supports specifying binary a request body

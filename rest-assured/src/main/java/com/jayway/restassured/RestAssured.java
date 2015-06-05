@@ -1514,7 +1514,7 @@ public class RestAssured {
     }
 
     /**
-     * The following documentation is taken from <a href="HTTP Builder">http://groovy.codehaus.org/modules/http-builder/doc/ssl.html</a>:
+     * The following documentation is taken from <a href="HTTP Builder">https://github.com/jgritman/httpbuilder/wiki/SSL</a>:
      * <p>
      * <h1>SSL Configuration</h1>
      * <p/>
