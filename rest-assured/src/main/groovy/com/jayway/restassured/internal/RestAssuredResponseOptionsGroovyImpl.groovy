@@ -260,7 +260,7 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
   }
 
   Headers headers() {
-    return responseHeaders
+    return responseHeaders ?: new Headers()
   }
 
   Headers getHeaders() {
