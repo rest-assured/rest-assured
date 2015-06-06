@@ -387,4 +387,36 @@ public class PathParamITest extends WithJetty {
     public void namedPathParametersCanBeAppendedAfterSubPath() throws Exception {
         given().pathParam("format", "json").when().get("/something.{format}").then().assertThat().statusCode(is(200)).and().body("value", equalTo("something"));
     }
+
+    @Test
+    public void namedPathParametersWorksWithUnicodeParameterValues() throws Exception {
+        given().
+                pathParam("param1Value", "Hello").
+                pathParam("param2Value", "Hello\u0085").
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        return new ResponseBuilder().setStatusCode(200).setBody(ctx.getRequestPath()).build();
+                    }
+                }).
+        when().
+                get("/reflect?param1={param1Value}&param2={param2Value}").
+        then().
+                statusCode(is(200)).
+                body(equalTo("http://localhost:8080/reflect?param1=Hello&param2=Hello\u0085"));
+    }
+
+    @Test
+    public void unnamedPathParametersWorksWithUnicodeParameterValues() throws Exception {
+        given().
+                filter(new Filter() {
+                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
+                        return new ResponseBuilder().setStatusCode(200).setBody(ctx.getRequestPath()).build();
+                    }
+                }).
+        when().
+                get("/reflect?param1={param1Value}&param2={param2Value}", "Hello", "Hello\u0085").
+        then().
+                statusCode(is(200)).
+                body(equalTo("http://localhost:8080/reflect?param1=Hello&param2=Hello\u0085"));
+    }
 }
