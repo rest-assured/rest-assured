@@ -419,4 +419,14 @@ public class PathParamITest extends WithJetty {
                 statusCode(is(200)).
                 body(equalTo("http://localhost:8080/reflect?param1=Hello&param2=Hello\u0085"));
     }
+
+    @Test
+    public void throwsIAEWhenRequestPathDoesntContainAQuestionMarkWhenPathParamsAreDefined() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Cannot apply path parameters since the request path doesn't contain a '?'");
+
+        String param1Value =  "Hello";
+        String param2Value =  "Hello2";
+        get("param1={param1Value}&param2={param2Value}", param1Value, param2Value);
+    }
 }
