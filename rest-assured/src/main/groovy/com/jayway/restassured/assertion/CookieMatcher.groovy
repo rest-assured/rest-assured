@@ -21,7 +21,7 @@ package com.jayway.restassured.assertion
 import com.jayway.restassured.response.Cookie
 import com.jayway.restassured.response.Cookies
 import org.apache.commons.lang3.StringUtils
-import org.apache.http.impl.cookie.DateUtils
+import org.apache.http.client.utils.DateUtils
 import org.hamcrest.Matcher
 
 import static com.jayway.restassured.response.Cookie.*
