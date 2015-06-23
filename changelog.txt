@@ -1,6 +1,9 @@
 Change log next version
 -----------------------
-* MockMvc module now supports async requests. For example "given().body(..).when().async().post("/x").then(). ..". Big thanks to Marcin Grzejszczak for helping out.
+* MockMvc module now supports async requests. For example "given().body(..).when().async().post("/x").then(). ..". Big thanks to Marcin Grzejszczak (@mgrzejszczak) for helping out.
+* Fixed NPE when using logging with a custom filter that doesn't include any headers.
+* Now throws IAE when request path doesn't contain a "?" when path parameters are applied.
+* Using non-deprecated DateUtils from Apache HTTP Client in CookieMatcher
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------

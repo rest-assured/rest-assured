@@ -1444,7 +1444,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       throw new IllegalArgumentException("You cannot specify both named and unnamed path params at the same time")
     } else {
       def host = getTargetURI(path)
-      def pathWithoutQueryParams = StringUtils.substringBefore(getTargetPath(path), "?");
+      def targetPath = getTargetPath(path)
+
+      // Check that the path contains a ? if named- or unnamed path parameters are defined
+      if (!contains(targetPath, "?") && (namedPathParamSize > 0 || unnamedPathParamSize > 0)) {
+        throw new IllegalArgumentException("Cannot apply path parameters since the request path doesn't contain a '?'.")
+      }
+
+      def pathWithoutQueryParams = substringBefore(targetPath, "?");
       def shouldAppendSlashAfterEncoding = pathWithoutQueryParams.endsWith("/")
       // The last slash is removed later so we may need to add it again
       def queryParams = substringAfter(path, "?")
@@ -1456,11 +1463,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       def pathTemplate = ~/.*\{\w+\}.*/
       // If a path fragment contains double slash we need to replace it with something else to not mess up the path
 
-      def hasPathParameterWithDoubleSlash = StringUtils.indexOf(pathWithoutQueryParams, DOUBLE_SLASH) != -1
+      def hasPathParameterWithDoubleSlash = indexOf(pathWithoutQueryParams, DOUBLE_SLASH) != -1
 
       def tempParams;
       if (hasPathParameterWithDoubleSlash) {
-        tempParams = StringUtils.replace(pathWithoutQueryParams, DOUBLE_SLASH, "RA_double_slash__");
+        tempParams = replace(pathWithoutQueryParams, DOUBLE_SLASH, "RA_double_slash__");
       } else {
         tempParams = pathWithoutQueryParams
       }
