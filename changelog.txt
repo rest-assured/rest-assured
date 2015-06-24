@@ -901,7 +901,7 @@ Change log 1.1 ((2011-02-18)
         expect().body("greeting.name.children()", hasItems("John", "Doe"))..
   But this also means that you can do:
         expect().body("greeting.name.size()", equalsTo(2))..
-  See http://docs.codehaus.org/display/GROOVY/Updating+XML+with+XmlSlurper for more info about the syntax.
+  See http://www.groovy-lang.org/processing-xml.html#_manipulating_xml for more info about the syntax.
 * Support for expecting on XML attributes, e.g. expect().body("greeting.name.@firstName", equalTo("John")).when().get("/greetXMLAttribute?firstName=John&lastName=Doe");
 * When forcing plain text verification for e.g. JSON or XML responses the response content type is no longer changed. Before this could cause Jersey to refuse to refuse the return a response. (issue 10)
 * PUT requests now supports specifying binary a request body

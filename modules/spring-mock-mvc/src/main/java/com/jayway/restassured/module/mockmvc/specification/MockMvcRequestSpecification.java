@@ -437,7 +437,7 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * </pre>
      * </p>
      * Since the content-type is "application/json" then REST Assured will automatically try to serialize the object using
-     * <a href="http://jackson.codehaus.org/">Jackson</a> or <a href="http://code.google.com/p/google-gson/">Gson</a> if they are
+     * <a href="https://github.com/FasterXML/jackson">Jackson</a> or <a href="https://github.com/google/gson">Gson</a> if they are
      * available in the classpath. If any of these frameworks are not in the classpath then an exception is thrown.
      * <br />
      * If the content-type is "application/xml" then REST Assured will automatically try to serialize the object using <a href="http://jaxb.java.net/">JAXB</a>

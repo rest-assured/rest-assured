@@ -38,7 +38,7 @@ import java.util.Map.Entry;
 
 /**
  * JsonPath is an alternative to using XPath for easily getting values from a Object document. It follows the
- * Groovy <a href="http://docs.codehaus.org/display/GROOVY/GPath">GPath</a> syntax when getting an object from the document. You can regard it as an alternative to XPath for JSON.
+ * Groovy <a href="http://docs.groovy-lang.org/latest/html/documentation/#_gpath">GPath</a> syntax when getting an object from the document. You can regard it as an alternative to XPath for JSON.
  * E.g. given the following Object document:
  * <pre>
  * { "store": {

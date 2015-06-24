@@ -55,7 +55,7 @@ public interface PathElement extends Iterable<String> {
     <T> T get(String name);
 
     /**
-     * Get a value from the current XML using Groovy's <a href="http://docs.codehaus.org/display/GROOVY/GPath">GPath</a> expression syntax.
+     * Get a value from the current XML using Groovy's <a href="http://docs.groovy-lang.org/latest/html/documentation/#_gpath">GPath</a> expression syntax.
      *
      * @param path The GPath expression syntax
      * @param <T>  The expected type of the return value.
@@ -64,7 +64,7 @@ public interface PathElement extends Iterable<String> {
     <T> T getPath(String path);
 
     /**
-     * Get a value from the current XML using Groovy's <a href="http://docs.codehaus.org/display/GROOVY/GPath">GPath</a> expression syntax.
+     * Get a value from the current XML using Groovy's <a href="http://docs.groovy-lang.org/latest/html/documentation/#_gpath">GPath</a> expression syntax.
      *
      * @param path         The GPath expression syntax
      * @param explicitType Converts the outcome of the GPath expression to tis type if allowed

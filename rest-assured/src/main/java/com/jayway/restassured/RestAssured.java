@@ -53,7 +53,7 @@ import static com.jayway.restassured.specification.ProxySpecification.host;
 
 /**
  * REST Assured is a Java DSL for simplifying testing of REST based services built on top of
- * <a href="http://groovy.codehaus.org/modules/http-builder/">HTTP Builder</a>.
+ * <a href="https://github.com/jgritman/httpbuilder">HTTP Builder</a>.
  * It supports POST, GET, PUT, DELETE, HEAD, PATCH  and OPTIONS
  * requests and to verify the response of these requests. Usage examples:
  * <ol>
@@ -1291,7 +1291,7 @@ public class RestAssured {
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
      * All requests to all domains will be signed for this instance.
      * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-     * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+     * For More information on how to achieve this, see the <a href="https://github.com/mttkay/signpost/blob/master/docs/GettingStarted.md#using-signpost">Signpost documentation</a>.
      *
      * @param consumerKey
      * @param consumerSecret
@@ -1313,7 +1313,7 @@ public class RestAssured {
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
      * All requests to all domains will be signed for this instance.
      * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-     * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+     * For More information on how to achieve this, see the <a href="https://github.com/mttkay/signpost/blob/master/docs/GettingStarted.md#using-signpost">Signpost documentation</a>.
      *
      * @param consumerKey
      * @param consumerSecret

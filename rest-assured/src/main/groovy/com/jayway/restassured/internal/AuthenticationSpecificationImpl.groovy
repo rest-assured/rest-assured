@@ -111,7 +111,7 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
    * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
    * All requests to all domains will be signed for this instance.
    * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-   * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+   * For More information on how to achieve this, see the <a href="https://github.com/mttkay/signpost/blob/master/docs/GettingStarted.md#using-signpost">Signpost documentation</a>.
    *
    * @param consumerKey
    * @param consumerSecret
@@ -135,7 +135,7 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
    * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
    * All requests to all domains will be signed for this instance.
    * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-   * For More information on how to achieve this, see the <a href="http://code.google.com/p/oauth-signpost/wiki/GettingStarted#Using_Signpost">Signpost documentation</a>.
+   * For More information on how to achieve this, see the <a href="https://github.com/mttkay/signpost/blob/master/docs/GettingStarted.md#using-signpost">Signpost documentation</a>.
    * @param accessToken
    * @return The request com.jayway.restassured.specification
    */
