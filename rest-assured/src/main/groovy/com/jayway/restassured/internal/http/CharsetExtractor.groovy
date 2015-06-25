@@ -25,7 +25,7 @@ class CharsetExtractor {
 
     private static final String CHARSET = "charset"
 
-    public static String getCharsetFromContentType(String contentType) { 
+    public static String getCharsetFromContentType(String contentType) {
         def foundCharset = null
         if(isBlank(contentType)) {
             foundCharset = null;
@@ -35,6 +35,9 @@ class CharsetExtractor {
                     def questionMark = it.split("=")
                     if(questionMark != null && questionMark.length == 2 && questionMark[0].trim().equalsIgnoreCase("charset")) {
                         foundCharset = questionMark[1]?.trim();
+                        //remove quotations if present
+                        foundCharset = StringUtils.removeStart(foundCharset, "\"")
+                        foundCharset = StringUtils.removeEnd(foundCharset, "\"")
                     }
                 }
             }
