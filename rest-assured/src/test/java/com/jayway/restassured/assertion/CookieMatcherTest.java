@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -40,7 +41,7 @@ public class CookieMatcherTest {
         assertEquals("123", deviceCookie.getValue());
         assertEquals(".test.com", deviceCookie.getDomain());
         assertEquals("/", deviceCookie.getPath());
-        assertEquals(new SimpleDateFormat("EEE, d-MMM-yyyy HH:mm:ss Z").parse("Thu, 12-Oct-2023 09:34:31 GMT"), deviceCookie.getExpiryDate());
+        assertEquals(new SimpleDateFormat("EEE, d-MMM-yyyy HH:mm:ss Z", Locale.ENGLISH).parse("Thu, 12-Oct-2023 09:34:31 GMT"), deviceCookie.getExpiryDate());
         assertEquals(true, deviceCookie.isSecured());
         assertEquals(true, deviceCookie.isHttpOnly());
 

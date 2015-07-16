@@ -17,13 +17,17 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
+
 import org.apache.commons.io.IOUtils;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.xml.sax.SAXParseException;
 
 import java.io.InputStream;
+import java.util.Locale;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.matcher.RestAssuredMatchers.*;
@@ -32,6 +36,18 @@ public class XMLValidationITest extends WithJetty {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
+
+    private static final Locale INITIAL_LOCALE = Locale.getDefault();
+
+    @BeforeClass
+    public static void setUpBeforeClass(){
+      Locale.setDefault(Locale.ENGLISH);
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass(){
+      Locale.setDefault(INITIAL_LOCALE);
+    }
 
     @Test
     public void validatesXsdInputStream() throws Exception {
