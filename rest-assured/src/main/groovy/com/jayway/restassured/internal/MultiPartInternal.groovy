@@ -73,6 +73,6 @@ class MultiPartInternal {
   }
 
   private def returnInputStreamBody() {
-    new InputStreamBody(content, mimeType ?: OCTET_STREAM, fileName ?: "file")
+    new InputStreamBody(content, mimeType ?: OCTET_STREAM, fileName)
   }
 }
