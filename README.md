@@ -1,4 +1,4 @@
-![REST Assured](http://rest-assured.googlecode.com/svn/trunk/rest-assured-logo-green.png) 
+![REST Assured](rest-assured-logo-green.png)
 
 [![Build Status](https://travis-ci.org/jayway/rest-assured.svg)](https://travis-ci.org/jayway/rest-assured)![tag](http://img.shields.io/github/tag/jayway/rest-assured.svg)
 
