@@ -88,3 +88,4 @@ Join the mailing list at our [Google group](http://groups.google.com/group/rest-
 [![PowerMock](http://powermock.googlecode.com/svn/trunk/src/site/resources/images/logos/powermock.png)](http://www.powermock.org/)
 [![Awaitility](http://github.com/jayway/awaitility/raw/master/resources/Awaitility_logo_red_small.png)](http://code.google.com/p/awaitility)
 
+[![Analytics](https://ga-beacon.appspot.com/UA-20399334-2/jayway/rest-assured)](https://github.com/jayway/rest-assured)
