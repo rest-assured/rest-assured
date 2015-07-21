@@ -78,6 +78,7 @@ and body easily.
 ## Documentation
 
 * [Getting started](https://github.com/jayway/rest-assured/wiki/GettingStarted)
+* [Downloads](https://github.com/jayway/rest-assured/wiki/Downloads)
 * [Usage Guide](https://github.com/jayway/rest-assured/wiki/Usage) (click [here](https://github.com/jayway/rest-assured/wiki/Usage_Legacy) for legacy documentation)
 * [Javadoc](http://www.javadoc.io/doc/com.jayway.restassured/rest-assured/2.4.1)
 * [Rest Assured Javadoc](http://static.javadoc.io/com.jayway.restassured/rest-assured/2.4.1/com/jayway/restassured/RestAssured.html)
