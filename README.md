@@ -1,6 +1,7 @@
 ![REST Assured](rest-assured-logo-green.png)
 
-[![Build Status](https://travis-ci.org/jayway/rest-assured.svg)](https://travis-ci.org/jayway/rest-assured)![tag](http://img.shields.io/github/tag/jayway/rest-assured.svg)
+[![Build Status](https://travis-ci.org/jayway/rest-assured.svg)](https://travis-ci.org/jayway/rest-assured)![tag](http://img.shields.io/github/tag/jayway/rest-assured.svg)[![Analytics](https://ga-beacon.appspot.com/UA-20399334-2/jayway/rest-assured)](https://github.com/jayway/rest-assured)
+
 
 Testing and validating REST services in Java is harder than in dynamic languages 
 such as Ruby and Groovy. REST Assured brings the simplicity of using these 
@@ -97,5 +98,3 @@ Join the mailing list at our [Google group](http://groups.google.com/group/rest-
 
 ## Sponsored by:
 [![JAYWAY](http://www.arctiquator.com/oppenkallkod/assets/images/jayway_logo.png)](http://www.jayway.com/)
-
-[![Analytics](https://ga-beacon.appspot.com/UA-20399334-2/jayway/rest-assured)](https://github.com/jayway/rest-assured)
