@@ -8,11 +8,10 @@ languages into the Java domain.
 
 
 ## News 
-
+* 2015-07-22: REST Assured has moved to GitHub. From now on the old <a href="https://code.google.com/p/rest-assured/">Google Code page</a> should not be used anymore. All issues are reported here on GitHub and the documentation is migrated.
 * 2015-04-12: REST Assured [2.4.1](http://dl.bintray.com/johanhaleby/generic/rest-assured-2.4.1-dist.zip) is released with bug fixes and improvements. See [change log](https://raw.githubusercontent.com/jayway/rest-assured/master/changelog.txt) for details.
 * 2015-01-27: Jakub Czeczotka has written a nice blog post on how to use REST Assured MockMvc, you can read it [here](http://blog.czeczotka.com/2015/01/20/spring-mvc-integration-test-with-rest-assured-and-mockmvc/).
-* 2014-11-15: REST Assured [2.4.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-2.4.0-dist.zip) is released with support for better configuration merging, improved logging, improved [relaxedHTTPSValidation](https://github.com/jayway/rest-assured/wiki/Usage#ssl) as well as other bug fixes and improvements. See [release notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes24) for more info on what has changed in this release.
-  
+
 [Older News](https://github.com/jayway/rest-assured/wiki/OldNews)
 
 
