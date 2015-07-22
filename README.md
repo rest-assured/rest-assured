@@ -84,6 +84,7 @@ and body easily.
 * [Rest Assured Mock Mvc Javadoc](http://static.javadoc.io/com.jayway.restassured/spring-mock-mvc/2.4.1/com/jayway/restassured/module/mockmvc/RestAssuredMockMvc.html)
 * [XmlPath Javadoc](http://static.javadoc.io/com.jayway.restassured/xml-path/2.4.1/com/jayway/restassured/path/xml/XmlPath.html)
 * [JsonPath Javadoc](http://static.javadoc.io/com.jayway.restassured/json-path/2.4.1/com/jayway/restassured/path/json/JsonPath.html)
+* [Release Notes](ReleaseNotes)
 * [FAQ](https://github.com/jayway/rest-assured/wiki/FAQ)
 
 ## Support and discussion
