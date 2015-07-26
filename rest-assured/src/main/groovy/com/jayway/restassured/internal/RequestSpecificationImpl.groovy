@@ -885,17 +885,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   def RequestSpecification multiPart(String controlName, File file) {
-    multiParts << new MultiPartInternal(name: controlName, content: file)
+    multiParts << new MultiPartInternal(name: controlName, content: file, fileName: "file")
     this
   }
 
   def RequestSpecification multiPart(File file) {
-    multiParts << new MultiPartInternal(name: "file", content: file)
+    multiParts << new MultiPartInternal(name: "file", content: file, fileName: "file")
     this
   }
 
   def RequestSpecification multiPart(String name, File file, String mimeType) {
-    multiParts << new MultiPartInternal(name: name, content: file, mimeType: mimeType)
+    multiParts << new MultiPartInternal(name: name, content: file, mimeType: mimeType, fileName: "file")
     this
   }
 
@@ -906,7 +906,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification multiPart(String controlName, Object object, String mimeType) {
     def possiblySerializedObject = serializeIfNeeded(object, mimeType)
-    multiParts << new MultiPartInternal(name: controlName, content: possiblySerializedObject, mimeType: mimeType)
+    multiParts << new MultiPartInternal(name: controlName, content: possiblySerializedObject, mimeType: mimeType, fileName: "file")
     this
   }
 
@@ -931,17 +931,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   def RequestSpecification multiPart(String name, String contentBody) {
-    multiParts << new MultiPartInternal(name: name, content: contentBody)
+    multiParts << new MultiPartInternal(name: name, content: contentBody, fileName: "file")
     this
   }
 
   def RequestSpecification multiPart(String name, NoParameterValue contentBody) {
-    multiParts << new MultiPartInternal(name: name, content: contentBody)
+    multiParts << new MultiPartInternal(name: name, content: contentBody, fileName: "file")
     this
   }
 
   def RequestSpecification multiPart(String name, String contentBody, String mimeType) {
-    multiParts << new MultiPartInternal(name: name, content: contentBody, mimeType: mimeType)
+    multiParts << new MultiPartInternal(name: name, content: contentBody, mimeType: mimeType, fileName: "file")
     this
   }
 
