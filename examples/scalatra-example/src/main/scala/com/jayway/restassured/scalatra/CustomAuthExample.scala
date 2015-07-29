@@ -18,19 +18,19 @@ package com.jayway.restassured.scalatra
 
 import org.scalatra.ScalatraServlet
 
-import scala.collection.mutable.HashMap
+import scala.collection.mutable
 import scala.util.Random
 
 class CustomAuthExample extends ScalatraServlet {
 
-  val authenticatedSessions = new HashMap[String, Int]()
+  val authenticatedSessions = new mutable.HashMap[String, Int]()
 
   before() {
     contentType = "application/json"
   }
 
   post("/login") {
-    val rand = new Random(System.currentTimeMillis());
+    val rand = new Random(System.currentTimeMillis())
     val operandA = rand.nextInt(1000)
     val operandB = rand.nextInt(1000)
     val expectedSum = operandA + operandB
