@@ -18,6 +18,7 @@ Change log next version
 * REST Assured now show all failing body assertions when using multiple expectations in the same body clause. For example:
     .. then().body("x.y", equalTo("z"), "y.z", is(2)). ..
   If both "x.y" and "y.z" fails REST Assured will print both errors. Before only the error of "x.y" was shown.
+* Upgraded Groovy from 2.4.3 to 2.4.4
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------
