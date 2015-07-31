@@ -14,6 +14,7 @@ Change log next version
           content("Some text content").
   when().
           post("/somewhere"). ..
+* Improved escaping of certain attributes (such as 'properties') when parsing JSON and XML (issue 552)
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------

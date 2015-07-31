@@ -576,4 +576,54 @@ public class JsonPathTest {
         // Then
         assertThat(jsonPath.getString("6269f15a0bb9b1b7d86ae718e84cddcd.attr1"), equalTo("val1"));
     }
+
+    @Test public void
+    automatically_escapes_json_attributes_whose_name_equals_properties() {
+        // Given
+        String json = "{\n" +
+                "   \"features\":[\n" +
+                "      {\n" +
+                "         \"type\":\"Feature\",\n" +
+                "         \"geometry\":{\n" +
+                "            \"type\":\"GeometryCollection\",\n" +
+                "            \"geometries\":[\n" +
+                "               {\n" +
+                "                  \"type\":\"Point\",\n" +
+                "                  \"coordinates\":[\n" +
+                "                     19.883992823270653,\n" +
+                "                     50.02026203045478\n" +
+                "                  ]\n" +
+                "               }\n" +
+                "            ]\n" +
+                "         },\n" +
+                "         \"properties\":{\n" +
+                "            \"gridId\":6\n" +
+                "         }\n" +
+                "      },\n" +
+                "      {\n" +
+                "         \"type\":\"Feature\",\n" +
+                "         \"geometry\":{\n" +
+                "            \"type\":\"GeometryCollection\",\n" +
+                "            \"geometries\":[\n" +
+                "               {\n" +
+                "                  \"type\":\"Point\",\n" +
+                "                  \"coordinates\":[\n" +
+                "                     19.901266347582094,\n" +
+                "                     50.07074684071764\n" +
+                "                  ]\n" +
+                "               }\n" +
+                "            ]\n" +
+                "         },\n" +
+                "         \"properties\":{\n" +
+                "            \"gridId\":7\n" +
+                "         }\n" +
+                "      }\n" +
+                "   ]\n" +
+                "}";
+        // When
+        JsonPath jsonPath = new JsonPath(json);
+
+        // Then
+        assertThat(jsonPath.getList("features.properties.gridId", Integer.class), hasItems(7));
+    }
 }

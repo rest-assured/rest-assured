@@ -375,8 +375,10 @@ public class JsonPath {
     public <T> List<T> getList(String path, Class<T> genericType) {
         final List<T> original = get(path);
         final List<T> newList = new LinkedList<T>();
-        for (T t : original) {
-            newList.add(ObjectConverter.convertObjectTo(t, genericType));
+        if (original != null) {
+            for (T t : original) {
+                newList.add(ObjectConverter.convertObjectTo(t, genericType));
+            }
         }
         return Collections.unmodifiableList(newList);
     }
