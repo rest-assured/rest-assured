@@ -106,10 +106,11 @@ public class JsonPathConfig {
     }
 
     /**
-     * @return A new JsonPathConfig instance with that assumes the  supplied charset when parsing JSON documents.
+     * @return A new JsonPathConfig instance with that assumes the supplied charset when parsing JSON documents.
      */
     public JsonPathConfig charset(String charset) {
-        return new JsonPathConfig();
+        return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, defaultDeserializer, charset);
     }
 
 
@@ -247,7 +248,7 @@ public class JsonPathConfig {
     }
 
 
-    public static enum NumberReturnType {
-        FLOAT_AND_DOUBLE, BIG_DECIMAL
+    public enum NumberReturnType {
+        FLOAT_AND_DOUBLE, BIG_DECIMAL, DOUBLE
     }
 }

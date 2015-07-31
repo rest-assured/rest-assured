@@ -20,6 +20,7 @@ Change log next version
   If both "x.y" and "y.z" fails REST Assured will print both errors. Before only the error of "x.y" was shown.
 * Upgraded Groovy from 2.4.3 to 2.4.4
 * Pretty-printing of JSON now displays unicode characters correctly (issue 556)
+* Fixed so that the specified charset is actually used when calling com.jayway.restassured.path.json.config.JsonPathConfig#charset(String)
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------
