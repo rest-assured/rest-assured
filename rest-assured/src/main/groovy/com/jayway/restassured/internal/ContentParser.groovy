@@ -35,7 +35,7 @@ class ContentParser {
     } else {
       switch (parser) {
         case JSON:
-          def slurper = new ConfigurableJsonSlurper(config.getJsonConfig().shouldRepresentJsonNumbersAsBigDecimal())
+          def slurper = new ConfigurableJsonSlurper(config.getJsonConfig().numberReturnType())
           if (parseAsString) {
             content = slurper.parseText(response.asString(true))
             // We force default charset to be backward compatible with "InputStream charset"

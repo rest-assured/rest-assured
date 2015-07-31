@@ -22,6 +22,9 @@ Change log next version
 * Pretty-printing of JSON now displays unicode characters correctly (issue 556)
 * Fixed so that the specified charset is actually used when calling com.jayway.restassured.path.json.config.JsonPathConfig#charset(String)
 * Fixed so that specifying number return type in com.jayway.restassured.path.json.config.JsonPathConfig#numberReturnType(..) doesn't override the other settings
+* Added new a new NumberReturnType that can be used with JsonPathConfig in order to always return non-integer numbers as doubles. This also you to for example use the "closeTo" Hamcrest matcher. For example:
+  RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(DOUBLE));
+  (issue 571)
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------

@@ -938,7 +938,7 @@ public class JsonPath {
 
     private ConfigurableJsonSlurper createConfigurableJsonSlurper() {
         JsonPathConfig cfg = getJsonPathConfig();
-        return new ConfigurableJsonSlurper(cfg.shouldRepresentJsonNumbersAsBigDecimal());
+        return new ConfigurableJsonSlurper(cfg.numberReturnType());
     }
 
     private JsonPathConfig getJsonPathConfig() {

@@ -249,7 +249,21 @@ public class JsonPathConfig {
     }
 
 
+    /**
+     * Specifies what kind of numbers to return
+     */
     public enum NumberReturnType {
-        FLOAT_AND_DOUBLE, BIG_DECIMAL, DOUBLE
+        /**
+         * Convert all non-integer numbers to floats and doubles (depending on the size of the number)
+         */
+        FLOAT_AND_DOUBLE,
+        /**
+         * Convert all non-integer numbers to BigDecimal
+         */
+        BIG_DECIMAL,
+        /**
+         * Convert all non-integer numbers to doubles
+         */
+        DOUBLE
     }
 }
