@@ -626,4 +626,14 @@ public class JsonPathTest {
         // Then
         assertThat(jsonPath.getList("features.properties.gridId", Integer.class), hasItems(7));
     }
+
+    /**
+     * Asserts that https://github.com/jayway/rest-assured/issues/556 is resolved
+     */
+    @Test public void
+    unicode_json_values_are_pretty_printed_without_unicode_escaping() {
+        final String prettyJson = with("{\"some\":\"ŘÍŠŽŤČÝŮŇÚĚĎÁÉÓ\"}").prettyPrint();
+
+        assertThat(prettyJson, equalTo("{\n    \"some\": \"ŘÍŠŽŤČÝŮŇÚĚĎÁÉÓ\"\n}"));
+    }
 }
