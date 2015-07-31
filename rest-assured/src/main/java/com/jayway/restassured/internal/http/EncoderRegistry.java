@@ -129,7 +129,7 @@ public class EncoderRegistry {
         }
 
         if (entity == null) throw new IllegalArgumentException(
-                "Don't know how to encode " + data + " as a byte stream");
+                "Don't know how to encode " + data + " as a byte stream. Please use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.");
 
         entity.setContentType(contentTypeToString(contentType));
         return entity;

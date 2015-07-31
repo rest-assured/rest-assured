@@ -6,6 +6,14 @@ Change log next version
 * Using non-deprecated DateUtils from Apache HTTP Client in CookieMatcher
 * Quotations when extracting charset parameter is no longer required (thanks to Ronny Bräunlich for pull request)
 * Content specified with a content-type starting with "text/" or containing "+text" is now automatically encoded as using the text encoder (issue 574)
+* It's now possible to specify how content for a specific content-type should be serialized using com.jayway.restassured.config.EncoderConfig#encodeContentTypeAs(..).
+  For example let's say that you want to serialized content-type "my-custom-content-type" as text:
+  given().
+          config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("my-custom-content-type", ContentType.TEXT))).
+          contentType("my-custom-content-type").
+          content("Some text content").
+  when().
+          post("/somewhere"). ..
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------

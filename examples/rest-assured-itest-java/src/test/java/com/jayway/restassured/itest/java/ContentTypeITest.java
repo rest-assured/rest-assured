@@ -282,4 +282,24 @@ public class ContentTypeITest extends WithJetty {
                 statusCode(200).
                 body("uris.size()", is(6));
     }
+
+    @Test public void
+    custom_registered_encoding_of_content_type_is_applied_through_encoder_config() {
+    String uriList = "http://www.example.com/raindrops-on-roses\n" +
+            "ftp://www.example.com/sleighbells\n" +
+            "http://www.example.com/crisp-apple-strudel\n" +
+            "http://www.example.com/doorbells\n" +
+            "tag:foo@example.com,2012-07-01:bright-copper-kettles\n" +
+            "urn:isbn:0-061-99881-8";
+
+    given().
+            config(config().encoderConfig(encoderConfig().encodeContentTypeAs("my-text", ContentType.TEXT))).
+            contentType("my-text").
+            body(uriList).
+    when().
+            post("/textUriList").
+    then().
+            statusCode(200).
+            body("uris.size()", is(6));
+}
 }

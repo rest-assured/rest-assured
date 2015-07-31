@@ -47,33 +47,33 @@ import java.util.Map;
 
 /** <p>
  * Groovy DSL for easily making HTTP requests, and handling request and response
- * data.  This class adds a number of convenience mechanisms built on top of 
- * Apache HTTPClient for things like URL-encoded POSTs and REST requests that 
+ * data.  This class adds a number of convenience mechanisms built on top of
+ * Apache HTTPClient for things like URL-encoded POSTs and REST requests that
  * require building and parsing JSON or XML.  Convenient access to a few common
  * authentication methods is also available.</p>
  *
  *
  * <h3>Conventions</h3>
- * <p>HTTPBuilder has properties for default headers, URI, contentType, etc.  
- * All of these values are also assignable (and in many cases, in much finer 
+ * <p>HTTPBuilder has properties for default headers, URI, contentType, etc.
+ * All of these values are also assignable (and in many cases, in much finer
  * detail) from the {@link RequestConfigDelegate} as well.  In any cases where the value
- * is not set on the delegate (from within a request closure,) the builder's 
+ * is not set on the delegate (from within a request closure,) the builder's
  * default value is used.  </p>
  *
- * <p>For instance, any methods that do not take a <code>uri</code> parameter 
- * assume you will set the <code>uri</code> property in the request closure or 
+ * <p>For instance, any methods that do not take a <code>uri</code> parameter
+ * assume you will set the <code>uri</code> property in the request closure or
  * use HTTPBuilder's assigned {@link #getUri() default URI}.</p>
  *
  *
  * <h3>Response Parsing</h3>
  * <p>By default, HTTPBuilder uses {@link com.jayway.restassured.http.ContentType#ANY} as the default
- * content-type.  This means the value of the request's <code>Accept</code> 
- * header is <code>&#42;/*</code>, and the response parser is determined 
+ * content-type.  This means the value of the request's <code>Accept</code>
+ * header is <code>&#42;/*</code>, and the response parser is determined
  * based on the response <code>content-type</code> header. </p>
  *
- * <p><strong>If</strong> any contentType is given (either in 
- * {@link #setContentType(Object)} or as a request method parameter), the 
- * builder will attempt to parse the response using that content-type, 
+ * <p><strong>If</strong> any contentType is given (either in
+ * {@link #setContentType(Object)} or as a request method parameter), the
+ * builder will attempt to parse the response using that content-type,
  * regardless of what the server actually responds with.  </p>
  *
  *
@@ -82,7 +82,7 @@ import java.util.Map;
  * <pre>
  *   def http = new HTTPBuilder('http://www.google.com')
  *
- *   http.get( path : '/search', 
+ *   http.get( path : '/search',
  *             contentType : TEXT,
  *             query : [q:'Groovy'] ) { resp, reader ->
  *     println "response status: ${resp.statusLine}"
@@ -92,7 +92,7 @@ import java.util.Map;
  *   }
  * </pre>
  *
- * Long form for other HTTP methods, and response-code-specific handlers.  
+ * Long form for other HTTP methods, and response-code-specific handlers.
  * This is roughly equivalent to the above example.
  *
  * <pre>
@@ -109,7 +109,7 @@ import java.util.Map;
  *     }
  *
  *     // executed only if the response status code is 401:
- *     response.'404' = { resp -> 
+ *     response.'404' = { resp ->
  *       println 'not found!'
  *     }
  *   }
@@ -173,6 +173,14 @@ public abstract class HTTPBuilder {
         this.encoderConfig = encoderConfig == null ? new EncoderConfig() : encoderConfig;
         this.urlEncodingEnabled = urlEncodingEnabled;
         encoders = new EncoderRegistry();
+        if (this.encoderConfig.hasContentEncoders()) {
+            Map<String, ContentType> customEncoders = this.encoderConfig.contentEncoders();
+            for (Map.Entry<String, ContentType> entry : customEncoders.entrySet()) {
+                // Get the pre-defined encoder for the given content-type
+                Closure actualEncoder = encoders.getAt(entry.getValue().getContentTypeStrings()[0]);
+                encoders.putAt(entry.getKey(), actualEncoder);
+            }
+        }
     }
 
     /**

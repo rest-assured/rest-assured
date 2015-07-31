@@ -314,7 +314,7 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   post("/textUriList") {
-    if (!request.getContentType.contains("uri-list")) {
+    if (!request.getContentType.contains("text")) {
       status = 400
     } else {
       contentType = "application/json"
