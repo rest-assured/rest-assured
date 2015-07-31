@@ -21,6 +21,7 @@ Change log next version
 * Upgraded Groovy from 2.4.3 to 2.4.4
 * Pretty-printing of JSON now displays unicode characters correctly (issue 556)
 * Fixed so that the specified charset is actually used when calling com.jayway.restassured.path.json.config.JsonPathConfig#charset(String)
+* Fixed so that specifying number return type in com.jayway.restassured.path.json.config.JsonPathConfig#numberReturnType(..) doesn't override the other settings
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------

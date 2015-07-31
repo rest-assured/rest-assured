@@ -125,7 +125,8 @@ public class JsonPathConfig {
      * @return A new instance of JsonPathConfig with the given configuration
      */
     public JsonPathConfig numberReturnType(NumberReturnType numberReturnType) {
-        return new JsonPathConfig(numberReturnType);
+        return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, defaultDeserializer, charset);
     }
 
     public boolean shouldRepresentJsonNumbersAsBigDecimal() {
