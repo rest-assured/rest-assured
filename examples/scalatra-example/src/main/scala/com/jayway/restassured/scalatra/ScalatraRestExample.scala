@@ -313,6 +313,18 @@ class ScalatraRestExample extends ScalatraServlet {
     request.contentType.getOrElse("null")
   }
 
+  post("/textUriList") {
+    if (!request.getContentType.contains("uri-list")) {
+      status = 400
+    } else {
+      contentType = "application/json"
+      val content = IOUtils.toString(request.getInputStream)
+      val uris = content.split("\n")
+      val json = "uris" -> decompose(uris)
+      compact(render(json))
+    }
+  }
+
   get("/:firstName/:lastName") {
     val firstName = {params("firstName")}
     val lastName = {params("lastName")}

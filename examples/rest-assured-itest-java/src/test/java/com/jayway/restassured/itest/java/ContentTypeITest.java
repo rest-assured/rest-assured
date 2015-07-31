@@ -241,4 +241,45 @@ public class ContentTypeITest extends WithJetty {
         then().
                  body(equalTo(ContentType.JSON.withCharset(config().getEncoderConfig().defaultContentCharset())));
     }
+
+    /**
+     * Solves issue https://github.com/jayway/rest-assured/issues/574
+     */
+    @Test public void
+    non_registered_content_type_starting_with_text_slash_is_encoded_as_text() {
+        String uriList = "http://www.example.com/raindrops-on-roses\n" +
+                "ftp://www.example.com/sleighbells\n" +
+                "http://www.example.com/crisp-apple-strudel\n" +
+                "http://www.example.com/doorbells\n" +
+                "tag:foo@example.com,2012-07-01:bright-copper-kettles\n" +
+                "urn:isbn:0-061-99881-8";
+
+        given().
+                contentType("text/uri-list").
+                body(uriList).
+        when().
+                post("/textUriList").
+        then().
+                statusCode(200).
+                body("uris.size()", is(6));
+    }
+
+    @Test public void
+    non_registered_content_type_containing_plus_text_is_encoded_as_text() {
+        String uriList = "http://www.example.com/raindrops-on-roses\n" +
+                "ftp://www.example.com/sleighbells\n" +
+                "http://www.example.com/crisp-apple-strudel\n" +
+                "http://www.example.com/doorbells\n" +
+                "tag:foo@example.com,2012-07-01:bright-copper-kettles\n" +
+                "urn:isbn:0-061-99881-8";
+
+        given().
+                contentType("application/uri-list+text").
+                body(uriList).
+        when().
+                post("/textUriList").
+        then().
+                statusCode(200).
+                body("uris.size()", is(6));
+    }
 }

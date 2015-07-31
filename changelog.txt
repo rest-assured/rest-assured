@@ -5,6 +5,7 @@ Change log next version
 * Now throws IAE when request path doesn't contain a "?" when path parameters are applied.
 * Using non-deprecated DateUtils from Apache HTTP Client in CookieMatcher
 * Quotations when extracting charset parameter is no longer required (thanks to Ronny Bräunlich for pull request)
+* Content specified with a content-type starting with "text/" or containing "+text" is now automatically encoded as using the text encoder (issue 574)
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------
