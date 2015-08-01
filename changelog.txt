@@ -27,6 +27,38 @@ Change log next version
   (issue 571)
 * Upgraded optional Scribe dependency for OAuth2 authentication from version 1.3.5 to version 1.3.7.
 * Possible to sign the request with an oauth2 access token (in the header) without using Scribe (issue 509)
+* Non-backward compatible change: Changed com.jayway.restassured.matcher.ResponseAwareMatcher from an abstract class to a (functional) interface.
+  The reason is to allow for creating ResponseAwareMatchers as lambda expressions in Java 8. Before you had to do like this (even in Java 8):
+    when().
+           get("/game").
+    then().
+           body("_links.self.href", new ResponseAwareMatcher<Response>() {
+               public Matcher<?> matcher(Response response) {
+                   return equalTo("http://localhost:8080/" + response.path("id"));
+               }
+           });
+  but with the new change you can now do (if using Java 8):
+    when().
+           get("/game").
+    then().
+           body("_links.self.href", response -> equalTo("http://localhost:8080/" + response.path("id")));
+  which is much less verbose. This change should be backward compatible unless you use composition of matchers. Before you composed ResponseAwareMatchers like this:
+    when().
+           get("/game").
+    then().
+           body("_links.self.href", responseAwareMatcher1.and(responseAwareMatcher2));
+  This now longer works (since we cannot implement default methods in the ResponseAwareMatcher interface in order to be compatible with older Java versions)
+  so now you use the new com.jayway.restassured.matcher.ResponseAwareMatcherComposer class to compose ResponseAwareMatchers instead:
+    when().
+           get("/game").
+    then().
+           body("_links.self.href", and(responseAwareMatcher1, responseAwareMatcher2));
+  where "and" is statically imported from ResponseAwareMatcherComposer. These can also be nested and combined with regular Hamcrest matchers, for example:
+    when().
+           get("/game").
+    then().
+           body("_links.self.href", and(responseAwareMatcher1, containsString("something"), or(responseAwareMatcher2, responseAwareMatcher3, endsWith("x"))));
+  (issue 575)
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------
