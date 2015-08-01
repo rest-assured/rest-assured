@@ -24,10 +24,10 @@ public interface PreemptiveAuthSpec {
      * Use preemptive http basic authentication. This means that the authentication details are sent in the request
      * header regardless if the server has challenged for authentication or not.
      *
-     * @param userName The user name.
+     * @param username The username.
      * @param password The password.
      *
      * @return The Request specification
      */
-    RequestSpecification basic(String userName, String password);
+    RequestSpecification basic(String username, String password);
 }

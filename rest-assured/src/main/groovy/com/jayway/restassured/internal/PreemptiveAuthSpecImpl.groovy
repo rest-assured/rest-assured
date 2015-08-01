@@ -40,16 +40,16 @@ class PreemptiveAuthSpecImpl implements PreemptiveAuthSpec {
     /**
      * Use http basic authentication.
      *
-     * @param userName The user name.
+     * @param username The user name.
      * @param password The password.
      * @return The request builder
      */
-    def RequestSpecification basic(String userName, String password) {
-        notNull userName, "userName"
+    def RequestSpecification basic(String username, String password) {
+        notNull username, "userName"
         notNull password, "password"
 
         // Disable auth added by static configuration than specify the Authorization header
-        requestBuilder.auth().none().header(AUTHORIZATION_HEADER_NAME, new PreemptiveBasicAuthScheme(userName: userName, password: password).generateAuthToken())
+        requestBuilder.auth().none().header(AUTHORIZATION_HEADER_NAME, new PreemptiveBasicAuthScheme(userName: username, password: password).generateAuthToken())
         return requestBuilder
     }
 }
