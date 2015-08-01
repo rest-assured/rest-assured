@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-
-
-
-
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.authentication.PreemptiveBasicAuthScheme
+import com.jayway.restassured.authentication.PreemptiveOAuth2HeaderScheme
 import com.jayway.restassured.specification.PreemptiveAuthSpec
 import com.jayway.restassured.specification.RequestSpecification
 
@@ -30,26 +26,36 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
  * Specify a preemptive authentication scheme to use when sending a request.
  */
 class PreemptiveAuthSpecImpl implements PreemptiveAuthSpec {
-    private static final String AUTHORIZATION_HEADER_NAME = "Authorization"
-    private RequestSpecification requestBuilder;
+  private static final String AUTHORIZATION_HEADER_NAME = "Authorization"
+  private RequestSpecification requestBuilder;
 
-    PreemptiveAuthSpecImpl(RequestSpecification requestBuilder) {
-        this.requestBuilder = requestBuilder
-    }
+  PreemptiveAuthSpecImpl(RequestSpecification requestBuilder) {
+    this.requestBuilder = requestBuilder
+  }
 
-    /**
-     * Use http basic authentication.
-     *
-     * @param username The user name.
-     * @param password The password.
-     * @return The request builder
-     */
-    def RequestSpecification basic(String username, String password) {
-        notNull username, "userName"
-        notNull password, "password"
+  /**
+   * Use http basic authentication.
+   *
+   * @param username The user name.
+   * @param password The password.
+   * @return The request builder
+   */
+  def RequestSpecification basic(String username, String password) {
+    notNull username, "userName"
+    notNull password, "password"
 
-        // Disable auth added by static configuration than specify the Authorization header
-        requestBuilder.auth().none().header(AUTHORIZATION_HEADER_NAME, new PreemptiveBasicAuthScheme(userName: username, password: password).generateAuthToken())
-        return requestBuilder
-    }
+    removePreviousAuth().header(AUTHORIZATION_HEADER_NAME, new PreemptiveBasicAuthScheme(userName: username, password: password).generateAuthToken())
+    return requestBuilder
+  }
+
+  def RequestSpecification oauth2(String accessToken) {
+    notNull accessToken, "accessToken"
+
+    removePreviousAuth().header(AUTHORIZATION_HEADER_NAME, new PreemptiveOAuth2HeaderScheme(accessToken: accessToken).generateAuthToken())
+  }
+
+  // Disable auth added by static configuration then specify the Authorization header
+  private def RequestSpecification removePreviousAuth() {
+    requestBuilder.auth().none()
+  }
 }

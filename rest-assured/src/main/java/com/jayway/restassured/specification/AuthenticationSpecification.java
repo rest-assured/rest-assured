@@ -103,10 +103,9 @@ public interface AuthenticationSpecification {
     RequestSpecification certificate(String certURL, String password, String keystoreType, int port);
 
     /**
-     * Excerpt from the HttpBuilder docs:<br>
-     * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
-     * All requests to all domains will be signed for this instance.
-     * For more information on how to achieve this, see the <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
+     * OAuth2 sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header
+     * (so currently it's the same as preemptive oauth2 authentication. The reason why it's located here is to be backward compatible).
+     * This assumes you've already generated an accessToken for the site you're targeting. The access token will be put in a header.
      *
      * @param accessToken The access token
      * @return The request com.jayway.restassured.specification
@@ -114,14 +113,11 @@ public interface AuthenticationSpecification {
     RequestSpecification oauth2(String accessToken);
 
     /**
-     * Excerpt from the HttpBuilder docs:<br>
-     * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
-     * All requests to all domains will be signed for this instance.
-     * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-     * For more information on how to achieve this, see the <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
+     * OAuth2 sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
+     * This assumes you've already generated an accessToken for the site you're targeting.
      *
-     * @param accessToken
-     * @param signature
+     * @param accessToken The access token
+     * @param signature   The signature (note that if using {@link OAuthSignature#QUERY_STRING} then <code>Scribe</code> must be added to the classpath)
      * @return The request com.jayway.restassured.specification
      */
     RequestSpecification oauth2(String accessToken, OAuthSignature signature);
