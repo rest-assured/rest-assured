@@ -576,8 +576,8 @@ public class JSONGetITest extends WithJetty {
                 queryParam("firstName", uuid1).
                 queryParam("lastName", uuid2).
         when().
-                 get("/greet").
+                get("/greet").
         then().
-                 body("greeting", equalTo(format("Greetings %s %s", uuid1, uuid2)));
+                body("greeting", equalTo(format("Greetings %s %s", uuid1, uuid2)));
     }
 }
