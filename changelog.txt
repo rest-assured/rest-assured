@@ -59,6 +59,7 @@ Change log next version
     then().
            body("_links.self.href", and(responseAwareMatcher1, containsString("something"), or(responseAwareMatcher2, responseAwareMatcher3, endsWith("x"))));
   (issue 575)
+* Updated com.github.fge.json-schema-validator from version 2.2.5 to 2.2.6 in the json-schema-validator module
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------
