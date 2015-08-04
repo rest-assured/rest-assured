@@ -60,6 +60,7 @@ Change log next version
            body("_links.self.href", and(responseAwareMatcher1, containsString("something"), or(responseAwareMatcher2, responseAwareMatcher3, endsWith("x"))));
   (issue 575)
 * Updated com.github.fge.json-schema-validator from version 2.2.5 to 2.2.6 in the json-schema-validator module
+* Non-backward compatible change: multiPart methods taking java.io.File as argument now uses the filename of the File instead of just "file".
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------

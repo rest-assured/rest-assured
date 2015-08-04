@@ -875,7 +875,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     } else {
       // Objects ought to be serialized
       if (mimeType == null) {
-        mimeType = requestContentType == ANY ? JSON.toString() : requestContentType
+        def contentTypeWithoutCharset = ContentTypeExtractor.getContentTypeWithoutCharset(requestContentType)
+        mimeType = ANY.contentTypeStrings*.toUpperCase().contains(contentTypeWithoutCharset?.toUpperCase()) ? JSON.toString() : requestContentType
       }
       content = serializeIfNeeded(multiPartSpec.content, mimeType)
     }
@@ -885,17 +886,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   def RequestSpecification multiPart(String controlName, File file) {
-    multiParts << new MultiPartInternal(name: controlName, content: file, fileName: "file")
+    multiParts << new MultiPartInternal(name: controlName, content: file, fileName: file.getName())
     this
   }
 
   def RequestSpecification multiPart(File file) {
-    multiParts << new MultiPartInternal(name: "file", content: file, fileName: "file")
+    multiParts << new MultiPartInternal(name: "file", content: file, fileName: file.getName())
     this
   }
 
   def RequestSpecification multiPart(String name, File file, String mimeType) {
-    multiParts << new MultiPartInternal(name: name, content: file, mimeType: mimeType, fileName: "file")
+    multiParts << new MultiPartInternal(name: name, content: file, mimeType: mimeType, fileName: file.getName())
     this
   }
 
