@@ -27,7 +27,7 @@ import static java.lang.String.format;
 
 /**
  * Builder for creating more advanced multi-part requests.
- * <p>
+ * <p/>
  * Usage example:
  * <pre>
  * File myFile = ..
@@ -46,7 +46,6 @@ public class MultiPartSpecBuilder {
      * Create a new multi-part specification with control name equal to file.
      *
      * @param content The content to include in the multi-part specification.
-     * @return An instance of MultiPartSpecBuilder.
      */
     public MultiPartSpecBuilder(Object content) {
         Validate.notNull(content, "Multi-part content cannot be null");
@@ -58,7 +57,6 @@ public class MultiPartSpecBuilder {
      * Create a new multi-part specification with control name equal to file.
      *
      * @param content The content to include in the multi-part specification.
-     * @return An instance of MultiPartSpecBuilder.
      */
     public MultiPartSpecBuilder(InputStream content) {
         this((Object) content);
@@ -68,7 +66,6 @@ public class MultiPartSpecBuilder {
      * Create a new multi-part specification with control name equal to file.
      *
      * @param content The content to include in the multi-part specification.
-     * @return An instance of MultiPartSpecBuilder.
      */
     public MultiPartSpecBuilder(String content) {
         this((Object) content);
@@ -78,7 +75,6 @@ public class MultiPartSpecBuilder {
      * Create a new multi-part specification with control name equal to file.
      *
      * @param content The content to include in the multi-part specification.
-     * @return An instance of MultiPartSpecBuilder.
      */
     public MultiPartSpecBuilder(byte[] content) {
         this((Object) content);
@@ -88,7 +84,6 @@ public class MultiPartSpecBuilder {
      * Create a new multi-part specification with control name equal to file.
      *
      * @param content The content to include in the multi-part specification.
-     * @return An instance of MultiPartSpecBuilder.
      */
     public MultiPartSpecBuilder(File content) {
         this((Object) content);
