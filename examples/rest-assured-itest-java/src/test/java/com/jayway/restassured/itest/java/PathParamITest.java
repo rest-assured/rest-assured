@@ -421,12 +421,30 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void throwsIAEWhenRequestPathDoesntContainAQuestionMarkWhenPathParamsAreDefined() throws Exception {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Cannot apply path parameters since the request path doesn't contain a '?'");
-
+    public void unnamedPathParametersWorksWhenThereAreMultipleTemplatesBetweenEachSlash() throws Exception {
         String param1Value =  "Hello";
         String param2Value =  "Hello2";
-        get("param1={param1Value}&param2={param2Value}", param1Value, param2Value);
+
+        given().
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setStatusLine("HTTP/1.1 200 OK").setBody(ctx.getCompleteRequestPath()).build()).
+        when().
+                get("param1={param1Value}&param2={param2Value}", param1Value, param2Value).
+        then().
+                body(equalTo("http://localhost:8080/param1%3DHello%26param2%3DHello2"));
+    }
+
+    @Test
+    public void namedPathParametersWorksWhenThereAreMultipleTemplatesBetweenEachSlash() throws Exception {
+        String param1Value =  "Hello";
+        String param2Value =  "Hello2";
+
+        given().
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setStatusLine("HTTP/1.1 200 OK").setBody(ctx.getCompleteRequestPath()).build()).
+                pathParam("param1Value", param1Value).
+                pathParam("param2Value", param2Value).
+        when().
+                get("param1={param1Value}&param2={param2Value}").
+        then().
+                body(equalTo("http://localhost:8080/param1%3DHello%26param2%3DHello2"));
     }
 }

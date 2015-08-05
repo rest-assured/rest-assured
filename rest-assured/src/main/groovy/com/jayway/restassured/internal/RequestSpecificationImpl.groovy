@@ -1447,11 +1447,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       def host = getTargetURI(path)
       def targetPath = getTargetPath(path)
 
-      // Check that the path contains a ? if named- or unnamed path parameters are defined
-      if (!contains(targetPath, "?") && (namedPathParamSize > 0 || unnamedPathParamSize > 0)) {
-        throw new IllegalArgumentException("Cannot apply path parameters since the request path doesn't contain a '?'.")
-      }
-
       def pathWithoutQueryParams = substringBefore(targetPath, "?");
       def shouldAppendSlashAfterEncoding = pathWithoutQueryParams.endsWith("/")
       // The last slash is removed later so we may need to add it again
@@ -1474,44 +1469,46 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       }
 
       pathWithoutQueryParams = StringUtils.split(tempParams, "/").inject("") { String acc, String subresource ->
-        def indexOfStartBracket = subresource.indexOf("{")
-        def indexOfEndBracket = subresource.indexOf("}", indexOfStartBracket)
-        if (indexOfStartBracket >= 0 && indexOfEndBracket >= 0 && subresource.length() >= 3) {
-          // 3 means "{" and "}" and at least one character
-          def pathParamValue = ""
-          if (usesNamedPathParameters) {
-            def pathParamName = subresource.substring(indexOfStartBracket + 1, indexOfEndBracket)
-            // Get path parameter name, what's between the "{" and "}"
-            pathParamValue = findNamedPathParamValue(pathParamName, pathParamNameUsageCount)
-          } else { // uses unnamed path params
-            if (numberOfUsedPathParameters >= unnamedPathParams.size()) {
-              throw new IllegalArgumentException("You specified too few path parameters in the request.")
+        def indexOfStartBracket
+        def indexOfEndBracket = 0
+        while ((indexOfStartBracket = subresource.indexOf("{", indexOfEndBracket)) >= 0) {
+          indexOfEndBracket = subresource.indexOf("}", indexOfStartBracket)
+          if (indexOfStartBracket >= 0 && indexOfEndBracket >= 0 && subresource.length() >= 3) {
+            // 3 means "{" and "}" and at least one character
+            def pathParamValue = ""
+            if (usesNamedPathParameters) {
+              def pathParamName = subresource.substring(indexOfStartBracket + 1, indexOfEndBracket)
+              // Get path parameter name, what's between the "{" and "}"
+              pathParamValue = findNamedPathParamValue(pathParamName, pathParamNameUsageCount)
+            } else { // uses unnamed path params
+              if (numberOfUsedPathParameters >= unnamedPathParams.size()) {
+                throw new IllegalArgumentException("You specified too few path parameters in the request.")
+              }
+              pathParamValue = unnamedPathParams[numberOfUsedPathParameters].toString()
             }
-            pathParamValue = unnamedPathParams[numberOfUsedPathParameters].toString()
-          }
 
-          def pathToPrepend = ""
-          // If declared subresource has values before the first bracket then let's find it.
-          if (indexOfStartBracket != 0) {
-            pathToPrepend = subresource.substring(0, indexOfStartBracket)
-          }
+            def pathToPrepend = ""
+            // If declared subresource has values before the first bracket then let's find it.
+            if (indexOfStartBracket != 0) {
+              pathToPrepend = subresource.substring(0, indexOfStartBracket)
+            }
 
-          def pathToAppend = ""
-          // If declared subresource has values after the first bracket then let's find it.
-          if (subresource.length() > indexOfEndBracket) {
-            pathToAppend = subresource.substring(indexOfEndBracket + 1, subresource.length())
-          }
+            def pathToAppend = ""
+            // If declared subresource has values after the first bracket then let's find it.
+            if (subresource.length() > indexOfEndBracket) {
+              pathToAppend = subresource.substring(indexOfEndBracket + 1, subresource.length())
+            }
 
-          subresource = pathToPrepend + pathParamValue + pathToAppend
-          numberOfUsedPathParameters += 1
+            subresource = pathToPrepend + pathParamValue + pathToAppend
+            numberOfUsedPathParameters += 1
+          }
         }
-
         format("%s/%s", acc, encode(subresource, EncodingTarget.QUERY)).toString()
       }
 
       if (hasPathParameterWithDoubleSlash) {
         // Now get the double slash replacement back to normal double slashes
-        pathWithoutQueryParams = StringUtils.replace(pathWithoutQueryParams, "RA_double_slash__", encode(DOUBLE_SLASH, EncodingTarget.QUERY))
+        pathWithoutQueryParams = replace(pathWithoutQueryParams, "RA_double_slash__", encode(DOUBLE_SLASH, EncodingTarget.QUERY))
       }
 
       if (shouldAppendSlashAfterEncoding) {
@@ -1560,7 +1557,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         }
       }
 
-      path = host + (StringUtils.isEmpty(queryParams) ? pathWithoutQueryParams : pathWithoutQueryParams + "?" + queryParams)
+      path = host + (isEmpty(queryParams) ? pathWithoutQueryParams : pathWithoutQueryParams + "?" + queryParams)
       def expectedNumberOfUsedPathParameters = usesNamedPathParameters ? namedPathParamSize : unnamedPathParamSize
       if (numberOfUsedPathParameters != expectedNumberOfUsedPathParameters) {
         if (usesNamedPathParameters && expectedNumberOfUsedPathParameters < numberOfUsedPathParameters && !containsUnresolvedTemplates(path)) {
