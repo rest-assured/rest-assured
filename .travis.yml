@@ -3,3 +3,6 @@ sudo: false
 
 jdk:
   - oraclejdk8
+
+script:
+  - mvn clean install -B
