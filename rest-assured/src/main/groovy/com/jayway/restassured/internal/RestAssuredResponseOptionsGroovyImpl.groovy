@@ -318,7 +318,7 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
   }
 
   int statusCode() {
-    return statusCode
+    return statusCode ?: -1
   }
 
   String getStatusLine() {
