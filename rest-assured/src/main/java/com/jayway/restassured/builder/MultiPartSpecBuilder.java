@@ -23,8 +23,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-import static java.lang.String.format;
-
 /**
  * Builder for creating more advanced multi-part requests.
  * <p/>
@@ -41,6 +39,8 @@ public class MultiPartSpecBuilder {
     private String mimeType;
     private String charset;
     private String fileName;
+    private boolean isControlNameExplicit;
+    private boolean isFileNameExplicit;
 
     /**
      * Create a new multi-part specification with control name equal to file.
@@ -51,6 +51,8 @@ public class MultiPartSpecBuilder {
         Validate.notNull(content, "Multi-part content cannot be null");
         this.content = content;
         this.controlName = "file";
+        this.isControlNameExplicit = false;
+        this.isFileNameExplicit = false;
     }
 
     /**
@@ -99,6 +101,7 @@ public class MultiPartSpecBuilder {
     public MultiPartSpecBuilder controlName(String controlName) {
         Validate.notEmpty(controlName, "Control name cannot be empty");
         this.controlName = controlName;
+        this.isControlNameExplicit = true;
         return this;
     }
 
@@ -110,11 +113,8 @@ public class MultiPartSpecBuilder {
      * @return An instance of MultiPartSpecBuilder
      */
     public MultiPartSpecBuilder fileName(String fileName) {
-        Validate.notEmpty(fileName, "File name cannot be empty");
-        if (!(content instanceof File || content instanceof byte[] || content instanceof InputStream)) {
-            throw new IllegalArgumentException(format("Cannot specify file name for non file content (%s).", content.getClass().getName()));
-        }
         this.fileName = fileName;
+        this.isFileNameExplicit = true;
         return this;
     }
 
@@ -139,7 +139,7 @@ public class MultiPartSpecBuilder {
     public MultiPartSpecBuilder charset(String charset) {
         Validate.notEmpty(charset, "Charset cannot be empty");
         if (content instanceof byte[] || content instanceof InputStream) {
-            throw new IllegalArgumentException(format("Cannot specify charset input streams or byte arrays."));
+            throw new IllegalArgumentException("Cannot specify charset input streams or byte arrays.");
         }
         this.charset = charset;
         return this;
@@ -175,13 +175,29 @@ public class MultiPartSpecBuilder {
         return this;
     }
 
+    /**
+     * Set the filename of the multi-part to empty (none). This means that the "filename" part will be excluded in the multi-part request.
+     * <p>
+     * This is the same as calling {@link #fileName(String)} with <code>null</code>.
+     * </p>
+     *
+     * @return An instance of MultiPartSpecBuilder
+     * @see #fileName(String)
+     */
+    public MultiPartSpecBuilder emptyFileName() {
+        return fileName(null);
+    }
+
     public MultiPartSpecification build() {
         MultiPartSpecificationImpl spec = new MultiPartSpecificationImpl();
         spec.setCharset(charset);
         spec.setContent(content);
         spec.setControlName(controlName);
+        spec.setControlName(controlName);
         spec.setFileName(fileName);
         spec.setMimeType(mimeType);
+        spec.setControlNameSpecifiedExplicitly(isControlNameExplicit);
+        spec.setFileNameSpecifiedExplicitly(isFileNameExplicit);
         return spec;
     }
 }

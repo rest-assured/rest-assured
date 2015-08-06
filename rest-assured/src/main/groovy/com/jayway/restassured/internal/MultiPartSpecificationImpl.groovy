@@ -1,6 +1,7 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.specification.MultiPartSpecification
+import org.apache.commons.lang3.StringUtils
 
 
 class MultiPartSpecificationImpl implements MultiPartSpecification {
@@ -12,6 +13,8 @@ class MultiPartSpecificationImpl implements MultiPartSpecification {
   def String mimeType
   def String charset
   def String fileName
+  def boolean controlNameSpecifiedExplicitly
+  def boolean fileNameSpecifiedExplicitly
 
   def Object getContent() {
     return content
@@ -33,7 +36,18 @@ class MultiPartSpecificationImpl implements MultiPartSpecification {
     return fileName
   }
 
+  boolean hasFileName() {
+    fileName != null
+  }
+
+  def void setFileName(String fileName) {
+    this.fileName = StringUtils.trimToNull(fileName)
+  }
+
+
   public String toString() {
-    return """controlName=${controlName ?: NONE}, mimeType=${mimeType ?: NONE}, charset=${charset ?: NONE}, fileName=${fileName ?: NONE}, content=${content instanceof InputStream ? INPUT_STREAM : content}"""
+    return """controlName=${controlName ?: NONE}, mimeType=${mimeType ?: NONE}, charset=${charset ?: NONE}, fileName=${
+      fileName ?: NONE
+    }, content=${content instanceof InputStream ? INPUT_STREAM : content}"""
   }
 }

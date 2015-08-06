@@ -16,21 +16,22 @@
 
 package com.jayway.restassured.scalatra
 
+import org.apache.commons.fileupload.FileItem
 import org.scalatra.ScalatraServlet
 import org.scalatra.fileupload.FileUploadSupport
 
 class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
 
   post("/file") {
-    getFileContent
+    getFileContent(Option(request.getParameter("controlName")).getOrElse("file"))
   }
 
   put("/file") {
-    getFileContent
+    getFileContent()
   }
 
   patch("/file") {
-    getFileContent
+    getFileContent()
   }
 
   post("/text") {
@@ -38,7 +39,16 @@ class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
   }
 
   post("/fileAndText") {
-    getFileContent + getText
+    getFileContent() + getText
+  }
+
+  post("/filename") {
+    val option: Option[FileItem] = fileParams.get("file")
+    if (option.isDefined) {
+      option.get.getName
+    } else {
+      ""
+    }
   }
 
   post("/string") {
@@ -51,8 +61,8 @@ class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
     multiParams.toString()
   }
 
-  private def getFileContent: String = {
-    val fileItem = fileParams.get("file").get
+  private def getFileContent(controlName: String = "file"): String = {
+    val fileItem = fileParams.get(controlName).get
     fileItem.getString
   }
 

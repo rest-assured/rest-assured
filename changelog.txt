@@ -62,6 +62,10 @@ Change log next version
 * Updated com.github.fge.json-schema-validator from version 2.2.5 to 2.2.6 in the json-schema-validator module
 * Non-backward compatible change: multiPart methods taking java.io.File as argument now uses the filename of the File instead of just "file".
 * Fixed a NPE when using ResponseBuilder without setting a status code.
+* Multipart file uploading now supports specifying an empty filename.
+* It's now possible to set default filename and control name for multiparts. Before they were always equal to "file" but this is now configurable using the new MultiPartConfig. For example:
+    given().config(config().multiPartConfig(multiPartConfig().with().defaultFileName("custom1").and().defaultControlName("custom2"))). ..
+  This is also implemented for the Spring Mock MVC module.
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------

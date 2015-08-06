@@ -167,4 +167,18 @@ public enum ContentType {
         }
         return foundContentType;
     }
-}	
+
+    public boolean matches(String contentType) {
+        String expectedContentType = StringUtils.trimToNull(contentType);
+        if (expectedContentType == null) {
+            return false;
+        }
+
+        for (String supportedContentType : getContentTypeStrings()) {
+            if (supportedContentType.equalsIgnoreCase(expectedContentType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}

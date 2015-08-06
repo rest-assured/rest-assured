@@ -16,6 +16,8 @@
  */
 package com.jayway.restassured.module.mockmvc.internal;
 
+import com.jayway.restassured.config.MultiPartConfig;
+
 import java.io.File;
 import java.io.InputStream;
 
@@ -25,15 +27,13 @@ class MockMvcMultiPart {
     private static final String OCTET_STREAM = "application/octet-stream";
     private static final String TEXT_PLAIN = "text/plain";
 
-    private static final String DEFAULT_CONTROL_NAME = "file";
-    private static final String DEFAULT_FILE_NAME = "file";
     private final String controlName;
     private final String fileName;
     private final Object content;
     private final String mimeType;
 
-    MockMvcMultiPart(File file) {
-        this(DEFAULT_CONTROL_NAME, file);
+    MockMvcMultiPart(MultiPartConfig config, File file) {
+        this(config.defaultControlName(), file);
     }
 
     MockMvcMultiPart(String controlName, File file) {
@@ -50,21 +50,21 @@ class MockMvcMultiPart {
         this.mimeType = mimeType;
     }
 
-    MockMvcMultiPart(String controlName, String content) {
+    MockMvcMultiPart(MultiPartConfig config, String controlName, String content) {
         notNull(controlName, "Control name");
         notNull(content, "Content");
         this.controlName = controlName;
-        this.fileName = DEFAULT_FILE_NAME;
+        this.fileName = config.defaultFileName();
         this.content = content;
         this.mimeType = TEXT_PLAIN;
     }
 
-    MockMvcMultiPart(String controlName, String content, String mimeType) {
+    MockMvcMultiPart(MultiPartConfig config, String controlName, String content, String mimeType) {
         notNull(controlName, "Control name");
         notNull(mimeType, "Mime-Type");
         notNull(content, "Content");
         this.controlName = controlName;
-        this.fileName = DEFAULT_FILE_NAME;
+        this.fileName = config.defaultFileName();
         this.content = content;
         this.mimeType = mimeType;
     }

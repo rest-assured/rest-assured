@@ -24,6 +24,6 @@ class ConfigConverter {
     public static RestAssuredConfig convertToRestAssuredConfig(RestAssuredMockMvcConfig mvcConfig) {
         return new RestAssuredConfig().jsonConfig(mvcConfig.getJsonConfig()).xmlConfig(mvcConfig.getXmlConfig()).sessionConfig(mvcConfig.getSessionConfig()).
                 objectMapperConfig(mvcConfig.getObjectMapperConfig()).logConfig(mvcConfig.getLogConfig()).encoderConfig(mvcConfig.getEncoderConfig()).
-                decoderConfig(mvcConfig.getDecoderConfig());
+                decoderConfig(mvcConfig.getDecoderConfig()).multiPartConfig(mvcConfig.getMultiPartConfig());
     }
 }

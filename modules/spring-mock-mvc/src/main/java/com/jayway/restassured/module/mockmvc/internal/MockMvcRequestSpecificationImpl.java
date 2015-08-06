@@ -40,7 +40,6 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;
 import static com.jayway.restassured.module.mockmvc.internal.ConfigConverter.convertToRestAssuredConfig;
 import static com.jayway.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
-import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification, MockMvcAuthenticationSpecification {
@@ -229,7 +228,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification header(Header header) {
         notNull(header, "Header");
-        return headers(new Headers(asList(header)));
+        return headers(new Headers(Collections.singletonList(header)));
     }
 
     public MockMvcRequestLogSpecification log() {
@@ -429,11 +428,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification cookie(Cookie cookie) {
         notNull(cookie, "Cookie");
-        return cookies(new Cookies(asList(cookie)));
+        return cookies(new Cookies(Collections.singletonList(cookie)));
     }
 
     public MockMvcRequestSpecification multiPart(File file) {
-        multiParts.add(new MockMvcMultiPart(file));
+        multiParts.add(new MockMvcMultiPart(restAssuredMockMvcConfig.getMultiPartConfig(), file));
         return this;
     }
 
@@ -448,12 +447,12 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification multiPart(String controlName, Object object) {
-        multiParts.add(new MockMvcMultiPart(controlName, serializeIfNeeded(object)));
+        multiParts.add(new MockMvcMultiPart(restAssuredMockMvcConfig.getMultiPartConfig(), controlName, serializeIfNeeded(object)));
         return this;
     }
 
     public MockMvcRequestSpecification multiPart(String controlName, Object object, String mimeType) {
-        multiParts.add(new MockMvcMultiPart(controlName, serializeIfNeeded(object, mimeType), mimeType));
+        multiParts.add(new MockMvcMultiPart(restAssuredMockMvcConfig.getMultiPartConfig(), controlName, serializeIfNeeded(object, mimeType), mimeType));
         return this;
     }
 
@@ -478,12 +477,12 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification multiPart(String controlName, String contentBody) {
-        multiParts.add(new MockMvcMultiPart(controlName, contentBody));
+        multiParts.add(new MockMvcMultiPart(restAssuredMockMvcConfig.getMultiPartConfig(), controlName, contentBody));
         return this;
     }
 
     public MockMvcRequestSpecification multiPart(String controlName, String contentBody, String mimeType) {
-        multiParts.add(new MockMvcMultiPart(controlName, contentBody, mimeType));
+        multiParts.add(new MockMvcMultiPart(restAssuredMockMvcConfig.getMultiPartConfig(), controlName, contentBody, mimeType));
         return this;
     }
 
@@ -570,10 +569,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
                 thisConfig = thisConfig.headerConfig(otherConfig.getHeaderConfig());
             }
 
-            if (otherConfig.getHeaderConfig().isUserConfigured()) {
-                thisConfig = thisConfig.headerConfig(otherConfig.getHeaderConfig());
-            }
-
             if (otherConfig.getJsonConfig().isUserConfigured()) {
                 thisConfig = thisConfig.jsonConfig(otherConfig.getJsonConfig());
             }
@@ -596,6 +591,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
             if (otherConfig.getAsyncConfig().isUserConfigured()) {
                 thisConfig = thisConfig.asyncConfig(otherConfig.getAsyncConfig());
+            }
+
+            if (otherConfig.getMultiPartConfig().isUserConfigured()) {
+                thisConfig = thisConfig.multiPartConfig(otherConfig.getMultiPartConfig());
             }
 
             thisOne.config(thisConfig);

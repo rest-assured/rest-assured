@@ -875,74 +875,89 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     } else {
       // Objects ought to be serialized
       if (mimeType == null) {
-        def contentTypeWithoutCharset = ContentTypeExtractor.getContentTypeWithoutCharset(requestContentType)
-        mimeType = ANY.contentTypeStrings*.toUpperCase().contains(contentTypeWithoutCharset?.toUpperCase()) ? JSON.toString() : requestContentType
+        mimeType = ANY.matches(requestContentType) ? JSON.toString() : requestContentType
       }
       content = serializeIfNeeded(multiPartSpec.content, mimeType)
     }
 
-    multiParts << new MultiPartInternal(name: multiPartSpec.controlName, content: content, fileName: multiPartSpec.fileName, charset: multiPartSpec.charset, mimeType: mimeType)
+    final String controlName;
+    if (multiPartSpec instanceof MultiPartSpecificationImpl && !multiPartSpec.isControlNameSpecifiedExplicitly()) {
+      // We use the default control name if it was not explicitly specified in the multi-part spec
+      controlName = restAssuredConfig().getMultiPartConfig().defaultControlName()
+    } else {
+      controlName = multiPartSpec.controlName
+    }
+
+    final String fileName;
+    if (multiPartSpec instanceof MultiPartSpecificationImpl && !multiPartSpec.isFileNameSpecifiedExplicitly()) {
+      // We use the default file name if it was not explicitly specified in the multi-part spec
+      fileName = restAssuredConfig().getMultiPartConfig().defaultFileName()
+    } else {
+      fileName = multiPartSpec.fileName
+    }
+
+    multiParts << new MultiPartInternal(controlName: controlName, content: content, fileName: fileName, charset: multiPartSpec.charset, mimeType: mimeType)
     return this
   }
 
   def RequestSpecification multiPart(String controlName, File file) {
-    multiParts << new MultiPartInternal(name: controlName, content: file, fileName: file.getName())
+    multiParts << new MultiPartInternal(controlName: controlName, content: file, fileName: file.getName())
     this
   }
 
   def RequestSpecification multiPart(File file) {
-    multiParts << new MultiPartInternal(name: "file", content: file, fileName: file.getName())
+    multiParts << new MultiPartInternal(controlName: restAssuredConfig().getMultiPartConfig().defaultControlName(), content: file, fileName: file.getName())
     this
   }
 
   def RequestSpecification multiPart(String name, File file, String mimeType) {
-    multiParts << new MultiPartInternal(name: name, content: file, mimeType: mimeType, fileName: file.getName())
+    multiParts << new MultiPartInternal(controlName: restAssuredConfig().getMultiPartConfig().defaultControlName(), content: file, mimeType: mimeType, fileName: file.getName())
     this
   }
 
   def RequestSpecification multiPart(String controlName, Object object) {
-    def mimeType = requestContentType == ANY ? JSON.toString() : requestContentType
+    def mimeType = ANY.matches(requestContentType) ? JSON.toString() : requestContentType
     return multiPart(controlName, object, mimeType)
   }
 
   def RequestSpecification multiPart(String controlName, Object object, String mimeType) {
     def possiblySerializedObject = serializeIfNeeded(object, mimeType)
-    multiParts << new MultiPartInternal(name: controlName, content: possiblySerializedObject, mimeType: mimeType, fileName: "file")
+    multiParts << new MultiPartInternal(controlName: controlName, content: possiblySerializedObject, mimeType: mimeType, fileName: restAssuredConfig().getMultiPartConfig().defaultFileName())
     this
   }
 
   def RequestSpecification multiPart(String name, String fileName, byte[] bytes) {
-    multiParts << new MultiPartInternal(name: name, content: bytes, fileName: fileName)
+    multiParts << new MultiPartInternal(controlName: name, content: bytes, fileName: fileName)
     this
   }
 
   def RequestSpecification multiPart(String name, String fileName, byte[] bytes, String mimeType) {
-    multiParts << new MultiPartInternal(name: name, content: bytes, mimeType: mimeType, fileName: fileName)
+    multiParts << new MultiPartInternal(controlName: name, content: bytes, mimeType: mimeType, fileName: fileName)
     this
   }
 
   def RequestSpecification multiPart(String name, String fileName, InputStream stream) {
-    multiParts << new MultiPartInternal(name: name, content: stream, fileName: fileName)
+    multiParts << new MultiPartInternal(controlName: name, content: stream, fileName: fileName)
     this
   }
 
   def RequestSpecification multiPart(String name, String fileName, InputStream stream, String mimeType) {
-    multiParts << new MultiPartInternal(name: name, content: stream, mimeType: mimeType, fileName: fileName)
+    multiParts << new MultiPartInternal(controlName: name, content: stream, mimeType: mimeType, fileName: fileName)
     this
   }
 
   def RequestSpecification multiPart(String name, String contentBody) {
-    multiParts << new MultiPartInternal(name: name, content: contentBody, fileName: "file")
+    multiParts << new MultiPartInternal(controlName: name, content: contentBody, fileName: restAssuredConfig().getMultiPartConfig().defaultFileName())
     this
   }
 
   def RequestSpecification multiPart(String name, NoParameterValue contentBody) {
-    multiParts << new MultiPartInternal(name: name, content: contentBody, fileName: "file")
+    multiParts << new MultiPartInternal(controlName: name, content: contentBody, fileName: restAssuredConfig().getMultiPartConfig().defaultFileName())
     this
   }
 
   def RequestSpecification multiPart(String name, String contentBody, String mimeType) {
-    multiParts << new MultiPartInternal(name: name, content: contentBody, mimeType: mimeType, fileName: "file")
+    multiParts << new MultiPartInternal(controlName: name, content: contentBody, mimeType: mimeType, fileName: restAssuredConfig().getMultiPartConfig().defaultFileName())
     this
   }
 
@@ -1245,8 +1260,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
       multiParts.each {
         def body = it.contentBody
-        def name = it.name
-        entity.addPart(name, body);
+        def controlName = it.controlName
+        entity.addPart(controlName, body);
       }
 
       entity;
@@ -1681,7 +1696,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   List<MultiPartSpecification> getMultiPartParams() {
     return multiParts.collect {
-      new MultiPartSpecificationImpl(content: it.content, charset: it.charset, fileName: it.fileName, mimeType: it.mimeType, controlName: it.name)
+      new MultiPartSpecificationImpl(content: it.content, charset: it.charset, fileName: it.fileName, mimeType: it.mimeType, controlName: it.controlName)
     }
   }
 

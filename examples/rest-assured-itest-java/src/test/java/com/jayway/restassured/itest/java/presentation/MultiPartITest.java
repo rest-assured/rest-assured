@@ -26,8 +26,9 @@ import java.io.File;
 import java.io.InputStream;
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static com.jayway.restassured.config.MultiPartConfig.multiPartConfig;
+import static com.jayway.restassured.config.RestAssuredConfig.config;
+import static org.hamcrest.Matchers.*;
 
 public class MultiPartITest extends WithJetty {
 
@@ -104,5 +105,133 @@ public class MultiPartITest extends WithJetty {
                 body(is(IOUtils.toString(getClass().getResourceAsStream("/car-records.xsd")))).
         when().
                 post("/multipart/file");
+    }
+
+    @Test
+    public void controlNameInMultiPartSpecBuilderHasPrecedenceOverDefault() throws Exception {
+        // Given
+        final InputStream is = getClass().getResourceAsStream("/car-records.xsd");
+
+        // When
+        given().
+                queryParam("controlName", "file2").
+                multiPart(new MultiPartSpecBuilder(is).controlName("file2").build()).
+        when().
+                post("/multipart/file").
+        then().
+                statusCode(200).
+                body(is(IOUtils.toString(getClass().getResourceAsStream("/car-records.xsd"))));
+    }
+
+    @Test
+    public void controlNameInMultiPartSpecBuilderHasPrecedenceOverDefaultWhenConfigured() throws Exception {
+        // Given
+        final InputStream is = getClass().getResourceAsStream("/car-records.xsd");
+
+        // When
+        given().
+                config(config().multiPartConfig(multiPartConfig().defaultControlName("something-else"))).
+                queryParam("controlName", "file2").
+                multiPart(new MultiPartSpecBuilder(is).controlName("file2").build()).
+        when().
+                post("/multipart/file").
+        then().
+                statusCode(200).
+                body(is(IOUtils.toString(getClass().getResourceAsStream("/car-records.xsd"))));
+    }
+
+    @Test
+    public void defaultControlNameIsUsedWhenNoControlNameIsDefinedInMultiPartSpecBuilder() throws Exception {
+        // Given
+        final InputStream is = getClass().getResourceAsStream("/car-records.xsd");
+
+        // When
+        given().
+                queryParam("controlName", "file2").
+                config(config().multiPartConfig(multiPartConfig().defaultControlName("file2"))).
+                multiPart(new MultiPartSpecBuilder(is).build()).
+        when().
+                post("/multipart/file").
+        then().
+                statusCode(200).
+                body(is(IOUtils.toString(getClass().getResourceAsStream("/car-records.xsd"))));
+    }
+
+    @Test
+    public void fileNameInMultiPartSpecBuilderHasPrecedenceOverDefault() throws Exception {
+        // Given
+        final InputStream is = getClass().getResourceAsStream("/car-records.xsd");
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(is).fileName("file2").build()).
+        when().
+                post("/multipart/filename").
+        then().
+                statusCode(200).
+                body(equalTo("file2"));
+    }
+
+    @Test
+    public void fileNameInMultiPartSpecBuilderHasPrecedenceOverDefaultWhenConfigured() throws Exception {
+        // Given
+        final InputStream is = getClass().getResourceAsStream("/car-records.xsd");
+
+        // When
+        given().
+                config(config().multiPartConfig(multiPartConfig().defaultFileName("something-else"))).
+                multiPart(new MultiPartSpecBuilder(is).fileName("file2.txt").build()).
+        when().
+                post("/multipart/filename").
+        then().
+                statusCode(200).
+                body(equalTo("file2.txt"));;
+    }
+
+    @Test
+    public void defaultFileNameIsUsedWhenNoFileNameIsDefinedInMultiPartSpecBuilder() throws Exception {
+        // Given
+        final InputStream is = getClass().getResourceAsStream("/car-records.xsd");
+
+        // When
+        given().
+                config(config().multiPartConfig(multiPartConfig().with().defaultFileName("file-2.txt"))).
+                multiPart(new MultiPartSpecBuilder(is).build()).
+        when().
+                post("/multipart/filename").
+        then().
+                statusCode(200).
+                body(equalTo("file-2.txt"));
+    }
+
+    @Test
+    public void defaultFileNameCanBeNull() throws Exception {
+        // Given
+        final InputStream is = getClass().getResourceAsStream("/car-records.xsd");
+
+        // When
+        given().
+                config(config().multiPartConfig(multiPartConfig().with().emptyDefaultFileName())).
+                multiPart(new MultiPartSpecBuilder(is).build()).
+        when().
+                post("/multipart/filename").
+        then().
+                body(isEmptyString()).
+                statusCode(200);
+    }
+
+    @Test
+    public void fileNameCanBeNullInMultiPartSpec() throws Exception {
+        // Given
+        final InputStream is = getClass().getResourceAsStream("/car-records.xsd");
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(is).with().emptyFileName().build()).
+        when().
+                post("/multipart/filename").
+        then().
+                body(isEmptyString()).
+                statusCode(200);
     }
 }

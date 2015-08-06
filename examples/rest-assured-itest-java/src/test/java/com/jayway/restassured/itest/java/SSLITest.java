@@ -38,6 +38,7 @@ import static com.jayway.restassured.config.SSLConfig.sslConfig;
 import static com.jayway.restassured.http.ContentType.HTML;
 import static org.hamcrest.Matchers.containsString;
 
+@Ignore
 public class SSLITest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
