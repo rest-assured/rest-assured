@@ -19,7 +19,6 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
-import com.jayway.restassured.itest.java.support.WithJettySSL;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.junit.Ignore;
@@ -40,7 +39,7 @@ import static com.jayway.restassured.http.ContentType.HTML;
 import static org.hamcrest.Matchers.containsString;
 
 @Ignore
-public class SSLITest extends WithJettySSL {
+public class SSLITest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
