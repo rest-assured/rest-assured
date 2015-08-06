@@ -19,6 +19,7 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
+import com.jayway.restassured.itest.java.support.WithJettySSL;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.junit.Ignore;
@@ -39,7 +40,8 @@ import static com.jayway.restassured.http.ContentType.HTML;
 import static org.hamcrest.Matchers.containsString;
 
 @Ignore
-public class SSLITest {
+public class SSLITest extends WithJettySSL {
+
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
@@ -247,4 +249,16 @@ public class SSLITest {
         given().spec(spec).get("https://tv.eurosport.com/").then().spec(eurosportSpec());
     }
 
+
+    @Test
+    public void supportsSpecifyingKeystore() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/truststore_eurosport.jks", "test4321").build();
+        given().spec(spec).expect().spec(eurosportSpec()).get("https://localhost:8443/");
+    }
+
+    @Test
+    public void supportsOverridingKeystore() throws Exception {
+        final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/truststore_eurosport.jks", "wrong pw").build();
+        given().spec(spec).keystore("/truststore_eurosport.jks", "test4321").expect().spec(eurosportSpec()).get("https://tv.eurosport.com/");
+    }
 }
