@@ -17,18 +17,22 @@
 package com.jayway.restassured.itest.java.support;
 
 import com.jayway.restassured.RestAssured;
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.LoginService;
+import org.eclipse.jetty.security.authentication.BasicAuthenticator;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.util.security.Constraint;
+import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.nio.SelectChannelConnector;
-import org.mortbay.jetty.security.Constraint;
-import org.mortbay.jetty.security.ConstraintMapping;
-import org.mortbay.jetty.security.HashUserRealm;
-import org.mortbay.jetty.security.SecurityHandler;
-import org.mortbay.jetty.webapp.WebAppContext;
 
 import java.io.File;
+import java.util.Collections;
 
 @Ignore("To make Maven happy")
 public class WithJetty {
@@ -45,7 +49,7 @@ public class WithJetty {
     @BeforeClass
     public static void startJetty() throws Exception {
         server = new Server();
-        Connector connector = new SelectChannelConnector();
+        ServerConnector connector = new ServerConnector(server);
         connector.setPort(8080);
         server.addConnector(connector);
 
@@ -55,20 +59,25 @@ public class WithJetty {
         // Security config
         Constraint constraint = new Constraint();
         constraint.setName(Constraint.__BASIC_AUTH);;
-        constraint.setRoles(new String[]{"user","admin","moderator"});
+        constraint.setRoles(new String[]{"user", "admin", "moderator"});
         constraint.setAuthenticate(true);
 
-        ConstraintMapping cm = new ConstraintMapping();
-        cm.setConstraint(constraint);
-        cm.setPathSpec("/secured/*");
+        ConstraintMapping mapping = new ConstraintMapping();
+        mapping.setConstraint(constraint);
+        mapping.setPathSpec("/secured/*");
 
 
-        SecurityHandler sh = new SecurityHandler();
         final String realmPath = scalatraPath + "/etc/realm.properties";
-        sh.setUserRealm(new HashUserRealm("MyRealm",isExecutedFromMaven(canonicalPath) ? gotoProjectRoot().getCanonicalPath() + realmPath : canonicalPath+realmPath));
-        sh.setConstraintMappings(new ConstraintMapping[]{cm});
-        // End security config
+        LoginService loginService = new HashLoginService("MyRealm",  isExecutedFromMaven(canonicalPath) ? gotoProjectRoot().getCanonicalPath() + realmPath : canonicalPath + realmPath);
+        server.addBean(loginService);
 
+        ConstraintSecurityHandler security = new ConstraintSecurityHandler();
+        server.setHandler(security);
+        security.setConstraintMappings(Collections.singletonList(mapping));
+        security.setAuthenticator(new BasicAuthenticator());
+        security.setLoginService(loginService);
+
+        // End security config
 
         WebAppContext wac = new WebAppContext();
         wac.setContextPath("/");
@@ -78,8 +87,18 @@ public class WithJetty {
         wac.setWar(warPath);
         wac.setServer(server);
 
-        server.setHandler(wac);
-        server.addHandler(sh);
+        security.setHandler(wac);
+
+        // Remove the sending of date header since it makes testing of logging much harder
+        for(Connector y : server.getConnectors()) {
+            y.getConnectionFactories().stream()
+                    .filter(x -> x instanceof HttpConnectionFactory)
+                    .map(x -> ((HttpConnectionFactory) x))
+                    .map(HttpConnectionFactory::getHttpConfiguration)
+                    .forEach(conf -> conf.setSendDateHeader(false));
+        }
+
+        server.setHandler(security);
         server.start();
     }
 

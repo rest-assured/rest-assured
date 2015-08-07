@@ -86,17 +86,17 @@ public class HeaderITest extends WithJetty {
 
     @Test
     public void supportsHeaderStringMatching() throws Exception {
-        expect().response().header("Content-Type", "application/json; charset=UTF-8").when().get("/lotto");
+        expect().response().header("Content-Type", "application/json;charset=utf-8").when().get("/lotto");
     }
 
     @Test
     public void multipleHeaderStatementsAreConcatenated() throws Exception {
-        expect().response().header("Content-Type", "application/json; charset=UTF-8").and().header("Content-Length", "160").when().get("/lotto");
+        expect().response().header("Content-Type", "application/json;charset=utf-8").and().header("Content-Length", "160").when().get("/lotto");
     }
 
     @Test
     public void multipleHeadersShortVersionUsingPlainStrings() throws Exception {
-        expect().response().headers("Content-Type", "application/json; charset=UTF-8", "Content-Length", "160").when().get("/lotto");
+        expect().response().headers("Content-Type", "application/json;charset=utf-8", "Content-Length", "160").when().get("/lotto");
     }
 
     @Test
@@ -112,7 +112,7 @@ public class HeaderITest extends WithJetty {
     @Test
     public void multipleHeadersUsingMap() throws Exception {
         Map expectedHeaders = new HashMap();
-        expectedHeaders.put("Content-Type", "application/json; charset=UTF-8");
+        expectedHeaders.put("Content-Type", "application/json;charset=utf-8");
         expectedHeaders.put("Content-Length", "160");
 
         expect().response().headers(expectedHeaders).when().get("/lotto");
@@ -121,7 +121,7 @@ public class HeaderITest extends WithJetty {
     @Test
     public void multipleHeadersUsingMapWithHamcrestMatcher() throws Exception {
         Map expectedHeaders = new HashMap();
-        expectedHeaders.put("Content-Type", containsString("application/json; charset=UTF-8"));
+        expectedHeaders.put("Content-Type", containsString("application/json;charset=utf-8"));
         expectedHeaders.put("Content-Length", equalTo("160"));
 
         expect().response().headers(expectedHeaders).when().get("/lotto");
@@ -130,7 +130,7 @@ public class HeaderITest extends WithJetty {
     @Test
     public void multipleHeadersUsingMapWithMixOfStringAndHamcrestMatcher() throws Exception {
         Map expectedHeaders = new HashMap();
-        expectedHeaders.put("Content-Type", containsString("application/json; charset=UTF-8"));
+        expectedHeaders.put("Content-Type", containsString("application/json;charset=utf-8"));
         expectedHeaders.put("Content-Length", "160");
 
         expect().response().headers(expectedHeaders).when().get("/lotto");
@@ -149,9 +149,9 @@ public class HeaderITest extends WithJetty {
         exception.expect(AssertionError.class);
         exception.expectMessage(equalTo("1 expectation failed.\n" +
                 "Expected header \"Not-Defined\" was not \"160\", was \"null\". Headers are:\n" +
-                "Content-Type=application/json; charset=UTF-8\n" +
+                "Content-Type=application/json;charset=utf-8\n" +
                 "Content-Length=160\n" +
-                "Server=Jetty(6.1.14)\n"));
+                "Server=Jetty(9.3.2.v20150730)\n"));
 
         expect().response().header("Not-Defined", "160").when().get("/lotto");
     }

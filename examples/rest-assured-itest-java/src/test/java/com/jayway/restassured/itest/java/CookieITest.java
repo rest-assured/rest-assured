@@ -58,9 +58,13 @@ public class CookieITest extends WithJetty {
 
     @Test
     public void canSpecifyMultiValueCookiesUsingByPassingInSeveralValuesToTheCookieMethod() throws Exception {
-        final List<String> cookieValues = given().cookie("key1", "value1", "value2").when().post("/reflect").detailedCookies().getValues("key1");
-
-        assertThat(cookieValues, hasItems("value1", "value2"));
+        given().
+                cookie("key1", "value1", "value2").
+        when().
+                get("/multiCookieRequest").
+        then().
+                body("key1", contains("value1", "value2")).
+                body("size()", is(2));
     }
 
     @Test

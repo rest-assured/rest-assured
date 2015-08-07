@@ -277,7 +277,7 @@ public class JSONGetITest extends WithJetty {
     @Test
     public void contentTypeSpecificationWithHamcrestMatcher() throws Exception {
         final RequestSpecification requestSpecification = given().contentType(ContentType.TEXT).with().parameters("firstName", "John", "lastName", "Doe");
-        final ResponseSpecification responseSpecification = expect().contentType(equalTo("application/json; charset=UTF-8")).and().body("greeting", equalTo("Greetings John Doe"));
+        final ResponseSpecification responseSpecification = expect().contentType(equalTo("application/json;charset=utf-8")).and().body("greeting", equalTo("Greetings John Doe"));
         given(requestSpecification, responseSpecification).get("/greet");
     }
 
@@ -349,11 +349,12 @@ public class JSONGetITest extends WithJetty {
         expect().body("store.book[0..2].size()", equalTo(3)).when().get("/jsonStore");
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void supportsGettingResponseBodyWhenStatusCodeIs401() throws Exception {
         final Response response = get("/secured/hello");
 
-        assertThat(response.getBody().asString(), containsString("401 UNAUTHORIZED"));
+        assertThat(response.getBody().asString(), allOf(containsString("401"), containsString("Unauthorized")));
     }
 
 

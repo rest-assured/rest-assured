@@ -279,7 +279,7 @@ public class XMLGetITest extends WithJetty {
     @Test
     public void whenExpectingContentTypeXMLThenExceptionIsThrownIfContentTypeIsJson() throws Exception {
         exception.expect(AssertionError.class);
-        exception.expectMessage("Expected content-type \"XML\" doesn't match actual content-type \"application/json; charset=UTF-8\".");
+        exception.expectMessage("Expected content-type \"XML\" doesn't match actual content-type \"application/json;charset=utf-8\".");
 
         given().
                 param("firstName", "John").

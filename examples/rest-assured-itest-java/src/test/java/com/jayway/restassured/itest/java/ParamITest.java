@@ -89,7 +89,7 @@ public class ParamITest extends WithJetty {
                 contentType("application/x-www-form-urlencoded; charset=ISO-8859-1").
                 formParam("ikk", "&&&").
         expect().
-                body(is("ISO-8859-1")).
+                body(is("iso-8859-1")). // Jetty 9 always send charset as lowercase
         when().
                 post("/charEncoding");
     }

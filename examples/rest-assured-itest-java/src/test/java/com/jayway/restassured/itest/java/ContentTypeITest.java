@@ -19,6 +19,7 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -38,14 +39,14 @@ public class ContentTypeITest extends WithJetty {
     @Test
     public void canValidateResponseContentType() throws Exception {
         exception.expect(AssertionError.class);
-        exception.expectMessage("Expected content-type \"something\" doesn't match actual content-type \"application/json; charset=UTF-8\".");
+        exception.expectMessage("Expected content-type \"something\" doesn't match actual content-type \"application/json;charset=utf-8\".");
 
         expect().contentType("something").when().get("/hello");
     }
 
     @Test
     public void canValidateResponseContentTypeWithHamcrestMatcher() throws Exception {
-        expect().contentType(is("application/json; charset=UTF-8")).when().get("/hello");
+        expect().contentType(is("application/json;charset=utf-8")).when().get("/hello");
     }
 
     @Test
@@ -194,7 +195,7 @@ public class ContentTypeITest extends WithJetty {
         when().
                 put("/reflect").
         then().
-                contentType(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset()));
+                contentType(toJetty9(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test public void
@@ -206,7 +207,7 @@ public class ContentTypeITest extends WithJetty {
         when().
                 get("/reflect").
         then().
-                contentType(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset()));
+                contentType(toJetty9(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test public void
@@ -285,21 +286,25 @@ public class ContentTypeITest extends WithJetty {
 
     @Test public void
     custom_registered_encoding_of_content_type_is_applied_through_encoder_config() {
-    String uriList = "http://www.example.com/raindrops-on-roses\n" +
-            "ftp://www.example.com/sleighbells\n" +
-            "http://www.example.com/crisp-apple-strudel\n" +
-            "http://www.example.com/doorbells\n" +
-            "tag:foo@example.com,2012-07-01:bright-copper-kettles\n" +
-            "urn:isbn:0-061-99881-8";
+        String uriList = "http://www.example.com/raindrops-on-roses\n" +
+                "ftp://www.example.com/sleighbells\n" +
+                "http://www.example.com/crisp-apple-strudel\n" +
+                "http://www.example.com/doorbells\n" +
+                "tag:foo@example.com,2012-07-01:bright-copper-kettles\n" +
+                "urn:isbn:0-061-99881-8";
 
-    given().
-            config(config().encoderConfig(encoderConfig().encodeContentTypeAs("my-text", ContentType.TEXT))).
-            contentType("my-text").
-            body(uriList).
-    when().
-            post("/textUriList").
-    then().
-            statusCode(200).
-            body("uris.size()", is(6));
-}
+        given().
+                config(config().encoderConfig(encoderConfig().encodeContentTypeAs("my-text", ContentType.TEXT))).
+                contentType("my-text").
+                body(uriList).
+        when().
+                post("/textUriList").
+        then().
+                statusCode(200).
+                body("uris.size()", is(6));
+    }
+
+    private String toJetty9(String charset) {
+        return StringUtils.lowerCase(StringUtils.remove(charset, " "));
+    }
 }

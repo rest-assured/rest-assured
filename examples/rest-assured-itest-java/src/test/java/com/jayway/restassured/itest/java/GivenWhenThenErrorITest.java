@@ -45,7 +45,7 @@ public class GivenWhenThenErrorITest extends WithJetty {
     @Test public void
     throws_assertion_error_when_content_type_assertion_is_incorrect() {
         exception.expect(AssertionError.class);
-        exception.expectMessage("Expected content-type \"XML\" doesn't match actual content-type \"application/json; charset=UTF-8\".");
+        exception.expectMessage("Expected content-type \"XML\" doesn't match actual content-type \"application/json;charset=utf-8\".");
 
         given().
                 param("firstName", "John").
@@ -62,7 +62,7 @@ public class GivenWhenThenErrorITest extends WithJetty {
     throws_assertion_error_when_header_assertion_is_incorrect() {
         exception.expect(AssertionError.class);
         exception.expectMessage("Expected header \"Ikk\" was not \"jux\", was \"null\". Headers are:\n" +
-                "Content-Type=application/json; charset=UTF-8\n" +
+                "Content-Type=application/json;charset=utf-8\n" +
                 "Content-Length=33");
 
         given().

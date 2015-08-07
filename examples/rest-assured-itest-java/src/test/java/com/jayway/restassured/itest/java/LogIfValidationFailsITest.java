@@ -245,7 +245,7 @@ public class LogIfValidationFailsITest extends WithJetty {
                       "Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Multiparts:\t\t<none>"+LINE_SEPARATOR+"Headers:\t\tAccept=*/*"+LINE_SEPARATOR+
                       "\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+LINE_SEPARATOR+
                       "Cookies:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR+LINE_SEPARATOR+
-                      "HTTP/1.1 200 OK"+LINE_SEPARATOR+"Content-Type: application/json; charset=UTF-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(6.1.14)"+LINE_SEPARATOR+""+LINE_SEPARATOR+"{"+LINE_SEPARATOR+"    \"greeting\": \"Greetings John Doe\""+LINE_SEPARATOR+"}"+LINE_SEPARATOR+""));
+                      "HTTP/1.1 200 OK"+LINE_SEPARATOR+"Content-Type: application/json;charset=utf-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(9.3.2.v20150730)"+LINE_SEPARATOR+""+LINE_SEPARATOR+"{"+LINE_SEPARATOR+"    \"greeting\": \"Greetings John Doe\""+LINE_SEPARATOR+"}"+LINE_SEPARATOR+""));
           }
     }
 
@@ -272,7 +272,7 @@ public class LogIfValidationFailsITest extends WithJetty {
                       "Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Multiparts:\t\t<none>"+LINE_SEPARATOR+"Headers:\t\tAccept=*/*"+LINE_SEPARATOR+
                       "\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+LINE_SEPARATOR+
                       "Cookies:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR+LINE_SEPARATOR+
-                      "HTTP/1.1 200 OK"+LINE_SEPARATOR+"Content-Type: application/json; charset=UTF-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(6.1.14)"+LINE_SEPARATOR+""+LINE_SEPARATOR+"{"+LINE_SEPARATOR+"    \"greeting\": \"Greetings John Doe\""+LINE_SEPARATOR+"}"+LINE_SEPARATOR+""));
+                      "HTTP/1.1 200 OK"+LINE_SEPARATOR+"Content-Type: application/json;charset=utf-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(9.3.2.v20150730)"+LINE_SEPARATOR+""+LINE_SEPARATOR+"{"+LINE_SEPARATOR+"    \"greeting\": \"Greetings John Doe\""+LINE_SEPARATOR+"}"+LINE_SEPARATOR+""));
           }
     }
 
@@ -296,7 +296,7 @@ public class LogIfValidationFailsITest extends WithJetty {
           } catch (AssertionError e) {
             assertThat(writer.toString(), equalTo("Headers:\t\tAccept=*/*" + LINE_SEPARATOR +
                     "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultContentCharset() + LINE_SEPARATOR + LINE_SEPARATOR +
-                    "Content-Type: application/json; charset=UTF-8" + LINE_SEPARATOR + "Content-Length: 33" + LINE_SEPARATOR + "Server: Jetty(6.1.14)" + LINE_SEPARATOR));
+                    "Content-Type: application/json;charset=utf-8" + LINE_SEPARATOR + "Content-Length: 33" + LINE_SEPARATOR + "Server: Jetty(9.3.2.v20150730)" + LINE_SEPARATOR));
           }
     }
 
@@ -324,7 +324,7 @@ public class LogIfValidationFailsITest extends WithJetty {
                     "Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Multiparts:\t\t<none>"+LINE_SEPARATOR+"Headers:\t\tAccept=*/*"+LINE_SEPARATOR+
                     "\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+LINE_SEPARATOR+
                     "Cookies:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR +
-                    "Content-Type: application/json; charset=UTF-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(6.1.14)"+LINE_SEPARATOR));
+                    "Content-Type: application/json;charset=utf-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(9.3.2.v20150730)"+LINE_SEPARATOR));
           }
     }
 
@@ -354,7 +354,7 @@ public class LogIfValidationFailsITest extends WithJetty {
             assertThat(writer.toString(), equalTo("Headers:\t\t" +
                     "Api-Key=1234" + LINE_SEPARATOR + "\t\t\t\tAccept=*/*" + LINE_SEPARATOR +
                     "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultContentCharset() + LINE_SEPARATOR + LINE_SEPARATOR +
-                    "Content-Type: application/json; charset=UTF-8\nContent-Length: 33\nServer: Jetty(6.1.14)\n"));
+                    "Content-Type: application/json;charset=utf-8\nContent-Length: 33\nServer: Jetty(9.3.2.v20150730)\n"));
         }
     }
 
@@ -410,7 +410,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Headers:\t\tApi-Key=1234\n\t\t\t\tAccept=*/*\n\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\n\nContent-Type: application/json; charset=UTF-8\nContent-Length: 33\nServer: Jetty(6.1.14)\n"));
+            assertThat(writer.toString(), equalTo("Headers:\t\tApi-Key=1234\n\t\t\t\tAccept=*/*\n\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\n\nContent-Type: application/json;charset=utf-8\nContent-Length: 33\nServer: Jetty(9.3.2.v20150730)\n"));
         }
     }
 

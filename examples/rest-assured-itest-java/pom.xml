@@ -66,9 +66,9 @@
             <version>2.4.2-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.mortbay.jetty</groupId>
-            <artifactId>jetty</artifactId>
-            <version>6.1.14</version>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>9.3.2.v20150730</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

@@ -590,6 +590,15 @@ class ScalatraRestExample extends ScalatraServlet {
     "OK"
   }
 
+  get("/multiCookieRequest") {
+    val cookies = request.getCookies
+            .map(cookie => Map(cookie.getName -> cookie.getValue))
+            .foldLeft(mutable.ListBuffer[Map[String, String]]())((list, cookie) => {
+      list.add(cookie); list
+    })
+    compact(render(cookies))
+  }
+
   post("/j_spring_security_check") {
     contentType = "text/plain"
     securityCheck("jsessionid", () => true)
