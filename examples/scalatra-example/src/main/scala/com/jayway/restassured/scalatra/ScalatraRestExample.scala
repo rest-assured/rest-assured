@@ -52,6 +52,11 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(render(json))
   }
 
+  get("/hello") {
+    val json = ("hello" -> "Hello Scalatra")
+    compact(render(json))
+  }
+
   get("/greetXML") {
     greetXML
   }

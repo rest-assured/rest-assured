@@ -17,16 +17,15 @@
 package com.jayway.restassured.itest.java.support;
 
 import com.jayway.restassured.RestAssured;
+import org.eclipse.jetty.http.HttpVersion;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.security.Constraint;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
@@ -49,16 +48,37 @@ public class WithJetty {
     @BeforeClass
     public static void startJetty() throws Exception {
         server = new Server();
-        ServerConnector connector = new ServerConnector(server);
-        connector.setPort(8080);
-        server.addConnector(connector);
+
+        HttpConfiguration httpConfig = new HttpConfiguration();
+        httpConfig.setSecureScheme("https");
+        httpConfig.setSecurePort(8443);
+        httpConfig.setOutputBufferSize(32768);
+
+        ServerConnector http = new ServerConnector(server, new HttpConnectionFactory(httpConfig));
+        http.setPort(8080);
+        http.setIdleTimeout(30000);
+
+        HttpConfiguration httpsConfig = new HttpConfiguration(httpConfig);
+        httpsConfig.addCustomizer(new SecureRequestCustomizer());
+
+        String file = WithJetty.class.getClassLoader().getResource("jetty_localhost_server.jks").getFile();
+
+        SslContextFactory sslContextFactory = new SslContextFactory(file);
+        sslContextFactory.setKeyStorePassword("test1234");
+
+        ServerConnector https = new ServerConnector(server,
+                new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
+                new HttpConnectionFactory(httpsConfig));
+        https.setPort(8443);
+        https.setIdleTimeout(50000);
 
         String canonicalPath = new File(".").getCanonicalPath();
         String scalatraPath = "/examples/scalatra-webapp";
 
         // Security config
         Constraint constraint = new Constraint();
-        constraint.setName(Constraint.__BASIC_AUTH);;
+        constraint.setName(Constraint.__BASIC_AUTH);
+
         constraint.setRoles(new String[]{"user", "admin", "moderator"});
         constraint.setAuthenticate(true);
 
@@ -68,7 +88,7 @@ public class WithJetty {
 
 
         final String realmPath = scalatraPath + "/etc/realm.properties";
-        LoginService loginService = new HashLoginService("MyRealm",  isExecutedFromMaven(canonicalPath) ? gotoProjectRoot().getCanonicalPath() + realmPath : canonicalPath + realmPath);
+        LoginService loginService = new HashLoginService("MyRealm", isExecutedFromMaven(canonicalPath) ? gotoProjectRoot().getCanonicalPath() + realmPath : canonicalPath + realmPath);
         server.addBean(loginService);
 
         ConstraintSecurityHandler security = new ConstraintSecurityHandler();
@@ -83,23 +103,26 @@ public class WithJetty {
         wac.setContextPath("/");
         String webAppPath = "/src/main/webapp";
         final String scalatraWebAppPath = scalatraPath + webAppPath;
-        String warPath = isExecutedFromMaven(canonicalPath) ? gotoProjectRoot().getCanonicalPath() + scalatraWebAppPath : canonicalPath+scalatraWebAppPath;
+        String warPath = isExecutedFromMaven(canonicalPath) ? gotoProjectRoot().getCanonicalPath() + scalatraWebAppPath : canonicalPath + scalatraWebAppPath;
         wac.setWar(warPath);
         wac.setServer(server);
 
         security.setHandler(wac);
+        server.setHandler(security);
+        server.setConnectors(new Connector[]{http, https});
+        dontSendDateHeader(server);
+        server.start();
+    }
 
+    private static void dontSendDateHeader(Server server) {
         // Remove the sending of date header since it makes testing of logging much harder
-        for(Connector y : server.getConnectors()) {
+        for (Connector y : server.getConnectors()) {
             y.getConnectionFactories().stream()
                     .filter(x -> x instanceof HttpConnectionFactory)
                     .map(x -> ((HttpConnectionFactory) x))
                     .map(HttpConnectionFactory::getHttpConfiguration)
                     .forEach(conf -> conf.setSendDateHeader(false));
         }
-
-        server.setHandler(security);
-        server.start();
     }
 
     @Before

@@ -357,7 +357,6 @@ public class JSONGetITest extends WithJetty {
         assertThat(response.getBody().asString(), allOf(containsString("401"), containsString("Unauthorized")));
     }
 
-
     @Test
     public void throwsNiceErrorMessageWhenIllegalPath() throws Exception {
         exception.expect(IllegalArgumentException.class);
