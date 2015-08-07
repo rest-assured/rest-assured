@@ -129,7 +129,8 @@ public class EncoderRegistry {
         }
 
         if (entity == null) throw new IllegalArgumentException(
-                "Don't know how to encode " + data + " as a byte stream. Please use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.");
+                "Don't know how to encode " + data + " as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\n" +
+                        "For example: \"given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs(\"" + ContentTypeExtractor.getContentTypeWithoutCharset(contentTypeToString(contentType)) + "\", ContentType.TEXT))). ..\"");
 
         entity.setContentType(contentTypeToString(contentType));
         return entity;

@@ -304,6 +304,20 @@ public class ContentTypeITest extends WithJetty {
                 body("uris.size()", is(6));
     }
 
+    @Test public void
+    shows_a_nice_error_message_when_failed_to_encode_content() {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Don't know how to encode encode as a byte stream.\n\n" +
+                "Please use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\n" +
+                "For example: \"given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs(\"my-text\", ContentType.TEXT))). ..");
+
+        given().
+                contentType("my-text").
+                body("encode").
+        when().
+                post("/textUriList");
+    }
+
     private String toJetty9(String charset) {
         return StringUtils.lowerCase(StringUtils.remove(charset, " "));
     }
