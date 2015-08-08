@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 the original author or authors.
+ * Copyright 2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,17 @@
 package com.jayway.restassured.module.mockmvc.internal;
 
 /**
- * Checks whether or not the spring-security module is in classpath
+ * Checks whether or not the spring-security-test module is in classpath
  */
-class SpringSecurityClassPathChecker {
-    private static final String SECURITY_CONTEXT_HOLDER_CLASS_NAME = "org.springframework.security.core.context.SecurityContextHolder";
+class SpringSecurityTestClassPathChecker {
+    private static final String SECURITY_MOCK_MVC_CONFIGURERS_CLASS_NAME = "org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers";
 
-    public static boolean isSpringSecurityInClasspath() {
+    public static boolean isSpringSecurityTestInClasspath() {
         try {
-            Class.forName(SECURITY_CONTEXT_HOLDER_CLASS_NAME, false, Thread.currentThread().getContextClassLoader());
+            Class.forName(SECURITY_MOCK_MVC_CONFIGURERS_CLASS_NAME, false, Thread.currentThread().getContextClassLoader());
             return true;
         } catch (Throwable e) {
             return false;
         }
     }
-
 }

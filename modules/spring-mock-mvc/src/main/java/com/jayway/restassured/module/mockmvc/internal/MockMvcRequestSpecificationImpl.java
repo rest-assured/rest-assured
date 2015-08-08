@@ -66,7 +66,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private LogRepository logRepository;
 
-    private MockMvc instanceMockMvc;
+    private MockMvcFactory mockMvcFactory;
 
     private String basePath;
 
@@ -105,12 +105,12 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private AsyncConfig asyncConfig;
 
-    public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers,
+    public MockMvcRequestSpecificationImpl(MockMvcFactory mockMvcFactory, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers,
                                            List<RequestPostProcessor> requestPostProcessors, String basePath,
                                            MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification,
                                            MockMvcAuthenticationScheme authentication) {
         this.logRepository = new LogRepository();
-        this.instanceMockMvc = mockMvc;
+        this.mockMvcFactory = mockMvcFactory == null ? new MockMvcFactory() : mockMvcFactory;
         this.basePath = basePath;
         this.responseSpecification = responseSpecification;
         assignConfig(config);
@@ -134,11 +134,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification mockMvc(MockMvc mockMvc) {
         notNull(mockMvc, MockMvc.class);
-        return changeMockMvcInstanceTo(mockMvc);
+        return changeMockMvcFactoryTo(new MockMvcFactory(mockMvc));
     }
 
     public MockMvcRequestSpecification standaloneSetup(Object... controllers) {
-        return changeMockMvcInstanceTo(MockMvcBuilders.standaloneSetup(controllers).build());
+        return changeMockMvcFactoryTo(new MockMvcFactory(MockMvcBuilders.standaloneSetup(controllers)));
     }
 
     public MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers) {
@@ -148,7 +148,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
                 builder.apply(mockMvcConfigurer);
             }
         }
-        return changeMockMvcInstanceTo(builder.build());
+        return changeMockMvcFactoryTo(new MockMvcFactory(builder));
     }
 
     public MockMvcRequestSpecification interceptor(MockHttpServletRequestBuilderInterceptor interceptor) {
@@ -549,9 +549,9 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
             this.basePath = that.getBasePath();
         }
 
-        MockMvc otherInstanceMockMvc = that.getInstanceMockMvc();
-        if (otherInstanceMockMvc != null) {
-            this.changeMockMvcInstanceTo(otherInstanceMockMvc);
+        MockMvcFactory otherMockMvcFactory = that.getMockMvcFactory();
+        if (otherMockMvcFactory != null && otherMockMvcFactory.isAssigned()) {
+            this.changeMockMvcFactoryTo(otherMockMvcFactory);
         }
 
         this.cookies(that.getCookies());
@@ -638,6 +638,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
                 thisConfig = thisConfig.multiPartConfig(otherConfig.getMultiPartConfig());
             }
 
+            if (otherConfig.getMockMvcConfig().isUserConfigured()) {
+                thisConfig = thisConfig.mockMvcConfig(otherConfig.getMockMvcConfig());
+            }
+
             thisOne.config(thisConfig);
         } else if (!thisIsUserConfigured && otherIsUserConfigured) {
             thisOne.config(otherConfig);
@@ -680,8 +684,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         if (requestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
             log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
         }
-
-        return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, attributes, restAssuredMockMvcConfig, requestBody,
+        MockMvc mockMvc = mockMvcFactory.build(restAssuredMockMvcConfig.getMockMvcConfig());
+        return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams, attributes, restAssuredMockMvcConfig, requestBody,
                 requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor, basePath, responseSpecification, authentication,
                 logRepository);
     }
@@ -850,8 +854,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         this.requestLoggingFilter = requestLoggingFilter;
     }
 
-    private MockMvcRequestSpecification changeMockMvcInstanceTo(MockMvc mockMvc) {
-        this.instanceMockMvc = mockMvc;
+    private MockMvcRequestSpecification changeMockMvcFactoryTo(MockMvcFactory mockMvcFactory) {
+        this.mockMvcFactory = mockMvcFactory;
         return this;
     }
 
@@ -863,8 +867,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
     }
 
-    public MockMvc getInstanceMockMvc() {
-        return instanceMockMvc;
+    public MockMvcFactory getMockMvcFactory() {
+        return mockMvcFactory;
     }
 
     public String getBasePath() {

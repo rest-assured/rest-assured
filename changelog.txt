@@ -75,6 +75,15 @@ Change log next version
     given().postProcessors(myRequestPostProcessor1, myRequestPostProcessor2). ..
 * It's now possible to supply MockMvcConfigurers when calling webAppContextSetup in the Spring Mock MVC module. For example:
     given().webAppContextSetup(context, springSecurity()). ..
+* Non-backward compatible change: The field "RestAssuredMockMvc.mockMvc" has been replaced by a method: "RestAssuredMockMvc.mockMvc(..)". Before you did:
+    RestAssuredMockMvc.mockMvc = myMockMvcInstance;
+  but now you need to do:
+    RestAssuredMockMvc.mockMvc(myMockMvcInstance);
+* Added RestAssuredMockMvc#config() method that returns the assign static config or a new config if no static config has been assigned
+* Spring Mock MVC module automatically registers org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurer as request post processor if spring-security-test is available in classpath.
+  This means that you don't have to create a custom MockMvc instance with a "SecurityMockMvcConfigurer" manually which means easier setup.
+* Added MockMvcConfig to RestAssuredMockMvcConfig which allows you to configure whether or not SecurityMockMvcConfigurer should be applied by default (default is true). To disable it use:
+    given().config(config().mockMvcConfig(mockMvcConfig().dontAutomaticallyApplySpringSecurityMockMvcConfigurer())). ..
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------

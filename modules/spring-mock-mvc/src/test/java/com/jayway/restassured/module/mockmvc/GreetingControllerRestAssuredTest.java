@@ -69,7 +69,7 @@ public class GreetingControllerRestAssuredTest {
 
     @Test public void
     uses_static_mock_mvc() throws Exception {
-        RestAssuredMockMvc.mockMvc = standaloneSetup(new GreetingController()).build();
+        RestAssuredMockMvc.mockMvc(standaloneSetup(new GreetingController()).build());
 
         try {
             given().

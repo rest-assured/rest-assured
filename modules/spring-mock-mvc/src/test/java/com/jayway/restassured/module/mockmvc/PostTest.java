@@ -31,7 +31,7 @@ public class PostTest {
 
     @BeforeClass
     public static void configureMockMvcInstance() {
-        RestAssuredMockMvc.mockMvc = standaloneSetup(new PostController()).build();
+        RestAssuredMockMvc.mockMvc(standaloneSetup(new PostController()).build());
     }
 
     @AfterClass

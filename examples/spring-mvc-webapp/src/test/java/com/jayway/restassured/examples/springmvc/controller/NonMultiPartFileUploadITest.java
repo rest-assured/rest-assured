@@ -39,6 +39,7 @@ import java.io.IOException;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MainConfiguration.class)
@@ -54,6 +55,7 @@ public class NonMultiPartFileUploadITest {
 
     @Before
     public void configureMockMvcInstance() {
+        RestAssuredMockMvc.postProcessors(csrf().asHeader());
         RestAssuredMockMvc.webAppContextSetup(wac);
     }
 

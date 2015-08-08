@@ -38,7 +38,7 @@ public class PutTest {
 
     @BeforeClass
     public static void configureMockMvcInstance() {
-        RestAssuredMockMvc.mockMvc = standaloneSetup(new PutController()).build();
+        RestAssuredMockMvc.mockMvc(standaloneSetup(new PutController()).build());
     }
 
     @AfterClass

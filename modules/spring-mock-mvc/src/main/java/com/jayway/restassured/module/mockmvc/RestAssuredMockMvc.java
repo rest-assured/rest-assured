@@ -19,6 +19,7 @@ package com.jayway.restassured.module.mockmvc;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import com.jayway.restassured.module.mockmvc.internal.MockMvcFactory;
 import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme;
@@ -50,11 +51,16 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
  * <p>Note that some Javadoc is copied from Spring MVC's test documentation.</p>
  */
 public class RestAssuredMockMvc {
+
     /**
      * Set a {@link org.springframework.test.web.servlet.MockMvc} instance that REST Assured will use when making requests unless overwritten
      * by a {@link com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification}.
+     *
+     * @param mockMvc The MockMvc instance to use.
      */
-    public static MockMvc mockMvc = null;
+    public static void mockMvc(MockMvc mockMvc) {
+        RestAssuredMockMvc.mockMvcFactory = new MockMvcFactory(mockMvc);
+    }
 
     /**
      * Define a REST Assured Mock Mvc configuration. E.g.
@@ -88,6 +94,8 @@ public class RestAssuredMockMvc {
     private static List<ResultHandler> resultHandlers = new ArrayList<ResultHandler>();
 
     private static List<RequestPostProcessor> requestPostProcessors = new ArrayList<RequestPostProcessor>();
+
+    private static MockMvcFactory mockMvcFactory = null;
 
     /**
      * The base path that's used by REST assured when making requests. The base path is prepended to the request path.
@@ -125,7 +133,7 @@ public class RestAssuredMockMvc {
      * @return A {@link MockMvcRequestSpecification}.
      */
     public static MockMvcRequestSpecification given() {
-        return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers, requestPostProcessors, basePath, requestSpecification, responseSpecification, authentication);
+        return new MockMvcRequestSpecificationImpl(mockMvcFactory, config, resultHandlers, requestPostProcessors, basePath, requestSpecification, responseSpecification, authentication);
     }
 
     /**
@@ -191,7 +199,7 @@ public class RestAssuredMockMvc {
      * @param controllers one or more {@link org.springframework.stereotype.Controller @Controller}'s to test
      */
     public static void standaloneSetup(Object... controllers) {
-        mockMvc = MockMvcBuilders.standaloneSetup(controllers).build();
+        mockMvcFactory = new MockMvcFactory(MockMvcBuilders.standaloneSetup(controllers));
     }
 
     /**
@@ -210,7 +218,7 @@ public class RestAssuredMockMvc {
      * @param builder {@link org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder} to build the MVC mock
      */
     public static void standaloneSetup(AbstractMockMvcBuilder builder) {
-        mockMvc = builder.build();
+        mockMvcFactory = new MockMvcFactory(builder);
     }
 
     /**
@@ -231,7 +239,7 @@ public class RestAssuredMockMvc {
                 builder.apply(mockMvcConfigurer);
             }
         }
-        mockMvc = builder.build();
+        mockMvcFactory = new MockMvcFactory(builder);
     }
 
     /**
@@ -285,7 +293,7 @@ public class RestAssuredMockMvc {
      * Reset all static configurations to their default values.
      */
     public static void reset() {
-        mockMvc = null;
+        mockMvcFactory = null;
         config = null;
         basePath = "/";
         resultHandlers.clear();
@@ -806,5 +814,12 @@ public class RestAssuredMockMvc {
             }
             requestSpecification.config(restAssuredConfig);
         }
+    }
+
+    /**
+     * @return The assigned config or a new config is no config is assigned
+     */
+    public static RestAssuredMockMvcConfig config() {
+        return config == null ? new RestAssuredMockMvcConfig() : config;
     }
 }

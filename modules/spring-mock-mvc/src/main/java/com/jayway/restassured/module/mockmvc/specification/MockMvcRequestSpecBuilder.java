@@ -25,6 +25,7 @@ import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
+import com.jayway.restassured.module.mockmvc.internal.MockMvcFactory;
 import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Header;
@@ -35,6 +36,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 
@@ -58,9 +60,9 @@ public class MockMvcRequestSpecBuilder {
     private MockMvcRequestSpecificationImpl spec;
 
     public MockMvcRequestSpecBuilder() {
-        this.spec = (MockMvcRequestSpecificationImpl) new MockMvcRequestSpecificationImpl(RestAssuredMockMvc.mockMvc, RestAssuredMockMvc.config, RestAssuredMockMvc.resultHandlers(),
-                RestAssuredMockMvc.postProcessors(), RestAssuredMockMvc.basePath, RestAssuredMockMvc.requestSpecification, RestAssuredMockMvc.responseSpecification, RestAssuredMockMvc.authentication).
-                config(RestAssuredMockMvc.config);
+        this.spec = (MockMvcRequestSpecificationImpl) new MockMvcRequestSpecificationImpl(getConfiguredMockMvcFactory(), RestAssuredMockMvc.config,
+                RestAssuredMockMvc.resultHandlers(), RestAssuredMockMvc.postProcessors(), RestAssuredMockMvc.basePath, RestAssuredMockMvc.requestSpecification,
+                RestAssuredMockMvc.responseSpecification, RestAssuredMockMvc.authentication).config(RestAssuredMockMvc.config);
     }
 
     /**
@@ -650,5 +652,17 @@ public class MockMvcRequestSpecBuilder {
      */
     public MockMvcRequestSpecBuilder and() {
         return this;
+    }
+
+    private static MockMvcFactory getConfiguredMockMvcFactory() {
+        try {
+            Field mockMvcFactory = RestAssuredMockMvc.class.getDeclaredField("mockMvcFactory");
+            mockMvcFactory.setAccessible(true);
+            Object instance = mockMvcFactory.get(RestAssuredMockMvc.class);
+            mockMvcFactory.setAccessible(false);
+            return (MockMvcFactory) instance;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error: Cannot find mockMvcFactory field in " + RestAssuredMockMvc.class.getName());
+        }
     }
 }

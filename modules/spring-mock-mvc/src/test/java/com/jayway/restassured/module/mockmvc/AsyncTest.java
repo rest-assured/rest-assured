@@ -35,7 +35,7 @@ public class AsyncTest {
 
     @BeforeClass
     public static void configureMockMvcInstance() {
-        RestAssuredMockMvc.mockMvc = standaloneSetup(new PostAsyncController()).build();
+        RestAssuredMockMvc.mockMvc(standaloneSetup(new PostAsyncController()).build());
     }
 
     @AfterClass

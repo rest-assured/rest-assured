@@ -148,9 +148,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
     private MockMvcResponse performRequest(MockHttpServletRequestBuilder requestBuilder) {
         MockHttpServletResponse response;
-        if (mockMvc == null) {
-            throw new IllegalStateException("You haven't configured a MockMVC instance. You can do this statically\n\nRestAssured.mockMvc = ..\nRestAssured.standaloneSetup(..);\nRestAssured.webAppContextSetup(..);\n\nor using the DSL:\n\ngiven().\n\t\tmockMvc(..). ..\n");
-        }
 
         if (interceptor != null) {
             interceptor.intercept(requestBuilder);

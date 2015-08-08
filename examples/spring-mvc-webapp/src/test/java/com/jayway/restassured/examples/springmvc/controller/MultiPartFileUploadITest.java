@@ -45,6 +45,7 @@ import static com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcCon
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MainConfiguration.class)
@@ -61,6 +62,7 @@ public class MultiPartFileUploadITest {
     @Before
     public void configureMockMvcInstance() {
         RestAssuredMockMvc.webAppContextSetup(wac);
+        RestAssuredMockMvc.postProcessors(csrf().asHeader());
     }
 
     @After
