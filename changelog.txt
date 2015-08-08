@@ -66,6 +66,8 @@ Change log next version
 * It's now possible to set default filename and control name for multiparts. Before they were always equal to "file" but this is now configurable using the new MultiPartConfig. For example:
     given().config(config().multiPartConfig(multiPartConfig().with().defaultFileName("custom1").and().defaultControlName("custom2"))). ..
   This is also implemented for the Spring Mock MVC module.
+* Upgraded Spring from version 4.1.6.RELEASE to 4.2.0.RELEASE in the spring-mock-mvc module
+* Upgraded Spring Security from version 3.2.5.RELEASE to 4.0.2.RELEASE in the spring-mock-mvc module
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------
