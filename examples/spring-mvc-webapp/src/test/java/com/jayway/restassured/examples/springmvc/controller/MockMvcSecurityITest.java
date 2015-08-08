@@ -37,6 +37,8 @@ import org.springframework.web.context.WebApplicationContext;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.with;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
@@ -152,4 +154,56 @@ public class MockMvcSecurityITest {
                 body("content", equalTo("Hello, Johan!")).
                 expect(authenticated().withUsername("authorized_user"));
    }
+
+    @Test public void
+    can_authenticate_using_dsl_post_processors() throws Exception {
+        given().
+                mockMvc(mvc).
+                postProcessors(httpBasic("username", "password")).
+                param("name", "Johan").
+        when().
+                get("/secured/greeting").
+        then().
+                statusCode(200).
+                body("content", equalTo("Hello, Johan!")).
+                expect(authenticated().withUsername("username"));
+    }
+
+    @Test public void
+    can_authenticate_using_static_post_processors() throws Exception {
+        RestAssuredMockMvc.postProcessors(httpBasic("username", "password"));
+
+        try {
+            given().
+                    mockMvc(mvc).
+                    param("name", "Johan").
+            when().
+                    get("/secured/greeting").
+            then().
+                    statusCode(200).
+                    body("content", equalTo("Hello, Johan!")).
+                    expect(authenticated().withUsername("username"));
+        } finally {
+            RestAssuredMockMvc.reset();
+        }
+
+        assertThat(RestAssuredMockMvc.postProcessors(), hasSize(0));
+    }
+
+    @Test public void
+    can_authenticate_using_post_processors_in_spec() throws Exception {
+        MockMvcRequestSpecification specification = new MockMvcRequestSpecBuilder().setPostProcessors(httpBasic("username", "password")).build();
+
+        given().
+                mockMvc(mvc).
+                spec(specification).
+                param("name", "Johan").
+        when().
+                get("/secured/greeting").
+        then().
+                statusCode(200).
+                body("content", equalTo("Hello, Johan!")).
+                expect(authenticated().withUsername("username"));
+    }
+
 }

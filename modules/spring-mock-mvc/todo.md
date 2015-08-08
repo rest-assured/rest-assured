@@ -1,4 +1,3 @@
-* Add non-auth RequestPostProcessor support
 * Automatically register MockMvcConfigurer:
   
   ```java

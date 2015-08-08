@@ -86,6 +86,8 @@ public class RestAssuredMockMvc {
 
     private static List<ResultHandler> resultHandlers = new ArrayList<ResultHandler>();
 
+    private static List<RequestPostProcessor> requestPostProcessors = new ArrayList<RequestPostProcessor>();
+
     /**
      * The base path that's used by REST assured when making requests. The base path is prepended to the request path.
      * Default value is <code>/</code>.
@@ -122,7 +124,7 @@ public class RestAssuredMockMvc {
      * @return A {@link MockMvcRequestSpecification}.
      */
     public static MockMvcRequestSpecification given() {
-        return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers, basePath, requestSpecification, responseSpecification, authentication);
+        return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers, requestPostProcessors, basePath, requestSpecification, responseSpecification, authentication);
     }
 
     /**
@@ -245,6 +247,32 @@ public class RestAssuredMockMvc {
     }
 
     /**
+     * Assign one or more {@link org.springframework.test.web.servlet.ResultHandler} that'll be executes after a request has been made.
+     * <p>
+     * Note that it's recommended to use {@link #with(RequestPostProcessor, RequestPostProcessor...)} instead of this method when setting
+     * authentication/authorization based RequestPostProcessors.
+     * </p>
+     *
+     * @param postProcessor            a post-processor to add
+     * @param additionalPostProcessors Additional post-processors to add
+     * @see MockMvcRequestSpecification#postProcessors(RequestPostProcessor, RequestPostProcessor...)
+     */
+    public static void postProcessors(RequestPostProcessor postProcessor, RequestPostProcessor... additionalPostProcessors) {
+        notNull(postProcessor, RequestPostProcessor.class);
+        RestAssuredMockMvc.requestPostProcessors.add(postProcessor);
+        if (additionalPostProcessors != null && additionalPostProcessors.length >= 1) {
+            Collections.addAll(RestAssuredMockMvc.requestPostProcessors, additionalPostProcessors);
+        }
+    }
+
+    /**
+     * @return The defined list of request post processors
+     */
+    public static List<RequestPostProcessor> postProcessors() {
+        return Collections.unmodifiableList(requestPostProcessors);
+    }
+
+    /**
      * Reset all static configurations to their default values.
      */
     public static void reset() {
@@ -252,6 +280,7 @@ public class RestAssuredMockMvc {
         config = null;
         basePath = "/";
         resultHandlers.clear();
+        requestPostProcessors.clear();
         responseSpecification = null;
         requestSpecification = null;
         authentication = null;
@@ -715,7 +744,7 @@ public class RestAssuredMockMvc {
      * </pre>
      * where <code>user</code> is statically imported from <code>org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors</code>.
      *
-     * @param requestPostProcessor The first request post processor to be used for authentication
+     * @param requestPostProcessor           The first request post processor to be used for authentication
      * @param additionalRequestPostProcessor Additional request post processors to be used for authentication
      * @return A {@link com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme} instance.
      */

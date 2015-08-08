@@ -96,13 +96,16 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private final List<ResultHandler> resultHandlers = new ArrayList<ResultHandler>();
 
+    private final List<RequestPostProcessor> requestPostProcessors = new ArrayList<RequestPostProcessor>();
+
     private MockHttpServletRequestBuilderInterceptor interceptor;
 
     private Object authentication;
 
     private AsyncConfig asyncConfig;
 
-    public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers, String basePath,
+    public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers,
+                                           List<RequestPostProcessor> requestPostProcessors, String basePath,
                                            MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification,
                                            MockMvcAuthenticationScheme authentication) {
         this.logRepository = new LogRepository();
@@ -110,8 +113,13 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         this.basePath = basePath;
         this.responseSpecification = responseSpecification;
         assignConfig(config);
+
         if (resultHandlers != null) {
             this.resultHandlers.addAll(resultHandlers);
+        }
+
+        if (requestPostProcessors != null) {
+            this.requestPostProcessors.addAll(requestPostProcessors);
         }
 
         if (requestSpecification != null) {
@@ -143,6 +151,15 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification and() {
+        return this;
+    }
+
+    public MockMvcRequestSpecification postProcessors(RequestPostProcessor postProcessor, RequestPostProcessor... additionalPostProcessors) {
+        notNull(postProcessor, RequestPostProcessor.class);
+        this.requestPostProcessors.add(postProcessor);
+        if (additionalPostProcessors != null && additionalPostProcessors.length >= 1) {
+            Collections.addAll(this.requestPostProcessors, additionalPostProcessors);
+        }
         return this;
     }
 
@@ -549,6 +566,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
         this.multiParts.addAll(that.getMultiParts());
         this.resultHandlers.addAll(that.getResultHandlers());
+        this.requestPostProcessors.addAll(that.getRequestPostProcessors());
 
         RequestLoggingFilter otherRequestLoggingFilter = that.getRequestLoggingFilter();
         if (otherRequestLoggingFilter != null) {
@@ -658,7 +676,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
 
         return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, attributes, restAssuredMockMvcConfig, requestBody,
-                requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath, responseSpecification, authentication,
+                requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor, basePath, responseSpecification, authentication,
                 logRepository);
     }
 
@@ -903,6 +921,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return resultHandlers;
     }
 
+    public List<RequestPostProcessor> getRequestPostProcessors() {
+        return requestPostProcessors;
+    }
+
     public MockHttpServletRequestBuilderInterceptor getInterceptor() {
         return interceptor;
     }
@@ -921,13 +943,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification with(RequestPostProcessor requestPostProcessor, RequestPostProcessor... additionalRequestPostProcessor) {
         notNull(requestPostProcessor, RequestPostProcessor.class);
-        if (additionalRequestPostProcessor == null || additionalRequestPostProcessor.length == 0) {
-            this.authentication = requestPostProcessor;
-        } else {
-            RequestPostProcessor[] requestPostProcessors = new RequestPostProcessor[additionalRequestPostProcessor.length + 1];
-            requestPostProcessors[0] = requestPostProcessor;
-            System.arraycopy(additionalRequestPostProcessor, 0, requestPostProcessors, 1, additionalRequestPostProcessor.length);
-            this.authentication = requestPostProcessors;
+        this.authentication = null;
+        this.requestPostProcessors.add(requestPostProcessor);
+        if (!(additionalRequestPostProcessor == null || additionalRequestPostProcessor.length == 0)) {
+            this.requestPostProcessors.addAll(Arrays.asList(additionalRequestPostProcessor));
         }
         return this;
     }

@@ -90,6 +90,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     private final List<MockMvcMultiPart> multiParts;
     private final RequestLoggingFilter requestLoggingFilter;
     private final List<ResultHandler> resultHandlers;
+    private final List<RequestPostProcessor> requestPostProcessors;
     private final MockHttpServletRequestBuilderInterceptor interceptor;
     private final String basePath;
     private final ResponseSpecification responseSpecification;
@@ -100,16 +101,16 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
                              RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
                              List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
-                             MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
+                             List<RequestPostProcessor> requestPostProcessors, MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
                              Object authentication, LogRepository logRepository) {
-        this(mockMvc, params, queryParams, formParams, attributes, config, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor,
+        this(mockMvc, params, queryParams, formParams, attributes, config, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, false);
     }
 
     private MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
                                      RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
                                      List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
-                                     MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
+                                     List<RequestPostProcessor> requestPostProcessors, MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
                                      Object authentication, LogRepository logRepository, boolean isAsyncRequest) {
         this.mockMvc = mockMvc;
         this.params = params;
@@ -123,6 +124,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         this.multiParts = multiParts;
         this.requestLoggingFilter = requestLoggingFilter;
         this.resultHandlers = resultHandlers;
+        this.requestPostProcessors = requestPostProcessors;
         this.interceptor = interceptor;
         this.basePath = basePath;
         this.responseSpecification = responseSpecification;
@@ -158,22 +160,10 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication((org.springframework.security.core.Authentication) authentication);
         } else if (authentication instanceof Principal) {
             requestBuilder.principal((Principal) authentication);
-        } else if (authentication instanceof RequestPostProcessor) {
-            requestBuilder.with((RequestPostProcessor) authentication);
-        } else if (authentication != null && authentication.getClass().isArray()) {
-            Object[] authenticationArray = (Object[]) authentication;
-            List<RequestPostProcessor> requestPostProcessors = new LinkedList<RequestPostProcessor>();
-            for (Object auth : authenticationArray) {
-                if (auth instanceof RequestPostProcessor) {
-                    requestPostProcessors.add((RequestPostProcessor) auth);
-                } else {
-                    throw new IllegalArgumentException("Cannot use an array containing an instance of " + auth.getClass().getName() + "to authenticate");
-                }
-            }
+        }
 
-            for (RequestPostProcessor requestPostProcessor : requestPostProcessors) {
-                requestBuilder.with(requestPostProcessor);
-            }
+        for (RequestPostProcessor requestPostProcessor : requestPostProcessors) {
+            requestBuilder.with(requestPostProcessor);
         }
 
         MockMvcRestAssuredResponseImpl restAssuredResponse;
@@ -703,7 +693,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     public MockMvcRequestAsyncConfigurer timeout(long duration, TimeUnit timeUnit) {
         RestAssuredMockMvcConfig newConfig = config.asyncConfig(new AsyncConfig(duration, timeUnit));
         return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams,
-                attributes, newConfig, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor,
+                attributes, newConfig, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, isAsyncRequest);
     }
 
@@ -717,7 +707,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
     public MockMvcRequestAsyncConfigurer async() {
         return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams,
-                attributes, config, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor,
+                attributes, config, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, true);
     }
 

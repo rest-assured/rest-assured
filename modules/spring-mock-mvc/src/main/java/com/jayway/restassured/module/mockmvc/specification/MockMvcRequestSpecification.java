@@ -25,8 +25,11 @@ import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultHandler;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
@@ -888,4 +891,23 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * @return The same {@link com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification} instance.
      */
     MockMvcRequestSpecification and();
+
+    /**
+     * An extension point for further initialization of {@link MockHttpServletRequest}
+     * in ways not built directly into the {@code MockHttpServletRequestBuilder}.
+     * Implementation of this interface can have builder-style methods themselves
+     * and be made accessible through static factory methods.
+     * <p>
+     * Note that it's recommended to use {@link MockMvcAuthenticationSpecification#with(RequestPostProcessor, RequestPostProcessor...)} instead of this method when setting authentication/authorization based RequestPostProcessors.
+     * For example:
+     * <pre>
+     * given().auth().with(httpBasic("username", "password")). ..
+     * </pre>
+     * </p>
+     *
+     * @param postProcessor            a post-processor to add
+     * @param additionalPostProcessors Additional post-processors to add
+     * @see MockHttpServletRequestBuilder#with(RequestPostProcessor)
+     */
+    MockMvcRequestSpecification postProcessors(RequestPostProcessor postProcessor, RequestPostProcessor... additionalPostProcessors);
 }

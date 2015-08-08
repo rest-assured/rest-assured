@@ -30,6 +30,7 @@ import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Header;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultHandler;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.io.File;
 import java.io.InputStream;
@@ -58,7 +59,7 @@ public class MockMvcRequestSpecBuilder {
 
     public MockMvcRequestSpecBuilder() {
         this.spec = (MockMvcRequestSpecificationImpl) new MockMvcRequestSpecificationImpl(RestAssuredMockMvc.mockMvc, RestAssuredMockMvc.config, RestAssuredMockMvc.resultHandlers(),
-                RestAssuredMockMvc.basePath, RestAssuredMockMvc.requestSpecification, RestAssuredMockMvc.responseSpecification, RestAssuredMockMvc.authentication).
+                RestAssuredMockMvc.postProcessors(), RestAssuredMockMvc.basePath, RestAssuredMockMvc.requestSpecification, RestAssuredMockMvc.responseSpecification, RestAssuredMockMvc.authentication).
                 config(RestAssuredMockMvc.config);
     }
 
@@ -69,6 +70,17 @@ public class MockMvcRequestSpecBuilder {
      */
     public MockMvcRequestSpecBuilder setAuth(MockMvcAuthenticationScheme auth) {
         auth.authenticate(spec);
+        return this;
+    }
+
+    /**
+     * Set the post processors for this request.
+     *
+     * @param postProcessors The post processors to use
+     * @return The request specification builder
+     */
+    public MockMvcRequestSpecBuilder setPostProcessors(RequestPostProcessor postProcessors) {
+        spec.postProcessors(postProcessors);
         return this;
     }
 
@@ -288,7 +300,7 @@ public class MockMvcRequestSpecBuilder {
     /**
      * Add request attribute
      *
-     * @param attributeName The attribute name
+     * @param attributeName  The attribute name
      * @param attributeValue The attribute value
      * @return The request specification builder
      */
