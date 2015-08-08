@@ -1707,6 +1707,9 @@ public class RestAssured {
     }
 
 
+    /**
+     * @return The assigned config or a new config is no config is assigned
+     */
     public static RestAssuredConfig config() {
         return config == null ? new RestAssuredConfig() : config;
     }
