@@ -44,14 +44,13 @@ import static org.hamcrest.Matchers.greaterThan;
 @ContextConfiguration(classes = MainConfiguration.class)
 @WebAppConfiguration
 // @formatter:off
-public class NonMultiPartFileUploadTest {
+public class NonMultiPartFileUploadITest {
 
     @Autowired
     protected WebApplicationContext wac;
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
-
 
     @Before
     public void configureMockMvcInstance() {

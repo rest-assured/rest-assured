@@ -16,10 +16,12 @@
 
 package com.jayway.restassured.module.mockmvc.specification;
 
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+
 import java.security.Principal;
 
 /**
- * Specify an authentication scheme to use when sending a request.
+ * Specify an authentication scheme to use when sending a request. It's recommended to add the <code>spring-security-test</code> module to the classpath and use the {@link #with(RequestPostProcessor, RequestPostProcessor...)} method for authentication and authorization.
  */
 public interface MockMvcAuthenticationSpecification {
     /**
@@ -30,6 +32,21 @@ public interface MockMvcAuthenticationSpecification {
      * @see org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder#principal(java.security.Principal)
      */
     MockMvcRequestSpecification principal(Principal principal);
+
+    /**
+     * Authenticate using a {@link RequestPostProcessor}.
+     * This is mainly useful when you have added the <code>spring-security-test</code> artifact to classpath. This allows
+     * you to do for example:
+     * <pre>
+     * given().auth().with(user("username").password("password")). ..
+     * </pre>
+     * where <code>user</code> is statically imported from <code>org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors</code>.
+     *
+     * @param requestPostProcessor           The first request post processor to be used for authentication
+     * @param additionalRequestPostProcessor Additional request post processors to be used for authentication
+     * @return A {@link com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme} instance.
+     */
+    MockMvcRequestSpecification with(RequestPostProcessor requestPostProcessor, RequestPostProcessor... additionalRequestPostProcessor);
 
     /**
      * Authenticate using the given principal. The principal will be used like this:

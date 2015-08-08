@@ -27,6 +27,7 @@ import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecifi
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultHandler;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -701,6 +702,27 @@ public class RestAssuredMockMvc {
         return new MockMvcAuthenticationScheme() {
             public void authenticate(MockMvcRequestSpecification mockMvcRequestSpecification) {
                 mockMvcRequestSpecification.auth().authentication(authentication);
+            }
+        };
+    }
+
+    /**
+     * Authenticate using a {@link RequestPostProcessor}.
+     * This is mainly useful when you have added the <code>spring-security-test</code> artifact to classpath. This allows
+     * you to do for example:
+     * <pre>
+     * RestAssured.authentication = with(user("username").password("password"));
+     * </pre>
+     * where <code>user</code> is statically imported from <code>org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors</code>.
+     *
+     * @param requestPostProcessor The first request post processor to be used for authentication
+     * @param additionalRequestPostProcessor Additional request post processors to be used for authentication
+     * @return A {@link com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme} instance.
+     */
+    public static MockMvcAuthenticationScheme with(final RequestPostProcessor requestPostProcessor, final RequestPostProcessor... additionalRequestPostProcessor) {
+        return new MockMvcAuthenticationScheme() {
+            public void authenticate(MockMvcRequestSpecification mockMvcRequestSpecification) {
+                mockMvcRequestSpecification.auth().with(requestPostProcessor, additionalRequestPostProcessor);
             }
         };
     }

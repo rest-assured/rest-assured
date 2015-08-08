@@ -41,6 +41,7 @@ import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultHandler;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -915,6 +916,19 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification principal(Principal principal) {
         notNull(principal, Principal.class);
         this.authentication = principal;
+        return this;
+    }
+
+    public MockMvcRequestSpecification with(RequestPostProcessor requestPostProcessor, RequestPostProcessor... additionalRequestPostProcessor) {
+        notNull(requestPostProcessor, RequestPostProcessor.class);
+        if (additionalRequestPostProcessor == null || additionalRequestPostProcessor.length == 0) {
+            this.authentication = requestPostProcessor;
+        } else {
+            RequestPostProcessor[] requestPostProcessors = new RequestPostProcessor[additionalRequestPostProcessor.length + 1];
+            requestPostProcessors[0] = requestPostProcessor;
+            System.arraycopy(additionalRequestPostProcessor, 0, requestPostProcessors, 1, additionalRequestPostProcessor.length);
+            this.authentication = requestPostProcessors;
+        }
         return this;
     }
 

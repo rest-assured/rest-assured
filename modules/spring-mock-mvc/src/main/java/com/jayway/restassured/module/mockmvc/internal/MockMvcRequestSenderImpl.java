@@ -53,6 +53,7 @@ import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.io.*;
 import java.net.URI;
@@ -106,10 +107,10 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     }
 
     private MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
-                             RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
-                             List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
-                             MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
-                             Object authentication, LogRepository logRepository, boolean isAsyncRequest) {
+                                     RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
+                                     List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
+                                     MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
+                                     Object authentication, LogRepository logRepository, boolean isAsyncRequest) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.queryParams = queryParams;
@@ -157,6 +158,22 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication((org.springframework.security.core.Authentication) authentication);
         } else if (authentication instanceof Principal) {
             requestBuilder.principal((Principal) authentication);
+        } else if (authentication instanceof RequestPostProcessor) {
+            requestBuilder.with((RequestPostProcessor) authentication);
+        } else if (authentication != null && authentication.getClass().isArray()) {
+            Object[] authenticationArray = (Object[]) authentication;
+            List<RequestPostProcessor> requestPostProcessors = new LinkedList<RequestPostProcessor>();
+            for (Object auth : authenticationArray) {
+                if (auth instanceof RequestPostProcessor) {
+                    requestPostProcessors.add((RequestPostProcessor) auth);
+                } else {
+                    throw new IllegalArgumentException("Cannot use an array containing an instance of " + auth.getClass().getName() + "to authenticate");
+                }
+            }
+
+            for (RequestPostProcessor requestPostProcessor : requestPostProcessors) {
+                requestBuilder.with(requestPostProcessor);
+            }
         }
 
         MockMvcRestAssuredResponseImpl restAssuredResponse;
