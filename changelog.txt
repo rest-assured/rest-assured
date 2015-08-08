@@ -73,7 +73,8 @@ Change log next version
   where "httpBasic" is statically imported from org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors. This requires that you have "spring-security-test" in your classpath.
 * Added support for RequestPostProcessors to the Spring Mock MVC module, for example:
     given().postProcessors(myRequestPostProcessor1, myRequestPostProcessor2). ..
-
+* It's now possible to supply MockMvcConfigurers when calling webAppContextSetup in the Spring Mock MVC module. For example:
+    given().webAppContextSetup(context, springSecurity()). ..
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------

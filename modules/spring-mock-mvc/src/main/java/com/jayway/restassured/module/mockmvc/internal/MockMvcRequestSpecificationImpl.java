@@ -44,6 +44,7 @@ import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
@@ -140,8 +141,13 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return changeMockMvcInstanceTo(MockMvcBuilders.standaloneSetup(controllers).build());
     }
 
-    public MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context) {
+    public MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers) {
         DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(context);
+        if (mockMvcConfigurers != null && mockMvcConfigurers.length > 0) {
+            for (MockMvcConfigurer mockMvcConfigurer : mockMvcConfigurers) {
+                builder.apply(mockMvcConfigurer);
+            }
+        }
         return changeMockMvcInstanceTo(builder.build());
     }
 

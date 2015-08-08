@@ -31,6 +31,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.net.URI;
@@ -219,9 +220,17 @@ public class RestAssuredMockMvc {
      * will use the context to discover Spring MVC infrastructure and
      * application controllers in it. The context must have been configured with
      * a {@link javax.servlet.ServletContext}.
+     *
+     * @param context            The web application context to use
+     * @param mockMvcConfigurers (Optional) {@link MockMvcConfigurer}'s to use when create a {@link MockMvc} instance of this context.
      */
-    public static void webAppContextSetup(WebApplicationContext context) {
+    public static void webAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers) {
         DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(context);  // To avoid compile-time errors
+        if (mockMvcConfigurers != null && mockMvcConfigurers.length > 0) {
+            for (MockMvcConfigurer mockMvcConfigurer : mockMvcConfigurers) {
+                builder.apply(mockMvcConfigurer);
+            }
+        }
         mockMvc = builder.build();
     }
 

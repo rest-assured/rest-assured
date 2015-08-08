@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
@@ -873,8 +874,11 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * will use the context to discover Spring MVC infrastructure and
      * application controllers in it. The context must have been configured with
      * a {@link javax.servlet.ServletContext}.
+     *
+     * @param context            The web application context to use
+     * @param mockMvcConfigurers (Optional) {@link MockMvcConfigurer}'s to use when create a {@link MockMvc} instance of this context.
      */
-    MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context);
+    MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers);
 
     /**
      * Intercept the {@link org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder} created by REST Assured before it's
