@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
  * Includes possibility to send an async request.
  *
  * @author Marcin Grzejszczak
+ * @author Johan Haleby
  * @see MockMvcRequestSender
  */
 public interface MockMvcRequestAsyncConfigurer extends MockMvcRequestSender {
