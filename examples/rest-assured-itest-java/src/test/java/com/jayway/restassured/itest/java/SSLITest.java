@@ -249,15 +249,14 @@ public class SSLITest extends WithJetty {
         given().spec(spec).get("https://localhost:8443/hello").then().spec(helloWorldSpec());
     }
 
-
-    @Test
-    public void supportsSpecifyingKeystore() throws Exception {
+    @Test public void
+    supports_setting_keystore_in_request_specification() {
         final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/jetty_localhost_client.jks", "test1234").build();
         given().spec(spec).expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
     }
 
-    @Test
-    public void supportsOverridingKeystore() throws Exception {
+    @Test public void
+    supports_overriding_keystore_in_request_specification() {
         final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/jetty_localhost_client.jks", "wrong pw").build();
         given().spec(spec).keystore("/jetty_localhost_client.jks", "test1234").expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
     }
