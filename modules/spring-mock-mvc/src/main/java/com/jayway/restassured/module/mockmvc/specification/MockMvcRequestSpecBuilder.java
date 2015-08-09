@@ -30,8 +30,11 @@ import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificatio
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Header;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.InputStream;
@@ -49,10 +52,10 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
  *
  * given().
  *         spec(requestSpec).
- * expect().
- *         body("x.y.z", equalTo("something")).
  * when().
- *        get("/something");
+ *        get("/something").
+ * then().
+ *         body("x.y.z", equalTo("something")).
  * </pre>
  */
 public class MockMvcRequestSpecBuilder {
@@ -599,12 +602,57 @@ public class MockMvcRequestSpecBuilder {
 
     /**
      * The mock mvc instance to use.
+     * <p/>
+     * Note that this will override the any {@link MockMvc} instances configured by other setters.*
      *
      * @param mockMvc The mock mvc instance
      * @return MockMvcRequestSpecBuilder
      */
     public MockMvcRequestSpecBuilder setMockMvc(MockMvc mockMvc) {
         spec.mockMvc(mockMvc);
+        return this;
+    }
+
+    /**
+     * The standalone setup to be used by supplying a set of controllers.
+     * <p/>
+     * Note that this will override the any {@link MockMvc} instances configured by other setters.
+     *
+     * @param controllers The controllers to use
+     * @return MockMvcRequestSpecBuilder
+     * @see MockMvcRequestSpecification#standaloneSetup(Object...)
+     */
+    public MockMvcRequestSpecBuilder setStandaloneSetup(Object... controllers) {
+        spec.standaloneSetup(controllers);
+        return this;
+    }
+
+    /**
+     * Initialize with a MockMvcBuilder that will be used to create the {@link MockMvc} instance.
+     * <p/>
+     * Note that this will override the any {@link MockMvc} instances configured by other setters.
+     *
+     * @param builder The builder to use
+     * @return MockMvcRequestSpecBuilder
+     * @see MockMvcRequestSpecification#standaloneSetup(MockMvcBuilder)
+     */
+    public MockMvcRequestSpecBuilder setStandaloneSetup(MockMvcBuilder builder) {
+        spec.standaloneSetup(builder);
+        return this;
+    }
+
+    /**
+     * Initialize with a {@link WebApplicationContext} that will be used to create the {@link MockMvc} instance.
+     * <p/>
+     * Note that this will override the any {@link MockMvc} instances configured by other setters.
+     *
+     * @param context            The WebApplicationContext to use
+     * @param mockMvcConfigurers {@link MockMvcConfigurer}'s to be applied when creating a {@link MockMvc} instance of this WebApplicationContext (optional)
+     * @return MockMvcRequestSpecBuilder
+     * @see MockMvcRequestSpecification#webAppContextSetup(WebApplicationContext, MockMvcConfigurer...)
+     */
+    public MockMvcRequestSpecBuilder setWebAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers) {
+        spec.webAppContextSetup(context, mockMvcConfigurers);
         return this;
     }
 

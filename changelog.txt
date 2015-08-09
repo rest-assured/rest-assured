@@ -84,6 +84,8 @@ Change log next version
   This means that you don't have to create a custom MockMvc instance with a "SecurityMockMvcConfigurer" manually which means easier setup.
 * Added MockMvcConfig to RestAssuredMockMvcConfig which allows you to configure whether or not SecurityMockMvcConfigurer should be applied by default (default is true). To disable it use:
     given().config(config().mockMvcConfig(mockMvcConfig().dontAutomaticallyApplySpringSecurityMockMvcConfigurer())). ..
+* Added ability to supply an instance of MockMvcBuilder to the standaloneSetup method in MockMvcRequestSpecification.
+* Added support for standalone setup (setStandaloneSetup) and web app context setup (setWebAppContextSetup) in MockMvcRequestSpecBuilder.
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------

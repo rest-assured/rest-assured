@@ -27,6 +27,7 @@ import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -860,6 +861,23 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
     MockMvcRequestSpecification standaloneSetup(Object... controllers);
 
     /**
+     * Build a {@link MockMvc} by using a provided {@code AbstractMockMvcBuilder}
+     * for configuring Spring MVC infrastructure programmatically.
+     * This allows full control over the instantiation and initialization of
+     * controllers, and their dependencies, similar to plain unit tests while
+     * also making it possible to test one controller at a time.
+     * <p/>
+     * <p>If the Spring MVC configuration of an application is relatively
+     * straight-forward, for example when using the MVC namespace or the MVC
+     * Java config, then using this builder might be a good option for testing
+     * a majority of controllers. A much smaller number of tests can be used
+     * to focus on testing and verifying the actual Spring MVC configuration.
+     *
+     * @param builder {@link org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder} to build the MVC mock
+     */
+    MockMvcRequestSpecification standaloneSetup(MockMvcBuilder builder);
+
+    /**
      * Provide a {@link org.springframework.test.web.servlet.MockMvc} instance to that REST Assured will use when making this request.
      *
      * @param mockMvc The mock mvc instance to use.
@@ -876,7 +894,7 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * a {@link javax.servlet.ServletContext}.
      *
      * @param context            The web application context to use
-     * @param mockMvcConfigurers (Optional) {@link MockMvcConfigurer}'s to use when create a {@link MockMvc} instance of this context.
+     * @param mockMvcConfigurers {@link MockMvcConfigurer}'s to be applied when creating a {@link MockMvc} instance of this WebApplicationContext (optional)
      */
     MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers);
 

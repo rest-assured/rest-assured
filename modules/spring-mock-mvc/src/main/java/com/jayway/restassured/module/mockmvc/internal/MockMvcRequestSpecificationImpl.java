@@ -40,6 +40,7 @@ import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
@@ -139,6 +140,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification standaloneSetup(Object... controllers) {
         return changeMockMvcFactoryTo(new MockMvcFactory(MockMvcBuilders.standaloneSetup(controllers)));
+    }
+
+    public MockMvcRequestSpecification standaloneSetup(MockMvcBuilder builder) {
+        notNull(builder, MockMvcBuilder.class);
+        return changeMockMvcFactoryTo(new MockMvcFactory(builder));
     }
 
     public MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers) {

@@ -27,9 +27,9 @@ import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSender;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
-import org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
@@ -217,7 +217,7 @@ public class RestAssuredMockMvc {
      *
      * @param builder {@link org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder} to build the MVC mock
      */
-    public static void standaloneSetup(AbstractMockMvcBuilder builder) {
+    public static void standaloneSetup(MockMvcBuilder builder) {
         mockMvcFactory = new MockMvcFactory(builder);
     }
 
@@ -230,7 +230,7 @@ public class RestAssuredMockMvc {
      * a {@link javax.servlet.ServletContext}.
      *
      * @param context            The web application context to use
-     * @param mockMvcConfigurers (Optional) {@link MockMvcConfigurer}'s to use when create a {@link MockMvc} instance of this context.
+     * @param mockMvcConfigurers {@link MockMvcConfigurer}'s to be applied when creating a {@link MockMvc} instance of this WebApplicationContext (optional)
      */
     public static void webAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers) {
         DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(context);  // To avoid compile-time errors
