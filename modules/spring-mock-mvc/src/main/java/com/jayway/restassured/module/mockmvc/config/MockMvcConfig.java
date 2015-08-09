@@ -17,9 +17,9 @@
 package com.jayway.restassured.module.mockmvc.config;
 
 import com.jayway.restassured.config.Config;
-
-import java.util.Collections;
-import java.util.List;
+import org.springframework.test.web.servlet.MockMvcBuilder;
+import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
+import org.springframework.web.context.WebApplicationContext;
 
 /**
  * General configuration of the Spring Mock MVC module
@@ -49,6 +49,11 @@ public class MockMvcConfig implements Config {
     }
 
     /**
+     * Instructs REST Assured to automatically apply the SecurityMockMvcConfigurer that allows for Spring Security testing. This only works if
+     * <code>spring-security-test</code> is in the classpath and you've configured Rest Assured Mock MVC an instance of {@link org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder}.
+     * For example by using {@link com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification#webAppContextSetup(WebApplicationContext, MockMvcConfigurer...)} or
+     * {@link com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification#standaloneSetup(MockMvcBuilder)}.
+     *
      * @param shouldAutomaticallyApplySpringSecurityMockMvcConfigurer <code>true</code> if SecurityMockMvcConfigurer should be automatically applied if available in classpath, <code>false</code> otherwise.
      * @return a new instance of {@link MockMvcConfig}.
      */
@@ -57,9 +62,10 @@ public class MockMvcConfig implements Config {
     }
 
     /**
-     * Instruct REST Assured Mock Mvc to automatically apply the SpringSecurityMockMvcConfigurer even if it's available in the classpath.
+     * Instruct REST Assured Mock Mvc to automatically apply the SpringSecurityMockMvcConfigurer if it's available in the classpath.
      *
      * @return a new instance of {@link MockMvcConfig}.
+     * @see #automaticallyApplySpringSecurityMockMvcConfigurer(boolean)
      */
     public MockMvcConfig automaticallyApplySpringSecurityMockMvcConfigurer() {
         return new MockMvcConfig(true, true);
@@ -90,13 +96,5 @@ public class MockMvcConfig implements Config {
      */
     public static MockMvcConfig mockMvcConfig() {
         return new MockMvcConfig();
-    }
-
-    private List<String> addToList(List<String> list, String firstPackage, String[] additionalPackages) {
-        list.add(firstPackage);
-        if (additionalPackages != null && additionalPackages.length > 0) {
-            Collections.addAll(list, additionalPackages);
-        }
-        return list;
     }
 }
