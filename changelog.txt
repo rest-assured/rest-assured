@@ -1,3 +1,15 @@
+Change log next version
+-----------------------
+* Changed com.jayway.restassured.config.HttpClientConfig$HttpClientFactory from an abstract class to an interface in order to create it as a lambda express in Java 8. Before you had to do like this:
+    given().config(RestAssured.config().httpClientConfig(httpClientConfig().httpClientFactory(new HttpClientConfig.HttpClientFactory() {
+        @Override
+        public HttpClient createHttpClient() {
+            return new SystemDefaultHttpClient();
+        }
+    }));
+  but now you can just use a lambda expression or method reference:
+    given().config(RestAssured.config().httpClientConfig(httpClientConfig().httpClientFactory(SystemDefaultHttpClient::new));
+
 Change log 2.5.0 (2015-08-09)
 -----------------------------
 * MockMvc module now supports async requests. For example "given().body(..).when().async().post("/x").then(). ..". Big thanks to Marcin Grzejszczak (@mgrzejszczak) for helping out.

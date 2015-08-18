@@ -84,11 +84,11 @@ public class HttpClientConfigITest extends WithJetty {
     @Test
     public void httpClientIsConfigurableFromANonStaticHttpClientConfig() {
         // Given
-        final MutableObject<HttpClient> client = new MutableObject<HttpClient>();
+        final MutableObject<HttpClient> client = new MutableObject<>();
 
         // When
         given().
-                config(newConfig().httpClient(HttpClientConfig.httpClientConfig().httpClientFactory(systemDefaultHttpClient()))).
+                config(newConfig().httpClient(HttpClientConfig.httpClientConfig().httpClientFactory(SystemDefaultHttpClient::new))).
                 filter(new Filter() {
                     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
                         client.setValue(requestSpec.getHttpClient());
@@ -107,8 +107,8 @@ public class HttpClientConfigITest extends WithJetty {
     @Test
     public void httpClientIsConfigurableFromAStaticHttpClientConfigWithOtherConfigurations() {
         // Given
-        final MutableObject<HttpClient> client = new MutableObject<HttpClient>();
-        RestAssured.config = newConfig().httpClient(httpClientConfig().setParam(HANDLE_REDIRECTS, true).and().setParam(MAX_REDIRECTS, 0).and().httpClientFactory(systemDefaultHttpClient()));
+        final MutableObject<HttpClient> client = new MutableObject<>();
+        RestAssured.config = newConfig().httpClient(httpClientConfig().setParam(HANDLE_REDIRECTS, true).and().setParam(MAX_REDIRECTS, 0).and().httpClientFactory(SystemDefaultHttpClient::new));
 
         // When
         try {
@@ -156,11 +156,9 @@ public class HttpClientConfigITest extends WithJetty {
 
             given().
                     header("name", "value").
-                    filter(new Filter() {
-                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                            client2.setValue(requestSpec.getHttpClient());
-                            return ctx.next(requestSpec, responseSpec);
-                        }
+                    filter((requestSpec, responseSpec, ctx) -> {
+                        client2.setValue(requestSpec.getHttpClient());
+                        return ctx.next(requestSpec, responseSpec);
                     }).
             when().
                     post("/reflect");
@@ -253,13 +251,4 @@ public class HttpClientConfigITest extends WithJetty {
         assertThat(client1.getValue(), sameInstance(client2.getValue()));
     }
 
-    private HttpClientConfig.HttpClientFactory systemDefaultHttpClient() {
-        return new HttpClientConfig.HttpClientFactory() {
-
-            @Override
-            public HttpClient createHttpClient() {
-                return new SystemDefaultHttpClient();
-            }
-        };
-    }
 }
