@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 2.5.0 (2015-08-09)
+-----------------------------
 * MockMvc module now supports async requests. For example "given().body(..).when().async().post("/x").then(). ..". Big thanks to Marcin Grzejszczak (@mgrzejszczak) for helping out.
 * Fixed NPE when using logging with a custom filter that doesn't include any headers.
 * REST Assured can now resolve multiple path parameters inside the same URI "path parameter" (for example /somewhere/{x}{y}/z)
