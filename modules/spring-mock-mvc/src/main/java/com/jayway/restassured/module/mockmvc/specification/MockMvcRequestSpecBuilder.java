@@ -25,15 +25,21 @@ import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.module.mockmvc.RestAssuredMockMvc;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
+import com.jayway.restassured.module.mockmvc.internal.MockMvcFactory;
 import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Header;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 
@@ -46,10 +52,10 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
  *
  * given().
  *         spec(requestSpec).
- * expect().
- *         body("x.y.z", equalTo("something")).
  * when().
- *        get("/something");
+ *        get("/something").
+ * then().
+ *         body("x.y.z", equalTo("something")).
  * </pre>
  */
 public class MockMvcRequestSpecBuilder {
@@ -57,9 +63,9 @@ public class MockMvcRequestSpecBuilder {
     private MockMvcRequestSpecificationImpl spec;
 
     public MockMvcRequestSpecBuilder() {
-        this.spec = (MockMvcRequestSpecificationImpl) new MockMvcRequestSpecificationImpl(RestAssuredMockMvc.mockMvc, RestAssuredMockMvc.config, RestAssuredMockMvc.resultHandlers(),
-                RestAssuredMockMvc.basePath, RestAssuredMockMvc.requestSpecification, RestAssuredMockMvc.responseSpecification, RestAssuredMockMvc.authentication).
-                config(RestAssuredMockMvc.config);
+        this.spec = (MockMvcRequestSpecificationImpl) new MockMvcRequestSpecificationImpl(getConfiguredMockMvcFactory(), RestAssuredMockMvc.config,
+                RestAssuredMockMvc.resultHandlers(), RestAssuredMockMvc.postProcessors(), RestAssuredMockMvc.basePath, RestAssuredMockMvc.requestSpecification,
+                RestAssuredMockMvc.responseSpecification, RestAssuredMockMvc.authentication).config(RestAssuredMockMvc.config);
     }
 
     /**
@@ -69,6 +75,17 @@ public class MockMvcRequestSpecBuilder {
      */
     public MockMvcRequestSpecBuilder setAuth(MockMvcAuthenticationScheme auth) {
         auth.authenticate(spec);
+        return this;
+    }
+
+    /**
+     * Set the post processors for this request.
+     *
+     * @param postProcessors The post processors to use
+     * @return The request specification builder
+     */
+    public MockMvcRequestSpecBuilder setPostProcessors(RequestPostProcessor postProcessors) {
+        spec.postProcessors(postProcessors);
         return this;
     }
 
@@ -288,7 +305,7 @@ public class MockMvcRequestSpecBuilder {
     /**
      * Add request attribute
      *
-     * @param attributeName The attribute name
+     * @param attributeName  The attribute name
      * @param attributeValue The attribute value
      * @return The request specification builder
      */
@@ -585,12 +602,57 @@ public class MockMvcRequestSpecBuilder {
 
     /**
      * The mock mvc instance to use.
+     * <p/>
+     * Note that this will override the any {@link MockMvc} instances configured by other setters.*
      *
      * @param mockMvc The mock mvc instance
      * @return MockMvcRequestSpecBuilder
      */
     public MockMvcRequestSpecBuilder setMockMvc(MockMvc mockMvc) {
         spec.mockMvc(mockMvc);
+        return this;
+    }
+
+    /**
+     * The standalone setup to be used by supplying a set of controllers.
+     * <p/>
+     * Note that this will override the any {@link MockMvc} instances configured by other setters.
+     *
+     * @param controllers The controllers to use
+     * @return MockMvcRequestSpecBuilder
+     * @see MockMvcRequestSpecification#standaloneSetup(Object...)
+     */
+    public MockMvcRequestSpecBuilder setStandaloneSetup(Object... controllers) {
+        spec.standaloneSetup(controllers);
+        return this;
+    }
+
+    /**
+     * Initialize with a MockMvcBuilder that will be used to create the {@link MockMvc} instance.
+     * <p/>
+     * Note that this will override the any {@link MockMvc} instances configured by other setters.
+     *
+     * @param builder The builder to use
+     * @return MockMvcRequestSpecBuilder
+     * @see MockMvcRequestSpecification#standaloneSetup(MockMvcBuilder)
+     */
+    public MockMvcRequestSpecBuilder setStandaloneSetup(MockMvcBuilder builder) {
+        spec.standaloneSetup(builder);
+        return this;
+    }
+
+    /**
+     * Initialize with a {@link WebApplicationContext} that will be used to create the {@link MockMvc} instance.
+     * <p/>
+     * Note that this will override the any {@link MockMvc} instances configured by other setters.
+     *
+     * @param context            The WebApplicationContext to use
+     * @param mockMvcConfigurers {@link MockMvcConfigurer}'s to be applied when creating a {@link MockMvc} instance of this WebApplicationContext (optional)
+     * @return MockMvcRequestSpecBuilder
+     * @see MockMvcRequestSpecification#webAppContextSetup(WebApplicationContext, MockMvcConfigurer...)
+     */
+    public MockMvcRequestSpecBuilder setWebAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers) {
+        spec.webAppContextSetup(context, mockMvcConfigurers);
         return this;
     }
 
@@ -638,5 +700,17 @@ public class MockMvcRequestSpecBuilder {
      */
     public MockMvcRequestSpecBuilder and() {
         return this;
+    }
+
+    private static MockMvcFactory getConfiguredMockMvcFactory() {
+        try {
+            Field mockMvcFactory = RestAssuredMockMvc.class.getDeclaredField("mockMvcFactory");
+            mockMvcFactory.setAccessible(true);
+            Object instance = mockMvcFactory.get(RestAssuredMockMvc.class);
+            mockMvcFactory.setAccessible(false);
+            return (MockMvcFactory) instance;
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error: Cannot find mockMvcFactory field in " + RestAssuredMockMvc.class.getName());
+        }
     }
 }

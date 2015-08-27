@@ -31,7 +31,7 @@ import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 
-public class FileUploadUsingStandardRestAssuredTest extends WithJetty {
+public class FileUploadUsingStandardRestAssuredITest extends WithJetty {
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();

@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-
-
-
-
 package com.jayway.restassured.internal.assertion
 
 public interface Assertion {

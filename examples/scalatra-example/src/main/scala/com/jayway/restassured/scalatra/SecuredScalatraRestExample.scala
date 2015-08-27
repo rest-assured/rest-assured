@@ -28,12 +28,12 @@ class SecuredScalatraRestExample extends ScalatraServlet with FileUploadSupport 
   }
 
   post("/hello") {
-    val json = ("hello" -> "Hello Secured Scalatra")
+    val json = "hello" -> "Hello Secured Scalatra"
     compact(JsonAST.render(json))
   }
 
   get("/hello") {
-    val json = ("hello" -> "Hello Secured Scalatra")
+    val json = "hello" -> "Hello Secured Scalatra"
     compact(JsonAST.render(json))
   }
   post("/file") {

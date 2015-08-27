@@ -177,8 +177,7 @@ public class AuthConfig {
     public void oauth2(String accessToken, OAuthSignature signature) {
         this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
         if (accessToken != null) {
-            this.builder.client.addRequestInterceptor(new OAuthSigner(
-                    accessToken, signature));
+            this.builder.client.addRequestInterceptor(new OAuthSigner(accessToken, signature));
         }
     }
 

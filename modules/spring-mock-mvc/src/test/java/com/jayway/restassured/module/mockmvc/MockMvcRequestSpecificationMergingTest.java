@@ -29,6 +29,7 @@ import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Header;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
+import org.powermock.reflect.Whitebox;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -200,11 +201,11 @@ public class MockMvcRequestSpecificationMergingTest {
         MockMvcRequestSpecification spec = given().mockMvc(thisMockMvcInstance).spec(specToMerge);
 
         // Then
-        assertThat(implOf(spec).getInstanceMockMvc()).isSameAs(otherMockMvcInstance);
+        assertThat(Whitebox.getInternalState(implOf(spec).getMockMvcFactory(), "mockMvc")).isSameAs(otherMockMvcInstance);
     }
 
     @Test public void
-    mock_mvc_instance_is_not_overwritten_when_not_defined_in_specification() {
+    mock_mvc_factory_is_not_overwritten_when_not_defined_in_specification() {
         // Given
         MockMvc mockMvcInstance = MockMvcBuilders.standaloneSetup(new GreetingController()).build();
         MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().addQueryParam("param1", "value1").build();
@@ -213,7 +214,7 @@ public class MockMvcRequestSpecificationMergingTest {
         MockMvcRequestSpecification spec = given().mockMvc(mockMvcInstance).spec(specToMerge);
 
         // Then
-        assertThat(implOf(spec).getInstanceMockMvc()).isSameAs(mockMvcInstance);
+        assertThat(Whitebox.getInternalState(implOf(spec).getMockMvcFactory(), "mockMvc")).isSameAs(mockMvcInstance);
         assertThat(implOf(spec).getQueryParams()).containsOnly(entry("param1", "value1"));
     }
 

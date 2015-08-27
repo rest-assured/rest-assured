@@ -130,33 +130,25 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
     requestSpecification.authenticationScheme = new OAuthScheme(consumerKey: consumerKey, consumerSecret: consumerSecret, accessToken: accessToken, secretToken: secretToken, signature: signature)
     return requestSpecification
   }
+
   /**
-   * Excerpt from the HttpBuilder docs:<br>
-   * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
-   * All requests to all domains will be signed for this instance.
-   * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-   * For More information on how to achieve this, see the <a href="https://github.com/mttkay/signpost/blob/master/docs/GettingStarted.md#using-signpost">Signpost documentation</a>.
-   * @param accessToken
-   * @return The request com.jayway.restassured.specification
+   * {@inheritDoc}
    */
   def RequestSpecification oauth2(String accessToken) {
-    notNull accessToken, "accessToken"
-
-    requestSpecification.authenticationScheme = new OAuth2Scheme(accessToken: accessToken)
-    return requestSpecification
+    oauth2(accessToken, OAuthSignature.HEADER)
   }
+
   /**
-   * Excerpt from the HttpBuilder docs:<br>
-   * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
-   * All requests to all domains will be signed for this instance.
-   * This assumes you've already generated an accessToken and secretToken for the site you're targeting.
-   * @param accessToken
-   * @return The request com.jayway.restassured.specification
+   * {@inheritDoc}
    */
   def RequestSpecification oauth2(String accessToken, OAuthSignature signature) {
     notNull accessToken, "accessToken"
 
-    requestSpecification.authenticationScheme = new OAuth2Scheme(accessToken: accessToken, signature: signature)
+    if (signature == OAuthSignature.HEADER) {
+      requestSpecification.authenticationScheme = new PreemptiveOAuth2HeaderScheme(accessToken: accessToken)
+    } else {
+      requestSpecification.authenticationScheme = new OAuth2Scheme(accessToken: accessToken, signature: signature)
+    }
     return requestSpecification
   }
 

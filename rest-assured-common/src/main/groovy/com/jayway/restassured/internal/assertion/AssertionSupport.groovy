@@ -27,7 +27,7 @@ class AssertionSupport {
   private static def listIndexEndFragment = ']'
   private static def space = ' '
 
-  def static escapePath(key, Closure... closuresToEscape) {
+  def static escapePath(key, PathFragmentEscaper... pathFragmentEscapers) {
     def pathFragments = key.split("(?<=\\')")
     for (int i = 0; i < pathFragments.size(); i++) {
       String pathFragment = pathFragments[i]
@@ -35,9 +35,10 @@ class AssertionSupport {
         def dotFragments = pathFragment.split("\\.")
         for (int k = 0; k < dotFragments.size(); k++) {
           String dotFragment = dotFragments[k]
-          for (int j = 0; j < closuresToEscape.length; j++) {
-            if (closuresToEscape[j](dotFragment)) {
-              dotFragments[k] = "'" + dotFragments[k].trim() + "'"
+          for (int j = 0; j < pathFragmentEscapers.length; j++) {
+            def escaper = pathFragmentEscapers[j]
+            if (escaper.shouldEscape(dotFragment)) {
+              dotFragments[k] = escaper.escape(dotFragments[k].trim())
               break;
             }
           }
@@ -50,38 +51,56 @@ class AssertionSupport {
   }
 
   def static minus() {
-    return { pathFragment ->
-      !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('-') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, listIndexEndFragment])
+    new QuoteFragmentEscaper() {
+      @Override
+      boolean shouldEscape(String pathFragment) {
+        !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('-') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, listIndexEndFragment])
+      }
     }
   }
 
   def static properties() {
-    return { pathFragment ->
-      !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('properties') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, space, listIndexEndFragment])
+    new GetPathFragmentEscaper() {
+      @Override
+      boolean shouldEscape(String pathFragment) {
+        !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('properties') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, space, listIndexEndFragment])
+      }
     }
   }
 
   def static attributeGetter() {
-    return { pathFragment ->
-      pathFragment.startsWith("@") && !pathFragment.endsWith("'") && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, space])
+    new QuoteFragmentEscaper() {
+      @Override
+      boolean shouldEscape(String pathFragment) {
+        pathFragment.startsWith("@") && !pathFragment.endsWith("'") && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, space])
+      }
     }
   }
 
   def static doubleStar() {
-    return { pathFragment ->
-      pathFragment == "**"
+    new QuoteFragmentEscaper() {
+      @Override
+      boolean shouldEscape(String pathFragment) {
+        pathFragment == "**"
+      }
     }
   }
 
   def static colon() {
-    return { pathFragment ->
-      !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains(':') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, listIndexEndFragment])
+    new QuoteFragmentEscaper() {
+      @Override
+      boolean shouldEscape(String pathFragment) {
+        !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains(':') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, listIndexEndFragment])
+      }
     }
   }
 
   def static integer() {
-    return { pathFragment ->
-      (startsWithDigit(pathFragment) || NumberUtils.isDigits(pathFragment)) && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, space, listGetterFragment, listIndexStartFragment, listIndexEndFragment])
+    new QuoteFragmentEscaper() {
+      @Override
+      boolean shouldEscape(String pathFragment) {
+        (startsWithDigit(pathFragment) || NumberUtils.isDigits(pathFragment)) && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, space, listGetterFragment, listIndexStartFragment, listIndexEndFragment])
+      }
     }
   }
 

@@ -106,10 +106,11 @@ public class JsonPathConfig {
     }
 
     /**
-     * @return A new JsonPathConfig instance with that assumes the  supplied charset when parsing JSON documents.
+     * @return A new JsonPathConfig instance with that assumes the supplied charset when parsing JSON documents.
      */
     public JsonPathConfig charset(String charset) {
-        return new JsonPathConfig();
+        return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, defaultDeserializer, charset);
     }
 
 
@@ -124,7 +125,8 @@ public class JsonPathConfig {
      * @return A new instance of JsonPathConfig with the given configuration
      */
     public JsonPathConfig numberReturnType(NumberReturnType numberReturnType) {
-        return new JsonPathConfig(numberReturnType);
+        return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, defaultDeserializer, charset);
     }
 
     public boolean shouldRepresentJsonNumbersAsBigDecimal() {
@@ -247,7 +249,21 @@ public class JsonPathConfig {
     }
 
 
-    public static enum NumberReturnType {
-        FLOAT_AND_DOUBLE, BIG_DECIMAL
+    /**
+     * Specifies what kind of numbers to return
+     */
+    public enum NumberReturnType {
+        /**
+         * Convert all non-integer numbers to floats and doubles (depending on the size of the number)
+         */
+        FLOAT_AND_DOUBLE,
+        /**
+         * Convert all non-integer numbers to BigDecimal
+         */
+        BIG_DECIMAL,
+        /**
+         * Convert all non-integer numbers to doubles
+         */
+        DOUBLE
     }
 }

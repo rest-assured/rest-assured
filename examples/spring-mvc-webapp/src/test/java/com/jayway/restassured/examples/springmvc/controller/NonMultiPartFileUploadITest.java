@@ -39,12 +39,13 @@ import java.io.IOException;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MainConfiguration.class)
 @WebAppConfiguration
 // @formatter:off
-public class NonMultiPartFileUploadTest {
+public class NonMultiPartFileUploadITest {
 
     @Autowired
     protected WebApplicationContext wac;
@@ -52,9 +53,9 @@ public class NonMultiPartFileUploadTest {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
-
     @Before
     public void configureMockMvcInstance() {
+        RestAssuredMockMvc.postProcessors(csrf().asHeader());
         RestAssuredMockMvc.webAppContextSetup(wac);
     }
 

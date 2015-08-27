@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-
-
-
 package com.jayway.restassured.internal.path.json
 
 import groovy.json.JsonOutput
-
+import org.apache.commons.lang3.text.translate.UnicodeUnescaper
 
 class JsonPrettifier {
 
-    static def String prettifyJson(String json) {
-        return JsonOutput.prettyPrint(json)
-    }
+  static def String prettifyJson(String json) {
+    def prettified = JsonOutput.prettyPrint(json)
+    new UnicodeUnescaper().translate(prettified)
+  }
 }

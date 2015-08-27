@@ -1,9 +1,103 @@
 Change log next version
 -----------------------
+* Changed com.jayway.restassured.config.HttpClientConfig$HttpClientFactory from an abstract class to an interface in order to create it as a lambda express in Java 8. Before you had to do like this:
+    given().config(RestAssured.config().httpClientConfig(httpClientConfig().httpClientFactory(new HttpClientConfig.HttpClientFactory() {
+        @Override
+        public HttpClient createHttpClient() {
+            return new SystemDefaultHttpClient();
+        }
+    }));
+  but now you can just use a lambda expression or method reference:
+    given().config(RestAssured.config().httpClientConfig(httpClientConfig().httpClientFactory(SystemDefaultHttpClient::new));
+
+Change log 2.5.0 (2015-08-09)
+-----------------------------
 * MockMvc module now supports async requests. For example "given().body(..).when().async().post("/x").then(). ..". Big thanks to Marcin Grzejszczak (@mgrzejszczak) for helping out.
 * Fixed NPE when using logging with a custom filter that doesn't include any headers.
-* Now throws IAE when request path doesn't contain a "?" when path parameters are applied.
+* REST Assured can now resolve multiple path parameters inside the same URI "path parameter" (for example /somewhere/{x}{y}/z)
 * Using non-deprecated DateUtils from Apache HTTP Client in CookieMatcher
+* Quotations when extracting charset parameter is no longer required (thanks to Ronny Bräunlich for pull request)
+* Content specified with a content-type starting with "text/" or containing "+text" is now automatically encoded as using the text encoder (issue 574)
+* It's now possible to specify how content for a specific content-type should be serialized using com.jayway.restassured.config.EncoderConfig#encodeContentTypeAs(..).
+  For example let's say that you want to serialized content-type "my-custom-content-type" as text:
+  given().
+          config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("my-custom-content-type", ContentType.TEXT))).
+          contentType("my-custom-content-type").
+          content("Some text content").
+  when().
+          post("/somewhere"). ..
+* Improved escaping of certain attributes (such as 'properties') when parsing JSON and XML (issue 552)
+* REST Assured now show all failing body assertions when using multiple expectations in the same body clause. For example:
+    .. then().body("x.y", equalTo("z"), "y.z", is(2)). ..
+  If both "x.y" and "y.z" fails REST Assured will print both errors. Before only the error of "x.y" was shown.
+* Upgraded Groovy from 2.4.3 to 2.4.4
+* Pretty-printing of JSON now displays unicode characters correctly (issue 556)
+* Fixed so that the specified charset is actually used when calling com.jayway.restassured.path.json.config.JsonPathConfig#charset(String)
+* Fixed so that specifying number return type in com.jayway.restassured.path.json.config.JsonPathConfig#numberReturnType(..) doesn't override the other settings
+* Added new a new NumberReturnType that can be used with JsonPathConfig in order to always return non-integer numbers as doubles. This also you to for example use the "closeTo" Hamcrest matcher. For example:
+  RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(DOUBLE));
+  (issue 571)
+* Upgraded optional Scribe dependency for OAuth2 authentication from version 1.3.5 to version 1.3.7.
+* Possible to sign the request with an oauth2 access token (in the header) without using Scribe (issue 509)
+* Non-backward compatible change: Changed com.jayway.restassured.matcher.ResponseAwareMatcher from an abstract class to a (functional) interface.
+  The reason is to allow for creating ResponseAwareMatchers as lambda expressions in Java 8. Before you had to do like this (even in Java 8):
+    when().
+           get("/game").
+    then().
+           body("_links.self.href", new ResponseAwareMatcher<Response>() {
+               public Matcher<?> matcher(Response response) {
+                   return equalTo("http://localhost:8080/" + response.path("id"));
+               }
+           });
+  but with the new change you can now do (if using Java 8):
+    when().
+           get("/game").
+    then().
+           body("_links.self.href", response -> equalTo("http://localhost:8080/" + response.path("id")));
+  which is much less verbose. This change should be backward compatible unless you use composition of matchers. Before you composed ResponseAwareMatchers like this:
+    when().
+           get("/game").
+    then().
+           body("_links.self.href", responseAwareMatcher1.and(responseAwareMatcher2));
+  This now longer works (since we cannot implement default methods in the ResponseAwareMatcher interface in order to be compatible with older Java versions)
+  so now you use the new com.jayway.restassured.matcher.ResponseAwareMatcherComposer class to compose ResponseAwareMatchers instead:
+    when().
+           get("/game").
+    then().
+           body("_links.self.href", and(responseAwareMatcher1, responseAwareMatcher2));
+  where "and" is statically imported from ResponseAwareMatcherComposer. These can also be nested and combined with regular Hamcrest matchers, for example:
+    when().
+           get("/game").
+    then().
+           body("_links.self.href", and(responseAwareMatcher1, containsString("something"), or(responseAwareMatcher2, responseAwareMatcher3, endsWith("x"))));
+  (issue 575)
+* Updated com.github.fge.json-schema-validator from version 2.2.5 to 2.2.6 in the json-schema-validator module
+* Non-backward compatible change: multiPart methods taking java.io.File as argument now uses the filename of the File instead of just "file".
+* Fixed a NPE when using ResponseBuilder without setting a status code.
+* Multipart file uploading now supports specifying an empty filename.
+* It's now possible to set default filename and control name for multiparts. Before they were always equal to "file" but this is now configurable using the new MultiPartConfig. For example:
+    given().config(config().multiPartConfig(multiPartConfig().with().defaultFileName("custom1").and().defaultControlName("custom2"))). ..
+  This is also implemented for the Spring Mock MVC module.
+* Upgraded Spring from version 4.1.6.RELEASE to 4.2.0.RELEASE in the spring-mock-mvc module
+* Upgraded Spring Security from version 3.2.5.RELEASE to 4.0.2.RELEASE in the spring-mock-mvc module
+* Added support for RequestPostProcessor authentication to the Spring Mock MVC module. For example:
+     given().auth().with(httpBasic("username", "password")). ..
+  where "httpBasic" is statically imported from org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors. This requires that you have "spring-security-test" in your classpath.
+* Added support for RequestPostProcessors to the Spring Mock MVC module, for example:
+    given().postProcessors(myRequestPostProcessor1, myRequestPostProcessor2). ..
+* It's now possible to supply MockMvcConfigurers when calling webAppContextSetup in the Spring Mock MVC module. For example:
+    given().webAppContextSetup(context, springSecurity()). ..
+* Non-backward compatible change: The field "RestAssuredMockMvc.mockMvc" has been replaced by a method: "RestAssuredMockMvc.mockMvc(..)". Before you did:
+    RestAssuredMockMvc.mockMvc = myMockMvcInstance;
+  but now you need to do:
+    RestAssuredMockMvc.mockMvc(myMockMvcInstance);
+* Added RestAssuredMockMvc#config() method that returns the assign static config or a new config if no static config has been assigned
+* Spring Mock MVC module automatically registers org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurer as request post processor if spring-security-test is available in classpath.
+  This means that you don't have to create a custom MockMvc instance with a "SecurityMockMvcConfigurer" manually which means easier setup.
+* Added MockMvcConfig to RestAssuredMockMvcConfig which allows you to configure whether or not SecurityMockMvcConfigurer should be applied by default (default is true). To disable it use:
+    given().config(config().mockMvcConfig(mockMvcConfig().dontAutomaticallyApplySpringSecurityMockMvcConfigurer())). ..
+* Added ability to supply an instance of MockMvcBuilder to the standaloneSetup method in MockMvcRequestSpecification.
+* Added support for standalone setup (setStandaloneSetup) and web app context setup (setWebAppContextSetup) in MockMvcRequestSpecBuilder.
 
 Change log 2.4.1 (2015-04-12)
 ----------------------------

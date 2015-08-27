@@ -19,6 +19,7 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -38,14 +39,14 @@ public class ContentTypeITest extends WithJetty {
     @Test
     public void canValidateResponseContentType() throws Exception {
         exception.expect(AssertionError.class);
-        exception.expectMessage("Expected content-type \"something\" doesn't match actual content-type \"application/json; charset=UTF-8\".");
+        exception.expectMessage("Expected content-type \"something\" doesn't match actual content-type \"application/json;charset=utf-8\".");
 
         expect().contentType("something").when().get("/hello");
     }
 
     @Test
     public void canValidateResponseContentTypeWithHamcrestMatcher() throws Exception {
-        expect().contentType(is("application/json; charset=UTF-8")).when().get("/hello");
+        expect().contentType(is("application/json;charset=utf-8")).when().get("/hello");
     }
 
     @Test
@@ -194,7 +195,7 @@ public class ContentTypeITest extends WithJetty {
         when().
                 put("/reflect").
         then().
-                contentType(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset()));
+                contentType(toJetty9(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test public void
@@ -206,7 +207,7 @@ public class ContentTypeITest extends WithJetty {
         when().
                 get("/reflect").
         then().
-                contentType(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset()));
+                contentType(toJetty9(ContentType.TEXT.withCharset(config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test public void
@@ -240,5 +241,84 @@ public class ContentTypeITest extends WithJetty {
                  get("/returnContentTypeAsBody").
         then().
                  body(equalTo(ContentType.JSON.withCharset(config().getEncoderConfig().defaultContentCharset())));
+    }
+
+    /**
+     * Solves issue https://github.com/jayway/rest-assured/issues/574
+     */
+    @Test public void
+    non_registered_content_type_starting_with_text_slash_is_encoded_as_text() {
+        String uriList = "http://www.example.com/raindrops-on-roses\n" +
+                "ftp://www.example.com/sleighbells\n" +
+                "http://www.example.com/crisp-apple-strudel\n" +
+                "http://www.example.com/doorbells\n" +
+                "tag:foo@example.com,2012-07-01:bright-copper-kettles\n" +
+                "urn:isbn:0-061-99881-8";
+
+        given().
+                contentType("text/uri-list").
+                body(uriList).
+        when().
+                post("/textUriList").
+        then().
+                statusCode(200).
+                body("uris.size()", is(6));
+    }
+
+    @Test public void
+    non_registered_content_type_containing_plus_text_is_encoded_as_text() {
+        String uriList = "http://www.example.com/raindrops-on-roses\n" +
+                "ftp://www.example.com/sleighbells\n" +
+                "http://www.example.com/crisp-apple-strudel\n" +
+                "http://www.example.com/doorbells\n" +
+                "tag:foo@example.com,2012-07-01:bright-copper-kettles\n" +
+                "urn:isbn:0-061-99881-8";
+
+        given().
+                contentType("application/uri-list+text").
+                body(uriList).
+        when().
+                post("/textUriList").
+        then().
+                statusCode(200).
+                body("uris.size()", is(6));
+    }
+
+    @Test public void
+    custom_registered_encoding_of_content_type_is_applied_through_encoder_config() {
+        String uriList = "http://www.example.com/raindrops-on-roses\n" +
+                "ftp://www.example.com/sleighbells\n" +
+                "http://www.example.com/crisp-apple-strudel\n" +
+                "http://www.example.com/doorbells\n" +
+                "tag:foo@example.com,2012-07-01:bright-copper-kettles\n" +
+                "urn:isbn:0-061-99881-8";
+
+        given().
+                config(config().encoderConfig(encoderConfig().encodeContentTypeAs("my-text", ContentType.TEXT))).
+                contentType("my-text").
+                body(uriList).
+        when().
+                post("/textUriList").
+        then().
+                statusCode(200).
+                body("uris.size()", is(6));
+    }
+
+    @Test public void
+    shows_a_nice_error_message_when_failed_to_encode_content() {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Don't know how to encode encode as a byte stream.\n\n" +
+                "Please use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\n" +
+                "For example: \"given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs(\"my-text\", ContentType.TEXT))). ..");
+
+        given().
+                contentType("my-text").
+                body("encode").
+        when().
+                post("/textUriList");
+    }
+
+    private String toJetty9(String charset) {
+        return StringUtils.lowerCase(StringUtils.remove(charset, " "));
     }
 }

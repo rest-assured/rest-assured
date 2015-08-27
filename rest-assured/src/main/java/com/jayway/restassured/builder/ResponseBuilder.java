@@ -40,7 +40,7 @@ public class ResponseBuilder {
      * @return Builder.
      */
     public ResponseBuilder clone(Response response) {
-        if(isRestAssuredResponse(response)) {
+        if (isRestAssuredResponse(response)) {
             final RestAssuredResponseImpl raResponse = raResponse(response);
             restAssuredResponse.setContent(raResponse.getContent());
             restAssuredResponse.setHasExpectations(raResponse.getHasExpectations());
@@ -104,9 +104,8 @@ public class ResponseBuilder {
      * Headers headers = new Header(first, second);
      * </pre>
      *
+     * @return The builder
      * @see Headers
-     *
-     * @return  The builder
      */
     public ResponseBuilder setHeaders(Headers headers) {
         notNull(headers, "Headers");
@@ -163,7 +162,7 @@ public class ResponseBuilder {
         restAssuredResponse.setStatusCode(statusCode);
         return this;
     }
-    
+
     /**
      * Build the actual response
      *
@@ -171,7 +170,8 @@ public class ResponseBuilder {
      */
     public Response build() {
         final int statusCode = restAssuredResponse.statusCode();
-        if(statusCode < 100 || statusCode >= 600) {
+
+        if (statusCode < 100 || statusCode >= 600) {
             throw new IllegalArgumentException(format("Status code must be greater than 100 and less than 600, was %d.", statusCode));
         }
         notNull("Status line", restAssuredResponse.statusLine());

@@ -1,8 +1,25 @@
+/*
+ * Copyright 2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.jayway.restassured.module.mockmvc;
 
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import com.jayway.restassured.module.mockmvc.internal.MockMvcFactory;
 import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme;
@@ -10,10 +27,12 @@ import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSender;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
-import org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.net.URI;
@@ -32,11 +51,16 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
  * <p>Note that some Javadoc is copied from Spring MVC's test documentation.</p>
  */
 public class RestAssuredMockMvc {
+
     /**
      * Set a {@link org.springframework.test.web.servlet.MockMvc} instance that REST Assured will use when making requests unless overwritten
      * by a {@link com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification}.
+     *
+     * @param mockMvc The MockMvc instance to use.
      */
-    public static MockMvc mockMvc = null;
+    public static void mockMvc(MockMvc mockMvc) {
+        RestAssuredMockMvc.mockMvcFactory = new MockMvcFactory(mockMvc);
+    }
 
     /**
      * Define a REST Assured Mock Mvc configuration. E.g.
@@ -68,6 +92,10 @@ public class RestAssuredMockMvc {
     public static ResponseSpecification responseSpecification = null;
 
     private static List<ResultHandler> resultHandlers = new ArrayList<ResultHandler>();
+
+    private static List<RequestPostProcessor> requestPostProcessors = new ArrayList<RequestPostProcessor>();
+
+    private static MockMvcFactory mockMvcFactory = null;
 
     /**
      * The base path that's used by REST assured when making requests. The base path is prepended to the request path.
@@ -105,7 +133,7 @@ public class RestAssuredMockMvc {
      * @return A {@link MockMvcRequestSpecification}.
      */
     public static MockMvcRequestSpecification given() {
-        return new MockMvcRequestSpecificationImpl(mockMvc, config, resultHandlers, basePath, requestSpecification, responseSpecification, authentication);
+        return new MockMvcRequestSpecificationImpl(mockMvcFactory, config, resultHandlers, requestPostProcessors, basePath, requestSpecification, responseSpecification, authentication);
     }
 
     /**
@@ -171,7 +199,7 @@ public class RestAssuredMockMvc {
      * @param controllers one or more {@link org.springframework.stereotype.Controller @Controller}'s to test
      */
     public static void standaloneSetup(Object... controllers) {
-        mockMvc = MockMvcBuilders.standaloneSetup(controllers).build();
+        mockMvcFactory = new MockMvcFactory(MockMvcBuilders.standaloneSetup(controllers));
     }
 
     /**
@@ -189,8 +217,8 @@ public class RestAssuredMockMvc {
      *
      * @param builder {@link org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder} to build the MVC mock
      */
-    public static void standaloneSetup(AbstractMockMvcBuilder builder) {
-        mockMvc = builder.build();
+    public static void standaloneSetup(MockMvcBuilder builder) {
+        mockMvcFactory = new MockMvcFactory(builder);
     }
 
     /**
@@ -200,10 +228,18 @@ public class RestAssuredMockMvc {
      * will use the context to discover Spring MVC infrastructure and
      * application controllers in it. The context must have been configured with
      * a {@link javax.servlet.ServletContext}.
+     *
+     * @param context            The web application context to use
+     * @param mockMvcConfigurers {@link MockMvcConfigurer}'s to be applied when creating a {@link MockMvc} instance of this WebApplicationContext (optional)
      */
-    public static void webAppContextSetup(WebApplicationContext context) {
+    public static void webAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers) {
         DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(context);  // To avoid compile-time errors
-        mockMvc = builder.build();
+        if (mockMvcConfigurers != null && mockMvcConfigurers.length > 0) {
+            for (MockMvcConfigurer mockMvcConfigurer : mockMvcConfigurers) {
+                builder.apply(mockMvcConfigurer);
+            }
+        }
+        mockMvcFactory = new MockMvcFactory(builder);
     }
 
     /**
@@ -228,13 +264,40 @@ public class RestAssuredMockMvc {
     }
 
     /**
+     * Assign one or more {@link org.springframework.test.web.servlet.ResultHandler} that'll be executes after a request has been made.
+     * <p>
+     * Note that it's recommended to use {@link #with(RequestPostProcessor, RequestPostProcessor...)} instead of this method when setting
+     * authentication/authorization based RequestPostProcessors.
+     * </p>
+     *
+     * @param postProcessor            a post-processor to add
+     * @param additionalPostProcessors Additional post-processors to add
+     * @see MockMvcRequestSpecification#postProcessors(RequestPostProcessor, RequestPostProcessor...)
+     */
+    public static void postProcessors(RequestPostProcessor postProcessor, RequestPostProcessor... additionalPostProcessors) {
+        notNull(postProcessor, RequestPostProcessor.class);
+        RestAssuredMockMvc.requestPostProcessors.add(postProcessor);
+        if (additionalPostProcessors != null && additionalPostProcessors.length >= 1) {
+            Collections.addAll(RestAssuredMockMvc.requestPostProcessors, additionalPostProcessors);
+        }
+    }
+
+    /**
+     * @return The defined list of request post processors
+     */
+    public static List<RequestPostProcessor> postProcessors() {
+        return Collections.unmodifiableList(requestPostProcessors);
+    }
+
+    /**
      * Reset all static configurations to their default values.
      */
     public static void reset() {
-        mockMvc = null;
+        mockMvcFactory = null;
         config = null;
         basePath = "/";
         resultHandlers.clear();
+        requestPostProcessors.clear();
         responseSpecification = null;
         requestSpecification = null;
         authentication = null;
@@ -690,6 +753,27 @@ public class RestAssuredMockMvc {
     }
 
     /**
+     * Authenticate using a {@link RequestPostProcessor}.
+     * This is mainly useful when you have added the <code>spring-security-test</code> artifact to classpath. This allows
+     * you to do for example:
+     * <pre>
+     * RestAssured.authentication = with(user("username").password("password"));
+     * </pre>
+     * where <code>user</code> is statically imported from <code>org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors</code>.
+     *
+     * @param requestPostProcessor           The first request post processor to be used for authentication
+     * @param additionalRequestPostProcessor Additional request post processors to be used for authentication
+     * @return A {@link com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme} instance.
+     */
+    public static MockMvcAuthenticationScheme with(final RequestPostProcessor requestPostProcessor, final RequestPostProcessor... additionalRequestPostProcessor) {
+        return new MockMvcAuthenticationScheme() {
+            public void authenticate(MockMvcRequestSpecification mockMvcRequestSpecification) {
+                mockMvcRequestSpecification.auth().with(requestPostProcessor, additionalRequestPostProcessor);
+            }
+        };
+    }
+
+    /**
      * Enable logging of both the request and the response if REST Assureds test validation fails with log detail equal to {@link com.jayway.restassured.filter.log.LogDetail#ALL}.
      * <p/>
      * <p>
@@ -730,5 +814,12 @@ public class RestAssuredMockMvc {
             }
             requestSpecification.config(restAssuredConfig);
         }
+    }
+
+    /**
+     * @return The assigned config or a new config is no config is assigned
+     */
+    public static RestAssuredMockMvcConfig config() {
+        return config == null ? new RestAssuredMockMvcConfig() : config;
     }
 }

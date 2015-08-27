@@ -226,7 +226,7 @@ public class JSONPostITest extends WithJetty {
     public void supportsGettingResponseBodyWhenStatusCodeIs401() throws Exception {
         final Response response = post("/secured/hello");
 
-        assertThat(response.getBody().asString(), containsString("401 UNAUTHORIZED"));
+        assertThat(response.getBody().asString(), allOf(containsString("401"), containsString("Unauthorized")));
     }
 
     @Test

@@ -57,7 +57,7 @@ import static java.util.Arrays.asList;
  * @see org.apache.http.client.params.CookiePolicy
  * @see org.apache.http.params.CoreProtocolPNames
  */
-public class HttpClientConfig implements Config {
+    public class HttpClientConfig implements Config {
 
     private static final boolean SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT = false;
     private static final HttpClient NO_HTTP_CLIENT = null;
@@ -262,7 +262,6 @@ public class HttpClientConfig implements Config {
 
     private static HttpClientFactory defaultHttpClientFactory() {
         return new HttpClientFactory() {
-            @Override
             public HttpClient createHttpClient() {
                 return new DefaultHttpClient();
             }
@@ -276,7 +275,7 @@ public class HttpClientConfig implements Config {
     /**
      * A factory for creating and configuring a custom http client instance that will be used by REST Assured.
      */
-    public static abstract class HttpClientFactory {
+    public interface HttpClientFactory {
         /**
          * Create an instance of {@link HttpClient} that'll be used by REST Assured when making requests. By default
          * REST Assured creates a {@link DefaultHttpClient}.
@@ -287,6 +286,6 @@ public class HttpClientConfig implements Config {
          *
          * @return An instance of {@link HttpClient}.
          */
-        public abstract HttpClient createHttpClient();
+        HttpClient createHttpClient();
     }
 }

@@ -875,73 +875,89 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     } else {
       // Objects ought to be serialized
       if (mimeType == null) {
-        mimeType = requestContentType == ANY ? JSON.toString() : requestContentType
+        mimeType = ANY.matches(requestContentType) ? JSON.toString() : requestContentType
       }
       content = serializeIfNeeded(multiPartSpec.content, mimeType)
     }
 
-    multiParts << new MultiPartInternal(name: multiPartSpec.controlName, content: content, fileName: multiPartSpec.fileName, charset: multiPartSpec.charset, mimeType: mimeType)
+    final String controlName;
+    if (multiPartSpec instanceof MultiPartSpecificationImpl && !multiPartSpec.isControlNameSpecifiedExplicitly()) {
+      // We use the default control name if it was not explicitly specified in the multi-part spec
+      controlName = restAssuredConfig().getMultiPartConfig().defaultControlName()
+    } else {
+      controlName = multiPartSpec.controlName
+    }
+
+    final String fileName;
+    if (multiPartSpec instanceof MultiPartSpecificationImpl && !multiPartSpec.isFileNameSpecifiedExplicitly()) {
+      // We use the default file name if it was not explicitly specified in the multi-part spec
+      fileName = restAssuredConfig().getMultiPartConfig().defaultFileName()
+    } else {
+      fileName = multiPartSpec.fileName
+    }
+
+    multiParts << new MultiPartInternal(controlName: controlName, content: content, fileName: fileName, charset: multiPartSpec.charset, mimeType: mimeType)
     return this
   }
 
   def RequestSpecification multiPart(String controlName, File file) {
-    multiParts << new MultiPartInternal(name: controlName, content: file)
+    multiParts << new MultiPartInternal(controlName: controlName, content: file, fileName: file.getName())
     this
   }
 
   def RequestSpecification multiPart(File file) {
-    multiParts << new MultiPartInternal(name: "file", content: file)
+    multiParts << new MultiPartInternal(controlName: restAssuredConfig().getMultiPartConfig().defaultControlName(), content: file, fileName: file.getName())
     this
   }
 
   def RequestSpecification multiPart(String name, File file, String mimeType) {
-    multiParts << new MultiPartInternal(name: name, content: file, mimeType: mimeType)
+    multiParts << new MultiPartInternal(controlName: restAssuredConfig().getMultiPartConfig().defaultControlName(), content: file, mimeType: mimeType, fileName: file.getName())
     this
   }
 
   def RequestSpecification multiPart(String controlName, Object object) {
-    def mimeType = requestContentType == ANY ? JSON.toString() : requestContentType
+    def mimeType = ANY.matches(requestContentType) ? JSON.toString() : requestContentType
     return multiPart(controlName, object, mimeType)
   }
 
   def RequestSpecification multiPart(String controlName, Object object, String mimeType) {
     def possiblySerializedObject = serializeIfNeeded(object, mimeType)
-    multiParts << new MultiPartInternal(name: controlName, content: possiblySerializedObject, mimeType: mimeType)
+    multiParts << new MultiPartInternal(controlName: controlName, content: possiblySerializedObject, mimeType: mimeType, fileName: restAssuredConfig().getMultiPartConfig().defaultFileName())
     this
   }
 
   def RequestSpecification multiPart(String name, String fileName, byte[] bytes) {
-    multiParts << new MultiPartInternal(name: name, content: bytes, fileName: fileName)
+    multiParts << new MultiPartInternal(controlName: name, content: bytes, fileName: fileName)
     this
   }
 
   def RequestSpecification multiPart(String name, String fileName, byte[] bytes, String mimeType) {
-    multiParts << new MultiPartInternal(name: name, content: bytes, mimeType: mimeType, fileName: fileName)
+    multiParts << new MultiPartInternal(controlName: name, content: bytes, mimeType: mimeType, fileName: fileName)
     this
   }
 
   def RequestSpecification multiPart(String name, String fileName, InputStream stream) {
-    multiParts << new MultiPartInternal(name: name, content: stream, fileName: fileName)
+    multiParts << new MultiPartInternal(controlName: name, content: stream, fileName: fileName)
     this
   }
 
   def RequestSpecification multiPart(String name, String fileName, InputStream stream, String mimeType) {
-    multiParts << new MultiPartInternal(name: name, content: stream, mimeType: mimeType, fileName: fileName)
+    multiParts << new MultiPartInternal(controlName: name, content: stream, mimeType: mimeType, fileName: fileName)
     this
   }
 
   def RequestSpecification multiPart(String name, String contentBody) {
-    multiParts << new MultiPartInternal(name: name, content: contentBody)
+    multiParts << new MultiPartInternal(controlName: name, content: contentBody, fileName: restAssuredConfig().getMultiPartConfig().defaultFileName())
     this
   }
 
   def RequestSpecification multiPart(String name, NoParameterValue contentBody) {
-    multiParts << new MultiPartInternal(name: name, content: contentBody)
+    multiParts << new MultiPartInternal(controlName: name, content: contentBody, fileName: restAssuredConfig().getMultiPartConfig().defaultFileName())
     this
   }
 
   def RequestSpecification multiPart(String name, String contentBody, String mimeType) {
-    multiParts << new MultiPartInternal(name: name, content: contentBody, mimeType: mimeType)
+    multiParts << new MultiPartInternal(controlName: name, content: contentBody, mimeType: mimeType, fileName: restAssuredConfig().getMultiPartConfig().defaultFileName())
     this
   }
 
@@ -1244,8 +1260,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
       multiParts.each {
         def body = it.contentBody
-        def name = it.name
-        entity.addPart(name, body);
+        def controlName = it.controlName
+        entity.addPart(controlName, body);
       }
 
       entity;
@@ -1446,11 +1462,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       def host = getTargetURI(path)
       def targetPath = getTargetPath(path)
 
-      // Check that the path contains a ? if named- or unnamed path parameters are defined
-      if (!contains(targetPath, "?") && (namedPathParamSize > 0 || unnamedPathParamSize > 0)) {
-        throw new IllegalArgumentException("Cannot apply path parameters since the request path doesn't contain a '?'.")
-      }
-
       def pathWithoutQueryParams = substringBefore(targetPath, "?");
       def shouldAppendSlashAfterEncoding = pathWithoutQueryParams.endsWith("/")
       // The last slash is removed later so we may need to add it again
@@ -1473,44 +1484,46 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       }
 
       pathWithoutQueryParams = StringUtils.split(tempParams, "/").inject("") { String acc, String subresource ->
-        def indexOfStartBracket = subresource.indexOf("{")
-        def indexOfEndBracket = subresource.indexOf("}", indexOfStartBracket)
-        if (indexOfStartBracket >= 0 && indexOfEndBracket >= 0 && subresource.length() >= 3) {
-          // 3 means "{" and "}" and at least one character
-          def pathParamValue = ""
-          if (usesNamedPathParameters) {
-            def pathParamName = subresource.substring(indexOfStartBracket + 1, indexOfEndBracket)
-            // Get path parameter name, what's between the "{" and "}"
-            pathParamValue = findNamedPathParamValue(pathParamName, pathParamNameUsageCount)
-          } else { // uses unnamed path params
-            if (numberOfUsedPathParameters >= unnamedPathParams.size()) {
-              throw new IllegalArgumentException("You specified too few path parameters in the request.")
+        def indexOfStartBracket
+        def indexOfEndBracket = 0
+        while ((indexOfStartBracket = subresource.indexOf("{", indexOfEndBracket)) >= 0) {
+          indexOfEndBracket = subresource.indexOf("}", indexOfStartBracket)
+          if (indexOfStartBracket >= 0 && indexOfEndBracket >= 0 && subresource.length() >= 3) {
+            // 3 means "{" and "}" and at least one character
+            def pathParamValue = ""
+            if (usesNamedPathParameters) {
+              def pathParamName = subresource.substring(indexOfStartBracket + 1, indexOfEndBracket)
+              // Get path parameter name, what's between the "{" and "}"
+              pathParamValue = findNamedPathParamValue(pathParamName, pathParamNameUsageCount)
+            } else { // uses unnamed path params
+              if (numberOfUsedPathParameters >= unnamedPathParams.size()) {
+                throw new IllegalArgumentException("You specified too few path parameters in the request.")
+              }
+              pathParamValue = unnamedPathParams[numberOfUsedPathParameters].toString()
             }
-            pathParamValue = unnamedPathParams[numberOfUsedPathParameters].toString()
-          }
 
-          def pathToPrepend = ""
-          // If declared subresource has values before the first bracket then let's find it.
-          if (indexOfStartBracket != 0) {
-            pathToPrepend = subresource.substring(0, indexOfStartBracket)
-          }
+            def pathToPrepend = ""
+            // If declared subresource has values before the first bracket then let's find it.
+            if (indexOfStartBracket != 0) {
+              pathToPrepend = subresource.substring(0, indexOfStartBracket)
+            }
 
-          def pathToAppend = ""
-          // If declared subresource has values after the first bracket then let's find it.
-          if (subresource.length() > indexOfEndBracket) {
-            pathToAppend = subresource.substring(indexOfEndBracket + 1, subresource.length())
-          }
+            def pathToAppend = ""
+            // If declared subresource has values after the first bracket then let's find it.
+            if (subresource.length() > indexOfEndBracket) {
+              pathToAppend = subresource.substring(indexOfEndBracket + 1, subresource.length())
+            }
 
-          subresource = pathToPrepend + pathParamValue + pathToAppend
-          numberOfUsedPathParameters += 1
+            subresource = pathToPrepend + pathParamValue + pathToAppend
+            numberOfUsedPathParameters += 1
+          }
         }
-
         format("%s/%s", acc, encode(subresource, EncodingTarget.QUERY)).toString()
       }
 
       if (hasPathParameterWithDoubleSlash) {
         // Now get the double slash replacement back to normal double slashes
-        pathWithoutQueryParams = StringUtils.replace(pathWithoutQueryParams, "RA_double_slash__", encode(DOUBLE_SLASH, EncodingTarget.QUERY))
+        pathWithoutQueryParams = replace(pathWithoutQueryParams, "RA_double_slash__", encode(DOUBLE_SLASH, EncodingTarget.QUERY))
       }
 
       if (shouldAppendSlashAfterEncoding) {
@@ -1559,7 +1572,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         }
       }
 
-      path = host + (StringUtils.isEmpty(queryParams) ? pathWithoutQueryParams : pathWithoutQueryParams + "?" + queryParams)
+      path = host + (isEmpty(queryParams) ? pathWithoutQueryParams : pathWithoutQueryParams + "?" + queryParams)
       def expectedNumberOfUsedPathParameters = usesNamedPathParameters ? namedPathParamSize : unnamedPathParamSize
       if (numberOfUsedPathParameters != expectedNumberOfUsedPathParameters) {
         if (usesNamedPathParameters && expectedNumberOfUsedPathParameters < numberOfUsedPathParameters && !containsUnresolvedTemplates(path)) {
@@ -1683,7 +1696,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   List<MultiPartSpecification> getMultiPartParams() {
     return multiParts.collect {
-      new MultiPartSpecificationImpl(content: it.content, charset: it.charset, fileName: it.fileName, mimeType: it.mimeType, controlName: it.name)
+      new MultiPartSpecificationImpl(content: it.content, charset: it.charset, fileName: it.fileName, mimeType: it.mimeType, controlName: it.controlName)
     }
   }
 

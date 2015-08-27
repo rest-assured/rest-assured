@@ -1,13 +1,20 @@
-# REST-assured [![Build Status](https://travis-ci.org/jayway/rest-assured.svg)](https://travis-ci.org/jayway/rest-assured)![tag](http://img.shields.io/github/tag/jayway/rest-assured.svg)
+![REST Assured](rest-assured-logo-green.png)
 
-Testing and validating REST services in Java is harder than in dynamic languages 
+[![Build Status](https://travis-ci.org/jayway/rest-assured.svg)](https://travis-ci.org/jayway/rest-assured)![tag](http://img.shields.io/github/tag/jayway/rest-assured.svg)
+
+
+Testing and validation of REST services in Java is harder than in dynamic languages 
 such as Ruby and Groovy. REST Assured brings the simplicity of using these 
 languages into the Java domain.
 
 
 ## News 
+* 2015-08-09: REST Assured [2.5.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-2.5.0-dist.zip) is released with support for [multiple failure explanations](https://github.com/jayway/rest-assured/wiki/ReleaseNotes25#highlights), improved [OAuth2](https://github.com/jayway/rest-assured/wiki/Usage#oauth-2) support without the need for Scribe, better multipart configuration with support for setting [default control name and filename](https://github.com/jayway/rest-assured/wiki/ReleaseNotes25#other-notable-changes), better Java 8 support and many improvements to the [RestAssuredMockMvc](https://github.com/jayway/rest-assured/wiki/ReleaseNotes25#spring-mock-mvc-module) module. See [release notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes25) for details.
+* 2015-07-22: REST Assured has moved to GitHub. From now on the old <a href="https://code.google.com/p/rest-assured/">Google Code page</a> should not be used anymore. All issues are reported here on GitHub and the documentation is migrated.
+* 2015-04-12: REST Assured [2.4.1](http://dl.bintray.com/johanhaleby/generic/rest-assured-2.4.1-dist.zip) is released with bug fixes and improvements. See [change log](https://raw.githubusercontent.com/jayway/rest-assured/master/changelog.txt) for details.
 
-Refer to the REST Assured <a href="https://code.google.com/p/rest-assured/">homepage</a>.
+[Older News](https://github.com/jayway/rest-assured/wiki/OldNews)
+
 
 ## Examples
 Here's an example of how to make a GET request and validate the JSON or XML response:
@@ -70,21 +77,24 @@ and body easily.
 
 ## Documentation
 
-* [Getting started](https://code.google.com/p/rest-assured/wiki/GettingStarted)
-* [Usage Guide](https://code.google.com/p/rest-assured/wiki/Usage) (click [here](https://code.google.com/p/rest-assured/wiki/Usage_Legacy) for legacy documentation)
-* [Rest Assured Javadoc](http://rest-assured.googlecode.com/svn/tags/2.3.1/apidocs/com/jayway/restassured/RestAssured.html)
-* [Rest Assured Mock Mvc Javadoc](http://rest-assured.googlecode.com/svn/tags/2.3.1/apidocs/com/jayway/restassured/module/mockmvc/RestAssuredMockMvc.html)
-* [XmlPath Javadoc](http://rest-assured.googlecode.com/svn/tags/2.3.1/apidocs/com/jayway/restassured/path/xml/XmlPath.html)
-* [JsonPath Javadoc](http://rest-assured.googlecode.com/svn/tags/2.3.1/apidocs/com/jayway/restassured/path/json/JsonPath.html)
-* [FAQ](https://code.google.com/p/rest-assured/wiki/FAQ)
+* [Getting started](https://github.com/jayway/rest-assured/wiki/GettingStarted)
+* [Downloads](https://github.com/jayway/rest-assured/wiki/Downloads)
+* [Usage Guide](https://github.com/jayway/rest-assured/wiki/Usage) (click [here](https://github.com/jayway/rest-assured/wiki/Usage_Legacy) for legacy documentation)
+* [Javadoc](http://www.javadoc.io/doc/com.jayway.restassured/rest-assured/2.5.0)
+* [Rest Assured Javadoc](http://static.javadoc.io/com.jayway.restassured/rest-assured/2.5.0/com/jayway/restassured/RestAssured.html)
+* [Rest Assured Mock Mvc Javadoc](http://static.javadoc.io/com.jayway.restassured/spring-mock-mvc/2.5.0/com/jayway/restassured/module/mockmvc/RestAssuredMockMvc.html)
+* [XmlPath Javadoc](http://static.javadoc.io/com.jayway.restassured/xml-path/2.5.0/com/jayway/restassured/path/xml/XmlPath.html)
+* [JsonPath Javadoc](http://static.javadoc.io/com.jayway.restassured/json-path/2.5.0/com/jayway/restassured/path/json/JsonPath.html)
+* [Release Notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes)
+* [FAQ](https://github.com/jayway/rest-assured/wiki/FAQ)
 
 ## Support and discussion
 Join the mailing list at our [Google group](http://groups.google.com/group/rest-assured). 
 
-## Founded by:
+## Links
+* [Change log](https://github.com/jayway/rest-assured/raw/master/changelog.txt)
+* REST Assured on [Ohloh](https://www.ohloh.net/p/rest-assured)
+* [Mailing list](http://groups.google.com/group/rest-assured) for questions and support
+
+## Sponsored by:
 [![JAYWAY](http://www.arctiquator.com/oppenkallkod/assets/images/jayway_logo.png)](http://www.jayway.com/)
-
-## Other open source projects:
-[![PowerMock](http://powermock.googlecode.com/svn/trunk/src/site/resources/images/logos/powermock.png)](http://www.powermock.org/)
-[![Awaitility](http://github.com/jayway/awaitility/raw/master/resources/Awaitility_logo_red_small.png)](http://code.google.com/p/awaitility)
-

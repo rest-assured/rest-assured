@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.jayway.restassured.assertion;
 
 import com.jayway.restassured.response.Cookie;
@@ -7,6 +23,7 @@ import org.junit.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -40,7 +57,7 @@ public class CookieMatcherTest {
         assertEquals("123", deviceCookie.getValue());
         assertEquals(".test.com", deviceCookie.getDomain());
         assertEquals("/", deviceCookie.getPath());
-        assertEquals(new SimpleDateFormat("EEE, d-MMM-yyyy HH:mm:ss Z").parse("Thu, 12-Oct-2023 09:34:31 GMT"), deviceCookie.getExpiryDate());
+        assertEquals(new SimpleDateFormat("EEE, d-MMM-yyyy HH:mm:ss Z", Locale.ENGLISH).parse("Thu, 12-Oct-2023 09:34:31 GMT"), deviceCookie.getExpiryDate());
         assertEquals(true, deviceCookie.isSecured());
         assertEquals(true, deviceCookie.isHttpOnly());
 

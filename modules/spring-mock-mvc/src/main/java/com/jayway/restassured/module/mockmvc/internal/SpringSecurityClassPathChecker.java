@@ -16,6 +16,9 @@
 
 package com.jayway.restassured.module.mockmvc.internal;
 
+/**
+ * Checks whether or not the spring-security module is in classpath
+ */
 class SpringSecurityClassPathChecker {
     private static final String SECURITY_CONTEXT_HOLDER_CLASS_NAME = "org.springframework.security.core.context.SecurityContextHolder";
 

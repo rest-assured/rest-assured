@@ -35,8 +35,7 @@ import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static com.jayway.restassured.module.jsv.JsonSchemaValidatorSettings.settings;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.*;
 
 public class JsonSchemaValidationITest extends WithJetty {
 
@@ -190,48 +189,48 @@ public class JsonSchemaValidationITest extends WithJetty {
     @Test public void
     json_schema_validator_supports_draft_03_failures() {
         exception.expect(AssertionError.class);
-        exception.expectMessage(startsWith("Response body doesn't match expectation.\n" +
-                "Expected: The content to match the given JSON schema.\n" +
-                "error: object has missing required properties ([\"isbn\"])\n" +
-                "    level: \"error\"\n" +
-                "    schema: {\"loadingURI\":\""));
-        exception.expectMessage("\",\"pointer\":\"/properties/store/properties/book/items/1\"}\n" +
-                "    instance: {\"pointer\":\"/store/book/1\"}\n" +
-                "    domain: \"validation\"\n" +
-                "    keyword: \"properties\"\n" +
-                "    required: [\"isbn\"]\n" +
-                "    missing: [\"isbn\"]\n" +
-                "\n" +
-                "  Actual: { \"store\": {\n" +
-                "    \"book\": [ \n" +
-                "      { \"category\": \"reference\",\n" +
-                "        \"author\": \"Nigel Rees\",\n" +
-                "        \"title\": \"Sayings of the Century\",\n" +
-                "        \"price\": 8.95\n" +
-                "      },\n" +
-                "      { \"category\": \"fiction\",\n" +
-                "        \"author\": \"Evelyn Waugh\",\n" +
-                "        \"title\": \"Sword of Honour\",\n" +
-                "        \"price\": 12.99\n" +
-                "      },\n" +
-                "      { \"category\": \"fiction\",\n" +
-                "        \"author\": \"Herman Melville\",\n" +
-                "        \"title\": \"Moby Dick\",\n" +
-                "        \"isbn\": \"0-553-21311-3\",\n" +
-                "        \"price\": 8.99\n" +
-                "      },\n" +
-                "      { \"category\": \"fiction\",\n" +
-                "        \"author\": \"J. R. R. Tolkien\",\n" +
-                "        \"title\": \"The Lord of the Rings\",\n" +
-                "        \"isbn\": \"0-395-19395-8\",\n" +
-                "        \"price\": 22.99\n" +
-                "      }\n" +
-                "    ],\n" +
-                "    \"bicycle\": {\n" +
-                "      \"color\": \"red\",\n" +
-                "      \"price\": 19.95    }\n" +
-                "  }\n" +
-                "}");
+        exception.expectMessage(allOf(containsString("Response body doesn't match expectation.\n" +
+                        "Expected: The content to match the given JSON schema.\n" +
+                        "error: object has missing required properties ([\"isbn\"])\n" +
+                        "    level: \"error\"\n" +
+                        "    schema: {\"loadingURI\":\"file:"),
+                containsString("store-schema-isbn-required.json#\",\"pointer\":\"/properties/store/properties/book/items/1\"}\n" +
+                        "    instance: {\"pointer\":\"/store/book/1\"}\n" +
+                        "    domain: \"validation\"\n" +
+                        "    keyword: \"properties\"\n" +
+                        "    required: [\"isbn\"]\n" +
+                        "    missing: [\"isbn\"]\n" +
+                        "\n" +
+                        "  Actual: { \"store\": {\n" +
+                        "    \"book\": [ \n" +
+                        "      { \"category\": \"reference\",\n" +
+                        "        \"author\": \"Nigel Rees\",\n" +
+                        "        \"title\": \"Sayings of the Century\",\n" +
+                        "        \"price\": 8.95\n" +
+                        "      },\n" +
+                        "      { \"category\": \"fiction\",\n" +
+                        "        \"author\": \"Evelyn Waugh\",\n" +
+                        "        \"title\": \"Sword of Honour\",\n" +
+                        "        \"price\": 12.99\n" +
+                        "      },\n" +
+                        "      { \"category\": \"fiction\",\n" +
+                        "        \"author\": \"Herman Melville\",\n" +
+                        "        \"title\": \"Moby Dick\",\n" +
+                        "        \"isbn\": \"0-553-21311-3\",\n" +
+                        "        \"price\": 8.99\n" +
+                        "      },\n" +
+                        "      { \"category\": \"fiction\",\n" +
+                        "        \"author\": \"J. R. R. Tolkien\",\n" +
+                        "        \"title\": \"The Lord of the Rings\",\n" +
+                        "        \"isbn\": \"0-395-19395-8\",\n" +
+                        "        \"price\": 22.99\n" +
+                        "      }\n" +
+                        "    ],\n" +
+                        "    \"bicycle\": {\n" +
+                        "      \"color\": \"red\",\n" +
+                        "      \"price\": 19.95    }\n" +
+                        "  }\n" +
+                        "}")));
 
         // when
         get("/jsonStore").then().assertThat().body(matchesJsonSchemaInClasspath("store-schema-isbn-required.json"));

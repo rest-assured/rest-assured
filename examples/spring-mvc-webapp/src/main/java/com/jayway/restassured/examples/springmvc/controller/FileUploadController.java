@@ -81,4 +81,9 @@ public class FileUploadController {
         return "{ \"size\" : " + is.length() + ", \"content\":\"" + is + "\" }";
     }
 
+    @RequestMapping(value = "/fileUploadWithControlNameEqualToSomething", method = POST, consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
+    public @ResponseBody String fileUploadWithControlNameEqualToSomething(@RequestParam(value = "something") MultipartFile file) {
+        return "{ \"size\" : "+file.getSize()+", \"name\" : \""+file.getName()+"\", \"originalName\" : \""+file.getOriginalFilename() + "\", \"mimeType\" : \""+file.getContentType()+"\" }";
+    }
+
 }

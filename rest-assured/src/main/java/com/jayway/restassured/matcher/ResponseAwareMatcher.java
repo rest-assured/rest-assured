@@ -16,13 +16,9 @@
 
 package com.jayway.restassured.matcher;
 
-import com.jayway.restassured.internal.assertion.AssertParameter;
 import com.jayway.restassured.response.ResponseBody;
 import com.jayway.restassured.response.ResponseOptions;
 import org.hamcrest.Matcher;
-
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.anyOf;
 
 /**
  * An interface that can be implemented to create a {@link org.hamcrest.Matcher} based on the contents of a response. For example imagine that a
@@ -48,7 +44,7 @@ import static org.hamcrest.Matchers.anyOf;
  *
  * @param <T> The type of the response.
  */
-public abstract class ResponseAwareMatcher<T extends ResponseBody<T> & ResponseOptions<T>> {
+public interface ResponseAwareMatcher<T extends ResponseBody<T> & ResponseOptions<T>> {
 
     /**
      * Create the matcher based on the content of the response.
@@ -57,69 +53,5 @@ public abstract class ResponseAwareMatcher<T extends ResponseBody<T> & ResponseO
      * @return The matcher
      * @throws java.lang.Exception Throws any exception if needed
      */
-    public abstract Matcher<?> matcher(T response) throws Exception;
-
-    /**
-     * Compose this {@link com.jayway.restassured.matcher.ResponseAwareMatcher} with another {@link com.jayway.restassured.matcher.ResponseAwareMatcher}.
-     *
-     * @param responseAwareMatcher The matcher.
-     * @return A composed {@link com.jayway.restassured.matcher.ResponseAwareMatcher}.
-     */
-    @SuppressWarnings("unchecked")
-    public final ResponseAwareMatcher<T> and(final ResponseAwareMatcher<T> responseAwareMatcher) {
-        AssertParameter.notNull(responseAwareMatcher, ResponseAwareMatcher.class);
-        return new ResponseAwareMatcher<T>() {
-            public Matcher<?> matcher(T response) throws Exception {
-                return allOf((Matcher<Object>) ResponseAwareMatcher.this.matcher(response), (Matcher<Object>) responseAwareMatcher.matcher(response));
-            }
-        };
-    }
-
-    /**
-     * Compose this {@link com.jayway.restassured.matcher.ResponseAwareMatcher} with a {@link org.hamcrest.Matcher}.
-     *
-     * @param matcher The matcher.
-     * @return A composed {@link com.jayway.restassured.matcher.ResponseAwareMatcher}.
-     */
-    @SuppressWarnings("unchecked")
-    public final ResponseAwareMatcher<T> and(final Matcher<? extends Object> matcher) {
-        AssertParameter.notNull(matcher, Matcher.class);
-        return new ResponseAwareMatcher<T>() {
-            public Matcher<?> matcher(T response) throws Exception {
-                return allOf((Matcher<Object>) ResponseAwareMatcher.this.matcher(response), (Matcher<Object>) matcher);
-            }
-        };
-    }
-
-    /**
-     * Compose this {@link com.jayway.restassured.matcher.ResponseAwareMatcher} with another {@link com.jayway.restassured.matcher.ResponseAwareMatcher}.
-     *
-     * @param responseAwareMatcher The matcher.
-     * @return A composed {@link com.jayway.restassured.matcher.ResponseAwareMatcher}.
-     */
-    @SuppressWarnings("unchecked")
-    public final ResponseAwareMatcher<T> or(final ResponseAwareMatcher<T> responseAwareMatcher) {
-        AssertParameter.notNull(responseAwareMatcher, ResponseAwareMatcher.class);
-        return new ResponseAwareMatcher<T>() {
-            public Matcher<?> matcher(T response) throws Exception {
-                return anyOf((Matcher<Object>) ResponseAwareMatcher.this.matcher(response), (Matcher<Object>) responseAwareMatcher.matcher(response));
-            }
-        };
-    }
-
-    /**
-     * Compose this {@link com.jayway.restassured.matcher.ResponseAwareMatcher} with a {@link org.hamcrest.Matcher}.
-     *
-     * @param matcher The matcher.
-     * @return A composed {@link com.jayway.restassured.matcher.ResponseAwareMatcher}.
-     */
-    @SuppressWarnings("unchecked")
-    public final ResponseAwareMatcher<T> or(final Matcher<? extends Object> matcher) {
-        AssertParameter.notNull(matcher, Matcher.class);
-        return new ResponseAwareMatcher<T>() {
-            public Matcher<?> matcher(T response) throws Exception {
-                return anyOf((Matcher<Object>) ResponseAwareMatcher.this.matcher(response), (Matcher<Object>) matcher);
-            }
-        };
-    }
+    Matcher<?> matcher(T response) throws Exception;
 }

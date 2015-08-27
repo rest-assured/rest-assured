@@ -26,7 +26,7 @@ class MultiPartInternal {
   private static final String TEXT_PLAIN = "text/plain"
 
   def content
-  def String name
+  def String controlName
   def String fileName
   def String mimeType
   def String charset
@@ -37,7 +37,7 @@ class MultiPartInternal {
     }
 
     if (content instanceof File) {
-      new FileBody(content, fileName ?: content.getName(), mimeType ?: OCTET_STREAM, charset)
+      new FileBody(content, fileName, mimeType ?: OCTET_STREAM, charset)
     } else if (content instanceof InputStream) {
       returnInputStreamBody()
     } else if (content instanceof byte[]) {
@@ -69,10 +69,10 @@ class MultiPartInternal {
   }
 
   private def returnStringBody(String content) {
-    StringBody.create(content, mimeType ?: TEXT_PLAIN, charset == null ? null : Charset.forName(charset))
+    new StringBody(content, mimeType ?: TEXT_PLAIN, charset == null ? null : Charset.forName(charset))
   }
 
   private def returnInputStreamBody() {
-    new InputStreamBody(content, mimeType ?: OCTET_STREAM, fileName ?: "file")
+    new InputStreamBody(content, mimeType ?: OCTET_STREAM, fileName)
   }
 }

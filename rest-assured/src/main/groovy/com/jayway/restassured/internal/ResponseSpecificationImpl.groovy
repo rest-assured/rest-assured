@@ -568,13 +568,9 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         def numberOfErrors = errors.size()
         if (numberOfErrors > 0) {
           logRequestAndResponseIfEnabled()
-          if (isEagerAssert()) {
-            throw new AssertionError(errors[0].errorMessage)
-          } else {
-            def errorMessage = errors.collect { it.errorMessage }.join("\n")
-            def s = numberOfErrors > 1 ? "s" : ""
-            throw new AssertionError("$numberOfErrors expectation$s failed.\n$errorMessage")
-          }
+          def errorMessage = errors.collect { it.errorMessage }.join("\n")
+          def s = numberOfErrors > 1 ? "s" : ""
+          throw new AssertionError("$numberOfErrors expectation$s failed.\n$errorMessage")
         }
       }
     }

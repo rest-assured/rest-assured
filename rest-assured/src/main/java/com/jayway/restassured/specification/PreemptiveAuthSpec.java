@@ -24,10 +24,18 @@ public interface PreemptiveAuthSpec {
      * Use preemptive http basic authentication. This means that the authentication details are sent in the request
      * header regardless if the server has challenged for authentication or not.
      *
-     * @param userName The user name.
+     * @param username The username.
      * @param password The password.
-     *
      * @return The Request specification
      */
-    RequestSpecification basic(String userName, String password);
+    RequestSpecification basic(String username, String password);
+
+    /**
+     * OAuth2 sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
+     * This assumes you've already generated an accessToken for the site you're targeting. The access token will be put in a header.
+     *
+     * @param accessToken The access token
+     * @return The request com.jayway.restassured.specification
+     */
+    RequestSpecification oauth2(String accessToken);
 }

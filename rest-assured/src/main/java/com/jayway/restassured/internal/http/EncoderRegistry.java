@@ -23,6 +23,7 @@ import groovy.lang.Closure;
 import groovy.lang.GString;
 import groovy.lang.Writable;
 import groovy.xml.StreamingMarkupBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.NameValuePair;
@@ -109,7 +110,7 @@ public class EncoderRegistry {
             try {
                 fileInputStream = new FileInputStream(file);
             } catch (FileNotFoundException e) {
-                throw new RuntimeException("File " + file.getPath() +  " not found", e);
+                throw new RuntimeException("File " + file.getPath() + " not found", e);
             }
             entity = new InputStreamEntity(fileInputStream, -1);
         } else if (data instanceof byte[]) {
@@ -128,7 +129,8 @@ public class EncoderRegistry {
         }
 
         if (entity == null) throw new IllegalArgumentException(
-                "Don't know how to encode " + data + " as a byte stream");
+                "Don't know how to encode " + data + " as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\n" +
+                        "For example: \"given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs(\"" + ContentTypeExtractor.getContentTypeWithoutCharset(contentTypeToString(contentType)) + "\", ContentType.TEXT))). ..\"");
 
         entity.setContentType(contentTypeToString(contentType));
         return entity;
@@ -367,9 +369,29 @@ public class EncoderRegistry {
                 closure = registeredEncoders.get(foundCt.toString());
             }
         }
+
+        // We couldn't find an explicit encoder for the given content-type so try to find a match
+        if (closure == null) {
+            closure = tryToFindMatchingEncoder(ct);
+        }
+
+        // If no encoder could be found then use binary
         if (closure == null) {
             return getAt(ContentType.BINARY.toString());
         }
+        return closure;
+    }
+
+    private Closure tryToFindMatchingEncoder(String contentType) {
+        final Closure closure;
+        if (contentType == null) {
+            closure = null;
+        } else if (StringUtils.startsWithIgnoreCase(contentType, "text/") || StringUtils.containsIgnoreCase(contentType, "+text")) {
+            closure = new MethodClosure(this, "encodeText");
+        } else {
+            closure = null;
+        }
+
         return closure;
     }
 

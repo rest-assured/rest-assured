@@ -99,7 +99,8 @@ public class LoggingITest extends WithJetty {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor)).and().expect().body(equalTo("OK")).when().get("/multiCookie");
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: text/plain; charset=utf-8\nExpires: Thu, 01 Jan 1970 00:00:00 GMT\nSet-Cookie: cookie1=cookieValue1;Domain=localhost\nSet-Cookie: cookie1=cookieValue2;Version=1;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure\nContent-Length: 2\nServer: Jetty(6.1.14)\n\nOK" + LINE_SEPARATOR));
+        assertThat(writer.toString(), allOf(startsWith("HTTP/1.1 200 OK\nContent-Type: text/plain;charset=utf-8\nSet-Cookie: cookie1=cookieValue1;Domain=localhost\nExpires:"),
+                containsString("Set-Cookie: cookie1=cookieValue2;Version=1;Path=/;Domain=localhost;Expires="), endsWith(";Max-Age=1234567;Secure;Comment=\"My Purpose\"\nContent-Length: 2\nServer: Jetty(9.3.2.v20150730)\n\nOK" + LINE_SEPARATOR)));
     }
 
     @Test
@@ -107,7 +108,7 @@ public class LoggingITest extends WithJetty {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor, COOKIES)).and().expect().body(equalTo("OK")).when().get("/multiCookie");
-        assertThat(writer.toString(), equalTo("cookie1=cookieValue1;Domain=localhost\ncookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Version=1" + LINE_SEPARATOR));
+        assertThat(writer.toString(), allOf(startsWith("cookie1=cookieValue1;Domain=localhost\ncookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Expires="), endsWith(";Version=1" + LINE_SEPARATOR)));
     }
 
     @Test
@@ -248,7 +249,7 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/reflect");
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/reflect\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=text/plain; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR + "HTTP/1.1 200 OK\nContent-Type: text/plain; charset=iso-8859-1\nContent-Length: 23\nServer: Jetty(6.1.14)\n\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/reflect\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=text/plain; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR + "HTTP/1.1 200 OK\nContent-Type: text/plain;charset=iso-8859-1\nContent-Length: 23\nServer: Jetty(9.3.2.v20150730)\n\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR));
     }
 
     @Test
@@ -266,7 +267,7 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/reflect");
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/reflect\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=text/plain; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR + "HTTP/1.1 200 OK\nContent-Type: text/plain; charset=iso-8859-1\nContent-Length: 23\nServer: Jetty(6.1.14)\n\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/reflect\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=text/plain; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR + "HTTP/1.1 200 OK\nContent-Type: text/plain;charset=iso-8859-1\nContent-Length: 23\nServer: Jetty(9.3.2.v20150730)\n\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR));
     }
 
     @Test
@@ -284,7 +285,7 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/{firstName}/{lastName}");
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json; charset=UTF-8\nContent-Length: 59\nServer: Jetty(6.1.14)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json;charset=utf-8\nContent-Length: 59\nServer: Jetty(9.3.2.v20150730)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}" + LINE_SEPARATOR));
     }
 
     @Test
@@ -299,7 +300,7 @@ public class LoggingITest extends WithJetty {
                 when().
                 get("/409");
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type: text/plain; charset=utf-8\nContent-Length: 5\nServer: Jetty(6.1.14)\n\nERROR" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type: text/plain;charset=utf-8\nContent-Length: 5\nServer: Jetty(9.3.2.v20150730)\n\nERROR" + LINE_SEPARATOR));
     }
 
     @Test
@@ -329,7 +330,7 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/409");
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type: text/plain; charset=utf-8\nContent-Length: 5\nServer: Jetty(6.1.14)\n\nERROR" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type: text/plain;charset=utf-8\nContent-Length: 5\nServer: Jetty(9.3.2.v20150730)\n\nERROR" + LINE_SEPARATOR));
     }
 
     @Test
@@ -418,7 +419,7 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json; charset=UTF-8\nContent-Length: 59\nServer: Jetty(6.1.14)\n\n{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json;charset=utf-8\nContent-Length: 59\nServer: Jetty(9.3.2.v20150730)\n\n{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}" + LINE_SEPARATOR));
     }
 
     @Test
@@ -437,7 +438,7 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json; charset=UTF-8\nContent-Length: 59\nServer: Jetty(6.1.14)\n\n{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json;charset=utf-8\nContent-Length: 59\nServer: Jetty(9.3.2.v20150730)\n\n{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}" + LINE_SEPARATOR));
     }
 
     @Test
@@ -456,7 +457,7 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json; charset=UTF-8\nContent-Length: 59\nServer: Jetty(6.1.14)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json;charset=utf-8\nContent-Length: 59\nServer: Jetty(9.3.2.v20150730)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}" + LINE_SEPARATOR));
     }
 
     @Test
@@ -526,7 +527,7 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("Content-Type: application/json; charset=UTF-8\nContent-Length: 59\nServer: Jetty(6.1.14)" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("Content-Type: application/json;charset=utf-8\nContent-Length: 59\nServer: Jetty(9.3.2.v20150730)" + LINE_SEPARATOR));
     }
 
     @Test
@@ -542,7 +543,7 @@ public class LoggingITest extends WithJetty {
                 get("/multiValueHeader");
 
 
-        assertThat(writer.toString(), equalTo("Content-Type: text/plain; charset=utf-8\nMultiHeader: Value 1\nMultiHeader: Value 2\nContent-Length: 0\nServer: Jetty(6.1.14)" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("Content-Type: text/plain;charset=utf-8\nMultiHeader: Value 1\nMultiHeader: Value 2\nContent-Length: 0\nServer: Jetty(9.3.2.v20150730)" + LINE_SEPARATOR));
     }
 
     @Test
@@ -557,7 +558,7 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/multiCookie");
 
-        assertThat(writer.toString(), equalTo("cookie1=cookieValue1;Domain=localhost\ncookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Version=1" + LINE_SEPARATOR));
+        assertThat(writer.toString(), allOf(startsWith("cookie1=cookieValue1;Domain=localhost\ncookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Expires="), endsWith(";Version=1" + LINE_SEPARATOR)));
     }
 
     @Test
@@ -573,7 +574,7 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/contentTypeJsonButContentIsNotJson");
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json; charset=UTF-8\nContent-Length: 33\nServer: Jetty(6.1.14)\n\nThis is not a valid JSON document" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json;charset=utf-8\nContent-Length: 33\nServer: Jetty(9.3.2.v20150730)\n\nThis is not a valid JSON document" + LINE_SEPARATOR));
     }
 
     @Test
@@ -874,7 +875,7 @@ public class LoggingITest extends WithJetty {
                 statusCode(200).
                 body(is(new String(bytes)));
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: text/plain; charset=utf-8\nContent-Length: 1512\nServer: Jetty(6.1.14)\n\n<!--\n  ~ Copyright 2013 the original author or authors.\n  ~\n  ~ Licensed under the Apache License, Version 2.0 (the \"License\");\n  ~ you may not use this file except in compliance with the License.\n  ~ You may obtain a copy of the License at\n  ~\n  ~        http://www.apache.org/licenses/LICENSE-2.0\n  ~\n  ~ Unless required by applicable law or agreed to in writing, software\n  ~ distributed under the License is distributed on an \"AS IS\" BASIS,\n  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n  ~ See the License for the specific language governing permissions and\n  ~ limitations under the License.\n  -->\n<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\">\n  <xs:element name=\"records\">\n    <xs:complexType>\n      <xs:sequence>\n        <xs:element maxOccurs=\"unbounded\" ref=\"car\"/>\n      </xs:sequence>\n    </xs:complexType>\n  </xs:element>\n  <xs:element name=\"car\">\n    <xs:complexType>\n      <xs:sequence>\n        <xs:element ref=\"country\"/>\n        <xs:element ref=\"record\"/>\n      </xs:sequence>\n      <xs:attribute name=\"make\" use=\"required\" type=\"xs:NCName\"/>\n      <xs:attribute name=\"name\" use=\"required\"/>\n      <xs:attribute name=\"year\" use=\"required\" type=\"xs:integer\"/>\n    </xs:complexType>\n  </xs:element>\n  <xs:element name=\"country\" type=\"xs:string\"/>\n  <xs:element name=\"record\">\n    <xs:complexType mixed=\"true\">\n      <xs:attribute name=\"type\" use=\"required\" type=\"xs:NCName\"/>\n    </xs:complexType>\n  </xs:element>\n</xs:schema>"+LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: text/plain;charset=utf-8\nContent-Length: 1512\nServer: Jetty(9.3.2.v20150730)\n\n<!--\n  ~ Copyright 2013 the original author or authors.\n  ~\n  ~ Licensed under the Apache License, Version 2.0 (the \"License\");\n  ~ you may not use this file except in compliance with the License.\n  ~ You may obtain a copy of the License at\n  ~\n  ~        http://www.apache.org/licenses/LICENSE-2.0\n  ~\n  ~ Unless required by applicable law or agreed to in writing, software\n  ~ distributed under the License is distributed on an \"AS IS\" BASIS,\n  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n  ~ See the License for the specific language governing permissions and\n  ~ limitations under the License.\n  -->\n<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\">\n  <xs:element name=\"records\">\n    <xs:complexType>\n      <xs:sequence>\n        <xs:element maxOccurs=\"unbounded\" ref=\"car\"/>\n      </xs:sequence>\n    </xs:complexType>\n  </xs:element>\n  <xs:element name=\"car\">\n    <xs:complexType>\n      <xs:sequence>\n        <xs:element ref=\"country\"/>\n        <xs:element ref=\"record\"/>\n      </xs:sequence>\n      <xs:attribute name=\"make\" use=\"required\" type=\"xs:NCName\"/>\n      <xs:attribute name=\"name\" use=\"required\"/>\n      <xs:attribute name=\"year\" use=\"required\" type=\"xs:integer\"/>\n    </xs:complexType>\n  </xs:element>\n  <xs:element name=\"country\" type=\"xs:string\"/>\n  <xs:element name=\"record\">\n    <xs:complexType mixed=\"true\">\n      <xs:attribute name=\"type\" use=\"required\" type=\"xs:NCName\"/>\n    </xs:complexType>\n  </xs:element>\n</xs:schema>"+LINE_SEPARATOR));
     }
 
     @Test public void

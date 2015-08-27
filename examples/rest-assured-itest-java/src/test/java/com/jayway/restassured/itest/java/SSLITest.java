@@ -19,6 +19,7 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
+import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.junit.Ignore;
@@ -27,48 +28,50 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.authentication.CertificateAuthSettings.certAuthSettings;
+import static com.jayway.restassured.config.RestAssuredConfig.config;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static com.jayway.restassured.config.SSLConfig.sslConfig;
-import static com.jayway.restassured.http.ContentType.HTML;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
 
-public class SSLITest {
+public class SSLITest extends WithJetty {
+
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    public static ResponseSpecification eurosportSpec() {
+    public static ResponseSpecification helloWorldSpec() {
         return new ResponseSpecBuilder().
-                expectBody(containsString("An error occurred while processing your request.")).
-                expectContentType(HTML).
-                expectStatusCode(500).build();
+                expectBody("hello", equalTo("Hello Scalatra")).
+                expectStatusCode(200).build();
     }
 
     @Test(expected = SSLException.class)
     public void throwsSSLExceptionWhenHostnameInCertDoesntMatch() throws Exception {
-        get("https://tv.eurosport.com/");
+        get("https://localhost:8443/hello");
     }
 
     @Test
     public void givenKeystoreDefinedStaticallyWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
-        RestAssured.keystore("truststore_eurosport.jks", "test4321");
+        RestAssured.keystore("jetty_localhost_client.jks", "test1234");
         try {
-            expect().spec(eurosportSpec()).get("https://tv.eurosport.com/");
+            expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
         } finally {
             RestAssured.reset();
         }
     }
 
-    @Test
-    public void whenEnablingAllowAllHostNamesVerifierWithoutActivatingAKeyStoreTheCallTo() throws Exception {
+    @Test(expected = SSLHandshakeException.class)
+    public void whenEnablingAllowAllHostNamesVerifierWithoutActivatingAKeyStore() throws Exception {
         RestAssured.config = config().sslConfig(sslConfig().allowAllHostnames());
         try {
-            get("https://tv.eurosport.com/").then().spec(eurosportSpec());
+            get("https://localhost:8443/hello").then().spec(helloWorldSpec());
         } finally {
             RestAssured.reset();
         }
@@ -76,9 +79,9 @@ public class SSLITest {
 
     @Test
     public void usingStaticallyConfiguredCertificateAuthenticationWorks() throws Exception {
-        RestAssured.authentication = certificate("truststore_eurosport.jks", "test4321", certAuthSettings().allowAllHostnames());
+        RestAssured.authentication = certificate("jetty_localhost_client.jks", "test1234", certAuthSettings().allowAllHostnames());
         try {
-            get("https://tv.eurosport.com/").then().spec(eurosportSpec());
+            get("https://localhost:8443/hello").then().spec(helloWorldSpec());
         } finally {
             RestAssured.reset();
         }
@@ -88,7 +91,7 @@ public class SSLITest {
     public void usingStaticallyConfiguredCertificateAuthenticationWithIllegalHostNameInCertDoesntWork() throws Exception {
         RestAssured.authentication = certificate("truststore_mjvmobile.jks", "test4321");
         try {
-            get("https://tv.eurosport.com/").then().body(containsString("eurosport"));
+            get("https://localhost:8443/hello").then().body(containsString("eurosport"));
         } finally {
             RestAssured.reset();
         }
@@ -97,9 +100,9 @@ public class SSLITest {
     @Test
     public void usingStaticallyConfiguredCertificateAuthenticationWithIllegalHostNameInCertWorksWhenSSLConfigIsConfiguredToAllowAllHostNames() throws Exception {
         RestAssured.config = newConfig().sslConfig(sslConfig().allowAllHostnames());
-        RestAssured.authentication = certificate("truststore_eurosport.jks", "test4321");
+        RestAssured.authentication = certificate("jetty_localhost_client.jks", "test1234");
         try {
-            get("https://tv.eurosport.com/").then().spec(eurosportSpec());
+            get("https://localhost:8443/hello").then().spec(helloWorldSpec());
         } finally {
             RestAssured.reset();
         }
@@ -107,7 +110,7 @@ public class SSLITest {
 
     @Test
     public void givenKeystoreDefinedUsingGivenWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
-        given().keystore("/truststore_eurosport.jks", "test4321").then().expect().spec(eurosportSpec()).get("https://tv.eurosport.com/");
+        given().keystore("/jetty_localhost_client.jks", "test1234").then().expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
     }
 
     @Test
@@ -116,9 +119,9 @@ public class SSLITest {
         exception.expectMessage("Keystore was tampered with, or password was incorrect");
 
         given().
-                auth().certificate("truststore_eurosport.jks", "test4333").
+                auth().certificate("jetty_localhost_client.jks", "test4333").
         when().
-                get("https://tv.eurosport.com/").
+                get("https://localhost:8443/hello").
         then().
                 body(containsString("eurosport"));
     }
@@ -126,33 +129,33 @@ public class SSLITest {
     @Test
     public void certificateAuthenticationWorks() throws Exception {
         given().
-                auth().certificate("truststore_eurosport.jks", "test4321", certAuthSettings().allowAllHostnames()).
+                auth().certificate("jetty_localhost_client.jks", "test1234", certAuthSettings().allowAllHostnames()).
         when().
-                get("https://tv.eurosport.com/").
+                get("https://localhost:8443/hello").
         then().
-                spec(eurosportSpec());
+                spec(helloWorldSpec());
     }
 
-    @Ignore("Temporary ignored since site has changed") @Test public void
+    @Test public void
     allows_specifying_trust_store_in_dsl() throws Exception {
-        InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("truststore_cloudamqp.jks");
+        InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("jetty_localhost_client.jks");
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(keyStoreStream, "cloud1234".toCharArray());
+        keyStore.load(keyStoreStream, "test1234".toCharArray());
 
-        given().trustStore(keyStore).then().get("https://bunny.cloudamqp.com/api/").then().statusCode(200);
+        given().config(config().sslConfig(sslConfig().allowAllHostnames())).trustStore(keyStore).then().get("https://localhost:8443/hello").then().statusCode(200);
     }
 
-    @Ignore("Temporary ignored since site has changed") @Test public void
+    @Ignore("Temporary ignored but I think this ought to work. Perhaps some issues with config merging?")
+    @Test public void
     allows_specifying_trust_store_statically() throws Exception {
-
-        InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("truststore_cloudamqp.jks");
+        InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("jetty_localhost_client.jks");
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(keyStoreStream, "cloud1234".toCharArray());
+        keyStore.load(keyStoreStream, "test1234".toCharArray());
 
         RestAssured.trustStore(keyStore);
 
         try {
-            get("https://bunny.cloudamqp.com/api/").then().statusCode(200);
+            given().config(config().sslConfig(sslConfig().allowAllHostnames())).when().get("https://localhost:8443/hello").then().statusCode(200);
         } finally {
             RestAssured.reset();
         }
@@ -160,16 +163,16 @@ public class SSLITest {
 
     @Test public void
     allows_specifying_trust_store_and_allow_all_host_names_in_config_using_dsl() throws Exception {
-        InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("truststore_eurosport.jks");
+        InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("jetty_localhost_client.jks");
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        keyStore.load(keyStoreStream, "test4321".toCharArray());
+        keyStore.load(keyStoreStream, "test1234".toCharArray());
 
-        given().config(config().sslConfig(sslConfig().trustStore(keyStore).and().allowAllHostnames())).then().get("https://tv.eurosport.com/").then().spec(eurosportSpec());
+        given().config(config().sslConfig(sslConfig().trustStore(keyStore).and().allowAllHostnames())).then().get("https://localhost:8443/hello").then().spec(helloWorldSpec());
     }
 
     @Test public void
     relaxed_https_validation_works_using_instance_config() {
-        given().config(config().sslConfig(sslConfig().relaxedHTTPSValidation())).then().get("https://tv.eurosport.com/").then().spec(eurosportSpec());
+        given().config(config().sslConfig(sslConfig().relaxedHTTPSValidation())).then().get("https://localhost:8443/hello").then().spec(helloWorldSpec());
     }
 
     @Test public void
@@ -202,10 +205,10 @@ public class SSLITest {
 
     @Test public void
     keystore_works_with_static_base_uri() {
-        RestAssured.baseURI = "https://tv.eurosport.com/";
+        RestAssured.baseURI = "https://localhost:8443/hello";
 
         try {
-            given().keystore("/truststore_eurosport.jks", "test4321").when().get().then().spec(eurosportSpec());
+            given().keystore("/jetty_localhost_client.jks", "test1234").when().get().then().spec(helloWorldSpec());
         } finally {
             RestAssured.reset();
         }
@@ -235,15 +238,26 @@ public class SSLITest {
     @Test public void
     allows_specifying_trust_store_statically_with_request_builder() throws Exception {
         // Load the trust store
-        InputStream trustStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("truststore_eurosport.jks");
+        InputStream trustStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("jetty_localhost_client.jks");
         KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        trustStore.load(trustStoreStream, "test4321".toCharArray());
+        trustStore.load(trustStoreStream, "test1234".toCharArray());
 
         // Set the truststore on the global config
         RestAssured.config = RestAssured.config().sslConfig(sslConfig().trustStore(trustStore).and().allowAllHostnames());
 
         final RequestSpecification spec = new RequestSpecBuilder().build();
-        given().spec(spec).get("https://tv.eurosport.com/").then().spec(eurosportSpec());
+        given().spec(spec).get("https://localhost:8443/hello").then().spec(helloWorldSpec());
     }
 
+    @Test public void
+    supports_setting_keystore_in_request_specification() {
+        final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/jetty_localhost_client.jks", "test1234").build();
+        given().spec(spec).expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
+    }
+
+    @Test public void
+    supports_overriding_keystore_in_request_specification() {
+        final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/jetty_localhost_client.jks", "wrong pw").build();
+        given().spec(spec).keystore("/jetty_localhost_client.jks", "test1234").expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
+    }
 }

@@ -21,6 +21,7 @@ import org.junit.Test;
 import java.nio.charset.Charset;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class ContentTypeTest {
@@ -41,5 +42,41 @@ public class ContentTypeTest {
 
         // Then
         assertThat(contentType, equalTo("application/json; charset=ISO-8859-1"));
+    }
+
+    @Test public void
+    content_type_matches_expected_content_type_using_ignore_case() {
+        // Given
+        final String expected = "appliCatIon/JSON";
+
+        // When
+        boolean matches = ContentType.JSON.matches(expected);
+
+        // Then
+        assertThat(matches, is(true));
+    }
+
+    @Test public void
+    content_type_doesnt_match_when_expected_content_type_is_not_equal_to_actual() {
+        // Given
+        final String expected = "application/json2";
+
+        // When
+        boolean matches = ContentType.JSON.matches(expected);
+
+        // Then
+        assertThat(matches, is(false));
+    }
+
+    @Test public void
+    content_type_doesnt_match_when_expected_content_type_is_null() {
+        // Given
+        final String expected = null;
+
+        // When
+        boolean matches = ContentType.JSON.matches(expected);
+
+        // Then
+        assertThat(matches, is(false));
     }
 }

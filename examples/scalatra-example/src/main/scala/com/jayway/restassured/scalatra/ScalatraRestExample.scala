@@ -52,6 +52,11 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(render(json))
   }
 
+  get("/hello") {
+    val json = ("hello" -> "Hello Scalatra")
+    compact(render(json))
+  }
+
   get("/greetXML") {
     greetXML
   }
@@ -311,6 +316,18 @@ class ScalatraRestExample extends ScalatraServlet {
 
   post("/contentTypeAsBody") {
     request.contentType.getOrElse("null")
+  }
+
+  post("/textUriList") {
+    if (!request.getContentType.contains("text")) {
+      status = 400
+    } else {
+      contentType = "application/json"
+      val content = IOUtils.toString(request.getInputStream)
+      val uris = content.split("\n")
+      val json = "uris" -> decompose(uris)
+      compact(render(json))
+    }
   }
 
   get("/:firstName/:lastName") {
@@ -576,6 +593,15 @@ class ScalatraRestExample extends ScalatraServlet {
     response.addCookie(cookie1)
     response.addCookie(cookie2)
     "OK"
+  }
+
+  get("/multiCookieRequest") {
+    val cookies = request.getCookies
+            .map(cookie => Map(cookie.getName -> cookie.getValue))
+            .foldLeft(mutable.ListBuffer[Map[String, String]]())((list, cookie) => {
+      list.add(cookie); list
+    })
+    compact(render(cookies))
   }
 
   post("/j_spring_security_check") {

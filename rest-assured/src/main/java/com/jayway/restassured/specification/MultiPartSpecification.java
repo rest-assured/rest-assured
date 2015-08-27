@@ -43,4 +43,9 @@ public interface MultiPartSpecification {
      * @return The fileName of the multi-part, may be <code>null</code>.
      */
     String getFileName();
+
+    /**
+     * @return <code>true</code> if this multi-part specification contains a filename, <code>false</code> otherwise.
+     */
+    boolean hasFileName();
 }

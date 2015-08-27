@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.jayway.restassured.module.mockmvc.specification;
 
 import com.jayway.restassured.http.ContentType;
@@ -9,8 +25,13 @@ import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
@@ -840,6 +861,23 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
     MockMvcRequestSpecification standaloneSetup(Object... controllers);
 
     /**
+     * Build a {@link MockMvc} by using a provided {@code AbstractMockMvcBuilder}
+     * for configuring Spring MVC infrastructure programmatically.
+     * This allows full control over the instantiation and initialization of
+     * controllers, and their dependencies, similar to plain unit tests while
+     * also making it possible to test one controller at a time.
+     * <p/>
+     * <p>If the Spring MVC configuration of an application is relatively
+     * straight-forward, for example when using the MVC namespace or the MVC
+     * Java config, then using this builder might be a good option for testing
+     * a majority of controllers. A much smaller number of tests can be used
+     * to focus on testing and verifying the actual Spring MVC configuration.
+     *
+     * @param builder {@link org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder} to build the MVC mock
+     */
+    MockMvcRequestSpecification standaloneSetup(MockMvcBuilder builder);
+
+    /**
      * Provide a {@link org.springframework.test.web.servlet.MockMvc} instance to that REST Assured will use when making this request.
      *
      * @param mockMvc The mock mvc instance to use.
@@ -854,8 +892,11 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * will use the context to discover Spring MVC infrastructure and
      * application controllers in it. The context must have been configured with
      * a {@link javax.servlet.ServletContext}.
+     *
+     * @param context            The web application context to use
+     * @param mockMvcConfigurers {@link MockMvcConfigurer}'s to be applied when creating a {@link MockMvc} instance of this WebApplicationContext (optional)
      */
-    MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context);
+    MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers);
 
     /**
      * Intercept the {@link org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder} created by REST Assured before it's
@@ -872,4 +913,23 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * @return The same {@link com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification} instance.
      */
     MockMvcRequestSpecification and();
+
+    /**
+     * An extension point for further initialization of {@link MockHttpServletRequest}
+     * in ways not built directly into the {@code MockHttpServletRequestBuilder}.
+     * Implementation of this interface can have builder-style methods themselves
+     * and be made accessible through static factory methods.
+     * <p>
+     * Note that it's recommended to use {@link MockMvcAuthenticationSpecification#with(RequestPostProcessor, RequestPostProcessor...)} instead of this method when setting authentication/authorization based RequestPostProcessors.
+     * For example:
+     * <pre>
+     * given().auth().with(httpBasic("username", "password")). ..
+     * </pre>
+     * </p>
+     *
+     * @param postProcessor            a post-processor to add
+     * @param additionalPostProcessors Additional post-processors to add
+     * @see MockHttpServletRequestBuilder#with(RequestPostProcessor)
+     */
+    MockMvcRequestSpecification postProcessors(RequestPostProcessor postProcessor, RequestPostProcessor... additionalPostProcessors);
 }

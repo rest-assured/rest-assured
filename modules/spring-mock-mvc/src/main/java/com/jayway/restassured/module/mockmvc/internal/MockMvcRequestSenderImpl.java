@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.jayway.restassured.module.mockmvc.internal;
 
 import com.jayway.restassured.authentication.NoAuthScheme;
@@ -37,6 +53,7 @@ import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
 import java.io.*;
 import java.net.URI;
@@ -73,6 +90,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     private final List<MockMvcMultiPart> multiParts;
     private final RequestLoggingFilter requestLoggingFilter;
     private final List<ResultHandler> resultHandlers;
+    private final List<RequestPostProcessor> requestPostProcessors;
     private final MockHttpServletRequestBuilderInterceptor interceptor;
     private final String basePath;
     private final ResponseSpecification responseSpecification;
@@ -83,17 +101,17 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
                              RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
                              List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
-                             MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
+                             List<RequestPostProcessor> requestPostProcessors, MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
                              Object authentication, LogRepository logRepository) {
-        this(mockMvc, params, queryParams, formParams, attributes, config, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor,
+        this(mockMvc, params, queryParams, formParams, attributes, config, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, false);
     }
 
     private MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
-                             RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
-                             List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
-                             MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
-                             Object authentication, LogRepository logRepository, boolean isAsyncRequest) {
+                                     RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
+                                     List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
+                                     List<RequestPostProcessor> requestPostProcessors, MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
+                                     Object authentication, LogRepository logRepository, boolean isAsyncRequest) {
         this.mockMvc = mockMvc;
         this.params = params;
         this.queryParams = queryParams;
@@ -106,6 +124,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         this.multiParts = multiParts;
         this.requestLoggingFilter = requestLoggingFilter;
         this.resultHandlers = resultHandlers;
+        this.requestPostProcessors = requestPostProcessors;
         this.interceptor = interceptor;
         this.basePath = basePath;
         this.responseSpecification = responseSpecification;
@@ -129,9 +148,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
     private MockMvcResponse performRequest(MockHttpServletRequestBuilder requestBuilder) {
         MockHttpServletResponse response;
-        if (mockMvc == null) {
-            throw new IllegalStateException("You haven't configured a MockMVC instance. You can do this statically\n\nRestAssured.mockMvc = ..\nRestAssured.standaloneSetup(..);\nRestAssured.webAppContextSetup(..);\n\nor using the DSL:\n\ngiven().\n\t\tmockMvc(..). ..\n");
-        }
 
         if (interceptor != null) {
             interceptor.intercept(requestBuilder);
@@ -141,6 +157,10 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication((org.springframework.security.core.Authentication) authentication);
         } else if (authentication instanceof Principal) {
             requestBuilder.principal((Principal) authentication);
+        }
+
+        for (RequestPostProcessor requestPostProcessor : requestPostProcessors) {
+            requestBuilder.with(requestPostProcessor);
         }
 
         MockMvcRestAssuredResponseImpl restAssuredResponse;
@@ -670,7 +690,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     public MockMvcRequestAsyncConfigurer timeout(long duration, TimeUnit timeUnit) {
         RestAssuredMockMvcConfig newConfig = config.asyncConfig(new AsyncConfig(duration, timeUnit));
         return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams,
-                attributes, newConfig, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor,
+                attributes, newConfig, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, isAsyncRequest);
     }
 
@@ -684,7 +704,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
     public MockMvcRequestAsyncConfigurer async() {
         return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams,
-                attributes, config, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor,
+                attributes, config, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, true);
     }
 

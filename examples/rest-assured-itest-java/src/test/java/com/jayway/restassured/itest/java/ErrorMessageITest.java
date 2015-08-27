@@ -31,7 +31,7 @@ public class ErrorMessageITest extends WithJetty {
     public ExpectedException exception = ExpectedException.none();
 
     @Test public void
-    shows_all_failing_json_path_expectations() {
+    shows_all_failing_json_path_expectations_when_using_legacy_syntax() {
         exception.expect(AssertionError.class);
         exception.expectMessage("2 expectations failed.\n" +
                 "JSON path lotto.lottoId doesn't match.\n" +
@@ -138,5 +138,24 @@ public class ErrorMessageITest extends WithJetty {
         then().
                 statusCode(200).
                 body("lotto.lottoId", lessThan(2));
+    }
+
+    @Test public void
+    shows_all_failing_json_path_expectations_when_single_body_with_new_syntax() {
+        exception.expect(AssertionError.class);
+        exception.expectMessage("2 expectations failed.\n" +
+                "JSON path lotto.lottoId doesn't match.\n" +
+                "Expected: a value less than <2>\n" +
+                "  Actual: 5\n" +
+                "\n" +
+                "JSON path lotto.winning-numbers doesn't match.\n" +
+                "Expected: a collection containing <21>\n" +
+                "  Actual: [2, 45, 34, 23, 7, 5, 3]");
+
+        when().
+                get("/lotto").
+        then().
+                body("lotto.lottoId", lessThan(2),
+                     "lotto.winning-numbers", hasItem(21));
     }
 }

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.jayway.restassured.examples.springmvc.controller;
 
 import com.jayway.restassured.examples.springmvc.config.MainConfiguration;
@@ -23,16 +39,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static com.jayway.restassured.RestAssured.withArgs;
+import static com.jayway.restassured.config.MultiPartConfig.multiPartConfig;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
+import static com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig.config;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MainConfiguration.class)
 @WebAppConfiguration
 // @formatter:off
-public class MultiPartFileUploadTest {
+public class MultiPartFileUploadITest {
 
     @Autowired
     protected WebApplicationContext wac;
@@ -40,10 +59,10 @@ public class MultiPartFileUploadTest {
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
-
     @Before
     public void configureMockMvcInstance() {
         RestAssuredMockMvc.webAppContextSetup(wac);
+        RestAssuredMockMvc.postProcessors(csrf().asHeader());
     }
 
     @After
@@ -181,7 +200,92 @@ public class MultiPartFileUploadTest {
                 body("mimeType", equalTo("mime-type")).
                 noRoot().
                 body("param", equalTo("paramValue"));
+    }
 
-        }
+    @Test public void
+    allows_settings_default_control_name_using_instance_configuration() throws IOException {
+        File file = folder.newFile("filename.txt");
+        IOUtils.write("Something21", new FileOutputStream(file));
+
+        given().
+                config(config().multiPartConfig(multiPartConfig().with().defaultControlName("something"))).
+                multiPart(file).
+        when().
+                post("/fileUploadWithControlNameEqualToSomething").
+        then().
+                body("size", greaterThan(10)).
+                body("name", equalTo("something")).
+                body("originalName", equalTo("filename.txt"));
+    }
+
+    @Test public void
+    allows_settings_default_control_name_using_static_configuration() throws IOException {
+        File file = folder.newFile("filename.txt");
+        IOUtils.write("Something21", new FileOutputStream(file));
+
+        RestAssuredMockMvc.config = config().multiPartConfig(multiPartConfig().with().defaultControlName("something"));
+
+        given().
+                multiPart(file).
+        when().
+                post("/fileUploadWithControlNameEqualToSomething").
+        then().
+                body("size", greaterThan(10)).
+                body("name", equalTo("something")).
+                body("originalName", equalTo("filename.txt"));
+    }
+
+    @Test public void
+    allows_settings_default_file_name_using_instance_configuration() throws IOException {
+        given().
+                config(config().multiPartConfig(multiPartConfig().with().defaultFileName("filename.txt"))).
+                multiPart("controlName", "something32".getBytes()).
+        when().
+               post("/fileUpload2").
+        then().
+                body("size", greaterThan(10)).
+                body("name", equalTo("controlName")).
+                body("originalName", equalTo("filename.txt"));
+    }
+
+    @Test public void
+    allows_settings_default_file_name_using_static_configuration() throws IOException {
+        RestAssuredMockMvc.config = config().multiPartConfig(multiPartConfig().with().defaultFileName("filename.txt"));
+
+        given().
+                multiPart("controlName", "something32".getBytes()).
+        when().
+                post("/fileUpload2").
+        then().
+                body("size", greaterThan(10)).
+                body("name", equalTo("controlName")).
+                body("originalName", equalTo("filename.txt"));
+    }
+
+    @Test public void
+    allows_sending_multipart_without_a_filename_when_default_file_name_is_empty() throws IOException {
+        given().
+                config(config().multiPartConfig(multiPartConfig().with().emptyDefaultFileName())).
+                multiPart("controlName", "something32".getBytes()).
+        when().
+                post("/fileUpload2").
+        then().
+                body("size", greaterThan(10)).
+                body("name", equalTo("controlName")).
+                body("originalName", equalTo(""));
+    }
+
+    @Test public void
+    allows_sending_multipart_without_a_filename_when_default_file_name_is_set() throws IOException {
+        given().
+                config(config().multiPartConfig(multiPartConfig().with().defaultFileName("custom"))).
+                multiPart("controlName", null, "something32".getBytes()).
+        when().
+                post("/fileUpload2").
+        then().
+                body("size", greaterThan(10)).
+                body("name", equalTo("controlName")).
+                body("originalName", equalTo(""));
+    }
 }
 // @formatter:on

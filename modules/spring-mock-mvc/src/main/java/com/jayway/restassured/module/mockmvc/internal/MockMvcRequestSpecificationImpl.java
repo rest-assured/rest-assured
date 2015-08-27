@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.jayway.restassured.module.mockmvc.internal;
 
 import com.jayway.restassured.config.HeaderConfig;
@@ -24,9 +40,12 @@ import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.specification.ResponseSpecification;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
@@ -40,7 +59,6 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;
 import static com.jayway.restassured.module.mockmvc.internal.ConfigConverter.convertToRestAssuredConfig;
 import static com.jayway.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
-import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification, MockMvcAuthenticationSpecification {
@@ -49,7 +67,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private LogRepository logRepository;
 
-    private MockMvc instanceMockMvc;
+    private MockMvcFactory mockMvcFactory;
 
     private String basePath;
 
@@ -80,22 +98,30 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private final List<ResultHandler> resultHandlers = new ArrayList<ResultHandler>();
 
+    private final List<RequestPostProcessor> requestPostProcessors = new ArrayList<RequestPostProcessor>();
+
     private MockHttpServletRequestBuilderInterceptor interceptor;
 
     private Object authentication;
 
     private AsyncConfig asyncConfig;
 
-    public MockMvcRequestSpecificationImpl(MockMvc mockMvc, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers, String basePath,
+    public MockMvcRequestSpecificationImpl(MockMvcFactory mockMvcFactory, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers,
+                                           List<RequestPostProcessor> requestPostProcessors, String basePath,
                                            MockMvcRequestSpecification requestSpecification, ResponseSpecification responseSpecification,
                                            MockMvcAuthenticationScheme authentication) {
         this.logRepository = new LogRepository();
-        this.instanceMockMvc = mockMvc;
+        this.mockMvcFactory = mockMvcFactory == null ? new MockMvcFactory() : mockMvcFactory;
         this.basePath = basePath;
         this.responseSpecification = responseSpecification;
         assignConfig(config);
+
         if (resultHandlers != null) {
             this.resultHandlers.addAll(resultHandlers);
+        }
+
+        if (requestPostProcessors != null) {
+            this.requestPostProcessors.addAll(requestPostProcessors);
         }
 
         if (requestSpecification != null) {
@@ -109,16 +135,26 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification mockMvc(MockMvc mockMvc) {
         notNull(mockMvc, MockMvc.class);
-        return changeMockMvcInstanceTo(mockMvc);
+        return changeMockMvcFactoryTo(new MockMvcFactory(mockMvc));
     }
 
     public MockMvcRequestSpecification standaloneSetup(Object... controllers) {
-        return changeMockMvcInstanceTo(MockMvcBuilders.standaloneSetup(controllers).build());
+        return changeMockMvcFactoryTo(new MockMvcFactory(MockMvcBuilders.standaloneSetup(controllers)));
     }
 
-    public MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context) {
+    public MockMvcRequestSpecification standaloneSetup(MockMvcBuilder builder) {
+        notNull(builder, MockMvcBuilder.class);
+        return changeMockMvcFactoryTo(new MockMvcFactory(builder));
+    }
+
+    public MockMvcRequestSpecification webAppContextSetup(WebApplicationContext context, MockMvcConfigurer... mockMvcConfigurers) {
         DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(context);
-        return changeMockMvcInstanceTo(builder.build());
+        if (mockMvcConfigurers != null && mockMvcConfigurers.length > 0) {
+            for (MockMvcConfigurer mockMvcConfigurer : mockMvcConfigurers) {
+                builder.apply(mockMvcConfigurer);
+            }
+        }
+        return changeMockMvcFactoryTo(new MockMvcFactory(builder));
     }
 
     public MockMvcRequestSpecification interceptor(MockHttpServletRequestBuilderInterceptor interceptor) {
@@ -127,6 +163,15 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification and() {
+        return this;
+    }
+
+    public MockMvcRequestSpecification postProcessors(RequestPostProcessor postProcessor, RequestPostProcessor... additionalPostProcessors) {
+        notNull(postProcessor, RequestPostProcessor.class);
+        this.requestPostProcessors.add(postProcessor);
+        if (additionalPostProcessors != null && additionalPostProcessors.length >= 1) {
+            Collections.addAll(this.requestPostProcessors, additionalPostProcessors);
+        }
         return this;
     }
 
@@ -229,7 +274,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification header(Header header) {
         notNull(header, "Header");
-        return headers(new Headers(asList(header)));
+        return headers(new Headers(Collections.singletonList(header)));
     }
 
     public MockMvcRequestLogSpecification log() {
@@ -429,11 +474,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification cookie(Cookie cookie) {
         notNull(cookie, "Cookie");
-        return cookies(new Cookies(asList(cookie)));
+        return cookies(new Cookies(Collections.singletonList(cookie)));
     }
 
     public MockMvcRequestSpecification multiPart(File file) {
-        multiParts.add(new MockMvcMultiPart(file));
+        multiParts.add(new MockMvcMultiPart(restAssuredMockMvcConfig.getMultiPartConfig(), file));
         return this;
     }
 
@@ -448,12 +493,12 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification multiPart(String controlName, Object object) {
-        multiParts.add(new MockMvcMultiPart(controlName, serializeIfNeeded(object)));
+        multiParts.add(new MockMvcMultiPart(restAssuredMockMvcConfig.getMultiPartConfig(), controlName, serializeIfNeeded(object)));
         return this;
     }
 
     public MockMvcRequestSpecification multiPart(String controlName, Object object, String mimeType) {
-        multiParts.add(new MockMvcMultiPart(controlName, serializeIfNeeded(object, mimeType), mimeType));
+        multiParts.add(new MockMvcMultiPart(restAssuredMockMvcConfig.getMultiPartConfig(), controlName, serializeIfNeeded(object, mimeType), mimeType));
         return this;
     }
 
@@ -478,12 +523,12 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification multiPart(String controlName, String contentBody) {
-        multiParts.add(new MockMvcMultiPart(controlName, contentBody));
+        multiParts.add(new MockMvcMultiPart(restAssuredMockMvcConfig.getMultiPartConfig(), controlName, contentBody));
         return this;
     }
 
     public MockMvcRequestSpecification multiPart(String controlName, String contentBody, String mimeType) {
-        multiParts.add(new MockMvcMultiPart(controlName, contentBody, mimeType));
+        multiParts.add(new MockMvcMultiPart(restAssuredMockMvcConfig.getMultiPartConfig(), controlName, contentBody, mimeType));
         return this;
     }
 
@@ -510,9 +555,9 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
             this.basePath = that.getBasePath();
         }
 
-        MockMvc otherInstanceMockMvc = that.getInstanceMockMvc();
-        if (otherInstanceMockMvc != null) {
-            this.changeMockMvcInstanceTo(otherInstanceMockMvc);
+        MockMvcFactory otherMockMvcFactory = that.getMockMvcFactory();
+        if (otherMockMvcFactory != null && otherMockMvcFactory.isAssigned()) {
+            this.changeMockMvcFactoryTo(otherMockMvcFactory);
         }
 
         this.cookies(that.getCookies());
@@ -533,6 +578,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
         this.multiParts.addAll(that.getMultiParts());
         this.resultHandlers.addAll(that.getResultHandlers());
+        this.requestPostProcessors.addAll(that.getRequestPostProcessors());
 
         RequestLoggingFilter otherRequestLoggingFilter = that.getRequestLoggingFilter();
         if (otherRequestLoggingFilter != null) {
@@ -570,10 +616,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
                 thisConfig = thisConfig.headerConfig(otherConfig.getHeaderConfig());
             }
 
-            if (otherConfig.getHeaderConfig().isUserConfigured()) {
-                thisConfig = thisConfig.headerConfig(otherConfig.getHeaderConfig());
-            }
-
             if (otherConfig.getJsonConfig().isUserConfigured()) {
                 thisConfig = thisConfig.jsonConfig(otherConfig.getJsonConfig());
             }
@@ -596,6 +638,14 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
             if (otherConfig.getAsyncConfig().isUserConfigured()) {
                 thisConfig = thisConfig.asyncConfig(otherConfig.getAsyncConfig());
+            }
+
+            if (otherConfig.getMultiPartConfig().isUserConfigured()) {
+                thisConfig = thisConfig.multiPartConfig(otherConfig.getMultiPartConfig());
+            }
+
+            if (otherConfig.getMockMvcConfig().isUserConfigured()) {
+                thisConfig = thisConfig.mockMvcConfig(otherConfig.getMockMvcConfig());
             }
 
             thisOne.config(thisConfig);
@@ -640,9 +690,9 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         if (requestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
             log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
         }
-
-        return new MockMvcRequestSenderImpl(instanceMockMvc, params, queryParams, formParams, attributes, restAssuredMockMvcConfig, requestBody,
-                requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, interceptor, basePath, responseSpecification, authentication,
+        MockMvc mockMvc = mockMvcFactory.build(restAssuredMockMvcConfig.getMockMvcConfig());
+        return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams, attributes, restAssuredMockMvcConfig, requestBody,
+                requestHeaders, cookies, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor, basePath, responseSpecification, authentication,
                 logRepository);
     }
 
@@ -810,8 +860,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         this.requestLoggingFilter = requestLoggingFilter;
     }
 
-    private MockMvcRequestSpecification changeMockMvcInstanceTo(MockMvc mockMvc) {
-        this.instanceMockMvc = mockMvc;
+    private MockMvcRequestSpecification changeMockMvcFactoryTo(MockMvcFactory mockMvcFactory) {
+        this.mockMvcFactory = mockMvcFactory;
         return this;
     }
 
@@ -823,8 +873,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
     }
 
-    public MockMvc getInstanceMockMvc() {
-        return instanceMockMvc;
+    public MockMvcFactory getMockMvcFactory() {
+        return mockMvcFactory;
     }
 
     public String getBasePath() {
@@ -887,6 +937,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return resultHandlers;
     }
 
+    public List<RequestPostProcessor> getRequestPostProcessors() {
+        return requestPostProcessors;
+    }
+
     public MockHttpServletRequestBuilderInterceptor getInterceptor() {
         return interceptor;
     }
@@ -900,6 +954,16 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification principal(Principal principal) {
         notNull(principal, Principal.class);
         this.authentication = principal;
+        return this;
+    }
+
+    public MockMvcRequestSpecification with(RequestPostProcessor requestPostProcessor, RequestPostProcessor... additionalRequestPostProcessor) {
+        notNull(requestPostProcessor, RequestPostProcessor.class);
+        this.authentication = null;
+        this.requestPostProcessors.add(requestPostProcessor);
+        if (!(additionalRequestPostProcessor == null || additionalRequestPostProcessor.length == 0)) {
+            this.requestPostProcessors.addAll(Arrays.asList(additionalRequestPostProcessor));
+        }
         return this;
     }
 

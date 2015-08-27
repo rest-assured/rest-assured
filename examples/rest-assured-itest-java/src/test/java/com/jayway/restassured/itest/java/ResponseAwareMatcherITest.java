@@ -17,13 +17,12 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.itest.java.support.WithJetty;
-import com.jayway.restassured.matcher.ResponseAwareMatcher;
-import com.jayway.restassured.response.Response;
-import org.hamcrest.Matcher;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.when;
 import static com.jayway.restassured.RestAssured.withArgs;
+import static com.jayway.restassured.matcher.ResponseAwareMatcherComposer.and;
+import static com.jayway.restassured.matcher.ResponseAwareMatcherComposer.or;
 import static com.jayway.restassured.matcher.RestAssuredMatchers.endsWithPath;
 import static org.hamcrest.Matchers.*;
 
@@ -35,11 +34,7 @@ public class ResponseAwareMatcherITest extends WithJetty {
                 get("/game").
         then().
                 statusCode(200).
-                body("_links.self.href", new ResponseAwareMatcher<Response>() {
-                    public Matcher<?> matcher(Response response) {
-                        return equalTo("http://localhost:8080/" + response.path("id"));
-                    }
-                }).
+                body("_links.self.href", response -> equalTo("http://localhost:8080/" + response.path("id"))).
                 body("status", equalTo("ongoing"));
     }
 
@@ -63,13 +58,14 @@ public class ResponseAwareMatcherITest extends WithJetty {
                 body(withArgs("self"), endsWithPath("id"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test public void
     response_aware_matchers_are_composable_with_hamcrest_matchers() {
         when().
                 get("/game").
         then().
                 statusCode(200).
-                body("_links.self.href", endsWithPath("id").and(startsWith("http://localhost:8081")).or(containsString("localhost"))).
+                body("_links.self.href", and(endsWithPath("id"), anyOf(startsWith("http://localhost:8081"), containsString("localhost")), response -> containsString(response.path("id")))).
                 body("status", equalTo("ongoing"));
     }
 
@@ -79,12 +75,7 @@ public class ResponseAwareMatcherITest extends WithJetty {
                 get("/game").
         then().
                 statusCode(200).
-                body("_links.self.href", endsWithPath("id").and(new ResponseAwareMatcher<Response>() {
-                    @Override
-                    public Matcher<?> matcher(Response response) throws Exception {
-                        return containsString("localhost");
-                    }
-                })).
+                body("_links.self.href", and(endsWithPath("id"), response -> containsString("localhost"))).
                 body("status", equalTo("ongoing"));
     }
 
@@ -94,17 +85,8 @@ public class ResponseAwareMatcherITest extends WithJetty {
                 get("/game").
         then().
                 statusCode(200).
-                body("_links.self.href", endsWithPath("id").and(new ResponseAwareMatcher<Response>() {
-                    @Override
-                    public Matcher<?> matcher(Response response) throws Exception {
-                        return containsString("localhost2");
-                    }
-                }).or(new ResponseAwareMatcher<Response>() {
-                    @Override
-                    public Matcher<?> matcher(Response response) throws Exception {
-                        return startsWith("http://");
-                    }
-                }).and(containsString("/"))).
+                body("_links.self.href", or(and(endsWithPath("id"), response -> containsString("localhost2")),
+                        response -> startsWith("http://"))).
                 body("status", equalTo("ongoing"));
     }
 }

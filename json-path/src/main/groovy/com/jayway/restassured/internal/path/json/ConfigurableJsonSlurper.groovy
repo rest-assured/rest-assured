@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-
-
-
 package com.jayway.restassured.internal.path.json
 
+import com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType
 import groovy.io.LineColumnReader
 import groovy.json.JsonException
 import groovy.json.JsonLexer
@@ -45,15 +43,18 @@ import static groovy.json.JsonTokenType.*
  *
  */
 class ConfigurableJsonSlurper {
-    private static ThreadLocal<Boolean> useBigDecimal = new ThreadLocal<>();
+    private static ThreadLocal<NumberReturnType> numberReturnType = new ThreadLocal<>();
 
     static {
         def original = JsonToken.metaClass.getMetaMethod("getValue")
         JsonToken.metaClass.getValue = {->
             def result = original.invoke(delegate)
-            if (!useBigDecimal.get() && result instanceof BigDecimal) {
+          NumberReturnType numberReturnType = numberReturnType.get()
+          if ((numberReturnType == NumberReturnType.FLOAT_AND_DOUBLE ||
+                  numberReturnType == NumberReturnType.DOUBLE)
+                  && result instanceof BigDecimal) {
                 // Convert big decimal to float or double
-                if (result > Float.MAX_VALUE) {
+                if (result > Float.MAX_VALUE || numberReturnType == NumberReturnType.DOUBLE) {
                     result = result.doubleValue();
                 } else {
                     result = result.floatValue();
@@ -63,12 +64,8 @@ class ConfigurableJsonSlurper {
         }
     }
 
-    public ConfigurableJsonSlurper() {
-        this(false)
-    }
-
-    public ConfigurableJsonSlurper(boolean useBigDecimal) {
-        ConfigurableJsonSlurper.useBigDecimal.set(useBigDecimal);
+    public ConfigurableJsonSlurper(NumberReturnType numberReturnType) {
+        ConfigurableJsonSlurper.numberReturnType.set(numberReturnType);
     }
 
     /**
