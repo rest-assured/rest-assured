@@ -50,7 +50,21 @@ public class EncoderConfig implements Config {
      * </p>
      */
     public EncoderConfig() {
-        this(HTTP.DEF_CONTENT_CHARSET.toString(), UTF_8, true, new HashMap<String, ContentType>(), true);
+        this(getDefaultContentCharset(), UTF_8, true, new HashMap<String, ContentType>(), true);
+    }
+
+    private static String getDefaultContentCharset() {
+        String charset = Charset.forName("ISO-8859-1").toString();
+
+        try {
+            charset = HTTP.DEF_CONTENT_CHARSET.toString();
+        } catch (NoSuchFieldError e) {
+            // Doesn't exist on android for some reason.
+            // java.lang.NoSuchFieldError: No static field DEF_CONTENT_CHARSET of type Ljava/nio/charset/Charset;
+            // in class Lorg/apache/http/protocol/HTTP; or its superclasses (declaration of 'org.apache.http.protocol.HTTP'
+            // appears in /system/framework/ext.jar)
+        }
+        return charset;
     }
 
     public EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset) {
