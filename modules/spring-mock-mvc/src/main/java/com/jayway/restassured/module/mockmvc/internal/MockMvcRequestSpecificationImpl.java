@@ -391,7 +391,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
 
         String requestContentType = getRequestContentType();
-        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, restAssuredMockMvcConfig.getObjectMapperConfig());
+        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, restAssuredMockMvcConfig.getObjectMapperConfig(), restAssuredMockMvcConfig.getEncoderConfig());
         return this;
     }
 
@@ -411,7 +411,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         notNull(object, "object");
         notNull(mapperType, "Object mapper type");
         String requestContentType = getRequestContentType();
-        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType, restAssuredMockMvcConfig.getObjectMapperConfig());
+        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType, restAssuredMockMvcConfig.getObjectMapperConfig(), restAssuredMockMvcConfig.getEncoderConfig());
         return this;
     }
 
@@ -714,7 +714,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     private String serializeIfNeeded(Object object, String contentType) {
-        return isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, restAssuredMockMvcConfig.getObjectMapperConfig()) : object.toString();
+        return isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, restAssuredMockMvcConfig.getObjectMapperConfig(), restAssuredMockMvcConfig.getEncoderConfig()) : object.toString();
     }
 
     public MockMvcResponse get(String path, Object... pathParams) {
