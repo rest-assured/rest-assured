@@ -926,6 +926,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
+  def RequestSpecification multiPart(String controlName, String filename, Object object, String mimeType) {
+    def possiblySerializedObject = serializeIfNeeded(object, mimeType)
+    multiParts << new MultiPartInternal(controlName: controlName, content: possiblySerializedObject, mimeType: mimeType, fileName: filename)
+    this
+  }
+
   def RequestSpecification multiPart(String name, String fileName, byte[] bytes) {
     multiParts << new MultiPartInternal(controlName: name, content: bytes, fileName: fileName)
     this

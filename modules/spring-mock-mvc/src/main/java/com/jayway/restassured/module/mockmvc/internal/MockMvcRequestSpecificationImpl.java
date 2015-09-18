@@ -502,6 +502,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return this;
     }
 
+    public MockMvcRequestSpecification multiPart(String controlName, String filename, Object object, String mimeType) {
+        multiParts.add(new MockMvcMultiPart(controlName, filename, serializeIfNeeded(object, mimeType), mimeType));
+        return this;
+    }
+
     public MockMvcRequestSpecification multiPart(String controlName, String fileName, byte[] bytes) {
         multiParts.add(new MockMvcMultiPart(controlName, fileName, bytes));
         return this;

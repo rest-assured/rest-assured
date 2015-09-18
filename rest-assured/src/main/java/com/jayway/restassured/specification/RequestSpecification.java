@@ -1276,8 +1276,8 @@ public interface RequestSpecification extends RequestSender {
      * uploading with a specific control name. It will use mime-type <tt>application/json</tt>.
      * If this is not what you want please use an overloaded method.
      *
-     * @param object      The object to serialize to JSON or XML and send to the server
      * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param object      The object to serialize to JSON or XML and send to the server
      * @return The request specification
      */
     RequestSpecification multiPart(String controlName, Object object);
@@ -1286,12 +1286,24 @@ public interface RequestSpecification extends RequestSender {
      * Specify an object that will be serialized and uploaded to the server using multi-part form data
      * uploading with a specific control name.
      *
-     * @param object      The object to serialize to JSON or XML and send to the server
      * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param object      The object to serialize to JSON or XML and send to the server
      * @param mimeType    The mime-type
      * @return The request specification
      */
     RequestSpecification multiPart(String controlName, Object object, String mimeType);
+
+    /**
+     * Specify an object that will be serialized and uploaded to the server using multi-part form data
+     * uploading with a specific control name.
+     *
+     * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param filename    The name of the content you're uploading
+     * @param object      The object to serialize to JSON or XML and send to the server
+     * @param mimeType    The mime-type
+     * @return The request specification
+     */
+    RequestSpecification multiPart(String controlName, String filename, Object object, String mimeType);
 
     /**
      * Specify a byte-array to upload to the server using multi-part form data.
