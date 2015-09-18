@@ -667,7 +667,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       return content(object.toString());
     }
 
-    this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, objectMappingConfig());
+    this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, objectMappingConfig(), restAssuredConfig().getEncoderConfig());
     this
   }
 
@@ -689,7 +689,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification body(Object object, ObjectMapperType mapperType) {
     notNull object, "object"
     notNull mapperType, "Object mapper type"
-    this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType, objectMappingConfig())
+    this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType, objectMappingConfig(), restAssuredConfig().getEncoderConfig())
     this
   }
 
