@@ -9,6 +9,7 @@ Change log next version
     }));
   but now you can just use a lambda expression or method reference:
     given().config(RestAssured.config().httpClientConfig(httpClientConfig().httpClientFactory(SystemDefaultHttpClient::new));
+* Fixed so that the "multiPart(String name, File file, String mimeType)" method doesn't use default control name (issue 588)
 
 Change log 2.5.0 (2015-08-09)
 -----------------------------

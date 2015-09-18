@@ -1264,8 +1264,8 @@ public interface RequestSpecification extends RequestSender {
      * Specify a file to upload to the server using multi-part form data uploading with a specific
      * control name and mime-type.
      *
-     * @param file        The file to upload
      * @param controlName Defines the control name of the body part. In HTML this is the attribute name of the input tag.
+     * @param file        The file to upload
      * @param mimeType    The mime-type
      * @return The request specification
      */

@@ -910,8 +910,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  def RequestSpecification multiPart(String name, File file, String mimeType) {
-    multiParts << new MultiPartInternal(controlName: restAssuredConfig().getMultiPartConfig().defaultControlName(), content: file, mimeType: mimeType, fileName: file.getName())
+  def RequestSpecification multiPart(String controlName, File file, String mimeType) {
+    multiParts << new MultiPartInternal(controlName: controlName, content: file, mimeType: mimeType, fileName: file.getName())
     this
   }
 
