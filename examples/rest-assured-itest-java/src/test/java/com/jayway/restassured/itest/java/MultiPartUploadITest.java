@@ -35,6 +35,7 @@ import org.junit.rules.ExpectedException;
 import static com.jayway.restassured.RestAssured.config;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
+import static com.jayway.restassured.config.MultiPartConfig.multiPartConfig;
 import static com.jayway.restassured.internal.mapper.ObjectMapperType.JACKSON_2;
 import static org.hamcrest.Matchers.*;
 
@@ -68,6 +69,47 @@ public class MultiPartUploadITest extends WithJetty {
                body(is("Some text")).
        when().
                post("/multipart/text");
+    }
+
+    @Test
+    public void multiPartUploadingSupportsOtherSubTypesThanFormData() throws Exception {
+       // When
+       given().
+               contentType("multipart/mixed").
+               multiPart("text", "Some text").
+       expect().
+               statusCode(200).
+               body(is("Some text")).
+       when().
+               post("/multipart/text");
+    }
+
+    @Test
+    public void multiPartUploadingSupportsSpecifyingDefaultSubtype() throws Exception {
+       // When
+       given().
+               config(config().multiPartConfig(multiPartConfig().defaultSubtype("mixed"))).
+               multiPart("text", "Some text").
+       expect().
+               statusCode(200).
+               body(is("Some text")).
+               header("X-Request-Header", startsWith("multipart/mixed")).
+       when().
+               post("/multipart/textAndReturnHeader");
+    }
+
+    @Test
+    public void multiPartUploadingSupportsSpecifyingCharset() throws Exception {
+       // When
+       given().
+               contentType("multipart/mixed; charset=US-ASCII").
+               multiPart("text", "Some text").
+       expect().
+               statusCode(200).
+               body(is("Some text")).
+               header("X-Request-Header", allOf(startsWith("multipart/mixed"), containsString("charset=US-ASCII"))).
+       when().
+               post("/multipart/textAndReturnHeader");
     }
 
     @Test

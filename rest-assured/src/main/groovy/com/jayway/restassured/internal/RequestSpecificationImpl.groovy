@@ -33,6 +33,9 @@ import com.jayway.restassured.internal.log.LogRepository
 import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl
 import com.jayway.restassured.internal.mapping.ObjectMapping
+import com.jayway.restassured.internal.multipart.MultiPartInternal
+import com.jayway.restassured.internal.multipart.MultiPartSpecificationImpl
+import com.jayway.restassured.internal.multipart.RestAssuredMultiPartEntity
 import com.jayway.restassured.internal.proxy.RestAssuredProxySelector
 import com.jayway.restassured.internal.proxy.RestAssuredProxySelectorRoutePlanner
 import com.jayway.restassured.internal.support.ParameterAppender
@@ -48,7 +51,6 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
-import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.impl.client.AbstractHttpClient
 import org.apache.http.message.BasicHeader
 
@@ -69,13 +71,13 @@ import static org.apache.http.client.params.ClientPNames.*
 
 class RequestSpecificationImpl implements FilterableRequestSpecification, GroovyInterceptable {
   private static final int DEFAULT_HTTP_TEST_PORT = 8080
-  private static final String MULTIPART_FORM_DATA = "multipart/form-data"
   private static final String CONTENT_TYPE = "Content-Type"
   private static final String DOUBLE_SLASH = "//"
   private static final String LOCALHOST = "localhost"
   private static final String CHARSET = "charset"
   private static final String ACCEPT_HEADER_NAME = "Accept"
   public static final String SSL = "SSL"
+  public static final String MULTIPART_CONTENT_TYPE_PREFIX = "multipart/"
 
   private String baseUri
   private String path = ""
@@ -1260,9 +1262,18 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     if (hasFormParams()) {
       convertFormParamsToMultiPartParams()
     }
-    http.encoders.putAt MULTIPART_FORM_DATA, { contentType, content ->
-      // TODO Add charset
-      MultipartEntity entity = new MultipartEntity(httpClientConfig().httpMultipartMode());
+
+
+    def contentTypeAsString = headers.getValue(CONTENT_TYPE)
+    def ct = ContentTypeExtractor.getContentTypeWithoutCharset(contentTypeAsString)
+    if (!ct?.toLowerCase()?.startsWith(MULTIPART_CONTENT_TYPE_PREFIX)) {
+      throw new IllegalArgumentException("Content-Type $ct is not valid when using multiparts, it must start with \"$MULTIPART_CONTENT_TYPE_PREFIX\".");
+    }
+
+    def subType = substringAfter(ct, MULTIPART_CONTENT_TYPE_PREFIX)
+    def charsetFromContentType = CharsetExtractor.getCharsetFromContentType(contentTypeAsString)
+    http.encoders.putAt ct, { contentType, content ->
+      RestAssuredMultiPartEntity entity = new RestAssuredMultiPartEntity(subType, charsetFromContentType, httpClientConfig().httpMultipartMode());
 
       multiParts.each {
         def body = it.contentBody
@@ -1349,7 +1360,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def contentType = headers.getValue(CONTENT_TYPE)
     if (contentType == null) {
       if (multiParts.size() > 0) {
-        contentType = MULTIPART_FORM_DATA
+        contentType = MULTIPART_CONTENT_TYPE_PREFIX + restAssuredConfig().getMultiPartConfig().defaultSubtype()
       } else if (GET.equals(method) && !formParameters.isEmpty()) {
         contentType = URLENC
       } else if (requestBody == null) {
@@ -1376,7 +1387,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private boolean shouldAppendCharsetToContentType(contentType) {
-    contentType != null && contentType != MULTIPART_FORM_DATA && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !containsIgnoreCase(contentType.toString(), CHARSET)
+    contentType != null && !startsWith(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX) && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !containsIgnoreCase(contentType.toString(), CHARSET)
   }
 
   private String getTargetURI(String path) {
@@ -1796,7 +1807,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         Object val = headers1.get(key);
         if (val == null) {
           reqMethod.removeHeaders(key.toString())
-        } else if (!key.toString().equalsIgnoreCase(CONTENT_TYPE) || !val.toString().contains(MULTIPART_FORM_DATA)) {
+        } else if (!key.toString().equalsIgnoreCase(CONTENT_TYPE) || !val.toString().startsWith(MULTIPART_CONTENT_TYPE_PREFIX)) {
           // Don't overwrite multipart header because HTTP Client have added boundary
           def keyAsString = key.toString()
           if (val instanceof Collection) {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.jayway.restassured.internal
+package com.jayway.restassured.internal.multipart
 
 import com.jayway.restassured.specification.MultiPartSpecification
 import org.apache.commons.lang3.StringUtils

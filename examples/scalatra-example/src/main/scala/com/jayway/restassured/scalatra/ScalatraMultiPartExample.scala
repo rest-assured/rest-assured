@@ -38,6 +38,11 @@ class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
     getText
   }
 
+  post("/textAndReturnHeader") {
+    response.setHeader("X-Request-Header", request.getHeader("Content-Type"))
+    getText
+  }
+
   post("/fileAndText") {
     getFileContent() + getText
   }

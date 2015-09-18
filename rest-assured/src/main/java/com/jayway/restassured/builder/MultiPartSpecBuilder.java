@@ -17,10 +17,10 @@ package com.jayway.restassured.builder;
 
 import com.jayway.restassured.config.EncoderConfig;
 import com.jayway.restassured.config.ObjectMapperConfig;
-import com.jayway.restassured.internal.MultiPartSpecificationImpl;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
 import com.jayway.restassured.internal.mapping.ObjectMapping;
+import com.jayway.restassured.internal.multipart.MultiPartSpecificationImpl;
 import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.specification.MultiPartSpecification;
 import org.apache.commons.lang3.Validate;
