@@ -19,10 +19,13 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.builder.MultiPartSpecBuilder;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.internal.mapper.ObjectMapperType;
+import com.jayway.restassured.internal.mapping.Jackson2Mapper;
 import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.support.MyEnum;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.mapper.factory.DefaultJackson2ObjectMapperFactory;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -32,6 +35,7 @@ import org.junit.rules.ExpectedException;
 import static com.jayway.restassured.RestAssured.config;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
+import static com.jayway.restassured.internal.mapper.ObjectMapperType.JACKSON_2;
 import static org.hamcrest.Matchers.*;
 
 public class MultiPartUploadITest extends WithJetty {
@@ -113,6 +117,66 @@ public class MultiPartUploadITest extends WithJetty {
                body(endsWith("<greeting><firstName>John</firstName><lastName>Doe</lastName></greeting>")).
        when().
                post("/multipart/text");
+    }
+
+    @Test
+    public void multiPartSupportsSpecifyingAnObjectMapperTypeToMultiPartSpecBuilder() throws Exception {
+        // Given
+        final Greeting greeting = new Greeting();
+        greeting.setFirstName("John");
+        greeting.setLastName("Doe");
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(greeting, JACKSON_2)
+                        .fileName("RoleBasedAccessFeaturePlan.csv")
+                        .controlName("text")
+                        .mimeType("application/vnd.ms-excel").build()).
+        when().
+                post("/multipart/text").
+        then().
+                statusCode(200).
+                body(containsString("John"), containsString("Doe"), containsString("{"));
+    }
+
+    @Test
+    public void multiPartSupportsSpecifyingAnObjectMapperToMultiPartSpecBuilder() throws Exception {
+        // Given
+        final Greeting greeting = new Greeting();
+        greeting.setFirstName("John");
+        greeting.setLastName("Doe");
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(greeting, new Jackson2Mapper(new DefaultJackson2ObjectMapperFactory()))
+                        .fileName("RoleBasedAccessFeaturePlan.csv")
+                        .controlName("text")
+                        .mimeType("application/vnd.ms-excel").build()).
+        when().
+                post("/multipart/text").
+        then().
+                statusCode(200).
+                body(containsString("John"), containsString("Doe"), containsString("{"));
+    }
+
+    @Test
+    public void multiPartObjectMapperTypeHavePrecedenceOverMimeType() throws Exception {
+        // Given
+        final Greeting greeting = new Greeting();
+        greeting.setFirstName("John");
+        greeting.setLastName("Doe");
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(greeting, ObjectMapperType.JAXB)
+                        .fileName("RoleBasedAccessFeaturePlan.csv")
+                        .controlName("text")
+                        .mimeType("application/json").build()).
+        when().
+                post("/multipart/text").
+        then().
+                statusCode(200).
+                body(containsString("John"), containsString("Doe"), containsString("<"));
     }
 
     @Test

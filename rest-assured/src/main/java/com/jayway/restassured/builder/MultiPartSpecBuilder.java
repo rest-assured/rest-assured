@@ -15,7 +15,13 @@
  */
 package com.jayway.restassured.builder;
 
+import com.jayway.restassured.config.EncoderConfig;
+import com.jayway.restassured.config.ObjectMapperConfig;
 import com.jayway.restassured.internal.MultiPartSpecificationImpl;
+import com.jayway.restassured.internal.mapper.ObjectMapperType;
+import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
+import com.jayway.restassured.internal.mapping.ObjectMapping;
+import com.jayway.restassured.mapper.ObjectMapper;
 import com.jayway.restassured.specification.MultiPartSpecification;
 import org.apache.commons.lang3.Validate;
 
@@ -34,6 +40,8 @@ import java.nio.charset.Charset;
  */
 public class MultiPartSpecBuilder {
 
+    private final ObjectMapper explicitObjectMapper;
+    private final ObjectMapperType explicitObjectMapperType;
     private Object content;
     private String controlName;
     private String mimeType;
@@ -49,6 +57,40 @@ public class MultiPartSpecBuilder {
      */
     public MultiPartSpecBuilder(Object content) {
         Validate.notNull(content, "Multi-part content cannot be null");
+        this.content = content;
+        this.controlName = "file";
+        this.isControlNameExplicit = false;
+        this.isFileNameExplicit = false;
+        this.explicitObjectMapper = null;
+        this.explicitObjectMapperType = null;
+    }
+
+    /**
+     * Create a new multi-part specification with control name equal to file.
+     *
+     * @param content The content to include in the multi-part specification.
+     */
+    public MultiPartSpecBuilder(Object content, ObjectMapperType objectMapperType) {
+        Validate.notNull(content, "Multi-part content cannot be null");
+        Validate.notNull(objectMapperType, "Object mapper type cannot be null");
+        this.explicitObjectMapperType = objectMapperType;
+        this.explicitObjectMapper = null;
+        this.content = content;
+        this.controlName = "file";
+        this.isControlNameExplicit = false;
+        this.isFileNameExplicit = false;
+    }
+
+    /**
+     * Create a new multi-part specification with control name equal to file.
+     *
+     * @param content The content to include in the multi-part specification.
+     */
+    public MultiPartSpecBuilder(Object content, ObjectMapper objectMapper) {
+        Validate.notNull(content, "Multi-part content cannot be null");
+        Validate.notNull(objectMapper, "Object mapper cannot be null");
+        this.explicitObjectMapper = objectMapper;
+        this.explicitObjectMapperType = null;
         this.content = content;
         this.controlName = "file";
         this.isControlNameExplicit = false;
@@ -90,7 +132,6 @@ public class MultiPartSpecBuilder {
     public MultiPartSpecBuilder(File content) {
         this((Object) content);
     }
-
 
     /**
      * Specify the control name of this multi-part.
@@ -191,7 +232,7 @@ public class MultiPartSpecBuilder {
     public MultiPartSpecification build() {
         MultiPartSpecificationImpl spec = new MultiPartSpecificationImpl();
         spec.setCharset(charset);
-        spec.setContent(content);
+        applyContentToSpec(spec);
         spec.setControlName(controlName);
         spec.setControlName(controlName);
         spec.setFileName(fileName);
@@ -199,5 +240,20 @@ public class MultiPartSpecBuilder {
         spec.setControlNameSpecifiedExplicitly(isControlNameExplicit);
         spec.setFileNameSpecifiedExplicitly(isFileNameExplicit);
         return spec;
+    }
+
+    private void applyContentToSpec(MultiPartSpecificationImpl spec) {
+        final Object actualContent;
+        if (explicitObjectMapper != null) {
+            ObjectMapperSerializationContextImpl ctx = new ObjectMapperSerializationContextImpl();
+            ctx.setObject(content);
+            ctx.setContentType(mimeType);
+            actualContent = explicitObjectMapper.serialize(ctx);
+        } else if (explicitObjectMapperType != null) {
+            actualContent = ObjectMapping.serialize(content, mimeType, null, explicitObjectMapperType, new ObjectMapperConfig(), new EncoderConfig());
+        } else {
+            actualContent = content;
+        }
+        spec.setContent(actualContent);
     }
 }

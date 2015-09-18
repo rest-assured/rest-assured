@@ -101,7 +101,8 @@ class ObjectMapping {
   public static String serialize(Object object, String contentType, String charset, ObjectMapperType mapperType, ObjectMapperConfig config,
                                  EncoderConfig encoderConfig) {
     notNull(object, "String to serialize")
-    notNull(config, "String mapper configuration not found, cannot serialize object.")
+    notNull(config, "Object mapper configuration not found, cannot serialize object.")
+    notNull(encoderConfig, "Encoder configuration not found, cannot serialize object.")
 
     def serializationCtx = serializationContext(object, contentType, charset)
     if (config.hasDefaultObjectMapper()) {

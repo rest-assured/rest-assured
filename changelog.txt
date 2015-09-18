@@ -28,6 +28,21 @@ Change log next version
     then().
            statusCode(200);
   This will now serialize the "greeting" as JSON even though the mime-type is set to "application/vnd.ms-excel" (which is unknown to REST Assured) (issue 586)
+* You can now pass in which ObjectMapperType or ObjectMapper to use when serializing an object using multipart. For example:
+    Greeting greeting = new Greeting();
+    greeting.setFirstName("John");
+    greeting.setLastName("Doe");
+
+    given().
+           multiPart(new MultiPartSpecBuilder(greeting, ObjectMapperType.GSON)
+                   .fileName("RoleBasedAccessFeaturePlan.csv")
+                   .controlName("text")
+                   .mimeType("application/vnd.ms-excel").build()).
+    when().
+           post("/multipart/text").
+    then().
+           statusCode(200);
+  This will force the use if the GSON ObjectMapper (if available in the classpath) even though mime type is not recoginzed by default by REST Assured.
 
 Change log 2.5.0 (2015-08-09)
 -----------------------------
