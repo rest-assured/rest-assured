@@ -113,6 +113,36 @@ public class MultiPartUploadITest extends WithJetty {
     }
 
     @Test
+    public void explicitMultipartContentTypeOverridesDefaultSubtype() throws Exception {
+       // When
+       given().
+               contentType("multipart/form-data").
+               config(config().multiPartConfig(multiPartConfig().defaultSubtype("mixed"))).
+               multiPart("text", "Some text").
+       expect().
+               statusCode(200).
+               body(is("Some text")).
+               header("X-Request-Header", startsWith("multipart/form-data")).
+       when().
+               post("/multipart/textAndReturnHeader");
+    }
+
+    @Test
+    public void multipartContentTypeSetBySpecificationOverridesDefaultSubtype() throws Exception {
+       // When
+       given().
+               spec(new RequestSpecBuilder().setContentType("multipart/form-data").build()).
+               config(config().multiPartConfig(multiPartConfig().defaultSubtype("mixed"))).
+               multiPart("text", "Some text").
+       expect().
+               statusCode(200).
+               body(is("Some text")).
+               header("X-Request-Header", startsWith("multipart/form-data")).
+       when().
+               post("/multipart/textAndReturnHeader");
+    }
+
+    @Test
     public void multiPartUploadingWorksForJsonObjects() throws Exception {
         // Given
         final Message message = new Message();
