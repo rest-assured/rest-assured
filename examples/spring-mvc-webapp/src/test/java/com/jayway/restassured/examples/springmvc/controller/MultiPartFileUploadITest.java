@@ -287,5 +287,44 @@ public class MultiPartFileUploadITest {
                 body("name", equalTo("controlName")).
                 body("originalName", equalTo(""));
     }
+
+    @Test public void
+    multi_part_uploading_supports_specifying_default_subtype() throws Exception {
+       // When
+        File file = folder.newFile("filename.txt");
+        IOUtils.write("Something21", new FileOutputStream(file));
+
+       given().
+               config(config().multiPartConfig(multiPartConfig().defaultSubtype("mixed"))).
+               multiPart("something", file).
+       when().
+               post("/textAndReturnHeader").
+       then().
+               statusCode(200).
+               body("size", greaterThan(10),
+                    "name", equalTo("something"),
+                    "originalName", equalTo("filename.txt")).
+               header("X-Request-Header", startsWith("multipart/mixed"));
+    }
+
+    @Test public void
+    explicit_multi_part_content_type_has_precedence_over_default_subtype() throws Exception {
+       // When
+        File file = folder.newFile("filename.txt");
+        IOUtils.write("Something21", new FileOutputStream(file));
+
+       given().
+               config(config().multiPartConfig(multiPartConfig().defaultSubtype("form-data"))).
+               contentType("multipart/mixed").
+               multiPart("something", file).
+       when().
+               post("/textAndReturnHeader").
+       then().
+               statusCode(200).
+               body("size", greaterThan(10),
+                    "name", equalTo("something"),
+                    "originalName", equalTo("filename.txt")).
+               header("X-Request-Header", startsWith("multipart/mixed"));
+    }
 }
 // @formatter:on

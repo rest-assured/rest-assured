@@ -47,7 +47,8 @@ Change log next version
 * Content-Type for multipart requests is now taken into account. For example you can now do:
     given().contentType("multipart/mixed").multiPart(..)
   which was not possible in the previous version. (Only "multipart/form-data" worked) (issue 586)
-* It's now possible to specify default mime subtype for multipart content-type. Use the MultiPartConfig#defaultSubtype(..) method. Default is "form-data" which results in a content-type of "multipart/form-data".
+* It's now possible to specify default mime subtype for multipart content-type. Use the MultiPartConfig#defaultSubtype(..) method.
+  Default is "form-data" which results in a content-type of "multipart/form-data". This also works for the MockMvc module.
 
 Change log 2.5.0 (2015-08-09)
 -----------------------------
