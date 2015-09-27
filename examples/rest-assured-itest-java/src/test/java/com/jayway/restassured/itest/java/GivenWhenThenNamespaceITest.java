@@ -37,9 +37,9 @@ public class GivenWhenThenNamespaceITest extends WithJetty {
         when().
                   get("/namespace-example").
         then().
-                  body("bar.text()", equalTo("sudo make me a sandwich!")).
-                  body(":bar.text()", equalTo("sudo ")).
-                  body("ns:bar.text()", equalTo("make me a sandwich!"));
+                  body("foo.bar.text()", equalTo("sudo make me a sandwich!")).
+                  body(":foo.:bar.text()", equalTo("sudo ")).
+                  body(":foo.ns:bar.text()", equalTo("make me a sandwich!"));
     }
 
     @Test public void
