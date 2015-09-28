@@ -36,9 +36,9 @@ public class XmlPathNamespaceTest {
         XmlPath xmlPath = new XmlPath(xml).using(xmlPathConfig().declaredNamespace("ns", "http://localhost/"));
 
         // Then
-        assertThat(xmlPath.getString("bar.text()"), equalTo("sudo make me a sandwich!"));
-        assertThat(xmlPath.getString(":bar.text()"), equalTo("sudo "));
-        assertThat(xmlPath.getString("ns:bar.text()"), equalTo("make me a sandwich!"));
+        assertThat(xmlPath.getString("foo.bar.text()"), equalTo("sudo make me a sandwich!"));
+        assertThat(xmlPath.getString(":foo.:bar.text()"), equalTo("sudo "));
+        assertThat(xmlPath.getString(":foo.ns:bar.text()"), equalTo("make me a sandwich!"));
     }
 
     @Test public void
@@ -53,8 +53,8 @@ public class XmlPathNamespaceTest {
         XmlPath xmlPath = new XmlPath(xml);
 
         // Then
-        assertThat(xmlPath.getString("bar.text()"), equalTo("sudo make me a sandwich!"));
-        assertThat(xmlPath.getString(":bar.text()"), equalTo("sudo make me a sandwich!"));
-        assertThat(xmlPath.getString("ns:bar.text()"), equalTo("sudo make me a sandwich!"));
+        assertThat(xmlPath.getString("foo.bar.text()"), equalTo("sudo make me a sandwich!"));
+        assertThat(xmlPath.getString(":foo.:bar.text()"), equalTo("sudo "));
+        assertThat(xmlPath.getString(":foo.ns:bar.text()"), equalTo(""));
     }
 }

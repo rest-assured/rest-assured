@@ -38,26 +38,26 @@ public class NamespaceResponseParsingITest extends WithJetty {
         when().
                 get("/namespace-example").xmlPath();
 
-        assertThat(xmlPath.getString("bar.text()"), equalTo("sudo make me a sandwich!"));
-        assertThat(xmlPath.getString(":bar.text()"), equalTo("sudo "));
-        assertThat(xmlPath.getString("ns:bar.text()"), equalTo("make me a sandwich!"));
+        assertThat(xmlPath.getString("foo.bar.text()"), equalTo("sudo make me a sandwich!"));
+        assertThat(xmlPath.getString(":foo.:bar.text()"), equalTo("sudo "));
+        assertThat(xmlPath.getString("foo.ns:bar.text()"), equalTo("make me a sandwich!"));
     }
 
     @Test public void
     doesnt_take_namespaces_into_account_when_no_namespace_is_declared() {
         XmlPath xmlPath = get("/namespace-example").xmlPath();
 
-        assertThat(xmlPath.getString("bar.text()"), equalTo("sudo make me a sandwich!"));
-        assertThat(xmlPath.getString(":bar.text()"), equalTo("sudo make me a sandwich!"));
-        assertThat(xmlPath.getString("ns:bar.text()"), equalTo("sudo make me a sandwich!"));
+        assertThat(xmlPath.getString("foo.bar.text()"), equalTo("sudo make me a sandwich!"));
+        assertThat(xmlPath.getString(":foo.:bar.text()"), equalTo("sudo "));
+        assertThat(xmlPath.getString("foo.ns:bar.text()"), equalTo(""));
     }
 
     @Test public void
     takes_namespaces_into_when_passing_xml_path_config_to_xml_path_method_in_response_object() {
         final XmlPath xmlPath = get("/namespace-example").xmlPath(xmlPathConfig().with().declaredNamespace("ns", "http://localhost/"));
 
-        assertThat(xmlPath.getString("bar.text()"), equalTo("sudo make me a sandwich!"));
-        assertThat(xmlPath.getString(":bar.text()"), equalTo("sudo "));
-        assertThat(xmlPath.getString("ns:bar.text()"), equalTo("make me a sandwich!"));
+        assertThat(xmlPath.getString("foo.bar.text()"), equalTo("sudo make me a sandwich!"));
+        assertThat(xmlPath.getString(":foo.:bar.text()"), equalTo("sudo "));
+        assertThat(xmlPath.getString("foo.ns:bar.text()"), equalTo("make me a sandwich!"));
     }
 }
