@@ -64,6 +64,38 @@ Change log next version
               body(":foo.ns:bar.text()", equalTo("make me a sandwich!")).
       when().
               get("/namespace-example");
+* Non-backward compatible change: Fixed so that GPath expressions using XML namespaces are evaluated from the root.
+  The implementation was previously a misunderstanding of how the Groovy's XmlSlurper worked when using namespace and has now been corrected. For example let's say
+  you have a service at "/namespace-example" that returns the following XML:
+
+    <foo xmlns:ns="http://localhost/">
+      <bar>sudo </bar>
+      <ns:bar>make me a sandwich!</ns:bar>
+    </foo>
+
+  You NOW test it like this:
+
+    given().
+            config(newConfig().xmlConfig(xmlConfig().declareNamespace("ns", "http://localhost/"))).
+    when().
+            get("/namespace-example").
+    then().
+            body("foo.bar.text()", equalTo("sudo make me a sandwich!")).
+            body(":foo.:bar.text()", equalTo("sudo ")).
+            body("foo.ns:bar.text()", equalTo("make me a sandwich!"));
+
+  In the previous versions you did like this:
+
+    given().
+            config(newConfig().xmlConfig(xmlConfig().declareNamespace("ns", "http://localhost/"))).
+    when().
+            get("/namespace-example").
+    then().
+            body("bar.text()", equalTo("sudo make me a sandwich!")).
+            body(":bar.text()", equalTo("sudo ")).
+            body("ns:bar.text()", equalTo("make me a sandwich!"));
+
+  Which was not correct (notice the missing foo property)! Big thanks to Erich Eichinger for spotting this and providing a pull request (issue 592).
 
 Change log 2.5.0 (2015-08-09)
 -----------------------------
