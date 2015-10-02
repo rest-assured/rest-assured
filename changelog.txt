@@ -50,20 +50,6 @@ Change log next version
 * It's now possible to specify default mime subtype for multipart content-type. Use the MultiPartConfig#defaultSubtype(..) method.
   Default is "form-data" which results in a content-type of "multipart/form-data". This also works for the MockMvc module.
 * Upgraded JUnit to 4.12
-* fix evaluation of GPath expression from root if xml namespaces are declared (issue 592). For example given the following XML:
-      <foo xmlns:ns="http://localhost/">
-         <bar>sudo </bar>
-         <ns:bar>make me a sandwich!</ns:bar>
-      </foo>
-  you can verify it like this:
-      given().
-              config(newConfig().xmlConfig(xmlConfig().declareNamespace("ns", "http://localhost/"))).
-      expect().
-              body("foo.bar.text()", equalTo("sudo make me a sandwich!")).
-              body(":foo.:bar.text()", equalTo("sudo ")).
-              body(":foo.ns:bar.text()", equalTo("make me a sandwich!")).
-      when().
-              get("/namespace-example");
 * Non-backward compatible change: Fixed so that GPath expressions using XML namespaces are evaluated from the root.
   The implementation was previously a misunderstanding of how the Groovy's XmlSlurper worked when using namespace and has now been corrected. For example let's say
   you have a service at "/namespace-example" that returns the following XML:
