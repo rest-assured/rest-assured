@@ -17,21 +17,33 @@
 package com.jayway.restassured.scala
 
 import com.jayway.restassured.RestAssured.given
+import com.squareup.okhttp.mockwebserver.{MockResponse, MockWebServer}
 import org.hamcrest.Matchers.equalTo
-import org.junit.Test
+import org.junit.{Before, Test}
 
-class ScalaITest extends WithJetty {
+class ScalaITest {
+
+  var webServer: MockWebServer = null
+
+  @Before
+  def `Mock web server is initialized`() {
+    webServer = new MockWebServer()
+    webServer.play()
+  }
 
   @Test
   def `trying out rest assured in scala`() {
+    val response = new MockResponse
+    response.setBody(""" { "key" : "value" } """)
+    response.setHeader("content-type", "application/json")
+    webServer.enqueue(response)
+
     given().
-            param("firstName", "Johan").
-            param("lastName", "Haleby").
+            port(webServer.getPort).
     when().
             get("/greetJSON").
     then().
-            root("greeting").
-            body("firstName", equalTo("Johan")).
-            body("lastName", equalTo("Haleby"))
+            statusCode(200).
+            body("key", equalTo("value"))
   }
 }
