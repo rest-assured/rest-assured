@@ -19,7 +19,7 @@ package com.jayway.restassured.scala
 import com.jayway.restassured.RestAssured.given
 import com.squareup.okhttp.mockwebserver.{MockResponse, MockWebServer}
 import org.hamcrest.Matchers.equalTo
-import org.junit.{Before, Test}
+import org.junit.{After, Before, Test}
 
 class ScalaITest {
 
@@ -31,10 +31,15 @@ class ScalaITest {
     webServer.play()
   }
 
+  @After
+  def `Mock web server is shutdown`() {
+    webServer.shutdown()
+  }
+
   @Test
   def `trying out rest assured in scala`() {
     val response = new MockResponse
-    response.setBody(""" { "key" : "value" } """)
+    response.setBody( """ { "key" : "value" } """)
     response.setHeader("content-type", "application/json")
     webServer.enqueue(response)
 
