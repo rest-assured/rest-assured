@@ -38,7 +38,7 @@ import com.jayway.restassured.internal.multipart.MultiPartSpecificationImpl
 import com.jayway.restassured.internal.multipart.RestAssuredMultiPartEntity
 import com.jayway.restassured.internal.proxy.RestAssuredProxySelector
 import com.jayway.restassured.internal.proxy.RestAssuredProxySelectorRoutePlanner
-import com.jayway.restassured.internal.support.ParameterAppender
+import com.jayway.restassured.internal.support.ParameterUpdater
 import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.*
@@ -58,6 +58,7 @@ import java.security.KeyStore
 import java.util.Map.Entry
 import java.util.regex.Matcher
 
+import static com.jayway.restassured.config.ParamConfig.UpdateStrategy.REPLACE
 import static com.jayway.restassured.http.ContentType.*
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static com.jayway.restassured.internal.http.Method.*
@@ -98,7 +99,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private boolean urlEncodingEnabled
   private RestAssuredConfig restAssuredConfig;
   private List<MultiPartInternal> multiParts = [];
-  private ParameterAppender parameterAppender = new ParameterAppender(new ParameterAppender.Serializer() {
+  private ParameterUpdater parameterUpdater = new ParameterUpdater(new ParameterUpdater.Serializer() {
     String serializeIfNeeded(Object value) {
       return RequestSpecificationImpl.this.serializeIfNeeded(value)
     }
@@ -303,7 +304,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification parameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
-    parameterAppender.appendParameters(parametersMap, requestParameters)
+    parameterUpdater.updateParameters(restAssuredConfig().paramConfig.requestParamsUpdateStrategy(), parametersMap, requestParameters)
     return this
   }
 
@@ -328,7 +329,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification parameter(String parameterName, Collection<?> parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
-    parameterAppender.appendCollectionParameter(requestParameters, parameterName, parameterValues)
+    parameterUpdater.updateCollectionParameter(restAssuredConfig().paramConfig.requestParamsUpdateStrategy(), requestParameters, parameterName, parameterValues)
     return this
   }
 
@@ -339,7 +340,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification queryParameter(String parameterName, Collection<?> parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
-    parameterAppender.appendCollectionParameter(queryParameters, parameterName, parameterValues)
+    parameterUpdater.updateCollectionParameter(restAssuredConfig().getParamConfig().queryParamsUpdateStrategy(), queryParameters, parameterName, parameterValues)
     return this
   }
 
@@ -355,7 +356,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification parameter(String parameterName, Object... parameterValues) {
     notNull parameterName, "parameterName"
-    parameterAppender.appendZeroToManyParameters(requestParameters, parameterName, parameterValues)
+    parameterUpdater.updateZeroToManyParameters(restAssuredConfig().paramConfig.requestParamsUpdateStrategy(), requestParameters, parameterName, parameterValues)
     return this
   }
 
@@ -367,13 +368,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification queryParameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
-    parameterAppender.appendParameters(parametersMap, queryParameters)
+    parameterUpdater.updateParameters(restAssuredConfig().paramConfig.queryParamsUpdateStrategy(), parametersMap, queryParameters)
     return this
   }
 
   def RequestSpecification queryParameter(String parameterName, Object... parameterValues) {
     notNull parameterName, "parameterName"
-    parameterAppender.appendZeroToManyParameters(queryParameters, parameterName, parameterValues)
+    parameterUpdater.updateZeroToManyParameters(restAssuredConfig().paramConfig.queryParamsUpdateStrategy(), queryParameters, parameterName, parameterValues)
     return this
   }
 
@@ -392,7 +393,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification formParameter(String parameterName, Collection<?> parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
-    parameterAppender.appendCollectionParameter(formParameters, parameterName, parameterValues)
+    parameterUpdater.updateCollectionParameter(restAssuredConfig().paramConfig.formParamsUpdateStrategy(), formParameters, parameterName, parameterValues)
     return this
   }
 
@@ -414,13 +415,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification formParameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
-    parameterAppender.appendParameters(parametersMap, formParameters)
+    parameterUpdater.updateParameters(restAssuredConfig().paramConfig.formParamsUpdateStrategy(), parametersMap, formParameters)
     return this
   }
 
   def RequestSpecification formParameter(String parameterName, Object... additionalParameterValues) {
     notNull parameterName, "parameterName"
-    parameterAppender.appendZeroToManyParameters(formParameters, parameterName, additionalParameterValues)
+    parameterUpdater.updateZeroToManyParameters(restAssuredConfig().paramConfig.formParamsUpdateStrategy(), formParameters, parameterName, additionalParameterValues)
     return this
   }
 
@@ -444,7 +445,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification pathParameter(String parameterName, Object parameterValue) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
-    parameterAppender.appendStandardParameter(pathParameters, parameterName, parameterValue)
+    parameterUpdater.updateStandardParameter(REPLACE, pathParameters, parameterName, parameterValue)
     return this
   }
 
@@ -456,7 +457,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification pathParameters(Map parameterNameValuePairs) {
     notNull parameterNameValuePairs, "parameterNameValuePairs"
-    parameterAppender.appendParameters(parameterNameValuePairs, pathParameters)
+    parameterUpdater.updateParameters(REPLACE, parameterNameValuePairs, pathParameters)
     return this
   }
 

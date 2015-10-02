@@ -16,71 +16,82 @@
 
 package com.jayway.restassured.internal.support
 
+import com.jayway.restassured.config.ParamConfig.UpdateStrategy
 import com.jayway.restassured.internal.NoParameterValue
 
+import static com.jayway.restassured.config.ParamConfig.UpdateStrategy.MERGE
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static java.util.Arrays.asList
 
-class ParameterAppender {
+class ParameterUpdater {
   private final Serializer serializer;
 
-  ParameterAppender(Serializer serializer) {
+  ParameterUpdater(Serializer serializer) {
     this.serializer = serializer
   }
 
-  public void appendParameters(Map<String, Object> from, Map<String, Object> to) {
+  public void updateParameters(UpdateStrategy strategy, Map<String, Object> from, Map<String, Object> to) {
     notNull from, "Map to copy from"
     notNull to, "Map to copy to"
+    notNull strategy, UpdateStrategy.class
     from.each { key, value ->
-      appendStandardParameter(to, key, value)
+      updateStandardParameter(strategy, to, key, value)
     }
   }
 
-  public void appendCollectionParameter(Map<String, Object> to, String key, Collection<Object> values) {
+  public void updateCollectionParameter(UpdateStrategy strategy, Map<String, Object> to, String key, Collection<Object> values) {
     if (values == null || values.isEmpty()) {
       to.put(key, new NoParameterValue())
       return;
     }
 
     def convertedValues = values.collect { serializer.serializeIfNeeded(it) }
-    if (to.containsKey(key)) {
-      def currentValue = to.get(key)
-      if (currentValue instanceof Collection) {
-        currentValue.addAll(convertedValues)
+    if (strategy == MERGE) {
+      if (to.containsKey(key)) {
+        def currentValue = to.get(key)
+        if (currentValue instanceof Collection) {
+          currentValue.addAll(convertedValues)
+        } else {
+          to.put(key, [currentValue, convertedValues].flatten())
+        }
       } else {
-        to.put(key, [currentValue, convertedValues].flatten())
+        to.put(key, new LinkedList<Object>(convertedValues))
       }
     } else {
-      to.put(key, new LinkedList<Object>(convertedValues))
+      to.put(key, convertedValues)
     }
   }
 
-  public void appendZeroToManyParameters(Map<String, Object> to, String parameterName, Object... parameterValues) {
+  public void updateZeroToManyParameters(UpdateStrategy strategy, Map<String, Object> to, String parameterName, Object... parameterValues) {
     if (isEmpty(parameterValues)) {
-      appendStandardParameter(to, parameterName)
+      updateStandardParameter(strategy, to, parameterName)
     } else if (parameterValues.length == 1) {
-      appendStandardParameter(to, parameterName, parameterValues[0])
+      updateStandardParameter(strategy, to, parameterName, parameterValues[0])
     } else {
-      appendCollectionParameter(to, parameterName, asList(parameterValues))
+      updateCollectionParameter(strategy, to, parameterName, asList(parameterValues))
     }
   }
 
-  public void appendStandardParameter(Map<String, Object> to, String key) {
-    appendStandardParameter(to, key, null)
+  public void updateStandardParameter(UpdateStrategy strategy, Map<String, Object> to, String key) {
+    updateStandardParameter(strategy, to, key, null)
   }
 
-  public void appendStandardParameter(Map<String, Object> to, String key, Object value) {
+  public void updateStandardParameter(UpdateStrategy strategy, Map<String, Object> to, String key, Object value) {
     if (value == null) {
       to.put(key, new NoParameterValue())
       return;
     }
     def newValue = serializer.serializeIfNeeded(value)
-    if (to.containsKey(key)) {
-      def currentValue = to.get(key)
-      if (currentValue instanceof List) {
-        currentValue << newValue
+    if (strategy == MERGE) {
+      if (to.containsKey(key)) {
+        def currentValue = to.get(key)
+        if (currentValue instanceof List) {
+          currentValue << newValue
+        } else {
+          to.put(key, [currentValue, newValue])
+        }
       } else {
-        to.put(key, [currentValue, newValue])
+        to.put(key, newValue)
       }
     } else {
       to.put(key, newValue)

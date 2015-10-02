@@ -87,6 +87,20 @@ Change log next version
   You can then use a mapping function to first convert the header value to an int and then use an "integer" Hamcrest matcher:
     when().get("/something").then().header("Content-Length", Integer::parseInt, lessThan(1000));
   This is also implemented for the MockMvc module (issue 594).
+* Added new config called ParamConfig that allows you to configure how parameter types should be updated. By default all parameters are merged so if you do:
+    given().queryParam("param1", "value1").queryParam("param1", "value2").when().get("/x"). ...
+  REST Assured will send a query string of "param1=value1&param1=value2". This is not always what you want though so from now on you can configure REST Assured to replace
+  values instead:
+    given().
+            config(config().paramConfig(paramConfig().queryParamsUpdateStrategy(REPLACE))).
+            queryParam("param1", "value1").
+            queryParam("param1", "value2").
+    when().
+            get("/x"). ..
+  REST Assured will now replace "param1" with "value2" (since it's written last) instead of merging them together. You can configure the update strategy for each
+  parameter type of for all parameter types:
+    given().config(config().paramConfig(paramConfig().replaceAllParameters())). ..
+  This is also implemented for the MockMvc module (but the config there is called MockMvcParamConfig) (issue 589)
 
 Change log 2.5.0 (2015-08-09)
 -----------------------------

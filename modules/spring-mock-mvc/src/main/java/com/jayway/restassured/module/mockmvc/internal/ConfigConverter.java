@@ -16,14 +16,41 @@
 
 package com.jayway.restassured.module.mockmvc.internal;
 
+import com.jayway.restassured.config.ParamConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
+import com.jayway.restassured.module.mockmvc.config.MockMvcParamConfig;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+
+import java.lang.reflect.Field;
+
+import static com.jayway.restassured.module.mockmvc.internal.UpdateStrategyConverter.convert;
 
 class ConfigConverter {
 
     public static RestAssuredConfig convertToRestAssuredConfig(RestAssuredMockMvcConfig mvcConfig) {
         return new RestAssuredConfig().jsonConfig(mvcConfig.getJsonConfig()).xmlConfig(mvcConfig.getXmlConfig()).sessionConfig(mvcConfig.getSessionConfig()).
                 objectMapperConfig(mvcConfig.getObjectMapperConfig()).logConfig(mvcConfig.getLogConfig()).encoderConfig(mvcConfig.getEncoderConfig()).
-                decoderConfig(mvcConfig.getDecoderConfig()).multiPartConfig(mvcConfig.getMultiPartConfig());
+                decoderConfig(mvcConfig.getDecoderConfig()).multiPartConfig(mvcConfig.getMultiPartConfig()).paramConfig(toParamConfig(mvcConfig.getParamConfig()));
+    }
+
+    private static ParamConfig toParamConfig(MockMvcParamConfig cfg) {
+        ParamConfig config = new ParamConfig(convert(cfg.queryParamsUpdateStrategy()),
+                convert(cfg.formParamsUpdateStrategy()), convert(cfg.requestParamsUpdateStrategy()));
+        // We need to set the user configured flag to false if needed
+        if (!cfg.isUserConfigured()) {
+            Field userConfigured = null;
+            try {
+                userConfigured = config.getClass().getDeclaredField("userConfigured");
+                userConfigured.setAccessible(true);
+                userConfigured.set(config, false);
+            } catch (Exception e) {
+                throw new RuntimeException("Internal error in REST Assured, please report an issue!", e);
+            } finally {
+                if (userConfigured != null) {
+                    userConfigured.setAccessible(false);
+                }
+            }
+        }
+        return config;
     }
 }

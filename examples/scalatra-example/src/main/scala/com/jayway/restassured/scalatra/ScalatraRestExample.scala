@@ -236,6 +236,12 @@ class ScalatraRestExample extends ScalatraServlet {
     anotherGreetXML
   }
 
+  post("/threeMultiValueParam") {
+    "{ \"list\" : \""+multiParams("list").mkString(",") +"\", " +
+            "\"list2\" : \"" + multiParams("list2").mkString(",") + "\", " +
+            "\"list3\" : \"" + multiParams("list3").mkString(",") + "\"}"
+  }
+
   get("/multiValueParam") {
     "{ \"list\" : \""+multiParams("list").mkString(",") +"\" }"
   }
