@@ -96,6 +96,7 @@ Change log next version
             body("ns:bar.text()", equalTo("make me a sandwich!"));
 
   Which was not correct (notice the missing foo property)! Big thanks to Erich Eichinger for spotting this and providing a pull request (issue 592).
+* Simplified setting of accept header in the MockMvc module (issue 591)
 
 Change log 2.5.0 (2015-08-09)
 -----------------------------

@@ -64,6 +64,7 @@ import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecification, MockMvcAuthenticationSpecification {
 
     private static final String CONTENT_TYPE = "Content-Type";
+    private static final String ACCEPT = "Accept";
 
     private LogRepository logRepository;
 
@@ -187,6 +188,16 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification contentType(String contentType) {
         notNull(contentType, "contentType");
         return header(CONTENT_TYPE, contentType);
+    }
+
+    public MockMvcRequestSpecification accept(ContentType contentType) {
+        notNull(contentType, "contentType");
+        return header(ACCEPT, contentType.getAcceptHeader());
+    }
+
+    public MockMvcRequestSpecification accept(String mediaTypes) {
+        notNull(mediaTypes, "mediaTypes");
+        return header(ACCEPT, mediaTypes);
     }
 
     public MockMvcRequestSpecification headers(String firstHeaderName, Object firstHeaderValue, Object... headerNameValuePairs) {

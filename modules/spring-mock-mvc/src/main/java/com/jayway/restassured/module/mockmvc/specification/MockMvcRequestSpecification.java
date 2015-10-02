@@ -70,6 +70,32 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
     MockMvcRequestSpecification contentType(String contentType);
 
     /**
+     * Specify the accept header of the request. This just a shortcut for:
+     * <pre>
+     * header("Accept", contentType);
+     * </pre>
+     *
+     * @param contentType The content type whose accept header {@link com.jayway.restassured.http.ContentType#getAcceptHeader()} will be used as Accept header in the request.
+     * @return The request specification
+     * @see ContentType
+     * @see #header(String, Object, Object...)
+     */
+    MockMvcRequestSpecification accept(ContentType contentType);
+
+    /**
+     * Specify the accept header of the request. This just a shortcut for:
+     * <pre>
+     * header("Accept", contentType);
+     * </pre>
+     *
+     * @param mediaTypes The media type(s) that will be used as Accept header in the request.
+     * @return The request specification
+     * @see ContentType
+     * @see #header(String, Object, Object...)
+     */
+    MockMvcRequestSpecification accept(String mediaTypes);
+
+    /**
      * Specify the headers that'll be sent with the request. This is done by specifying the headers in name-value pairs, e.g:
      * <pre>
      * given().headers("headerName1", "headerValue1", "headerName2", "headerValue2").then().expect().body(equalTo("something")).when().get("/headers");
