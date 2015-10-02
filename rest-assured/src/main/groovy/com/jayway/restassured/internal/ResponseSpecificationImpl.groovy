@@ -22,6 +22,7 @@ import com.jayway.restassured.assertion.BodyMatcherGroup
 import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.assertion.HeaderMatcher
 import com.jayway.restassured.config.RestAssuredConfig
+import com.jayway.restassured.function.RestAssuredFunction
 import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.internal.log.LogRepository
 import com.jayway.restassured.parsing.Parser
@@ -136,6 +137,16 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     notNull firstExpectedHeaderName, "firstExpectedHeaderName"
     notNull firstExpectedHeaderValue, "firstExpectedHeaderValue"
     return headers(MapCreator.createMapFromParams(firstExpectedHeaderName, firstExpectedHeaderValue, expectedHeaders))
+  }
+
+  def <T> ResponseSpecification header(String headerName, RestAssuredFunction<String, T> mappingFunction, Matcher<? super T> expectedValueMatcher) {
+    notNull headerName, "Header name"
+    notNull mappingFunction, "Mapping function"
+    notNull expectedValueMatcher, "Hamcrest matcher"
+    validateResponseIfRequired {
+      headerAssertions << new HeaderMatcher(headerName: headerName, mappingFunction: mappingFunction, matcher: expectedValueMatcher)
+    }
+    this
   }
 
   def ResponseSpecification header(String headerName, Matcher expectedValueMatcher) {

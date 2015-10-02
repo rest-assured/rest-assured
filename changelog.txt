@@ -97,6 +97,10 @@ Change log next version
 
   Which was not correct (notice the missing foo property)! Big thanks to Erich Eichinger for spotting this and providing a pull request (issue 592).
 * Simplified setting of accept header in the MockMvc module (issue 591)
+* It's now possible to use a mapping function when validating headers. For example let's say you want to validate that the Content-Length header is less than 1000.
+  You can then use a mapping function to first convert the header value to an int and then use an "integer" Hamcrest matcher:
+    when().get("/something").then().header("Content-Length", Integer::parseInt, lessThan(1000));
+  This is also implemented for the MockMvc module (issue 594).
 
 Change log 2.5.0 (2015-08-09)
 -----------------------------

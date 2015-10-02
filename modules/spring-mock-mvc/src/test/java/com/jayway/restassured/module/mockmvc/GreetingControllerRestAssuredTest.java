@@ -36,7 +36,6 @@ public class GreetingControllerRestAssuredTest {
         when().
                 get("/greeting").
         then().
-                log().all().
                 body("id", equalTo(1)).
                 body("content", equalTo("Hello, Johan!"));
     }
