@@ -92,6 +92,15 @@ class ScalatraRestExample extends ScalatraServlet {
     """{ "value" : "something" }"""
   }
 
+  get("/utf8-body-json") {
+    """{ "value" : "啊 ☆" }"""
+  }
+
+  get("/utf8-body-xml") {
+    contentType = "application/xml"
+    """<value>啊 ☆</value>"""
+  }
+
   get("/jsonStore") {
     "{ \"store\": {\n" +
       "    \"book\": [ \n" +
