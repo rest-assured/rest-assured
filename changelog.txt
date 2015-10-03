@@ -101,6 +101,16 @@ Change log next version
   parameter type of for all parameter types:
     given().config(config().paramConfig(paramConfig().replaceAllParameters())). ..
   This is also implemented for the MockMvc module (but the config there is called MockMvcParamConfig) (issue 589)
+* Non-backward compatible change: When multiple cookies or headers with the same name are returned in the response the LAST value is what's returned when
+  only getting one value from the entity (Headers or Cookies) or when validating values. For example let's say that the server returns headers:
+    HeaderName: Value 1
+    HeaderName: Value 2
+  then if you do:
+    get("/x").extract().header("HeaderName")
+  Value 2 will be returned (previous Value 1 would be returned).
+  Likewise if you do validation:
+    get("/x").then().header("HeaderName", equalTo("Value 2");
+  This change also affects session ids. This is done to be compatible with the way browsers work (issue 543).
 
 Change log 2.5.0 (2015-08-09)
 -----------------------------

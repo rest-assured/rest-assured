@@ -173,4 +173,12 @@ public class HeaderITest extends WithJetty {
         expect().response().header("Not-Defined", "160").when().get("/lotto");
     }
 
+    @Test
+    public void whenMultiValueHeadersArePresentedInTheResponseThenTheLastValueHasPrecedence() throws Exception {
+        when().
+                get("/multiValueHeader").
+        then().
+                header("MultiHeader", equalTo("Value 2"));
+    }
+
 }

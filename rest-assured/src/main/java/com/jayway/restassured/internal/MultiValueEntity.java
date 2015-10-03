@@ -59,14 +59,15 @@ public class MultiValueEntity<T extends NameAndValue> implements Iterable<T> {
 
     /**
      *  Get a single entity with the supplied name. If there are several entities match the <code>entityName</code> then
-     *  the first one is returned.
+     *  the last one is returned.
      *
      * @param entityName The name of the entity to find
      * @return The found entity or <code>null</code> if no entity was found.
      */
     public T get(String entityName) {
         notNull(entityName, "Entity name");
-        for (T entity : entities) {
+        List<T> copyOfEntities = reverse();
+        for (T entity : copyOfEntities) {
             if(entity.getName().equalsIgnoreCase(entityName)) {
                 return entity;
             }
@@ -74,9 +75,15 @@ public class MultiValueEntity<T extends NameAndValue> implements Iterable<T> {
         return null;
     }
 
+    private List<T> reverse() {
+        List<T> copy = new ArrayList<T>(entities);
+        Collections.reverse(copy);
+        return copy;
+    }
+
     /**
      *  Get a single entity value with the supplied name. If there are several headers match the <code>headerName</code> then
-     *  the first one is returned.
+     *  the last one is returned.
      *
      * @param entityName The name of the header to find
      * @return The found entity value or <code>null</code> if no header was found.
