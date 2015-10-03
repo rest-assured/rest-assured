@@ -19,18 +19,15 @@ package com.jayway.restassured.itest.java;
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseBuilder;
-import com.jayway.restassured.filter.Filter;
-import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.response.Headers;
-import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.FilterableRequestSpecification;
-import com.jayway.restassured.specification.FilterableResponseSpecification;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static com.jayway.restassured.RestAssured.config;
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -62,45 +59,39 @@ public class RequestSpecMergingITest {
 
     @Test
     public void mergesHeadersCorrectlyWhenOnlyStaticMerging() {
-        given().filter(new Filter() {
-            public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                Headers headers = requestSpec.getHeaders();
-                assertThat(requestSpec.getRequestContentType(), nullValue());
-                assertThat(headers.getValue("authorization"), equalTo("abracadabra"));
-                assertThat(headers.getValue("accept"), equalTo("*/*"));
-                assertThat(headers.size(), is(2));
-                return new ResponseBuilder().setStatusCode(200).build();
-            }
+        given().filter((requestSpec, responseSpec, ctx) -> {
+            Headers headers = requestSpec.getHeaders();
+            assertThat(requestSpec.getRequestContentType(), nullValue());
+            assertThat(headers.getValue("authorization"), equalTo("abracadabra"));
+            assertThat(headers.getValue("accept"), equalTo("*/*"));
+            assertThat(headers.size(), is(2));
+            return new ResponseBuilder().setStatusCode(200).build();
         }).when().get();
     }
 
     @Test
     public void mergesHeadersCorrectlyWhenUsingGivenRequestSpec() {
-        given(jsonRequest).filter(new Filter() {
-            public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                Headers headers = requestSpec.getHeaders();
-                assertThat(requestSpec.getRequestContentType(), equalTo("application/json; charset=ISO-8859-1"));
-                assertThat(headers.getValue("authorization"), equalTo("abracadabra"));
-                assertThat(headers.getValue("accept"), equalTo("application/json+json"));
-                assertThat(headers.getValue("content-type"), equalTo("application/json; charset=ISO-8859-1"));
-                assertThat(headers.size(), is(3));
-                return new ResponseBuilder().setStatusCode(200).build();
-            }
+        given(jsonRequest).filter((requestSpec, responseSpec, ctx) -> {
+            Headers headers = requestSpec.getHeaders();
+            assertThat(requestSpec.getRequestContentType(), equalTo("application/json; charset=" + config().getEncoderConfig().defaultCharsetForContentType(JSON)));
+            assertThat(headers.getValue("authorization"), equalTo("abracadabra"));
+            assertThat(headers.getValue("accept"), equalTo("application/json+json"));
+            assertThat(headers.getValue("content-type"), equalTo("application/json; charset=" + config().getEncoderConfig().defaultCharsetForContentType(JSON)));
+            assertThat(headers.size(), is(3));
+            return new ResponseBuilder().setStatusCode(200).build();
         }).when().get();
     }
 
     @Test
     public void mergesHeadersCorrectlyWhenUsingGivenSpecRequestSpec() {
-        given().spec(jsonRequest).filter(new Filter() {
-            public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                Headers headers = requestSpec.getHeaders();
-                assertThat(requestSpec.getRequestContentType(), equalTo("application/json; charset=ISO-8859-1"));
-                assertThat(headers.getValue("authorization"), equalTo("abracadabra"));
-                assertThat(headers.getValue("accept"), equalTo("application/json+json"));
-                assertThat(headers.getValue("content-type"), equalTo("application/json; charset=ISO-8859-1"));
-                assertThat(headers.size(), is(3));
-                return new ResponseBuilder().setStatusCode(200).build();
-            }
+        given().spec(jsonRequest).filter((requestSpec, responseSpec, ctx) -> {
+            Headers headers = requestSpec.getHeaders();
+            assertThat(requestSpec.getRequestContentType(), equalTo("application/json; charset=" + config().getEncoderConfig().defaultCharsetForContentType(JSON)));
+            assertThat(headers.getValue("authorization"), equalTo("abracadabra"));
+            assertThat(headers.getValue("accept"), equalTo("application/json+json"));
+            assertThat(headers.getValue("content-type"), equalTo("application/json; charset=" + config().getEncoderConfig().defaultCharsetForContentType(JSON)));
+            assertThat(headers.size(), is(3));
+            return new ResponseBuilder().setStatusCode(200).build();
         }).when().get();
     }
 }

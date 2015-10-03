@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.module.mockmvc.internal;
 
+import com.jayway.restassured.config.EncoderConfig;
 import com.jayway.restassured.config.HeaderConfig;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
@@ -720,7 +721,12 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     private String findEncoderCharsetOrReturnDefault(String contentType) {
         String charset = CharsetExtractor.getCharsetFromContentType(contentType);
         if (charset == null) {
-            charset = cfg.getEncoderConfig().defaultContentCharset();
+            EncoderConfig encoderConfig = cfg.getEncoderConfig();
+            if (encoderConfig.hasDefaultCharsetForContentType(contentType)) {
+                charset = encoderConfig.defaultCharsetForContentType(contentType);
+            } else {
+                charset = encoderConfig.defaultContentCharset();
+            }
         }
         return charset;
     }

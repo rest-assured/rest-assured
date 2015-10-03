@@ -395,7 +395,12 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         EncoderConfig encoderConfig = config.getEncoderConfig();
         if (requestContentType != null && encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !StringUtils.containsIgnoreCase(requestContentType, CHARSET)) {
             // Append default charset to request content type
-            requestContentType += "; charset=" + encoderConfig.defaultContentCharset();
+            requestContentType += "; charset=";
+            if (encoderConfig.hasDefaultCharsetForContentType(requestContentType)) {
+                requestContentType += encoderConfig.defaultCharsetForContentType(requestContentType);
+            } else {
+                requestContentType += encoderConfig.defaultContentCharset();
+            }
         }
         return requestContentType;
     }
@@ -433,7 +438,13 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         String contentType = APPLICATION_FORM_URLENCODED_VALUE;
         EncoderConfig encoderConfig = config.getEncoderConfig();
         if (encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()) {
-            contentType += "; charset=" + encoderConfig.defaultContentCharset();
+            contentType += "; charset=";
+            if (encoderConfig.hasDefaultCharsetForContentType(contentType)) {
+                contentType += encoderConfig.defaultCharsetForContentType(contentType);
+            } else {
+                contentType += encoderConfig.defaultContentCharset();
+
+            }
         }
         MediaType mediaType = MediaType.parseMediaType(contentType);
         request.contentType(mediaType);

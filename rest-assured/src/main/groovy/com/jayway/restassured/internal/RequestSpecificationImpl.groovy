@@ -1172,7 +1172,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   def applyEncoderConfig(HTTPBuilder httpBuilder, EncoderConfig encoderConfig) {
-    httpBuilder.encoders.setCharset(encoderConfig.defaultContentCharset())
+    httpBuilder.encoders.setEncoderConfig(encoderConfig)
   }
 
   def applyHttpClientConfig(HttpClientConfig httpClientConfig) {
@@ -1650,6 +1650,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
           def tempCharset = CharsetExtractor.getCharsetFromContentType(contentType as String)
           if (tempCharset != null) {
             charset = tempCharset
+          } else if (encoderConfig().hasDefaultCharsetForContentType(contentType as String)) {
+            charset = encoderConfig().defaultCharsetForContentType(contentType as String)
           }
         }
       } else { // Query or path parameter
@@ -1927,7 +1929,18 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private def String findEncoderCharsetOrReturnDefault(String contentType) {
     def charset = CharsetExtractor.getCharsetFromContentType(contentType)
     if (charset == null) {
-      charset = config == null ? new EncoderConfig().defaultContentCharset() : config.getEncoderConfig().defaultContentCharset()
+      final EncoderConfig cfg
+      if (config == null) {
+        cfg = new EncoderConfig()
+      } else {
+        cfg = config.getEncoderConfig()
+      }
+
+      if (cfg.hasDefaultCharsetForContentType(contentType)) {
+        charset = cfg.defaultCharsetForContentType(contentType)
+      } else {
+        charset = cfg.defaultContentCharset()
+      }
     }
     charset
   }

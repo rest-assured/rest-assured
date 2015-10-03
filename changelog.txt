@@ -111,6 +111,13 @@ Change log next version
   Likewise if you do validation:
     get("/x").then().header("HeaderName", equalTo("Value 2");
   This change also affects session ids. This is done to be compatible with the way browsers work (issue 543).
+* Added ability to specify which charset to use for a specific content-type if no charset is defined explicitly for this content-type.
+  Previously you could only specify a default charset for ALL content-types. You do this by using the "defaultCharsetForContentType" method in the
+  com.jayway.restassured.config.EncoderConfig. For example:
+    RestAssured.config = config(config().encoderConfig(encoderConfig().defaultCharsetForContentType("UTF-16", "application/xml")));
+  This will use UTF-16 encoding for "application/xml" content-types. By default "application/json" is now specified to use "UTF-8" as default
+  content-type as this is specified by RFC4627. This is may be a backward incompatible change since previously "application/json" content-types
+  were encoded using the platform default content-type (or what was specified in defaultContentCharset(..)).
 
 Change log 2.5.0 (2015-08-09)
 -----------------------------
