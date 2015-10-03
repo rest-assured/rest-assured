@@ -117,7 +117,7 @@ Change log next version
     RestAssured.config = config(config().encoderConfig(encoderConfig().defaultCharsetForContentType("UTF-16", "application/xml")));
   This will use UTF-16 encoding for "application/xml" content-types. By default "application/json" is now specified to use "UTF-8" as default
   content-type as this is specified by RFC4627. This is may be a backward incompatible change since previously "application/json" content-types
-  were encoded using the platform default content-type (or what was specified in defaultContentCharset(..)) (issue 567).
+  were encoded using the platform default content-type (or what was specified by defaultContentCharset(..)) (issue 567).
 
 Change log 2.5.0 (2015-08-09)
 -----------------------------
