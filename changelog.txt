@@ -42,7 +42,7 @@ Change log next version
            post("/multipart/text").
     then().
            statusCode(200);
-  This will force the use if the GSON ObjectMapper (if available in the classpath) even though mime type is not recoginzed by default by REST Assured.
+  This will force the use if the GSON ObjectMapper (if available in the classpath) even though mime type is not recognized by default by REST Assured.
 * Charset for multipart requests is now taken into account
 * Content-Type for multipart requests is now taken into account. For example you can now do:
     given().contentType("multipart/mixed").multiPart(..)
