@@ -132,6 +132,22 @@ Change log next version
 * Added ability to set a header in com.jayway.restassured.builder.ResponseBuilder.
 * Setting contentType in com.jayway.restassured.builder.ResponseBuilder also sets the header.
 * Added ability to pass a ContentType as argument to "setContentType" method in com.jayway.restassured.builder.ResponseBuilder.
+* Added a new module called spring-support that adds an alias to the "then" method in Response or MockMvcResponse called "Then".
+  The reason for this is that "then" might be a reserved keyword in Scala in the future and the compiler gives a warning when using "then".
+  To enable the use of "Then" simply import the "com.jayway.restassured.module.scala.RestAssuredSupport.AddThenToResponse". For example:
+    import com.jayway.restassured.RestAssured.when
+    import com.jayway.restassured.module.scala.RestAssuredSupport.AddThenToResponse
+    import org.hamcrest.Matchers.equalTo
+    import org.junit.Test
+
+    @Test
+    def `trying out rest assured in scala with implicit conversion`() {
+        when().
+                get("/greetJSON").
+        Then().
+                statusCode(200).
+                body("key", equalTo("value"))
+    }
 
 Change log 2.5.0 (2015-08-09)
 -----------------------------

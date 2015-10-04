@@ -18,6 +18,7 @@ package com.jayway.restassured.module.mockmvc.response;
 
 import com.jayway.restassured.response.ResponseBody;
 import com.jayway.restassured.response.ResponseOptions;
+import com.jayway.restassured.response.Validatable;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -39,24 +40,7 @@ import org.springframework.test.web.servlet.MvcResult;
  * </pre>
  * </p>
  */
-public interface MockMvcResponse extends ResponseBody<MockMvcResponse>, ResponseOptions<MockMvcResponse> {
-
-    /**
-     * Returns a validatable response that's lets you validate the response. Usage example:
-     * <p/>
-     * <pre>
-     * given().
-     *         param("firstName", "John").
-     *         param("lastName", "Doe").
-     * when().
-     *         get("/greet").
-     * then().
-     *         body("greeting", equalTo("John Doe"));
-     * </pre>
-     *
-     * @return A validatable response
-     */
-    ValidatableMockMvcResponse then();
+public interface MockMvcResponse extends ResponseBody<MockMvcResponse>, ResponseOptions<MockMvcResponse>, Validatable<ValidatableMockMvcResponse, MockMvcResponse> {
 
     /**
      * Return the {@link org.springframework.test.web.servlet.MvcResult} as returned by Spring MockMvc.

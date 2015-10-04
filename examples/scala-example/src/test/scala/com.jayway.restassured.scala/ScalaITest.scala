@@ -17,6 +17,7 @@
 package com.jayway.restassured.scala
 
 import com.jayway.restassured.RestAssured.given
+import com.jayway.restassured.module.scala.RestAssuredSupport.AddThenToResponse
 import com.squareup.okhttp.mockwebserver.{MockResponse, MockWebServer}
 import org.hamcrest.Matchers.equalTo
 import org.junit.{After, Before, Test}
@@ -48,6 +49,22 @@ class ScalaITest {
     when().
             get("/greetJSON").
     then().
+            statusCode(200).
+            body("key", equalTo("value"))
+  }
+
+  @Test
+  def `trying out rest assured in scala with implicit conversion`() {
+    val response = new MockResponse
+    response.setBody( """ { "key" : "value" } """)
+    response.setHeader("content-type", "application/json")
+    webServer.enqueue(response)
+
+    given().
+            port(webServer.getPort).
+    when().
+            get("/greetJSON").
+    Then().
             statusCode(200).
             body("key", equalTo("value"))
   }

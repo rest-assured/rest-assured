@@ -34,22 +34,7 @@ package com.jayway.restassured.response;
  * </pre>
  * </p>
  */
-public interface Response extends ResponseBody<Response>, ResponseOptions<Response> {
+public interface Response extends ResponseBody<Response>, ResponseOptions<Response>, Validatable<ValidatableResponse, Response> {
 
-    /**
-     * Returns a validatable response that's lets you validate the response. Usage example:
-     * <p/>
-     * <pre>
-     * given().
-     *         param("firstName", "John").
-     *         param("lastName", "Doe").
-     * when().
-     *         get("/greet").
-     * then().
-     *         body("greeting", equalTo("John Doe"));
-     * </pre>
-     *
-     * @return A validatable response
-     */
-    ValidatableResponse then();
+
 }
