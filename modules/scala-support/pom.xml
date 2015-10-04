@@ -26,7 +26,7 @@
 
     <artifactId>scala-support</artifactId>
     <packaging>jar</packaging>
-    <name>Scala Example</name>
+    <name>Scala Support</name>
     <description>Scala support for REST Assured</description>
 
     <properties>
