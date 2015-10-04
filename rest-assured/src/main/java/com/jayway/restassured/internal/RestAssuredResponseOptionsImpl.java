@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.internal;
 
+import com.jayway.restassured.config.DecoderConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.internal.mapper.ObjectMapperType;
@@ -79,8 +80,8 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         this.groovyResponse.setRpr(rpr);
     }
 
-    public void setDefaultCharset(String defaultCharset) {
-        this.groovyResponse.setDefaultCharset(defaultCharset);
+    public void setDecoderConfig(DecoderConfig decoderConfig) {
+        this.groovyResponse.setDecoderConfig(decoderConfig);
     }
 
     public void setHasExpectations(boolean hasExpectations) {
@@ -287,8 +288,8 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         return groovyResponse.getDefaultContentType();
     }
 
-    public String getDefaultCharset() {
-        return groovyResponse.getDefaultCharset();
+    public DecoderConfig getDecoderConfig() {
+        return groovyResponse.getDecoderConfig();
     }
 
     public Object getSessionIdName() {

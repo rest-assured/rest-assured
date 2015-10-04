@@ -81,7 +81,7 @@ public class EncoderConfig implements Config {
     }
 
     /**
-     * @return A map that contains default charset for a specific content-type. It will have precedence over {@link #defaultContentCharset()}.
+     * @return The default charset for a specific content-type. It will have precedence over {@link #defaultContentCharset()}.
      */
     public String defaultCharsetForContentType(String contentType) {
         if (StringUtils.isEmpty(contentType)) {
@@ -126,7 +126,7 @@ public class EncoderConfig implements Config {
     }
 
     /**
-     * Specify the default charset to use for the specific content-type
+     * Specify the default charset to use for the specific content-type if it's not specified in the content-type header explicitly
      *
      * @param charset     The charset to use as default (unless specified explicitly)
      * @param contentType The content-type
@@ -141,7 +141,7 @@ public class EncoderConfig implements Config {
     }
 
     /**
-     * Specify the default charset to use for the specific content-type
+     * Specify the default charset to use for the specific content-type if it's not specified in the content-type header explicitly
      *
      * @param charset     The charset to use as default (unless specified explicitly)
      * @param contentType The content-type
@@ -155,6 +155,30 @@ public class EncoderConfig implements Config {
             map.put(ct.toLowerCase(), trim(charset));
         }
         return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, map, true);
+    }
+
+    /**
+     * Specify the default charset to use for the specific content-type if it's not specified in the content-type header explicitly
+     *
+     * @param charset     The charset to use as default (unless specified explicitly)
+     * @param contentType The content-type
+     * @return A new instance of {@link EncoderConfig}
+     */
+    public EncoderConfig defaultCharsetForContentType(Charset charset, ContentType contentType) {
+        notNull(charset, "Charset");
+        return defaultCharsetForContentType(charset.toString(), contentType);
+    }
+
+    /**
+     * Specify the default charset to use for the specific content-type if it's not specified in the content-type header explicitly
+     *
+     * @param charset     The charset to use as default (unless specified explicitly)
+     * @param contentType The content-type
+     * @return A new instance of {@link EncoderConfig}
+     */
+    public EncoderConfig defaultCharsetForContentType(Charset charset, String contentType) {
+        notNull(charset, "Charset");
+        return defaultCharsetForContentType(charset.toString(), contentType);
     }
 
     /**

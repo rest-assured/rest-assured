@@ -1087,7 +1087,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def restAssuredResponse = new RestAssuredResponseImpl(logRepository: logRepository)
     def RestAssuredConfig cfg = config ?: new RestAssuredConfig();
     restAssuredResponse.setSessionIdName(cfg.getSessionConfig().sessionIdName())
-    restAssuredResponse.setDefaultCharset(cfg.getDecoderConfig().defaultContentCharset())
+    restAssuredResponse.setDecoderConfig(cfg.getDecoderConfig())
     restAssuredResponse.setConnectionManager(http.client.connectionManager)
     restAssuredResponse.setConfig(cfg)
     responseSpecification.restAssuredResponse = restAssuredResponse

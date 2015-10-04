@@ -111,13 +111,22 @@ Change log next version
   Likewise if you do validation:
     get("/x").then().header("HeaderName", equalTo("Value 2");
   This change also affects session ids. This is done to be compatible with the way browsers work (issue 543).
-* Added ability to specify which charset to use for a specific content-type if no charset is defined explicitly for this content-type.
+* Added ability to specify which encoder charset to use for a specific content-type if no charset is defined explicitly for this content-type.
   Previously you could only specify a default charset for ALL content-types. You do this by using the "defaultCharsetForContentType" method in the
   com.jayway.restassured.config.EncoderConfig. For example:
     RestAssured.config = config(config().encoderConfig(encoderConfig().defaultCharsetForContentType("UTF-16", "application/xml")));
-  This will use UTF-16 encoding for "application/xml" content-types. By default "application/json" is now specified to use "UTF-8" as default
-  content-type as this is specified by RFC4627. This is may be a backward incompatible change since previously "application/json" content-types
+  This will assume UTF-16 encoding for "application/xml" content-types that does explicitly specify a charset.
+  By default "application/json" is now specified to use "UTF-8" as default content-type as this is specified by RFC4627.
+  This is may be a backward incompatible change since previously "application/json" content-types
   were encoded using the platform default content-type (or what was specified by defaultContentCharset(..)) (issue 567).
+* Added ability to specify which decoder charset to use for a specific content-type if no charset is defined explicitly for this content-type.
+  Previously you could only specify a default charset for ALL content-types. You do this by using the "defaultCharsetForContentType" method in the
+  com.jayway.restassured.config.DecoderConfig. For example:
+    RestAssured.config = config(config().decoderConfig(decoderConfig().defaultCharsetForContentType("UTF-16", "application/xml")));
+  This will assume UTF-16 encoding for "application/xml" content-types that does explicitly specify a charset.
+  By default "application/json" is now specified to use "UTF-8" as default charset as this is specified by RFC4627.
+  This is may be a backward incompatible change since previously "application/json" content-types
+  were encoded using the platform default content-type (or what was specified by defaultContentCharset(..)).
 * Fixed so that com.jayway.restassured.builder.ResponseBuilder register a ResponseParserRegistrar by default to avoid NPE when logging custom built responses.
 * Fixed so that com.jayway.restassured.builder.ResponseBuilder now uses status code as status line if no status line was explicitly defined.
 * Added ability to set a header in com.jayway.restassured.builder.ResponseBuilder.

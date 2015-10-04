@@ -17,14 +17,11 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.config.DecoderConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
-import com.jayway.restassured.filter.Filter;
-import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.response.Response;
-import com.jayway.restassured.specification.FilterableRequestSpecification;
-import com.jayway.restassured.specification.FilterableResponseSpecification;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
@@ -32,6 +29,9 @@ import static com.jayway.restassured.config.DecoderConfig.ContentDecoder.DEFLATE
 import static com.jayway.restassured.config.DecoderConfig.ContentDecoder.GZIP;
 import static com.jayway.restassured.config.DecoderConfig.decoderConfig;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
+import static com.jayway.restassured.http.ContentType.JSON;
+import static com.jayway.restassured.http.ContentType.TEXT;
+import static java.nio.charset.StandardCharsets.UTF_16;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -86,13 +86,11 @@ public class DecoderConfigITest extends WithJetty {
     filters_can_change_content_decoders() {
         given().
                 config(newConfig().decoderConfig(decoderConfig().contentDecoders(GZIP, DEFLATE))).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        final RestAssuredConfig config = requestSpec.getConfig();
-                        assertThat(config.getDecoderConfig().contentDecoders(), contains(GZIP, DEFLATE));
-                        requestSpec.config(config.decoderConfig(new DecoderConfig(DEFLATE)));
-                        return ctx.next(requestSpec, responseSpec);
-                    }
+                filter((requestSpec, responseSpec, ctx) -> {
+                    final RestAssuredConfig config1 = requestSpec.getConfig();
+                    assertThat(config1.getDecoderConfig().contentDecoders(), contains(GZIP, DEFLATE));
+                    requestSpec.config(config1.decoderConfig(new DecoderConfig(DEFLATE)));
+                    return ctx.next(requestSpec, responseSpec);
                 }).
         expect().
                 body("Accept-Encoding", contains("deflate")).
@@ -119,5 +117,26 @@ public class DecoderConfigITest extends WithJetty {
                .config(config().decoderConfig(decoderConfig().useNoWrapForInflateDecoding(true))).when().get(path);
 
         assertThat(response.getBody().asString(), not(isEmptyOrNullString()));
+    }
+
+    @Test public void
+    json_content_type_is_configured_to_use_utf_8_by_default() {
+        given().
+                config(newConfig().decoderConfig(decoderConfig().defaultContentCharset(UTF_16))).
+        when().
+                get("/lotto").
+        then().
+                header("Content-Type", equalTo("application/json;charset=" + decoderConfig().defaultCharsetForContentType(JSON).toLowerCase()));
+    }
+
+    @Test public void
+    can_specify_default_charset_for_a_specific_content_type() {
+        given().
+                config(newConfig().decoderConfig(decoderConfig().defaultCharsetForContentType(UTF_16, TEXT))).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("something\ud824\udd22").setContentType("text/plain").build()).
+        when().
+                get("/non-existing").
+        then().
+                body(equalTo("something\uD824\uDD22"));
     }
 }

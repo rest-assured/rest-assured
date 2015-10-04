@@ -16,14 +16,16 @@
 
 package com.jayway.restassured.config;
 
+import com.jayway.restassured.http.ContentType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
+import static org.apache.commons.lang3.StringUtils.trim;
 
 /**
  * Allows you to specify configuration for the decoder.
@@ -32,8 +34,14 @@ public class DecoderConfig implements Config {
 
     private static final boolean DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS = false;
 
+    private static final String UTF_8 = StandardCharsets.UTF_8.toString();
+    private static final Map<String, String> DEFAULT_CHARSET_FOR_CONTENT_TYPE = new HashMap<String, String>() {{
+        put(ContentType.JSON.toString(), UTF_8);
+        put("text/json", UTF_8);
+    }};
     private final String defaultContentCharset;
     private final List<ContentDecoder> contentDecoders;
+    private final Map<String, String> contentTypeToDefaultCharset;
     private final boolean useNoWrapForInflateDecoding;
     private final boolean isUserConfigured;
 
@@ -41,7 +49,7 @@ public class DecoderConfig implements Config {
      * Configure the decoder config to use the default charset as specified by {@link java.nio.charset.Charset#defaultCharset()} for content decoding.
      */
     public DecoderConfig() {
-        this(Charset.defaultCharset().toString(), DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, false, defaultContentEncoders());
+        this(Charset.defaultCharset().toString(), DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, false, DEFAULT_CHARSET_FOR_CONTENT_TYPE, defaultContentEncoders());
     }
 
     /**
@@ -50,7 +58,7 @@ public class DecoderConfig implements Config {
      * @param defaultContentCharset The charset to use if not specifically specified in the response.
      */
     public DecoderConfig(String defaultContentCharset) {
-        this(defaultContentCharset, DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, true, defaultContentEncoders());
+        this(defaultContentCharset, DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, true, DEFAULT_CHARSET_FOR_CONTENT_TYPE, defaultContentEncoders());
     }
 
     /**
@@ -63,22 +71,111 @@ public class DecoderConfig implements Config {
      *
      * @param contentDecoder            The first content decoder
      * @param additionalContentDecoders Optional additional content decoders
-     * @return A new instance of the DecoderConfig.
      */
     public DecoderConfig(ContentDecoder contentDecoder, ContentDecoder... additionalContentDecoders) {
-        this(Charset.defaultCharset().toString(), DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, true, merge(contentDecoder, additionalContentDecoders));
+        this(Charset.defaultCharset().toString(), DEFAULT_NO_WRAP_FOR_INFLATE_ENCODED_STREAMS, true, DEFAULT_CHARSET_FOR_CONTENT_TYPE, merge(contentDecoder, additionalContentDecoders));
     }
 
-    private DecoderConfig(String defaultContentCharset, boolean useNoWrapForInflateDecoding, boolean isUserConfigured, ContentDecoder... contentDecoders) {
-        this(defaultContentCharset, useNoWrapForInflateDecoding, isUserConfigured, contentDecoders == null ? Collections.<ContentDecoder>emptyList() : Arrays.asList(contentDecoders));
+    private DecoderConfig(String defaultContentCharset, boolean useNoWrapForInflateDecoding, boolean isUserConfigured,
+                          Map<String, String> contentTypeToDefaultCharset, ContentDecoder... contentDecoders) {
+        this(defaultContentCharset, useNoWrapForInflateDecoding, isUserConfigured,
+                contentDecoders == null ? Collections.<ContentDecoder>emptyList() : Arrays.asList(contentDecoders), contentTypeToDefaultCharset);
     }
 
-    private DecoderConfig(String defaultContentCharset, boolean useNoWrapForInflateDecoding, boolean isUserConfigured, List<ContentDecoder> contentDecoders) {
+    private DecoderConfig(String defaultContentCharset, boolean useNoWrapForInflateDecoding, boolean isUserConfigured, List<ContentDecoder> contentDecoders, Map<String, String> contentTypeToDefaultCharset) {
         Validate.notBlank(defaultContentCharset, "Default decoder content charset to cannot be blank");
+        this.contentTypeToDefaultCharset = new HashMap<String, String>(contentTypeToDefaultCharset);
         this.defaultContentCharset = defaultContentCharset;
         this.contentDecoders = Collections.unmodifiableList(contentDecoders == null ? Collections.<ContentDecoder>emptyList() : contentDecoders);
         this.useNoWrapForInflateDecoding = useNoWrapForInflateDecoding;
         this.isUserConfigured = isUserConfigured;
+    }
+
+    /**
+     * Specify the default charset to use for the specific content-type if it's not specified in the content-type header explicitly
+     *
+     * @param charset     The charset to use as default (unless specified explicitly)
+     * @param contentType The content-type
+     * @return A new instance of {@link DecoderConfig}
+     */
+    public DecoderConfig defaultCharsetForContentType(String charset, String contentType) {
+        notNull(charset, "Charset");
+        notNull(contentType, "ContentType");
+        Map<String, String> map = new HashMap<String, String>(contentTypeToDefaultCharset);
+        map.put(trim(contentType).toLowerCase(), trim(charset));
+        return new DecoderConfig(charset, useNoWrapForInflateDecoding, true, contentDecoders, map);
+    }
+
+    /**
+     * Specify the default charset to use for the specific content-type if it's not specified in the content-type header explicitly
+     *
+     * @param charset     The charset to use as default (unless specified explicitly)
+     * @param contentType The content-type
+     * @return A new instance of {@link DecoderConfig}
+     */
+    public DecoderConfig defaultCharsetForContentType(Charset charset, String contentType) {
+        notNull(charset, "Charset");
+        return defaultCharsetForContentType(charset.toString(), contentType);
+    }
+
+    /**
+     * Specify the default charset to use for the specific content-type if it's not specified in the content-type header explicitly
+     *
+     * @param charset     The charset to use as default (unless specified explicitly)
+     * @param contentType The content-type
+     * @return A new instance of {@link DecoderConfig}
+     */
+    public DecoderConfig defaultCharsetForContentType(Charset charset, ContentType contentType) {
+        notNull(charset, "Charset");
+        return defaultCharsetForContentType(charset.toString(), contentType);
+    }
+
+    /**
+     * Specify the default charset to use for the specific content-type if it's not specified in the content-type header explicitly
+     *
+     * @param charset     The charset to use as default (unless specified explicitly)
+     * @param contentType The content-type
+     * @return A new instance of {@link DecoderConfig}
+     */
+    public DecoderConfig defaultCharsetForContentType(String charset, ContentType contentType) {
+        notNull(charset, "Charset");
+        notNull(contentType, ContentType.class);
+        Map<String, String> map = new HashMap<String, String>(contentTypeToDefaultCharset);
+        for (String ct : contentType.getContentTypeStrings()) {
+            map.put(ct.toLowerCase(), trim(charset));
+        }
+        return new DecoderConfig(charset, useNoWrapForInflateDecoding, true, contentDecoders, map);
+    }
+
+    /**
+     * @return The default charset for a specific content-type. It will have precedence over {@link #defaultContentCharset()}.
+     */
+    public String defaultCharsetForContentType(String contentType) {
+        if (StringUtils.isEmpty(contentType)) {
+            return defaultContentCharset();
+        }
+        String charset = contentTypeToDefaultCharset.get(trim(contentType).toLowerCase());
+        if (charset == null) {
+            return defaultContentCharset();
+        }
+        return charset;
+    }
+
+    /**
+     * @return A map that contains default charset for a specific content-type. It will have precedence over {@link #defaultContentCharset()}.
+     */
+    public String defaultCharsetForContentType(ContentType contentType) {
+        if (contentType == null) {
+            return defaultContentCharset();
+        }
+        return defaultCharsetForContentType(contentType.toString());
+    }
+
+    /**
+     * @return A map that contains default charset for a specific content-type. It will have precedence over {@link #defaultContentCharset()}.
+     */
+    public boolean hasDefaultCharsetForContentType(String contentType) {
+        return !StringUtils.isBlank(contentType) && contentTypeToDefaultCharset.containsKey(trim(contentType).toLowerCase());
     }
 
     /**
@@ -112,7 +209,7 @@ public class DecoderConfig implements Config {
      * @return A new instance of the DecoderConfig.
      */
     public DecoderConfig useNoWrapForInflateDecoding(boolean nowrap) {
-        return new DecoderConfig(defaultContentCharset, nowrap, true, contentDecoders);
+        return new DecoderConfig(defaultContentCharset, nowrap, true, contentDecoders, contentTypeToDefaultCharset);
     }
 
     /**
@@ -131,7 +228,7 @@ public class DecoderConfig implements Config {
      */
     @SuppressWarnings("UnusedDeclaration")
     public DecoderConfig defaultContentCharset(String charset) {
-        return new DecoderConfig(charset, useNoWrapForInflateDecoding, true, contentDecoders);
+        return new DecoderConfig(charset, useNoWrapForInflateDecoding, true, contentDecoders, contentTypeToDefaultCharset);
     }
 
     /**
@@ -143,7 +240,7 @@ public class DecoderConfig implements Config {
     @SuppressWarnings("UnusedDeclaration")
     public DecoderConfig defaultContentCharset(Charset charset) {
         String charsetAsString = notNull(charset, Charset.class).toString();
-        return new DecoderConfig(charsetAsString, useNoWrapForInflateDecoding, true, contentDecoders);
+        return new DecoderConfig(charsetAsString, useNoWrapForInflateDecoding, true, contentDecoders, contentTypeToDefaultCharset);
     }
 
     /**
@@ -158,7 +255,7 @@ public class DecoderConfig implements Config {
      * @return A new instance of the DecoderConfig.
      */
     public DecoderConfig contentDecoders(ContentDecoder contentDecoder, ContentDecoder... additionalContentDecoders) {
-        return new DecoderConfig(defaultContentCharset, useNoWrapForInflateDecoding, true, merge(contentDecoder, additionalContentDecoders));
+        return new DecoderConfig(defaultContentCharset, useNoWrapForInflateDecoding, true, contentTypeToDefaultCharset, merge(contentDecoder, additionalContentDecoders));
     }
 
     /**
@@ -168,7 +265,7 @@ public class DecoderConfig implements Config {
      * @see #contentDecoders(com.jayway.restassured.config.DecoderConfig.ContentDecoder, com.jayway.restassured.config.DecoderConfig.ContentDecoder...)
      */
     public DecoderConfig noContentDecoders() {
-        return new DecoderConfig(defaultContentCharset, useNoWrapForInflateDecoding, true);
+        return new DecoderConfig(defaultContentCharset, useNoWrapForInflateDecoding, true, contentTypeToDefaultCharset);
     }
 
     /**
@@ -221,7 +318,7 @@ public class DecoderConfig implements Config {
     /**
      * Predefined content encoders in REST Assured. Will also automatically specify the Accept-Encoder header.
      */
-    public static enum ContentDecoder {
+    public enum ContentDecoder {
         /**
          * GZIP compression support for both requests and responses.
          */

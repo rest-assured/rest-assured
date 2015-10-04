@@ -32,7 +32,7 @@ class ResponseConverter {
         std.setContent(mvc.getContent());
         std.setContentType(mvc.getContentType());
         std.setCookies(mvc.detailedCookies());
-        std.setDefaultCharset(mvc.getDefaultCharset());
+        std.setDecoderConfig(mvc.getDecoderConfig());
         std.setDefaultContentType(mvc.getDefaultContentType());
         std.setHasExpectations(mvc.getHasExpectations());
         std.setResponseHeaders(mvc.getResponseHeaders());
