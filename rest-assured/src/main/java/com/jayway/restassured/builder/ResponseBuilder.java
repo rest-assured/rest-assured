@@ -16,10 +16,12 @@
 
 package com.jayway.restassured.builder;
 
+import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 
@@ -45,7 +47,7 @@ public class ResponseBuilder {
             restAssuredResponse.setContent(raResponse.getContent());
             restAssuredResponse.setHasExpectations(raResponse.getHasExpectations());
             restAssuredResponse.setDefaultContentType(raResponse.getDefaultContentType());
-            restAssuredResponse.setDefaultCharset(raResponse.getDefaultCharset());
+            restAssuredResponse.setDecoderConfig(raResponse.getDecoderConfig());
             restAssuredResponse.setSessionIdName(raResponse.getSessionIdName());
             restAssuredResponse.setConnectionManager(raResponse.getConnectionManager());
             restAssuredResponse.setConfig(raResponse.getConfig());
@@ -174,7 +176,12 @@ public class ResponseBuilder {
         if (statusCode < 100 || statusCode >= 600) {
             throw new IllegalArgumentException(format("Status code must be greater than 100 and less than 600, was %d.", statusCode));
         }
-        notNull("Status line", restAssuredResponse.statusLine());
+
+        if (StringUtils.isBlank(restAssuredResponse.statusLine())) {
+            restAssuredResponse.setStatusLine(restAssuredResponse.statusCode());
+        }
+
+        restAssuredResponse.setRpr(new ResponseParserRegistrar());
         return restAssuredResponse;
     }
 
