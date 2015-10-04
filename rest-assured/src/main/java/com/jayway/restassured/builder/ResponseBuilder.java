@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.builder;
 
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
 import com.jayway.restassured.response.Cookies;
@@ -136,7 +137,6 @@ public class ResponseBuilder {
         return this;
     }
 
-
     /**
      * Set the content type of the response
      *
@@ -147,6 +147,16 @@ public class ResponseBuilder {
         restAssuredResponse.setContentType(contentType);
         setHeader(CONTENT_TYPE, contentType);
         return this;
+    }
+
+    /**
+     * Set the content type of the response
+     *
+     * @return The builder
+     */
+    public ResponseBuilder setContentType(ContentType contentType) {
+        notNull(contentType, ContentType.class);
+        return setContentType(contentType.toString());
     }
 
     /**

@@ -131,6 +131,7 @@ Change log next version
 * Fixed so that com.jayway.restassured.builder.ResponseBuilder now uses status code as status line if no status line was explicitly defined.
 * Added ability to set a header in com.jayway.restassured.builder.ResponseBuilder.
 * Setting contentType in com.jayway.restassured.builder.ResponseBuilder also sets the header.
+* Added ability to pass a ContentType as argument to "setContentType" method in com.jayway.restassured.builder.ResponseBuilder.
 
 Change log 2.5.0 (2015-08-09)
 -----------------------------
