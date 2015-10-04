@@ -118,6 +118,10 @@ Change log next version
   This will use UTF-16 encoding for "application/xml" content-types. By default "application/json" is now specified to use "UTF-8" as default
   content-type as this is specified by RFC4627. This is may be a backward incompatible change since previously "application/json" content-types
   were encoded using the platform default content-type (or what was specified by defaultContentCharset(..)) (issue 567).
+* Fixed so that com.jayway.restassured.builder.ResponseBuilder register a ResponseParserRegistrar by default to avoid NPE when logging custom built responses.
+* Fixed so that com.jayway.restassured.builder.ResponseBuilder now uses status code as status line if no status line was explicitly defined.
+* Added ability to set a header in com.jayway.restassured.builder.ResponseBuilder.
+* Setting contentType in com.jayway.restassured.builder.ResponseBuilder also sets the header.
 
 Change log 2.5.0 (2015-08-09)
 -----------------------------

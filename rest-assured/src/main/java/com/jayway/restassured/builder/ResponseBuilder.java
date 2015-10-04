@@ -19,14 +19,19 @@ package com.jayway.restassured.builder;
 import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
 import com.jayway.restassured.response.Cookies;
+import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.trim;
+import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 
 /**
  * A builder to make it easier to create new {@link Response} implementations. This is useful if you're working with {@link com.jayway.restassured.filter.Filter}s and want to
@@ -140,9 +145,28 @@ public class ResponseBuilder {
     public ResponseBuilder setContentType(String contentType) {
         notNull(contentType, "Content type");
         restAssuredResponse.setContentType(contentType);
+        setHeader(CONTENT_TYPE, contentType);
         return this;
     }
 
+    /**
+     * Set a specific header
+     *
+     * @return The builder
+     */
+    public ResponseBuilder setHeader(String name, String value) {
+        notNull(name, "Header name");
+        notNull(value, "Header value");
+
+        List<Header> newHeaders = new ArrayList<Header>(restAssuredResponse.headers().asList());
+        newHeaders.add(new Header(name, value));
+        restAssuredResponse.setResponseHeaders(new Headers(newHeaders));
+
+        if (trim(name).equalsIgnoreCase(CONTENT_TYPE)) {
+            restAssuredResponse.setContentType(value);
+        }
+        return this;
+    }
 
     /**
      * Set the status line of the response.
