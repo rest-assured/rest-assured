@@ -32,5 +32,6 @@
         <module>rest-assured-itest-java</module>
         <module>spring-mvc-webapp</module>
         <module>scala-example</module>
+        <module>scala-mock-mvc-example</module>
     </modules>
 </project>
