@@ -43,7 +43,39 @@
         <dependencySet>
             <excludes>
                 <!-- Scala Support -->
-                <exclude>com.jayway.restassured:scala-support</exclude>              
+                <exclude>com.jayway.restassured:scala-support</exclude>
+                <!-- JsonPath -->
+                <exclude>com.jayway.restassured:json-path</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-annotations</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-core</exclude>
+                <exclude>org.codehaus.jackson:jackson-core-asl</exclude>
+                <exclude>org.codehaus.jackson:jackson-mapper-asl</exclude>
+                <exclude>com.google.code.gson:gson</exclude>
+                <exclude>com.googlecode.json-simple:json-simple</exclude>
+                <!-- XmlPath -->
+                <exclude>com.jayway.restassured:xml-path</exclude>
+                <!-- Groovy -->
+                <exclude>org.codehaus.groovy:groovy</exclude>
+                <exclude>org.codehaus.groovy:groovy-json</exclude>
+                <exclude>org.codehaus.groovy:groovy-xml</exclude>
+                <!-- Apache -->
+                <exclude>commons-codec:commons-codec</exclude>
+                <exclude>org.apache.commons:commons-lang3</exclude>
+                <exclude>commons-logging:commons-logging</exclude>
+                <!-- Hamcrest -->
+                <exclude>org.hamcrest:hamcrest-core</exclude>
+                <exclude>org.hamcrest:hamcrest-library</exclude>
+                <exclude>org.hamcrest:hamcrest-library</exclude>
+                <!-- HTTP Client -->
+                <exclude>org.apache.httpcomponents:httpclient</exclude>
+                <exclude>org.apache.httpcomponents:httpmime</exclude>
+                <exclude>org.apache.httpcomponents:httpcore</exclude>
+                <!-- Rest Assured -->
+                <exclude>com.jayway.restassured:rest-assured</exclude>
+                <exclude>com.jayway.restassured:rest-assured-common</exclude>
+                <!-- Various -->
+                <exclude>org.ccil.cowan.tagsoup:tagsoup</exclude>
             </excludes>
             <outputDirectory>/</outputDirectory>
             <useProjectArtifact>true</useProjectArtifact>

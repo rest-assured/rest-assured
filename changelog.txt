@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Significantly reduce sized of scala-support distribution package
+
 Change log 2.6.0 (2015-10-09)
 -----------------------------
 * Changed com.jayway.restassured.config.HttpClientConfig$HttpClientFactory from an abstract class to an interface in order to create it as a lambda express in Java 8. Before you had to do like this:
