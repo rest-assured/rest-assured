@@ -30,6 +30,7 @@
         <module>dist-xml-path</module>
         <module>dist-json-schema-validator</module>
         <module>dist-spring-mock-mvc</module>
+        <module>dist-scala-support</module>
     </modules>
     <artifactId>dist</artifactId>
 
