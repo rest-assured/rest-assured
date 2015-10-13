@@ -26,23 +26,28 @@ public class MultiPartConfig implements Config {
 
     private static final String DEFAULT_CONTROL_NAME = "file";
     private static final String DEFAULT_FILE_NAME = "file";
+    private static final String DEFAULT_SUBTYPE = "form-data";
 
     private final String defaultControlName;
     private final String defaultFileName;
+    private final String defaultSubtype;
 
     private final boolean isUserConfigured;
 
     /**
-     * Create a new MultiPartConfig with default control name equal to {@value #DEFAULT_CONTROL_NAME} and default file name equal to {@value #DEFAULT_FILE_NAME}.
+     * Create a new MultiPartConfig with default control name equal to {@value #DEFAULT_CONTROL_NAME} and
+     * default file name equal to {@value #DEFAULT_FILE_NAME} and default subtype {@value #DEFAULT_SUBTYPE} .
      */
     public MultiPartConfig() {
-        this(DEFAULT_CONTROL_NAME, DEFAULT_FILE_NAME, false);
+        this(DEFAULT_CONTROL_NAME, DEFAULT_FILE_NAME, DEFAULT_SUBTYPE, false);
     }
 
-    private MultiPartConfig(String defaultControlName, String defaultFileName, boolean isUserConfigured) {
-        AssertParameter.notNull(defaultControlName, "Default control name");
+    private MultiPartConfig(String defaultControlName, String defaultFileName, String defaultSubtype, boolean isUserConfigured) {
         this.defaultControlName = defaultControlName;
         this.defaultFileName = StringUtils.trimToNull(defaultFileName);
+        this.defaultSubtype = StringUtils.trimToNull(defaultSubtype);
+        AssertParameter.notNull(this.defaultControlName, "Default control name");
+        AssertParameter.notNull(this.defaultSubtype, "Default subtype");
         this.isUserConfigured = isUserConfigured;
     }
 
@@ -56,7 +61,7 @@ public class MultiPartConfig implements Config {
      * @return A new instance of {@link MultiPartConfig}
      */
     public MultiPartConfig defaultControlName(String defaultControlName) {
-        return new MultiPartConfig(defaultControlName, defaultFileName, true);
+        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, true);
     }
 
     /**
@@ -69,7 +74,23 @@ public class MultiPartConfig implements Config {
      * @return A new instance of {@link MultiPartConfig}
      */
     public MultiPartConfig defaultFileName(String defaultFileName) {
-        return new MultiPartConfig(defaultControlName, defaultFileName, true);
+        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, true);
+    }
+
+    /**
+     * Specify the default subtype to use if not defined explicitly in when making the multi-part request.
+     * This will control how the Content-Type will be constructed for multipart requests when using REST Assured
+     * when no Content-Type header has been explicitly defined. For example if subtype is set to "mixed" then the
+     * Content-Type header will be "multipart/mixed" if not specified explicitly.
+     * <p>
+     * Default is {@value #DEFAULT_SUBTYPE}
+     * </p>
+     *
+     * @param defaultSubtype The default subtype to use in multipart requests. Default is {@value #DEFAULT_SUBTYPE}.
+     * @return A new instance of {@link MultiPartConfig}
+     */
+    public MultiPartConfig defaultSubtype(String defaultSubtype) {
+        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, true);
     }
 
     /**
@@ -82,7 +103,7 @@ public class MultiPartConfig implements Config {
      * @return A new instance of {@link MultiPartConfig}
      */
     public MultiPartConfig emptyDefaultFileName() {
-        return new MultiPartConfig(defaultControlName, null, true);
+        return new MultiPartConfig(defaultControlName, null, defaultSubtype, true);
     }
 
     /**
@@ -97,6 +118,13 @@ public class MultiPartConfig implements Config {
      */
     public String defaultFileName() {
         return defaultFileName;
+    }
+
+    /**
+     * @return The default subtype that'll be used unless explicitly defined in the Content-Type header.
+     */
+    public String defaultSubtype() {
+        return defaultSubtype;
     }
 
     public boolean isUserConfigured() {

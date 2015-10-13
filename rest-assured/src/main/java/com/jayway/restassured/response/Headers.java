@@ -71,7 +71,7 @@ public class Headers implements Iterable<Header> {
 
     /**
      * Get a single header with the supplied name. If there are several headers match the <code>headerName</code> then
-     * the first one is returned.
+     * the last one is returned.
      *
      * @param headerName The name of the header to find
      * @return The found header or <code>null</code> if no header was found.
@@ -83,7 +83,7 @@ public class Headers implements Iterable<Header> {
 
     /**
      * Get a single header with the supplied name. If there are several headers match the <code>headerName</code> then
-     * the first one is returned.
+     * the last one is returned.
      *
      * @param headerName The name of the header to find
      * @return The found header value or <code>null</code> if no header was found.

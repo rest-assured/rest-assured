@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.response;
 
+import com.jayway.restassured.function.RestAssuredFunction;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.matcher.ResponseAwareMatcher;
 import com.jayway.restassured.parsing.Parser;
@@ -448,6 +449,26 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * @return the response specification
      */
     T header(String headerName, Matcher<?> expectedValueMatcher);
+
+    /**
+     * Expect that a response header matches the supplied header name and hamcrest matcher using a mapping function.
+     * <p>
+     * E.g. expect that the response of the GET request to "/something" contains header <tt>Content-Length: 500</tt> and you want to
+     * validate that the length must always be less than 600:
+     * <pre>
+     * when().
+     *        get("/something").
+     * then().
+     *        header("Content-Length", Integer::parseInt, lessThan(600));
+     * </pre>
+     * </p>
+     *
+     * @param headerName           The name of the expected header
+     * @param mappingFunction      Map the header to another value type before exposing it to the Hamcrest matcher
+     * @param expectedValueMatcher The Hamcrest matcher that must conform to the value
+     * @return the response specification
+     */
+    <V> T header(String headerName, RestAssuredFunction<String, V> mappingFunction, Matcher<? super V> expectedValueMatcher);
 
     /**
      * Validate that a response header matches the supplied name and value.

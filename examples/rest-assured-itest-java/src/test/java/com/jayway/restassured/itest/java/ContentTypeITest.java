@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
@@ -217,7 +218,29 @@ public class ContentTypeITest extends WithJetty {
         when().
                 post("/returnContentTypeAsBody").
         then().
-                body(equalTo(ContentType.JSON.withCharset(config().getEncoderConfig().defaultContentCharset())));
+                body(equalTo(ContentType.JSON.withCharset(config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+    }
+
+    @Test public void
+    encoder_config_can_specify_a_default_charset_for_a_specific_content_type_using_enum() {
+        given().
+                config(config().encoderConfig(encoderConfig().defaultCharsetForContentType(StandardCharsets.ISO_8859_1.toString(), ContentType.JSON))).
+                contentType(ContentType.JSON).
+        when().
+                post("/returnContentTypeAsBody").
+        then().
+                body(equalTo(ContentType.JSON.withCharset(StandardCharsets.ISO_8859_1.toString())));
+    }
+
+    @Test public void
+    encoder_config_can_specify_a_default_charset_for_a_specific_content_type_using_string() {
+        given().
+                config(config().encoderConfig(encoderConfig().defaultCharsetForContentType(StandardCharsets.ISO_8859_1.toString(), "application/json"))).
+                contentType(ContentType.JSON).
+        when().
+                post("/returnContentTypeAsBody").
+        then().
+                body(equalTo(ContentType.JSON.withCharset(StandardCharsets.ISO_8859_1.toString())));
     }
 
     @Test public void
@@ -240,7 +263,7 @@ public class ContentTypeITest extends WithJetty {
         when().
                  get("/returnContentTypeAsBody").
         then().
-                 body(equalTo(ContentType.JSON.withCharset(config().getEncoderConfig().defaultContentCharset())));
+                 body(equalTo(ContentType.JSON.withCharset(config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
     }
 
     /**

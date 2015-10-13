@@ -20,6 +20,7 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.log.LogDetail;
+import com.jayway.restassured.function.RestAssuredFunction;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.log.LogRepository;
 import com.jayway.restassured.internal.print.ResponsePrinter;
@@ -146,6 +147,10 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         return (T) this;
     }
 
+    public <U> T header(String headerName, RestAssuredFunction<String, U> f, Matcher<? super U> matcher) {
+        responseSpec.header(headerName, f, matcher);
+        return (T) this;
+    }
 
     public T cookies(Map<String, ?> expectedCookies) {
         responseSpec.cookies(expectedCookies);

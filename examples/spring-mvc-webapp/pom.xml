@@ -19,7 +19,7 @@
     <parent>
         <groupId>com.jayway.restassured.examples</groupId>
         <artifactId>example-parent</artifactId>
-        <version>2.5.1-SNAPSHOT</version>
+        <version>2.6.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -54,7 +54,7 @@
         <dependency>
             <groupId>com.jayway.restassured</groupId>
             <artifactId>spring-mock-mvc</artifactId>
-            <version>2.5.1-SNAPSHOT</version>
+            <version>2.6.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -151,7 +151,6 @@
                         <configuration>
                             <stopKey>foo</stopKey>
                             <stopPort>8079</stopPort>
-                            <contextPath>/</contextPath>
                         </configuration>
                     </plugin>
                 </plugins>

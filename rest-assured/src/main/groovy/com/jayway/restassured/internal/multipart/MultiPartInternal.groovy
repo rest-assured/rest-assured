@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.jayway.restassured.internal
+package com.jayway.restassured.internal.multipart
 
+import com.jayway.restassured.internal.NoParameterValue
 import org.apache.http.entity.mime.content.FileBody
 import org.apache.http.entity.mime.content.InputStreamBody
 import org.apache.http.entity.mime.content.StringBody

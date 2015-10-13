@@ -25,8 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.jayway.restassured.RestAssured.expect;
-import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -35,6 +34,24 @@ public class HeaderITest extends WithJetty {
     @Test
     public void requestSpecificationAllowsSpecifyingHeader() throws Exception {
         given().header("MyHeader", "Something").and().expect().body(containsString("MyHeader")).when().get("/header");
+    }
+
+    @Test
+    public void allowsSupplyingMappingFunction() throws Exception {
+        when().
+                get("/hello").
+        then().
+                header("Content-Length", Integer::parseInt, lessThanOrEqualTo(200));
+    }
+
+    @Test
+    public void headerExceptionCanFailWhenUsingMappingFunction() throws Exception {
+        exception.expect(AssertionError.class);
+        exception.expectMessage(containsString("Expected header \"Content-Length\" was not a value greater than <200>, was \"26\". Headers are:"));
+        when().
+                get("/hello").
+        then().
+                header("Content-Length", Integer::parseInt, greaterThan(200));
     }
 
     @Test
@@ -154,6 +171,14 @@ public class HeaderITest extends WithJetty {
                 "Server=Jetty(9.3.2.v20150730)\n"));
 
         expect().response().header("Not-Defined", "160").when().get("/lotto");
+    }
+
+    @Test
+    public void whenMultiValueHeadersArePresentedInTheResponseThenTheLastValueHasPrecedence() throws Exception {
+        when().
+                get("/multiValueHeader").
+        then().
+                header("MultiHeader", equalTo("Value 2"));
     }
 
 }

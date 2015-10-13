@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-
-
 package com.jayway.restassured.assertion
 
 import org.hamcrest.Matcher
 
 class HeaderMatcher {
 
-    def headerName
-    def Matcher<String> matcher
+  def headerName
+  def mappingFunction
+  def Matcher matcher
 
-    def validateHeader(headers) {
-        def success = true
-        def message = ""
-        def value = headers.getValue(headerName)
-        if (!matcher.matches(value)) {
-            def headersString = headers.toString()
-            success = false
-            message = "Expected header \"$headerName\" was not $matcher, was \"$value\". Headers are:\n$headersString\n"
-        }
-        [success: success, errorMessage: message]
+  def validateHeader(headers) {
+    def success = true
+    def message = ""
+    def value = headers.getValue(headerName)
+    if (mappingFunction != null) {
+      value = mappingFunction.apply(value)
     }
+    if (!matcher.matches(value)) {
+      def headersString = headers.toString()
+      success = false
+      message = "Expected header \"$headerName\" was not $matcher, was \"$value\". Headers are:\n$headersString\n"
+    }
+    [success: success, errorMessage: message]
+  }
 }

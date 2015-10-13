@@ -16,20 +16,28 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.builder.MultiPartSpecBuilder;
 import com.jayway.restassured.builder.RequestSpecBuilder;
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.internal.mapper.ObjectMapperType;
+import com.jayway.restassured.internal.mapping.Jackson2Mapper;
 import com.jayway.restassured.itest.java.objects.Greeting;
 import com.jayway.restassured.itest.java.objects.Message;
 import com.jayway.restassured.itest.java.support.MyEnum;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.mapper.factory.DefaultJackson2ObjectMapperFactory;
 import com.jayway.restassured.specification.RequestSpecification;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static com.jayway.restassured.RestAssured.config;
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.endsWith;
-import static org.hamcrest.Matchers.is;
+import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
+import static com.jayway.restassured.config.MultiPartConfig.multiPartConfig;
+import static com.jayway.restassured.internal.mapper.ObjectMapperType.JACKSON_2;
+import static org.hamcrest.Matchers.*;
 
 public class MultiPartUploadITest extends WithJetty {
 
@@ -51,8 +59,8 @@ public class MultiPartUploadITest extends WithJetty {
                 post("/multipart/file");
     }
 
-   @Test
-   public void multiPartUploadingWorksForStrings() throws Exception {
+    @Test
+    public void multiPartUploadingWorksForStrings() throws Exception {
        // When
        given().
                multiPart("text", "Some text").
@@ -63,8 +71,79 @@ public class MultiPartUploadITest extends WithJetty {
                post("/multipart/text");
     }
 
-   @Test
-   public void multiPartUploadingWorksForJsonObjects() throws Exception {
+    @Test
+    public void multiPartUploadingSupportsOtherSubTypesThanFormData() throws Exception {
+       // When
+       given().
+               contentType("multipart/mixed").
+               multiPart("text", "Some text").
+       expect().
+               statusCode(200).
+               body(is("Some text")).
+       when().
+               post("/multipart/text");
+    }
+
+    @Test
+    public void multiPartUploadingSupportsSpecifyingDefaultSubtype() throws Exception {
+       // When
+       given().
+               config(config().multiPartConfig(multiPartConfig().defaultSubtype("mixed"))).
+               multiPart("text", "Some text").
+       expect().
+               statusCode(200).
+               body(is("Some text")).
+               header("X-Request-Header", startsWith("multipart/mixed")).
+       when().
+               post("/multipart/textAndReturnHeader");
+    }
+
+    @Test
+    public void multiPartUploadingSupportsSpecifyingCharset() throws Exception {
+       // When
+       given().
+               contentType("multipart/mixed; charset=US-ASCII").
+               multiPart("text", "Some text").
+       expect().
+               statusCode(200).
+               body(is("Some text")).
+               header("X-Request-Header", allOf(startsWith("multipart/mixed"), containsString("charset=US-ASCII"))).
+       when().
+               post("/multipart/textAndReturnHeader");
+    }
+
+    @Test
+    public void explicitMultipartContentTypeOverridesDefaultSubtype() throws Exception {
+       // When
+       given().
+               contentType("multipart/form-data").
+               config(config().multiPartConfig(multiPartConfig().defaultSubtype("mixed"))).
+               multiPart("text", "Some text").
+       expect().
+               statusCode(200).
+               body(is("Some text")).
+               header("X-Request-Header", startsWith("multipart/form-data")).
+       when().
+               post("/multipart/textAndReturnHeader");
+    }
+
+    @Test
+    public void multipartContentTypeSetBySpecificationOverridesDefaultSubtype() throws Exception {
+       // When
+       given().
+               spec(new RequestSpecBuilder().setContentType("multipart/form-data").build()).
+               config(config().multiPartConfig(multiPartConfig().defaultSubtype("mixed"))).
+               multiPart("text", "Some text").
+       expect().
+               statusCode(200).
+               body(is("Some text")).
+               header("X-Request-Header", startsWith("multipart/form-data")).
+       when().
+               post("/multipart/textAndReturnHeader");
+    }
+
+    @Test
+    public void multiPartUploadingWorksForJsonObjects() throws Exception {
         // Given
         final Message message = new Message();
         message.setMessage("Hello World");
@@ -79,8 +158,8 @@ public class MultiPartUploadITest extends WithJetty {
                post("/multipart/text");
     }
 
-   @Test
-   public void multiPartUploadingWorksForJsonObjectsWhenMimeTypeIsSpecified() throws Exception {
+    @Test
+    public void multiPartUploadingWorksForJsonObjectsWhenMimeTypeIsSpecified() throws Exception {
        // Given
        final Message message = new Message();
        message.setMessage("Hello World");
@@ -93,10 +172,10 @@ public class MultiPartUploadITest extends WithJetty {
                body(is("{\"message\":\"Hello World\"}")).
        when().
                post("/multipart/text");
-   }
+    }
 
-   @Test
-   public void multiPartUploadingWorksForXmlObjectsWhenMimeTypeIsSpecified() throws Exception {
+    @Test
+    public void multiPartUploadingWorksForXmlObjectsWhenMimeTypeIsSpecified() throws Exception {
        // Given
        final Greeting greeting = new Greeting();
        greeting.setFirstName("John");
@@ -110,7 +189,130 @@ public class MultiPartUploadITest extends WithJetty {
                body(endsWith("<greeting><firstName>John</firstName><lastName>Doe</lastName></greeting>")).
        when().
                post("/multipart/text");
-   }
+    }
+
+    @Test
+    public void multiPartSupportsSpecifyingAnObjectMapperTypeToMultiPartSpecBuilder() throws Exception {
+        // Given
+        final Greeting greeting = new Greeting();
+        greeting.setFirstName("John");
+        greeting.setLastName("Doe");
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(greeting, JACKSON_2)
+                        .fileName("RoleBasedAccessFeaturePlan.csv")
+                        .controlName("text")
+                        .mimeType("application/vnd.ms-excel").build()).
+        when().
+                post("/multipart/text").
+        then().
+                statusCode(200).
+                body(containsString("John"), containsString("Doe"), containsString("{"));
+    }
+
+    @Test
+    public void multiPartSupportsSpecifyingAnObjectMapperToMultiPartSpecBuilder() throws Exception {
+        // Given
+        final Greeting greeting = new Greeting();
+        greeting.setFirstName("John");
+        greeting.setLastName("Doe");
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(greeting, new Jackson2Mapper(new DefaultJackson2ObjectMapperFactory()))
+                        .fileName("RoleBasedAccessFeaturePlan.csv")
+                        .controlName("text")
+                        .mimeType("application/vnd.ms-excel").build()).
+        when().
+                post("/multipart/text").
+        then().
+                statusCode(200).
+                body(containsString("John"), containsString("Doe"), containsString("{"));
+    }
+
+    @Test
+    public void multiPartObjectMapperTypeHavePrecedenceOverMimeType() throws Exception {
+        // Given
+        final Greeting greeting = new Greeting();
+        greeting.setFirstName("John");
+        greeting.setLastName("Doe");
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(greeting, ObjectMapperType.JAXB)
+                        .fileName("RoleBasedAccessFeaturePlan.csv")
+                        .controlName("text")
+                        .mimeType("application/json").build()).
+        when().
+                post("/multipart/text").
+        then().
+                statusCode(200).
+                body(containsString("John"), containsString("Doe"), containsString("<"));
+    }
+
+    @Test
+    public void multiPartUploadingUsesEncoderConfigToKnowHowToSerializeCustomMimeTypesToJson() throws Exception {
+         // Given
+       final Greeting greeting = new Greeting();
+       greeting.setFirstName("John");
+       greeting.setLastName("Doe");
+
+       // When
+       given().
+               config(config().encoderConfig(encoderConfig().encodeContentTypeAs("application/vnd.ms-excel", ContentType.JSON))).
+               multiPart(new MultiPartSpecBuilder(greeting)
+                       .fileName("RoleBasedAccessFeaturePlan.csv")
+                       .controlName("text")
+                       .mimeType("application/vnd.ms-excel").build()).
+       when().
+               post("/multipart/text").
+       then().
+               statusCode(200).
+               body(containsString("John"), containsString("Doe"), containsString("{"));
+    }
+
+    @Test
+    public void multiPartUploadingUsesEncoderConfigToKnowHowToSerializeCustomMimeTypesToXml() throws Exception {
+         // Given
+       final Greeting greeting = new Greeting();
+       greeting.setFirstName("John");
+       greeting.setLastName("Doe");
+
+       // When
+       given().
+               config(config().encoderConfig(encoderConfig().encodeContentTypeAs("application/vnd.ms-excel", ContentType.XML))).
+               multiPart(new MultiPartSpecBuilder(greeting)
+                       .fileName("RoleBasedAccessFeaturePlan.csv")
+                       .controlName("text")
+                       .mimeType("application/vnd.ms-excel").build()).
+       when().
+               post("/multipart/text").
+       then().
+               statusCode(200).
+               body(containsString("John"), containsString("Doe"), containsString("<"));
+    }
+
+    @Test
+    public void multiPartUploadingThrowsExceptionWhenUsingEncoderConfigToSpecifyNonSerializableContentType() throws Exception {
+        // Given
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Cannot serialize because cannot determine how to serialize content-type application/vnd.ms-excel as HTML (no serializer supports this format)");
+
+        final Greeting greeting = new Greeting();
+        greeting.setFirstName("John");
+        greeting.setLastName("Doe");
+
+       // When
+       given().
+               config(config().encoderConfig(encoderConfig().encodeContentTypeAs("application/vnd.ms-excel", ContentType.HTML))).
+               multiPart(new MultiPartSpecBuilder(greeting)
+                       .fileName("RoleBasedAccessFeaturePlan.csv")
+                       .controlName("text")
+                       .mimeType("application/vnd.ms-excel").build()).
+       when().
+               post("/multipart/text");
+    }
 
    @Test
    public void multiPartUploadingWorksForMultipleStrings() throws Exception {

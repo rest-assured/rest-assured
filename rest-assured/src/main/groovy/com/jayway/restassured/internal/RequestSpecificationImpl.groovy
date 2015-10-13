@@ -33,9 +33,12 @@ import com.jayway.restassured.internal.log.LogRepository
 import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.internal.mapping.ObjectMapperSerializationContextImpl
 import com.jayway.restassured.internal.mapping.ObjectMapping
+import com.jayway.restassured.internal.multipart.MultiPartInternal
+import com.jayway.restassured.internal.multipart.MultiPartSpecificationImpl
+import com.jayway.restassured.internal.multipart.RestAssuredMultiPartEntity
 import com.jayway.restassured.internal.proxy.RestAssuredProxySelector
 import com.jayway.restassured.internal.proxy.RestAssuredProxySelectorRoutePlanner
-import com.jayway.restassured.internal.support.ParameterAppender
+import com.jayway.restassured.internal.support.ParameterUpdater
 import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.*
@@ -48,7 +51,6 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
-import org.apache.http.entity.mime.MultipartEntity
 import org.apache.http.impl.client.AbstractHttpClient
 import org.apache.http.message.BasicHeader
 
@@ -56,6 +58,7 @@ import java.security.KeyStore
 import java.util.Map.Entry
 import java.util.regex.Matcher
 
+import static com.jayway.restassured.config.ParamConfig.UpdateStrategy.REPLACE
 import static com.jayway.restassured.http.ContentType.*
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static com.jayway.restassured.internal.http.Method.*
@@ -69,13 +72,13 @@ import static org.apache.http.client.params.ClientPNames.*
 
 class RequestSpecificationImpl implements FilterableRequestSpecification, GroovyInterceptable {
   private static final int DEFAULT_HTTP_TEST_PORT = 8080
-  private static final String MULTIPART_FORM_DATA = "multipart/form-data"
   private static final String CONTENT_TYPE = "Content-Type"
   private static final String DOUBLE_SLASH = "//"
   private static final String LOCALHOST = "localhost"
   private static final String CHARSET = "charset"
   private static final String ACCEPT_HEADER_NAME = "Accept"
   public static final String SSL = "SSL"
+  public static final String MULTIPART_CONTENT_TYPE_PREFIX = "multipart/"
 
   private String baseUri
   private String path = ""
@@ -96,7 +99,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private boolean urlEncodingEnabled
   private RestAssuredConfig restAssuredConfig;
   private List<MultiPartInternal> multiParts = [];
-  private ParameterAppender parameterAppender = new ParameterAppender(new ParameterAppender.Serializer() {
+  private ParameterUpdater parameterUpdater = new ParameterUpdater(new ParameterUpdater.Serializer() {
     String serializeIfNeeded(Object value) {
       return RequestSpecificationImpl.this.serializeIfNeeded(value)
     }
@@ -301,7 +304,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification parameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
-    parameterAppender.appendParameters(parametersMap, requestParameters)
+    parameterUpdater.updateParameters(restAssuredConfig().paramConfig.requestParamsUpdateStrategy(), parametersMap, requestParameters)
     return this
   }
 
@@ -326,7 +329,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification parameter(String parameterName, Collection<?> parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
-    parameterAppender.appendCollectionParameter(requestParameters, parameterName, parameterValues)
+    parameterUpdater.updateCollectionParameter(restAssuredConfig().paramConfig.requestParamsUpdateStrategy(), requestParameters, parameterName, parameterValues)
     return this
   }
 
@@ -337,7 +340,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification queryParameter(String parameterName, Collection<?> parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
-    parameterAppender.appendCollectionParameter(queryParameters, parameterName, parameterValues)
+    parameterUpdater.updateCollectionParameter(restAssuredConfig().getParamConfig().queryParamsUpdateStrategy(), queryParameters, parameterName, parameterValues)
     return this
   }
 
@@ -353,7 +356,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification parameter(String parameterName, Object... parameterValues) {
     notNull parameterName, "parameterName"
-    parameterAppender.appendZeroToManyParameters(requestParameters, parameterName, parameterValues)
+    parameterUpdater.updateZeroToManyParameters(restAssuredConfig().paramConfig.requestParamsUpdateStrategy(), requestParameters, parameterName, parameterValues)
     return this
   }
 
@@ -365,13 +368,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification queryParameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
-    parameterAppender.appendParameters(parametersMap, queryParameters)
+    parameterUpdater.updateParameters(restAssuredConfig().paramConfig.queryParamsUpdateStrategy(), parametersMap, queryParameters)
     return this
   }
 
   def RequestSpecification queryParameter(String parameterName, Object... parameterValues) {
     notNull parameterName, "parameterName"
-    parameterAppender.appendZeroToManyParameters(queryParameters, parameterName, parameterValues)
+    parameterUpdater.updateZeroToManyParameters(restAssuredConfig().paramConfig.queryParamsUpdateStrategy(), queryParameters, parameterName, parameterValues)
     return this
   }
 
@@ -390,7 +393,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification formParameter(String parameterName, Collection<?> parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
-    parameterAppender.appendCollectionParameter(formParameters, parameterName, parameterValues)
+    parameterUpdater.updateCollectionParameter(restAssuredConfig().paramConfig.formParamsUpdateStrategy(), formParameters, parameterName, parameterValues)
     return this
   }
 
@@ -412,13 +415,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification formParameters(Map parametersMap) {
     notNull parametersMap, "parametersMap"
-    parameterAppender.appendParameters(parametersMap, formParameters)
+    parameterUpdater.updateParameters(restAssuredConfig().paramConfig.formParamsUpdateStrategy(), parametersMap, formParameters)
     return this
   }
 
   def RequestSpecification formParameter(String parameterName, Object... additionalParameterValues) {
     notNull parameterName, "parameterName"
-    parameterAppender.appendZeroToManyParameters(formParameters, parameterName, additionalParameterValues)
+    parameterUpdater.updateZeroToManyParameters(restAssuredConfig().paramConfig.formParamsUpdateStrategy(), formParameters, parameterName, additionalParameterValues)
     return this
   }
 
@@ -442,7 +445,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification pathParameter(String parameterName, Object parameterValue) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
-    parameterAppender.appendStandardParameter(pathParameters, parameterName, parameterValue)
+    parameterUpdater.updateStandardParameter(REPLACE, pathParameters, parameterName, parameterValue)
     return this
   }
 
@@ -454,7 +457,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def RequestSpecification pathParameters(Map parameterNameValuePairs) {
     notNull parameterNameValuePairs, "parameterNameValuePairs"
-    parameterAppender.appendParameters(parameterNameValuePairs, pathParameters)
+    parameterUpdater.updateParameters(REPLACE, parameterNameValuePairs, pathParameters)
     return this
   }
 
@@ -667,7 +670,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       return content(object.toString());
     }
 
-    this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, objectMappingConfig());
+    this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, objectMappingConfig(), restAssuredConfig().getEncoderConfig());
     this
   }
 
@@ -689,7 +692,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification body(Object object, ObjectMapperType mapperType) {
     notNull object, "object"
     notNull mapperType, "Object mapper type"
-    this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType, objectMappingConfig())
+    this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType, objectMappingConfig(), restAssuredConfig().getEncoderConfig())
     this
   }
 
@@ -910,8 +913,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  def RequestSpecification multiPart(String name, File file, String mimeType) {
-    multiParts << new MultiPartInternal(controlName: restAssuredConfig().getMultiPartConfig().defaultControlName(), content: file, mimeType: mimeType, fileName: file.getName())
+  def RequestSpecification multiPart(String controlName, File file, String mimeType) {
+    multiParts << new MultiPartInternal(controlName: controlName, content: file, mimeType: mimeType, fileName: file.getName())
     this
   }
 
@@ -923,6 +926,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification multiPart(String controlName, Object object, String mimeType) {
     def possiblySerializedObject = serializeIfNeeded(object, mimeType)
     multiParts << new MultiPartInternal(controlName: controlName, content: possiblySerializedObject, mimeType: mimeType, fileName: restAssuredConfig().getMultiPartConfig().defaultFileName())
+    this
+  }
+
+  def RequestSpecification multiPart(String controlName, String filename, Object object, String mimeType) {
+    def possiblySerializedObject = serializeIfNeeded(object, mimeType)
+    multiParts << new MultiPartInternal(controlName: controlName, content: possiblySerializedObject, mimeType: mimeType, fileName: filename)
     this
   }
 
@@ -1078,7 +1087,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def restAssuredResponse = new RestAssuredResponseImpl(logRepository: logRepository)
     def RestAssuredConfig cfg = config ?: new RestAssuredConfig();
     restAssuredResponse.setSessionIdName(cfg.getSessionConfig().sessionIdName())
-    restAssuredResponse.setDefaultCharset(cfg.getDecoderConfig().defaultContentCharset())
+    restAssuredResponse.setDecoderConfig(cfg.getDecoderConfig())
     restAssuredResponse.setConnectionManager(http.client.connectionManager)
     restAssuredResponse.setConfig(cfg)
     responseSpecification.restAssuredResponse = restAssuredResponse
@@ -1163,7 +1172,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   def applyEncoderConfig(HTTPBuilder httpBuilder, EncoderConfig encoderConfig) {
-    httpBuilder.encoders.setCharset(encoderConfig.defaultContentCharset())
+    httpBuilder.encoders.setEncoderConfig(encoderConfig)
   }
 
   def applyHttpClientConfig(HttpClientConfig httpClientConfig) {
@@ -1254,9 +1263,18 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     if (hasFormParams()) {
       convertFormParamsToMultiPartParams()
     }
-    http.encoders.putAt MULTIPART_FORM_DATA, { contentType, content ->
-      // TODO Add charset
-      MultipartEntity entity = new MultipartEntity(httpClientConfig().httpMultipartMode());
+
+
+    def contentTypeAsString = headers.getValue(CONTENT_TYPE)
+    def ct = ContentTypeExtractor.getContentTypeWithoutCharset(contentTypeAsString)
+    if (!ct?.toLowerCase()?.startsWith(MULTIPART_CONTENT_TYPE_PREFIX)) {
+      throw new IllegalArgumentException("Content-Type $ct is not valid when using multiparts, it must start with \"$MULTIPART_CONTENT_TYPE_PREFIX\".");
+    }
+
+    def subType = substringAfter(ct, MULTIPART_CONTENT_TYPE_PREFIX)
+    def charsetFromContentType = CharsetExtractor.getCharsetFromContentType(contentTypeAsString)
+    http.encoders.putAt ct, { contentType, content ->
+      RestAssuredMultiPartEntity entity = new RestAssuredMultiPartEntity(subType, charsetFromContentType, httpClientConfig().httpMultipartMode());
 
       multiParts.each {
         def body = it.contentBody
@@ -1343,7 +1361,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def contentType = headers.getValue(CONTENT_TYPE)
     if (contentType == null) {
       if (multiParts.size() > 0) {
-        contentType = MULTIPART_FORM_DATA
+        contentType = MULTIPART_CONTENT_TYPE_PREFIX + restAssuredConfig().getMultiPartConfig().defaultSubtype()
       } else if (GET.equals(method) && !formParameters.isEmpty()) {
         contentType = URLENC
       } else if (requestBody == null) {
@@ -1370,7 +1388,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private boolean shouldAppendCharsetToContentType(contentType) {
-    contentType != null && contentType != MULTIPART_FORM_DATA && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !containsIgnoreCase(contentType.toString(), CHARSET)
+    contentType != null && !startsWith(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX) && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !containsIgnoreCase(contentType.toString(), CHARSET)
   }
 
   private String getTargetURI(String path) {
@@ -1427,7 +1445,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private def serializeIfNeeded(Object object, contentType) {
-    isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, objectMappingConfig()) : object.toString()
+    isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, objectMappingConfig(), restAssuredConfig().getEncoderConfig()) : object.toString()
   }
 
   private def applyPathParamsAndSendRequest(Method method, String path, Object... pathParams) {
@@ -1632,6 +1650,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
           def tempCharset = CharsetExtractor.getCharsetFromContentType(contentType as String)
           if (tempCharset != null) {
             charset = tempCharset
+          } else if (encoderConfig().hasDefaultCharsetForContentType(contentType as String)) {
+            charset = encoderConfig().defaultCharsetForContentType(contentType as String)
           }
         }
       } else { // Query or path parameter
@@ -1790,7 +1810,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         Object val = headers1.get(key);
         if (val == null) {
           reqMethod.removeHeaders(key.toString())
-        } else if (!key.toString().equalsIgnoreCase(CONTENT_TYPE) || !val.toString().contains(MULTIPART_FORM_DATA)) {
+        } else if (!key.toString().equalsIgnoreCase(CONTENT_TYPE) || !val.toString().startsWith(MULTIPART_CONTENT_TYPE_PREFIX)) {
           // Don't overwrite multipart header because HTTP Client have added boundary
           def keyAsString = key.toString()
           if (val instanceof Collection) {
@@ -1909,7 +1929,18 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private def String findEncoderCharsetOrReturnDefault(String contentType) {
     def charset = CharsetExtractor.getCharsetFromContentType(contentType)
     if (charset == null) {
-      charset = config == null ? new EncoderConfig().defaultContentCharset() : config.getEncoderConfig().defaultContentCharset()
+      final EncoderConfig cfg
+      if (config == null) {
+        cfg = new EncoderConfig()
+      } else {
+        cfg = config.getEncoderConfig()
+      }
+
+      if (cfg.hasDefaultCharsetForContentType(contentType)) {
+        charset = cfg.defaultCharsetForContentType(contentType)
+      } else {
+        charset = cfg.defaultContentCharset()
+      }
     }
     charset
   }

@@ -16,15 +16,23 @@
 
 package com.jayway.restassured.builder;
 
+import com.jayway.restassured.http.ContentType;
+import com.jayway.restassured.internal.ResponseParserRegistrar;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
 import com.jayway.restassured.response.Cookies;
+import com.jayway.restassured.response.Header;
 import com.jayway.restassured.response.Headers;
 import com.jayway.restassured.response.Response;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.trim;
+import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 
 /**
  * A builder to make it easier to create new {@link Response} implementations. This is useful if you're working with {@link com.jayway.restassured.filter.Filter}s and want to
@@ -45,7 +53,7 @@ public class ResponseBuilder {
             restAssuredResponse.setContent(raResponse.getContent());
             restAssuredResponse.setHasExpectations(raResponse.getHasExpectations());
             restAssuredResponse.setDefaultContentType(raResponse.getDefaultContentType());
-            restAssuredResponse.setDefaultCharset(raResponse.getDefaultCharset());
+            restAssuredResponse.setDecoderConfig(raResponse.getDecoderConfig());
             restAssuredResponse.setSessionIdName(raResponse.getSessionIdName());
             restAssuredResponse.setConnectionManager(raResponse.getConnectionManager());
             restAssuredResponse.setConfig(raResponse.getConfig());
@@ -129,7 +137,6 @@ public class ResponseBuilder {
         return this;
     }
 
-
     /**
      * Set the content type of the response
      *
@@ -138,9 +145,38 @@ public class ResponseBuilder {
     public ResponseBuilder setContentType(String contentType) {
         notNull(contentType, "Content type");
         restAssuredResponse.setContentType(contentType);
+        setHeader(CONTENT_TYPE, contentType);
         return this;
     }
 
+    /**
+     * Set the content type of the response
+     *
+     * @return The builder
+     */
+    public ResponseBuilder setContentType(ContentType contentType) {
+        notNull(contentType, ContentType.class);
+        return setContentType(contentType.toString());
+    }
+
+    /**
+     * Set a specific header
+     *
+     * @return The builder
+     */
+    public ResponseBuilder setHeader(String name, String value) {
+        notNull(name, "Header name");
+        notNull(value, "Header value");
+
+        List<Header> newHeaders = new ArrayList<Header>(restAssuredResponse.headers().asList());
+        newHeaders.add(new Header(name, value));
+        restAssuredResponse.setResponseHeaders(new Headers(newHeaders));
+
+        if (trim(name).equalsIgnoreCase(CONTENT_TYPE)) {
+            restAssuredResponse.setContentType(value);
+        }
+        return this;
+    }
 
     /**
      * Set the status line of the response.
@@ -174,7 +210,12 @@ public class ResponseBuilder {
         if (statusCode < 100 || statusCode >= 600) {
             throw new IllegalArgumentException(format("Status code must be greater than 100 and less than 600, was %d.", statusCode));
         }
-        notNull("Status line", restAssuredResponse.statusLine());
+
+        if (StringUtils.isBlank(restAssuredResponse.statusLine())) {
+            restAssuredResponse.setStatusLine(restAssuredResponse.statusCode());
+        }
+
+        restAssuredResponse.setRpr(new ResponseParserRegistrar());
         return restAssuredResponse;
     }
 

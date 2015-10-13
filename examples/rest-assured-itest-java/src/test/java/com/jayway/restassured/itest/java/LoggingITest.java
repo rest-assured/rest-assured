@@ -202,7 +202,7 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/greet");
 
-        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe\nProxy:\t\t\t<none>\nRequest params:\tfirstName=John\n\t\t\t\tlastName=Doe\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nBody:\t\t\t<none>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe\nProxy:\t\t\t<none>\nRequest params:\tfirstName=John\n\t\t\t\tlastName=Doe\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+"\nCookies:\t\t<none>\nBody:\t\t\t<none>" + LINE_SEPARATOR));
     }
 
     @Test
@@ -758,7 +758,7 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/reflect");
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/reflect\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nBody:\nThis is not JSON" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest path:\thttp://localhost:8080/reflect\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+"\nCookies:\t\t<none>\nBody:\nThis is not JSON" + LINE_SEPARATOR));
     }
 
     @Test

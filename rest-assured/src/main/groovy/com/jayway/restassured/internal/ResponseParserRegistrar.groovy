@@ -80,10 +80,10 @@ class ResponseParserRegistrar {
         if(defaultParser != null) {
             return true
         }
-        return hasCustomParserExludingDefaultParser(contentType)
+        return hasCustomParserExcludingDefaultParser(contentType)
     }
 
-    def boolean hasCustomParserExludingDefaultParser(String contentType) {
+    def boolean hasCustomParserExcludingDefaultParser(String contentType) {
         def parser = getNonDefaultParser(contentType)
         return parser != null && (parser == Parser.XML || parser == Parser.JSON || parser == Parser.HTML);
     }

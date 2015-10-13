@@ -103,8 +103,7 @@ class XMLAssertion implements Assertion {
     }
 
     def Object getResult(object, config) {
-        boolean isRoot = config.getXmlConfig()?.declaredNamespaces()?.isEmpty() // Be root if no namespaces are declared
-        return getResult(object, true, isRoot)
+        return getResult(object, true, true)
     }
 
     def Object getChildResultAsJavaObject(Object object) {

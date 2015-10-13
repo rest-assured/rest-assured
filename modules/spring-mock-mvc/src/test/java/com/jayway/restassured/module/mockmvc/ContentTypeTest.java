@@ -17,7 +17,6 @@
 package com.jayway.restassured.module.mockmvc;
 
 import com.jayway.restassured.http.ContentType;
-import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.http.GreetingController;
 import com.jayway.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import org.junit.Test;
@@ -25,9 +24,11 @@ import org.powermock.reflect.Whitebox;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.util.MultiValueMap;
 
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
+import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.config;
 import static com.jayway.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,7 +52,30 @@ public class ContentTypeTest {
         then().
                statusCode(200);
 
-        assertThat(contentType.get()).isEqualTo("application/json;charset=" + RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset());
+        assertThat(contentType.get()).isEqualTo("application/json;charset=" + config().getEncoderConfig().defaultContentCharset());
+    }
+
+    @Test public void
+    adds_specific_charset_to_content_type_by_default() {
+        final AtomicReference<String> contentType = new AtomicReference<String>();
+
+        given().
+                standaloneSetup(new GreetingController()).
+                config(config().encoderConfig(encoderConfig().defaultCharsetForContentType(StandardCharsets.UTF_16.toString(), ContentType.JSON))).
+                contentType(ContentType.JSON).
+                interceptor(new MockHttpServletRequestBuilderInterceptor() {
+                    public void intercept(MockHttpServletRequestBuilder requestBuilder) {
+                        MultiValueMap<String, Object> headers = Whitebox.getInternalState(requestBuilder, "headers");
+                        contentType.set(String.valueOf(headers.getFirst("Content-Type")));
+                    }
+                }).
+        when().
+                get("/greeting?name={name}", "Johan").
+        then().
+               statusCode(200);
+
+        assertThat(contentType.get()).isEqualTo("application/json;charset=" + StandardCharsets.UTF_16.toString());
+        assertThat(contentType.get()).doesNotContain(config().getEncoderConfig().defaultContentCharset());
     }
 
     @Test public void
@@ -80,7 +104,7 @@ public class ContentTypeTest {
         final AtomicReference<String> contentType = new AtomicReference<String>();
 
         given().
-                config(RestAssuredMockMvcConfig.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
+                config(config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
                 standaloneSetup(new GreetingController()).
                 contentType(ContentType.JSON).
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {

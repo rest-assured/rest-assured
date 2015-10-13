@@ -47,8 +47,8 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void whenUsingTheDslAndExpectingAMultiValueCookieThenTheFirstValueIsUsed() throws Exception {
-        expect().cookie("cookie1", equalTo("cookieValue1")).when().get("/multiCookie");
+    public void whenUsingTheDslAndExpectingAMultiValueCookieThenTheLastValueIsUsed() throws Exception {
+        expect().cookie("cookie1", equalTo("cookieValue2")).when().get("/multiCookie");
     }
 
     @Test

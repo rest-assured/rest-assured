@@ -430,7 +430,7 @@ public class XmlPath {
         }
         final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
         xmlAssertion.setKey(root + path);
-        return (T) xmlAssertion.getResult(input, convertToJavaObject, !getXmlPathConfig().hasDeclaredNamespaces());
+        return (T) xmlAssertion.getResult(input, convertToJavaObject, true);
     }
 
     /**

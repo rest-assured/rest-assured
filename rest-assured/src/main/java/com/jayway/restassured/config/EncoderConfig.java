@@ -17,26 +17,35 @@
 package com.jayway.restassured.config;
 
 import com.jayway.restassured.http.ContentType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.protocol.HTTP;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
+import static org.apache.commons.lang3.StringUtils.trim;
 
 /**
  * Allows you to specify configuration for the encoder
  */
 public class EncoderConfig implements Config {
 
-    private static final String UTF_8 = "UTF-8";
+    private static final String UTF_8 = StandardCharsets.UTF_8.toString();
+    private static final Map<String, String> DEFAULT_CHARSET_FOR_CONTENT_TYPE = new HashMap<String, String>() {{
+        put(ContentType.JSON.toString(), UTF_8);
+        put("text/json", UTF_8);
+    }};
+
     private final String defaultContentCharset;
     private final String defaultQueryParameterCharset;
     private final boolean shouldAppendDefaultContentCharsetToContentTypeIfUndefined;
     private final Map<String, ContentType> contentEncoders;
+    private final Map<String, String> contentTypeToDefaultCharset;
     private final boolean isUserDefined;
 
     /**
@@ -50,18 +59,20 @@ public class EncoderConfig implements Config {
      * </p>
      */
     public EncoderConfig() {
-        this(HTTP.DEF_CONTENT_CHARSET.toString(), UTF_8, true, new HashMap<String, ContentType>(), true);
+        this(HTTP.DEF_CONTENT_CHARSET.toString(), UTF_8, true, new HashMap<String, ContentType>(), DEFAULT_CHARSET_FOR_CONTENT_TYPE, true);
     }
 
     public EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset) {
-        this(defaultContentCharset, defaultQueryParameterCharset, true, new HashMap<String, ContentType>(), true);
+        this(defaultContentCharset, defaultQueryParameterCharset, true, new HashMap<String, ContentType>(), DEFAULT_CHARSET_FOR_CONTENT_TYPE, true);
     }
 
     private EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset,
                           boolean shouldAppendDefaultContentCharsetToContentTypeIfUndefined,
-                          Map<String, ContentType> encoders, boolean isUserDefined) {
+                          Map<String, ContentType> encoders, Map<String, String> contentTypeToDefaultCharset,
+                          boolean isUserDefined) {
         Validate.notBlank(defaultContentCharset, "Default encoder content charset to cannot be blank. See \"appendDefaultContentCharsetToContentTypeIfMissing\" method if you like to disable automatically appending the charset to the content-type.");
         Validate.notBlank(defaultQueryParameterCharset, "Default protocol charset to cannot be blank.");
+        this.contentTypeToDefaultCharset = new HashMap<String, String>(contentTypeToDefaultCharset);
         this.defaultContentCharset = defaultContentCharset;
         this.defaultQueryParameterCharset = defaultQueryParameterCharset;
         this.shouldAppendDefaultContentCharsetToContentTypeIfUndefined = shouldAppendDefaultContentCharsetToContentTypeIfUndefined;
@@ -69,31 +80,148 @@ public class EncoderConfig implements Config {
         this.isUserDefined = isUserDefined;
     }
 
+    /**
+     * @return The default charset for a specific content-type. It will have precedence over {@link #defaultContentCharset()}.
+     */
+    public String defaultCharsetForContentType(String contentType) {
+        if (StringUtils.isEmpty(contentType)) {
+            return defaultContentCharset();
+        }
+        String charset = contentTypeToDefaultCharset.get(trim(contentType).toLowerCase());
+        if (charset == null) {
+            return defaultContentCharset();
+        }
+        return charset;
+    }
+
+    /**
+     * @return A map that contains default charset for a specific content-type. It will have precedence over {@link #defaultContentCharset()}.
+     */
+    public String defaultCharsetForContentType(ContentType contentType) {
+        if (contentType == null) {
+            return defaultContentCharset();
+        }
+        return defaultCharsetForContentType(contentType.toString());
+    }
+
+    /**
+     * @return A map that contains default charset for a specific content-type. It will have precedence over {@link #defaultContentCharset()}.
+     */
+    public boolean hasDefaultCharsetForContentType(String contentType) {
+        return !StringUtils.isBlank(contentType) && contentTypeToDefaultCharset.containsKey(trim(contentType).toLowerCase());
+    }
+
+    /**
+     * @return The default content charset for all content-types (unless specified in {@link #defaultCharsetForContentType(String)}.
+     */
     public String defaultContentCharset() {
         return defaultContentCharset;
     }
 
+    /**
+     * @return The default query parameter charset
+     */
     public String defaultQueryParameterCharset() {
         return defaultQueryParameterCharset;
     }
 
-    public EncoderConfig defaultContentCharset(String charset) {
-        return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, true);
+    /**
+     * Specify the default charset to use for the specific content-type if it's not specified in the content-type header explicitly
+     *
+     * @param charset     The charset to use as default (unless specified explicitly)
+     * @param contentType The content-type
+     * @return A new instance of {@link EncoderConfig}
+     */
+    public EncoderConfig defaultCharsetForContentType(String charset, String contentType) {
+        notNull(charset, "Charset");
+        notNull(contentType, "ContentType");
+        Map<String, String> map = new HashMap<String, String>(contentTypeToDefaultCharset);
+        map.put(trim(contentType).toLowerCase(), trim(charset));
+        return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, map, true);
     }
 
+    /**
+     * Specify the default charset to use for the specific content-type if it's not specified in the content-type header explicitly
+     *
+     * @param charset     The charset to use as default (unless specified explicitly)
+     * @param contentType The content-type
+     * @return A new instance of {@link EncoderConfig}
+     */
+    public EncoderConfig defaultCharsetForContentType(String charset, ContentType contentType) {
+        notNull(charset, "Charset");
+        notNull(contentType, ContentType.class);
+        Map<String, String> map = new HashMap<String, String>(contentTypeToDefaultCharset);
+        for (String ct : contentType.getContentTypeStrings()) {
+            map.put(ct.toLowerCase(), trim(charset));
+        }
+        return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, map, true);
+    }
+
+    /**
+     * Specify the default charset to use for the specific content-type if it's not specified in the content-type header explicitly
+     *
+     * @param charset     The charset to use as default (unless specified explicitly)
+     * @param contentType The content-type
+     * @return A new instance of {@link EncoderConfig}
+     */
+    public EncoderConfig defaultCharsetForContentType(Charset charset, ContentType contentType) {
+        notNull(charset, "Charset");
+        return defaultCharsetForContentType(charset.toString(), contentType);
+    }
+
+    /**
+     * Specify the default charset to use for the specific content-type if it's not specified in the content-type header explicitly
+     *
+     * @param charset     The charset to use as default (unless specified explicitly)
+     * @param contentType The content-type
+     * @return A new instance of {@link EncoderConfig}
+     */
+    public EncoderConfig defaultCharsetForContentType(Charset charset, String contentType) {
+        notNull(charset, "Charset");
+        return defaultCharsetForContentType(charset.toString(), contentType);
+    }
+
+    /**
+     * Specify the default charset for the body/content in the request specification
+     *
+     * @param charset The charset to use.
+     * @return A new instance of {@link EncoderConfig}
+     */
     public EncoderConfig defaultContentCharset(Charset charset) {
         String charsetAsString = notNull(charset, Charset.class).toString();
-        return new EncoderConfig(charsetAsString, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, true);
+        return new EncoderConfig(charsetAsString, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, contentTypeToDefaultCharset, true);
     }
 
+    /**
+     * Specify the default charset for query parameters
+     *
+     * @param charset The charset to use.
+     * @return A new instance of {@link EncoderConfig}
+     */
     public EncoderConfig defaultQueryParameterCharset(String charset) {
-        return new EncoderConfig(defaultContentCharset, charset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, true);
+        return new EncoderConfig(defaultContentCharset, charset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, contentTypeToDefaultCharset, true);
     }
 
+    /**
+     * Specify the default charset for query parameters
+     *
+     * @param charset The charset to use.
+     * @return A new instance of {@link EncoderConfig}
+     */
     @SuppressWarnings("UnusedDeclaration")
     public EncoderConfig defaultQueryParameterCharset(Charset charset) {
         String charsetAsString = notNull(charset, Charset.class).toString();
-        return new EncoderConfig(defaultContentCharset, charsetAsString, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, true);
+        return new EncoderConfig(defaultContentCharset, charsetAsString, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, contentTypeToDefaultCharset, true);
+    }
+
+    /**
+     * Specify the default charset for the body/content in the request specification
+     *
+     * @param charset The charset to use.
+     * @return A new instance of {@link EncoderConfig}
+     */
+    public EncoderConfig defaultContentCharset(String charset) {
+        return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, contentTypeToDefaultCharset, true);
     }
 
     /**
@@ -109,7 +237,7 @@ public class EncoderConfig implements Config {
      * @return A new {@link com.jayway.restassured.config.EncoderConfig} instance
      */
     public EncoderConfig appendDefaultContentCharsetToContentTypeIfUndefined(boolean shouldAddDefaultContentCharsetToContentTypeIfMissing) {
-        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAddDefaultContentCharsetToContentTypeIfMissing, contentEncoders, true);
+        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAddDefaultContentCharsetToContentTypeIfMissing, contentEncoders, contentTypeToDefaultCharset, true);
     }
 
     /**
@@ -121,7 +249,7 @@ public class EncoderConfig implements Config {
      */
     @Deprecated
     public EncoderConfig appendDefaultContentCharsetToStreamingContentTypeIfUndefined(boolean shouldAddDefaultContentCharsetToContentTypeIfMissing) {
-        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAddDefaultContentCharsetToContentTypeIfMissing, contentEncoders, true);
+        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAddDefaultContentCharsetToContentTypeIfMissing, contentEncoders, contentTypeToDefaultCharset, true);
     }
 
     /**
@@ -185,6 +313,6 @@ public class EncoderConfig implements Config {
         notNull(encoder, ContentType.class);
         Map<String, ContentType> newMap = new HashMap<String, ContentType>(contentEncoders);
         newMap.put(contentType, encoder);
-        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, newMap, true);
+        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, newMap, contentTypeToDefaultCharset, true);
     }
 }

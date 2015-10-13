@@ -34,9 +34,9 @@ public class NamespaceExpectationsITest extends WithJetty {
         given().
                 config(newConfig().xmlConfig(xmlConfig().declareNamespace("ns", "http://localhost/"))).
         expect().
-                body("bar.text()", equalTo("sudo make me a sandwich!")).
-                body(":bar.text()", equalTo("sudo ")).
-                body("ns:bar.text()", equalTo("make me a sandwich!")).
+                body("foo.bar.text()", equalTo("sudo make me a sandwich!")).
+                body(":foo.:bar.text()", equalTo("sudo ")).
+                body("foo.ns:bar.text()", equalTo("make me a sandwich!")).
         when().
                 get("/namespace-example");
     }
@@ -46,9 +46,9 @@ public class NamespaceExpectationsITest extends WithJetty {
         given().
                 config(newConfig().xmlConfig(xmlConfig().declareNamespace("test", "http://localhost/"))).
         expect().
-                body("bar.text()", equalTo("sudo make me a sandwich!")).
-                body(":bar.text()", equalTo("sudo ")).
-                body("test:bar.text()", equalTo("make me a sandwich!")).
+                body("foo.bar.text()", equalTo("sudo make me a sandwich!")).
+                body(":foo.:bar.text()", equalTo("sudo ")).
+                body("foo.test:bar.text()", equalTo("make me a sandwich!")).
         when().
                 get("/namespace-example");
     }
@@ -56,9 +56,9 @@ public class NamespaceExpectationsITest extends WithJetty {
     @Test public void
     doesnt_take_namespaces_into_account_when_no_namespace_is_declared() {
         expect().
-                body("bar.text()", equalTo("sudo make me a sandwich!")).
-                body(":bar.text()", equalTo("sudo make me a sandwich!")).
-                body("ns:bar.text()", equalTo("sudo make me a sandwich!")).
+                body("foo.bar.text()", equalTo("sudo make me a sandwich!")).
+                body(":foo.:bar.text()", equalTo("sudo ")).
+                body("foo.ns:bar.text()", equalTo("")).
         when().
                 get("/namespace-example");
     }
@@ -68,9 +68,9 @@ public class NamespaceExpectationsITest extends WithJetty {
         given().
                 config(newConfig().xmlConfig(xmlConfig().namespaceAware(true))).
         expect().
-                body("bar.text()", equalTo("sudo make me a sandwich!")).
-                body(":bar.text()", equalTo("sudo make me a sandwich!")).
-                body("ns:bar.text()", equalTo("sudo make me a sandwich!")).
+                body("foo.bar.text()", equalTo("sudo make me a sandwich!")).
+                body(":foo.:bar.text()", equalTo("sudo ")).
+                body("foo.ns:bar.text()", equalTo("")).
         when().
                 get("/namespace-example");
     }
@@ -80,9 +80,9 @@ public class NamespaceExpectationsITest extends WithJetty {
         given().
                 config(newConfig().xmlConfig(xmlConfig().declareNamespace("ns", "http://something.com"))).
         expect().
-                body("bar.text()", equalTo("sudo make me a sandwich!")).
-                body(":bar.text()", equalTo("sudo ")).
-                body("ns:bar.text()", isEmptyString()).
+                body("foo.bar.text()", equalTo("sudo make me a sandwich!")).
+                body(":foo.:bar.text()", equalTo("sudo ")).
+                body("foo.ns:bar.text()", isEmptyString()).
         when().
                 get("/namespace-example");
     }

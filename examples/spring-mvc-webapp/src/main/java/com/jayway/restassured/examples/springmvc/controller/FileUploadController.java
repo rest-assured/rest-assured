@@ -15,11 +15,9 @@
  */
 package com.jayway.restassured.examples.springmvc.controller;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -84,6 +82,13 @@ public class FileUploadController {
     @RequestMapping(value = "/fileUploadWithControlNameEqualToSomething", method = POST, consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
     public @ResponseBody String fileUploadWithControlNameEqualToSomething(@RequestParam(value = "something") MultipartFile file) {
         return "{ \"size\" : "+file.getSize()+", \"name\" : \""+file.getName()+"\", \"originalName\" : \""+file.getOriginalFilename() + "\", \"mimeType\" : \""+file.getContentType()+"\" }";
+    }
+
+    @RequestMapping(value = "/textAndReturnHeader", method = POST, consumes = "multipart/mixed", produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> fileUploadWithControlNameEqualToSomething(
+            @RequestHeader("Content-Type") String requestContentType,
+            @RequestParam(value = "something") MultipartFile file) {
+        return ResponseEntity.ok().header(APPLICATION_JSON_VALUE).header("X-Request-Header", requestContentType).body("{ \"size\" : " + file.getSize() + ", \"name\" : \"" + file.getName() + "\", \"originalName\" : \"" + file.getOriginalFilename() + "\", \"mimeType\" : \"" + file.getContentType() + "\" }");
     }
 
 }

@@ -64,6 +64,7 @@ public class URLEncodingParamITest {
     }
 
     @Test
+    @Ignore("Site is down atm")
     public void testUrlEncodingOnHeise() {
         assertEquals("foo", searchHeise("q=foo"));
         assertThat(searchHeise("q=%3F"), equalTo("%3F"));

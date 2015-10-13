@@ -92,6 +92,15 @@ class ScalatraRestExample extends ScalatraServlet {
     """{ "value" : "something" }"""
   }
 
+  get("/utf8-body-json") {
+    """{ "value" : "啊 ☆" }"""
+  }
+
+  get("/utf8-body-xml") {
+    contentType = "application/xml"
+    """<value>啊 ☆</value>"""
+  }
+
   get("/jsonStore") {
     "{ \"store\": {\n" +
       "    \"book\": [ \n" +
@@ -225,6 +234,12 @@ class ScalatraRestExample extends ScalatraServlet {
 
   post("/anotherGreetXML") {
     anotherGreetXML
+  }
+
+  post("/threeMultiValueParam") {
+    "{ \"list\" : \""+multiParams("list").mkString(",") +"\", " +
+            "\"list2\" : \"" + multiParams("list2").mkString(",") + "\", " +
+            "\"list3\" : \"" + multiParams("list3").mkString(",") + "\"}"
   }
 
   get("/multiValueParam") {
