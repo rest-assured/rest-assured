@@ -22,7 +22,6 @@ import org.apache.commons.lang3.Validate;
 import org.apache.http.protocol.HTTP;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,7 +34,7 @@ import static org.apache.commons.lang3.StringUtils.trim;
  */
 public class EncoderConfig implements Config {
 
-    private static final String UTF_8 = StandardCharsets.UTF_8.toString();
+    private static final String UTF_8 = "UTF-8";
     private static final Map<String, String> DEFAULT_CHARSET_FOR_CONTENT_TYPE = new HashMap<String, String>() {{
         put(ContentType.JSON.toString(), UTF_8);
         put("text/json", UTF_8);

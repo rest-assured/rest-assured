@@ -1,6 +1,7 @@
 Change log next version
 -----------------------
 * Significantly reduce sized of scala-support distribution package
+* Removed the use of StandardCharset from EncoderConfig which prevented EncoderConfig to be used on Java 6 and older.
 
 Change log 2.6.0 (2015-10-09)
 -----------------------------
