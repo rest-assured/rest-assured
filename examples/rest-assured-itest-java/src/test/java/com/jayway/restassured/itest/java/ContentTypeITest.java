@@ -341,6 +341,14 @@ public class ContentTypeITest extends WithJetty {
                 post("/textUriList");
     }
 
+    @Test public void
+    validates_content_type_even_when_it_is_a_204_response() {
+        given().post("/return204WithContentType")
+                .then()
+                .statusCode(204)
+                .contentType(ContentType.JSON);
+    }
+
     private String toJetty9(String charset) {
         return StringUtils.lowerCase(StringUtils.remove(charset, " "));
     }
