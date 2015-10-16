@@ -29,7 +29,7 @@ class ScalaITest {
   @Before
   def `Mock web server is initialized`() {
     webServer = new MockWebServer()
-    webServer.play()
+    webServer.start()
   }
 
   @After
