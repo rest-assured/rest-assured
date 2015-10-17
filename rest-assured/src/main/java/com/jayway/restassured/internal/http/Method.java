@@ -25,7 +25,7 @@ import org.apache.http.client.methods.*;
  * @author Johan Haleby
  */
 public enum Method {
-	GET( HttpGet.class ), 
+	GET( HttpGetWithBody.class ),
 	PUT( HttpPut.class ), 
 	POST( HttpPost.class ), 
 	DELETE( HttpDeleteWithBody.class ),

@@ -292,14 +292,6 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void getDoesntSupportsStringBody() throws Exception {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Cannot set a request body for a GET method");
-
-        given().body("a body").expect().body(equalTo("a body")).when().get("/body");
-    }
-
-    @Test
     public void supportsGettingListSize() throws Exception {
         expect().body("store.book.category.size()", equalTo(4)).when().get("/jsonStore");
     }

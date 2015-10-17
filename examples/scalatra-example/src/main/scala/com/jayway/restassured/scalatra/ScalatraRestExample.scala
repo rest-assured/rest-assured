@@ -57,6 +57,15 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(render(json))
   }
 
+  get("/getWithContent") {
+    if (request.body == "hullo") {
+      status = 200
+    } else {
+      status = 400
+      "No or incorrect content"
+    }
+  }
+
   get("/greetXML") {
     greetXML
   }
