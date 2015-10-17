@@ -2,6 +2,7 @@ Change log next version
 -----------------------
 * Significantly reduce sized of scala-support distribution package
 * Removed the use of StandardCharset from EncoderConfig which prevented EncoderConfig to be used on Java 6 and older.
+* Added support for sending a request body in a GET request (issue 544). Thanks to Manuel Möhlmann for pull request.Update
 
 Change log 2.6.0 (2015-10-09)
 -----------------------------
@@ -676,7 +677,7 @@ Change log 1.8.0 (2013-04-01)
 * Expecting content type to be a pre-defined content type (such as ContentType.XML) now accepts many kinds of different variations (thanks to exsuscito for the help) (issue 213).
 * Upgraded to Groovy 2.1.2
 * It's now possible to configure JsonPath with various settings so as returning a BigDecimal instead of floats and doubles. You can do this either statically using:
-	  JsonPath.config = new JsonPathConfig(..);  
+	  JsonPath.config = new JsonPathConfig(..);
   or per instance:
 	  new JsonPath().using(new JsonPathConfig(..)).get(..);
 * It's now possible to configure REST Assured to return BigDecimal instead of floats and doubles. You can do this either statically using:
@@ -731,14 +732,14 @@ Change log 1.6.2 (2012-05-28)
 * You can now use all kinds of Collection instances (and not only List's as in the previous versions) as multi-value parameters (issue 165).
 * The specified content-type header is no longer ignored when specifying binary request body content (issue 167).
 * REST Assured now closes the HTTP Client connection after each invocation (issue 168).
-* JsonPath can now parse JSON documents with attribute names including dots and minus at the same time, e.g. 
+* JsonPath can now parse JSON documents with attribute names including dots and minus at the same time, e.g.
   	{ "a-b"  : "minus" , "a.b" : "dot"  , "a.b-c" : "both"  }"
   we can now get the result from "a.b-c" using:
         from(json).get("'a.b-c'"); // Returns "both"
-  (issue 172).  
+  (issue 172).
 * Fixed a NPE when getting the session id when no cookies were defined (issue 173).
 * You can now serialize Java objects to JSON and XML in multi-part bodies. E.g.
-       given().multiPart("controlName", myJavaObject, "application/json"). .. 
+       given().multiPart("controlName", myJavaObject, "application/json"). ..
   will serialize "myJavaObject" to a JSON string automatically (issue 166).
 * Fixed a bug that prevented using a single named path parameter multiple times. I.e. this will now work:
 	given().
@@ -755,7 +756,7 @@ Change log 1.6.1 (2012-04-05)
 * Default encoder is set to binary instead of url encoded. This means that when setting a binary body with an (by REST Assured) unrecognized content-type it will automatically be treated as an octet stream.
 * Closed input stream when getting response body as byte-array (issue 163)
 * Improved session support. You can now define a session id value in the DSL:
-    given().sessionId("1234"). .. 
+    given().sessionId("1234"). ..
   or for each request:
     RestAssured.sessionId = "1234";
   By default the session id name is JSESSIONID but you can change it using the SessionConfig:
@@ -767,7 +768,7 @@ Change log 1.6.1 (2012-04-05)
 Change log 1.6 (2012-02-18)
 ---------------------------
 * Forked HTTPBuilder. This means that a lot of workarounds that had to be made in the past can be removed in the future. It also means that the Groovy version is updated to version 1.8 and HTML parsing is greatly improved as well as many other minor changes and improvements (issue 112).
-* The HTTP Delete method now supports a method body 
+* The HTTP Delete method now supports a method body
 * PUT request now work for multi part form data uploading
 * Added support for pretty-printing the request and response body when logging if content-type is XML, JSON or HTML. Pretty-printing is enabled by default but it could be disabled either by:
 	RestAssured.config = config().logConfig(logConfig().enablePrettyPrinting(false));
@@ -778,14 +779,14 @@ Change log 1.6 (2012-02-18)
   (issue 140)
 * Fixed a serious issue with content-type validation, it was actually ignored in the previous versions (issue 146).
 * XmlPath supports prettifying and pretty-printing XML and HTML, for example:
-	String prettyXml = with(someXml).prettify(); // Return a prettified XML string. 
+	String prettyXml = with(someXml).prettify(); // Return a prettified XML string.
   or print the XML to System.out and then return it:
-        String prettyXml = with(someXml).prettyPrint(); // Prints and returns a prettified XML string. 
+        String prettyXml = with(someXml).prettyPrint(); // Prints and returns a prettified XML string.
   "with" is statically imported from com.jayway.restassured.path.xml.XmlPath (issue 147).
 * JsonPath supports prettifying and pretty-printing JSON documents, for example:
-	String prettyJson = with(someJson).prettify(); // Return a prettified JSON string. 
+	String prettyJson = with(someJson).prettify(); // Return a prettified JSON string.
   or print the JSON to System.out and then return it:
-        String prettyJson = with(someJson).prettyPrint(); // Prints and returns a prettified JSON string. 
+        String prettyJson = with(someJson).prettyPrint(); // Prints and returns a prettified JSON string.
   "with" is statically imported from com.jayway.restassured.path.json.JsonPath (issue 147).
 * REST Assured now automatically detects content-types ending with +xml, +json and +html (for example application/something+json) and parses the content with the corresponding parser. This means that you don't need to register custom parsers for these kind of content-types (issue 142).
 * Added support for using "bracket notation" for parsing unnamed JSON root arrays. For example consider the following JSON document:
@@ -800,8 +801,8 @@ Change log 1.6 (2012-02-18)
 	given().queryParam("someParameterName").when().get("/something");
   This works for both "request parameters", query parameters and form parameters. (issue 143)
 * Added support for getting integer JSON types without escaping, e.g. {"0":"value"} can now be parsed as ..body("0", equalTo("value"). (issue 150)
-* REST Assured now takes the charset into consideration for both the request and the response. E.g. 
-	given().contentType("application/xml; charset=US-ASCII").and().body("my body"). .. will encode the body as US-ASCII. 
+* REST Assured now takes the charset into consideration for both the request and the response. E.g.
+	given().contentType("application/xml; charset=US-ASCII").and().body("my body"). .. will encode the body as US-ASCII.
   you can also specify the default charset for each request:
 	RestAssured.config = newConfig().encoderConfig(encoderConfig().defaultContentCharset("US-ASCII"));
   (issue 132)
@@ -824,7 +825,7 @@ Change log 1.5 (2011-12-20)
 * Added methods "noFilters" and "noFiltersOfType" to RequestSpecification to allow for removal of filters. This is useful when specifying a default filter statically (e.g. a custom authentication filter) but you need to remove it in a Filter implementation in order to make requests without this filter.
 * Improved JsonPath to automatically convert e.g. ints to Strings if explicitly requested.
 * Fixed an issue with detailed cookie parsing that prevent the "secured" attribute to be parsed correctly.
-* Fixed a bug that failed to apply the root path for multi-body expectations, e.g this will now work: 
+* Fixed a bug that failed to apply the root path for multi-body expectations, e.g this will now work:
    expect().
           root("store.book").
           body(
@@ -840,16 +841,16 @@ Change log 1.5 (2011-12-20)
 * Fixed an issue with PUT method duplicating form parameters as query parameters (issue 137)
 * Fixed so that JSON path fragments starting with @ are escaped automatically (issue 138).
 * Fixed a serious bug in the response parsing which ignored changes made to the response from a filter when using the DSL (issue 139).
-* Created a ResponseBuilder to make it easier to create new Response implementations. This is useful if you're working with filters and want to change the response you get from the sever somehow. E.g. 
+* Created a ResponseBuilder to make it easier to create new Response implementations. This is useful if you're working with filters and want to change the response you get from the sever somehow. E.g.
 	Response myResponse = new ResponseBuilder().clone(originalResponse).setBody("Something").build();
 * Allows configuring redirect settings using the DSL, e.g.
 	given().redirects().max(12).and().redirects().follow(true).when(). .. (issue 24)
-* Support for passing in a keystore located on the file-system, e.g. 
-	given().keystore(new File(".."), "password"). .. 
+* Support for passing in a keystore located on the file-system, e.g.
+	given().keystore(new File(".."), "password"). ..
   or for all requests:
 	RestAssured.keystore(new File(".."), "password"). ..
   You can also specify the path to the file system as a string as well:
-       	given().keystore("some/path/my_keystore.jks", "password"). .. 
+       	given().keystore("some/path/my_keystore.jks", "password"). ..
   In this case REST Assured will first try to find the keystore in the classpath but if it was not found it will look in the file-system (issue 136).
 * Status code and status line are now validated before headers and cookies (issue 131).
 * Quotes from strings in error messages has been removed.
@@ -898,8 +899,8 @@ Change log 1.4.5 (2011-11-08)
 * Fixed a bug in the specification merger which caused FormAuthFilters to be applied twice if using multiple specifications with form auth.
 * Fixed a serious bug in the cookie response parsing that caused cookie attributes to be parsed as a new cookie (issue 130).
 * This version introduces a number of non-backward compatible change: The headers() and getHeaders() methods in com.jayway.restassured.response.Response no longer return a Map of key-value pairs, it now returns an instance of com.jayway.restassured.response.Headers. The reason for this is to allow for multi-value headers. These are headers that has several values for the same header name, e.g. "headerName=value1" and "headerName=value2". See javadoc in com.jayway.restassured.response.Headers for more info.
-* Added support for getting "detailed cookies". A detailed cookie contains information such as Expiry Date, Path, Version etc. To get a detailed cookie use com.jayway.restassured.response.Response#getDetailedCookie(<cookie name>) or to get all use com.jayway.restassured.response.Response#getDetailedCookies(). 
-* Added support for sending detailed cookies, e.g.  
+* Added support for getting "detailed cookies". A detailed cookie contains information such as Expiry Date, Path, Version etc. To get a detailed cookie use com.jayway.restassured.response.Response#getDetailedCookie(<cookie name>) or to get all use com.jayway.restassured.response.Response#getDetailedCookies().
+* Added support for sending detailed cookies, e.g.
 	Cookie someCookie = new Cookie.Builder("some_cookie", "some_value").setSecured(true).build();
 	given().cookie(someCookie).and().expect().body(equalTo("x")).when().get("/cookie");
   you can also send multiple detailed cookies at the same time:
@@ -908,7 +909,7 @@ Change log 1.4.5 (2011-11-08)
 	Cookies cookies = new Cookies(cookie1, cookie2);
 	given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
   (issue 99).
-* Added support for mapping a path to a Java object in JsonPath, e.g: Book book = from(JSON).getObject("store.book[2]", Book.class); (half of issue 125)  
+* Added support for mapping a path to a Java object in JsonPath, e.g: Book book = from(JSON).getObject("store.book[2]", Book.class); (half of issue 125)
 
 Change log 1.4 (2011-10-07)
 ---------------------------
@@ -918,7 +919,7 @@ Change log 1.4 (2011-10-07)
 * RestAssured.baseURI now works as expected. You can now use e.g. RestAssured.baseURI = "http://somehost.org:1234" and the subsequent requests will automatically go to that URI as base (issue 54).
 * Rest Assured now throws a java.lang.AssertionError instead of AssertionFailedException (issue 100).
 * Added support for setting a default Parser. This parser will automatically be used to parse all responses whose content-type doesn't match a pre-defined parser. You can set the default parser for all responses using:
-	  RestAssured.defaultParser = Parser.JSON;  
+	  RestAssured.defaultParser = Parser.JSON;
   or for a single response:
 	  expect().defaultParser(Parser.JSON).when(..).
   or using a response specification builder:
@@ -931,7 +932,7 @@ Change log 1.4 (2011-10-07)
   This requires the the response content-type is defined. If you want to map the response using a specific object mapper you can do like this:
 		SomeObject someObject = get("/something").as(SomeObject.class, ObjectMapper.GSON);
   Note that Rest Assured doesn't explicitly depend on any of the object mappers so you need to add them to the classpath manually or using a Maven dependency (issue 19).
-* Support for mapping a Java Object to JSON or XML using Jackson, Gson or JAXB. Use e.g. "given().contentType("application/json").and().body(someObject).when().post("/something");" 
+* Support for mapping a Java Object to JSON or XML using Jackson, Gson or JAXB. Use e.g. "given().contentType("application/json").and().body(someObject).when().post("/something");"
   You can also specify an explicit object mapper instead of a content-type:
 	given().body(someObject, ObjectMapper.JACKSON).when().post("/something");
   (issue 118).
@@ -946,7 +947,7 @@ Change log 1.4 (2011-10-07)
     String messageBody = get("/message").jsonPath().getString("message.body");
   (issue 110, 116).
 * Fixed a bug when using a form auth per request and a default form auth which added two form auth filters to the filter list causing multiple requests to made to the server.
- 
+
 Change log 1.3.1 (2011-09-20)
 -----------------------------
 * Fixed a trivial bug in the error message that is displayed when no parser is found for a certain content type (issue 103).
@@ -1001,9 +1002,9 @@ Change log 1.2.2 (2011-06-28)
    {"email":"name2@mail.com","alias":"name two","phone":"1234567"},
    {"email":"name3@mail.com","alias":"name three","phone":"2345678"}]
   You can then parse the entire JSON snippet to a List of Map like this:
-     List<Map<String, String>> result = from(json).get("$"); 
+     List<Map<String, String>> result = from(json).get("$");
   or
-   List<Map<String, String>> result = from(json).get(""); 
+   List<Map<String, String>> result = from(json).get("");
   (issue 78)
 * Added support for explicitly specifiying form parameters, e.g. using given().formParam("name", "value"). This is useful e.g. when sending a PUT request with both form params and query params (issue 75).
 * It's now possible to check that a header does NOT exist: expect().header("someheader", nullValue()). (issue 74).
@@ -1014,7 +1015,7 @@ Change log 1.2.2 (2011-06-28)
   when().
           get("/{firstName}/{lastName}");
  (issue 36)
-* Support for specifying a Java keystore when using SSL. This is useful when you run into e.g. SSLPeerUnverifiedException when the server has an invalid certificate. Usage: 
+* Support for specifying a Java keystore when using SSL. This is useful when you run into e.g. SSLPeerUnverifiedException when the server has an invalid certificate. Usage:
   given().keystore("/pathToJksInClassPath", <password>)
   For more info refer to http://groovy.codehaus.org/modules/http-builder/doc/ssl.html (issue 79).
 * Fixed an issue that could cause parameters to be treated as lists parameters.
@@ -1032,18 +1033,18 @@ Change log 1.2.1 (2011-05-23)
 Change log 1.2 (2011-05-22)
 ---------------------------
 * Better support for multi-value parameters. You can now defined them using a List:
-    with().param("list", asList("1", "2", "3)). .. 
+    with().param("list", asList("1", "2", "3)). ..
   or with var-args:
-    with().param("list", "1", "2", "3). .. 
+    with().param("list", "1", "2", "3). ..
 * Added support for form authentication: given().auth().form("username", "password")... Rest Assured will automatically parse the login page and try to find the form action and the username and password input fields. If it fails to do so or if you want a faster request you can supply a FormAuthConfig as a third param that providers Rest Assured with these parameters. E.g. given().auth().form("username", "password", new FormAuthConfig(..)).. There's a pre-defined form auth config for Spring Security: given().auth().form("username", "password", FormAuthConfig.springSecurity())... You can also specify form as default authentication for all requests: RestAssured.authentication = form("username", "password");. (issue 61).
-* Added support for filters with which you can inspect and alter a request before it's actually committed and also inspect and alter the response before it's returned to the expectations. You can regard it as an "around advice" in AOP terms. Filters can be used to implement custom authentication schemes, logging, session management etc. You implement com.jayway.restassured.filter.Filter and register it using: given().filter(new MyFilter()). .. or set it as default: RestAssured.filters(asList(new MyFilter()); (issue 71).	
+* Added support for filters with which you can inspect and alter a request before it's actually committed and also inspect and alter the response before it's returned to the expectations. You can regard it as an "around advice" in AOP terms. Filters can be used to implement custom authentication schemes, logging, session management etc. You implement com.jayway.restassured.filter.Filter and register it using: given().filter(new MyFilter()). .. or set it as default: RestAssured.filters(asList(new MyFilter()); (issue 71).
 * You can now define and expect cookies without values using e.g. given().cookie("some_cookie").. or expect().cookie("some_cookie").. (issue 69).
 * You can now specify default request and response content type using RestAssured.requestContentType(..) and RestAssured.responseContentType(..). (issue 68).
 * Support for specifying string content types (issue 72).
 * Support for specifying default request and response specifications (issue 67).
 * Added support for printing response body using filters. E.g. given().filter(ErrorLogger.errorLogger()).. will print the response body if an error occurred (400 <= status code <= 500). You can also use the ResponseLoggingFilter to print response bodies for all status codes: given().filter(ResponseLoggingFilter.loggingFilter()).., or you can make it print only for specific status codes: given().filter(ResponseLoggingFilter.logResponseIfStatusCodeIs(302)).. and you can even use Hamcrest matchers: given().filter(ResponseLoggingFilter.logResponseIfStatusCodeIs(greaterThan(200)))..
   There's also a shortcut for error logging:
-    given().logOnError(). or expect().logOnError(). .. 
+    given().logOnError(). or expect().logOnError(). ..
   and for logging:
     given().log(). or expect().log(). (issue 66).
 * Added support for easily printing the response after a request (if the expectations pass), e.g. expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe").print();
@@ -1080,20 +1081,20 @@ Change log 1.1.5 (2011-03-28)
   when().
           get("/something");
   You can also set a default root path using: RestAssured.rootPath = "x.y"; (issue 47)
-* It's now possible to reuse specifications accross different tests (issue 46). E.g. 
+* It's now possible to reuse specifications accross different tests (issue 46). E.g.
   ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).expectBody("x.y.size()", is(2)).build();
- 
+
   expect().
          spec(responseSpec).
          body("x.y.z", equalTo("something")).
   when().
          get("/something");
 
-  The "responseSpec" can now be reused in a completely different test without having to duplicate the expecations in the "responseSpec" for each test. 
+  The "responseSpec" can now be reused in a completely different test without having to duplicate the expecations in the "responseSpec" for each test.
 
   The same thing can be achieved for request specifications:
   RequestSpecification requestSpec = new RequestSpecBuilder().addParameter("parameter1", "value1").build();
-  
+
   given().
           spec(requestSpec).
   expect().
@@ -1109,7 +1110,7 @@ Change log 1.1.2 (2011-03-04)
 -----------------------------
 * Fixed so that POST requests can return a response (e.g. Response response = post("/somewhere");) when an error occurred (status code 400 to 999). (issue 37).
 * You can now get the status line and status code from the Response (issue 40). E.g
-      Response" response = get("/something"); 
+      Response" response = get("/something");
       String statusLine = response.getStatusLine();"
 * Corrected some javadoc issues.
 
@@ -1118,7 +1119,7 @@ Change log 1.1.1 (2011-03-02)
 * Added support for getting headers and cookies from the Response, e.g. String headerValue = get("/something").andReturn().header("headerName"); (issue 27)
 * Fixed so that you don't need to add a "@" when calling getAttribute(..) on Node in XmlPath (issue 34)
 * Added support for validating XML body using XSD e.g. "expect().body(matchesXsd(xsd)).when().get("/carRecords");" where matchesXsd(..) is a REST-Assured Hamcrest matcher located in com.jayway.restassured.matcher.RestAssuredMatchers and "xsd" can be either a String, InputStream, Reader, URL or File (issue 29).
-* Added support for validating XML body using DTD e.g. "expect().body(matchesDtd(dtd)).when().get("/videos");" where matchesDtd(..) is a REST-Assured Hamcrest matcher located in com.jayway.restassured.matcher.RestAssuredMatchers and "dtd" can be either a String, InputStream, URL or File (issue 29). 
+* Added support for validating XML body using DTD e.g. "expect().body(matchesDtd(dtd)).when().get("/videos");" where matchesDtd(..) is a REST-Assured Hamcrest matcher located in com.jayway.restassured.matcher.RestAssuredMatchers and "dtd" can be either a String, InputStream, URL or File (issue 29).
 * Improved error messages on illegal paths when expecting XML (issue 35).
 
 
