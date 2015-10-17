@@ -1150,6 +1150,11 @@ class ScalatraRestExample extends ScalatraServlet {
       request.getContentType
   }
 
+  post("/return204WithContentType") {
+    contentType = "application/json"
+    status = 204
+  }
+
   def formAuth(loginPage: () => String) = {
     contentType = "text/plain"
     val cookies: Array[Cookie] = request.getCookies
