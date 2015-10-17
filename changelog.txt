@@ -2,7 +2,8 @@ Change log next version
 -----------------------
 * Significantly reduce sized of scala-support distribution package
 * Removed the use of StandardCharset from EncoderConfig which prevented EncoderConfig to be used on Java 6 and older.
-* Added support for sending a request body in a GET request (issue 544). Thanks to Manuel Möhlmann for pull request.Update
+* Added support for sending a request body in a GET request (issue 544). Thanks to Manuel Möhlmann for pull request.
+* Response content-type validation now works correctly even if the response body is empty (issue 566). Thanks to Manuel Möhlmann for pull request.
 
 Change log 2.6.0 (2015-10-09)
 -----------------------------
