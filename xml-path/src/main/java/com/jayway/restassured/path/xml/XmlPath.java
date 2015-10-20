@@ -48,8 +48,8 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.path.xml.XmlPath.CompatibilityMode.XML;
 
 /**
- * XmlPath is an alternative to using XPath for easily getting values from an XML document. It follows the Groovy <a href="http://groovy.codehaus.org/GPath">GPath</a> syntax
- * described <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">here</a>. <br>Let's say we have an XML defined as;
+ * XmlPath is an alternative to using XPath for easily getting values from an XML document. It follows the Groovy <a href="http://docs.groovy-lang.org/latest/html/documentation/#_gpath">GPath</a> syntax
+ * described <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">here</a>. <br>Let's say we have an XML defined as;
  * <pre>
  * &lt;shopping&gt;
  * &lt;category type=&quot;groceries&quot;&gt;
@@ -298,7 +298,7 @@ public class XmlPath {
 
     /**
      * Get the entire XML graph as an Object
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @return The XML Node. A {@link java.lang.ClassCastException} will be thrown if the object
      * cannot be casted to the expected type.
@@ -309,7 +309,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @param <T>  The type of the return value.
@@ -323,7 +323,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a list. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @param <T>  The list type
@@ -336,7 +336,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a list. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path        The XML path.
      * @param genericType The generic list type
@@ -350,7 +350,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a map. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @param <K>  The type of the expected key
@@ -364,7 +364,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a map. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path      The XML path.
      * @param keyType   The type of the expected key
@@ -435,7 +435,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as an int. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
@@ -448,7 +448,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a boolean. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
@@ -461,7 +461,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a {@link Node}. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
@@ -473,7 +473,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a {@link com.jayway.restassured.path.xml.element.NodeChildren}. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
@@ -485,7 +485,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a char. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
@@ -498,7 +498,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a byte. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
@@ -511,7 +511,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a short. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
@@ -524,7 +524,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a float. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
@@ -537,7 +537,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a double. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
@@ -550,7 +550,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a long. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
@@ -563,7 +563,7 @@ public class XmlPath {
 
     /**
      * Get the result of an XML path expression as a string. For syntax details please refer to
-     * <a href="http://groovy.codehaus.org/Updating+XML+with+XmlSlurper">this</a> url.
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
      *
      * @param path The XML path.
      * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object

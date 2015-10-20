@@ -143,7 +143,7 @@ public interface RequestSpecification extends RequestSender {
      * </pre>
      * </p>
      * Since the content-type is "application/json" then REST Assured will automatically try to serialize the object using
-     * <a href="http://jackson.codehaus.org/">Jackson</a> or <a href="http://code.google.com/p/google-gson/">Gson</a> if they are
+     * <a href="https://github.com/FasterXML/jackson">Jackson</a> or <a href="https://github.com/google/gson">Gson</a> if they are
      * available in the classpath. If any of these frameworks are not in the classpath then an exception is thrown.
      * <br />
      * If the content-type is "application/xml" then REST Assured will automatically try to serialize the object using <a href="http://jaxb.java.net/">JAXB</a>
@@ -320,7 +320,7 @@ public interface RequestSpecification extends RequestSender {
      * </pre>
      * </p>
      * Since the content-type is "application/json" then REST Assured will automatically try to serialize the object using
-     * <a href="http://jackson.codehaus.org/">Jackson</a> or <a href="http://code.google.com/p/google-gson/">Gson</a> if they are
+     * <a href="https://github.com/FasterXML/jackson">Jackson</a> or <a href="https://github.com/google/gson">Gson</a> if they are
      * available in the classpath. If any of these frameworks are not in the classpath then an exception is thrown.
      * <br />
      * If the content-type is "application/xml" then REST Assured will automatically try to serialize the object using <a href="http://jaxb.java.net/">JAXB</a>
@@ -956,7 +956,7 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification config(RestAssuredConfig config);
 
     /**
-     * The following documentation is taken from <a href="HTTP Builder">http://groovy.codehaus.org/modules/http-builder/doc/ssl.html</a>:
+     * The following documentation is taken from <a href="HTTP Builder">https://github.com/jgritman/httpbuilder/wiki/SSL</a>:
      * <p>
      * <h1>SSL Configuration</h1>
      * <p/>
