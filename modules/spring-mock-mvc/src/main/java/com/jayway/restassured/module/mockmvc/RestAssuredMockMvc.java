@@ -21,6 +21,7 @@ import com.jayway.restassured.filter.log.LogDetail;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import com.jayway.restassured.module.mockmvc.internal.MockMvcFactory;
 import com.jayway.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
+import com.jayway.restassured.module.mockmvc.internal.StandaloneMockMvcFactory;
 import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme;
 import com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSender;
@@ -200,7 +201,7 @@ public class RestAssuredMockMvc {
      *                                        as @{link MockMvcConfigurer}'s to apply
      */
     public static void standaloneSetup(Object... controllersOrMockMvcConfigurers) {
-        mockMvcFactory = new MockMvcFactory(MockMvcBuilders.standaloneSetup(controllersOrMockMvcConfigurers));
+        mockMvcFactory = StandaloneMockMvcFactory.of(controllersOrMockMvcConfigurers);
     }
 
     /**
