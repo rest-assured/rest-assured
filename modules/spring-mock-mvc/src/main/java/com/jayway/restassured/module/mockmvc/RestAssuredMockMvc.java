@@ -196,10 +196,11 @@ public class RestAssuredMockMvc {
      * a majority of controllers. A much smaller number of tests can be used
      * to focus on testing and verifying the actual Spring MVC configuration.
      *
-     * @param controllers one or more {@link org.springframework.stereotype.Controller @Controller}'s to test
+     * @param controllersOrMockMvcConfigurers one or more {@link org.springframework.stereotype.Controller @Controller}'s to test as well
+     *                                        as @{link MockMvcConfigurer}'s to apply
      */
-    public static void standaloneSetup(Object... controllers) {
-        mockMvcFactory = new MockMvcFactory(MockMvcBuilders.standaloneSetup(controllers));
+    public static void standaloneSetup(Object... controllersOrMockMvcConfigurers) {
+        mockMvcFactory = new MockMvcFactory(MockMvcBuilders.standaloneSetup(controllersOrMockMvcConfigurers));
     }
 
     /**
