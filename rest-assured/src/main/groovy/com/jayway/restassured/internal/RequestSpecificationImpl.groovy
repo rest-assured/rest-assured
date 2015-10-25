@@ -971,41 +971,31 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  def invokeFilterChain(originalPath, path, uri, method, assertionClosure) {
-    if (authenticationScheme instanceof NoAuthScheme && !(defaultAuthScheme instanceof NoAuthScheme)) {
-      // Use default auth scheme
-      authenticationScheme = defaultAuthScheme
+  def newFilterContext(String path, Object[] unnamedPathParams, method, assertionClosure, filters) {
+    notNull path, "path"
+    notNull unnamedPathParams, "Path params"
+
+    if (path?.endsWith("?")) {
+      throw new IllegalArgumentException("Request URI cannot end with ?");
     }
 
-    originalPath = PathSupport.getPath(originalPath)
+    def uri = applyPathParamsAndEncodePath(path, unnamedPathParams)
+    def substitutedPath = PathSupport.getPath(uri)
 
-    if (authenticationScheme instanceof FormAuthScheme) {
-      // Form auth scheme is handled a bit differently than other auth schemes since it's implemented by a filter.
-      def formAuthScheme = authenticationScheme as FormAuthScheme
-      filters.removeAll { AuthFilter.class.isAssignableFrom(it.getClass()) }
-      filters.add(0, new FormAuthFilter(userName: formAuthScheme.userName, password: formAuthScheme.password, formAuthConfig: formAuthScheme.config, sessionConfig: sessionConfig()))
+    def originalPath = PathSupport.getPath(path)
+
+    // Set default accept header if undefined
+    if (!headers.hasHeaderWithName(ACCEPT_HEADER_NAME)) {
+      header(ACCEPT_HEADER_NAME, ANY.getAcceptHeader())
     }
 
-    def logConfig = restAssuredConfig().getLogConfig()
-    if (logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
-      if (!filters.any { RequestLoggingFilter.class.isAssignableFrom(it.getClass()) }) {
-        log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled())
-      }
-      if (!filters.any { ResponseLoggingFilter.class.isAssignableFrom(it.getClass()) }) {
-        responseSpecification.log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled())
-      }
+    def tempContentType = defineRequestContentTypeAsString(method)
+    if (tempContentType != null) {
+      header(CONTENT_TYPE, tempContentType)
     }
-
-    filters << new SendRequestFilter(uri: uri)
 
     String requestUriForLogging = generateRequestUriForLogging(uri, method)
-    restAssuredConfig = config ?: new RestAssuredConfig()
-    def ctx = new FilterContextImpl(requestUriForLogging, originalPath, path, uri, method, assertionClosure, filters);
-    // We pass in this here because of a bug in the Groovy compiler, http://jira.codehaus.org/browse/GROOVY-4647 (when it's fixed 9619c3b should be used instead)
-    httpClient = httpClientConfig().httpClientInstance()
-    def response = ctx.next(this, responseSpecification)
-    responseSpecification.assertionClosure.validate(response)
-    return response;
+    new FilterContextImpl(requestUriForLogging, originalPath, substitutedPath, uri, path, unnamedPathParams, method, assertionClosure, filters);
   }
 
   private def String generateRequestUriForLogging(path, method) {
@@ -1452,30 +1442,36 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private def applyPathParamsAndSendRequest(Method method, String path, Object... pathParams) {
-    notNull path, "path"
-    notNull pathParams, "Path params"
-
-    if (path?.endsWith("?")) {
-      throw new IllegalArgumentException("Request URI cannot end with ?");
+    if (authenticationScheme instanceof NoAuthScheme && !(defaultAuthScheme instanceof NoAuthScheme)) {
+      // Use default auth scheme
+      authenticationScheme = defaultAuthScheme
     }
 
-    def uri = applyPathParamsAndEncodePath(path, pathParams)
-    def substitutedPath = PathSupport.getPath(uri)
-
-    // Set default accept header if undefined
-    if (!headers.hasHeaderWithName(ACCEPT_HEADER_NAME)) {
-      header(ACCEPT_HEADER_NAME, ANY.getAcceptHeader())
+    if (authenticationScheme instanceof FormAuthScheme) {
+      // Form auth scheme is handled a bit differently than other auth schemes since it's implemented by a filter.
+      def formAuthScheme = authenticationScheme as FormAuthScheme
+      filters.removeAll { AuthFilter.class.isAssignableFrom(it.getClass()) }
+      filters.add(0, new FormAuthFilter(userName: formAuthScheme.userName, password: formAuthScheme.password, formAuthConfig: formAuthScheme.config, sessionConfig: sessionConfig()))
     }
-
-    def tempContentType = defineRequestContentTypeAsString(method)
-    if (tempContentType != null) {
-      header(CONTENT_TYPE, tempContentType)
+    def logConfig = restAssuredConfig().getLogConfig()
+    if (logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
+      if (!filters.any { RequestLoggingFilter.class.isAssignableFrom(it.getClass()) }) {
+        log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled())
+      }
+      if (!filters.any { ResponseLoggingFilter.class.isAssignableFrom(it.getClass()) }) {
+        responseSpecification.log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled())
+      }
     }
-
-    invokeFilterChain(path, substitutedPath, uri, method, responseSpecification.assertionClosure)
+    restAssuredConfig = config ?: new RestAssuredConfig()
+    filters << new SendRequestFilter()
+    def ctx = newFilterContext(path, pathParams, method, responseSpecification.assertionClosure, filters.iterator())
+    httpClient = httpClientConfig().httpClientInstance()
+    def response = ctx.next(this, responseSpecification)
+    responseSpecification.assertionClosure.validate(response)
+    return response
   }
 
-  private def String applyPathParamsAndEncodePath(String path, Object... unnamedPathParams) {
+  def String applyPathParamsAndEncodePath(String path, Object... unnamedPathParams) {
     def unnamedPathParamSize = unnamedPathParams.size()
     def namedPathParamSize = this.pathParameters.size()
     def namedPathParams = this.pathParameters

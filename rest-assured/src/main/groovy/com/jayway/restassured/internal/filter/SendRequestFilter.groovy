@@ -25,10 +25,8 @@ import com.jayway.restassured.specification.FilterableResponseSpecification
 
 class SendRequestFilter implements Filter {
 
-  def uri
-
   @Override
   Response filter(FilterableRequestSpecification requestSpecification, FilterableResponseSpecification responseSpecification, FilterContext context) {
-    return requestSpecification.sendRequest(uri, context.getRequestMethod(), context.assertionClosure, requestSpecification)
+    return requestSpecification.sendRequest(context.getInternalRequestURI(), context.getRequestMethod(), context.assertionClosure, requestSpecification)
   }
 }

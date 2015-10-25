@@ -544,7 +544,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
         String uriPath = PathSupport.getPath(uri);
         String originalUriPath = PathSupport.getPath(originalPath);
-        requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(uri, uriPath, originalUriPath, uri, Method.valueOf(method.toString()), null, Collections.<Filter>emptyList()));
+        requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(uri, originalUriPath, uriPath, uri, uri, new Object[0], Method.valueOf(method.toString()), null, Collections.<Filter>emptyList().iterator()));
     }
 
     private String fileToString(File file, String charset) {

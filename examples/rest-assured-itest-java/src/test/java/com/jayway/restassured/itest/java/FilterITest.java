@@ -179,6 +179,25 @@ public class FilterITest extends WithJetty {
         assertThat(contentType.get(), equalTo("application/x-www-form-urlencoded"));
     }
 
+    @Test public void
+    it_is_possible_to_change_port_and_base_path_from_filters() {
+        given().
+                basePath("/x").
+                port(80).
+                filter((requestSpec, responseSpec, ctx) -> {
+                    requestSpec.port(8080);
+                    requestSpec.basePath("/John");
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/Doe").
+        then().
+                statusCode(200).
+                body("firstName", equalTo("John")).
+                body("lastName", equalTo("Doe")).
+                body("fullName", equalTo("John Doe"));
+    }
+
     public static class CountingFilter implements Filter {
 
         public int counter = 0;

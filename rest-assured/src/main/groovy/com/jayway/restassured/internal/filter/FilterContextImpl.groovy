@@ -19,6 +19,7 @@ package com.jayway.restassured.internal.filter
 
 import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.filter.FilterContext
+import com.jayway.restassured.internal.RequestSpecificationImpl
 import com.jayway.restassured.internal.http.Method
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
@@ -29,20 +30,36 @@ import org.codehaus.groovy.runtime.ReflectionMethodInvoker
 class FilterContextImpl implements FilterContext {
   def private Iterator<Filter> filters
   def private requestUri;
-  def private path;
+  def private substituedPath;
   def private originalPath;
   def private Method method;
   def assertionClosure
   def properties = [:]
   // The difference between internalRequestUri and requestUri is that query parameters defined outside the path is not included
   def private internalRequestUri
+  def private Object[] unnamedPathParams
+  def private String userDefinedPath
 
-  FilterContextImpl(String requestUri, String pathWithParameters, String path, String internalRequestUri, Method method, assertionClosure, List<Filter> filterList) {
+  /**
+   * @param requestUri The full request uri including query params and encoding etc
+   * @param fullOriginalPath The original path without any path parameters applied (merged with base path)
+   * @param fullSubstitutedPath The substituted path with path parameters applied (merged with base path)
+   * @param internalRequestUri An internal request URI where query parameters not explicitly defined in the path are missing
+   * @param userDefinedPath The path that the user defined as a part of the request (for example if get("/x") then "/x" is the user defined path)
+   * @param unnamedPathParams the unnamed path parameters passed to the invocation method (for example if get("/{x}/{y}", "z", "w") then ["z", "w"] are the unnamed path params)
+   * @param method The method (e.g. GET, POST, PUT etc)
+   * @param assertionClosure (the assertions that should be performed after the request)
+   * @param filters The remaining filters to invoke
+   */
+  FilterContextImpl(String requestUri, String fullOriginalPath, String fullSubstitutedPath, String internalRequestUri, String userDefinedPath, Object[] unnamedPathParams,
+                    Method method, assertionClosure, Iterator<Filter> filters) {
+    this.userDefinedPath = userDefinedPath
+    this.unnamedPathParams = unnamedPathParams
     this.internalRequestUri = internalRequestUri
-    this.filters = filterList.iterator()
+    this.filters = filters
     this.requestUri = requestUri
-    this.originalPath = pathWithParameters
-    this.path = path
+    this.originalPath = fullOriginalPath
+    this.substituedPath = fullSubstitutedPath
     this.method = method
     this.assertionClosure = assertionClosure
   }
@@ -50,12 +67,13 @@ class FilterContextImpl implements FilterContext {
   Response next(FilterableRequestSpecification request, FilterableResponseSpecification response) {
     if (filters.hasNext()) {
       def next = filters.next();
-      return next.filter(request, response, this)
+      def filterContext = (request as RequestSpecificationImpl).newFilterContext(userDefinedPath, unnamedPathParams, method, assertionClosure, filters)
+      return next.filter(request, response, filterContext)
     }
   }
 
   String getRequestPath() {
-    path
+    substituedPath
   }
 
   String getOriginalRequestPath() {
@@ -68,6 +86,10 @@ class FilterContextImpl implements FilterContext {
 
   String getRequestURI() {
     requestUri
+  }
+
+  String getInternalRequestURI() {
+    internalRequestUri
   }
 
   String getCompleteRequestPath() {
