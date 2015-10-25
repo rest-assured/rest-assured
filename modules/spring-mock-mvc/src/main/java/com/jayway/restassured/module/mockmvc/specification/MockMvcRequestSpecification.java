@@ -864,8 +864,8 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * Add one or more result handlers. They will be executed after when the response is received.
      *
      * @return The request specification
-     * @deprecated Use {@link com.jayway.restassured.module.mockmvc.response.ValidatableMockMvcResponse#apply} instead. For example: <code>get("/x").then().apply(print());</code>
      * @see ResultHandler
+     * @deprecated Use {@link com.jayway.restassured.module.mockmvc.response.ValidatableMockMvcResponse#apply} instead. For example: <code>get("/x").then().apply(print());</code>
      */
     @Deprecated
     MockMvcRequestSpecification resultHandlers(ResultHandler resultHandler, ResultHandler... resultHandlers);
@@ -881,11 +881,11 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * Build a {@link MockMvc} by registering one or more {@code @Controller}'s
      * instances and configuring Spring MVC infrastructure programmatically.
      * This allows full control over the instantiation and initialization of
-     * controllers, and their dependencies, similar to plain unit tests while
+     * controllerOrMockMvcConfigurer, and their dependencies, similar to plain unit tests while
      * also making it possible to test one controller at a time.
      * <p/>
      * <p>When this option is used, the minimum infrastructure required by the
-     * {@link org.springframework.web.servlet.DispatcherServlet} to serve requests with annotated controllers is
+     * {@link org.springframework.web.servlet.DispatcherServlet} to serve requests with annotated controllerOrMockMvcConfigurer is
      * automatically created, and can be customized, resulting in configuration
      * that is equivalent to what the MVC Java configuration provides except
      * using builder style methods.
@@ -896,9 +896,10 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * a majority of controllers. A much smaller number of tests can be used
      * to focus on testing and verifying the actual Spring MVC configuration.
      *
-     * @param controllers one or more {@link org.springframework.stereotype.Controller @Controller}'s to test
+     * @param controllerOrMockMvcConfigurer one or more {@link org.springframework.stereotype.Controller @Controller}'s to test
+     *                                      or a combination of controllers and {@link MockMvcConfigurer}
      */
-    MockMvcRequestSpecification standaloneSetup(Object... controllers);
+    MockMvcRequestSpecification standaloneSetup(Object... controllerOrMockMvcConfigurer);
 
     /**
      * Build a {@link MockMvc} by using a provided {@code AbstractMockMvcBuilder}

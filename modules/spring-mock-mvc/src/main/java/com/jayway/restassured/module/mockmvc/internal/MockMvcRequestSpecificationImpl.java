@@ -47,6 +47,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
+import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
@@ -141,8 +142,23 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return changeMockMvcFactoryTo(new MockMvcFactory(mockMvc));
     }
 
-    public MockMvcRequestSpecification standaloneSetup(Object... controllers) {
-        return changeMockMvcFactoryTo(new MockMvcFactory(MockMvcBuilders.standaloneSetup(controllers)));
+    public MockMvcRequestSpecification standaloneSetup(Object... controllerOrMockMvcConfigurer) {
+        List<Object> controllers = new ArrayList<Object>();
+        List<MockMvcConfigurer> configurers = new ArrayList<MockMvcConfigurer>();
+        for (Object object : controllerOrMockMvcConfigurer) {
+            if (object instanceof MockMvcConfigurer) {
+                configurers.add((MockMvcConfigurer) object);
+            } else {
+                controllers.add(object);
+            }
+        }
+        StandaloneMockMvcBuilder mockMvc = MockMvcBuilders.standaloneSetup(controllers.toArray());
+        if (!configurers.isEmpty()) {
+            for (MockMvcConfigurer configurer : configurers) {
+                mockMvc.apply(configurer);
+            }
+        }
+        return changeMockMvcFactoryTo(new MockMvcFactory(mockMvc));
     }
 
     public MockMvcRequestSpecification standaloneSetup(MockMvcBuilder builder) {

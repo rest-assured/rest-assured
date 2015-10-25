@@ -19,12 +19,12 @@ package com.jayway.restassured.module.mockmvc.internal;
 import static com.jayway.restassured.internal.classpath.ClassPathResolver.existInCP;
 
 /**
- * Checks whether or not the spring-security-test module is in classpath
+ * Checks whether or not the spring-restdocs-mockmvc module is in classpath
  */
-class SpringSecurityTestClassPathChecker {
-    private static final String SECURITY_MOCK_MVC_CONFIGURERS_CLASS_NAME = "org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers";
+class RestDocsClassPathChecker {
+    private static final String REST_DOCUMENTATION_REQUEST_BUILDERS_CLASS_NAME = "org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders";
 
-    public static boolean isSpringSecurityTestInClasspath() {
-        return existInCP(SECURITY_MOCK_MVC_CONFIGURERS_CLASS_NAME);
+    public static boolean isSpringRestDocsInClasspath() {
+        return existInCP(REST_DOCUMENTATION_REQUEST_BUILDERS_CLASS_NAME);
     }
 }

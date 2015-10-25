@@ -14,6 +14,9 @@ Change log next version
   For example previously you did "given().resultHandlers(print()).when().get("/x")" but now you do "get("/x").then().apply(print())" (issue 607)
 * Automatically escapes "class" keyword in JsonPath and XmlPath (issue 598)
 * Taking DecoderConfig when parsing non-string content (issue 599)
+* It's now possible to supply MockMvcConfigurers when calling standaloneSetup in the Spring Mock MVC module. For example:
+      given().standaloneSetup(new Controller1(), springSecurity()). ..
+* Automatically adds supports for spring rest docs path parameter documentation if spring-restdocs-mockmvc is in classpath. This can be disabled using the MockMvcConfig (issue 606).
 
 Change log 2.6.0 (2015-10-09)
 -----------------------------

@@ -28,16 +28,19 @@ public class MockMvcConfig implements Config {
 
     private final boolean userConfigured;
     private final boolean automaticallyApplySpringSecurityMockMvcConfigurer;
+    private final boolean automaticallyApplySpringRestDocsMockMvcSupport;
 
     /**
      * Creates a default {@link MockMvcConfig} that automatically applies the <code>SecurityMockMvcConfigurer</code> if available in classpath.
      */
     public MockMvcConfig() {
-        this(true, false);
+        this(true, true, false);
     }
 
-    private MockMvcConfig(boolean shouldAutomaticallyApplySpringSecurityMockMvcConfigurer, boolean isUserConfigured) {
+    private MockMvcConfig(boolean shouldAutomaticallyApplySpringSecurityMockMvcConfigurer, boolean automaticallyApplySpringRestDocsMockMvcSupport,
+                          boolean isUserConfigured) {
         this.automaticallyApplySpringSecurityMockMvcConfigurer = shouldAutomaticallyApplySpringSecurityMockMvcConfigurer;
+        this.automaticallyApplySpringRestDocsMockMvcSupport = automaticallyApplySpringRestDocsMockMvcSupport;
         this.userConfigured = isUserConfigured;
     }
 
@@ -45,7 +48,14 @@ public class MockMvcConfig implements Config {
      * Instruct REST Assured Mock Mvc not to automatically apply the SpringSecurityMockMvcConfigurer even if it's available in the classpath.
      */
     public MockMvcConfig dontAutomaticallyApplySpringSecurityMockMvcConfigurer() {
-        return new MockMvcConfig(false, true);
+        return new MockMvcConfig(false, automaticallyApplySpringRestDocsMockMvcSupport, true);
+    }
+
+    /**
+     * Instruct REST Assured Mock Mvc not to automatically apply support for <code>spring-restdocs-mockmvc</code> even if it's available in the classpath.
+     */
+    public MockMvcConfig dontAutomaticallyApplySpringRestDocsMockMvcSupport() {
+        return new MockMvcConfig(automaticallyApplySpringSecurityMockMvcConfigurer, false, true);
     }
 
     /**
@@ -58,7 +68,17 @@ public class MockMvcConfig implements Config {
      * @return a new instance of {@link MockMvcConfig}.
      */
     public MockMvcConfig automaticallyApplySpringSecurityMockMvcConfigurer(boolean shouldAutomaticallyApplySpringSecurityMockMvcConfigurer) {
-        return new MockMvcConfig(shouldAutomaticallyApplySpringSecurityMockMvcConfigurer, true);
+        return new MockMvcConfig(shouldAutomaticallyApplySpringSecurityMockMvcConfigurer, automaticallyApplySpringRestDocsMockMvcSupport, true);
+    }
+
+    /**
+     * Instructs REST Assured whether or not to automatically support <code>spring-restdocs-mockmvc</code> if available in classpath.
+     *
+     * @param automaticallyApplySpringRestDocsMockMvcSupport <code>true</code> if Spring Rest Docs MockMvc support should be automatically applied if available in classpath, <code>false</code> otherwise.
+     * @return a new instance of {@link MockMvcConfig}.
+     */
+    public MockMvcConfig automaticallyApplySpringRestDocsMockMvcSupport(boolean automaticallyApplySpringRestDocsMockMvcSupport) {
+        return new MockMvcConfig(automaticallyApplySpringSecurityMockMvcConfigurer, automaticallyApplySpringRestDocsMockMvcSupport, true);
     }
 
     /**
@@ -68,14 +88,31 @@ public class MockMvcConfig implements Config {
      * @see #automaticallyApplySpringSecurityMockMvcConfigurer(boolean)
      */
     public MockMvcConfig automaticallyApplySpringSecurityMockMvcConfigurer() {
-        return new MockMvcConfig(true, true);
+        return new MockMvcConfig(true, automaticallyApplySpringRestDocsMockMvcSupport, true);
     }
 
     /**
-     * @return A list of packages to scan for mock mvc configurers
+     * Instruct REST Assured Mock Mvc to automatically apply support for <code>spring-restdocs-mockmvc</code> if it's available in the classpath.
+     *
+     * @return a new instance of {@link MockMvcConfig}.
+     * @see #automaticallyApplySpringRestDocsMockMvcSupport(boolean)
+     */
+    public MockMvcConfig automaticallyApplySpringRestDocsMockMvcSupport() {
+        return new MockMvcConfig(automaticallyApplySpringSecurityMockMvcConfigurer, true, true);
+    }
+
+    /**
+     * @return whether or not REST Assured should automatically try to apply support for Spring Security test if it's available in classpath
      */
     public boolean shouldAutomaticallyApplySpringSecurityMockMvcConfigurer() {
         return automaticallyApplySpringSecurityMockMvcConfigurer;
+    }
+
+    /**
+     * @return whether or not REST Assured should automatically try to apply support for <code>spring-restdocs-mockmvc</code> if it's available in classpath
+     */
+    public boolean shouldAutomaticallyApplySpringRestDocsMockMvcSupport() {
+        return automaticallyApplySpringRestDocsMockMvcSupport;
     }
 
     public boolean isUserConfigured() {

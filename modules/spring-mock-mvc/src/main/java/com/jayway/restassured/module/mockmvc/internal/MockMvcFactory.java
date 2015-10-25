@@ -76,7 +76,6 @@ public class MockMvcFactory {
                     builder.apply(new ConditionalSpringMockMvcConfigurer(configurer));
                 }
             }
-
             mockMvcToReturn = builder.build();
         } else if (mockMvc instanceof MockMvcBuilder) {
             mockMvcToReturn = ((MockMvcBuilder) mockMvc).build();
