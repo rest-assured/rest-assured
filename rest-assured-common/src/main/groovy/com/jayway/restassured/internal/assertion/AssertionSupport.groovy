@@ -68,6 +68,15 @@ class AssertionSupport {
     }
   }
 
+  def static classKeyword() {
+    new GetPathFragmentEscaper() {
+      @Override
+      boolean shouldEscape(String pathFragment) {
+        !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('class') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, space, listIndexEndFragment])
+      }
+    }
+  }
+
   def static attributeGetter() {
     new QuoteFragmentEscaper() {
       @Override

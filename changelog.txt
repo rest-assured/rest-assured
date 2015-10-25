@@ -11,7 +11,8 @@ Change log next version
    3. getCompleteRequestPath has been deprecated, use getRequestURI
    4. getOriginalRequestPath has been added which returns the path of the request BEFORE path parameters have been applied to it
 * Deprecated "resultHandlers" method in MockMvcRequestSpecification and added "apply" method to com.jayway.restassured.module.mockmvc.response.ValidatableMockMvcResponse that should be used instead.
-  For example previously you did "given().resultHandlers(print()).when().get("/x")" but now you do "get("/x").then().apply(print())"
+  For example previously you did "given().resultHandlers(print()).when().get("/x")" but now you do "get("/x").then().apply(print())" (issue 607)
+* Automatically escapes "class" keyword in JsonPath and XmlPath (issue 598)
 
 Change log 2.6.0 (2015-10-09)
 -----------------------------
