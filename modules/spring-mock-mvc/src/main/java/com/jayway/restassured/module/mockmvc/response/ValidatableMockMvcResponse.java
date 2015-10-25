@@ -17,6 +17,7 @@
 package com.jayway.restassured.module.mockmvc.response;
 
 import com.jayway.restassured.response.ValidatableResponseOptions;
+import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 /**
@@ -48,4 +49,13 @@ public interface ValidatableMockMvcResponse extends ValidatableResponseOptions<V
      * @return The {@link ValidatableMockMvcResponse} instance.
      */
     ValidatableMockMvcResponse assertThat(ResultMatcher resultMatcher);
+
+    /**
+     * Apply one or more result handlers.
+     *
+     * @param resultHandler The first result handler
+     * @param resultHandlers Additional result handlers to add (optional)
+     * @return The {@link ValidatableMockMvcResponse} instance.
+     */
+    ValidatableMockMvcResponse apply(ResultHandler resultHandler, ResultHandler... resultHandlers);
 }

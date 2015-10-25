@@ -864,8 +864,10 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * Add one or more result handlers. They will be executed after when the response is received.
      *
      * @return The request specification
+     * @deprecated Use {@link com.jayway.restassured.module.mockmvc.response.ValidatableMockMvcResponse#apply} instead. For example: <code>get("/x").then().apply(print());</code>
      * @see ResultHandler
      */
+    @Deprecated
     MockMvcRequestSpecification resultHandlers(ResultHandler resultHandler, ResultHandler... resultHandlers);
 
     /**

@@ -25,6 +25,7 @@ import com.jayway.restassured.module.mockmvc.response.MockMvcResponse;
 import com.jayway.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
 import com.jayway.restassured.response.ExtractableResponse;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
@@ -55,6 +56,23 @@ public class ValidatableMockMvcResponseImpl extends ValidatableResponseOptionsIm
 
     public ValidatableMockMvcResponse assertThat(ResultMatcher resultMatcher) {
         return expect(resultMatcher);
+    }
+
+    public ValidatableMockMvcResponse apply(ResultHandler resultHandler, ResultHandler... resultHandlers) {
+        notNull(resultHandler, ResultMatcher.class);
+        try {
+            resultActions.andDo(resultHandler);
+        } catch (Exception e) {
+            SafeExceptionRethrower.safeRethrow(e);
+        }
+        for (ResultHandler handler : resultHandlers) {
+            try {
+                resultActions.andDo(handler);
+            } catch (Exception e) {
+                SafeExceptionRethrower.safeRethrow(e);
+            }
+        }
+        return this;
     }
 
     public MockMvcResponse originalResponse() {
