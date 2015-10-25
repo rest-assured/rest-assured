@@ -54,8 +54,40 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
+    public void possibleToGetOriginalRequestPathForUnnamedPathParams() throws Exception {
+        given().
+                filter((requestSpec, responseSpec, ctx) -> {
+                    assertThat(ctx.getOriginalRequestPath(), equalTo("/{firstName}/{lastName}"));
+                    assertThat(ctx.getRequestURI(), equalTo("http://localhost:8080/John/Doe"));
+                    assertThat(ctx.getRequestPath(), equalTo("/John/Doe"));
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/{firstName}/{lastName}", "John", "Doe").
+        then().
+                body("fullName", equalTo("John Doe"));
+    }
+
+    @Test
+    public void possibleToGetOriginalRequestPathForNamedPathParams() throws Exception {
+        given().
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+                filter((requestSpec, responseSpec, ctx) -> {
+                    assertThat(ctx.getOriginalRequestPath(), equalTo("/{firstName}/{lastName}"));
+                    assertThat(ctx.getRequestPath(), equalTo("/John/Doe"));
+                    assertThat(ctx.getRequestURI(), equalTo("http://localhost:8080/John/Doe"));
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/{firstName}/{lastName}").
+        then().
+                body("fullName", equalTo("John Doe"));
+    }
+
+    @Test
     public void supportsPassingPathParamsAsMapToRequestSpec() throws Exception {
-        final Map<String, Object> params = new HashMap<String, Object>();
+        final Map<String, Object> params = new HashMap<>();
         params.put("firstName", "John");
         params.put("lastName", 42);
         expect().body("fullName", equalTo("John 42")).when().get("/{firstName}/{lastName}", params);
@@ -84,7 +116,7 @@ public class PathParamITest extends WithJetty {
 
     @Test
     public void urlEncodesPathParamsInMap() throws Exception {
-        final Map<String, String> params = new HashMap<String, String>();
+        final Map<String, String> params = new HashMap<>();
         params.put("firstName", "John: å");
         params.put("lastName", "Doe");
 
@@ -96,7 +128,7 @@ public class PathParamITest extends WithJetty {
         RestAssured.urlEncodingEnabled = false;
 
         try {
-            final Map<String, String> params = new HashMap<String, String>();
+            final Map<String, String> params = new HashMap<>();
             params.put("firstName", "John%20å");
             params.put("lastName", "Doe");
 
@@ -115,7 +147,7 @@ public class PathParamITest extends WithJetty {
 
     @Test
     public void supportsPassingPathParamsAsMapToGet() throws Exception {
-        final Map<String, String> params = new HashMap<String, String>();
+        final Map<String, String> params = new HashMap<>();
         params.put("firstName", "John=me");
         params.put("lastName", "Doe");
 
@@ -184,7 +216,7 @@ public class PathParamITest extends WithJetty {
 
     @Test
     public void supportsPassingPathParamsWithMapWithGiven() throws Exception {
-        final Map<String, String> params = new HashMap<String, String>();
+        final Map<String, String> params = new HashMap<>();
         params.put("firstName", "John");
         params.put("lastName", "Doe");
 
@@ -198,7 +230,7 @@ public class PathParamITest extends WithJetty {
 
     @Test
     public void supportsPassingPathParamsWithIntWithMapWhenGiven() throws Exception {
-        final Map<String, Object> params = new HashMap<String, Object>();
+        final Map<String, Object> params = new HashMap<>();
         params.put("firstName", "John");
         params.put("lastName", 42);
 
@@ -212,7 +244,7 @@ public class PathParamITest extends WithJetty {
 
     @Test
     public void mergesPathParamsMapWithNonMapWhenGiven() throws Exception {
-        final Map<String, Object> params = new HashMap<String, Object>();
+        final Map<String, Object> params = new HashMap<>();
         params.put("firstName", "John");
 
         given().
@@ -395,14 +427,14 @@ public class PathParamITest extends WithJetty {
                 pathParam("param2Value", "Hello\u0085").
                 filter(new Filter() {
                     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody(ctx.getRequestPath()).build();
+                        return new ResponseBuilder().setStatusCode(200).setBody(ctx.getRequestURI()).build();
                     }
                 }).
         when().
                 get("/reflect?param1={param1Value}&param2={param2Value}").
         then().
                 statusCode(is(200)).
-                body(equalTo("http://localhost:8080/reflect?param1=Hello&param2=Hello\u0085"));
+                body(equalTo("http://localhost:8080/reflect?param1=Hello&param2=Hello%C2%85"));
     }
 
     @Test
@@ -410,14 +442,14 @@ public class PathParamITest extends WithJetty {
         given().
                 filter(new Filter() {
                     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody(ctx.getRequestPath()).build();
+                        return new ResponseBuilder().setStatusCode(200).setBody(ctx.getRequestURI()).build();
                     }
                 }).
         when().
                 get("/reflect?param1={param1Value}&param2={param2Value}", "Hello", "Hello\u0085").
         then().
                 statusCode(is(200)).
-                body(equalTo("http://localhost:8080/reflect?param1=Hello&param2=Hello\u0085"));
+                body(equalTo("http://localhost:8080/reflect?param1=Hello&param2=Hello%C2%85"));
     }
 
     @Test
@@ -426,7 +458,7 @@ public class PathParamITest extends WithJetty {
         String param2Value =  "Hello2";
 
         given().
-                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setStatusLine("HTTP/1.1 200 OK").setBody(ctx.getCompleteRequestPath()).build()).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setStatusLine("HTTP/1.1 200 OK").setBody(ctx.getRequestURI()).build()).
         when().
                 get("param1={param1Value}&param2={param2Value}", param1Value, param2Value).
         then().
@@ -439,7 +471,7 @@ public class PathParamITest extends WithJetty {
         String param2Value =  "Hello2";
 
         given().
-                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setStatusLine("HTTP/1.1 200 OK").setBody(ctx.getCompleteRequestPath()).build()).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setStatusLine("HTTP/1.1 200 OK").setBody(ctx.getRequestURI()).build()).
                 pathParam("param1Value", param1Value).
                 pathParam("param2Value", param2Value).
         when().

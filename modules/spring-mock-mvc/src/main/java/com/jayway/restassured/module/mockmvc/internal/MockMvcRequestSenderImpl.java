@@ -28,6 +28,7 @@ import com.jayway.restassured.internal.filter.FilterContextImpl;
 import com.jayway.restassured.internal.http.CharsetExtractor;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.internal.log.LogRepository;
+import com.jayway.restassured.internal.support.PathSupport;
 import com.jayway.restassured.internal.util.SafeExceptionRethrower;
 import com.jayway.restassured.module.mockmvc.config.AsyncConfig;
 import com.jayway.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
@@ -240,17 +241,20 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             throw new IllegalStateException("You cannot specify a request body and a multi-part body in the same request. Perhaps you want to change the body to a multi part?");
         }
 
+        String uri;
         if (isNotBlank(basePath)) {
-            path = mergeAndRemoveDoubleSlash(basePath, path);
+            uri = mergeAndRemoveDoubleSlash(basePath, path);
+        } else {
+            uri = path;
         }
 
         final MockHttpServletRequestBuilder request;
         if (multiParts.isEmpty()) {
-            request = MockMvcRequestBuilders.request(method, path, pathParams);
+            request = MockMvcRequestBuilders.request(method, uri, pathParams);
         } else if (method != POST) {
             throw new IllegalArgumentException("Currently multi-part file data uploading only works for " + POST);
         } else {
-            request = MockMvcRequestBuilders.fileUpload(path, pathParams);
+            request = MockMvcRequestBuilders.fileUpload(uri, pathParams);
         }
 
         String requestContentType = findContentType();
@@ -380,7 +384,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             }
         }
 
-        logRequestIfApplicable(method, path);
+        logRequestIfApplicable(method, uri, path);
 
         return performRequest(request);
     }
@@ -457,12 +461,12 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return request instanceof MockMultipartHttpServletRequestBuilder;
     }
 
-    private void logRequestIfApplicable(HttpMethod method, String path) {
+    private void logRequestIfApplicable(HttpMethod method, String uri, String originalPath) {
         if (requestLoggingFilter == null) {
             return;
         }
 
-        final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, path, new NoAuthScheme(), Collections.<Filter>emptyList(),
+        final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, uri, new NoAuthScheme(), Collections.<Filter>emptyList(),
                 null, true, convertToRestAssuredConfig(config), logRepository, null);
         if (params != null) {
             new ParamLogger(params) {
@@ -531,7 +535,9 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             }
         }
 
-        requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(path, path, Method.valueOf(method.toString()), null, Collections.<Filter>emptyList()));
+        String uriPath = PathSupport.getPath(uri);
+        String originalUriPath = PathSupport.getPath(originalPath);
+        requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(uri, uriPath, originalUriPath, uri, Method.valueOf(method.toString()), null, Collections.<Filter>emptyList()));
     }
 
     private String fileToString(File file, String charset) {

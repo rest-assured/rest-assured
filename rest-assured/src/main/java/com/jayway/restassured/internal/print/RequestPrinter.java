@@ -43,14 +43,14 @@ public class RequestPrinter {
     private static final String EQUALS = "=";
     private static final String NONE = "<none>";
 
-    public static String print(FilterableRequestSpecification requestSpec, String requestMethod, String completeRequestPath,
+    public static String print(FilterableRequestSpecification requestSpec, String requestMethod, String completeRequestUri,
                                LogDetail logDetail, PrintStream stream, boolean shouldPrettyPrint) {
         final StringBuilder builder = new StringBuilder();
         if (logDetail == ALL || logDetail == METHOD) {
             addSingle(builder, "Request method:", requestMethod);
         }
         if (logDetail == ALL || logDetail == PATH) {
-            addSingle(builder, "Request path:", completeRequestPath);
+            addSingle(builder, "Request path:", completeRequestUri);
         }
         if (logDetail == ALL) {
             addProxy(requestSpec, builder);

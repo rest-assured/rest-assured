@@ -39,6 +39,7 @@ import com.jayway.restassured.internal.multipart.RestAssuredMultiPartEntity
 import com.jayway.restassured.internal.proxy.RestAssuredProxySelector
 import com.jayway.restassured.internal.proxy.RestAssuredProxySelectorRoutePlanner
 import com.jayway.restassured.internal.support.ParameterUpdater
+import com.jayway.restassured.internal.support.PathSupport
 import com.jayway.restassured.mapper.ObjectMapper
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.*
@@ -970,11 +971,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  def invokeFilterChain(path, method, assertionClosure) {
+  def invokeFilterChain(originalPath, path, uri, method, assertionClosure) {
     if (authenticationScheme instanceof NoAuthScheme && !(defaultAuthScheme instanceof NoAuthScheme)) {
       // Use default auth scheme
       authenticationScheme = defaultAuthScheme
     }
+
+    originalPath = PathSupport.getPath(originalPath)
 
     if (authenticationScheme instanceof FormAuthScheme) {
       // Form auth scheme is handled a bit differently than other auth schemes since it's implemented by a filter.
@@ -993,11 +996,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       }
     }
 
-    filters << new SendRequestFilter()
+    filters << new SendRequestFilter(uri: uri)
 
-    String requestUriForLogging = generateRequestUriToLog(path, method)
+    String requestUriForLogging = generateRequestUriForLogging(uri, method)
     restAssuredConfig = config ?: new RestAssuredConfig()
-    def ctx = new FilterContextImpl(requestUriForLogging, path, method, assertionClosure, filters);
+    def ctx = new FilterContextImpl(requestUriForLogging, originalPath, path, uri, method, assertionClosure, filters);
     // We pass in this here because of a bug in the Groovy compiler, http://jira.codehaus.org/browse/GROOVY-4647 (when it's fixed 9619c3b should be used instead)
     httpClient = httpClientConfig().httpClientInstance()
     def response = ctx.next(this, responseSpecification)
@@ -1005,7 +1008,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return response;
   }
 
-  private def String generateRequestUriToLog(path, method) {
+  private def String generateRequestUriForLogging(path, method) {
     def targetPath
     def allQueryParams = [:]
 
@@ -1455,7 +1458,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     if (path?.endsWith("?")) {
       throw new IllegalArgumentException("Request URI cannot end with ?");
     }
-    path = applyPathParamsAndEncodePath(path, pathParams)
+
+    def uri = applyPathParamsAndEncodePath(path, pathParams)
+    def substitutedPath = PathSupport.getPath(uri)
 
     // Set default accept header if undefined
     if (!headers.hasHeaderWithName(ACCEPT_HEADER_NAME)) {
@@ -1467,7 +1472,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       header(CONTENT_TYPE, tempContentType)
     }
 
-    invokeFilterChain(path, method, responseSpecification.assertionClosure)
+    invokeFilterChain(path, substitutedPath, uri, method, responseSpecification.assertionClosure)
   }
 
   private def String applyPathParamsAndEncodePath(String path, Object... unnamedPathParams) {

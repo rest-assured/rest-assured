@@ -52,4 +52,21 @@ class PathSupport {
     }
     return indexOfScheme < indexOfFirstSlash
   }
+
+  def static String getPath(String targetUri) {
+    if (StringUtils.isBlank(targetUri)) {
+      return targetUri
+    }
+
+    def indexOfScheme = targetUri.indexOf("://");
+    if (indexOfScheme == -1) {
+      def path = StringUtils.substringBefore(targetUri, "?")
+      return StringUtils.startsWith(path, "/") ? path : "/" + path
+    }
+    def indexOfPath = StringUtils.indexOf(targetUri, "/", indexOfScheme + 3);
+    if (indexOfPath == -1) {
+      return "/"
+    }
+    StringUtils.substringBefore(targetUri.substring(indexOfPath), "?")
+  }
 }

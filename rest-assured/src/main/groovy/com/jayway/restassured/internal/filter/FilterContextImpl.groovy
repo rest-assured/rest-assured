@@ -15,7 +15,6 @@
  */
 
 
-
 package com.jayway.restassured.internal.filter
 
 import com.jayway.restassured.filter.Filter
@@ -28,53 +27,66 @@ import com.jayway.restassured.specification.RequestSender
 import org.codehaus.groovy.runtime.ReflectionMethodInvoker
 
 class FilterContextImpl implements FilterContext {
-    def private Iterator<Filter> filters
-    def private completePath;
-    def private path;
-    def private Method method;
-    def assertionClosure
-    def properties = [:]
+  def private Iterator<Filter> filters
+  def private requestUri;
+  def private path;
+  def private originalPath;
+  def private Method method;
+  def assertionClosure
+  def properties = [:]
+  // The difference between internalRequestUri and requestUri is that query parameters defined outside the path is not included
+  def private internalRequestUri
 
-    FilterContextImpl(String completePath, String path, Method method, assertionClosure, List<Filter> filterList) {
-        this.filters = filterList.iterator()
-        this.completePath = completePath
-        this.path = path
-        this.method = method
-        this.assertionClosure = assertionClosure
-    }
+  FilterContextImpl(String requestUri, String pathWithParameters, String path, String internalRequestUri, Method method, assertionClosure, List<Filter> filterList) {
+    this.internalRequestUri = internalRequestUri
+    this.filters = filterList.iterator()
+    this.requestUri = requestUri
+    this.originalPath = pathWithParameters
+    this.path = path
+    this.method = method
+    this.assertionClosure = assertionClosure
+  }
 
-    Response next(FilterableRequestSpecification request, FilterableResponseSpecification response) {
-        if (filters.hasNext()) {
-            def next = filters.next();
-            return next.filter(request, response, this)
-        }
+  Response next(FilterableRequestSpecification request, FilterableResponseSpecification response) {
+    if (filters.hasNext()) {
+      def next = filters.next();
+      return next.filter(request, response, this)
     }
+  }
 
-    String getRequestPath() {
-        path
-    }
+  String getRequestPath() {
+    path
+  }
 
-    Method getRequestMethod() {
-        method
-    }
+  String getOriginalRequestPath() {
+    originalPath
+  }
 
-    String getCompleteRequestPath() {
-        return completePath
-    }
+  Method getRequestMethod() {
+    method
+  }
 
-    Response send(RequestSender requestSender) {
-        return ReflectionMethodInvoker.invoke(requestSender, method.toString().toLowerCase(), path)
-    }
+  String getRequestURI() {
+    requestUri
+  }
 
-    void setValue(String name, Object value) {
-        properties.put(name, value)
-    }
+  String getCompleteRequestPath() {
+    getRequestURI()
+  }
 
-    boolean hasValue(String name) {
-        return getValue(name) != null
-    }
+  Response send(RequestSender requestSender) {
+    ReflectionMethodInvoker.invoke(requestSender, method.toString().toLowerCase(), internalRequestUri)
+  }
 
-    def getValue(String name) {
-        return properties.get(name)
-    }
+  void setValue(String name, Object value) {
+    properties.put(name, value)
+  }
+
+  boolean hasValue(String name) {
+    return getValue(name) != null
+  }
+
+  def getValue(String name) {
+    return properties.get(name)
+  }
 }

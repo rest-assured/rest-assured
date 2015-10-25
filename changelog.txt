@@ -5,6 +5,11 @@ Change log next version
 * Added support for sending a request body in a GET request (issue 544). Thanks to Manuel Möhlmann for pull request.
 * Response content-type validation now works correctly even if the response body is empty (issue 566). Thanks to Manuel Möhlmann for pull request.
 * Fixing dead links in javadocs (issue 605). Thanks to Ben Severson for pull request.
+* Changes to com.jayway.restassured.filter.FilterContext:
+   1. getRequestPath now only returns the the actual path of the request URI (previously this returned the request URI) (non-backward compatible change)
+   2. getRequestURI returns the entire request URI (new method)
+   3. getCompleteRequestPath has been deprecated, use getRequestURI
+   4. getOriginalRequestPath has been added which returns the path of the request BEFORE path parameters have been applied to it
 
 Change log 2.6.0 (2015-10-09)
 -----------------------------

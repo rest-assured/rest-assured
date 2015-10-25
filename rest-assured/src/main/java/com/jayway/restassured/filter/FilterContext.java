@@ -71,8 +71,29 @@ public interface FilterContext {
     String getRequestPath();
 
     /**
-     * @return The complete request path. This is the fully-qualified path including port number and scheme.
+     * Returns the original request path as it was before any path parameters were applied. For example
+     * if you made the following request to REST Assured:
+     * <pre>
+     * get("/something/{x}", x);
+     * </pre>
+     * <p/>
+     * Then this method would return <code>"/something/{x}"</code>.
+     *
+     * @return The original request path
      */
+    String getOriginalRequestPath();
+
+
+    /**
+     * @return The request URI as a string. This is the fully-qualified path including host, port number, scheme, path and query params.
+     */
+    String getRequestURI();
+
+    /**
+     * @return The request URI as a string. This is the fully-qualified path including host, port number, scheme, path and query params.
+     * @deprecated Use {@link FilterContext#getRequestURI()} instead
+     */
+    @Deprecated
     String getCompleteRequestPath();
 
     /**
