@@ -13,6 +13,7 @@ Change log next version
 * Deprecated "resultHandlers" method in MockMvcRequestSpecification and added "apply" method to com.jayway.restassured.module.mockmvc.response.ValidatableMockMvcResponse that should be used instead.
   For example previously you did "given().resultHandlers(print()).when().get("/x")" but now you do "get("/x").then().apply(print())" (issue 607)
 * Automatically escapes "class" keyword in JsonPath and XmlPath (issue 598)
+* Taking DecoderConfig when parsing non-string content (issue 599)
 
 Change log 2.6.0 (2015-10-09)
 -----------------------------

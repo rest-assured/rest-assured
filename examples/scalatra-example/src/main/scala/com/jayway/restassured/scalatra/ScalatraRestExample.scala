@@ -153,6 +153,11 @@ class ScalatraRestExample extends ScalatraServlet {
     """[100, 50, 31.0]"""
   }
 
+  get("/russian") {
+    contentType = "application/json"
+    """{ "title" : "Информационные технологии, интернет, телеком" }"""
+  }
+
   get("/products") {
     contentType = "application/json"
     """[

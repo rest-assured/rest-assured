@@ -17,6 +17,7 @@ package com.jayway.restassured.internal
 
 import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.config.XmlConfig
+import com.jayway.restassured.internal.http.CharsetExtractor
 import com.jayway.restassured.internal.path.json.ConfigurableJsonSlurper
 import com.jayway.restassured.parsing.Parser
 import com.jayway.restassured.response.Response
@@ -38,9 +39,9 @@ class ContentParser {
           def slurper = new ConfigurableJsonSlurper(config.getJsonConfig().numberReturnType())
           if (parseAsString) {
             content = slurper.parseText(response.asString(true))
-            // We force default charset to be backward compatible with "InputStream charset"
           } else {
-            content = slurper.parse(new InputStreamReader(new BufferedInputStream(response.asInputStream())))
+            def charset = CharsetExtractor.getCharsetFromContentType(response.getContentType()) ?: config.getDecoderConfig().defaultCharsetForContentType(response.getContentType());
+            content = slurper.parse(new InputStreamReader(new BufferedInputStream(response.asInputStream()), charset))
           }
           break;
         case XML:
