@@ -18,6 +18,9 @@ Change log next version
       given().standaloneSetup(new Controller1(), springSecurity()). ..
 * Automatically adds supports for spring rest docs path parameter documentation if spring-restdocs-mockmvc is in classpath. This can be disabled using the MockMvcConfig (issue 606).
 * It's now possible to change port, base path etc from a filter (issue 600)
+* Added support for specifying preemptive basic authentication for proxies. For example:
+    given().proxy(auth("username", "password")).when() ..
+  where "auth" is statically imported from com.jayway.restassured.specification.ProxySpecification (issue 597).
 
 Change log 2.6.0 (2015-10-09)
 -----------------------------

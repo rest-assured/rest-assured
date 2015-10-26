@@ -28,6 +28,8 @@ public class ProxySpecification {
     private static final String HTTP = "http";
     private static final String HTTPS = "https";
     private static final String DEFAULT_SCHEME = HTTP;
+    private static final String DEFAULT_USERNAME = null;
+    private static final String DEFAULT_PASSWORD = null;
     private static final int DEFAULT_PORT = 8888;
     private static final String DEFAULT_HOST = "127.0.0.1";
     private static final int DEFAULT_HTTP_PORT = 80;
@@ -37,6 +39,8 @@ public class ProxySpecification {
     private final String host;
     private final int port;
     private final String scheme;
+    private final String username;
+    private final String password;
 
     /**
      * Creates a ProxySpecification with the supplied hostname, port and scheme.
@@ -46,6 +50,10 @@ public class ProxySpecification {
      * @param scheme The scheme of the proxy.
      */
     public ProxySpecification(String host, int port, String scheme) {
+        this(host, port, scheme, DEFAULT_USERNAME, DEFAULT_PASSWORD);
+    }
+
+    private ProxySpecification(String host, int port, String scheme, String username, String password) {
         this.host = StringUtils.trimToNull(host);
         this.scheme = StringUtils.trimToNull(scheme);
         notNull(this.host, "Proxy host");
@@ -59,6 +67,8 @@ public class ProxySpecification {
                 throw new IllegalArgumentException("Cannot determine proxy port");
             }
         }
+        this.username = StringUtils.trimToNull(username);
+        this.password = StringUtils.trimToNull(password);
         this.port = port;
     }
 
@@ -69,17 +79,30 @@ public class ProxySpecification {
      * @return A new ProxySpecification instance
      */
     public static ProxySpecification host(String host) {
-        return new ProxySpecification(host, DEFAULT_PORT, DEFAULT_SCHEME);
+        return new ProxySpecification(host, DEFAULT_PORT, DEFAULT_SCHEME, DEFAULT_USERNAME, DEFAULT_PASSWORD);
     }
 
     /**
-     * Specify the port for of the proxy. Will use hostname {@value #DEFAULT_HOST} and scheme {@value #DEFAULT_SCHEME}.
+     * Specify the port of the proxy. Will use hostname {@value #DEFAULT_HOST} and scheme {@value #DEFAULT_SCHEME}.
      *
      * @param port The port on localhost to connect to.
      * @return A new ProxySpecification instance
      */
     public static ProxySpecification port(int port) {
-        return new ProxySpecification(DEFAULT_HOST, port, DEFAULT_SCHEME);
+        return new ProxySpecification(DEFAULT_HOST, port, DEFAULT_SCHEME, DEFAULT_USERNAME, DEFAULT_PASSWORD);
+    }
+
+    /**
+     * Specify preemptive basic authentication for the proxy. Will use hostname {@value #DEFAULT_HOST}, port {@value #DEFAULT_PORT} and scheme {@value #DEFAULT_SCHEME}.
+     *
+     * @param username The username
+     * @param password The username
+     * @return A new ProxySpecification instance
+     */
+    public static ProxySpecification auth(String username, String password) {
+        notNull(username, "username");
+        notNull(password, "password");
+        return new ProxySpecification(DEFAULT_HOST, DEFAULT_PORT, DEFAULT_SCHEME, username, password);
     }
 
     /**
@@ -89,7 +112,7 @@ public class ProxySpecification {
      * @return A new ProxySpecification instance
      */
     public ProxySpecification withPort(int port) {
-        return new ProxySpecification(host, port, scheme);
+        return new ProxySpecification(host, port, scheme, username, password);
     }
 
     /**
@@ -99,7 +122,20 @@ public class ProxySpecification {
      * @return A new ProxySpecification instance
      */
     public ProxySpecification withHost(String host) {
-        return new ProxySpecification(host, port, scheme);
+        return new ProxySpecification(host, port, scheme, username, password);
+    }
+
+    /**
+     * Specify (preemptive) basic authentication for the proxy
+     *
+     * @param username The username
+     * @param password The username
+     * @return A new ProxySpecification instance
+     */
+    public ProxySpecification withAuth(String username, String password) {
+        notNull(username, "username");
+        notNull(password, "password");
+        return new ProxySpecification(host, port, scheme, username, password);
     }
 
     /**
@@ -142,18 +178,37 @@ public class ProxySpecification {
         return scheme;
     }
 
+    /**
+     * @return The password
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * @return The username
+     */
+    public String getUsername() {
+        return username;
+    }
+
+    boolean hasAuth() {
+        return username != null || password != null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof ProxySpecification)) return false;
 
         ProxySpecification that = (ProxySpecification) o;
 
         if (port != that.port) return false;
         if (host != null ? !host.equals(that.host) : that.host != null) return false;
         if (scheme != null ? !scheme.equals(that.scheme) : that.scheme != null) return false;
+        if (username != null ? !username.equals(that.username) : that.username != null) return false;
+        return !(password != null ? !password.equals(that.password) : that.password != null);
 
-        return true;
     }
 
     @Override
@@ -161,6 +216,8 @@ public class ProxySpecification {
         int result = host != null ? host.hashCode() : 0;
         result = 31 * result + port;
         result = 31 * result + (scheme != null ? scheme.hashCode() : 0);
+        result = 31 * result + (username != null ? username.hashCode() : 0);
+        result = 31 * result + (password != null ? password.hashCode() : 0);
         return result;
     }
 

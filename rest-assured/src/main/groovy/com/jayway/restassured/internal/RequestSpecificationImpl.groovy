@@ -16,10 +16,7 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.RestAssured
-import com.jayway.restassured.authentication.AuthenticationScheme
-import com.jayway.restassured.authentication.CertAuthScheme
-import com.jayway.restassured.authentication.FormAuthScheme
-import com.jayway.restassured.authentication.NoAuthScheme
+import com.jayway.restassured.authentication.*
 import com.jayway.restassured.config.*
 import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.filter.log.RequestLoggingFilter
@@ -1915,6 +1912,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     // make client aware of JRE proxy settings http://freeside.co/betamax/
     http.client.routePlanner = new RestAssuredProxySelectorRoutePlanner(http.client.connectionManager.schemeRegistry,
             new RestAssuredProxySelector(delegatingProxySelector: ProxySelector.default, proxySpecification: proxySpecification), proxySpecification)
+    if (proxySpecification?.hasAuth()) {
+      PreemptiveBasicAuthScheme auth = new PreemptiveBasicAuthScheme();
+      auth.setUserName(proxySpecification.username);
+      auth.setPassword(proxySpecification.password);
+      header("Proxy-Authorization", auth.generateAuthToken())
+    }
   }
 
   private def String assembleCompleteTargetPath(requestPath) {
