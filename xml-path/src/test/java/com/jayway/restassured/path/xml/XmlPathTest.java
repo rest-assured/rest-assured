@@ -23,6 +23,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.jayway.restassured.path.xml.XmlPath.*;
 import static com.jayway.restassured.path.xml.config.XmlPathConfig.xmlPathConfig;
@@ -113,6 +114,11 @@ public class XmlPathTest {
             "</some>";
 
     private static final String NOT_PRETTY_XML = "<some><thing id=\"1\">ikk</thing><thing id=\"2\">ikk2</thing><thing id=\"3\">3</thing></some>";
+
+    private static final String UUID_XML = "<some>\n" +
+            "  <thing id=\"1\">db24eeeb-7fe5-41d3-8f06-986b793ecc91</thing>\n" +
+            "  <thing id=\"2\">d69ded28-d75c-460f-9cbe-1412c60ed4cc</thing>\n" +
+            "</some>";
 
     @Test
     public void initializeUsingCtorAndGetList() throws Exception {
@@ -334,6 +340,13 @@ public class XmlPathTest {
                 .getInt("shopping.'**'.find { it.name == itemName }.price");
 
         assertThat(chocolatePrice, equalTo(10));
+    }
+
+    @Test
+    public void getUUIDParsesAStringResultToUUID() throws Exception {
+        final UUID uuid = from(UUID_XML).getUUID("some.thing[0]");
+
+        assertThat(uuid, equalTo(UUID.fromString("db24eeeb-7fe5-41d3-8f06-986b793ecc91")));
     }
 
     @Test

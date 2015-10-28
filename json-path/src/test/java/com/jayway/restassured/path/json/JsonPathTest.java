@@ -308,9 +308,9 @@ public class JsonPathTest {
 
     @Test
     public void convertsValueToUUIDWhenExplicitlyRequested() throws Exception {
-        UUID phoneNumber = from(JSON3).getUUID("id");
+        UUID uuid = from(JSON3).getUUID("id");
 
-        assertThat(phoneNumber, equalTo(UUID.fromString("db24eeeb-7fe5-41d3-8f06-986b793ecc91")));
+        assertThat(uuid, equalTo(UUID.fromString("db24eeeb-7fe5-41d3-8f06-986b793ecc91")));
     }
 
     @Test
