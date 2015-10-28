@@ -45,6 +45,8 @@ class ObjectConverter {
                 returnObject = new BigDecimal(toString);
             } else if (explicitType.isAssignableFrom(String.class)) {
                 returnObject = toString;
+            } else if (explicitType.isAssignableFrom(UUID.class)) {
+                returnObject = UUID.fromString(toString);
             } else {
                 try {
                     returnObject = explicitType.cast(object);

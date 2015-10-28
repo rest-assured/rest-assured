@@ -24,6 +24,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.jayway.restassured.path.json.JsonPath.*;
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.BIG_DECIMAL;
@@ -69,6 +70,8 @@ public class JsonPathTest {
     private final String JSON2 = "[{\"email\":\"name1@mail.com\",\"alias\":\"name one\",\"phone\":\"3456789\"},\n" +
             "{\"email\":\"name2@mail.com\",\"alias\":\"name two\",\"phone\":\"1234567\"},\n" +
             "{\"email\":\"name3@mail.com\",\"alias\":\"name three\",\"phone\":\"2345678\"}]";
+
+    private final String JSON3 = "{\"id\":\"db24eeeb-7fe5-41d3-8f06-986b793ecc91\"}";
 
 
     private final String JSON_MAP = "{ \"price1\" : 12.3,\n" +
@@ -294,6 +297,13 @@ public class JsonPathTest {
         float phoneNumber = from(JSON2).getFloat("phone[0]");
 
         assertThat(phoneNumber, equalTo(3456789f));
+    }
+
+    @Test
+    public void convertsValueToUUIDWhenExplicitlyRequested() throws Exception {
+        UUID uuid = from(JSON3).getUUID("id");
+
+        assertThat(uuid, equalTo(UUID.fromString("db24eeeb-7fe5-41d3-8f06-986b793ecc91")));
     }
 
     @Test

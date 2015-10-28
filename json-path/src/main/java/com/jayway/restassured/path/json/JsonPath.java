@@ -352,6 +352,17 @@ public class JsonPath {
     }
 
     /**
+     * Get the result of an Object path expression as a UUID.
+     *
+     * @param path The Object path.
+     * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
+     *         cannot be casted to the expected type.
+     */
+    public UUID getUUID(String path) {
+        return ObjectConverter.convertObjectTo(get(path), UUID.class);
+    }
+
+    /**
      * Get the result of an Object path expression as a list.
      *
      * @param path The Object path.

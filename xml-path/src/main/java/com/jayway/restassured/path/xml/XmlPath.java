@@ -575,6 +575,19 @@ public class XmlPath {
     }
 
     /**
+     * Get the result of an XML path expression as a UUID. For syntax details please refer to
+     * <a href="http://www.groovy-lang.org/processing-xml.html#_manipulating_xml">this</a> url.
+     *
+     * @param path The XML path.
+     * @return The object matching the XML path. A {@link java.lang.ClassCastException} will be thrown if the object
+     * cannot be casted to the expected type.
+     */
+    public UUID getUUID(String path) {
+        Object object = get(path);
+        return convertObjectTo(object, UUID.class);
+    }
+
+    /**
      * Add a parameter for the expression. Example:
      * <pre>
      * String type = System.console().readLine();
