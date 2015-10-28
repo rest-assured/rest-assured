@@ -26,17 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.jayway.restassured.path.json.JsonPath.from;
-import static com.jayway.restassured.path.json.JsonPath.given;
-import static com.jayway.restassured.path.json.JsonPath.with;
+import static com.jayway.restassured.path.json.JsonPath.*;
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.BIG_DECIMAL;
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE;
-import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class JsonPathTest {
