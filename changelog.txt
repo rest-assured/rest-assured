@@ -21,6 +21,7 @@ Change log next version
 * Added support for specifying preemptive basic authentication for proxies. For example:
     given().proxy(auth("username", "password")).when() ..
   where "auth" is statically imported from com.jayway.restassured.specification.ProxySpecification (issue 597).
+* Added getUUID method to JsonPath and XmlPath (thanks to Libor Ondrušek for the pull request)
 
 Change log 2.6.0 (2015-10-09)
 -----------------------------
