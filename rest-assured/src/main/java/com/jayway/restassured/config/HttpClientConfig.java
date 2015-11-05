@@ -177,7 +177,7 @@ import static java.util.Arrays.asList;
         notNull(parameterName, "Parameter name");
         final Map<String, Object> newParams = new HashMap<String, Object>(httpClientParams);
         newParams.put(parameterName, parameterValue);
-        return new HttpClientConfig(newParams);
+        return new HttpClientConfig(httpClientFactory, newParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
     }
 
     /**
@@ -187,7 +187,7 @@ import static java.util.Arrays.asList;
      * @return An updated HttpClientConfig
      */
     public HttpClientConfig withParams(Map<String, ?> httpClientParams) {
-        return new HttpClientConfig(httpClientParams);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
     }
 
     /**
@@ -208,9 +208,9 @@ import static java.util.Arrays.asList;
      */
     public HttpClientConfig addParams(Map<String, ?> httpClientParams) {
         notNull(httpClientParams, "httpClientParams");
-        final Map<String, Object> newParams = new HashMap<String, Object>(httpClientParams);
+        final Map<String, Object> newParams = new HashMap<String, Object>(this.httpClientParams);
         newParams.putAll(httpClientParams);
-        return new HttpClientConfig(newParams);
+        return new HttpClientConfig(httpClientFactory, newParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
     }
 
     /**
