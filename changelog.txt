@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Modify HttpClientConfig so parameter methods respect previous configuration (issue 612). Thanks to Adam Clarkson for pull request.
+
 Change log 2.7.0 (2015-10-31)
 -----------------------------
 * Significantly reduce sized of scala-support distribution package
