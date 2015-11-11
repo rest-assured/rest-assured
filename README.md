@@ -9,7 +9,7 @@ languages into the Java domain.
 
 
 ## News 
-* 2015-11-06: [Documentated](https://github.com/jayway/rest-assured/wiki/Usage#kotlin) on how to make [Kotlin](https://kotlinlang.org/) integration a bit nicer with REST Assured. Refer to [this](http://code.haleby.se/2015/11/06/rest-assured-with-kotlin/) blog for additional info and example.
+* 2015-11-06: [Documentated](https://github.com/jayway/rest-assured/wiki/Usage#kotlin) how to make [Kotlin](https://kotlinlang.org/) integration a bit nicer with REST Assured. Refer to [this](http://code.haleby.se/2015/11/06/rest-assured-with-kotlin/) blog for additional info and example.
 * 2015-11-03: REST Assured has a new domain: [http://www.rest-assured.io](http://www.rest-assured.io). Feel free to update your bookmarks.
 * 2015-10-31: REST Assured [2.7.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-2.7.0-dist.zip) is released with support for using [proxy authentication](https://github.com/jayway/rest-assured/wiki/Usage#proxy-configuration), support for sending a body in a GET request, updates to [FilterContext](http://static.javadoc.io/com.jayway.restassured/rest-assured/2.7.0/com/jayway/restassured/filter/FilterContext.html) which allows future integration with [spring-rest-docs](https://github.com/spring-projects/spring-restdocs), improvements to the [Spring Mock Mvc module](https://github.com/jayway/rest-assured/wiki/Usage#spring-mock-mvc-module) as well as other fixes and improvements. This release is not 100% backward compatible so please see [release notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes27) for more details.
 
