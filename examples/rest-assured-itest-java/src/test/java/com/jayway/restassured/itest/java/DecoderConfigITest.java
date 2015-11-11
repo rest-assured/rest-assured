@@ -22,6 +22,7 @@ import com.jayway.restassured.config.DecoderConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.response.Response;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.*;
@@ -98,7 +99,7 @@ public class DecoderConfigITest extends WithJetty {
                 get("/headersWithValues");
     }
 
-    @Test  public void
+    @Test @Ignore("External service")  public void
     use_no_wrap_for_inflated_streams_supports_gzdeflate_method() {
         RestAssured.baseURI = "https://charitablegift.fidelity.com";
 
