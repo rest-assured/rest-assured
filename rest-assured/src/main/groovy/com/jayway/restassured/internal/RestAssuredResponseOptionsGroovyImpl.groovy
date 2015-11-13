@@ -21,6 +21,7 @@ import com.jayway.restassured.assertion.CookieMatcher
 import com.jayway.restassured.config.DecoderConfig
 import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.filter.log.LogDetail
+import com.jayway.restassured.filter.time.TimingFilter
 import com.jayway.restassured.internal.http.CharsetExtractor
 import com.jayway.restassured.internal.mapper.ObjectMapperType
 import com.jayway.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
@@ -41,6 +42,7 @@ import groovy.xml.StreamingMarkupBuilder
 import org.apache.commons.lang3.StringUtils
 
 import java.nio.charset.Charset
+import java.util.concurrent.TimeUnit
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
 import static com.jayway.restassured.path.json.config.JsonPathConfig.jsonPathConfig
@@ -51,6 +53,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank
 class RestAssuredResponseOptionsGroovyImpl {
   private static final String CANNOT_PARSE_MSG = "Failed to parse response."
   public static final String BINARY = "binary"
+  private static final long NO_RESPONSE_TIME = -1
+
   def responseHeaders
   def Cookies cookies
   def content
@@ -58,6 +62,7 @@ class RestAssuredResponseOptionsGroovyImpl {
   def statusLine
   def statusCode
   def sessionIdName
+  def Map filterContextProperties
   def connectionManager;
 
   def String defaultContentType
@@ -168,6 +173,10 @@ class RestAssuredResponseOptionsGroovyImpl {
 
   def String asString(boolean forcePlatformDefaultCharsetIfNoCharsetIsSpecifiedInResponse) {
     charsetToString(findCharset(forcePlatformDefaultCharsetIfNoCharsetIsSpecifiedInResponse))
+  }
+
+  def boolean isInputStream() {
+    content instanceof InputStream
   }
 
   InputStream asInputStream() {
@@ -385,6 +394,24 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
       return newXmlPath(CompatibilityMode.HTML)
     }
     throw new IllegalStateException("Cannot determine which path implementation to use because the content-type $contentType doesn't map to a path implementation.")
+  }
+
+
+  def long responseTime() {
+    if (filterContextProperties?.containsKey(TimingFilter.RESPONSE_TIME_MILLISECONDS)) {
+      filterContextProperties.get(TimingFilter.RESPONSE_TIME_MILLISECONDS)
+    } else {
+      NO_RESPONSE_TIME
+    }
+  }
+
+  def long responseTimeIn(TimeUnit timeUnit) {
+    notNull timeUnit, TimeUnit.class
+    def time = responseTime()
+    if (time != NO_RESPONSE_TIME && timeUnit != TimeUnit.MILLISECONDS) {
+      time = timeUnit.convert(time, TimeUnit.MILLISECONDS)
+    }
+    time
   }
 
   private convertToByteArray(InputStream stream) {

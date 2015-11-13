@@ -21,6 +21,7 @@ import com.jayway.restassured.config.*
 import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.filter.log.RequestLoggingFilter
 import com.jayway.restassured.filter.log.ResponseLoggingFilter
+import com.jayway.restassured.filter.time.TimingFilter
 import com.jayway.restassured.http.ContentType
 import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.FormAuthFilter
@@ -968,7 +969,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  def newFilterContext(String path, Object[] unnamedPathParams, method, assertionClosure, filters) {
+  def newFilterContext(String path, Object[] unnamedPathParams, method, assertionClosure, filters, properties) {
     notNull path, "path"
     notNull unnamedPathParams, "Path params"
 
@@ -992,7 +993,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
 
     String requestUriForLogging = generateRequestUriForLogging(uri, method)
-    new FilterContextImpl(requestUriForLogging, originalPath, substitutedPath, uri, path, unnamedPathParams, method, assertionClosure, filters);
+    new FilterContextImpl(requestUriForLogging, originalPath, substitutedPath, uri, path, unnamedPathParams, method, assertionClosure, filters, properties);
   }
 
   private def String generateRequestUriForLogging(path, method) {
@@ -1053,7 +1054,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   @SuppressWarnings("GroovyUnusedDeclaration")
-  private def Response sendRequest(path, method, assertionClosure, FilterableRequestSpecification requestSpecification) {
+  private def Response sendRequest(path, method, assertionClosure, FilterableRequestSpecification requestSpecification, Map filterContextProperties) {
     notNull path, "Path"
     path = extractRequestParamsIfNeeded(path);
     def targetUri = getTargetURI(path);
@@ -1080,6 +1081,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     restAssuredResponse.setDecoderConfig(cfg.getDecoderConfig())
     restAssuredResponse.setConnectionManager(http.client.connectionManager)
     restAssuredResponse.setConfig(cfg)
+    restAssuredResponse.setFilterContextProperties(filterContextProperties)
     responseSpecification.restAssuredResponse = restAssuredResponse
     def acceptContentType = assertionClosure.getResponseContentType()
 
@@ -1460,8 +1462,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       }
     }
     restAssuredConfig = config ?: new RestAssuredConfig()
+
+    // Add timing filter if it has not been added manually
+    if (!filters*.getClass().any { TimingFilter.class.isAssignableFrom(it) }) {
+      filters << new TimingFilter()
+    }
+
     filters << new SendRequestFilter()
-    def ctx = newFilterContext(path, pathParams, method, responseSpecification.assertionClosure, filters.iterator())
+    def ctx = newFilterContext(path, pathParams, method, responseSpecification.assertionClosure, filters.iterator(), [:])
     httpClient = httpClientConfig().httpClientInstance()
     def response = ctx.next(this, responseSpecification)
     responseSpecification.assertionClosure.validate(response)

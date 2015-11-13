@@ -41,7 +41,7 @@ import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
 public abstract class ValidatableResponseOptionsImpl<T extends ValidatableResponseOptions<T, R>, R extends ResponseBody<R> & ResponseOptions<R>> implements ValidatableResponseLogSpec<T, R> {
 
-    private final ResponseSpecificationImpl responseSpec;
+    protected final ResponseSpecificationImpl responseSpec;
     private final ExtractableResponse<R> extractableResponse;
     protected final Response response;
     private final RestAssuredConfig config;

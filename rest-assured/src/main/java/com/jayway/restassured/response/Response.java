@@ -16,6 +16,8 @@
 
 package com.jayway.restassured.response;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * The response of a request made by REST Assured.
  * <p>
@@ -36,5 +38,25 @@ package com.jayway.restassured.response;
  */
 public interface Response extends ResponseBody<Response>, ResponseOptions<Response>, Validatable<ValidatableResponse, Response> {
 
+    /**
+     * @return The response time in milliseconds (or -1 if no response time could be measured)
+     */
+    long time();
 
+    /**
+     * @return The response time in the given time unit (or -1 if no response time could be measured)
+     */
+    long timeIn(TimeUnit timeUnit);
+
+    /**
+     * @return The response time in milliseconds (or -1 if no response time could be measured)
+     * @see #time()
+     */
+    long getTime();
+
+    /**
+     * @return The response time in the given time unit (or -1 if no response time could be measured)
+     * @see #time()
+     */
+    long getTimeIn(TimeUnit timeUnit);
 }

@@ -17,10 +17,7 @@
 
 package com.jayway.restassured.internal
 
-import com.jayway.restassured.assertion.BodyMatcher
-import com.jayway.restassured.assertion.BodyMatcherGroup
-import com.jayway.restassured.assertion.CookieMatcher
-import com.jayway.restassured.assertion.HeaderMatcher
+import com.jayway.restassured.assertion.*
 import com.jayway.restassured.config.RestAssuredConfig
 import com.jayway.restassured.function.RestAssuredFunction
 import com.jayway.restassured.http.ContentType
@@ -32,6 +29,8 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.Validate
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
+
+import java.util.concurrent.TimeUnit
 
 import static com.jayway.restassured.http.ContentType.ANY
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
@@ -55,6 +54,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   def ResponseParserRegistrar rpr;
   def RestAssuredConfig config
   private Response response
+  private Tuple2<Matcher<Long>, TimeUnit> expectedResponseTime;
 
   private contentParser
   def LogRepository logRepository
@@ -100,6 +100,15 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   def ResponseSpecification content(String key, Matcher matcher, Object... additionalKeyMatcherPairs) {
     content(key, Collections.emptyList(), matcher, additionalKeyMatcherPairs)
+  }
+
+  def ResponseSpecification responseTime(Matcher<Long> matcher, TimeUnit timeUnit) {
+    notNull(matcher, Matcher.class)
+    notNull(timeUnit, TimeUnit.class)
+    validateResponseIfRequired {
+      expectedResponseTime = new Tuple2<>(matcher, timeUnit)
+    }
+    this
   }
 
   def ResponseSpecification statusCode(Matcher<? super Integer> expectedStatusCode) {
@@ -499,7 +508,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   def boolean hasAssertionsDefined() {
     return hasBodyAssertionsDefined() || !headerAssertions.isEmpty() ||
             !cookieAssertions.isEmpty() || expectedStatusCode != null || expectedStatusLine != null ||
-            contentType != null
+            contentType != null || expectedResponseTime != null
   }
 
   def ResponseSpecification defaultParser(Parser parser) {
@@ -563,6 +572,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
           validations.addAll(validateStatusCodeAndStatusLine(response))
           validations.addAll(validateHeadersAndCookies(response))
           validations.addAll(validateContentType(response))
+          validations.addAll(validateResponseTime(response))
           if (hasBodyAssertionsDefined()) {
             RestAssuredConfig cfg = config ?: new RestAssuredConfig()
             if (requiresPathParsing() && (!isEagerAssert() || contentParser == null)) {
@@ -652,6 +662,14 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         }
       }
       errors
+    }
+
+    private def validateResponseTime(Response response) {
+      def validations = []
+      if (expectedResponseTime != null) {
+        validations << new ResponseTimeMatcher(matcher: expectedResponseTime.first, timeUnit: expectedResponseTime.second).validate(response)
+      }
+      validations
     }
 
     private def validateHeadersAndCookies(Response response) {

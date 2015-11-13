@@ -16,6 +16,10 @@
 
 package com.jayway.restassured.response;
 
+import org.hamcrest.Matcher;
+
+import java.util.concurrent.TimeUnit;
+
 /**
  * A validatable response of a request made by REST Assured.
  * <p>
@@ -26,4 +30,36 @@ package com.jayway.restassured.response;
  * </p>
  */
 public interface ValidatableResponse extends ValidatableResponseOptions<ValidatableResponse, Response> {
+
+    /**
+     * Validate that the response time (in milliseconds) matches the supplied <code>matcher</code>. For example:
+     * <p/>
+     * <pre>
+     * when().
+     *        get("/something").
+     * then().
+     *        responseTime(lessThan(2000));
+     * </pre>
+     * <p/>
+     * where <code>lessThan</code> is a Hamcrest matcher
+     *
+     * @return The {@link ValidatableResponse} instance.
+     */
+    ValidatableResponse responseTime(Matcher<Long> matcher);
+
+    /**
+     * Validate that the response time matches the supplied <code>matcher</code> and time unit. For example:
+     * <p/>
+     * <pre>
+     * when().
+     *        get("/something").
+     * then().
+     *        responseTime(lessThan(2), TimeUnit.SECONDS);
+     * </pre>
+     * <p/>
+     * where <code>lessThan</code> is a Hamcrest matcher
+     *
+     * @return The {@link ValidatableResponse} instance.
+     */
+    ValidatableResponse responseTime(Matcher<Long> matcher, TimeUnit timeUnit);
 }

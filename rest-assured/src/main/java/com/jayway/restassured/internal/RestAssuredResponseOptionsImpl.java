@@ -68,6 +68,10 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         this.groovyResponse.setSessionIdName(sessionIdName);
     }
 
+    public void setFilterContextProperties(Map filterContextProperties) {
+        this.groovyResponse.setFilterContextProperties(filterContextProperties);
+    }
+
     public void setConnectionManager(Object connectionManager) {
         this.groovyResponse.setConnectionManager(connectionManager);
     }
@@ -206,6 +210,10 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         return groovyResponse.asInputStream();
     }
 
+    public boolean isInputStream() {
+        return groovyResponse.isInputStream();
+    }
+
     public String print() {
         return groovyResponse.print();
     }
@@ -314,6 +322,10 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public RestAssuredResponseOptionsGroovyImpl getGroovyResponse() {
         return groovyResponse;
+    }
+
+    public Map getFilterContextProperties() {
+        return this.groovyResponse.getFilterContextProperties();
     }
 
     public void setGroovyResponse(RestAssuredResponseOptionsGroovyImpl groovyResponse) {

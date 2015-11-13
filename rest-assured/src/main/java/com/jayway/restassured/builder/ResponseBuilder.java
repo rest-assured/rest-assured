@@ -59,6 +59,7 @@ public class ResponseBuilder {
             restAssuredResponse.setConfig(raResponse.getConfig());
             restAssuredResponse.setRpr(raResponse.getRpr());
             restAssuredResponse.setLogRepository(raResponse.getLogRepository());
+            restAssuredResponse.setFilterContextProperties(raResponse.getFilterContextProperties());
         } else {
             restAssuredResponse.setContent(response.asInputStream());
         }
