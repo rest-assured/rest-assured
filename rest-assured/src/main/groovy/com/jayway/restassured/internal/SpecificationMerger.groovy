@@ -36,6 +36,7 @@ class SpecificationMerger {
    *     <li>Status code</li>
    *     <li>Status line</li>
    *     <li>Fallback parser</li>
+   *     <li>Expected response time</li>
    * </ul>
    * The following settings are merged:
    * <ul>
@@ -57,6 +58,7 @@ class SpecificationMerger {
     thisOne.cookieAssertions.addAll(with.cookieAssertions)
     thisOne.expectedStatusCode = with.expectedStatusCode
     thisOne.expectedStatusLine = with.expectedStatusLine
+    thisOne.expectedResponseTime = with.expectedResponseTime
     thisOne.headerAssertions.addAll(with.headerAssertions)
   }
 

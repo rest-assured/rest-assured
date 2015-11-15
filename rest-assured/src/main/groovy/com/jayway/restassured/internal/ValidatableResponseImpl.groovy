@@ -21,9 +21,6 @@ import com.jayway.restassured.internal.log.LogRepository
 import com.jayway.restassured.response.ExtractableResponse
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.response.ValidatableResponse
-import org.hamcrest.Matcher
-
-import java.util.concurrent.TimeUnit
 
 class ValidatableResponseImpl extends ValidatableResponseOptionsImpl<ValidatableResponse, Response> implements ValidatableResponse {
 
@@ -34,14 +31,5 @@ class ValidatableResponseImpl extends ValidatableResponseOptionsImpl<Validatable
 
   Response originalResponse() {
     response
-  }
-
-  ValidatableResponse responseTime(Matcher<Long> matcher) {
-    responseTime(matcher, TimeUnit.MILLISECONDS)
-  }
-
-  ValidatableResponse responseTime(Matcher<Long> matcher, TimeUnit timeUnit) {
-    responseSpec.responseTime(matcher, timeUnit)
-    this
   }
 }

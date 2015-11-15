@@ -16,7 +16,8 @@ Change log next version
             get("/lotto").
     then().
             responseTime(lessThan(2L), SECONDS);
-  Please note that response time measurement should be performed when the JVM is hot! (i.e. running a response time measurement when only running a single test will yield erroneous results) (issue 493)
+  Please note that response time measurement should be performed when the JVM is hot! (i.e. running a response time measurement when only running a single test will yield erroneous results)
+  This is also implemented in the Spring MockMvc module (issue 493)
 
 Change log 2.7.0 (2015-10-31)
 -----------------------------

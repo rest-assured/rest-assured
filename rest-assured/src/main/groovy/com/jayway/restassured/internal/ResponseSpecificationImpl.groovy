@@ -102,6 +102,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     content(key, Collections.emptyList(), matcher, additionalKeyMatcherPairs)
   }
 
+  def ResponseSpecification responseTime(Matcher<Long> matcher) {
+    responseTime(matcher, TimeUnit.MILLISECONDS)
+  }
+
   def ResponseSpecification responseTime(Matcher<Long> matcher, TimeUnit timeUnit) {
     notNull(matcher, Matcher.class)
     notNull(timeUnit, TimeUnit.class)

@@ -36,12 +36,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 
+@SuppressWarnings("unchecked")
 public abstract class ValidatableResponseOptionsImpl<T extends ValidatableResponseOptions<T, R>, R extends ResponseBody<R> & ResponseOptions<R>> implements ValidatableResponseLogSpec<T, R> {
 
-    protected final ResponseSpecificationImpl responseSpec;
+    private final ResponseSpecificationImpl responseSpec;
     private final ExtractableResponse<R> extractableResponse;
     protected final Response response;
     private final RestAssuredConfig config;
@@ -415,6 +417,15 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
 
     private T logResponse(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream printStream) {
         ResponsePrinter.print(response, response, printStream, logDetail, shouldPrettyPrint);
+        return (T) this;
+    }
+
+    public T responseTime(Matcher<Long> matcher) {
+        return responseTime(matcher, TimeUnit.MILLISECONDS);
+    }
+
+    public T responseTime(Matcher<Long> matcher, TimeUnit timeUnit) {
+        responseSpec.responseTime(matcher, timeUnit);
         return (T) this;
     }
 

@@ -17,6 +17,7 @@
 package com.jayway.restassured.response;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public interface ResponseOptions<T extends ResponseOptions<T>> {
     /**
@@ -196,4 +197,26 @@ public interface ResponseOptions<T extends ResponseOptions<T>> {
      * @return The status code of the response.
      */
     int getStatusCode();
+
+    /**
+     * @return The response time in milliseconds (or -1 if no response time could be measured)
+     */
+    long time();
+
+    /**
+     * @return The response time in the given time unit (or -1 if no response time could be measured)
+     */
+    long timeIn(TimeUnit timeUnit);
+
+    /**
+     * @return The response time in milliseconds (or -1 if no response time could be measured)
+     * @see #time()
+     */
+    long getTime();
+
+    /**
+     * @return The response time in the given time unit (or -1 if no response time could be measured)
+     * @see #time()
+     */
+    long getTimeIn(TimeUnit timeUnit);
 }

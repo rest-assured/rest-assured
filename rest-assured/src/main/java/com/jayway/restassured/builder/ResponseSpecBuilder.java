@@ -31,6 +31,7 @@ import org.hamcrest.Matcher;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.jayway.restassured.RestAssured.rootPath;
 
@@ -293,10 +294,33 @@ public class ResponseSpecBuilder {
      * Expect that a cookie exist in the response, regardless of value (it may have no value at all).
      *
      * @param cookieName the cookie to validate that it exists
-     * @return the response specification
+     * @return the builder
      */
     public ResponseSpecBuilder expectCookie(String cookieName) {
         spec.cookie(cookieName);
+        return this;
+    }
+
+    /**
+     * Validate that the response time (in milliseconds) matches the supplied <code>matcher</code>.
+     *
+     * @param matcher The matcher
+     * @return the builder
+     */
+    public ResponseSpecBuilder expectResponseTime(Matcher<Long> matcher) {
+        spec.responseTime(matcher);
+        return this;
+    }
+
+    /**
+     * Validate that the response time matches the supplied <code>matcher</code> and time unit.
+     *
+     * @param matcher  The matcher
+     * @param timeUnit The timeout
+     * @return the builder
+     */
+    public ResponseSpecBuilder expectResponseTime(Matcher<Long> matcher, TimeUnit timeUnit) {
+        spec.responseTime(matcher, timeUnit);
         return this;
     }
 

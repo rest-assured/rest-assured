@@ -20,10 +20,12 @@ import com.jayway.restassured.function.RestAssuredFunction;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.parsing.Parser;
 import com.jayway.restassured.response.Response;
+import com.jayway.restassured.response.ValidatableResponse;
 import org.hamcrest.Matcher;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Allows you to specify how the expected response must look like in order for a test to pass.
@@ -167,6 +169,39 @@ public interface ResponseSpecification extends RequestSender {
      * @return the response specification
      */
     ResponseSpecification content(String key, Matcher<?> matcher, Object... additionalKeyMatcherPairs);
+
+
+    /**
+     * Validate that the response time (in milliseconds) matches the supplied <code>matcher</code>. For example:
+     * <p/>
+     * <pre>
+     * when().
+     *        get("/something").
+     * then().
+     *        responseTime(lessThan(2000));
+     * </pre>
+     * <p/>
+     * where <code>lessThan</code> is a Hamcrest matcher
+     *
+     * @return The {@link ValidatableResponse} instance.
+     */
+    ResponseSpecification responseTime(Matcher<Long> matcher);
+
+    /**
+     * Validate that the response time matches the supplied <code>matcher</code> and time unit. For example:
+     * <p/>
+     * <pre>
+     * when().
+     *        get("/something").
+     * then().
+     *        responseTime(lessThan(2), TimeUnit.SECONDS);
+     * </pre>
+     * <p/>
+     * where <code>lessThan</code> is a Hamcrest matcher
+     *
+     * @return The {@link ValidatableResponse} instance.
+     */
+    ResponseSpecification responseTime(Matcher<Long> matcher, TimeUnit timeUnit);
 
     /**
      * Same as {@link #body(String, org.hamcrest.Matcher, Object...)} expect that you can pass arguments to the key. This

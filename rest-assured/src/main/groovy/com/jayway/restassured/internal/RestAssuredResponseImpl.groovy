@@ -18,8 +18,6 @@ package com.jayway.restassured.internal
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.response.ValidatableResponse
 
-import java.util.concurrent.TimeUnit
-
 class RestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<Response> implements Response {
 
   public void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
@@ -28,21 +26,5 @@ class RestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<Response> i
 
   ValidatableResponse then() {
     return new ValidatableResponseImpl(contentType, rpr, config, this, this, logRepository);
-  }
-
-  long time() {
-    return groovyResponse.responseTime()
-  }
-
-  long timeIn(TimeUnit timeUnit) {
-    return groovyResponse.responseTimeIn(timeUnit)
-  }
-
-  long getTime() {
-    return groovyResponse.responseTime()
-  }
-
-  long getTimeIn(TimeUnit timeUnit) {
-    return groovyResponse.responseTimeIn(timeUnit)
   }
 }

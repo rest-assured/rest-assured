@@ -16,7 +16,9 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
+import com.jayway.restassured.specification.ResponseSpecification;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.get;
@@ -85,5 +87,58 @@ public class ResponseTimeITest extends WithJetty {
                 get("/greet").
         then().
                 responseTime(greaterThan(2L), DAYS);
+    }
+
+    @Test public void
+    response_time_validation_can_be_specified_in_specification() {
+        ResponseSpecification spec = new ResponseSpecBuilder().expectResponseTime(lessThanOrEqualTo(3000L)).build();
+
+        given().
+                param("firstName", "John").
+                param("lastName", "Doe").
+        when().
+                get("/greet").
+        then().
+                spec(spec);
+    }
+
+    @Test public void
+    response_time_validation_can_be_specified_in_specification_using_time_unit() {
+        ResponseSpecification spec = new ResponseSpecBuilder().expectResponseTime(lessThanOrEqualTo(3L), SECONDS).build();
+
+        given().
+                param("firstName", "John").
+                param("lastName", "Doe").
+        when().
+                get("/greet").
+        then().
+                spec(spec);
+    }
+
+    @Test public void
+    response_time_validation_can_fail_when_specified_in_specification() {
+        exception.expect(AssertionError.class);
+        exception.expectMessage("Expected response time was not a value less than or equal to <3L> nanoseconds, was");
+
+        ResponseSpecification spec = new ResponseSpecBuilder().expectResponseTime(lessThanOrEqualTo(3L), NANOSECONDS).build();
+
+        given().
+                param("firstName", "John").
+                param("lastName", "Doe").
+        when().
+                get("/greet").
+        then().
+                spec(spec);
+    }
+
+    @Test public void
+    can_use_response_time_validation_in_legacy_syntax() {
+        given().
+                param("firstName", "John").
+                param("lastName", "Doe").
+        expect().
+                responseTime(lessThan(2000L)).
+        when().
+                get("/greet");
     }
 }

@@ -17,6 +17,7 @@
 package com.jayway.restassured.response;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The response of a request made by REST Assured.
@@ -124,4 +125,14 @@ public interface ExtractableResponse<R extends ResponseOptions<R>> extends Respo
      * @return The entire response object including headers, cookies and body etc.
      */
     R response();
+
+    /**
+     * @return The response time in milliseconds (or -1 if no response time could be measured)
+     */
+    long time();
+
+    /**
+     * @return The response time in the given time unit (or -1 if no response time could be measured)
+     */
+    long timeIn(TimeUnit timeUnit);
 }

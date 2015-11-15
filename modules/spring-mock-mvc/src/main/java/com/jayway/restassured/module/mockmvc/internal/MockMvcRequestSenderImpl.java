@@ -64,6 +64,7 @@ import java.security.Principal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.jayway.restassured.filter.time.TimingFilter.RESPONSE_TIME_MILLISECONDS;
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull;
 import static com.jayway.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash;
 import static com.jayway.restassured.module.mockmvc.internal.ConfigConverter.convertToRestAssuredConfig;
@@ -148,6 +149,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return new Headers(headers);
     }
 
+    @SuppressWarnings("unchecked")
     private MockMvcResponse performRequest(MockHttpServletRequestBuilder requestBuilder) {
         MockHttpServletResponse response;
 
@@ -167,7 +169,9 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
         MockMvcRestAssuredResponseImpl restAssuredResponse;
         try {
+            final long start = System.currentTimeMillis();
             ResultActions perform = mockMvc.perform(requestBuilder);
+            final long responseTime = System.currentTimeMillis() - start;
             if (!resultHandlers.isEmpty()) {
                 for (ResultHandler resultHandler : resultHandlers) {
                     perform.andDo(resultHandler);
@@ -184,6 +188,9 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             restAssuredResponse.setResponseHeaders(assembleHeaders(response));
             restAssuredResponse.setRpr(getRpr());
             restAssuredResponse.setStatusLine(assembleStatusLine(response, mvcResult.getResolvedException()));
+            restAssuredResponse.setFilterContextProperties(new HashMap() {{
+                put(RESPONSE_TIME_MILLISECONDS, responseTime);
+            }});
 
             if (responseSpecification != null) {
                 responseSpecification.validate(ResponseConverter.toStandardResponse(restAssuredResponse));

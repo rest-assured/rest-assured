@@ -29,6 +29,7 @@ import com.jayway.restassured.response.*;
 
 import java.io.InputStream;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * We delegate to the groovy impl here because the Groovy impl messes up generics (see e.g. http://stackoverflow.com/questions/11395527/groovy-generics-failure) and thus we cannot
@@ -330,5 +331,21 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public void setGroovyResponse(RestAssuredResponseOptionsGroovyImpl groovyResponse) {
         this.groovyResponse = groovyResponse;
+    }
+
+    public long time() {
+        return groovyResponse.responseTime();
+    }
+
+    public long timeIn(TimeUnit timeUnit) {
+        return groovyResponse.responseTimeIn(timeUnit);
+    }
+
+    public long getTime() {
+        return groovyResponse.responseTime();
+    }
+
+    public long getTimeIn(TimeUnit timeUnit) {
+        return groovyResponse.responseTimeIn(timeUnit);
     }
 }
