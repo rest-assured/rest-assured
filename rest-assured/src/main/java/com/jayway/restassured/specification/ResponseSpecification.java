@@ -170,7 +170,6 @@ public interface ResponseSpecification extends RequestSender {
      */
     ResponseSpecification content(String key, Matcher<?> matcher, Object... additionalKeyMatcherPairs);
 
-
     /**
      * Validate that the response time (in milliseconds) matches the supplied <code>matcher</code>. For example:
      * <p/>
@@ -178,7 +177,7 @@ public interface ResponseSpecification extends RequestSender {
      * when().
      *        get("/something").
      * then().
-     *        responseTime(lessThan(2000));
+     *        responseTime(lessThan(2000L));
      * </pre>
      * <p/>
      * where <code>lessThan</code> is a Hamcrest matcher
@@ -194,7 +193,7 @@ public interface ResponseSpecification extends RequestSender {
      * when().
      *        get("/something").
      * then().
-     *        responseTime(lessThan(2), TimeUnit.SECONDS);
+     *        responseTime(lessThan(2L), TimeUnit.SECONDS);
      * </pre>
      * <p/>
      * where <code>lessThan</code> is a Hamcrest matcher
