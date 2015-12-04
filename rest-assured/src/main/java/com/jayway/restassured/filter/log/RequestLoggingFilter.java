@@ -97,7 +97,7 @@ public class RequestLoggingFilter implements Filter {
     }
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-        RequestPrinter.print(requestSpec, ctx.getRequestMethod().toString(), ctx.getRequestURI(), logDetail, stream, shouldPrettyPrint);
+        RequestPrinter.print(requestSpec, requestSpec.getMethod().toString(), requestSpec.getURI(), logDetail, stream, shouldPrettyPrint);
         return ctx.next(requestSpec, responseSpec);
     }
 
