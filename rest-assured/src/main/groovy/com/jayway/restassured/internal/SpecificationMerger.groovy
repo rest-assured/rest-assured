@@ -106,6 +106,10 @@ class SpecificationMerger {
     mergeFilters(thisOne, with)
     thisOne.urlEncodingEnabled = with.urlEncodingEnabled
     thisOne.proxySpecification = with.proxySpecification
+    thisOne.method = with.method
+    thisOne.unnamedPathParamValues = with.unnamedPathParamValues
+    thisOne.path = with.path
+
     mergeConfig(thisOne, with)
     // It's important that headers are merged after the configs are merged since HeaderConfig affects that way headers are merged.
     thisOne.headers(with.requestHeaders)
