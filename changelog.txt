@@ -24,6 +24,7 @@ Change log next version
 * Deprecated: com.jayway.restassured.filter.FilterContext#getOriginalRequestPath, use com.jayway.restassured.specification.FilterableRequestSpecification#getUserDefinedPath instead.
 * Deprecated: com.jayway.restassured.specification.FilterableRequestSpecification#getRequestContentType, use com.jayway.restassured.specification.FilterableRequestSpecification#getContentType instead.
 * Added com.jayway.restassured.http.Method enum that represents the various HTTP methods that may be used in REST Assured
+* It's now possible to change the request path from a filter, use the "path" method in the "requestSpec" (com.jayway.restassured.specification.FilterableRequestSpecification#path).
 
 Change log 2.7.0 (2015-10-31)
 -----------------------------
