@@ -1696,7 +1696,7 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification baseUri(String baseUri);
 
     /**
-     * Add the basePath  property from the RequestSpecification instead of using static field RestAssured.basePath.
+     * Set the basePath property of the RequestSpecification instead of using static field RestAssured.basePath.
      *
      * @param basePath The base path
      * @return the request specification

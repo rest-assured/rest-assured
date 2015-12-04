@@ -62,12 +62,16 @@ public interface FilterContext {
 
     /**
      * @return The request method of the request (E.g. POST, GET etc)
+     * @deprecated Use {@link FilterableRequestSpecification#getMethod()} instead.
      */
+    @Deprecated
     Method getRequestMethod();
 
     /**
      * @return The request path
+     * @deprecated Use {@link FilterableRequestSpecification#getDerivedPath()} instead.
      */
+    @Deprecated
     String getRequestPath();
 
     /**
@@ -80,18 +84,21 @@ public interface FilterContext {
      * Then this method would return <code>"/something/{x}"</code>.
      *
      * @return The original request path
+     * @deprecated Use {@link FilterableRequestSpecification#getUserDefinedPath()} instead.
      */
+    @Deprecated
     String getOriginalRequestPath();
-
 
     /**
      * @return The request URI as a string. This is the fully-qualified path including host, port number, scheme, path and query params.
+     * @deprecated Use {@link FilterableRequestSpecification#getURI()} instead.
      */
+    @Deprecated
     String getRequestURI();
 
     /**
      * @return The request URI as a string. This is the fully-qualified path including host, port number, scheme, path and query params.
-     * @deprecated Use {@link FilterContext#getRequestURI()} instead
+     * @deprecated Use {@link FilterableRequestSpecification#getURI()} instead.
      */
     @Deprecated
     String getCompleteRequestPath();

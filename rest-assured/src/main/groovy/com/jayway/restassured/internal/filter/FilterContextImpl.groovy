@@ -19,8 +19,8 @@ package com.jayway.restassured.internal.filter
 
 import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.filter.FilterContext
+import com.jayway.restassured.http.Method
 import com.jayway.restassured.internal.RequestSpecificationImpl
-import com.jayway.restassured.internal.http.Method
 import com.jayway.restassured.response.Response
 import com.jayway.restassured.specification.FilterableRequestSpecification
 import com.jayway.restassured.specification.FilterableResponseSpecification
@@ -52,8 +52,8 @@ class FilterContextImpl implements FilterContext {
    * @param filters The remaining filters to invoke
    * @param properties The filter context properties
    */
-  FilterContextImpl(String requestUri, String fullOriginalPath, String fullSubstitutedPath, String internalRequestUri, String userDefinedPath, Object[] unnamedPathParams,
-                    Method method, assertionClosure, Iterator<Filter> filters, Map<String, Object> properties) {
+  FilterContextImpl(String requestUri, String fullOriginalPath, String fullSubstitutedPath, String internalRequestUri, String userDefinedPath,
+                    Object[] unnamedPathParams, Method method, assertionClosure, Iterator<Filter> filters, Map<String, Object> properties) {
     this.userDefinedPath = userDefinedPath
     this.unnamedPathParams = unnamedPathParams
     this.internalRequestUri = internalRequestUri
@@ -69,7 +69,7 @@ class FilterContextImpl implements FilterContext {
   Response next(FilterableRequestSpecification request, FilterableResponseSpecification response) {
     if (filters.hasNext()) {
       def next = filters.next();
-      def filterContext = (request as RequestSpecificationImpl).newFilterContext(userDefinedPath, unnamedPathParams, method, assertionClosure, filters, properties)
+      def filterContext = (request as RequestSpecificationImpl).newFilterContext(assertionClosure, filters, properties)
       return next.filter(request, response, filterContext)
     }
   }
@@ -82,14 +82,16 @@ class FilterContextImpl implements FilterContext {
     originalPath
   }
 
-  Method getRequestMethod() {
-    method
+  com.jayway.restassured.internal.http.Method getRequestMethod() {
+    com.jayway.restassured.internal.http.Method.valueOf(method.toString())
   }
 
   String getRequestURI() {
     requestUri
   }
 
+  // Used by SendRequestFilter
+  @SuppressWarnings("GroovyUnusedDeclaration")
   String getInternalRequestURI() {
     internalRequestUri
   }

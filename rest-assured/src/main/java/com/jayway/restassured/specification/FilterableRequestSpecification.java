@@ -19,6 +19,7 @@ package com.jayway.restassured.specification;
 import com.jayway.restassured.authentication.AuthenticationScheme;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.Filter;
+import com.jayway.restassured.http.Method;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Headers;
 import org.apache.http.client.HttpClient;
@@ -42,14 +43,49 @@ public interface FilterableRequestSpecification extends RequestSpecification {
     String getBasePath();
 
     /**
+     * @return The derived request path with path parameters and base path etc applied
+     */
+    String getDerivedPath();
+
+    /**
+     * Returns the original request path as it was before any path parameters were applied. For example
+     * if you made the following request to REST Assured:
+     * <pre>
+     * get("/something/{x}", x);
+     * </pre>
+     * <p/>
+     * Then this method would return <code>"/something/{x}"</code>.
+     *
+     * @return The original request path
+     */
+    String getUserDefinedPath();
+
+    /**
+     * @return The request method of the request (E.g. POST, GET etc)
+     */
+    Method getMethod();
+
+    /**
+     * @return The request URI as a string. This is the fully-qualified path including host, port number, scheme, path and query params.
+     */
+    String getURI();
+
+    /**
      * @return The port defined in the request specification
      */
     int getPort();
 
     /**
      * @return The request content type defined in the request specification
+     * @deprecated Use {@link #getContentType()} instead.
      */
+    @Deprecated
     String getRequestContentType();
+
+    /**
+     * @return The request content type defined in the request specification
+     */
+    String getContentType();
 
     /**
      * @return The authentication scheme defined in the request specification
@@ -115,4 +151,22 @@ public interface FilterableRequestSpecification extends RequestSpecification {
      * @return The defined proxy specification or <code>null</code> if undefined.
      */
     ProxySpecification getProxySpecification();
+
+    /**
+     * Set the request path of the request specification. For example if the request was defined like this:
+     * <p/>
+     * <pre>
+     * get("/x");
+     * </pre>
+     * <p/>
+     * You can change to path to "/y" instead using this method. This will result in a request that looks like this:
+     * <p/>
+     * <pre>
+     * get("/y");
+     * </pre>
+     *
+     * @param path The path
+     * @return the filterable request specification
+     */
+    FilterableRequestSpecification path(String path);
 }

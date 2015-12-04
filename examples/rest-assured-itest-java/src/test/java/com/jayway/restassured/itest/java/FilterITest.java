@@ -33,6 +33,7 @@ import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.PrintStream;
@@ -213,6 +214,40 @@ public class FilterITest extends WithJetty {
                 root("greeting").
                 body("firstName", equalTo("John")).
                 body("lastName", equalTo("Doe"));
+    }
+
+
+    @Test public void
+    can_change_path_from_filter() {
+        given().
+                filter((requestSpec, responseSpec, ctx) -> {
+                    requestSpec.path("/lotto");
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/greetJSON").
+        then().
+                statusCode(200).
+                body("lotto.lottoId", is(5));
+    }
+
+    @Ignore
+    @Test public void
+    can_change_path_parameters_from_filter() {
+        given().
+                filter((requestSpec, responseSpec, ctx) -> {
+                    assertThat(requestSpec.getPathParams(), is(2));
+                    requestSpec.pathParam("firstName", "John");
+                    requestSpec.pathParam("lastName", "Doe");
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/{firstName}/{lastName}").
+        then().
+                statusCode(200).
+                body("firstName", equalTo("John")).
+                body("lastName", equalTo("Doe")).
+                body("fullName", equalTo("John Doe"));
     }
 
     public static class CountingFilter implements Filter {

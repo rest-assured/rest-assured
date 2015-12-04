@@ -18,6 +18,12 @@ Change log next version
             responseTime(lessThan(2L), SECONDS);
   Please note that response time measurement should be performed when the JVM is hot! (i.e. running a response time measurement when only running a single test will yield erroneous results)
   This is also implemented in the Spring MockMvc module (issue 493)
+* Deprecated: com.jayway.restassured.filter.FilterContext#getRequestMethod, use com.jayway.restassured.specification.FilterableRequestSpecification#getMethod instead.
+* Deprecated: com.jayway.restassured.filter.FilterContext#getRequestPath, use com.jayway.restassured.specification.FilterableRequestSpecification#getUserDefinedPath instead.
+* Deprecated: com.jayway.restassured.filter.FilterContext#getRequestURI, use com.jayway.restassured.specification.FilterableRequestSpecification#getURI instead.
+* Deprecated: com.jayway.restassured.filter.FilterContext#getOriginalRequestPath, use com.jayway.restassured.specification.FilterableRequestSpecification#getUserDefinedPath instead.
+* Deprecated: com.jayway.restassured.specification.FilterableRequestSpecification#getRequestContentType, use com.jayway.restassured.specification.FilterableRequestSpecification#getContentType instead.
+* Added com.jayway.restassured.http.Method enum that represents the various HTTP methods that may be used in REST Assured
 
 Change log 2.7.0 (2015-10-31)
 -----------------------------

@@ -54,7 +54,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void possibleToGetOriginalRequestPathForUnnamedPathParams() throws Exception {
+    public void possibleToGetOriginalRequestPathForUnnamedPathParamsFromFilterContext() throws Exception {
         given().
                 filter((requestSpec, responseSpec, ctx) -> {
                     assertThat(ctx.getOriginalRequestPath(), equalTo("/{firstName}/{lastName}"));
@@ -69,7 +69,22 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void possibleToGetOriginalRequestPathForNamedPathParams() throws Exception {
+    public void possibleToGetOriginalRequestPathForUnnamedPathParamsFromRequestSpec() throws Exception {
+        given().
+                filter((requestSpec, responseSpec, ctx) -> {
+                    assertThat(requestSpec.getUserDefinedPath(), equalTo("/{firstName}/{lastName}"));
+                    assertThat(requestSpec.getURI(), equalTo("http://localhost:8080/John/Doe"));
+                    assertThat(requestSpec.getDerivedPath(), equalTo("/John/Doe"));
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/{firstName}/{lastName}", "John", "Doe").
+        then().
+                body("fullName", equalTo("John Doe"));
+    }
+
+    @Test
+    public void possibleToGetOriginalRequestPathForNamedPathParamsUsingFilterContext() throws Exception {
         given().
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
@@ -77,6 +92,23 @@ public class PathParamITest extends WithJetty {
                     assertThat(ctx.getOriginalRequestPath(), equalTo("/{firstName}/{lastName}"));
                     assertThat(ctx.getRequestPath(), equalTo("/John/Doe"));
                     assertThat(ctx.getRequestURI(), equalTo("http://localhost:8080/John/Doe"));
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/{firstName}/{lastName}").
+        then().
+                body("fullName", equalTo("John Doe"));
+    }
+
+    @Test
+    public void possibleToGetOriginalRequestPathForNamedPathParamsUsingRequestSpec() throws Exception {
+        given().
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+                filter((requestSpec, responseSpec, ctx) -> {
+                    assertThat(requestSpec.getUserDefinedPath(), equalTo("/{firstName}/{lastName}"));
+                    assertThat(requestSpec.getDerivedPath(), equalTo("/John/Doe"));
+                    assertThat(requestSpec.getURI(), equalTo("http://localhost:8080/John/Doe"));
                     return ctx.next(requestSpec, responseSpec);
                 }).
         when().

@@ -23,6 +23,7 @@ import com.jayway.restassured.filter.log.RequestLoggingFilter
 import com.jayway.restassured.filter.log.ResponseLoggingFilter
 import com.jayway.restassured.filter.time.TimingFilter
 import com.jayway.restassured.http.ContentType
+import com.jayway.restassured.http.Method
 import com.jayway.restassured.internal.filter.FilterContextImpl
 import com.jayway.restassured.internal.filter.FormAuthFilter
 import com.jayway.restassured.internal.filter.SendRequestFilter
@@ -59,8 +60,8 @@ import java.util.regex.Matcher
 
 import static com.jayway.restassured.config.ParamConfig.UpdateStrategy.REPLACE
 import static com.jayway.restassured.http.ContentType.*
+import static com.jayway.restassured.http.Method.*
 import static com.jayway.restassured.internal.assertion.AssertParameter.notNull
-import static com.jayway.restassured.internal.http.Method.*
 import static com.jayway.restassured.internal.serialization.SerializationSupport.isSerializableCandidate
 import static com.jayway.restassured.internal.support.PathSupport.isFullyQualified
 import static com.jayway.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash
@@ -81,7 +82,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   private String baseUri
   private String path = ""
+  private Method method
   private String basePath
+  private String[] unnamedPathParams
   private AuthenticationScheme defaultAuthScheme
   private int port
   private Map<String, Object> requestParameters = new LinkedHashMap()
@@ -969,18 +972,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  def newFilterContext(String path, Object[] unnamedPathParams, method, assertionClosure, filters, properties) {
-    notNull path, "path"
-    notNull unnamedPathParams, "Path params"
-
+  def newFilterContext(assertionClosure, filters, properties) {
     if (path?.endsWith("?")) {
       throw new IllegalArgumentException("Request URI cannot end with ?");
     }
-
-    def uri = applyPathParamsAndEncodePath(path, unnamedPathParams)
-    def substitutedPath = PathSupport.getPath(uri)
-
-    def originalPath = PathSupport.getPath(path)
 
     // Set default accept header if undefined
     if (!headers.hasHeaderWithName(ACCEPT_HEADER_NAME)) {
@@ -992,8 +987,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       header(CONTENT_TYPE, tempContentType)
     }
 
+    def uri = applyPathParamsAndEncodePath(path, unnamedPathParams)
     String requestUriForLogging = generateRequestUriForLogging(uri, method)
-    new FilterContextImpl(requestUriForLogging, originalPath, substitutedPath, uri, path, unnamedPathParams, method, assertionClosure, filters, properties);
+
+    new FilterContextImpl(requestUriForLogging, getUserDefinedPath(), getDerivedPath(uri), uri, path, unnamedPathParams, method, assertionClosure, filters, properties);
   }
 
   private def String generateRequestUriForLogging(path, method) {
@@ -1054,9 +1051,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   @SuppressWarnings("GroovyUnusedDeclaration")
-  private def Response sendRequest(path, method, assertionClosure, FilterableRequestSpecification requestSpecification, Map filterContextProperties) {
+  private def Response sendRequest(path, assertionClosure, FilterableRequestSpecification requestSpecification, Map filterContextProperties) {
     notNull path, "Path"
     path = extractRequestParamsIfNeeded(path);
+    def method = requestSpecification.getMethod()
     def targetUri = getTargetURI(path);
     def targetPath = getTargetPath(path)
 
@@ -1292,7 +1290,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     if (method == GET) {
       allQueryParams = mergeMapsAndRetainOrder(allQueryParams, formParameters)
     }
-    http.request(method, responseContentType) {
+    def internalMethod = com.jayway.restassured.internal.http.Method.valueOf(method.toString())
+    http.request(internalMethod, responseContentType) {
       uri.path = targetPath
 
       setRequestContentType(defineRequestContentTypeAsString(method))
@@ -1440,7 +1439,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, objectMappingConfig(), restAssuredConfig().getEncoderConfig()) : object.toString()
   }
 
-  private def applyPathParamsAndSendRequest(Method method, String path, Object... pathParams) {
+  private def applyPathParamsAndSendRequest(Method method, String path, Object... unnamedPathParams) {
+    notNull path, "path"
+    notNull method, "Method"
+    notNull unnamedPathParams, "Path params"
+    this.method = method;
+    this.path = path;
+    this.unnamedPathParams = unnamedPathParams;
     if (authenticationScheme instanceof NoAuthScheme && !(defaultAuthScheme instanceof NoAuthScheme)) {
       // Use default auth scheme
       authenticationScheme = defaultAuthScheme
@@ -1469,7 +1474,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
 
     filters << new SendRequestFilter()
-    def ctx = newFilterContext(path, pathParams, method, responseSpecification.assertionClosure, filters.iterator(), [:])
+    def ctx = newFilterContext(responseSpecification.assertionClosure, filters.iterator(), [:])
     httpClient = httpClientConfig().httpClientInstance()
     def response = ctx.next(this, responseSpecification)
     responseSpecification.assertionClosure.validate(response)
@@ -1477,7 +1482,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   def String applyPathParamsAndEncodePath(String path, Object... unnamedPathParams) {
-    def unnamedPathParamSize = unnamedPathParams.size()
+    def unnamedPathParamSize = unnamedPathParams?.size() ?: 0
     def namedPathParamSize = this.pathParameters.size()
     def namedPathParams = this.pathParameters
     if (unnamedPathParamSize > 0 && namedPathParamSize > 0) {
@@ -1699,6 +1704,24 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return basePath
   }
 
+  String getDerivedPath() {
+    def uri = applyPathParamsAndEncodePath(path, unnamedPathParams)
+    getDerivedPath(uri)
+  }
+
+  String getUserDefinedPath() {
+    return PathSupport.getPath(path)
+  }
+
+  Method getMethod() {
+    return method
+  }
+
+  String getURI() {
+    def uri = applyPathParamsAndEncodePath(path, unnamedPathParams)
+    getURI(uri);
+  }
+
   int getPort() {
     def host = new URL(getTargetURI(path))
     return host.getPort()
@@ -1755,8 +1778,18 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return proxySpecification
   }
 
+  FilterableRequestSpecification path(String path) {
+    notNull path, "Path"
+    this.path = trimToEmpty(path)
+    return this
+  }
+
   String getRequestContentType() {
-    requestHeaders.getValue(CONTENT_TYPE)
+    return getContentType()
+  }
+
+  String getContentType() {
+    return requestHeaders.getValue(CONTENT_TYPE)
   }
 
   def RequestSpecification noFilters() {
@@ -1983,5 +2016,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   private enum EncodingTarget {
     BODY, QUERY
+  }
+
+  String getDerivedPath(String uri) {
+    PathSupport.getPath(uri)
+  }
+
+  String getURI(String uri) {
+    generateRequestUriForLogging(uri, method)
   }
 }

@@ -27,6 +27,6 @@ class SendRequestFilter implements Filter {
 
   @Override
   Response filter(FilterableRequestSpecification requestSpecification, FilterableResponseSpecification responseSpecification, FilterContext context) {
-    return requestSpecification.sendRequest(context.getInternalRequestURI(), context.getRequestMethod(), context.assertionClosure, requestSpecification, context.properties)
+    return requestSpecification.sendRequest(context.getInternalRequestURI(), context.assertionClosure, requestSpecification, context.properties)
   }
 }
