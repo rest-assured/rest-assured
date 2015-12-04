@@ -198,6 +198,23 @@ public class FilterITest extends WithJetty {
                 body("fullName", equalTo("John Doe"));
     }
 
+    @Test public void
+    can_add_query_params_from_filter() {
+        given().
+                filter((requestSpec, responseSpec, ctx) -> {
+                    requestSpec.queryParam("firstName", "John");
+                    requestSpec.queryParam("lastName", "Doe");
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/greetJSON").
+        then().
+                statusCode(200).
+                root("greeting").
+                body("firstName", equalTo("John")).
+                body("lastName", equalTo("Doe"));
+    }
+
     public static class CountingFilter implements Filter {
 
         public int counter = 0;
