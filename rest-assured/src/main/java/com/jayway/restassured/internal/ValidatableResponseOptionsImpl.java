@@ -420,12 +420,12 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         return (T) this;
     }
 
-    public T responseTime(Matcher<Long> matcher) {
-        return responseTime(matcher, TimeUnit.MILLISECONDS);
+    public T time(Matcher<Long> matcher) {
+        return time(matcher, TimeUnit.MILLISECONDS);
     }
 
-    public T responseTime(Matcher<Long> matcher, TimeUnit timeUnit) {
-        responseSpec.responseTime(matcher, timeUnit);
+    public T time(Matcher<Long> matcher, TimeUnit timeUnit) {
+        responseSpec.time(matcher, timeUnit);
         return (T) this;
     }
 

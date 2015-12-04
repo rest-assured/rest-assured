@@ -177,14 +177,14 @@ public interface ResponseSpecification extends RequestSender {
      * when().
      *        get("/something").
      * then().
-     *        responseTime(lessThan(2000L));
+     *        time(lessThan(2000L));
      * </pre>
      * <p/>
      * where <code>lessThan</code> is a Hamcrest matcher
      *
      * @return The {@link ValidatableResponse} instance.
      */
-    ResponseSpecification responseTime(Matcher<Long> matcher);
+    ResponseSpecification time(Matcher<Long> matcher);
 
     /**
      * Validate that the response time matches the supplied <code>matcher</code> and time unit. For example:
@@ -193,14 +193,14 @@ public interface ResponseSpecification extends RequestSender {
      * when().
      *        get("/something").
      * then().
-     *        responseTime(lessThan(2L), TimeUnit.SECONDS);
+     *        time(lessThan(2L), TimeUnit.SECONDS);
      * </pre>
      * <p/>
      * where <code>lessThan</code> is a Hamcrest matcher
      *
      * @return The {@link ValidatableResponse} instance.
      */
-    ResponseSpecification responseTime(Matcher<Long> matcher, TimeUnit timeUnit);
+    ResponseSpecification time(Matcher<Long> matcher, TimeUnit timeUnit);
 
     /**
      * Same as {@link #body(String, org.hamcrest.Matcher, Object...)} expect that you can pass arguments to the key. This

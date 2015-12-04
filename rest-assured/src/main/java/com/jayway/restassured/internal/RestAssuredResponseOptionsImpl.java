@@ -334,18 +334,18 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
     }
 
     public long time() {
-        return groovyResponse.responseTime();
+        return groovyResponse.time();
     }
 
     public long timeIn(TimeUnit timeUnit) {
-        return groovyResponse.responseTimeIn(timeUnit);
+        return groovyResponse.timeIn(timeUnit);
     }
 
     public long getTime() {
-        return groovyResponse.responseTime();
+        return groovyResponse.time();
     }
 
     public long getTimeIn(TimeUnit timeUnit) {
-        return groovyResponse.responseTimeIn(timeUnit);
+        return groovyResponse.timeIn(timeUnit);
     }
 }

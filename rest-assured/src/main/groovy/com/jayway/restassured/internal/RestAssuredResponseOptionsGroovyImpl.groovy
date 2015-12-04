@@ -397,7 +397,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
   }
 
 
-  def long responseTime() {
+  def long time() {
     if (filterContextProperties?.containsKey(TimingFilter.RESPONSE_TIME_MILLISECONDS)) {
       filterContextProperties.get(TimingFilter.RESPONSE_TIME_MILLISECONDS)
     } else {
@@ -405,9 +405,9 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
     }
   }
 
-  def long responseTimeIn(TimeUnit timeUnit) {
+  def long timeIn(TimeUnit timeUnit) {
     notNull timeUnit, TimeUnit.class
-    def time = responseTime()
+    def time = time()
     if (time != NO_RESPONSE_TIME && timeUnit != TimeUnit.MILLISECONDS) {
       time = timeUnit.convert(time, TimeUnit.MILLISECONDS)
     }

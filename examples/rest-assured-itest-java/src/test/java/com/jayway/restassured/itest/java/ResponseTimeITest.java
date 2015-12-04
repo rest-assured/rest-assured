@@ -60,7 +60,7 @@ public class ResponseTimeITest extends WithJetty {
         when().
                 get("/greet").
         then().
-                responseTime(allOf(greaterThan(0L), lessThan(2000L)));
+                time(allOf(greaterThan(0L), lessThan(2000L)));
     }
 
     @Test public void
@@ -71,7 +71,7 @@ public class ResponseTimeITest extends WithJetty {
         when().
                 get("/greet").
         then().
-                responseTime(lessThan(2L), SECONDS);
+                time(lessThan(2L), SECONDS);
     }
 
     @Test public void
@@ -86,7 +86,7 @@ public class ResponseTimeITest extends WithJetty {
         when().
                 get("/greet").
         then().
-                responseTime(greaterThan(2L), DAYS);
+                time(greaterThan(2L), DAYS);
     }
 
     @Test public void
@@ -137,7 +137,7 @@ public class ResponseTimeITest extends WithJetty {
                 param("firstName", "John").
                 param("lastName", "Doe").
         expect().
-                responseTime(lessThan(2000L)).
+                time(lessThan(2000L)).
         when().
                 get("/greet");
     }

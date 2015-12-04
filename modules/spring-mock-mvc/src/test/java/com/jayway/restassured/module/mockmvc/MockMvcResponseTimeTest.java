@@ -35,7 +35,7 @@ public class MockMvcResponseTimeTest {
         when().
                 post("/greetingPost").
         then().
-                responseTime(lessThan(3L), SECONDS).
+                time(lessThan(3L), SECONDS).
                 expect(status().is2xxSuccessful());
     }
 

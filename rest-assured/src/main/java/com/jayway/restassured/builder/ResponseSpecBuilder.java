@@ -308,7 +308,7 @@ public class ResponseSpecBuilder {
      * @return the builder
      */
     public ResponseSpecBuilder expectResponseTime(Matcher<Long> matcher) {
-        spec.responseTime(matcher);
+        spec.time(matcher);
         return this;
     }
 
@@ -320,7 +320,7 @@ public class ResponseSpecBuilder {
      * @return the builder
      */
     public ResponseSpecBuilder expectResponseTime(Matcher<Long> matcher, TimeUnit timeUnit) {
-        spec.responseTime(matcher, timeUnit);
+        spec.time(matcher, timeUnit);
         return this;
     }
 

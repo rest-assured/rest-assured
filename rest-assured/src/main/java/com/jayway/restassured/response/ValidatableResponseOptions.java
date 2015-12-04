@@ -1309,14 +1309,14 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * when().
      *        get("/something").
      * then().
-     *        responseTime(lessThan(2000));
+     *        time(lessThan(2000));
      * </pre>
      * <p/>
      * where <code>lessThan</code> is a Hamcrest matcher
      *
      * @return The {@link ValidatableResponse} instance.
      */
-    T responseTime(Matcher<Long> matcher);
+    T time(Matcher<Long> matcher);
 
     /**
      * Validate that the response time matches the supplied <code>matcher</code> and time unit. For example:
@@ -1325,12 +1325,12 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * when().
      *        get("/something").
      * then().
-     *        responseTime(lessThan(2), TimeUnit.SECONDS);
+     *        time(lessThan(2), TimeUnit.SECONDS);
      * </pre>
      * <p/>
      * where <code>lessThan</code> is a Hamcrest matcher
      *
      * @return The {@link ValidatableResponse} instance.
      */
-    T responseTime(Matcher<Long> matcher, TimeUnit timeUnit);
+    T time(Matcher<Long> matcher, TimeUnit timeUnit);
 }
