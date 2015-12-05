@@ -97,7 +97,7 @@ class SpecificationMerger {
     thisOne.requestParameters.putAll(with.requestParameters)
     thisOne.queryParameters.putAll(with.queryParams)
     thisOne.formParameters.putAll(with.formParams)
-    thisOne.pathParameters.putAll(with.pathParams)
+    thisOne.namedPathParameters.putAll(with.pathParams)
     thisOne.multiParts.addAll(with.multiParts)
     thisOne.authenticationScheme = with.authenticationScheme
     mergeSessionId(thisOne, with)

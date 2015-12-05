@@ -368,6 +368,15 @@ class ScalatraRestExample extends ScalatraServlet {
 
   }
 
+  get("/:firstName/:middleName/:lastName") {
+    val firstName = {params("firstName")}
+    val middleName = {params("middleName")}
+    val lastName = {params("lastName")}
+    val json = ("firstName" -> firstName) ~ ("lastName" -> lastName) ~ ("middleName" -> middleName)
+    compact(render(json))
+
+  }
+
   get("/409") {
     contentType = "text/plain"
     response.setStatus(409)

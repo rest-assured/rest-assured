@@ -59,7 +59,7 @@ public class RequestPrinter {
             addMapDetails(builder, "Request params:", requestSpec.getRequestParams());
             addMapDetails(builder, "Query params:", requestSpec.getQueryParams());
             addMapDetails(builder, "Form params:", requestSpec.getFormParams());
-            addMapDetails(builder, "Path params:", requestSpec.getPathParams());
+            addMapDetails(builder, "Path params:", requestSpec.getNamedPathParams());
             addMultiParts(requestSpec, builder);
         }
 
