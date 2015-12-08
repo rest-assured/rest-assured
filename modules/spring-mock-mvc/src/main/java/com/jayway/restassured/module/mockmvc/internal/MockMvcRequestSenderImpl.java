@@ -482,6 +482,8 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
         final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, uri, new NoAuthScheme(), Collections.<Filter>emptyList(),
                 null, true, convertToRestAssuredConfig(config), logRepository, null);
+        reqSpec.setMethod(method.toString());
+        reqSpec.path(originalPath);
         if (params != null) {
             new ParamLogger(params) {
                 protected void logParam(String paramName, Object paramValue) {

@@ -378,12 +378,17 @@ public class FilterITest extends WithJetty {
         given().
                 pathParam("firstName", "John").
                 filter((requestSpec, responseSpec, ctx) -> {
-                    assertThat(requestSpec.getPathParams(), allOf(hasEntry("firstName", "John"), hasEntry("lastName", "Doe")));
+                    assertThat(requestSpec.getPathParams(), allOf(hasEntry("firstName", "John"), not(hasEntry("lastName", "Doe"))));
                     assertThat(requestSpec.getPathParams().size(), is(2));
-                    return new ResponseBuilder().setStatusCode(200).build();
+                    requestSpec.pathParam("lastName", "Something");
+                    return ctx.next(requestSpec, responseSpec);
                 }).
         when().
-                get("/{firstName}/{lastName}", "Doe");
+                get("/{firstName}/{lastName}", "John2").
+        then().
+                body("firstName", equalTo("John")).
+                body("lastName", equalTo("Something")).
+                body("fullName", equalTo("John Something"));
     }
 
     @Test public void
@@ -424,42 +429,22 @@ public class FilterITest extends WithJetty {
     }
 
     @Test public void
-    can_remove_unnamed_path_parameter_by_name_from_filter_when_a_named_parameter_is_defined_for_same_placeholder() throws Exception {
-        given().
-                pathParam("firstName", "John2").
-                filter((requestSpec, responseSpec, ctx) -> {
-                    assertThat(requestSpec.getUnnamedPathParamValues(), contains("John", "Doe"));
-                    requestSpec.removeUnnamedPathParam("firstName");
-                    assertThat(requestSpec.getUnnamedPathParamValues(), contains("Doe"));
-                    return ctx.next(requestSpec, responseSpec);
-                }).
-        when().
-                get("/{firstName}/{lastName}", "John", "Doe").
-        then().
-                statusCode(200).
-                body("firstName", equalTo("John2")).
-                body("lastName", equalTo("Doe")).
-                body("fullName", equalTo("John2 Doe"));
-    }
-
-    @Test public void
     can_remove_both_unnamed_and_named_path_parameter_from_filter_and_order_is_maintained() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Path parameters were not correctly defined. Redundant path parameters are: John3, Doe.");
+
         given().
                 pathParam("firstName", "John2").
                 filter((requestSpec, responseSpec, ctx) -> {
                     assertThat(requestSpec.getUnnamedPathParamValues(), contains("John", "John3", "Doe"));
                     requestSpec.removePathParam("firstName");
+                    requestSpec.removePathParam("lastName");
                     assertThat(requestSpec.getUnnamedPathParamValues(), contains("John3", "Doe"));
                     assertThat(requestSpec.getNamedPathParams().isEmpty(), is(true));
                     return ctx.next(requestSpec, responseSpec);
                 }).
         when().
-                get("/{firstName}/{lastName}", "John", "John3", "Doe").
-        then().
-                statusCode(200).
-                body("firstName", equalTo("John3")).
-                body("lastName", equalTo("Doe")).
-                body("fullName", equalTo("John3 Doe"));
+                get("/{firstName}/{lastName}", "John", "John3", "Doe");
     }
 
     public static class CountingFilter implements Filter {

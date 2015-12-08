@@ -75,7 +75,7 @@ class ParameterMapBuilderTest {
   @Test
   def void removesPathParamOnRemoveFormPathMethod() throws Exception {
     requestBuilder.pathParameters("key1", "value1");
-    def map = requestBuilder.removePathParam("key1").pathParameters
+    def map = requestBuilder.removePathParam("key1").namedPathParameters
 
     assertEquals 0, map.size()
   }

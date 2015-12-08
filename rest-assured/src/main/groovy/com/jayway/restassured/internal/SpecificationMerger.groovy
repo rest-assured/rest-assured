@@ -107,7 +107,7 @@ class SpecificationMerger {
     thisOne.urlEncodingEnabled = with.urlEncodingEnabled
     thisOne.proxySpecification = with.proxySpecification
     thisOne.method = with.method
-    thisOne.unnamedPathParamValues = with.unnamedPathParamValues
+    thisOne.unnamedPathParamsTuples = with.unnamedPathParamValues
     thisOne.path = with.path
 
     mergeConfig(thisOne, with)

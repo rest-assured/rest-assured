@@ -191,7 +191,7 @@ public class PathParamITest extends WithJetty {
     @Test
     public void throwsIAEWhenNumberOfSuppliedUnnamedPathParamsAreGreaterThanDefinedPathParams() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Illegal number of path parameters. Expected 2, was 3. Redundant path parameters are: Real Doe");
+        exception.expectMessage("Invalid number of path parameters. Expected 2, was 3. Redundant path parameters are: Real Doe");
 
         get("/{firstName}/{lastName}", "John", "Doe", "Real Doe");
     }
@@ -199,7 +199,7 @@ public class PathParamITest extends WithJetty {
     @Test
     public void throwsIAEWhenNumberOfSuppliedNamedPathParamsAreEqualButDifferentToPlaceholders() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("The request contains redundant path parameters. Redundant path parameters are: x=first, y=second. Missing path parameters are: firstName, lastName.");
+        exception.expectMessage("Path parameters were not correctly defined. Redundant path parameters are: x=first, y=second. Undefined path parameters are: firstName, lastName.");
 
         given().pathParam("x", "first").pathParam("y", "second").get("/{firstName}/{lastName}");
     }
@@ -207,7 +207,7 @@ public class PathParamITest extends WithJetty {
     @Test
     public void throwsIAEWhenNumberOfSuppliedNamedPathParamsAreDefinedButNoPlaceholdersAreDefined() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Illegal number of path parameters. Expected 0, was 2. Redundant path parameters are: x=first, y=second.");
+        exception.expectMessage("Invalid number of path parameters. Expected 0, was 2. Redundant path parameters are: x=first, y=second.");
 
         given().pathParam("x", "first").pathParam("y", "second").get("/x");
     }
@@ -215,7 +215,7 @@ public class PathParamITest extends WithJetty {
     @Test
     public void throwsIAEWhenNumberOfSuppliedNamedPathParamsIsGreaterThanDefinedPlaceholders() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Illegal number of path parameters. Expected 2, was 3. Redundant path parameters are: x=first, y=second. Missing path parameters are: firstName.");
+        exception.expectMessage("Invalid number of path parameters. Expected 2, was 3. Redundant path parameters are: x=first, y=second. Undefined path parameters are: firstName.");
 
         given().pathParam("x", "first").pathParam("lastName", "Doe").pathParam("y", "second").get("/{firstName}/{lastName}");
     }
@@ -223,7 +223,7 @@ public class PathParamITest extends WithJetty {
     @Test
     public void throwsIAEWhenNumberOfSuppliedNamedAndUnnamedPathParamsIsGreaterThanDefinedPlaceholders() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Illegal number of path parameters. Expected 2, was 6. Redundant path parameters are: x=first, y=second and Doe, Last.");
+        exception.expectMessage("Invalid number of path parameters. Expected 2, was 6. Redundant path parameters are: x=first, y=second and Doe, Last.");
 
         given().pathParam("x", "first").pathParam("y", "second").get("/{firstName}/{lastName}", "John", "Middle", "Doe", "Last");
     }
@@ -231,7 +231,7 @@ public class PathParamITest extends WithJetty {
     @Test
     public void throwsIAEWhenNumberOfSuppliedPathParamsAreLowerThanDefinedPathParams() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Illegal number of path parameters. Expected 2, was 1. Undefined path parameters are: lastName");
+        exception.expectMessage("Invalid number of path parameters. Expected 2, was 1. Undefined path parameters are: lastName");
 
         get("/{firstName}/{lastName}", "John");
     }
@@ -323,7 +323,7 @@ public class PathParamITest extends WithJetty {
     @Test
     public void passingInTwoManyPathParamsWithGivenThrowsIAE() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Illegal number of path parameters. Expected 2, was 3.");
+        exception.expectMessage("Invalid number of path parameters. Expected 2, was 3.");
 
         given().
                 pathParam("firstName", "John").
@@ -338,7 +338,7 @@ public class PathParamITest extends WithJetty {
     @Test
     public void passingInTooFewNamedPathParamsWithGivenThrowsIAE() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Illegal number of path parameters. Expected 2, was 1. Undefined path parameters are: lastName");
+        exception.expectMessage("Invalid number of path parameters. Expected 2, was 1. Undefined path parameters are: lastName");
 
         given().
                 pathParam("firstName", "John").
@@ -377,7 +377,7 @@ public class PathParamITest extends WithJetty {
     @Test
     public void throwsIllegalArgumentExceptionWhenTooManyPathParametersAreUsed() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Illegal number of path parameters. Expected 1, was 2.");
+        exception.expectMessage("Invalid number of path parameters. Expected 1, was 2. Redundant path parameters are: ikk.");
 
         expect().statusCode(200).when().get("http://www.google.se/search?q={query}&hl=en", "query", "ikk");
     }
@@ -385,7 +385,7 @@ public class PathParamITest extends WithJetty {
     @Test
     public void throwsIllegalArgumentExceptionWhenTooFewPathParametersAreUsed() throws Exception {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Illegal number of path parameters. Expected 1, was 0.");
+        exception.expectMessage("Invalid number of path parameters. Expected 1, was 0.");
 
         expect().statusCode(200).when().get("http://www.google.se/search?q={query}&hl=en");
     }
@@ -555,5 +555,21 @@ public class PathParamITest extends WithJetty {
                 body("firstName", equalTo("John")).
                 body("middleName", equalTo("The Beast")).
                 body("lastName", equalTo("Doe"));
+    }
+
+    @Test public void
+    returns_nice_error_message_when_several_unnamed_path_parameter_are_be_null() {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Unnamed path parameter cannot be null (path parameters at indices 0,2 are null)");
+
+        get("/{firstName}/{middleName}", null, "something", null);
+    }
+
+    @Test public void
+    returns_nice_error_message_when_single_unnamed_path_parameter_is_null() {
+        exception.expect(IllegalArgumentException.class);
+        exception.expectMessage("Unnamed path parameter cannot be null (path parameter at index 0 is null");
+
+        get("/{firstName}/{middleName}", (Object) null);
     }
 }
