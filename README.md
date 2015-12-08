@@ -67,7 +67,7 @@ List<String> winnderIds = from(json).get("lotto.winners.winnerId");
     
 // Example with XmlPath
 String xml = post("/shopping").andReturn().body().asString()
-Node category = from(xml).get("shop2ping.category[0]");
+Node category = from(xml).get("shopping.category[0]");
 ```
 
 REST Assured supports the *POST*, *GET*, *PUT*, *DELETE*, *OPTIONS*, *PATCH* and *HEAD* http 
