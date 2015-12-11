@@ -1023,20 +1023,20 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     new FilterContextImpl(requestUriForLogging, getUserDefinedPath(), getDerivedPath(uri), uri, path, unnamedPathParamValues.toArray(), method, assertionClosure, filters, properties);
   }
 
-  private def String generateRequestUriForLogging(path, method) {
-    def targetPath
+  private def String generateRequestUriForLogging(uri, method) {
+    def targetUri
     def allQueryParams = [:]
 
-    if (path.contains("?")) {
-      def pathToUse
-      if (isFullyQualified(path)) {
-        pathToUse = path
+    if (uri.contains("?")) {
+      def uriToUse
+      if (isFullyQualified(uri)) {
+        uriToUse = uri
       } else {
-        pathToUse = getTargetPath(path)
+        uriToUse = getTargetPath(uri)
       }
 
-      targetPath = substringBefore(pathToUse, "?")
-      def queryParamsDefinedInPath = substringAfter(path, "?")
+      targetUri = substringBefore(uriToUse, "?")
+      def queryParamsDefinedInPath = substringAfter(uri, "?")
 
       // Add query parameters defined in path to the allQueryParams map
       if (!isBlank(queryParamsDefinedInPath)) {
@@ -1054,11 +1054,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         }
       }
     } else {
-      targetPath = path
+      targetUri = uri
     }
 
-    def uri = URIBuilder.convertToURI(assembleCompleteTargetPath(targetPath))
-    def uriBuilder = new URIBuilder(uri, this.urlEncodingEnabled, encoderConfig())
+    def actualUri = URIBuilder.convertToURI(assembleCompleteTargetPath(targetUri))
+    def uriBuilder = new URIBuilder(actualUri, this.urlEncodingEnabled, encoderConfig())
 
     if (method != POST && !requestParameters?.isEmpty()) {
       allQueryParams << requestParameters
@@ -1471,8 +1471,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     } else if (isFullyQualified(baseUri)) {
       def baseUriAsUrl = new URL(baseUri)
       uri = getTargetUriFromUrl(baseUriAsUrl)
-    } else {
+    } else if (port != RestAssured.UNDEFINED_PORT) {
       uri = "$baseUri:$port"
+    } else {
+      uri = "$baseUri"
     }
     return uri
   }
@@ -1537,8 +1539,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         throw new IllegalArgumentException("Unnamed path parameter cannot be null (path parameter${sizeOne ? "" : "s"} at ${sizeOne ? "index" : "indices"} ${nullParamIndices.join(",")} ${sizeOne ? "is" : "are"} null)");
       }
 
-      def vals = unnamedPathParams.toList().collect { serializeIfNeeded(it) }
-      this.unnamedPathParamsTuples = buildUnnamedPathParameterTuples(vals)
+      buildUnnamedPathParameterTuples(unnamedPathParams)
     }
     if (authenticationScheme instanceof NoAuthScheme && !(defaultAuthScheme instanceof NoAuthScheme)) {
       // Use default auth scheme
@@ -1575,21 +1576,24 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return response
   }
 
-  def List<Tuple2<String, String>> buildUnnamedPathParameterTuples(List<String> unnamedPathParameterValues) {
-    // Undefined placeholders since named path params have precedence over unnamed
-    def keys = getUndefinedPathParamPlaceholders()
-    List<Tuple2<String, String>> list = new ArrayList<>()
-    for (int i = 0; i < unnamedPathParameterValues.size(); i++) {
-      def val = unnamedPathParameterValues.get(i)
-      def key = i < keys.size() ? keys.get(i) : null
-      list.add(new Tuple2<String, String>(key, val))
+  def void buildUnnamedPathParameterTuples(Object[] unnamedPathParameterValues) {
+    if (unnamedPathParameterValues == null || unnamedPathParameterValues.length == 0) {
+      this.unnamedPathParamsTuples = new ArrayList<Tuple2<String, String>>();
+    } else {
+      // Undefined placeholders since named path params have precedence over unnamed
+      def keys = getUndefinedPathParamPlaceholders()
+      List<Tuple2<String, String>> list = new ArrayList<>()
+      for (int i = 0; i < unnamedPathParameterValues.length; i++) {
+        def val = serializeIfNeeded(unnamedPathParameterValues[i])
+        def key = i < keys.size() ? keys.get(i) : null
+        list.add(new Tuple2<String, String>(key, val))
+      }
+      this.unnamedPathParamsTuples = list
     }
-    list
   }
 
   def String partiallyApplyPathParams(String path, boolean encodePath, List<String> unnamedPathParams) {
     def unnamedPathParamSize = unnamedPathParams?.size() ?: 0
-    def namedPathParamSize = this.namedPathParameters.size()
 
     def host = getTargetURI(path)
     def targetPath = getTargetPath(path)
@@ -1598,7 +1602,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def shouldAppendSlashAfterEncoding = pathWithoutQueryParams.endsWith("/")
     // The last slash is removed later so we may need to add it again
     def queryParams = substringAfter(path, "?")
-    def usesNamedPathParameters = namedPathParamSize > 0
 
     int numberOfUnnamedPathParametersUsed = 0;
     def pathParamNameUsageCount = [:].withDefault { 0 }
@@ -1664,15 +1667,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     if (queryParams.matches(pathTemplate)) {
       // Note that we do NOT url encode query params here, that happens by UriBuilder at a later stage.
-      queryParams = split(queryParams, "&").inject("", pathParamFiller.curry("&", false)).substring(1) // 1 means that we remove first & since query parameters starts with ?
+      queryParams = split(queryParams, "&").inject("", pathParamFiller.curry("&", false)).substring(1)
+      // 1 means that we remove first & since query parameters starts with ?
 
     }
     host + (isEmpty(queryParams) ? pathWithoutQueryParams : pathWithoutQueryParams + "?" + queryParams)
   }
 
-  private static def boolean containsUnresolvedTemplates(String path) {
-    path.matches(~/.*\{\w+\}.*/)
-  }
 
   private def String findNamedPathParamValue(String pathParamName, pathParamNameUsageCount) {
     def pathParamValues = this.namedPathParameters.get(pathParamName);
@@ -2047,11 +2048,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private def String assembleCompleteTargetPath(requestPath) {
-    def targetUri = getTargetURI(path)
-    def targetPath = getTargetPath(path)
+    def targetUri
+    def targetPath
     if (isFullyQualified(requestPath)) {
       targetUri = ""
       targetPath = ""
+    } else {
+      targetUri = getTargetURI(path)
+      targetPath = substringBefore(getTargetPath(path), "?")
     }
     return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(targetUri, targetPath), requestPath);
   }
@@ -2145,6 +2149,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   public void setMethod(String method) {
-    this.method = Method.valueOf(method.toUpperCase())
+    this.method = method == null ? null : Method.valueOf(method.toUpperCase())
   }
 }

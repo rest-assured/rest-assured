@@ -16,6 +16,7 @@
 
 package com.jayway.restassured.module.mockmvc.internal;
 
+import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.authentication.NoAuthScheme;
 import com.jayway.restassured.builder.MultiPartSpecBuilder;
 import com.jayway.restassured.config.EncoderConfig;
@@ -398,7 +399,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             }
         }
 
-        logRequestIfApplicable(method, uri, path);
+        logRequestIfApplicable(method, uri, path, pathParams);
 
         return performRequest(request);
     }
@@ -475,15 +476,16 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return request instanceof MockMultipartHttpServletRequestBuilder;
     }
 
-    private void logRequestIfApplicable(HttpMethod method, String uri, String originalPath) {
+    private void logRequestIfApplicable(HttpMethod method, String uri, String originalPath, Object[] unnamedPathParams) {
         if (requestLoggingFilter == null) {
             return;
         }
 
-        final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("", 8080, uri, new NoAuthScheme(), Collections.<Filter>emptyList(),
+        final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("http://localhost", RestAssured.UNDEFINED_PORT, "", new NoAuthScheme(), Collections.<Filter>emptyList(),
                 null, true, convertToRestAssuredConfig(config), logRepository, null);
         reqSpec.setMethod(method.toString());
-        reqSpec.path(originalPath);
+        reqSpec.path(uri);
+        reqSpec.buildUnnamedPathParameterTuples(unnamedPathParams);
         if (params != null) {
             new ParamLogger(params) {
                 protected void logParam(String paramName, Object paramValue) {

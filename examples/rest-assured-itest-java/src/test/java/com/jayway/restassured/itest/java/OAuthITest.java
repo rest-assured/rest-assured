@@ -24,6 +24,7 @@ import com.jayway.restassured.filter.FilterContext;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.jayway.restassured.RestAssured.given;
@@ -34,7 +35,7 @@ import static org.junit.Assert.assertThat;
 
 public class OAuthITest {
 
-    @Test public void
+    @Ignore("Server is down atm") @Test public void
     oauth1_works_with_header_signing() {
         given().
                 auth().oauth("key", "secret", "accesskey", "accesssecret").
@@ -44,7 +45,7 @@ public class OAuthITest {
                 body("html.body", equalTo("works=true"));
     }
 
-    @Test public void
+    @Ignore("Server is down atm") @Test public void
     oauth1_works_with_query_signing() {
         given().
                 auth().oauth("key", "secret", "accesskey", "accesssecret", QUERY_STRING).

@@ -33,6 +33,7 @@ Change log next version
 * You can now specify both named and unnamed path params at the same time
 * Added ability to remove parameters from the FilterableRequestSpecification. Use the remove methods such as "removeQueryParam".
 * Better error messages when unnamed path parameters are null.
+* Slightly improved logging in Spring MockMvc module
 
 Change log 2.7.0 (2015-10-31)
 -----------------------------
