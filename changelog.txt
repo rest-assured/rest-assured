@@ -34,6 +34,7 @@ Change log next version
 * Added ability to remove parameters from the FilterableRequestSpecification. Use the remove methods such as "removeQueryParam".
 * Better error messages when unnamed path parameters are null.
 * Slightly improved logging in Spring MockMvc module
+* Removed the use of StandardCharset from DecoderConfig which prevented EncoderConfig to be used on Java 6 and older.
 
 Change log 2.7.0 (2015-10-31)
 -----------------------------
