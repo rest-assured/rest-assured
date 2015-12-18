@@ -545,6 +545,19 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test public void
+    canSetNamedPathParameterDefinedAsLastPathParamInPathAndConjWithAnUnnamedPathParam() {
+        given().
+                pathParam("lastName", "Doe").
+        when().
+                get("/{firstName}/{lastName}", "John").
+        then().
+                statusCode(200).
+                body("firstName", equalTo("John")).
+                body("lastName", equalTo("Doe")).
+                body("fullName", equalTo("John Doe"));
+    }
+
+    @Test public void
     named_path_parameters_have_precedence_over_unnamed_path_parameters() {
         given().
                 pathParam("middleName", "The Beast").
