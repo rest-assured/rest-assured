@@ -27,7 +27,7 @@ Change log 2.8.0 (2015-12-18)
 * Added getUnnamedPathParams method to com.jayway.restassured.specification.FilterableRequestSpecification which returns all unnamed path parameters
 * Added getUnnamedPathParamValues method to com.jayway.restassured.specification.FilterableRequestSpecification which returns all unnamed path parameter values
 * Added getNamedPathParams method to com.jayway.restassured.specification.FilterableRequestSpecification which returns all named path parameters
-* Non-backward compatible change: com.jayway.restassured.specification.FilterableRequestSpecification#getPathParams now returns both unnamed and named path parameters (before only named paramters were returned).
+* Non-backward compatible change: com.jayway.restassured.specification.FilterableRequestSpecification#getPathParams now returns both unnamed and named path parameters (before only named parameters were returned).
 * Non-backward compatible changes: com.jayway.restassured.specification.FilterableRequestSpecification#getQueryParams, getRequestParams, getFormParams and getPathParams now returns a Map of String -> String whereas before they returned a Map of String -> Object.
 * It's now possible to change the request path from a filter, use the "path" method in the "requestSpec" (com.jayway.restassured.specification.FilterableRequestSpecification#path).
 * You can now specify both named and unnamed path params at the same time
