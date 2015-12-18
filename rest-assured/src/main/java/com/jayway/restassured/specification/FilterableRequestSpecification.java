@@ -237,7 +237,7 @@ public interface FilterableRequestSpecification extends RequestSpecification {
      * get("/{x}/{y}");
      * </pre>
      * <p/>
-     * Calling <code>getPathParamPlaceholder()</code> will return a list with "x" and "y". Note that if you have a path like this:
+     * Calling <code>getPathParamPlaceholders()</code> will return a list with "x" and "y". Note that if you have a path like this:
      * <pre>
      * get("/{x}/{x}");
      * </pre>
