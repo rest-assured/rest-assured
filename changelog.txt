@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 2.8.0 (2015-12-18)
+-----------------------------
 * Modify HttpClientConfig so parameter methods respect previous configuration (issue 612). Thanks to Adam Clarkson for pull request.
 * Fixed issue that caused filter context properties to be removed between filter invocations
 * Added support for measuring time. For example:
