@@ -35,6 +35,7 @@ Change log next version
 * Better error messages when unnamed path parameters are null.
 * Slightly improved logging in Spring MockMvc module
 * Removed the use of StandardCharset from DecoderConfig which prevented EncoderConfig to be used on Java 6 and older.
+* Multipart patch no longer produces an exception on a call that returns status other than 200 (issue 615)
 
 Change log 2.7.0 (2015-10-31)
 -----------------------------

@@ -402,8 +402,10 @@ public abstract class HTTPBuilder {
         delegate.setRequestContentType( ContentType.URLENC.toString() );
         delegate.setPropertiesFromMap( args );
 
-        if ( responseClosure != null ) delegate.getResponse().put(
-                Status.SUCCESS.toString(), responseClosure );
+        if ( responseClosure != null ) {
+            delegate.getResponse().put(Status.SUCCESS.toString(), responseClosure);
+            delegate.getResponse().put(Status.FAILURE.toString(), responseClosure);
+        }
 
         return this.doRequest( delegate );
     }

@@ -34,6 +34,18 @@ class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
     getFileContent()
   }
 
+  patch("/file400") {
+    error400
+  }
+
+  put("/file400") {
+    error400
+  }
+
+  post("/file400") {
+    error400
+  }
+
   post("/text") {
     getText
   }
@@ -75,5 +87,11 @@ class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
     val option = multiParams.get("text")
     val seq = option.get
     seq.mkString(",")
+  }
+
+  private def error400: String = {
+    contentType = "application/json"
+    status = 400
+    """{ "error" : "message" } """
   }
 }

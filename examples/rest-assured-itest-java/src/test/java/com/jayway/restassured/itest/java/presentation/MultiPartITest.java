@@ -234,4 +234,49 @@ public class MultiPartITest extends WithJetty {
                 body(isEmptyString()).
                 statusCode(200);
     }
+
+    @Test
+    public void returnsErrorWhenMultipartPatchReturnsFailureStatusCode() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                multiPart("file", "myFile", bytes).
+        when().
+                patch("/multipart/file400").
+        then().
+                statusCode(400).
+                body("error", equalTo("message"));
+    }
+
+    @Test
+    public void returnsErrorWhenMultipartPostReturnsFailureStatusCode() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                multiPart("file", "myFile", bytes).
+        when().
+                post("/multipart/file400").
+        then().
+                statusCode(400).
+                body("error", equalTo("message"));
+    }
+
+    @Test
+    public void returnsErrorWhenMultipartPutReturnsFailureStatusCode() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                multiPart("file", "myFile", bytes).
+        when().
+                put("/multipart/file400").
+        then().
+                statusCode(400).
+                body("error", equalTo("message"));
+    }
 }
