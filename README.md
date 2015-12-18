@@ -9,9 +9,9 @@ languages into the Java domain.
 
 
 ## News 
+* 2015-12-18: REST Assured [2.8.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-2.8.0-dist.zip) is released with support for using [measuring response time](https://github.com/jayway/rest-assured/wiki/Usage#measuring-response-time), updates to [path parameters](https://github.com/jayway/rest-assured/wiki/Usage#path-parameters) and lots of updates to [filters](https://github.com/jayway/rest-assured/wiki/Usage#filters) as well as other fixes and improvements. This release is not 100% backward compatible so please see [release notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes27) for more details.
 * 2015-11-06: [Documentated](https://github.com/jayway/rest-assured/wiki/Usage#kotlin) how to make [Kotlin](https://kotlinlang.org/) integration a bit nicer with REST Assured. Refer to [this](http://code.haleby.se/2015/11/06/rest-assured-with-kotlin/) blog for additional info and example.
 * 2015-11-03: REST Assured has a new domain: [http://www.rest-assured.io](http://www.rest-assured.io). Feel free to update your bookmarks.
-* 2015-10-31: REST Assured [2.7.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-2.7.0-dist.zip) is released with support for using [proxy authentication](https://github.com/jayway/rest-assured/wiki/Usage#proxy-configuration), support for sending a body in a GET request, updates to [FilterContext](http://static.javadoc.io/com.jayway.restassured/rest-assured/2.7.0/com/jayway/restassured/filter/FilterContext.html) which allows future integration with [spring-rest-docs](https://github.com/spring-projects/spring-restdocs), improvements to the [Spring Mock Mvc module](https://github.com/jayway/rest-assured/wiki/Usage#spring-mock-mvc-module) as well as other fixes and improvements. This release is not 100% backward compatible so please see [release notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes27) for more details.
 
 [Older News](https://github.com/jayway/rest-assured/wiki/OldNews)
 
@@ -80,11 +80,11 @@ and body easily.
 * [Getting started](https://github.com/jayway/rest-assured/wiki/GettingStarted)
 * [Downloads](https://github.com/jayway/rest-assured/wiki/Downloads)
 * [Usage Guide](https://github.com/jayway/rest-assured/wiki/Usage) (click [here](https://github.com/jayway/rest-assured/wiki/Usage_Legacy) for legacy documentation)
-* [Javadoc](http://www.javadoc.io/doc/com.jayway.restassured/rest-assured/2.7.0)
-* [Rest Assured Javadoc](http://static.javadoc.io/com.jayway.restassured/rest-assured/2.7.0/com/jayway/restassured/RestAssured.html)
-* [Rest Assured Mock Mvc Javadoc](http://static.javadoc.io/com.jayway.restassured/spring-mock-mvc/2.7.0/com/jayway/restassured/module/mockmvc/RestAssuredMockMvc.html)
-* [XmlPath Javadoc](http://static.javadoc.io/com.jayway.restassured/xml-path/2.7.0/com/jayway/restassured/path/xml/XmlPath.html)
-* [JsonPath Javadoc](http://static.javadoc.io/com.jayway.restassured/json-path/2.7.0/com/jayway/restassured/path/json/JsonPath.html)
+* [Javadoc](http://www.javadoc.io/doc/com.jayway.restassured/rest-assured/2.8.0)
+* [Rest Assured Javadoc](http://static.javadoc.io/com.jayway.restassured/rest-assured/2.8.0/com/jayway/restassured/RestAssured.html)
+* [Rest Assured Mock Mvc Javadoc](http://static.javadoc.io/com.jayway.restassured/spring-mock-mvc/2.8.0/com/jayway/restassured/module/mockmvc/RestAssuredMockMvc.html)
+* [XmlPath Javadoc](http://static.javadoc.io/com.jayway.restassured/xml-path/2.8.0/com/jayway/restassured/path/xml/XmlPath.html)
+* [JsonPath Javadoc](http://static.javadoc.io/com.jayway.restassured/json-path/2.8.0/com/jayway/restassured/path/json/JsonPath.html)
 * [Release Notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes)
 * [FAQ](https://github.com/jayway/rest-assured/wiki/FAQ)
 
