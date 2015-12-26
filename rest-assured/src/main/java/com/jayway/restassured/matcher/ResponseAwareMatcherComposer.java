@@ -116,6 +116,21 @@ public class ResponseAwareMatcherComposer {
         return and(matcher1, matcher2, new ResponseAwareMatcher[0]);
     }
 
+    /**
+     * Compose this {@link com.jayway.restassured.matcher.ResponseAwareMatcher} with another {@link com.jayway.restassured.matcher.ResponseAwareMatcher}.
+     *
+     * @param matcher1           The first matcher to compose
+     * @param matcher2           The second matcher to compose
+     * @param additionalMatchers The additional matchers to compose
+     * @return A and-composed {@link com.jayway.restassured.matcher.ResponseAwareMatcher}.
+     * // TODO Add @SafeVarargs when migrating to Java 7+
+     */
+    public static <T extends ResponseBody<T> & ResponseOptions<T>> ResponseAwareMatcher<T> and(
+            final Matcher matcher1, final ResponseAwareMatcher<T> matcher2,
+            final ResponseAwareMatcher<T>... additionalMatchers) {
+        return and(matcher2, matcher1, additionalMatchers);
+    }
+
     // or
 
     /**
@@ -163,7 +178,7 @@ public class ResponseAwareMatcherComposer {
     public static <T extends ResponseBody<T> & ResponseOptions<T>> ResponseAwareMatcher<T> or(
             final ResponseAwareMatcher<T> matcher1, final Matcher matcher2,
             final ResponseAwareMatcher<T>... additionalMatchers) {
-        return and(matcher1, new ResponseAwareMatcher<T>() {
+        return or(matcher1, new ResponseAwareMatcher<T>() {
             public Matcher<?> matcher(T response) throws Exception {
                 return matcher2;
             }
@@ -183,6 +198,20 @@ public class ResponseAwareMatcherComposer {
         return or(matcher1, matcher2, new ResponseAwareMatcher[0]);
     }
 
+    /**
+     * Compose this {@link com.jayway.restassured.matcher.ResponseAwareMatcher} with another {@link com.jayway.restassured.matcher.ResponseAwareMatcher}.
+     *
+     * @param matcher1           The first matcher to compose
+     * @param matcher2           The second matcher to compose
+     * @param additionalMatchers The additional matchers to compose
+     * @return A or-composed {@link com.jayway.restassured.matcher.ResponseAwareMatcher}.
+     * // TODO Add @SafeVarargs when migrating to Java 7+
+     */
+    public static <T extends ResponseBody<T> & ResponseOptions<T>> ResponseAwareMatcher<T> or(
+            final Matcher matcher1, final ResponseAwareMatcher<T> matcher2,
+            final ResponseAwareMatcher<T>... additionalMatchers) {
+        return or(matcher2, matcher1, additionalMatchers);
+    }
 
     private static <T extends ResponseBody<T> & ResponseOptions<T>> Matcher<?>[] toHamcrestMatchers(T response,
                                                                                                     ResponseAwareMatcher<T> matcher1,

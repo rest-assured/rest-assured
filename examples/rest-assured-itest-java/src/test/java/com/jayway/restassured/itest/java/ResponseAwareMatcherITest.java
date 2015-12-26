@@ -69,6 +69,28 @@ public class ResponseAwareMatcherITest extends WithJetty {
                 body("status", equalTo("ongoing"));
     }
 
+    @SuppressWarnings("unchecked")
+    @Test public void
+    and_using_hamcrest_matchers_are_composable_with_response_aware_matchers() {
+        when().
+                get("/game").
+        then().
+                statusCode(200).
+                body("_links.self.href", and(startsWith("http://localhost:8081"), endsWithPath("id"))).
+                body("status", equalTo("ongoing"));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test public void
+    or_using_hamcrest_matchers_are_composable_with_response_aware_matchers() {
+        when().
+                get("/game").
+        then().
+                statusCode(200).
+                body("_links.self.href", or(startsWith("http://localhost:8081"), endsWithPath("_links.self.href"))).
+                body("status", equalTo("ongoing"));
+    }
+
     @Test public void
     response_aware_matchers_are_composable_with_other_response_aware_matchers() {
         when().

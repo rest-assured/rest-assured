@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Added support for composing a Hamcrest matcher with a ResponseAwareMatcher when using a ResponseAwareMatcherComposer
+
 Change log 2.8.0 (2015-12-18)
 -----------------------------
 * Modify HttpClientConfig so parameter methods respect previous configuration (issue 612). Thanks to Adam Clarkson for pull request.
