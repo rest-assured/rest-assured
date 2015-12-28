@@ -76,7 +76,7 @@ public class ResponseAwareMatcherITest extends WithJetty {
                 get("/game").
         then().
                 statusCode(200).
-                body("_links.self.href", and(startsWith("http://localhost:8081"), endsWithPath("id"))).
+                body("_links.self.href", and(startsWith("http://localhost:8080"), endsWithPath("id"))).
                 body("status", equalTo("ongoing"));
     }
 
