@@ -1,6 +1,18 @@
 Change log next version
 -----------------------
 * Added support for composing a Hamcrest matcher with a ResponseAwareMatcher when using a ResponseAwareMatcherComposer
+* Automatically escapes JsonPath and XmlPath fragments that contains a hyphen and an index lookup operator. For example consider the following JSON document:
+    { "some-list" : ["one", "two"] }
+  Previously you had to escape "some-list" manually if you wanted to get first element out of the list:
+    JsonPath jsonPath = ...
+    String firstElement = jsonPath.getString("'some-list'[0]"); // one
+  Now no explicit escaping is necessary:
+    String firstElement = jsonPath.getString("some-list[0]"); // one
+  But this means that if you previously had a JSON document like this:
+    { "some-list[0]" : ["one", "two"] }
+  you would now have to escape it:
+    String firstElement = jsonPath.getString("'some-list[0]'[0]"); // one
+  which makes this an (unlikely but still) non-backward compatible change (issue 564).
 
 Change log 2.8.0 (2015-12-18)
 -----------------------------

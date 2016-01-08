@@ -17,12 +17,12 @@
 package com.jayway.restassured.internal.assertion
 
 /**
- * A {@link PathFragmentEscaper} that escapes the path fragment with <code>getAt('<fragment>')</code>
+ * A {@link PathFragmentEscaper} that escapes the path fragment with quotes
  */
-abstract class GetPathFragmentEscaper implements PathFragmentEscaper {
+abstract class EndToEndQuoteFragmentEscaper implements PathFragmentEscaper {
 
   @Override
   String escape(String pathFragment) {
-    return "getAt('" + pathFragment + "')"
+    return "'" + pathFragment + "'"
   }
 }

@@ -736,4 +736,28 @@ public class JsonPathTest {
 
         assertThat(prettyJson, equalTo("{\n    \"some\": \"ŘÍŠŽŤČÝŮŇÚĚĎÁÉÓ\"\n}"));
     }
+
+    @Test public void
+    need_to_escape_lists_with_hyphen_and_brackets() {
+        // Given
+        String json = "{ \"some-list[0]\" : [ \"one\", \"two\" ] }";
+
+        // When
+        JsonPath jsonPath = JsonPath.from(json);
+
+        // Then
+        assertThat(jsonPath.getString("'some-list[0]'[0]"), equalTo("one"));
+    }
+
+    @Test public void
+    doesnt_need_to_escape_lists_with_hyphen_without_brackets() {
+        // Given
+        String json = "{ \"some-list\" : [ \"one\", \"two\" ] }";
+
+        // When
+        JsonPath jsonPath = JsonPath.from(json);
+
+        // Then
+        assertThat(jsonPath.getString("some-list[0]"), equalTo("one"));
+    }
 }

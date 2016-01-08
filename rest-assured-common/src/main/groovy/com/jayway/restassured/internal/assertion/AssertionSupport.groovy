@@ -50,17 +50,17 @@ class AssertionSupport {
     pathFragments.join("")
   }
 
-  def static minus() {
-    new QuoteFragmentEscaper() {
+  def static hyphen() {
+    new HyphenQuoteFragmentEscaper() {
       @Override
       boolean shouldEscape(String pathFragment) {
-        !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('-') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, listIndexEndFragment])
+        !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('-') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment])
       }
     }
   }
 
   def static properties() {
-    new GetPathFragmentEscaper() {
+    new GetAtPathFragmentEscaper() {
       @Override
       boolean shouldEscape(String pathFragment) {
         !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('properties') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, space, listIndexEndFragment])
@@ -69,7 +69,7 @@ class AssertionSupport {
   }
 
   def static classKeyword() {
-    new GetPathFragmentEscaper() {
+    new GetAtPathFragmentEscaper() {
       @Override
       boolean shouldEscape(String pathFragment) {
         !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('class') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, space, listIndexEndFragment])
@@ -78,7 +78,7 @@ class AssertionSupport {
   }
 
   def static attributeGetter() {
-    new QuoteFragmentEscaper() {
+    new EndToEndQuoteFragmentEscaper() {
       @Override
       boolean shouldEscape(String pathFragment) {
         pathFragment.startsWith("@") && !pathFragment.endsWith("'") && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, space])
@@ -87,7 +87,7 @@ class AssertionSupport {
   }
 
   def static doubleStar() {
-    new QuoteFragmentEscaper() {
+    new EndToEndQuoteFragmentEscaper() {
       @Override
       boolean shouldEscape(String pathFragment) {
         pathFragment == "**"
@@ -96,7 +96,7 @@ class AssertionSupport {
   }
 
   def static colon() {
-    new QuoteFragmentEscaper() {
+    new EndToEndQuoteFragmentEscaper() {
       @Override
       boolean shouldEscape(String pathFragment) {
         !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains(':') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, listIndexEndFragment])
@@ -105,7 +105,7 @@ class AssertionSupport {
   }
 
   def static integer() {
-    new QuoteFragmentEscaper() {
+    new EndToEndQuoteFragmentEscaper() {
       @Override
       boolean shouldEscape(String pathFragment) {
         (startsWithDigit(pathFragment) || NumberUtils.isDigits(pathFragment)) && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, space, listGetterFragment, listIndexStartFragment, listIndexEndFragment])

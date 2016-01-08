@@ -625,4 +625,16 @@ public class XmlPathTest {
         // Then
         assertThat(node.<String>getPath("Body.importProjectResponse.ProjectImportResultCode.code"), equalTo("1"));
     }
+
+    @Test
+    public void doesntNeedToEscapeListsWithHyphenWithoutBrackets() throws Exception {
+        // Given
+        String xml = "<root><some-list>one</some-list><some-list>two</some-list></root>";
+
+        // When
+        XmlPath xmlPath = XmlPath.from(xml);
+
+        // Then
+        assertThat(xmlPath.getString("root.some-list[0]"), equalTo("one"));
+    }
 }
