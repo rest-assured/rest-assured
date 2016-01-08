@@ -18,8 +18,11 @@ package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.DecoderConfig;
+import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
+
+import java.util.HashMap;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.containsString;
@@ -55,5 +58,17 @@ public class UnicodeITest extends WithJetty {
                 get("/utf8-body-xml").
         then().
                 body("value", equalTo("啊 ☆"));
+    }
+
+    @Test public void
+    unicode_values_works_in_json_content() {
+        given().
+                contentType(ContentType.JSON).
+                body(new HashMap<String, String>() {{put("title", "äöüß€’");}}).
+        when().
+                post("/reflect").
+        then().
+                statusCode(200).
+                body("title", equalTo("äöüß€’"));
     }
 }
