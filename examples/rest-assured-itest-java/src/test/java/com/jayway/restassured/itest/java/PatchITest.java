@@ -21,7 +21,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.equalTo;
 
 public class PatchITest extends WithJetty {
@@ -73,5 +77,21 @@ public class PatchITest extends WithJetty {
                 body("list", equalTo("a,b,c")).
         when().
                 patch("/multiValueParam");
+    }
+
+    @Test
+    public void canUseMapAsBodyToPatch() throws Exception {
+        Map<String, String> greeting = new HashMap<>();
+        greeting.put("firstName", "John");
+        greeting.put("lastName", "Doe");
+
+        given().
+                contentType(JSON).
+                body(greeting).
+        when().
+                patch("/jsonGreet").
+        then().
+                statusCode(200).
+                body("fullName", equalTo("John Doe"));
     }
 }
