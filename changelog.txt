@@ -13,6 +13,7 @@ Change log next version
   you would now have to escape it:
     String firstElement = jsonPath.getString("'some-list[0]'[0]"); // one
   which makes this an (unlikely but still) non-backward compatible change (issue 564).
+* Added support for multipart DELETE requests (issue 634)
 
 Change log 2.8.0 (2015-12-18)
 -----------------------------

@@ -1319,8 +1319,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private def validateMultiPartForPostPutAndPatchOnly(method) {
-    if (multiParts.size() > 0 && method != POST && method != PUT && method != PATCH) {
-      throw new IllegalArgumentException("Sorry, multi part form data is only available for POST, PUT and PATCH.");
+    if (multiParts.size() > 0 && method != POST && method != PUT && method != PATCH && method != DELETE) {
+      throw new IllegalArgumentException("Sorry, multi part form data is only available for POST, PUT, PATCH and DELETE");
     }
   }
 

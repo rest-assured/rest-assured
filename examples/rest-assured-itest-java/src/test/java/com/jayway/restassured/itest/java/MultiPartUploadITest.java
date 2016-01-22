@@ -455,13 +455,12 @@ public class MultiPartUploadITest extends WithJetty {
 
     @Test
     public void multiPartUploadingDoesntWorkForDelete() throws Exception {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Sorry, multi part form data is only available for POST, PUT and PATCH.");
-
-        given().
-                multiPart("text", "sometext").
-        when().
-                delete("/multipart/file");
+         given().
+                 multiPart("text", "Some text").
+         when().
+                 delete("/multipart/text").
+         then().
+                 statusCode(500); // Scalatra doesn't seem to handle multipart delete requests?
     }
 
     @Test

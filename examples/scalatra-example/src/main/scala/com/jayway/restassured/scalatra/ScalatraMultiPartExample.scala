@@ -50,6 +50,10 @@ class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
     getText
   }
 
+  delete("/text") {
+    getText
+  }
+
   post("/textAndReturnHeader") {
     response.setHeader("X-Request-Header", request.getHeader("Content-Type"))
     getText
