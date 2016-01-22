@@ -1633,7 +1633,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
             numberOfUnnamedPathParametersUsed += 1
           } else {
             // We return the template again if no match found since we might be interested in partially applied path
-            pathParamValue = value ?: TEMPLATE_START + pathParamName + TEMPLATE_END
+            pathParamValue = value == null ? TEMPLATE_START + pathParamName + TEMPLATE_END : value
           }
 
           def pathToPrepend = ""
@@ -1685,7 +1685,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     } else {
       pathParamValue = pathParamValues
     }
-    trimToNull(pathParamValue?.toString())
+    pathParamValue?.toString()
   }
 
   private String createFormParamBody(Map<String, Object> formParams) {

@@ -571,6 +571,48 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test public void
+    can_specify_space_only_named_path_parameters() {
+        given().
+                pathParam("firstName", "John").
+                pathParam("lastName", " ").
+        when().
+                get("/{firstName}/{lastName}").
+        then().
+                statusCode(200).
+                body("firstName", equalTo("John")).
+                body("lastName", equalTo(" "));
+    }
+
+    @Test public void
+    can_specify_space_only_unnamed_path_parameters() {
+        when().
+                get("/{firstName}/{lastName}", "John", " ").
+        then().
+                statusCode(200).
+                body("firstName", equalTo("John")).
+                body("lastName", equalTo(" "));
+    }
+
+    @Test public void
+    can_specify_empty_named_path_parameters() {
+        given().
+                pathParam("firstName", "John").
+                pathParam("lastName", "").
+        when().
+                get("/{firstName}/{lastName}").
+        then().
+                statusCode(404); // A resource matching only {firstName} is not defined
+    }
+
+    @Test public void
+    can_specify_empty_unnamed_path_parameters() {
+        when().
+                get("/{firstName}/{lastName}", "John", "").
+        then().
+                statusCode(404); // A resource matching only {firstName} is not defined
+    }
+
+    @Test public void
     returns_nice_error_message_when_several_unnamed_path_parameter_are_be_null() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Unnamed path parameter cannot be null (path parameters at indices 0,2 are null)");
