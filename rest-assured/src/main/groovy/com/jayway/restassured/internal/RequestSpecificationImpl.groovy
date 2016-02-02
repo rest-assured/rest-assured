@@ -52,6 +52,7 @@ import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
 import org.apache.http.impl.client.AbstractHttpClient
 import org.apache.http.message.BasicHeader
+import org.apache.http.util.EntityUtils
 
 import java.security.KeyStore
 import java.util.Map.Entry
