@@ -64,12 +64,6 @@
             <version>4.5.1</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <!-- Use httpcore version referenced in the httpclient version we depend on -->
-            <version>4.4.3</version>
-        </dependency>
-        <dependency>
             <groupId>org.scribe</groupId>
             <artifactId>scribe</artifactId>
             <version>1.3.7</version>
