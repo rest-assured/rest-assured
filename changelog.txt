@@ -15,6 +15,7 @@ Change log next version
   which makes this an (unlikely but still) non-backward compatible change (issue 564).
 * Added support for multipart DELETE requests (issue 634)
 * It's now possible to use empty and whitespace path parameters (issue 631)
+* Replace deprecated HttpEntity.consume with EntityUtils.consume to fix problems with connections not closing properly (issue 633) (thanks to Marin Dzhigarov and Julian Engelhardt for help and PR)
 
 Change log 2.8.0 (2015-12-18)
 -----------------------------
