@@ -1966,7 +1966,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
             HttpEntity entity = resp.getEntity();
             try {
               if (entity == null || entity.getContentLength() == 0) {
-                returnVal = responseClosure.call(resp, null);
+                returnVal = responseClosure.call(resp, EMPTY);
               } else {
                 returnVal = responseClosure.call(resp, this.parseResponse(resp, acceptContentType));
               }
