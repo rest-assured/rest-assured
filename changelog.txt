@@ -17,6 +17,7 @@ Change log next version
 * It's now possible to use empty and whitespace path parameters (issue 631)
 * Replace deprecated HttpEntity.consume with EntityUtils.consume to fix problems with connections not closing properly (issue 633) (thanks to Marin Dzhigarov and Julian Engelhardt for help and PR)
 * Fixing NullPointerException for GET requests with an empty body (issue 642)
+* Form authentication for fully-qualified URIs now uses the URI specified in the request instead of just localhost (issue 641)
 
 Change log 2.8.0 (2015-12-18)
 -----------------------------

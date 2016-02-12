@@ -93,8 +93,12 @@ class FormAuthFilter implements AuthFilter {
       csrfValue = null
     }
 
-    def loginRequestSpec = given().port(requestSpec.getPort()).with().auth().none().and().
-            with().formParams(userNameInputField, userName, passwordInputField, password)
+    formAction = formAction?.startsWith("/") ? formAction : "/" + formAction
+
+    def loginRequestSpec = given().auth().none().and().formParams(userNameInputField, userName, passwordInputField, password)
+
+    def uri = new URI(requestSpec.getURI())
+    String loginUri = uri.getScheme() + "://" + uri.getHost() + (uri.getPort() == -1 ? "" : ":" + uri.getPort()) + formAction
 
     if (csrfValue && csrfFieldName) {
       if (formAuthConfig.shouldSendCsrfTokenAsFormParam()) {
@@ -117,7 +121,7 @@ class FormAuthFilter implements AuthFilter {
     }
 
     applySessionFilterFromOriginalRequestIfDefined(requestSpec, loginRequestSpec)
-    final Response loginResponse = loginRequestSpec.post(formAction)
+    final Response loginResponse = loginRequestSpec.post(loginUri)
     // Don't send the detailed cookies because they contain too many detail (such as Path which is a reserved token)
     requestSpec.cookies(loginResponse.getCookies());
     return ctx.next(requestSpec, responseSpec);
