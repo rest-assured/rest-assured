@@ -356,7 +356,6 @@ public class ContentTypeITest extends WithJetty {
         when().
                 get("/something").
         then().
-                log().all().
                 contentType(isEmptyOrNullString());
     }
 
