@@ -17,6 +17,7 @@
 package com.jayway.restassured.itest.java;
 
 import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.builder.ResponseBuilder;
 import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import org.apache.commons.lang3.StringUtils;
@@ -29,8 +30,7 @@ import java.nio.charset.StandardCharsets;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.config.EncoderConfig.encoderConfig;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 public class ContentTypeITest extends WithJetty {
 
@@ -347,6 +347,17 @@ public class ContentTypeITest extends WithJetty {
                 .then()
                 .statusCode(204)
                 .contentType(ContentType.JSON);
+    }
+
+    @Test public void
+    can_assert_empty_or_null_content_type() {
+        given().
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setHeader("Some", "Value").setBody("Test").build()).
+        when().
+                get("/something").
+        then().
+                log().all().
+                contentType(isEmptyOrNullString());
     }
 
     private String toJetty9(String charset) {
