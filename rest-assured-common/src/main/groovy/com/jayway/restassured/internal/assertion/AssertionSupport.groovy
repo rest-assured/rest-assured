@@ -96,10 +96,10 @@ class AssertionSupport {
   }
 
   def static colon() {
-    new EndToEndQuoteFragmentEscaper() {
+    new HyphenQuoteFragmentEscaper() {
       @Override
       boolean shouldEscape(String pathFragment) {
-        !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains(':') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, listIndexEndFragment])
+        !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains(':') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment])
       }
     }
   }
