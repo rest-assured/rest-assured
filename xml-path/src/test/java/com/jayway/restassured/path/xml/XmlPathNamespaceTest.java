@@ -20,6 +20,7 @@ import org.junit.Test;
 
 import static com.jayway.restassured.path.xml.config.XmlPathConfig.xmlPathConfig;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.junit.Assert.assertThat;
 
 public class XmlPathNamespaceTest {
@@ -56,5 +57,36 @@ public class XmlPathNamespaceTest {
         assertThat(xmlPath.getString("foo.bar.text()"), equalTo("sudo make me a sandwich!"));
         assertThat(xmlPath.getString(":foo.:bar.text()"), equalTo("sudo "));
         assertThat(xmlPath.getString(":foo.ns:bar.text()"), equalTo(""));
+    }
+
+    @Test public void
+    xml_path_supports_declared_namespaces() {
+        // Given
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<x:response xmlns:x=\"http://something.com/test\" note=\"something\">\n" +
+                "    <x:container cont_id=\"some_id\">\n" +
+                "        <x:item id=\"i_1\">\n" +
+                "            <x:name>first</x:name>\n" +
+                "        </x:item>\n" +
+                "        <x:item id=\"i_2\">\n" +
+                "            <x:name>second</x:name>\n" +
+                "        </x:item>\n" +
+                "        <x:item id=\"i_3\">\n" +
+                "            <x:name>third</x:name>\n" +
+                "        </x:item>\n" +
+                "        <item id=\"i_4\">\n" +
+                "            <name>fourth</name>\n" +
+                "        </item>\n" +
+                "    </x:container>\n" +
+                "</x:response>";
+
+        // When
+        XmlPath xmlPath = new XmlPath(xml).using(xmlPathConfig().declaredNamespace("x", "http://something.com/test"));
+
+        // Then
+        assertThat(xmlPath.getString("x:response.'x:container'.'x:item'[0].x:name"), equalTo("first"));
+        assertThat(xmlPath.getString("response.container.':item'[0].name"), equalTo("fourth"));
+        assertThat(xmlPath.getString("x:response.'x:container'.'x:item'[3].x:name"), isEmptyOrNullString());
+        assertThat(xmlPath.getString("'x:response'.'x:container'.'x:item'[3].x:name"), isEmptyOrNullString());
     }
 }
