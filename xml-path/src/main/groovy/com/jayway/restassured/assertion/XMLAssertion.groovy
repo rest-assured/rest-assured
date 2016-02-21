@@ -211,7 +211,13 @@ class XMLAssertion implements Assertion {
         }
 
         if (isAttributes) {
-            def temp = []
+            def temp
+            if(nodes.isEmpty()) {
+                temp = null;
+            } else {
+                temp = []
+            }
+
             nodes.each {
                 CharArrayWriter caw = new CharArrayWriter();
                 it.writeTo(caw);
