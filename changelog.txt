@@ -20,6 +20,9 @@ Change log next version
 * Form authentication for fully-qualified URIs now uses the URI specified in the request instead of just localhost (issue 641)
 * Improve escaping for XmlPath's containing colon. For example you can now do like this without manually having to escape anything in the path: "x:something.x:y[0]" (issue 647)
 * Getting an attribute value from an XmlPath expression that doesn't exists now returns null instead of an empty list (issue 650).
+* Deprecated com.jayway.restassured.config.SSLConfig#getPassword, use com.jayway.restassured.config.SSLConfig#getKeyStorePassword instead
+* Major improvements of certificate authentication. You can now use a keystore (without trust store) and a keystore and trust store at the same time.
+* Non-backward compatible change: keystore was previously used as a truststore. You must change "given().keystore(..)" to "given().trustStore(..)", "RestAssured.keystore(..)" to "RestAssured.trustStore(..)" and "SSLConfig.keystore(..)" to "SSLConfig.trustStore(..)". Sorry!
 
 Change log 2.8.0 (2015-12-18)
 -----------------------------

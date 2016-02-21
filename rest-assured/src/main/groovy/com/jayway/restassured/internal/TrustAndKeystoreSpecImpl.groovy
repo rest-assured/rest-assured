@@ -18,28 +18,36 @@ package com.jayway.restassured.internal
 import com.jayway.restassured.internal.http.HTTPBuilder
 import org.apache.commons.lang3.Validate
 import org.apache.http.conn.scheme.Scheme
+import org.apache.http.conn.ssl.SSLContexts
 import org.apache.http.conn.ssl.SSLSocketFactory
 import org.apache.http.conn.ssl.X509HostnameVerifier
 
 import java.security.KeyStore
 
 import static org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER
+import static org.apache.http.conn.ssl.SSLSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER
 
-class KeystoreSpecImpl implements KeystoreSpec {
+class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
 
-  def path
-  def password
-
+  def keyStorePath
+  def String keyStorePassword
   def String keyStoreType
+  KeyStore keyStore
+
+  def trustStorePath
+  def String trustStorePassword
+  def String trustStoreType
+  KeyStore trustStore
+
   def int port
   SSLSocketFactory factory
-  KeyStore trustStore
   X509HostnameVerifier x509HostnameVerifier;
 
   def void apply(HTTPBuilder builder, int port) {
     if (factory == null) {
-      def trustStore = trustStore ?: createTrustStore()
-      factory = createSSLSocketFactory(trustStore)
+      def keyStore = keyStore ?: createStore(keyStoreType, keyStorePath, keyStorePassword)
+      def trustStore = trustStore ?: createStore(trustStoreType, trustStorePath, trustStorePassword)
+      factory = createSSLSocketFactory(trustStore, keyStore, keyStorePassword)
       factory.setHostnameVerifier(x509HostnameVerifier ?: ALLOW_ALL_HOSTNAME_VERIFIER)
     }
     int portToUse = this.port == -1 ? port : this.port
@@ -47,38 +55,42 @@ class KeystoreSpecImpl implements KeystoreSpec {
     )
   }
 
-  private static def createSSLSocketFactory(KeyStore truststore) {
+  private static def createSSLSocketFactory(KeyStore truststore, KeyStore keyStore, String keyPassword) {
     final SSLSocketFactory ssl;
     if (truststore == null) {
       ssl = SSLSocketFactory.getSocketFactory()
     } else {
-      ssl = new SSLSocketFactory(truststore);
+      ssl = new SSLSocketFactory(SSLContexts.custom()
+              .loadKeyMaterial(keyStore, keyPassword != null ? keyPassword.toCharArray() : null)
+              .loadTrustMaterial(truststore)
+              .build(), BROWSER_COMPATIBLE_HOSTNAME_VERIFIER)
     }
     ssl
   }
 
-  def KeyStore createTrustStore() {
+  def KeyStore createStore(keyStoreType, keyStorePath, keyStorePassword) {
     def keyStore = KeyStore.getInstance(keyStoreType)
-    if (path == null)
+    if (keyStorePath == null || keyStorePath.isEmpty()) {
       return null
+    }
 
     def resource
-    if (path instanceof File) {
-      resource = path
+    if (keyStorePath instanceof File) {
+      resource = keyStorePath
     } else {
-      resource = Thread.currentThread().getContextClassLoader()?.getResource(path)
+      resource = Thread.currentThread().getContextClassLoader()?.getResource(keyStorePath)
       if (resource == null) { // To allow for backward compatibility
-        resource = getClass().getResource(path)
+        resource = getClass().getResource(keyStorePath)
       }
 
       if (resource == null) { // Fallback to load path as file if not found in classpath
-        resource = new File(path)
+        resource = new File(keyStorePath)
       }
     }
 
-    Validate.notNull(resource, "Couldn't find java keystore file at '$path'.")
+    Validate.notNull(resource, "Couldn't find java keystore file at '$keyStorePath'.")
     resource.withInputStream {
-      keyStore.load(it, password?.toCharArray())
+      keyStore.load(it, keyStorePassword?.toCharArray())
     }
 
     return keyStore

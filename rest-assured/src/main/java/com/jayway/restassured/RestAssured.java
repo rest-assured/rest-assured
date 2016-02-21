@@ -1233,7 +1233,8 @@ public class RestAssured {
     public static AuthenticationScheme certificate(String certURL, String password) {
         SSLConfig sslConfig = config().getSSLConfig();
         return certificate(certURL, password, certAuthSettings().keystoreType(sslConfig.getKeyStoreType()).trustStore(sslConfig.getTrustStore()).
-                x509HostnameVerifier(sslConfig.getX509HostnameVerifier()).port(sslConfig.getPort()).sslSocketFactory(sslConfig.getSSLSocketFactory()));
+                keyStore(sslConfig.getKeyStore()).trustStoreType(sslConfig.getTrustStoreType()).x509HostnameVerifier(sslConfig.getX509HostnameVerifier()).
+                port(sslConfig.getPort()).sslSocketFactory(sslConfig.getSSLSocketFactory()));
     }
 
     /**
@@ -1246,15 +1247,38 @@ public class RestAssured {
      * @param certificateAuthSettings More advanced settings for the certificate authentication
      */
     public static AuthenticationScheme certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings) {
-        AssertParameter.notNull(certURL, "Certificate URL");
-        AssertParameter.notNull(password, "Certificate password");
+        return certificate(certURL, password, "", "", certificateAuthSettings);
+    }
+
+    /**
+     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
+     * on the classpath.
+     * <p/>
+     *
+     * @param trustStorePath          URL to a JKS trust store where the certificate is stored.
+     * @param trustStorePassword      The password for the trust store
+     * @param keyStorePath            URL to a JKS keystore where the certificate is stored.
+     * @param keyStorePassword        The password for the keystore
+     * @param certificateAuthSettings More advanced settings for the certificate authentication
+     */
+    public static AuthenticationScheme certificate(String trustStorePath, String trustStorePassword,
+                                                   String keyStorePath, String keyStorePassword,
+                                                   CertificateAuthSettings certificateAuthSettings) {
+        AssertParameter.notNull(keyStorePath, "Keystore path");
+        AssertParameter.notNull(keyStorePassword, "Keystore password");
+        AssertParameter.notNull(trustStorePath, "Trust store path");
+        AssertParameter.notNull(trustStorePassword, "Keystore password");
         AssertParameter.notNull(certificateAuthSettings, CertificateAuthSettings.class);
         final CertAuthScheme scheme = new CertAuthScheme();
-        scheme.setPathToKeyStore(certURL);
-        scheme.setPassword(password);
+        scheme.setPathToKeyStore(keyStorePath);
+        scheme.setKeyStorePassword(keyStorePassword);
         scheme.setKeystoreType(certificateAuthSettings.getKeystoreType());
+        scheme.setKeyStore(certificateAuthSettings.getKeyStore());
         scheme.setPort(certificateAuthSettings.getPort());
         scheme.setTrustStore(certificateAuthSettings.getTrustStore());
+        scheme.setTrustStoreType(certificateAuthSettings.getTrustStoreType());
+        scheme.setPathToTrustStore(trustStorePath);
+        scheme.setTrustStorePassword(trustStorePassword);
         scheme.setX509HostnameVerifier(certificateAuthSettings.getX509HostnameVerifier());
         scheme.setSslSocketFactory(certificateAuthSettings.getSSLSocketFactory());
         return scheme;
@@ -1514,6 +1538,27 @@ public class RestAssured {
     }
 
     /**
+     * Apply a keystore for all requests
+     * <pre>
+     * given().keystore("/truststore_javanet.jks", "test1234"). ..
+     * </pre>
+     * </p>
+     * <p>
+     * Note that this is just a shortcut for:
+     * </p>
+     * <pre>
+     * RestAssured.config = RestAssured.config().sslConfig(sslConfig().keystore(pathToJks, password));
+     * </pre>
+     *
+     * @param pathToJks The path to the JKS. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system
+     * @param password  The store pass
+     */
+    public static void keystore(String pathToJks, String password) {
+        Validate.notEmpty(password, "Password cannot be empty");
+        applyKeyStore(pathToJks, password);
+    }
+
+    /**
      * The following documentation is taken from <a href="HTTP Builder">https://github.com/jgritman/httpbuilder/wiki/SSL</a>:
      * <p>
      * <h1>SSL Configuration</h1>
@@ -1556,26 +1601,26 @@ public class RestAssured {
      * </pre>
      * Now you want to use this truststore in your client:
      * <pre>
-     * RestAssured.keystore("/truststore_javanet.jks", "test1234");
+     * RestAssured.trustSture("/truststore_javanet.jks", "test1234");
      * </pre>
      * or
      * <pre>
-     * given().keystore("/truststore_javanet.jks", "test1234"). ..
+     * given().trustStore("/truststore_javanet.jks", "test1234"). ..
      * </pre>
      * </p>
      * <p>
      * Note that this is just a shortcut for:
      * </p>
      * <pre>
-     * RestAssured.config = RestAssured.config().sslConfig(sslConfig().keystore(pathToJks, password));
+     * RestAssured.config = RestAssured.config().sslConfig(sslConfig().trustStore(pathToJks, password));
      * </pre>
      *
      * @param pathToJks The path to the JKS. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system
      * @param password  The store pass
      */
-    public static void keystore(String pathToJks, String password) {
+    public static void trustStore(String pathToJks, String password) {
         Validate.notEmpty(password, "Password cannot be empty");
-        applyKeyStore(pathToJks, password);
+        applyTrustStore(pathToJks, password);
     }
 
     /**
@@ -1607,6 +1652,24 @@ public class RestAssured {
     public static void keystore(File pathToJks, String password) {
         Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
         applyKeyStore(pathToJks, password);
+    }
+
+    /**
+     * Use a trust store located on the file-system. See {@link #trustStore(String, String)} for more details.
+     * * <p>
+     * Note that this is just a shortcut for:
+     * </p>
+     * <pre>
+     * RestAssured.config = RestAssured.config().sslConfig(sslConfig().trustStore(pathToJks, password));
+     * </pre>
+     *
+     * @param pathToJks The path to JKS file on the file-system
+     * @param password  The password for the keystore
+     * @see #keystore(String, String)
+     */
+    public static void trustStore(File pathToJks, String password) {
+        Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
+        applyTrustStore(pathToJks, password);
     }
 
     /**
@@ -1706,6 +1769,16 @@ public class RestAssured {
         config = config().sslConfig(updatedSSLConfig.allowAllHostnames()); // Allow all host names to be backward-compatible
     }
 
+    private static void applyTrustStore(Object pathToJks, String password) {
+        RestAssuredConfig restAssuredConfig = config();
+        final SSLConfig updatedSSLConfig;
+        if (pathToJks instanceof File) {
+            updatedSSLConfig = restAssuredConfig.getSSLConfig().trustStore((File) pathToJks, password);
+        } else {
+            updatedSSLConfig = restAssuredConfig.getSSLConfig().trustStore((String) pathToJks, password);
+        }
+        config = config().sslConfig(updatedSSLConfig.allowAllHostnames()); // Allow all host names to be backward-compatible
+    }
 
     /**
      * @return The assigned config or a new config is no config is assigned

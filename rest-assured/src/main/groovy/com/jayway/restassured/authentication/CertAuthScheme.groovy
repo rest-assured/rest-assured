@@ -23,15 +23,21 @@ import java.security.KeyStore
 
 class CertAuthScheme implements AuthenticationScheme {
   def pathToKeyStore
-  def String password
+  def String keyStorePassword
   def String keystoreType = KeyStore.getDefaultType()
+  def pathToTrustStore
+  def String trustStorePassword
+  def String trustStoreType = KeyStore.getDefaultType()
   def int port = -1
   def KeyStore trustStore
+  def KeyStore keyStore
   def X509HostnameVerifier x509HostnameVerifier
   def SSLSocketFactory sslSocketFactory;
 
   @Override
   void authenticate(HTTPBuilder httpBuilder) {
-    httpBuilder.auth.certificate(pathToKeyStore, password, keystoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory)
+    httpBuilder.auth.certificate(pathToKeyStore, keyStorePassword, keystoreType, keyStore,
+            pathToTrustStore, trustStorePassword, trustStoreType, trustStore,
+            port, x509HostnameVerifier, sslSocketFactory)
   }
 }

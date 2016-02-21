@@ -58,8 +58,8 @@ public class SSLITest extends WithJetty {
     }
 
     @Test
-    public void givenKeystoreDefinedStaticallyWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
-        RestAssured.keystore("jetty_localhost_client.jks", "test1234");
+    public void givenTrustStoreDefinedStaticallyWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
+        RestAssured.trustStore("jetty_localhost_client.jks", "test1234");
         try {
             expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
         } finally {
@@ -110,7 +110,7 @@ public class SSLITest extends WithJetty {
 
     @Test
     public void givenKeystoreDefinedUsingGivenWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
-        given().keystore("/jetty_localhost_client.jks", "test1234").then().expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
+        given().trustStore("/jetty_localhost_client.jks", "test1234").then().expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
     }
 
     @Test
@@ -204,11 +204,11 @@ public class SSLITest extends WithJetty {
     }
 
     @Test public void
-    keystore_works_with_static_base_uri() {
+    truststore_works_with_static_base_uri() {
         RestAssured.baseURI = "https://localhost:8443/hello";
 
         try {
-            given().keystore("/jetty_localhost_client.jks", "test1234").when().get().then().spec(helloWorldSpec());
+            given().trustStore("/jetty_localhost_client.jks", "test1234").when().get().then().spec(helloWorldSpec());
         } finally {
             RestAssured.reset();
         }
@@ -250,14 +250,14 @@ public class SSLITest extends WithJetty {
     }
 
     @Test public void
-    supports_setting_keystore_in_request_specification() {
-        final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/jetty_localhost_client.jks", "test1234").build();
+    supports_setting_truststore_in_request_specification() {
+        final RequestSpecification spec = new RequestSpecBuilder().setTrustStore("/jetty_localhost_client.jks", "test1234").build();
         given().spec(spec).expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
     }
 
     @Test public void
-    supports_overriding_keystore_in_request_specification() {
-        final RequestSpecification spec = new RequestSpecBuilder().setKeystore("/jetty_localhost_client.jks", "wrong pw").build();
-        given().spec(spec).keystore("/jetty_localhost_client.jks", "test1234").expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
+    supports_overriding_truststore_in_request_specification() {
+        final RequestSpecification spec = new RequestSpecBuilder().setTrustStore("/jetty_localhost_client.jks", "wrong pw").build();
+        given().spec(spec).trustStore("/jetty_localhost_client.jks", "test1234").expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
     }
 }

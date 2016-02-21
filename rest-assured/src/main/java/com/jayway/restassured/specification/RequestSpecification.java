@@ -1035,23 +1035,69 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification keystore(File pathToJks, String password);
 
     /**
+     * Apply a trust store. For example
+     * <pre>
+     * given().trustStore("/truststore_javanet.jks", "test1234"). ..
+     * </pre>
+     * </p>
+     * <p>
+     * Note that this is just a shortcut for:
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().trustStore(pathToJks, password));
+     * </pre>
+     * </p>
+     *
+     * @param path The path to the trust store. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system.
+     * @param password  The store pass
+     * @return The request specification
+     */
+    RequestSpecification trustStore(String path, String password);
+
+    /**
+     * Use a trust store located on the file-system. See {@link #trustStore(String, String)} for more details.
+     * <p>
+     * Note that this is just a shortcut for:
+     * </p>
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().trustStore(pathToJks, password));
+     * </pre>
+     *
+     * @param path The path to trust storefile on the file-system
+     * @param password  The password for the keystore
+     * @return The request specification
+     * @see #keystore(String, String)
+     */
+    RequestSpecification trustStore(File path, String password);
+
+    /**
      * Use the supplied truststore for HTTPS requests. Shortcut for:
      * <p>
      * <pre>
      * given().config(RestAssured.config().sslConfig(sslConfig().trustStore(truststore));
      * </pre>
      * </p>
-     * <p>
-     * A trust store is a KeyStore that has been loaded with the password.
-     * If you wish that REST Assured loads the KeyStore store and applies the password (thus making it a trust store) please see one of the
-     * <code>keystore</code> methods such as {@link #keystore(String, String)}.
-     * </p>
+     * <p/>
      *
      * @param trustStore The truststore.
      * @return The request specification
      * @see #keystore(String, String)
      */
     RequestSpecification trustStore(KeyStore trustStore);
+
+    /**
+     * Use the supplied keystore for HTTPS requests. Shortcut for:
+     * <p>
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().keyStore(keyStore));
+     * </pre>
+     * </p>
+     * <p/>
+     *
+     * @param keyStore The keyStore.
+     * @return The request specification
+     * @see #keystore(String, String)
+     */
+    RequestSpecification keyStore(KeyStore keyStore);
 
     /**
      * Use relaxed HTTP validation with SSLContext protocol SSL. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this

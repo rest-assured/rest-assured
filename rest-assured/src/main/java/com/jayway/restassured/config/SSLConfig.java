@@ -94,10 +94,14 @@ public class SSLConfig implements Config {
     private static final int UNDEFINED_PORT = -1;
 
     private final Object pathToKeyStore;
-    private final String password;
+    private final Object pathToTrustStore;
+    private final String keyStorePassword;
+    private final String trustStorePassword;
     private final String keyStoreType;
+    private final String trustStoreType;
     private final int port;
     private final KeyStore trustStore;
+    private final KeyStore keyStore;
     private final X509HostnameVerifier x509HostnameVerifier;
     private final boolean isUserConfigured;
     private final SSLSocketFactory sslSocketFactory;
@@ -110,7 +114,7 @@ public class SSLConfig implements Config {
     public SSLConfig keystore(String pathToJks, String password) {
         Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
-        return new SSLConfig(pathToJks, password, keyStoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory, true);
+        return new SSLConfig(pathToJks, pathToTrustStore, password, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, true);
     }
 
     /**
@@ -124,7 +128,7 @@ public class SSLConfig implements Config {
     public SSLConfig keystore(File pathToJks, String password) {
         Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
-        return new SSLConfig(pathToJks, password, keyStoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory, true);
+        return new SSLConfig(pathToJks, pathToTrustStore, password, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, true);
     }
 
     /**
@@ -139,9 +143,35 @@ public class SSLConfig implements Config {
     }
 
     /**
+     * @param pathToTrustStore The path to the trust store. REST Assured will first look in the classpath and if not found it will look for the JKS in the local file-system
+     * @param password         The store pass
+     * @return A new SSLConfig instance
+     */
+    public SSLConfig trustStore(String pathToTrustStore, String password) {
+        Validate.notNull(pathToTrustStore, "Path to trust store on the file system cannot be null");
+        Validate.notEmpty(password, "Password cannot be empty");
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, password, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, true);
+    }
+
+    /**
+     * Use a trustStore located on the file-system. See {@link #trustStore(String, String)} for more details.
+     *
+     * @param pathToTrustStore The path to trust store file on the file-system
+     * @param password         The password for the trustStore
+     * @return The request specification
+     * @see #trustStore(String, String)
+     */
+    public SSLConfig trustStore(File pathToTrustStore, String password) {
+        Validate.notNull(pathToTrustStore, "Path to trust store on the file system cannot be null");
+        Validate.notEmpty(password, "Password cannot be empty");
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, password, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, true);
+    }
+
+    /**
      * Creates a new SSL Config instance with the following settings:
      * <ul>
      * <li>No keystore</li>
+     * <li>No truststore</li>
      * <li>No password</li>
      * <li>{@link java.security.KeyStore#getDefaultType()}</li>
      * <li>No explicit default port</li>
@@ -151,18 +181,24 @@ public class SSLConfig implements Config {
      * </ul>
      */
     public SSLConfig() {
-        this(null, null, KeyStore.getDefaultType(), UNDEFINED_PORT, null, STRICT_HOSTNAME_VERIFIER, null, false);
+        this(null, null, null, null, KeyStore.getDefaultType(), KeyStore.getDefaultType(), UNDEFINED_PORT, null, null, STRICT_HOSTNAME_VERIFIER, null, false);
     }
 
-    private SSLConfig(Object pathToKeyStore, String password, String keyStoreType, int port, KeyStore trustStore, X509HostnameVerifier x509HostnameVerifier,
-                      SSLSocketFactory sslSocketFactory, boolean isUserConfigured) {
+    private SSLConfig(Object pathToKeyStore, Object pathToTrustStore, String keyStorePassword, String trustStorePassword,
+                      String keyStoreType, String trustStoreType, int port, KeyStore keystore,
+                      KeyStore trustStore, X509HostnameVerifier x509HostnameVerifier, SSLSocketFactory sslSocketFactory,
+                      boolean isUserConfigured) {
         notNull(keyStoreType, "Certificate type");
         notNull(x509HostnameVerifier, X509HostnameVerifier.class);
         this.pathToKeyStore = pathToKeyStore;
-        this.password = password;
+        this.keyStorePassword = keyStorePassword;
+        this.trustStorePassword = trustStorePassword;
+        this.pathToTrustStore = pathToTrustStore;
         this.keyStoreType = keyStoreType;
+        this.trustStoreType = trustStoreType;
         this.port = port;
         this.trustStore = trustStore;
+        this.keyStore = keystore;
         this.x509HostnameVerifier = x509HostnameVerifier;
         this.isUserConfigured = isUserConfigured;
         this.sslSocketFactory = sslSocketFactory;
@@ -175,7 +211,17 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig keystoreType(String keystoreType) {
-        return new SSLConfig(pathToKeyStore, password, keystoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keystoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, true);
+    }
+
+    /**
+     * The trust store type, will use {@link java.security.KeyStore#getDefaultType()} by default.
+     *
+     * @param trustStoreType The trust store type.
+     * @return A new SSLConfig instance
+     */
+    public SSLConfig trustStoreType(String trustStoreType) {
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, true);
     }
 
     /**
@@ -186,7 +232,7 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig port(int port) {
-        return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, true);
     }
 
     /**
@@ -196,7 +242,7 @@ public class SSLConfig implements Config {
      * @return A new SSLConfig instance
      */
     public SSLConfig trustStore(KeyStore trustStore) {
-        return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, true);
     }
 
     /**
@@ -255,7 +301,7 @@ public class SSLConfig implements Config {
      */
     public SSLConfig sslSocketFactory(SSLSocketFactory sslSocketFactory) {
         notNull(sslSocketFactory, SSLSocketFactory.class);
-        return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, true);
     }
 
     /**
@@ -268,7 +314,7 @@ public class SSLConfig implements Config {
      * @see #strictHostnames()
      */
     public SSLConfig x509HostnameVerifier(X509HostnameVerifier x509HostnameVerifier) {
-        return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, true);
     }
 
     /**
@@ -278,7 +324,7 @@ public class SSLConfig implements Config {
      * @see org.apache.http.conn.ssl.SSLSocketFactory#STRICT_HOSTNAME_VERIFIER
      */
     public SSLConfig strictHostnames() {
-        return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, STRICT_HOSTNAME_VERIFIER, sslSocketFactory, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, STRICT_HOSTNAME_VERIFIER, sslSocketFactory, true);
     }
 
     /**
@@ -288,7 +334,7 @@ public class SSLConfig implements Config {
      * @see org.apache.http.conn.ssl.SSLSocketFactory#ALLOW_ALL_HOSTNAME_VERIFIER
      */
     public SSLConfig allowAllHostnames() {
-        return new SSLConfig(pathToKeyStore, password, keyStoreType, port, trustStore, ALLOW_ALL_HOSTNAME_VERIFIER, sslSocketFactory, true);
+        return new SSLConfig(pathToKeyStore, pathToTrustStore, keyStorePassword, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, ALLOW_ALL_HOSTNAME_VERIFIER, sslSocketFactory, true);
     }
 
     /**
@@ -333,17 +379,47 @@ public class SSLConfig implements Config {
     }
 
     /**
-     * @return The password to the JKS
+     * @return The path or file to the trust store
      */
-    public String getPassword() {
-        return password;
+    public Object getPathToTrustStore() {
+        return pathToTrustStore;
     }
 
     /**
-     * @return The certificate type
+     * @return The password to the JKS
+     * @deprecated Use {@link #getKeyStorePassword()} instead
+     */
+    @Deprecated
+    public String getPassword() {
+        return keyStorePassword;
+    }
+
+    /**
+     * @return The password to the JKS
+     */
+    public String getKeyStorePassword() {
+        return keyStorePassword;
+    }
+
+    /**
+     * @return The password to the trust store
+     */
+    public String getTrustStorePassword() {
+        return keyStorePassword;
+    }
+
+    /**
+     * @return The keystore type
      */
     public String getKeyStoreType() {
         return keyStoreType;
+    }
+
+    /**
+     * @return The trust store type
+     */
+    public String getTrustStoreType() {
+        return trustStoreType;
     }
 
     /**
@@ -357,6 +433,13 @@ public class SSLConfig implements Config {
      * @return The trust store
      */
     public KeyStore getTrustStore() {
+        return trustStore;
+    }
+
+    /**
+     * @return The trust store
+     */
+    public KeyStore getKeyStore() {
         return trustStore;
     }
 

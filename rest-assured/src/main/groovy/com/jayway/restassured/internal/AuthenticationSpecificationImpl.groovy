@@ -79,9 +79,11 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
     notNull password, "password"
     notNull settings, CertificateAuthSettings.class
 
-    requestSpecification.authenticationScheme = new CertAuthScheme(pathToKeyStore: certURL, password: password, keystoreType: settings.keystoreType,
-            port: settings.port, trustStore: settings.trustStore, x509HostnameVerifier: settings.getX509HostnameVerifier(),
-            sslSocketFactory: settings.getSSLSocketFactory())
+    requestSpecification.authenticationScheme = new CertAuthScheme(
+            keystoreType: settings.keystoreType, keyStore: settings.keyStore,
+            pathToTrustStore: certURL, trustStorePassword: password, trustStoreType: settings.trustStoreType, trustStore: settings.trustStore,
+            port: settings.port, x509HostnameVerifier: settings.getX509HostnameVerifier(),
+            sslSocketFactory: settings.getSSLSocketFactory(),)
     return requestSpecification
 
   }
@@ -89,8 +91,8 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
   /**
    * {@inheritDoc}
    */
-  RequestSpecification certificate(String certURL, String password, String keystoreType, int port) {
-    return certificate(certURL, password, certAuthSettings().keystoreType(keystoreType).port(port))
+  RequestSpecification certificate(String certURL, String password, String trustStoreType, int port) {
+    return certificate(certURL, password, certAuthSettings().trustStoreType(trustStoreType).port(port))
   }
 
 /**

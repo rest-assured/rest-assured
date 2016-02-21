@@ -34,8 +34,10 @@ import static org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER
 public class CertificateAuthSettings {
     private static final int UNDEFINED_PORT = -1;
     private final String keystoreType;
+    private final String trustStoreType;
     private final int port;
     private final KeyStore trustStore;
+    private final KeyStore keyStore;
     private final X509HostnameVerifier x509HostnameVerifier;
     private final SSLSocketFactory sslSocketFactory;
 
@@ -43,8 +45,10 @@ public class CertificateAuthSettings {
      * Create a new instance of the Certificate Authentication Options with the default settings of:
      * <ul>
      * <li>keystoreType = {@link java.security.KeyStore#getDefaultType()}</li>
+     * <li>trustStoreType = {@link java.security.KeyStore#getDefaultType()}</li>
      * <li>port = 443</li>
      * <li>trustStore = null</li>
+     * <li>keyStore = null</li>
      * <li>x509HostnameVerifier = {@link org.apache.http.conn.ssl.SSLSocketFactory#STRICT_HOSTNAME_VERIFIER}</li>
      * <li>SSLSocketFactory = null</li>
      * </ul>
@@ -52,20 +56,24 @@ public class CertificateAuthSettings {
      * @see #certAuthSettings()
      */
     public CertificateAuthSettings() {
-        this(KeyStore.getDefaultType(), UNDEFINED_PORT, null, STRICT_HOSTNAME_VERIFIER, null);
+        this(KeyStore.getDefaultType(), KeyStore.getDefaultType(), UNDEFINED_PORT, null, null, STRICT_HOSTNAME_VERIFIER, null);
     }
 
     /**
      * @param keystoreType         The certificate type, by default {@link java.security.KeyStore#getDefaultType()}.
+     * @param trustStoreType       The trust store type, by default {@link java.security.KeyStore#getDefaultType()}.
      * @param port                 The port, by default 443.
      * @param trustStore           The trust store, by default no provider is used (<code>null</code>).
      * @param x509HostnameVerifier The X509HostnameVerifier to use
      * @param sslSocketFactory     The SSLSocketFactory to use
      */
-    private CertificateAuthSettings(String keystoreType, int port, KeyStore trustStore, X509HostnameVerifier x509HostnameVerifier,
+    private CertificateAuthSettings(String keystoreType, String trustStoreType, int port, KeyStore trustStore, KeyStore keyStore, X509HostnameVerifier x509HostnameVerifier,
                                     SSLSocketFactory sslSocketFactory) {
         AssertParameter.notNull(keystoreType, "Certificate type");
+        AssertParameter.notNull(trustStoreType, "Trust store type");
         this.keystoreType = keystoreType;
+        this.keyStore = keyStore;
+        this.trustStoreType = trustStoreType;
         this.port = port;
         this.trustStore = trustStore;
         this.x509HostnameVerifier = x509HostnameVerifier;
@@ -76,12 +84,20 @@ public class CertificateAuthSettings {
         return keystoreType;
     }
 
+    public String getTrustStoreType() {
+        return trustStoreType;
+    }
+
     public int getPort() {
         return port;
     }
 
     public KeyStore getTrustStore() {
         return trustStore;
+    }
+
+    public KeyStore getKeyStore() {
+        return keyStore;
     }
 
     public SSLSocketFactory getSSLSocketFactory() {
@@ -95,7 +111,7 @@ public class CertificateAuthSettings {
      * @see org.apache.http.conn.ssl.SSLSocketFactory#STRICT_HOSTNAME_VERIFIER
      */
     public CertificateAuthSettings strictHostnames() {
-        return new CertificateAuthSettings(keystoreType, port, trustStore, STRICT_HOSTNAME_VERIFIER, sslSocketFactory);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, STRICT_HOSTNAME_VERIFIER, sslSocketFactory);
     }
 
     /**
@@ -105,7 +121,7 @@ public class CertificateAuthSettings {
      * @see org.apache.http.conn.ssl.SSLSocketFactory#ALLOW_ALL_HOSTNAME_VERIFIER
      */
     public CertificateAuthSettings allowAllHostnames() {
-        return new CertificateAuthSettings(keystoreType, port, trustStore, ALLOW_ALL_HOSTNAME_VERIFIER, sslSocketFactory);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, ALLOW_ALL_HOSTNAME_VERIFIER, sslSocketFactory);
     }
 
     /**
@@ -116,7 +132,7 @@ public class CertificateAuthSettings {
      * @see #allowAllHostnames()
      */
     public CertificateAuthSettings x509HostnameVerifier(X509HostnameVerifier x509HostnameVerifier) {
-        return new CertificateAuthSettings(keystoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, x509HostnameVerifier, sslSocketFactory);
     }
 
     /**
@@ -131,7 +147,15 @@ public class CertificateAuthSettings {
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
     public CertificateAuthSettings keystoreType(String keystoreType) {
-        return new CertificateAuthSettings(keystoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, x509HostnameVerifier, sslSocketFactory);
+    }
+
+    /**
+     * @param trustStoreType The trust store type, by default {@link java.security.KeyStore#getDefaultType()}.
+     * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
+     */
+    public CertificateAuthSettings trustStoreType(String trustStoreType) {
+        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, x509HostnameVerifier, sslSocketFactory);
     }
 
     /**
@@ -139,7 +163,7 @@ public class CertificateAuthSettings {
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
     public CertificateAuthSettings port(int port) {
-        return new CertificateAuthSettings(keystoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, x509HostnameVerifier, sslSocketFactory);
     }
 
     /**
@@ -147,7 +171,15 @@ public class CertificateAuthSettings {
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
     public CertificateAuthSettings trustStore(KeyStore trustStore) {
-        return new CertificateAuthSettings(keystoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, x509HostnameVerifier, sslSocketFactory);
+    }
+
+    /**
+     * @param keyStore The key store to use, by default no (<code>null</code>) key store is used.
+     * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
+     */
+    public CertificateAuthSettings keyStore(KeyStore keyStore) {
+        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, x509HostnameVerifier, sslSocketFactory);
     }
 
     /**
@@ -155,7 +187,7 @@ public class CertificateAuthSettings {
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
     public CertificateAuthSettings sslSocketFactory(SSLSocketFactory sslSocketFactory) {
-        return new CertificateAuthSettings(keystoreType, port, trustStore, x509HostnameVerifier, sslSocketFactory);
+        return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, x509HostnameVerifier, sslSocketFactory);
     }
 
     /**

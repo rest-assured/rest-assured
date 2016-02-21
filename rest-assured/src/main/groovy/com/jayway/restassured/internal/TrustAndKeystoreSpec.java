@@ -21,7 +21,7 @@ import com.jayway.restassured.internal.http.HTTPBuilder;
 /**
  * The key store specification
  */
-public interface KeystoreSpec {
+public interface TrustAndKeystoreSpec {
 
     /**
      * Apply the settings

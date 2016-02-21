@@ -17,7 +17,7 @@
 package com.jayway.restassured.internal.http;
 
 import com.jayway.restassured.authentication.OAuthSignature;
-import com.jayway.restassured.internal.KeystoreSpecImpl;
+import com.jayway.restassured.internal.TrustAndKeystoreSpecImpl;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -91,28 +91,38 @@ public class AuthConfig {
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
      * on the classpath.
      *
-     * @param certURL              URL to a JKS keystore where the certificate is stored.
-     * @param password             password to decrypt the keystore
-     * @param certType             The certificate type
-     * @param port                 The SSL port
-     * @param trustStore           The trust store
-     * @param x509HostnameVerifier The X509HostnameVerifier to use
-     * @param sslSocketFactory     The SSLSocketFactory to use
+     * @param keyStorePath               URL to a JKS keystore where the certificate is stored.
+     * @param keyStorePassword           password to decrypt the keystore
+     * @param keyStoreType               The certificate type
+     * @param keyStore                   The key store
+     * @param trustStorePath             URL to a trust store
+     * @param trustStorePassword         password to decrypt the trust store
+     * @param trustStoreType             The certificate type
+     * @param trustStore                 The trust store
+     * @param port                       The SSL port
+     * @param hostnameVerifier           The X509HostnameVerifier to use
+     * @param sslConnectionSocketFactory The SSLConnectionSocketFactory to use
      */
-    public void certificate(String certURL, String password, String certType, int port, KeyStore trustStore, X509HostnameVerifier x509HostnameVerifier,
-                            SSLSocketFactory sslSocketFactory) {
-        KeystoreSpecImpl keystoreSpec = new KeystoreSpecImpl();
+    public void certificate(Object keyStorePath, String keyStorePassword, String keyStoreType, KeyStore keyStore,
+                            Object trustStorePath, String trustStorePassword, String trustStoreType, KeyStore trustStore,
+                            int port, X509HostnameVerifier hostnameVerifier, SSLSocketFactory sslConnectionSocketFactory) {
+        TrustAndKeystoreSpecImpl spec = new TrustAndKeystoreSpecImpl();
         URI uri = ((URIBuilder) builder.getUri()).toURI();
         if (uri == null) throw new IllegalStateException("a default URI must be set");
-        keystoreSpec.setKeyStoreType(certType);
-        keystoreSpec.setPassword(password);
-        keystoreSpec.setPath(certURL);
-        keystoreSpec.setTrustStore(trustStore);
-        keystoreSpec.setPort(port);
-        keystoreSpec.setX509HostnameVerifier(x509HostnameVerifier);
-        keystoreSpec.setFactory(sslSocketFactory);
+        spec.setKeyStoreType(keyStoreType);
+        spec.setKeyStorePassword(keyStorePassword);
+        spec.setKeyStorePath(keyStorePath);
+        spec.setKeyStore(keyStore);
+        spec.setTrustStoreType(trustStoreType);
+        spec.setTrustStorePassword(trustStorePassword);
+        spec.setTrustStorePath(trustStorePath);
+        spec.setTrustStore(trustStore);
+        spec.setPort(port);
+        spec.setX509HostnameVerifier(hostnameVerifier);
+        spec.setFactory(sslConnectionSocketFactory);
+
         int portSpecifiedInUri = uri.getPort();
-        keystoreSpec.apply(builder, portSpecifiedInUri == UNDEFINED_PORT ? DEFAULT_HTTPS_PORT : portSpecifiedInUri);
+        spec.apply(builder, portSpecifiedInUri == UNDEFINED_PORT ? DEFAULT_HTTPS_PORT : portSpecifiedInUri);
     }
 
     /**

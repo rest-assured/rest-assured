@@ -759,6 +759,25 @@ public class RequestSpecBuilder {
     }
 
     /**
+     * Specify a keystore.
+     * <pre>
+     * RestAssured.keystore("/truststore_javanet.jks", "test1234");
+     * </pre>
+     * or
+     * <pre>
+     * given().keystore("/truststore_javanet.jks", "test1234"). ..
+     * </pre>
+     * </p>
+     *
+     * @param pathToJks The path to the JKS
+     * @param password  The store pass
+     */
+    public RequestSpecBuilder setKeystore(String pathToJks, String password) {
+        spec.keystore(pathToJks, password);
+        return this;
+    }
+
+    /**
      * The following documentation is taken from <a href="HTTP Builder">https://github.com/jgritman/httpbuilder/wiki/SSL</a>:
      * <p>
      * <h1>SSL Configuration</h1>
@@ -801,19 +820,78 @@ public class RequestSpecBuilder {
      * </pre>
      * Now you want to use this truststore in your client:
      * <pre>
-     * RestAssured.keystore("/truststore_javanet.jks", "test1234");
+     * RestAssured.trustStore("/truststore_javanet.jks", "test1234");
      * </pre>
      * or
      * <pre>
-     * given().keystore("/truststore_javanet.jks", "test1234"). ..
+     * given().trustStore("/truststore_javanet.jks", "test1234"). ..
      * </pre>
      * </p>
      *
      * @param pathToJks The path to the JKS
      * @param password  The store pass
      */
-    public RequestSpecBuilder setKeystore(String pathToJks, String password) {
-        spec.keystore(pathToJks, password);
+    public RequestSpecBuilder setTrustStore(String pathToJks, String password) {
+        spec.trustStore(pathToJks, password);
+        return this;
+    }
+
+    /**
+     * The following documentation is taken from <a href="HTTP Builder">https://github.com/jgritman/httpbuilder/wiki/SSL</a>:
+     * <p>
+     * <h1>SSL Configuration</h1>
+     * <p/>
+     * SSL should, for the most part, "just work." There are a few situations where it is not completely intuitive. You can follow the example below, or see HttpClient's SSLSocketFactory documentation for more information.
+     * <p/>
+     * <h1>SSLPeerUnverifiedException</h1>
+     * <p/>
+     * If you can't connect to an SSL website, it is likely because the certificate chain is not trusted. This is an Apache HttpClient issue, but explained here for convenience. To correct the untrusted certificate, you need to import a certificate into an SSL truststore.
+     * <p/>
+     * First, export a certificate from the website using your browser. For example, if you go to https://dev.java.net in Firefox, you will probably get a warning in your browser. Choose "Add Exception," "Get Certificate," "View," "Details tab." Choose a certificate in the chain and export it as a PEM file. You can view the details of the exported certificate like so:
+     * <pre>
+     * $ keytool -printcert -file EquifaxSecureGlobaleBusinessCA-1.crt
+     * Owner: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Issuer: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Serial number: 1
+     * Valid from: Mon Jun 21 00:00:00 EDT 1999 until: Sun Jun 21 00:00:00 EDT 2020
+     * Certificate fingerprints:
+     * MD5:  8F:5D:77:06:27:C4:98:3C:5B:93:78:E7:D7:7D:9B:CC
+     * SHA1: 7E:78:4A:10:1C:82:65:CC:2D:E1:F1:6D:47:B4:40:CA:D9:0A:19:45
+     * Signature algorithm name: MD5withRSA
+     * Version: 3
+     * ....
+     * </pre>
+     * Now, import that into a Java keystore file:
+     * <pre>
+     * $ keytool -importcert -alias "equifax-ca" -file EquifaxSecureGlobaleBusinessCA-1.crt -keystore truststore_javanet.jks -storepass test1234
+     * Owner: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Issuer: CN=Equifax Secure Global eBusiness CA-1, O=Equifax Secure Inc., C=US
+     * Serial number: 1
+     * Valid from: Mon Jun 21 00:00:00 EDT 1999 until: Sun Jun 21 00:00:00 EDT 2020
+     * Certificate fingerprints:
+     * MD5:  8F:5D:77:06:27:C4:98:3C:5B:93:78:E7:D7:7D:9B:CC
+     * SHA1: 7E:78:4A:10:1C:82:65:CC:2D:E1:F1:6D:47:B4:40:CA:D9:0A:19:45
+     * Signature algorithm name: MD5withRSA
+     * Version: 3
+     * ...
+     * Trust this certificate? [no]:  yes
+     * Certificate was added to keystore
+     * </pre>
+     * Now you want to use this truststore in your client:
+     * <pre>
+     * RestAssured.trustStore("/truststore_javanet.jks", "test1234");
+     * </pre>
+     * or
+     * <pre>
+     * given().trustStore("/truststore_javanet.jks", "test1234"). ..
+     * </pre>
+     * </p>
+     *
+     * @param pathToJks The path to the JKS
+     * @param password  The store pass
+     */
+    public RequestSpecBuilder setTrustStore(File pathToJks, String password) {
+        spec.trustStore(pathToJks, password);
         return this;
     }
 
@@ -1239,11 +1317,7 @@ public class RequestSpecBuilder {
      * given().config(RestAssured.config().sslConfig(sslConfig().trustStore(truststore));
      * </pre>
      * </p>
-     * <p>
-     * A trust store is a KeyStore that has been loaded with the password.
-     * If you wish that REST Assured loads the KeyStore store and applies the password (thus making it a trust store) please see one of the
-     * <code>keystore</code> methods such as {@link #setKeystore(String, String)}.
-     * </p>
+     * <p/>
      *
      * @param trustStore The truststore.
      * @return RequestSpecBuilder
@@ -1251,6 +1325,24 @@ public class RequestSpecBuilder {
      */
     public RequestSpecBuilder setTrustStore(KeyStore trustStore) {
         spec.trustStore(trustStore);
+        return this;
+    }
+
+    /**
+     * Use the supplied truststore for HTTPS requests. Shortcut for:
+     * <p>
+     * <pre>
+     * given().config(RestAssured.config().sslConfig(sslConfig().keyStore(truststore));
+     * </pre>
+     * </p>
+     * <p/>
+     *
+     * @param trustStore The truststore.
+     * @return RequestSpecBuilder
+     * @see #setKeystore(String, String)
+     */
+    public RequestSpecBuilder setKeyStore(KeyStore trustStore) {
+        spec.keyStore(trustStore);
         return this;
     }
 

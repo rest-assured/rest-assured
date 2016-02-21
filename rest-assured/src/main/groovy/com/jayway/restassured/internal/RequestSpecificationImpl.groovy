@@ -531,9 +531,27 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
+  def RequestSpecification trustStore(String path, String password) {
+    def sslConfig = restAssuredConfig().getSSLConfig()
+    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.trustStore(path, password).allowAllHostnames())
+    this
+  }
+
+  def RequestSpecification trustStore(File path, String password) {
+    def sslConfig = restAssuredConfig().getSSLConfig()
+    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.trustStore(path, password).allowAllHostnames())
+    this
+  }
+
   def RequestSpecification trustStore(KeyStore trustStore) {
     def sslConfig = restAssuredConfig().getSSLConfig()
     restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.trustStore(trustStore))
+    this
+  }
+
+  def RequestSpecification keyStore(KeyStore keyStore) {
+    def sslConfig = restAssuredConfig().getSSLConfig()
+    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keyStore(keyStore))
     this
   }
 
@@ -1119,9 +1137,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     if (shouldApplySSLConfig(http, cfg)) {
       def sslConfig = cfg.getSSLConfig();
-      new CertAuthScheme(pathToKeyStore: sslConfig.getPathToKeyStore(), password: sslConfig.getPassword(),
-              keystoreType: sslConfig.getKeyStoreType(), port: sslConfig.getPort(), trustStore: sslConfig.getTrustStore(),
-              sslSocketFactory: sslConfig.getSSLSocketFactory(), x509HostnameVerifier: sslConfig.getX509HostnameVerifier()).authenticate(http)
+      new CertAuthScheme(pathToKeyStore: sslConfig.getPathToKeyStore(), keyStorePassword: sslConfig.getKeyStorePassword(),
+              keystoreType: sslConfig.getKeyStoreType(), keyStore: sslConfig.getKeyStore(),
+              pathToTrustStore: sslConfig.getPathToTrustStore(), trustStorePassword: sslConfig.getTrustStorePassword(),
+              trustStoreType: sslConfig.getTrustStoreType(), trustStore: sslConfig.getTrustStore(),
+              port: sslConfig.getPort(), sslSocketFactory: sslConfig.getSSLSocketFactory(), x509HostnameVerifier: sslConfig.getX509HostnameVerifier())
+              .authenticate(http)
     }
 
     authenticationScheme.authenticate(http)
