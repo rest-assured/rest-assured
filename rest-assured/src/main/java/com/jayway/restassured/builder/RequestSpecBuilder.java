@@ -1329,20 +1329,20 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Use the supplied truststore for HTTPS requests. Shortcut for:
+     * Use the supplied keystore for HTTPS requests. Shortcut for:
      * <p>
      * <pre>
-     * given().config(RestAssured.config().sslConfig(sslConfig().keyStore(truststore));
+     * given().config(RestAssured.config().sslConfig(sslConfig().keyStore(keystore));
      * </pre>
      * </p>
      * <p/>
      *
-     * @param trustStore The truststore.
+     * @param keyStore The truststore.
      * @return RequestSpecBuilder
      * @see #setKeystore(String, String)
      */
-    public RequestSpecBuilder setKeyStore(KeyStore trustStore) {
-        spec.keyStore(trustStore);
+    public RequestSpecBuilder setKeyStore(KeyStore keyStore) {
+        spec.keyStore(keyStore);
         return this;
     }
 
