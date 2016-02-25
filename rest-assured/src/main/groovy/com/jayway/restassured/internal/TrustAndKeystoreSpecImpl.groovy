@@ -70,7 +70,7 @@ class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
 
   def KeyStore createStore(keyStoreType, keyStorePath, keyStorePassword) {
     def keyStore = KeyStore.getInstance(keyStoreType)
-    if (keyStorePath == null || keyStorePath.isEmpty()) {
+    if (keyStorePath == null || ((keyStorePath instanceof String) && keyStorePath.isEmpty())) {
       return null
     }
 
