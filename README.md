@@ -11,7 +11,7 @@ languages into the Java domain.
 
 
 ## News 
-* 2016-03-04: REST Assured [2.9.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-2.9.0-dist.zip) is released. This is essentially a maintence release but it comes with big changes in how keystores and truststores are used. This release is not 100% backward compatible so please see [release notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes29) for more details.
+* 2016-03-04: REST Assured [2.9.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-2.9.0-dist.zip) is released. This is essentially a maintenance release but it comes with big changes in how keystores and truststores are used. This release is not 100% backward compatible so please see [release notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes29) for more details.
 * 2016-01-20: [Johan Haleby](http://code.haleby.se/) will present REST Assured at the [JDays](http://www.jdays.se/) conference in Gothenburg at 8th of March.
 * 2015-12-18: REST Assured [2.8.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-2.8.0-dist.zip) is released with support for using [measuring response time](https://github.com/jayway/rest-assured/wiki/Usage#measuring-response-time), updates to [path parameters](https://github.com/jayway/rest-assured/wiki/Usage#path-parameters) and [filters](https://github.com/jayway/rest-assured/wiki/Usage#filters) as well as other fixes and improvements. This release is not 100% backward compatible so please see [release notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes28) for more details.
 
