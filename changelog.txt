@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 2.9.0 (2016-03-04)
+-----------------------------
 * Added support for composing a Hamcrest matcher with a ResponseAwareMatcher when using a ResponseAwareMatcherComposer
 * Automatically escapes JsonPath and XmlPath fragments that contains a hyphen and an index lookup operator. For example consider the following JSON document:
     { "some-list[0]" : ["one", "two"] }
