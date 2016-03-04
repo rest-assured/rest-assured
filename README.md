@@ -11,9 +11,9 @@ languages into the Java domain.
 
 
 ## News 
+* 2016-01-20: REST Assured will be presented at the [JDays](http://www.jdays.se/) conference in Gothenburg at 8th of March.
 * 2015-12-18: REST Assured [2.8.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-2.8.0-dist.zip) is released with support for using [measuring response time](https://github.com/jayway/rest-assured/wiki/Usage#measuring-response-time), updates to [path parameters](https://github.com/jayway/rest-assured/wiki/Usage#path-parameters) and [filters](https://github.com/jayway/rest-assured/wiki/Usage#filters) as well as other fixes and improvements. This release is not 100% backward compatible so please see [release notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes28) for more details.
 * 2015-11-06: [Documentated](https://github.com/jayway/rest-assured/wiki/Usage#kotlin) how to make [Kotlin](https://kotlinlang.org/) integration a bit nicer with REST Assured. Refer to [this](http://code.haleby.se/2015/11/06/rest-assured-with-kotlin/) blog for additional info and example.
-* 2015-11-03: REST Assured has a new domain: [http://www.rest-assured.io](http://www.rest-assured.io). Feel free to update your bookmarks.
 
 [Older News](https://github.com/jayway/rest-assured/wiki/OldNews)
 
