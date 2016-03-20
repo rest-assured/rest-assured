@@ -1,3 +1,7 @@
+Change log next release
+-----------------------
+* Upgrading scribe dependencies to latest version 2.4.0 (thanks to Aniket for pull request)
+
 Change log 2.9.0 (2016-03-04)
 -----------------------------
 * Added support for composing a Hamcrest matcher with a ResponseAwareMatcher when using a ResponseAwareMatcherComposer
