@@ -29,12 +29,12 @@ import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.RequestWrapper;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
-import org.scribe.builder.api.DefaultApi10a;
-import org.scribe.builder.api.DefaultApi20;
-import org.scribe.model.*;
-import org.scribe.oauth.OAuth10aServiceImpl;
-import org.scribe.oauth.OAuth20ServiceImpl;
-import org.scribe.oauth.OAuthService;
+import com.github.scribejava.core.builder.api.DefaultApi10a;
+import com.github.scribejava.core.builder.api.DefaultApi20;
+import com.github.scribejava.core.model.*;
+import com.github.scribejava.core.oauth.OAuth10aService;
+import com.github.scribejava.core.oauth.OAuth20Service;
+import com.github.scribejava.core.oauth.OAuthService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -134,7 +134,7 @@ public class AuthConfig {
      * <p>This assumes you've already generated an <code>accessToken</code> and
      * <code>secretToken</code> for the site you're targeting.  For More information
      * on how to achieve this, see the
-     * <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
+     * <a href='https://github.com/scribejava/scribejava/wiki/Getting-Started'>Scribe documentation</a>.</p>
      *
      * @param consumerKey    <code>null</code> if you want to <strong>unset</strong>
      *                       OAuth handling and stop signing requests.
@@ -172,7 +172,7 @@ public class AuthConfig {
      * <p>This assumes you've already generated an <code>accessToken</code>
      * for the site you're targeting.  For More information
      * on how to achieve this, see the
-     * <a href='https://github.com/fernandezpablo85/scribe-java/wiki/Getting-Started'>Scribe documentation</a>.</p>
+     * <a href='https://github.com/scribejava/scribejava/wiki/Getting-Started'>Scribe documentation</a>.</p>
      *
      * @param accessToken
      * @since 0.5.1
@@ -193,8 +193,8 @@ public class AuthConfig {
 
     static class OAuthSigner implements HttpRequestInterceptor {
         protected OAuthConfig oauthConfig;
-        protected Token token;
-        protected OAuthService service;
+        protected OAuth1AccessToken token;
+        protected OAuth10aService service;
         protected SignatureType type = SignatureType.Header;
         protected OAuthSignature signature;
         protected boolean isOAuth1 = true;
@@ -203,13 +203,13 @@ public class AuthConfig {
                            String accessToken, String secretToken, OAuthSignature signature) {
 
             this.oauthConfig = new OAuthConfig(consumerKey, consumerSecret,
-                    null, getOAuthSigntureType(signature), null, null);
-            this.token = new Token(accessToken, secretToken);
+                    null, getOAuthSigntureType(signature), null, null, null, null, null, null, null);
+            this.token = new OAuth1AccessToken (accessToken, secretToken);
             this.signature = signature;
         }
 
         public OAuthSigner(String accessToken, OAuthSignature signature) {
-            this.token = new Token(accessToken, "");
+            this.token = new OAuth1AccessToken (accessToken, "");
             this.signature = signature;
             isOAuth1 = false;
         }
@@ -220,9 +220,10 @@ public class AuthConfig {
                 final URI requestURI = new URI(host.toURI()).resolve(request.getRequestLine().getUri());
 
                 Verb verb = Verb.valueOf(request.getRequestLine().getMethod().toUpperCase());
-                OAuthRequest oauthRequest = new OAuthRequest(verb, requestURI.toString());
-                this.service = getOauthService(isOAuth1);
+                OAuthRequest oauthRequest = new OAuthRequest(verb, requestURI.toString(),null);
+                this.service = (OAuth10aService)getOauthService(isOAuth1);
                 service.signRequest(token, oauthRequest);
+
                 if (signature == OAuthSignature.HEADER) {
                     //If signature is to be added as header
                     for (Map.Entry<String, String> entry : oauthRequest.getHeaders().entrySet()) {
@@ -249,7 +250,7 @@ public class AuthConfig {
                     }
 
                     @Override
-                    public String getAuthorizationUrl(Token arg0) {
+                    public String getAuthorizationUrl(OAuth1RequestToken arg0) {
                         return null;
                     }
 
@@ -258,7 +259,7 @@ public class AuthConfig {
                         return null;
                     }
                 };
-                service = new OAuth10aServiceImpl(api, oauthConfig);
+                service = new OAuth10aService(api, oauthConfig);
             } else {
                 DefaultApi20 api = new DefaultApi20() {
                     @Override
@@ -271,7 +272,7 @@ public class AuthConfig {
                         return null;
                     }
                 };
-                service = new OAuth20ServiceImpl(api, oauthConfig);
+                service = new OAuth20Service(api, oauthConfig);
             }
             return service;
         }
