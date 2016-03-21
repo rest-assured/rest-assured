@@ -21,7 +21,7 @@ package com.jayway.restassured.config;
  */
 public class OAuthConfig implements Config {
 
-    private final boolean useEmptyOAuthToken;
+    private final boolean addEmptyTokenToBaseString;
     private final boolean isUserConfigured;
 
     /**
@@ -31,28 +31,28 @@ public class OAuthConfig implements Config {
         this(false, false);
     }
 
-    private OAuthConfig(boolean useEmptyOAuthToken, boolean isUserConfigured) {
-        this.useEmptyOAuthToken = useEmptyOAuthToken;
+    private OAuthConfig(boolean addEmptyTokenToBaseString, boolean isUserConfigured) {
+        this.addEmptyTokenToBaseString = addEmptyTokenToBaseString;
         this.isUserConfigured = isUserConfigured;
     }
 
     /**
-     * Configure whether or not to use an empty oauth token for OAuth1
+     * Configure whether or not to add an empty oauth token for OAuth1 while generating Base string
      *
-     * @param useEmptyOAuthToken Whether or not to use an empty oauth token
+     * @param addEmptyTokenToBaseString Whether or not to add an empty oauth token parameter while generating base string
      * @return A new instance of {@link OAuthConfig}
      */
-    public OAuthConfig useEmptyOAuthToken(boolean useEmptyOAuthToken) {
-        return new OAuthConfig(useEmptyOAuthToken, true);
+    public OAuthConfig addEmptyTokenToBaseString(boolean addEmptyTokenToBaseString) {
+        return new OAuthConfig(addEmptyTokenToBaseString, true);
     }
 
     /**
-     * Returns whether or not an empty oauth token should be used for oauth1.
+     * Returns whether or not add an empty oauth token for oauth1 while generating Base string.
      *
      * @return A new instance of {@link OAuthConfig}
      */
-    public boolean shouldUseEmptyOAuthToken() {
-        return useEmptyOAuthToken;
+    public boolean shouldAddEmptyOAuthTokenToBaseString() {
+        return addEmptyTokenToBaseString;
     }
 
 
