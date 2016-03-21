@@ -16,6 +16,12 @@
 
 package com.jayway.restassured.internal.http;
 
+import com.github.scribejava.core.builder.api.DefaultApi10a;
+import com.github.scribejava.core.builder.api.DefaultApi20;
+import com.github.scribejava.core.model.*;
+import com.github.scribejava.core.oauth.OAuth10aService;
+import com.github.scribejava.core.oauth.OAuth20Service;
+import com.github.scribejava.core.oauth.OAuthService;
 import com.jayway.restassured.authentication.OAuthSignature;
 import com.jayway.restassured.internal.TrustAndKeystoreSpecImpl;
 import org.apache.http.HttpException;
@@ -29,12 +35,6 @@ import org.apache.http.conn.ssl.X509HostnameVerifier;
 import org.apache.http.impl.client.RequestWrapper;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
-import com.github.scribejava.core.builder.api.DefaultApi10a;
-import com.github.scribejava.core.builder.api.DefaultApi20;
-import com.github.scribejava.core.model.*;
-import com.github.scribejava.core.oauth.OAuth10aService;
-import com.github.scribejava.core.oauth.OAuth20Service;
-import com.github.scribejava.core.oauth.OAuthService;
 
 import java.io.IOException;
 import java.net.URI;
@@ -52,9 +52,11 @@ public class AuthConfig {
     private static final int UNDEFINED_PORT = -1;
     private static final int DEFAULT_HTTPS_PORT = 443;
     protected HTTPBuilder builder;
+    private final com.jayway.restassured.config.OAuthConfig restAssuredOAuthConfig;
 
-    public AuthConfig(HTTPBuilder builder) {
+    public AuthConfig(HTTPBuilder builder, com.jayway.restassured.config.OAuthConfig restAssuredOAuthConfig) {
         this.builder = builder;
+        this.restAssuredOAuthConfig = restAssuredOAuthConfig;
     }
 
     /**
@@ -152,6 +154,7 @@ public class AuthConfig {
         }
     }
 
+
     public void oauth(String consumerKey, String consumerSecret,
                       String accessToken, String secretToken, OAuthSignature signature) {
         this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
@@ -204,12 +207,12 @@ public class AuthConfig {
 
             this.oauthConfig = new OAuthConfig(consumerKey, consumerSecret,
                     null, getOAuthSigntureType(signature), null, null, null, null, null, null, null);
-            this.token = new OAuth1AccessToken (accessToken, secretToken);
+            this.token = new OAuth1AccessToken(accessToken, secretToken);
             this.signature = signature;
         }
 
         public OAuthSigner(String accessToken, OAuthSignature signature) {
-            this.token = new OAuth1AccessToken (accessToken, "");
+            this.token = new OAuth1AccessToken(accessToken, "");
             this.signature = signature;
             isOAuth1 = false;
         }
@@ -220,8 +223,8 @@ public class AuthConfig {
                 final URI requestURI = new URI(host.toURI()).resolve(request.getRequestLine().getUri());
 
                 Verb verb = Verb.valueOf(request.getRequestLine().getMethod().toUpperCase());
-                OAuthRequest oauthRequest = new OAuthRequest(verb, requestURI.toString(),null);
-                this.service = (OAuth10aService)getOauthService(isOAuth1);
+                OAuthRequest oauthRequest = new OAuthRequest(verb, requestURI.toString(), null);
+                this.service = (OAuth10aService) getOauthService(isOAuth1);
                 service.signRequest(token, oauthRequest);
 
                 if (signature == OAuthSignature.HEADER) {
