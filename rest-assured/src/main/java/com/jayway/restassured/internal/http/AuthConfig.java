@@ -150,7 +150,7 @@ public class AuthConfig {
         this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
         if (consumerKey != null) {
             this.builder.client.addRequestInterceptor(new OAuthSigner(
-                    consumerKey, consumerSecret, accessToken, secretToken, OAuthSignature.HEADER));
+                    consumerKey, consumerSecret, accessToken, secretToken, OAuthSignature.HEADER, restAssuredOAuthConfig.shouldAddEmptyOAuthTokenToBaseString()));
         }
     }
 
@@ -161,7 +161,7 @@ public class AuthConfig {
         if (consumerKey != null) {
             this.builder.client.addRequestInterceptor(new OAuthSigner(
                     consumerKey, consumerSecret, accessToken, secretToken,
-                    signature));
+                    signature, restAssuredOAuthConfig.shouldAddEmptyOAuthTokenToBaseString()));
         }
     }
 
@@ -196,23 +196,25 @@ public class AuthConfig {
 
     static class OAuthSigner implements HttpRequestInterceptor {
         protected OAuthConfig oauthConfig;
-        protected OAuth1AccessToken token;
+        protected Token token;
         protected OAuth10aService service;
         protected SignatureType type = SignatureType.Header;
         protected OAuthSignature signature;
         protected boolean isOAuth1 = true;
+        protected boolean addEmptyTokenToBaseString;
 
         public OAuthSigner(String consumerKey, String consumerSecret,
-                           String accessToken, String secretToken, OAuthSignature signature) {
+                           String accessToken, String secretToken, OAuthSignature signature, Boolean addEmptyTokenToBaseString) {
 
             this.oauthConfig = new OAuthConfig(consumerKey, consumerSecret,
                     null, getOAuthSigntureType(signature), null, null, null, null, null, null, null);
             this.token = new OAuth1AccessToken(accessToken, secretToken);
             this.signature = signature;
+            this.addEmptyTokenToBaseString = addEmptyTokenToBaseString;
         }
 
         public OAuthSigner(String accessToken, OAuthSignature signature) {
-            this.token = new OAuth1AccessToken(accessToken, "");
+            this.token = new OAuth2AccessToken(accessToken, "");
             this.signature = signature;
             isOAuth1 = false;
         }
@@ -224,8 +226,8 @@ public class AuthConfig {
 
                 Verb verb = Verb.valueOf(request.getRequestLine().getMethod().toUpperCase());
                 OAuthRequest oauthRequest = new OAuthRequest(verb, requestURI.toString(), null);
-                this.service = (OAuth10aService) getOauthService(isOAuth1);
-                service.signRequest(token, oauthRequest);
+                this.service = (OAuth10aService) getOauthService(isOAuth1, addEmptyTokenToBaseString);
+                service.signRequest((OAuth1AccessToken) token, oauthRequest);
 
                 if (signature == OAuthSignature.HEADER) {
                     //If signature is to be added as header
@@ -243,7 +245,7 @@ public class AuthConfig {
             }
         }
 
-        private OAuthService getOauthService(boolean oauth1) {
+        private OAuthService getOauthService(boolean oauth1, final boolean useEmptyOAuthToken) {
             OAuthService service;
             if (oauth1) {
                 DefaultApi10a api = new DefaultApi10a() {
@@ -260,6 +262,11 @@ public class AuthConfig {
                     @Override
                     public String getAccessTokenEndpoint() {
                         return null;
+                    }
+
+                    @Override
+                    public boolean isEmptyOAuthTokenParamIsRequired() {
+                        return useEmptyOAuthToken;
                     }
                 };
                 service = new OAuth10aService(api, oauthConfig);
