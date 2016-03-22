@@ -42,7 +42,7 @@
                         </goals>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
-                            <finalName>rest-assured-${project.version}</finalName>
+                            <finalName>rest-assured-full-${project.version}</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/rest-assured-full-jar.xml</descriptor>
                             </descriptors>

@@ -61,7 +61,7 @@
             <directory>${project.build.directory}</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>rest-assured-${project.version}.jar</include>
+                <include>rest-assured-full-${project.version}.jar</include>
                 <include>rest-assured-${project.version}-deps.zip</include>
             </includes>
         </fileSet>
