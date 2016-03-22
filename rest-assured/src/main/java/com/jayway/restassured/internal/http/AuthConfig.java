@@ -52,11 +52,11 @@ public class AuthConfig {
     private static final int UNDEFINED_PORT = -1;
     private static final int DEFAULT_HTTPS_PORT = 443;
     protected HTTPBuilder builder;
-    private final com.jayway.restassured.config.OAuthConfig restAssuredOAuthConfig;
+    private final com.jayway.restassured.config.OAuthConfig raOAuthConfig;
 
     public AuthConfig(HTTPBuilder builder, com.jayway.restassured.config.OAuthConfig restAssuredOAuthConfig) {
         this.builder = builder;
-        this.restAssuredOAuthConfig = restAssuredOAuthConfig;
+        this.raOAuthConfig = restAssuredOAuthConfig;
     }
 
     /**
@@ -150,7 +150,8 @@ public class AuthConfig {
         this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
         if (consumerKey != null) {
             this.builder.client.addRequestInterceptor(new OAuthSigner(
-                    consumerKey, consumerSecret, accessToken, secretToken, OAuthSignature.HEADER, restAssuredOAuthConfig.shouldAddEmptyOAuthTokenToBaseString()));
+                    consumerKey, consumerSecret, accessToken, secretToken, OAuthSignature.HEADER,
+                    raOAuthConfig.shouldAddEmptyAccessOAuthTokenToBaseString()));
         }
     }
 
@@ -161,7 +162,7 @@ public class AuthConfig {
         if (consumerKey != null) {
             this.builder.client.addRequestInterceptor(new OAuthSigner(
                     consumerKey, consumerSecret, accessToken, secretToken,
-                    signature, restAssuredOAuthConfig.shouldAddEmptyOAuthTokenToBaseString()));
+                    signature, raOAuthConfig.shouldAddEmptyAccessOAuthTokenToBaseString()));
         }
     }
 

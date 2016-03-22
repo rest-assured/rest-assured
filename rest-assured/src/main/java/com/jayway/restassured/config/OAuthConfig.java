@@ -21,7 +21,7 @@ package com.jayway.restassured.config;
  */
 public class OAuthConfig implements Config {
 
-    private final boolean addEmptyTokenToBaseString;
+    private final boolean addEmptyAccessTokenToBaseString;
     private final boolean isUserConfigured;
 
     /**
@@ -31,19 +31,20 @@ public class OAuthConfig implements Config {
         this(false, false);
     }
 
-    private OAuthConfig(boolean addEmptyTokenToBaseString, boolean isUserConfigured) {
-        this.addEmptyTokenToBaseString = addEmptyTokenToBaseString;
+    private OAuthConfig(boolean addEmptyAccessTokenToBaseString, boolean isUserConfigured) {
+        this.addEmptyAccessTokenToBaseString = addEmptyAccessTokenToBaseString;
         this.isUserConfigured = isUserConfigured;
     }
 
     /**
      * Configure whether or not to add an empty oauth token for OAuth1 while generating Base string
      *
-     * @param addEmptyTokenToBaseString Whether or not to add an empty oauth token parameter while generating base string
+     * @param addEmptyAccessTokenToBaseString Whether or not to add an empty oauth access token parameter while generating base string
      * @return A new instance of {@link OAuthConfig}
+     * @see #addEmptyAccessTokenToBaseString(boolean)
      */
-    public OAuthConfig addEmptyTokenToBaseString(boolean addEmptyTokenToBaseString) {
-        return new OAuthConfig(addEmptyTokenToBaseString, true);
+    public OAuthConfig addEmptyAccessTokenToBaseString(boolean addEmptyAccessTokenToBaseString) {
+        return new OAuthConfig(addEmptyAccessTokenToBaseString, true);
     }
 
     /**
@@ -51,8 +52,8 @@ public class OAuthConfig implements Config {
      *
      * @return A new instance of {@link OAuthConfig}
      */
-    public boolean shouldAddEmptyOAuthTokenToBaseString() {
-        return addEmptyTokenToBaseString;
+    public boolean shouldAddEmptyAccessOAuthTokenToBaseString() {
+        return addEmptyAccessTokenToBaseString;
     }
 
 
