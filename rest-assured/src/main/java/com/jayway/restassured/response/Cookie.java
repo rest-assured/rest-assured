@@ -389,8 +389,8 @@ public class Cookie implements NameAndValue {
          *				the cookie persists until browser shutdown
          */
         public Builder setMaxAge(int maxAge) {
-            if(maxAge < 0) {
-                throw new IllegalArgumentException("Max-Age cannot be less than 0");
+            if(maxAge < -1) {
+                throw new IllegalArgumentException("Max-Age cannot be less than -1");
             }
             this.maxAge = maxAge;
             return this;

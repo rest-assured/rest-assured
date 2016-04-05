@@ -38,10 +38,12 @@ public class CookieMatcherTest {
     public void testSetVersion() throws ParseException {
         String[] cookies = new String[]{
                 "DEVICE_ID=123; Domain=.test.com; Expires=Thu, 12-Oct-2023 09:34:31 GMT; Path=/; Secure; HttpOnly;",
-                "SPRING_SECURITY_REMEMBER_ME_COOKIE=12345;Version=0;Domain=.test.com;Path=/;Max-Age=1209600"};
+                "SPRING_SECURITY_REMEMBER_ME_COOKIE=12345;Version=0;Domain=.test.com;Path=/;Max-Age=1209600",
+                "COOKIE_WITH_ZERO_MAX_AGE=1234;Version=0;Domain=.test.com;Path=/;Max-Age=0",
+                "COOKIE_WITH_NEGATIVE_MAX_AGE=123456;Version=0;Domain=.test.com;Path=/;Max-Age=-1"};
 
         Cookies result = CookieMatcher.getCookies(cookies);
-        assertEquals(2, result.size());
+        assertEquals(4, result.size());
 
         Cookie sprintCookie = result.get("SPRING_SECURITY_REMEMBER_ME_COOKIE");
         assertEquals(0, sprintCookie.getVersion());
@@ -51,6 +53,24 @@ public class CookieMatcherTest {
         assertEquals(1209600, sprintCookie.getMaxAge());
         assertEquals(false, sprintCookie.isSecured());
         assertEquals(false, sprintCookie.isHttpOnly());
+
+        Cookie cookieWithZeroMaxAge = result.get("COOKIE_WITH_ZERO_MAX_AGE");
+        assertEquals(0, cookieWithZeroMaxAge.getVersion());
+        assertEquals("1234", cookieWithZeroMaxAge.getValue());
+        assertEquals(".test.com", cookieWithZeroMaxAge.getDomain());
+        assertEquals("/", cookieWithZeroMaxAge.getPath());
+        assertEquals(0, cookieWithZeroMaxAge.getMaxAge());
+        assertEquals(false, cookieWithZeroMaxAge.isSecured());
+        assertEquals(false, cookieWithZeroMaxAge.isHttpOnly());
+
+        Cookie cookieWithNegativeMaxAge = result.get("COOKIE_WITH_NEGATIVE_MAX_AGE");
+        assertEquals(0, cookieWithNegativeMaxAge.getVersion());
+        assertEquals("123456", cookieWithNegativeMaxAge.getValue());
+        assertEquals(".test.com", cookieWithNegativeMaxAge.getDomain());
+        assertEquals("/", cookieWithNegativeMaxAge.getPath());
+        assertEquals(-1, cookieWithNegativeMaxAge.getMaxAge());
+        assertEquals(false, cookieWithNegativeMaxAge.isSecured());
+        assertEquals(false, cookieWithNegativeMaxAge.isHttpOnly());
 
         Cookie deviceCookie = result.get("DEVICE_ID");
         assertEquals(-1, deviceCookie.getVersion());
