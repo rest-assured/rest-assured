@@ -979,7 +979,7 @@ public class RequestSpecBuilder {
      * @param multiPartSpecification Multipart specification
      * @return The request specification
      */
-    RequestSpecBuilder addMultiPart(MultiPartSpecification multiPartSpecification) {
+    public RequestSpecBuilder addMultiPart(MultiPartSpecification multiPartSpecification) {
         spec.multiPart(multiPartSpecification);
         return this;
     }
