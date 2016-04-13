@@ -861,6 +861,21 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
     MockMvcRequestSpecification sessionId(String sessionIdName, String sessionIdValue);
 
     /**
+	 * Set session attributes.
+	 * @param sessionAttributes the session attributes
+	 */
+    MockMvcRequestSpecification sessionAttrs(Map<String, Object> sessionAttributes) ;
+    
+	/**
+	 * Set a session attribute.
+	 * @param name the session attribute name
+	 * @param value the session attribute value
+	 */
+    MockMvcRequestSpecification  sessionAttr(String name, Object value);
+    
+    
+    
+    /**
      * Add one or more result handlers. They will be executed after when the response is received.
      *
      * @return The request specification

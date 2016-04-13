@@ -101,18 +101,19 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     private final Object authentication;
     private final LogRepository logRepository;
     private final boolean isAsyncRequest;
+    private final Map<String, Object> sessionAttributes ;
 
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
-                             RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
+                             RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,Map<String, Object> sessionAttributes,
                              List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
                              List<RequestPostProcessor> requestPostProcessors, MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
-                             Object authentication, LogRepository logRepository) {
-        this(mockMvc, params, queryParams, formParams, attributes, config, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
+                             Object authentication, LogRepository logRepository ) {
+        this(mockMvc, params, queryParams, formParams, attributes, config, requestBody, headers, cookies,sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, false);
     }
 
     private MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
-                                     RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,
+                                     RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,Map<String, Object> sessionAttributes,
                                      List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
                                      List<RequestPostProcessor> requestPostProcessors, MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
                                      Object authentication, LogRepository logRepository, boolean isAsyncRequest) {
@@ -125,6 +126,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         this.requestBody = requestBody;
         this.headers = headers;
         this.cookies = cookies;
+        this.sessionAttributes = sessionAttributes;
         this.multiParts = multiParts;
         this.requestLoggingFilter = requestLoggingFilter;
         this.resultHandlers = resultHandlers;
@@ -355,6 +357,9 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             }
         }
 
+        if (!sessionAttributes.isEmpty()) {
+        	request.sessionAttrs(sessionAttributes);
+        }
 
         if (!multiParts.isEmpty()) {
             MockMultipartHttpServletRequestBuilder multiPartRequest = (MockMultipartHttpServletRequestBuilder) request;
@@ -729,7 +734,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     public MockMvcRequestAsyncConfigurer timeout(long duration, TimeUnit timeUnit) {
         RestAssuredMockMvcConfig newConfig = config.asyncConfig(new AsyncConfig(duration, timeUnit));
         return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams,
-                attributes, newConfig, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
+                attributes, newConfig, requestBody, headers, cookies,sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, isAsyncRequest);
     }
 
@@ -743,7 +748,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
     public MockMvcRequestAsyncConfigurer async() {
         return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams,
-                attributes, config, requestBody, headers, cookies, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
+                attributes, config, requestBody, headers, cookies,sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, true);
     }
 
