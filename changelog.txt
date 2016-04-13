@@ -4,6 +4,7 @@ Change log next release
 * Added ability to specify an empty access token for OAuth1 authentication. Use com.jayway.restassured.config.OAuthConfig#addEmptyTokenToBaseString(boolean) to configure this.
 * Allow to specify -1 as Cookie Max-Age in accordance with RFC 6265 (https://tools.ietf.org/html/rfc6265#page-20). Thanks to Timofey Dmitriev for pull request (issue 580).
 * com.jayway.restassured.builder.RequestSpecBuilder#addMultiPart(MultiPartSpecification) is now public (issue 669)
+* Support for setting session attributes in the Spring MockMvc module using the "sessionAttr" and "sessionAttrs" methods (thanks to sneyyar for pull request) (issue 671)
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------
