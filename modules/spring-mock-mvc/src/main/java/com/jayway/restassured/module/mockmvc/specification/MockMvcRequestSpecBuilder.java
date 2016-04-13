@@ -177,6 +177,28 @@ public class MockMvcRequestSpecBuilder {
     }
 
     /**
+     * Set session attributes.
+     *
+     * @param sessionAttributes the session attributes
+     */
+    MockMvcRequestSpecBuilder addSessionAttrs(Map<String, Object> sessionAttributes) {
+        spec.sessionAttrs(sessionAttributes);
+        return this;
+    }
+
+    /**
+     * Set a session attribute.
+     *
+     * @param name  the session attribute name
+     * @param value the session attribute value
+     */
+    MockMvcRequestSpecBuilder addSessionAttr(String name, Object value) {
+        spec.sessionAttr(name, value);
+        return this;
+    }
+
+
+    /**
      * Add cookies to be sent with the request as Map e.g:
      *
      * @param cookies The Map containing the cookie names and their values to set in the request.

@@ -33,12 +33,13 @@ public class MockMvcParamConfig implements Config {
     private final UpdateStrategy formParamsUpdateStrategy;
     private final UpdateStrategy requestParameterUpdateStrategy;
     private final UpdateStrategy attributeUpdateStrategy;
+    private final UpdateStrategy sessionUpdateStrategy;
 
     /**
      * Create a new instance where all parameters are merged
      */
     public MockMvcParamConfig() {
-        this(MERGE, MERGE, MERGE, MERGE, false);
+        this(MERGE, MERGE, MERGE, MERGE, MERGE, false);
     }
 
     /**
@@ -47,26 +48,30 @@ public class MockMvcParamConfig implements Config {
      * @param queryParamsUpdateStrategy      The update strategy for query parameters
      * @param formParamsUpdateStrategy       The update strategy for form parameters
      * @param requestParameterUpdateStrategy The update strategy for request parameters
+     * @param sessionUpdateStrategy          The update strategy for session parameters
      */
     public MockMvcParamConfig(UpdateStrategy queryParamsUpdateStrategy,
                               UpdateStrategy formParamsUpdateStrategy,
                               UpdateStrategy requestParameterUpdateStrategy,
-                              UpdateStrategy attributeUpdateStrategy) {
-        this(queryParamsUpdateStrategy, formParamsUpdateStrategy, requestParameterUpdateStrategy, attributeUpdateStrategy, true);
+                              UpdateStrategy attributeUpdateStrategy,
+                              UpdateStrategy sessionUpdateStrategy) {
+        this(queryParamsUpdateStrategy, formParamsUpdateStrategy, requestParameterUpdateStrategy, attributeUpdateStrategy, sessionUpdateStrategy, true);
     }
 
     private MockMvcParamConfig(UpdateStrategy queryParamsUpdateStrategy, UpdateStrategy formParamsUpdateStrategy,
                                UpdateStrategy requestParameterUpdateStrategy, UpdateStrategy attributeUpdateStrategy,
-                               boolean userConfigured) {
+                               UpdateStrategy sessionUpdateStrategy, boolean userConfigured) {
         notNull(queryParamsUpdateStrategy, "Query param update strategy");
         notNull(requestParameterUpdateStrategy, "Request param update strategy");
         notNull(formParamsUpdateStrategy, "Form param update strategy");
         notNull(attributeUpdateStrategy, "Attribute update strategy");
+        notNull(sessionUpdateStrategy, "Session update strategy");
         this.queryParamsUpdateStrategy = queryParamsUpdateStrategy;
         this.formParamsUpdateStrategy = formParamsUpdateStrategy;
         this.requestParameterUpdateStrategy = requestParameterUpdateStrategy;
         this.attributeUpdateStrategy = attributeUpdateStrategy;
         this.userConfigured = userConfigured;
+        this.sessionUpdateStrategy = sessionUpdateStrategy;
     }
 
     /**
@@ -75,7 +80,7 @@ public class MockMvcParamConfig implements Config {
      * @return A new instance of {@link MockMvcParamConfig}
      */
     public MockMvcParamConfig mergeAllParameters() {
-        return new MockMvcParamConfig(MERGE, MERGE, MERGE, MERGE, true);
+        return new MockMvcParamConfig(MERGE, MERGE, MERGE, MERGE, MERGE, true);
     }
 
     /**
@@ -84,7 +89,7 @@ public class MockMvcParamConfig implements Config {
      * @return A new instance of {@link MockMvcParamConfig}
      */
     public MockMvcParamConfig replaceAllParameters() {
-        return new MockMvcParamConfig(REPLACE, REPLACE, REPLACE, REPLACE, true);
+        return new MockMvcParamConfig(REPLACE, REPLACE, REPLACE, REPLACE, REPLACE, true);
     }
 
     /**
@@ -94,7 +99,7 @@ public class MockMvcParamConfig implements Config {
      * @return A new instance of {@link MockMvcParamConfig}
      */
     public MockMvcParamConfig formParamsUpdateStrategy(UpdateStrategy updateStrategy) {
-        return new MockMvcParamConfig(queryParamsUpdateStrategy, updateStrategy, requestParameterUpdateStrategy, attributeUpdateStrategy, true);
+        return new MockMvcParamConfig(queryParamsUpdateStrategy, updateStrategy, requestParameterUpdateStrategy, attributeUpdateStrategy, sessionUpdateStrategy, true);
     }
 
     /**
@@ -108,7 +113,7 @@ public class MockMvcParamConfig implements Config {
      * @return A new instance of {@link MockMvcParamConfig}
      */
     public MockMvcParamConfig requestParamsUpdateStrategy(UpdateStrategy updateStrategy) {
-        return new MockMvcParamConfig(queryParamsUpdateStrategy, formParamsUpdateStrategy, updateStrategy, attributeUpdateStrategy, true);
+        return new MockMvcParamConfig(queryParamsUpdateStrategy, formParamsUpdateStrategy, updateStrategy, attributeUpdateStrategy, sessionUpdateStrategy, true);
     }
 
     /**
@@ -118,17 +123,27 @@ public class MockMvcParamConfig implements Config {
      * @return A new instance of {@link MockMvcParamConfig}
      */
     public MockMvcParamConfig queryParamsUpdateStrategy(UpdateStrategy updateStrategy) {
-        return new MockMvcParamConfig(updateStrategy, formParamsUpdateStrategy, requestParameterUpdateStrategy, attributeUpdateStrategy, true);
+        return new MockMvcParamConfig(updateStrategy, formParamsUpdateStrategy, requestParameterUpdateStrategy, attributeUpdateStrategy, sessionUpdateStrategy, true);
     }
 
     /**
      * Set attribute update strategy to the given value.
      *
-     * @param updateStrategy The update strategy to use for query parameters
+     * @param updateStrategy The update strategy to use for attribute parameters
      * @return A new instance of {@link MockMvcParamConfig}
      */
     public MockMvcParamConfig attributeUpdateStrategy(UpdateStrategy updateStrategy) {
-        return new MockMvcParamConfig(queryParamsUpdateStrategy, formParamsUpdateStrategy, requestParameterUpdateStrategy, updateStrategy, true);
+        return new MockMvcParamConfig(queryParamsUpdateStrategy, formParamsUpdateStrategy, requestParameterUpdateStrategy, updateStrategy, sessionUpdateStrategy, true);
+    }
+
+    /**
+     * Set session parameter update strategy to the given value.
+     *
+     * @param updateStrategy The update strategy to use for session parameters
+     * @return A new instance of {@link MockMvcParamConfig}
+     */
+    public MockMvcParamConfig sessionAttributesUpdateStrategy(UpdateStrategy updateStrategy) {
+        return new MockMvcParamConfig(queryParamsUpdateStrategy, formParamsUpdateStrategy, requestParameterUpdateStrategy, attributeUpdateStrategy, updateStrategy, true);
     }
 
     /**
@@ -157,6 +172,13 @@ public class MockMvcParamConfig implements Config {
      */
     public UpdateStrategy queryParamsUpdateStrategy() {
         return queryParamsUpdateStrategy;
+    }
+
+    /**
+     * @return The update strategy for query parameters
+     */
+    public UpdateStrategy sessionAttributesUpdateStrategy() {
+        return sessionUpdateStrategy;
     }
 
     /**
