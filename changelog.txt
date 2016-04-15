@@ -5,6 +5,7 @@ Change log next release
 * Allow to specify -1 as Cookie Max-Age in accordance with RFC 6265 (https://tools.ietf.org/html/rfc6265#page-20). Thanks to Timofey Dmitriev for pull request (issue 580).
 * com.jayway.restassured.builder.RequestSpecBuilder#addMultiPart(MultiPartSpecification) is now public (issue 669)
 * Support for setting session attributes in the Spring MockMvc module using the "sessionAttr" and "sessionAttrs" methods (thanks to sneyyar for pull request) (issue 671)
+* It's now possible to map to java objects when extracting from a list in JsonPath. For example JsonPath.from(json).getList("store.books", Book.class).
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------

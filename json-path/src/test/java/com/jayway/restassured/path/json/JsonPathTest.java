@@ -347,6 +347,14 @@ public class JsonPathTest {
     }
 
     @Test
+    public void getObjectWorksWhenPathPointsToAJsonObject2() throws Exception {
+        final List<Book> books = from(JSON).getList("store.book", Book.class);
+
+        assertThat(books, hasSize(4));
+        assertThat(books.get(0).getAuthor(), equalTo("Nigel Rees"));
+    }
+
+    @Test
     public void getObjectAsMapWorksWhenPathPointsToAJsonObject() throws Exception {
         final Map<String, String> book = from(JSON).getObject("store.book[2]", Map.class);
 

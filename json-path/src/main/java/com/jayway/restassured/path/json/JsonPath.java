@@ -166,7 +166,7 @@ public class JsonPath {
         this.jsonPathConfig = jsonPathConfig;
         this.jsonParser = jsonPath.jsonParser;
         this.rootPath = jsonPath.rootPath;
-        if(jsonPath.params!=null) {
+        if (jsonPath.params != null) {
             this.params = new HashMap<String, Object>(jsonPath.params);
         }
     }
@@ -183,7 +183,7 @@ public class JsonPath {
      * </pre>
      *
      * @return The object matching the Object graph. This may be any primitive type, a List or a Map.  A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public <T> T get() {
         return get("");
@@ -194,7 +194,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. This may be any primitive type, a List or a Map.  A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public <T> T get(String path) {
         final JSONAssertion jsonAssertion = createJsonAssertion(path, params);
@@ -207,7 +207,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public boolean getBoolean(String path) {
         return ObjectConverter.convertObjectTo(get(path), Boolean.class);
@@ -218,7 +218,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public char getChar(String path) {
         return ObjectConverter.convertObjectTo(get(path), Character.class);
@@ -229,7 +229,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The int matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public int getInt(String path) {
         //The type returned from Groovy depends on the input, so we need to handle different numerical types.
@@ -250,7 +250,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public byte getByte(String path) {
         //The type returned from Groovy depends on the input, so we need to handle different numerical types.
@@ -271,7 +271,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public short getShort(String path) {
         //The type returned from Groovy depends on the input, so we need to handle different numerical types.
@@ -292,7 +292,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public float getFloat(String path) {
         final Object value = get(path);
@@ -309,7 +309,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public double getDouble(String path) {
         final Object value = get(path);
@@ -324,7 +324,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public long getLong(String path) {
         //The type returned from Groovy depends on the input, so we need to handle different numerical types.
@@ -345,7 +345,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public String getString(String path) {
         return ObjectConverter.convertObjectTo(get(path), String.class);
@@ -356,7 +356,7 @@ public class JsonPath {
      *
      * @param path The Object path.
      * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public UUID getUUID(String path) {
         return ObjectConverter.convertObjectTo(get(path), UUID.class);
@@ -368,7 +368,7 @@ public class JsonPath {
      * @param path The Object path.
      * @param <T>  The list type
      * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path) {
         return get(path);
@@ -381,14 +381,25 @@ public class JsonPath {
      * @param genericType The generic list type
      * @param <T>         The type
      * @return The object matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public <T> List<T> getList(String path, Class<T> genericType) {
+        if (genericType == null) {
+            throw new IllegalArgumentException("Generic type cannot be null");
+        }
         final List<T> original = get(path);
         final List<T> newList = new LinkedList<T>();
         if (original != null) {
             for (T t : original) {
-                newList.add(ObjectConverter.convertObjectTo(t, genericType));
+                T e;
+                if (t instanceof Map && !genericType.isAssignableFrom(Map.class)) {
+                    // TODO Avoid double parsing
+                    String str = objectToString(t);
+                    e = jsonStringToObject(str, genericType);
+                } else {
+                    e = ObjectConverter.convertObjectTo(t, genericType);
+                }
+                newList.add(e);
             }
         }
         return Collections.unmodifiableList(newList);
@@ -401,7 +412,7 @@ public class JsonPath {
      * @param <K>  The type of the expected key
      * @param <V>  The type of the expected value
      * @return The map matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public <K, V> Map<K, V> getMap(String path) {
         return get(path);
@@ -416,7 +427,7 @@ public class JsonPath {
      * @param <K>       The type of the expected key
      * @param <V>       The type of the expected value
      * @return The map matching the Object path. A {@link java.lang.ClassCastException} will be thrown if the object
-     *         cannot be casted to the expected type.
+     * cannot be casted to the expected type.
      */
     public <K, V> Map<K, V> getMap(String path, Class<K> keyType, Class<V> valueType) {
         final Map<K, V> originalMap = get(path);
@@ -535,25 +546,16 @@ public class JsonPath {
             return null;
         } else if (object instanceof List || object instanceof Map) {
             // TODO Avoid double parsing
-            object = new JsonBuilder(object).toString();
+            object = objectToString(object);
         } else {
             return ObjectConverter.convertObjectTo(object, objectType);
-        }
-
-        JsonPathConfig cfg = new JsonPathConfig(getJsonPathConfig());
-        if (cfg.hasCustomJackson10ObjectMapperFactory()) {
-            cfg = cfg.defaultParserType(JsonParserType.JACKSON_1);
-        } else if (cfg.hasCustomGsonObjectMapperFactory()) {
-            cfg = cfg.defaultParserType(JsonParserType.GSON);
-        } else if (cfg.hasCustomJackson20ObjectMapperFactory()) {
-            cfg = cfg.defaultParserType(JsonParserType.JACKSON_2);
         }
 
         if (!(object instanceof String)) {
             throw new IllegalStateException("Internal error: Json object was not an instance of String, please report to the REST Assured mailing-list.");
         }
 
-        return JsonObjectDeserializer.deserialize((String) object, objectType, cfg);
+        return jsonStringToObject((String) object, objectType);
     }
 
     /**
@@ -563,14 +565,14 @@ public class JsonPath {
      * List&lt;Map&gt; books = with(Object).param("name", name).get("store.book.findAll { book -> book.author == name }");
      * </pre>
      *
-     * @param key The name of the parameter. Just use this name in your expression as a variable
+     * @param key   The name of the parameter. Just use this name in your expression as a variable
      * @param value The value of the parameter
      * @return New JsonPath instance with the parameter set
      */
     public JsonPath param(String key, Object value) {
-        JsonPath newP=new JsonPath(this, config);
-        if(newP.params==null) {
-            newP.params=new HashMap<String, Object>();
+        JsonPath newP = new JsonPath(this, config);
+        if (newP.params == null) {
+            newP.params = new HashMap<String, Object>();
         }
         newP.params.put(key, value);
         return newP;
@@ -941,7 +943,7 @@ public class JsonPath {
         final JSONAssertion jsonAssertion = new JSONAssertion();
         final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
         jsonAssertion.setKey(root + path);
-        if(params != null) {
+        if (params != null) {
             jsonAssertion.setParams(params);
         }
         return jsonAssertion;
@@ -994,5 +996,22 @@ public class JsonPath {
             jsonString = JsonOutput.toJson(json);
         }
         return jsonString;
+    }
+
+    private String objectToString(Object object) {
+        return new JsonBuilder(object).toString();
+    }
+
+    private <T> T jsonStringToObject(String object, Class<T> objectType) {
+        JsonPathConfig cfg = new JsonPathConfig(getJsonPathConfig());
+        if (cfg.hasCustomJackson10ObjectMapperFactory()) {
+            cfg = cfg.defaultParserType(JsonParserType.JACKSON_1);
+        } else if (cfg.hasCustomGsonObjectMapperFactory()) {
+            cfg = cfg.defaultParserType(JsonParserType.GSON);
+        } else if (cfg.hasCustomJackson20ObjectMapperFactory()) {
+            cfg = cfg.defaultParserType(JsonParserType.JACKSON_2);
+        }
+
+        return JsonObjectDeserializer.deserialize(object, objectType, cfg);
     }
 }
