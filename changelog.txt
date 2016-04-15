@@ -8,6 +8,8 @@ Change log next release
 * It's now possible to map to java objects when extracting from a list in JsonPath. For example JsonPath.from(json).getList("store.books", Book.class).
 * Added CookieFilter (com.jayway.restassured.filter.cookie.CookieFilter).  The cookie filter can be used to keep track of all the cookies sent by the server and use
   them in subsequent requests.  It might come in handy when more than just com.jayway.restassured.filter.session.SessionFilter is needed. (thanks to Ranil Wijeyratne for pull request)
+* It's now possible to pass a File to the body/content method of the RequestSpecification when content-type is set to JSON, XML or TEXT. The contents of this will
+  be sent to the server (issue 674)
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------

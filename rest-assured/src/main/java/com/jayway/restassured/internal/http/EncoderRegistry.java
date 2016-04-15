@@ -39,6 +39,8 @@ import org.codehaus.groovy.runtime.MethodClosure;
 import java.io.*;
 import java.util.*;
 
+import static com.jayway.restassured.internal.support.FileReader.readToString;
+
 
 /**
  * <p>This class handles creation of the request body (i.e. for a
@@ -149,6 +151,7 @@ public class EncoderRegistry {
      * @throws IOException
      */
     public HttpEntity encodeText(Object contentType, Object data) throws IOException {
+        String contentTypeAsString = contentTypeToString(contentType);
         if (data instanceof Closure) {
             StringWriter out = new StringWriter();
             PrintWriter writer = new PrintWriter(out);
@@ -163,6 +166,8 @@ public class EncoderRegistry {
             data = out;
         } else if (data instanceof Reader && !(data instanceof BufferedReader)) {
             data = new BufferedReader((Reader) data);
+        } else if (data instanceof File) {
+            data = toString((File) data, contentTypeAsString);
         }
         if (data instanceof BufferedReader) {
             StringWriter out = new StringWriter();
@@ -171,7 +176,7 @@ public class EncoderRegistry {
             data = out;
         }
         // if data is a String, we are already covered.
-        return createEntity(contentTypeToString(contentType), data);
+        return createEntity(contentTypeAsString, data);
     }
 
     /**
@@ -226,11 +231,14 @@ public class EncoderRegistry {
      * @throws UnsupportedEncodingException
      */
     public HttpEntity encodeXML(Object contentType, Object xml) throws UnsupportedEncodingException {
+        String contentTypeAsString = contentTypeToString(contentType);
         if (xml instanceof Closure) {
             StreamingMarkupBuilder smb = new StreamingMarkupBuilder();
             xml = smb.bind(xml);
+        } else if (xml instanceof File) {
+            xml = toString((File) xml, contentTypeAsString);
         }
-        return createEntity(contentTypeToString(contentType), xml);
+        return createEntity(contentTypeAsString, xml);
     }
 
     /**
@@ -264,7 +272,7 @@ public class EncoderRegistry {
      */
     @SuppressWarnings("unchecked")
     public HttpEntity encodeJSON(Object contentType, Object model) throws UnsupportedEncodingException {
-
+        String contentTypeAsString = contentTypeToString(contentType);
         Object json;
         if (model instanceof Map || model instanceof Collection) {
             json = new JsonBuilder(model);
@@ -274,11 +282,13 @@ public class EncoderRegistry {
             json = closure.call();
         } else if (model instanceof String || model instanceof GString || model instanceof byte[]) {
             json = model; // assume valid JSON already.
+        } else if (model instanceof File) {
+            json = toString((File) model, contentTypeAsString);
         } else {
             throw new UnsupportedOperationException("Internal error: Can't encode " + model + " to JSON.");
         }
 
-        return createEntity(contentTypeToString(contentType), json);
+        return createEntity(contentTypeAsString, json);
     }
 
     private HttpEntity createEntity(String ct, Object object) throws UnsupportedEncodingException {
@@ -441,5 +451,10 @@ public class EncoderRegistry {
 
     private String contentTypeToString(Object contentType) {
         return contentType == null ? null : contentType.toString();
+    }
+
+    private String toString(File model, String contentTypeAsString) {
+        String charset = CharsetExtractor.getCharsetFromContentType(contentTypeAsString);
+        return readToString(model, charset == null ? encoderConfig.defaultCharsetForContentType(contentTypeAsString) : charset);
     }
 }
