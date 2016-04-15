@@ -6,6 +6,7 @@ import com.jayway.restassured.internal.ResponseSpecificationImpl;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
 import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.response.Cookie;
+import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
@@ -33,8 +34,10 @@ public class CookieFilterTest {
     public void storeCookies() {
         CookieFilter cookieFilter = new CookieFilter();
 
-        response.cookie("foo", "bar");
+        cookieFilter.filter((FilterableRequestSpecification) given(), response, new TestFilterContext());
         cookieFilter.filter(req, response, new TestFilterContext());
+
+        assertThat(req.getCookies().size(), Matchers.is(1));
 
         for (Cookie cookie : req.getCookies()) {
             assertThat(cookie.getName(), Matchers.is("foo"));
@@ -46,9 +49,11 @@ public class CookieFilterTest {
     public void preserveCookies() {
         CookieFilter cookieFilter = new CookieFilter();
 
-        response.cookie("foo", "bar");
         req.cookie("foo", "barbar");
+        cookieFilter.filter((FilterableRequestSpecification) given(), response, new TestFilterContext());
         cookieFilter.filter(req, response, new TestFilterContext());
+
+        assertThat(req.getCookies().size(), Matchers.is(1));
 
         for (Cookie cookie : req.getCookies()) {
             assertThat(cookie.getName(), Matchers.is("foo"));
@@ -94,7 +99,10 @@ public class CookieFilterTest {
         }
 
         public Response next(FilterableRequestSpecification request, FilterableResponseSpecification response) {
-            return new RestAssuredResponseImpl();
+            RestAssuredResponseImpl restAssuredResponse = new RestAssuredResponseImpl();
+            Cookie cookie = new Cookie.Builder("foo", "bar").build();
+            restAssuredResponse.setCookies(new Cookies(cookie));
+            return restAssuredResponse;
         }
     }
 }
