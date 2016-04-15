@@ -48,7 +48,7 @@ class Jackson1Mapper implements ObjectMapper {
         def stream = new ByteArrayOutputStream()
         JsonGenerator jsonGenerator = mapper.getJsonFactory().createJsonGenerator(stream, jsonEncoding)
         mapper.writeValue(jsonGenerator, object)
-        return stream.toString()
+        return stream.toString(jsonEncoding.getJavaName())
     }
 
     def Object deserialize(ObjectMapperDeserializationContext context) {

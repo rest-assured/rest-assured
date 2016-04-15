@@ -10,6 +10,7 @@ Change log next release
   them in subsequent requests.  It might come in handy when more than just com.jayway.restassured.filter.session.SessionFilter is needed. (thanks to Ranil Wijeyratne for pull request)
 * It's now possible to pass a File to the body/content method of the RequestSpecification when content-type is set to JSON, XML or TEXT. The contents of this will
   be sent to the server (issue 674)
+* Fixed an issue where the Jackson and Jackson2 (Faster Jackson) object mappers didn't fully took charset into account when serializing POJO to String (issue 677).
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------
