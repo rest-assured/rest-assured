@@ -6,6 +6,8 @@ Change log next release
 * com.jayway.restassured.builder.RequestSpecBuilder#addMultiPart(MultiPartSpecification) is now public (issue 669)
 * Support for setting session attributes in the Spring MockMvc module using the "sessionAttr" and "sessionAttrs" methods (thanks to sneyyar for pull request) (issue 671)
 * It's now possible to map to java objects when extracting from a list in JsonPath. For example JsonPath.from(json).getList("store.books", Book.class).
+* Added CookieFilter (com.jayway.restassured.filter.cookie.CookieFilter).  The cookie filter can be used to keep track of all the cookies sent by the server and use
+  them in subsequent requests.  It might come in handy when more than just com.jayway.restassured.filter.session.SessionFilter is needed. (thanks to Ranil Wijeyratne for pull request)
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------
