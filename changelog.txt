@@ -14,6 +14,7 @@ Change log next release
 * Added ability to instruct REST Assured whether or not to URL encode the request URI when it's presented in the request specification log.
   This is configured using the com.jayway.restassured.config.LogConfig#urlEncodeRequestUri method. By default url encoding of the request uri is enabled to show what the URL targeted by REST Assured actually looks like for real.
   But there may be cases where you want to make the URI more readable and this is when you might want to consider setting urlEncodeRequestUri to false (issue 678)
+* Upgraded Groovy from 2.4.4 to 2.4.6
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------
