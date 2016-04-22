@@ -11,6 +11,9 @@ Change log next release
 * It's now possible to pass a File to the body/content method of the RequestSpecification when content-type is set to JSON, XML or TEXT. The contents of this will
   be sent to the server (issue 674)
 * Fixed an issue where the Jackson and Jackson2 (Faster Jackson) object mappers didn't fully took charset into account when serializing POJO to String (issue 677).
+* Added ability to instruct REST Assured whether or not to URL encode the request URI when it's presented in the request specification log.
+  This is configured using the com.jayway.restassured.config.LogConfig#urlEncodeRequestUri method. By default url encoding of the request uri is enabled to show what the URL targeted by REST Assured actually looks like for real.
+  But there may be cases where you want to make the URI more readable and this is when you might want to consider setting urlEncodeRequestUri to false (issue 678)
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------

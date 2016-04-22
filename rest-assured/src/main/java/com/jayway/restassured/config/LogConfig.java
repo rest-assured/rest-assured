@@ -32,13 +32,14 @@ public class LogConfig implements Config {
     private final PrintStream defaultPrintStream;
     private final boolean prettyPrintingEnabled;
     private final LogDetail logDetailIfValidationFails;
+    private final boolean urlEncodeRequestUri;
     private final boolean isUserDefined;
 
     /**
      * Configure the default stream to use the System.out stream (default).
      */
     public LogConfig() {
-        this(System.out, true, null, false);
+        this(System.out, true, null, true, false);
     }
 
     /**
@@ -58,7 +59,7 @@ public class LogConfig implements Config {
      * @param prettyPrintingEnabled Enable or disable pretty printing when logging. Pretty printing is only possible when content-type is XML, JSON or HTML.
      */
     public LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled) {
-        this(defaultPrintStream, prettyPrintingEnabled, null, true);
+        this(defaultPrintStream, prettyPrintingEnabled, null, true, true);
     }
 
     /**
@@ -77,12 +78,14 @@ public class LogConfig implements Config {
      * @param defaultPrintStream    The default print stream to use for the {@link com.jayway.restassured.specification.LogSpecification}'s.
      * @param prettyPrintingEnabled Enable or disable pretty printing when logging. Pretty printing is only possible when content-type is XML, JSON or HTML.
      */
-    private LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled, LogDetail logDetailIfValidationFails, boolean isUserDefined) {
+    private LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled, LogDetail logDetailIfValidationFails,
+                      boolean urlEncodeRequestUri, boolean isUserDefined) {
         Validate.notNull(defaultPrintStream, "Stream to write logs to cannot be null");
         this.defaultPrintStream = defaultPrintStream;
         this.prettyPrintingEnabled = prettyPrintingEnabled;
         this.logDetailIfValidationFails = logDetailIfValidationFails;
         this.isUserDefined = isUserDefined;
+        this.urlEncodeRequestUri = urlEncodeRequestUri;
     }
 
     /**
@@ -99,7 +102,7 @@ public class LogConfig implements Config {
      * @return A new LogConfig instance
      */
     public LogConfig defaultStream(PrintStream printStream) {
-        return new LogConfig(printStream, true, logDetailIfValidationFails, true);
+        return new LogConfig(printStream, true, logDetailIfValidationFails, urlEncodeRequestUri, true);
     }
 
     /**
@@ -130,7 +133,7 @@ public class LogConfig implements Config {
      * @return A new LogConfig instance
      */
     public LogConfig enablePrettyPrinting(boolean shouldEnable) {
-        return new LogConfig(defaultPrintStream, shouldEnable, logDetailIfValidationFails, true);
+        return new LogConfig(defaultPrintStream, shouldEnable, logDetailIfValidationFails, urlEncodeRequestUri, true);
     }
 
     /**
@@ -149,7 +152,27 @@ public class LogConfig implements Config {
      * @return A new LogConfig instance
      */
     public LogConfig enableLoggingOfRequestAndResponseIfValidationFails(LogDetail logDetail) {
-        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetail, true);
+        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetail, urlEncodeRequestUri, true);
+    }
+
+    /**
+     * Instruct REST Assured whether or not to URL encode the request URI when it's presented in the request specification log.
+     * By default url encoding of the request uri is enabled to show what the URL targeted by REST Assured actually looks like for real.
+     * But there may be cases where you want to make the URI more readable and this is when you might want to consider setting
+     * <code>urlEncodeRequestUri</code> to <code>false</code>. Note that this only affects logging.
+     *
+     * @param urlEncodeRequestUri Whether or not to url encode the request uri when it's presented in the request log
+     * @return A new LogConfig instance
+     */
+    public LogConfig urlEncodeRequestUri(boolean urlEncodeRequestUri) {
+        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, true);
+    }
+
+    /**
+     * @return <code>true</code> is the request URI should be URL encoded in the request log
+     */
+    public boolean shouldUrlEncodeRequestUri() {
+        return urlEncodeRequestUri;
     }
 
     /**

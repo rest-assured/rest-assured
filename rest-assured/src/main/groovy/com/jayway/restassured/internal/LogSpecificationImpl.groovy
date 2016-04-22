@@ -15,7 +15,6 @@
  */
 
 
-
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.config.LogConfig
@@ -27,27 +26,31 @@ import com.jayway.restassured.specification.RequestSpecification
  */
 class LogSpecificationImpl {
 
-    def PrintStream getPrintStream(RequestSpecification requestSpecification) {
-        def stream = getLogConfig(requestSpecification)?.defaultStream()
-        if(stream == null) {
-            stream = System.out
-        }
-        stream
+  def PrintStream getPrintStream(RequestSpecification requestSpecification) {
+    def stream = getLogConfig(requestSpecification)?.defaultStream()
+    if (stream == null) {
+      stream = System.out
     }
+    stream
+  }
 
-    def boolean shouldPrettyPrint(RequestSpecification requestSpecification) {
-        def prettyPrintingEnabled = getLogConfig(requestSpecification)?.isPrettyPrintingEnabled()
-        if(prettyPrintingEnabled == null) {
-            return true
-        }
-        prettyPrintingEnabled
-    }
+  def boolean shouldUrlEncodeRequestUri(RequestSpecification requestSpecification) {
+    getLogConfig(requestSpecification)?.shouldUrlEncodeRequestUri()
+  }
 
-    private def LogConfig getLogConfig(RequestSpecification requestSpecification) {
-        if(!requestSpecification) {
-            throw new IllegalStateException("Cannot configure logging since request specification is not defined. You may be misusing the API.");
-        }
-        RestAssuredConfig config = requestSpecification.restAssuredConfig
-        config?.logConfig
+  def boolean shouldPrettyPrint(RequestSpecification requestSpecification) {
+    def prettyPrintingEnabled = getLogConfig(requestSpecification)?.isPrettyPrintingEnabled()
+    if (prettyPrintingEnabled == null) {
+      return true
     }
+    prettyPrintingEnabled
+  }
+
+  private def LogConfig getLogConfig(RequestSpecification requestSpecification) {
+    if (!requestSpecification) {
+      throw new IllegalStateException("Cannot configure logging since request specification is not defined. You may be misusing the API.");
+    }
+    RestAssuredConfig config = requestSpecification.restAssuredConfig
+    config?.logConfig
+  }
 }

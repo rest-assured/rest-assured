@@ -711,7 +711,8 @@ public class MockMvcRequestSpecBuilder {
         LogConfig logConfig = spec.getRestAssuredMockMvcConfig().getLogConfig();
         PrintStream printStream = logConfig.defaultStream();
         boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
-        spec.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream));
+        boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
+        spec.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri));
         return this;
     }
 

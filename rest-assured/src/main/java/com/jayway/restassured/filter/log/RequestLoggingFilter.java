@@ -25,6 +25,9 @@ import com.jayway.restassured.specification.FilterableResponseSpecification;
 import org.apache.commons.lang3.Validate;
 
 import java.io.PrintStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 
 import static com.jayway.restassured.filter.log.LogDetail.ALL;
 import static com.jayway.restassured.filter.log.LogDetail.STATUS;
@@ -38,9 +41,11 @@ import static com.jayway.restassured.filter.log.LogDetail.STATUS;
  */
 public class RequestLoggingFilter implements Filter {
 
+    private static final boolean SHOW_URL_ENCODED_URI = true;
     private final LogDetail logDetail;
     private final PrintStream stream;
     private final boolean shouldPrettyPrint;
+    private final boolean showUrlEncodedUri;
 
     /**
      * Logs to System.out
@@ -86,6 +91,18 @@ public class RequestLoggingFilter implements Filter {
      * @param stream            The stream to log to.
      */
     public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream) {
+        this(logDetail, shouldPrettyPrint, stream, SHOW_URL_ENCODED_URI);
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream and a specific log detail
+     *
+     * @param logDetail         The log detail
+     * @param shouldPrettyPrint <code>true</code> if pretty-printing of the body should occur.
+     * @param stream            The stream to log to.
+     * @param showUrlEncodedUri Whether or not to show the request URI as url encoded
+     */
+    public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream, boolean showUrlEncodedUri) {
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(logDetail, "Log details cannot be null");
         if (logDetail == STATUS) {
@@ -94,10 +111,16 @@ public class RequestLoggingFilter implements Filter {
         this.stream = stream;
         this.logDetail = logDetail;
         this.shouldPrettyPrint = shouldPrettyPrint;
+        this.showUrlEncodedUri = showUrlEncodedUri;
     }
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-        RequestPrinter.print(requestSpec, requestSpec.getMethod().toString(), requestSpec.getURI(), logDetail, stream, shouldPrettyPrint);
+        String uri = requestSpec.getURI();
+        if (!showUrlEncodedUri) {
+            uri = urlDecode(uri, Charset.forName(requestSpec.getConfig().getEncoderConfig().defaultQueryParameterCharset()), true);
+        }
+
+        RequestPrinter.print(requestSpec, requestSpec.getMethod().toString(), uri, logDetail, stream, shouldPrettyPrint);
         return ctx.next(requestSpec, responseSpec);
     }
 
@@ -110,4 +133,45 @@ public class RequestLoggingFilter implements Filter {
     public static RequestLoggingFilter logRequestTo(PrintStream stream) {
         return new RequestLoggingFilter(stream);
     }
+
+    // Copy of  the private method in URLEncodedUtils
+
+    /**
+     * Decode/unescape a portion of a URL, to use with the query part ensure {@code plusAsBlank} is true.
+     *
+     * @param content     the portion to decode
+     * @param charset     the charset to use
+     * @param plusAsBlank if {@code true}, then convert '+' to space (e.g. for www-url-form-encoded content), otherwise leave as is.
+     * @return encoded string
+     */
+    private static String urlDecode(final String content, final Charset charset, final boolean plusAsBlank) {
+        if (content == null) {
+            return null;
+        }
+        final ByteBuffer bb = ByteBuffer.allocate(content.length());
+        final CharBuffer cb = CharBuffer.wrap(content);
+        while (cb.hasRemaining()) {
+            final char c = cb.get();
+            if (c == '%' && cb.remaining() >= 2) {
+                final char uc = cb.get();
+                final char lc = cb.get();
+                final int u = Character.digit(uc, 16);
+                final int l = Character.digit(lc, 16);
+                if (u != -1 && l != -1) {
+                    bb.put((byte) ((u << 4) + l));
+                } else {
+                    bb.put((byte) '%');
+                    bb.put((byte) uc);
+                    bb.put((byte) lc);
+                }
+            } else if (plusAsBlank && c == '+') {
+                bb.put((byte) ' ');
+            } else {
+                bb.put((byte) c);
+            }
+        }
+        bb.flip();
+        return charset.decode(bb).toString();
+    }
+
 }

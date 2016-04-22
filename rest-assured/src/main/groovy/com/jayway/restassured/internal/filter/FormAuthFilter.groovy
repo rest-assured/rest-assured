@@ -112,7 +112,7 @@ class FormAuthFilter implements AuthFilter {
       def logConfig = formAuthConfig.getLogConfig()
       def logDetail = formAuthConfig.getLogDetail()
       if (logDetail != LogDetail.STATUS) {
-        loginRequestSpec.filter(new RequestLoggingFilter(logDetail, logConfig.isPrettyPrintingEnabled(), logConfig.defaultStream()));
+        loginRequestSpec.filter(new RequestLoggingFilter(logDetail, logConfig.isPrettyPrintingEnabled(), logConfig.defaultStream(), logConfig.shouldUrlEncodeRequestUri()));
       }
 
       if (logDetail != LogDetail.PARAMS) {

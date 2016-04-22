@@ -41,6 +41,8 @@ import org.junit.Test;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 import static com.jayway.restassured.RestAssured.expect;
 import static com.jayway.restassured.RestAssured.given;
@@ -962,5 +964,39 @@ public class LoggingITest extends WithJetty {
                 statusCode(200);
 
         assertThat(writer.toString(), equalTo("Request path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe" + LINE_SEPARATOR));
+    }
+
+    @Test public void
+    shows_request_log_as_url_encoded_when_explicitly_instructing_request_logging_filter_to_do_so() throws UnsupportedEncodingException {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                filter(new RequestLoggingFilter(LogDetail.PATH, true, captor, true)).
+                queryParam("firstName", "John#€").
+                queryParam("lastName", "Doe").
+        when().
+                get("/greet").
+        then().
+                statusCode(200);
+
+        assertThat(writer.toString(), equalTo("Request path:\thttp://localhost:8080/greet?firstName=John" + URLEncoder.encode("#€", "UTF-8") + "&lastName=Doe" + LINE_SEPARATOR));
+    }
+
+    @Test public void
+    shows_request_log_as_without_url_encoding_when_explicitly_instructing_request_logging_filter_to_do_so() throws UnsupportedEncodingException {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                filter(new RequestLoggingFilter(LogDetail.PATH, true, captor, false)).
+                queryParam("firstName", "John#€").
+                queryParam("lastName", "Doe").
+        when().
+                get("/greet").
+        then().
+                statusCode(200);
+
+        assertThat(writer.toString(), equalTo("Request path:\thttp://localhost:8080/greet?firstName=John#€&lastName=Doe" + LINE_SEPARATOR));
     }
 }

@@ -100,7 +100,8 @@ public class MockMvcRequestLogSpecificationImpl extends LogSpecificationImpl imp
     }
 
     private MockMvcRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
-        requestSpecification.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream));
+        boolean shouldUrlEncodeRequestUri = requestSpecification.getRestAssuredMockMvcConfig().getLogConfig().shouldUrlEncodeRequestUri();
+        requestSpecification.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri));
         return requestSpecification;
     }
 

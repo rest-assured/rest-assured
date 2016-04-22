@@ -1306,7 +1306,8 @@ public class RequestSpecBuilder {
         }
         PrintStream printStream = logConfig.defaultStream();
         boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
-        spec.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream));
+        boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
+        spec.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri));
         return this;
     }
 
