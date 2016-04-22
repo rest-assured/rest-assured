@@ -359,6 +359,14 @@ public class ContentTypeITest extends WithJetty {
                 contentType(isEmptyOrNullString());
     }
 
+    @Test public void
+    doesnt_send_a_content_type_header_when_there_is_no_body() {
+        when().
+                get("/headersWithValues").
+        then().
+                body("containsKey('Content-Type')", is(false));
+    }
+
     private String toJetty9(String charset) {
         return StringUtils.lowerCase(StringUtils.remove(charset, " "));
     }
