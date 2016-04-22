@@ -49,11 +49,18 @@ class JSONAssertion implements Assertion {
         String error = String.format("The parameter \"%s\" was used but not defined. Define parameters using the JsonPath.params(...) function", e.property);
         throw new IllegalArgumentException(error, e);
       } catch (Exception e) {
-        String error = e.getMessage().replace("startup failed:","Invalid JSON expression:").replace("$root.", generateWhitespace(root.length()));
+        if (isMissingPropertyException(e)) {
+          return null
+        }
+        String error = e.getMessage().replace("startup failed:", "Invalid JSON expression:").replace("$root.", generateWhitespace(root.length()));
         throw new IllegalArgumentException(error, e);
       }
     }
     return result
+  }
+
+  def private static isMissingPropertyException(Exception e) {
+    return (e instanceof NullPointerException && e.getMessage().startsWith("Cannot get property") && e.getMessage().endsWith("on null object"))
   }
 
   def String description() {
@@ -61,18 +68,18 @@ class JSONAssertion implements Assertion {
   }
 
   private def eval(root, object, expr) {
-      Map<String, Object> newParams;
-      // Create parameters from given ones
-      if(params!=null) {
-          newParams=new HashMap<>(params);
-      } else {
-          newParams=new HashMap<>();
-      }
-      // Add object to evaluate
-      newParams.put(root, object);
-      // Create shell with variables set
-      GroovyShell sh = new GroovyShell(new Binding(newParams));
-      // Run
-      return sh.evaluate(expr);
+    Map<String, Object> newParams;
+    // Create parameters from given ones
+    if (params != null) {
+      newParams = new HashMap<>(params);
+    } else {
+      newParams = new HashMap<>();
+    }
+    // Add object to evaluate
+    newParams.put(root, object);
+    // Create shell with variables set
+    GroovyShell sh = new GroovyShell(new Binding(newParams));
+    // Run
+    return sh.evaluate(expr);
   }
 }

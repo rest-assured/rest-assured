@@ -16,6 +16,18 @@ Change log next release
   But there may be cases where you want to make the URI more readable and this is when you might want to consider setting urlEncodeRequestUri to false (issue 678)
 * Upgraded Groovy from 2.4.4 to 2.4.6
 * Upgraded http-client from 4.5.1 to 4.5.2
+* Improved JsonPath error messages when trying to verify a path with a parent that doesn't exist. For example if we have the following JSON document:
+    { "myThing" : { "name" : "ThingName" } }
+  and we try to test it like so:
+    when().get("/thing").then().body("myThing1.name", equalTo("ThingName")); // Notice myThing1 is invalid
+  we now get an AssertionError like this:
+    1 expectation failed.
+    JSON path store.unknown.unknown.get(0) doesn't match.
+    Expected: (a collection containing "none")
+    Actual: null
+  whereas previously you would get an IllegalArgumentException with an error message like this:
+    Cannot get property 'name' on null object
+  (issue 668)
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------

@@ -158,4 +158,22 @@ public class ErrorMessageITest extends WithJetty {
                 body("lotto.lottoId", lessThan(2),
                      "lotto.winning-numbers", hasItem(21));
     }
+
+    /**
+     * Makes sure that <a href="https://github.com/jayway/rest-assured/issues/668">issue 668</a> is resolved
+     */
+    @Test public void
+    throws_nice_error_messages_when_json_path_property_doesnt_exist() {
+        exception.expect(AssertionError.class);
+        exception.expectMessage("1 expectation failed.\n" +
+                "JSON path lotto1.lottoId doesn't match.\n" +
+                "Expected: a value less than <2>\n" +
+                "  Actual: null");
+
+        when().
+                get("/lotto").
+        then().
+                statusCode(200).
+                body("lotto1.lottoId", lessThan(2));
+    }
 }

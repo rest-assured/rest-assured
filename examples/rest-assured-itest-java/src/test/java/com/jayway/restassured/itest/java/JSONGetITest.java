@@ -351,8 +351,11 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void throwsNiceErrorMessageWhenIllegalPath() throws Exception {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Cannot get property 'unknown' on null object");
+        exception.expect(AssertionError.class);
+        exception.expectMessage("1 expectation failed.\n" +
+                "JSON path store.unknown.unknown.get(0) doesn't match.\n" +
+                "Expected: (a collection containing \"none\")\n" +
+                "  Actual: null");
 
         expect().body("store.unknown.unknown.get(0)", hasItems("none")).when().get("/jsonStore");
     }
