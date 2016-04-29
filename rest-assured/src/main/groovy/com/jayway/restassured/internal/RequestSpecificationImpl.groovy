@@ -1365,8 +1365,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     def subType = substringAfter(ct, MULTIPART_CONTENT_TYPE_PREFIX)
     def charsetFromContentType = CharsetExtractor.getCharsetFromContentType(contentTypeAsString)
+    def boundaryFromContentType = BoundaryExtractor.getBoundaryFromContentType(contentTypeAsString)
+    def String boundaryToUse = boundaryFromContentType ?: restAssuredConfig().getMultiPartConfig().defaultBoundary()
     http.encoders.putAt ct, { contentType, content ->
-      RestAssuredMultiPartEntity entity = new RestAssuredMultiPartEntity(subType, charsetFromContentType, httpClientConfig().httpMultipartMode());
+      RestAssuredMultiPartEntity entity = new RestAssuredMultiPartEntity(subType, charsetFromContentType, httpClientConfig().httpMultipartMode(), boundaryToUse);
 
       multiParts.each {
         def body = it.contentBody

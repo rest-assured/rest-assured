@@ -27,6 +27,12 @@ Change log next release
   whereas previously you would get an IllegalArgumentException with an error message like this:
     Cannot get property 'name' on null object
   (issue 668)
+* Multipart uploads now take the content-type boundary into account. For example you can specify:
+    given().contentType("multipart/mixed; boundary=abcdef").multiPart(..). ..
+  which will use the specified boundary of "abcdef" instead of generating a "random" one. It's also possible to specify a default boundary
+  in the MultiPartConfig:
+    given().config(config().multiPartConfig(multiPartConfig().defaultBoundary("abcdef"))). ..
+  (issue 670)
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------

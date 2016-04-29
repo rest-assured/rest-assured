@@ -27,23 +27,28 @@ public class MultiPartConfig implements Config {
     private static final String DEFAULT_CONTROL_NAME = "file";
     private static final String DEFAULT_FILE_NAME = "file";
     private static final String DEFAULT_SUBTYPE = "form-data";
+    private static final String DEFAULT_BOUNDARY = null;
 
     private final String defaultControlName;
     private final String defaultFileName;
     private final String defaultSubtype;
+    private final String defaultBoundary;
 
     private final boolean isUserConfigured;
 
     /**
      * Create a new MultiPartConfig with default control name equal to {@value #DEFAULT_CONTROL_NAME} and
-     * default file name equal to {@value #DEFAULT_FILE_NAME} and default subtype {@value #DEFAULT_SUBTYPE} .
+     * default file name equal to {@value #DEFAULT_FILE_NAME} and default subtype {@value #DEFAULT_SUBTYPE} and
+     * default boundary <code>null</code> (which means it'll be automatically generated).
      */
     public MultiPartConfig() {
-        this(DEFAULT_CONTROL_NAME, DEFAULT_FILE_NAME, DEFAULT_SUBTYPE, false);
+        this(DEFAULT_CONTROL_NAME, DEFAULT_FILE_NAME, DEFAULT_SUBTYPE, DEFAULT_BOUNDARY, false);
     }
 
-    private MultiPartConfig(String defaultControlName, String defaultFileName, String defaultSubtype, boolean isUserConfigured) {
+    private MultiPartConfig(String defaultControlName, String defaultFileName, String defaultSubtype, String defaultBoundary,
+                            boolean isUserConfigured) {
         this.defaultControlName = defaultControlName;
+        this.defaultBoundary = defaultBoundary;
         this.defaultFileName = StringUtils.trimToNull(defaultFileName);
         this.defaultSubtype = StringUtils.trimToNull(defaultSubtype);
         AssertParameter.notNull(this.defaultControlName, "Default control name");
@@ -61,7 +66,7 @@ public class MultiPartConfig implements Config {
      * @return A new instance of {@link MultiPartConfig}
      */
     public MultiPartConfig defaultControlName(String defaultControlName) {
-        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, true);
+        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, true);
     }
 
     /**
@@ -74,7 +79,7 @@ public class MultiPartConfig implements Config {
      * @return A new instance of {@link MultiPartConfig}
      */
     public MultiPartConfig defaultFileName(String defaultFileName) {
-        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, true);
+        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, true);
     }
 
     /**
@@ -90,7 +95,7 @@ public class MultiPartConfig implements Config {
      * @return A new instance of {@link MultiPartConfig}
      */
     public MultiPartConfig defaultSubtype(String defaultSubtype) {
-        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, true);
+        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, true);
     }
 
     /**
@@ -103,7 +108,7 @@ public class MultiPartConfig implements Config {
      * @return A new instance of {@link MultiPartConfig}
      */
     public MultiPartConfig emptyDefaultFileName() {
-        return new MultiPartConfig(defaultControlName, null, defaultSubtype, true);
+        return new MultiPartConfig(defaultControlName, null, defaultSubtype, defaultBoundary, true);
     }
 
     /**
@@ -125,6 +130,25 @@ public class MultiPartConfig implements Config {
      */
     public String defaultSubtype() {
         return defaultSubtype;
+    }
+
+    /**
+     * Specify an explicit default multipart boundary to use when sending multi-part data.
+     *
+     * @param defaultBoundary The boundary to set
+     * @return An updated MultiPartConfig
+     */
+    public MultiPartConfig defaultBoundary(String defaultBoundary) {
+        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, true);
+    }
+
+    /**
+     * Get the default multipart boundary to use when sending multi-part data.
+     *
+     * @return The boundary
+     */
+    public String defaultBoundary() {
+        return defaultBoundary;
     }
 
     public boolean isUserConfigured() {

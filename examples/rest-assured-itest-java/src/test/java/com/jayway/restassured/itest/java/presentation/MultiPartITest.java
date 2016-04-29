@@ -279,4 +279,44 @@ public class MultiPartITest extends WithJetty {
                 statusCode(400).
                 body("error", equalTo("message"));
     }
+
+    @Test
+    public void usesDefaultBoundaryFromMultipartConfigWhenNoBoundaryIsDefinedInContentType() throws Exception {
+        // When
+        given().
+                config(config().multiPartConfig(multiPartConfig().defaultBoundary("abcdef"))).
+                multiPart("file", "myFile", "content".getBytes("UTF-8")).
+        when().
+                post("/headersWithValues").
+        then().
+                statusCode(200).
+                body("Content-Type", contains(endsWith("boundary=abcdef")));
+    }
+
+    @Test
+    public void usesBoundaryFromContentTypeWhenDefaultBoundaryIsDefinedInMultipartConfig() throws Exception {
+        // When
+        given().
+                contentType("multipart/mixed; boundary=johndoe").
+                config(config().multiPartConfig(multiPartConfig().defaultBoundary("abcdef"))).
+                multiPart("file", "myFile", "content".getBytes("UTF-8")).
+        when().
+                post("/headersWithValues").
+        then().
+                statusCode(200).
+                body("Content-Type", contains("multipart/mixed; boundary=johndoe"));
+    }
+
+    @Test
+    public void usesBoundaryFromContentTypeWhenNoDefaultBoundaryIsDefinedInMultipartConfig() throws Exception {
+        // When
+        given().
+                contentType("multipart/mixed; boundary=johndoe").
+                multiPart("file", "myFile", "content".getBytes("UTF-8")).
+        when().
+                post("/headersWithValues").
+        then().
+                statusCode(200).
+                body("Content-Type", contains("multipart/mixed; boundary=johndoe"));
+    }
 }

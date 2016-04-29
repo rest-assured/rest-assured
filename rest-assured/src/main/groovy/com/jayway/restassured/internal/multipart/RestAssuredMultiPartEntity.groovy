@@ -42,13 +42,13 @@ class RestAssuredMultiPartEntity implements HttpEntity {
   private final MultipartEntityBuilder builder;
   private volatile HttpEntity entity;
 
-  public RestAssuredMultiPartEntity(String subType, String charset, HttpMultipartMode mode) {
+  public RestAssuredMultiPartEntity(String subType, String charset, HttpMultipartMode mode, String boundary) {
     notNull(subType, "Multipart sub type");
     this.builder = MultipartEntityBuilder.create()
             .setMode(mode)
             .setCharset(charset == null ? null : Charset.forName(charset.trim()))
             .setMimeSubtype(subType.trim())
-            .setBoundary(null);
+            .setBoundary(boundary);
 
     this.entity = null;
   }

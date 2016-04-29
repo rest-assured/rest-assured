@@ -779,15 +779,11 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/headersWithValues") {
-    contentType = "application/json"
-    val headerNames = request.getHeaderNames.map(_.toString)
+    headersWithValues
+  }
 
-    val map: Map[String, List[String]] = headerNames.map(headerName => (headerName, request.getHeaders(headerName).map(_.toString).toList)).
-      foldLeft(mutable.HashMap[String, List[String]]())((map, header) => {
-      map.put(header._1, header._2.toList)
-      map
-    }).toMap // Convert map to an immutable map so that JSON gets rendered correctly, see http://stackoverflow.com/questions/6271386/how-do-you-serialize-a-map-to-json-in-scala
-    compact(render(decompose(map)))
+  post("/headersWithValues") {
+    headersWithValues
   }
 
   get("/multiHeaderReflect") {
@@ -1219,5 +1215,17 @@ class ScalatraRestExample extends ScalatraServlet {
       myList += next.split('=')(1)
     }
     myList
+  }
+
+  def headersWithValues: String = {
+    contentType = "application/json"
+    val headerNames = request.getHeaderNames.map(_.toString)
+
+    val map: Map[String, List[String]] = headerNames.map(headerName => (headerName, request.getHeaders(headerName).map(_.toString).toList)).
+            foldLeft(mutable.HashMap[String, List[String]]())((map, header) => {
+              map.put(header._1, header._2.toList)
+              map
+            }).toMap // Convert map to an immutable map so that JSON gets rendered correctly, see http://stackoverflow.com/questions/6271386/how-do-you-serialize-a-map-to-json-in-scala
+    compact(render(decompose(map)))
   }
 }
