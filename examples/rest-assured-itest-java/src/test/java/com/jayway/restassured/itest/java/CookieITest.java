@@ -16,6 +16,8 @@
 
 package com.jayway.restassured.itest.java;
 
+import com.jayway.restassured.RestAssured;
+import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.itest.java.support.WithJetty;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
@@ -231,4 +233,19 @@ public class CookieITest extends WithJetty {
 		map = response.cookies();
 		assertThat(map.get("key1"), equalTo("value3"));
 	}
+
+    @Test
+    public void usesCookiesDefinedInAStaticRequestSpecification() throws Exception {
+        RestAssured.requestSpecification = new RequestSpecBuilder().addCookie("my-cookie", "1234").build();
+
+        try {
+            when().
+                    post("/reflect").
+            then().
+                    log().ifValidationFails().
+                    cookie("my-cookie", "1234");
+        } finally {
+            RestAssured.reset();
+        }
+    }
 }
