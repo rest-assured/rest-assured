@@ -627,4 +627,22 @@ public class PathParamITest extends WithJetty {
 
         get("/{firstName}/{middleName}", (Object) null);
     }
+
+    @Test public void
+    can_use_path_parameters_value_shorter_than_the_template_name_when_using_multiple_templates_in_a_subresource() {
+        when().
+                get("/matrix;{abcde}={value}", "John", "Doe").
+        then().
+                statusCode(200).
+                body("John", equalTo("Doe"));
+    }
+
+    @Test public void
+    can_use_path_parameters_value_longer_than_the_template_name_when_using_multiple_templates_in_a_subresource() {
+        when().
+                get("/matrix;{abcde}={value}", "JohnJohn", "Doe").
+        then().
+                statusCode(200).
+                body("JohnJohn", equalTo("Doe"));
+    }
 }

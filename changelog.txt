@@ -33,6 +33,7 @@ Change log next release
   in the MultiPartConfig:
     given().config(config().multiPartConfig(multiPartConfig().defaultBoundary("abcdef"))). ..
   (issue 670)
+* Fixed an issue with path parameters where REST Assured would say that a path parameter was not applied if the value was shorter than the template name in cases where you had defined multiple templates between two slashes (issue 683)
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------

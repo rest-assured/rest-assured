@@ -1672,6 +1672,19 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
             pathToAppend = subresource.substring(indexOfEndBracket + 1, subresource.length())
           }
 
+          // Since the value of the path parameter might be shorter than the template name we need to
+          // adjust the "indexOfEndBracket" index in case this subresource contains more templates after
+          // this value.
+          def lengthOfTemplate = length(pathParamName) + 2 // 2 because "{" and "}"
+          def lengthOfValue = length(pathParamValue)
+          if (lengthOfTemplate != lengthOfValue) {
+            if (lengthOfTemplate > lengthOfValue) {
+              indexOfEndBracket -= (lengthOfTemplate - lengthOfValue)
+            } else {
+              indexOfEndBracket += (lengthOfValue - lengthOfTemplate)
+            }
+          }
+
           subresource = pathToPrepend + pathParamValue + pathToAppend
         }
       }

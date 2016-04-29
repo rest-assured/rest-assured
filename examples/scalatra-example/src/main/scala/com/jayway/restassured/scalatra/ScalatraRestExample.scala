@@ -15,6 +15,7 @@
  */
 package com.jayway.restassured.scalatra
 
+import java.net.URLDecoder
 import java.util.{Date, Scanner}
 import javax.servlet.http.Cookie
 
@@ -778,6 +779,19 @@ class ScalatraRestExample extends ScalatraServlet {
     getHeaders
   }
 
+  get("/matrix") {
+    val matrixParams = StringUtils.substringAfter(URLDecoder.decode(request.getRequestURI, "UTF-8"), ";")
+    val nameValueMap = StringUtils.split(matrixParams, "&")
+            .map(nameValue => {
+              val nameAndValue = StringUtils.split(nameValue, "=")
+              (nameAndValue(0), nameAndValue(1))})
+            .foldLeft(mutable.HashMap[String, String]())((map, nameAndValue) => {
+              map.put(nameAndValue._1, nameAndValue._2)
+              map
+            }).toMap // Convert map to an immutable map so that JSON gets rendered correctly, see http://stackoverflow.com/questions/6271386/how-do-you-serialize-a-map-to-json-in-scala
+    compact(render(decompose(nameValueMap)))
+  }
+
   get("/headersWithValues") {
     headersWithValues
   }
@@ -1070,7 +1084,7 @@ class ScalatraRestExample extends ScalatraServlet {
           </body>
      </html>"""
   }
-  
+
   def loginPageWithCsrfHeader: String = {
     contentType = "text/html"
     """<html>
