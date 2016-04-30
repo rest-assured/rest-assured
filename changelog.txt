@@ -34,8 +34,8 @@ Change log next release
     given().config(config().multiPartConfig(multiPartConfig().defaultBoundary("abcdef"))). ..
   (issue 670)
 * Fixed an issue with path parameters where REST Assured would say that a path parameter was not applied if the value was shorter than the template name in cases where you had defined multiple templates between two slashes (issue 683)
-* Fixed so that it's possible to declare whether or not XmlPath and Rest Assured should use namespace, XML validation and/or allow doc type declaration in XML.
-  Do like this if you're using XmlPath:
+* Fixed so that it's possible to declare whether or not XmlPath and Rest Assured should use care about XML namespaces, validation and/or allow doc type declaration.
+  To configure this when using XmlPath do:
     XmlPath xmlPath = new XmlPath(xml).using(xmlPathConfig().namespaceAware(false)); // replace "namespaceAware" with "validation" or "allowDocTypeDeclaration" if needed
   And like this if using REST Assured DSL:
     given().config(RestAssured.config().xmlConfig(xmlConfig().namespaceAware(false))). ..
