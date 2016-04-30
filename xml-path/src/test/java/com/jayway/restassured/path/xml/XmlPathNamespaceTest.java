@@ -120,4 +120,27 @@ public class XmlPathNamespaceTest {
         assertThat(xmlPath.getString("x:response.x:container.x:item[3].x:name"), isEmptyOrNullString());
         assertThat(xmlPath.getString("'x:response'.x:container.x:item[3].x:name"), isEmptyOrNullString());
     }
+
+    @Test public void
+    can_configure_namespace_aware_to_false() {
+        // Given
+        String xml = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
+                "  <soapenv:Body>\n" +
+                "    <ns1:getBankResponse xmlns:ns1=\"http://thomas-bayer.com/blz/\">\n" +
+                "      <ns1:details>\n" +
+                "        <ns1:bezeichnung>ABK-Kreditbank</ns1:bezeichnung>\n" +
+                "        <ns1:bic>ABKBDEB1XXX</ns1:bic>\n" +
+                "        <ns1:ort>Berlin</ns1:ort>\n" +
+                "        <ns1:plz>10789</ns1:plz>\n" +
+                "      </ns1:details>\n" +
+                "    </ns1:getBankResponse>\n" +
+                "  </soapenv:Body>\n" +
+                "</soapenv:Envelope>";
+
+        // When
+        XmlPath xmlPath = new XmlPath(xml).using(xmlPathConfig().namespaceAware(false));
+
+        // Then
+        assertThat(xmlPath.getString("soapenv:Envelope.soapenv:Body.ns1:getBankResponse.@xmlns:ns1"), equalTo("http://thomas-bayer.com/blz/"));
+    }
 }

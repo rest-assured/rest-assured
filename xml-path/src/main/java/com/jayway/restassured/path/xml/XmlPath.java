@@ -997,7 +997,7 @@ public class XmlPath {
             try {
                 final XmlSlurper slurper;
                 if (compatibilityMode == XML) {
-                    slurper = new XmlSlurper();
+                    slurper = new XmlSlurper(config.isValidating(), config.isNamespaceAware(), config.isAllowDocTypeDeclaration());
                 } else {
                     XMLReader p = new org.ccil.cowan.tagsoup.Parser();
                     slurper = new XmlSlurper(p);

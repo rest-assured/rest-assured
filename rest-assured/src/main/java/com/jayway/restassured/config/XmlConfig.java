@@ -25,25 +25,34 @@ import java.util.Map;
  * Allows you to configure properties of XML and HTML parsing.
  */
 public class XmlConfig implements Config {
+    private static final boolean DEFAULT_VALIDATING = false;
+    private static final boolean DEFAULT_NAMESPACE_AWARE = true;
+    private static final boolean DEFAULT_ALLOW_DOC_TYPE_DECLARATION = false;
+
     private final Map<String, Object> properties;
     private final Map<String, Boolean> features;
     private final Map<String, String> declaredNamespaces;
+    private final boolean validating;
     private final boolean namespaceAware;
+    private final boolean allowDocTypeDeclaration;
     private final boolean isUserConfigured;
 
     /**
      * Create a new instance of XmlConfig without any features and that is namespace unaware.
      */
     public XmlConfig() {
-        this(new HashMap<String, Boolean>(), new HashMap<String, String>(), new HashMap<String, Object>(), false, false);
+        this(new HashMap<String, Boolean>(), new HashMap<String, String>(), new HashMap<String, Object>(),
+                DEFAULT_VALIDATING, DEFAULT_NAMESPACE_AWARE, DEFAULT_ALLOW_DOC_TYPE_DECLARATION, false);
     }
 
     private XmlConfig(Map<String, Boolean> features, Map<String, String> declaredNamespaces, Map<String, Object> properties,
-                      boolean namespaceAware, boolean isUserConfigured) {
+                      boolean validating, boolean namespaceAware, boolean allowDocTypeDeclaration, boolean isUserConfigured) {
         Validate.notNull(features, "Features cannot be null");
         Validate.notNull(declaredNamespaces, "Declared namespaces cannot be null");
         Validate.notNull(properties, "Properties cannot be null");
+        this.validating = validating;
         this.namespaceAware = namespaceAware;
+        this.allowDocTypeDeclaration = allowDocTypeDeclaration;
         this.features = features;
         this.declaredNamespaces = declaredNamespaces;
         this.properties = properties;
@@ -74,7 +83,7 @@ public class XmlConfig implements Config {
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */
     public XmlConfig features(Map<String, Boolean> features) {
-        return new XmlConfig(features, declaredNamespaces, properties, namespaceAware, true);
+        return new XmlConfig(features, declaredNamespaces, properties, validating, namespaceAware, allowDocTypeDeclaration, true);
     }
 
     /**
@@ -85,7 +94,7 @@ public class XmlConfig implements Config {
      * @see org.xml.sax.XMLReader#setProperty(String, Object)
      */
     public XmlConfig properties(Map<String, Object> properties) {
-        return new XmlConfig(features, declaredNamespaces, this.properties, namespaceAware, true);
+        return new XmlConfig(features, declaredNamespaces, this.properties, validating, namespaceAware, allowDocTypeDeclaration, true);
     }
 
     /**
@@ -100,7 +109,7 @@ public class XmlConfig implements Config {
         Validate.notEmpty(uri, "URI cannot be empty");
         Map<String, Boolean> newFeatures = new HashMap<String, Boolean>(features);
         newFeatures.put(uri, enabled);
-        return new XmlConfig(newFeatures, declaredNamespaces, properties, namespaceAware, true);
+        return new XmlConfig(newFeatures, declaredNamespaces, properties, validating, namespaceAware, allowDocTypeDeclaration, true);
     }
 
     /**
@@ -115,7 +124,7 @@ public class XmlConfig implements Config {
         Validate.notEmpty(name, "Name cannot be empty");
         Map<String, Object> newProperties = new HashMap<String, Object>(properties);
         newProperties.put(name, value);
-        return new XmlConfig(features, declaredNamespaces, newProperties, namespaceAware, true);
+        return new XmlConfig(features, declaredNamespaces, newProperties, validating, namespaceAware, allowDocTypeDeclaration, true);
     }
 
     /**
@@ -137,7 +146,7 @@ public class XmlConfig implements Config {
      */
     public XmlConfig declareNamespaces(Map<String, String> namespacesToDeclare) {
         final boolean shouldBeNamespaceAware = namespacesToDeclare == null ? namespaceAware : !namespacesToDeclare.isEmpty();
-        return new XmlConfig(features, namespacesToDeclare, properties, shouldBeNamespaceAware, true);
+        return new XmlConfig(features, namespacesToDeclare, properties, validating, shouldBeNamespaceAware, allowDocTypeDeclaration, true);
     }
 
     /**
@@ -156,7 +165,7 @@ public class XmlConfig implements Config {
         Validate.notEmpty(namespaceURI, "Namespace URI cannot be empty");
         Map<String, String> updatedNamespaces = new HashMap<String, String>(declaredNamespaces);
         updatedNamespaces.put(prefix, namespaceURI);
-        return new XmlConfig(features, updatedNamespaces, properties, true, true);
+        return new XmlConfig(features, updatedNamespaces, properties, validating, true, allowDocTypeDeclaration, true);
     }
 
     /**
@@ -174,17 +183,40 @@ public class XmlConfig implements Config {
     public XmlConfig disableLoadingOfExternalDtd() {
         Map<String, Boolean> newFeatures = new HashMap<String, Boolean>(features);
         newFeatures.put("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        return new XmlConfig(newFeatures, declaredNamespaces, properties, namespaceAware, true);
+        return new XmlConfig(newFeatures, declaredNamespaces, properties, validating, namespaceAware, allowDocTypeDeclaration, true);
     }
 
     /**
-     * Configure whether or not REST Assured should be aware of namespaces when parsing XML.
+     * Configure if XmlPath should validate documents as they are parsed (default is {@value #DEFAULT_VALIDATING}).
+     * Note that this is only applicable when {@link com.jayway.restassured.path.xml.XmlPath.CompatibilityMode} is equal to
+     * {@link com.jayway.restassured.path.xml.XmlPath.CompatibilityMode#XML}.
+     *
+     * @param isValidating <code>true</code> if the parser should validate documents as they are parsed; <code>false</code> otherwise.
+     * @return A new XmlPathConfig instance
+     */
+    public XmlConfig validating(boolean isValidating) {
+        return new XmlConfig(features, declaredNamespaces, properties, isValidating, namespaceAware, allowDocTypeDeclaration, true);
+    }
+
+    /**
+     * Whether XmlPath should validate documents as they are parsed.
+     *
+     * @return a boolean indicating whether this is true or false
+     */
+    public boolean isValidating() {
+        return validating;
+    }
+
+    /**
+     * Configure whether or not REST Assured should be aware of namespaces when parsing XML (default is {@value #DEFAULT_NAMESPACE_AWARE}).
+     * Note that this is only applicable when {@link com.jayway.restassured.path.xml.XmlPath.CompatibilityMode} is equal to
+     * {@link com.jayway.restassured.path.xml.XmlPath.CompatibilityMode#XML}.
      *
      * @param shouldBeAwareOfNamespaces <code>true</code> if xml parsing should take namespaces into account.
      * @return A new XmlConfig instance
      */
     public XmlConfig namespaceAware(boolean shouldBeAwareOfNamespaces) {
-        return new XmlConfig(features, declaredNamespaces, properties, shouldBeAwareOfNamespaces, true);
+        return new XmlConfig(features, declaredNamespaces, properties, validating, shouldBeAwareOfNamespaces, allowDocTypeDeclaration, true);
     }
 
     /**
@@ -194,6 +226,27 @@ public class XmlConfig implements Config {
         return namespaceAware;
     }
 
+
+    /**
+     * Configure if XmlPath should provide support for DOCTYPE declarations (default is {@value #DEFAULT_ALLOW_DOC_TYPE_DECLARATION}).
+     * Note that this is only applicable when {@link com.jayway.restassured.path.xml.XmlPath.CompatibilityMode} is equal to
+     * {@link com.jayway.restassured.path.xml.XmlPath.CompatibilityMode#XML}.
+     *
+     * @param allowDocTypeDeclaration <code>true</code> if the parser should provide support for DOCTYPE declarations; <code>false</code> otherwise.
+     * @return A new XmlPathConfig instance
+     */
+    public XmlConfig allowDocTypeDeclaration(boolean allowDocTypeDeclaration) {
+        return new XmlConfig(features, declaredNamespaces, properties, validating, namespaceAware, allowDocTypeDeclaration, true);
+    }
+
+    /**
+     * Whether XmlPath should provide support for DOCTYPE declarations
+     *
+     * @return a boolean indicating whether this is true or false
+     */
+    public boolean isAllowDocTypeDeclaration() {
+        return allowDocTypeDeclaration;
+    }
 
     /**
      * For syntactic sugar.

@@ -46,7 +46,7 @@ class ContentParser {
           break;
         case XML:
           def xmlConfig = config.getXmlConfig()
-          def slurper = configureXmlSlurper(new XmlSlurper(), xmlConfig)
+          def slurper = configureXmlSlurper(new XmlSlurper(xmlConfig.isValidating(), xmlConfig.isNamespaceAware(), xmlConfig.isAllowDocTypeDeclaration()), xmlConfig)
           content = declareNamespacesIfNeeded(parseXml(slurper, response, parseAsString), xmlConfig)
           break
         case HTML:

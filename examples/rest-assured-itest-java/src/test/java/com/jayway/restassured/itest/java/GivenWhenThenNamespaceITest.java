@@ -23,6 +23,7 @@ import javax.xml.namespace.NamespaceContext;
 import java.util.Arrays;
 import java.util.Iterator;
 
+import static com.jayway.restassured.RestAssured.config;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.config.RestAssuredConfig.newConfig;
 import static com.jayway.restassured.config.XmlConfig.xmlConfig;
@@ -92,5 +93,15 @@ public class GivenWhenThenNamespaceITest extends WithJetty {
                 get("/package-db-xml").
         then().
                 body(not(hasXPath("/db:package-database21", namespaceContext)));
+    }
+
+    @Test public void
+    can_validate_namespace_attributes_when_namespace_aware_is_set_to_false() {
+        given().
+                config(config().xmlConfig(xmlConfig().namespaceAware(false))).
+        when().
+                get("/namespace-example2").
+        then().
+                body("soapenv:Envelope.soapenv:Body.ns1:getBankResponse.@xmlns:ns1", equalTo("http://thomas-bayer.com/blz/"));
     }
 }

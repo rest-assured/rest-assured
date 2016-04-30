@@ -419,6 +419,23 @@ class ScalatraRestExample extends ScalatraServlet {
     </foo>
   }
 
+  get("/namespace-example2") {
+    contentType = "application/xml"
+
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+      <soapenv:Body>
+        <ns1:getBankResponse xmlns:ns1="http://thomas-bayer.com/blz/">
+          <ns1:details>
+            <ns1:bezeichnung>ABK-Kreditbank</ns1:bezeichnung>
+            <ns1:bic>ABKBDEB1XXX</ns1:bic>
+            <ns1:ort>Berlin</ns1:ort>
+            <ns1:plz>10789</ns1:plz>
+          </ns1:details>
+        </ns1:getBankResponse>
+      </soapenv:Body>
+    </soapenv:Envelope>
+  }
+
   get("/amount") {
     """{
         "amount": 250.00
