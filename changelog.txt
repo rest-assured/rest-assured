@@ -39,6 +39,7 @@ Change log next release
     XmlPath xmlPath = new XmlPath(xml).using(xmlPathConfig().namespaceAware(false)); // replace "namespaceAware" with "validation" or "allowDocTypeDeclaration" if needed
   And like this if using REST Assured DSL:
     given().config(RestAssured.config().xmlConfig(xmlConfig().namespaceAware(false))). ..
+* Deprecated com.jayway.restassured.filter.log.LogDetail#PATH since it actually configured REST Assured to log the request URI and not only the path. Use com.jayway.restassured.filter.log.LogDetail#URI instead (issue 687).
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------

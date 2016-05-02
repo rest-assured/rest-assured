@@ -391,7 +391,7 @@ public class MockMvcRequestSpecificationMergingTest {
 
         // Then
         assertThat(writer.toString()).isEqualTo("Request method:\tGET\n" +
-                "Request path:\thttp://localhost:8080/greeting?name=Johan\n" +
+                "Request URI:\thttp://localhost:8080/greeting?name=Johan\n" +
                 "Proxy:\t\t\t<none>\n"+
                 "Request params:\t<none>\n" +
                 "Query params:\t<none>\n" +

@@ -49,8 +49,8 @@ public class RequestPrinter {
         if (logDetail == ALL || logDetail == METHOD) {
             addSingle(builder, "Request method:", requestMethod);
         }
-        if (logDetail == ALL || logDetail == PATH) {
-            addSingle(builder, "Request path:", completeRequestUri);
+        if (logDetail == ALL || logDetail == PATH || logDetail == URI) {
+            addSingle(builder, "Request URI:", completeRequestUri);
         }
         if (logDetail == ALL) {
             addProxy(requestSpec, builder);

@@ -49,7 +49,14 @@ public enum LogDetail {
      */
     METHOD,
     /**
-     * Logs only the request path (only works for requests)
+     * Logs only the request uri (only works for requests)
+     *
+     * @deprecated Use {@link #URI} instead.
      */
-    PATH
+    @Deprecated
+    PATH,
+    /**
+     * Logs only the request uri (only works for requests)
+     */
+    URI
 }

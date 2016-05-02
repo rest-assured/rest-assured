@@ -73,7 +73,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Request method:\tGET" + LINE_SEPARATOR + "Request path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe" + LINE_SEPARATOR +
+            assertThat(writer.toString(), equalTo("Request method:\tGET" + LINE_SEPARATOR + "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe" + LINE_SEPARATOR +
                     "Proxy:\t\t\t<none>" + LINE_SEPARATOR + "Request params:\tfirstName=John" + LINE_SEPARATOR + "\t\t\t\tlastName=Doe" + LINE_SEPARATOR + "Query params:\t<none>" + LINE_SEPARATOR +
                     "Form params:\t<none>" + LINE_SEPARATOR + "Path params:\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>" + LINE_SEPARATOR +
                     "Headers:\t\tAccept=*/*" + LINE_SEPARATOR + "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON) + LINE_SEPARATOR + "Cookies:\t\t<none>" + LINE_SEPARATOR + "Body:\t\t\t<none>" + LINE_SEPARATOR));
@@ -99,7 +99,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Request method:\tGET" + LINE_SEPARATOR + "Request path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe" + LINE_SEPARATOR +
+            assertThat(writer.toString(), equalTo("Request method:\tGET" + LINE_SEPARATOR + "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe" + LINE_SEPARATOR +
                     "Proxy:\t\t\t<none>" + LINE_SEPARATOR + "Request params:\tfirstName=John" + LINE_SEPARATOR + "\t\t\t\tlastName=Doe" + LINE_SEPARATOR + "Query params:\t<none>" + LINE_SEPARATOR +
                     "Form params:\t<none>" + LINE_SEPARATOR + "Path params:\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>" + LINE_SEPARATOR +
                     "Headers:\t\tAccept=*/*" + LINE_SEPARATOR + "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON) + LINE_SEPARATOR + "Cookies:\t\t<none>" + LINE_SEPARATOR + "Body:\t\t\t<none>" + LINE_SEPARATOR));
@@ -241,7 +241,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
               fail("Should throw AssertionError");
           } catch (AssertionError e) {
-              assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+
+              assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+
                       "Proxy:\t\t\t<none>"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+
                       "Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Multiparts:\t\t<none>"+LINE_SEPARATOR+"Headers:\t\tAccept=*/*"+LINE_SEPARATOR+
                       "\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+LINE_SEPARATOR+
@@ -268,7 +268,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
               fail("Should throw IllegalArgumentException");
           } catch (IllegalArgumentException e) {
-              assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+
+              assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+
                       "Proxy:\t\t\t<none>"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+
                       "Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Multiparts:\t\t<none>"+LINE_SEPARATOR+"Headers:\t\tAccept=*/*"+LINE_SEPARATOR+
                       "\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+LINE_SEPARATOR+
@@ -320,7 +320,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
               fail("Should throw AssertionError");
           } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request path:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+
+            assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+
                     "Proxy:\t\t\t<none>"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+
                     "Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Multiparts:\t\t<none>"+LINE_SEPARATOR+"Headers:\t\tAccept=*/*"+LINE_SEPARATOR+
                     "\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+LINE_SEPARATOR+

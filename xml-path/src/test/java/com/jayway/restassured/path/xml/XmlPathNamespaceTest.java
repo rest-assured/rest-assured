@@ -139,8 +139,6 @@ public class XmlPathNamespaceTest {
 
         // When
         XmlPath xmlPath = new XmlPath(xml).using(xmlPathConfig().namespaceAware(false));
-
-        // Then
         assertThat(xmlPath.getString("soapenv:Envelope.soapenv:Body.ns1:getBankResponse.@xmlns:ns1"), equalTo("http://thomas-bayer.com/blz/"));
     }
 }

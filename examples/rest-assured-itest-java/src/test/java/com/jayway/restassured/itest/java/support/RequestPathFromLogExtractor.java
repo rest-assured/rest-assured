@@ -23,6 +23,6 @@ import java.io.StringWriter;
 public class RequestPathFromLogExtractor {
 
     public static String loggedRequestPathIn(StringWriter writer) {
-        return StringUtils.substringBetween(writer.toString(), "Request path:", "\n").trim();
+        return StringUtils.substringBetween(writer.toString(), "Request URI:", "\n").trim();
     }
 }
