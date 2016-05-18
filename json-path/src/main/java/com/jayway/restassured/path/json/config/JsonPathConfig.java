@@ -250,7 +250,16 @@ public class JsonPathConfig {
 
 
     /**
-     * Specifies what kind of numbers to return
+     * Specifies what kind of numbers to return. <br>
+     *
+     * To specify the return type of decimal numbers parsed from the json, use the following:
+     * <ul>
+     * <li>FLOAT_AND_DOUBLE</li> <li>BIG_DECIMAL</li> <li>DOUBLE</li>
+     * </ul>
+     * To specify the return type of non-decimal numbers in the json, use the following:
+     * <ul>
+ *     <li>BIG_INTEGER</li>
+     * </ul>
      */
     public enum NumberReturnType {
         /**
@@ -264,6 +273,21 @@ public class JsonPathConfig {
         /**
          * Convert all non-integer numbers to doubles
          */
-        DOUBLE
+        DOUBLE,
+        /**
+         * Converts all non-decimal numbers to BigInteger
+         */
+        BIG_INTEGER;
+
+        /**
+         * Returns a boolean indicating whether this type is included in those that deal with floats
+         * or doubles exclusive of BigDecimal.
+         * @return
+         */
+        public final boolean isFloatOrDouble() {
+            return this.equals(FLOAT_AND_DOUBLE)
+                   || this.equals(DOUBLE);
+        }
+
     }
 }
