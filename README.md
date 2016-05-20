@@ -47,7 +47,7 @@ Using X-Path (XML only):
 
 ```java
 given().
-    parameters("firstName", "John", "lastName", "Doe").
+    params("firstName", "John", "lastName", "Doe").
 when().
     post("/greetMe").
 then().
