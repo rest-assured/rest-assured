@@ -79,16 +79,16 @@ and body easily.
 
 ## Documentation
 
-* [Getting started](https://github.com/jayway/rest-assured/wiki/GettingStarted)
-* [Downloads](https://github.com/jayway/rest-assured/wiki/Downloads)
-* [Usage Guide](https://github.com/jayway/rest-assured/wiki/Usage) (click [here](https://github.com/jayway/rest-assured/wiki/Usage_Legacy) for legacy documentation)
+* [Getting started](https://github.com/rest-assured/rest-assured/wiki/GettingStarted)
+* [Downloads](https://github.com/rest-assured/rest-assured/wiki/Downloads)
+* [Usage Guide](https://github.com/rest-assured/rest-assured/wiki/Usage) (click [here](https://github.com/rest-assured/rest-assured/wiki/Usage_Legacy) for legacy documentation)
 * [Javadoc](http://www.javadoc.io/doc/com.jayway.restassured/rest-assured/2.8.0)
 * [Rest Assured Javadoc](http://static.javadoc.io/com.jayway.restassured/rest-assured/2.8.0/com/jayway/restassured/RestAssured.html)
 * [Rest AssuredMockMvc Javadoc](http://static.javadoc.io/com.jayway.restassured/spring-mock-mvc/2.8.0/com/jayway/restassured/module/mockmvc/RestAssuredMockMvc.html)
 * [XmlPath Javadoc](http://static.javadoc.io/com.jayway.restassured/xml-path/2.8.0/com/jayway/restassured/path/xml/XmlPath.html)
 * [JsonPath Javadoc](http://static.javadoc.io/com.jayway.restassured/json-path/2.8.0/com/jayway/restassured/path/json/JsonPath.html)
-* [Release Notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes)
-* [FAQ](https://github.com/jayway/rest-assured/wiki/FAQ)
+* [Release Notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes)
+* [FAQ](https://github.com/rest-assured/rest-assured/wiki/FAQ)
 
 ## Support and discussion
 Join the mailing list at our [Google group](http://groups.google.com/group/rest-assured). 
