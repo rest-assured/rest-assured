@@ -22,9 +22,7 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.BIG_DECIMAL;
-import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.BIG_INTEGER;
-import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE;
+import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
@@ -91,7 +89,7 @@ public class JsonPathNumberTest {
             ORDER_NUMBER_JSON).using(new JsonPathConfig().numberReturnType(BIG_INTEGER));
 
         // When
-        BigInteger orderNumber = (BigInteger)jsonPath.get("orderNumber");
+        BigInteger orderNumber = jsonPath.get("orderNumber");
 
         // Then
         assertThat(orderNumber, equalTo(new BigInteger(EXPECTED_INTEGER)));
@@ -104,7 +102,7 @@ public class JsonPathNumberTest {
             LIGHT_YEARS_TO_COSMIC_HORIZON_JSON).using(new JsonPathConfig().numberReturnType(BIG_INTEGER));
 
         // When
-        BigInteger orderNumber = (BigInteger)jsonPath.get("lightYearsToCosmicHorizon");
+        BigInteger orderNumber = jsonPath.get("lightYearsToCosmicHorizon");
 
         // Then
         assertThat(orderNumber, equalTo(new BigInteger(EXPECTED_LONG)));

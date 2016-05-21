@@ -40,6 +40,7 @@ Change log next release
   And like this if using REST Assured DSL:
     given().config(RestAssured.config().xmlConfig(xmlConfig().namespaceAware(false))). ..
 * Deprecated com.jayway.restassured.filter.log.LogDetail#PATH since it actually configured REST Assured to log the request URI and not only the path. Use com.jayway.restassured.filter.log.LogDetail#URI instead (issue 687).
+* Added NumberReturnType.BIG_INTEGER which allows you to configure JsonPath to return non-decimal values as BigInteger (thanks to Jacob Krieger for pull request) (issue 695)
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------
