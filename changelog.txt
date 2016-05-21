@@ -69,7 +69,8 @@ Change log next release
     - com.jayway.restassured.config.SSLConfig.getPassword() (use com.jayway.restassured.config.SSLConfig.getKeyStorePassword() instead)
 * Renamed method com.jayway.restassured.specification.RequestLogSpecification.path(..) to com.jayway.restassured.specification.RequestLogSpecification.uri(..)
 * Added support for automatically recognizing content-type "text/json" as JSON
-
+* Changed Maven groupId from com.jayway.restassured to io.rest-assured
+* Changed package name from com.jayway.restassured to io.restassured
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------
