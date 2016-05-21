@@ -77,13 +77,6 @@ public interface FilterableRequestSpecification extends RequestSpecification {
 
     /**
      * @return The request content type defined in the request specification
-     * @deprecated Use {@link #getContentType()} instead.
-     */
-    @Deprecated
-    String getRequestContentType();
-
-    /**
-     * @return The request content type defined in the request specification
      */
     String getContentType();
 

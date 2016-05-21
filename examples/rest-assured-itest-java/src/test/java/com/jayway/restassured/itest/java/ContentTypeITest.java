@@ -97,11 +97,10 @@ public class ContentTypeITest extends WithJetty {
                 body(equalTo("application/zip; charset=UTF-8"));
     }
 
-    @SuppressWarnings("deprecation")
     @Test
     public void appendCharsetToContentTypeWhenContentTypeIsNotExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
         given().
-                config(RestAssured.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToStreamingContentTypeIfUndefined(true))).
+                config(RestAssured.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(true))).
                 body(new byte[] {42}).
         when().
                 post("/returnContentTypeAsBody").

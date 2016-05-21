@@ -74,30 +74,10 @@ class FilterContextImpl implements FilterContext {
     }
   }
 
-  String getRequestPath() {
-    substitutedPath
-  }
-
-  String getOriginalRequestPath() {
-    originalPath
-  }
-
-  com.jayway.restassured.internal.http.Method getRequestMethod() {
-    com.jayway.restassured.internal.http.Method.valueOf(method.toString())
-  }
-
-  String getRequestURI() {
-    requestUri
-  }
-
   // Used by SendRequestFilter
   @SuppressWarnings("GroovyUnusedDeclaration")
   String getInternalRequestURI() {
     internalRequestUri
-  }
-
-  String getCompleteRequestPath() {
-    getRequestURI()
   }
 
   Response send(RequestSender requestSender) {

@@ -54,21 +54,6 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void possibleToGetOriginalRequestPathForUnnamedPathParamsFromFilterContext() throws Exception {
-        given().
-                filter((requestSpec, responseSpec, ctx) -> {
-                    assertThat(ctx.getOriginalRequestPath(), equalTo("/{firstName}/{lastName}"));
-                    assertThat(ctx.getRequestURI(), equalTo("http://localhost:8080/John/Doe"));
-                    assertThat(ctx.getRequestPath(), equalTo("/John/Doe"));
-                    return ctx.next(requestSpec, responseSpec);
-                }).
-        when().
-                get("/{firstName}/{lastName}", "John", "Doe").
-        then().
-                body("fullName", equalTo("John Doe"));
-    }
-
-    @Test
     public void possibleToGetOriginalRequestPathForUnnamedPathParamsFromRequestSpec() throws Exception {
         given().
                 filter((requestSpec, responseSpec, ctx) -> {
@@ -79,23 +64,6 @@ public class PathParamITest extends WithJetty {
                 }).
         when().
                 get("/{firstName}/{lastName}", "John", "Doe").
-        then().
-                body("fullName", equalTo("John Doe"));
-    }
-
-    @Test
-    public void possibleToGetOriginalRequestPathForNamedPathParamsUsingFilterContext() throws Exception {
-        given().
-                pathParam("firstName", "John").
-                pathParam("lastName", "Doe").
-                filter((requestSpec, responseSpec, ctx) -> {
-                    assertThat(ctx.getOriginalRequestPath(), equalTo("/{firstName}/{lastName}"));
-                    assertThat(ctx.getRequestPath(), equalTo("/John/Doe"));
-                    assertThat(ctx.getRequestURI(), equalTo("http://localhost:8080/John/Doe"));
-                    return ctx.next(requestSpec, responseSpec);
-                }).
-        when().
-                get("/{firstName}/{lastName}").
         then().
                 body("fullName", equalTo("John Doe"));
     }
@@ -478,7 +446,7 @@ public class PathParamITest extends WithJetty {
                 pathParam("param2Value", "Hello\u0085").
                 filter(new Filter() {
                     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody(ctx.getRequestURI()).build();
+                        return new ResponseBuilder().setStatusCode(200).setBody(requestSpec.getURI()).build();
                     }
                 }).
         when().
@@ -493,7 +461,7 @@ public class PathParamITest extends WithJetty {
         given().
                 filter(new Filter() {
                     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody(ctx.getRequestURI()).build();
+                        return new ResponseBuilder().setStatusCode(200).setBody(requestSpec.getURI()).build();
                     }
                 }).
         when().
@@ -509,7 +477,7 @@ public class PathParamITest extends WithJetty {
         String param2Value =  "Hello2";
 
         given().
-                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setStatusLine("HTTP/1.1 200 OK").setBody(ctx.getRequestURI()).build()).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setStatusLine("HTTP/1.1 200 OK").setBody(requestSpec.getURI()).build()).
         when().
                 get("param1={param1Value}&param2={param2Value}", param1Value, param2Value).
         then().
@@ -522,7 +490,7 @@ public class PathParamITest extends WithJetty {
         String param2Value =  "Hello2";
 
         given().
-                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setStatusLine("HTTP/1.1 200 OK").setBody(ctx.getRequestURI()).build()).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setStatusLine("HTTP/1.1 200 OK").setBody(requestSpec.getURI()).build()).
                 pathParam("param1Value", param1Value).
                 pathParam("param2Value", param2Value).
         when().

@@ -32,10 +32,7 @@ import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.io.PrintStream;
@@ -117,24 +114,6 @@ public class MockMvcRequestSpecificationMergingTest {
 
         // Then
         assertThat(implOf(spec).getMultiParts()).hasSize(2);
-    }
-
-    @Test public void
-    result_handlers_are_merged() {
-        // Given
-        ResultHandler otherResultHandler = MockMvcResultHandlers.print();
-        ResultHandler thisResultHandler = new ResultHandler() {
-            public void handle(MvcResult result) throws Exception {
-            }
-        };
-
-        MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().addResultHandlers(otherResultHandler).build();
-
-        // When
-        MockMvcRequestSpecification spec = given().resultHandlers(thisResultHandler).spec(specToMerge);
-
-        // Then
-        assertThat(implOf(spec).getResultHandlers()).containsOnly(thisResultHandler, otherResultHandler);
     }
 
     @Test public void

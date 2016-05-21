@@ -47,6 +47,28 @@ Change log next release
 * Improved proxy authentication to use Apache HTTP Client's built in features (issue 693)
 * Fixed NPE trying to close an empty response which was read as an inputstream (issue 685)
 * Added ability to remove headers from a filter by using the FilterableRequestSpecification#removeHeader method (issue 539)
+* Remove the following deprecated methods:
+    - com.jayway.restassured.specification.AuthenticationSpecification.certificate(java.lang.String, java.lang.String, java.lang.String, int) (use com.jayway.restassured.specification.AuthenticationSpecification.certificate(java.lang.String, java.lang.String, com.jayway.restassured.authentication.CertificateAuthSettings) instead)
+    - com.jayway.restassured.RestAssured.requestContentType(com.jayway.restassured.http.ContentType) (use a com.jayway.restassured.builder.RequestSpecBuilder, set the content-type and apply it to com.jayway.restassured.RestAssured.requestSpecification)
+    - com.jayway.restassured.RestAssured.responseContentType(java.lang.String) (Use com.jayway.restassured.builder.ResponseSpecBuilder.expectContentType(com.jayway.restassured.http.ContentType) and apply it to com.jayway.restassured.RestAssured.responseSpecification instead)
+    - com.jayway.restassured.config.EncoderConfig.appendDefaultContentCharsetToStreamingContentTypeIfUndefined(java.lang.boolean) (use com.jayway.restassured.config.EncoderConfig.appendDefaultContentCharsetToContentTypeIfUndefined(boolean) instead)
+    - com.jayway.restassured.specification.FilterableRequestSpecification.getRequestContentType() (use com.jayway.restassured.specification.FilterableRequestSpecification.getContentType() instead)
+    - com.jayway.restassured.RestAssured.requestContentType() (If you really need to know this then create a filter)
+    - com.jayway.restassured.RestAssured.responseContentType() (If you need to know this then extract it from the response)
+    - com.jayway.restassured.RestAssured.certificate(java.lang.String, java.lang.String, java.lang.String, int) (use com.jayway.restassured.RestAssured.certificate(java.lang.String, java.lang.String, com.jayway.restassured.authentication.CertificateAuthSettings) instead)
+    - com.jayway.restassured.filter.FilterContext.getRequestMethod() (use com.jayway.restassured.specification.FilterableRequestSpecification.getMethod() instead)
+    - com.jayway.restassured.filter.FilterContext.getRequestPath() (use com.jayway.restassured.specification.FilterableRequestSpecification.getDerivedPath() instead)
+    - com.jayway.restassured.filter.FilterContext.getOriginalRequestPath() (use com.jayway.restassured.specification.FilterableRequestSpecification.getUserDefinedPath() instead)
+    - com.jayway.restassured.filter.FilterContext.getRequestURI() (use com.jayway.restassured.specification.FilterableRequestSpecification.getURI() instead)
+    - com.jayway.restassured.filter.FilterContext.getCompleteRequestPath() (use com.jayway.restassured.specification.FilterableRequestSpecification.getURI() instead)
+    - com.jayway.restassured.filter.log.LogDetail.PATH (use com.jayway.restassured.filter.log.LogDetail.URI instead)
+    - com.jayway.restassured.module.mockmvc.specification.MockMvcRequestSpecification.resultHandlers (use com.jayway.restassured.module.mockmvc.response.ValidatableMockMvcResponse.apply(..) instead)
+    - com.jayway.restassured.mapper.ObjectMapper.JACKSON (isn't needed anymore)
+    - com.jayway.restassured.mapper.ObjectMapper.GSON (isn't needed anymore)
+    - com.jayway.restassured.mapper.ObjectMapper.JAXB (isn't needed anymore)
+    - com.jayway.restassured.config.SSLConfig.getPassword() (use com.jayway.restassured.config.SSLConfig.getKeyStorePassword() instead)
+* Renamed method com.jayway.restassured.specification.RequestLogSpecification.path(..) to com.jayway.restassured.specification.RequestLogSpecification.uri(..)
+
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------

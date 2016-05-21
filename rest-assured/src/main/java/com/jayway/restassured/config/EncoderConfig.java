@@ -241,18 +241,6 @@ public class EncoderConfig implements Config {
 
     /**
      * Tells whether REST Assured should automatically append the content charset to the content-type header if not defined explicitly.
-     *
-     * @param shouldAddDefaultContentCharsetToContentTypeIfMissing Whether REST Assured should automatically append the content charset to the content-type header if not defined explicitly.
-     * @return A new {@link com.jayway.restassured.config.EncoderConfig} instance
-     * @deprecated Use {@link #appendDefaultContentCharsetToContentTypeIfUndefined(boolean)} instead.
-     */
-    @Deprecated
-    public EncoderConfig appendDefaultContentCharsetToStreamingContentTypeIfUndefined(boolean shouldAddDefaultContentCharsetToContentTypeIfMissing) {
-        return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAddDefaultContentCharsetToContentTypeIfMissing, contentEncoders, contentTypeToDefaultCharset, true);
-    }
-
-    /**
-     * Tells whether REST Assured should automatically append the content charset to the content-type header if not defined explicitly.
      * <p>
      * Note that this does not affect multipart form data.
      * </p>

@@ -143,7 +143,7 @@ public class FilterITest extends WithJetty {
         given().
                 filter(new Filter() {
                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                       contentType.set(requestSpec.getRequestContentType());
+                       contentType.set(requestSpec.getContentType());
                        return ctx.next(requestSpec, responseSpec);
                    }
                 }).
@@ -165,7 +165,7 @@ public class FilterITest extends WithJetty {
                 config(RestAssuredConfig.config().encoderConfig(encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
                 filter(new Filter() {
                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                       contentType.set(requestSpec.getRequestContentType());
+                       contentType.set(requestSpec.getContentType());
                        return ctx.next(requestSpec, responseSpec);
                    }
                 }).

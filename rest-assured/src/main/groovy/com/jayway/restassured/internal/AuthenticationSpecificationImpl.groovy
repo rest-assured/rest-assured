@@ -88,13 +88,6 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
 
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  RequestSpecification certificate(String certURL, String password, String trustStoreType, int port) {
-    return certificate(certURL, password, certAuthSettings().trustStoreType(trustStoreType).port(port))
-  }
-
 /**
  * {@inheritDoc}
  */

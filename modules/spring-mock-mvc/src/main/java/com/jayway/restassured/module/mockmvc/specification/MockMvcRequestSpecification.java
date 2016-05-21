@@ -28,7 +28,6 @@ import com.jayway.restassured.response.Headers;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
-import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
@@ -874,16 +873,6 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * @param value the session attribute value
      */
     MockMvcRequestSpecification sessionAttr(String name, Object value);
-
-    /**
-     * Add one or more result handlers. They will be executed after when the response is received.
-     *
-     * @return The request specification
-     * @see ResultHandler
-     * @deprecated Use {@link com.jayway.restassured.module.mockmvc.response.ValidatableMockMvcResponse#apply} instead. For example: <code>get("/x").then().apply(print());</code>
-     */
-    @Deprecated
-    MockMvcRequestSpecification resultHandlers(ResultHandler resultHandler, ResultHandler... resultHandlers);
 
     /**
      * Call this method when you're done setting up the request specification.

@@ -35,8 +35,8 @@ class RequestLogSpecificationImpl extends LogSpecificationImpl implements Reques
     logWith(LogDetail.PARAMS)
   }
 
-  RequestSpecification path() {
-    logWith(LogDetail.PATH)
+  RequestSpecification uri() {
+    logWith(LogDetail.URI)
   }
 
   RequestSpecification method() {

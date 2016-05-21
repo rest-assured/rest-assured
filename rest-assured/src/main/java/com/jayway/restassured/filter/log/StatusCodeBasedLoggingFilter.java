@@ -81,7 +81,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
         Validate.notNull(logDetail, "Log details cannot be null");
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(matcher, "Matcher cannot be null");
-        if (logDetail == PARAMS || logDetail == PATH || logDetail == METHOD) {
+        if (logDetail == PARAMS || logDetail == URI || logDetail == METHOD) {
             throw new IllegalArgumentException(String.format("%s is not a valid %s for a response.", logDetail, LogDetail.class.getSimpleName()));
         }
         this.shouldPrettyPrint = prettyPrint;

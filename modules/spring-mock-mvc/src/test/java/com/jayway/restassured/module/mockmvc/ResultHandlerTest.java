@@ -45,22 +45,6 @@ public class ResultHandlerTest {
     }
 
     @Test public void
-    supports_using_result_handlers_using_the_dsl() {
-        MutableObject<Boolean> mutableObject = new MutableObject<Boolean>(false);
-
-        given().
-                resultHandlers(print(), customResultHandler(mutableObject)).
-                header(new Header("headerName", "John Doe")).
-        when().
-                get("/header").
-        then().
-                statusCode(200).
-                body("headerName", equalTo("John Doe"));
-
-        assertThat(mutableObject.getValue(), is(true));
-    }
-
-    @Test public void
     supports_using_result_handlers_using_the_response_dsl() {
         MutableObject<Boolean> mutableObject = new MutableObject<Boolean>(false);
 
@@ -82,12 +66,12 @@ public class ResultHandlerTest {
         MutableObject<Boolean> mutableObject2 = new MutableObject<Boolean>(false);
 
         given().
-                resultHandlers(customResultHandler(mutableObject1)).
-                resultHandlers(customResultHandler(mutableObject2)).
                 header(new Header("headerName", "John Doe")).
         when().
                 get("/header").
         then().
+                apply(customResultHandler(mutableObject1)).
+                apply(customResultHandler(mutableObject2)).
                 statusCode(200).
                 body("headerName", equalTo("John Doe"));
 
@@ -112,26 +96,6 @@ public class ResultHandlerTest {
         assertThat(mutableObject1.getValue(), is(true));
         assertThat(mutableObject2.getValue(), is(true));
     }
-
-    @Test public void
-    merges_statically_defined_result_handlers_with_dsl_defined() {
-        MutableObject<Boolean> mutableObject1 = new MutableObject<Boolean>(false);
-        MutableObject<Boolean> mutableObject2 = new MutableObject<Boolean>(false);
-        RestAssuredMockMvc.resultHandlers(customResultHandler(mutableObject1));
-
-        given().
-                resultHandlers(customResultHandler(mutableObject2)).
-                header(new Header("headerName", "John Doe")).
-        when().
-                get("/header").
-        then().
-                statusCode(200).
-                body("headerName", equalTo("John Doe"));
-
-        assertThat(mutableObject1.getValue(), is(true));
-        assertThat(mutableObject2.getValue(), is(true));
-    }
-
 
     @Test public void
     merges_statically_defined_result_handlers_with_dsl_defined_using_response_spec() {

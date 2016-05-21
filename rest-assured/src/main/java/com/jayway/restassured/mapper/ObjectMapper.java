@@ -24,14 +24,6 @@ import com.jayway.restassured.internal.mapper.ObjectMapperType;
  * to roll your own mapper implementations for custom formats.
  */
 public interface ObjectMapper {
-    // For backward compatibility
-    @Deprecated
-    public static final ObjectMapperType JACKSON = ObjectMapperType.JACKSON_1;
-    @Deprecated
-    public static final ObjectMapperType GSON = ObjectMapperType.GSON;
-    @Deprecated
-    public static final ObjectMapperType JAXB = ObjectMapperType.JAXB;
-
     /**
      * Deserialize a response to a Java object
      *

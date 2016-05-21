@@ -39,11 +39,11 @@ public interface RequestLogSpecification extends LogSpecification<RequestSpecifi
     RequestSpecification parameters();
 
     /**
-     * Only logs the request path.
+     * Only logs the request uri.
      *
      * @return The request specification
      */
-    RequestSpecification path();
+    RequestSpecification uri();
 
     /**
      * Only logs the request method.

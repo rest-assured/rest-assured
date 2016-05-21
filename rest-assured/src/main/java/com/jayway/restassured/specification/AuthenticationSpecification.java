@@ -90,19 +90,6 @@ public interface AuthenticationSpecification {
     RequestSpecification certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings);
 
     /**
-     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
-     * on the classpath.
-     *
-     * @param certURL      URL to a JKS keystore where the certificate is stored.
-     * @param password     password to decrypt the keystore
-     * @param keystoreType The keystore type
-     * @param port         The SSL port
-     * @deprecated Use {@link #certificate(String, String, com.jayway.restassured.authentication.CertificateAuthSettings)} instead.
-     */
-    @Deprecated
-    RequestSpecification certificate(String certURL, String password, String keystoreType, int port);
-
-    /**
      * OAuth2 sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header
      * (so currently it's the same as preemptive oauth2 authentication. The reason why it's located here is to be backward compatible).
      * This assumes you've already generated an accessToken for the site you're targeting. The access token will be put in a header.

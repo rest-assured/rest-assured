@@ -4,7 +4,6 @@ import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.filter.cookie.CookieFilter;
 import com.jayway.restassured.internal.ResponseSpecificationImpl;
 import com.jayway.restassured.internal.RestAssuredResponseImpl;
-import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.response.Cookie;
 import com.jayway.restassured.response.Cookies;
 import com.jayway.restassured.response.Response;
@@ -75,26 +74,6 @@ public class CookieFilterTest {
         }
 
         public Response send(RequestSender requestSender) {
-            return null;
-        }
-
-        public Method getRequestMethod() {
-            return null;
-        }
-
-        public String getRequestPath() {
-            return null;
-        }
-
-        public String getOriginalRequestPath() {
-            return null;
-        }
-
-        public String getRequestURI() {
-            return null;
-        }
-
-        public String getCompleteRequestPath() {
             return null;
         }
 

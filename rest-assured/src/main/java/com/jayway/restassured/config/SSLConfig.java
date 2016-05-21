@@ -387,15 +387,6 @@ public class SSLConfig implements Config {
 
     /**
      * @return The password to the JKS
-     * @deprecated Use {@link #getKeyStorePassword()} instead
-     */
-    @Deprecated
-    public String getPassword() {
-        return keyStorePassword;
-    }
-
-    /**
-     * @return The password to the JKS
      */
     public String getKeyStorePassword() {
         return keyStorePassword;

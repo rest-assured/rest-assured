@@ -16,7 +16,6 @@
 
 package com.jayway.restassured.filter;
 
-import com.jayway.restassured.internal.http.Method;
 import com.jayway.restassured.response.Response;
 import com.jayway.restassured.specification.FilterableRequestSpecification;
 import com.jayway.restassured.specification.FilterableResponseSpecification;
@@ -59,49 +58,6 @@ public interface FilterContext {
      * @return The response.
      */
     Response send(RequestSender requestSender);
-
-    /**
-     * @return The request method of the request (E.g. POST, GET etc)
-     * @deprecated Use {@link FilterableRequestSpecification#getMethod()} instead.
-     */
-    @Deprecated
-    Method getRequestMethod();
-
-    /**
-     * @return The request path
-     * @deprecated Use {@link FilterableRequestSpecification#getDerivedPath()} instead.
-     */
-    @Deprecated
-    String getRequestPath();
-
-    /**
-     * Returns the original request path as it was before any path parameters were applied. For example
-     * if you made the following request to REST Assured:
-     * <pre>
-     * get("/something/{x}", x);
-     * </pre>
-     * <p/>
-     * Then this method would return <code>"/something/{x}"</code>.
-     *
-     * @return The original request path
-     * @deprecated Use {@link FilterableRequestSpecification#getUserDefinedPath()} instead.
-     */
-    @Deprecated
-    String getOriginalRequestPath();
-
-    /**
-     * @return The request URI as a string. This is the fully-qualified path including host, port number, scheme, path and query params.
-     * @deprecated Use {@link FilterableRequestSpecification#getURI()} instead.
-     */
-    @Deprecated
-    String getRequestURI();
-
-    /**
-     * @return The request URI as a string. This is the fully-qualified path including host, port number, scheme, path and query params.
-     * @deprecated Use {@link FilterableRequestSpecification#getURI()} instead.
-     */
-    @Deprecated
-    String getCompleteRequestPath();
 
     /**
      * Continue to the next filter in the chain.

@@ -950,12 +950,12 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test public void
-    using_log_detail_path_only_logs_the_request_path() {
+    using_log_detail_uri_only_logs_the_request_uri() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                filter(new RequestLoggingFilter(LogDetail.PATH, captor)).
+                filter(new RequestLoggingFilter(LogDetail.URI, captor)).
                 queryParam("firstName", "John").
                 queryParam("lastName", "Doe").
         when().
@@ -972,7 +972,7 @@ public class LoggingITest extends WithJetty {
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                filter(new RequestLoggingFilter(LogDetail.PATH, true, captor, true)).
+                filter(new RequestLoggingFilter(LogDetail.URI, true, captor, true)).
                 queryParam("firstName", "John#€").
                 queryParam("lastName", "Doe").
         when().
@@ -989,7 +989,7 @@ public class LoggingITest extends WithJetty {
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                filter(new RequestLoggingFilter(LogDetail.PATH, true, captor, false)).
+                filter(new RequestLoggingFilter(LogDetail.URI, true, captor, false)).
                 queryParam("firstName", "John#€").
                 queryParam("lastName", "Doe").
         when().

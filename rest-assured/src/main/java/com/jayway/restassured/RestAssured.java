@@ -17,14 +17,11 @@
 package com.jayway.restassured;
 
 import com.jayway.restassured.authentication.*;
-import com.jayway.restassured.builder.RequestSpecBuilder;
-import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.config.LogConfig;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.config.SSLConfig;
 import com.jayway.restassured.filter.Filter;
 import com.jayway.restassured.filter.log.LogDetail;
-import com.jayway.restassured.http.ContentType;
 import com.jayway.restassured.internal.*;
 import com.jayway.restassured.internal.assertion.AssertParameter;
 import com.jayway.restassured.internal.log.LogRepository;
@@ -365,7 +362,7 @@ public class RestAssured {
 
     /**
      * The port that's used by REST assured when it's left out of the specified URI when making a request.
-     * Default value is {@value #DEFAULT_PORT}.
+     * Default port will evaluate to {@value #DEFAULT_PORT}.
      */
     public static int port = UNDEFINED_PORT;
 
@@ -562,59 +559,6 @@ public class RestAssured {
     public static void objectMapper(ObjectMapper objectMapper) {
         Validate.notNull(objectMapper, "Default object mapper cannot be null");
         config = config().objectMapperConfig(objectMapperConfig().defaultObjectMapper(objectMapper));
-    }
-
-    /**
-     * @return The the default content-type that'll be used by all requests.
-     * @deprecated This method is eligible for removal. If you use it please send a mail to the mailing list.
-     */
-    @Deprecated
-    public static Object requestContentType() {
-        return requestSpecification == null ? null : ((FilterableRequestSpecification) requestSpecification).getRequestContentType();
-    }
-
-    /**
-     * Specify the default content type
-     *
-     * @param contentType The content type
-     * @deprecated Use a {@link com.jayway.restassured.builder.RequestSpecBuilder} to set the content-type and then set the created {@link com.jayway.restassured.specification.RequestSpecification} to {@link #requestSpecification}.
-     */
-    @Deprecated
-    public static void requestContentType(ContentType contentType) {
-        requestSpecification = (requestSpecification == null ? new RequestSpecBuilder().build() : requestSpecification).contentType(contentType);
-    }
-
-    /**
-     * Specify the default content type
-     *
-     * @param contentType The content type
-     * @deprecated Use a {@link com.jayway.restassured.builder.RequestSpecBuilder} to set the content-type and then set the created {@link com.jayway.restassured.specification.RequestSpecification} to {@link #requestSpecification}.
-     */
-    @Deprecated
-    public static void requestContentType(String contentType) {
-        requestSpecification = (requestSpecification == null ? new RequestSpecBuilder().build() : requestSpecification).contentType(contentType);
-    }
-
-    /**
-     * Specify the expected response content type.
-     *
-     * @param contentType The content type
-     * @deprecated Use {@link com.jayway.restassured.builder.ResponseSpecBuilder#expectContentType(com.jayway.restassured.http.ContentType)} and assign it to {@link #responseSpecification} instead.
-     */
-    @Deprecated
-    public static void responseContentType(ContentType contentType) {
-        responseSpecification = (responseSpecification == null ? new ResponseSpecBuilder().build() : responseSpecification).contentType(contentType);
-    }
-
-    /**
-     * Specify the expected response content type.
-     *
-     * @param contentType The content type
-     * @deprecated Use {@link com.jayway.restassured.builder.ResponseSpecBuilder#expectContentType(com.jayway.restassured.http.ContentType)} and assign it to {@link #responseSpecification} instead.
-     */
-    @Deprecated
-    public static void responseContentType(String contentType) {
-        responseSpecification = (responseSpecification == null ? new ResponseSpecBuilder().build() : responseSpecification).contentType(contentType);
     }
 
     /**
@@ -1285,21 +1229,6 @@ public class RestAssured {
     }
 
     /**
-     * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
-     * on the classpath.
-     *
-     * @param certURL      URL to a JKS keystore where the certificate is stored.
-     * @param password     password to decrypt the keystore
-     * @param keystoreType The keystore type
-     * @param port         The SSL port
-     * @deprecated Use {@link #certificate(String, String, com.jayway.restassured.authentication.CertificateAuthSettings)} instead.
-     */
-    @Deprecated
-    public static AuthenticationScheme certificate(String certURL, String password, String keystoreType, int port) {
-        return certificate(certURL, password, certAuthSettings().keystoreType(keystoreType).port(port));
-    }
-
-    /**
      * Use http digest authentication. Note that you need to encode the password yourself.
      *
      * @param userName The user name.
@@ -1360,7 +1289,7 @@ public class RestAssured {
      * OAuth sign the request. Note that this currently does not wait for a WWW-Authenticate challenge before sending the the OAuth header.
      * All requests to all domains will be signed for this instance.
      *
-     * @param accessToken
+     * @param accessToken The access token to use
      * @return The authentication scheme
      */
     public static AuthenticationScheme oauth2(String accessToken) {
@@ -1413,8 +1342,8 @@ public class RestAssured {
     }
 
     /**
-     * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath}, {@link #requestContentType(com.jayway.restassured.http.ContentType)},
-     * {@link #responseContentType(com.jayway.restassured.http.ContentType)}, {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification},
+     * Resets the {@link #baseURI}, {@link #basePath}, {@link #port}, {@link #authentication} and {@link #rootPath},
+     * {@link #filters(java.util.List)}, {@link #requestSpecification}, {@link #responseSpecification},
      * {@link #urlEncodingEnabled}, {@link #config}, {@link #sessionId} and {@link #proxy} to their default values of {@value #DEFAULT_URI}, {@value #DEFAULT_PATH}, {@value #UNDEFINED_PORT},
      * <code>no authentication</code>, &lt;empty string&gt;, <code>null</code>, <code>null</code>,
      * &lt;empty list&gt;, <code>null</code>, <code>null</code>, <code>none</code>, <code>true</code>, <code>new RestAssuredConfig()</code>, <code>null</code> and <code>null</code>.
