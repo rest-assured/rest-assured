@@ -84,7 +84,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>4.2.0.RELEASE</version>
+            <version>4.2.6.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
