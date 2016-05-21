@@ -29,7 +29,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>4.2.0.RELEASE</spring.version>
-        <spring.security.version>4.0.2.RELEASE</spring.security.version>
+        <spring.security.version>4.1.0.RELEASE</spring.security.version>
     </properties>
 
     <dependencies>
