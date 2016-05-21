@@ -50,17 +50,18 @@ class ConfigurableJsonSlurper {
         JsonToken.metaClass.getValue = {->
             def result = original.invoke(delegate)
           NumberReturnType numberReturnType = numberReturnType.get()
-          if ((numberReturnType == NumberReturnType.FLOAT_AND_DOUBLE ||
-                  numberReturnType == NumberReturnType.DOUBLE)
-                  && result instanceof BigDecimal) {
-                // Convert big decimal to float or double
-                if (result > Float.MAX_VALUE || numberReturnType == NumberReturnType.DOUBLE) {
-                    result = result.doubleValue();
-                } else {
-                    result = result.floatValue();
-                }
-            }
-            result
+          if (numberReturnType.isFloatOrDouble() && result instanceof BigDecimal) {
+              // Convert big decimal to float or double
+              if (result > Float.MAX_VALUE || numberReturnType == NumberReturnType.DOUBLE) {
+                  result = result.doubleValue();
+              } else {
+                  result = result.floatValue();
+              }
+          } else if (NumberReturnType.BIG_INTEGER.equals(numberReturnType)
+                        && (result instanceof Integer || result instanceof Long)) {
+              result = new BigInteger(result.toString());
+          }
+          result
         }
     }
 

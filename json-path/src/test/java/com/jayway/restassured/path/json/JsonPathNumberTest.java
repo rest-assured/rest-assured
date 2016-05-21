@@ -20,25 +20,49 @@ import com.jayway.restassured.path.json.config.JsonPathConfig;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.BIG_DECIMAL;
+import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.BIG_INTEGER;
 import static com.jayway.restassured.path.json.config.JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 public class JsonPathNumberTest {
 
-    private static final String PRICE = "{\n" +
-            "\n" +
-            "    \"price\":12.1 \n" +
-            "\n" +
-            "}";
+    /**
+     * An expected input which is less than Integer.MAX_VALUE
+     */
+    private static final String EXPECTED_INTEGER = "15303030";
+
+    /**
+     * An expected input which is greater than Integer.MAX_VALUE and less than Long.MAX_VALUE
+     */
+    private static final String EXPECTED_LONG = "13000000000";
+
+    private static final String ORDER_NUMBER_JSON = "{\n" +
+                                                    "\n" +
+                                                    "    \"orderNumber\":"+EXPECTED_INTEGER+" \n" +
+                                                    "\n" +
+                                                    "}";
+
+    private static final String LIGHT_YEARS_TO_COSMIC_HORIZON_JSON = "{\n" +
+                                                                     "\n" +
+                                                                     "    \"lightYearsToCosmicHorizon\":" + EXPECTED_LONG + " \n" +
+                                                                     "\n" +
+                                                                     "}";
+
+    private static final String PRICE_JSON = "{\n" +
+                                             "\n" +
+                                             "    \"price\":12.1 \n" +
+                                             "\n" +
+                                             "}";
 
 
     @Test public void
     json_path_returns_big_decimal_for_json_numbers_when_configured_accordingly() {
         // Given
-        final JsonPath jsonPath = new JsonPath(PRICE).using(new JsonPathConfig(BIG_DECIMAL));
+        final JsonPath jsonPath = new JsonPath(PRICE_JSON).using(new JsonPathConfig(BIG_DECIMAL));
 
         // When
         BigDecimal price = jsonPath.get("price");
@@ -50,13 +74,40 @@ public class JsonPathNumberTest {
     @Test public void
     json_path_returns_float_for_json_numbers_when_configured_accordingly() {
         // Given
-        final JsonPath jsonPath = new JsonPath(PRICE).using(new JsonPathConfig().numberReturnType(FLOAT_AND_DOUBLE));
+        final JsonPath jsonPath = new JsonPath(
+            PRICE_JSON).using(new JsonPathConfig().numberReturnType(FLOAT_AND_DOUBLE));
 
         // When
         float price = (Float) jsonPath.get("price");
 
         // Then
         assertThat(price, equalTo(12.1f));
+    }
+
+    @Test public void
+    json_path_returns_big_integer_for_json_integer_numbers_when_configured_accordingly() {
+        // Given
+        final JsonPath jsonPath = new JsonPath(
+            ORDER_NUMBER_JSON).using(new JsonPathConfig().numberReturnType(BIG_INTEGER));
+
+        // When
+        BigInteger orderNumber = (BigInteger)jsonPath.get("orderNumber");
+
+        // Then
+        assertThat(orderNumber, equalTo(new BigInteger(EXPECTED_INTEGER)));
+    }
+
+    @Test public void
+    json_path_returns_big_integer_for_json_long_numbers_when_configured_accordingly() {
+        // Given
+        final JsonPath jsonPath = new JsonPath(
+            LIGHT_YEARS_TO_COSMIC_HORIZON_JSON).using(new JsonPathConfig().numberReturnType(BIG_INTEGER));
+
+        // When
+        BigInteger orderNumber = (BigInteger)jsonPath.get("lightYearsToCosmicHorizon");
+
+        // Then
+        assertThat(orderNumber, equalTo(new BigInteger(EXPECTED_LONG)));
     }
 
 }
