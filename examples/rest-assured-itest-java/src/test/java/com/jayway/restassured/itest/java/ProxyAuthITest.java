@@ -85,4 +85,15 @@ public class ProxyAuthITest extends WithJetty {
         then().
                 statusCode(407);
     }
+
+    // This tests makes sure that issue 693 is resolved
+    @Test public void
+    can_use_external_proxy() {
+        given().
+                proxy(host("pxy.int.ws.streamshield.net").withPort(3128).withAuth("user_384364539@wtqt.com", "Password1")).
+        when().
+                get("https://facebook.com").
+        then().
+                statusCode(200);
+    }
 }

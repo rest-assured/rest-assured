@@ -16,7 +16,10 @@
 package com.jayway.restassured.internal
 
 import com.jayway.restassured.RestAssured
-import com.jayway.restassured.authentication.*
+import com.jayway.restassured.authentication.AuthenticationScheme
+import com.jayway.restassured.authentication.CertAuthScheme
+import com.jayway.restassured.authentication.FormAuthScheme
+import com.jayway.restassured.authentication.NoAuthScheme
 import com.jayway.restassured.config.*
 import com.jayway.restassured.filter.Filter
 import com.jayway.restassured.filter.log.RequestLoggingFilter
@@ -46,11 +49,15 @@ import com.jayway.restassured.specification.*
 import com.jayway.restassured.spi.AuthFilter
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
+import org.apache.http.auth.AuthScope
+import org.apache.http.auth.UsernamePasswordCredentials
+import org.apache.http.client.CredentialsProvider
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
 import org.apache.http.impl.client.AbstractHttpClient
+import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.message.BasicHeader
 import org.apache.http.util.EntityUtils
 
@@ -2077,10 +2084,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     http.client.routePlanner = new RestAssuredProxySelectorRoutePlanner(http.client.connectionManager.schemeRegistry,
             new RestAssuredProxySelector(delegatingProxySelector: ProxySelector.default, proxySpecification: proxySpecification), proxySpecification)
     if (proxySpecification?.hasAuth()) {
-      PreemptiveBasicAuthScheme auth = new PreemptiveBasicAuthScheme();
-      auth.setUserName(proxySpecification.username);
-      auth.setPassword(proxySpecification.password);
-      header("Proxy-Authorization", auth.generateAuthToken())
+      CredentialsProvider credsProvider = new BasicCredentialsProvider();
+      def address = new InetSocketAddress(proxySpecification.host, proxySpecification.port)
+      // We need to convert the host to an IP since that's what our proxy selector (RestAssuredProxySelector) expects
+      def authScope = new AuthScope(address.getAddress().getHostAddress(), proxySpecification.getPort())
+      def credentials = new UsernamePasswordCredentials(proxySpecification.username, proxySpecification.password)
+      credsProvider.setCredentials(authScope, credentials);
+      http.client.setCredentialsProvider(credsProvider);
     }
   }
 
