@@ -29,6 +29,7 @@ import io.restassured.itest.java.objects.Greeting;
 import io.restassured.itest.java.objects.Message;
 import io.restassured.itest.java.objects.ScalatraObject;
 import io.restassured.itest.java.support.WithJetty;
+import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
@@ -44,8 +45,7 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-import static io.restassured.RestAssured.expect;
-import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.*;
 import static io.restassured.config.EncoderConfig.encoderConfig;
 import static io.restassured.config.RestAssuredConfig.config;
 import static io.restassured.filter.log.ErrorLoggingFilter.logErrorsTo;
@@ -997,5 +997,15 @@ public class LoggingITest extends WithJetty {
                 statusCode(200);
 
         assertThat(writer.toString(), equalTo("Request URI:\thttp://localhost:8080/greet?firstName=John#€&lastName=Doe" + LINE_SEPARATOR));
+    }
+
+    // This was previously a bug (https://github.com/rest-assured/rest-assured/issues/684)
+    @Test public void
+    assert_that_register_text_json_content_type_can_be_used_in_conjunction_with_enable_logging_of_request_and_response_if_validation_fails() {
+        RestAssured.baseURI = "http://127.0.0.1";
+        RestAssured.port = 8080;
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+        RestAssured.registerParser("text/json", Parser.JSON);
+        when().get("/text-json").then().body("test", is(true));
     }
 }
