@@ -26,7 +26,7 @@ import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
  */
 public enum Parser {
     XML("application/xml","text/xml","application/xhtml+xml"), TEXT("text/plain", "*/*"),
-    JSON("application/json","application/javascript","text/javascript"), HTML("text/html");
+    JSON("application/json","application/javascript","text/javascript", "text/json"), HTML("text/html");
 
     private static final String PLUS_XML = "+xml";
     private static final String PLUS_JSON = "+json";

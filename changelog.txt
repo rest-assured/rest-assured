@@ -68,6 +68,7 @@ Change log next release
     - com.jayway.restassured.mapper.ObjectMapper.JAXB (isn't needed anymore)
     - com.jayway.restassured.config.SSLConfig.getPassword() (use com.jayway.restassured.config.SSLConfig.getKeyStorePassword() instead)
 * Renamed method com.jayway.restassured.specification.RequestLogSpecification.path(..) to com.jayway.restassured.specification.RequestLogSpecification.uri(..)
+* Added support for automatically recognizing content-type "text/json" as JSON
 
 
 Change log 2.9.0 (2016-03-04)

@@ -284,6 +284,11 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(render(json))
   }
 
+  get("/text-json") {
+    contentType = "text/json"
+    """{"test":true}"""
+  }
+
   get("/lotto") {
     val json = ("lotto" -> ("lottoId" -> lotto.id) ~
       ("winning-numbers" -> lotto.winningNumbers) ~

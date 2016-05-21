@@ -19,10 +19,10 @@
 package io.restassured.assertion
 
 import io.restassured.internal.ResponseParserRegistrar
-import io.restassured.parsing.Parser
-import io.restassured.response.Response
 import io.restassured.internal.http.ContentTypeExtractor
 import io.restassured.internal.path.json.JSONAssertion
+import io.restassured.parsing.Parser
+import io.restassured.response.Response
 
 class StreamVerifier {
 
@@ -44,10 +44,10 @@ Try registering a default parser using:
    RestAssured.defaultParser(<parser type>);
 Content was:\n$content\n""");
             }
-            def contentTypeWithCharset = ContentTypeExtractor.getContentTypeWithoutCharset(contentType)
-            throw new IllegalStateException("""Expected response body to be verified as JSON, HTML or XML but content-type '$contentTypeWithCharset' is not supported out of the box.
+            def contentTypeWithoutCharset = ContentTypeExtractor.getContentTypeWithoutCharset(contentType)
+            throw new IllegalStateException("""Expected response body to be verified as JSON, HTML or XML but content-type '$contentTypeWithoutCharset' is not supported out of the box.
 Try registering a custom parser using:
-   RestAssured.registerParser(\"$contentTypeWithCharset\", <parser type>);
+   RestAssured.registerParser(\"$contentTypeWithoutCharset\", <parser type>);
 Content was:\n$content\n""");
         }
         assertion

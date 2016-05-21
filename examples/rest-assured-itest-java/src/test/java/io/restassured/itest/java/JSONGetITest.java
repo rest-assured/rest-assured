@@ -16,13 +16,13 @@
 
 package io.restassured.itest.java;
 
+import groovy.json.JsonException;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
-import groovy.json.JsonException;
 import org.junit.Test;
 
 import java.util.*;
@@ -574,5 +574,10 @@ public class JSONGetITest extends WithJetty {
                 get("/greet").
         then().
                 body("greeting", equalTo(format("Greetings %s %s", uuid1, uuid2)));
+    }
+
+    @Test public void
+    json_parser_is_used_for_text_json_content_type() {
+        when().get("/text-json").then().body("test", is(true));
     }
 }
