@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class CloseHTTPClientConnectionInputStreamWrapper extends InputStream {
+    private static final int MINUS_ONE = -1;
+    private static final int ZERO = 0;
     private ConnectionConfig connectionConfig;
     private final ClientConnectionManager connectionManager;
     private final InputStream wrapped;
@@ -36,50 +38,56 @@ public class CloseHTTPClientConnectionInputStreamWrapper extends InputStream {
 
     @Override
     public int read() throws IOException {
-        return wrapped.read();
+        return wrapped == null ? MINUS_ONE : wrapped.read();
     }
 
     @Override
     public int read(byte[] b) throws IOException {
-        return wrapped.read(b);
+        return wrapped == null ? MINUS_ONE : wrapped.read(b);
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        return wrapped.read(b, off, len);
+        return wrapped == null ? MINUS_ONE : wrapped.read(b, off, len);
     }
 
     @Override
     public long skip(long n) throws IOException {
-        return wrapped.skip(n);
+        return wrapped == null ? ZERO : wrapped.skip(n);
     }
 
     @Override
     public int available() throws IOException {
-        return wrapped.available();
+        return wrapped == null ? ZERO : wrapped.available();
     }
 
     @Override
     public void close() throws IOException {
-        if(connectionManager != null && connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
+        if (connectionManager != null && connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
             connectionManager.closeIdleConnections(connectionConfig.closeIdleConnectionConfig().getIdleTime(),
                     connectionConfig.closeIdleConnectionConfig().getTimeUnit());
         }
-        wrapped.close();
+        if (wrapped != null) {
+            wrapped.close();
+        }
     }
 
     @Override
     public void mark(int readlimit) {
-        wrapped.mark(readlimit);
+        if (wrapped != null) {
+            wrapped.mark(readlimit);
+        }
     }
 
     @Override
     public void reset() throws IOException {
-        wrapped.reset();
+        if (wrapped != null) {
+            wrapped.reset();
+        }
     }
 
     @Override
     public boolean markSupported() {
-        return wrapped.markSupported();
+        return wrapped != null && wrapped.markSupported();
     }
 }

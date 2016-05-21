@@ -45,6 +45,7 @@ Change log next release
 * Upgraded spring from 4.2.0.RELEASE to 4.2.6.RELEASE in the MockMvc module
 * Upgraded commons-lang3 from 3.3.2 to 3.4
 * Improved proxy authentication to use Apache HTTP Client's built in features (issue 693)
+* Fixed NPE trying to close an empty response which was read as an inputstream (issue 685)
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------
