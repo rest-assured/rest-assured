@@ -41,7 +41,7 @@
         <dependencySet>
             <excludes>
                 <!-- JsonSchemaValidator -->
-                <exclude>com.jayway.restassured:json-schema-validator</exclude>
+                <exclude>io.rest-assured:json-schema-validator</exclude>
             </excludes>
             <outputDirectory>/</outputDirectory>
             <useProjectArtifact>true</useProjectArtifact>

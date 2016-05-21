@@ -7,7 +7,7 @@ echo "Generating Javadoc for version ${version}."
 for project_name in ${project_names[*]}
 do
     echo "Generating for ${project_name}"
-    curl -Ss http://www.javadoc.io/doc/com.jayway.restassured/${project_name}/${version} >/dev/null 2>&1
+    curl -Ss http://www.javadoc.io/doc/io.rest-assured/${project_name}/${version} >/dev/null 2>&1
 done
 echo "Completed"
 

@@ -20,22 +20,22 @@
     <display-name>Scalatra Rest Example</display-name>
     <servlet>
         <servlet-name>ScalatraRestExample</servlet-name>
-        <servlet-class>com.jayway.restassured.scalatra.ScalatraRestExample</servlet-class>
+        <servlet-class>io.restassured.scalatra.ScalatraRestExample</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>SecuredScalatraRestExample</servlet-name>
-        <servlet-class>com.jayway.restassured.scalatra.SecuredScalatraRestExample</servlet-class>
+        <servlet-class>io.restassured.scalatra.SecuredScalatraRestExample</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>ScalatraMultiPartExample</servlet-name>
-        <servlet-class>com.jayway.restassured.scalatra.ScalatraMultiPartExample</servlet-class>
+        <servlet-class>io.restassured.scalatra.ScalatraMultiPartExample</servlet-class>
     </servlet>
 
     <servlet>
         <servlet-name>CustomAuthExample</servlet-name>
-        <servlet-class>com.jayway.restassured.scalatra.CustomAuthExample</servlet-class>
+        <servlet-class>io.restassured.scalatra.CustomAuthExample</servlet-class>
     </servlet>
 
     <servlet-mapping>
