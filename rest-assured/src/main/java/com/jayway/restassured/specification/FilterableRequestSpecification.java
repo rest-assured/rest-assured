@@ -311,4 +311,12 @@ public interface FilterableRequestSpecification extends RequestSpecification {
      */
     FilterableRequestSpecification removeQueryParam(String parameterName);
 
+    /**
+     * Remove a header with the given name.
+     *
+     * @param headerName The header name
+     * @return The {@link FilterableRequestSpecification} without the specified header
+     */
+    FilterableRequestSpecification removeHeader(String headerName);
+
 }

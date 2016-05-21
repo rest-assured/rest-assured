@@ -447,6 +447,21 @@ public class FilterITest extends WithJetty {
                 get("/{firstName}/{lastName}", "John", "John3", "Doe");
     }
 
+    @Test public void
+    can_remove_headers_from_filter() {
+        given().
+                header("John", "Doe").
+                header("Jane", "Doe").
+                filter((requestSpec, responseSpec, ctx) -> {
+                    requestSpec.removeHeader("john");
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/headersWithValues").
+        then().
+                body("keySet()", allOf(not(hasItem("John")), hasItem("Jane")));
+    }
+
     public static class CountingFilter implements Filter {
 
         public int counter = 0;

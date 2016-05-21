@@ -368,6 +368,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return this
   }
 
+  def FilterableRequestSpecification removeHeader(String headerName) {
+    notNull headerName, "headerName"
+    def headersLeftAfterRemove = headers.findAll { !headerName.equalsIgnoreCase(it.getName()) }
+    this.requestHeaders = new Headers(headersLeftAfterRemove)
+    this
+  }
+
   def RequestSpecification parameter(String parameterName, Object... parameterValues) {
     notNull parameterName, "parameterName"
     parameterUpdater.updateZeroToManyParameters(restAssuredConfig().paramConfig.requestParamsUpdateStrategy(), requestParameters, parameterName, parameterValues)
