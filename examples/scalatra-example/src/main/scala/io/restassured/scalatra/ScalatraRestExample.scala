@@ -26,7 +26,7 @@ import net.liftweb.json.Printer._
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
-import org.scalatra.ScalatraServlet
+import org.scalatra.{Connect, HttpMethod, ScalatraServlet}
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
@@ -65,6 +65,11 @@ class ScalatraRestExample extends ScalatraServlet {
       status = 400
       "No or incorrect content"
     }
+  }
+
+  options("/greetXML") {
+    contentType = "text/xml"
+    greetXML
   }
 
   get("/greetXML") {
@@ -1190,6 +1195,16 @@ class ScalatraRestExample extends ScalatraServlet {
         <some>thing</some>
       </soapenv:Envelope>
       0"""
+  }
+
+  head("/returnContentTypeAsBody") {
+        contentType = "text/plain"
+        request.getContentType
+  }
+
+  options("/returnBodyAsBody") {
+        contentType = "text/plain"
+        request.body
   }
 
   post("/returnContentTypeAsBody") {

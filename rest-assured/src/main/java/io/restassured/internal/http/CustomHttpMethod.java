@@ -16,23 +16,26 @@
 
 package io.restassured.internal.http;
 
-import org.apache.http.annotation.NotThreadSafe;
+import io.restassured.internal.assertion.AssertParameter;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
 import java.net.URI;
 
-@NotThreadSafe
-class HttpDeleteWithBody extends HttpEntityEnclosingRequestBase {
-    public static final String METHOD_NAME = "DELETE";
-    public String getMethod() { return METHOD_NAME; }
+public class CustomHttpMethod extends HttpEntityEnclosingRequestBase {
+    private final String methodName;
 
-    public HttpDeleteWithBody(final String uri) {
-        super();
-        setURI(URI.create(uri));
+    public CustomHttpMethod(String methodName, final String uri) {
+        this(methodName, URI.create(uri));
     }
-    public HttpDeleteWithBody(final URI uri) {
-        super();
+
+    public CustomHttpMethod(String methodName, final URI uri) {
+        AssertParameter.notNull(methodName, "Method");
+        this.methodName = StringUtils.trim(methodName).toUpperCase();
         setURI(uri);
     }
-    public HttpDeleteWithBody() { super(); }
+
+    public String getMethod() {
+        return methodName;
+    }
 }

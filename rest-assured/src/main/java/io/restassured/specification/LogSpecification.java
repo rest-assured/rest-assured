@@ -17,12 +17,11 @@
 package io.restassured.specification;
 
 import io.restassured.filter.log.LogDetail;
-import io.restassured.response.ResponseOptions;
 
 /**
  * Base interface for request- and response log specifications.
  */
-public interface LogSpecification<T extends RequestSenderOptions<R>, R extends ResponseOptions<R>> {
+public interface LogSpecification<T> {
 
     /**
      * Logs only the content of the body. The body will be pretty-printed by default if content-type is either XML, JSON or HTML.

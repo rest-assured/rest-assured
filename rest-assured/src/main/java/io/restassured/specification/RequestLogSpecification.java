@@ -17,12 +17,10 @@
 package io.restassured.specification;
 
 
-import io.restassured.response.Response;
-
 /**
  * The request logging specification
  */
-public interface RequestLogSpecification extends LogSpecification<RequestSpecification, Response> {
+public interface RequestLogSpecification extends LogSpecification<RequestSpecification> {
 
     /**
      * Logs only the parameters of the request. Same as {@link #parameters()} but slightly shorter syntax.

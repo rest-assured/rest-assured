@@ -131,14 +131,14 @@ public interface ResponseOptions<T extends ResponseOptions<T>> {
     String getCookie(String name);
 
     /**
-     * Get a  single cookie including all attributes associated with the given name.
+     * Get a single cookie including all attributes associated with the given name.
      *
      * @return The cookie value or <code>null</code> if value was not found.
      */
     Cookie detailedCookie(String name);
 
     /**
-     * Get a  single cookie including all attributes associated with the given name.
+     * Get a single cookie including all attributes associated with the given name.
      *
      * @return The cookie value or <code>null</code> if value was not found.
      */

@@ -16,24 +16,22 @@
 
 package io.restassured;
 
-import io.restassured.config.LogConfig;
-import io.restassured.config.RestAssuredConfig;
-import io.restassured.config.SSLConfig;
-import io.restassured.filter.Filter;
-import io.restassured.filter.log.LogDetail;
-import io.restassured.internal.*;
-import io.restassured.internal.assertion.AssertParameter;
-import io.restassured.internal.log.LogRepository;
-import io.restassured.mapper.ObjectMapper;
-import io.restassured.parsing.Parser;
-import io.restassured.response.Response;
 import io.restassured.authentication.*;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.*;
+import io.restassured.filter.Filter;
+import io.restassured.filter.log.LogDetail;
+import io.restassured.http.Method;
+import io.restassured.internal.*;
+import io.restassured.internal.assertion.AssertParameter;
+import io.restassured.internal.log.LogRepository;
+import io.restassured.mapper.ObjectMapper;
 import io.restassured.matcher.RestAssuredMatchers;
+import io.restassured.parsing.Parser;
 import io.restassured.path.json.JsonPath;
 import io.restassured.path.xml.XmlPath;
+import io.restassured.response.Response;
 import io.restassured.specification.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -1099,6 +1097,96 @@ public class RestAssured {
      */
     public static Response options() {
         return given().options();
+    }
+
+    /**
+     * Perform a request to the pre-configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @param method The HTTP method to use
+     * @return The response of the request.
+     */
+    public static Response request(Method method) {
+        return given().request(method);
+    }
+
+    /**
+     * Perform a custom HTTP request to the pre-configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @param method The HTTP method to use
+     * @return The response of the request.
+     */
+    public static Response request(String method) {
+        return given().request(method);
+    }
+
+    /**
+     * Perform a HTTP request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param method     The HTTP method to use
+     * @param path       The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>request(Method.TRACE,"/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
+     * @return The response of the request.
+     */
+    public static Response request(Method method, String path, Object... pathParams) {
+        return given().request(method, path, pathParams);
+    }
+
+    /**
+     * Perform a custom HTTP request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param method     The HTTP method to use
+     * @param path       The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>request("method","/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
+     * @return The response of the request.
+     */
+    public static Response request(String method, String path, Object... pathParams) {
+        return given().request(method, path, pathParams);
+    }
+
+    /**
+     * Perform a request to a <code>uri</code>.
+     *
+     * @param method The HTTP method to use
+     * @param uri    The uri to send the request to.
+     * @return The response of the GET request.
+     */
+    public static Response request(Method method, URI uri) {
+        return given().request(method, uri);
+    }
+
+    /**
+     * Perform a request to a <code>url</code>.
+     *
+     * @param method The HTTP method to use
+     * @param url    The url to send the request to.
+     * @return The response of the GET request.
+     */
+    public static Response request(Method method, URL url) {
+        return given().request(method, url);
+    }
+
+    /**
+     * Perform a custom HTTP request to a <code>uri</code>.
+     *
+     * @param method The HTTP method to use
+     * @param uri    The uri to send the request to.
+     * @return The response of the GET request.
+     */
+    public static Response request(String method, URI uri) {
+        return given().request(method, uri);
+    }
+
+    /**
+     * Perform a custom HTTP request to a <code>url</code>.
+     *
+     * @param method The HTTP method to use
+     * @param url    The url to send the request to.
+     * @return The response of the GET request.
+     */
+    public static Response request(String method, URL url) {
+        return given().request(method, url);
     }
 
     /**

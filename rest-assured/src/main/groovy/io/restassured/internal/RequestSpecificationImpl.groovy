@@ -26,6 +26,7 @@ import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
 import io.restassured.filter.time.TimingFilter
 import io.restassured.http.ContentType
+import io.restassured.http.Method
 import io.restassured.internal.filter.FilterContextImpl
 import io.restassured.internal.filter.FormAuthFilter
 import io.restassured.internal.filter.SendRequestFilter
@@ -91,7 +92,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   private String baseUri
   private String path = ""
-  private io.restassured.http.Method method
+  private String method
   private String basePath
   // If first argument is null it means that it's a redundant path param that cannot be mapped to a placeholder
   // If second argument is null it means that the parameter has been removed (but we keep it to retain order)
@@ -272,6 +273,38 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def Response options() {
     options("")
+  }
+
+  def Response request(Method method) {
+    request(notNull(method, Method.class).name())
+  }
+
+  def Response request(String method) {
+    request(method, "")
+  }
+
+  def Response request(Method method, String path, Object... pathParams) {
+    return request(notNull(method, Method.class).name(), path, pathParams)
+  }
+
+  def Response request(String method, String path, Object... pathParams) {
+    applyPathParamsAndSendRequest(method, path, pathParams)
+  }
+
+  def Response request(Method method, URI uri) {
+    request(method, notNull(uri, URI.class).toString())
+  }
+
+  def Response request(Method method, URL url) {
+    request(method, notNull(url, URL.class).toString())
+  }
+
+  def Response request(String method, URI uri) {
+    request(method, notNull(uri, URI.class).toString())
+  }
+
+  def Response request(String method, URL url) {
+    request(method, notNull(url, URL.class).toString())
   }
 
   def Response get(String path, Map pathParams) {
@@ -1092,7 +1125,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def actualUri = URIBuilder.convertToURI(assembleCompleteTargetPath(targetUri))
     def uriBuilder = new URIBuilder(actualUri, this.urlEncodingEnabled, encoderConfig())
 
-    if (method != POST && !requestParameters?.isEmpty()) {
+    if (!POST.name().equalsIgnoreCase(method) && !requestParameters?.isEmpty()) {
       allQueryParams << requestParameters
     }
 
@@ -1100,7 +1133,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       allQueryParams << queryParameters
     }
 
-    if (method == GET && !formParameters?.isEmpty()) {
+    if (GET.name().equalsIgnoreCase(method) && !formParameters?.isEmpty()) {
       allQueryParams << formParameters
     }
 
@@ -1160,14 +1193,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     authenticationScheme.authenticate(http)
 
-    validateMultiPartForPostPutAndPatchOnly(method);
-
     if (mayHaveBody(method)) {
       if (hasFormParams() && requestBody != null) {
         throw new IllegalStateException("You can either send form parameters OR body content in $method, not both!");
       }
-      def bodyContent = createBodyContent(assembleBodyContent(method))
-      if (method == POST) {
+      def bodyContent = createFormParamBodyContent(assembleBodyContent(method))
+      if (POST.name().equalsIgnoreCase(method)) {
         http.post(path: targetPath, body: bodyContent,
                 requestContentType: requestHeaders.getValue(CONTENT_TYPE),
                 contentType: acceptContentType) { response, content ->
@@ -1175,7 +1206,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
             assertionClosure.call(response, content)
           }
         }
-      } else if (method == PATCH) {
+      } else if (PATCH.name().equalsIgnoreCase(method)) {
         http.patch(path: targetPath, body: bodyContent,
                 requestContentType: requestHeaders.getValue(CONTENT_TYPE),
                 contentType: acceptContentType) { response, content ->
@@ -1300,8 +1331,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   def assembleBodyContent(httpMethod) {
-    if (hasFormParams() && httpMethod != GET) {
-      if (httpMethod == POST) {
+    if (hasFormParams() && !GET.name().equalsIgnoreCase(httpMethod)) {
+      if (POST.name().equalsIgnoreCase(httpMethod)) {
         mergeMapsAndRetainOrder(requestParameters, formParameters)
       } else {
         formParameters
@@ -1336,7 +1367,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
   }
 
-  private def createBodyContent(bodyContent) {
+  private def createFormParamBodyContent(bodyContent) {
     return bodyContent instanceof Map ? createFormParamBody(bodyContent) : bodyContent
   }
 
@@ -1351,12 +1382,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       baseUriPath = uri.getPath()
     }
     return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(baseUriPath, basePath), path)
-  }
-
-  private def validateMultiPartForPostPutAndPatchOnly(method) {
-    if (multiParts.size() > 0 && method != POST && method != PUT && method != PATCH && method != DELETE) {
-      throw new IllegalArgumentException("Sorry, multi part form data is only available for POST, PUT, PATCH and DELETE");
-    }
   }
 
   private def registerRestAssuredEncoders(HTTPBuilder http) {
@@ -1402,13 +1427,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     formParameters.clear()
   }
 
-  private def sendHttpRequest(HTTPBuilder http, method, responseContentType, targetPath, assertionClosure) {
+  private def sendHttpRequest(HTTPBuilder http, String method, responseContentType, targetPath, assertionClosure) {
     def allQueryParams = mergeMapsAndRetainOrder(requestParameters, queryParameters)
-    if (method == GET) {
+    if (method.equals(GET.name())) {
       allQueryParams = mergeMapsAndRetainOrder(allQueryParams, formParameters)
     }
-    def internalMethod = Method.valueOf(method.toString())
-    http.request(internalMethod, responseContentType) {
+    http.request(method, responseContentType) {
       uri.path = targetPath
 
       setRequestContentType(defineRequestContentTypeAsString(method))
@@ -1433,7 +1457,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private boolean mayHaveBody(method) {
-    return (POST.equals(method) || formParameters.size() > 0 || multiParts.size() > 0) && !GET.equals(method)
+    return POST.name().equals(method) || formParameters.size() > 0 || multiParts.size() > 0
   }
 
   private String extractRequestParamsIfNeeded(String path) {
@@ -1461,23 +1485,20 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return path;
   }
 
-  private def defineRequestContentTypeAsString(io.restassured.http.Method method) {
+  private def defineRequestContentTypeAsString(String method) {
     return defineRequestContentType(method)?.toString()
   }
 
-  private def defineRequestContentType(io.restassured.http.Method method) {
+  private def defineRequestContentType(String method) {
     def contentType = headers.getValue(CONTENT_TYPE)
     if (contentType == null) {
       if (multiParts.size() > 0) {
         contentType = MULTIPART_CONTENT_TYPE_PREFIX + restAssuredConfig().getMultiPartConfig().defaultSubtype()
-      } else if (GET.equals(method) && !formParameters.isEmpty()) {
+      } else if (GET.name().equals(method) && !formParameters.isEmpty()) {
         contentType = URLENC
       } else if (requestBody == null) {
         contentType = mayHaveBody(method) ? URLENC : null
       } else if (requestBody instanceof byte[]) {
-        if (method != POST && method != PUT && method != DELETE && method != PATCH) {
-          throw new IllegalStateException("$method doesn't support binary request data.");
-        }
         contentType = BINARY
       } else {
         contentType = TEXT
@@ -1558,11 +1579,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, objectMappingConfig(), restAssuredConfig().getEncoderConfig()) : object.toString()
   }
 
-  private def applyPathParamsAndSendRequest(io.restassured.http.Method method, String path, Object... unnamedPathParams) {
+  private def applyPathParamsAndSendRequest(String method, String path, Object... unnamedPathParams) {
     notNull path, "path"
-    notNull method, "Method"
+    notNull trimToNull(method), "Method"
     notNull unnamedPathParams, "Path params"
-    this.method = method;
+    this.method = method.trim().toUpperCase();
     this.path = path;
     if (unnamedPathParams != null) {
       def nullParamIndices = []
@@ -1611,6 +1632,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def response = ctx.next(this, responseSpecification)
     responseSpecification.assertionClosure.validate(response)
     return response
+  }
+
+  private def applyPathParamsAndSendRequest(Method method, String path, Object... unnamedPathParams) {
+    applyPathParamsAndSendRequest(notNull(method, Method.class).name(), path, unnamedPathParams)
   }
 
   def void buildUnnamedPathParameterTuples(Object[] unnamedPathParameterValues) {
@@ -1747,7 +1772,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       }
       body.append("&");
     }
-    body.deleteCharAt(body.length() - 1); //Delete last &
+    if (!formParams.isEmpty()) {
+      body.deleteCharAt(body.length() - 1); //Delete last &
+    }
     return body.toString();
   }
 
@@ -1815,7 +1842,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return PathSupport.getPath(path)
   }
 
-  io.restassured.http.Method getMethod() {
+  String getMethod() {
     return method
   }
 
@@ -2202,6 +2229,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   public void setMethod(String method) {
-    this.method = method == null ? null : io.restassured.http.Method.valueOf(method.toUpperCase())
+    this.method = method == null ? null : method.toUpperCase()
   }
 }

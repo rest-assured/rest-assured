@@ -19,7 +19,6 @@ package io.restassured.specification;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
-import io.restassured.http.Method;
 import io.restassured.response.Cookies;
 import io.restassured.response.Headers;
 import org.apache.http.client.HttpClient;
@@ -63,7 +62,7 @@ public interface FilterableRequestSpecification extends RequestSpecification {
     /**
      * @return The request method of the request (E.g. POST, GET etc)
      */
-    Method getMethod();
+    String getMethod();
 
     /**
      * @return The request URI as a string. This is the fully-qualified path including host, port number, scheme, path and query params.

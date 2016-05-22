@@ -17,7 +17,8 @@
 package io.restassured.http;
 
 /**
- * Enumeration of valid HTTP methods that may be used in REST Assured.
+ * Enumeration of some common HTTP methods that can be used in REST Assured. Note that any verb is supported if
+ * using the "request" method of the RestAssured API.
  *
  * @author Johan Haleby
  */

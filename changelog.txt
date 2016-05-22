@@ -71,6 +71,15 @@ Change log next release
 * Added support for automatically recognizing content-type "text/json" as JSON
 * Changed Maven groupId from com.jayway.restassured to io.rest-assured
 * Changed package name from com.jayway.restassured to io.restassured
+* Removed ability send requests directly from the response specification. This means that you can't do for example "expect().get("/")" anymore. Use "when().get("/")" instead.
+* Changed io.restassured.specification.FilterableRequestSpecification.getMethod() to return a String instead of an instance of io.restassured.http.Method since custom HTTP verbs are now supported
+* All HTTP verbs now support data in the body (for example TRACE, OPTIONS etc)
+* Removed io.restassured.specification.RequestSpecification.then() since it's confusingly similar to the "then" method in RequestSender. Use then "when" method instead.
+* You can now use custom http methods/verbs with REST Assured by making using the the "request method" in the DSL (or from statically importing a io.restassured.RestAssured.request(..)). For example:
+    when().request("CONNECT", "/somewhere").then().statusCode(200);
+  It you can also supply a predefined http method (defined in the io.restassured.http.Method enum):
+    when().request(Method.GET, "/lotto").then().statusCode(200);
+  This API has also been implemented for the MockMvc module (but MockMvc doesn't support arbitrary http methods as of now).
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------

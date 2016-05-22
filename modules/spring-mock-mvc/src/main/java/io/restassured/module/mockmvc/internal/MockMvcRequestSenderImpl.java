@@ -22,6 +22,7 @@ import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.config.EncoderConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.time.TimingFilter;
 import io.restassured.http.Method;
 import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.ResponseParserRegistrar;
@@ -43,7 +44,6 @@ import io.restassured.response.Cookies;
 import io.restassured.response.Header;
 import io.restassured.response.Headers;
 import io.restassured.specification.ResponseSpecification;
-import io.restassured.filter.time.TimingFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -57,6 +57,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.*;
 import java.net.URI;
@@ -70,10 +71,10 @@ import static io.restassured.internal.assertion.AssertParameter.notNull;
 import static io.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash;
 import static io.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 
 class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAsyncConfigurer, MockMvcRequestAsyncSender {
     private static final String ATTRIBUTE_NAME_URL_TEMPLATE = "org.springframework.restdocs.urlTemplate";
@@ -100,19 +101,19 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     private final Object authentication;
     private final LogRepository logRepository;
     private final boolean isAsyncRequest;
-    private final Map<String, Object> sessionAttributes ;
+    private final Map<String, Object> sessionAttributes;
 
     MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
-                             RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,Map<String, Object> sessionAttributes,
+                             RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies, Map<String, Object> sessionAttributes,
                              List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
                              List<RequestPostProcessor> requestPostProcessors, MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
-                             Object authentication, LogRepository logRepository ) {
-        this(mockMvc, params, queryParams, formParams, attributes, config, requestBody, headers, cookies,sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
+                             Object authentication, LogRepository logRepository) {
+        this(mockMvc, params, queryParams, formParams, attributes, config, requestBody, headers, cookies, sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, false);
     }
 
     private MockMvcRequestSenderImpl(MockMvc mockMvc, Map<String, Object> params, Map<String, Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
-                                     RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies,Map<String, Object> sessionAttributes,
+                                     RestAssuredMockMvcConfig config, Object requestBody, Headers headers, Cookies cookies, Map<String, Object> sessionAttributes,
                                      List<MockMvcMultiPart> multiParts, RequestLoggingFilter requestLoggingFilter, List<ResultHandler> resultHandlers,
                                      List<RequestPostProcessor> requestPostProcessors, MockHttpServletRequestBuilderInterceptor interceptor, String basePath, ResponseSpecification responseSpecification,
                                      Object authentication, LogRepository logRepository, boolean isAsyncRequest) {
@@ -211,7 +212,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     private MvcResult getMvcResult(ResultActions perform, boolean isAsyncRequest) throws Exception {
         MvcResult mvcResult;
         if (isAsyncRequest) {
-            MvcResult startedAsyncRequestProcessing = perform.andExpect(request().asyncStarted()).andReturn();
+            MvcResult startedAsyncRequestProcessing = perform.andExpect(MockMvcResultMatchers.request().asyncStarted()).andReturn();
             startedAsyncRequestProcessing.getAsyncResult(config.getAsyncConfig().timeoutInMs());
             mvcResult = mockMvc.perform(asyncDispatch(startedAsyncRequestProcessing)).andReturn();
         } else {
@@ -357,7 +358,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         }
 
         if (!sessionAttributes.isEmpty()) {
-        	request.sessionAttrs(sessionAttributes);
+            request.sessionAttrs(sessionAttributes);
         }
 
         if (!multiParts.isEmpty()) {
@@ -559,7 +560,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
         String uriPath = PathSupport.getPath(uri);
         String originalUriPath = PathSupport.getPath(originalPath);
-        requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(uri, originalUriPath, uriPath, uri, uri, new Object[0], Method.valueOf(method.toString()), null, Collections.<Filter>emptyList().iterator(), new HashMap<String, Object>()));
+        requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(uri, originalUriPath, uriPath, uri, uri, new Object[0], method.toString(), null, Collections.<Filter>emptyList().iterator(), new HashMap<String, Object>()));
     }
 
     private String fileToString(File file, String charset) {
@@ -722,6 +723,38 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return options("");
     }
 
+    public MockMvcResponse request(Method method) {
+        return request(method, "");
+    }
+
+    public MockMvcResponse request(String method) {
+        return request(method, "");
+    }
+
+    public MockMvcResponse request(Method method, String path, Object... pathParams) {
+        return request(notNull(method, Method.class).name(), path, pathParams);
+    }
+
+    public MockMvcResponse request(String method, String path, Object... pathParams) {
+        return sendRequest(toValidHttpMethod(method), path, pathParams);
+    }
+
+    public MockMvcResponse request(Method method, URI uri) {
+        return request(method, notNull(uri, URI.class).toString());
+    }
+
+    public MockMvcResponse request(Method method, URL url) {
+        return request(method, notNull(url, URL.class).toString());
+    }
+
+    public MockMvcResponse request(String method, URI uri) {
+        return request(method, notNull(uri, URI.class).toString());
+    }
+
+    public MockMvcResponse request(String method, URL url) {
+        return request(method, notNull(url, URL.class).toString());
+    }
+
     public MockMvcRequestAsyncConfigurer with() {
         return this;
     }
@@ -733,7 +766,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     public MockMvcRequestAsyncConfigurer timeout(long duration, TimeUnit timeUnit) {
         RestAssuredMockMvcConfig newConfig = config.asyncConfig(new AsyncConfig(duration, timeUnit));
         return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams,
-                attributes, newConfig, requestBody, headers, cookies,sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
+                attributes, newConfig, requestBody, headers, cookies, sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, isAsyncRequest);
     }
 
@@ -747,7 +780,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
     public MockMvcRequestAsyncConfigurer async() {
         return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams,
-                attributes, config, requestBody, headers, cookies,sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
+                attributes, config, requestBody, headers, cookies, sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, true);
     }
 
@@ -806,5 +839,14 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         }
 
         protected abstract void logParam(String paramName, Object paramValue);
+    }
+
+    private HttpMethod toValidHttpMethod(String method) {
+        String httpMethodAsString = notNull(trimToNull(method), "HTTP Method");
+        HttpMethod httpMethod = HttpMethod.resolve(httpMethodAsString.toUpperCase());
+        if (httpMethod == null) {
+            throw new IllegalArgumentException("HTTP method '" + method + "' is not supported by MockMvc");
+        }
+        return httpMethod;
     }
 }

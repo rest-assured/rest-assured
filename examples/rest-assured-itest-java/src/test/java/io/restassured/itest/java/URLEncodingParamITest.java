@@ -36,7 +36,7 @@ public class URLEncodingParamITest {
     private static final String APACHE_404 = "http://www.apache.org/question-%3F";
 
     private String searchHeise(String query, String... params) {
-        String html = expect().statusCode(200).and().contentType(HTML).get(HEISE_SEARCH + query, (Object[]) params).asString();
+        String html = expect().statusCode(200).and().contentType(HTML).when().get(HEISE_SEARCH + query, (Object[]) params).asString();
 
         // find search term in search input element
         Pattern p = Pattern.compile("<input[^>]+search_q[^>]+value=\"([^\"]*)\"");
@@ -51,6 +51,7 @@ public class URLEncodingParamITest {
                 .expect()
                 .statusCode(404)
                 .contentType(HTML)
+                .when()
                 .get(APACHE_404)
                 .asString();
 

@@ -17,13 +17,12 @@
 package io.restassured.specification;
 
 
-import io.restassured.response.Response;
 import org.hamcrest.Matcher;
 
 /**
  * The response logging specification
  */
-public interface ResponseLogSpecification extends LogSpecification<ResponseSpecification, Response> {
+public interface ResponseLogSpecification extends LogSpecification<ResponseSpecification> {
 
     /**
      * Logs only the status line (includes the status code)

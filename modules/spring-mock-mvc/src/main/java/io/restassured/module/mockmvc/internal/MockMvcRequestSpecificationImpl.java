@@ -22,6 +22,7 @@ import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.ContentType;
+import io.restassured.http.Method;
 import io.restassured.internal.MapCreator;
 import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.log.LogRepository;
@@ -880,6 +881,38 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcResponse options() {
         return when().options();
+    }
+
+    public MockMvcResponse request(Method method) {
+        return when().request(method);
+    }
+
+    public MockMvcResponse request(String method) {
+        return when().request(method);
+    }
+
+    public MockMvcResponse request(Method method, String path, Object... pathParams) {
+        return when().request(method, path, pathParams);
+    }
+
+    public MockMvcResponse request(String method, String path, Object... pathParams) {
+        return when().request(method, path, pathParams);
+    }
+
+    public MockMvcResponse request(Method method, URI uri) {
+        return when().request(method, uri);
+    }
+
+    public MockMvcResponse request(Method method, URL url) {
+        return when().request(method, url);
+    }
+
+    public MockMvcResponse request(String method, URI uri) {
+        return when().request(method, uri);
+    }
+
+    public MockMvcResponse request(String method, URL url) {
+        return when().request(method, url);
     }
 
     public RestAssuredConfig getRestAssuredConfig() {

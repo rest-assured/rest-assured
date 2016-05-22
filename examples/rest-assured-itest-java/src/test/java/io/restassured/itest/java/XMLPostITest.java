@@ -31,12 +31,12 @@ public class XMLPostITest extends WithJetty {
 
     @Test
     public void xmlParameterSupportWithAnotherAssertion() throws Exception {
-        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).post("/greetXML");
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).when().post("/greetXML");
     }
 
     @Test
     public void xmlWithLists() throws Exception {
-        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.children()", hasItems("John", "Doe")).post("/greetXML");
+        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.children()", hasItems("John", "Doe")).when().post("/greetXML");
     }
 
     @Test
@@ -51,17 +51,17 @@ public class XMLPostITest extends WithJetty {
 
     @Test
     public void postWithQueryParams() throws Exception {
-        expect().body("greeting.lastName", equalTo("Doe")).post("/greetXML?firstName=John&lastName=Doe");
+        expect().body("greeting.lastName", equalTo("Doe")).when().post("/greetXML?firstName=John&lastName=Doe");
     }
 
     @Test
     public void postWithFormParamAndQueryParams() throws Exception {
-        with().param("firstName", "John").and().queryParam("lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).post("/greetXML");
+        with().param("firstName", "John").and().queryParam("lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).when().post("/greetXML");
     }
 
     @Test
     public void postWithOnlyQueryParams() throws Exception {
-        with().queryParams("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).post("/greetXML");
+        with().queryParams("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).when().post("/greetXML");
     }
 
     @Test

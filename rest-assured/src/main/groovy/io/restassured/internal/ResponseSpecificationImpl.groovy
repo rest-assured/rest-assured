@@ -18,23 +18,13 @@
 package io.restassured.internal
 
 import io.restassured.assertion.*
-import io.restassured.assertion.CookieMatcher
-import io.restassured.assertion.ResponseTimeMatcher
 import io.restassured.config.RestAssuredConfig
-import io.restassured.parsing.Parser
-import io.restassured.response.Response
-import io.restassured.specification.*
-import io.restassured.assertion.BodyMatcher
-import io.restassured.assertion.BodyMatcherGroup
-import io.restassured.assertion.HeaderMatcher
 import io.restassured.function.RestAssuredFunction
 import io.restassured.http.ContentType
 import io.restassured.internal.log.LogRepository
-import io.restassured.specification.Argument
-import io.restassured.specification.FilterableResponseSpecification
-import io.restassured.specification.RequestSpecification
-import io.restassured.specification.ResponseLogSpecification
-import io.restassured.specification.ResponseSpecification
+import io.restassured.parsing.Parser
+import io.restassured.response.Response
+import io.restassured.specification.*
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.Validate
 import org.hamcrest.Matcher
@@ -275,8 +265,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return new ResponseLogSpecificationImpl(responseSpecification: this, logRepository: logRepository)
   }
 
-  def ResponseSpecification when() {
-    return this;
+  def RequestSender when() {
+    return requestSpecification;
   }
 
   def ResponseSpecification response() {
@@ -293,153 +283,6 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   def RequestSpecification request() {
     return requestSpecification;
-  }
-
-  Response get(String path, Object... pathParams) {
-    requestSpecification.get(path, pathParams);
-  }
-
-  Response post(String path, Object... pathParams) {
-    requestSpecification.post(path, pathParams);
-  }
-
-  Response put(String path, Object... pathParams) {
-    requestSpecification.put(path, pathParams);
-  }
-
-  Response delete(String path, Object... pathParams) {
-    requestSpecification.delete(path, pathParams);
-  }
-
-  Response patch(String path, Object... pathParams) {
-    requestSpecification.patch(path, pathParams);
-  }
-
-  Response options(String path, Object... pathParams) {
-    requestSpecification.options(path, pathParams);
-  }
-
-
-  Response get(URI uri) {
-    get(notNull(uri, "URI").toString())
-  }
-
-
-  Response post(URI uri) {
-    post(notNull(uri, "URI").toString())
-  }
-
-
-  Response put(URI uri) {
-    put(notNull(uri, "URI").toString())
-  }
-
-
-  Response delete(URI uri) {
-    delete(notNull(uri, "URI").toString())
-  }
-
-
-  Response head(URI uri) {
-    head(notNull(uri, "URI").toString())
-  }
-
-
-  Response patch(URI uri) {
-    patch(notNull(uri, "URI").toString())
-  }
-
-
-  Response options(URI uri) {
-    options(notNull(uri, "URI").toString())
-  }
-
-  def Response get(URL url) {
-    get(notNull(url, "URL").toString())
-  }
-
-  def Response post(URL url) {
-    post(notNull(url, "URL").toString())
-  }
-
-  def Response put(URL url) {
-    put(notNull(url, "URL").toString())
-  }
-
-  def Response delete(URL url) {
-    delete(notNull(url, "URL").toString())
-  }
-
-  def Response head(URL url) {
-    head(notNull(url, "URL").toString())
-  }
-
-  def Response patch(URL url) {
-    patch(notNull(url, "URL").toString())
-  }
-
-  def Response options(URL url) {
-    options(notNull(url, "URL").toString())
-  }
-
-  def Response get() {
-    get("")
-  }
-
-  def Response post() {
-    post("")
-  }
-
-  def Response put() {
-    put("")
-  }
-
-  def Response delete() {
-    delete("")
-  }
-
-  def Response head() {
-    head("")
-  }
-
-  def Response patch() {
-    patch("")
-  }
-
-  def Response options() {
-    options("")
-  }
-
-  def Response head(String path, Object... pathParams) {
-    requestSpecification.head(path, pathParams);
-  }
-
-  def Response get(String path, Map pathParams) {
-    requestSpecification.get(path, pathParams);
-  }
-
-  def Response post(String path, Map pathParams) {
-    requestSpecification.post(path, pathParams);
-  }
-
-  def Response put(String path, Map pathParams) {
-    requestSpecification.put(path, pathParams);
-  }
-
-  def Response delete(String path, Map pathParams) {
-    requestSpecification.delete(path, pathParams);
-  }
-
-  def Response head(String path, Map pathParams) {
-    requestSpecification.head(path, pathParams);
-  }
-
-  def Response patch(String path, Map pathParams) {
-    requestSpecification.patch(path, pathParams);
-  }
-
-  def Response options(String path, Map pathParams) {
-    requestSpecification.options(path, pathParams);
   }
 
   def ResponseSpecification parser(String contentType, Parser parser) {

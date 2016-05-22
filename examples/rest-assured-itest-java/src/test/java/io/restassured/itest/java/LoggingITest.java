@@ -230,7 +230,7 @@ public class LoggingITest extends WithJetty {
 
         final ScalatraObject object = new ScalatraObject();
         object.setHello("Hello world");
-        given().filter(new RequestLoggingFilter(captor)).expect().defaultParser(JSON).given().body(object).when().post("/reflect");
+        given().filter(new RequestLoggingFilter(captor)).and().body(object).expect().defaultParser(JSON).when().post("/reflect");
 
         assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/reflect\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=text/plain; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR));
     }

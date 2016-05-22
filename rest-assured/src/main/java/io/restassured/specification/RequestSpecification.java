@@ -17,6 +17,7 @@
 package io.restassured.specification;
 
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.config.SessionConfig;
 import io.restassured.filter.Filter;
 import io.restassured.http.ContentType;
 import io.restassured.internal.mapper.ObjectMapperType;
@@ -25,7 +26,6 @@ import io.restassured.response.Cookie;
 import io.restassured.response.Cookies;
 import io.restassured.response.Header;
 import io.restassured.response.Headers;
-import io.restassured.config.SessionConfig;
 
 import java.io.File;
 import java.io.InputStream;

@@ -46,27 +46,27 @@ public class XMLGetITest extends WithJetty {
 
     @Test
     public void xmlParameterSupportWithAnotherAssertion() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).get("/greetXML");
+        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).when().get("/greetXML");
     }
 
     @Test
     public void childrenElements() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.children()", hasItems("John", "Doe")).get("/anotherGreetXML");
+        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.children()", hasItems("John", "Doe")).when().get("/anotherGreetXML");
     }
 
     @Test
     public void childrenElementsSize() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.children().size()", equalTo(2)).get("/anotherGreetXML");
+        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.children().size()", equalTo(2)).when().get("/anotherGreetXML");
     }
 
     @Test
     public void childrenElementsIsEmpty() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.notDefined.children().isEmpty()", equalTo(true)).get("/anotherGreetXML");
+        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.notDefined.children().isEmpty()", equalTo(true)).when().get("/anotherGreetXML");
     }
 
     @Test
     public void xmlNestedElements2() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.firstName", equalTo("John")).get("/anotherGreetXML");
+        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.firstName", equalTo("John")).when().get("/anotherGreetXML");
     }
 
     @Test

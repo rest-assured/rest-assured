@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Allows you to specify how the expected response must look like in order for a test to pass.
  */
-public interface ResponseSpecification extends RequestSender {
+public interface ResponseSpecification {
 
     /**
      * Expect that the response content conforms to one or more Hamcrest matchers. E.g.
@@ -967,7 +967,7 @@ public interface ResponseSpecification extends RequestSender {
      *
      * @return the response specification
      */
-    ResponseSpecification when();
+    RequestSender when();
 
     /**
      * Returns the request io.restassured.specification so that you can define the properties of the request.

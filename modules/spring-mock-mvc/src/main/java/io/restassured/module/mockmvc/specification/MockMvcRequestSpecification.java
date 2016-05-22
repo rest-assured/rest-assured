@@ -16,8 +16,8 @@
 
 package io.restassured.module.mockmvc.specification;
 
-import io.restassured.http.ContentType;
 import io.restassured.config.SessionConfig;
+import io.restassured.http.ContentType;
 import io.restassured.internal.mapper.ObjectMapperType;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;

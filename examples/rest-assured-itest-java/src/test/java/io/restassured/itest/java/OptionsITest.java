@@ -23,16 +23,14 @@ import org.junit.rules.ExpectedException;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
 
 public class OptionsITest extends WithJetty {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void optionsDoesntSupportsStringBody() throws Exception {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Cannot set a request body for a OPTIONS method");
-
-        given().body("a body").expect().body(equalTo("a body")).when().options("/body");
+    public void optionsSupportsStringBody() throws Exception {
+        given().body("a body").expect().body(equalTo("a body")).when().options("/returnBodyAsBody");
     }
 }

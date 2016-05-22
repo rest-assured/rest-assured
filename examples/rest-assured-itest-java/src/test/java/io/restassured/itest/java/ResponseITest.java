@@ -17,15 +17,15 @@
 package io.restassured.itest.java;
 
 import io.restassured.builder.ResponseBuilder;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.parsing.Parser;
 import io.restassured.path.json.JsonPath;
+import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.json.exception.JsonPathException;
 import io.restassured.path.xml.exception.XmlPathException;
 import io.restassured.response.Headers;
 import io.restassured.response.Response;
-import io.restassured.config.RestAssuredConfig;
-import io.restassured.path.json.config.JsonPathConfig;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,7 +61,7 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void whenExpectationsDefinedThenAsStringReturnsCanReturnTheResponseBody() throws Exception {
-        final String body = expect().body(equalTo("{\"hello\":\"Hello Scalatra\"}")).get("/hello").asString();
+        final String body = expect().body(equalTo("{\"hello\":\"Hello Scalatra\"}")).when().get("/hello").asString();
 
         assertThat(body, containsString("Hello"));
     }
@@ -77,13 +77,13 @@ public class ResponseITest extends WithJetty {
     @Test
     public void whenNoExpectationsDefinedThenPostWithBodyCanReturnBodyAsString() throws Exception {
         byte[] body = {23, 42, 127, 123};
-        final String actual = given().body(body).then().post("/binaryBody").andReturn().asString();
+        final String actual = given().body(body).when().post("/binaryBody").andReturn().asString();
         assertEquals("23, 42, 127, 123", actual);
     }
 
     @Test
     public void whenNoExpectationsDefinedThenPutCanReturnBodyAsString() throws Exception {
-        final String actual = given().cookies("username", "John", "token", "1234").then().put("/cookie").asString();
+        final String actual = given().cookies("username", "John", "token", "1234").when().put("/cookie").asString();
         assertEquals("username, token", actual);
     }
 
@@ -95,7 +95,7 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void whenNoExpectationsDefinedThenDeleteWithBodyCanReturnBodyAsString() throws Exception {
-        final String actual = given().parameters("firstName", "John", "lastName", "Doe").then().delete("/greet").thenReturn().asString();
+        final String actual = given().parameters("firstName", "John", "lastName", "Doe").when().delete("/greet").thenReturn().asString();
         assertEquals("{\"greeting\":\"Greetings John Doe\"}", actual);
     }
 
@@ -144,7 +144,7 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void whenExpectationsDefinedThenGetCanReturnBodyAsInputStream() throws Exception {
-        final InputStream inputStream = expect().body("hello", equalTo("Hello Scalatra")).get("/hello").asInputStream();
+        final InputStream inputStream = expect().body("hello", equalTo("Hello Scalatra")).when().get("/hello").asInputStream();
         final String string = IOUtils.toString(inputStream);
 
         assertThat(string, equalTo("{\"hello\":\"Hello Scalatra\"}"));
@@ -152,7 +152,7 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void whenExpectationsDefinedAndLoggingThenGetCanReturnBodyAsInputStream() throws Exception {
-        final InputStream inputStream = expect().log().all().and().body("hello", equalTo("Hello Scalatra")).get("/hello").asInputStream();
+        final InputStream inputStream = expect().log().all().and().body("hello", equalTo("Hello Scalatra")).when().get("/hello").asInputStream();
         final String string = IOUtils.toString(inputStream);
 
         assertThat(string, equalTo("{\"hello\":\"Hello Scalatra\"}"));
@@ -160,7 +160,7 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void whenNoExpectationsDefinedButLoggingThenGetCanReturnBodyAsInputStream() throws Exception {
-        final InputStream inputStream = expect().log().all().then().get("/hello").asInputStream();
+        final InputStream inputStream = expect().log().all().when().get("/hello").asInputStream();
         final String string = IOUtils.toString(inputStream);
 
         assertThat(string, equalTo("{\"hello\":\"Hello Scalatra\"}"));

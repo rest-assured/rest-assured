@@ -17,13 +17,12 @@
 package io.restassured.module.mockmvc.specification;
 
 
-import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.specification.LogSpecification;
 
 /**
  * The request logging specification
  */
-public interface MockMvcRequestLogSpecification extends LogSpecification<MockMvcRequestSpecification, MockMvcResponse> {
+public interface MockMvcRequestLogSpecification extends LogSpecification<MockMvcRequestSpecification> {
 
     /**
      * Logs only the parameters of the request. Same as {@link #parameters()} but slightly shorter syntax.

@@ -17,14 +17,14 @@
 package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
+import io.restassured.authentication.CertificateAuthSettings;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.config.RestAssuredConfig;
+import io.restassured.config.SSLConfig;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
-import io.restassured.authentication.CertificateAuthSettings;
-import io.restassured.config.RestAssuredConfig;
-import io.restassured.config.SSLConfig;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,7 +59,7 @@ public class SSLITest extends WithJetty {
     public void givenTrustStoreDefinedStaticallyWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
         RestAssured.trustStore("jetty_localhost_client.jks", "test1234");
         try {
-            RestAssured.expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
+            RestAssured.expect().spec(helloWorldSpec()).when().get("https://localhost:8443/hello");
         } finally {
             RestAssured.reset();
         }
@@ -108,7 +108,7 @@ public class SSLITest extends WithJetty {
 
     @Test
     public void givenKeystoreDefinedUsingGivenWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
-        RestAssured.given().trustStore("/jetty_localhost_client.jks", "test1234").then().expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
+        RestAssured.given().trustStore("/jetty_localhost_client.jks", "test1234").then().expect().spec(helloWorldSpec()).when().get("https://localhost:8443/hello");
     }
 
     @Test
@@ -140,7 +140,7 @@ public class SSLITest extends WithJetty {
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(keyStoreStream, "test1234".toCharArray());
 
-        RestAssured.given().config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().allowAllHostnames())).trustStore(keyStore).then().get("https://localhost:8443/hello").then().statusCode(200);
+        RestAssured.given().config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().allowAllHostnames())).trustStore(keyStore).when().get("https://localhost:8443/hello").then().statusCode(200);
     }
 
     @Ignore("Temporary ignored but I think this ought to work. Perhaps some issues with config merging?")
@@ -165,17 +165,17 @@ public class SSLITest extends WithJetty {
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(keyStoreStream, "test1234".toCharArray());
 
-        RestAssured.given().config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().trustStore(keyStore).and().allowAllHostnames())).then().get("https://localhost:8443/hello").then().spec(helloWorldSpec());
+        RestAssured.given().config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().trustStore(keyStore).and().allowAllHostnames())).when().get("https://localhost:8443/hello").then().spec(helloWorldSpec());
     }
 
     @Test public void
     relaxed_https_validation_works_using_instance_config() {
-        RestAssured.given().config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().relaxedHTTPSValidation())).then().get("https://localhost:8443/hello").then().spec(helloWorldSpec());
+        RestAssured.given().config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().relaxedHTTPSValidation())).when().get("https://localhost:8443/hello").then().spec(helloWorldSpec());
     }
 
     @Test public void
     relaxed_https_validation_works_using_instance_dsl() {
-        RestAssured.given().relaxedHTTPSValidation().then().get("https://bunny.cloudamqp.com/api/").then().statusCode(200);
+        RestAssured.given().relaxedHTTPSValidation().when().get("https://bunny.cloudamqp.com/api/").then().statusCode(200);
     }
 
     @Test public void
@@ -250,12 +250,12 @@ public class SSLITest extends WithJetty {
     @Test public void
     supports_setting_truststore_in_request_specification() {
         final RequestSpecification spec = new RequestSpecBuilder().setTrustStore("/jetty_localhost_client.jks", "test1234").build();
-        RestAssured.given().spec(spec).expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
+        RestAssured.given().spec(spec).expect().spec(helloWorldSpec()).when().get("https://localhost:8443/hello");
     }
 
     @Test public void
     supports_overriding_truststore_in_request_specification() {
         final RequestSpecification spec = new RequestSpecBuilder().setTrustStore("/jetty_localhost_client.jks", "wrong pw").build();
-        RestAssured.given().spec(spec).trustStore("/jetty_localhost_client.jks", "test1234").expect().spec(helloWorldSpec()).get("https://localhost:8443/hello");
+        RestAssured.given().spec(spec).trustStore("/jetty_localhost_client.jks", "test1234").expect().spec(helloWorldSpec()).when().get("https://localhost:8443/hello");
     }
 }

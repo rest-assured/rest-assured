@@ -16,11 +16,12 @@
 
 package io.restassured.internal.http;
 
+import groovy.lang.Closure;
 import io.restassured.config.DecoderConfig;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.OAuthConfig;
 import io.restassured.http.ContentType;
-import groovy.lang.Closure;
+import io.restassured.http.Method;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
@@ -53,8 +54,8 @@ import java.util.Map;
  * Apache HTTPClient for things like URL-encoded POSTs and REST requests that
  * require building and parsing JSON or XML.  Convenient access to a few common
  * authentication methods is also available.</p>
- *
- *
+ * <p>
+ * <p>
  * <h3>Conventions</h3>
  * <p>HTTPBuilder has properties for default headers, URI, contentType, etc.
  * All of these values are also assignable (and in many cases, in much finer
@@ -422,34 +423,32 @@ public abstract class HTTPBuilder {
      * Make an HTTP request to the default URI, and parse using the default
      * content-type.
      *
-     * @param method        {@link Method HTTP method}
+     * @param method        {@link HttpRequestFactory HTTP method}
      * @param configClosure request configuration options
      * @return whatever value was returned by the executed response handler.
      * @throws ClientProtocolException
      * @throws IOException
-     * @see #request(Object, Method, Object, Closure)
+     * @see #request(Object, HttpRequestFactory, Object, Closure)
      */
-    public Object request(Method method, Closure configClosure) throws ClientProtocolException, IOException {
-        return this.doRequest(this.defaultURI.toURI(), method,
-                this.defaultContentType, configClosure);
+    public Object request(String method, Closure configClosure) throws ClientProtocolException, IOException {
+        return this.doRequest(this.defaultURI.toURI(), method, this.defaultContentType, configClosure);
     }
 
     /**
      * Make an HTTP request using the default URI, with the given method,
      * content-type, and configuration.
      *
-     * @param method        {@link Method HTTP method}
+     * @param method        {@link HttpRequestFactory HTTP method}
      * @param contentType   either a {@link ContentType} or valid content-type string.
      * @param configClosure request configuration options
      * @return whatever value was returned by the executed response handler.
      * @throws ClientProtocolException
      * @throws IOException
-     * @see #request(Object, Method, Object, Closure)
+     * @see #request(Object, HttpRequestFactory, Object, Closure)
      */
-    public Object request(Method method, Object contentType, Closure configClosure)
+    public Object request(String method, Object contentType, Closure configClosure)
             throws ClientProtocolException, IOException {
-        return this.doRequest(this.defaultURI.toURI(), method,
-                contentType, configClosure);
+        return this.doRequest(this.defaultURI.toURI(), method, contentType, configClosure);
     }
 
     /**
@@ -460,7 +459,7 @@ public abstract class HTTPBuilder {
      * @param uri           either a {@link URL}, {@link URI} or object whose
      *                      <code>toString()</code> produces a valid URI string.  See
      *                      {@link URIBuilder#convertToURI(Object)}.
-     * @param method        {@link Method HTTP method}
+     * @param method        {@link HttpRequestFactory HTTP method}
      * @param contentType   either a {@link ContentType} or valid content-type string.
      * @param configClosure closure from which to configure options like
      *                      {@link RequestConfigDelegate#getUri() uri.path},
@@ -473,7 +472,7 @@ public abstract class HTTPBuilder {
      * @throws IOException
      * @throws URISyntaxException      if the uri argument does not represent a valid URI
      */
-    public Object request(Object uri, Method method, Object contentType, Closure configClosure)
+    public Object request(Object uri, String method, Object contentType, Closure configClosure)
             throws ClientProtocolException, IOException, URISyntaxException {
         return this.doRequest(URIBuilder.convertToURI(uri), method, contentType, configClosure);
     }
@@ -483,18 +482,8 @@ public abstract class HTTPBuilder {
      * config closure, then pass the delegate to {@link #doRequest(RequestConfigDelegate)},
      * which actually executes the request.
      */
-    protected Object doRequest(URI uri, Method method, Object contentType, Closure configClosure)
-            throws ClientProtocolException, IOException {
-
-        HttpRequestBase reqMethod;
-        try {
-            reqMethod = method.getRequestType().newInstance();
-            // this exception should reasonably never occur:
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        reqMethod.setURI(uri);
+    protected Object doRequest(URI uri, String method, Object contentType, Closure configClosure) throws IOException {
+        HttpRequestBase reqMethod = HttpRequestFactory.createHttpRequest(uri, method);
         RequestConfigDelegate delegate = new RequestConfigDelegate(reqMethod, contentType,
                 this.defaultRequestHeaders,
                 this.defaultResponseHandlers);
@@ -694,7 +683,7 @@ public abstract class HTTPBuilder {
      * forcibly use a certain response parser if so desired.</p>
      * <p>
      * <p>This value is a default and may always be overridden on a per-request
-     * basis by using the {@link #request(Method, Object, Closure)
+     * basis by using the {@link #request(Method, Closure)}
      * builder.request( Method, ContentType, Closure )} method or passing a
      * <code>contentType</code> named parameter.
      *
@@ -822,7 +811,7 @@ public abstract class HTTPBuilder {
 
     /**
      * <p>Encloses all properties and method calls used within the
-     * {@link HTTPBuilder#request(Object, Method, Object, Closure)} 'config'
+     * {@link HTTPBuilder#request(Object, HttpRequestFactory, Object, Closure)} 'config'
      * closure argument.  That is, an instance of this class is set as the
      * closure's delegate.  This allows the user to configure various parameters
      * within the scope of a single request.  </p>
@@ -945,7 +934,7 @@ public abstract class HTTPBuilder {
          * or a String, i.e. <code>"text/plain"</code>.  This will default to
          * {@link HTTPBuilder#getContentType()} for requests that do not
          * explicitly pass a <code>contentType</code> parameter (such as
-         * {@link HTTPBuilder#request(Method, Object, Closure)}).
+         * {@link HTTPBuilder#request(HttpRequestFactory, Object, Closure)}).
          *
          * @param ct the value that will be used for the <code>Content-Type</code>
          *           and <code>Accept</code> request headers.

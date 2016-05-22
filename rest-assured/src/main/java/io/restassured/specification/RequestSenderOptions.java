@@ -16,6 +16,7 @@
 
 package io.restassured.specification;
 
+import io.restassured.http.Method;
 import io.restassured.response.ResponseOptions;
 
 import java.net.URI;
@@ -24,7 +25,8 @@ import java.util.Map;
 
 /**
  * Options available when sending a request.
- * @param <R>   The type of response options.
+ *
+ * @param <R> The type of response options.
  */
 public interface RequestSenderOptions<R extends ResponseOptions<R>> {
     /**
@@ -328,4 +330,78 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @return The response of the request.
      */
     R options();
+
+    /**
+     * Perform a request to the pre-configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @param method The HTTP method to use
+     * @return The response of the request.
+     */
+    R request(Method method);
+
+    /**
+     * Perform a custom HTTP request to the pre-configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @param method The HTTP method to use
+     * @return The response of the request.
+     */
+    R request(String method);
+
+    /**
+     * Perform a HTTP request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param method     The HTTP method to use
+     * @param path       The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>request(Method.TRACE,"/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
+     * @return The response of the request.
+     */
+    R request(Method method, String path, Object... pathParams);
+
+    /**
+     * Perform a custom HTTP request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param method     The HTTP method to use
+     * @param path       The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>request("method","/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
+     * @return The response of the request.
+     */
+    R request(String method, String path, Object... pathParams);
+
+    /**
+     * Perform a request to a <code>uri</code>.
+     *
+     * @param method The HTTP method to use
+     * @param uri    The uri to send the request to.
+     * @return The response of the GET request.
+     */
+    R request(Method method, URI uri);
+
+    /**
+     * Perform a request to a <code>url</code>.
+     *
+     * @param method The HTTP method to use
+     * @param url    The url to send the request to.
+     * @return The response of the GET request.
+     */
+    R request(Method method, URL url);
+
+    /**
+     * Perform a custom HTTP request to a <code>uri</code>.
+     *
+     * @param method The HTTP method to use
+     * @param uri    The uri to send the request to.
+     * @return The response of the GET request.
+     */
+    R request(String method, URI uri);
+
+    /**
+     * Perform a custom HTTP request to a <code>url</code>.
+     *
+     * @param method The HTTP method to use
+     * @param url    The url to send the request to.
+     * @return The response of the GET request.
+     */
+    R request(String method, URL url);
 }

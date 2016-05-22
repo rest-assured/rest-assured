@@ -19,7 +19,6 @@ package io.restassured.internal.filter
 
 import io.restassured.filter.Filter
 import io.restassured.filter.FilterContext
-import io.restassured.http.Method
 import io.restassured.internal.RequestSpecificationImpl
 import io.restassured.response.Response
 import io.restassured.specification.FilterableRequestSpecification
@@ -32,7 +31,7 @@ class FilterContextImpl implements FilterContext {
   def private requestUri;
   def private substitutedPath;
   def private originalPath;
-  def private Method method;
+  def private String method;
   def assertionClosure
   def Map<String, Object> properties
   // The difference between internalRequestUri and requestUri is that query parameters defined outside the path is not included
@@ -53,7 +52,7 @@ class FilterContextImpl implements FilterContext {
    * @param properties The filter context properties
    */
   FilterContextImpl(String requestUri, String fullOriginalPath, String fullSubstitutedPath, String internalRequestUri, String userDefinedPath,
-                    Object[] unnamedPathParams, Method method, assertionClosure, Iterator<Filter> filters, Map<String, Object> properties) {
+                    Object[] unnamedPathParams, String method, assertionClosure, Iterator<Filter> filters, Map<String, Object> properties) {
     this.userDefinedPath = userDefinedPath
     this.unnamedPathParams = unnamedPathParams
     this.internalRequestUri = internalRequestUri

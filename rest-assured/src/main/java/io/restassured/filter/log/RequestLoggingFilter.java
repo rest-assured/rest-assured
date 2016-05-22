@@ -120,7 +120,7 @@ public class RequestLoggingFilter implements Filter {
             uri = urlDecode(uri, Charset.forName(requestSpec.getConfig().getEncoderConfig().defaultQueryParameterCharset()), true);
         }
 
-        RequestPrinter.print(requestSpec, requestSpec.getMethod().toString(), uri, logDetail, stream, shouldPrettyPrint);
+        RequestPrinter.print(requestSpec, requestSpec.getMethod(), uri, logDetail, stream, shouldPrettyPrint);
         return ctx.next(requestSpec, responseSpec);
     }
 
