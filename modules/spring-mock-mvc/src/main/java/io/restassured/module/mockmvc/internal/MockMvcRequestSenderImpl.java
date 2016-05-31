@@ -58,6 +58,7 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.*;
 import java.net.URI;
@@ -252,12 +253,23 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             throw new IllegalStateException("You cannot specify a request body and a multi-part body in the same request. Perhaps you want to change the body to a multi part?");
         }
 
-        String uri;
+        String baseUri;
         if (isNotBlank(basePath)) {
-            uri = mergeAndRemoveDoubleSlash(basePath, path);
+            baseUri = mergeAndRemoveDoubleSlash(basePath, path);
         } else {
-            uri = path;
+            baseUri = path;
         }
+
+        final UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(baseUri);
+        if (!queryParams.isEmpty()) {
+            new ParamApplier(queryParams) {
+                @Override
+                protected void applyParam(String paramName, String[] paramValues) {
+                    uriComponentsBuilder.queryParam(paramName, paramValues);
+                }
+            }.applyParams();
+        }
+        String uri = uriComponentsBuilder.build().toUriString();
 
         final MockHttpServletRequestBuilder request;
         if (multiParts.isEmpty()) {
@@ -281,16 +293,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             if (StringUtils.isBlank(requestContentType) && method == POST && !isInMultiPartMode(request)) {
                 setContentTypeToApplicationFormUrlEncoded(request);
             }
-        }
-
-        if (!queryParams.isEmpty()) {
-            new ParamApplier(queryParams) {
-                @Override
-                protected void applyParam(String paramName, String[] paramValues) {
-                    // Spring MVC cannot distinguish query from params afaik.
-                    request.param(paramName, paramValues);
-                }
-            }.applyParams();
         }
 
         if (!formParams.isEmpty()) {
@@ -404,7 +406,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             }
         }
 
-        logRequestIfApplicable(method, uri, path, pathParams);
+        logRequestIfApplicable(method, baseUri, path, pathParams);
 
         return performRequest(request);
     }

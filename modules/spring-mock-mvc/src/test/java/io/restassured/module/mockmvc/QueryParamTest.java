@@ -17,6 +17,7 @@
 package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.GreetingController;
+import io.restassured.module.mockmvc.http.QueryParamController;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -35,5 +36,20 @@ public class QueryParamTest {
                 body("id", equalTo(1)).
                 body("content", equalTo("Hello, John!"));
     }
+
+    @Test
+    public void query_param() throws Exception {
+        RestAssuredMockMvc.given().
+                standaloneSetup(new QueryParamController()).
+                queryParam("name", "John").
+                queryParam("message", "Good!").
+        when().
+                get("/queryParam").
+        then().log().all().
+                body("name", equalTo("Hello, John!")).
+                body("message", equalTo("Good!")).
+                body("_link", equalTo("http://localhost/queryParam?name=John&message=Good!"));
+    }
+
 // @formatter:on
 }
