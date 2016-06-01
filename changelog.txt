@@ -80,6 +80,7 @@ Change log next release
   It you can also supply a predefined http method (defined in the io.restassured.http.Method enum):
     when().request(Method.GET, "/lotto").then().statusCode(200);
   This API has also been implemented for the MockMvc module (but MockMvc doesn't support arbitrary http methods as of now).
+* Fixed so that query parameters are included in the request URI in the Spring MockMvc module (issue 699) (thanks to lee myeong hyeon for pull request)
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------
