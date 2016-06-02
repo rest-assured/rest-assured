@@ -102,7 +102,11 @@ class CookieMatcher {
             if(equalsIgnoreCase(name, COMMENT)) {
                 builder.setComment(value)
             } else if(equalsIgnoreCase(name, VERSION)) {
-                builder.setVersion(value.isInteger()? value as Integer: -1)
+              // Some servers supply the version in quotes, remove them
+              value = trim(StringUtils.remove(value, "\""))
+                if (value.isNumber()) {
+                  builder.setVersion(value as Integer)
+                }
             } else if(equalsIgnoreCase(name, PATH)) {
                 builder.setPath(value)
             } else if(equalsIgnoreCase(name, DOMAIN)) {
