@@ -143,6 +143,10 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         return (T) this;
     }
 
+    public T header(String headerName, ResponseAwareMatcher<R> r) {
+        responseSpec.header(headerName, getMatcherFromResponseAwareMatcher(r));
+        return (T) this;
+    }
 
     public T header(String headerName, String expectedValue) {
         responseSpec.header(headerName, expectedValue);

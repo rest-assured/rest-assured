@@ -181,4 +181,14 @@ public class HeaderITest extends WithJetty {
                 header("MultiHeader", equalTo("Value 2"));
     }
 
+    @Test
+    public void canUseResponseAwareMatchersForHeaderValidation() throws Exception {
+        given().
+                redirects().follow(false).
+        when().
+                post("/redirect").
+        then().
+                statusCode(301).
+                header("Location", response -> endsWith("/redirect/"+response.path("id")));
+    }
 }

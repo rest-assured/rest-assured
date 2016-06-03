@@ -82,6 +82,17 @@ Change log next release
   This API has also been implemented for the MockMvc module (but MockMvc doesn't support arbitrary http methods as of now).
 * Fixed so that query parameters are included in the request URI in the Spring MockMvc module (issue 699) (thanks to lee myeong hyeon for pull request)
 * Handles non-integer cookie versions in responses better (issue 701)
+* Added ability to use ResponseAwareMatcher for headers. For example you can now use attributes from the response body to validate a Location header.
+  Let's say that "/redirect" returns the json document { "id" : 1 } and returns a redirect to a location ending with this id. If you want to validate the
+  Location header invariant you can do:
+    given().
+            redirects().follow(false).
+    when().
+            get("/redirect").
+    then().
+            statusCode(301).
+            header("Location", response -> endsWith("/redirect/"+response.path("id")));
+  (issue 692)
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------

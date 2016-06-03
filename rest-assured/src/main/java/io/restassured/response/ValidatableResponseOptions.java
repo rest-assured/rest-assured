@@ -19,10 +19,10 @@ package io.restassured.response;
 import io.restassured.function.RestAssuredFunction;
 import io.restassured.http.ContentType;
 import io.restassured.matcher.ResponseAwareMatcher;
+import io.restassured.matcher.RestAssuredMatchers;
 import io.restassured.parsing.Parser;
 import io.restassured.specification.Argument;
 import io.restassured.specification.ResponseSpecification;
-import io.restassured.matcher.RestAssuredMatchers;
 import org.hamcrest.Matcher;
 
 import java.util.List;
@@ -451,6 +451,30 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * @return the response specification
      */
     T header(String headerName, Matcher<?> expectedValueMatcher);
+
+    /**
+     * Compare a header in the response to something else available in the response.
+     * <p>
+     * For example imagine that a POST to resource "/x" returns "201 Created" and sets a Location header
+     * that should end with "/x/{id}" where <code>{id}</code> is present in the response body:
+     * <pre>
+     * { "id" : 5 }
+     * </pre>
+     * To verify that the Location header ends with "/x/{id}" you can do like this:
+     * <p>
+     * <pre>
+     * given().param("id", 1).body(..).post("/x").then().assertThat().header("Location", response -> response.endsWith("/x/") + response.path("id"));
+     * </pre>
+     * </p>
+     * <p/>
+     * <p>
+     * </p>
+     *
+     * @param headerName           The name of the expected header
+     * @param expectedValueMatcher The Hamcrest matcher that must conform to the value
+     * @return the response specification
+     */
+    T header(String headerName, ResponseAwareMatcher<R> expectedValueMatcher);
 
     /**
      * Expect that a response header matches the supplied header name and hamcrest matcher using a mapping function.

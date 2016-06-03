@@ -26,7 +26,7 @@ import net.liftweb.json.Printer._
 import net.liftweb.json.{DefaultFormats, JsonParser}
 import org.apache.commons.io.IOUtils
 import org.apache.commons.lang3.StringUtils
-import org.scalatra.{Connect, HttpMethod, ScalatraServlet}
+import org.scalatra.ScalatraServlet
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
@@ -584,6 +584,12 @@ class ScalatraRestExample extends ScalatraServlet {
 
   post("/noValueParam") {
     "Params: "+params.foldLeft(new StringBuilder)( (b,t) => b.append(t._1+"="+t._2)).toString()
+  }
+
+  post("/redirect") {
+    response.setHeader("Location", "http://localhost:8080/redirect/1")
+    response.setStatus(301)
+    """{ "id" : 1 } """
   }
 
   get("/redirect") {

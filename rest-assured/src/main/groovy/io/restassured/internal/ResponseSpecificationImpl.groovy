@@ -22,6 +22,7 @@ import io.restassured.config.RestAssuredConfig
 import io.restassured.function.RestAssuredFunction
 import io.restassured.http.ContentType
 import io.restassured.internal.log.LogRepository
+import io.restassured.matcher.ResponseAwareMatcher
 import io.restassured.parsing.Parser
 import io.restassured.response.Response
 import io.restassured.specification.*
@@ -32,7 +33,6 @@ import org.hamcrest.Matchers
 
 import java.util.concurrent.TimeUnit
 
-import static ContentType.ANY
 import static io.restassured.internal.assertion.AssertParameter.notNull
 import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.hamcrest.Matchers.equalTo
@@ -150,6 +150,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     notNull firstExpectedHeaderName, "firstExpectedHeaderName"
     notNull firstExpectedHeaderValue, "firstExpectedHeaderValue"
     return headers(MapCreator.createMapFromParams(firstExpectedHeaderName, firstExpectedHeaderValue, expectedHeaders))
+  }
+
+  def ResponseSpecification header(String headerName, ResponseAwareMatcher<Response> expectedValueMatcher) {
+    return null
   }
 
   def <T> ResponseSpecification header(String headerName, RestAssuredFunction<String, T> mappingFunction, Matcher<? super T> expectedValueMatcher) {

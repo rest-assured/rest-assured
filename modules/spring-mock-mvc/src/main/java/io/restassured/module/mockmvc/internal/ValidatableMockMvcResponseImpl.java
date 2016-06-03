@@ -19,17 +19,15 @@ package io.restassured.module.mockmvc.internal;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ValidatableResponseOptionsImpl;
+import io.restassured.internal.assertion.AssertParameter;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
 import io.restassured.response.ExtractableResponse;
-import io.restassured.internal.assertion.AssertParameter;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.ResultMatcher;
-
-import static io.restassured.internal.assertion.AssertParameter.notNull;
 
 public class ValidatableMockMvcResponseImpl extends ValidatableResponseOptionsImpl<ValidatableMockMvcResponse, MockMvcResponse> implements ValidatableMockMvcResponse {
 
