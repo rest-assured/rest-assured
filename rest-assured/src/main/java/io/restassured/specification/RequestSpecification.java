@@ -1164,17 +1164,17 @@ public interface RequestSpecification extends RequestSender {
      * </pre>
      * Now you want to use this truststore in your client:
      * <pre>
-     * RestAssured.keystore("/truststore_javanet.jks", "test1234");
+     * RestAssured.keyStore("/truststore_javanet.jks", "test1234");
      * </pre>
      * or
      * <pre>
-     * given().keystore("/truststore_javanet.jks", "test1234"). ..
+     * given().keyStore("/truststore_javanet.jks", "test1234"). ..
      * </pre>
      * </p>
      * <p>
      * Note that this is just a shortcut for:
      * <pre>
-     * given().config(RestAssured.config().sslConfig(sslConfig().keystore(pathToJks, password));
+     * given().config(RestAssured.config().sslConfig(sslConfig().keyStore(pathToJks, password));
      * </pre>
      * </p>
      *
@@ -1182,23 +1182,23 @@ public interface RequestSpecification extends RequestSender {
      * @param password  The store pass
      * @return The request specification
      */
-    RequestSpecification keystore(String pathToJks, String password);
+    RequestSpecification keyStore(String pathToJks, String password);
 
     /**
-     * Use a keystore located on the file-system. See {@link #keystore(String, String)} for more details.
+     * Use a keystore located on the file-system. See {@link #keyStore(String, String)} for more details.
      * <p>
      * Note that this is just a shortcut for:
      * </p>
      * <pre>
-     * given().config(RestAssured.config().sslConfig(sslConfig().keystore(pathToJks, password));
+     * given().config(RestAssured.config().sslConfig(sslConfig().keyStore(pathToJks, password));
      * </pre>
      *
      * @param pathToJks The path to JKS file on the file-system
      * @param password  The password for the keystore
      * @return The request specification
-     * @see #keystore(String, String)
+     * @see #keyStore(String, String)
      */
-    RequestSpecification keystore(File pathToJks, String password);
+    RequestSpecification keyStore(File pathToJks, String password);
 
     /**
      * Apply a trust store. For example
@@ -1231,7 +1231,7 @@ public interface RequestSpecification extends RequestSender {
      * @param path     The path to trust storefile on the file-system
      * @param password The password for the keystore
      * @return The request specification
-     * @see #keystore(String, String)
+     * @see #keyStore(String, String)
      */
     RequestSpecification trustStore(File path, String password);
 
@@ -1246,7 +1246,7 @@ public interface RequestSpecification extends RequestSender {
      *
      * @param trustStore The truststore.
      * @return The request specification
-     * @see #keystore(String, String)
+     * @see #keyStore(String, String)
      */
     RequestSpecification trustStore(KeyStore trustStore);
 
@@ -1261,13 +1261,13 @@ public interface RequestSpecification extends RequestSender {
      *
      * @param keyStore The keyStore.
      * @return The request specification
-     * @see #keystore(String, String)
+     * @see #keyStore(String, String)
      */
-    RequestSpecification keystore(KeyStore keyStore);
+    RequestSpecification keyStore(KeyStore keyStore);
 
     /**
      * Use relaxed HTTP validation with SSLContext protocol SSL. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
-     * method you don't need to specify a keystore (see {@link #keystore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
+     * method you don't need to specify a keystore (see {@link #keyStore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
      * <p>
      * This is just a shortcut for:
      * </p>
@@ -1281,7 +1281,7 @@ public interface RequestSpecification extends RequestSender {
 
     /**
      * Use relaxed HTTP validation with the given SSLContext protocol. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
-     * method you don't need to specify a keystore (see {@link #keystore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
+     * method you don't need to specify a keystore (see {@link #keyStore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
      * <p>
      * This is just a shortcut for:
      * </p>

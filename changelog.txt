@@ -145,10 +145,12 @@ Change log next release
         - io.restassured.specification.RequestSpecification.pathParameters(java.util.Map<java.lang.String,?>) (Use io.restassured.specification.RequestSpecification.pathParams(java.util.Map<java.lang.String,?>) instead)
         - io.restassured.specification.RequestSpecification.pathParameters(java.lang.String, java.lang.Object, java.lang.Object...) (Use io.restassured.specification.RequestSpecification.pathParams(java.lang.String, java.lang.Object, java.lang.Object...) instead)
         - io.restassured.specification.RequestSpecification.specification (Use io.restassured.specification.RequestSpecification.spec instead)
-* Renamed io.restassured.specification.RequestSpecification.keyStore to io.restassured.specification.RequestSpecification.keystore
-* Renamed io.restassured.authentication.CertificateAuthSettings.keyStore to io.restassured.authentication.CertificateAuthSettings.keystore
-* Renamed io.restassured.builder.RequestSpecBuilder.setKeyStore to io.restassured.builder.RequestSpecBuilder.setKeystore
-
+* Renamed the following methods:
+    - io.restassured.authentication.CertificateAuthSettings.keystoreType to io.restassured.authentication.CertificateAuthSettings.keyStoreType
+    - io.restassured.authentication.CertificateAuthSettings.getKeystoreType to io.restassured.authentication.CertificateAuthSettings.getKeyStoreType
+    - io.restassured.specification.RequestSpecification.keystore to io.restassured.specification.RequestSpecification.keyStore
+    - io.restassured.RestAssured.keystore to io.restassured.RestAssured.keyStore
+    - io.restassured.builder.RequestSpecBuilder.setKeystore to io.restassured.builder.RequestSpecBuilder.setKeyStore
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------

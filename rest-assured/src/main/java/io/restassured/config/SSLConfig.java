@@ -16,8 +16,8 @@
 
 package io.restassured.config;
 
-import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.internal.assertion.AssertParameter;
+import io.restassured.internal.util.SafeExceptionRethrower;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
@@ -32,7 +32,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
-import static io.restassured.internal.assertion.AssertParameter.notNull;
 import static org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
 import static org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER;
 
@@ -112,21 +111,21 @@ public class SSLConfig implements Config {
      * @param password  The store pass
      * @return A new SSLConfig instance
      */
-    public SSLConfig keystore(String pathToJks, String password) {
+    public SSLConfig keyStore(String pathToJks, String password) {
         Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
         return new SSLConfig(pathToJks, pathToTrustStore, password, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, true);
     }
 
     /**
-     * Use a keystore located on the file-system. See {@link #keystore(String, String)} for more details.
+     * Use a keystore located on the file-system. See {@link #keyStore(String, String)} for more details.
      *
      * @param pathToJks The path to JKS file on the file-system
      * @param password  The password for the keystore
      * @return The request specification
-     * @see #keystore(String, String)
+     * @see #keyStore(String, String)
      */
-    public SSLConfig keystore(File pathToJks, String password) {
+    public SSLConfig keyStore(File pathToJks, String password) {
         Validate.notNull(pathToJks, "Path to JKS on the file system cannot be null");
         Validate.notEmpty(password, "Password cannot be empty");
         return new SSLConfig(pathToJks, pathToTrustStore, password, trustStorePassword, keyStoreType, trustStoreType, port, keyStore, trustStore, x509HostnameVerifier, sslSocketFactory, true);
@@ -138,9 +137,9 @@ public class SSLConfig implements Config {
      * @param password - Use null for no password
      * @return The keystore specification
      */
-    public SSLConfig keystore(String password) {
+    public SSLConfig keyStore(String password) {
         Validate.notEmpty(password, "Password cannot be empty");
-        return keystore(System.getProperty("user.home") + File.separatorChar + ".keystore", password);
+        return keyStore(System.getProperty("user.home") + File.separatorChar + ".keystore", password);
     }
 
     /**
@@ -248,7 +247,7 @@ public class SSLConfig implements Config {
 
     /**
      * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
-     * method you don't need to specify a keystore (see {@link #keystore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
+     * method you don't need to specify a keystore (see {@link #keyStore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
      * This method assumes that the protocol for the {@link SSLContext} instance is {@value #SSL}. If this is not the case use {@link #relaxedHTTPSValidation(String)}.
      *
      * @return A new SSLConfig instance.
@@ -259,7 +258,7 @@ public class SSLConfig implements Config {
 
     /**
      * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
-     * method you don't need to specify a keystore (see {@link #keystore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
+     * method you don't need to specify a keystore (see {@link #keyStore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
      *
      * @param protocol The standard name of the requested protocol. See the SSLContext section in the <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java Cryptography Architecture Standard Algorithm Name Documentation</a> for information about standard protocol names.
      * @return A new SSLConfig instance

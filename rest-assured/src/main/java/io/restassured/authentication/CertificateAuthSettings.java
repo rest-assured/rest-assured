@@ -80,7 +80,7 @@ public class CertificateAuthSettings {
         this.sslSocketFactory = sslSocketFactory;
     }
 
-    public String getKeystoreType() {
+    public String getKeyStoreType() {
         return keystoreType;
     }
 
@@ -146,7 +146,7 @@ public class CertificateAuthSettings {
      * @param keystoreType The keystore type, by default {@link java.security.KeyStore#getDefaultType()}.
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
-    public CertificateAuthSettings keystoreType(String keystoreType) {
+    public CertificateAuthSettings keyStoreType(String keystoreType) {
         return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, x509HostnameVerifier, sslSocketFactory);
     }
 
@@ -178,7 +178,7 @@ public class CertificateAuthSettings {
      * @param keyStore The key store to use, by default no (<code>null</code>) key store is used.
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
-    public CertificateAuthSettings keystore(KeyStore keyStore) {
+    public CertificateAuthSettings keyStore(KeyStore keyStore) {
         return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, x509HostnameVerifier, sslSocketFactory);
     }
 

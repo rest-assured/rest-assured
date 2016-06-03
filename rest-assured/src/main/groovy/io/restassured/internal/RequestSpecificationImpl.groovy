@@ -562,17 +562,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  def RequestSpecification keystore(String pathToJks, String password) {
+  def RequestSpecification keyStore(String pathToJks, String password) {
     def sslConfig = restAssuredConfig().getSSLConfig()
     // Allow all host names in order to be backward compatible
-    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keystore(pathToJks, password).allowAllHostnames())
+    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keyStore(pathToJks, password).allowAllHostnames())
     this
   }
 
-  def RequestSpecification keystore(File pathToJks, String password) {
+  def RequestSpecification keyStore(File pathToJks, String password) {
     def sslConfig = restAssuredConfig().getSSLConfig()
     // Allow all host names in order to be backward compatible
-    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keystore(pathToJks, password).allowAllHostnames())
+    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keyStore(pathToJks, password).allowAllHostnames())
     this
   }
 
@@ -594,9 +594,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  def RequestSpecification keystore(KeyStore keyStore) {
+  def RequestSpecification keyStore(KeyStore keyStore) {
     def sslConfig = restAssuredConfig().getSSLConfig()
-    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keystore(keyStore))
+    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keyStore(keyStore))
     this
   }
 

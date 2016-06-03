@@ -856,19 +856,19 @@ public class RequestSpecBuilder {
     /**
      * Specify a keystore.
      * <pre>
-     * RestAssured.keystore("/truststore_javanet.jks", "test1234");
+     * RestAssured.keyStore("/truststore_javanet.jks", "test1234");
      * </pre>
      * or
      * <pre>
-     * given().keystore("/truststore_javanet.jks", "test1234"). ..
+     * given().keyStore("/truststore_javanet.jks", "test1234"). ..
      * </pre>
      * </p>
      *
      * @param pathToJks The path to the JKS
      * @param password  The store pass
      */
-    public RequestSpecBuilder setKeystore(String pathToJks, String password) {
-        spec.keystore(pathToJks, password);
+    public RequestSpecBuilder setKeyStore(String pathToJks, String password) {
+        spec.keyStore(pathToJks, password);
         return this;
     }
 
@@ -1418,7 +1418,7 @@ public class RequestSpecBuilder {
      *
      * @param trustStore The truststore.
      * @return RequestSpecBuilder
-     * @see #setKeystore(String, String)
+     * @see #setKeyStore(String, String)
      */
     public RequestSpecBuilder setTrustStore(KeyStore trustStore) {
         spec.trustStore(trustStore);
@@ -1436,16 +1436,16 @@ public class RequestSpecBuilder {
      *
      * @param keyStore The truststore.
      * @return RequestSpecBuilder
-     * @see #setKeystore(String, String)
+     * @see #setKeyStore(String, String)
      */
-    public RequestSpecBuilder setKeystore(KeyStore keyStore) {
-        spec.keystore(keyStore);
+    public RequestSpecBuilder setKeyStore(KeyStore keyStore) {
+        spec.keyStore(keyStore);
         return this;
     }
 
     /**
      * Use relaxed HTTP validation with SSLContext protocol {@value #SSL}. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
-     * method you don't need to specify a keystore (see {@link #setKeystore(String, String)} or trust store (see {@link #setTrustStore(java.security.KeyStore)}.
+     * method you don't need to specify a keystore (see {@link #setKeyStore(String, String)} or trust store (see {@link #setTrustStore(java.security.KeyStore)}.
      * <p>
      * This is just a shortcut for:
      * </p>
@@ -1461,7 +1461,7 @@ public class RequestSpecBuilder {
 
     /**
      * Use relaxed HTTP validation with a given SSLContext protocol. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
-     * method you don't need to specify a keystore (see {@link #setKeystore(String, String)} or trust store (see {@link #setTrustStore(java.security.KeyStore)}.
+     * method you don't need to specify a keystore (see {@link #setKeyStore(String, String)} or trust store (see {@link #setTrustStore(java.security.KeyStore)}.
      * <p>
      * This is just a shortcut for:
      * </p>
