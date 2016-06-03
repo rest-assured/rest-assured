@@ -93,6 +93,7 @@ Change log next release
             statusCode(301).
             header("Location", response -> endsWith("/redirect/"+response.path("id")));
   This has also been implemented for the MockMvc module (issue 692).
+* Moved classes Cookie, Cookies, Header and Headers from package com.jayway.restassured.response to io.restassured.http since they were used for both requests and responses.
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------

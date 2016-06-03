@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.response;
+package io.restassured.http;
 
 import io.restassured.internal.MultiValueEntity;
 import io.restassured.internal.assertion.AssertParameter;
@@ -24,11 +24,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import static io.restassured.internal.assertion.AssertParameter.notNull;
 import static java.util.Arrays.asList;
 
 /**
- * Represents the a number of response cookies
+ * Represents a collection of cookies
  */
 public class Cookies implements Iterable<Cookie> {
 

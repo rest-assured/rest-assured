@@ -20,7 +20,7 @@ package io.restassured.internal
 import io.restassured.authentication.ExplicitNoAuthScheme
 import io.restassured.config.RestAssuredConfig
 import io.restassured.config.SessionConfig
-import io.restassured.response.Cookies
+import io.restassured.http.Cookies
 import io.restassured.spi.AuthFilter
 
 import static io.restassured.internal.assertion.AssertParameter.notNull

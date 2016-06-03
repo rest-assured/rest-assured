@@ -16,8 +16,8 @@
 
 package io.restassured.module.mockmvc;
 
+import io.restassured.http.Header;
 import io.restassured.module.mockmvc.http.HeaderController;
-import io.restassured.response.Header;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

@@ -18,13 +18,13 @@
 
 package io.restassured.assertion
 
-import io.restassured.response.Cookie
-import io.restassured.response.Cookies
+import io.restassured.http.Cookie
+import io.restassured.http.Cookies
 import org.apache.commons.lang3.StringUtils
 import org.apache.http.client.utils.DateUtils
 import org.hamcrest.Matcher
 
-import static io.restassured.response.Cookie.*
+import static io.restassured.http.Cookie.*
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase
 import static org.apache.commons.lang3.StringUtils.trim
 

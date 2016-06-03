@@ -17,32 +17,31 @@
 
 package io.restassured.internal
 
-import io.restassured.internal.http.CharsetExtractor
-import io.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
-import io.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper
-import io.restassured.mapper.DataToDeserialize
-import io.restassured.mapper.ObjectMapper
-import io.restassured.path.xml.XmlPath
-import io.restassured.path.xml.XmlPath.CompatibilityMode
-import io.restassured.response.*
 import groovy.xml.StreamingMarkupBuilder
 import io.restassured.assertion.CookieMatcher
 import io.restassured.config.DecoderConfig
 import io.restassured.config.RestAssuredConfig
 import io.restassured.filter.log.LogDetail
 import io.restassured.filter.time.TimingFilter
+import io.restassured.http.Cookie
+import io.restassured.http.Cookies
+import io.restassured.http.Header
+import io.restassured.http.Headers
+import io.restassured.internal.http.CharsetExtractor
 import io.restassured.internal.mapper.ObjectMapperType
+import io.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
 import io.restassured.internal.mapping.ObjectMapping
 import io.restassured.internal.print.ResponsePrinter
+import io.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper
 import io.restassured.internal.support.Prettifier
+import io.restassured.mapper.DataToDeserialize
+import io.restassured.mapper.ObjectMapper
 import io.restassured.mapper.ObjectMapperDeserializationContext
 import io.restassured.path.json.JsonPath
 import io.restassured.path.json.config.JsonPathConfig
+import io.restassured.path.xml.XmlPath
+import io.restassured.path.xml.XmlPath.CompatibilityMode
 import io.restassured.path.xml.config.XmlPathConfig
-import io.restassured.response.Cookie
-import io.restassured.response.Cookies
-import io.restassured.response.Header
-import io.restassured.response.Headers
 import io.restassured.response.ResponseBody
 import io.restassured.response.ResponseBodyData
 import io.restassured.response.ResponseOptions
@@ -51,9 +50,9 @@ import org.apache.commons.lang3.StringUtils
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
 
-import static io.restassured.internal.assertion.AssertParameter.notNull
 import static JsonPathConfig.jsonPathConfig
 import static XmlPathConfig.xmlPathConfig
+import static io.restassured.internal.assertion.AssertParameter.notNull
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
 import static org.apache.commons.lang3.StringUtils.isBlank
 

@@ -17,15 +17,11 @@
 package io.restassured.module.mockmvc.specification;
 
 import io.restassured.config.SessionConfig;
-import io.restassured.http.ContentType;
+import io.restassured.http.*;
 import io.restassured.internal.mapper.ObjectMapperType;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
-import io.restassured.response.Cookie;
-import io.restassured.response.Cookies;
-import io.restassured.response.Header;
-import io.restassured.response.Headers;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;

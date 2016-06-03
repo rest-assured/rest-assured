@@ -17,9 +17,9 @@
 // @formatter:off
 package io.restassured.module.mockmvc;
 
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
 import io.restassured.module.mockmvc.http.CookieController;
-import io.restassured.response.Cookie;
-import io.restassured.response.Cookies;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

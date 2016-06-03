@@ -16,9 +16,9 @@
 
 package io.restassured.itest.java;
 
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import io.restassured.itest.java.support.WithJetty;
-import io.restassured.response.Header;
-import io.restassured.response.Headers;
 import org.junit.Test;
 
 import java.util.HashMap;

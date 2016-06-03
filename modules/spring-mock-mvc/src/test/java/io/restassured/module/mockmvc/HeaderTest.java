@@ -18,12 +18,12 @@
 package io.restassured.module.mockmvc;
 
 import io.restassured.function.RestAssuredFunction;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import io.restassured.matcher.ResponseAwareMatcher;
 import io.restassured.module.mockmvc.http.HeaderController;
 import io.restassured.module.mockmvc.http.RedirectController;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
-import io.restassured.response.Header;
-import io.restassured.response.Headers;
 import org.hamcrest.Matcher;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

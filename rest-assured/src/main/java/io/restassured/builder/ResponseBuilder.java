@@ -16,13 +16,13 @@
 
 package io.restassured.builder;
 
-import io.restassured.http.ContentType;
 import io.restassured.filter.Filter;
+import io.restassured.http.ContentType;
+import io.restassured.http.Cookies;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.RestAssuredResponseImpl;
-import io.restassured.response.Cookies;
-import io.restassured.response.Header;
-import io.restassured.response.Headers;
 import io.restassured.response.Response;
 import org.apache.commons.lang3.StringUtils;
 

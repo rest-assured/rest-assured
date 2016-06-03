@@ -17,6 +17,9 @@
 package io.restassured.response;
 
 import io.restassured.config.SessionConfig;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
+import io.restassured.http.Headers;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;

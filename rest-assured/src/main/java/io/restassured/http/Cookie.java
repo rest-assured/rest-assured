@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.response;
+package io.restassured.http;
 
 import io.restassured.internal.NameAndValue;
 

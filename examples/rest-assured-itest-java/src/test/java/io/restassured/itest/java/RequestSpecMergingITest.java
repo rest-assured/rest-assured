@@ -19,7 +19,7 @@ package io.restassured.itest.java;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseBuilder;
-import io.restassured.response.Headers;
+import io.restassured.http.Headers;
 import io.restassured.specification.RequestSpecification;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

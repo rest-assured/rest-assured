@@ -17,11 +17,11 @@
 package io.restassured.itest.java;
 
 import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.config.RestAssuredConfig;
-import io.restassured.itest.java.support.WithJetty;
-import io.restassured.response.Header;
-import io.restassured.specification.RequestSpecification;
 import io.restassured.config.HeaderConfig;
+import io.restassured.config.RestAssuredConfig;
+import io.restassured.http.Header;
+import io.restassured.itest.java.support.WithJetty;
+import io.restassured.specification.RequestSpecification;
 import org.junit.Test;
 
 import java.util.List;

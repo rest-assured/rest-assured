@@ -19,8 +19,8 @@ package io.restassured.specification;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
-import io.restassured.response.Cookies;
-import io.restassured.response.Headers;
+import io.restassured.http.Cookies;
+import io.restassured.http.Headers;
 import org.apache.http.client.HttpClient;
 
 import java.util.List;

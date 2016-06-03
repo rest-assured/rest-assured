@@ -18,10 +18,10 @@ package io.restassured.filter;
 
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.cookie.CookieFilter;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
 import io.restassured.internal.ResponseSpecificationImpl;
 import io.restassured.internal.RestAssuredResponseImpl;
-import io.restassured.response.Cookie;
-import io.restassured.response.Cookies;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;

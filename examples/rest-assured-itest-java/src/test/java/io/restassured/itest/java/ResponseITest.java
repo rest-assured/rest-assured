@@ -18,13 +18,13 @@ package io.restassured.itest.java;
 
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.http.Headers;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.parsing.Parser;
 import io.restassured.path.json.JsonPath;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.json.exception.JsonPathException;
 import io.restassured.path.xml.exception.XmlPathException;
-import io.restassured.response.Headers;
 import io.restassured.response.Response;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;

@@ -16,8 +16,8 @@
 
 package io.restassured.assertion;
 
-import io.restassured.response.Cookie;
-import io.restassured.response.Cookies;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 

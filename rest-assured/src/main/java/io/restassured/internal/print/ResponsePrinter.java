@@ -16,8 +16,12 @@
 package io.restassured.internal.print;
 
 import io.restassured.filter.log.LogDetail;
+import io.restassured.http.Cookies;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import io.restassured.internal.support.Prettifier;
-import io.restassured.response.*;
+import io.restassured.response.ResponseBody;
+import io.restassured.response.ResponseOptions;
 
 import java.io.PrintStream;
 

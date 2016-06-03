@@ -25,8 +25,7 @@ import io.restassured.filter.Filter
 import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
 import io.restassured.filter.time.TimingFilter
-import io.restassured.http.ContentType
-import io.restassured.http.Method
+import io.restassured.http.*
 import io.restassured.internal.filter.FilterContextImpl
 import io.restassured.internal.filter.FormAuthFilter
 import io.restassured.internal.filter.SendRequestFilter
@@ -44,7 +43,7 @@ import io.restassured.internal.support.ParameterUpdater
 import io.restassured.internal.support.PathSupport
 import io.restassured.mapper.ObjectMapper
 import io.restassured.parsing.Parser
-import io.restassured.response.*
+import io.restassured.response.Response
 import io.restassured.specification.*
 import io.restassured.spi.AuthFilter
 import org.apache.http.HttpEntity

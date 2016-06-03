@@ -17,12 +17,12 @@
 package io.restassured.internal.print;
 
 import io.restassured.filter.log.LogDetail;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import io.restassured.internal.NoParameterValue;
 import io.restassured.internal.support.Prettifier;
-import io.restassured.response.Cookie;
-import io.restassured.response.Cookies;
-import io.restassured.response.Header;
-import io.restassured.response.Headers;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.ProxySpecification;

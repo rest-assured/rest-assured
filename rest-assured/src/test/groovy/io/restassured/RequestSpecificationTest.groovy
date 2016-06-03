@@ -18,12 +18,12 @@
 
 package io.restassured
 
-import io.restassured.response.Header
-import io.restassured.specification.FilterableRequestSpecification
 import io.restassured.filter.Filter
 import io.restassured.filter.FilterContext
-import io.restassured.response.Headers
+import io.restassured.http.Header
+import io.restassured.http.Headers
 import io.restassured.response.Response
+import io.restassured.specification.FilterableRequestSpecification
 import io.restassured.specification.FilterableResponseSpecification
 import org.junit.Ignore
 import org.junit.Test

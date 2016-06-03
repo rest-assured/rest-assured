@@ -16,7 +16,12 @@
 
 package io.restassured.module.mockmvc;
 
+import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.filter.log.LogDetail;
+import io.restassured.http.ContentType;
+import io.restassured.http.Cookie;
+import io.restassured.http.Header;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.http.GreetingController;
 import io.restassured.module.mockmvc.http.PostController;
@@ -25,11 +30,6 @@ import io.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import io.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import io.restassured.response.Cookie;
-import io.restassured.response.Header;
-import io.restassured.config.LogConfig;
-import io.restassured.filter.log.LogDetail;
-import io.restassured.http.ContentType;
 import io.restassured.path.json.config.JsonPathConfig;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.assertj.core.api.Assertions;
@@ -45,7 +45,6 @@ import java.io.StringWriter;
 
 import static io.restassured.config.JsonConfig.jsonConfig;
 import static io.restassured.config.SessionConfig.sessionConfig;
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.principal;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.hamcrest.Matchers.equalTo;

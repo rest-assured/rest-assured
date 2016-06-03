@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.response;
+package io.restassured.http;
 
 import io.restassured.internal.MultiValueEntity;
 
@@ -23,7 +23,7 @@ import java.util.*;
 import static io.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
- * Represents the a number of response headers
+ * Represents collection of headers
  */
 public class Headers implements Iterable<Header> {
 

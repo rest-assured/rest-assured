@@ -18,6 +18,9 @@ package io.restassured.internal;
 
 import io.restassured.config.DecoderConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
+import io.restassured.http.Headers;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapper.ObjectMapperType;
 import io.restassured.mapper.ObjectMapper;
@@ -25,7 +28,9 @@ import io.restassured.path.json.JsonPath;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.xml.XmlPath;
 import io.restassured.path.xml.config.XmlPathConfig;
-import io.restassured.response.*;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.ResponseBody;
+import io.restassured.response.ResponseOptions;
 
 import java.io.InputStream;
 import java.util.Map;

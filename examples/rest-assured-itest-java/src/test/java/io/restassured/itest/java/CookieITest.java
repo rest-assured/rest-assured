@@ -18,9 +18,9 @@ package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
 import io.restassured.itest.java.support.WithJetty;
-import io.restassured.response.Cookie;
-import io.restassured.response.Cookies;
 import io.restassured.response.Response;
 import org.junit.Test;
 
