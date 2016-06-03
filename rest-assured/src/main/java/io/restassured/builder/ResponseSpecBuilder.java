@@ -67,7 +67,9 @@ public class ResponseSpecBuilder {
      *
      * @param matcher The hamcrest matcher that must response content must match.
      * @return The builder
+     * @deprecated Use {@link #expectBody(Matcher)} instead
      */
+    @Deprecated
     public ResponseSpecBuilder expectContent(Matcher<?> matcher) {
         spec.content(matcher);
         return this;
@@ -100,7 +102,9 @@ public class ResponseSpecBuilder {
      *
      * @param matcher The hamcrest matcher that the response content must match.
      * @return The builder
+     * @deprecated Use {@link #expectBody(String, Matcher)} instead
      */
+    @Deprecated
     public ResponseSpecBuilder expectContent(String path, Matcher<?> matcher) {
         spec.content(path, matcher);
         return this;
@@ -132,8 +136,10 @@ public class ResponseSpecBuilder {
      * @param path    The body path
      * @param matcher The hamcrest matcher that must response body must match.
      * @return the response specification
-     * @see #expectContent(String, org.hamcrest.Matcher)
+     * @see #expectBody(String, Matcher)
+     * @deprecated Use {@link #expectBody(String, List, Matcher)} instead
      */
+    @Deprecated
     public ResponseSpecBuilder expectContent(String path, List<Argument> arguments, Matcher<?> matcher) {
         spec.content(path, arguments, matcher);
         return this;
@@ -535,7 +541,7 @@ public class ResponseSpecBuilder {
     }
 
     /**
-     * Expect that the response content conforms to one or more Hamcrest matchers.
+     * Expect that the response body conforms to one or more Hamcrest matchers.
      *
      * @param matcher The hamcrest matcher that must response content must match.
      * @return The builder
