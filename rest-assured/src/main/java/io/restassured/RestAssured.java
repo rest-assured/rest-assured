@@ -616,8 +616,56 @@ public class RestAssured {
      * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      *
      * @return A list of arguments that can be used to build up the response specification
+     * @deprecated Use {@link #withArgs(Object, Object...)} instead
      */
+    @Deprecated
     public static List<Argument> withArguments(Object firstArgument, Object... additionalArguments) {
+        return withArgs(firstArgument, additionalArguments);
+    }
+
+    /**
+     * Create a list of no arguments that can be used to create parts of the path in a response specification for JSON, XML or HTML validation.
+     * This is useful in situations where you have e.g. pre-defined variables that constitutes the key. For example:
+     * <pre>
+     * get("/jsonStore").then().
+     *          root("store.%s", withArgs("book")).
+     *          body("category.size()", equalTo(4)).
+     *          appendRoot("%s.%s", withArgs("author", "size()")).
+     *          body(withNoArguments(), equalTo(4));
+     * </pre>
+     * <p/>
+     *
+     * @return A list of no arguments that can be used to build up the response specification
+     * @deprecated Use {@link #withNoArgs()} instead
+     */
+    @Deprecated
+    public static List<Argument> withNoArguments() {
+        return withNoArgs();
+    }
+
+    /**
+     * Create a list of arguments that can be used to create parts of the path in a body/content expression.
+     * This is useful in situations where you have e.g. pre-defined variables that constitutes the key. For example:
+     * <pre>
+     * String someSubPath = "else";
+     * int index = 1;
+     * when().get().then().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
+     * </pre>
+     * <p/>
+     * or if you have complex root paths and don't wish to duplicate the path for small variations:
+     * <pre>
+     * get("/x").then().assertThat().
+     *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
+     *          body(withArgs(0), hasItem("first")).
+     *          body(withArgs(1), hasItem("second")).
+     *          ..
+     * </pre>
+     * <p/>
+     * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     *
+     * @return A list of arguments.
+     */
+    public static List<Argument> withArgs(Object firstArgument, Object... additionalArguments) {
         Validate.notNull(firstArgument, "You need to supply at least one argument");
         final List<Argument> arguments = new LinkedList<Argument>();
         arguments.add(Argument.arg(firstArgument));
@@ -637,34 +685,12 @@ public class RestAssured {
      *          root("store.%s", withArgs("book")).
      *          body("category.size()", equalTo(4)).
      *          appendRoot("%s.%s", withArgs("author", "size()")).
-     *          body(withNoArguments(), equalTo(4));
-     * </pre>
-     * <p/>
-     *
-     * @return A list of no arguments that can be used to build up the response specification
-     */
-    public static List<Argument> withNoArguments() {
-        return Collections.unmodifiableList(Collections.<Argument>emptyList());
-    }
-
-    /**
-     * Slightly shorter version of {@link #withArguments(Object, Object...)}.
-     *
-     * @return A list of arguments.
-     * @see #withArguments(Object, Object...)
-     */
-    public static List<Argument> withArgs(Object firstArgument, Object... additionalArguments) {
-        return withArguments(firstArgument, additionalArguments);
-    }
-
-    /**
-     * Slightly shorter version of {@link #withNoArguments()}.
+     *          body(withNoArgs(), equalTo(4));
      *
      * @return A list of no arguments.
-     * @see #withNoArguments()
      */
     public static List<Argument> withNoArgs() {
-        return withNoArguments();
+        return Collections.unmodifiableList(Collections.<Argument>emptyList());
     }
 
     /**

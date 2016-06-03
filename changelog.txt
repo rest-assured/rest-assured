@@ -145,6 +145,18 @@ Change log next release
         - io.restassured.specification.RequestSpecification.pathParameters(java.util.Map<java.lang.String,?>) (Use io.restassured.specification.RequestSpecification.pathParams(java.util.Map<java.lang.String,?>) instead)
         - io.restassured.specification.RequestSpecification.pathParameters(java.lang.String, java.lang.Object, java.lang.Object...) (Use io.restassured.specification.RequestSpecification.pathParams(java.lang.String, java.lang.Object, java.lang.Object...) instead)
         - io.restassured.specification.RequestSpecification.specification (Use io.restassured.specification.RequestSpecification.spec instead)
+    io.restassured.specification.ResponseSpecification:
+        - io.restassured.specification.ResponseSpecification#rootPath(java.lang.String) (Use io.restassured.specification.ResponseSpecification.root(java.lang.String) instead)
+        - io.restassured.specification.ResponseSpecification.rootPath(java.lang.String, java.util.List<io.restassured.specification.Argument>) (Use io.restassured.specification.ResponseSpecification.rootPath(java.lang.String, java.util.List<io.restassured.specification.Argument>) instead)
+        - io.restassured.specification.ResponseSpecification.noRootPath (Use io.restassured.specification.ResponseSpecification.noRoot instead)
+        - io.restassured.specification.ResponseSpecification.content(java.util.List<io.restassured.specification.Argument>, org.hamcrest.Matcher, java.lang.Object...) (Use io.restassured.specification.ResponseSpecification.body(java.util.List<io.restassured.specification.Argument>, org.hamcrest.Matcher, java.lang.Object...) instead)
+        - io.restassured.specification.ResponseSpecification.content(org.hamcrest.Matcher<?>, org.hamcrest.Matcher<?>...) (Use io.restassured.specification.ResponseSpecification.body(org.hamcrest.Matcher<?>, org.hamcrest.Matcher<?>...) instead)
+        - io.restassured.specification.ResponseSpecification.content(java.lang.String, java.util.List<io.restassured.specification.Argument>, org.hamcrest.Matcher, java.lang.Object...) (Use io.restassured.specification.ResponseSpecification.body(java.lang.String, java.util.List<io.restassured.specification.Argument>, org.hamcrest.Matcher, java.lang.Object...) instead)
+        - io.restassured.specification.ResponseSpecification.content(java.lang.String, org.hamcrest.Matcher<?>, java.lang.Object...) (Use io.restassured.specification.ResponseSpecification.body(java.lang.String, org.hamcrest.Matcher<?>, java.lang.Object...) instead)
+        - io.restassured.specification.ResponseSpecification.specification (Use io.restassured.specification.ResponseSpecification.spec instead)
+    io.restassured.RestAssured:
+        - io.restassured.RestAssured.withArguments (Use io.restassured.RestAssured.withArgs instead)
+        - io.restassured.RestAssured.withNoArguments (Use io.restassured.RestAssured.withNoArgs instead)
 * Renamed the following methods:
     - io.restassured.authentication.CertificateAuthSettings.keystoreType to io.restassured.authentication.CertificateAuthSettings.keyStoreType
     - io.restassured.authentication.CertificateAuthSettings.getKeystoreType to io.restassured.authentication.CertificateAuthSettings.getKeyStoreType
