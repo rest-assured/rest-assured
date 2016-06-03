@@ -72,9 +72,7 @@ String xml = post("/shopping").andReturn().body().asString()
 Node category = from(xml).get("shopping.category[0]");
 ```
 
-REST Assured supports the *POST*, *GET*, *PUT*, *DELETE*, *OPTIONS*, *PATCH* and *HEAD* http 
-methods and includes specifying and validating e.g. parameters, headers, cookies 
-and body easily.
+REST Assured supports any HTTP method but has explicit support for *POST*, *GET*, *PUT*, *DELETE*, *OPTIONS*, *PATCH* and *HEAD* and includes specifying and validating e.g. parameters, headers, cookies and body easily.
 
 
 ## Documentation
