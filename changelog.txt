@@ -163,6 +163,7 @@ Change log next release
     - io.restassured.specification.RequestSpecification.keystore to io.restassured.specification.RequestSpecification.keyStore
     - io.restassured.RestAssured.keystore to io.restassured.RestAssured.keyStore
     - io.restassured.builder.RequestSpecBuilder.setKeystore to io.restassured.builder.RequestSpecBuilder.setKeyStore
+* You can now do multipart file uploading for all HTTP verbs (even GET, OPTIONS etc)
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------

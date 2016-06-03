@@ -476,4 +476,34 @@ public class MultiPartUploadITest extends WithJetty {
         when().
                 put("/multipart/file");
     }
+
+    @Test
+    public void multiPartByteArrayUploadingWorksUsingGet() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                multiPart("file", "myFile", bytes).
+        when().
+                get("/multipart/file").
+        then().
+                statusCode(200).
+                body(is(new String(bytes)));
+    }
+
+    @Test
+    public void multiPartByteArrayUploadingWorksUsingOptions() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                multiPart("file", "myFile", bytes).
+        when().
+                options("/multipart/file").
+        then().
+                statusCode(200).
+                body(is(new String(bytes)));
+    }
 }

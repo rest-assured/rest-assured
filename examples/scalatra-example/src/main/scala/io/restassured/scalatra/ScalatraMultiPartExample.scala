@@ -30,6 +30,14 @@ class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
     getFileContent()
   }
 
+  get("/file") {
+    getFileContent()
+  }
+
+  options("/file") {
+    getFileContent()
+  }
+
   patch("/file") {
     getFileContent()
   }
