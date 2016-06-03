@@ -178,7 +178,7 @@ public class CertificateAuthSettings {
      * @param keyStore The key store to use, by default no (<code>null</code>) key store is used.
      * @return A new instance of {@link CertificateAuthSettings} with the updated setting.
      */
-    public CertificateAuthSettings keyStore(KeyStore keyStore) {
+    public CertificateAuthSettings keystore(KeyStore keyStore) {
         return new CertificateAuthSettings(keystoreType, trustStoreType, port, trustStore, keyStore, x509HostnameVerifier, sslSocketFactory);
     }
 

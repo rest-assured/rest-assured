@@ -1267,7 +1267,7 @@ public class RestAssured {
     public static AuthenticationScheme certificate(String certURL, String password) {
         SSLConfig sslConfig = config().getSSLConfig();
         return certificate(certURL, password, CertificateAuthSettings.certAuthSettings().keystoreType(sslConfig.getKeyStoreType()).trustStore(sslConfig.getTrustStore()).
-                keyStore(sslConfig.getKeyStore()).trustStoreType(sslConfig.getTrustStoreType()).x509HostnameVerifier(sslConfig.getX509HostnameVerifier()).
+                keystore(sslConfig.getKeyStore()).trustStoreType(sslConfig.getTrustStoreType()).x509HostnameVerifier(sslConfig.getX509HostnameVerifier()).
                 port(sslConfig.getPort()).sslSocketFactory(sslConfig.getSSLSocketFactory()));
     }
 

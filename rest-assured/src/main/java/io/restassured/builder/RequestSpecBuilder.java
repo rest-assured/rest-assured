@@ -1438,8 +1438,8 @@ public class RequestSpecBuilder {
      * @return RequestSpecBuilder
      * @see #setKeystore(String, String)
      */
-    public RequestSpecBuilder setKeyStore(KeyStore keyStore) {
-        spec.keyStore(keyStore);
+    public RequestSpecBuilder setKeystore(KeyStore keyStore) {
+        spec.keystore(keyStore);
         return this;
     }
 

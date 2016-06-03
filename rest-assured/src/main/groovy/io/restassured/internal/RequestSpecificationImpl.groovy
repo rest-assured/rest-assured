@@ -594,9 +594,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  def RequestSpecification keyStore(KeyStore keyStore) {
+  def RequestSpecification keystore(KeyStore keyStore) {
     def sslConfig = restAssuredConfig().getSSLConfig()
-    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keyStore(keyStore))
+    restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keystore(keyStore))
     this
   }
 
