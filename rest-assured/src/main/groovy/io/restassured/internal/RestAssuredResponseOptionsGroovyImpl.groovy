@@ -28,7 +28,6 @@ import io.restassured.http.Cookies
 import io.restassured.http.Header
 import io.restassured.http.Headers
 import io.restassured.internal.http.CharsetExtractor
-import io.restassured.internal.mapper.ObjectMapperType
 import io.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
 import io.restassured.internal.mapping.ObjectMapping
 import io.restassured.internal.print.ResponsePrinter
@@ -37,6 +36,7 @@ import io.restassured.internal.support.Prettifier
 import io.restassured.mapper.DataToDeserialize
 import io.restassured.mapper.ObjectMapper
 import io.restassured.mapper.ObjectMapperDeserializationContext
+import io.restassured.mapper.ObjectMapperType
 import io.restassured.path.json.JsonPath
 import io.restassured.path.json.config.JsonPathConfig
 import io.restassured.path.xml.XmlPath

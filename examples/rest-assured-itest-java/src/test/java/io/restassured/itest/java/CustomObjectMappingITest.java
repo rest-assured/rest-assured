@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.ObjectMapperConfig.objectMapperConfig;
-import static io.restassured.internal.mapper.ObjectMapperType.GSON;
+import static io.restassured.mapper.ObjectMapperType.GSON;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;

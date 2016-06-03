@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.internal.mapper;
+package io.restassured.mapper;
 
 /**
  * The predefined object mappers that can be used with REST Assured

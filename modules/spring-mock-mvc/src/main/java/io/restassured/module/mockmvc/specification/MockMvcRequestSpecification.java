@@ -18,8 +18,8 @@ package io.restassured.module.mockmvc.specification;
 
 import io.restassured.config.SessionConfig;
 import io.restassured.http.*;
-import io.restassured.internal.mapper.ObjectMapperType;
 import io.restassured.mapper.ObjectMapper;
+import io.restassured.mapper.ObjectMapperType;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import org.springframework.mock.web.MockHttpServletRequest;

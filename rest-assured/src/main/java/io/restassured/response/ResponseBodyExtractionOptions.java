@@ -16,8 +16,8 @@
 
 package io.restassured.response;
 
-import io.restassured.internal.mapper.ObjectMapperType;
 import io.restassured.mapper.ObjectMapper;
+import io.restassured.mapper.ObjectMapperType;
 import io.restassured.path.json.JsonPath;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.xml.XmlPath;

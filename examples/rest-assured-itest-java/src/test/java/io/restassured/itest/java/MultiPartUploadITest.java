@@ -18,16 +18,16 @@ package io.restassured.itest.java;
 
 import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.config.EncoderConfig;
 import io.restassured.http.ContentType;
-import io.restassured.internal.mapper.ObjectMapperType;
 import io.restassured.internal.mapping.Jackson2Mapper;
 import io.restassured.itest.java.objects.Greeting;
 import io.restassured.itest.java.objects.Message;
 import io.restassured.itest.java.support.MyEnum;
 import io.restassured.itest.java.support.WithJetty;
+import io.restassured.mapper.ObjectMapperType;
 import io.restassured.mapper.factory.DefaultJackson2ObjectMapperFactory;
 import io.restassured.specification.RequestSpecification;
-import io.restassured.config.EncoderConfig;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;

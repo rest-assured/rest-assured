@@ -17,11 +17,11 @@ package io.restassured.builder;
 
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.ObjectMapperConfig;
-import io.restassured.internal.mapper.ObjectMapperType;
 import io.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
 import io.restassured.internal.mapping.ObjectMapping;
 import io.restassured.internal.multipart.MultiPartSpecificationImpl;
 import io.restassured.mapper.ObjectMapper;
+import io.restassured.mapper.ObjectMapperType;
 import io.restassured.specification.MultiPartSpecification;
 import org.apache.commons.lang3.Validate;
 

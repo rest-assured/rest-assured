@@ -31,7 +31,6 @@ import io.restassured.internal.filter.FormAuthFilter
 import io.restassured.internal.filter.SendRequestFilter
 import io.restassured.internal.http.*
 import io.restassured.internal.log.LogRepository
-import io.restassured.internal.mapper.ObjectMapperType
 import io.restassured.internal.mapping.ObjectMapperSerializationContextImpl
 import io.restassured.internal.mapping.ObjectMapping
 import io.restassured.internal.multipart.MultiPartInternal
@@ -42,6 +41,7 @@ import io.restassured.internal.proxy.RestAssuredProxySelectorRoutePlanner
 import io.restassured.internal.support.ParameterUpdater
 import io.restassured.internal.support.PathSupport
 import io.restassured.mapper.ObjectMapper
+import io.restassured.mapper.ObjectMapperType
 import io.restassured.parsing.Parser
 import io.restassured.response.Response
 import io.restassured.specification.*

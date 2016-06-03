@@ -21,10 +21,10 @@ import io.restassured.config.EncoderConfig
 import io.restassured.config.ObjectMapperConfig
 import io.restassured.http.ContentType
 import io.restassured.internal.http.ContentTypeExtractor
-import io.restassured.internal.mapper.ObjectMapperType
 import io.restassured.mapper.DataToDeserialize
 import io.restassured.mapper.ObjectMapperDeserializationContext
 import io.restassured.mapper.ObjectMapperSerializationContext
+import io.restassured.mapper.ObjectMapperType
 import io.restassured.mapper.factory.GsonObjectMapperFactory
 import io.restassured.mapper.factory.JAXBObjectMapperFactory
 import io.restassured.mapper.factory.Jackson1ObjectMapperFactory

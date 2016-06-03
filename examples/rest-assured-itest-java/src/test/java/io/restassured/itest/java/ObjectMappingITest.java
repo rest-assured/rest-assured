@@ -17,13 +17,13 @@
 package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.itest.java.objects.Greeting;
 import io.restassured.itest.java.objects.Message;
 import io.restassured.itest.java.objects.ScalatraObject;
 import io.restassured.itest.java.support.WithJetty;
-import io.restassured.config.RestAssuredConfig;
-import io.restassured.internal.mapper.ObjectMapperType;
+import io.restassured.mapper.ObjectMapperType;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.*;

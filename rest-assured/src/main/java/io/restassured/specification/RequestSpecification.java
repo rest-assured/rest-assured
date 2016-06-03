@@ -20,8 +20,8 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SessionConfig;
 import io.restassured.filter.Filter;
 import io.restassured.http.*;
-import io.restassured.internal.mapper.ObjectMapperType;
 import io.restassured.mapper.ObjectMapper;
+import io.restassured.mapper.ObjectMapperType;
 
 import java.io.File;
 import java.io.InputStream;

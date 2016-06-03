@@ -16,8 +16,6 @@
 
 package io.restassured.mapper;
 
-import io.restassured.internal.mapper.ObjectMapperType;
-
 /**
  * An object mapper is used to serialize and deserialize a Java object to and from a String, byte[] or InputStream. REST Assured provides
  * mappers for XML and JSON out of the box (see {@link ObjectMapperType}) but you can implement this interface

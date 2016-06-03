@@ -16,8 +16,8 @@
 
 package io.restassured.config;
 
-import io.restassured.internal.mapper.ObjectMapperType;
 import io.restassured.mapper.ObjectMapper;
+import io.restassured.mapper.ObjectMapperType;
 import io.restassured.mapper.factory.*;
 import org.apache.commons.lang3.Validate;
 
