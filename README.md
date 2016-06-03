@@ -1,8 +1,8 @@
 ![REST Assured](rest-assured-logo-green.png)
 
-[![Build Status](https://travis-ci.org/rest-assured/rest-assured.svg)](https://travis-ci.org/rest-assured/rest-assured)![tag](http://img.shields.io/github/tag/jayway/rest-assured.svg)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.jayway.restassured/rest-assured/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.jayway.restassured/rest-assured)
-[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/com.jayway.restassured/rest-assured/badge.svg)](http://www.javadoc.io/doc/com.jayway.restassured/rest-assured)
+[![Build Status](https://travis-ci.org/rest-assured/rest-assured.svg)](https://travis-ci.org/rest-assured/rest-assured)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.restassured/rest-assured/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.restassured/rest-assured)
+[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/io.restassured/rest-assured/badge.svg)](http://www.javadoc.io/doc/io.restassured/rest-assured)
 
 
 Testing and validation of REST services in Java is harder than in dynamic languages 
@@ -11,11 +11,11 @@ languages into the Java domain.
 
 
 ## News 
-* 2016-06-03: REST Assured [3.0.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.0.0-dist.zip) is released. This is a new major release with lots of updates and new features such as the ability to use [any HTTP method](https://github.com/rest-assured/rest-assured/wiki/Usage#invoking-http-resources), all HTTP methods now supports multipart uploads, improved error messages, improved JsonPath etc. **Note** The package name has changed to `io.restassured` and the groupId has changed to `io.rest-assured`. Please see [release notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes30) and [getting started guide](https://github.com/rest-assured/rest-assured/wiki/GettingStarted) for more details.
+* 2016-06-03: REST Assured [3.0.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.0.0-dist.zip) is released. This is a new major release with lots of updates and new features such as the ability to use [any HTTP method](https://github.com/rest-assured/rest-assured/wiki/Usage#invoking-http-resources), all HTTP methods now supports multipart uploads, improved error messages, improved JsonPath etc. **Note** The package name has changed to `io.restassured` and the groupId has changed to `io.rest-assured`. Please see [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes30) and [getting started guide](https://github.com/rest-assured/rest-assured/wiki/GettingStarted) for more details.
 * 2016-06-01: [Spring REST Docs](http://projects.spring.io/spring-restdocs/) 1.1.0 is released with support for REST Assured. Read more about it [here](https://spring.io/blog/2016/05/31/spring-rest-docs-1-1-0-release).
-* 2016-03-04: REST Assured [2.9.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-2.9.0-dist.zip) is released. This is essentially a maintenance release but it comes with big changes in how keystores and truststores are used. This release is not 100% backward compatible so please see [release notes](https://github.com/jayway/rest-assured/wiki/ReleaseNotes29) for more details.
+* 2016-03-04: REST Assured [2.9.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-2.9.0-dist.zip) is released. This is essentially a maintenance release but it comes with big changes in how keystores and truststores are used. This release is not 100% backward compatible so please see [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes29) for more details.
 
-[Older News](https://github.com/jayway/rest-assured/wiki/OldNews)
+[Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
 
 ## Examples
@@ -80,11 +80,11 @@ REST Assured supports any HTTP method but has explicit support for *POST*, *GET*
 * [Getting started](https://github.com/rest-assured/rest-assured/wiki/GettingStarted)
 * [Downloads](https://github.com/rest-assured/rest-assured/wiki/Downloads)
 * [Usage Guide](https://github.com/rest-assured/rest-assured/wiki/Usage) (click [here](https://github.com/rest-assured/rest-assured/wiki/Usage_Legacy) for legacy documentation)
-* [Javadoc](http://www.javadoc.io/doc/com.jayway.restassured/rest-assured/2.8.0)
-* [Rest Assured Javadoc](http://static.javadoc.io/com.jayway.restassured/rest-assured/2.8.0/com/jayway/restassured/RestAssured.html)
-* [Rest AssuredMockMvc Javadoc](http://static.javadoc.io/com.jayway.restassured/spring-mock-mvc/2.8.0/com/jayway/restassured/module/mockmvc/RestAssuredMockMvc.html)
-* [XmlPath Javadoc](http://static.javadoc.io/com.jayway.restassured/xml-path/2.8.0/com/jayway/restassured/path/xml/XmlPath.html)
-* [JsonPath Javadoc](http://static.javadoc.io/com.jayway.restassured/json-path/2.8.0/com/jayway/restassured/path/json/JsonPath.html)
+* [Javadoc](http://www.javadoc.io/doc/io.restassured/rest-assured/3.0.0)
+* [Rest Assured Javadoc](http://static.javadoc.io/io.restassured/rest-assured/3.0.0/io/restassured/RestAssured.html)
+* [Rest AssuredMockMvc Javadoc](http://static.javadoc.io/io.restassured/spring-mock-mvc/3.0.0/io/restassured/module/mockmvc/RestAssuredMockMvc.html)
+* [XmlPath Javadoc](http://static.javadoc.io/io.restassured/xml-path/3.0.0/io/restassured/path/xml/XmlPath.html)
+* [JsonPath Javadoc](http://static.javadoc.io/io.restassured/json-path/3.0.0/io/restassured/path/json/JsonPath.html)
 * [Release Notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes)
 * [FAQ](https://github.com/rest-assured/rest-assured/wiki/FAQ)
 
@@ -92,6 +92,6 @@ REST Assured supports any HTTP method but has explicit support for *POST*, *GET*
 Join the mailing list at our [Google group](http://groups.google.com/group/rest-assured). 
 
 ## Links
-* [Change log](https://github.com/jayway/rest-assured/raw/master/changelog.txt)
+* [Change log](https://github.com/rest-assured/rest-assured/raw/master/changelog.txt)
 * REST Assured on [Ohloh](https://www.ohloh.net/p/rest-assured)
 * [Mailing list](http://groups.google.com/group/rest-assured) for questions and support
