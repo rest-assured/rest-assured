@@ -92,7 +92,7 @@ Change log next release
     then().
             statusCode(301).
             header("Location", response -> endsWith("/redirect/"+response.path("id")));
-  (issue 692)
+  This has also been implemented for the MockMvc module (issue 692).
 
 Change log 2.9.0 (2016-03-04)
 -----------------------------
