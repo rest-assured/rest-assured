@@ -47,7 +47,7 @@ Change log next release
 * Improved proxy authentication to use Apache HTTP Client's built in features (issue 693)
 * Fixed NPE trying to close an empty response which was read as an inputstream (issue 685)
 * Added ability to remove headers from a filter by using the FilterableRequestSpecification#removeHeader method (issue 539)
-* Remove the following deprecated methods:
+* Removed the following deprecated methods:
     - com.jayway.restassured.specification.AuthenticationSpecification.certificate(java.lang.String, java.lang.String, java.lang.String, int) (use com.jayway.restassured.specification.AuthenticationSpecification.certificate(java.lang.String, java.lang.String, com.jayway.restassured.authentication.CertificateAuthSettings) instead)
     - com.jayway.restassured.RestAssured.requestContentType(com.jayway.restassured.http.ContentType) (use a com.jayway.restassured.builder.RequestSpecBuilder, set the content-type and apply it to com.jayway.restassured.RestAssured.requestSpecification)
     - com.jayway.restassured.RestAssured.responseContentType(java.lang.String) (Use com.jayway.restassured.builder.ResponseSpecBuilder.expectContentType(com.jayway.restassured.http.ContentType) and apply it to com.jayway.restassured.RestAssured.responseSpecification instead)
