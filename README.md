@@ -1,8 +1,8 @@
 ![REST Assured](rest-assured-logo-green.png)
 
 [![Build Status](https://travis-ci.org/rest-assured/rest-assured.svg)](https://travis-ci.org/rest-assured/rest-assured)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.restassured/rest-assured/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.restassured/rest-assured)
-[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/io.restassured/rest-assured/badge.svg)](http://www.javadoc.io/doc/io.restassured/rest-assured)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.rest-assured/rest-assured/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.rest-assured/rest-assured)
+[![Javadoc](https://javadoc-emblem.rhcloud.com/doc/io.rest-assured/rest-assured/badge.svg)](http://www.javadoc.io/doc/io.rest-assured/rest-assured)
 
 
 Testing and validation of REST services in Java is harder than in dynamic languages 
