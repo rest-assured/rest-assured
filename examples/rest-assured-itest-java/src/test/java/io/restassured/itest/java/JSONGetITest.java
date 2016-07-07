@@ -580,4 +580,19 @@ public class JSONGetITest extends WithJetty {
     json_parser_is_used_for_text_json_content_type() {
         when().get("/text-json").then().body("test", is(true));
     }
+
+    @Test public void
+    throws_assertion_error_when_multiple_keys_are_the_same_in_a_multi_body_expectation_and_the_non_last_fails() {
+        exception.expect(AssertionError.class);
+        exception.expectMessage("Expected: <7>\n" +
+                "  Actual: 5");
+
+        when().
+                get("/lotto").
+        then().
+                root("lotto").
+                body("lottoId", greaterThan(1),
+                     "lottoId", equalTo(7),
+                     "lottoId", lessThan(9));
+    }
 }

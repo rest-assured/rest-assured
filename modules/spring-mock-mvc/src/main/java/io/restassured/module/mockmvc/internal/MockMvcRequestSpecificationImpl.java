@@ -23,6 +23,7 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.*;
 import io.restassured.internal.MapCreator;
+import io.restassured.internal.MapCreator.CollisionStrategy;
 import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
@@ -202,7 +203,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification headers(String firstHeaderName, Object firstHeaderValue, Object... headerNameValuePairs) {
-        return headers(MapCreator.createMapFromParams(firstHeaderName, firstHeaderValue, headerNameValuePairs));
+        return headers(MapCreator.createMapFromParams(CollisionStrategy.MERGE, firstHeaderName, firstHeaderValue, headerNameValuePairs));
     }
 
     public MockMvcRequestSpecification headers(Map<String, ?> headers) {
@@ -215,7 +216,15 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
 
         for (Map.Entry<String, ?> stringEntry : headers.entrySet()) {
-            headerList.add(new Header(stringEntry.getKey(), serializeIfNeeded(stringEntry.getValue())));
+            Object value = stringEntry.getValue();
+            if (value instanceof List) {
+                List<?> values = (List<?>) value;
+                for (Object o : values) {
+                    headerList.add(new Header(stringEntry.getKey(), serializeIfNeeded(o)));
+                }
+            } else {
+                headerList.add(new Header(stringEntry.getKey(), serializeIfNeeded(value)));
+            }
         }
 
         this.requestHeaders = new Headers(headerList);
@@ -296,7 +305,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification params(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
         notNull(firstParameterName, "firstParameterName");
         notNull(firstParameterValue, "firstParameterValue");
-        return params(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs));
+        return params(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs));
     }
 
     public MockMvcRequestSpecification params(Map<String, ?> parametersMap) {
@@ -321,7 +330,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification queryParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
         notNull(firstParameterName, "firstParameterName");
         notNull(firstParameterValue, "firstParameterValue");
-        return queryParams(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs));
+        return queryParams(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs));
     }
 
     public MockMvcRequestSpecification queryParams(Map<String, ?> parametersMap) {
@@ -346,7 +355,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification formParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
         notNull(firstParameterName, "firstParameterName");
         notNull(firstParameterValue, "firstParameterValue");
-        return formParams(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs));
+        return formParams(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs));
     }
 
     public MockMvcRequestSpecification formParams(Map<String, ?> parametersMap) {
@@ -428,7 +437,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification cookies(String firstCookieName, Object firstCookieValue, Object... cookieNameValuePairs) {
-        return cookies(MapCreator.createMapFromParams(firstCookieName, firstCookieValue, cookieNameValuePairs));
+        return cookies(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstCookieName, firstCookieValue, cookieNameValuePairs));
     }
 
     public MockMvcRequestSpecification cookies(Map<String, ?> cookies) {

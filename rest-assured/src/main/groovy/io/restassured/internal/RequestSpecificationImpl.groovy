@@ -26,6 +26,7 @@ import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
 import io.restassured.filter.time.TimingFilter
 import io.restassured.http.*
+import io.restassured.internal.MapCreator.CollisionStrategy
 import io.restassured.internal.filter.FilterContextImpl
 import io.restassured.internal.filter.FormAuthFilter
 import io.restassured.internal.filter.SendRequestFilter
@@ -344,7 +345,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification parameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
     notNull firstParameterName, "firstParameterName"
     notNull firstParameterValue, "firstParameterValue"
-    return parameters(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs))
+    return parameters(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs))
   }
 
   def RequestSpecification parameters(Map parametersMap) {
@@ -415,7 +416,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification queryParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
     notNull firstParameterName, "firstParameterName"
     notNull firstParameterValue, "firstParameterValue"
-    return queryParameters(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs))
+    return queryParameters(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs))
   }
 
   def RequestSpecification queryParameters(Map parametersMap) {
@@ -462,7 +463,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification formParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
     notNull firstParameterName, "firstParameterName"
     notNull firstParameterValue, "firstParameterValue"
-    return formParameters(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs))
+    return formParameters(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs))
   }
 
   def RequestSpecification formParameters(Map parametersMap) {
@@ -504,7 +505,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   def RequestSpecification pathParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
     notNull firstParameterName, "firstParameterName"
     notNull firstParameterValue, "firstParameterValue"
-    return pathParameters(MapCreator.createMapFromParams(firstParameterName, firstParameterValue, parameterNameValuePairs))
+    return pathParameters(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs))
   }
 
   def RequestSpecification pathParameters(Map parameterNameValuePairs) {
@@ -826,7 +827,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       headerList.addAll(this.requestHeaders.list())
     }
     headers.each {
-      headerList << new Header(it.key, serializeIfNeeded(it.value))
+      if (it.value instanceof List) {
+        it.value.each { val ->
+          headerList << new Header(it.key, serializeIfNeeded(val))
+        }
+      } else {
+        headerList << new Header(it.key, serializeIfNeeded(it.value))
+      }
     }
     headerList = removeMergedHeadersIfNeeded(headerList)
     this.requestHeaders = new Headers(headerList)
@@ -880,11 +887,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   RequestSpecification headers(String firstHeaderName, Object firstHeaderValue, Object... headerNameValuePairs) {
-    return headers(MapCreator.createMapFromParams(firstHeaderName, firstHeaderValue, headerNameValuePairs))
+    return headers(MapCreator.createMapFromParams(CollisionStrategy.MERGE, firstHeaderName, firstHeaderValue, headerNameValuePairs))
   }
 
   RequestSpecification cookies(String firstCookieName, Object firstCookieValue, Object... cookieNameValuePairs) {
-    return cookies(MapCreator.createMapFromParams(firstCookieName, firstCookieValue, cookieNameValuePairs))
+    return cookies(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstCookieName, firstCookieValue, cookieNameValuePairs))
   }
 
   RequestSpecification cookies(Map cookies) {

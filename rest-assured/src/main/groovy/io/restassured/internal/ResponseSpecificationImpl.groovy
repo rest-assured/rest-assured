@@ -21,6 +21,7 @@ import io.restassured.assertion.*
 import io.restassured.config.RestAssuredConfig
 import io.restassured.function.RestAssuredFunction
 import io.restassured.http.ContentType
+import io.restassured.internal.MapCreator.CollisionStrategy
 import io.restassured.internal.log.LogRepository
 import io.restassured.parsing.Parser
 import io.restassured.response.Response
@@ -140,7 +141,13 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     notNull(expectedHeaders, "expectedHeaders")
     validateResponseIfRequired {
       expectedHeaders.each { headerName, matcher ->
-        headerAssertions << new HeaderMatcher(headerName: headerName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
+        if (matcher instanceof List) {
+          matcher.each {
+            headerAssertions << new HeaderMatcher(headerName: headerName, matcher: it instanceof Matcher ? it : equalTo(it))
+          }
+        } else {
+          headerAssertions << new HeaderMatcher(headerName: headerName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
+        }
       }
     }
     return this
@@ -149,7 +156,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   def ResponseSpecification headers(String firstExpectedHeaderName, Object firstExpectedHeaderValue, Object... expectedHeaders) {
     notNull firstExpectedHeaderName, "firstExpectedHeaderName"
     notNull firstExpectedHeaderValue, "firstExpectedHeaderValue"
-    return headers(MapCreator.createMapFromParams(firstExpectedHeaderName, firstExpectedHeaderValue, expectedHeaders))
+    return headers(MapCreator.createMapFromParams(CollisionStrategy.MERGE, firstExpectedHeaderName, firstExpectedHeaderValue, expectedHeaders))
   }
 
   def <T> ResponseSpecification header(String headerName, RestAssuredFunction<String, T> mappingFunction, Matcher<? super T> expectedValueMatcher) {
@@ -181,7 +188,13 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
     validateResponseIfRequired {
       expectedCookies.each { cookieName, matcher ->
-        cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
+        if (matcher instanceof List) {
+          match.each {
+            cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: it instanceof Matcher ? it : equalTo(it))
+          }
+        } else {
+          cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: matcher instanceof Matcher ? matcher : equalTo(matcher))
+        }
       }
     }
     return this
@@ -192,7 +205,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     notNull firstExpectedCookieValue, "firstExpectedCookieValue"
     notNull expectedCookieNameValuePairs, "expectedCookieNameValuePairs"
 
-    return cookies(MapCreator.createMapFromParams(firstExpectedCookieName, firstExpectedCookieValue, expectedCookieNameValuePairs))
+    return cookies(MapCreator.createMapFromParams(CollisionStrategy.MERGE, firstExpectedCookieName, firstExpectedCookieValue, expectedCookieNameValuePairs))
   }
 
   def ResponseSpecification cookie(String cookieName, Matcher expectedValueMatcher) {
@@ -251,10 +264,16 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     validateResponseIfRequired {
       bodyMatchers << new BodyMatcher(key: mergedPath, matcher: matcher, rpr: rpr)
       if (additionalKeyMatcherPairs?.length > 0) {
-        def pairs = MapCreator.createMapFromObjects(additionalKeyMatcherPairs)
+        def pairs = MapCreator.createMapFromObjects(CollisionStrategy.MERGE, additionalKeyMatcherPairs)
         pairs.each { matchingKey, hamcrestMatcher ->
           def keyWithRoot = mergeKeyWithRootPath(matchingKey)
-          bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: hamcrestMatcher, rpr: rpr)
+          if (hamcrestMatcher instanceof List) {
+            hamcrestMatcher.each { m ->
+              bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: m, rpr: rpr)
+            }
+          } else {
+            bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: hamcrestMatcher, rpr: rpr)
+          }
         }
       }
     }
