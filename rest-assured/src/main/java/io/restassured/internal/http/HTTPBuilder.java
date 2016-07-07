@@ -533,7 +533,6 @@ public abstract class HTTPBuilder {
             if (ContentType.ANY.toString().equals(responseContentType))
                 responseContentType = HttpResponseContentTypeFinder.findContentType(resp);
         } catch (RuntimeException ex) {
-            log.warn("Could not parse content-type: " + ex.getMessage());
             /* if for whatever reason we can't determine the content-type, but
                 * still want to attempt to parse the data, use the BINARY
                 * content-type so that the response will be buffered into a
@@ -544,7 +543,7 @@ public abstract class HTTPBuilder {
         Object parsedData = null;
         log.debug("Parsing response as: " + responseContentType);
         parsedData = resp.getEntity().getContent();
-        if (parsedData == null) log.warn("Parser returned null!");
+        if (parsedData == null) log.debug("Parser returned null!");
         else log.debug("Parsed data to instance of: " + parsedData.getClass());
         return parsedData;
     }
@@ -603,7 +602,7 @@ public abstract class HTTPBuilder {
                 DefaultGroovyMethods.leftShift(buffer, (Reader) parsedData);
                 parsedData = new StringReader(buffer.toString());
             } else if (parsedData instanceof Closeable)
-                log.warn("Parsed data is streaming, but will be accessible after " +
+                log.debug("Parsed data is streaming, but will be accessible after " +
                         "the network connection is closed.  Use at your own risk!");
             return parsedData;
         } catch (IOException ex) {
@@ -1005,7 +1004,7 @@ public abstract class HTTPBuilder {
 
             Map query = (Map) args.get("params");
             if (query != null) {
-                log.warn("'params' argument is deprecated; use 'query' instead.");
+                log.debug("'params' argument is deprecated; use 'query' instead.");
                 this.uri.setQuery(query);
             }
             query = (Map) args.get("query");
