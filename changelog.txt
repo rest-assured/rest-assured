@@ -2,7 +2,7 @@ Change log next version
 -----------------------
 * Fixed issues with colliding keys in multi-expectations for body and header validations. For example if "/x" returns the JSON { "x" : 2 } this would (previously) not throw an asertion error:
     when().
-         get("/lotto").
+         get("/x").
     then().
          body("x", greaterThan(1),
               "x", equalTo(5),
