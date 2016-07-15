@@ -23,6 +23,7 @@ import io.restassured.http.Cookies
 import org.apache.commons.lang3.StringUtils
 import org.apache.http.client.utils.DateUtils
 import org.hamcrest.Matcher
+import org.hamcrest.StringDescription
 
 import static io.restassured.http.Cookie.*
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase
@@ -32,6 +33,8 @@ class CookieMatcher {
 
     def cookieName
     def Matcher<String> matcher
+
+
 
     def validateCookie(List<String> cookies) {
         def success = true
@@ -50,12 +53,26 @@ class CookieMatcher {
                 def value = cookie.getValue()
                 if(!matcher.matches(value)) {
                     success = false
-                    errorMessage = "Expected cookie \"$cookieName\" was not $matcher, was \"$value\".\n"
+                    def expectedDescription = getExpectedDescription(matcher)
+                    def mismatchDescription = getMismatchDescription(matcher, value)
+                    errorMessage = "Expected cookie \"$cookieName\" was $expectedDescription, $mismatchDescription\".\n"
 
                 }
             }
         }
         [success: success, errorMessage: errorMessage]
+    }
+
+    public static String getExpectedDescription(Matcher matcher) {
+        def expectedDescription = new StringDescription()
+        matcher.describeTo(expectedDescription)
+        return expectedDescription.toString()
+    }
+
+    public static String getMismatchDescription(Matcher matcher, value) {
+        def mismatchDescription = new StringDescription()
+        matcher.describeMismatch(value, mismatchDescription)
+        return mismatchDescription.toString()
     }
 
     public static Cookies getCookies(headerWithCookieList) {
@@ -122,4 +139,6 @@ class CookieMatcher {
             }
         }
     }
+
+
 }
