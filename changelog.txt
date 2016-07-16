@@ -9,6 +9,7 @@ Change log next version
               "x", lessThan(3));
   The reason was the only the last first and last "x" expectation were taken into account (issue 714).
 * Removed log.warn(..) messages from internal classes (issue 715)
+* Cookie attributes are no longer sent in request in accordance with RFC6265. Thanks to Maciej Gawinecki for pull request. (issue 720)
 
 Change log 3.0.0 (2016-06-03)
 -----------------------------
