@@ -55,7 +55,7 @@ class CookieMatcher {
                     success = false
                     def expectedDescription = getExpectedDescription(matcher)
                     def mismatchDescription = getMismatchDescription(matcher, value)
-                    errorMessage = "Expected cookie \"$cookieName\" was $expectedDescription, $mismatchDescription\".\n"
+                    errorMessage = "Expected cookie \"$cookieName\" was not $expectedDescription, $mismatchDescription.\n"
 
                 }
             }

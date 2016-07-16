@@ -1,6 +1,5 @@
 package io.restassured.assertion;
 
-import org.codehaus.groovy.runtime.GStringImpl;
 import org.hamcrest.Description;
 import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
@@ -15,9 +14,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 /**
  * @author Maciej Gawinecki
  */
+@SuppressWarnings("unchecked")
 public class CookieMatcherMessagesTest {
 
-    String[] cookies = new String[]{"DEVICE_ID=123; Domain=.test.com; Expires=Thu, 12-Oct-2023 09:34:31 GMT; Path=/; Secure; HttpOnly;"};
+    private String[] cookies = new String[]{"DEVICE_ID=123; Domain=.test.com; Expires=Thu, 12-Oct-2023 09:34:31 GMT; Path=/; Secure; HttpOnly;"};
 
     @Test
     public void shouldPrintValidErrorMessageForStandardMatchers() {
@@ -28,7 +28,7 @@ public class CookieMatcherMessagesTest {
 
         Map<String, Object> result = (Map<String, Object>) cookieMatcher.validateCookie(Arrays.asList(cookies));
         assertThat((Boolean)result.get("success"), equalTo(false));
-        assertThat(((GStringImpl)result.get("errorMessage")).toString(), equalTo("Expected cookie \"DEVICE_ID\" was a string containing \"X\", was \"123\"\".\n"));
+        assertThat(result.get("errorMessage").toString(), equalTo("Expected cookie \"DEVICE_ID\" was not a string containing \"X\", was \"123\".\n"));
     }
 
     @Test
@@ -40,11 +40,10 @@ public class CookieMatcherMessagesTest {
 
         Map<String, Object> result = (Map<String, Object>) cookieMatcher.validateCookie(Arrays.asList(cookies));
         assertThat((Boolean)result.get("success"), equalTo(false));
-        assertThat(((GStringImpl)result.get("errorMessage")).toString(), equalTo("Expected cookie \"DEVICE_ID\" was containing 'X', was \"123\" not containing 'X'\".\n"));
+        assertThat(result.get("errorMessage").toString(), equalTo("Expected cookie \"DEVICE_ID\" was not containing 'X', \"123\" not containing 'X'.\n"));
     }
 
-
-    static class ContainsXMatcher extends TypeSafeDiagnosingMatcher<String> {
+    private static class ContainsXMatcher extends TypeSafeDiagnosingMatcher<String> {
 
         @Override
         protected boolean matchesSafely(String actual, Description mismatchDescription) {
