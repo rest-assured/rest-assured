@@ -1173,7 +1173,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     setRequestHeadersToHttpBuilder(http)
 
     if (cookies.exist()) {
-      http.getHeaders() << [Cookie: cookies.collect { it.toString() }.join("; ")]
+      http.getHeaders() << [Cookie: cookies.collect { it.name + "=" + it.value }.join("; ")]
     }
 
     // Allow returning a the response
