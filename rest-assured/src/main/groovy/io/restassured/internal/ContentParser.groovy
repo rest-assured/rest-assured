@@ -38,7 +38,7 @@ class ContentParser {
         case JSON:
           def slurper = new ConfigurableJsonSlurper(config.getJsonConfig().numberReturnType())
           if (parseAsString) {
-            content = slurper.parseText(response.asString(true))
+            content = slurper.parseText(response.asString())
           } else {
             def charset = CharsetExtractor.getCharsetFromContentType(response.getContentType()) ?: config.getDecoderConfig().defaultCharsetForContentType(response.getContentType());
             content = slurper.parse(new InputStreamReader(new BufferedInputStream(response.asInputStream()), charset))
