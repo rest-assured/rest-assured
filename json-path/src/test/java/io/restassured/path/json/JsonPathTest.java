@@ -211,7 +211,12 @@ public class JsonPathTest {
         final JsonPath jsonPath = new JsonPath(JSON).setRoot("store.book");
         assertThat(jsonPath.getInt("size()"), equalTo(4));
         assertThat(jsonPath.getList("author", String.class), hasItem("J. R. R. Tolkien"));
+    }
 
+    @Test
+    public void rootPathFollowedByArrayIndexing() throws Exception {
+        final JsonPath jsonPath = new JsonPath(JSON).setRoot("store.book");
+        assertThat(jsonPath.getString("[0].author"), equalTo("Nigel Rees"));
     }
 
     @Test

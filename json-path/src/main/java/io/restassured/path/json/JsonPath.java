@@ -941,7 +941,8 @@ public class JsonPath {
     private JSONAssertion createJsonAssertion(String path, Map<String, Object> params) {
         AssertParameter.notNull(path, "path");
         final JSONAssertion jsonAssertion = new JSONAssertion();
-        final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
+        final boolean appendDot = !rootPath.equals("") && !rootPath.endsWith(".") && !path.startsWith("[");
+        final String root = appendDot ? rootPath + "." : rootPath;
         jsonAssertion.setKey(root + path);
         if (params != null) {
             jsonAssertion.setParams(params);
