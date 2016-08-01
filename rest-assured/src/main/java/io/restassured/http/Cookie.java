@@ -33,7 +33,7 @@ import static io.restassured.internal.assertion.AssertParameter.notNull;
  * To construct a new new Cookie use the Builder like this:
  *
  * <pre>
- *  Cookie cookie = new Cookie.Builder("name", "value").setComment("some comment").setExpiryDate(someDate).build();
+ * Cookie cookie = new Cookie.Builder("name", "value").setComment("some comment").setExpiryDate(someDate).build();
  * </pre>
  *
  * Credits: Some of the javadoc in this class is copied from the <code>org.apache.http.cookie.Cookie</code> class in <a href="http://hc.apache.org/">Apache HTTP Client</a>.
@@ -185,7 +185,7 @@ public class Cookie implements NameAndValue {
      * The default value is false.
      * @return <code>true</code> if httpOnly
      */
-    public boolean isHttpOnly(){
+    public boolean isHttpOnly() {
         return httpOnly;
     }
 
@@ -210,7 +210,7 @@ public class Cookie implements NameAndValue {
      * until browser shutdown.
      *
      *
-     * @return	 an integer specifying the maximum age of the
+     * @return an integer specifying the maximum age of the
      *				cookie in seconds; if negative, means
      *				the cookie persists until browser shutdown
      */
@@ -218,7 +218,7 @@ public class Cookie implements NameAndValue {
         return maxAge;
     }
 
-     /**
+    /**
      * @return <code>true</code> if this cookie has a Max-Age defined, <code>false</code> otherwise.
      */
     public boolean hasMaxAge() {
@@ -265,33 +265,33 @@ public class Cookie implements NameAndValue {
     public String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append(name);
-        if(hasValue()) {
+        if (hasValue()) {
             builder.append(EQUALS).append(value);
         }
-        if(hasComment()) {
+        if (hasComment()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(COMMENT).append(EQUALS).append(comment);
         }
-        if(hasPath()) {
+        if (hasPath()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(PATH).append(EQUALS).append(path);
         }
-        if(hasDomain()) {
+        if (hasDomain()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(DOMAIN).append(EQUALS).append(domain);
         }
-        if(hasMaxAge()) {
+        if (hasMaxAge()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(MAX_AGE).append(EQUALS).append(maxAge);
         }
-        if(isSecured()) {
+        if (isSecured()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(SECURE);
         }
-        if(isHttpOnly()) {
+        if (isHttpOnly()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(HTTP_ONLY);
         }
-        if(hasExpiryDate()) {
+        if (hasExpiryDate()) {
             final SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
             simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(EXPIRES).append(EQUALS).append(simpleDateFormat.format(expiryDate));
         }
-        if(hasVersion()) {
+        if (hasVersion()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(VERSION).append(EQUALS).append(version);
         }
         return builder.toString();
@@ -384,14 +384,9 @@ public class Cookie implements NameAndValue {
          * By default, <code>-1</code> indicating the cookie will persist
          * until browser shutdown.
          *
-         * @return	 an integer specifying the maximum age of the
-         *				cookie in seconds; if negative, means
-         *				the cookie persists until browser shutdown
+         * @return an integer specifying the maximum age of the cookie in seconds; if negative, means the cookie persists until browser shutdown
          */
         public Builder setMaxAge(int maxAge) {
-            if(maxAge < -1) {
-                throw new IllegalArgumentException("Max-Age cannot be less than -1");
-            }
             this.maxAge = maxAge;
             return this;
         }
@@ -427,9 +422,9 @@ public class Cookie implements NameAndValue {
          * @return The builder
          */
         public Builder setVersion(int version) {
-            if(version < 0) {
+            if (version < 0) {
                 throw new IllegalArgumentException("Version cannot be less than 0");
-            } else if(version > 1) {
+            } else if (version > 1) {
                 throw new IllegalArgumentException("Version cannot be greater than 1");
             }
             this.version = version;
