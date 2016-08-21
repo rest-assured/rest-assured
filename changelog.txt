@@ -13,7 +13,8 @@ Change log next version
 * Mismatch description from TypeSafeDiagnosingMatcher is no longer ignored for when validating cookies. Thanks to Maciej Gawinecki for pull request. (issue 717)
 * REST Assured no longer forces the use of the platform charset when parsing JSON as string when combined with expectations (issue 728)
 * Don't append '.' to root path if given path starts with array indexing. Thanks to Tobias Johansson for pull request (issue 727).
-* Removed the need for the cookie max age value to be greater than or equal to -1 (issue 732)
+* Removed the need for the cookie max age value to be greater than or equal to -1 (issue 732).
+* Fixed memory leak in JSONAssertion. Big thanks to Andrey for pull request and investigation (issue 735).
 
 Change log 3.0.0 (2016-06-03)
 -----------------------------
