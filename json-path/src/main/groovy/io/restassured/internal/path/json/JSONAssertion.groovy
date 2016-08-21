@@ -49,7 +49,7 @@ class JSONAssertion implements Assertion {
         String error = String.format("The parameter \"%s\" was used but not defined. Define parameters using the JsonPath.params(...) function", e.property);
         throw new IllegalArgumentException(error, e);
       } catch (Exception e) {
-        if (isMissingPropertyException(e)) {
+        if (e instanceof NullPointerException && e.getMessage().startsWith("Cannot get property") && e.getMessage().endsWith("on null object")) {
           return null
         }
         String error = e.getMessage().replace("startup failed:", "Invalid JSON expression:").replace("$root.", generateWhitespace(root.length()));
@@ -57,10 +57,6 @@ class JSONAssertion implements Assertion {
       }
     }
     return result
-  }
-
-  def private static isMissingPropertyException(Exception e) {
-    return (e instanceof NullPointerException && e.getMessage().startsWith("Cannot get property") && e.getMessage().endsWith("on null object"))
   }
 
   def String description() {
@@ -80,6 +76,8 @@ class JSONAssertion implements Assertion {
     // Create shell with variables set
     GroovyShell sh = new GroovyShell(new Binding(newParams));
     // Run
-    return sh.evaluate(expr);
+    def res = sh.evaluate(expr)
+    sh.resetLoadedClasses()
+    return res
   }
 }
