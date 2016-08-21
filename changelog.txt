@@ -15,6 +15,7 @@ Change log next version
 * Don't append '.' to root path if given path starts with array indexing. Thanks to Tobias Johansson for pull request (issue 727).
 * Removed the need for the cookie max age value to be greater than or equal to -1 (issue 732).
 * Fixed memory leak in JSONAssertion. Big thanks to Andrey for pull request and investigation (issue 735).
+* Releasing loaded classes in XmlAssertion after expression evaluation to reduce memory foot print.
 
 Change log 3.0.0 (2016-06-03)
 -----------------------------

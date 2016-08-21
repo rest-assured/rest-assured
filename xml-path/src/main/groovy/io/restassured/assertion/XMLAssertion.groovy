@@ -17,11 +17,11 @@
 
 package io.restassured.assertion
 
+import groovy.util.slurpersupport.*
 import io.restassured.internal.assertion.Assertion
 import io.restassured.internal.path.xml.NodeChildrenImpl
 import io.restassured.internal.path.xml.NodeImpl
 import io.restassured.path.xml.element.PathElement
-import groovy.util.slurpersupport.*
 import org.apache.commons.lang3.StringUtils
 
 import static io.restassured.internal.assertion.AssertionSupport.*
@@ -247,7 +247,9 @@ class XMLAssertion implements Assertion {
         // Create shell with variables set
         GroovyShell sh = new GroovyShell(new Binding(newParams));
         // Run
-        return sh.evaluate(expr);
+        def res = sh.evaluate(expr)
+        sh.resetLoadedClasses()
+        return res;
     }
 
     def String description() {
