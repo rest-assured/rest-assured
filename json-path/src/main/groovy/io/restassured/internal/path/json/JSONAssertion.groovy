@@ -49,6 +49,7 @@ class JSONAssertion implements Assertion {
         String error = String.format("The parameter \"%s\" was used but not defined. Define parameters using the JsonPath.params(...) function", e.property);
         throw new IllegalArgumentException(error, e);
       } catch (Exception e) {
+        // Check if exception is due to a missing property
         if (e instanceof NullPointerException && e.getMessage().startsWith("Cannot get property") && e.getMessage().endsWith("on null object")) {
           return null
         }
