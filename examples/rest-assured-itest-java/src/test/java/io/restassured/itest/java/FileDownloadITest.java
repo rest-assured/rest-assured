@@ -17,10 +17,11 @@
 package io.restassured.itest.java;
 
 import io.restassured.config.LogConfig;
-import io.restassured.itest.java.support.WithJetty;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.WriterOutputStream;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -32,6 +33,8 @@ import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
+// TODO Fix test!!
+@Ignore("Temporary ignored since the remote zip file (powermock) is no longer downloadable")
 public class FileDownloadITest extends WithJetty {
 
     @Test
