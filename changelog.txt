@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 3.0.1 (2016-09-02)
+-----------------------------
 * Fixed issues with colliding keys in multi-expectations for body and header validations. For example if "/x" returns the JSON { "x" : 2 } this would (previously) not throw an assertion error:
     when().
          get("/x").
