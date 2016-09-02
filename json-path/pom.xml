@@ -20,11 +20,11 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-parent</artifactId>
-        <version>3.0.1-SNAPSHOT</version>
+        <version>3.0.1</version>
     </parent>
     <groupId>io.rest-assured</groupId>
     <artifactId>json-path</artifactId>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.0.1</version>
     <name>json-path</name>
     <url>http://maven.apache.org</url>
     <properties>
@@ -78,7 +78,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured-common</artifactId>
-            <version>3.0.1-SNAPSHOT</version>
+            <version>3.0.1</version>
         </dependency>
 
         <!-- Test -->
