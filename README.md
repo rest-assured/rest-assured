@@ -11,9 +11,8 @@ languages into the Java domain.
 
 
 ## News 
-* 2016-06-17: [Bas Dijkstra](https://www.linkedin.com/in/basdijkstra) has been generous enough to open source his REST Assured workshop. You can read more about this [here](http://www.ontestautomation.com/open-sourcing-my-workshop-an-experiment/) and you can try out, and contribute to, the exercises available in [his](https://github.com/basdijkstra/workshops/) github repository. 
+* 2016-09-21: REST Assured [3.0.1](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.0.1-dist.zip) is released. This is a maintence release with several bug fixes. See [change log](https://raw.githubusercontent.com/jayway/rest-assured/master/changelog.txt) for details.
 * 2016-06-03: REST Assured [3.0.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.0.0-dist.zip) is released. This is a new major release with lots of updates and new features such as the ability to use [any HTTP method](https://github.com/rest-assured/rest-assured/wiki/Usage#invoking-http-resources), all HTTP methods now supports multipart uploads, improved error messages, improved JsonPath etc. **Note** The package name has changed to `io.restassured` and the groupId has changed to `io.rest-assured`. Please see [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes30) and [getting started guide](https://github.com/rest-assured/rest-assured/wiki/GettingStarted) for more details.
-* 2016-06-01: [Spring REST Docs](http://projects.spring.io/spring-restdocs/) 1.1.0 is released with support for REST Assured. Read more about it [here](https://spring.io/blog/2016/05/31/spring-rest-docs-1-1-0-release).
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
