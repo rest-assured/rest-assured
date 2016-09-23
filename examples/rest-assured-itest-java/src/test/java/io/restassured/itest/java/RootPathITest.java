@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class RootPathITest extends WithJetty {
@@ -68,6 +68,15 @@ public class RootPathITest extends WithJetty {
                  body(".author.size()", equalTo(4)).
         when().
                  get("/jsonStore");
+    }
+
+    @Test
+    public void specifyingRootPathAndBodyThatStartsWithArrayIndexingWorks() throws Exception {
+        expect().
+                 root("store.book").
+                 body("[0].category", either(equalTo("reference")).or(equalTo("fiction"))).
+        when().
+                get("/jsonStore");
     }
 
     @Test

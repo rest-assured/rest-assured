@@ -604,7 +604,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     if (bodyRootPath != null && bodyRootPath != EMPTY) {
       if (bodyRootPath.endsWith(DOT) && key.startsWith(DOT)) {
         return bodyRootPath + substringAfter(key, DOT);
-      } else if (!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT)) {
+      } else if (!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT) && !key.startsWith("[")) {
         return bodyRootPath + DOT + key
       }
       return bodyRootPath + key
