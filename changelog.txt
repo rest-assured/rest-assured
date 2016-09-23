@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Don't join root and path with '.' if path starts with array indexing (thanks to feshbach for pull request)
+
 Change log 3.0.1 (2016-09-02)
 -----------------------------
 * Fixed issues with colliding keys in multi-expectations for body and header validations. For example if "/x" returns the JSON { "x" : 2 } this would (previously) not throw an assertion error:
