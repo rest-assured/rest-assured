@@ -62,6 +62,19 @@ public class HeaderITest extends WithJetty {
     }
 
     @Test
+    public void orderIsMaintainedForMultiValueHeaders() throws Exception {
+        Headers headers = when().get("/multiValueHeader").headers();
+
+        final List<String> headerListString = headers.getValues("MultiHeader");
+        final String firstValue = headers.getValue("MultiHeader");
+        final List<Header> headerListHeader = headers.getList("MultiHeader");
+
+        assertThat(headerListString, contains("Value 1", "Value 2"));
+        assertThat(headerListHeader, contains(new Header("MultiHeader", "Value 1"), new Header("MultiHeader", "Value 2")));
+        assertThat(firstValue, equalTo("Value 2"));
+    }
+
+    @Test
     public void requestSpecificationAllowsSpecifyingMultiValueHeaders() throws Exception {
         final List<String> myHeaderValues = given().header("MyHeader", "Something", "Something else").when().get("/multiHeaderReflect").headers().getValues("MyHeader");
 
