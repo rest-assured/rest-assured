@@ -396,7 +396,7 @@ public class SSLConfig implements Config {
      * @return The password to the trust store
      */
     public String getTrustStorePassword() {
-        return keyStorePassword;
+        return trustStorePassword;
     }
 
     /**
