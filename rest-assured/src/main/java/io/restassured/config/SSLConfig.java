@@ -428,10 +428,10 @@ public class SSLConfig implements Config {
     }
 
     /**
-     * @return The trust store
+     * @return The key store
      */
     public KeyStore getKeyStore() {
-        return trustStore;
+        return keyStore;
     }
 
     /**
