@@ -15,13 +15,14 @@
  */
 package io.restassured.internal
 
+import io.restassured.assertion.CookieOrigin
 import io.restassured.response.ValidatableResponse
 import io.restassured.response.Response
 
 class RestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<Response> implements Response {
 
-  public void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
-    groovyResponse.parseResponse(httpResponse, content, hasBodyAssertions, responseParserRegistrar);
+  public void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar, CookieOrigin origin) {
+    groovyResponse.parseResponse(httpResponse, content, hasBodyAssertions, responseParserRegistrar, origin);
   }
 
   ValidatableResponse then() {

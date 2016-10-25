@@ -26,7 +26,8 @@ public class CookieMatcherMessagesTest {
         cookieMatcher.setCookieName("DEVICE_ID");
         cookieMatcher.setMatcher(Matchers.containsString("X"));
 
-        Map<String, Object> result = (Map<String, Object>) cookieMatcher.validateCookie(Arrays.asList(cookies));
+        Map<String, Object> result = (Map<String, Object>) cookieMatcher.validateCookie(Arrays
+                .asList(cookies), new CookieOrigin("ignoreHost"));
         assertThat((Boolean)result.get("success"), equalTo(false));
         assertThat(result.get("errorMessage").toString(), equalTo("Expected cookie \"DEVICE_ID\" was not a string containing \"X\", was \"123\".\n"));
     }
@@ -38,7 +39,8 @@ public class CookieMatcherMessagesTest {
         cookieMatcher.setCookieName("DEVICE_ID");
         cookieMatcher.setMatcher(new ContainsXMatcher());
 
-        Map<String, Object> result = (Map<String, Object>) cookieMatcher.validateCookie(Arrays.asList(cookies));
+        Map<String, Object> result = (Map<String, Object>) cookieMatcher.validateCookie(Arrays
+                .asList(cookies), new CookieOrigin("ignoreHost"));
         assertThat((Boolean)result.get("success"), equalTo(false));
         assertThat(result.get("errorMessage").toString(), equalTo("Expected cookie \"DEVICE_ID\" was not containing 'X', \"123\" not containing 'X'.\n"));
     }

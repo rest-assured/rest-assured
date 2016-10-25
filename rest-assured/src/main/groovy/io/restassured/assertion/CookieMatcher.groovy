@@ -35,15 +35,19 @@ class CookieMatcher {
     def Matcher<String> matcher
 
 
-
     def validateCookie(List<String> cookies) {
+        return validateCookie(cookies, null)
+    }
+
+
+    def validateCookie(List<String> cookies, CookieOrigin origin) {
         def success = true
         def errorMessage = ""
         if(!cookies) {
             success = false
             errorMessage = "No cookies defined in the response\n"
         } else {
-            def raCookies = getCookies(cookies)
+            def raCookies = getCookies(cookies, origin)
             def cookie = raCookies.get(cookieName)
             if (cookie == null) {
                 String cookiesAsString = raCookies.toString()
@@ -76,6 +80,10 @@ class CookieMatcher {
     }
 
     public static Cookies getCookies(headerWithCookieList) {
+        return getCookies(headerWithCookieList, null)
+    }
+
+    public static Cookies getCookies(headerWithCookieList, CookieOrigin origin) {
         def cookieList = []
         headerWithCookieList.each {
             def Cookie.Builder cookieBuilder
@@ -88,6 +96,9 @@ class CookieMatcher {
                     } else {
                         cookieBuilder = new Cookie.Builder(part, null)
                     }
+                    if (origin != null) {
+                        setCookieProperty(cookieBuilder, "Domain", getDefaultDomain(origin))
+                    }
                 } else if(part.contains("=")) {
                     def (cookieKey, cookieValue) = getKeyAndValueOfCookie(part)
                     setCookieProperty(cookieBuilder, cookieKey, cookieValue)
@@ -98,6 +109,10 @@ class CookieMatcher {
             cookieList << cookieBuilder?.build()
         }
         return new Cookies(cookieList)
+    }
+
+    static String getDefaultDomain(CookieOrigin origin) {
+        return origin.getHost();
     }
 
     static List getKeyAndValueOfCookie(String part) {
