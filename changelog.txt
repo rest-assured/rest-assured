@@ -3,6 +3,7 @@ Change log next version
 * Don't join root and path with '.' if path starts with array indexing (thanks to feshbach for pull request)
 * Updated SSLConfig to allow keystore and truststore passwords to differ (thanks to mike42 for pull request)
 * SSLConfig#getKeyStore() was returning trustStore rather than keyStore (thanks to mike42 for pull request)
+* Removed the reference to Apache Http Client's HTTP#DEF_CONTENT_CHARSET field to relax versioning issues.
 
 Change log 3.0.1 (2016-09-02)
 -----------------------------
