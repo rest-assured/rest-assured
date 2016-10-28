@@ -19,6 +19,7 @@ package io.restassured.specification;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
+import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
 import io.restassured.http.Headers;
 import org.apache.http.client.HttpClient;
@@ -254,7 +255,7 @@ public interface FilterableRequestSpecification extends RequestSpecification {
      * @return The {@link FilterableRequestSpecification} without the parameter
      */
     FilterableRequestSpecification removeFormParam(String parameterName);
-    
+
     /**
      * Remove a path parameter from the request. It will remove both named and unnamed path parameters.
      *
@@ -311,4 +312,75 @@ public interface FilterableRequestSpecification extends RequestSpecification {
      */
     FilterableRequestSpecification removeHeader(String headerName);
 
+    /**
+     * Remove a cookie with the given name.
+     *
+     * @param cookieName The cookie name
+     * @return The {@link FilterableRequestSpecification} without the specified cookie
+     */
+    FilterableRequestSpecification removeCookie(String cookieName);
+
+    /**
+     * Remove a cookie
+     *
+     * @param cookie The cookie
+     * @return The {@link FilterableRequestSpecification} without the specified cookie
+     */
+    FilterableRequestSpecification removeCookie(Cookie cookie);
+
+    /**
+     * Replace a header with the new value. If the headerName doesn't exist the will be added.
+     *
+     * @param headerName The header name to replace
+     * @return The {@link FilterableRequestSpecification} with the replaced header
+     */
+    FilterableRequestSpecification replaceHeader(String headerName, String newValue);
+
+    /**
+     * Replace a cookie with the given name. If the cookieName doesn't exist it will be added.
+     *
+     * @param cookieName The cookie name
+     * @return The {@link FilterableRequestSpecification} with the replaced cookie
+     */
+    FilterableRequestSpecification replaceCookie(String cookieName, String value);
+
+    /**
+     * Replace a cookie, if it doesn't exist then it will be added.
+     *
+     * @param cookie The cookie
+     * @return The {@link FilterableRequestSpecification} with the replaced cookie
+     */
+    FilterableRequestSpecification replaceCookie(Cookie cookie);
+
+    /**
+     * Replace all defined headers
+     *
+     * @param headers The new headers
+     * @return The {@link FilterableRequestSpecification} with the replaced headers
+     */
+    FilterableRequestSpecification replaceHeaders(Headers headers);
+
+
+    /**
+     * Replace all defined cookies
+     *
+     * @param cookies The new cookies
+     * @return The {@link FilterableRequestSpecification} with the replaced cookies
+     */
+    FilterableRequestSpecification replaceCookies(Cookies cookies);
+
+    /**
+     * Removes all defined headers
+     *
+     * @return The {@link FilterableRequestSpecification} without
+     */
+    FilterableRequestSpecification removeHeaders();
+
+
+    /**
+     * Removed all defined cookies
+     *
+     * @return The {@link FilterableRequestSpecification} with the replaced cookies
+     */
+    FilterableRequestSpecification removeCookies();
 }

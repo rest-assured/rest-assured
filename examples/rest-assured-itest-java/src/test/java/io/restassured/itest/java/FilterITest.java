@@ -22,6 +22,12 @@ import io.restassured.builder.ResponseBuilder;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.FilterContext;
+import io.restassured.filter.log.ErrorLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import io.restassured.internal.filter.FormAuthFilter;
 import io.restassured.itest.java.support.SpookyGreetJsonResponseFilter;
 import io.restassured.itest.java.support.WithJetty;
@@ -29,8 +35,6 @@ import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
 import io.restassured.specification.RequestSpecification;
-import io.restassured.filter.log.ErrorLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.http.client.HttpClient;
@@ -44,7 +48,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import static io.restassured.RestAssured.expect;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.EncoderConfig.encoderConfig;
-import static io.restassured.filter.log.ResponseLoggingFilter.logResponseTo;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -449,7 +452,7 @@ public class FilterITest extends WithJetty {
     }
 
     @Test public void
-    can_remove_headers_from_filter() {
+    can_remove_a_specific_header_from_filter() {
         given().
                 header("John", "Doe").
                 header("Jane", "Doe").
@@ -461,6 +464,145 @@ public class FilterITest extends WithJetty {
                 get("/headersWithValues").
         then().
                 body("keySet()", allOf(not(hasItem("John")), hasItem("Jane")));
+    }
+
+    @Test public void
+    can_remove_all_defined_headers_from_filter() {
+        given().
+                header("John", "Doe").
+                header("Jane", "Doe").
+                filter((requestSpec, responseSpec, ctx) -> {
+                    requestSpec.removeHeaders();
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/headersWithValues").
+        then().
+                body("keySet()", allOf(not(hasItem("John")), not(hasItem("Jane"))));
+    }
+
+    @Test public void
+    can_remove_a_specific_cookie_from_filter_using_the_cookie_name_as_string() {
+        given().
+                cookie("John", "Doe").
+                cookie("Jane", "Doe").
+                filter((requestSpec, responseSpec, ctx) -> {
+                    requestSpec.removeCookie("john");
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/cookiesWithValues").
+        then().
+                body("name", contains("Jane"));
+    }
+
+    @Test public void
+    can_remove_a_specific_cookie_from_filter_using_a_cookie_object() {
+        given().
+                cookie("John", "Doe").
+                cookie("Jane", "Doe").
+                filter((requestSpec, responseSpec, ctx) -> {
+                    requestSpec.removeCookie(new Cookie.Builder("john", "ikk").build());
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/cookiesWithValues").
+        then().
+                body("name", contains("Jane"));
+    }
+
+    @Test public void
+    can_remove_all_defined_cookies() {
+        given().
+                cookie("John", "Doe").
+                cookie("Jane", "Doe").
+                filter((requestSpec, responseSpec, ctx) -> {
+                    requestSpec.removeCookies();
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/cookiesWithValues").
+        then().
+                body("size()", is(0));
+    }
+
+    @Test public void
+    can_replace_a_specific_header_from_filter() {
+        given().
+                header("John", "Doe").
+                header("Jane", "Doe").
+                filter((requestSpec, responseSpec, ctx) -> {
+                    requestSpec.replaceHeader("john", "Doe2");
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/headersWithValues").
+        then().
+                body("john", contains("Doe2")).
+                body("Jane", contains("Doe"));
+    }
+
+    @Test public void
+    can_replace_a_specific_cookie_from_filter_using_cookie_name_and_value() {
+        given().
+                cookie("John", "Doe").
+                cookie("Jane", "Doe").
+                filter((requestSpec, responseSpec, ctx) -> {
+                    requestSpec.replaceCookie("john", "Doe2");
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/cookiesWithValues").
+        then().
+                body("find { it.name == 'john' }.value", equalTo("Doe2")).
+                body("find { it.name == 'Jane' }.value", equalTo("Doe"));
+    }
+
+    @Test public void
+    can_replace_a_specific_cookie_from_filter_using_cookie_object() {
+        given().
+                cookie("John", "Doe").
+                cookie("Jane", "Doe").
+                filter((requestSpec, responseSpec, ctx) -> {
+                    requestSpec.replaceCookie(new Cookie.Builder("john", "Doe2").build());
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/cookiesWithValues").
+        then().
+                body("find { it.name == 'john' }.value", equalTo("Doe2")).
+                body("find { it.name == 'Jane' }.value", equalTo("Doe"));
+    }
+
+    @Test public void
+    can_replace_all_defined_headers() {
+        given().
+                header("John", "Doe").
+                header("Jane", "Doe").
+                filter((requestSpec, responseSpec, ctx) -> {
+                    requestSpec.replaceHeaders(new Headers(new Header("New", "Header")));
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/headersWithValues").
+        then().
+                body("keySet()", allOf(hasItem("New"), not(hasItem("John")), not(hasItem("Jane"))));
+    }
+
+    @Test public void
+    can_replace_all_defined_cookies() {
+        given().
+                cookie("John", "Doe").
+                cookie("Jane", "Doe").
+                filter((requestSpec, responseSpec, ctx) -> {
+                    requestSpec.replaceCookies(new Cookies(new Cookie.Builder("New", "Cookie").build()));
+                    return ctx.next(requestSpec, responseSpec);
+                }).
+        when().
+                get("/cookiesWithValues").
+        then().
+                body("name", contains("New")).
+                body("value", contains("Cookie"));
     }
 
     public static class CountingFilter implements Filter {

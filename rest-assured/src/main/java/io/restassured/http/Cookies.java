@@ -19,12 +19,7 @@ package io.restassured.http;
 import io.restassured.internal.MultiValueEntity;
 import io.restassured.internal.assertion.AssertParameter;
 
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-import static java.util.Arrays.asList;
+import java.util.*;
 
 /**
  * Represents a collection of cookies
@@ -34,7 +29,7 @@ public class Cookies implements Iterable<Cookie> {
     private final MultiValueEntity<Cookie> cookies;
 
     public Cookies(Cookie... cookies) {
-        this(asList(cookies));
+        this(Arrays.asList(cookies));
     }
 
     public Cookies(List<Cookie> cookies) {
@@ -117,6 +112,13 @@ public class Cookies implements Iterable<Cookie> {
      */
     public List<String> getValues(String cookieName) {
         return cookies.getValues(cookieName);
+    }
+
+    /**
+     * @return All headers as a list
+     */
+    public List<Cookie> asList() {
+        return cookies.asList();
     }
 
     /**

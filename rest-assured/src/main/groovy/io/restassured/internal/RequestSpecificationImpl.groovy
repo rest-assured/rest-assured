@@ -407,6 +407,65 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
+  def FilterableRequestSpecification removeCookie(String cookieName) {
+    notNull cookieName, "cookieName"
+    def cookiesLeftAfterRemove = cookies.findAll { !cookieName.equalsIgnoreCase(it.getName()) }
+    this.cookies = new Cookies(cookiesLeftAfterRemove)
+    this
+  }
+
+  def FilterableRequestSpecification removeCookie(Cookie cookie) {
+    notNull cookie, "cookie"
+    removeCookie(cookie.getName())
+    this
+  }
+
+  def FilterableRequestSpecification replaceHeader(String headerName, String newValue) {
+    notNull headerName, "headerName"
+    removeHeader(headerName)
+    def headerList = []
+    headerList.addAll(this.requestHeaders.list())
+    headerList.add(new Header(headerName, newValue))
+    this.requestHeaders = new Headers(headerList)
+    this
+  }
+
+  def FilterableRequestSpecification replaceCookie(String cookieName, String value) {
+    notNull cookieName, "cookieName"
+    removeCookie(cookieName)
+    cookie(cookieName, value)
+    this
+  }
+
+  def FilterableRequestSpecification replaceCookie(Cookie cookie) {
+    notNull cookie, "cookie"
+    removeCookie(cookie.getName())
+    this.cookie(cookie)
+    this
+  }
+
+  def FilterableRequestSpecification replaceHeaders(Headers headers) {
+    notNull headers, "headers"
+    this.requestHeaders = new Headers(headers.asList())
+    this
+  }
+
+  def FilterableRequestSpecification replaceCookies(Cookies cookies) {
+    notNull cookies, "cookies"
+    this.cookies = new Cookies(cookies.asList())
+    this
+  }
+
+  def FilterableRequestSpecification removeHeaders() {
+    this.requestHeaders = new Headers([])
+    this
+  }
+
+  def FilterableRequestSpecification removeCookies() {
+    this.cookies = new Cookies([])
+    this
+  }
+
   def RequestSpecification parameter(String parameterName, Object... parameterValues) {
     notNull parameterName, "parameterName"
     parameterUpdater.updateZeroToManyParameters(restAssuredConfig().paramConfig.requestParamsUpdateStrategy(), requestParameters, parameterName, parameterValues)

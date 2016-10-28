@@ -825,6 +825,10 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(render(decompose(nameValueMap)))
   }
 
+  get("/cookiesWithValues") {
+    cookiesWithValues
+  }
+
   get("/headersWithValues") {
     headersWithValues
   }
@@ -1284,5 +1288,26 @@ class ScalatraRestExample extends ScalatraServlet {
               map
             }).toMap // Convert map to an immutable map so that JSON gets rendered correctly, see http://stackoverflow.com/questions/6271386/how-do-you-serialize-a-map-to-json-in-scala
     compact(render(decompose(map)))
+  }
+
+  def cookiesWithValues: String = {
+    contentType = "application/json"
+    if(request.getCookies == null || request.getCookies.isEmpty) {
+      return "[]"
+    }
+
+    val cookiesMap = request.getCookies.map(c => {
+      val cookieMap = mutable.HashMap[String, Any]()
+      cookieMap.put("name", c.getName)
+      cookieMap.put("comment", c.getComment)
+      cookieMap.put("maxAge", c.getMaxAge)
+      cookieMap.put("domain", c.getDomain)
+      cookieMap.put("path", c.getPath)
+      cookieMap.put("secure", c.getSecure)
+      cookieMap.put("value", c.getValue)
+      cookieMap.put("version", c.getVersion)
+      cookieMap
+    }).map(_.toMap) // Convert map to an immutable map so that JSON gets rendered correctly, see http://stackoverflow.com/questions/6271386/how-do-you-serialize-a-map-to-json-in-scala
+    compact(render(decompose(cookiesMap)))
   }
 }
