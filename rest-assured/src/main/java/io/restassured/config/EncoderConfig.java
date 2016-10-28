@@ -19,6 +19,7 @@ package io.restassured.config;
 import io.restassured.http.ContentType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
+import org.apache.http.protocol.HTTP;
 
 import java.nio.charset.Charset;
 import java.util.Collections;
@@ -38,8 +39,6 @@ public class EncoderConfig implements Config {
         put(ContentType.JSON.toString(), UTF_8);
         put("text/json", UTF_8);
     }};
-    // Apache HTTP Client default content charset (previously RA was referencing HTTP#DEF_CONTENT_CHARSET but this was removed due to Apache HTTP Client versioning issues)
-    private static final String ISO_8859_1 = "ISO-8859-1";
 
     private final String defaultContentCharset;
     private final String defaultQueryParameterCharset;
@@ -59,7 +58,7 @@ public class EncoderConfig implements Config {
      * </p>
      */
     public EncoderConfig() {
-        this(ISO_8859_1, UTF_8, true, new HashMap<String, ContentType>(), DEFAULT_CHARSET_FOR_CONTENT_TYPE, true);
+        this(HTTP.DEF_CONTENT_CHARSET.toString(), UTF_8, true, new HashMap<String, ContentType>(), DEFAULT_CHARSET_FOR_CONTENT_TYPE, true);
     }
 
     public EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset) {
