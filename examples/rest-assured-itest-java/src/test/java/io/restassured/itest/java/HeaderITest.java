@@ -103,6 +103,21 @@ public class HeaderITest extends WithJetty {
     }
 
     @Test
+    public void requestSpecificationAllowsSpecifyingMultipleHeadersInSequenceWhichGetsTreatedAsMultiHeaders() throws Exception {
+        final List<String> myHeaderValues =
+                given().
+                        header("MyHeader", "Something").
+                        header("MyHeader", "Something else").
+                when().
+                        get("/multiHeaderReflect").
+                then().
+                        extract().headers().getValues("MyHeader");
+
+        assertThat(myHeaderValues.size(), is(2));
+        assertThat(myHeaderValues, hasItems("Something", "Something else"));
+    }
+
+    @Test
     public void requestSpecificationAllowsSpecifyingHeaders() throws Exception {
         given().headers("MyHeader", "Something").and().expect().body(containsString("MyHeader")).when().get("/header");
     }
