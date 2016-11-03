@@ -1448,7 +1448,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
     return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(baseUriPath, basePath), path)
   }
-
+  
   private def registerRestAssuredEncoders(HTTPBuilder http) {
     // Multipart form-data
     if (multiParts.isEmpty()) {
@@ -1470,6 +1470,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def charsetFromContentType = CharsetExtractor.getCharsetFromContentType(contentTypeAsString)
     def boundaryFromContentType = BoundaryExtractor.getBoundaryFromContentType(contentTypeAsString)
     def String boundaryToUse = boundaryFromContentType ?: restAssuredConfig().getMultiPartConfig().defaultBoundary()
+    boundaryToUse = boundaryToUse ?: generateBoundary()
+    if (!boundaryFromContentType) {
+      removeHeader(CONTENT_TYPE) // there should only be one
+      contentType(contentTypeAsString + "; boundary=\"" + boundaryToUse + "\"")
+    }
+    
     http.encoders.putAt ct, { contentType, content ->
       RestAssuredMultiPartEntity entity = new RestAssuredMultiPartEntity(subType, charsetFromContentType, httpClientConfig().httpMultipartMode(), boundaryToUse);
 
@@ -1482,11 +1488,24 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       entity;
     }
   }
+    
+  private String generateBoundary() {
+    def alphabet = (('a'..'z')+('A'..'Z')+('0'..'9')+'-'+'_').join()
+    def rand = new Random()
+    def length = rand.nextInt(11) + 30
+    (1..length).collect {
+      alphabet[rand.nextInt(alphabet.length())]
+    }.join()
+  }
 
   private def convertFormParamsToMultiPartParams() {
     def allFormParams = mergeMapsAndRetainOrder(requestParameters, formParameters)
     allFormParams.each {
-      multiPart(it.key, it.value)
+      if (it.value instanceof String) {
+        multiPart(it.key, (String) it.value)
+      } else {
+        multiPart(it.key, it.value)
+      }
     }
     requestParameters.clear()
     formParameters.clear()
