@@ -5,6 +5,8 @@ Change log next version
 * SSLConfig#getKeyStore() was returning trustStore rather than keyStore (thanks to mike42 for pull request)
 * Added ability to get Cookies as a list (using Cookies#asList)
 * Added new functionality to filters that allows removing and replacing headers and cookies.
+* Fixed so that form parameters (i.e. String-values) does get merged correctly with the multipart parameters (issue 762) (thanks to Klaus Dorninger for pull request)
+* Fixed so that the boundary of a request is set explicitly in the "Content-Type" header of the request (issue 762) (thanks to Klaus Dorninger for pull request)
 
 Change log 3.0.1 (2016-09-02)
 -----------------------------
