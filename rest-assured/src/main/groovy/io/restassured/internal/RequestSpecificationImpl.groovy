@@ -1501,10 +1501,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private def convertFormParamsToMultiPartParams() {
     def allFormParams = mergeMapsAndRetainOrder(requestParameters, formParameters)
     allFormParams.each {
-      if (it.value instanceof String) {
-        multiPart(it.key, (String) it.value)
+      if (it.value instanceof List) {
+        it.value.each { val -> 
+          multiPart(it.key, val, "text/plain")
+        }
       } else {
-        multiPart(it.key, it.value)
+        multiPart(it.key, it.value, "text/plain")
       }
     }
     requestParameters.clear()
