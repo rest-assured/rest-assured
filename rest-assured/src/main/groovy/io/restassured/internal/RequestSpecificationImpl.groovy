@@ -1458,8 +1458,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     if (hasFormParams()) {
       convertFormParamsToMultiPartParams()
     }
-
-
+    
+    
     def contentTypeAsString = headers.getValue(CONTENT_TYPE)
     def ct = ContentTypeExtractor.getContentTypeWithoutCharset(contentTypeAsString)
     if (!ct?.toLowerCase()?.startsWith(MULTIPART_CONTENT_TYPE_PREFIX)) {
