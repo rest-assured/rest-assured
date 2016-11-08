@@ -1503,10 +1503,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     allFormParams.each {
       if (it.value instanceof List) {
         it.value.each { val -> 
-          multiPart(it.key, val, "text/plain")
+          multiPart(it.key, val)
         }
       } else {
-        multiPart(it.key, it.value, "text/plain")
+        multiPart(it.key, it.value)
       }
     }
     requestParameters.clear()
