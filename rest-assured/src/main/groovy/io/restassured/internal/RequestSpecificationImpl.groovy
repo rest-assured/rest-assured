@@ -1458,8 +1458,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     if (hasFormParams()) {
       convertFormParamsToMultiPartParams()
     }
-
-
+    
+    
     def contentTypeAsString = headers.getValue(CONTENT_TYPE)
     def ct = ContentTypeExtractor.getContentTypeWithoutCharset(contentTypeAsString)
     if (!ct?.toLowerCase()?.startsWith(MULTIPART_CONTENT_TYPE_PREFIX)) {
@@ -1501,8 +1501,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private def convertFormParamsToMultiPartParams() {
     def allFormParams = mergeMapsAndRetainOrder(requestParameters, formParameters)
     allFormParams.each {
-      if (it.value instanceof String) {
-        multiPart(it.key, (String) it.value)
+      if (it.value instanceof List) {
+        it.value.each { val -> 
+          multiPart(it.key, val)
+        }
       } else {
         multiPart(it.key, it.value)
       }
