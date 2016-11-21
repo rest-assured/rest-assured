@@ -37,8 +37,6 @@ import io.restassured.internal.mapping.ObjectMapping
 import io.restassured.internal.multipart.MultiPartInternal
 import io.restassured.internal.multipart.MultiPartSpecificationImpl
 import io.restassured.internal.multipart.RestAssuredMultiPartEntity
-import io.restassured.internal.proxy.RestAssuredProxySelector
-import io.restassured.internal.proxy.RestAssuredProxySelectorRoutePlanner
 import io.restassured.internal.support.ParameterUpdater
 import io.restassured.internal.support.PathSupport
 import io.restassured.mapper.ObjectMapper
@@ -49,15 +47,11 @@ import io.restassured.specification.*
 import io.restassured.spi.AuthFilter
 import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
-import org.apache.http.auth.AuthScope
-import org.apache.http.auth.UsernamePasswordCredentials
-import org.apache.http.client.CredentialsProvider
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
-import org.apache.http.impl.client.AbstractHttpClient
-import org.apache.http.impl.client.BasicCredentialsProvider
+import org.apache.http.impl.client.HttpClientBuilder
 import org.apache.http.message.BasicHeader
 import org.apache.http.util.EntityUtils
 
@@ -123,7 +117,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private LogRepository logRepository
 
   // This field should be removed once http://jira.codehaus.org/browse/GROOVY-4647 is resolved, merge with sha 9619c3b when it's fixed.
-  private AbstractHttpClient httpClient
+  private HttpClientBuilder httpClientBuilder
 
   public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters,
                                   RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
@@ -1221,11 +1215,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     assertCorrectNumberOfPathParams()
 
-    if (!requestSpecification.getHttpClient() instanceof AbstractHttpClient) {
-      throw new IllegalStateException(format("Unfortunately Rest Assured only supports Http Client instances of type %s.", AbstractHttpClient.class.getName()));
-    }
-
-    def http = new RestAssuredHttpBuilder(targetUri, assertionClosure, urlEncodingEnabled, config, requestSpecification.getHttpClient() as AbstractHttpClient);
+    def http = new RestAssuredHttpBuilder(targetUri, assertionClosure, urlEncodingEnabled, config, requestSpecification.getHttpClientBuilder());
     applyProxySettings(http)
     applyRestAssuredConfig(http)
     registerRestAssuredEncoders(http);
@@ -1352,13 +1342,16 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       applyEncoderConfig(http, restAssuredConfig.getEncoderConfig())
       applySessionConfig(restAssuredConfig.getSessionConfig())
     }
+      /*
     if (!httpClientParams.isEmpty()) {
-      def p = http.client.getParams();
+      def p = http.httpClientBuilder.getParams();
 
       httpClientParams.each { key, value ->
+          println("key=$key and value=$value")
         p.setParameter(key, value)
       }
     }
+    */
   }
 
   private def applyContentDecoders(HTTPBuilder httpBuilder, List<DecoderConfig.ContentDecoder> contentDecoders) {
@@ -1714,7 +1707,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     filters << new SendRequestFilter()
     def ctx = newFilterContext(responseSpecification.assertionClosure, filters.iterator(), [:])
-    httpClient = httpClientConfig().httpClientInstance()
+    httpClientBuilder = httpClientConfig().httpClientBuilderInstance()
     def response = ctx.next(this, responseSpecification)
     responseSpecification.assertionClosure.validate(response)
     return response
@@ -2008,8 +2001,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return restAssuredConfig
   }
 
+  def HttpClientBuilder getHttpClientBuilder() {
+    return httpClientBuilder
+  }
+
   def HttpClient getHttpClient() {
-    return httpClient
+    return getHttpClientBuilder().build()
     // @Delegate doesn't work because of http://jira.codehaus.org/browse/GROOVY-4647 (when it's fixed 9619c3b should be used instead)
   }
 
@@ -2055,7 +2052,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private class RestAssuredHttpBuilder extends HTTPBuilder {
     def assertionClosure
 
-    RestAssuredHttpBuilder(Object defaultURI, assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config, AbstractHttpClient client) throws URISyntaxException {
+    RestAssuredHttpBuilder(Object defaultURI, assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config, HttpClientBuilder client) throws URISyntaxException {
       super(defaultURI, urlEncodingEnabled, config?.getEncoderConfig(), config?.getDecoderConfig(), config?.getOAuthConfig(), client)
       this.assertionClosure = assertionClosure
     }
@@ -2151,7 +2148,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         def connectionConfig = connectionConfig()
         if (connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
           def closeConnectionConfig = connectionConfig.closeIdleConnectionConfig()
-          client.getConnectionManager().closeIdleConnections(closeConnectionConfig.getIdleTime(), closeConnectionConfig.getTimeUnit());
+          httpClientBuilder.getConnectionManager().closeIdleConnections(closeConnectionConfig.getIdleTime(), closeConnectionConfig.getTimeUnit());
         }
       }
     }
@@ -2199,8 +2196,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private def applyProxySettings(RestAssuredHttpBuilder http) {
-    // make client aware of JRE proxy settings http://freeside.co/betamax/
-    http.client.routePlanner = new RestAssuredProxySelectorRoutePlanner(http.client.connectionManager.schemeRegistry,
+      /*
+    // make httpClientBuilder aware of JRE proxy settings http://freeside.co/betamax/
+    http.httpClientBuilder.routePlanner = new RestAssuredProxySelectorRoutePlanner(http.client.connectionManager.schemeRegistry,
             new RestAssuredProxySelector(delegatingProxySelector: ProxySelector.default, proxySpecification: proxySpecification), proxySpecification)
     if (proxySpecification?.hasAuth()) {
       CredentialsProvider credsProvider = new BasicCredentialsProvider();
@@ -2209,8 +2207,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       def authScope = new AuthScope(address.getAddress().getHostAddress(), proxySpecification.getPort())
       def credentials = new UsernamePasswordCredentials(proxySpecification.username, proxySpecification.password)
       credsProvider.setCredentials(authScope, credentials);
-      http.client.setCredentialsProvider(credsProvider);
+      http.httpClientBuilder.setCredentialsProvider(credsProvider);
     }
+    */
   }
 
   private def String assembleCompleteTargetPath(requestPath) {

@@ -31,8 +31,10 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.RequestWrapper;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -84,10 +86,12 @@ public class AuthConfig {
      * @param pass
      */
     public void basic(String host, int port, String user, String pass) {
-        builder.getClient().getCredentialsProvider().setCredentials(
+        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(
                 new AuthScope(host, port),
                 new UsernamePasswordCredentials(user, pass)
         );
+        builder.getHttpClientBuilder().setDefaultCredentialsProvider(credentialsProvider);
     }
 
     /**
@@ -148,9 +152,9 @@ public class AuthConfig {
      */
     public void oauth(String consumerKey, String consumerSecret,
                       String accessToken, String secretToken) {
-        this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
+        //this.builder.httpClientBuilder.removeRequestInterceptorByClass(OAuthSigner.class);
         if (consumerKey != null) {
-            this.builder.client.addRequestInterceptor(new OAuthSigner(
+            this.builder.httpClientBuilder.addInterceptorFirst(new OAuthSigner(
                     consumerKey, consumerSecret, accessToken, secretToken, OAuthSignature.HEADER,
                     raOAuthConfig.shouldAddEmptyAccessOAuthTokenToBaseString()));
         }
@@ -159,9 +163,9 @@ public class AuthConfig {
 
     public void oauth(String consumerKey, String consumerSecret,
                       String accessToken, String secretToken, OAuthSignature signature) {
-        this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
+        //this.builder.httpClientBuilder.removeRequestInterceptorByClass(OAuthSigner.class);
         if (consumerKey != null) {
-            this.builder.client.addRequestInterceptor(new OAuthSigner(
+            this.builder.httpClientBuilder.addInterceptorFirst(new OAuthSigner(
                     consumerKey, consumerSecret, accessToken, secretToken,
                     signature, raOAuthConfig.shouldAddEmptyAccessOAuthTokenToBaseString()));
         }
@@ -183,16 +187,16 @@ public class AuthConfig {
      * @since 0.5.1
      */
     public void oauth2(String accessToken) {
-        this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
+        //this.builder.httpClientBuilder.removeRequestInterceptorByClass(OAuthSigner.class);
         if (accessToken != null) {
-            this.builder.client.addRequestInterceptor(new OAuthSigner(accessToken, OAuthSignature.HEADER));
+            this.builder.httpClientBuilder.addInterceptorFirst(new OAuthSigner(accessToken, OAuthSignature.HEADER));
         }
     }
 
     public void oauth2(String accessToken, OAuthSignature signature) {
-        this.builder.client.removeRequestInterceptorByClass(OAuthSigner.class);
+        //this.builder.httpClientBuilder.removeRequestInterceptorByClass(OAuthSigner.class);
         if (accessToken != null) {
-            this.builder.client.addRequestInterceptor(new OAuthSigner(accessToken, signature));
+            this.builder.httpClientBuilder.addInterceptorFirst(new OAuthSigner(accessToken, signature));
         }
     }
 

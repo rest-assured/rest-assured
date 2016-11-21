@@ -22,6 +22,7 @@ import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.cookie.params.CookieSpecPNames;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,17 +58,17 @@ import static java.util.Arrays.asList;
  * @see org.apache.http.client.params.CookiePolicy
  * @see org.apache.http.params.CoreProtocolPNames
  */
-    public class HttpClientConfig implements Config {
+public class HttpClientConfig implements Config {
 
     private static final boolean SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT = false;
-    private static final HttpClient NO_HTTP_CLIENT = null;
+    private static final HttpClientBuilder NO_HTTP_CLIENT_BUILDER = null;
 
     private final boolean shouldReuseHttpClientInstance;
     private final Map<String, ?> httpClientParams;
     private final HttpMultipartMode httpMultipartMode;
     private final HttpClientFactory httpClientFactory;
     private final boolean isUserConfigured;
-    private volatile HttpClient httpClient;
+    private volatile HttpClientBuilder httpClientBuilder;
 
     /**
      * Creates a new  HttpClientConfig instance with the <code>{@value org.apache.http.client.params.ClientPNames#COOKIE_POLICY}</code> parameter set to <code>{@value org.apache.http.client.params.CookiePolicy#IGNORE_COOKIES}</code>.
@@ -84,12 +85,12 @@ import static java.util.Arrays.asList;
         };
         this.httpMultipartMode = HttpMultipartMode.STRICT;
         this.shouldReuseHttpClientInstance = SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT;
-        this.httpClient = null;
+        this.httpClientBuilder = HttpClientBuilder.create();
         this.isUserConfigured = false;
     }
 
     private HttpClientConfig(HttpClientFactory httpClientFactory, Map<String, ?> httpClientParams, HttpMultipartMode httpMultipartMode,
-                             boolean shouldReuseHttpClientInstance, HttpClient abstractHttpClient, boolean isUserConfigured) {
+                             boolean shouldReuseHttpClientInstance, HttpClientBuilder httpClientBuilder, boolean isUserConfigured) {
         notNull(httpClientParams, "httpClientParams");
         notNull(httpMultipartMode, "httpMultipartMode");
         notNull(httpClientFactory, "Http Client factory");
@@ -97,7 +98,7 @@ import static java.util.Arrays.asList;
         this.httpClientFactory = httpClientFactory;
         this.httpClientParams = new HashMap<String, Object>(httpClientParams);
         this.httpMultipartMode = httpMultipartMode;
-        this.httpClient = abstractHttpClient;
+        this.httpClientBuilder = httpClientBuilder;
         this.isUserConfigured = isUserConfigured;
     }
 
@@ -105,7 +106,7 @@ import static java.util.Arrays.asList;
      * Creates a new  HttpClientConfig instance with the parameters defined by the <code>httpClientParams</code>.
      */
     public HttpClientConfig(Map<String, ?> httpClientParams) {
-        this(defaultHttpClientFactory(), httpClientParams, HttpMultipartMode.STRICT, SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT, NO_HTTP_CLIENT, true);
+        this(defaultHttpClientFactory(), httpClientParams, HttpMultipartMode.STRICT, SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT, NO_HTTP_CLIENT_BUILDER, true);
     }
 
     /**
@@ -135,7 +136,7 @@ import static java.util.Arrays.asList;
      * @see #httpClientFactory(HttpClientConfig.HttpClientFactory)
      */
     public HttpClientConfig reuseHttpClientInstance() {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, true, httpClient, true);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, true, httpClientBuilder, true);
     }
 
     /**
@@ -145,7 +146,7 @@ import static java.util.Arrays.asList;
      * @see #reuseHttpClientInstance()
      */
     public HttpClientConfig dontReuseHttpClientInstance() {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, false, NO_HTTP_CLIENT, true);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, false, NO_HTTP_CLIENT_BUILDER, true);
     }
 
     /**
@@ -177,7 +178,7 @@ import static java.util.Arrays.asList;
         notNull(parameterName, "Parameter name");
         final Map<String, Object> newParams = new HashMap<String, Object>(httpClientParams);
         newParams.put(parameterName, parameterValue);
-        return new HttpClientConfig(httpClientFactory, newParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
+        return new HttpClientConfig(httpClientFactory, newParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT_BUILDER, true);
     }
 
     /**
@@ -187,7 +188,7 @@ import static java.util.Arrays.asList;
      * @return An updated HttpClientConfig
      */
     public HttpClientConfig withParams(Map<String, ?> httpClientParams) {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT_BUILDER, true);
     }
 
     /**
@@ -210,7 +211,7 @@ import static java.util.Arrays.asList;
         notNull(httpClientParams, "httpClientParams");
         final Map<String, Object> newParams = new HashMap<String, Object>(this.httpClientParams);
         newParams.putAll(httpClientParams);
-        return new HttpClientConfig(httpClientFactory, newParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
+        return new HttpClientConfig(httpClientFactory, newParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT_BUILDER, true);
     }
 
     /**
@@ -220,20 +221,25 @@ import static java.util.Arrays.asList;
      * @return An updated HttpClientConfig
      */
     public HttpClientConfig httpClientFactory(HttpClientFactory httpClientFactory) {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT, true);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, NO_HTTP_CLIENT_BUILDER, true);
     }
 
     /**
      * @return The configured http client that will create an {@link org.apache.http.client.HttpClient} instances that's used by REST Assured when making a request.
      */
+    @Deprecated
     public HttpClient httpClientInstance() {
         if (isConfiguredToReuseTheSameHttpClientInstance()) {
-            if (httpClient == NO_HTTP_CLIENT) {
-                httpClient = httpClientFactory.createHttpClient();
+            if (httpClientBuilder == NO_HTTP_CLIENT_BUILDER) {
+                httpClientBuilder = HttpClientBuilder.create();
             }
-            return httpClient;
+            return httpClientBuilder.build();
         }
         return httpClientFactory.createHttpClient();
+    }
+
+    public HttpClientBuilder httpClientBuilderInstance() {
+        return httpClientBuilder;
     }
 
     /**
@@ -243,7 +249,7 @@ import static java.util.Arrays.asList;
      * @return An updated HttpClientConfig
      */
     public HttpClientConfig httpMultipartMode(HttpMultipartMode httpMultipartMode) {
-        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, httpClient, true);
+        return new HttpClientConfig(httpClientFactory, httpClientParams, httpMultipartMode, shouldReuseHttpClientInstance, httpClientBuilder, true);
     }
 
     /**
@@ -263,7 +269,7 @@ import static java.util.Arrays.asList;
     private static HttpClientFactory defaultHttpClientFactory() {
         return new HttpClientFactory() {
             public HttpClient createHttpClient() {
-                return new DefaultHttpClient();
+                return HttpClientBuilder.create().build();
             }
         };
     }
@@ -279,10 +285,6 @@ import static java.util.Arrays.asList;
         /**
          * Create an instance of {@link HttpClient} that'll be used by REST Assured when making requests. By default
          * REST Assured creates a {@link DefaultHttpClient}.
-         * <p>
-         * <b>Important: Version 1.9.0 of REST Assured ONLY supports instances of {@link org.apache.http.impl.client.AbstractHttpClient}</b>. The API is
-         * how ever prepared for future upgrades.
-         * </p>
          *
          * @return An instance of {@link HttpClient}.
          */
