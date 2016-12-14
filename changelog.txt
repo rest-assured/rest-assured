@@ -7,6 +7,7 @@ Change log next version
 * Added new functionality to filters that allows removing and replacing headers and cookies.
 * Fixed so that form parameters (i.e. String-values) does get merged correctly with the multipart parameters (issue 762) (thanks to Klaus Dorninger for pull request)
 * Fixed so that the boundary of a request is set explicitly in the "Content-Type" header of the request (issue 762) (thanks to Klaus Dorninger for pull request)
+* Fixed error message thrown by RestAssuredMockMvc that hinted at using the regular RestAssured API instead of the MockMvc variant (thanks to Toshiaki Maki for pull request)
 
 Change log 3.0.1 (2016-09-02)
 -----------------------------
