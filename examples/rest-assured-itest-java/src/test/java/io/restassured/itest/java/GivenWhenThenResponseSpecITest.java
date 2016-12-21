@@ -34,7 +34,7 @@ public class GivenWhenThenResponseSpecITest extends WithJetty {
     simple_given_when_then_works() {
         exception.expect(AssertionError.class);
         exception.expectMessage("2 expectations failed.\n" +
-                "Expected status code <201> doesn't match actual status code <200>.\n" +
+                "Expected status code <201> but was <200>.\n" +
                 "\n" +
                 "JSON path greeting doesn't match.\n" +
                 "Expected: Greetings John Doo\n" +

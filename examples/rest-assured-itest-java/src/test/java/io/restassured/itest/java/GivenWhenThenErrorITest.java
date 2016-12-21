@@ -46,7 +46,7 @@ public class GivenWhenThenErrorITest extends WithJetty {
     @Test public void
     throws_assertion_error_when_a_status_assertion_is_incorrect() {
         exception.expect(AssertionError.class);
-        exception.expectMessage("Expected status code <202> doesn't match actual status code <200>.");
+        exception.expectMessage("Expected status code <202> but was <200>.");
 
         given().
                 param("firstName", "John").

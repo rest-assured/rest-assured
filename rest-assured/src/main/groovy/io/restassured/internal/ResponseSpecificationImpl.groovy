@@ -23,6 +23,7 @@ import io.restassured.function.RestAssuredFunction
 import io.restassured.http.ContentType
 import io.restassured.internal.MapCreator.CollisionStrategy
 import io.restassured.internal.log.LogRepository
+import io.restassured.internal.util.MatcherErrorMessageBuilder
 import io.restassured.parsing.Parser
 import io.restassured.response.Response
 import io.restassured.specification.*
@@ -525,7 +526,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
       if (expectedStatusCode != null) {
         def actualStatusCode = response.getStatusCode()
         if (!expectedStatusCode.matches(actualStatusCode)) {
-          def errorMessage = String.format("Expected status code %s doesn't match actual status code <%s>.\n", expectedStatusCode.toString(), actualStatusCode)
+
+          def errorMessage = new MatcherErrorMessageBuilder<Integer, Matcher<Integer>>("status code")
+                  .buildError(actualStatusCode, expectedStatusCode)
+
           errors << [success: false, errorMessage: errorMessage];
         }
       }
