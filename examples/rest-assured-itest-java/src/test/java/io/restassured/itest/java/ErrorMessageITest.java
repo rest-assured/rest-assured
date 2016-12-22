@@ -73,7 +73,7 @@ public class ErrorMessageITest extends WithJetty {
     error_message_look_ok_when_mixing_body_and_status_code_errors() {
         exception.expect(AssertionError.class);
         exception.expectMessage("3 expectations failed.\n" +
-                "Expected status code <201> doesn't match actual status code <200>.\n" +
+                "Expected status code <201> but was <200>.\n" +
                 "\n" +
                 "JSON path lotto.lottoId doesn't match.\n" +
                 "Expected: a value less than <2>\n" +

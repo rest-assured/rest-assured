@@ -161,7 +161,7 @@ public class JSONGetITest extends WithJetty {
         // Given
         exception.expect(AssertionError.class);
         exception.expectMessage(equalTo("1 expectation failed.\n" +
-                "Expected status code <300> doesn't match actual status code <200>.\n"));
+                "Expected status code <300> but was <200>.\n"));
 
         // When
         expect().response().statusCode(300).and().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
