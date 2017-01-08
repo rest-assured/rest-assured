@@ -20,6 +20,7 @@ import io.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.littleshoot.proxy.HttpProxyServer;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
@@ -87,7 +88,7 @@ public class ProxyAuthITest extends WithJetty {
     }
 
     // This tests makes sure that issue 693 is resolved
-    @Test public void
+    @Test @Ignore  public void
     can_use_external_proxy() {
         given().
                 proxy(host("pxy.int.ws.streamshield.net").withPort(3128).withAuth("user_384364539@wtqt.com", "Password1")).
