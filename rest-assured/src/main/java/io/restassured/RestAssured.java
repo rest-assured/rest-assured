@@ -21,6 +21,7 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.*;
 import io.restassured.filter.Filter;
+import io.restassured.filter.OrderedFilter;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Method;
 import io.restassured.internal.*;
@@ -42,6 +43,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.KeyStore;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -504,6 +506,7 @@ public class RestAssured {
     public static void filters(List<Filter> filters) {
         Validate.notNull(filters, "Filter list cannot be null");
         RestAssured.filters.addAll(filters);
+        sortFilters();
     }
 
     /**
@@ -518,6 +521,7 @@ public class RestAssured {
         if (additionalFilters != null) {
             Collections.addAll(RestAssured.filters, additionalFilters);
         }
+        sortFilters();
     }
 
     /**
@@ -1831,4 +1835,17 @@ public class RestAssured {
     public static RestAssuredConfig config() {
         return config == null ? new RestAssuredConfig() : config;
     }
+
+    private static void sortFilters() {
+        Collections.sort(RestAssured.filters, new Comparator<Filter>() {
+            public int compare(Filter o1, Filter o2) {
+                 return getFilterPriority(o1) - getFilterPriority(o2);
+            }});
+    }
+
+    private static int getFilterPriority(Filter filter) {
+        return (filter instanceof OrderedFilter) ? ((OrderedFilter) filter).getPriority()
+                : OrderedFilter.DEFAULT_PRIORITY;
+    }
+
 }
