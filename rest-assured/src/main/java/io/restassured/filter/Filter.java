@@ -24,6 +24,8 @@ import io.restassured.specification.FilterableResponseSpecification;
  * A filter allows you to inspect and alter a request before it's actually committed and also inspect and alter the
  * response before it's returned to the expectations. You can regard it as an "around advice" in AOP terms.
  * Filters can be used to implement custom authentication schemes, session management, logging etc.
+ *
+ * If you need an ordered filter you should implement {@link OrderedFilter}.
  */
 public interface Filter {
 
