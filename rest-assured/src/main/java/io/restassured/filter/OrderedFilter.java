@@ -2,17 +2,32 @@ package io.restassured.filter;
 
 /**
  * Implement this filter if you need to control the order of the filter.
- * A higher priority will apply the filter earlier in the chain.
+ * Higher values are interpreted as lower priority. As a consequence, the object with the lowest value has the highest priority (somewhat analogous to Servlet load-on-startup values).
+ * Same order values will result in arbitrary sort positions for the affected objects.
  */
 public interface OrderedFilter extends Filter {
 
     /**
-     * The default priority for any filter
+     * The default precedence
      */
-    int DEFAULT_PRIORITY = 1000;
+    int DEFAULT_PRECEDENCE = 1000;
 
     /**
-     * @return priority of the filter
+     * Useful constant for the highest precedence value.
+     *
+     * @see Integer#MIN_VALUE
      */
-    int getPriority();
+    int HIGHEST_PRECEDENCE = Integer.MIN_VALUE;
+
+    /**
+     * Useful constant for the lowest precedence value.
+     *
+     * @see Integer#MAX_VALUE
+     */
+    int LOWEST_PRECEDENCE = Integer.MAX_VALUE;
+
+    /**
+     * @return The order of the filter
+     */
+    int getOrder();
 }

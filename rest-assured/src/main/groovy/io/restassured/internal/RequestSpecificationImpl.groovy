@@ -22,6 +22,7 @@ import io.restassured.authentication.FormAuthScheme
 import io.restassured.authentication.NoAuthScheme
 import io.restassured.config.*
 import io.restassured.filter.Filter
+import io.restassured.filter.OrderedFilter
 import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
 import io.restassured.filter.time.TimingFilter
@@ -1707,6 +1708,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
     restAssuredConfig = config ?: new RestAssuredConfig()
 
+    // Sort filters by order
+    filters = filters.toSorted {f1, f2 -> getFilterOrder(f1) <=> getFilterOrder(f2)}
+
     // Add timing filter if it has not been added manually
     if (!filters*.getClass().any { TimingFilter.class.isAssignableFrom(it) }) {
       filters << new TimingFilter()
@@ -2316,5 +2320,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   public void setMethod(String method) {
     this.method = method == null ? null : method.toUpperCase()
+  }
+
+  private static int getFilterOrder(Filter filter) {
+    return (filter instanceof OrderedFilter) ? ((OrderedFilter) filter).getOrder()
+            : OrderedFilter.DEFAULT_PRECEDENCE;
   }
 }
