@@ -181,7 +181,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             response = mvcResult.getResponse();
             restAssuredResponse = new MockMvcRestAssuredResponseImpl(perform, logRepository);
             restAssuredResponse.setConfig(ConfigConverter.convertToRestAssuredConfig(config));
-            restAssuredResponse.setContent(response.getContentAsString());
+            restAssuredResponse.setContent(response.getContentAsByteArray());
             restAssuredResponse.setContentType(response.getContentType());
             restAssuredResponse.setHasExpectations(false);
             restAssuredResponse.setStatusCode(response.getStatus());
