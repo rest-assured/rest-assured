@@ -11,6 +11,7 @@ Change log next version
 * Fixed mismatch description from Hamcrest Matcher that previously was ignored for status codes (thanks to Javier Romero for pull request)
 * Added support for ordered filters. Implement the io.restassured.filter.OrderedFilter interface and specify the precedence (thanks to jcravi for initial pull request).
 * Fixed so that you can download binary data with the RestAssuredMockMvc module (thanks to Sergey Bespalov for pull request)
+* Improved exception message when there's no supported (de-)serialization library in classpath (issue 788)
 
 Change log 3.0.1 (2016-09-02)
 -----------------------------

@@ -58,7 +58,7 @@ class ObjectMapping {
       } else if (isGsonInClassPath()) {
         return parseWithGson(deserializationCtx, objectMapperConfig.gsonObjectMapperFactory()) as T
       }
-      throw new IllegalStateException("Cannot parse object because no JSON deserializer found in classpath. Please put either Jackson or Gson in the classpath.")
+      throw new IllegalStateException("Cannot parse object because no JSON deserializer found in classpath. Please put either Jackson (Databind) or Gson in the classpath.")
     } else if (containsIgnoreCase(contentType, "xml")) {
       if (isJAXBInClassPath()) {
         return parseWithJaxb(deserializationCtx, objectMapperConfig.jaxbObjectMapperFactory()) as T
@@ -133,7 +133,7 @@ class ObjectMapping {
         } else if (isGsonInClassPath()) {
           return serializeWithGson(serializationCtx, config.gsonObjectMapperFactory())
         }
-        throw new IllegalStateException("Cannot serialize object because no JSON serializer found in classpath. Please put either Jackson or Gson in the classpath.")
+        throw new IllegalStateException("Cannot serialize object because no JSON serializer found in classpath. Please put either Jackson (Databind) or Gson in the classpath.")
       } else if (containsIgnoreCase(ct, "xml") || encoderConfig.contentEncoders().get(ContentTypeExtractor.getContentTypeWithoutCharset(ct)) == ContentType.XML) {
         if (isJAXBInClassPath()) {
           return serializeWithJaxb(serializationCtx, config.jaxbObjectMapperFactory())

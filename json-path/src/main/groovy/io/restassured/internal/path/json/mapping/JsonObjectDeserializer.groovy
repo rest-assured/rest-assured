@@ -19,11 +19,11 @@
 
 package io.restassured.internal.path.json.mapping
 
-import io.restassured.mapper.DataToDeserialize
-import io.restassured.mapper.factory.Jackson1ObjectMapperFactory
 import io.restassured.internal.mapper.ObjectDeserializationContextImpl
+import io.restassured.mapper.DataToDeserialize
 import io.restassured.mapper.ObjectDeserializationContext
 import io.restassured.mapper.factory.GsonObjectMapperFactory
+import io.restassured.mapper.factory.Jackson1ObjectMapperFactory
 import io.restassured.mapper.factory.Jackson2ObjectMapperFactory
 import io.restassured.mapper.resolver.ObjectMapperResolver
 import io.restassured.path.json.config.JsonParserType
@@ -70,7 +70,7 @@ class JsonObjectDeserializer {
         } else if (ObjectMapperResolver.isGsonInClassPath()) {
             return deserializeWithGson(deserializationCtx, jsonPathConfig.gsonObjectMapperFactory()) as T
         }
-        throw new IllegalStateException("Cannot deserialize object because no JSON deserializer found in classpath. Please put either Jackson or Gson in the classpath.")
+        throw new IllegalStateException("Cannot deserialize object because no JSON deserializer found in classpath. Please put either Jackson (Databind) or Gson in the classpath.")
     }
 
     private static <T> T deserializeWithObjectMapper(ObjectDeserializationContext ctx, JsonParserType mapperType, JsonPathConfig config) {
