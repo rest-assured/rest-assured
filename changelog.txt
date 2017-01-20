@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 3.0.2 (2017-01-20)
+-----------------------------
 * Don't join root and path with '.' if path starts with array indexing (thanks to feshbach for pull request)
 * Updated SSLConfig to allow keystore and truststore passwords to differ (thanks to mike42 for pull request)
 * SSLConfig#getKeyStore() was returning trustStore rather than keyStore (thanks to mike42 for pull request)
