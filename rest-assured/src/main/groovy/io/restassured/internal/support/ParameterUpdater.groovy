@@ -35,7 +35,11 @@ class ParameterUpdater {
     notNull to, "Map to copy to"
     notNull strategy, UpdateStrategy.class
     from.each { key, value ->
-      updateStandardParameter(strategy, to, key, value)
+      if(value instanceof Collection){
+        updateCollectionParameter(strategy, to, key, value)
+      } else {
+        updateStandardParameter(strategy, to, key, value)
+      }
     }
   }
 
