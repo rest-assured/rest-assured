@@ -26,12 +26,14 @@ import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
 import org.apache.commons.io.output.WriterOutputStream;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URL;
+import java.util.*;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
@@ -986,5 +988,54 @@ public class URLITest extends WithJetty {
 
         // Then
         assertThat(loggedRequestPathIn(writer), equalTo("http://httpbin.org/get"));
+    }
+
+    /**
+     * This test try to add query parameters as map that contains value as {@link Collection}
+     * @throws Exception
+     */
+    @Test
+    public void get_request_with_query_parameters_as_map_that_contains_collection_as_one_of_parameters() throws Exception {
+        final ArrayList<String> parameterValues = new ArrayList<String>() {{
+            add("value1");
+            add("value2");
+        }};
+
+        Map<String, Object> queryParameters = new HashMap<String, Object>() {{
+            put("queryParameter", parameterValues);
+        }};
+
+        String response = given()
+                .queryParams(queryParameters)
+                .when()
+                .get("/requestUrl").asString();
+        //query parameters should be parsed correctly
+        Assert.assertEquals("http://localhost:8080/requestUrl?queryParameter=value1&queryParameter=value2", response);
+    }
+
+
+    /**
+     * This test try to add form parameters as map that contains value as {@link Collection}
+     * @throws Exception
+     */
+    @Test
+    public void get_request_with_form_parameters_as_map_that_contains_collection_as_one_of_parameters() throws Exception {
+        final List parameterValues = new ArrayList<String>() {{
+            add("value1");
+            add("value2");
+        }};
+
+        Map<String, Object> formParameters = new HashMap<String, Object>() {{
+            put("list", parameterValues);
+        }};
+
+        Response response = given()
+                .formParams(formParameters)
+                .when()
+                .post("/multiValueParam");
+        //Convert returned value to list
+        List<String> paramListFromResponse = Arrays.asList(response.jsonPath().getString("list").split(","));
+        Assert.assertEquals(parameterValues,  paramListFromResponse);
+
     }
 }
