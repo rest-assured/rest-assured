@@ -420,12 +420,12 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   class HamcrestAssertionClosure {
 
-    def call(response, content) {
-      return getClosure().call(response, content)
+    def call(response, content, requestSpec) {
+      return getClosure().call(response, content, requestSpec)
     }
 
-    def call(response) {
-      return getClosure().call(response, null)
+    def call(response, requestSpec) {
+      return getClosure().call(response, null, requestSpec)
     }
 
     def getResponseContentType() {
@@ -437,9 +437,13 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     }
 
     def getClosure() {
-      return { response, content ->
-        restAssuredResponse.parseResponse(response, content, hasBodyAssertionsDefined(), rpr)
+      return { response, content, requestSpec ->
+        restAssuredResponse.parseResponse(response, content, hasBodyAssertionsDefined(), rpr, cookieOrigin(requestSpec))
       }
+    }
+
+    def cookieOrigin(RequestSpecification requestSpec) {
+      return CookieOrigin.create(requestSpec)
     }
 
     def validate(Response response) {

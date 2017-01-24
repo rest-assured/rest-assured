@@ -1720,6 +1720,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def ctx = newFilterContext(responseSpecification.assertionClosure, filters.iterator(), [:])
     httpClient = httpClientConfig().httpClientInstance()
     def response = ctx.next(this, responseSpecification)
+    responseSpecification.requestSpecification = this
     responseSpecification.assertionClosure.validate(response)
     return response
   }
@@ -2125,16 +2126,16 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         final Object returnVal;
         Object[] closureArgs = null;
         switch (responseClosure.getMaximumNumberOfParameters()) {
-          case 1:
-            returnVal = responseClosure.call(resp);
+          case 2:
+            returnVal = responseClosure.call(resp, RequestSpecificationImpl.this);
             break;
-          case 2: // parse the response entity if the response handler expects it:
+          case 3: // parse the response entity if the response handler expects it:
             HttpEntity entity = resp.getEntity();
             try {
               if (entity == null || entity.getContentLength() == 0) {
-                returnVal = responseClosure.call(resp, EMPTY);
+                returnVal = responseClosure.call(resp, EMPTY, RequestSpecificationImpl.this);
               } else {
-                returnVal = responseClosure.call(resp, this.parseResponse(resp, acceptContentType));
+                returnVal = responseClosure.call(resp, this.parseResponse(resp, acceptContentType), RequestSpecificationImpl.this);
               }
             } catch (Exception ex) {
               throw new ResponseParseException(resp, ex);
@@ -2142,7 +2143,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
             break;
           default:
             throw new IllegalArgumentException(
-                    "Response closure must accept one or two parameters");
+                    "Response closure must accept two or three parameters");
         }
         return returnVal;
       }

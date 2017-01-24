@@ -19,6 +19,7 @@ package io.restassured.internal
 
 import groovy.xml.StreamingMarkupBuilder
 import io.restassured.assertion.CookieMatcher
+import io.restassured.assertion.CookieOrigin
 import io.restassured.config.DecoderConfig
 import io.restassured.config.RestAssuredConfig
 import io.restassured.filter.log.LogDetail
@@ -80,10 +81,10 @@ class RestAssuredResponseOptionsGroovyImpl {
 
   def RestAssuredConfig config
 
-  public void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
+  public void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar, CookieOrigin origin) {
     parseHeaders(httpResponse)
     parseContentType(httpResponse)
-    parseCookies()
+    parseCookies(origin)
     parseStatus(httpResponse)
     if (hasBodyAssertions) {
       parseContent(content)
@@ -109,9 +110,9 @@ class RestAssuredResponseOptionsGroovyImpl {
     }
   }
 
-  def parseCookies() {
+  def parseCookies(CookieOrigin origin) {
     if (headers.hasHeaderWithName("Set-Cookie")) {
-      cookies = CookieMatcher.getCookies(headers.getValues("Set-Cookie"))
+      cookies = CookieMatcher.getCookies(headers.getValues("Set-Cookie"), origin)
     }
   }
 

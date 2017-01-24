@@ -42,7 +42,8 @@ public class CookieMatcherTest {
                 "COOKIE_WITH_ZERO_MAX_AGE=1234;Version=0;Domain=.test.com;Path=/;Max-Age=0",
                 "COOKIE_WITH_NEGATIVE_MAX_AGE=123456;Version=0;Domain=.test.com;Path=/;Max-Age=-1"};
 
-        Cookies result = CookieMatcher.getCookies(cookies);
+
+        Cookies result = CookieMatcher.getCookies(cookies, new CookieOrigin("ignoreHost"));
         assertEquals(4, result.size());
 
         Cookie sprintCookie = result.get("SPRING_SECURITY_REMEMBER_ME_COOKIE");
@@ -90,7 +91,7 @@ public class CookieMatcherTest {
                 "un=bob; domain=bob.com; path=/", "", "_session_id=asdfwerwersdfwere; domain=bob.com; path=/; HttpOnly"};
 
         // When
-        Cookies cookies = CookieMatcher.getCookies(cookiesAsString);
+        Cookies cookies = CookieMatcher.getCookies(cookiesAsString, new CookieOrigin("ignoreHost"));
 
         // Then
         assertThat(cookies.size(), is(3));
