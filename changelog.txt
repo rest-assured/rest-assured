@@ -1,3 +1,7 @@
+Change log (next version)
+-------------------------
+* Fixed issue with multi-word parameters that were treated as a list (issue 787) (thanks to britka for pull request)
+
 Change log 3.0.2 (2017-01-20)
 -----------------------------
 * Don't join root and path with '.' if path starts with array indexing (thanks to feshbach for pull request)
