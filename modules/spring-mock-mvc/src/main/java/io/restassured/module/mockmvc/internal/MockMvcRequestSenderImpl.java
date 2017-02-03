@@ -149,6 +149,27 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return new Headers(headers);
     }
 
+    private Cookies convertCookies(javax.servlet.http.Cookie[] servletCookies) {
+        List<Cookie> cookies = new ArrayList<Cookie>();
+        for (javax.servlet.http.Cookie servletCookie : servletCookies) {
+            Cookie.Builder cookieBuilder = new Cookie.Builder(servletCookie.getName(), servletCookie.getValue());
+            if (servletCookie.getComment() != null) {
+                cookieBuilder.setComment(servletCookie.getComment());
+            }
+            if (servletCookie.getDomain() != null) {
+                cookieBuilder.setDomain(servletCookie.getDomain());
+            }
+            if (servletCookie.getPath() != null) {
+                cookieBuilder.setPath(servletCookie.getPath());
+            }
+            cookieBuilder.setMaxAge(servletCookie.getMaxAge());
+            cookieBuilder.setVersion(servletCookie.getVersion());
+            cookieBuilder.setSecured(servletCookie.getSecure());
+            cookies.add(cookieBuilder.build());
+        }
+        return new Cookies(cookies);
+    }
+
     @SuppressWarnings("unchecked")
     private MockMvcResponse performRequest(MockHttpServletRequestBuilder requestBuilder) {
         MockHttpServletResponse response;
@@ -191,6 +212,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             restAssuredResponse.setFilterContextProperties(new HashMap() {{
                 put(TimingFilter.RESPONSE_TIME_MILLISECONDS, responseTime);
             }});
+            restAssuredResponse.setCookies(convertCookies(response.getCookies()));
 
             if (responseSpecification != null) {
                 responseSpecification.validate(ResponseConverter.toStandardResponse(restAssuredResponse));
@@ -351,6 +373,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
                 if (cookie.hasVersion()) {
                     servletCookie.setVersion(cookie.getVersion());
                 }
+                servletCookie.setSecure(cookie.isSecured());
                 request.cookie(servletCookie);
             }
         }

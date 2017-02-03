@@ -559,8 +559,9 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
       })
 
       validations.addAll(cookieAssertions.collect { matcher ->
-        def cookies = response.getHeaders().getValues("Set-Cookie")
-        matcher.validateCookie(cookies)
+        def headerWithCookieList = response.getHeaders().getValues("Set-Cookie")
+        def responseCookies = response.getDetailedCookies()
+        matcher.validateCookies(headerWithCookieList, responseCookies)
       })
       validations
     }

@@ -36,14 +36,23 @@ class CookieMatcher {
 
 
 
-    def validateCookie(List<String> cookies) {
+    def validateCookies(List<String> headerWithCookieList, Cookies responseCookies) {
         def success = true
         def errorMessage = ""
-        if(!cookies) {
+        if(!headerWithCookieList && !responseCookies.exist()) {
             success = false
             errorMessage = "No cookies defined in the response\n"
         } else {
-            def raCookies = getCookies(cookies)
+            Cookies cookiesInHeader = getCookies(headerWithCookieList)
+            List<Cookie> mergedCookies = []
+            mergedCookies += cookiesInHeader
+            for (Cookie responseCookie: responseCookies) {
+                if (!cookiesInHeader.hasCookieWithName(responseCookie.getName())) {
+                    mergedCookies << responseCookie
+                }
+            }
+
+            def raCookies = new Cookies(mergedCookies)
             def cookie = raCookies.get(cookieName)
             if (cookie == null) {
                 String cookiesAsString = raCookies.toString()
