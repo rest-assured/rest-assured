@@ -103,6 +103,21 @@ public class CookieTest {
                 body("cookieValue1", equalTo("John Doe")).
                 body("cookieValue2", equalTo("rest assured"));
     }
+
+    @Test public void
+    can_receive_cookies() {
+        RestAssuredMockMvc.given().
+                queryParam("cookieName1", "name").
+                queryParam("cookieValue1", "John Doe").
+                queryParam("cookieName2", "project").
+                queryParam("cookieValue2", "rest assured").
+        when().
+                get("/setCookies").
+        then().
+                statusCode(200).
+                cookie("name", "John Doe").
+                cookie("project", "rest assured");
+    }
 }
 
 // @formatter:on
