@@ -79,7 +79,7 @@ class ObjectMapping {
         }
       }
     }
-    throw new IllegalStateException(String.format("Cannot parse object because no supported Content-Type was not specified in response. Content-Type was '%s'.", contentType))
+    throw new IllegalStateException(String.format("Cannot parse object because no supported Content-Type was specified in response. Content-Type was '%s'.", contentType))
   }
 
   private
