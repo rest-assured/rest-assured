@@ -3,6 +3,7 @@ Change log (next version)
 * Fixed issue with multi-word parameters that were treated as a list (issue 787) (thanks to britka for pull request)
 * Merges cookies of HttpServletResponse additionally to the Set-Cookie header (issue 791) (thanks to Andreas Gerstmayr for pull request)
 * Removed second negative from exception message "... no supported Content-Type was not specified... " (thanks to Mark N Broadhead for pull request)
+* Fixing EOFException for empty GZIP responses (issue 814)
 
 Change log 3.0.2 (2017-01-20)
 -----------------------------

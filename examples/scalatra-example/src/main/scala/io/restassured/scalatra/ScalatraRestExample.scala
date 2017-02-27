@@ -929,6 +929,11 @@ class ScalatraRestExample extends ScalatraServlet {
     </rss>
   }
 
+  get("/gzip-empty-body") {
+    contentType = "text/plain"
+    response.addHeader("Content-Encoding", "gzip")
+    ""
+  }
 
   get("/jsonp") {
     contentType = "application/javascript"
