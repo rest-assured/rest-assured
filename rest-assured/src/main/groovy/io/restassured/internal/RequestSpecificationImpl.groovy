@@ -617,6 +617,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return this
   }
 
+  RestAssuredConfig config() {
+    return config
+  }
+
   def RequestSpecification config(RestAssuredConfig config) {
     this.restAssuredConfig = config
     responseSpecification?.config = config

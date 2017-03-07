@@ -1109,6 +1109,11 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification pathParams(Map<String, ?> parameterNameValuePairs);
 
     /**
+     * @return The current {@link RestAssuredConfig} or null if none set
+     */
+    RestAssuredConfig config();
+
+    /**
      * Define a REST Assured configuration. E.g.
      * <pre>
      * given().config(config().redirect(redirectConfig().followRedirects(true).and().maxRedirects(0))). ..
