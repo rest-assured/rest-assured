@@ -7,6 +7,7 @@ Change log (next version)
 * Update groovy version to fix memory leaks (issue 735) (thanks to Nikolai Gladkov for pull request)
 * Improved cookie expiry parsing (issue 563) (thanks to Martin Aun for pull request)
 * Improved multipart log output to make it prettier (thanks to Andrey Smirnov for pull request)
+* Ignores spacing between content type and charset when validating content types (issue 804)
 
 Change log 3.0.2 (2017-01-20)
 -----------------------------

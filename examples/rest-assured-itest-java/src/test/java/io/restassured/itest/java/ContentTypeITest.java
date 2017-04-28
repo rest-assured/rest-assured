@@ -18,9 +18,9 @@ package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
 import io.restassured.builder.ResponseBuilder;
+import io.restassured.config.EncoderConfig;
 import io.restassured.http.ContentType;
 import io.restassured.itest.java.support.WithJetty;
-import io.restassured.config.EncoderConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +30,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import static io.restassured.RestAssured.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
 
 public class ContentTypeITest extends WithJetty {
@@ -356,6 +357,62 @@ public class ContentTypeITest extends WithJetty {
                 get("/something").
         then().
                 contentType(isEmptyOrNullString());
+    }
+
+    @Test public void
+    ignores_spacing_between_content_type_and_charset_when_server_returns_single_space_between_content_type_and_charset() {
+        given().
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder()
+                        .setStatusCode(200)
+                        .setHeader("Content-Type", "application/json; charset=UTF-8")
+                        .setHeader("Some", "Value")
+                        .setBody("Test").build()).
+        when().
+                get("/something").
+        then().
+                contentType(ContentType.JSON.withCharset(UTF_8));
+    }
+
+    @Test public void
+    ignores_spacing_between_content_type_and_charset_when_server_returns_multiple_spaces_between_content_type_and_charset() {
+        given().
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder()
+                        .setStatusCode(200)
+                        .setHeader("Content-Type", "application/json;    charset=UTF-8")
+                        .setHeader("Some", "Value")
+                        .setBody("Test").build()).
+        when().
+                get("/something").
+        then().
+                contentType(ContentType.JSON.withCharset(UTF_8));
+    }
+
+    @Test public void
+    ignores_spacing_between_content_type_and_charset_when_server_returns_no_spaces_between_content_type_and_charset() {
+        given().
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder()
+                        .setStatusCode(200)
+                        .setHeader("Content-Type", "application/json;charset=UTF-8")
+                        .setHeader("Some", "Value")
+                        .setBody("Test").build()).
+        when().
+                get("/something").
+        then().
+                contentType(ContentType.JSON.withCharset(UTF_8));
+    }
+
+    @Test public void
+    ignores_tabs_between_content_type_and_charset_when_server_returns_no_spaces_between_content_type_and_charset() {
+        given().
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder()
+                        .setStatusCode(200)
+                        .setHeader("Content-Type", "application/json;\t\tcharset=UTF-8")
+                        .setHeader("Some", "Value")
+                        .setBody("Test").build()).
+        when().
+                get("/something").
+        then().
+                contentType(ContentType.JSON.withCharset(UTF_8));
     }
 
     @Test public void

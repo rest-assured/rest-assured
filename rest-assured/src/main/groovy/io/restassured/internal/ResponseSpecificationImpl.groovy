@@ -500,7 +500,9 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
             errors << [success: false, errorMessage: String.format("Expected content-type %s doesn't match actual content-type \"%s\".\n", contentType, actualContentType)]
           }
         } else if (contentType instanceof String) {
-          if (!StringUtils.startsWithIgnoreCase(actualContentType, contentType.toString())) {
+          def normalizedExpectedContentType = normalizeContentType(contentType.toString())
+          def normalizedActualContentType = normalizeContentType(actualContentType)
+          if (!StringUtils.startsWithIgnoreCase(normalizedActualContentType, normalizedExpectedContentType)) {
             errors << [success: false, errorMessage: String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", contentType, actualContentType)];
           }
         } else {
@@ -519,6 +521,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         }
       }
       errors
+    }
+
+    private String normalizeContentType(String actualContentType) {
+      StringUtils.replaceEach(actualContentType, [" ", "\t"] as String[], ["", ""] as String[])
     }
 
     private def validateStatusCodeAndStatusLine(Response response) {
