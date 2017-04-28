@@ -144,6 +144,7 @@ class CookieMatcher {
             } else if(equalsIgnoreCase(name, HTTP_ONLY)) {
                 builder.setHttpOnly(true)
             } else if(equalsIgnoreCase(name, EXPIRES)) {
+                value = trim(StringUtils.remove(value, "\""))
                 builder.setExpiryDate(DateUtils.parseDate(value))
             }
         }
