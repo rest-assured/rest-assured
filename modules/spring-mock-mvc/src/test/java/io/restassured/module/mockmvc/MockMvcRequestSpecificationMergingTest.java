@@ -373,7 +373,7 @@ public class MockMvcRequestSpecificationMergingTest {
                 "Form params:\t<none>\n" +
                 "Path params:\t<none>\n" +
                 "Headers:\t\t<none>\n" +
-                "Cookies:\t\t<none>\n\n" +
+                "Cookies:\t\t<none>\n" +
                 "Multiparts:\t\t<none>\n" +
                 "Body:\t\t\t<none>\n");
     }
@@ -401,7 +401,7 @@ public class MockMvcRequestSpecificationMergingTest {
         assertThat(writer.toString()).isEqualTo("Request params:\t<none>\n" +
                 "Query params:\tname=Johan\n" +
                 "Form params:\t<none>\n" +
-                "Path params:\t<none>\n\n"+
+                "Path params:\t<none>\n"+
                 "Multiparts:\t\t<none>\n"
                 );
     }

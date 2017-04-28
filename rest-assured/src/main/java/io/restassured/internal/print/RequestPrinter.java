@@ -151,24 +151,35 @@ public class RequestPrinter {
 
 
     private static void addMultiParts(FilterableRequestSpecification requestSpec, StringBuilder builder) {
-		builder.append(NEW_LINE).append("Multiparts:");
+        builder.append("Multiparts:");
         final List<MultiPartSpecification> multiParts = requestSpec.getMultiPartParams();
         if (multiParts.isEmpty()) {
             appendTwoTabs(builder).append(NONE).append(NEW_LINE);
         } else {
-            for (MultiPartSpecification multiPart : multiParts) {
-				builder.append(NEW_LINE).append("------------");
-				builder.append(NEW_LINE).append("Content-Disposition: " + requestSpec.getContentType().replace("multipart/", "")
-						+ "; name = " + multiPart.getControlName()
-						+ (multiPart.hasFileName() ? "; filename = " + multiPart.getFileName() : ""))
-						.append(NEW_LINE).append("Content-Type: " + multiPart.getMimeType());
-				if (multiPart.getContent() instanceof InputStream) {
-					builder.append(NEW_LINE).append("<inputstream>");
+            for (int i = 0; i < multiParts.size(); i++) {
+                MultiPartSpecification multiPart = multiParts.get(i);
+                if (i == 0) {
+                    appendTwoTabs(builder);
                 } else {
-					Parser parser = Parser.fromContentType(multiPart.getMimeType());
-					builder.append(NEW_LINE).append(new Prettifier().prettify(multiPart.getContent().toString(), parser));
+                    appendFourTabs(builder.append(NEW_LINE));
+                }
+
+                builder.append("------------");
+                appendFourTabs(appendFourTabs(builder.append(NEW_LINE))
+                        .append("Content-Disposition: " + requestSpec.getContentType().replace("multipart/", "")
+                                + "; name = " + multiPart.getControlName()
+                                + (multiPart.hasFileName() ? "; filename = " + multiPart.getFileName() : ""))
+                        .append(NEW_LINE)).append("Content-Type: " + multiPart.getMimeType());
+                if (multiPart.getContent() instanceof InputStream) {
+                    appendFourTabs(builder.append(NEW_LINE)).append("<inputstream>");
+                } else {
+                    Parser parser = Parser.fromContentType(multiPart.getMimeType());
+                    String prettified = new Prettifier().prettify(multiPart.getContent().toString(), parser);
+                    String prettifiedIndented = StringUtils.replace(prettified, NEW_LINE, NEW_LINE + TAB + TAB + TAB + TAB);
+                    appendFourTabs(builder.append(NEW_LINE)).append(prettifiedIndented);
                 }
             }
+            builder.append(NEW_LINE);
         }
     }
 
