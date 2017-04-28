@@ -19,6 +19,7 @@ import java.net.URLDecoder
 import java.util.{Date, Scanner}
 import javax.servlet.http.Cookie
 
+import io.restassured.scalatra.support.Gzip
 import net.liftweb.json.Extraction._
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
@@ -933,6 +934,13 @@ class ScalatraRestExample extends ScalatraServlet {
     contentType = "text/plain"
     response.addHeader("Content-Encoding", "gzip")
     ""
+  }
+
+  get("/gzip-json") {
+    response.addHeader("Content-Encoding", "gzip")
+    val jsonData = ("hello" -> "Hello Scalatra")
+    val jsonString = compact(render(jsonData))
+    Gzip.compress(jsonString.getBytes("UTF-8"))
   }
 
   get("/jsonp") {
