@@ -64,7 +64,8 @@ public class GZIPEncoding extends ContentEncoding {
         @Override
         public InputStream getContent() throws IOException, IllegalStateException {
             InputStream content = wrappedEntity.getContent();
-            if (wrappedEntity != null && wrappedEntity.getContentLength() > 0) {
+            // -1 means unknown content-length
+            if (wrappedEntity != null && (wrappedEntity.getContentLength() == -1 || wrappedEntity.getContentLength() > 0)) {
                 return new GZIPInputStream(content);
             } else {
                 return wrappedEntity.getContent();
