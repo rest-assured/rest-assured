@@ -20,11 +20,11 @@ import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.LogConfig;
+import io.restassured.config.RestAssuredConfig;
+import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;
-import io.restassured.config.RestAssuredConfig;
-import io.restassured.filter.log.LogDetail;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.After;
 import org.junit.Before;
@@ -33,7 +33,6 @@ import org.junit.Test;
 import java.io.PrintStream;
 import java.io.StringWriter;
 
-import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -73,8 +72,8 @@ public class LogIfValidationFailsITest extends WithJetty {
         } catch (AssertionError e) {
             assertThat(writer.toString(), equalTo("Request method:\tGET" + LINE_SEPARATOR + "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe" + LINE_SEPARATOR +
                     "Proxy:\t\t\t<none>" + LINE_SEPARATOR + "Request params:\tfirstName=John" + LINE_SEPARATOR + "\t\t\t\tlastName=Doe" + LINE_SEPARATOR + "Query params:\t<none>" + LINE_SEPARATOR +
-                    "Form params:\t<none>" + LINE_SEPARATOR + "Path params:\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>" + LINE_SEPARATOR +
-                    "Headers:\t\tAccept=*/*" + LINE_SEPARATOR + "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON) + LINE_SEPARATOR + "Cookies:\t\t<none>" + LINE_SEPARATOR + "Body:\t\t\t<none>" + LINE_SEPARATOR));
+                    "Form params:\t<none>" + LINE_SEPARATOR + "Path params:\t<none>" + LINE_SEPARATOR +
+                    "Headers:\t\tAccept=*/*" + LINE_SEPARATOR + "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON) + LINE_SEPARATOR + "Cookies:\t\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>" + LINE_SEPARATOR + "Body:\t\t\t<none>" + LINE_SEPARATOR));
         }
     }
 
@@ -99,8 +98,8 @@ public class LogIfValidationFailsITest extends WithJetty {
         } catch (AssertionError e) {
             assertThat(writer.toString(), equalTo("Request method:\tGET" + LINE_SEPARATOR + "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe" + LINE_SEPARATOR +
                     "Proxy:\t\t\t<none>" + LINE_SEPARATOR + "Request params:\tfirstName=John" + LINE_SEPARATOR + "\t\t\t\tlastName=Doe" + LINE_SEPARATOR + "Query params:\t<none>" + LINE_SEPARATOR +
-                    "Form params:\t<none>" + LINE_SEPARATOR + "Path params:\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>" + LINE_SEPARATOR +
-                    "Headers:\t\tAccept=*/*" + LINE_SEPARATOR + "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON) + LINE_SEPARATOR + "Cookies:\t\t<none>" + LINE_SEPARATOR + "Body:\t\t\t<none>" + LINE_SEPARATOR));
+                    "Form params:\t<none>" + LINE_SEPARATOR + "Path params:\t<none>" + LINE_SEPARATOR +
+                    "Headers:\t\tAccept=*/*" + LINE_SEPARATOR + "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON) + LINE_SEPARATOR + "Cookies:\t\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>" + LINE_SEPARATOR + "Body:\t\t\t<none>" + LINE_SEPARATOR));
         }
     }
 
@@ -241,9 +240,9 @@ public class LogIfValidationFailsITest extends WithJetty {
           } catch (AssertionError e) {
               assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+
                       "Proxy:\t\t\t<none>"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+
-                      "Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Multiparts:\t\t<none>"+LINE_SEPARATOR+"Headers:\t\tAccept=*/*"+LINE_SEPARATOR+
+                      "Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Headers:\t\tAccept=*/*"+LINE_SEPARATOR+
                       "\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+LINE_SEPARATOR+
-                      "Cookies:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR+LINE_SEPARATOR+
+                      "Cookies:\t\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR+LINE_SEPARATOR+
                       "HTTP/1.1 200 OK"+LINE_SEPARATOR+"Content-Type: application/json;charset=utf-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(9.3.2.v20150730)"+LINE_SEPARATOR+""+LINE_SEPARATOR+"{"+LINE_SEPARATOR+"    \"greeting\": \"Greetings John Doe\""+LINE_SEPARATOR+"}"+LINE_SEPARATOR+""));
           }
     }
@@ -268,9 +267,9 @@ public class LogIfValidationFailsITest extends WithJetty {
           } catch (IllegalArgumentException e) {
               assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+
                       "Proxy:\t\t\t<none>"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+
-                      "Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Multiparts:\t\t<none>"+LINE_SEPARATOR+"Headers:\t\tAccept=*/*"+LINE_SEPARATOR+
+                      "Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Headers:\t\tAccept=*/*"+LINE_SEPARATOR+
                       "\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+LINE_SEPARATOR+
-                      "Cookies:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR+LINE_SEPARATOR+
+                      "Cookies:\t\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR+LINE_SEPARATOR+
                       "HTTP/1.1 200 OK"+LINE_SEPARATOR+"Content-Type: application/json;charset=utf-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(9.3.2.v20150730)"+LINE_SEPARATOR+""+LINE_SEPARATOR+"{"+LINE_SEPARATOR+"    \"greeting\": \"Greetings John Doe\""+LINE_SEPARATOR+"}"+LINE_SEPARATOR+""));
           }
     }
@@ -318,12 +317,12 @@ public class LogIfValidationFailsITest extends WithJetty {
 
               fail("Should throw AssertionError");
           } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+
-                    "Proxy:\t\t\t<none>"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+
-                    "Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Multiparts:\t\t<none>"+LINE_SEPARATOR+"Headers:\t\tAccept=*/*"+LINE_SEPARATOR+
-                    "\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+LINE_SEPARATOR+
-                    "Cookies:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR +
-                    "Content-Type: application/json;charset=utf-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(9.3.2.v20150730)"+LINE_SEPARATOR));
+            assertThat(writer.toString(), equalTo("Request method:\tGET" + LINE_SEPARATOR + "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe" + LINE_SEPARATOR +
+                    "Proxy:\t\t\t<none>" + LINE_SEPARATOR + "Request params:\tfirstName=John" + LINE_SEPARATOR + "\t\t\t\tlastName=Doe" + LINE_SEPARATOR + "Query params:\t<none>" + LINE_SEPARATOR +
+                    "Form params:\t<none>" + LINE_SEPARATOR + "Path params:\t<none>" + LINE_SEPARATOR + "Headers:\t\tAccept=*/*" + LINE_SEPARATOR +
+                    "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON) + LINE_SEPARATOR +
+                    "Cookies:\t\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>" + LINE_SEPARATOR + "Body:\t\t\t<none>" + LINE_SEPARATOR +
+                    "Content-Type: application/json;charset=utf-8" + LINE_SEPARATOR + "Content-Length: 33" + LINE_SEPARATOR + "Server: Jetty(9.3.2.v20150730)" + LINE_SEPARATOR));
           }
     }
 

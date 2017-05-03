@@ -372,9 +372,9 @@ public class MockMvcRequestSpecificationMergingTest {
                 "Query params:\t<none>\n" +
                 "Form params:\t<none>\n" +
                 "Path params:\t<none>\n" +
-                "Multiparts:\t\t<none>\n" +
                 "Headers:\t\t<none>\n" +
                 "Cookies:\t\t<none>\n" +
+                "Multiparts:\t\t<none>\n" +
                 "Body:\t\t\t<none>\n");
     }
 

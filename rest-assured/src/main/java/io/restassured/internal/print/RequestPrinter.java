@@ -23,11 +23,13 @@ import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.internal.NoParameterValue;
 import io.restassured.internal.support.Prettifier;
+import io.restassured.parsing.Parser;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.ProxySpecification;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +62,6 @@ public class RequestPrinter {
             addMapDetails(builder, "Query params:", requestSpec.getQueryParams());
             addMapDetails(builder, "Form params:", requestSpec.getFormParams());
             addMapDetails(builder, "Path params:", requestSpec.getNamedPathParams());
-            addMultiParts(requestSpec, builder);
         }
 
         if (logDetail == ALL || logDetail == HEADERS) {
@@ -69,9 +70,15 @@ public class RequestPrinter {
         if (logDetail == ALL || logDetail == COOKIES) {
             addCookies(requestSpec, builder);
         }
+
+        if (logDetail == ALL || logDetail == PARAMS) {
+            addMultiParts(requestSpec, builder);
+        }
+
         if (logDetail == ALL || logDetail == BODY) {
             addBody(requestSpec, builder, shouldPrettyPrint);
         }
+
         String logString = builder.toString();
         if (logString.endsWith("\n")) {
             logString = StringUtils.removeEnd(logString, "\n");
@@ -149,15 +156,30 @@ public class RequestPrinter {
         if (multiParts.isEmpty()) {
             appendTwoTabs(builder).append(NONE).append(NEW_LINE);
         } else {
-            int i = 0;
-            for (MultiPartSpecification multiPart : multiParts) {
-                if (i++ == 0) {
+            for (int i = 0; i < multiParts.size(); i++) {
+                MultiPartSpecification multiPart = multiParts.get(i);
+                if (i == 0) {
                     appendTwoTabs(builder);
                 } else {
-                    appendFourTabs(builder);
+                    appendFourTabs(builder.append(NEW_LINE));
                 }
-                builder.append(multiPart).append(NEW_LINE);
+
+                builder.append("------------");
+                appendFourTabs(appendFourTabs(builder.append(NEW_LINE))
+                        .append("Content-Disposition: " + requestSpec.getContentType().replace("multipart/", "")
+                                + "; name = " + multiPart.getControlName()
+                                + (multiPart.hasFileName() ? "; filename = " + multiPart.getFileName() : ""))
+                        .append(NEW_LINE)).append("Content-Type: " + multiPart.getMimeType());
+                if (multiPart.getContent() instanceof InputStream) {
+                    appendFourTabs(builder.append(NEW_LINE)).append("<inputstream>");
+                } else {
+                    Parser parser = Parser.fromContentType(multiPart.getMimeType());
+                    String prettified = new Prettifier().prettify(multiPart.getContent().toString(), parser);
+                    String prettifiedIndented = StringUtils.replace(prettified, NEW_LINE, NEW_LINE + TAB + TAB + TAB + TAB);
+                    appendFourTabs(builder.append(NEW_LINE)).append(prettifiedIndented);
+                }
             }
+            builder.append(NEW_LINE);
         }
     }
 

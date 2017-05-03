@@ -20,11 +20,11 @@ import io.restassured.RestAssured;
 import io.restassured.authentication.FormAuthConfig;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.LogConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;
-import io.restassured.config.RestAssuredConfig;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
 
@@ -166,7 +166,7 @@ public class AuthenticationITest extends WithJetty {
                 statusCode(200).
                 body(equalTo("OK"));
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/j_spring_security_check\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\tj_username=John\n\t\t\t\tj_password=Doe\nPath params:\t<none>\nMultiparts:\t\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/x-www-form-urlencoded; charset=" + RestAssured.config().getEncoderConfig().defaultContentCharset() + "\nCookies:\t\t<none>\nBody:\t\t\t<none>\nHTTP/1.1 200 OK\nContent-Type: text/plain;charset=utf-8\nSet-Cookie: jsessionid=1234\nContent-Length: 0\nServer: Jetty(9.3.2.v20150730)\n"));
+        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/j_spring_security_check\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\tj_username=John\n\t\t\t\tj_password=Doe\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/x-www-form-urlencoded; charset=" + RestAssured.config().getEncoderConfig().defaultContentCharset() + "\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\nHTTP/1.1 200 OK\nContent-Type: text/plain;charset=utf-8\nSet-Cookie: jsessionid=1234\nContent-Length: 0\nServer: Jetty(9.3.2.v20150730)\n"));
     }
 
     @Test

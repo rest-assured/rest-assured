@@ -20,6 +20,7 @@ import io.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.when;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.isEmptyString;
 
 public class GzipITest extends WithJetty {
@@ -31,8 +32,17 @@ public class GzipITest extends WithJetty {
     returns_empty_body_when_content_encoding_is_gzip_but_body_is_empty() {
         when().
                 get("/gzip-empty-body").
-        then().
+                then().
                 statusCode(200).
                 body(isEmptyString());
+    }
+
+    @Test public void
+    returns_json_body_when_content_encoding_is_gzip_and_body_is_json() {
+        when().
+                get("/gzip-json").
+                then().
+                statusCode(200).
+                body("hello", equalTo("Hello Scalatra"));
     }
 }
