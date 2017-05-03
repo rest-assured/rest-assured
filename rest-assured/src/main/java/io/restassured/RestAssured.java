@@ -46,6 +46,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static io.restassured.RequestContext.defaultRequestContext;
+import static io.restassured.RequestContext.requestContext;
+import static io.restassured.ResponseContext.*;
 import static io.restassured.specification.ProxySpecification.host;
 
 /**
@@ -344,6 +347,7 @@ public class RestAssured {
 
     private static final String SSL = "SSL";
     private static ResponseParserRegistrar RESPONSE_PARSER_REGISTRAR = new ResponseParserRegistrar();
+    public static ResponseParserRegistrar getResponseParserRegistrar() {return RESPONSE_PARSER_REGISTRAR;}
 
     public static final String DEFAULT_URI = "http://localhost";
     public static final String DEFAULT_BODY_ROOT_PATH = "";
@@ -1482,17 +1486,27 @@ public class RestAssured {
     }
 
     private static TestSpecificationImpl createTestSpecification() {
-        if (defaultParser != null) {
-            RESPONSE_PARSER_REGISTRAR.registerDefaultParser(defaultParser);
-        }
-        final ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(RESPONSE_PARSER_REGISTRAR);
+
         applySessionIdIfApplicable();
         LogRepository logRepository = new LogRepository();
-        RestAssuredConfig restAssuredConfig = config();
+
+        RequestContext currentRequestContext;
+        ResponseContext currentResponseContext;
+        if (requestContext.get() != null && Thread.currentThread().getId() == requestContext.get().threadId)
+            currentRequestContext = requestContext.get();
+        else
+            currentRequestContext = defaultRequestContext;
+
+        if (responseContext.get() != null && Thread.currentThread().getId() == responseContext.get().threadId)
+            currentResponseContext = responseContext.get();
+        else
+            currentResponseContext = defaultResponseContext;
+
         return new TestSpecificationImpl(
-                new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters,
-                        requestSpecification, urlEncodingEnabled, restAssuredConfig, logRepository, proxy),
-                new ResponseSpecificationImpl(rootPath, responseSpecification, responseParserRegistrar, restAssuredConfig, logRepository)
+                new RequestSpecificationImpl(currentRequestContext.baseURI, currentRequestContext.port, currentRequestContext.basePath,
+                        currentRequestContext.authentication, currentRequestContext.filters,
+                        currentRequestContext.requestSpecification, currentRequestContext.urlEncodingEnabled, currentRequestContext.config, logRepository, currentRequestContext.proxy),
+                new ResponseSpecificationImpl(currentResponseContext.rootPath, currentResponseContext.responseSpecification, currentResponseContext.responseParserRegistrar, currentResponseContext.config, logRepository)
         );
     }
 
