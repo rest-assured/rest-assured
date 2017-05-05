@@ -22,6 +22,7 @@ import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.response.Response;
+import org.apache.http.client.utils.DateUtils;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -247,5 +248,44 @@ public class CookieITest extends WithJetty {
         } finally {
             RestAssured.reset();
         }
+    }
+
+    @Test
+    public void parsesValidExpiresDateCorrectly() throws Exception {
+        Cookies cookies =
+        when().
+                get("/cookieWithValidExpiresDate").
+        then().
+        extract().detailedCookies();
+
+        assertThat(cookies.asList(), hasSize(1));
+        Cookie cookie = cookies.get("name");
+        assertThat(cookie.getExpiryDate(), equalTo(DateUtils.parseDate("Sat, 02 May 2009 23:38:25 GMT")));
+    }
+
+    @Test
+    public void removesDoubleQuotesFromCookieWithExpiresDate() throws Exception {
+        Cookies cookies =
+        when().
+                get("/cookieWithDoubleQuoteExpiresDate").
+        then().
+        extract().detailedCookies();
+
+        assertThat(cookies.asList(), hasSize(1));
+        Cookie cookie = cookies.get("name");
+        assertThat(cookie.getExpiryDate(), equalTo(DateUtils.parseDate("Sat, 02 May 2009 23:38:25 GMT")));
+    }
+
+    @Test
+    public void setsExpiresPropertyToNullWhenCookieHasInvalidExpiresDate() throws Exception {
+        Cookies cookies =
+        when().
+                get("/cookieWithInvalidExpiresDate").
+        then().
+        extract().detailedCookies();
+
+        assertThat(cookies.asList(), hasSize(1));
+        Cookie cookie = cookies.get("name");
+        assertThat(cookie.getExpiryDate(), nullValue());
     }
 }

@@ -1245,6 +1245,24 @@ class ScalatraRestExample extends ScalatraServlet {
     status = 204
   }
 
+  get("/cookieWithValidExpiresDate") {
+    contentType = "text/plain"
+    response.setHeader("Set-Cookie", "name=Nicholas; expires=Sat, 02 May 2009 23:38:25 GMT")
+    ""
+  }
+
+  get("/cookieWithDoubleQuoteExpiresDate") {
+    contentType = "text/plain"
+    response.setHeader("Set-Cookie", "name=Nicholas; expires=\"Sat, 02 May 2009 23:38:25 GMT\"")
+    ""
+  }
+
+  get("/cookieWithInvalidExpiresDate") {
+    contentType = "text/plain"
+    response.setHeader("Set-Cookie", "name=Nicholas; expires=NO DATE!")
+    ""
+  }
+
   def formAuth(loginPage: () => String) = {
     contentType = "text/plain"
     val cookies: Array[Cookie] = request.getCookies
