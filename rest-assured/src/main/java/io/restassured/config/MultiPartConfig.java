@@ -19,7 +19,6 @@ package io.restassured.config;
 import io.restassured.internal.assertion.AssertParameter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MIME;
 
 import java.nio.charset.Charset;
 
@@ -31,7 +30,7 @@ public class MultiPartConfig implements Config {
     private static final String DEFAULT_CONTROL_NAME = "file";
     private static final String DEFAULT_FILE_NAME = "file";
     private static final String DEFAULT_SUBTYPE = "form-data";
-    private static final String DEFAULT_CHARSET = MIME.DEFAULT_CHARSET.toString();
+    private static final String DEFAULT_CHARSET = null;
     private static final String DEFAULT_BOUNDARY = null;
 
     private final String defaultControlName;
