@@ -23,7 +23,12 @@ import org.scalatra.fileupload.FileUploadSupport
 class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
 
   post("/file") {
-    getFileContent(Option(request.getParameter("controlName")).getOrElse("file"))
+    val controlName = Option(request.getParameter("controlName")).getOrElse("file")
+    getFileContent(controlName)
+  }
+
+  post("/file-utf8") {
+    getFileContent("Cédrìc")
   }
 
   put("/file") {

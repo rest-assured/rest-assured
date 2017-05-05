@@ -1459,8 +1459,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     if (hasFormParams()) {
       convertFormParamsToMultiPartParams()
     }
-    
-    
+
     def contentTypeAsString = headers.getValue(CONTENT_TYPE)
     def ct = ContentTypeExtractor.getContentTypeWithoutCharset(contentTypeAsString)
     if (!ct?.toLowerCase()?.startsWith(MULTIPART_CONTENT_TYPE_PREFIX)) {
@@ -1469,16 +1468,20 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     def subType = substringAfter(ct, MULTIPART_CONTENT_TYPE_PREFIX)
     def charsetFromContentType = CharsetExtractor.getCharsetFromContentType(contentTypeAsString)
+    def charsetToUse = isBlank(charsetFromContentType) ? restAssuredConfig().getMultiPartConfig().defaultCharset() : charsetFromContentType
     def boundaryFromContentType = BoundaryExtractor.getBoundaryFromContentType(contentTypeAsString)
-    def String boundaryToUse = boundaryFromContentType ?: restAssuredConfig().getMultiPartConfig().defaultBoundary()
+    String boundaryToUse = boundaryFromContentType ?: restAssuredConfig().getMultiPartConfig().defaultBoundary()
     boundaryToUse = boundaryToUse ?: generateBoundary()
     if (!boundaryFromContentType) {
       removeHeader(CONTENT_TYPE) // there should only be one
       contentType(contentTypeAsString + "; boundary=\"" + boundaryToUse + "\"")
     }
-    
+
+    def multipartMode = httpClientConfig().httpMultipartMode()
+    // For "defaultCharset" to be taken into account we need to 
+
     http.encoders.putAt ct, { contentType, content ->
-      RestAssuredMultiPartEntity entity = new RestAssuredMultiPartEntity(subType, charsetFromContentType, httpClientConfig().httpMultipartMode(), boundaryToUse);
+      RestAssuredMultiPartEntity entity = new RestAssuredMultiPartEntity(subType, charsetToUse, multipartMode, boundaryToUse);
 
       multiParts.each {
         def body = it.contentBody
@@ -1490,7 +1493,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
   }
 
-  private String generateBoundary() {
+  private static String generateBoundary() {
     def alphabet = (('a'..'z')+('A'..'Z')+('0'..'9')+'-'+'_').join()
     def rand = new Random()
     def length = rand.nextInt(11) + 30
@@ -1503,7 +1506,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def allFormParams = mergeMapsAndRetainOrder(requestParameters, formParameters)
     allFormParams.each {
       if (it.value instanceof List) {
-        it.value.each { val -> 
+        it.value.each { val ->
           multiPart(it.key, val)
         }
       } else {
@@ -1709,7 +1712,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     restAssuredConfig = config ?: new RestAssuredConfig()
 
     // Sort filters by order
-    filters = filters.toSorted {f1, f2 -> getFilterOrder(f1) <=> getFilterOrder(f2)}
+    filters = filters.toSorted { f1, f2 -> getFilterOrder(f1) <=> getFilterOrder(f2) }
 
     // Add timing filter if it has not been added manually
     if (!filters*.getClass().any { TimingFilter.class.isAssignableFrom(it) }) {

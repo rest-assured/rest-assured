@@ -18,6 +18,10 @@ package io.restassured.config;
 
 import io.restassured.internal.assertion.AssertParameter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MIME;
+
+import java.nio.charset.Charset;
 
 /**
  * Enables default configuration of how to handle multi-parts.
@@ -27,30 +31,33 @@ public class MultiPartConfig implements Config {
     private static final String DEFAULT_CONTROL_NAME = "file";
     private static final String DEFAULT_FILE_NAME = "file";
     private static final String DEFAULT_SUBTYPE = "form-data";
+    private static final String DEFAULT_CHARSET = MIME.DEFAULT_CHARSET.toString();
     private static final String DEFAULT_BOUNDARY = null;
 
     private final String defaultControlName;
     private final String defaultFileName;
     private final String defaultSubtype;
     private final String defaultBoundary;
+    private final String defaultCharset;
 
     private final boolean isUserConfigured;
 
     /**
      * Create a new MultiPartConfig with default control name equal to {@value #DEFAULT_CONTROL_NAME} and
      * default file name equal to {@value #DEFAULT_FILE_NAME} and default subtype {@value #DEFAULT_SUBTYPE} and
-     * default boundary <code>null</code> (which means it'll be automatically generated).
+     * default boundary <code>null</code> (which means it'll be automatically generated) and default charset US-ASCII.
      */
     public MultiPartConfig() {
-        this(DEFAULT_CONTROL_NAME, DEFAULT_FILE_NAME, DEFAULT_SUBTYPE, DEFAULT_BOUNDARY, false);
+        this(DEFAULT_CONTROL_NAME, DEFAULT_FILE_NAME, DEFAULT_SUBTYPE, DEFAULT_BOUNDARY, DEFAULT_CHARSET, false);
     }
 
     private MultiPartConfig(String defaultControlName, String defaultFileName, String defaultSubtype, String defaultBoundary,
-                            boolean isUserConfigured) {
+                            String defaultCharset, boolean isUserConfigured) {
         this.defaultControlName = defaultControlName;
         this.defaultBoundary = defaultBoundary;
         this.defaultFileName = StringUtils.trimToNull(defaultFileName);
         this.defaultSubtype = StringUtils.trimToNull(defaultSubtype);
+        this.defaultCharset = StringUtils.trimToNull(defaultCharset);
         AssertParameter.notNull(this.defaultControlName, "Default control name");
         AssertParameter.notNull(this.defaultSubtype, "Default subtype");
         this.isUserConfigured = isUserConfigured;
@@ -66,7 +73,7 @@ public class MultiPartConfig implements Config {
      * @return A new instance of {@link MultiPartConfig}
      */
     public MultiPartConfig defaultControlName(String defaultControlName) {
-        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, true);
+        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, defaultCharset, true);
     }
 
     /**
@@ -79,7 +86,7 @@ public class MultiPartConfig implements Config {
      * @return A new instance of {@link MultiPartConfig}
      */
     public MultiPartConfig defaultFileName(String defaultFileName) {
-        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, true);
+        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, defaultCharset, true);
     }
 
     /**
@@ -95,7 +102,7 @@ public class MultiPartConfig implements Config {
      * @return A new instance of {@link MultiPartConfig}
      */
     public MultiPartConfig defaultSubtype(String defaultSubtype) {
-        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, true);
+        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, defaultCharset, true);
     }
 
     /**
@@ -108,7 +115,7 @@ public class MultiPartConfig implements Config {
      * @return A new instance of {@link MultiPartConfig}
      */
     public MultiPartConfig emptyDefaultFileName() {
-        return new MultiPartConfig(defaultControlName, null, defaultSubtype, defaultBoundary, true);
+        return new MultiPartConfig(defaultControlName, null, defaultSubtype, defaultBoundary, defaultCharset, true);
     }
 
     /**
@@ -139,7 +146,56 @@ public class MultiPartConfig implements Config {
      * @return An updated MultiPartConfig
      */
     public MultiPartConfig defaultBoundary(String defaultBoundary) {
-        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, true);
+        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, defaultCharset, true);
+    }
+
+    /**
+     * Specify a default charset to use for multi-parts (default is US-ASCII). This affects the encoding of the multipart body (such as the
+     * control name) but <i>not</i> the actual <i>content</i> (such as the a JSON or String document).
+     * <p>
+     * <b>NOTE:</b> This setting is <i>only</i> taken into account if {@link HttpClientConfig#httpMultipartMode(HttpMultipartMode)} is set to
+     * something other than {@link HttpMultipartMode#STRICT} (which is the default). So if you want this setting to apply you also need to
+     * explicitly change the multipart mode, for example:
+     *
+     * <pre>
+     * given().
+     *         config(RestAssuredConfig.config()
+     *                                 .httpClient(HttpClientConfig.httpClientConfig().httpMultipartMode(BROWSER_COMPATIBLE))
+     *                                 .multiPartConfig(multiPartConfig().defaultCharset("UTF-8"))).
+     * when().
+     *        post("/x"). ..
+     * </pre>
+     * </p>
+     * @param defaultCharset The default charset to use.
+     * @return An updated MultiPartConfig
+     */
+    public MultiPartConfig defaultCharset(String defaultCharset) {
+        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, defaultCharset, true);
+    }
+
+    /**
+     * Specify a default charset to use for multi-parts (default is US-ASCII). This affects the encoding of the multipart body (such as the
+     * control name) but <i>not</i> the actual <i>content</i> (such as the a JSON or String document).
+     * <p>
+     * <b>NOTE:</b> This setting is <i>only</i> taken into account if {@link HttpClientConfig#httpMultipartMode(HttpMultipartMode)} is set to
+     * something other than {@link HttpMultipartMode#STRICT} (which is the default). So if you want this setting to apply you also need to
+     * explicitly change the multipart mode, for example:
+     *
+     * <pre>
+     * given().
+     *         config(RestAssuredConfig.config()
+     *                                 .httpClient(HttpClientConfig.httpClientConfig().httpMultipartMode(BROWSER_COMPATIBLE))
+     *                                 .multiPartConfig(multiPartConfig().defaultCharset("UTF-8"))).
+     * when().
+     *        post("/x"). ..
+     * </pre>
+     * </p>
+     * @param defaultCharset The default charset to use.
+     * @return An updated MultiPartConfig
+     */
+    public MultiPartConfig defaultCharset(Charset defaultCharset) {
+        String charsetAsString = AssertParameter.notNull(defaultCharset, Charset.class).toString();
+        return new MultiPartConfig(defaultControlName, defaultFileName, defaultSubtype, defaultBoundary, charsetAsString, true);
     }
 
     /**
@@ -149,6 +205,15 @@ public class MultiPartConfig implements Config {
      */
     public String defaultBoundary() {
         return defaultBoundary;
+    }
+
+    /**
+     * Get the default multipart charset to use when sending multi-part data.
+     *
+     * @return The boundary
+     */
+    public String defaultCharset() {
+        return defaultCharset;
     }
 
     public boolean isUserConfigured() {

@@ -234,7 +234,6 @@ public class MultiPartSpecBuilder {
         spec.setCharset(charset);
         applyContentToSpec(spec);
         spec.setControlName(controlName);
-        spec.setControlName(controlName);
         spec.setFileName(fileName);
         spec.setMimeType(mimeType);
         spec.setControlNameSpecifiedExplicitly(isControlNameExplicit);

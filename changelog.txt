@@ -8,6 +8,7 @@ Change log (next version)
 * Improved cookie expiry parsing (issue 563) (thanks to Martin Aun for pull request)
 * Improved multipart log output to make it prettier (thanks to Andrey Smirnov for pull request)
 * Ignores spacing between content type and charset when validating content types (issue 804)
+* Allow specifying default charset (only applicable when HttpMultipartMode is not STRICT) that'll be used when sending multiparts (issue 844)
 
 Change log 3.0.2 (2017-01-20)
 -----------------------------

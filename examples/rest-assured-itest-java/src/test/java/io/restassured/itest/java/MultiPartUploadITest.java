@@ -19,6 +19,8 @@ package io.restassured.itest.java;
 import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.EncoderConfig;
+import io.restassured.config.HttpClientConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.internal.mapping.Jackson2Mapper;
 import io.restassured.itest.java.objects.Greeting;
@@ -36,6 +38,7 @@ import org.junit.rules.ExpectedException;
 import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.MultiPartConfig.multiPartConfig;
+import static org.apache.http.entity.mime.HttpMultipartMode.BROWSER_COMPATIBLE;
 import static org.hamcrest.Matchers.*;
 
 public class MultiPartUploadITest extends WithJetty {
@@ -502,6 +505,39 @@ public class MultiPartUploadITest extends WithJetty {
                 multiPart("file", "myFile", bytes).
         when().
                 options("/multipart/file").
+        then().
+                statusCode(200).
+                body(is(new String(bytes)));
+    }
+
+    @Test
+    public void multiPartByteArrayUploadingWorksUsingForUtf8ControlNamesWhenCharsetIsSpecifiedInContentTypeAndMultipartModeIsNotStrict() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                contentType("multipart/xml; charset=UTF-8").
+                config(RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig().httpMultipartMode(BROWSER_COMPATIBLE))).
+                multiPart(new MultiPartSpecBuilder(bytes).controlName("Cédrìc").build()).
+        when().
+                post("/multipart/file-utf8").
+        then().
+                statusCode(200).
+                body(is(new String(bytes)));
+    }
+
+    @Test
+    public void multiPartByteArrayUploadingWorksUsingForUtf8ControlNamesWhenDefaultCharsetIsSpecifiedInMultiPartConfigAndMultipartModeIsNotStrict() throws Exception {
+        // Given
+        final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
+
+        // When
+        given().
+                config(RestAssuredConfig.config().httpClient(HttpClientConfig.httpClientConfig().httpMultipartMode(BROWSER_COMPATIBLE)).multiPartConfig(multiPartConfig().defaultCharset("UTF-8"))).
+                multiPart(new MultiPartSpecBuilder(bytes).controlName("Cédrìc").build()).
+        when().
+                post("/multipart/file-utf8").
         then().
                 statusCode(200).
                 body(is(new String(bytes)));
