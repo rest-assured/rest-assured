@@ -11,10 +11,9 @@ languages into the Java domain.
 
 
 ## News 
+* 2017-05-05: REST Assured [3.0.3](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.0.3-dist.zip) is released. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for details.
 * 2017-01-20: REST Assured [3.0.2](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.0.2-dist.zip) is released. This is a maintence release with several bug fixes. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for details.
 * 2016-09-21: REST Assured [3.0.1](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.0.1-dist.zip) is released. This is a maintence release with several bug fixes. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for details.
-* 2016-06-17: [Bas Dijkstra](https://www.linkedin.com/in/basdijkstra) has been generous enough to open source his REST Assured workshop. You can read more about this [here](http://www.ontestautomation.com/open-sourcing-my-workshop-an-experiment/) and you can try out, and contribute to, the exercises available in [his](https://github.com/basdijkstra/workshops/) github repository.
-
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
