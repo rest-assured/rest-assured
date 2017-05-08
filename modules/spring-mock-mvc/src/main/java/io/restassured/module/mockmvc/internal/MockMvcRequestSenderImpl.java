@@ -604,60 +604,60 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         }
     }
 
-    public MockMvcResponse get(String path, Object... pathParams) {
-        return sendRequest(GET, path, pathParams);
+    public MockMvcResponse get(CharSequence path, Object... pathParams) {
+        return sendRequest(GET, path.toString(), pathParams);
     }
 
-    public MockMvcResponse get(String path, Map<String, ?> pathParams) {
-        return get(path, mapToArray(pathParams));
+    public MockMvcResponse get(CharSequence path, Map<String, ?> pathParams) {
+        return get(path.toString(), mapToArray(pathParams));
     }
 
-    public MockMvcResponse post(String path, Object... pathParams) {
-        return sendRequest(POST, path, pathParams);
+    public MockMvcResponse post(CharSequence path, Object... pathParams) {
+        return sendRequest(POST, path.toString(), pathParams);
     }
 
-    public MockMvcResponse post(String path, Map<String, ?> pathParams) {
-        return post(path, mapToArray(pathParams));
+    public MockMvcResponse post(CharSequence path, Map<String, ?> pathParams) {
+        return post(path.toString(), mapToArray(pathParams));
     }
 
-    public MockMvcResponse put(String path, Object... pathParams) {
-        return sendRequest(PUT, path, pathParams);
+    public MockMvcResponse put(CharSequence path, Object... pathParams) {
+        return sendRequest(PUT, path.toString(), pathParams);
     }
 
-    public MockMvcResponse put(String path, Map<String, ?> pathParams) {
-        return put(path, mapToArray(pathParams));
+    public MockMvcResponse put(CharSequence path, Map<String, ?> pathParams) {
+        return put(path.toString(), mapToArray(pathParams));
     }
 
-    public MockMvcResponse delete(String path, Object... pathParams) {
-        return sendRequest(DELETE, path, pathParams);
+    public MockMvcResponse delete(CharSequence path, Object... pathParams) {
+        return sendRequest(DELETE, path.toString(), pathParams);
     }
 
-    public MockMvcResponse delete(String path, Map<String, ?> pathParams) {
-        return delete(path, mapToArray(pathParams));
+    public MockMvcResponse delete(CharSequence path, Map<String, ?> pathParams) {
+        return delete(path.toString(), mapToArray(pathParams));
     }
 
-    public MockMvcResponse head(String path, Object... pathParams) {
-        return sendRequest(HEAD, path, pathParams);
+    public MockMvcResponse head(CharSequence path, Object... pathParams) {
+        return sendRequest(HEAD, path.toString(), pathParams);
     }
 
-    public MockMvcResponse head(String path, Map<String, ?> pathParams) {
-        return head(path, mapToArray(pathParams));
+    public MockMvcResponse head(CharSequence path, Map<String, ?> pathParams) {
+        return head(path.toString(), mapToArray(pathParams));
     }
 
-    public MockMvcResponse patch(String path, Object... pathParams) {
-        return sendRequest(PATCH, path, pathParams);
+    public MockMvcResponse patch(CharSequence path, Object... pathParams) {
+        return sendRequest(PATCH, path.toString(), pathParams);
     }
 
-    public MockMvcResponse patch(String path, Map<String, ?> pathParams) {
-        return patch(path, mapToArray(pathParams));
+    public MockMvcResponse patch(CharSequence path, Map<String, ?> pathParams) {
+        return patch(path.toString(), mapToArray(pathParams));
     }
 
-    public MockMvcResponse options(String path, Object... pathParams) {
-        return sendRequest(OPTIONS, path, pathParams);
+    public MockMvcResponse options(CharSequence path, Object... pathParams) {
+        return sendRequest(OPTIONS, path.toString(), pathParams);
     }
 
-    public MockMvcResponse options(String path, Map<String, ?> pathParams) {
-        return options(path, mapToArray(pathParams));
+    public MockMvcResponse options(CharSequence path, Map<String, ?> pathParams) {
+        return options(path.toString(), mapToArray(pathParams));
     }
 
     public MockMvcResponse get(URI uri) {
