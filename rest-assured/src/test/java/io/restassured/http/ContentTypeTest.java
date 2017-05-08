@@ -17,8 +17,14 @@
 package io.restassured.http;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameter;
+import org.junit.runners.Parameterized.Parameters;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -79,4 +85,36 @@ public class ContentTypeTest {
         // Then
         assertThat(matches, is(false));
     }
+
+    @RunWith(Parameterized.class)
+    public static class ContentTypeFromStringTest {
+        @Parameters(name = "string=''{0}'', expected=''{1}''")
+        public static Collection<Object[]> data() {
+            ArrayList<Object[]> data = new ArrayList<Object[]>();
+
+            for (ContentType ct : ContentType.values()) {
+                for (String cts : ct.getContentTypeStrings()) {
+                    data.add(new Object[]{ct, cts});
+                }
+            }
+
+            return data;
+        }
+
+        @Parameter(0)
+        public ContentType expected;
+
+        @Parameter(1)
+        public String contentTypeString;
+
+        @Test public void
+        should_find_content_type_from_string() {
+            // When
+            ContentType content = ContentType.fromContentType(contentTypeString);
+
+            // Then
+            assertThat(content, is(expected));
+        }
+    }
+
 }
