@@ -1,6 +1,7 @@
 Change log next version
 -----------------------
 * Changed API to take CharSequence instead of String. For example the "get" method in when().get("/something").. now takes a CharSequence instead of String (issue 858) (thanks to weaselmetal for pull request)
+* Fixed so that assertions on content type with a ContentType.BINARY argument don't fail for binary content (issue 861) (thanks to Grégory Fouquet for pull request)
 
 Change log 3.0.3 (2017-05-05)
 -----------------------------
