@@ -365,6 +365,10 @@ class ScalatraRestExample extends ScalatraServlet {
     request.contentType.getOrElse("null")
   }
 
+  get("/contentTypeAsContentType") {
+    contentType = request.contentType.getOrElse("null")
+  }
+
   post("/textUriList") {
     if (!request.getContentType.contains("text")) {
       status = 400

@@ -350,6 +350,22 @@ public class ContentTypeITest extends WithJetty {
     }
 
     @Test public void
+    validates_content_type_json() {
+        given().contentType(ContentType.JSON)
+                .get("/contentTypeAsContentType")
+                .then()
+                .contentType(ContentType.JSON);
+    }
+
+    @Test public void
+    validates_content_type_binary() {
+        given().contentType(ContentType.BINARY)
+                .get("/contentTypeAsContentType")
+                .then()
+                .contentType(ContentType.BINARY);
+    }
+
+    @Test public void
     can_assert_empty_or_null_content_type() {
         given().
                 filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setHeader("Some", "Value").setBody("Test").build()).
