@@ -37,7 +37,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>get("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request.
      */
-    R get(String path, Object... pathParams);
+    R get(CharSequence path, Object... pathParams);
 
     /**
      * Perform a GET request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -47,7 +47,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters.
      * @return The response of the request.
      */
-    R get(String path, Map<String, ?> pathParams);
+    R get(CharSequence path, Map<String, ?> pathParams);
 
     /**
      * Perform a POST request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -57,7 +57,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>post("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request.
      */
-    R post(String path, Object... pathParams);
+    R post(CharSequence path, Object... pathParams);
 
     /**
      * Perform a POST request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -67,7 +67,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters.
      * @return The response of the request.
      */
-    R post(String path, Map<String, ?> pathParams);
+    R post(CharSequence path, Map<String, ?> pathParams);
 
     /**
      * Perform a PUT request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -77,7 +77,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>put("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request.
      */
-    R put(String path, Object... pathParams);
+    R put(CharSequence path, Object... pathParams);
 
     /**
      * Perform a PUT request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -87,7 +87,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters.
      * @return The response of the request.
      */
-    R put(String path, Map<String, ?> pathParams);
+    R put(CharSequence path, Map<String, ?> pathParams);
 
     /**
      * Perform a DELETE request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -97,7 +97,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>delete("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request.
      */
-    R delete(String path, Object... pathParams);
+    R delete(CharSequence path, Object... pathParams);
 
     /**
      * Perform a DELETE request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -107,7 +107,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters.
      * @return The response of the request.
      */
-    R delete(String path, Map<String, ?> pathParams);
+    R delete(CharSequence path, Map<String, ?> pathParams);
 
     /**
      * Perform a HEAD request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -117,7 +117,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request.
      */
-    R head(String path, Object... pathParams);
+    R head(CharSequence path, Object... pathParams);
 
     /**
      * Perform a HEAD request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -127,7 +127,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters.
      * @return The response of the request.
      */
-    R head(String path, Map<String, ?> pathParams);
+    R head(CharSequence path, Map<String, ?> pathParams);
 
     /**
      * Perform a PATCH request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -137,7 +137,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request.
      */
-    R patch(String path, Object... pathParams);
+    R patch(CharSequence path, Object... pathParams);
 
     /**
      * Perform a PATCH request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -147,7 +147,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters.
      * @return The response of the request.
      */
-    R patch(String path, Map<String, ?> pathParams);
+    R patch(CharSequence path, Map<String, ?> pathParams);
 
     /**
      * Perform a OPTIONS request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
@@ -157,7 +157,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>head("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
      * @return The response of the request.
      */
-    R options(String path, Object... pathParams);
+    R options(CharSequence path, Object... pathParams);
 
 
     /**
@@ -168,7 +168,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @param pathParams The path parameters.
      * @return The response of the request.
      */
-    R options(String path, Map<String, ?> pathParams);
+    R options(CharSequence path, Map<String, ?> pathParams);
 
     /**
      * Perform a GET request to a <code>uri</code>.

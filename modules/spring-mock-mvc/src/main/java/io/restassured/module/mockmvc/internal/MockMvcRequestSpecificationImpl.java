@@ -747,59 +747,59 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, cfg.getObjectMapperConfig(), cfg.getEncoderConfig()) : object.toString();
     }
 
-    public MockMvcResponse get(String path, Object... pathParams) {
+    public MockMvcResponse get(CharSequence path, Object... pathParams) {
         return when().get(path, pathParams);
     }
 
-    public MockMvcResponse get(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse get(CharSequence path, Map<String, ?> pathParams) {
         return when().get(path, pathParams);
     }
 
-    public MockMvcResponse post(String path, Object... pathParams) {
+    public MockMvcResponse post(CharSequence path, Object... pathParams) {
         return when().post(path, pathParams);
     }
 
-    public MockMvcResponse post(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse post(CharSequence path, Map<String, ?> pathParams) {
         return when().post(path, pathParams);
     }
 
-    public MockMvcResponse put(String path, Object... pathParams) {
+    public MockMvcResponse put(CharSequence path, Object... pathParams) {
         return when().put(path, pathParams);
     }
 
-    public MockMvcResponse put(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse put(CharSequence path, Map<String, ?> pathParams) {
         return when().put(path, pathParams);
     }
 
-    public MockMvcResponse delete(String path, Object... pathParams) {
+    public MockMvcResponse delete(CharSequence path, Object... pathParams) {
         return when().delete(path, pathParams);
     }
 
-    public MockMvcResponse delete(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse delete(CharSequence path, Map<String, ?> pathParams) {
         return when().delete(path, pathParams);
     }
 
-    public MockMvcResponse head(String path, Object... pathParams) {
+    public MockMvcResponse head(CharSequence path, Object... pathParams) {
         return when().head(path, pathParams);
     }
 
-    public MockMvcResponse head(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse head(CharSequence path, Map<String, ?> pathParams) {
         return when().head(path, pathParams);
     }
 
-    public MockMvcResponse patch(String path, Object... pathParams) {
+    public MockMvcResponse patch(CharSequence path, Object... pathParams) {
         return when().patch(path, pathParams);
     }
 
-    public MockMvcResponse patch(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse patch(CharSequence path, Map<String, ?> pathParams) {
         return when().patch(path, pathParams);
     }
 
-    public MockMvcResponse options(String path, Object... pathParams) {
+    public MockMvcResponse options(CharSequence path, Object... pathParams) {
         return when().options(path, pathParams);
     }
 
-    public MockMvcResponse options(String path, Map<String, ?> pathParams) {
+    public MockMvcResponse options(CharSequence path, Map<String, ?> pathParams) {
         return when().options(path, pathParams);
     }
 
