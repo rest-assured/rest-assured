@@ -34,6 +34,15 @@ public interface AuthenticationSpecification {
     RequestSpecification basic(String userName, String password);
 
     /**
+     * Use NTLM authentication.
+     *
+     * @param userName The user name.
+     * @param password The password.
+     * @return The Request specification
+     */
+    RequestSpecification ntlm(String userName, String password, String workstation, String domain);
+
+    /**
      * Use http digest authentication.
      *
      * @param userName The user name.

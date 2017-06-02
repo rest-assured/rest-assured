@@ -1230,6 +1230,24 @@ public class RestAssured {
     }
 
     /**
+     * Create a NTLM authentication scheme.
+     *
+     * @param userName The user name.
+     * @param password The password.
+     * @param workstation The NTLM workstation.
+     * @param domain The NTLM workstation.
+     * @return The authentication scheme
+     */
+    public static AuthenticationScheme ntlm(String userName, String password, String workstation, String domain) {
+        final NTLMAuthScheme scheme = new NTLMAuthScheme();
+        scheme.setUserName(userName);
+        scheme.setPassword(password);
+        scheme.setWorkstation(workstation);
+        scheme.setDomain(domain);
+        return scheme;
+    }
+
+    /**
      * Use form authentication. Rest Assured will try to parse the response
      * login page and determine and try find the action, username and password input
      * field automatically.
