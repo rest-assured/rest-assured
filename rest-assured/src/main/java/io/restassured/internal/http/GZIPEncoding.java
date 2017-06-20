@@ -16,7 +16,7 @@
 
 package io.restassured.internal.http;
 
-import org.apache.commons.io.IOUtils;
+import io.restassured.internal.util.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.HttpEntityWrapper;
 
