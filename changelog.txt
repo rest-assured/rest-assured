@@ -4,6 +4,7 @@ Change log next version
 * Fixed so that assertions on content type with a ContentType.BINARY argument don't fail for binary content (issue 861) (thanks to Grégory Fouquet for pull request)
 * Fixed an issue with two-way SSL whose root cause was Apache HTTP Client v4.5.2. Upgrading to 4.5.3 solved the issue (thanks to Ryan Tighe for pull request)
 * Added support for ntlm authentication (issue 869) (thanks to Pawel Cesar Sanjuan Szklarz for pull request)
+* Better support for empty GZIP responses (thanks to Sergey Trasko for pull request)
 
 Change log 3.0.3 (2017-05-05)
 -----------------------------
