@@ -16,11 +16,11 @@
 
 package io.restassured.internal.http;
 
+import io.restassured.internal.util.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.HttpEntityWrapper;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -64,11 +64,12 @@ public class GZIPEncoding extends ContentEncoding {
         @Override
         public InputStream getContent() throws IOException, IllegalStateException {
             InputStream content = wrappedEntity.getContent();
-            // -1 means unknown content-length
-            if (wrappedEntity != null && (wrappedEntity.getContentLength() == -1 || wrappedEntity.getContentLength() > 0)) {
-                return new GZIPInputStream(content);
+            byte[] bytes = IOUtils.toByteArray(content);
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
+            if (bytes.length > 0) {
+                return new GZIPInputStream(inputStream);
             } else {
-                return wrappedEntity.getContent();
+                return inputStream;
             }
         }
 
