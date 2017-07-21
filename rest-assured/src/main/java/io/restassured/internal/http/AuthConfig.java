@@ -30,6 +30,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
@@ -87,6 +88,35 @@ public class AuthConfig {
         builder.getClient().getCredentialsProvider().setCredentials(
                 new AuthScope(host, port),
                 new UsernamePasswordCredentials(user, pass)
+        );
+    }
+
+    /**
+     * Set NTLM authentication credentials to be used for the current
+     * {@link HTTPBuilder#getUri() default host}.
+     *
+     * @param user
+     * @param pass
+     */
+    public void ntlm(String user, String pass, String workstation, String domain) {
+        URI uri = ((URIBuilder) builder.getUri()).toURI();
+        if (uri == null) throw new IllegalStateException("a default URI must be set");
+        this.ntlm(uri.getHost(), uri.getPort(), user, pass,workstation,domain);
+    }
+    /**
+     * Set NTLM authentication credentials to be used for the given host and port.
+     *
+     * @param host
+     * @param port
+     * @param user
+     * @param pass
+     * @param workstation
+     * @param domain
+     */
+    public void ntlm(String host, int port, String user, String pass, String workstation, String domain) {
+        builder.getClient().getCredentialsProvider().setCredentials(
+                new AuthScope(host, port),
+                new NTCredentials(user, pass, workstation, domain)
         );
     }
 

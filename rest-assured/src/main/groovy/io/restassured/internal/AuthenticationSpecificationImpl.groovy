@@ -50,6 +50,23 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
   }
 
   /**
+   * Use NTLM authentication.
+   *
+   * @param userName The user name.
+   * @param password The password.
+   * @return The request builder
+   */
+  def RequestSpecification ntlm(String userName, String password, String workstation, String domain) {
+    notNull userName, "userName"
+    notNull password, "password"
+    notNull workstation, "workstation"
+    notNull domain, "domain"
+
+    requestSpecification.authenticationScheme = new NTLMAuthScheme(userName: userName, password: password, workstation: workstation, domain: domain)
+    return requestSpecification
+  }
+
+  /**
    * Use http digest authentication.
    *
    * @param userName The user name.

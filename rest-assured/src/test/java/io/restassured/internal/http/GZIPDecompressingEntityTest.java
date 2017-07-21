@@ -25,12 +25,14 @@ import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 
 public class GZIPDecompressingEntityTest {
 
 
     // Asserts that issue 853 is resolved
-    @Test public void
+    @Test
+    public void
     returns_gzipped_decompressed_content_when_content_length_is_minus_one() throws IOException {
         // Given
         String json = "{\"userId\":\"e047379\",\"ldapId\":\"0dfdf5a0-483c-45d7-8b24-8dd1299586c8\",\"firstName\":\"Ninju\",\"lastName\":\"BohraB\",\"cookieNotice\":true}";
@@ -49,6 +51,25 @@ public class GZIPDecompressingEntityTest {
         assertThat(string).isEqualTo(json);
     }
 
+
+    //Adjustments for 814
+    @Test
+    public void should_not_fail_on_empty_response_with_gzip() throws Exception {
+        //Given
+        byte[] input = new byte[0];
+
+        //When
+        GZIPDecompressingEntity gzipDecompressingEntity = new GZIPDecompressingEntity(new ByteArrayEntity(input) {
+            @Override
+            public long getContentLength() {
+                return -1;
+            }
+        });
+
+        //Then
+        byte[] response = IOUtils.toByteArray(gzipDecompressingEntity.getContent());
+        assertThat(response.length).isEqualTo(0);
+    }
 
     private byte[] gzipCompress(String string) throws IOException {
         byte[] bytes = string.getBytes("UTF-8");
