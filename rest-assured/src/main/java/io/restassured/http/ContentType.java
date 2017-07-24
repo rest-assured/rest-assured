@@ -66,7 +66,7 @@ public enum ContentType {
      * <li><code>text/javascript</code></li>
      * </ul>
      */
-    JSON("application/json", "application/javascript", "text/javascript"),
+    JSON("application/json", "application/javascript", "text/javascript", "text/json"),
     /**
      * <ul>
      * <li><code>application/xml</code></li>

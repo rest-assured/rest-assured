@@ -109,7 +109,7 @@ public class AcceptHeaderITest extends WithJetty {
         then().
                 body(equalTo("hello world"));
 
-        assertThat(headers.getValue(), contains("application/json, application/javascript, text/javascript"));
+        assertThat(headers.getValue(), contains("application/json, application/javascript, text/javascript, text/json"));
     }
 
     @Test public void
@@ -134,6 +134,6 @@ public class AcceptHeaderITest extends WithJetty {
         then().
                 body(equalTo("hello world"));
 
-        assertThat(headers.getValue(), contains("application/json, application/javascript, text/javascript", "text/jux"));
+        assertThat(headers.getValue(), contains("application/json, application/javascript, text/javascript, text/json", "text/jux"));
     }
 }
