@@ -21,7 +21,8 @@ import io.restassured.module.scala.RestAssuredSupport.AddThenToResponse
 import org.hamcrest.Matchers.equalTo
 import org.junit.Test
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers._
-
+// this methos is help for the api testing 
+//it is the sample test for the git practice 
 class ScalaMockMvcTest {
 
   @Test
