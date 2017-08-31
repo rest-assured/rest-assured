@@ -1427,9 +1427,9 @@ public class RestAssured {
      * @return The authentication scheme
      */
     public static AuthenticationScheme oauth2(String accessToken) {
-        OAuth2Scheme scheme = new OAuth2Scheme();
-        scheme.setAccessToken(accessToken);
-        return scheme;
+        PreemptiveOAuth2HeaderScheme myScheme = new PreemptiveOAuth2HeaderScheme();
+        myScheme.setAccessToken(accessToken);
+        return myScheme;
     }
 
     /**

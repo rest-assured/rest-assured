@@ -6,6 +6,7 @@ Change log next version
 * Added support for ntlm authentication (issue 869) (thanks to Pawel Cesar Sanjuan Szklarz for pull request)
 * Better support for empty GZIP responses (thanks to Sergey Trasko for pull request)
 * Treat text/json as JSON content type (thanks to Ionuț Păduraru for pull request)
+* RestAssured.oauth2("accessToken") now uses PreemptiveOAuth2HeaderScheme instead of OAuth2Scheme
 
 Change log 3.0.3 (2017-05-05)
 -----------------------------
