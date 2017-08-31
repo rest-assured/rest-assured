@@ -24,16 +24,16 @@ import com.github.scribejava.core.oauth.OAuth10aService;
 import com.github.scribejava.core.oauth.OAuth20Service;
 import com.github.scribejava.core.oauth.OAuthService;
 import io.restassured.authentication.OAuthSignature;
+import io.restassured.http.ContentType;
 import io.restassured.internal.TrustAndKeystoreSpecImpl;
-import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
+import org.apache.http.impl.client.EntityEnclosingRequestWrapper;
 import org.apache.http.impl.client.RequestWrapper;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyStore;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -259,6 +260,20 @@ public class AuthConfig {
                 Verb verb = Verb.valueOf(request.getRequestLine().getMethod().toUpperCase());
                 OAuthRequest oauthRequest = new OAuthRequest(verb, requestURI.toString(), null);
                 this.service = (OAuth10aService) getOauthService(isOAuth1, addEmptyTokenToBaseString);
+
+                Header contentType = request.getFirstHeader("Content-Type");
+                if (contentType != null) {
+                    if (contentType.getValue().startsWith(ContentType.URLENC.toString())) {
+                        HttpEntity entity = ((EntityEnclosingRequestWrapper) request).getEntity();
+                        if (entity != null) {
+                            List<NameValuePair> params = URLEncodedUtils.parse(entity);
+                            for (NameValuePair param : params) {
+                                oauthRequest.addBodyParameter(param.getName(), param.getValue());
+                            }
+                        }
+                    }
+                }
+
                 service.signRequest((OAuth1AccessToken) token, oauthRequest);
 
                 if (signature == OAuthSignature.HEADER) {
