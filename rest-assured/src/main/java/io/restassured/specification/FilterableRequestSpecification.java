@@ -23,6 +23,7 @@ import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
 import io.restassured.http.Headers;
 import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.util.List;
 import java.util.Map;
@@ -175,6 +176,8 @@ public interface FilterableRequestSpecification extends RequestSpecification {
      * @return The underlying http client. Only use this for advanced configuration which is not accessible from Rest Assured! By default an instance of {@link org.apache.http.impl.client.AbstractHttpClient} is used by REST Assured.
      */
     HttpClient getHttpClient();
+
+    HttpClientBuilder getHttpClientBuilder();
 
     /**
      * @return The defined proxy specification or <code>null</code> if undefined.

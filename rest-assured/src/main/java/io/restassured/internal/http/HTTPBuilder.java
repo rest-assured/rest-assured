@@ -36,7 +36,8 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnRoutePNames;
-import org.apache.http.impl.client.AbstractHttpClient;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.protocol.HttpContext;
 import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.codehaus.groovy.runtime.MethodClosure;
@@ -150,7 +151,7 @@ import java.util.Map;
  */
 public abstract class HTTPBuilder {
 
-    protected AbstractHttpClient client;
+    protected HttpClientBuilder httpClientBuilder;
     protected URIBuilder defaultURI = null;
     protected AuthConfig auth;
 
@@ -169,8 +170,8 @@ public abstract class HTTPBuilder {
     private boolean urlEncodingEnabled;
 
     public HTTPBuilder(boolean urlEncodingEnabled, EncoderConfig encoderConfig, DecoderConfig decoderConfig, OAuthConfig oAuthConfig,
-                       AbstractHttpClient client) {
-        this.client = client;
+                       HttpClientBuilder httpClientBuilder) {
+        this.httpClientBuilder = httpClientBuilder;
         this.auth = new AuthConfig(this, oAuthConfig);
         this.contentEncodingHandler = new ContentEncodingRegistry(decoderConfig);
         this.setContentEncoding(ContentEncoding.Type.GZIP, ContentEncoding.Type.DEFLATE);
@@ -197,8 +198,8 @@ public abstract class HTTPBuilder {
      * @throws URISyntaxException if the given argument does not represent a valid URI
      */
     public HTTPBuilder(Object defaultURI, boolean urlEncodingEnabled, EncoderConfig encoderConfig, DecoderConfig decoderConfig, OAuthConfig oAuthConfig,
-                       AbstractHttpClient client) {
-        this(urlEncodingEnabled, encoderConfig, decoderConfig, oAuthConfig, client);
+                       HttpClientBuilder httpClientBuilder) {
+        this(urlEncodingEnabled, encoderConfig, decoderConfig, oAuthConfig, httpClientBuilder);
         try {
             this.defaultURI = new URIBuilder(URIBuilder.convertToURI(defaultURI), this.urlEncodingEnabled, this.encoderConfig);
         } catch (URISyntaxException e) {
@@ -219,8 +220,8 @@ public abstract class HTTPBuilder {
      * @throws URISyntaxException if the uri argument does not represent a valid URI
      */
     public HTTPBuilder(Object defaultURI, Object defaultContentType, boolean urlEncodingEnabled, EncoderConfig encoderConfig,
-                       DecoderConfig decoderConfig, OAuthConfig oAuthConfig, AbstractHttpClient client) throws URISyntaxException {
-        this(urlEncodingEnabled, encoderConfig, decoderConfig, oAuthConfig, client);
+                       DecoderConfig decoderConfig, OAuthConfig oAuthConfig, HttpClientBuilder httpClientBuilder) throws URISyntaxException {
+        this(urlEncodingEnabled, encoderConfig, decoderConfig, oAuthConfig, httpClientBuilder);
         this.defaultURI = new URIBuilder(URIBuilder.convertToURI(defaultURI), urlEncodingEnabled, this.encoderConfig);
         this.defaultContentType = defaultContentType;
     }
@@ -710,7 +711,7 @@ public abstract class HTTPBuilder {
      * @see ContentEncodingRegistry
      */
     public void setContentEncoding(Object... encodings) {
-        this.contentEncodingHandler.setInterceptors(client, encodings);
+        this.contentEncodingHandler.setInterceptors(httpClientBuilder, encodings);
     }
 
     /**
@@ -768,10 +769,14 @@ public abstract class HTTPBuilder {
     /**
      * Return the underlying HTTPClient that is used to handle HTTP requests.
      *
-     * @return the client instance.
+     * @return the httpClientBuilder instance.
      */
-    public AbstractHttpClient getClient() {
-        return this.client;
+    public HttpClientBuilder getHttpClientBuilder() {
+        return this.httpClientBuilder;
+    }
+
+    public CloseableHttpClient getClient() {
+        return getHttpClientBuilder().build();
     }
 
     /**
@@ -793,9 +798,7 @@ public abstract class HTTPBuilder {
      * @see HttpHost#HttpHost(String, int, String)
      */
     public void setProxy(String host, int port, String scheme) {
-        getClient().getParams().setParameter(
-                ConnRoutePNames.DEFAULT_PROXY,
-                new HttpHost(host, port, scheme));
+        getHttpClientBuilder().setProxy(new HttpHost(host, port, scheme));
     }
 
     /**
@@ -804,7 +807,7 @@ public abstract class HTTPBuilder {
      * @see ClientConnectionManager#shutdown()
      */
     public void shutdown() {
-        client.getConnectionManager().shutdown();
+        //httpClientBuilder.getConnectionManager().shutdown();
     }
 
 

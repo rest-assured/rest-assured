@@ -51,7 +51,7 @@ class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
       factory.setHostnameVerifier(x509HostnameVerifier ?: ALLOW_ALL_HOSTNAME_VERIFIER)
     }
     int portToUse = this.port == -1 ? port : this.port
-    builder.client.connectionManager.schemeRegistry.register(new Scheme("https", portToUse, factory)
+    builder.httpClientBuilder.connectionManager.schemeRegistry.register(new Scheme("https", portToUse, factory)
     )
   }
 
