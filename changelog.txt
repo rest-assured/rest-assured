@@ -7,6 +7,7 @@ Change log next version
 * Better support for empty GZIP responses (thanks to Sergey Trasko for pull request)
 * Treat text/json as JSON content type (thanks to Ionuț Păduraru for pull request)
 * RestAssured.oauth2("accessToken") now uses PreemptiveOAuth2HeaderScheme instead of OAuth2Scheme
+* Added body params in OAuthRequest (issue 868) (thanks to Corneliu Duplachi for pull request)
 
 Change log 3.0.3 (2017-05-05)
 -----------------------------
