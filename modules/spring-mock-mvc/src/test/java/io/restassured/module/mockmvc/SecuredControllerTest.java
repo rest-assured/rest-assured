@@ -81,6 +81,19 @@ public class SecuredControllerTest {
     }
 
     @Test public void
+    spring_security_set_authentication_also_set_principal() {
+        RestAssuredMockMvc.given().
+                standaloneSetup(new SecuredController()).
+                auth().authentication(new TestingAuthenticationToken(new User("authorized_user", "password", Collections.<GrantedAuthority>emptyList()), "")).
+                param("name", "Johan").
+        when().
+                get("/setAuthenticationSetBoth").
+        then().
+                statusCode(200).
+                body("content", equalTo("Hello, Johan!"));
+    }
+
+    @Test public void
     spring_context_holder_is_cleared_after_test() {
         RestAssuredMockMvc.given().
                 standaloneSetup(new SecuredController()).
