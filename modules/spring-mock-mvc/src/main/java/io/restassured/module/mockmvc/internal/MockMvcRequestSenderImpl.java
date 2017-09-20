@@ -180,7 +180,8 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
         if (isSpringSecurityInClasspath() && authentication instanceof org.springframework.security.core.Authentication) {
             org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication((org.springframework.security.core.Authentication) authentication);
-        } else if (authentication instanceof Principal) {
+        }
+        if (authentication instanceof Principal) {
             requestBuilder.principal((Principal) authentication);
         }
 

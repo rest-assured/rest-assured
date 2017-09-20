@@ -51,4 +51,13 @@ public class SecuredController {
 
         return new Greeting(counter.incrementAndGet(), String.format(template, name));
     }
+
+    @RequestMapping(value = "/setAuthenticationSetBoth", method = GET)
+    public @ResponseBody Greeting setAuthenticationSetBoth(@RequestParam(value = "name", required = false, defaultValue = "World") String name, Principal principal) {
+        if (!SecurityContextHolder.getContext().getAuthentication().equals(principal)) {
+            throw new IllegalArgumentException("Authentication not equal principal!");
+        }
+
+        return new Greeting(counter.incrementAndGet(), String.format(template, name));
+    }
 }
