@@ -8,6 +8,7 @@ Change log next version
 * Treat text/json as JSON content type (thanks to Ionuț Păduraru for pull request)
 * RestAssured.oauth2("accessToken") now uses PreemptiveOAuth2HeaderScheme instead of OAuth2Scheme
 * Added body params in OAuthRequest (issue 868) (thanks to Corneliu Duplachi for pull request)
+* Set authentication once to set in SecurityContextHolder and Principal in method parameter in the MockMvc module (thanks to Leonard Siu for pull request)
 
 Change log 3.0.3 (2017-05-05)
 -----------------------------
