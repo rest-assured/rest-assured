@@ -87,7 +87,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private static final String CHARSET = "charset"
   private static final String ACCEPT_HEADER_NAME = "Accept"
   private static final String SSL = "SSL"
-  private static final String MULTIPART_CONTENT_TYPE_PREFIX = "multipart/"
+  private static final String MULTIPART = "multipart"
+  private static final String MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH = MULTIPART + "/"
+  private static final String MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS = MULTIPART + "+"
   private static final String TEMPLATE_START = "{"
   private static final String TEMPLATE_END = "}"
 
@@ -1462,11 +1464,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     def contentTypeAsString = headers.getValue(CONTENT_TYPE)
     def ct = ContentTypeExtractor.getContentTypeWithoutCharset(contentTypeAsString)
-    if (!ct?.toLowerCase()?.startsWith(MULTIPART_CONTENT_TYPE_PREFIX)) {
-      throw new IllegalArgumentException("Content-Type $ct is not valid when using multiparts, it must start with \"$MULTIPART_CONTENT_TYPE_PREFIX\".");
+    def subType;
+    if (ct?.toLowerCase()?.startsWith(MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH)) {
+      subType = substringAfter(ct, MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH)
+    } else if (ct?.toLowerCase()?.contains(MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS)) {
+      subType = substringBefore(substringAfter(ct, MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS), "+")
+    } else {
+      throw new IllegalArgumentException("Content-Type $ct is not valid when using multiparts, it must start with \"$MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH\" or contain \"$MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS\".");
     }
 
-    def subType = substringAfter(ct, MULTIPART_CONTENT_TYPE_PREFIX)
     def charsetFromContentType = CharsetExtractor.getCharsetFromContentType(contentTypeAsString)
     def charsetToUse = isBlank(charsetFromContentType) ? restAssuredConfig().getMultiPartConfig().defaultCharset() : charsetFromContentType
     def boundaryFromContentType = BoundaryExtractor.getBoundaryFromContentType(contentTypeAsString)
@@ -1494,7 +1500,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private static String generateBoundary() {
-    def alphabet = (('a'..'z')+('A'..'Z')+('0'..'9')+'-'+'_').join()
+    def alphabet = (('a'..'z') + ('A'..'Z') + ('0'..'9') + '-' + '_').join()
     def rand = new Random()
     def length = rand.nextInt(11) + 30
     (1..length).collect {
@@ -1583,7 +1589,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def contentType = headers.getValue(CONTENT_TYPE)
     if (contentType == null) {
       if (multiParts.size() > 0) {
-        contentType = MULTIPART_CONTENT_TYPE_PREFIX + restAssuredConfig().getMultiPartConfig().defaultSubtype()
+        contentType = MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH + restAssuredConfig().getMultiPartConfig().defaultSubtype()
       } else if (GET.name().equals(method) && !formParameters.isEmpty()) {
         contentType = URLENC
       } else if (requestBody == null) {
@@ -1607,7 +1613,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private boolean shouldAppendCharsetToContentType(contentType) {
-    contentType != null && !startsWith(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX) && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !containsIgnoreCase(contentType.toString(), CHARSET)
+    contentType != null && !(startsWith(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH) || contains(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS)) && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !containsIgnoreCase(contentType.toString(), CHARSET)
   }
 
   private String getTargetURI(String path) {
@@ -2105,7 +2111,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         Object val = headers1.get(key);
         if (val == null) {
           reqMethod.removeHeaders(key.toString())
-        } else if (!key.toString().equalsIgnoreCase(CONTENT_TYPE) || !val.toString().startsWith(MULTIPART_CONTENT_TYPE_PREFIX)) {
+        } else if (!key.toString().equalsIgnoreCase(CONTENT_TYPE) || !val.toString().startsWith(MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH)) {
           // Don't overwrite multipart header because HTTP Client have added boundary
           def keyAsString = key.toString()
           if (val instanceof Collection) {

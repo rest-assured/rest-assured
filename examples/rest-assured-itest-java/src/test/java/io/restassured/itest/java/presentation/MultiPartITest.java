@@ -17,8 +17,8 @@
 package io.restassured.itest.java.presentation;
 
 import io.restassured.builder.MultiPartSpecBuilder;
-import io.restassured.itest.java.support.WithJetty;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -318,5 +318,18 @@ public class MultiPartITest extends WithJetty {
         then().
                 statusCode(200).
                 body("Content-Type", contains("multipart/mixed; boundary=johndoe"));
+    }
+
+    @Test
+    public void allowPassingMultiPartsWithContentTypeContainingMultiPartPlusSubtype() throws Exception {
+        // When
+        given().
+                contentType("application/x-hub-multipart+xml; boundary=johndoe").
+                multiPart("file", "myFile", "content".getBytes("UTF-8")).
+        when().
+                post("/headersWithValues").
+        then().
+                statusCode(200).
+                body("Content-Type", contains("application/x-hub-multipart+xml; boundary=johndoe"));
     }
 }
