@@ -1,3 +1,7 @@
+Change log 3.0.5 (2017-10-05)
+-----------------------------
+* Reverted the API to take String instead of CharSequence again since this change introduced an accidental breaking change by not being binary compatible (only source compatible).
+
 Change log 3.0.4 (2017-10-05)
 -----------------------------
 * Changed API to take CharSequence instead of String. For example the "get" method in when().get("/something").. now takes a CharSequence instead of String (issue 858) (thanks to weaselmetal for pull request)
