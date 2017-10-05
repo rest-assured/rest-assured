@@ -67,13 +67,13 @@ import java.util.Map.Entry
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+import static PathSupport.isFullyQualified
+import static PathSupport.mergeAndRemoveDoubleSlash
 import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE
 import static io.restassured.http.ContentType.*
 import static io.restassured.http.Method.*
 import static io.restassured.internal.assertion.AssertParameter.notNull
 import static io.restassured.internal.serialization.SerializationSupport.isSerializableCandidate
-import static io.restassured.internal.support.PathSupport.isFullyQualified
-import static io.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash
 import static java.lang.String.format
 import static java.util.Arrays.asList
 import static org.apache.commons.lang3.StringUtils.*
@@ -166,32 +166,32 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return responseSpecification;
   }
 
-  def Response get(CharSequence path, Object... pathParams) {
-    applyPathParamsAndSendRequest(GET, path.toString(), pathParams)
+  def Response get(String path, Object... pathParams) {
+    applyPathParamsAndSendRequest(GET, path, pathParams)
   }
 
-  def Response post(CharSequence path, Object... pathParams) {
-    applyPathParamsAndSendRequest(POST, path.toString(), pathParams)
+  def Response post(String path, Object... pathParams) {
+    applyPathParamsAndSendRequest(POST, path, pathParams)
   }
 
-  def Response put(CharSequence path, Object... pathParams) {
-    applyPathParamsAndSendRequest(PUT, path.toString(), pathParams)
+  def Response put(String path, Object... pathParams) {
+    applyPathParamsAndSendRequest(PUT, path, pathParams)
   }
 
-  def Response delete(CharSequence path, Object... pathParams) {
-    applyPathParamsAndSendRequest(DELETE, path.toString(), pathParams)
+  def Response delete(String path, Object... pathParams) {
+    applyPathParamsAndSendRequest(DELETE, path, pathParams)
   }
 
-  def Response head(CharSequence path, Object... pathParams) {
-    applyPathParamsAndSendRequest(HEAD, path.toString(), pathParams)
+  def Response head(String path, Object... pathParams) {
+    applyPathParamsAndSendRequest(HEAD, path, pathParams)
   }
 
-  def Response patch(CharSequence path, Object... pathParams) {
-    applyPathParamsAndSendRequest(PATCH, path.toString(), pathParams)
+  def Response patch(String path, Object... pathParams) {
+    applyPathParamsAndSendRequest(PATCH, path, pathParams)
   }
 
-  def Response options(CharSequence path, Object... pathParams) {
-    applyPathParamsAndSendRequest(OPTIONS, path.toString(), pathParams)
+  def Response options(String path, Object... pathParams) {
+    applyPathParamsAndSendRequest(OPTIONS, path, pathParams)
   }
 
   def Response get(URI uri) {
@@ -310,39 +310,39 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     request(method, notNull(url, URL.class).toString())
   }
 
-  def Response get(CharSequence path, Map<String, ?> pathParams) {
+  def Response get(String path, Map pathParams) {
     pathParameters(pathParams)
-    applyPathParamsAndSendRequest(GET, path.toString())
+    applyPathParamsAndSendRequest(GET, path)
   }
 
-  def Response post(CharSequence path, Map<String, ?> pathParams) {
+  def Response post(String path, Map pathParams) {
     pathParameters(pathParams)
-    applyPathParamsAndSendRequest(POST, path.toString())
+    applyPathParamsAndSendRequest(POST, path)
   }
 
-  def Response put(CharSequence path, Map<String, ?> pathParams) {
+  def Response put(String path, Map pathParams) {
     pathParameters(pathParams)
-    applyPathParamsAndSendRequest(PUT, path.toString())
+    applyPathParamsAndSendRequest(PUT, path)
   }
 
-  def Response delete(CharSequence path, Map<String, ?> pathParams) {
+  def Response delete(String path, Map pathParams) {
     pathParameters(pathParams)
-    applyPathParamsAndSendRequest(DELETE, path.toString())
+    applyPathParamsAndSendRequest(DELETE, path)
   }
 
-  def Response head(CharSequence path, Map<String, ?> pathParams) {
+  def Response head(String path, Map pathParams) {
     pathParameters(pathParams)
-    applyPathParamsAndSendRequest(HEAD, path.toString())
+    applyPathParamsAndSendRequest(HEAD, path)
   }
 
-  def Response patch(CharSequence path, Map<String, ?> pathParams) {
+  def Response patch(String path, Map pathParams) {
     pathParameters(pathParams)
-    applyPathParamsAndSendRequest(PATCH, path.toString())
+    applyPathParamsAndSendRequest(PATCH, path)
   }
 
-  def Response options(CharSequence path, Map<String, ?> pathParams) {
+  def Response options(String path, Map pathParams) {
     pathParameters(pathParams)
-    applyPathParamsAndSendRequest(OPTIONS, path.toString())
+    applyPathParamsAndSendRequest(OPTIONS, path)
   }
 
   def RequestSpecification parameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
@@ -1440,7 +1440,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private String getTargetPath(String path) {
-    if (PathSupport.isFullyQualified(path)) {
+    if (isFullyQualified(path)) {
       return new URL(path).getPath()
     }
 

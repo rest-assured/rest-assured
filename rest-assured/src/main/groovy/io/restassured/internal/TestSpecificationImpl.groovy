@@ -55,46 +55,46 @@ class TestSpecificationImpl implements RequestSender {
   /**
    * {@inheritDoc}
    */
-  Response get(CharSequence path, Object... pathParams) {
+  Response get(String path, Object... pathParams) {
     requestSpecification.get path, pathParams
   }
 
   /**
    * {@inheritDoc}
    */
-  Response post(CharSequence path, Object... pathParams) {
+  Response post(String path, Object... pathParams) {
     requestSpecification.post path, pathParams
   }
 
   /**
    * {@inheritDoc}
    */
-  Response put(CharSequence path, Object... pathParams) {
+  Response put(String path, Object... pathParams) {
     requestSpecification.put path, pathParams
   }
 
   /**
    * {@inheritDoc}
    */
-  Response delete(CharSequence path, Object... pathParams) {
+  Response delete(String path, Object... pathParams) {
     requestSpecification.delete path, pathParams
   }
 
   /**
    * {@inheritDoc}
    */
-  Response head(CharSequence path, Object... pathParams) {
+  Response head(String path, Object... pathParams) {
     requestSpecification.head path, pathParams
   }
 
   /**
    * {@inheritDoc}
    */
-  Response patch(CharSequence path, Object... pathParams) {
+  Response patch(String path, Object... pathParams) {
     requestSpecification.patch path, pathParams
   }
 
-  Response options(CharSequence path, Object... pathParams) {
+  Response options(String path, Object... pathParams) {
     requestSpecification.options path, pathParams
   }
 
@@ -221,31 +221,31 @@ class TestSpecificationImpl implements RequestSender {
     requestSpecification.request(method, url)
   }
 
-  Response get(CharSequence path, Map<String, ?> pathParams) {
+  Response get(String path, Map pathParams) {
     requestSpecification.get path, pathParams
   }
 
-  Response post(CharSequence path, Map<String, ?> pathParams) {
+  Response post(String path, Map pathParams) {
     requestSpecification.post path, pathParams
   }
 
-  Response put(CharSequence path, Map<String, ?> pathParams) {
+  Response put(String path, Map pathParams) {
     requestSpecification.put path, pathParams
   }
 
-  Response delete(CharSequence path, Map<String, ?> pathParams) {
+  Response delete(String path, Map pathParams) {
     requestSpecification.delete path, pathParams
   }
 
-  Response head(CharSequence path, Map<String, ?> pathParams) {
+  Response head(String path, Map pathParams) {
     requestSpecification.head path, pathParams
   }
 
-  Response patch(CharSequence path, Map<String, ?> pathParams) {
+  Response patch(String path, Map pathParams) {
     requestSpecification.patch path, pathParams
   }
 
-  Response options(CharSequence path, Map<String, ?> pathParams) {
+  Response options(String path, Map pathParams) {
     requestSpecification.options path, pathParams
   }
 
