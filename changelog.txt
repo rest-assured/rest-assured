@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Upgraded to Groovy 2.4.11
+
 Change log 3.0.5 (2017-10-05)
 -----------------------------
 * Reverted the API to take String instead of CharSequence again since this change introduced an accidental breaking change by not being binary compatible (only source compatible).
