@@ -1,6 +1,6 @@
 Change log next version
 -----------------------
-* Upgraded to Groovy 2.4.11
+* Upgraded to Groovy 2.4.12
 
 Change log 3.0.5 (2017-10-05)
 -----------------------------
