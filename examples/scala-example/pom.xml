@@ -29,7 +29,7 @@
     <description>Scala example of using REST Assured</description>
 
     <properties>
-        <scala.version>2.11.7</scala.version>
+        <scala.version>2.11.12</scala.version>
     </properties>
 
     <build>
