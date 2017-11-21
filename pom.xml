@@ -257,7 +257,8 @@
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
-                <version>2.3.0</version>
+                <!-- Don't upgrade to 2.3.x since it requires Java 7+ -->
+                <version>2.2.12</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
