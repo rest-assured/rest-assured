@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 3.0.6 (2017-11-23)
+-----------------------------
 * Upgraded to Groovy 2.4.12
 * REST Assured now works on Java 9
 
