@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2017 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,28 @@ package io.restassured.filter.cookie;
 
 import io.restassured.filter.Filter;
 import io.restassured.filter.FilterContext;
+import io.restassured.filter.session.SessionFilter;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
-import io.restassured.filter.session.SessionFilter;
+import org.apache.http.Header;
+import org.apache.http.cookie.Cookie;
+import org.apache.http.cookie.CookieOrigin;
+import org.apache.http.cookie.CookieSpec;
+import org.apache.http.cookie.MalformedCookieException;
+import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.cookie.DefaultCookieSpec;
+import org.apache.http.message.BasicHeader;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The cookie filter can be used to keep track of all the cookies sent by the server and use them in subsequent requests.
- * It might come in handy when more than just the {@link SessionFilter} is needed.
+ * It matches the cookies to the request URL within the rules implemented in {@link DefaultCookieSpec}.
+ * It might come in handy when more than just the {@link SessionFilter} and browser-like cookie matching is needed.
  * For example:
  * <pre>
  * CookieFilter cookieFilter = new CookieFilter();
@@ -43,7 +54,7 @@ import java.util.Map;
  * given().
  *         cookie("foo", "bar").
  *         filter(cookieFilter). // Reuse the same cookie filter
- *                               // if "foo" is stored in cookieFilter it won't be applied because it's already applied explicitly
+ *                      // if "foo" is stored in cookieFilter it won't be applied because it's already applied explicitly
  * expect().
  *         statusCode(200).
  * when().
@@ -52,22 +63,44 @@ import java.util.Map;
  */
 public class CookieFilter implements Filter {
 
-    private Map<String, String> cookies = new HashMap<String, String>();
+    private CookieSpec cookieSpec = new DefaultCookieSpec();
+    private BasicCookieStore cookieStore = new BasicCookieStore();
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
 
-        // add all previously stored cookies to subsequent requests
-        // but only if they're not already in the request spec
-        for (Map.Entry<String, String> cookie : cookies.entrySet()) {
-            if (!requestSpec.getCookies().hasCookieWithName(cookie.getKey())) {
-                requestSpec.cookie(cookie.getKey(), cookie.getValue());
+        final CookieOrigin cookieOrigin = cookieOriginFromUri(requestSpec.getURI());
+        for (Cookie cookie : cookieStore.getCookies()) {
+            if (cookieSpec.match(cookie, cookieOrigin) && !requestSpec.getCookies().hasCookieWithName(cookie.getName())) {
+                requestSpec.cookie(cookie.getName(), cookie.getValue());
             }
         }
 
         final Response response = ctx.next(requestSpec, responseSpec);
 
-        cookies.putAll(response.getCookies());
-
+        List<Cookie> responseCookies = extractResponseCookies(response, cookieOrigin);
+        cookieStore.addCookies(responseCookies.toArray(new Cookie[responseCookies.size()]));
         return response;
+    }
+
+    private List<Cookie> extractResponseCookies(Response response, CookieOrigin cookieOrigin) {
+
+        Header setCookieHeader = new BasicHeader("Set-Cookie", response.getHeader("Set-Cookie"));
+        try {
+            return cookieSpec.parse(setCookieHeader, cookieOrigin);
+        } catch (MalformedCookieException e) {
+            return Collections.emptyList();
+        }
+    }
+
+    private CookieOrigin cookieOriginFromUri(String uri) {
+
+        try {
+            URL parsedUrl = new URL(uri);
+            int port = parsedUrl.getPort() != -1 ? parsedUrl.getPort() : 80;
+            return new CookieOrigin(
+                    parsedUrl.getHost(), port, parsedUrl.getPath(), "https".equals(parsedUrl.getProtocol()));
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }
