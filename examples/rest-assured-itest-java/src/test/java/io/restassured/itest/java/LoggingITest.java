@@ -1013,4 +1013,21 @@ public class LoggingITest extends WithJetty {
         RestAssured.registerParser("text/json", Parser.JSON);
         when().get("/text-json").then().body("test", is(true));
     }
+
+    // This was previously a bug (https://github.com/rest-assured/rest-assured/issues/960)
+    @Test public void
+    prettifying_empty_xml_body_doesnt_log_premature_end_of_file() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                filter(new ResponseLoggingFilter(LogDetail.ALL, true, captor)).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setContentType(ContentType.XML).setBody("").build()).
+        when().
+                get("/xml-empty-body").
+        then().
+                statusCode(200);
+
+        assertThat(writer.toString(), equalTo("200" + LINE_SEPARATOR + "Content-Type: application/xml" + LINE_SEPARATOR));
+    }
 }

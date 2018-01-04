@@ -18,16 +18,21 @@ package io.restassured.internal.path.xml
 
 import groovy.util.slurpersupport.GPathResult
 import groovy.xml.XmlUtil
+import org.apache.commons.lang3.StringUtils
 
 class XmlPrettifier {
 
-    static def String prettify(XmlParser xmlParser, xml) {
+    static String prettify(XmlParser xmlParser, xml) {
         doPrettify { StringWriter stringWriter ->
-            def Node node = xmlParser.parseText(xml);
+          if (StringUtils.isBlank(xml)) {
+            ""
+          } else {
+            Node node = xmlParser.parseText(xml)
             def printer = new XmlNodePrinter(new PrintWriter(stringWriter))
             printer.setNamespaceAware(xmlParser.isNamespaceAware())
             printer.setPreserveWhitespace(!xmlParser.isTrimWhitespace())
             printer.print(node)
+          }
         }
     }
 
