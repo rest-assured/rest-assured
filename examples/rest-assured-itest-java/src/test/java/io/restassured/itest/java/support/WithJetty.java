@@ -33,8 +33,7 @@ import org.junit.rules.ExpectedException;
 import java.io.File;
 import java.util.Collections;
 
-@Ignore("To make Maven happy")
-public class WithJetty {
+public abstract class WithJetty {
     public static final String itestPath;
 
     static {
