@@ -22,6 +22,7 @@ import io.restassured.http.Headers;
 import io.restassured.internal.support.Prettifier;
 import io.restassured.response.ResponseBody;
 import io.restassured.response.ResponseOptions;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.PrintStream;
 
@@ -64,7 +65,7 @@ public class ResponsePrinter {
                 responseBodyToAppend = responseBody.asString();
             }
             if (logDetail == ALL && !isBlank(responseBodyToAppend)) {
-                builder.append("\n\n");
+                builder.append(SystemUtils.LINE_SEPARATOR).append(SystemUtils.LINE_SEPARATOR);
             }
 
             builder.append(responseBodyToAppend);
@@ -81,15 +82,18 @@ public class ResponsePrinter {
 
         final StringBuilder builder = new StringBuilder();
         for (Header header : headers) {
-            builder.append(header.getName()).append(HEADER_NAME_AND_VALUE_SEPARATOR).append(header.getValue()).append("\n");
+            builder.append(header.getName())
+                    .append(HEADER_NAME_AND_VALUE_SEPARATOR)
+                    .append(header.getValue())
+                    .append(SystemUtils.LINE_SEPARATOR);
         }
-        builder.deleteCharAt(builder.length() - 1);
+        builder.delete(builder.length() - SystemUtils.LINE_SEPARATOR.length(), builder.length());
         return builder.toString();
     }
 
     private static StringBuilder appendNewLineIfAll(LogDetail logDetail, StringBuilder builder) {
         if (logDetail == ALL) {
-            builder.append("\n");
+            builder.append(SystemUtils.LINE_SEPARATOR);
         }
         return builder;
     }

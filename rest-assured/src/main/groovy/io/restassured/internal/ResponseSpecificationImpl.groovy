@@ -29,6 +29,7 @@ import io.restassured.parsing.Parser
 import io.restassured.response.Response
 import io.restassured.specification.*
 import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.SystemUtils
 import org.apache.commons.lang3.Validate
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
@@ -496,7 +497,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         }
         if (StringUtils.isNotEmpty(responseLog)) {
           if (requestLogHasText) {
-            stream.print("\n");
+            stream.print(SystemUtils.LINE_SEPARATOR);
           }
           stream.print(responseLog)
         }
