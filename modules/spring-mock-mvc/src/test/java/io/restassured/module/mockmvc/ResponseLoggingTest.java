@@ -64,7 +64,9 @@ public class ResponseLoggingTest {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("200\nContent-Type: application/json;charset=UTF-8\n\n{\n    \"id\": 1,\n    \"content\": \"Hello, Johan!\"\n}\n"));
+            assertThat(writer.toString(), equalTo(String.format("200%n" +
+                    "Content-Type: application/json;charset=UTF-8%n" +
+                    "%n{\n    \"id\": 1,\n    \"content\": \"Hello, Johan!\"\n}%n")));
         }
     }
 
