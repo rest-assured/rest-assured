@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.*;
+import static io.restassured.matcher.RestAssuredMatchers.detailedCookie;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
@@ -52,6 +53,20 @@ public class CookieITest extends WithJetty {
     @Test
     public void whenUsingTheDslAndExpectingAMultiValueCookieThenTheLastValueIsUsed() throws Exception {
         expect().cookie("cookie1", equalTo("cookieValue2")).when().get("/multiCookie");
+    }
+
+    @Test
+    public void supportsDetailedCookieMatchingUsingDsl() {
+        expect().detailedCookie("cookie1", detailedCookie().maxAge(1234567))
+                .when().get("/multiCookie");
+    }
+
+    @Test
+    public void supportsDetailedCookieMatcher() {
+        given()
+                .get("/multiCookie")
+                .then()
+                .detailedCookie("cookie1", detailedCookie().maxAge(1234567));
     }
 
     @Test

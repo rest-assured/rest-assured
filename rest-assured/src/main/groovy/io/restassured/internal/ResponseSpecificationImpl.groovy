@@ -21,6 +21,7 @@ import io.restassured.assertion.*
 import io.restassured.config.RestAssuredConfig
 import io.restassured.function.RestAssuredFunction
 import io.restassured.http.ContentType
+import io.restassured.http.Cookie
 import io.restassured.internal.MapCreator.CollisionStrategy
 import io.restassured.internal.log.LogRepository
 import io.restassured.internal.util.MatcherErrorMessageBuilder
@@ -190,7 +191,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     validateResponseIfRequired {
       expectedCookies.each { cookieName, matcher ->
         if (matcher instanceof List) {
-          match.each {
+          matcher.each {
             cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: it instanceof Matcher ? it : equalTo(it))
           }
         } else {
@@ -214,6 +215,15 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     notNull expectedValueMatcher, "expectedValueMatcher"
     validateResponseIfRequired {
       cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: expectedValueMatcher)
+    }
+    this;
+  }
+
+  def ResponseSpecification detailedCookie(String cookieName, Matcher<? super Cookie> detailedCookieMatcher) {
+    notNull cookieName, "cookieName"
+    notNull detailedCookieMatcher, "cookieMatcher"
+    validateResponseIfRequired {
+      cookieAssertions << new DetailedCookieAssertion(cookieName: cookieName, matcher: detailedCookieMatcher)
     }
     this;
   }

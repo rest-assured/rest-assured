@@ -234,4 +234,7 @@ public class RestAssuredMatchers {
         };
     }
 
+    public static DetailedCookieMatcher detailedCookie() {
+        return new DetailedCookieMatcher();
+    }
 }

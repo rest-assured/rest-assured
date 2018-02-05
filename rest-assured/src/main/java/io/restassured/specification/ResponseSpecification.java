@@ -18,6 +18,7 @@ package io.restassured.specification;
 
 import io.restassured.function.RestAssuredFunction;
 import io.restassured.http.ContentType;
+import io.restassured.http.Cookie;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
@@ -531,7 +532,7 @@ public interface ResponseSpecification {
      * <p>
      * You can also expect several cookies:
      * <pre>
-     * expect().cookie("cookieName1", equalsTo("cookieValue1")),and().cookie("cookieName2", containsString("Value2")).when().get("/something");
+     * expect().cookie("cookieName1", equalsTo("cookieValue1")).and().cookie("cookieName2", containsString("Value2")).when().get("/something");
      * </pre>
      * Also take a look at {@link #cookies(String, Object, Object...)} for a short version of passing multiple cookies.
      * </p>
@@ -541,6 +542,29 @@ public interface ResponseSpecification {
      * @return the response specification
      */
     ResponseSpecification cookie(String cookieName, Matcher<?> expectedValueMatcher);
+
+    /**
+     * Validate that a detailed response cookie matches the supplied cookie name and hamcrest matcher.
+     * <p>
+     * E.g. expect that the response of the GET request to "/something" contain cookie <tt>cookieName1=cookieValue1</tt>
+     * <pre>
+     * expect.detailedCookie("cookieName1", detailedCookie().value("cookieValue1").secured(true));
+     * </pre>
+     * </p>
+     * <p/>
+     * <p>
+     * You can also expect several cookies:
+     * <pre>
+     * expect().detailedCookie("cookieName1", detailedCookie().value("cookieValue1").secured(true))
+     *      .and().detailedCookie("cookieName2", detailedCookie().value("cookieValue2").secured(false));
+     * </pre>
+     * </p>
+     *
+     * @param cookieName            The name of the expected cookie
+     * @param detailedCookieMatcher The Hamcrest matcher that must conform to the cookie
+     * @return the response specification
+     */
+    ResponseSpecification detailedCookie(String cookieName, Matcher<? super Cookie> detailedCookieMatcher);
 
     /**
      * Expect that a response cookie matches the supplied name and value.
