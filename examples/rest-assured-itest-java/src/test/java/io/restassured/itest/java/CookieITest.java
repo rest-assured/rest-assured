@@ -57,7 +57,7 @@ public class CookieITest extends WithJetty {
 
     @Test
     public void supportsDetailedCookieMatchingUsingDsl() {
-        expect().detailedCookie("cookie1", detailedCookie().maxAge(1234567))
+        expect().cookie("cookie1", detailedCookie().maxAge(1234567))
                 .when().get("/multiCookie");
     }
 
@@ -66,7 +66,7 @@ public class CookieITest extends WithJetty {
         given()
                 .get("/multiCookie")
                 .then()
-                .detailedCookie("cookie1", detailedCookie().maxAge(1234567));
+                .cookie("cookie1", detailedCookie().maxAge(1234567));
     }
 
     @Test

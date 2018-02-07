@@ -19,6 +19,7 @@ package io.restassured.response;
 import io.restassured.function.RestAssuredFunction;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
+import io.restassured.matcher.DetailedCookieMatcher;
 import io.restassured.matcher.ResponseAwareMatcher;
 import io.restassured.matcher.RestAssuredMatchers;
 import io.restassured.parsing.Parser;
@@ -611,7 +612,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
     T cookie(String cookieName, Matcher<?> expectedValueMatcher);
 
     /**
-     * Validate that a detailed response cookie matches the supplied cookie name and hamcrest matcher.
+     * Validate that a detailed response cookie matches the supplied cookie name and hamcrest matcher (see {@link DetailedCookieMatcher}).
      * <p>
      * E.g. expect that the response of the GET request to "/something" contain cookie <tt>cookieName1=cookieValue1</tt>
      * <pre>
@@ -632,7 +633,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * @param detailedCookieMatcher The Hamcrest matcher that must conform to the cookie
      * @return the response specification
      */
-    T detailedCookie(String cookieName, Matcher<? super Cookie> detailedCookieMatcher);
+    T cookie(String cookieName, DetailedCookieMatcher detailedCookieMatcher);
 
     /**
      * Validate that a response cookie matches the supplied name and value.
