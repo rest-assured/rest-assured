@@ -22,9 +22,11 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.function.RestAssuredFunction;
 import io.restassured.http.ContentType;
+import io.restassured.http.Cookie;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.print.ResponsePrinter;
 import io.restassured.internal.util.SafeExceptionRethrower;
+import io.restassured.matcher.DetailedCookieMatcher;
 import io.restassured.matcher.ResponseAwareMatcher;
 import io.restassured.parsing.Parser;
 import io.restassured.response.*;
@@ -187,6 +189,10 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         return (T) this;
     }
 
+    public T cookie(String cookieName, DetailedCookieMatcher detailedCookieMatcher) {
+        responseSpec.cookie(cookieName, detailedCookieMatcher);
+        return (T) this;
+    }
 
     public T rootPath(String rootPath) {
         responseSpec.rootPath(rootPath);
