@@ -2,6 +2,12 @@ Change log next version
 -----------------------
 * CookieFilter now conforms to RFC6265 standard by only copying expected cookies instead of all (thanks to Maciej Ciszewski for pull request) (issue 956).
 * Prettifier can now prettify empty xml body (issue 960)
+* Introduced a "detailed cookie matcher" that allows you to verify more detailed aspects of a cookie, for example:
+    given().
+        get("/multiCookie").
+    then()
+        cookie("cookie1", detailedCookie().maxAge(1234567));
+  (thanks to Rafał Siwiec for pull request)
 
 Change log 3.0.6 (2017-11-23)
 -----------------------------
