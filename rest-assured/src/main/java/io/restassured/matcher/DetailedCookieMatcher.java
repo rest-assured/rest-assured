@@ -37,7 +37,7 @@ public class DetailedCookieMatcher extends CombinableMatcher<Cookie> {
      * @param valueMatcher value assertion
      * @return A {@link DetailedCookieMatcher} instance with and-composed value property assertion
      */
-    public DetailedCookieMatcher value(Matcher<? extends String> valueMatcher) {
+    public DetailedCookieMatcher value(Matcher<? super String> valueMatcher) {
         return new DetailedCookieMatcher(and(Matchers.<Cookie>hasProperty("value", valueMatcher)));
     }
 
@@ -54,7 +54,7 @@ public class DetailedCookieMatcher extends CombinableMatcher<Cookie> {
      * @param commentMatcher comment assertion
      * @return A {@link DetailedCookieMatcher} instance with and-composed comment property assertion
      */
-    public DetailedCookieMatcher comment(Matcher<? extends String> commentMatcher) {
+    public DetailedCookieMatcher comment(Matcher<? super String> commentMatcher) {
         return new DetailedCookieMatcher(and(Matchers.<Cookie>hasProperty("comment", commentMatcher)));
     }
 
@@ -72,7 +72,7 @@ public class DetailedCookieMatcher extends CombinableMatcher<Cookie> {
      * @param expiryDateMatcher expiry date assertion
      * @return A {@link DetailedCookieMatcher} instance with and-composed expiry date property assertion
      */
-    public DetailedCookieMatcher expiryDate(Matcher<? extends Date> expiryDateMatcher) {
+    public DetailedCookieMatcher expiryDate(Matcher<? super Date> expiryDateMatcher) {
         return new DetailedCookieMatcher(and(Matchers.<Cookie>hasProperty("expiryDate", expiryDateMatcher)));
     }
 
@@ -90,7 +90,7 @@ public class DetailedCookieMatcher extends CombinableMatcher<Cookie> {
      * @param domainMatcher assertion for domain property
      * @return A {@link DetailedCookieMatcher} instance with and-composed domain property assertion
      */
-    public DetailedCookieMatcher domain(Matcher<? extends String> domainMatcher) {
+    public DetailedCookieMatcher domain(Matcher<? super String> domainMatcher) {
         return new DetailedCookieMatcher(and(Matchers.<Cookie>hasProperty("domain", domainMatcher)));
     }
     
@@ -108,7 +108,7 @@ public class DetailedCookieMatcher extends CombinableMatcher<Cookie> {
      * @param pathMatcher assertion for path property
      * @return A {@link DetailedCookieMatcher} instance with and-composed path property assertion
      */
-    public DetailedCookieMatcher path(Matcher<? extends String> pathMatcher) {
+    public DetailedCookieMatcher path(Matcher<? super String> pathMatcher) {
         return new DetailedCookieMatcher(and(Matchers.<Cookie>hasProperty("path", pathMatcher)));
     }
 
@@ -126,7 +126,7 @@ public class DetailedCookieMatcher extends CombinableMatcher<Cookie> {
      * @param securedMatcher assertion for secured property
      * @return A {@link DetailedCookieMatcher} instance with and-composed secured property assertion
      */
-    public DetailedCookieMatcher secured(Matcher<? extends Boolean> securedMatcher) {
+    public DetailedCookieMatcher secured(Matcher<? super Boolean> securedMatcher) {
         return new DetailedCookieMatcher(and(Matchers.<Cookie>hasProperty("secured", securedMatcher)));
     }
 
@@ -144,7 +144,7 @@ public class DetailedCookieMatcher extends CombinableMatcher<Cookie> {
      * @param httpOnlyMatcher assertion for domain property
      * @return A {@link DetailedCookieMatcher} instance with and-composed http-only property assertion
      */
-    public DetailedCookieMatcher httpOnly(Matcher<? extends Boolean> httpOnlyMatcher) {
+    public DetailedCookieMatcher httpOnly(Matcher<? super Boolean> httpOnlyMatcher) {
         return new DetailedCookieMatcher(and(Matchers.<Cookie>hasProperty("httpOnly", httpOnlyMatcher)));
     }
 
@@ -162,7 +162,7 @@ public class DetailedCookieMatcher extends CombinableMatcher<Cookie> {
      * @param versionMatcher assertion for version property
      * @return A {@link DetailedCookieMatcher} instance with and-composed version property assertion
      */
-    public DetailedCookieMatcher version(Matcher<? extends Integer> versionMatcher) {
+    public DetailedCookieMatcher version(Matcher<? super Integer> versionMatcher) {
         return new DetailedCookieMatcher(and(Matchers.<Cookie>hasProperty("version", versionMatcher)));
     }
 
@@ -180,7 +180,7 @@ public class DetailedCookieMatcher extends CombinableMatcher<Cookie> {
      * @param maxAgeMatcher assertion for max age property
      * @return A {@link DetailedCookieMatcher} instance with and-composed max age property assertion
      */
-    public DetailedCookieMatcher maxAge(Matcher<? extends Integer> maxAgeMatcher) {
+    public DetailedCookieMatcher maxAge(Matcher<? super Integer> maxAgeMatcher) {
         return new DetailedCookieMatcher(and(Matchers.<Cookie>hasProperty("maxAge", maxAgeMatcher)));
     }
 }

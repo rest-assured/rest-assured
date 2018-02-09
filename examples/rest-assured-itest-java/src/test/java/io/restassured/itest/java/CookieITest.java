@@ -23,6 +23,7 @@ import io.restassured.http.Cookies;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.response.Response;
 import org.apache.http.client.utils.DateUtils;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -57,7 +58,7 @@ public class CookieITest extends WithJetty {
 
     @Test
     public void supportsDetailedCookieMatchingUsingDsl() {
-        expect().cookie("cookie1", detailedCookie().maxAge(1234567))
+        expect().cookie("cookie1", detailedCookie().maxAge(1234567).path(Matchers.notNullValue()))
                 .when().get("/multiCookie");
     }
 
@@ -66,7 +67,7 @@ public class CookieITest extends WithJetty {
         given()
                 .get("/multiCookie")
                 .then()
-                .cookie("cookie1", detailedCookie().maxAge(1234567));
+                .cookie("cookie1", detailedCookie().maxAge(1234567).path(Matchers.notNullValue()));
     }
 
     @Test
