@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,7 @@
 package io.restassured.internal.http;
 
 import org.apache.http.HttpRequest;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -40,8 +37,13 @@ import static org.apache.commons.lang3.StringUtils.upperCase;
 public class HttpRequestFactory {
     private static final Map<String, Class<? extends HttpRequestBase>> HTTP_METHOD_TO_HTTP_REQUEST_TYPE =
             new HashMap<String, Class<? extends HttpRequestBase>>() {{
+                put(GET.name(), HttpGet.class);
                 put(PUT.name(), HttpPut.class);
                 put(POST.name(), HttpPost.class);
+                put(DELETE.name(), HttpDelete.class);
+                put(HEAD.name(), HttpHead.class);
+                put(TRACE.name(), HttpTrace.class);
+                put(OPTIONS.name(), HttpOptions.class);
                 put(PATCH.name(), HttpPatch.class);
             }};
 
