@@ -430,8 +430,8 @@ public abstract class HTTPBuilder {
      * @throws IOException
      * @see #request(Object, HttpRequestFactory, Object, Closure)
      */
-    public Object request(String method, Closure configClosure) throws ClientProtocolException, IOException {
-        return this.doRequest(this.defaultURI.toURI(), method, this.defaultContentType, configClosure);
+    public Object request(String method, boolean hasBody, Closure configClosure) throws ClientProtocolException, IOException {
+        return this.doRequest(this.defaultURI.toURI(), method, this.defaultContentType, hasBody, configClosure);
     }
 
     /**
@@ -446,9 +446,9 @@ public abstract class HTTPBuilder {
      * @throws IOException
      * @see #request(Object, HttpRequestFactory, Object, Closure)
      */
-    public Object request(String method, Object contentType, Closure configClosure)
+    public Object request(String method, Object contentType, boolean hasBody, Closure configClosure)
             throws ClientProtocolException, IOException {
-        return this.doRequest(this.defaultURI.toURI(), method, contentType, configClosure);
+        return this.doRequest(this.defaultURI.toURI(), method, contentType, hasBody, configClosure);
     }
 
     /**
@@ -472,9 +472,9 @@ public abstract class HTTPBuilder {
      * @throws IOException
      * @throws URISyntaxException      if the uri argument does not represent a valid URI
      */
-    public Object request(Object uri, String method, Object contentType, Closure configClosure)
+    public Object request(Object uri, String method, Object contentType, boolean hasBody, Closure configClosure)
             throws ClientProtocolException, IOException, URISyntaxException {
-        return this.doRequest(URIBuilder.convertToURI(uri), method, contentType, configClosure);
+        return this.doRequest(URIBuilder.convertToURI(uri), method, contentType, hasBody, configClosure);
     }
 
     /**
@@ -482,8 +482,8 @@ public abstract class HTTPBuilder {
      * config closure, then pass the delegate to {@link #doRequest(RequestConfigDelegate)},
      * which actually executes the request.
      */
-    protected Object doRequest(URI uri, String method, Object contentType, Closure configClosure) throws IOException {
-        HttpRequestBase reqMethod = HttpRequestFactory.createHttpRequest(uri, method);
+    protected Object doRequest(URI uri, String method, Object contentType, boolean hasBody, Closure configClosure) throws IOException {
+        HttpRequestBase reqMethod = HttpRequestFactory.createHttpRequest(uri, method, hasBody);
         RequestConfigDelegate delegate = new RequestConfigDelegate(reqMethod, contentType,
                 this.defaultRequestHeaders,
                 this.defaultResponseHandlers);

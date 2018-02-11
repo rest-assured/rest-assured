@@ -16,6 +16,7 @@
 
 package io.restassured.internal.http;
 
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.client.methods.*;
 
@@ -52,11 +53,15 @@ public class HttpRequestFactory {
      *
      * @return a non-abstract class that implements {@link HttpRequest}
      */
-    static HttpRequestBase createHttpRequest(URI uri, String httpMethod) {
+    static HttpRequestBase createHttpRequest(URI uri, String httpMethod, boolean hasBody) {
         String method = notNull(upperCase(trimToNull(httpMethod)), "Http method");
         Class<? extends HttpRequestBase> type = HTTP_METHOD_TO_HTTP_REQUEST_TYPE.get(method);
         final HttpRequestBase httpRequest;
-        if (type == null) {
+        // If we are sending HTTP method that does not allow body (like GET) then HTTP library prevents
+        // us from including it, however we chose to allow deviations from standard if user wants so,
+        // so it needs custom handling - hence the second condition below.
+        // Otherwise we should use standard implementation found in the map
+        if (type == null || (!(type.isInstance(HttpEntityEnclosingRequest.class)) && hasBody)) {
             httpRequest = new CustomHttpMethod(method, uri);
         } else {
             try {
