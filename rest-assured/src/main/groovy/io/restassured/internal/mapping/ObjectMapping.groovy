@@ -32,6 +32,8 @@ import io.restassured.mapper.factory.Jackson2ObjectMapperFactory
 import io.restassured.response.ResponseBodyData
 import org.apache.commons.lang3.Validate
 
+import java.lang.reflect.Type
+
 import static ContentType.ANY
 import static io.restassured.internal.assertion.AssertParameter.notNull
 import static io.restassured.mapper.resolver.ObjectMapperResolver.*
@@ -40,7 +42,7 @@ import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
 class ObjectMapping {
 
   public
-  static <T> T deserialize(ResponseBodyData response, Class<T> cls, String contentType, String defaultContentType, String charset, ObjectMapperType mapperType,
+  static <T> T deserialize(ResponseBodyData response, Type cls, String contentType, String defaultContentType, String charset, ObjectMapperType mapperType,
                            ObjectMapperConfig objectMapperConfig) {
     Validate.notNull(objectMapperConfig, "String mapper configuration wasn't found, cannot deserialize.")
     def deserializationCtx = deserializationContext(response, cls, contentType, charset)
@@ -202,7 +204,7 @@ class ObjectMapping {
     new Jackson2Mapper(factory).deserialize(ctx)
   }
 
-  private static ObjectMapperDeserializationContext deserializationContext(ResponseBodyData responseData, Class cls, contentType, charset) {
+  private static ObjectMapperDeserializationContext deserializationContext(ResponseBodyData responseData, Type cls, contentType, charset) {
     def ctx = new ObjectMapperDeserializationContextImpl()
     ctx.type = cls
     ctx.charset = charset

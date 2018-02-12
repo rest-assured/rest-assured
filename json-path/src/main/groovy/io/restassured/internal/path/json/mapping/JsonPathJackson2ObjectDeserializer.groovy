@@ -20,9 +20,11 @@ package io.restassured.internal.path.json.mapping
 
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 import io.restassured.mapper.ObjectDeserializationContext
 import io.restassured.mapper.factory.Jackson2ObjectMapperFactory
+import io.restassured.path.json.mapping.JsonPathObjectDeserializer
+
+import java.lang.reflect.Type
 
 class JsonPathJackson2ObjectDeserializer implements JsonPathObjectDeserializer {
 
@@ -32,7 +34,7 @@ class JsonPathJackson2ObjectDeserializer implements JsonPathObjectDeserializer {
         this.factory = factory
     }
 
-    private ObjectMapper createJackson2ObjectMapper(Class cls, String charset) {
+    private ObjectMapper createJackson2ObjectMapper(Type cls, String charset) {
         return factory.create(cls, charset)
     }
 

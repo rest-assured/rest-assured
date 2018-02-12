@@ -16,6 +16,8 @@
 
 package io.restassured.mapper.factory;
 
+import java.lang.reflect.Type;
+
 /**
  * The base interface for object mapper factories.
  * @param <T> The type of the created object mapper.
@@ -29,5 +31,5 @@ public interface ObjectMapperFactory<T> {
      * @param charset The charset
      * @return An object mapper instance
      */
-    T create(Class cls, String charset);
+    T create(Type cls, String charset);
 }

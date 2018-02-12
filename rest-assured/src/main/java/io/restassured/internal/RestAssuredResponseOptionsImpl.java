@@ -33,6 +33,7 @@ import io.restassured.response.ResponseBody;
 import io.restassured.response.ResponseOptions;
 
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -169,6 +170,18 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
     }
 
     public <T> T as(Class<T> cls, ObjectMapper mapper) {
+        return groovyResponse.as(cls, mapper);
+    }
+
+    public <T> T as(Type cls) {
+        return groovyResponse.as(cls, this);
+    }
+
+    public <T> T as(Type cls, ObjectMapperType mapperType) {
+        return groovyResponse.as(cls, mapperType, this);
+    }
+
+    public <T> T as(Type cls, ObjectMapper mapper) {
         return groovyResponse.as(cls, mapper);
     }
 

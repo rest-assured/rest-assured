@@ -22,10 +22,12 @@ package io.restassured.internal.mapper
 import io.restassured.mapper.DataToDeserialize
 import io.restassured.mapper.ObjectDeserializationContext
 
+import java.lang.reflect.Type
+
 class ObjectDeserializationContextImpl implements ObjectDeserializationContext {
 
     def DataToDeserialize dataToDeserialize
-    def Class<?> type
+    def Type type
     def charset
 
     @Override
@@ -34,7 +36,7 @@ class ObjectDeserializationContextImpl implements ObjectDeserializationContext {
     }
 
     @Override
-    Class<?> getType() {
+    Type getType() {
         return type
     }
 
