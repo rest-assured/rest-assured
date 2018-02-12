@@ -1,3 +1,7 @@
+Change log next version
+-----------------------
+* Fixed generics handling of the detailed cookie matcher (thanks to Rafał Siwiec for pull request)
+
 Change log 3.0.7 (2018-02-09)
 -----------------------------
 * CookieFilter now conforms to RFC6265 standard by only copying expected cookies instead of all (thanks to Maciej Ciszewski for pull request) (issue 956).
