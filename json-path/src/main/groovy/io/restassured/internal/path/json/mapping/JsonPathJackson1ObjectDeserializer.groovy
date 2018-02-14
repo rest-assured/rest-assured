@@ -23,6 +23,8 @@ import io.restassured.mapper.factory.Jackson1ObjectMapperFactory
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 import org.codehaus.jackson.type.JavaType
 
+import java.lang.reflect.Type
+
 class JsonPathJackson1ObjectDeserializer implements JsonPathObjectDeserializer {
 
     private final Jackson1ObjectMapperFactory factory;
@@ -31,7 +33,7 @@ class JsonPathJackson1ObjectDeserializer implements JsonPathObjectDeserializer {
         this.factory = factory
     }
 
-    private org.codehaus.jackson.map.ObjectMapper createJacksonObjectMapper(Class cls, String charset) {
+    private org.codehaus.jackson.map.ObjectMapper createJacksonObjectMapper(Type cls, String charset) {
         return factory.create(cls, charset)
     }
 

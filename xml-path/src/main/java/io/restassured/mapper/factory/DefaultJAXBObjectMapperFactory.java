@@ -18,14 +18,18 @@ package io.restassured.mapper.factory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import java.lang.reflect.Type;
 
 /**
  * Simply creates a new JAXBContext based on the supplied class.
  */
 public class DefaultJAXBObjectMapperFactory implements JAXBObjectMapperFactory {
-    public JAXBContext create(Class cls, String charset) {
+    public JAXBContext create(Type cls, String charset) {
         try {
-            return JAXBContext.newInstance(cls);
+            if (cls instanceof Class) {
+                return JAXBContext.newInstance((Class<?>) cls);
+            }
+            throw new RuntimeException("JAXB does not support type" + cls);
         } catch (JAXBException e) {
             throw new RuntimeException(e);
         }

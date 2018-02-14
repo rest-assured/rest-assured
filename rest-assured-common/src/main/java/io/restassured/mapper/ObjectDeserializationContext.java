@@ -16,6 +16,8 @@
 
 package io.restassured.mapper;
 
+import java.lang.reflect.Type;
+
 /**
  * Class containing details needed for deserializing a response to a Java class.
  */
@@ -29,7 +31,7 @@ public interface ObjectDeserializationContext {
     /**
      * @return The expected type of the object to deserialize
      */
-    Class<?> getType();
+    Type getType();
 
     /**
      * If a charset is specified in the content-type then this method will return that charset otherwise

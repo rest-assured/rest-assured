@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES;
@@ -121,6 +122,19 @@ public class CustomObjectMappingITest extends WithJetty {
         assertThat(returnedMessage.getMessage(), equalTo("A message"));
     }
 
+    @Test
+    public void
+    using_as_specified_object() {
+        final Message message = new Message();
+        message.setMessage("A message");
+        RestAssured.config = RestAssuredConfig.config().objectMapperConfig(new ObjectMapperConfig(GSON));
+
+        final String returnedMessage = given().body(message).when().post("/reflect")
+                .as(Message.class).getMessage();
+
+        assertThat(returnedMessage, equalTo("A message"));
+    }
+
     @Test public void
     using_custom_object_mapper_factory() {
         final Greeting greeting = new Greeting();
@@ -128,7 +142,7 @@ public class CustomObjectMappingITest extends WithJetty {
         greeting.setLastName("Doe");
         RestAssured.config = RestAssuredConfig.config().objectMapperConfig(objectMapperConfig().gsonObjectMapperFactory(
                 new GsonObjectMapperFactory() {
-                    public Gson create(Class cls, String charset) {
+                    public Gson create(Type cls, String charset) {
                         return new GsonBuilder().setFieldNamingPolicy(LOWER_CASE_WITH_UNDERSCORES).create();
                     }
                 }

@@ -18,11 +18,13 @@ package io.restassured.mapper.factory;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
+import java.lang.reflect.Type;
+
 /**
  * Simply creates a new Jackson 1.0 ObjectMapper
  */
 public class DefaultJackson1ObjectMapperFactory implements Jackson1ObjectMapperFactory {
-    public ObjectMapper create(Class cls, String charset) {
+    public ObjectMapper create(Type cls, String charset) {
         return new ObjectMapper();
     }
 }

@@ -19,11 +19,13 @@ package io.restassured.mapper.factory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.lang.reflect.Type;
+
 /**
  * Simply creates a new Jackson 2.0 ObjectMapper
  */
 public class DefaultJackson2ObjectMapperFactory implements Jackson2ObjectMapperFactory {
-    public ObjectMapper create(Class cls, String charset) {
+    public ObjectMapper create(Type cls, String charset) {
         return new ObjectMapper().findAndRegisterModules();
     }
 }

@@ -47,6 +47,7 @@ import io.restassured.response.ResponseBodyData
 import io.restassured.response.ResponseOptions
 import org.apache.commons.lang3.StringUtils
 
+import java.lang.reflect.Type
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
 
@@ -213,7 +214,7 @@ class RestAssuredResponseOptionsGroovyImpl {
     }
   }
 
-  def <T> T "as"(Class<T> cls, ResponseBodyData responseBodyData) {
+  def <T> T "as"(Type cls, ResponseBodyData responseBodyData) {
     def charset = findCharset();
     String contentTypeToChose = findContentType {
       throw new IllegalStateException("""Cannot parse content to $cls because no content-type was present in the response and no default parser has been set.\nYou can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser.JSON;\n
@@ -222,13 +223,13 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     return ObjectMapping.deserialize(responseBodyData, cls, contentTypeToChose, defaultContentType, charset, null, config.getObjectMapperConfig())
   }
 
-  def <T> T "as"(Class<T> cls, ObjectMapperType mapperType, ResponseBodyData responseBodyData) {
+  def <T> T "as"(Type cls, ObjectMapperType mapperType, ResponseBodyData responseBodyData) {
     notNull mapperType, "Object mapper type"
     def charset = findCharset()
     return ObjectMapping.deserialize(responseBodyData, cls, null, defaultContentType, charset, mapperType, config.getObjectMapperConfig())
   }
 
-  def <T> T "as"(Class<T> cls, ObjectMapper mapper) {
+  def <T> T "as"(Type cls, ObjectMapper mapper) {
     notNull mapper, "Object mapper"
     def ctx = createObjectMapperDeserializationContext(cls)
     return mapper.deserialize(ctx) as T
@@ -517,7 +518,7 @@ You can specify a default parser using e.g.:\nRestAssured.defaultParser = Parser
     }
   }
 
-  private ObjectMapperDeserializationContext createObjectMapperDeserializationContext(Class cls) {
+  private ObjectMapperDeserializationContext createObjectMapperDeserializationContext(Type cls) {
     def ctx = new ObjectMapperDeserializationContextImpl()
     ctx.type = cls
     ctx.charset = findCharset()

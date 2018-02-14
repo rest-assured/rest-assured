@@ -23,6 +23,8 @@ import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.xml.XmlPath;
 import io.restassured.path.xml.config.XmlPathConfig;
 
+import java.lang.reflect.Type;
+
 public interface ResponseBodyExtractionOptions extends ResponseBodyData {
     /**
      * Get the body and map it to a Java object. For JSON responses this requires that you have either
@@ -54,6 +56,37 @@ public interface ResponseBodyExtractionOptions extends ResponseBodyData {
      * @return The object
      */
     <T> T as(Class<T> cls, ObjectMapper mapper);
+
+    /**
+     * Get the body and map it to a Java type with specified type. For JSON responses this requires that you have either
+     * <ol>
+     * <li>Jackson, or</li>
+     * <li>Gson</li>
+     * </ol>
+     * in the classpath or for XML responses it requires JAXB to be in the classpath.
+     * <br/>
+     * It also requires that the response content-type is either JSON or XML or that a default parser has been been set.
+     * You can also force a specific object mapper using {@link #as(Type, ObjectMapper)}.
+     *
+     * @return The object
+     */
+    <T> T as(Type cls);
+
+    /**
+     * Get the body and map it to a Java type with specified type using a specific object mapper type. It will use the supplied
+     * mapper regardless of the response content-type.
+     *
+     * @return The object
+     */
+    <T> T as(Type cls, ObjectMapperType mapperType);
+
+    /**
+     * Get the body and map it to a Java type using a specific object mapper. It will use the supplied
+     * mapper regardless of the response content-type.
+     *
+     * @return The object
+     */
+    <T> T as(Type cls, ObjectMapper mapper);
 
     /**
      * Get a JsonPath view of the response body. This will let you use the JsonPath syntax to get values from the response.

@@ -18,11 +18,13 @@ package io.restassured.mapper.factory;
 
 import com.google.gson.Gson;
 
+import java.lang.reflect.Type;
+
 /**
  * Simply creates a new Gson instance.
  */
 public class DefaultGsonObjectMapperFactory implements GsonObjectMapperFactory {
-    public Gson create(Class cls, String charset) {
+    public Gson create(Type cls, String charset) {
         return new Gson();
     }
 }
