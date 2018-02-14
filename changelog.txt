@@ -1,6 +1,26 @@
 Change log next version
 -----------------------
 * Fixed generics handling of the detailed cookie matcher (thanks to Rafał Siwiec for pull request)
+* Now using Type instead of Class in the API for mapping to Java Objects. For users of the REST Assured API the change is most prominent in the
+  "ResponseBodyExtractionOptions" interface where the "as" method now takes a "java.lang.Type" instead of "java.lang.Class". This should not cause
+  any backward incompatibilities. However this change also applies to JAXBObjectMapperFactory's where there is a chance of backward incompatibilities
+  to arise. For example if you previously had a custom ObjectMapperFactory that looked like this:
+
+     public class MyJAXBObjectMapperFactory implements JAXBObjectMapperFactory {
+        public JAXBContext create(Class cls, String charset) {
+            ...
+        }
+     }
+
+  you now need to change it to:
+
+    public class MyJAXBObjectMapperFactory implements JAXBObjectMapperFactory {
+        public JAXBContext create(Type cls, String charset) {
+            ...
+        }
+   }
+
+  (note the change from Class to Type). This was needed for swagger integration (issue 980). (thanks to Victor Orlovsky for pull request)
 
 Change log 3.0.7 (2018-02-09)
 -----------------------------
