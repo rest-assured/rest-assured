@@ -1528,12 +1528,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     if (method.equals(GET.name())) {
       allQueryParams = mergeMapsAndRetainOrder(allQueryParams, formParameters)
     }
-    http.request(method, responseContentType) {
+    def hasBody = (requestBody != null)
+    http.request(method, responseContentType, hasBody) {
       uri.path = targetPath
 
       setRequestContentType(defineRequestContentTypeAsString(method))
 
-      if (requestBody != null) {
+      if (hasBody) {
         body = requestBody
       }
 
