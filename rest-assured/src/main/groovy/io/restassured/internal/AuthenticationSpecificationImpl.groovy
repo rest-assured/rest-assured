@@ -28,6 +28,7 @@ import static io.restassured.internal.assertion.AssertParameter.notNull
  * Specify an authentication scheme to use when sending a request.
  */
 class AuthenticationSpecificationImpl implements AuthenticationSpecification {
+  private static final String AUTHORIZATION_HEADER_NAME = "Authorization"
   private RequestSpecification requestSpecification;
 
   AuthenticationSpecificationImpl(RequestSpecification requestSpecification) {
@@ -167,6 +168,7 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
   def RequestSpecification none() {
     requestSpecification.authenticationScheme = new ExplicitNoAuthScheme();
     requestSpecification.filters.removeAll { it instanceof AuthFilter }
+    requestSpecification.removeHeader(AUTHORIZATION_HEADER_NAME)
     return requestSpecification
   }
 
