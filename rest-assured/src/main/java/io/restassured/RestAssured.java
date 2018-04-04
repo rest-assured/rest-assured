@@ -249,7 +249,7 @@ import static io.restassured.specification.ProxySpecification.host;
  *            String xml = post("/greetXML?firstName=John&lastName=Doe").andReturn().asString();
  *            // Now use XmlPath to get the first and last name
  *            String firstName = with(xml).get("greeting.firstName");
- *            String lastName = with(xml).get("greeting.firstName");
+ *            String lastName = with(xml).get("greeting.lastName");
  *
  *            // or a bit more efficiently:
  *            XmlPath xmlPath = new XmlPath(xml).setRoot("greeting");
