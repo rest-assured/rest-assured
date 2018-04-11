@@ -59,8 +59,9 @@ public class Header implements NameAndValue {
 
         Header header = (Header) o;
 
-        if (name != null ? !name.equals(header.name) : header.name != null) return false;
-        if (value != null ? !value.equals(header.value) : header.value != null) return false;
+        // HTTP header names are always case-insensitive. Values are usually case-insensitive.
+        if (name != null ? !name.equalsIgnoreCase(header.name) : header.name != null) return false;
+        if (value != null ? !value.equalsIgnoreCase(header.value) : header.value != null) return false;
 
         return true;
     }
