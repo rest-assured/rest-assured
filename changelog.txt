@@ -24,6 +24,7 @@ Change log next version
 * Add better integration for standard HTTP methods with Apache HttpClient which also solves an issue content-type header being generated for empty GET requests (issue 974) (thanks to Daniel Dyląg for pull request)
 * No longer using DEF_CONTENT_CHARSET from Apache HttpClient since it caused compatibility issues (issue 757)
 * Fix for #979 Removing Authorization header when setting auth().none() (issue 979) (thanks to jovanovicivan for pull request)
+* Fixed so that header equals is case-insensitive (issue 999) (thanks to Todd Bradley for pull request)
 
 Change log 3.0.7 (2018-02-09)
 -----------------------------
