@@ -25,6 +25,11 @@ Change log next version
 * No longer using DEF_CONTENT_CHARSET from Apache HttpClient since it caused compatibility issues (issue 757)
 * Fix for #979 Removing Authorization header when setting auth().none() (issue 979) (thanks to jovanovicivan for pull request)
 * Fixed so that header equals is case-insensitive (issue 999) (thanks to Todd Bradley for pull request)
+* Allow querying (extracting values out of) a request specification using the io.restassured.specification.SpecificationQuerier. For example:
+    RequestSpecification spec = ...
+    QueryableRequestSpecification queryable = SpecificationQuerier.query(spec);
+    String headerValue = queryable.getHeaders().getValue("header");
+    String param = queryable.getFormParams().get("someparam");
 
 Change log 3.0.7 (2018-02-09)
 -----------------------------
