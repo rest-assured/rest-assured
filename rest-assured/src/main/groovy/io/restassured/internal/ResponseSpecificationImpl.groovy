@@ -21,7 +21,6 @@ import io.restassured.assertion.*
 import io.restassured.config.RestAssuredConfig
 import io.restassured.function.RestAssuredFunction
 import io.restassured.http.ContentType
-import io.restassured.http.Cookie
 import io.restassured.internal.MapCreator.CollisionStrategy
 import io.restassured.internal.log.LogRepository
 import io.restassured.internal.util.MatcherErrorMessageBuilder
@@ -271,14 +270,16 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     notNull(key, "key")
     notNull(matcher, "matcher")
 
-    def mergedPath = mergeKeyWithRootPath(key)
-    mergedPath = applyArguments(mergedPath, arguments)
+    def originalMergedPath = mergeKeyWithRootPath(key)
+    def mergedPath = applyArguments(originalMergedPath, arguments)
     validateResponseIfRequired {
       bodyMatchers << new BodyMatcher(key: mergedPath, matcher: matcher, rpr: rpr)
       if (additionalKeyMatcherPairs?.length > 0) {
         def pairs = MapCreator.createMapFromObjects(CollisionStrategy.MERGE, additionalKeyMatcherPairs)
         pairs.each { matchingKey, hamcrestMatcher ->
-          def keyWithRoot = mergeKeyWithRootPath(matchingKey)
+          // If matching key is instance of list (we assume it's a list of arguments) then we should simply return the merged path,
+          // otherwise merge the current path with the supplied key
+          def keyWithRoot = matchingKey instanceof List ? applyArguments(originalMergedPath, matchingKey) : mergeKeyWithRootPath(matchingKey)
           if (hamcrestMatcher instanceof List) {
             hamcrestMatcher.each { m ->
               bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: m, rpr: rpr)

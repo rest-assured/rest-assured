@@ -595,4 +595,16 @@ public class JSONGetITest extends WithJetty {
                      "lottoId", equalTo(7),
                      "lottoId", lessThan(9));
     }
+
+    @Test public void
+    specifying_multiple_with_args_without_additional_paths_works() {
+        get("/jsonStore").then()
+                .root("store.book.find { it.author == '%s' }.price")
+                .body(
+                        withArgs("Nigel Rees"), is(8.95f),
+                        withArgs("Evelyn Waugh"), is(12.99f),
+                        withArgs("Herman Melville"), is(8.99f),
+                        withArgs("J. R. R. Tolkien"), is(22.99f)
+                );
+    }
 }

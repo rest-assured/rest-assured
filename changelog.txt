@@ -30,6 +30,15 @@ Change log next version
     QueryableRequestSpecification queryable = SpecificationQuerier.query(spec);
     String headerValue = queryable.getHeaders().getValue("header");
     String param = queryable.getFormParams().get("someparam");
+* Fixed so that it's possible to specify arguments to root paths in multi expectation blocks such as:
+        get("/jsonStore").then()
+            .root("store.book.find { it.author == '%s' }.price")
+            .body(
+                    withArgs("Nigel Rees"), is(8.95f),
+                    withArgs("Evelyn Waugh"), is(12.99f),
+                    withArgs("Herman Melville"), is(8.99f),
+                    withArgs("J. R. R. Tolkien"), is(22.99f)
+            );
 
 Change log 3.0.7 (2018-02-09)
 -----------------------------
