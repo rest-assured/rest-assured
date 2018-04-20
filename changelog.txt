@@ -1,5 +1,5 @@
-Change log next version
------------------------
+Change log 3.1.0 (2018-04-20)
+-----------------------------
 * Fixed generics handling of the detailed cookie matcher (thanks to Rafał Siwiec for pull request)
 * Now using Type instead of Class in the API for mapping to Java Objects. For users of the REST Assured API the change is most prominent in the
   "ResponseBodyExtractionOptions" interface where the "as" method now takes a "java.lang.Type" instead of "java.lang.Class". This should not cause
