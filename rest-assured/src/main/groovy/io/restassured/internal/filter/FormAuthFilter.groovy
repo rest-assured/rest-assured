@@ -151,7 +151,7 @@ class FormAuthFilter implements AuthFilter {
       loginRequestSpec.filter(sessionFilterInOriginalRequest)
       def sessionIdName = requestSpec.getConfig().getSessionConfig().sessionIdName();
       def cfg = loginRequestSpec.config ?: new RestAssuredConfig()
-      loginRequestSpec.config(cfg.sessionConfig(sessionConfig().sessionIdName(sessionIdName)))
+      loginRequestSpec.config(cfg.sessionConfig(SessionConfig.sessionConfig().sessionIdName(sessionIdName)))
     }
   }
 
