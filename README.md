@@ -11,9 +11,9 @@ languages into the Java domain.
 
 
 ## News 
+* 2018-04-20: REST Assured [3.1.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.1.0-dist.zip) is released. This release includes fixes and improvements such as ability to resolve and include additional parameters in a form authentication request (see [here](https://github.com/rest-assured/rest-assured/wiki/Usage#include-additional-fields-in-form-authentication) for example) and ability to [extract values](https://github.com/rest-assured/rest-assured/wiki/Usage#querying-requestspecification) from a `RequestSpecification`. Please see [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes31) and [getting started guide](https://github.com/rest-assured/rest-assured/wiki/GettingStarted) for more details.
 * 2018-02-09: REST Assured [3.0.7](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.0.7-dist.zip) is released with bug fixes and improvements. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for details.
 * 2017-11-23: REST Assured [3.0.6](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.0.6-dist.zip) is released with support for Java 9.
-* 2017-10-05: REST Assured [3.0.5](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.0.5-dist.zip) is released. It reverts an accidental change to the API that turned out to be binary incompatible. Sorry!
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
@@ -80,11 +80,11 @@ REST Assured supports any HTTP method but has explicit support for *POST*, *GET*
 * [Getting started](https://github.com/rest-assured/rest-assured/wiki/GettingStarted)
 * [Downloads](https://github.com/rest-assured/rest-assured/wiki/Downloads)
 * [Usage Guide](https://github.com/rest-assured/rest-assured/wiki/Usage) (click [here](https://github.com/rest-assured/rest-assured/wiki/Usage_Legacy) for legacy documentation)
-* [Javadoc](http://www.javadoc.io/doc/io.rest-assured/rest-assured/3.0.7)
-* [Rest Assured Javadoc](http://static.javadoc.io/io.rest-assured/rest-assured/3.0.7/io/restassured/RestAssured.html)
-* [Rest AssuredMockMvc Javadoc](http://static.javadoc.io/io.rest-assured/spring-mock-mvc/3.0.7/io/restassured/module/mockmvc/RestAssuredMockMvc.html)
-* [XmlPath Javadoc](http://static.javadoc.io/io.rest-assured/xml-path/3.0.7/io/restassured/path/xml/XmlPath.html)
-* [JsonPath Javadoc](http://static.javadoc.io/io.rest-assured/json-path/3.0.7/io/restassured/path/json/JsonPath.html)
+* [Javadoc](http://www.javadoc.io/doc/io.rest-assured/rest-assured/3.1.0)
+* [Rest Assured Javadoc](http://static.javadoc.io/io.rest-assured/rest-assured/3.1.0/io/restassured/RestAssured.html)
+* [Rest AssuredMockMvc Javadoc](http://static.javadoc.io/io.rest-assured/spring-mock-mvc/3.1.0/io/restassured/module/mockmvc/RestAssuredMockMvc.html)
+* [XmlPath Javadoc](http://static.javadoc.io/io.rest-assured/xml-path/3.1.0/io/restassured/path/xml/XmlPath.html)
+* [JsonPath Javadoc](http://static.javadoc.io/io.rest-assured/json-path/3.1.0/io/restassured/path/json/JsonPath.html)
 * [Release Notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes)
 * [FAQ](https://github.com/rest-assured/rest-assured/wiki/FAQ)
 
