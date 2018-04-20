@@ -39,6 +39,9 @@ Change log next version
                     withArgs("Herman Melville"), is(8.99f),
                     withArgs("J. R. R. Tolkien"), is(22.99f)
             );
+* It's now possible to automatically include additional input fields when using form authentication. Just use the FormAuthConfig and specify the additional values to include using:
+    given().auth().form("username", "password", formAuthConfig().withAdditionalFields("firstInputField", "secondInputField"). ..
+  REST Assured will automatically parse the HTML page, find the values for the additional fields and include them as form parameters in the login request.
 
 Change log 3.0.7 (2018-02-09)
 -----------------------------

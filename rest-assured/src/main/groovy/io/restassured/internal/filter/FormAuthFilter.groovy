@@ -15,6 +15,7 @@
  */
 package io.restassured.internal.filter
 
+import io.restassured.authentication.FormAuthConfig
 import io.restassured.config.RestAssuredConfig
 import io.restassured.config.SessionConfig
 import io.restassured.filter.FilterContext
@@ -25,21 +26,19 @@ import io.restassured.filter.session.SessionFilter
 import io.restassured.path.xml.XmlPath
 import io.restassured.response.Response
 import io.restassured.specification.FilterableRequestSpecification
+import io.restassured.specification.FilterableResponseSpecification
 import io.restassured.specification.RequestSpecification
 import io.restassured.spi.AuthFilter
-import io.restassured.authentication.FormAuthConfig
-import io.restassured.specification.FilterableResponseSpecification
 
-import static io.restassured.RestAssured.config
 import static io.restassured.RestAssured.given
-import static SessionConfig.sessionConfig
 import static io.restassured.path.xml.XmlPath.CompatibilityMode.HTML
 import static java.lang.String.format
 
 class FormAuthFilter implements AuthFilter {
-  private static final String FIND_INPUT_TAG = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }"
   private static
-  final String FIND_INPUT_TAG_VALUE = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@value }"
+  final String FIND_INPUT_TAG_WITH_TYPE = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }"
+  private static
+  final String FIND_INPUT_VALUE_OF_INPUT_TAG_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }"
   private static
   final String FIND_INPUT_FIELD_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }.get(0)"
   private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action"
@@ -56,6 +55,7 @@ class FormAuthFilter implements AuthFilter {
     String passwordInputField;
     String csrfFieldName;
     String csrfValue;
+    List<Tuple2<String, String>> additionalInputFields = []
 
     if (formAuthConfig == null) {
       formAuthConfig = new FormAuthConfig();
@@ -70,27 +70,38 @@ class FormAuthFilter implements AuthFilter {
         tempFormAction.startsWith("/") ? tempFormAction : "/" + tempFormAction
       }.call()
       userNameInputField = formAuthConfig.hasUserInputTagName() ? formAuthConfig.getUserInputTagName() : throwIfException {
-        html.getString(format(FIND_INPUT_TAG, "text"))
+        html.getString(format(FIND_INPUT_TAG_WITH_TYPE, "text"))
       }
       passwordInputField = formAuthConfig.hasPasswordInputTagName() ? formAuthConfig.getPasswordInputTagName() : throwIfException {
-        html.getString(format(FIND_INPUT_TAG, "password"))
+        html.getString(format(FIND_INPUT_TAG_WITH_TYPE, "password"))
       }
 
       if (formAuthConfig.hasCsrfFieldName() || formAuthConfig.isAutoDetectCsrfFieldName()) {
         csrfFieldName = formAuthConfig.hasCsrfFieldName() ? formAuthConfig.csrfFieldName : nullIfException {
-          html.getString(format(FIND_INPUT_TAG, "hidden"))
+          html.getString(format(FIND_INPUT_TAG_WITH_TYPE, "hidden"))
         }
         csrfValue = nullIfException { html.getString(format(FIND_INPUT_FIELD_WITH_NAME, csrfFieldName)) }
         if (!csrfValue) {
           throw new IllegalArgumentException("Couldn't find the CSRF input field with name $csrfFieldName in response. Response was:\n${response.prettyPrint()}")
         }
       }
+
+      if (formAuthConfig.hasAdditionalInputFieldNames()) {
+        formAuthConfig.getAdditionalInputFieldNames().each { name ->
+          String value = throwIfException {
+            html.getString(format(FIND_INPUT_VALUE_OF_INPUT_TAG_WITH_NAME, name))
+          }
+          additionalInputFields.add(new Tuple2(name, value))
+        }
+      }
+
     } else {
       formAction = formAuthConfig.getFormAction()
       userNameInputField = formAuthConfig.getUserInputTagName()
       passwordInputField = formAuthConfig.getPasswordInputTagName()
       csrfFieldName = null
       csrfValue = null
+      additionalInputFields = null
     }
 
     formAction = formAction?.startsWith("/") ? formAction : "/" + formAction
@@ -118,6 +129,10 @@ class FormAuthFilter implements AuthFilter {
       if (logDetail != LogDetail.PARAMS) {
         loginRequestSpec.filter(new ResponseLoggingFilter(logDetail, logConfig.isPrettyPrintingEnabled(), logConfig.defaultStream()));
       }
+    }
+
+    additionalInputFields?.forEach { tuple ->
+      loginRequestSpec.formParam(tuple.first, tuple.second)
     }
 
     applySessionFilterFromOriginalRequestIfDefined(requestSpec, loginRequestSpec)

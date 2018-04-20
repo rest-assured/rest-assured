@@ -20,6 +20,11 @@ import io.restassured.config.LogConfig;
 import io.restassured.filter.log.LogDetail;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static io.restassured.internal.assertion.AssertParameter.notNull;
 import static java.lang.String.format;
 
@@ -33,6 +38,7 @@ public class FormAuthConfig {
     private final String passwordInputTagName;
     private final LogConfig logConfig;
     private final LogDetail logDetail;
+    private final List<String> additionalInputFieldNames;
     private final String csrfFieldName;
     private final boolean autoDetectCsrfFieldName;
     private final boolean sendCsrfTokenAsFormParam;
@@ -62,7 +68,8 @@ public class FormAuthConfig {
      * @param passwordInputTagName The name of the password input tag in the login form
      */
     public FormAuthConfig(String formAction, String userNameInputTagName, String passwordInputTagName) {
-        this(formAction, userNameInputTagName, passwordInputTagName, null, null, null, false, true);
+        this(formAction, userNameInputTagName, passwordInputTagName, null, null, null, false, true,
+                Collections.<String>emptyList());
     }
 
     /**
@@ -73,7 +80,8 @@ public class FormAuthConfig {
     }
 
     private FormAuthConfig(String formAction, String userNameInputTagName, String passwordInputTagName, LogDetail logDetail, LogConfig logConfig,
-                           String csrfFieldName, boolean autoDetectCsrfFieldName, boolean sendCsrfTokenAsFormParam) {
+                           String csrfFieldName, boolean autoDetectCsrfFieldName, boolean sendCsrfTokenAsFormParam,
+                           List<String> additionalInputFieldNames) {
         this.formAction = formAction;
         this.userInputTagName = userNameInputTagName;
         this.passwordInputTagName = passwordInputTagName;
@@ -82,6 +90,7 @@ public class FormAuthConfig {
         this.csrfFieldName = csrfFieldName;
         this.autoDetectCsrfFieldName = autoDetectCsrfFieldName;
         this.sendCsrfTokenAsFormParam = sendCsrfTokenAsFormParam;
+        this.additionalInputFieldNames = Collections.unmodifiableList(additionalInputFieldNames);
     }
 
     /**
@@ -124,7 +133,7 @@ public class FormAuthConfig {
      * <b>Important:</b> When enabling csrf support then REST Assured <b>must always</b> make an additional request to the server in order to
      * be able to include in the csrf value which will slow down the tests.
      *
-     * @param fieldName The csrf field name as specified in the login page.
+     * @param fieldName The name of the input field
      * @return A new FormAuthConfig instance.
      * @see #withAutoDetectionOfCsrf()
      */
@@ -133,21 +142,96 @@ public class FormAuthConfig {
         if (autoDetectCsrfFieldName) {
             throw new IllegalStateException("Cannot defined a CSRF field name since the CSRF field name has been marked as auto-detected.");
         }
-        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, fieldName, false, sendCsrfTokenAsFormParam);
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, fieldName, false, sendCsrfTokenAsFormParam, additionalInputFieldNames);
+    }
+
+
+    /**
+     * Include additional field when using form authentication by including input field value with the specified name.
+     * For example if the login page looks like this:
+     * <pre>
+     * &lt;html&gt;
+     * &lt;head&gt;
+     *     &lt;title&gt;Login&lt;/title&gt;
+     * &lt;/head&gt;
+     * &lt;body&gt;
+     * &lt;form action=&quot;j_spring_security_check_with_csrf&quot; method=&quot;POST&quot;&gt;
+     *     &lt;table&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;User:&amp;nbsp;&lt;/td&gt;
+     *             &lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;j_username&quot;&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;Password:&lt;/td&gt;
+     *             &lt;td&gt;&lt;input type=&quot;password&quot; name=&quot;j_password&quot;&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td colspan=&quot;2&quot;&gt;&lt;input name=&quot;submit&quot; type=&quot;submit&quot;/&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *     &lt;/table&gt;
+     *     &lt;input type=&quot;hidden&quot; name=&quot;something&quot; value=&quot;8adf2ea1-b246-40aa-8e13-a85fb7914341&quot;/&gt;
+     * &lt;/form&gt;
+     * &lt;/body&gt;
+     * &lt;/html&gt;
+     * </pre>
+     * and you'd like to include the field named <code>something</code> as an additional form parameter in the request you can do like this:
+     *
+     * <pre>
+     * given().auth().form(..., new FormAuthConfig(..).withAdditionalField("something"). ..
+     * </pre>
+     * and then REST Assured will send the form parameter <code>something=8adf2ea1-b246-40aa-8e13-a85fb7914341</code> 
+     *
+     * <p/>
+     * <b>Important:</b> When including an additional field without specifying a value then REST Assured <b>must always</b> make an additional request to the server in order to
+     * be able to figure out the field value. This will slow down the tests.
+     *
+     * @param fieldName The first field name to include
+     * @return A new FormAuthConfig instance.
+     */
+    public FormAuthConfig withAdditionalField(String fieldName) {
+        notNull(fieldName, "Additional field name");
+        List<String> list = new ArrayList<String>(additionalInputFieldNames);
+        list.add(fieldName);
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, autoDetectCsrfFieldName, sendCsrfTokenAsFormParam, list);
+    }
+
+    /**
+     * Include multiple additional fields when using form authentication by including input field values with the specified name.
+     * This is the same as {@link #withAdditionalField(String)} but for multiple fields.
+     *
+     * <p/>
+     * <b>Important:</b> When including an additional field without specifying a value then REST Assured <b>must always</b> make an additional request to the server in order to
+     * be able to figure out the field value. This will slow down the tests.
+     *
+     * @param firstFieldName The first additional input field to include
+     * @param secondFieldName The second additional input field to include
+     * @param additionalFieldNames Additional field name to include (optional)
+     * @return A new FormAuthConfig instance.
+     */
+    public FormAuthConfig withAdditionalFields(String firstFieldName, String secondFieldName, String... additionalFieldNames) {
+        notNull(firstFieldName, "First additional field name");
+        notNull(secondFieldName, "Second additional field name");
+        List<String> list = new ArrayList<String>(additionalInputFieldNames);
+        list.add(firstFieldName);
+        list.add(secondFieldName);
+        if (additionalFieldNames != null && additionalFieldNames.length > 0) {
+            list.addAll(Arrays.asList(additionalFieldNames));
+        }
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, autoDetectCsrfFieldName, sendCsrfTokenAsFormParam, list);
     }
 
     /**
      * @return Configure form authentication to send the csrf token in a header.
      */
     public FormAuthConfig sendCsrfTokenAsHeader() {
-        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, autoDetectCsrfFieldName, false);
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, autoDetectCsrfFieldName, false, additionalInputFieldNames);
     }
 
     /**
      * @return Configure form authentication to send the csrf token as a form parameter (default setting).
      */
     public FormAuthConfig sendCsrfTokenAsFormParam() {
-        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, autoDetectCsrfFieldName, true);
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, autoDetectCsrfFieldName, true, additionalInputFieldNames);
     }
 
     /**
@@ -191,7 +275,7 @@ public class FormAuthConfig {
         if (hasCsrfFieldName()) {
             throw new IllegalStateException(format("Cannot use auto-detection of CSRF field name since a CSRF field name was already defined as '%s'", csrfFieldName));
         }
-        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, true, sendCsrfTokenAsFormParam);
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, true, sendCsrfTokenAsFormParam, additionalInputFieldNames);
     }
 
     /**
@@ -234,7 +318,7 @@ public class FormAuthConfig {
     public FormAuthConfig withLoggingEnabled(LogDetail logDetail, LogConfig logConfig) {
         notNull(logDetail, LogDetail.class);
         notNull(logConfig, LogConfig.class);
-        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, autoDetectCsrfFieldName, sendCsrfTokenAsFormParam);
+        return new FormAuthConfig(formAction, userInputTagName, passwordInputTagName, logDetail, logConfig, csrfFieldName, autoDetectCsrfFieldName, sendCsrfTokenAsFormParam, additionalInputFieldNames);
     }
 
     /**
@@ -299,10 +383,24 @@ public class FormAuthConfig {
     }
 
     /**
+     * @return The additional input field names
+     */
+    public List<String> getAdditionalInputFieldNames() {
+        return additionalInputFieldNames;
+    }
+
+    /**
      * @return <code>true</code> if csrf field name is defined or <code>false</code> otherwise.
      */
     public boolean hasCsrfFieldName() {
         return StringUtils.isNotBlank(csrfFieldName);
+    }
+
+    /**
+     * @return <code>true</code> if additional input field name have been specified or <code>false</code> otherwise.
+     */
+    public boolean hasAdditionalInputFieldNames() {
+        return !additionalInputFieldNames.isEmpty();
     }
 
     /**
@@ -337,7 +435,7 @@ public class FormAuthConfig {
      * @return <code>true</code> if the {@link FormAuthConfig} instance contains settings that require REST Assured to make a request to the server before applying form authentication, <code>false</code> otherwise.
      */
     public boolean requiresParsingOfLoginPage() {
-        return !hasFormAction() || !hasUserInputTagName() || !hasPasswordInputTagName() || isAutoDetectCsrfFieldName() || hasCsrfFieldName();
+        return !hasFormAction() || !hasUserInputTagName() || !hasPasswordInputTagName() || isAutoDetectCsrfFieldName() || hasCsrfFieldName() ||hasAdditionalInputFieldNames();
     }
 
     /**

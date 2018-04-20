@@ -17,9 +17,9 @@ package io.restassured.scalatra
 
 import java.net.URLDecoder
 import java.util.{Date, Scanner}
-import javax.servlet.http.Cookie
 
 import io.restassured.scalatra.support.Gzip
+import javax.servlet.http.Cookie
 import net.liftweb.json.Extraction._
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.JsonDSL._
@@ -702,15 +702,24 @@ class ScalatraRestExample extends ScalatraServlet {
       securityCheck("jsessionid", () => request.getHeader("_csrf") == "8adf2ea1-b246-40aa-8e13-a85fb7914341")
   }
 
+  post("/j_spring_security_check_with_additional_fields") {
+    contentType = "text/plain"
+    securityCheck("jsessionid", "USER", "PASSWORD", () => {
+      params.get("smquerydata").get == ""
+      params.get("smauthreason").get == "0"
+      params.get("smagentname").get == "OL9V/qlt7/7L+n9klS4+VH5DvC2Gidql5iLqO6CXQTQPU4e4QgjI67sYeeeFAewI"
+      params.get("postpreservationdata").get == ""
+    })
+  }
+
   post("/j_spring_security_check_phpsessionid") {
     contentType = "text/plain"
     securityCheck("phpsessionid", () => true)
   }
 
-
-  def securityCheck(sessionIdName: String, additionalChecks: () => Boolean) : Any = {
-    val userName = params.get("j_username").get
-    val password = params.get("j_password").get
+  def securityCheck(sessionIdName: String, usernameParamName : String, passwordParamName :String, additionalChecks: () => Boolean) : Any = {
+    val userName = params.get(usernameParamName).get
+    val password = params.get(passwordParamName).get
     if (userName == "John" && password == "Doe") {
       if (!additionalChecks.apply()) {
         "NO"
@@ -722,6 +731,9 @@ class ScalatraRestExample extends ScalatraServlet {
     }
   }
 
+  def securityCheck(sessionIdName: String, additionalChecks: () => Boolean) : Any =
+    securityCheck(sessionIdName, "j_username", "j_password", additionalChecks)
+
   get("/formAuth") {
     formAuth(() => loginPage)
   }
@@ -732,6 +744,10 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/formAuthCsrfInHeader") {
     formAuth(() => loginPageWithCsrfHeader)
+  }
+
+  get("/formAuthAdditionalFields") {
+    formAuth(() => loginPageWithAdditionalInputFields)
   }
 
   get("/jsonWithAtSign") {
@@ -1157,6 +1173,83 @@ class ScalatraRestExample extends ScalatraServlet {
             </form>
           </body>
      </html>"""
+  }
+
+  def loginPageWithAdditionalInputFields : String = {
+    contentType = "text/html"
+    """
+      |<!-- SiteMinder Encoding=ISO-8859-1; -->
+      |<html>
+      |<head>
+      |<meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1">
+      |  <title>PPS Authentication via SiteMinder Password Services</title>
+      |</head>
+      |<body BGCOLOR="#D2FFFF" TEXT="#000000" onLoad = "resetCredFields();">
+      |<!-- Customer Brand -->
+      |<form NAME="Login" METHOD="POST" action="j_spring_security_check_with_additional_fields">
+      |<INPUT TYPE=HIDDEN NAME="SMENC" VALUE="ISO-8859-1">
+      |<INPUT type=HIDDEN name="SMLOCALE" value="US-EN">
+      |<center>
+      |<!-- outer table with border -->
+      |<table width="50%" height=200 border=1 cellpadding=0 cellspacing=0 >
+      |<tr>
+      |  <td ALIGN="CENTER" VALIGN="CENTER" HEIGHT=40 COLSPAN=4 NOWRAP BGCOLOR="#FFFFCC">
+      |       <font size="+2" face="Arial,Helvetica">
+      |  <b>PPS</b></font>
+      |     </td>
+      |  </tr>
+      |  <tr>
+      |    <td>
+      |   <!-- Login table -->
+      |      <table WIDTH="100%" HEIGHT=200 BGCOLOR="#FFFFFF" border=0 cellpadding=0 cellspacing=0 >
+      |
+      | <tr>
+      |   <td ALIGN="CENTER" VALIGN="CENTER" HEIGHT=40 COLSPAN=4 NOWRAP BGCOLOR="#FFFFFF">
+      |  <font size="+1" face="Arial,Helvetica">
+      |  <b>Please Login</b></font>
+      |       </td>
+      | </tr>
+      | <tr> <td colspan=4 height=10> <font size=1>   </font> </td> </tr>
+      | <tr>
+      |   <td WIDTH=20 >&nbsp;</td>
+      |   <td ALIGN="LEFT" >
+      |      <b><font size=-1 face="arial,helvetica" > Username: </font></b>
+      |    </td>
+      |   <td ALIGN="LEFT" >
+      |     <input type="text" name="USER" size="30" style="margin-left: 1px">
+      |    </td>
+      |   <td WIDTH=20 >&nbsp;</td>
+      | </tr>
+      | <tr> <td colspan=4 height=10> <font size=1>   </font> </td> </tr>
+      | <tr>
+      |   <td WIDTH=20 >&nbsp;</td>
+      |   <td >
+      |      <b><font size=-1 face="arial,helvetica" > Password: </font></b>
+      |       </td>
+      |   <td ALIGN="left" >
+      |     <input type="password" name="PASSWORD" size="30" style="margin-left: 1px">
+      |   </td>
+      |   <td WIDTH=20 >&nbsp;</td>
+      | </tr>
+      | <tr> <td colspan=4 height=10> <font size=1>   </font> </td> </tr>
+      | <tr>
+      |   <td colspan=4 NOWRAP WIDTH="50%" HEIGHT="25" align="CENTER">
+      |       <input type=hidden name=smquerydata value="">
+      |       <input type=hidden name=smauthreason value="0">
+      |       <input type=hidden name=smagentname value="OL9V/qlt7/7L+n9klS4+VH5DvC2Gidql5iLqO6CXQTQPU4e4QgjI67sYeeeFAewI">
+      |       <input type=hidden name=postpreservationdata value="">
+      |       <input type="button" value="Login" onclick="submitForm();">
+      |   </td>
+      | </tr>
+      | <tr> <td colspan=4 height=5> <font size=1>   </font> </td> </tr>
+      |      </table>
+      |    </td>
+      |  </tr>
+      |</table>
+      |</form></center>
+      |</body>
+      |</html>
+    """.stripMargin
   }
 
   def greetXML: Elem = {

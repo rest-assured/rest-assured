@@ -32,6 +32,7 @@ import java.io.PrintStream;
 import java.io.StringWriter;
 
 import static io.restassured.RestAssured.*;
+import static io.restassured.authentication.FormAuthConfig.formAuthConfig;
 import static io.restassured.config.SessionConfig.sessionConfig;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -112,7 +113,7 @@ public class AuthenticationITest extends WithJetty {
     @Test
     public void formAuthenticationWithAutoFormDetailsAndAutoCsrfDetection() throws Exception {
         given().
-                auth().form("John", "Doe", FormAuthConfig.formAuthConfig().withAutoDetectionOfCsrf()).
+                auth().form("John", "Doe", formAuthConfig().withAutoDetectionOfCsrf()).
         when().
                 get("/formAuthCsrf").
         then().
@@ -137,6 +138,17 @@ public class AuthenticationITest extends WithJetty {
                 auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf_header", "j_username", "j_password").withCsrfFieldName("_csrf").sendCsrfTokenAsHeader()).
         when().
                 get("/formAuthCsrfInHeader").
+        then().
+                statusCode(200).
+                body(equalTo("OK"));
+    }
+
+    @Test
+    public void formAuthenticationWithAdditionalFields() {
+        given().
+                auth().form("John", "Doe", formAuthConfig().withAdditionalFields("smquerydata", "smauthreason", "smagentname").withAdditionalField("postpreservationdata")).
+        when().
+                get("/formAuthAdditionalFields").
         then().
                 statusCode(200).
                 body(equalTo("OK"));
