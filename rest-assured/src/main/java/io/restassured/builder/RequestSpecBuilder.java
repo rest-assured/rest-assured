@@ -76,8 +76,8 @@ public class RequestSpecBuilder {
     private RequestSpecificationImpl spec;
 
     public RequestSpecBuilder() {
-        this.spec = (RequestSpecificationImpl) new RequestSpecificationImpl(baseURI, port, basePath, authentication, Collections.<Filter>emptyList(),
-                null, urlEncodingEnabled, null, new LogRepository(), proxy).config(RestAssured.config());
+        this.spec = (RequestSpecificationImpl) new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters(),
+                requestSpecification, urlEncodingEnabled, config, new LogRepository(), proxy).config(RestAssured.config());
     }
 
     /**
