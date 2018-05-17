@@ -33,6 +33,7 @@ import org.apache.http.message.BasicHeader;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -84,12 +85,15 @@ public class CookieFilter implements Filter {
 
     private List<Cookie> extractResponseCookies(Response response, CookieOrigin cookieOrigin) {
 
-        Header setCookieHeader = new BasicHeader("Set-Cookie", response.getHeader("Set-Cookie"));
-        try {
-            return cookieSpec.parse(setCookieHeader, cookieOrigin);
-        } catch (MalformedCookieException e) {
-            return Collections.emptyList();
+        List<Cookie> cookies = new ArrayList<Cookie>();
+        for(String cookieValue : response.getHeaders().getValues("Set-Cookie")) {
+            Header setCookieHeader = new BasicHeader("Set-Cookie", cookieValue);
+            try {
+                cookies.addAll(cookieSpec.parse(setCookieHeader, cookieOrigin));
+            }
+            catch (MalformedCookieException e) { }
         }
+        return cookies;
     }
 
     private CookieOrigin cookieOriginFromUri(String uri) {
