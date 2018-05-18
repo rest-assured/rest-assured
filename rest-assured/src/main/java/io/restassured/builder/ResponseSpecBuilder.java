@@ -23,6 +23,7 @@ import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ResponseSpecificationImpl;
 import io.restassured.internal.SpecificationMerger;
 import io.restassured.internal.log.LogRepository;
+import io.restassured.matcher.DetailedCookieMatcher;
 import io.restassured.parsing.Parser;
 import io.restassured.specification.Argument;
 import io.restassured.specification.ResponseSpecification;
@@ -281,6 +282,32 @@ public class ResponseSpecBuilder {
      */
     public ResponseSpecBuilder expectCookie(String cookieName, Matcher<String> expectedValueMatcher) {
         spec.cookie(cookieName, expectedValueMatcher);
+        return this;
+    }
+
+    /**
+     * Expect that a detailed response cookie matches the supplied cookie name and hamcrest matcher (see {@link DetailedCookieMatcher}.
+     * <p>
+     * E.g. expect that the response of the GET request to "/something" contain cookie <tt>cookieName1=cookieValue1</tt>
+     * <pre>
+     * expectCookie("cookieName1", detailedCookie().value("cookieValue1").secured(true));
+     * </pre>
+     * </p>
+     * <p/>
+     * <p>
+     * You can also expect several cookies:
+     * <pre>
+     * expectCookie("cookieName1", detailedCookie().value("cookieValue1").secured(true))
+     *      .expectCookie("cookieName2", detailedCookie().value("cookieValue2").secured(false));
+     * </pre>
+     * </p>
+     *
+     * @param cookieName            The name of the expected cookie
+     * @param detailedCookieMatcher The Hamcrest matcher that must conform to the cookie
+     * @return The builder
+     */
+    public ResponseSpecBuilder expectCookie(String cookieName, DetailedCookieMatcher detailedCookieMatcher) {
+        spec.cookie(cookieName, detailedCookieMatcher);
         return this;
     }
 
