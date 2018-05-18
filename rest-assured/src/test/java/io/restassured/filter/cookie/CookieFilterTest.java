@@ -18,7 +18,6 @@ package io.restassured.filter.cookie;
 
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.FilterContext;
-import io.restassured.http.Cookie;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.internal.ResponseSpecificationImpl;
@@ -115,7 +114,7 @@ public class CookieFilterTest {
             Header setCookieHeader1 =
                     new Header("Set-Cookie", "cookieName1=cookieValue1; Domain=somedomain.com; Path=/somepath; Secure; HttpOnly");
             Header setCookieHeader2 =
-              new Header("Set-Cookie", "cookieName2=cookieValue2; Domain=somedomain.com; Path=/somepath; Secure; HttpOnly");
+                    new Header("Set-Cookie", "cookieName2=cookieValue2; Domain=somedomain.com; Path=/somepath; Secure; HttpOnly");
             restAssuredResponse.setResponseHeaders(Headers.headers(setCookieHeader1, setCookieHeader2));
             return restAssuredResponse;
         }
