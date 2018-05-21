@@ -3,6 +3,7 @@ Change log next version
 * Ensure RequestSpecBuilder picks up static config (issue 1012). (thanks to Peter Major for pull request)
 * Support multiple 'Set-Cookie' headers in a response (issue 1016). (thanks to runtarinn for pull request)
 * Fixed OAuth 1 for GET requests (thanks to Corneliu Duplachi for pull request)
+* Add detailed cookie matching to RequestSpecBuilder (thanks to Peter Major for pull request)
 
 Change log 3.1.0 (2018-04-20)
 -----------------------------
