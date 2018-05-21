@@ -549,15 +549,15 @@ public interface ResponseSpecification {
      * <p>
      * E.g. expect that the response of the GET request to "/something" contain cookie <tt>cookieName1=cookieValue1</tt>
      * <pre>
-     * expect.detailedCookie("cookieName1", detailedCookie().value("cookieValue1").secured(true));
+     * expect.cookie("cookieName1", detailedCookie().value("cookieValue1").secured(true));
      * </pre>
      * </p>
      * <p/>
      * <p>
      * You can also expect several cookies:
      * <pre>
-     * expect().detailedCookie("cookieName1", detailedCookie().value("cookieValue1").secured(true))
-     *      .and().detailedCookie("cookieName2", detailedCookie().value("cookieValue2").secured(false));
+     * expect().cookie("cookieName1", detailedCookie().value("cookieValue1").secured(true))
+     *      .and().cookie("cookieName2", detailedCookie().value("cookieValue2").secured(false));
      * </pre>
      * </p>
      *
