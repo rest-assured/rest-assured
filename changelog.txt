@@ -1,4 +1,4 @@
-Change log next version
+    Changelog next version
 -----------------------
 * Ensure RequestSpecBuilder picks up static config (issue 1012). (thanks to Peter Major for pull request)
 * Support multiple 'Set-Cookie' headers in a response (issue 1016). (thanks to runtarinn for pull request)
@@ -6,7 +6,7 @@ Change log next version
 * Add detailed cookie matching to RequestSpecBuilder (thanks to Peter Major for pull request)
 * Add File Size to InputStreamEntity (issue 988) (thanks to vjykumar for pull request)
 
-Change log 3.1.0 (2018-04-20)
+Changelog 3.1.0 (2018-04-20)
 -----------------------------
 * Fixed generics handling of the detailed cookie matcher (thanks to Rafał Siwiec for pull request)
 * Now using Type instead of Class in the API for mapping to Java Objects. For users of the REST Assured API the change is most prominent in the
@@ -51,7 +51,7 @@ Change log 3.1.0 (2018-04-20)
     given().auth().form("username", "password", formAuthConfig().withAdditionalFields("firstInputField", "secondInputField"). ..
   REST Assured will automatically parse the HTML page, find the values for the additional fields and include them as form parameters in the login request.
 
-Change log 3.0.7 (2018-02-09)
+Changelog 3.0.7 (2018-02-09)
 -----------------------------
 * CookieFilter now conforms to RFC6265 standard by only copying expected cookies instead of all (thanks to Maciej Ciszewski for pull request) (issue 956).
 * Prettifier can now prettify empty xml body (issue 960)
@@ -62,16 +62,16 @@ Change log 3.0.7 (2018-02-09)
         cookie("cookie1", detailedCookie().maxAge(1234567));
   (thanks to Rafał Siwiec for pull request)
 
-Change log 3.0.6 (2017-11-23)
+Changelog 3.0.6 (2017-11-23)
 -----------------------------
 * Upgraded to Groovy 2.4.12
 * REST Assured now works on Java 9
 
-Change log 3.0.5 (2017-10-05)
+Changelog 3.0.5 (2017-10-05)
 -----------------------------
 * Reverted the API to take String instead of CharSequence again since this change introduced an accidental breaking change by not being binary compatible (only source compatible).
 
-Change log 3.0.4 (2017-10-05)
+Changelog 3.0.4 (2017-10-05)
 -----------------------------
 * Changed API to take CharSequence instead of String. For example the "get" method in when().get("/something").. now takes a CharSequence instead of String (issue 858) (thanks to weaselmetal for pull request)
 * Fixed so that assertions on content type with a ContentType.BINARY argument don't fail for binary content (issue 861) (thanks to Grégory Fouquet for pull request)
@@ -84,7 +84,7 @@ Change log 3.0.4 (2017-10-05)
 * Set authentication once to set in SecurityContextHolder and Principal in method parameter in the MockMvc module (thanks to Leonard Siu for pull request)
 * Allow passing multi-parts with content-types not starting with "multipart/" but also containing "multipart+" such as "application/x-hub-multipart+xml" (issue 919)
 
-Change log 3.0.3 (2017-05-05)
+Changelog 3.0.3 (2017-05-05)
 -----------------------------
 * Fixed issue with multi-word parameters that were treated as a list (issue 787) (thanks to britka for pull request)
 * Merges cookies of HttpServletResponse additionally to the Set-Cookie header (issue 791) (thanks to Andreas Gerstmayr for pull request)
@@ -96,7 +96,7 @@ Change log 3.0.3 (2017-05-05)
 * Ignores spacing between content type and charset when validating content types (issue 804)
 * Allow specifying default charset (only applicable when HttpMultipartMode is not STRICT) that'll be used when sending multiparts (issue 844)
 
-Change log 3.0.2 (2017-01-20)
+Changelog 3.0.2 (2017-01-20)
 -----------------------------
 * Don't join root and path with '.' if path starts with array indexing (thanks to feshbach for pull request)
 * Updated SSLConfig to allow keystore and truststore passwords to differ (thanks to mike42 for pull request)
@@ -111,7 +111,7 @@ Change log 3.0.2 (2017-01-20)
 * Fixed so that you can download binary data with the RestAssuredMockMvc module (thanks to Sergey Bespalov for pull request)
 * Improved exception message when there's no supported (de-)serialization library in classpath (issue 788)
 
-Change log 3.0.1 (2016-09-02)
+Changelog 3.0.1 (2016-09-02)
 -----------------------------
 * Fixed issues with colliding keys in multi-expectations for body and header validations. For example if "/x" returns the JSON { "x" : 2 } this would (previously) not throw an assertion error:
     when().
@@ -130,7 +130,7 @@ Change log 3.0.1 (2016-09-02)
 * Fixed memory leak in JSONAssertion. Big thanks to Andrey for pull request and investigation (issue 735).
 * Releasing loaded classes in XmlAssertion after expression evaluation to reduce memory foot print.
 
-Change log 3.0.0 (2016-06-03)
+Changelog 3.0.0 (2016-06-03)
 -----------------------------
 * Upgrading scribe dependencies to latest version 2.5.3 (thanks to Aniket for pull request)
 * Added ability to specify an empty access token for OAuth1 authentication. Use com.jayway.restassured.config.OAuthConfig#addEmptyTokenToBaseString(boolean) to configure this.
@@ -297,7 +297,7 @@ Change log 3.0.0 (2016-06-03)
     - io.restassured.builder.RequestSpecBuilder.setKeystore to io.restassured.builder.RequestSpecBuilder.setKeyStore
 * You can now do multipart file uploading for all HTTP verbs (even GET, OPTIONS etc)
 
-Change log 2.9.0 (2016-03-04)
+Changelog 2.9.0 (2016-03-04)
 -----------------------------
 * Added support for composing a Hamcrest matcher with a ResponseAwareMatcher when using a ResponseAwareMatcherComposer
 * Automatically escapes JsonPath and XmlPath fragments that contains a hyphen and an index lookup operator. For example consider the following JSON document:
@@ -323,7 +323,7 @@ Change log 2.9.0 (2016-03-04)
 * Major improvements of certificate authentication. You can now use a keystore (without trust store) and a keystore and trust store at the same time.
 * Non-backward compatible change: keystore was previously used as a truststore. You must change "given().keystore(..)" to "given().trustStore(..)", "RestAssured.keystore(..)" to "RestAssured.trustStore(..)" and "SSLConfig.keystore(..)" to "SSLConfig.trustStore(..)". Sorry!
 
-Change log 2.8.0 (2015-12-18)
+Changelog 2.8.0 (2015-12-18)
 -----------------------------
 * Modify HttpClientConfig so parameter methods respect previous configuration (issue 612). Thanks to Adam Clarkson for pull request.
 * Fixed issue that caused filter context properties to be removed between filter invocations
@@ -362,7 +362,7 @@ Change log 2.8.0 (2015-12-18)
 * Removed the use of StandardCharset from DecoderConfig which prevented EncoderConfig to be used on Java 6 and older.
 * Multipart patch no longer produces an exception on a call that returns status other than 200 (issue 615)
 
-Change log 2.7.0 (2015-10-31)
+Changelog 2.7.0 (2015-10-31)
 -----------------------------
 * Significantly reduce sized of scala-support distribution package
 * Removed the use of StandardCharset from EncoderConfig which prevented EncoderConfig to be used on Java 6 and older.
@@ -387,7 +387,7 @@ Change log 2.7.0 (2015-10-31)
   where "auth" is statically imported from com.jayway.restassured.specification.ProxySpecification (issue 597).
 * Added getUUID method to JsonPath and XmlPath (thanks to Libor Ondrušek for the pull request)
 
-Change log 2.6.0 (2015-10-09)
+Changelog 2.6.0 (2015-10-09)
 -----------------------------
 * Changed com.jayway.restassured.config.HttpClientConfig$HttpClientFactory from an abstract class to an interface in order to create it as a lambda express in Java 8. Before you had to do like this:
     given().config(RestAssured.config().httpClientConfig(httpClientConfig().httpClientFactory(new HttpClientConfig.HttpClientFactory() {
@@ -539,7 +539,7 @@ Change log 2.6.0 (2015-10-09)
     }
   This is also support for the spring-mock-mvc module.
 
-Change log 2.5.0 (2015-08-09)
+Changelog 2.5.0 (2015-08-09)
 -----------------------------
 * MockMvc module now supports async requests. For example "given().body(..).when().async().post("/x").then(). ..". Big thanks to Marcin Grzejszczak (@mgrzejszczak) for helping out.
 * Fixed NPE when using logging with a custom filter that doesn't include any headers.
@@ -628,7 +628,7 @@ Change log 2.5.0 (2015-08-09)
 * Added ability to supply an instance of MockMvcBuilder to the standaloneSetup method in MockMvcRequestSpecification.
 * Added support for standalone setup (setStandaloneSetup) and web app context setup (setWebAppContextSetup) in MockMvcRequestSpecBuilder.
 
-Change log 2.4.1 (2015-04-12)
+Changelog 2.4.1 (2015-04-12)
 ----------------------------
 * DefaultJackson2ObjectMapperFactory now scans and registers additional modules (issue 385)
 * FilterableRequestSpecification#getPort now returns the correct port and not just -1.
@@ -637,7 +637,7 @@ Change log 2.4.1 (2015-04-12)
 * REST Assured now allows specifying "File" and "InputStream" as request body.
 * REST Assured MockMvc now allows specifying "File" as body.
 
-Change log 2.4.0 (2014-11-15)
+Changelog 2.4.0 (2014-11-15)
 -----------------------------
 * The "matcherConfig" method in com.jayway.restassured.config.MatcherConfig is now static as intended.
 * Fixed an issue in com.jayway.restassured.internal.path.xml.mapping.XmlPathJaxbObjectDeserializer that prevented parsing when XmlRootElement wasn't used.
@@ -687,7 +687,7 @@ Change log 2.4.0 (2014-11-15)
 * You can now send form parameters with a GET request in accordance with RFC1866 (page 46, HTML 4.x section 17.13.3). Form parameters will be added a query parameters for a GET request and Content-Type will automatically be set to "application/x-www-form-urlencoded" with the default charset.
 * Added ability to log request method and request path. Use "given().log().method()" and "given().log().path()" (issue 368).
 
-Change log 2.3.4 (2014-10-06)
+Changelog 2.3.4 (2014-10-06)
 -----------------------------
 * XmlXsdMatcher#matchesXsdInClasspath(..) now returns an instance of XmlXsdMatcher so that you can easily set a LSResourceResolver.
 * ObjectMapperResolver looks for third party libraries in both thread context- and ObjectMapperResolver classloader.
@@ -699,7 +699,7 @@ Change log 2.3.4 (2014-10-06)
 * Added ability to remove parameters from a request specification using the RequestSpecBuilder (thanks to Merkushev Kirill for the help).
 * Fully-qualified baseUris will no longer have to use explicit port 80 (issue 353)
 
-Change log 2.3.3 (2014-08-29)
+Changelog 2.3.3 (2014-08-29)
 ----------------------------
 * Added CSRF (cross-site request forgery) support to form authentication config. For example:
     given().
@@ -723,7 +723,7 @@ Change log 2.3.3 (2014-08-29)
 * Fixed so that request and response is logged when "enableLoggingOfRequestAndResponseIfValidationFails" is defined when a response specifications fails to validate (issue 350).
 * Fixed so that multi-part file data uploading works for files without specifying an explicit filename when using HTTP Client version 4.3 and above (issue 351).
 
-Change log 2.3.2 (2014-06-09)
+Changelog 2.3.2 (2014-06-09)
 -----------------------------
 * Fixed an issue with logging of request and response using RestAssured.enableLoggingOfRequestAndResponseIfValidationFails() for certain validations.
 * Fixed issue with content-type validation when no content-type was sent from the server.
@@ -772,7 +772,7 @@ Change log 2.3.2 (2014-06-09)
   The proxy details are also visible in the request log and are available from the com.jayway.restassured.specification.FilterableRequestSpecification.
   (issue 214).
 
-Change log 2.3.1 (2014-03-31)
+Changelog 2.3.1 (2014-03-31)
 -----------------------------
 * Fixed a bug where fully-qualified URLs showed up as localhost in the request path in logging (issue 304).
 * Fixed a NPE when parsing no-value cookies in HTTP response (issue 306).
@@ -807,7 +807,7 @@ Change log 2.3.1 (2014-03-31)
 * Getting a String from the response now stores the content as a byte-array internally to avoid messing up binary content.
 * Added tagsoup as transitive dependency to XmlPath so that it's easier to get started with HTML parsing (issue 311).
 
-Change log 2.3.0 (2014-01-23)
+Changelog 2.3.0 (2014-01-23)
 -----------------------------
 * Fixed an IllegalArgumentException with reusable response specifications when defined before other body expectations when using the given-when-then API.
 * Non-backward compatible change: The json-path module accidentally depended on faster-jackson, jackson, gson and simple-json and brought then in as transitive dependencies. This has now been resolved which means that these dependencies are optional as intended (issue 297).
@@ -842,7 +842,7 @@ Change log 2.3.0 (2014-01-23)
   (issue 288).
 * Fixed NPE in RestAssuredMockMvc when path is null.
 
-Change log 2.2.0 (2014-01-08)
+Changelog 2.2.0 (2014-01-08)
 -----------------------------
 * Fixed an issue with content-type identification when passing in content-type header manually using a header.
 * Header values supplied to request specification using a java.util.Map are now serialized if needed.
@@ -862,7 +862,7 @@ Change log 2.2.0 (2014-01-08)
 * Added Spring Mock Mvc (Spring test) module which let's you unit test Spring MVC controllers using the REST Assured DSL. Depend on artifact id "spring-mock-mvc" using group id "com.jayway.restassured" from Maven to use it. Then use RestAssuredMockMvc to get started.
 * Fixed so that RestAssured.given(requestSpecification) now merges the static request specification correctly.
 
-Change log 2.1.0 (2013-12-09)
+Changelog 2.1.0 (2013-12-09)
 -----------------------------
 * Changed the way REST Assured finds key stores in classpath. It now uses thread context classloader to resolve the files instead of the class KeyStoreSpecImpl classloader.
   This means means that you're able to do e.g. "RestAssured.keystore("keystore.jks", "test1234")" where you before used "RestAssured.keystore("/keystore.jks", "test1234")".
@@ -891,11 +891,11 @@ Change log 2.1.0 (2013-12-09)
 * You can now get the current REST Assured configuration by calling RestAssured.config()
 * Non-backward compatible change: Removed method "RestAssured.keyStore()". If you want to get the configured "keystore" configuration you can now call "RestAssured.config().getSSLConfig();".
 
-Change log 2.0.1 (2013-11-29)
+Changelog 2.0.1 (2013-11-29)
 -----------------------------
 * Fixed an issue which prevented extracting data from a response after body assertions had been used.
 
-Change log 2.0.0 (2013-11-29)
+Changelog 2.0.0 (2013-11-29)
 -----------------------------
 * Fixed a regression bug where Rest Assured didn't respected trailing slashes in URL's (issue 276).
 * Fixed so that the path method in the Response can be invoked multiple times, for example:
@@ -935,7 +935,7 @@ Change log 2.0.0 (2013-11-29)
 * Added support for arguments when calling path("..") on a Response object, for example:
       String z = get("/x").path("x.y.%s", "z");
 
-Change log 1.9.0 (2013-11-25)
+Changelog 1.9.0 (2013-11-25)
 -----------------------------
 * It's now possible to validate if the ResponseSpecification is fulfilled by calling the validate method and passing in a Response object (thanks to Ian Forsey for the patch).
 * Getting cookies as a Map now returns the last value returned instead of the first one if multiple cookies with the same name are sent from the server to comply with the HTTP specification (thanks to DeviKiran Setti for the patch) (issue 257).
@@ -1040,7 +1040,7 @@ Change log 1.9.0 (2013-11-25)
 * Upgraded to Http Client 4.2.6
 * Upgraded to Hamcrest 1.3 (issue 186)
 
-Change log 1.8.1 (2013-06-07)
+Changelog 1.8.1 (2013-06-07)
 -----------------------------
 * It's now possible to configure the HTTP Multipart mode when sending multi-parts. Configure this in the REST Assured HttpClientConfig (issue 223).
 * Non-backward compatible change: Default multi-part mode for multi-part uploads is changed from Browser Compatibility mode to Strict mode.
@@ -1054,7 +1054,7 @@ Change log 1.8.1 (2013-06-07)
 * Added com.jayway.restassured.builder.MultiPartSpecBuilder that can be used to build more advanced multi-part requests in a fluent way. This also allows you to specify charset for strings in multi-part uploads which was previously not possible (issue 239).
 * Added support for setting features in XmlPath using the XmlPathConfig. This can be used to for example disabling external DTD loading. There's also a shortcut for this by using the XmlPathConfig#disableLoadingOfExternalDtd() method (issue 237).
 
-Change log 1.8.0 (2013-04-01)
+Changelog 1.8.0 (2013-04-01)
 -----------------------------
 * Added support for settings a custom Jackson 2 object factory to JsonPath
 * Expecting content type to be a pre-defined content type (such as ContentType.XML) now accepts many kinds of different variations (thanks to exsuscito for the help) (issue 213).
@@ -1077,20 +1077,20 @@ Change log 1.8.0 (2013-04-01)
 * Major improvements to XmlPath
 * Possible to configure JsonPath and XmlPath both per instance and statically.
 
-Change log 1.7.2 (2012-12-15)
+Changelog 1.7.2 (2012-12-15)
 -----------------------------
 * StreamVerifier prints better error message when the response content-type is not recognized.
 * REST Assured now prints all validation errors in a single test run (issue 207).
 * Throws IllegalStateException when incorrectly trying to configure logging on a ResponseSpecBuilder instance after it has been built.
 
-Change log 1.7.1 (2012-11-11)
+Changelog 1.7.1 (2012-11-11)
 -----------------------------
 * Added methods object variants of setBody and setContent to RequestSpecBuilder.
 * Fixed so that form authentication can be added from RequestSpecBuilder.
 * You can now add non-string values in form parameters (such as primitives and enums) (issue 201).
 * Fixed a bug that accidentally used the content-type as character encoding on object serialization (issue 204).
 
-Change log 1.7 (2012-10-11)
+Changelog 1.7 (2012-10-11)
 ---------------------------
 * Fixed an issue with XmlPath when parsing xml attributes and using findAll.
 * REST Assured now (finally) builds from Maven 3
@@ -1110,7 +1110,7 @@ Change log 1.7 (2012-10-11)
 * Updated HTTP Client version to 4.2.1.
 * Added support for PATCH and OPTIONS requests (issue 164).
 
-Change log 1.6.2 (2012-05-28)
+Changelog 1.6.2 (2012-05-28)
 -----------------------------
 * You can now use all kinds of Collection instances (and not only List's as in the previous versions) as multi-value parameters (issue 165).
 * The specified content-type header is no longer ignored when specifying binary request body content (issue 167).
@@ -1134,7 +1134,7 @@ Change log 1.6.2 (2012-05-28)
   (issue 169).
 * Fixed an issue with RestAssured.urlEncodingEnabled which didn't take request parameters into account when url encoding was disabled (issue 175).
 
-Change log 1.6.1 (2012-04-05)
+Changelog 1.6.1 (2012-04-05)
 -----------------------------
 * Default encoder is set to binary instead of url encoded. This means that when setting a binary body with an (by REST Assured) unrecognized content-type it will automatically be treated as an octet stream.
 * Closed input stream when getting response body as byte-array (issue 163)
@@ -1148,7 +1148,7 @@ Change log 1.6.1 (2012-04-05)
 * Added methods to the RequestSpecBuilder to enable adding cookies of type com.jayway.restassured.response.Cookie and com.jayway.restassured.response.Cookies.
 * JRE proxy settings are now applied by default (thanks to Wolfram Kroll for the patch).
 
-Change log 1.6 (2012-02-18)
+Changelog 1.6 (2012-02-18)
 ---------------------------
 * Forked HTTPBuilder. This means that a lot of workarounds that had to be made in the past can be removed in the future. It also means that the Groovy version is updated to version 1.8 and HTML parsing is greatly improved as well as many other minor changes and improvements (issue 112).
 * The HTTP Delete method now supports a method body
@@ -1203,7 +1203,7 @@ Change log 1.6 (2012-02-18)
 * Added method getCompleteRequestPath to com.jayway.restassured.filter.FilterContext. This method provides the fully-qualified URL including scheme and port number to the request path.
 * Fixed content encoding for content types ending with +xml, +json and +html to automatically be encoded using the correct encoder methods (issue 160).
 
-Change log 1.5 (2011-12-20)
+Changelog 1.5 (2011-12-20)
 ---------------------------
 * Added methods "noFilters" and "noFiltersOfType" to RequestSpecification to allow for removal of filters. This is useful when specifying a default filter statically (e.g. a custom authentication filter) but you need to remove it in a Filter implementation in order to make requests without this filter.
 * Improved JsonPath to automatically convert e.g. ints to Strings if explicitly requested.
@@ -1265,7 +1265,7 @@ Change log 1.5 (2011-12-20)
 	expect().log().ifError(). ..
   This change is not backward compatible (issue 81).
 
-Change log 1.4.5 (2011-11-08)
+Changelog 1.4.5 (2011-11-08)
 -----------------------------
 * REST Assured can now parse responses with no-value (empty) cookies (issue 124).
 * Added support for serializing objects to a parameter if the content-type is set:
@@ -1294,7 +1294,7 @@ Change log 1.4.5 (2011-11-08)
   (issue 99).
 * Added support for mapping a path to a Java object in JsonPath, e.g: Book book = from(JSON).getObject("store.book[2]", Book.class); (half of issue 125)
 
-Change log 1.4 (2011-10-07)
+Changelog 1.4 (2011-10-07)
 ---------------------------
 * Better error message when an actual JSON or XML path value doesn't match the expected value (issue 104).
 * Removed dependency to spring-web in example project
@@ -1331,7 +1331,7 @@ Change log 1.4 (2011-10-07)
   (issue 110, 116).
 * Fixed a bug when using a form auth per request and a default form auth which added two form auth filters to the filter list causing multiple requests to made to the server.
 
-Change log 1.3.1 (2011-09-20)
+Changelog 1.3.1 (2011-09-20)
 -----------------------------
 * Fixed a trivial bug in the error message that is displayed when no parser is found for a certain content type (issue 103).
 * Fixed a bug that caused the response body to be parsed as JSON if Content-Type of the response was JSON even though no body matchers were specified (issue 102).
@@ -1340,7 +1340,7 @@ Change log 1.3.1 (2011-09-20)
 * All parameter values now take Object as parameter type. This means that you can supply e.g. ints, floats etc and not only Strings as parameter values. E.g. before you had to do given().param("number", String.valueOf(1)).when().get(..) but now you can simply do given().param("number", 1).when().get(..); (issue 82).
 * You can now register custom parsers directly in the response specification and the response specification builder and not only statically in the RestAssured class. E.g. expect().parser("some/xml", Parser.XML).when().get("/something"); (issue 101).
 
-Change log 1.3 (2011-09-05)
+Changelog 1.3 (2011-09-05)
 ---------------------------
 * Added support for uploading files, input streams, byte arrays and text using multi-part form data upload. You can use the "multiPart" method to specify what to upload. E.g.
   given().multiPart(new File("/home/user/myFile.txt").when().post("/upload"); (issue 93)
@@ -1356,7 +1356,7 @@ Change log 1.3 (2011-09-05)
 * When specifying a request body and using a custom/unregistered content-type the body will automatically be URL Encoded. Previously a NPE was thrown because no content encoder was registered to HTTP Builders encoder registry for the specified content type. (issue 96).
 * Fixed a bug in RequestSpecificationBuilder that treated form parameters as query parameters.
 
-Change log 1.2.3 (2011-08-18)
+Changelog 1.2.3 (2011-08-18)
 -----------------------------
 * Fixed a bug when using PUT with multi-value form parameters.
 * Improved path parameter support. Rest Assured no longer URL encodes path parameters in order to detect them as query parameters.
@@ -1378,7 +1378,7 @@ Change log 1.2.3 (2011-08-18)
   I.e. the indices 0 and 1 was replaced with a "%d" and you then supply the arguments to the path expression using the "withArgs" method located in com.jayway.restassured.RestAssured. You can also use the "withArgs" method without
   using a root-path (issue 17, 80).
 
-Change log 1.2.2 (2011-06-28)
+Changelog 1.2.2 (2011-06-28)
 -----------------------------
 * Added support for parsing an entire JSON graph. E.g. let's say you have a JSON snippet like this:
   [{"email":"name1@mail.com","alias":"name one","phone":"3456789"},
@@ -1403,7 +1403,7 @@ Change log 1.2.2 (2011-06-28)
   For more info refer to https://github.com/jgritman/httpbuilder/wiki/SSL (issue 79).
 * Fixed an issue that could cause parameters to be treated as lists parameters.
 
-Change log 1.2.1 (2011-05-23)
+Changelog 1.2.1 (2011-05-23)
 -----------------------------
 * Fixed an issue when defining default request specifications with form parameters when using POST.
 * Added support for getting the content type in the com.jayway.restassured.response.Response object.
@@ -1413,7 +1413,7 @@ Change log 1.2.1 (2011-05-23)
 * Form authentication now uses HTML parsing when parsing the login page (before XML parsing was used which was very fragile).
 * Improved HTML parsing with Groovy closures
 
-Change log 1.2 (2011-05-22)
+Changelog 1.2 (2011-05-22)
 ---------------------------
 * Better support for multi-value parameters. You can now defined them using a List:
     with().param("list", asList("1", "2", "3)). ..
@@ -1432,17 +1432,17 @@ Change log 1.2 (2011-05-22)
     given().log(). or expect().log(). (issue 66).
 * Added support for easily printing the response after a request (if the expectations pass), e.g. expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe").print();
 
-Change log 1.1.7 (2011-04-26)
+Changelog 1.1.7 (2011-04-26)
 -----------------------------
 * Added support for mixing form and query parameters when using the POST method. E.g. "with().param("firstName", "John").and().queryParam("lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).post("/greetXML");"
   When using POST the "param" method adds form parameters to the request and "queryParam" adds query parameters of the request.
 * Added support for multi-value paramters, e.g. with().param("list", "first").and().param("list", "second").when().get("/something") will now send a GET request to "/something" with parameter list including first and second. (issue 62).
 
-Change log 1.1.6 (2011-03-29)
+Changelog 1.1.6 (2011-03-29)
 -----------------------------
 * Preemptive basic authentication really works (issue 52).
 
-Change log 1.1.5 (2011-03-28)
+Changelog 1.1.5 (2011-03-28)
 -----------------------------
 * Added suport for preemptive basic authentication. E.g. given().auth().preemptive().basic("username", "password").when().get("/secured");. You can also set preemptive basic authentication as default authentication scheme using:
   RestAssured.authentication = preemptive().basic("username", "password"); (issue 45)
@@ -1489,7 +1489,7 @@ Change log 1.1.5 (2011-03-28)
   String body = expect().body("x.y.z", equalTo("something")).when().get("/x").andReturn().body().asString(); (issue 50)
 * Specifying a fully-qualied request url overrides default base path, base uri, and port (issue 41).
 
-Change log 1.1.2 (2011-03-04)
+Changelog 1.1.2 (2011-03-04)
 -----------------------------
 * Fixed so that POST requests can return a response (e.g. Response response = post("/somewhere");) when an error occurred (status code 400 to 999). (issue 37).
 * You can now get the status line and status code from the Response (issue 40). E.g
@@ -1497,7 +1497,7 @@ Change log 1.1.2 (2011-03-04)
       String statusLine = response.getStatusLine();"
 * Corrected some javadoc issues.
 
-Change log 1.1.1 (2011-03-02)
+Changelog 1.1.1 (2011-03-02)
 -----------------------------
 * Added support for getting headers and cookies from the Response, e.g. String headerValue = get("/something").andReturn().header("headerName"); (issue 27)
 * Fixed so that you don't need to add a "@" when calling getAttribute(..) on Node in XmlPath (issue 34)
@@ -1506,7 +1506,7 @@ Change log 1.1.1 (2011-03-02)
 * Improved error messages on illegal paths when expecting XML (issue 35).
 
 
-Change log 1.1 ((2011-02-18)
+Changelog 1.1 ((2011-02-18)
 ----------------------------
 * Added support for specifying base path using "RestAssured.basePath = /resource". E.g. let's say that the base URI is http://localhost and base path is "/resource" will make create a request to "http://localhost/resource/something" when doing a 'get("/something")'. Default value is empty. (issue 13)
 * Support for specifying request/query parameters in the url, e.g. get("/something?param1=first&param2=second"). (issue 23)
@@ -1541,19 +1541,19 @@ Change log 1.1 ((2011-02-18)
   String firstName = with(json).get("greeting.firstName");
   For more information refer to the javadoc of com.jayway.restassured.path.json.JsonPath
 
-Change log 1.0.3 (2011-01-17)
+Changelog 1.0.3 (2011-01-17)
 -----------------------------
 * Fixed a bug in the JSON parsing which prevent parsing of nested arrays (issue 15)
 * Added support for getting an index in a JSON array. E.g. expect().body("items.get(0)", equalTo("firstIndex")).when().get("/something");. Assuming that "items" is an array then "items.get(0)" returns the first element in that array.
 * Fixed so that you can expect on null values in JSON arrays.
 * Request senders can now return the body as byte array or string. E.g. get("/something").asString() makes GET request to "/something" and returns the response body as a string. This is useful if you want to debug the response while creating your test or if you want to use third-party tools to validate the response. Note that it only works if you don't specify any expectations before making the request.
 
-Change log 1.0.2 (2011-01-12)
+Changelog 1.0.2 (2011-01-12)
 -----------------------------
 * JSON and XML matching now supports many more content types than before. Before you could only use XML matching for content type application/xml and JSON for application/json.
 * Support for HTML verification
 * Support for RSS verification (content type application/rss+xml)
 
-Change log 1.0.1 (2010-12-27)
+Changelog 1.0.1 (2010-12-27)
 -----------------------------
 * Refactored AuthenticationSpecification to be a Java interface in order to avoid Groovy methods being exposed and to allow for Javadoc.
