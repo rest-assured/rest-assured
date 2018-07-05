@@ -109,7 +109,8 @@ public class EncoderRegistry {
             } catch (FileNotFoundException e) {
                 throw new RuntimeException("File " + file.getPath() + " not found", e);
             }
-            entity = new InputStreamEntity(fileInputStream, -1);
+            // Set file size, since we already know it at this time. Ref: Issue #988
+            entity = new InputStreamEntity(fileInputStream, file.length());
         } else if (data instanceof byte[]) {
             byte[] out = ((byte[]) data);
             entity = new InputStreamEntity(new ByteArrayInputStream(
