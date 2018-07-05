@@ -4,6 +4,7 @@ Change log next version
 * Support multiple 'Set-Cookie' headers in a response (issue 1016). (thanks to runtarinn for pull request)
 * Fixed OAuth 1 for GET requests (thanks to Corneliu Duplachi for pull request)
 * Add detailed cookie matching to RequestSpecBuilder (thanks to Peter Major for pull request)
+* Add File Size to InputStreamEntity (issue 988) (thanks to vjykumar for pull request)
 
 Change log 3.1.0 (2018-04-20)
 -----------------------------
