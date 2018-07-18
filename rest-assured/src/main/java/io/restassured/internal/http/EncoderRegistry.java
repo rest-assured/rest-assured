@@ -23,6 +23,7 @@ import groovy.lang.Closure;
 import groovy.lang.GString;
 import groovy.lang.Writable;
 import groovy.xml.StreamingMarkupBuilder;
+import io.restassured.internal.util.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -271,7 +272,7 @@ public class EncoderRegistry {
      * @throws UnsupportedEncodingException
      */
     @SuppressWarnings("unchecked")
-    public HttpEntity encodeJSON(Object contentType, Object model) throws UnsupportedEncodingException {
+    public HttpEntity encodeJSON(Object contentType, Object model) throws IOException {
         String contentTypeAsString = contentTypeToString(contentType);
         Object json;
         if (model instanceof Map || model instanceof Collection) {
@@ -284,6 +285,8 @@ public class EncoderRegistry {
             json = model; // assume valid JSON already.
         } else if (model instanceof File) {
             json = toString((File) model, contentTypeAsString);
+        } else if (model instanceof InputStream) {
+            json = IOUtils.toByteArray((InputStream)model); // assume valid JSON.
         } else {
             throw new UnsupportedOperationException("Internal error: Can't encode " + model + " to JSON.");
         }

@@ -26,6 +26,8 @@ import io.restassured.specification.ResponseSpecification;
 import io.restassured.http.ContentType;
 import org.junit.Test;
 
+import java.io.InputStream;
+
 import static io.restassured.RestAssured.*;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.ArrayUtils.toObject;
@@ -116,6 +118,13 @@ public class JSONPostITest extends WithJetty {
     @Test
     public void requestSpecificationAllowsSpecifyingJsonBodyForPost() throws Exception {
         given().body("{ \"message\" : \"hello world\"}").with().contentType(ContentType.JSON).then().expect().body(equalTo("hello world")).when().post("/jsonBody");
+    }
+
+    @Test
+    public void requestSpecificationAllowsSpecifyingJsonBodyAsInputStreamForPost() throws Exception {
+        InputStream inputStream = getClass().getResourceAsStream("/message.json");
+
+        given().body(inputStream).with().contentType(ContentType.JSON).then().expect().body(equalTo("hello world")).when().post("/jsonBody");
     }
 
     @Test
