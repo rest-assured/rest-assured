@@ -36,8 +36,7 @@
                 "required": ["length", "width", "height"]
             },
             "warehouseLocation": {
-                "description": "Coordinates of the warehouse with the product",
-                "$ref": "http://json-schema.org/geo"
+                "description": "Coordinates of the warehouse with the product"
             }
         },
         "required": ["id", "name", "price"]
