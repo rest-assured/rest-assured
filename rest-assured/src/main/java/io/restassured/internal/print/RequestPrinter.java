@@ -33,6 +33,8 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import static io.restassured.filter.log.LogDetail.*;
 
@@ -165,11 +167,18 @@ public class RequestPrinter {
                 }
 
                 builder.append("------------");
-                appendFourTabs(appendFourTabs(builder.append(NEW_LINE))
-                        .append("Content-Disposition: " + requestSpec.getContentType().replace("multipart/", "")
-                                + "; name = " + multiPart.getControlName()
-                                + (multiPart.hasFileName() ? "; filename = " + multiPart.getFileName() : ""))
-                        .append(NEW_LINE)).append("Content-Type: " + multiPart.getMimeType());
+                appendFourTabs(appendFourTabs(builder.append(NEW_LINE)).append("Content-Disposition: ")
+                        .append(requestSpec.getContentType().replace("multipart/", "")).append("; name = ")
+                        .append(multiPart.getControlName()).append(multiPart.hasFileName() ? "; filename = " + multiPart.getFileName() : "")
+                        .append(NEW_LINE)).append("Content-Type: ").append(multiPart.getMimeType());
+                final Map<String, String> headers = multiPart.getHeaders();
+                if (!headers.isEmpty()) {
+                    final Set<Entry<String, String>> headerEntries = headers.entrySet();
+                    for (Entry<String, String> headerEntry : headerEntries) {
+                        appendFourTabs(appendFourTabs(builder.append(NEW_LINE)).append(headerEntry.getKey()).append(": ").append(headerEntry.getValue()));
+                    }
+                }
+                builder.append(NEW_LINE); // There's a newline between headers and content in multi-parts
                 if (multiPart.getContent() instanceof InputStream) {
                     appendFourTabs(builder.append(NEW_LINE)).append("<inputstream>");
                 } else {
@@ -193,7 +202,7 @@ public class RequestPrinter {
             builder.append(NONE).append(NEW_LINE);
         } else {
             int i = 0;
-            for (Map.Entry<String, ?> entry : map.entrySet()) {
+            for (Entry<String, ?> entry : map.entrySet()) {
                 if (i++ != 0) {
                     appendFourTabs(builder);
                 }

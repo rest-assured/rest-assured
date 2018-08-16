@@ -31,6 +31,7 @@ class MultiPartInternal {
   def String fileName
   def String mimeType
   def String charset
+  def Map<String, String> headers = [:]
 
   def getContentBody() {
     if (content instanceof NoParameterValue) {

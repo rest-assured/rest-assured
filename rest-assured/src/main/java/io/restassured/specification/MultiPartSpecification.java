@@ -15,6 +15,8 @@
  */
 package io.restassured.specification;
 
+import java.util.Map;
+
 /**
  * Represents one multi-part
  */
@@ -33,6 +35,11 @@ public interface MultiPartSpecification {
      * @return The mime-type, may be <code>null</code>.
      */
     String getMimeType();
+
+    /**
+     * @return Headers The headers associated with this multipart specification
+     */
+    Map<String, String> getHeaders();
 
     /**
      * @return The charset, may be <code>null</code>.

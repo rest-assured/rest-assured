@@ -6,6 +6,7 @@ Changelog next version
 * Add detailed cookie matching to RequestSpecBuilder (thanks to Peter Major for pull request)
 * Add File Size to InputStreamEntity (issue 988) (thanks to vjykumar for pull request)
 * Properly encodes JSON from InputStream (issue 1040) (thanks to Maksymilian Pawlak for pull request)
+* Implemented ability to add headers to a multipart using the MultiPartSpecBuilder
 
 Changelog 3.1.0 (2018-04-20)
 -----------------------------

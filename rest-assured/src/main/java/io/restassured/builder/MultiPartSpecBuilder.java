@@ -28,6 +28,7 @@ import org.apache.commons.lang3.Validate;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * Builder for creating more advanced multi-part requests.
@@ -47,6 +48,7 @@ public class MultiPartSpecBuilder {
     private String mimeType;
     private String charset;
     private String fileName;
+    private Map<String, String> headers;
     private boolean isControlNameExplicit;
     private boolean isFileNameExplicit;
 
@@ -63,6 +65,7 @@ public class MultiPartSpecBuilder {
         this.isFileNameExplicit = false;
         this.explicitObjectMapper = null;
         this.explicitObjectMapperType = null;
+        this.headers = new TreeMap<String, String>();
     }
 
     /**
@@ -79,6 +82,7 @@ public class MultiPartSpecBuilder {
         this.controlName = "file";
         this.isControlNameExplicit = false;
         this.isFileNameExplicit = false;
+        this.headers = new TreeMap<String, String>();
     }
 
     /**
@@ -95,6 +99,7 @@ public class MultiPartSpecBuilder {
         this.controlName = "file";
         this.isControlNameExplicit = false;
         this.isFileNameExplicit = false;
+        this.headers = new TreeMap<String, String>();
     }
 
     /**
@@ -156,6 +161,45 @@ public class MultiPartSpecBuilder {
     public MultiPartSpecBuilder fileName(String fileName) {
         this.fileName = fileName;
         this.isFileNameExplicit = true;
+        return this;
+    }
+
+    /**
+     * Add a header to this multipart specification.
+     *
+     * @param name The name of the header
+     * @param value The value of the header
+     * @return An instance of MultiPartSpecBuilder
+     */
+    public MultiPartSpecBuilder header(String name, String value) {
+        Validate.notEmpty(name, "Header name cannot be empty");
+        Validate.notEmpty(value, "Header value cannot be empty");
+
+        // Replace previous header if exists
+        final Set<String> headerNames = headers.keySet();
+        final String trimmedName = name.trim();
+        for (String headerName : headerNames) {
+            if (headerName.equalsIgnoreCase(trimmedName)) {
+                headers.remove(headerName);
+            }
+        }
+        // Put the name header in the header list
+        headers.put(name, value);
+        return this;
+    }
+
+    /**
+     * Set the headers for this multipart specification (replaces previous headers)
+     *
+     * @param headers The headers as a map
+     * @return An instance of MultiPartSpecBuilder
+     */
+    public MultiPartSpecBuilder headers(Map<String, String> headers) {
+        if (headers == null) {
+            this.headers = new HashMap<String, String>();
+        } else {
+            this.headers = new HashMap<String, String>(headers);
+        }
         return this;
     }
 
@@ -238,6 +282,7 @@ public class MultiPartSpecBuilder {
         spec.setMimeType(mimeType);
         spec.setControlNameSpecifiedExplicitly(isControlNameExplicit);
         spec.setFileNameSpecifiedExplicitly(isFileNameExplicit);
+        spec.setHeaders(headers);
         return spec;
     }
 

@@ -57,6 +57,7 @@ import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.client.methods.HttpRequestBase
 import org.apache.http.entity.HttpEntityWrapper
+import org.apache.http.entity.mime.FormBodyPartBuilder
 import org.apache.http.impl.client.AbstractHttpClient
 import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.message.BasicHeader
@@ -1063,7 +1064,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       fileName = multiPartSpec.fileName
     }
 
-    multiParts << new MultiPartInternal(controlName: controlName, content: content, fileName: fileName, charset: multiPartSpec.charset, mimeType: mimeType)
+    def headers = multiPartSpec.headers
+
+    multiParts << new MultiPartInternal(controlName: controlName, content: content, fileName: fileName, charset: multiPartSpec.charset, mimeType: mimeType, headers: headers)
     return this
   }
 
@@ -1492,7 +1495,16 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       multiParts.each {
         def body = it.contentBody
         def controlName = it.controlName
-        entity.addPart(controlName, body);
+        def headers = it.headers
+        if (headers.isEmpty()) {
+          entity.addPart(controlName, body);
+        } else {
+          def builder = FormBodyPartBuilder.create(controlName, body)
+          headers.each { name, value ->
+            builder.addField(name, value)
+          }
+          entity.addPart(builder.build())
+        }
       }
 
       entity;
@@ -1998,7 +2010,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   List<MultiPartSpecification> getMultiPartParams() {
     return multiParts.collect {
-      new MultiPartSpecificationImpl(content: it.content, charset: it.charset, fileName: it.fileName, mimeType: it.mimeType, controlName: it.controlName)
+      new MultiPartSpecificationImpl(content: it.content, charset: it.charset, fileName: it.fileName, mimeType: it.mimeType, controlName: it.controlName, headers: it.headers)
     }
   }
 
