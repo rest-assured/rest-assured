@@ -16,14 +16,12 @@
 
 package io.restassured.itest.java;
 
-import io.restassured.itest.java.support.WithJetty;
 import io.restassured.RestAssured;
+import io.restassured.itest.java.support.WithJetty;
 import io.restassured.matcher.ResponseAwareMatcherComposer;
 import io.restassured.matcher.RestAssuredMatchers;
 import org.junit.Test;
 
-import static io.restassured.matcher.ResponseAwareMatcherComposer.and;
-import static io.restassured.matcher.ResponseAwareMatcherComposer.or;
 import static org.hamcrest.Matchers.*;
 
 public class ResponseAwareMatcherITest extends WithJetty {
@@ -110,5 +108,15 @@ public class ResponseAwareMatcherITest extends WithJetty {
                 body("_links.self.href", ResponseAwareMatcherComposer.or(ResponseAwareMatcherComposer.and(RestAssuredMatchers.endsWithPath("id"), response -> containsString("localhost2")),
                         response -> startsWith("http://"))).
                 body("status", equalTo("ongoing"));
+    }
+
+    @Test public void
+    using_restAssuredJsonRootObject_for_nested_queries() {
+        RestAssured.when().
+                get("/response").
+        then().
+                log().all().
+                statusCode(200).
+                body("response.data.tasks.findAll{ task -> task.triggered_by.contains(restAssuredJsonRootObject.response.data.tasks.find{ t2 -> t2.name.equals('InvestigateSuggestions')}.id) }.name", containsInAnyOrder("Mistral", "Ansible", "Camunda"));
     }
 }
