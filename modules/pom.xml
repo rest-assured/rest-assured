@@ -29,5 +29,6 @@
         <module>json-schema-validator</module>
         <module>spring-mock-mvc</module>
         <module>scala-support</module>
+        <module>spring-web-test-client</module>
     </modules>
 </project>
