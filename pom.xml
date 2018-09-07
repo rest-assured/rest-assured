@@ -264,7 +264,6 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>4.12</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -280,31 +279,26 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
                 <version>${jackson2.version}</version>
-                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-core-asl</artifactId>
                 <version>${jackson1.version}</version>
-                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-mapper-asl</artifactId>
                 <version>${jackson1.version}</version>
-                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>2.6.2</version>
-                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>com.googlecode.json-simple</groupId>
                 <artifactId>json-simple</artifactId>
                 <version>1.1.1</version>
-                <optional>true</optional>
             </dependency>
             <dependency>
                 <groupId>org.hamcrest</groupId>
