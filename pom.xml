@@ -64,7 +64,6 @@
         <jackson2.version>2.7.3</jackson2.version>
         <maven-javadoc.version>2.9.1</maven-javadoc.version>
         <surefire.version>2.22.0</surefire.version>
-        <surefire.version>2.22.0</surefire.version>
     </properties>
     <scm>
         <url>http://github.com/jayway/rest-assured/tree/${scm.branch}</url>
