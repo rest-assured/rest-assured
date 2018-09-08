@@ -24,6 +24,7 @@
     </parent>
     <groupId>io.rest-assured</groupId>
     <artifactId>json-path</artifactId>
+    <packaging>bundle</packaging>
     <version>3.1.2-SNAPSHOT</version>
     <name>json-path</name>
     <url>http://maven.apache.org</url>
@@ -37,6 +38,19 @@
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>io.restassured.*</Export-Package>
+                        <Import-Package>*</Import-Package>
+                        <Private-Package></Private-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 

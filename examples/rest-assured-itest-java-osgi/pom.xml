@@ -20,11 +20,6 @@
 
         <dependency>
             <groupId>io.rest-assured</groupId>
-            <artifactId>json-path</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -66,10 +61,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-        <groupId>org.ops4j.pax.swissbox</groupId>
-        <artifactId>pax-swissbox-framework</artifactId>
-        <version>1.8.3</version>
-        <scope>test</scope>
+            <groupId>org.ops4j.pax.swissbox</groupId>
+            <artifactId>pax-swissbox-framework</artifactId>
+            <version>1.8.3</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>

@@ -28,7 +28,7 @@
     <groupId>io.rest-assured</groupId>
     <artifactId>rest-assured</artifactId>
     <version>3.1.2-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
 
     <name>REST Assured</name>
     <description>Java DSL for easy testing of REST services</description>
@@ -39,6 +39,19 @@
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.5.1</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>io.restassured.*</Export-Package>
+                        <Import-Package>*</Import-Package>
+                        <Private-Package></Private-Package>
+                    </instructions>
+                </configuration>
             </plugin>
         </plugins>
     </build>
