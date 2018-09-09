@@ -63,6 +63,7 @@
         <jackson1.version>1.9.11</jackson1.version>
         <jackson2.version>2.7.3</jackson2.version>
         <maven-javadoc.version>2.9.1</maven-javadoc.version>
+        <surefire.version>2.22.0</surefire.version>
     </properties>
     <scm>
         <url>http://github.com/jayway/rest-assured/tree/${scm.branch}</url>
@@ -168,6 +169,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire.version}</version>
                 <configuration>
                     <excludes>
                         <exclude>**/itest/**</exclude>
@@ -193,6 +195,10 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
