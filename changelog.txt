@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* Added OSGi support (thanks to ponziani for pull request)
+
 Changelog 3.1.1 (2018-08-17)
 ----------------------------
 * Ensure RequestSpecBuilder picks up static config (issue 1012). (thanks to Peter Major for pull request)
