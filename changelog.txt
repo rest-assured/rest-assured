@@ -1,6 +1,7 @@
 Changelog next version
 ----------------------
 * Added OSGi support (thanks to ponziani for pull request)
+* Make it clear that junit is only a test scope dependency (thanks to Eric Pabst for pull request)
 
 Changelog 3.1.1 (2018-08-17)
 ----------------------------
