@@ -23,16 +23,16 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 /**
  * @author Olga Maciaszek-Sharma
  */
-public class BuilderBasedWebTestClientFactory implements WebTestClientFactory {
+public class WrapperWebTestClientFactory implements WebTestClientFactory {
 
-	private final WebTestClient.Builder builder;
+	private final WebTestClient webTestClient;
 
-	public BuilderBasedWebTestClientFactory(WebTestClient.Builder builder) {
-		this.builder = builder;
+	public WrapperWebTestClientFactory(WebTestClient webTestClient) {
+		this.webTestClient = webTestClient;
 	}
 
 	@Override
 	public synchronized WebTestClient build(WebTestClientConfig webTestClientConfig) {
-		return builder.build();
+		return webTestClient;
 	}
 }

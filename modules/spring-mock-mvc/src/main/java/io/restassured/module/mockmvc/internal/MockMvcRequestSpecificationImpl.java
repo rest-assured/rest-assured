@@ -16,15 +16,30 @@
 
 package io.restassured.module.mockmvc.internal;
 
-import io.restassured.config.EncoderConfig;
-import io.restassured.config.HeaderConfig;
+import java.io.File;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.http.*;
+import io.restassured.http.ContentType;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.http.Method;
 import io.restassured.internal.MapCreator;
 import io.restassured.internal.MapCreator.CollisionStrategy;
-import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
 import io.restassured.internal.mapping.ObjectMapping;
@@ -35,8 +50,15 @@ import io.restassured.module.mockmvc.config.AsyncConfig;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
-import io.restassured.module.mockmvc.specification.*;
+import io.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme;
+import io.restassured.module.mockmvc.specification.MockMvcAuthenticationSpecification;
+import io.restassured.module.mockmvc.specification.MockMvcRequestAsyncSender;
+import io.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import io.restassured.module.spring.commons.HeaderHelper;
+import io.restassured.module.spring.commons.SpringClientSerializer;
 import io.restassured.specification.ResponseSpecification;
+
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
@@ -45,13 +67,6 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.io.File;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.security.Principal;
-import java.util.*;
 
 import static io.restassured.internal.assertion.AssertParameter.notNull;
 import static io.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;
@@ -89,9 +104,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private RequestLoggingFilter requestLoggingFilter;
 
+    private final SpringClientSerializer serializer = new SpringClientSerializer(cfg);
+
     private final ParameterUpdater parameterUpdater = new ParameterUpdater(new ParameterUpdater.Serializer() {
         public String serializeIfNeeded(Object value) {
-            return MockMvcRequestSpecificationImpl.this.serializeIfNeeded(value);
+            return serializer.serializeIfNeeded(value, getRequestContentType());
         }
     });
 
@@ -208,88 +225,20 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification headers(Map<String, ?> headers) {
         notNull(headers, "headers");
-        List<Header> headerList = new ArrayList<Header>();
-        if (this.requestHeaders.exist()) {
-            for (Header requestHeader : this.requestHeaders) {
-                headerList.add(requestHeader);
-            }
-        }
-
-        for (Map.Entry<String, ?> stringEntry : headers.entrySet()) {
-            Object value = stringEntry.getValue();
-            if (value instanceof List) {
-                List<?> values = (List<?>) value;
-                for (Object o : values) {
-                    headerList.add(new Header(stringEntry.getKey(), serializeIfNeeded(o)));
-                }
-            } else {
-                headerList.add(new Header(stringEntry.getKey(), serializeIfNeeded(value)));
-            }
-        }
-
-        this.requestHeaders = new Headers(headerList);
+        this.requestHeaders = HeaderHelper.headers(requestHeaders, headers, cfg);
         return this;
     }
 
     public MockMvcRequestSpecification headers(Headers headers) {
         notNull(headers, "Headers");
-        if (headers.exist()) {
-            List<Header> headerList = new ArrayList<Header>();
-            if (this.requestHeaders.exist()) {
-                for (Header requestHeader : this.requestHeaders) {
-                    headerList.add(requestHeader);
-                }
-            }
-
-            for (Header requestHeader : headers) {
-                headerList.add(requestHeader);
-            }
-
-            this.requestHeaders = new Headers(removeMergedHeadersIfNeeded(headerList));
-        }
+        requestHeaders = HeaderHelper.headers(requestHeaders, headers, cfg.getHeaderConfig());
         return this;
-    }
-
-    private List<Header> removeMergedHeadersIfNeeded(List<Header> headerList) {
-        HeaderConfig headerConfig = cfg.getHeaderConfig();
-        List<Header> filteredList = new ArrayList<Header>();
-        for (Header header : headerList) {
-            String headerName = header.getName();
-            if (headerConfig.shouldOverwriteHeaderWithName(headerName)) {
-                int index = -1;
-                for (int i = 0; i < filteredList.size(); i++) {
-                    Header filteredHeader = filteredList.get(i);
-                    if (filteredHeader.hasSameNameAs(header)) {
-                        index = i;
-                        break;
-                    }
-                }
-
-                if (index != -1) {
-                    filteredList.remove(index);
-                }
-            }
-
-            filteredList.add(header);
-        }
-        return filteredList;
     }
 
     public MockMvcRequestSpecification header(final String headerName, final Object headerValue, Object... additionalHeaderValues) {
         notNull(headerName, "Header name");
         notNull(headerValue, "Header value");
-
-        List<Header> headerList = new ArrayList<Header>() {{
-            add(new Header(headerName, serializeIfNeeded(headerValue)));
-        }};
-
-        if (additionalHeaderValues != null) {
-            for (Object additionalHeaderValue : additionalHeaderValues) {
-                headerList.add(new Header(headerName, serializeIfNeeded(additionalHeaderValue)));
-            }
-        }
-
-        return headers(new Headers(headerList));
+        return headers(HeaderHelper.headers(requestHeaders, headerName, headerValue, cfg, additionalHeaderValues));
     }
 
 
@@ -412,7 +361,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
 
         String requestContentType = getRequestContentType();
-        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, cfg.getObjectMapperConfig(), cfg.getEncoderConfig());
+        this.requestBody = ObjectMapping.serialize(object, requestContentType, serializer.findEncoderCharsetOrReturnDefault(requestContentType), null, cfg.getObjectMapperConfig(), cfg.getEncoderConfig());
         return this;
     }
 
@@ -422,7 +371,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         String requestContentType = getRequestContentType();
         ObjectMapperSerializationContextImpl ctx = new ObjectMapperSerializationContextImpl();
         ctx.setObject(object);
-        ctx.setCharset(findEncoderCharsetOrReturnDefault(requestContentType));
+        ctx.setCharset(serializer.findEncoderCharsetOrReturnDefault(requestContentType));
         ctx.setContentType(requestContentType);
         this.requestBody = mapper.serialize(ctx);
         return this;
@@ -432,7 +381,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         notNull(object, "object");
         notNull(mapperType, "Object mapper type");
         String requestContentType = getRequestContentType();
-        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType, cfg.getObjectMapperConfig(), cfg.getEncoderConfig());
+        this.requestBody = ObjectMapping.serialize(object, requestContentType, serializer.findEncoderCharsetOrReturnDefault(requestContentType), mapperType, cfg.getObjectMapperConfig(), cfg.getEncoderConfig());
         return this;
     }
 
@@ -519,12 +468,13 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification multiPart(String controlName, Object object, String mimeType) {
-        multiParts.add(new MockMvcMultiPart(cfg.getMultiPartConfig(), controlName, serializeIfNeeded(object, mimeType), mimeType));
+        multiParts.add(new MockMvcMultiPart(cfg.getMultiPartConfig(), controlName,
+                serializer.serializeIfNeeded(object, mimeType), mimeType));
         return this;
     }
 
     public MockMvcRequestSpecification multiPart(String controlName, String filename, Object object, String mimeType) {
-        multiParts.add(new MockMvcMultiPart(controlName, filename, serializeIfNeeded(object, mimeType), mimeType));
+        multiParts.add(new MockMvcMultiPart(controlName, filename, serializer.serializeIfNeeded(object, mimeType), mimeType));
         return this;
     }
 
@@ -726,25 +676,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
                 logRepository);
     }
 
-    private String findEncoderCharsetOrReturnDefault(String contentType) {
-        String charset = CharsetExtractor.getCharsetFromContentType(contentType);
-        if (charset == null) {
-            EncoderConfig encoderConfig = cfg.getEncoderConfig();
-            if (encoderConfig.hasDefaultCharsetForContentType(contentType)) {
-                charset = encoderConfig.defaultCharsetForContentType(contentType);
-            } else {
-                charset = encoderConfig.defaultContentCharset();
-            }
-        }
-        return charset;
-    }
-
     private String serializeIfNeeded(Object object) {
-        return serializeIfNeeded(object, getRequestContentType());
-    }
-
-    private String serializeIfNeeded(Object object, String contentType) {
-        return isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, cfg.getObjectMapperConfig(), cfg.getEncoderConfig()) : object.toString();
+        return serializer.serializeIfNeeded(object, getRequestContentType());
     }
 
     public MockMvcResponse get(String path, Object... pathParams) {

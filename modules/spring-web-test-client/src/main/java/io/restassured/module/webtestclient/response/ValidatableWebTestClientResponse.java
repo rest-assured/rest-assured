@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,24 @@
  * limitations under the License.
  */
 
-package io.restassured.module.webtestclient.internal;
+package io.restassured.module.webtestclient.response;
 
-import io.restassured.module.webtestclient.config.WebTestClientConfig;
+import io.restassured.response.ValidatableResponseOptions;
 
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.ResultHandler;
+import org.springframework.test.web.servlet.ResultMatcher;
 
 /**
- * @author Olga Maciaszek-Sharma
+ * A validatable response of a request made by REST Assured Mock Mvc.
+ * <p>
+ * Usage example:
+ * <pre>
+ * get("/lotto").then().body("lotto.lottoId", is(5));
+ * </pre>
+ * </p>
  */
-public class BuilderBasedWebTestClientFactory implements WebTestClientFactory {
+public interface ValidatableWebTestClientResponse extends ValidatableResponseOptions<ValidatableWebTestClientResponse, WebTestClientResponse> {
 
-	private final WebTestClient.Builder builder;
-
-	public BuilderBasedWebTestClientFactory(WebTestClient.Builder builder) {
-		this.builder = builder;
-	}
-
-	@Override
-	public synchronized WebTestClient build(WebTestClientConfig webTestClientConfig) {
-		return builder.build();
-	}
+	WebTestClient.ResponseSpec expect();
 }

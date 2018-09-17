@@ -14,25 +14,11 @@
  * limitations under the License.
  */
 
-package io.restassured.module.webtestclient.internal;
-
-import io.restassured.module.webtestclient.config.WebTestClientConfig;
-
-import org.springframework.test.web.reactive.server.WebTestClient;
+package io.restassured.module.webtestclient.specification;
 
 /**
  * @author Olga Maciaszek-Sharma
  */
-public class BuilderBasedWebTestClientFactory implements WebTestClientFactory {
+public class WebTestClientRequestAsyncConfigurer {
 
-	private final WebTestClient.Builder builder;
-
-	public BuilderBasedWebTestClientFactory(WebTestClient.Builder builder) {
-		this.builder = builder;
-	}
-
-	@Override
-	public synchronized WebTestClient build(WebTestClientConfig webTestClientConfig) {
-		return builder.build();
-	}
 }

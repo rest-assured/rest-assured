@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package io.restassured.module.mockmvc.internal;
+package io.restassured.module.webtestclient.http;
 
-import static io.restassured.internal.classpath.ClassPathResolver.existInCP;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-/**
- * Checks whether or not the spring-security-test module is in classpath
- */
-class SpringSecurityTestClassPathChecker {
-    private static final String SECURITY_MOCK_MVC_CONFIGURERS_CLASS_NAME = "org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers";
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-    public static boolean isSpringSecurityTestInClasspath() {
-        return existInCP(SECURITY_MOCK_MVC_CONFIGURERS_CLASS_NAME);
+public class ParserController {
+
+    @RequestMapping(value = "/parserWithUnknownContentType", method = GET, produces = "some/thing")
+    public @ResponseBody String parserWithUnknownContentType(@RequestParam(value = "param") String param) {
+        return "{ \"param\" : \"" + param + "\" }";
     }
 }

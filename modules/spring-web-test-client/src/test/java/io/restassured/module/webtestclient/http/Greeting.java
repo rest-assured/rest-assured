@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,26 @@
  * limitations under the License.
  */
 
-package io.restassured.module.webtestclient.internal;
-
-import io.restassured.module.webtestclient.config.WebTestClientConfig;
-
-import org.springframework.test.web.reactive.server.WebTestClient;
+package io.restassured.module.webtestclient.http;
 
 /**
- * @author Olga Maciaszek-Sharma
+ * This DTO has been copied from <a href="http://spring.io/guides/gs/rest-service/">Spring Guides</a>.
  */
-public interface WebTestClientFactory {
+public class Greeting {
 
-	WebTestClient build(WebTestClientConfig webTestClientConfig);
+    private final long id;
+    private final String content;
 
+    public Greeting(long id, String content) {
+        this.id = id;
+        this.content = content;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getContent() {
+        return content;
+    }
 }

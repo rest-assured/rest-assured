@@ -17,6 +17,8 @@
 package io.restassured.module.mockmvc.internal;
 
 import io.restassured.module.mockmvc.config.MockMvcConfig;
+import io.restassured.module.spring.commons.SpringSecurityTestClassPathChecker;
+
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
