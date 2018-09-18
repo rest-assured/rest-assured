@@ -150,7 +150,7 @@ public class MockMvcParamConfig implements Config {
      * @return The update strategy for form parameters
      */
     public UpdateStrategy attributeUpdateStrategy() {
-        return formParamsUpdateStrategy;
+        return attributeUpdateStrategy;
     }
 
     /**
