@@ -372,6 +372,10 @@ public class RestAssuredWebTestClientConfig implements SpecificationConfig {
 		return paramConfig;
 	}
 
+	public WebTestClientParamConfig getWebTestClientParamConfig() {
+		return paramConfig;
+	}
+
 	@Override
 	public SpecificationConfig paramConfig(ParamConfig paramConfig) {
 		if (!(paramConfig instanceof WebTestClientParamConfig)) {

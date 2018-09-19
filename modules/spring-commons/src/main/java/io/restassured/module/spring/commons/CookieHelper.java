@@ -62,4 +62,15 @@ public class CookieHelper {
 		}
 		return new Cookies(cookieList);
 	}
+
+	public static Cookies sessionId(Cookies cookies, String sessionIdName, String sessionIdValue) {
+		List<Cookie> allOtherCookies = new ArrayList<Cookie>();
+		for (Cookie cookie : cookies) {
+			if (!cookie.getName().equalsIgnoreCase(sessionIdName)) {
+				allOtherCookies.add(cookie);
+			}
+		}
+		allOtherCookies.add(new Cookie.Builder(sessionIdName, sessionIdValue).build());
+		return new Cookies(allOtherCookies);
+	}
 }

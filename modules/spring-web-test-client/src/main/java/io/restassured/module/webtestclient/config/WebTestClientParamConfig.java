@@ -44,7 +44,7 @@ public class WebTestClientParamConfig extends ParamConfig {
 	 * @return The update strategy for form parameters
 	 */
 	public UpdateStrategy attributeUpdateStrategy() {
-		return formParamsUpdateStrategy;
+		return attributeUpdateStrategy;
 	}
 
 	/**

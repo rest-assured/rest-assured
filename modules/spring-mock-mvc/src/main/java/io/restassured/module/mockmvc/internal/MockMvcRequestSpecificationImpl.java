@@ -58,6 +58,7 @@ import io.restassured.module.spring.commons.CookieHelper;
 import io.restassured.module.spring.commons.HeaderHelper;
 import io.restassured.module.spring.commons.Serializer;
 import io.restassured.module.spring.commons.config.AsyncConfig;
+import io.restassured.module.spring.commons.config.ConfigConverter;
 import io.restassured.module.spring.commons.config.ConfigMergeUtils;
 import io.restassured.specification.ResponseSpecification;
 
@@ -556,14 +557,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         notNull(sessionIdName, "Session id name");
         notNull(sessionIdValue, "Session id value");
         if (cookies.hasCookieWithName(sessionIdName)) {
-            List<Cookie> allOtherCookies = new ArrayList<Cookie>();
-            for (Cookie cookie : cookies) {
-                if (!cookie.getName().equalsIgnoreCase(sessionIdName)) {
-                    allOtherCookies.add(cookie);
-                }
-            }
-            allOtherCookies.add(new Cookie.Builder(sessionIdName, sessionIdValue).build());
-            this.cookies = new Cookies(allOtherCookies);
+            CookieHelper.sessionId(cookies, sessionIdName, sessionIdValue);
         } else {
             cookie(sessionIdName, sessionIdValue);
         }

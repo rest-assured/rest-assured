@@ -31,6 +31,7 @@ import java.util.function.Function;
 import io.restassured.config.LogConfig;
 import io.restassured.config.MultiPartConfig;
 import io.restassured.config.ParamConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
@@ -49,6 +50,7 @@ import io.restassured.module.spring.commons.CookieHelper;
 import io.restassured.module.spring.commons.HeaderHelper;
 import io.restassured.module.spring.commons.Serializer;
 import io.restassured.module.spring.commons.config.AsyncConfig;
+import io.restassured.module.spring.commons.config.ConfigConverter;
 import io.restassured.module.spring.commons.config.ConfigMergeUtils;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
 import io.restassured.module.webtestclient.config.WebTestClientParamConfig;
@@ -506,35 +508,48 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 
 	@Override
 	public WebTestClientRequestSpecification sessionId(String sessionIdValue) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return sessionId(config.getSessionConfig().sessionIdName(), sessionIdValue);
 	}
 
 	@Override
 	public WebTestClientRequestSpecification sessionId(String sessionIdName, String sessionIdValue) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(sessionIdName, "Session id name");
+		notNull(sessionIdValue, "Session id value");
+		if (cookies.hasCookieWithName(sessionIdName)) {
+			CookieHelper.sessionId(cookies, sessionIdName, sessionIdValue);
+		} else {
+			cookie(sessionIdName, sessionIdValue);
+		}
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification sessionAttrs(Map<String, Object> sessionAttributes) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(sessionAttributes, "sessionAttributes");
+		parameterUpdater.updateParameters(convert(config.getWebTestClientParamConfig().sessionAttributesUpdateStrategy()),
+				sessionAttributes, this.sessionAttributes);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification sessionAttr(String name, Object value) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(name, "Session attribute name");
+		parameterUpdater.updateZeroToManyParameters(convert(config.getWebTestClientParamConfig()
+				.sessionAttributesUpdateStrategy()), sessionAttributes, name, value);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestAsyncSender when() {
 		LogConfig logConfig = config.getLogConfig();
 		if (requestLoggingFunction == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
-			// TODO: implement logging setup
-			log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
+			log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(),
+					logConfig.isPrettyPrintingEnabled());
 		}
 		WebTestClient webTestClient = webTestClientFactory.build(config.getWebTestClientConfig());
 		return new WebTestClientRequestSenderImpl(webTestClient, params, formParams, attributes, config, requestBody,
-				requestHeaders, cookies, sessionAttributes, multiParts, requestLoggingFunction, basePath, responseSpecification, authentication,
-				logRepository);
+				requestHeaders, cookies, sessionAttributes, multiParts, requestLoggingFunction, basePath,
+				responseSpecification, authentication, logRepository);
 	}
 
 	@Override
@@ -598,262 +613,262 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 
 	@Override
 	public WebTestClientResponse get(Function<UriBuilder, URI> uriFunction) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().get(uriFunction);
 	}
 
 	@Override
 	public WebTestClientResponse post(Function<UriBuilder, URI> uriFunction) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().post(uriFunction);
 	}
 
 	@Override
 	public WebTestClientResponse put(Function<UriBuilder, URI> uriFunction) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().put(uriFunction);
 	}
 
 	@Override
 	public WebTestClientResponse delete(Function<UriBuilder, URI> uriFunction) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().delete(uriFunction);
 	}
 
 	@Override
 	public WebTestClientResponse patch(Function<UriBuilder, URI> uriFunction) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().patch(uriFunction);
 	}
 
 	@Override
 	public WebTestClientResponse head(Function<UriBuilder, URI> uriFunction) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().head(uriFunction);
 	}
 
 	@Override
 	public WebTestClientResponse options(Function<UriBuilder, URI> uriFunction) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().options(uriFunction);
 	}
 
 	@Override
 	public WebTestClientResponse request(Method method, Function<UriBuilder, URI> uriFunction) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().request(method, uriFunction);
 	}
 
 	@Override
 	public WebTestClientResponse request(String method, Function<UriBuilder, URI> uriFunction) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().request(method, uriFunction);
 	}
 
 	@Override
 	public WebTestClientResponse get(String path, Object... pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().get(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse get(String path, Map<String, ?> pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().get(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse post(String path, Object... pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().get(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse post(String path, Map<String, ?> pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().post(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse put(String path, Object... pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().put(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse put(String path, Map<String, ?> pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().put(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse delete(String path, Object... pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().delete(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse delete(String path, Map<String, ?> pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().delete(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse head(String path, Object... pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().head(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse head(String path, Map<String, ?> pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().head(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse patch(String path, Object... pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().patch(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse patch(String path, Map<String, ?> pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().patch(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse options(String path, Object... pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().options(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse options(String path, Map<String, ?> pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().options(path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse get(URI uri) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().get(uri);
 	}
 
 	@Override
 	public WebTestClientResponse post(URI uri) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().post(uri);
 	}
 
 	@Override
 	public WebTestClientResponse put(URI uri) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().put(uri);
 	}
 
 	@Override
 	public WebTestClientResponse delete(URI uri) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().delete(uri);
 	}
 
 	@Override
 	public WebTestClientResponse head(URI uri) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().head(uri);
 	}
 
 	@Override
 	public WebTestClientResponse patch(URI uri) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().patch(uri);
 	}
 
 	@Override
 	public WebTestClientResponse options(URI uri) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().options(uri);
 	}
 
 	@Override
 	public WebTestClientResponse get(URL url) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().get(url);
 	}
 
 	@Override
 	public WebTestClientResponse post(URL url) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().post(url);
 	}
 
 	@Override
 	public WebTestClientResponse put(URL url) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().put(url);
 	}
 
 	@Override
 	public WebTestClientResponse delete(URL url) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().delete(url);
 	}
 
 	@Override
 	public WebTestClientResponse head(URL url) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().head(url);
 	}
 
 	@Override
 	public WebTestClientResponse patch(URL url) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().patch(url);
 	}
 
 	@Override
 	public WebTestClientResponse options(URL url) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().options(url);
 	}
 
 	@Override
 	public WebTestClientResponse get() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().get();
 	}
 
 	@Override
 	public WebTestClientResponse post() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().post();
 	}
 
 	@Override
 	public WebTestClientResponse put() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().put();
 	}
 
 	@Override
 	public WebTestClientResponse delete() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().delete();
 	}
 
 	@Override
 	public WebTestClientResponse head() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().head();
 	}
 
 	@Override
 	public WebTestClientResponse patch() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().patch();
 	}
 
 	@Override
 	public WebTestClientResponse options() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().options();
 	}
 
 	@Override
 	public WebTestClientResponse request(Method method) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().request(method);
 	}
 
 	@Override
 	public WebTestClientResponse request(String method) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().request(method);
 	}
 
 	@Override
 	public WebTestClientResponse request(Method method, String path, Object... pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().request(method, path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse request(String method, String path, Object... pathParams) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().request(method, path, pathParams);
 	}
 
 	@Override
 	public WebTestClientResponse request(Method method, URI uri) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().request(method, uri);
 	}
 
 	@Override
 	public WebTestClientResponse request(Method method, URL url) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().request(method, url);
 	}
 
 	@Override
 	public WebTestClientResponse request(String method, URI uri) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().request(method, uri);
 	}
 
 	@Override
 	public WebTestClientResponse request(String method, URL url) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return when().request(method, url);
 	}
 
 	public String getBasePath() {
@@ -911,6 +926,18 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 
 	public RestAssuredWebTestClientConfig getRestAssuredWebTestClientConfig() {
 		return config;
+	}
+
+	public LogRepository getLogRepository() {
+		return logRepository;
+	}
+
+	public void setRequestLoggingFunction(ExchangeFilterFunction requestLoggingFunction) {
+		this.requestLoggingFunction = requestLoggingFunction;
+	}
+
+	public RestAssuredConfig getRestAssuredConfig() {
+		return ConfigConverter.convertToRestAssuredConfig(config);
 	}
 
 	private String serializeIfNeeded(Object object) {

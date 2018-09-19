@@ -39,6 +39,7 @@ import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestAsyncConfigurer;
 import io.restassured.module.mockmvc.specification.MockMvcRequestAsyncSender;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSender;
+import io.restassured.module.spring.commons.config.ConfigConverter;
 import io.restassured.specification.ResponseSpecification;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;

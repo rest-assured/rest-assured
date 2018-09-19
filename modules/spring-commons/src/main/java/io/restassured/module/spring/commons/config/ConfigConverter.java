@@ -14,30 +14,26 @@
  * limitations under the License.
  */
 
-package io.restassured.module.mockmvc.internal;
-
-import io.restassured.config.ParamConfig;
-import io.restassured.config.RestAssuredConfig;
-import io.restassured.module.mockmvc.config.MockMvcParamConfig;
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+package io.restassured.module.spring.commons.config;
 
 import java.lang.reflect.Field;
 
-import static io.restassured.module.mockmvc.internal.UpdateStrategyConverter.convert;
+import io.restassured.config.ParamConfig;
+import io.restassured.config.RestAssuredConfig;
 
-class ConfigConverter {
+public class ConfigConverter {
 
-    public static RestAssuredConfig convertToRestAssuredConfig(RestAssuredMockMvcConfig mvcConfig) {
-        return new RestAssuredConfig().jsonConfig(mvcConfig.getJsonConfig()).xmlConfig(mvcConfig.getXmlConfig()).sessionConfig(mvcConfig.getSessionConfig()).
-                objectMapperConfig(mvcConfig.getObjectMapperConfig()).logConfig(mvcConfig.getLogConfig()).encoderConfig(mvcConfig.getEncoderConfig()).
-                decoderConfig(mvcConfig.getDecoderConfig()).multiPartConfig(mvcConfig.getMultiPartConfig()).paramConfig(toParamConfig(mvcConfig.getMockMvcParamConfig()));
+    public static RestAssuredConfig convertToRestAssuredConfig(SpecificationConfig specificationConfig) {
+        return new RestAssuredConfig().jsonConfig(specificationConfig.getJsonConfig()).xmlConfig(specificationConfig.getXmlConfig()).sessionConfig(specificationConfig.getSessionConfig()).
+                objectMapperConfig(specificationConfig.getObjectMapperConfig()).logConfig(specificationConfig.getLogConfig()).encoderConfig(specificationConfig.getEncoderConfig()).
+                decoderConfig(specificationConfig.getDecoderConfig()).multiPartConfig(specificationConfig.getMultiPartConfig()).paramConfig(toParamConfig(specificationConfig.getParamConfig()));
     }
 
-    private static ParamConfig toParamConfig(MockMvcParamConfig cfg) {
-        ParamConfig config = new ParamConfig(convert(cfg.queryParamsUpdateStrategy()),
-                convert(cfg.formParamsUpdateStrategy()), convert(cfg.requestParamsUpdateStrategy()));
+    private static ParamConfig toParamConfig(ParamConfig baseConfig) {
+        ParamConfig config = new ParamConfig(baseConfig.queryParamsUpdateStrategy(),
+                baseConfig.formParamsUpdateStrategy(), baseConfig.requestParamsUpdateStrategy());
         // We need to set the user configured flag to false if needed
-        if (!cfg.isUserConfigured()) {
+        if (!baseConfig.isUserConfigured()) {
             Field userConfigured = null;
             try {
                 userConfigured = config.getClass().getDeclaredField("userConfigured");
