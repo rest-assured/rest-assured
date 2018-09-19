@@ -21,7 +21,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static io.restassured.module.mockmvc.config.MockMvcParamConfig.UpdateStrategy.REPLACE;
+import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE;
 import static io.restassured.module.mockmvc.config.MockMvcParamConfig.paramConfig;
 import static io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig.config;
 import static org.hamcrest.Matchers.equalTo;

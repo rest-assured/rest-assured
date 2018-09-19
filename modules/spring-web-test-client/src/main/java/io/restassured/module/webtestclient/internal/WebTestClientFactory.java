@@ -27,4 +27,5 @@ public interface WebTestClientFactory {
 
 	WebTestClient build(WebTestClientConfig webTestClientConfig);
 
+	boolean isAssigned();
 }

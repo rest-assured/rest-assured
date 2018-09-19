@@ -32,7 +32,7 @@ import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.support.PathSupport;
 import io.restassured.internal.util.SafeExceptionRethrower;
-import io.restassured.module.mockmvc.config.AsyncConfig;
+import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import io.restassured.module.mockmvc.response.MockMvcResponse;

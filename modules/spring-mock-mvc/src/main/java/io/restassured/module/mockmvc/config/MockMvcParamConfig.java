@@ -17,16 +17,17 @@
 package io.restassured.module.mockmvc.config;
 
 import io.restassured.config.Config;
+import io.restassured.config.ParamConfig;
 
+import static io.restassured.config.ParamConfig.UpdateStrategy.MERGE;
+import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE;
 import static io.restassured.internal.assertion.AssertParameter.notNull;
-import static io.restassured.module.mockmvc.config.MockMvcParamConfig.UpdateStrategy.MERGE;
-import static io.restassured.module.mockmvc.config.MockMvcParamConfig.UpdateStrategy.REPLACE;
 
 /**
  * Determines how different parameter types in REST Assured MockMvc should be updated when adding multiple parameters
  * of the same type with the same name.
  */
-public class MockMvcParamConfig implements Config {
+public class MockMvcParamConfig extends ParamConfig implements Config {
 
     private final boolean userConfigured;
     private final UpdateStrategy queryParamsUpdateStrategy;
@@ -187,21 +188,6 @@ public class MockMvcParamConfig implements Config {
     public boolean isUserConfigured() {
         return userConfigured;
     }
-
-    /**
-     * The update strategy to use for a parameter type
-     */
-    public enum UpdateStrategy {
-        /**
-         * Parameters with the same name is merged.
-         */
-        MERGE,
-        /**
-         * Parameters with the same name is replaced with the latest applied value.
-         */
-        REPLACE
-    }
-
 
     /**
      * @return A static way to create a new MockMvcParamConfig instance without calling "new" explicitly. Mainly for syntactic sugar.

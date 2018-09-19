@@ -1,33 +1,30 @@
 package io.restassured.module.spring.commons;
 
 import io.restassured.config.EncoderConfig;
-import io.restassured.config.SerializationConfig;
 import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.mapping.ObjectMapping;
+import io.restassured.module.spring.commons.config.SpecificationConfig;
 
 import static io.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;
 
 /**
  * @author Olga Maciaszek-Sharma
  */
-public class SpringClientSerializer {
+public class Serializer {
 
-	private final SerializationConfig serializationConfig;
-
-	public SpringClientSerializer(SerializationConfig serializationConfig) {
-		this.serializationConfig = serializationConfig;
+	private Serializer() {
 	}
 
-	public String serializeIfNeeded(Object object, String contentType) {
+	public static String serializeIfNeeded(Object object, String contentType, SpecificationConfig config) {
 		return isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType,
-				findEncoderCharsetOrReturnDefault(contentType), null, serializationConfig.getObjectMapperConfig(),
-				serializationConfig.getEncoderConfig()) : object.toString();
+				findEncoderCharsetOrReturnDefault(contentType, config), null, config.getObjectMapperConfig(),
+				config.getEncoderConfig()) : object.toString();
 	}
 
-	public String findEncoderCharsetOrReturnDefault(String contentType) {
+	public static String findEncoderCharsetOrReturnDefault(String contentType, SpecificationConfig config) {
 		String charset = CharsetExtractor.getCharsetFromContentType(contentType);
 		if (charset == null) {
-			EncoderConfig encoderConfig = serializationConfig.getEncoderConfig();
+			EncoderConfig encoderConfig = config.getEncoderConfig();
 			if (encoderConfig.hasDefaultCharsetForContentType(contentType)) {
 				charset = encoderConfig.defaultCharsetForContentType(contentType);
 			} else {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.module.mockmvc.config;
+package io.restassured.module.spring.commons.config;
 
 import io.restassured.config.Config;
 
@@ -49,6 +49,7 @@ public class AsyncConfig implements Config {
 
     /**
      * Creates a new {@link AsyncConfig} with timeout.
+     *
      *
      * @param duration The duration
      * @param timeUnit The time unit

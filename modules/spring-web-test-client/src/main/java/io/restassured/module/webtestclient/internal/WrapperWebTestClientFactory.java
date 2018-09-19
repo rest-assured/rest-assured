@@ -35,4 +35,9 @@ public class WrapperWebTestClientFactory implements WebTestClientFactory {
 	public synchronized WebTestClient build(WebTestClientConfig webTestClientConfig) {
 		return webTestClient;
 	}
+
+	@Override
+	public boolean isAssigned() {
+		return webTestClient != null;
+	}
 }

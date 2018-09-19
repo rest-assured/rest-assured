@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import io.restassured.config.HeaderConfig;
-import io.restassured.config.SerializationConfig;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
+import io.restassured.module.spring.commons.config.SpecificationConfig;
 
 import static io.restassured.internal.assertion.AssertParameter.notNull;
 
@@ -21,7 +21,7 @@ public class HeaderHelper {
 	private HeaderHelper() {
 	}
 
-	public static Headers headers(Headers requestHeaders, Map<String, ?> headers, SerializationConfig config) {
+	public static Headers headers(Headers requestHeaders, Map<String, ?> headers, SpecificationConfig config) {
 		notNull(headers, "headers");
 		List<Header> headerList = new ArrayList<Header>();
 		if (requestHeaders.exist()) {
@@ -31,15 +31,16 @@ public class HeaderHelper {
 		}
 
 		for (Map.Entry<String, ?> stringEntry : headers.entrySet()) {
-			SpringClientSerializer serializer = new SpringClientSerializer(config);
 			Object value = stringEntry.getValue();
 			if (value instanceof List) {
 				List<?> values = (List<?>) value;
 				for (Object headerValue : values) {
-					headerList.add(new Header(stringEntry.getKey(), serializer.serializeIfNeeded(headerValue, getRequestContentType(requestHeaders))));
+					headerList.add(new Header(stringEntry.getKey(), Serializer.serializeIfNeeded(headerValue,
+							getRequestContentType(requestHeaders), config)));
 				}
 			} else {
-				headerList.add(new Header(stringEntry.getKey(), serializer.serializeIfNeeded(value, getRequestContentType(requestHeaders))));
+				headerList.add(new Header(stringEntry.getKey(), Serializer.serializeIfNeeded(value,
+						getRequestContentType(requestHeaders), config)));
 			}
 		}
 		return new Headers(headerList);
@@ -95,19 +96,21 @@ public class HeaderHelper {
 		return filteredList;
 	}
 
-	public static Headers headers(final Headers requestHeaders, final String headerName, final Object headerValue, SerializationConfig config,
-	                       Object... additionalHeaderValues) {
-		SpringClientSerializer serializer = new SpringClientSerializer(config);
+	public static Headers headers(final Headers requestHeaders, final String headerName, final Object headerValue,
+	                              final SpecificationConfig config,
+	                              Object... additionalHeaderValues) {
 		notNull(headerName, "Header name");
 		notNull(headerValue, "Header value");
 
 		List<Header> headerList = new ArrayList<Header>() {{
-			add(new Header(headerName, serializer.serializeIfNeeded(headerValue, getRequestContentType(requestHeaders))));
+			add(new Header(headerName, Serializer.serializeIfNeeded(headerValue,
+					getRequestContentType(requestHeaders), config)));
 		}};
 
 		if (additionalHeaderValues != null) {
 			for (Object additionalHeaderValue : additionalHeaderValues) {
-				headerList.add(new Header(headerName, serializer.serializeIfNeeded(additionalHeaderValue, getRequestContentType(requestHeaders))));
+				headerList.add(new Header(headerName, Serializer.serializeIfNeeded(additionalHeaderValue,
+						getRequestContentType(requestHeaders), config)));
 			}
 		}
 		return new Headers(headerList);

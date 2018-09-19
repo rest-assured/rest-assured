@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 import io.restassured.config.LogConfig;
+import io.restassured.config.MultiPartConfig;
+import io.restassured.config.ParamConfig;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
@@ -37,13 +39,19 @@ import io.restassured.http.Headers;
 import io.restassured.http.Method;
 import io.restassured.internal.MapCreator;
 import io.restassured.internal.log.LogRepository;
+import io.restassured.internal.mapping.ObjectMapping;
 import io.restassured.internal.multipart.MultiPartInternal;
 import io.restassured.internal.support.ParameterUpdater;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
+import io.restassured.module.spring.commons.BodyHelper;
+import io.restassured.module.spring.commons.CookieHelper;
 import io.restassured.module.spring.commons.HeaderHelper;
-import io.restassured.module.spring.commons.SpringClientSerializer;
+import io.restassured.module.spring.commons.Serializer;
+import io.restassured.module.spring.commons.config.AsyncConfig;
+import io.restassured.module.spring.commons.config.ConfigMergeUtils;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
+import io.restassured.module.webtestclient.config.WebTestClientParamConfig;
 import io.restassured.module.webtestclient.response.WebTestClientResponse;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestAsyncSender;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestLogSpecification;
@@ -58,7 +66,10 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.util.UriBuilder;
 
+import static io.restassured.internal.MapCreator.CollisionStrategy.OVERWRITE;
 import static io.restassured.internal.assertion.AssertParameter.notNull;
+import static io.restassured.internal.multipart.MultiPartInternal.OCTET_STREAM;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
  * @author Olga Maciaszek-Sharma
@@ -73,22 +84,23 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	private final Map<String, Object> attributes = new LinkedHashMap<String, Object>();
 	private final ResponseSpecification responseSpecification;
 	private final Map<String, Object> sessionAttributes = new LinkedHashMap<String, Object>();
-	private final String basePath;
+	private RestAssuredWebTestClientConfig config;
 	private Object requestBody = null;
 	private LogRepository logRepository;
 	private WebTestClientFactory webTestClientFactory;
-	private RestAssuredWebTestClientConfig config;
-	private final SpringClientSerializer serializer = new SpringClientSerializer(config);
-	private Headers requestHeaders = new Headers();
-	private final ParameterUpdater parameterUpdater = new ParameterUpdater(new ParameterUpdater.Serializer() {
+	private final ParameterUpdater
+			parameterUpdater = new ParameterUpdater(new ParameterUpdater.Serializer() {
 		public String serializeIfNeeded(Object value) {
-			return serializer.serializeIfNeeded(value, getRequestContentType());
+			return WebTestClientRequestSpecificationImpl.this.serializeIfNeeded(value);
 		}
 	});
+	private Headers requestHeaders = new Headers();
+	private String basePath;
 	private ExchangeFilterFunction requestLoggingFunction;
 	private List<MultiPartInternal> multiParts = new ArrayList<MultiPartInternal>();
 	private Cookies cookies = new Cookies();
 	private ExchangeFilterFunction authentication;
+	private AsyncConfig asyncConfig;
 
 
 	public WebTestClientRequestSpecificationImpl(ResponseSpecification responseSpecification, String basePath) {
@@ -165,202 +177,331 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 
 	@Override
 	public WebTestClientRequestLogSpecification log() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return new WebTestClientRequestLogSpecificationImpl(this);
 	}
 
 	@Override
-	public WebTestClientRequestSpecification params(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
-		throw new UnsupportedOperationException("Please, implement me.");
+	public WebTestClientRequestSpecification params(String firstParameterName, Object firstParameterValue,
+	                                                Object... parameterNameValuePairs) {
+		notNull(firstParameterName, "firstParameterName");
+		notNull(firstParameterValue, "firstParameterValue");
+		return params(MapCreator.createMapFromParams(OVERWRITE, firstParameterName,
+				firstParameterValue, parameterNameValuePairs));
 	}
 
 	@Override
 	public WebTestClientRequestSpecification params(Map<String, ?> parametersMap) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(parametersMap, "parametersMap");
+		parameterUpdater.updateParameters(convert(config.getParamConfig().requestParamsUpdateStrategy()),
+				(Map<String, Object>) parametersMap, params);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification param(String parameterName, Object... parameterValues) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(parameterName, "parameterName");
+		parameterUpdater.updateZeroToManyParameters(convert(config.getParamConfig().requestParamsUpdateStrategy()),
+				params, parameterName, parameterValues);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification param(String parameterName, Collection<?> parameterValues) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(parameterName, "parameterName");
+		notNull(parameterValues, "parameterValues");
+		parameterUpdater.updateCollectionParameter(convert(config.getParamConfig().requestParamsUpdateStrategy()),
+				params, parameterName, (Collection<Object>) parameterValues);
+		return this;
 	}
 
 	@Override
-	public WebTestClientRequestSpecification queryParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
-		throw new UnsupportedOperationException("Please, implement me.");
+	public WebTestClientRequestSpecification queryParams(String firstParameterName, Object firstParameterValue,
+	                                                     Object... parameterNameValuePairs) {
+		notNull(firstParameterName, "firstParameterName");
+		notNull(firstParameterValue, "firstParameterValue");
+		return queryParams(MapCreator.createMapFromParams(OVERWRITE, firstParameterName,
+				firstParameterValue, parameterNameValuePairs));
 	}
 
 	@Override
 	public WebTestClientRequestSpecification queryParams(Map<String, ?> parametersMap) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(parametersMap, "parametersMap");
+		parameterUpdater.updateParameters(convert(config.getParamConfig().queryParamsUpdateStrategy()),
+				(Map<String, Object>) parametersMap, queryParams);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification queryParam(String parameterName, Object... parameterValues) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(parameterName, "parameterName");
+		parameterUpdater.updateZeroToManyParameters(convert(config.getParamConfig().queryParamsUpdateStrategy()),
+				queryParams, parameterName, parameterValues);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification queryParam(String parameterName, Collection<?> parameterValues) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(parameterName, "parameterName");
+		notNull(parameterValues, "parameterValues");
+		parameterUpdater.updateCollectionParameter(convert(config.getParamConfig().queryParamsUpdateStrategy()),
+				queryParams, parameterName, (Collection<Object>) parameterValues);
+		return this;
 	}
 
 	@Override
-	public WebTestClientRequestSpecification formParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
-		throw new UnsupportedOperationException("Please, implement me.");
+	public WebTestClientRequestSpecification formParams(String firstParameterName, Object firstParameterValue,
+	                                                    Object... parameterNameValuePairs) {
+		notNull(firstParameterName, "firstParameterName");
+		notNull(firstParameterValue, "firstParameterValue");
+		return formParams(MapCreator.createMapFromParams(OVERWRITE, firstParameterName,
+				firstParameterValue, parameterNameValuePairs));
 	}
 
 	@Override
 	public WebTestClientRequestSpecification formParams(Map<String, ?> parametersMap) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(parametersMap, "parametersMap");
+		parameterUpdater.updateParameters(convert(config.getParamConfig().formParamsUpdateStrategy()),
+				(Map<String, Object>) parametersMap, formParams);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification formParam(String parameterName, Object... parameterValues) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(parameterName, "parameterName");
+		parameterUpdater.updateZeroToManyParameters(convert(config.getParamConfig().formParamsUpdateStrategy()),
+				formParams, parameterName, parameterValues);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification formParam(String parameterName, Collection<?> parameterValues) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(parameterName, "parameterName");
+		notNull(parameterValues, "parameterValues");
+		parameterUpdater.updateCollectionParameter(convert(config.getParamConfig().formParamsUpdateStrategy()),
+				formParams, parameterName, (Collection<Object>) parameterValues);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification attribute(String attributeName, Object attributeValue) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(attributeName, "attributeName");
+		notNull(attributeValue, "attributeValue");
+		ParamConfig paramConfig = config.getParamConfig();
+		parameterUpdater.updateZeroToManyParameters(convert(toWebTestClientParamConfig(config.getParamConfig())
+						.attributeUpdateStrategy()),
+				attributes, attributeName, attributeValue);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification attributes(Map<String, ?> attributesMap) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(attributesMap, "attributesMap");
+		parameterUpdater.updateParameters(convert(toWebTestClientParamConfig(config.getParamConfig())
+				.attributeUpdateStrategy()), (Map<String, Object>) attributesMap, attributes);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification body(String body) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		this.requestBody = body;
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification body(byte[] body) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		this.requestBody = body;
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification body(File body) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		this.requestBody = body;
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification body(Object object) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(object, "object");
+		this.requestBody = BodyHelper.toStringBody(object, config, requestHeaders);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification body(Object object, ObjectMapper mapper) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(object, "object");
+		notNull(mapper, "Object mapper");
+		this.requestBody = BodyHelper.toSerializedBody(object, mapper, config, requestHeaders);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification body(Object object, ObjectMapperType mapperType) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(object, "object");
+		notNull(mapperType, "Object mapper type");
+		String requestContentType = getRequestContentType();
+		this.requestBody = ObjectMapping.serialize(object, requestContentType,
+				Serializer.findEncoderCharsetOrReturnDefault(requestContentType, config), mapperType,
+				config.getObjectMapperConfig(), config.getEncoderConfig());
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification cookies(String firstCookieName, Object firstCookieValue, Object... cookieNameValuePairs) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return cookies(MapCreator.createMapFromParams(OVERWRITE, firstCookieName, firstCookieValue, cookieNameValuePairs));
 	}
 
 	@Override
 	public WebTestClientRequestSpecification cookies(Map<String, ?> cookies) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(cookies, "cookies");
+		this.cookies = CookieHelper.cookies(this.cookies, cookies, requestHeaders, config);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification cookies(Cookies cookies) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(cookies, "Cookies");
+		this.cookies = CookieHelper.cookies(this.cookies, cookies);
+		return this;
 	}
 
 	@Override
-	public WebTestClientRequestSpecification cookie(String cookieName, Object value, Object... additionalValues) {
-		throw new UnsupportedOperationException("Please, implement me.");
+	public WebTestClientRequestSpecification cookie(String cookieName, Object cookieValue, Object... additionalValues) {
+		notNull(cookieName, "Cookie name");
+		notNull(cookieValue, "Cookie value");
+		return cookies(CookieHelper.cookie(cookieName, cookieValue, requestHeaders, config, additionalValues));
 	}
 
 	@Override
 	public WebTestClientRequestSpecification cookie(Cookie cookie) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(cookie, "Cookie");
+		return cookies(new Cookies(Collections.singletonList(cookie)));
 	}
 
 	@Override
 	public WebTestClientRequestSpecification multiPart(File file) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		MultiPartConfig multiPartConfig = config.getMultiPartConfig();
+		multiParts.add(new MultiPartInternal(file, multiPartConfig.defaultControlName(), file.getName(), OCTET_STREAM));
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification multiPart(String controlName, File file) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		multiParts.add(new MultiPartInternal(file, controlName, file.getName(), OCTET_STREAM));
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification multiPart(String controlName, File file, String mimeType) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		multiParts.add(new MultiPartInternal(file, controlName, file.getName(), mimeType));
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification multiPart(String controlName, Object object) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		MultiPartConfig multiPartConfig = config.getMultiPartConfig();
+		multiParts.add(new MultiPartInternal(serializeIfNeeded(object), controlName, multiPartConfig.defaultFileName()));
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification multiPart(String controlName, Object object, String mimeType) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		MultiPartConfig multiPartConfig = config.getMultiPartConfig();
+		multiParts.add(new MultiPartInternal(Serializer.serializeIfNeeded(object, mimeType, config), controlName,
+				multiPartConfig.defaultFileName(), mimeType));
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification multiPart(String controlName, String filename, Object object, String mimeType) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		multiParts.add(new MultiPartInternal(Serializer.serializeIfNeeded(object, mimeType, config),
+				controlName, filename, mimeType));
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification multiPart(String controlName, String fileName, byte[] bytes) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		multiParts.add(new MultiPartInternal(bytes, controlName, fileName, OCTET_STREAM));
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification multiPart(String controlName, String fileName, byte[] bytes, String mimeType) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		multiParts.add(new MultiPartInternal(bytes, controlName, fileName, mimeType));
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification multiPart(String controlName, String fileName, InputStream stream) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		multiParts.add(new MultiPartInternal(stream, controlName, fileName, OCTET_STREAM));
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification multiPart(String controlName, String fileName, InputStream stream, String mimeType) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		multiParts.add(new MultiPartInternal(stream, controlName, fileName, mimeType));
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification multiPart(String controlName, String contentBody) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		MultiPartConfig multiPartConfig = config.getMultiPartConfig();
+		multiParts.add(new MultiPartInternal(contentBody, controlName, multiPartConfig.defaultFileName(), OCTET_STREAM));
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification multiPart(String controlName, String contentBody, String mimeType) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		MultiPartConfig multiPartConfig = config.getMultiPartConfig();
+		multiParts.add(new MultiPartInternal(contentBody, controlName, multiPartConfig.defaultFileName(), mimeType));
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification config(RestAssuredWebTestClientConfig config) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		assignConfig(config);
+		return this;
 	}
 
 	@Override
 	public WebTestClientRequestSpecification spec(WebTestClientRequestSpecification requestSpecificationToMerge) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		notNull(requestSpecificationToMerge, WebTestClientRequestSpecification.class);
+
+		if (!(requestSpecificationToMerge instanceof WebTestClientRequestSpecificationImpl)) {
+			throw new IllegalArgumentException("requestSpecificationToMerge must be an instance of " + WebTestClientRequestSpecificationImpl.class.getName());
+		}
+		WebTestClientRequestSpecificationImpl specificationToMerge = (WebTestClientRequestSpecificationImpl) requestSpecificationToMerge;
+		Object otherRequestBody = specificationToMerge.getRequestBody();
+		if (otherRequestBody != null) {
+			requestBody = otherRequestBody;
+		}
+		if (isNotEmpty(specificationToMerge.getBasePath())) {
+			basePath = specificationToMerge.getBasePath();
+		}
+		WebTestClientFactory otherWebTestClientFactory = specificationToMerge.getWebTestClientFactory();
+		if (otherWebTestClientFactory != null && otherWebTestClientFactory.isAssigned()) {
+			webTestClientFactory = otherWebTestClientFactory;
+		}
+		cookies(specificationToMerge.getCookies());
+		headers(specificationToMerge.getRequestHeaders());
+		mergeConfig(this, specificationToMerge);
+		formParams(specificationToMerge.getFormParams());
+		queryParams(specificationToMerge.getQueryParams());
+		params(specificationToMerge.getParams());
+		attributes(specificationToMerge.getAttributes());
+		multiParts.addAll(specificationToMerge.getMultiParts());
+		ExchangeFilterFunction otherRequestLoggingFunction = specificationToMerge.getRequestLoggingFunction();
+		if (otherRequestLoggingFunction != null) {
+			requestLoggingFunction = otherRequestLoggingFunction;
+		}
+		ExchangeFilterFunction otherAuth = specificationToMerge.getAuthentication();
+		if (otherAuth != null) {
+			this.authentication = otherAuth;
+		}
+		AsyncConfig otherAsyncConfig = specificationToMerge.getAsyncConfig();
+		if (otherAsyncConfig != null) {
+			asyncConfig = otherAsyncConfig;
+		}
+		return this;
 	}
 
 	@Override
@@ -442,8 +583,8 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		return this;
 	}
 
-	private String serializeIfNeeded(Object object) {
-		return serializer.serializeIfNeeded(object, getRequestContentType());
+	public Object getRequestBody() {
+		return requestBody;
 	}
 
 	// TODO: extract duplicate?
@@ -714,4 +855,77 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	public WebTestClientResponse request(String method, URL url) {
 		throw new UnsupportedOperationException("Please, implement me.");
 	}
+
+	public String getBasePath() {
+		return basePath;
+	}
+
+	public WebTestClientFactory getWebTestClientFactory() {
+		return webTestClientFactory;
+	}
+
+	public Cookies getCookies() {
+		return cookies;
+	}
+
+	public Headers getRequestHeaders() {
+		return requestHeaders;
+	}
+
+	private void mergeConfig(WebTestClientRequestSpecificationImpl thisOne, WebTestClientRequestSpecificationImpl other) {
+		config((RestAssuredWebTestClientConfig) ConfigMergeUtils.mergeConfig(thisOne.getRestAssuredWebTestClientConfig(),
+				other.getRestAssuredWebTestClientConfig()));
+	}
+
+	public Map<String, Object> getFormParams() {
+		return formParams;
+	}
+
+	public Map<String, Object> getQueryParams() {
+		return queryParams;
+	}
+
+	public Map<String, Object> getParams() {
+		return params;
+	}
+
+	public Map<String, Object> getAttributes() {
+		return attributes;
+	}
+
+	public List<MultiPartInternal> getMultiParts() {
+		return multiParts;
+	}
+
+	public ExchangeFilterFunction getRequestLoggingFunction() {
+		return requestLoggingFunction;
+	}
+
+	public ExchangeFilterFunction getAuthentication() {
+		return authentication;
+	}
+
+	public AsyncConfig getAsyncConfig() {
+		return asyncConfig;
+	}
+
+	public RestAssuredWebTestClientConfig getRestAssuredWebTestClientConfig() {
+		return config;
+	}
+
+	private String serializeIfNeeded(Object object) {
+		return Serializer.serializeIfNeeded(object, getRequestContentType(), config);
+	}
+
+	private static WebTestClientParamConfig toWebTestClientParamConfig(ParamConfig paramConfig) {
+		if (!(paramConfig instanceof WebTestClientParamConfig)) {
+			throw new IllegalArgumentException("Wrong ParamConfig passed to method.");
+		}
+		return (WebTestClientParamConfig) paramConfig;
+	}
+
+	private static ParamConfig.UpdateStrategy convert(WebTestClientParamConfig.UpdateStrategy updateStrategy) {
+		return ParamConfig.UpdateStrategy.valueOf(updateStrategy.name());
+	}
+
 }

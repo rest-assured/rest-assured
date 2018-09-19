@@ -35,4 +35,9 @@ public class BuilderBasedWebTestClientFactory implements WebTestClientFactory {
 	public synchronized WebTestClient build(WebTestClientConfig webTestClientConfig) {
 		return builder.build();
 	}
+
+	@Override
+	public boolean isAssigned() {
+		return builder != null;
+	}
 }

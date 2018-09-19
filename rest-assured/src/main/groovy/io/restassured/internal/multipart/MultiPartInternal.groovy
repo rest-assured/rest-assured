@@ -15,15 +15,18 @@
  */
 package io.restassured.internal.multipart
 
+import java.nio.charset.Charset
+
+import groovy.transform.Canonical
 import io.restassured.internal.NoParameterValue
 import org.apache.http.entity.mime.content.FileBody
 import org.apache.http.entity.mime.content.InputStreamBody
 import org.apache.http.entity.mime.content.StringBody
 
-import java.nio.charset.Charset
-
+@Canonical
 class MultiPartInternal {
-  private static final String OCTET_STREAM = "application/octet-stream"
+
+	public static final String OCTET_STREAM = "application/octet-stream"
   private static final String TEXT_PLAIN = "text/plain"
 
   def content

@@ -1,14 +1,14 @@
 package io.restassured.module.webtestclient.config;
 
 import io.restassured.config.Config;
+import io.restassured.module.spring.commons.config.ClientConfig;
 
 /**
  * @author Olga Maciaszek-Sharma
  */
-public class WebTestClientConfig implements Config {
+public class WebTestClientConfig implements ClientConfig, Config {
 
 	private final boolean userConfigured;
-	private final boolean automaticallyApplySpringSecurityFilters;
 
 	public WebTestClientConfig() {
 		this(false, true);
@@ -16,7 +16,6 @@ public class WebTestClientConfig implements Config {
 
 	public WebTestClientConfig(boolean userConfigured, boolean automaticallyApplySpringSecurityFilters) {
 		this.userConfigured = userConfigured;
-		this.automaticallyApplySpringSecurityFilters = automaticallyApplySpringSecurityFilters;
 	}
 
 	@Override
@@ -24,7 +23,4 @@ public class WebTestClientConfig implements Config {
 		return userConfigured;
 	}
 
-	public boolean shouldAutomaticallyApplySpringSecurityFilters() {
-		return automaticallyApplySpringSecurityFilters;
-	}
 }
