@@ -63,7 +63,8 @@ public class RestAssuredWebTestClient {
 	}
 
 	public static WebTestClientRequestSpecification given() {
-		return new WebTestClientRequestSpecificationImpl(responseSpecification, basePath);
+		return new WebTestClientRequestSpecificationImpl(webTestClientFactory, config, basePath, requestSpecification,
+				responseSpecification);
 	}
 
 	public static void standaloneSetup(Object... controllerFunctionsRoutersOrBuilders) {

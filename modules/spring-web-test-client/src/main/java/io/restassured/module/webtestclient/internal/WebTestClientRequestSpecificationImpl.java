@@ -105,9 +105,23 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	private AsyncConfig asyncConfig;
 
 
-	public WebTestClientRequestSpecificationImpl(ResponseSpecification responseSpecification, String basePath) {
-		this.responseSpecification = responseSpecification;
+	public WebTestClientRequestSpecificationImpl(WebTestClientFactory webTestClientFactory,
+	                                             RestAssuredWebTestClientConfig config,
+	                                             String basePath,
+	                                             WebTestClientRequestSpecification requestSpecification,
+	                                             ResponseSpecification responseSpecification) {
+		this.logRepository = new LogRepository();
+		this.webTestClientFactory = webTestClientFactory == null ? new BuilderBasedWebTestClientFactory(null)
+				: webTestClientFactory;
+		if (requestSpecification != null) {
+			spec(requestSpecification);
+		}
+
+//		if (authentication != null) {  // TODO
+//			authentication.authenticate(this);
+//		}
 		this.basePath = basePath;
+		this.responseSpecification = responseSpecification;
 		assignConfig(config);
 	}
 
@@ -289,7 +303,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		notNull(attributeName, "attributeName");
 		notNull(attributeValue, "attributeValue");
 		ParamConfig paramConfig = config.getParamConfig();
-		parameterUpdater.updateZeroToManyParameters(convert(toWebTestClientParamConfig(config.getParamConfig())
+		parameterUpdater.updateZeroToManyParameters(convert(toWebTestClientParamConfig(paramConfig)
 						.attributeUpdateStrategy()),
 				attributes, attributeName, attributeValue);
 		return this;
@@ -547,7 +561,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 					logConfig.isPrettyPrintingEnabled());
 		}
 		WebTestClient webTestClient = webTestClientFactory.build(config.getWebTestClientConfig());
-		return new WebTestClientRequestSenderImpl(webTestClient, params, formParams, attributes, config, requestBody,
+		return new WebTestClientRequestSenderImpl(webTestClient, params, queryParams, formParams, attributes, config, requestBody,
 				requestHeaders, cookies, sessionAttributes, multiParts, requestLoggingFunction, basePath,
 				responseSpecification, authentication, logRepository);
 	}
@@ -572,7 +586,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	}
 
 	@Override
-	public WebTestClientRequestSpecification WebTestClient(WebTestClient webTestClient) {
+	public WebTestClientRequestSpecification webTestClient(WebTestClient webTestClient) {
 		notNull(webTestClient, WebTestClient.class);
 		return toRequestSpecification(new WrapperWebTestClientFactory(webTestClient));
 	}

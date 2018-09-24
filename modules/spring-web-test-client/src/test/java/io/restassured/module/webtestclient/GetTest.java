@@ -33,4 +33,15 @@ public class GetTest {
                 body("id", equalTo(1)).
                 body("content", equalTo("Hello, Johan!"));
     }
+
+    @Test
+    public void simple_get_works() {
+        RestAssuredWebTestClient.given().
+                standaloneSetup(new GreetingController())
+                .when()
+                .get()
+                .then()
+                .body("id", equalTo(1))
+                .body("content", equalTo("Hello, World!"));
+    }
 }

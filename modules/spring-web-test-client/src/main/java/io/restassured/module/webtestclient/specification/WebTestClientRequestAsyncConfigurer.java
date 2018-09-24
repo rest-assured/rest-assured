@@ -19,6 +19,6 @@ package io.restassured.module.webtestclient.specification;
 /**
  * @author Olga Maciaszek-Sharma
  */
-public class WebTestClientRequestAsyncConfigurer {
+public interface WebTestClientRequestAsyncConfigurer extends WebTestClientRequestSender {
 
 }

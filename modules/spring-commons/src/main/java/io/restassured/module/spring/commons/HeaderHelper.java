@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import io.restassured.config.EncoderConfig;
 import io.restassured.config.HeaderConfig;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.module.spring.commons.config.SpecificationConfig;
+import org.apache.commons.lang3.StringUtils;
 
 import static io.restassured.internal.assertion.AssertParameter.notNull;
 
@@ -17,6 +19,7 @@ import static io.restassured.internal.assertion.AssertParameter.notNull;
 public class HeaderHelper {
 
 	private static final String CONTENT_TYPE = "Content-Type";
+	private static final String CHARSET = "charset";
 
 	private HeaderHelper() {
 	}
@@ -70,6 +73,48 @@ public class HeaderHelper {
 			return new Headers(removeMergedHeadersIfNeeded(headerList, headerConfig));
 		}
 		return requestHeaders;
+	}
+
+	// TODO Extract content-type from headers and apply charset if needed!
+	public static String findContentType(Headers headers, List<Object> multiParts, SpecificationConfig config) {
+		String requestContentType = headers.getValue(CONTENT_TYPE);
+		if (StringUtils.isBlank(requestContentType) && !multiParts.isEmpty()) {
+			requestContentType = "multipart/" + config.getMultiPartConfig().defaultSubtype();
+		}
+
+		EncoderConfig encoderConfig = config.getEncoderConfig();
+		if (requestContentType != null && encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !StringUtils.containsIgnoreCase(requestContentType, CHARSET)) {
+			// Append default charset to request content type
+			requestContentType += "; charset=";
+			if (encoderConfig.hasDefaultCharsetForContentType(requestContentType)) {
+				requestContentType += encoderConfig.defaultCharsetForContentType(requestContentType);
+			} else {
+				requestContentType += encoderConfig.defaultContentCharset();
+			}
+		}
+		return requestContentType;
+	}
+
+	public static String buildApplicationFormEncodedContentType(SpecificationConfig config, String baseContentType) {
+		String contentType = baseContentType;
+		EncoderConfig encoderConfig = config.getEncoderConfig();
+		if (encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()) {
+			contentType += "; charset=";
+			if (encoderConfig.hasDefaultCharsetForContentType(contentType)) {
+				contentType += encoderConfig.defaultCharsetForContentType(contentType);
+			} else {
+				contentType += encoderConfig.defaultContentCharset();
+
+			}
+		}
+		return contentType;
+	}
+
+	public static Object[] mapToArray(Map<String, ?> map) {
+		if (map == null) {
+			return new Object[0];
+		}
+		return map.values().toArray(new Object[map.values().size()]);
 	}
 
 	private static List<Header> removeMergedHeadersIfNeeded(List<Header> headerList, HeaderConfig headerConfig) {

@@ -29,7 +29,7 @@ public class StandaloneWebTestClientFactory {
 		List<WebTestClientConfigurer> configurers = partitioned.get(true).stream()
 				.map(configurer -> (WebTestClientConfigurer) configurer)
 				.collect(Collectors.toList());
-		WebTestClient.Builder builder = WebTestClient.bindToController(controllers)
+		WebTestClient.Builder builder = WebTestClient.bindToController(controllers.toArray())
 				.configureClient();
 		configurers.forEach(builder::apply);
 		return new BuilderBasedWebTestClientFactory(builder);

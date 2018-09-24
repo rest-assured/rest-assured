@@ -936,7 +936,7 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	 * @param WebTestClient The mock mvc instance to use.
 	 * @return The request specification
 	 */
-	WebTestClientRequestSpecification WebTestClient(WebTestClient webTestClient);
+	WebTestClientRequestSpecification webTestClient(WebTestClient webTestClient);
 
 	/**
 	 * Build a {@link WebTestClient} using the given, fully initialized, i.e.

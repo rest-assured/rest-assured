@@ -89,7 +89,7 @@ public class RestAssuredWebTestClientConfig implements SpecificationConfig {
 		notNull(xmlConfig, "Xml config");
 		notNull(headerConfig, "Header config");
 		notNull(multiPartConfig, "MultiPart config");
-		notNull(webTestClientConfig, "WebTestClient config");
+		notNull(webTestClientConfig, "webTestClient config");
 		notNull(paramConfig, "Param config");
 		this.logConfig = logConfig;
 		this.encoderConfig = encoderConfig;
@@ -354,7 +354,7 @@ public class RestAssuredWebTestClientConfig implements SpecificationConfig {
 	}
 
 	/**
-	 * Set the WebTestClient config
+	 * Set the webTestClient config
 	 *
 	 * @param webTestClientConfig The {@link WebTestClientConfig} to set
 	 * @return An updated RestAssuredWebTestClientConfig
@@ -397,7 +397,7 @@ public class RestAssuredWebTestClientConfig implements SpecificationConfig {
 	}
 
 	/**
-	 * @return The WebTestClient Config
+	 * @return The webTestClient Config
 	 */
 	public WebTestClientConfig getWebTestClientConfig() {
 		return webTestClientConfig;

@@ -23,19 +23,21 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
+@RestController
 public class CookieController {
 
     @RequestMapping(value = "/cookie", method = GET, produces = APPLICATION_JSON_VALUE)
-    public @ResponseBody String cookie(@CookieValue("cookieName1") String cookieValue1, @CookieValue(value = "cookieName2", required = false) String cookieValue2) {
+    public String cookie(@CookieValue("cookieName1") String cookieValue1, @CookieValue(value = "cookieName2", required = false) String cookieValue2) {
         return "{\"cookieValue1\" : \"" + cookieValue1 + "\", \"cookieValue2\" : \"" + cookieValue2 + "\"}";
     }
 
     @RequestMapping(value = "/setCookies", method = GET, produces = APPLICATION_JSON_VALUE)
-    public @ResponseBody String setCookies(HttpServletResponse response,
+    public String setCookies(HttpServletResponse response,
                      @RequestParam("cookieName1") String cookieName1, @RequestParam("cookieValue1") String cookieValue1,
                      @RequestParam("cookieName2") String cookieName2, @RequestParam("cookieValue2") String cookieValue2) {
         response.addCookie(new Cookie(cookieName1, cookieValue1));
