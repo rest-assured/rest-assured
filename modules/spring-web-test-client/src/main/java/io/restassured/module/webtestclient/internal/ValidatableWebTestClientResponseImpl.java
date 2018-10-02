@@ -22,8 +22,11 @@ public class ValidatableWebTestClientResponseImpl extends ValidatableResponseOpt
 	private final WebTestClient.ResponseSpec responseSpec;
 	private final WebTestClientResponse response;
 
-	public ValidatableWebTestClientResponseImpl(WebTestClient.ResponseSpec responseSpec, ResponseParserRegistrar rpr, RestAssuredConfig config,
-	                                            WebTestClientResponse response, ExtractableResponse<WebTestClientResponse> extractableResponse, LogRepository logRepository) {
+	public ValidatableWebTestClientResponseImpl(WebTestClient.ResponseSpec responseSpec, ResponseParserRegistrar rpr,
+	                                            RestAssuredConfig config,
+	                                            WebTestClientResponse response,
+	                                            ExtractableResponse<WebTestClientResponse> extractableResponse,
+	                                            LogRepository logRepository) {
 		super(rpr, config, toStandardResponse(response), extractableResponse, logRepository);
 		this.response = response;
 		AssertParameter.notNull(responseSpec, ResultActions.class);
@@ -32,11 +35,16 @@ public class ValidatableWebTestClientResponseImpl extends ValidatableResponseOpt
 
 	@Override
 	public WebTestClientResponse originalResponse() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return response;
+	}
+
+	@Override
+	public WebTestClient.ResponseSpec responseSpec() {
+		return responseSpec;
 	}
 
 	@Override
 	public WebTestClient.ResponseSpec expect() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return responseSpec();
 	}
 }

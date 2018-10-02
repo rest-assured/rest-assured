@@ -19,19 +19,25 @@ package io.restassured.module.webtestclient.response;
 import io.restassured.response.ValidatableResponseOptions;
 
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.test.web.servlet.ResultHandler;
-import org.springframework.test.web.servlet.ResultMatcher;
 
 /**
- * A validatable response of a request made by REST Assured Mock Mvc.
- * <p>
- * Usage example:
- * <pre>
- * get("/lotto").then().body("lotto.lottoId", is(5));
- * </pre>
- * </p>
+ * A validatable response of a request made by REST Assured WebTestClient. Returns an instance of
+ * {@link WebTestClient.ResponseSpec} so that user can make subsequent assertions using the
+ * {@link WebTestClient.ResponseSpec} API.
  */
-public interface ValidatableWebTestClientResponse extends ValidatableResponseOptions<ValidatableWebTestClientResponse, WebTestClientResponse> {
+public interface ValidatableWebTestClientResponse extends ValidatableResponseOptions<ValidatableWebTestClientResponse,
+		WebTestClientResponse> {
 
+	/**
+	 * @return underlying {@link WebTestClient.ResponseSpec instance}
+	 */
+	WebTestClient.ResponseSpec responseSpec();
+
+	/**
+	 * An alias method for {@link ValidatableWebTestClientResponse#responseSpec()} method in order to provide a consistent
+	 * API
+	 *
+	 * @return underlying {@link WebTestClient.ResponseSpec instance}
+	 */
 	WebTestClient.ResponseSpec expect();
 }

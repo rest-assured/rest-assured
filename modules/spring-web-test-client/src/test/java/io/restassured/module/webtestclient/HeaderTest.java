@@ -73,26 +73,21 @@ public class HeaderTest {
         when().
                 get("/header").
         then().
-                header("Content-Length", new RestAssuredFunction<String, Integer>() {
-                                                public Integer apply(String s) {
-                                                    return Integer.parseInt(s);
-                                                }}, lessThanOrEqualTo(1000));
+                header("Content-Length", Integer::parseInt, lessThanOrEqualTo(1000));
     }
 
     @Test public void
     validate_may_fail_when_using_mapping_function_when_validating_header_value() {
         exception.expect(AssertionError.class);
-        exception.expectMessage("Expected header \"Content-Length\" was not a value greater than <1000>, was \"45\". Headers are:");
+        exception.expectMessage("Expected header \"Content-Length\" was not a value greater than <1000>, " +
+                "was \"45\". Headers are:");
 
         given().
                 header(new Header("headerName", "200")).
         when().
                 get("/header").
         then().
-                header("Content-Length", new RestAssuredFunction<String, Integer>() {
-                                                public Integer apply(String s) {
-                                                    return Integer.parseInt(s);
-                                                }}, greaterThan(1000));
+                header("Content-Length", Integer::parseInt, greaterThan(1000));
     }
 
     @Test public void
@@ -138,7 +133,8 @@ public class HeaderTest {
     @Test public void
     can_send_headers_using_headers_class() {
         given().
-                headers(new Headers(new Header("headerName", "John Doe"), new Header("user-agent", "rest assured"))).
+                headers(new Headers(new Header("headerName", "John Doe"),
+                        new Header("user-agent", "rest assured"))).
         when().
                 get("/header").
         then().
@@ -148,17 +144,14 @@ public class HeaderTest {
     }
 
     @Test
-    public void canUseResponseAwareMatchersForHeaderValidation() throws Exception {
+    public void canUseResponseAwareMatchersForHeaderValidation() {
         given().
                 standaloneSetup(new RedirectController()).
         when().
                 get("/redirect").
         then().
                 statusCode(301).
-                header("Location", new ResponseAwareMatcher<WebTestClientResponse>() {
-                    public Matcher<?> matcher(WebTestClientResponse response) throws Exception {
-                            return endsWith("/redirect/"+response.path("id"));
-                    }});
+                header("Location", response-> endsWith("/redirect/"+response.path("id")));
     }
 }
 

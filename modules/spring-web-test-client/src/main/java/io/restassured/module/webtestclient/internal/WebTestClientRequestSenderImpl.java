@@ -397,7 +397,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 			restAssuredResponse.setHasExpectations(false);
 			restAssuredResponse.setStatusCode(result.getStatus().value());
 
-			List<Header> responseHeaders = assembleHeaders(result.getRequestHeaders());
+			List<Header> responseHeaders = assembleHeaders(result.getResponseHeaders());
 			restAssuredResponse.setResponseHeaders(new Headers(responseHeaders));
 			restAssuredResponse.setRpr(getRpr());
 			restAssuredResponse.setStatusLine(buildResultString(result.getStatus()));
