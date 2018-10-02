@@ -43,25 +43,25 @@ public class BasePathTest {
 	base_path_is_prepended_to_path() {
 		RestAssuredWebTestClient.basePath = "/my-path";
 
-		given().
-				param("name", "Johan").
-				when().
-				get("/greetingPath").
-				then().
-				statusCode(200).
-				body("content", equalTo("Hello, Johan!"));
+		given()
+				.param("name", "Johan")
+				.when()
+				.get("/greetingPath")
+				.then()
+				.statusCode(200)
+				.body("content", equalTo("Hello, Johan!"));
 	}
 
 	@Test
 	public void
 	default_base_path_is_slash() {
-		given().
-				param("name", "Johan").
-				when().
-				get().
-				then().
-				statusCode(200).
-				body("content", equalTo("Hello, Johan!"));
+		given()
+				.param("name", "Johan")
+				.when()
+				.get()
+				.then()
+				.statusCode(200)
+				.body("content", equalTo("Hello, Johan!"));
 	}
 
 	@Test
@@ -69,13 +69,13 @@ public class BasePathTest {
 	double_slashes_are_prevented() {
 		RestAssuredWebTestClient.basePath = "/my-path/";
 
-		given().
-				param("name", "Johan").
-				when().
-				get("/greetingPath").
-				then().
-				statusCode(200).
-				body("content", equalTo("Hello, Johan!"));
+		given()
+				.param("name", "Johan")
+				.when()
+				.get("/greetingPath")
+				.then()
+				.statusCode(200)
+				.body("content", equalTo("Hello, Johan!"));
 	}
 
 	@Test
@@ -84,12 +84,12 @@ public class BasePathTest {
 		RestAssuredWebTestClient.basePath = "/my-path/";
 
 		given().
-				param("name", "Johan").
-				when().
-				get("greetingPath").
-				then().
-				statusCode(200).
-				body("content", equalTo("Hello, Johan!"));
+				param("name", "Johan")
+				.when()
+				.get("greetingPath")
+				.then()
+				.statusCode(200)
+				.body("content", equalTo("Hello, Johan!"));
 	}
 
 	@Test
@@ -97,12 +97,12 @@ public class BasePathTest {
 	base_path_doesnt_have_to_end_with_slash_even_though_path_doesnt_begin_with_slash2() {
 		RestAssuredWebTestClient.basePath = "/my-path";
 
-		given().
-				param("name", "Johan").
-				when().
-				get("greetingPath").
-				then().
-				statusCode(200).
-				body("content", equalTo("Hello, Johan!"));
+		given()
+				.param("name", "Johan")
+				.when()
+				.get("greetingPath")
+				.then()
+				.statusCode(200)
+				.body("content", equalTo("Hello, Johan!"));
 	}
 }

@@ -40,6 +40,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.util.MimeType;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
@@ -50,6 +51,7 @@ import static io.restassured.internal.assertion.AssertParameter.notNull;
 import static io.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash;
 import static io.restassured.module.spring.commons.BodyHelper.toByteArray;
 import static io.restassured.module.spring.commons.HeaderHelper.mapToArray;
+import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.springframework.http.HttpMethod.DELETE;
@@ -393,10 +395,10 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 			restAssuredResponse = new WebTestClientRestAssuredResponseImpl(responseSpec, logRepository);
 			restAssuredResponse.setConfig(ConfigConverter.convertToRestAssuredConfig(config));
 			restAssuredResponse.setContent(result.getResponseBodyContent());
-			restAssuredResponse.setContentType(result.getResponseHeaders().getContentType().toString());
+			MediaType contentType = result.getResponseHeaders().getContentType();
+			restAssuredResponse.setContentType(ofNullable(contentType).map(MimeType::toString).orElse(null));
 			restAssuredResponse.setHasExpectations(false);
 			restAssuredResponse.setStatusCode(result.getStatus().value());
-
 			List<Header> responseHeaders = assembleHeaders(result.getResponseHeaders());
 			restAssuredResponse.setResponseHeaders(new Headers(responseHeaders));
 			restAssuredResponse.setRpr(getRpr());

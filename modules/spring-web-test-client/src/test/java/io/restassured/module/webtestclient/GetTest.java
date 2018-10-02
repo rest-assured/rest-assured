@@ -25,19 +25,19 @@ public class GetTest {
 
     @Test public void
     unnamed_path_params_works() {
-        RestAssuredWebTestClient.given().
-                standaloneSetup(new GreetingController()).
-        when().
-                get("/greeting?name={name}", "Johan").
-        then().
-                body("id", equalTo(1)).
-                body("content", equalTo("Hello, Johan!"));
+        RestAssuredWebTestClient.given()
+                .standaloneSetup(new GreetingController())
+                .when()
+                .get("/greeting?name={name}", "Johan")
+                .then()
+                .body("id", equalTo(1))
+                .body("content", equalTo("Hello, Johan!"));
     }
 
     @Test
     public void simple_get_works() {
-        RestAssuredWebTestClient.given().
-                standaloneSetup(new GreetingController())
+        RestAssuredWebTestClient.given()
+                .standaloneSetup(new GreetingController())
                 .when()
                 .get()
                 .then()

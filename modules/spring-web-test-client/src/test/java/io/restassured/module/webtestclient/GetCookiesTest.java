@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-// @formatter:off
 package io.restassured.module.webtestclient;
 
 import java.util.HashMap;
@@ -43,37 +42,37 @@ public class GetCookiesTest {
 
     @Test public void
     can_send_cookie_using_cookie_class() {
-        RestAssuredWebTestClient.given().
-                cookie(new Cookie.Builder("cookieName1", "John Doe").build()).
-        when().
-                get("/cookie").
-        then().
-                statusCode(200).
-                body("cookieValue1", equalTo("John Doe"));
+        RestAssuredWebTestClient.given()
+                .cookie(new Cookie.Builder("cookieName1", "John Doe").build())
+                .when()
+                .get("/cookie")
+                .then()
+                .statusCode(200)
+                .body("cookieValue1", equalTo("John Doe"));
     }
 
     @Test public void
     can_send_cookie_using_cookie_name_and_value() {
-        RestAssuredWebTestClient.given().
-                cookie("cookieName1", "John Doe").
-        when().
-                get("/cookie").
-        then().
-                statusCode(200).
-                body("cookieValue1", equalTo("John Doe"));
+        RestAssuredWebTestClient.given()
+                .cookie("cookieName1", "John Doe")
+                .when()
+                .get("/cookie")
+                .then()
+                .statusCode(200)
+                .body("cookieValue1", equalTo("John Doe"));
     }
 
     @Test public void
     can_send_multiple_cookies() {
-        RestAssuredWebTestClient.given().
-                cookie("cookieName1", "John Doe").
-                cookie("cookieName2", "rest assured").
-        when().
-                get("/cookie").
-        then().
-                statusCode(200).
-                body("cookieValue1", equalTo("John Doe")).
-                body("cookieValue2", equalTo("rest assured"));
+        RestAssuredWebTestClient.given()
+                .cookie("cookieName1", "John Doe")
+                .cookie("cookieName2", "rest assured")
+                .when()
+                .get("/cookie")
+                .then()
+                .statusCode(200)
+                .body("cookieValue1", equalTo("John Doe"))
+                .body("cookieValue2", equalTo("rest assured"));
     }
 
     @Test public void
@@ -82,27 +81,27 @@ public class GetCookiesTest {
         cookies.put("cookieName1", "John Doe");
         cookies.put("cookieName2", "rest assured");
 
-        RestAssuredWebTestClient.given().
-                cookies(cookies).
-        when().
-                get("/cookie").
-        then().
-                statusCode(200).
-                body("cookieValue1", equalTo("John Doe")).
-                body("cookieValue2", equalTo("rest assured"));
+        RestAssuredWebTestClient.given()
+                .cookies(cookies)
+                .when()
+                .get("/cookie")
+                .then()
+                .statusCode(200)
+                .body("cookieValue1", equalTo("John Doe"))
+                .body("cookieValue2", equalTo("rest assured"));
     }
 
     @Test public void
     can_send_cookies_using_cookies_class() {
         RestAssuredWebTestClient.given().
-                cookies(new Cookies(new Cookie.Builder("cookieName1", "John Doe").build(), new Cookie.Builder("cookieName2", "rest assured").build())).
-        when().
-                get("/cookie").
-        then().
-                statusCode(200).
-                body("cookieValue1", equalTo("John Doe")).
-                body("cookieValue2", equalTo("rest assured"));
+                cookies(new Cookies(new Cookie.Builder("cookieName1", "John Doe")
+                        .build(), new Cookie.Builder("cookieName2", "rest assured")
+                        .build()))
+                .when()
+                .get("/cookie")
+                .then()
+                .statusCode(200)
+                .body("cookieValue1", equalTo("John Doe"))
+                .body("cookieValue2", equalTo("rest assured"));
     }
 }
-
-// @formatter:on

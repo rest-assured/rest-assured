@@ -34,16 +34,16 @@ public class ExtractTest {
 	can_extract_rest_assured_web_test_client_response() {
 		WebTestClientResponse response =
 
-				RestAssuredWebTestClient.given().
-						standaloneSetup(new GreetingController()).
-						param("name", "Johan").
-						when().
-						get("/greeting").
-						then().
-						statusCode(200).
-						body("id", equalTo(1)).
-						extract().
-						response();
+				RestAssuredWebTestClient.given()
+						.standaloneSetup(new GreetingController())
+						.param("name", "Johan")
+						.when()
+						.get("/greeting")
+						.then()
+						.statusCode(200)
+						.body("id", equalTo(1))
+						.extract()
+						.response();
 
 		assertThat((String) response.path("content")).isEqualTo("Hello, Johan!");
 	}
@@ -53,16 +53,16 @@ public class ExtractTest {
 	can_extract_web_test_client_result() {
 		FluxExchangeResult<Object> result =
 
-				RestAssuredWebTestClient.given().
-						standaloneSetup(new GreetingController()).
-						param("name", "Johan").
-						when().
-						get("/greeting").
-						then().
-						statusCode(200).
-						body("id", equalTo(1)).
-						extract().
-						response().webTestClientResult();
+				RestAssuredWebTestClient.given()
+						.standaloneSetup(new GreetingController())
+						.param("name", "Johan")
+						.when()
+						.get("/greeting")
+						.then()
+						.statusCode(200)
+						.body("id", equalTo(1))
+						.extract()
+						.response().webTestClientResult();
 
 		assertThat(result.getResponseHeaders().getContentType().toString()).isEqualTo(APPLICATION_JSON_UTF8.toString());
 	}
@@ -72,16 +72,16 @@ public class ExtractTest {
 	can_extract_webt_test_client_response_spec() {
 		WebTestClient.ResponseSpec responseSpec =
 
-				RestAssuredWebTestClient.given().
-						standaloneSetup(new GreetingController()).
-						param("name", "Johan").
-						when().
-						get("/greeting").
-						then().
-						statusCode(200).
-						body("id", equalTo(1)).
-						extract().
-						response().responseSpec();
+				RestAssuredWebTestClient.given()
+						.standaloneSetup(new GreetingController())
+						.param("name", "Johan")
+						.when()
+						.get("/greeting")
+						.then()
+						.statusCode(200)
+						.body("id", equalTo(1))
+						.extract()
+						.response().responseSpec();
 
 		responseSpec.expectHeader().contentType(APPLICATION_JSON_UTF8.toString());
 	}

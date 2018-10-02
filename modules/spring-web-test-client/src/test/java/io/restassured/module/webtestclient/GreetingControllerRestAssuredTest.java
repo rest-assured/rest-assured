@@ -31,65 +31,65 @@ public class GreetingControllerRestAssuredTest {
 	uses_predefined_web_test_client_instance() throws Exception {
 		WebTestClient webTestClient = bindToController(new GreetingController()).build();
 
-		RestAssuredWebTestClient.given().
-				webTestClient(webTestClient).
-				param("name", "Johan").
-				when().
-				get("/greeting").
-				then().
-				body("id", equalTo(1)).
-				body("content", equalTo("Hello, Johan!"));
+		RestAssuredWebTestClient.given()
+				.webTestClient(webTestClient)
+				.param("name", "Johan")
+				.when()
+				.get("/greeting")
+				.then()
+				.body("id", equalTo(1))
+				.body("content", equalTo("Hello, Johan!"));
 	}
 
 	@Test
 	public void
-	param_with_int() throws Exception {
+	param_with_int() {
 		WebTestClient webTestClient = bindToController(new GreetingController()).build();
 
-		RestAssuredWebTestClient.given().
-				webTestClient(webTestClient).
-				param("name", 1).
-				when().
-				get("/greeting").
-				then().
-				body("id", equalTo(1)).
-				body("content", equalTo("Hello, 1!"));
+		RestAssuredWebTestClient.given()
+				.webTestClient(webTestClient)
+				.param("name", 1)
+				.when()
+				.get("/greeting")
+				.then()
+				.body("id", equalTo(1))
+				.body("content", equalTo("Hello, 1!"));
 	}
 
 	@Test
 	public void
-	uses_predefined_standalone() throws Exception {
-		RestAssuredWebTestClient.given().
-				standaloneSetup(new GreetingController()).
-				param("name", "Johan").
-				when().
-				get("/greeting").
-				then().
-				body("id", equalTo(1)).
-				body("content", equalTo("Hello, Johan!"));
+	uses_predefined_standalone() {
+		RestAssuredWebTestClient.given()
+				.standaloneSetup(new GreetingController())
+				.param("name", "Johan")
+				.when()
+				.get("/greeting")
+				.then()
+				.body("id", equalTo(1))
+				.body("content", equalTo("Hello, Johan!"));
 	}
 
 	@Test
 	public void
-	uses_static_web_test_client() throws Exception {
+	uses_static_web_test_client() {
 		RestAssuredWebTestClient.webTestClient(bindToController(new GreetingController()).build());
 
 		try {
-			RestAssuredWebTestClient.given().
-					param("name", "Johan").
-					when().
-					get("/greeting").
-					then().
-					body("id", equalTo(1)).
-					body("content", equalTo("Hello, Johan!"));
+			RestAssuredWebTestClient.given()
+					.param("name", "Johan")
+					.when()
+					.get("/greeting")
+					.then()
+					.body("id", equalTo(1))
+					.body("content", equalTo("Hello, Johan!"));
 
 			RestAssuredWebTestClient.given().
-					param("name", "Erik").
-					when().
-					get("/greeting").
-					then().
-					body("id", equalTo(2)).
-					body("content", equalTo("Hello, Erik!"));
+					param("name", "Erik")
+					.when()
+					.get("/greeting")
+					.then()
+					.body("id", equalTo(2))
+					.body("content", equalTo("Hello, Erik!"));
 		} finally {
 			RestAssuredWebTestClient.reset();
 		}

@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 
-// @formatter:off
 package io.restassured.module.webtestclient;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import io.restassured.function.RestAssuredFunction;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
-import io.restassured.matcher.ResponseAwareMatcher;
-import io.restassured.module.webtestclient.response.WebTestClientResponse;
 import io.restassured.module.webtestclient.setup.HeaderController;
 import io.restassured.module.webtestclient.setup.RedirectController;
-import org.hamcrest.Matcher;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -57,23 +52,23 @@ public class HeaderTest {
 
     @Test public void
     can_send_header_using_header_class() {
-        given().
-                header(new Header("headerName", "John Doe")).
-        when().
-                get("/header").
-        then().
-                statusCode(200).
-                body("headerName", equalTo("John Doe"));
+        given()
+                .header(new Header("headerName", "John Doe"))
+                .when()
+                .get("/header")
+                .then()
+                .statusCode(200)
+                .body("headerName", equalTo("John Doe"));
     }
 
     @Test public void
     can_use_mapping_function_when_validating_header_value() {
-        given().
-                header(new Header("headerName", "200")).
-        when().
-                get("/header").
-        then().
-                header("Content-Length", Integer::parseInt, lessThanOrEqualTo(1000));
+        given()
+                .header(new Header("headerName", "200"))
+                .when()
+                .get("/header")
+                .then()
+                .header("Content-Length", Integer::parseInt, lessThanOrEqualTo(1000));
     }
 
     @Test public void
@@ -82,36 +77,36 @@ public class HeaderTest {
         exception.expectMessage("Expected header \"Content-Length\" was not a value greater than <1000>, " +
                 "was \"45\". Headers are:");
 
-        given().
-                header(new Header("headerName", "200")).
-        when().
-                get("/header").
-        then().
-                header("Content-Length", Integer::parseInt, greaterThan(1000));
+        given()
+                .header(new Header("headerName", "200"))
+                .when()
+                .get("/header")
+                .then()
+                .header("Content-Length", Integer::parseInt, greaterThan(1000));
     }
 
     @Test public void
     can_send_header_using_header_name_and_value() {
-        given().
-                header("headerName", "John Doe").
-        when().
-                get("/header").
-        then().
-                statusCode(200).
-                body("headerName", equalTo("John Doe"));
+        given()
+                .header("headerName", "John Doe")
+                .when()
+                .get("/header")
+                .then()
+                .statusCode(200)
+                .body("headerName", equalTo("John Doe"));
     }
 
     @Test public void
     can_send_multiple_headers() {
-        given().
-                header("headerName", "John Doe").
-                header("user-agent", "rest assured").
-        when().
-                get("/header").
-        then().
-                statusCode(200).
-                body("headerName", equalTo("John Doe")).
-                body("user-agent", equalTo("rest assured"));
+        given()
+                .header("headerName", "John Doe")
+                .header("user-agent", "rest assured")
+                .when()
+                .get("/header")
+                .then()
+                .statusCode(200)
+                .body("headerName", equalTo("John Doe"))
+                .body("user-agent", equalTo("rest assured"));
     }
 
     @Test public void
@@ -120,39 +115,38 @@ public class HeaderTest {
         headers.put("headerName", "John Doe");
         headers.put("user-agent", "rest assured");
 
-        given().
-                headers(headers).
-        when().
-                get("/header").
-        then().
-                statusCode(200).
-                body("headerName", equalTo("John Doe")).
-                body("user-agent", equalTo("rest assured"));
+        given()
+                .headers(headers)
+                .when()
+                .get("/header")
+                .then()
+                .statusCode(200)
+                .body("headerName", equalTo("John Doe"))
+                .body("user-agent", equalTo("rest assured"));
     }
 
     @Test public void
     can_send_headers_using_headers_class() {
-        given().
-                headers(new Headers(new Header("headerName", "John Doe"),
-                        new Header("user-agent", "rest assured"))).
-        when().
-                get("/header").
-        then().
-                statusCode(200).
-                body("headerName", equalTo("John Doe")).
-                body("user-agent", equalTo("rest assured"));
+        given()
+                .headers(new Headers(new Header("headerName", "John Doe"),
+                        new Header("user-agent", "rest assured")))
+                .when()
+                .get("/header")
+                .then()
+                .statusCode(200)
+                .body("headerName", equalTo("John Doe"))
+                .body("user-agent", equalTo("rest assured"));
     }
 
     @Test
     public void canUseResponseAwareMatchersForHeaderValidation() {
-        given().
-                standaloneSetup(new RedirectController()).
-        when().
-                get("/redirect").
-        then().
-                statusCode(301).
-                header("Location", response-> endsWith("/redirect/"+response.path("id")));
+        given()
+                .standaloneSetup(new RedirectController())
+                .when()
+                .get("/redirect")
+                .then()
+                .statusCode(301)
+                .header("Location", response -> endsWith("/redirect/" + response.path("id")));
     }
 }
 
-// @formatter:on

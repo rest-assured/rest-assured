@@ -36,15 +36,15 @@ public class SetCookiesTest {
 	@Test
 	public void
 	can_receive_cookies() {
-		RestAssuredWebTestClient.given().
-				queryParam("name", "John Doe").
-				queryParam("project", "rest assured").
-				when().
-				get("/setCookies").
-				then().
-				statusCode(200).
-				cookie("name", UriUtils.encode("John Doe", Charsets.UTF_8)).
-				cookie("project", UriUtils.encode("rest assured", Charsets.UTF_8));
+		RestAssuredWebTestClient.given()
+				.queryParam("name", "John Doe")
+				.queryParam("project", "rest assured")
+				.when()
+				.get("/setCookies")
+				.then()
+				.statusCode(200)
+				.cookie("name", UriUtils.encode("John Doe", Charsets.UTF_8))
+				.cookie("project", UriUtils.encode("rest assured", Charsets.UTF_8));
 	}
 
 }
