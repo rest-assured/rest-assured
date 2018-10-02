@@ -14,32 +14,26 @@
  * limitations under the License.
  */
 
-package io.restassured.module.webtestclient.http;
+package io.restassured.module.webtestclient.setup;
 
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-/**
- * This controller has been copied from <a href="http://spring.io/guides/gs/rest-service/">Spring Guides</a>.
- */
 @Controller
-public class BasePathController {
+public class QueryParamController {
 
     private static final String template = "Hello, %s!";
 
-    @RequestMapping(value = "/my-path/greetingPath", method = GET)
-    public @ResponseBody Greeting greeting(
-            @RequestParam(value="name", required=false, defaultValue="World") String name) {
-        return new Greeting(0, String.format(template, name));
-    }
-
-    @RequestMapping(value = "/", method = GET)
-    public @ResponseBody Greeting greeting2(
-            @RequestParam(value="name", required=false, defaultValue="World") String name) {
-        return new Greeting(1, String.format(template, name));
+    @RequestMapping(value = "/queryParam", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody String queryParam(@RequestParam("name") String name, @RequestParam("message") String message) {
+        return "{ \"name\" : \"" + String.format(template, name) + "\"," +
+                " \"message\" : \"" + message + "\", " +
+                " \"_link\" : \"" + ServletUriComponentsBuilder.fromCurrentRequest().build().toString() + "\" }";
     }
 }

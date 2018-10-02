@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.restassured.module.webtestclient.http;
+package io.restassured.module.webtestclient.setup;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import io.restassured.response.Response;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.ResponseEntity;

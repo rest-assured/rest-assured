@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package io.restassured.module.webtestclient.http;
+package io.restassured.module.webtestclient.setup;
 
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @RestController
-public class HeaderController {
+public class RedirectController {
 
-    @RequestMapping(value = "/header", method = GET, produces = APPLICATION_JSON_VALUE)
-    public String header(@RequestHeader("headerName") String headerValue,
-                                       @RequestHeader(value = "User-Agent", required = false) String userAgent) {
-        return "{\"headerName\" : \""+headerValue+"\", \"user-agent\" : \""+userAgent+"\"}";
+    @RequestMapping(value = "/redirect", method = GET, produces = APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> redirect() {
+        return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
+                .header("Location", "http://localhost:8080/redirect/1")
+                .body("{ \"id\" : 1 }");
     }
 }

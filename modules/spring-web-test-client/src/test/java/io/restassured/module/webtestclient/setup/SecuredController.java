@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.restassured.module.webtestclient.http;
+package io.restassured.module.webtestclient.setup;
 
 import java.security.Principal;
 import java.util.concurrent.atomic.AtomicLong;

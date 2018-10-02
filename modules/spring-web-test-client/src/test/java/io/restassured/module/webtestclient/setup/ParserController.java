@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-package io.restassured.module.webtestclient.http;
+package io.restassured.module.webtestclient.setup;
 
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-@Controller
-public class QueryParamController {
+public class ParserController {
 
-    private static final String template = "Hello, %s!";
-
-    @RequestMapping(value = "/queryParam", method = GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String queryParam(@RequestParam("name") String name, @RequestParam("message") String message) {
-        return "{ \"name\" : \"" + String.format(template, name) + "\"," +
-                " \"message\" : \"" + message + "\", " +
-                " \"_link\" : \"" + ServletUriComponentsBuilder.fromCurrentRequest().build().toString() + "\" }";
+    @RequestMapping(value = "/parserWithUnknownContentType", method = GET, produces = "some/thing")
+    public @ResponseBody String parserWithUnknownContentType(@RequestParam(value = "param") String param) {
+        return "{ \"param\" : \"" + param + "\" }";
     }
 }

@@ -298,6 +298,14 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		return this;
 	}
 
+	/**
+	 *
+	 * @param attributeName  The attribute name
+	 * @param attributeValue The attribute value
+	 * @return WebTestClientRequestSpecification with updated attributes
+	 * Note: This will set attributes on `ClientRequest` in `WebTestClient`; given the way `WebTesClient` works under
+	 * the hood, these arguments remain on client side only and will not be propagated to the `ServerRequest`.
+	 */
 	@Override
 	public WebTestClientRequestSpecification attribute(String attributeName, Object attributeValue) {
 		notNull(attributeName, "attributeName");
@@ -309,6 +317,13 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		return this;
 	}
 
+	/**
+	 *
+	 * @param attributesMap The Map containing the request attribute names and their values
+	 * @return WebTestClientRequestSpecification with updated attributes
+	 * Note: This will set attributes on `ClientRequest` in `WebTestClient`; given the way `WebTesClient` works under
+	 * the hood, these arguments remain on client side only and will not be propagated to the `ServerRequest`.
+	 */
 	@Override
 	public WebTestClientRequestSpecification attributes(Map<String, ?> attributesMap) {
 		notNull(attributesMap, "attributesMap");
@@ -534,22 +549,6 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		} else {
 			cookie(sessionIdName, sessionIdValue);
 		}
-		return this;
-	}
-
-	@Override
-	public WebTestClientRequestSpecification sessionAttrs(Map<String, Object> sessionAttributes) {
-		notNull(sessionAttributes, "sessionAttributes");
-		parameterUpdater.updateParameters(convert(config.getWebTestClientParamConfig().sessionAttributesUpdateStrategy()),
-				sessionAttributes, this.sessionAttributes);
-		return this;
-	}
-
-	@Override
-	public WebTestClientRequestSpecification sessionAttr(String name, Object value) {
-		notNull(name, "Session attribute name");
-		parameterUpdater.updateZeroToManyParameters(convert(config.getWebTestClientParamConfig()
-				.sessionAttributesUpdateStrategy()), sessionAttributes, name, value);
 		return this;
 	}
 

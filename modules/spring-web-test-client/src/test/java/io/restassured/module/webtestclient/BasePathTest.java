@@ -16,7 +16,7 @@
 
 package io.restassured.module.webtestclient;
 
-import io.restassured.module.webtestclient.http.BasePathController;
+import io.restassured.module.webtestclient.setup.BasePathController;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

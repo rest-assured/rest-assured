@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.module.webtestclient.http;
+package io.restassured.module.webtestclient.setup;
 
 /**
  * This DTO has been copied from <a href="http://spring.io/guides/gs/rest-service/">Spring Guides</a>.

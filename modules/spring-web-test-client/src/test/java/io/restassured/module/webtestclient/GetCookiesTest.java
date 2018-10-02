@@ -22,14 +22,14 @@ import java.util.Map;
 
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
-import io.restassured.module.webtestclient.http.CookieController;
+import io.restassured.module.webtestclient.setup.CookieController;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.equalTo;
 
-public class CookieTest {
+public class GetCookiesTest {
 
     @BeforeClass
     public static void configureWebTestClientInstance() {
@@ -102,21 +102,6 @@ public class CookieTest {
                 statusCode(200).
                 body("cookieValue1", equalTo("John Doe")).
                 body("cookieValue2", equalTo("rest assured"));
-    }
-
-    @Test public void
-    can_receive_cookies() {
-        RestAssuredWebTestClient.given().
-                queryParam("cookieName1", "name").
-                queryParam("cookieValue1", "John Doe").
-                queryParam("cookieName2", "project").
-                queryParam("cookieValue2", "rest assured").
-        when().
-                get("/setCookies").
-        then().
-                statusCode(200).
-                cookie("name", "John Doe").
-                cookie("project", "rest assured");
     }
 }
 

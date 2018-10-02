@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.module.webtestclient.support;
+package io.restassured.module.webtestclient.setup.support;
 
 import org.junit.Ignore;
 

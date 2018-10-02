@@ -866,21 +866,6 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	WebTestClientRequestSpecification sessionId(String sessionIdName, String sessionIdValue);
 
 	/**
-	 * Set session attributes.
-	 *
-	 * @param sessionAttributes the session attributes
-	 */
-	WebTestClientRequestSpecification sessionAttrs(Map<String, Object> sessionAttributes);
-
-	/**
-	 * Set a session attribute.
-	 *
-	 * @param name  the session attribute name
-	 * @param value the session attribute value
-	 */
-	WebTestClientRequestSpecification sessionAttr(String name, Object value);
-
-	/**
 	 * Call this method when you're done setting up the request specification.
 	 *
 	 * @return The {@link WebTestClientRequestSender} that let's you send the request.

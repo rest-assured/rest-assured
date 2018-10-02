@@ -14,32 +14,21 @@
  * limitations under the License.
  */
 
-package io.restassured.module.webtestclient.http;
+package io.restassured.module.webtestclient.setup;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-
-import org.apache.commons.lang3.StringUtils;
-
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @RestController
-public class AttributeController {
+public class HeaderController {
 
-    @RequestMapping(value = "/attribute", method = GET, produces = APPLICATION_JSON_VALUE)
-    public String attribute(HttpServletRequest request) {
-        Collection<String> attributes = new ArrayList<String>();
-        for (String attributeName : Collections.list(request.getAttributeNames())) {
-            attributes.add("\"" + attributeName + "\": \"" + request.getAttribute(attributeName) + "\"");
-        }
-
-        return "{" + StringUtils.join(attributes, ", ") + "}";
+    @RequestMapping(value = "/header", method = GET, produces = APPLICATION_JSON_VALUE)
+    public String header(@RequestHeader("headerName") String headerValue,
+                                       @RequestHeader(value = "User-Agent", required = false) String userAgent) {
+        return "{\"headerName\" : \""+headerValue+"\", \"user-agent\" : \""+userAgent+"\"}";
     }
 }

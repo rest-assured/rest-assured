@@ -16,7 +16,7 @@
 
 package io.restassured.module.webtestclient;
 
-import io.restassured.module.webtestclient.http.GreetingController;
+import io.restassured.module.webtestclient.setup.GreetingController;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.equalTo;

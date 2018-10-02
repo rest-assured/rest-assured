@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package io.restassured.module.webtestclient.http;
+package io.restassured.module.webtestclient.setup;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -26,25 +25,25 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.PUT;
+import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Controller
-public class PutController {
+public class PostController {
 
     private static final String template = "Hello, %s!";
     private final AtomicLong counter = new AtomicLong();
 
-    @RequestMapping(value = "/greetingPut", method = PUT, consumes = APPLICATION_FORM_URLENCODED_VALUE)
+    @RequestMapping(value = "/greetingPost", method = POST, consumes = APPLICATION_FORM_URLENCODED_VALUE)
     public @ResponseBody Greeting greeting(@RequestParam("name") String name) {
         return new Greeting(counter.incrementAndGet(), String.format(template, name));
     }
 
-    @RequestMapping(value = "/stringBody", method = PUT)
+    @RequestMapping(value = "/stringBody", method = POST)
     public @ResponseBody String stringBody(@RequestBody String body) {
         return body;
     }
 
-    @RequestMapping(value = "/jsonReflect", method = PUT, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/jsonReflect", method = POST, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public @ResponseBody String jsonReflect(@RequestBody String body) {
         return body;
     }

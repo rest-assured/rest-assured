@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package io.restassured.module.webtestclient.http;
+package io.restassured.module.webtestclient.setup;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,12 +24,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @RestController
-public class RedirectController {
+public class CookieController {
 
-    @RequestMapping(value = "/redirect", method = GET, produces = APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> redirect() {
-        return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
-                .header("Location", "http://localhost:8080/redirect/1")
-                .body("{ \"id\" : 1 }");
+    @RequestMapping(value = "/cookie", method = GET, produces = APPLICATION_JSON_VALUE)
+    public String cookie(@CookieValue("cookieName1") String cookieValue1, @CookieValue(value = "cookieName2", required = false) String cookieValue2) {
+        return "{\"cookieValue1\" : \"" + cookieValue1 + "\", \"cookieValue2\" : \"" + cookieValue2 + "\"}";
     }
 }

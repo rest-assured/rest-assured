@@ -16,7 +16,7 @@
 
 package io.restassured.module.webtestclient;
 
-import io.restassured.module.webtestclient.http.GreetingController;
+import io.restassured.module.webtestclient.setup.GreetingController;
 import org.junit.Test;
 
 import org.springframework.test.web.reactive.server.WebTestClient;
