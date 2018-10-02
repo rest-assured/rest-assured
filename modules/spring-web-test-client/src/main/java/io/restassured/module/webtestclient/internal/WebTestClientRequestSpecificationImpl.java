@@ -32,6 +32,7 @@ import io.restassured.config.LogConfig;
 import io.restassured.config.MultiPartConfig;
 import io.restassured.config.ParamConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
@@ -98,7 +99,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	});
 	private Headers requestHeaders = new Headers();
 	private String basePath;
-	private ExchangeFilterFunction requestLoggingFunction;
+	private RequestLoggingFilter requestLoggingFilter;
 	private List<MultiPartInternal> multiParts = new ArrayList<MultiPartInternal>();
 	private Cookies cookies = new Cookies();
 	private ExchangeFilterFunction authentication;
@@ -520,9 +521,9 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		params(specificationToMerge.getParams());
 		attributes(specificationToMerge.getAttributes());
 		multiParts.addAll(specificationToMerge.getMultiParts());
-		ExchangeFilterFunction otherRequestLoggingFunction = specificationToMerge.getRequestLoggingFunction();
-		if (otherRequestLoggingFunction != null) {
-			requestLoggingFunction = otherRequestLoggingFunction;
+		RequestLoggingFilter otherRequestLoggingFilter = specificationToMerge.getRequestLoggingFilter();
+		if (otherRequestLoggingFilter != null) {
+			requestLoggingFilter = otherRequestLoggingFilter;
 		}
 		ExchangeFilterFunction otherAuth = specificationToMerge.getAuthentication();
 		if (otherAuth != null) {
@@ -555,13 +556,13 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	@Override
 	public WebTestClientRequestAsyncSender when() {
 		LogConfig logConfig = config.getLogConfig();
-		if (requestLoggingFunction == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
+		if (requestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
 			log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(),
 					logConfig.isPrettyPrintingEnabled());
 		}
 		WebTestClient webTestClient = webTestClientFactory.build(config.getWebTestClientConfig());
 		return new WebTestClientRequestSenderImpl(webTestClient, params, queryParams, formParams, attributes, config, requestBody,
-				requestHeaders, cookies, sessionAttributes, multiParts, requestLoggingFunction, basePath,
+				requestHeaders, cookies, sessionAttributes, multiParts, requestLoggingFilter, basePath,
 				responseSpecification, authentication, logRepository);
 	}
 
@@ -925,8 +926,8 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		return multiParts;
 	}
 
-	public ExchangeFilterFunction getRequestLoggingFunction() {
-		return requestLoggingFunction;
+	public RequestLoggingFilter getRequestLoggingFilter() {
+		return requestLoggingFilter;
 	}
 
 	public ExchangeFilterFunction getAuthentication() {
@@ -945,12 +946,18 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		return logRepository;
 	}
 
-	public void setRequestLoggingFunction(ExchangeFilterFunction requestLoggingFunction) {
-		this.requestLoggingFunction = requestLoggingFunction;
+	public void setRequestLoggingFilter(RequestLoggingFilter requestLoggingFilter) {
+		this.requestLoggingFilter = requestLoggingFilter;
 	}
 
 	public RestAssuredConfig getRestAssuredConfig() {
 		return ConfigConverter.convertToRestAssuredConfig(config);
+	}
+
+	public WebTestClientRequestSpecification basePath(String path) {
+		notNull(path, "Base path");
+		this.basePath = path;
+		return this;
 	}
 
 	private String serializeIfNeeded(Object object) {

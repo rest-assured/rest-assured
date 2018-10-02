@@ -2,21 +2,17 @@ package io.restassured.module.webtestclient.internal;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
 import java.util.Collections;
 
 import io.restassured.authentication.NoAuthScheme;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.LogDetail;
-import io.restassured.filter.log.UrlDecoder;
+import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.internal.LogSpecificationImpl;
 import io.restassured.internal.RequestSpecificationImpl;
-import io.restassured.internal.print.RequestPrinter;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestLogSpecification;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecification;
 import io.restassured.specification.FilterableRequestSpecification;
-
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 
 /**
  * @author Olga Maciaszek-Sharma
@@ -91,24 +87,8 @@ public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationIm
 	                                                  PrintStream printStream) {
 		boolean shouldUrlEncodeRequestUri = requestSpecification.getRestAssuredWebTestClientConfig()
 				.getLogConfig().shouldUrlEncodeRequestUri();
-		ExchangeFilterFunction requestLoggingFunction = requestLoggingFunction(requestSpecification, logDetail,
-				prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri);
-		requestSpecification.setRequestLoggingFunction(requestLoggingFunction);
+		requestSpecification.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri));
 		return requestSpecification;
-	}
-
-	private ExchangeFilterFunction requestLoggingFunction(WebTestClientRequestSpecificationImpl requestSpecification,
-	                                                      LogDetail logDetail, boolean prettyPrintingEnabled,
-	                                                      PrintStream printStream, boolean showUrlEncodedUri) {
-		return (request, next) -> {
-			String uri = String.valueOf(request.url());
-			if (!showUrlEncodedUri) {
-				uri = UrlDecoder.urlDecode(uri, Charset.forName(requestSpecification.getRestAssuredWebTestClientConfig()
-						.getEncoderConfig().defaultQueryParameterCharset()), true);
-			}
-			RequestPrinter.print(toFilterableRequestSpecification(requestSpecification), String.valueOf(request.method()), uri, logDetail, printStream, prettyPrintingEnabled);
-			return next.exchange(request);
-		};
 	}
 
 	// TODO

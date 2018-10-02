@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +30,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import io.restassured.RestAssured;
@@ -49,7 +47,6 @@ import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ResponseSpecificationImpl;
 import io.restassured.internal.filter.FilterContextImpl;
-import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.support.PathSupport;
 import io.restassured.internal.util.SafeExceptionRethrower;
@@ -86,6 +83,8 @@ import static io.restassured.internal.assertion.AssertParameter.notNull;
 import static io.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash;
 import static io.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
 import static io.restassured.module.spring.commons.HeaderHelper.mapToArray;
+import static io.restassured.module.spring.commons.RequestLogger.logParamsAndHeaders;
+import static io.restassured.module.spring.commons.RequestLogger.logRequestBody;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.springframework.http.HttpMethod.DELETE;
@@ -467,65 +466,8 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
         final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("http://localhost", RestAssured.UNDEFINED_PORT, "", new NoAuthScheme(), Collections.<Filter>emptyList(),
                 null, true, ConfigConverter.convertToRestAssuredConfig(config), logRepository, null);
-        reqSpec.setMethod(method.toString());
-        reqSpec.path(uri);
-        reqSpec.buildUnnamedPathParameterTuples(unnamedPathParams);
-        if (params != null) {
-            new ParamLogger(params) {
-                protected void logParam(String paramName, Object paramValue) {
-                    reqSpec.param(paramName, paramValue);
-                }
-            }.logParams();
-        }
-
-        if (queryParams != null) {
-            new ParamLogger(queryParams) {
-                protected void logParam(String paramName, Object paramValue) {
-                    reqSpec.queryParam(paramName, paramValue);
-                }
-            }.logParams();
-        }
-
-        if (formParams != null) {
-            new ParamLogger(formParams) {
-                protected void logParam(String paramName, Object paramValue) {
-                    reqSpec.formParam(paramName, paramValue);
-                }
-            }.logParams();
-        }
-
-        if (headers != null) {
-            for (Header header : headers) {
-                reqSpec.header(header);
-            }
-        }
-
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                reqSpec.cookie(cookie);
-            }
-        }
-
-        if (requestBody != null) {
-            if (requestBody instanceof byte[]) {
-                reqSpec.body((byte[]) requestBody);
-            } else if (requestBody instanceof File) {
-                String contentType = HeaderHelper.findContentType(headers, (List<Object>) (List<?>) multiParts, config);
-                String charset = null;
-                if (StringUtils.isNotBlank(contentType)) {
-                    charset = CharsetExtractor.getCharsetFromContentType(contentType);
-                }
-
-                if (charset == null) {
-                    charset = Charset.defaultCharset().toString();
-                }
-
-                String string = fileToString((File) requestBody, charset);
-                reqSpec.body(string);
-            } else {
-                reqSpec.body(requestBody);
-            }
-        }
+        logParamsAndHeaders(reqSpec, method.toString(), uri, unnamedPathParams, params, queryParams, formParams, headers, cookies);
+        logRequestBody(reqSpec, requestBody, headers, (List<Object>) (List<?>) multiParts, config);
 
         if (multiParts != null) {
             for (MockMvcMultiPart multiPart : multiParts) {
@@ -540,26 +482,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         String uriPath = PathSupport.getPath(uri);
         String originalUriPath = PathSupport.getPath(originalPath);
         requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(uri, originalUriPath, uriPath, uri, uri, new Object[0], method.toString(), null, Collections.<Filter>emptyList().iterator(), new HashMap<String, Object>()));
-    }
-
-    private String fileToString(File file, String charset) {
-        StringBuilder fileContents = new StringBuilder((int) file.length());
-        Scanner scanner;
-        try {
-            scanner = new Scanner(file, charset);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        String lineSeparator = System.getProperty(LINE_SEPARATOR);
-
-        try {
-            while (scanner.hasNextLine()) {
-                fileContents.append(scanner.nextLine()).append(lineSeparator);
-            }
-            return fileContents.toString();
-        } finally {
-            scanner.close();
-        }
     }
 
     public MockMvcResponse get(String path, Object... pathParams) {
@@ -761,34 +683,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams,
                 attributes, config, requestBody, headers, cookies, sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, true);
-    }
-
-
-    private abstract static class ParamLogger {
-        private Map<String, Object> map;
-
-        protected ParamLogger(Map<String, Object> parameters) {
-            this.map = parameters;
-        }
-
-        public void logParams() {
-            for (Map.Entry<String, Object> stringListEntry : map.entrySet()) {
-                Object value = stringListEntry.getValue();
-                Collection<Object> values;
-                if (value instanceof Collection) {
-                    values = (Collection<Object>) value;
-                } else {
-                    values = new ArrayList<Object>();
-                    values.add(value);
-                }
-
-                for (Object theValue : values) {
-                    logParam(stringListEntry.getKey(), theValue);
-                }
-            }
-        }
-
-        protected abstract void logParam(String paramName, Object paramValue);
     }
 
     private HttpMethod toValidHttpMethod(String method) {

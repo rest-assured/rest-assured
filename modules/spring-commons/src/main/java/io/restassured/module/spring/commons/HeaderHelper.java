@@ -160,5 +160,4 @@ public class HeaderHelper {
 		}
 		return new Headers(headerList);
 	}
-
 }

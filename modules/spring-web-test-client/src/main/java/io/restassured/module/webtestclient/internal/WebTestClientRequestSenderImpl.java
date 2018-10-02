@@ -5,22 +5,31 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import io.restassured.RestAssured;
+import io.restassured.authentication.NoAuthScheme;
+import io.restassured.builder.MultiPartSpecBuilder;
+import io.restassured.filter.Filter;
+import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.time.TimingFilter;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.http.Method;
+import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ResponseSpecificationImpl;
+import io.restassured.internal.filter.FilterContextImpl;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.multipart.MultiPartInternal;
+import io.restassured.internal.support.PathSupport;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.module.spring.commons.HeaderHelper;
 import io.restassured.module.spring.commons.ParamApplier;
@@ -39,11 +48,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.util.MimeType;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -51,6 +58,8 @@ import static io.restassured.internal.assertion.AssertParameter.notNull;
 import static io.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash;
 import static io.restassured.module.spring.commons.BodyHelper.toByteArray;
 import static io.restassured.module.spring.commons.HeaderHelper.mapToArray;
+import static io.restassured.module.spring.commons.RequestLogger.logParamsAndHeaders;
+import static io.restassured.module.spring.commons.RequestLogger.logRequestBody;
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
@@ -62,6 +71,7 @@ import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+import static org.springframework.http.MediaType.parseMediaType;
 
 /**
  * @author Olga Maciaszek-Sharma
@@ -93,18 +103,18 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 	private final Map<String, Object> sessionAttributes;
 	private final LogRepository logRepository;
 	private Headers headers;
-	private ExchangeFilterFunction requestLoggingFunction;
+	private final RequestLoggingFilter requestLoggingFilter;
 
 	WebTestClientRequestSenderImpl(WebTestClient webTestClient, Map<String, Object> params,
 	                               Map<String, Object> queryParams, Map<String, Object> formParams,
 	                               Map<String, Object> attributes,
 	                               RestAssuredWebTestClientConfig config, Object requestBody, Headers headers,
 	                               Cookies cookies, Map<String, Object> sessionAttributes,
-	                               List<MultiPartInternal> multiParts, ExchangeFilterFunction requestLoggingFunction,
+	                               List<MultiPartInternal> multiParts, RequestLoggingFilter requestLoggingFilter,
 	                               String basePath, ResponseSpecification responseSpecification,
 	                               Object authentication, LogRepository logRepository) {
 		this(webTestClient, params, queryParams, formParams, attributes, config, requestBody, headers, cookies,
-				sessionAttributes, multiParts, requestLoggingFunction,
+				sessionAttributes, multiParts, requestLoggingFilter,
 				basePath, responseSpecification, authentication, logRepository, false);
 	}
 
@@ -113,7 +123,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 	                                       RestAssuredWebTestClientConfig config, Object requestBody, Headers headers,
 	                                       Cookies cookies, Map<String, Object> sessionAttributes,
 	                                       List<MultiPartInternal> multiParts,
-	                                       ExchangeFilterFunction requestLoggingFunction, String basePath,
+	                                       RequestLoggingFilter requestLoggingFilter, String basePath,
 	                                       ResponseSpecification responseSpecification,
 	                                       Object authentication, LogRepository logRepository, boolean isAsyncRequest) {
 		this.webTestClient = webTestClient;
@@ -132,12 +142,12 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 		this.authentication = authentication;
 		this.logRepository = logRepository;
 		this.isAsyncRequest = isAsyncRequest;
-		this.requestLoggingFunction = requestLoggingFunction;
+		this.requestLoggingFilter = requestLoggingFilter;
 	}
 	@Override
 	public WebTestClientRequestAsyncConfigurer async() {
 		return new WebTestClientRequestSenderImpl(webTestClient, params, queryParams, formParams,
-				attributes, config, requestBody, headers, cookies, sessionAttributes, multiParts, requestLoggingFunction,
+				attributes, config, requestBody, headers, cookies, sessionAttributes, multiParts, requestLoggingFilter,
 				basePath, responseSpecification, authentication, logRepository, true);
 	}
 
@@ -236,16 +246,14 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 				}
 			}.applyParams();
 
-//			if (StringUtils.isBlank(requestContentType) && method == POST && !isInMultiPartMode(request)) {  // TODO: handle POST content type
-//				setContentTypeToApplicationFormUrlEncoded(request);
-//			}
+			if (StringUtils.isBlank(requestContentType) && method == POST && !isMultipartRequest()) {  // TODO: handle POST content type
+				setContentTypeToApplicationFormUrlEncoded(requestContentType);
+			}
 		}
 
 		if (!multiParts.isEmpty()) {
 			sendMultiPartRequest();
 		}
-
-
 
 //		if (!formParams.isEmpty()) {  // TODO: handle form params
 //			if (method == GET) {
@@ -259,11 +267,6 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 //			}.applyParams();
 //		}
 
-
-//			boolean isInMultiPartMode = isInMultiPartMode(request);  // TODO: handle POST content type
-//			if (StringUtils.isBlank(requestContentType) && !isInMultiPartMode) {
-//				setContentTypeToApplicationFormUrlEncoded(request);
-//			}
 		String uri = uriComponentsBuilder.buildAndExpand(pathParams).encode().toUriString();
 
 		WebTestClient.RequestBodySpec requestBodySpec = webTestClient.method(method)
@@ -271,7 +274,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 
 
 		if (StringUtils.isNotBlank(requestContentType)) {
-			requestBodySpec.contentType(MediaType.parseMediaType(requestContentType));
+			requestBodySpec.contentType(parseMediaType(requestContentType));
 		}
 
 		// TODO: add publisher body
@@ -309,20 +312,48 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 //			request.sessionAttrs(sessionAttributes);
 //		}  // TODO
 
-//		logRequestIfApplicable(method, baseUri, path, pathParams); // TODO
-//
+		logRequestIfApplicable(method, baseUri, path, pathParams); // TODO
 
 		return performRequest(requestBodySpec);
 	}
 
-	private void setContentTypeToApplicationFormUrlEncoded(MockHttpServletRequestBuilder request) {
-		MediaType mediaType = MediaType.parseMediaType(HeaderHelper.buildApplicationFormEncodedContentType(config, APPLICATION_FORM_URLENCODED_VALUE));
-		request.contentType(mediaType);
+	private boolean isMultipartRequest() {
+		return !multiParts.isEmpty();
+	}
+
+	private void setContentTypeToApplicationFormUrlEncoded(String requestContentType) {
+		requestContentType = parseMediaType(HeaderHelper.buildApplicationFormEncodedContentType(config,
+				APPLICATION_FORM_URLENCODED_VALUE)).toString();
 		List<Header> newHeaders = new ArrayList<Header>(headers.asList());
-		newHeaders.add(new Header(CONTENT_TYPE, mediaType.toString()));
+		newHeaders.add(new Header(CONTENT_TYPE, requestContentType));
 		headers = new Headers(newHeaders);
 	}
 
+	private void logRequestIfApplicable(HttpMethod method, String uri, String originalPath, Object[] unnamedPathParams) {
+		if (requestLoggingFilter == null) {
+			return;
+		}
+
+		final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("http://localhost", RestAssured.UNDEFINED_PORT, "", new NoAuthScheme(), Collections.<Filter>emptyList(),
+				null, true, ConfigConverter.convertToRestAssuredConfig(config), logRepository, null);
+		logParamsAndHeaders(reqSpec, method.toString(), uri, unnamedPathParams, params, queryParams, formParams, headers, cookies);
+		logRequestBody(reqSpec, requestBody, headers, (List<Object>) (List<?>) multiParts, config);
+
+		if (multiParts != null) {
+			for (MultiPartInternal multiPart : multiParts) {
+				reqSpec.multiPart(new MultiPartSpecBuilder(multiPart.getContent()).
+						controlName(multiPart.getControlName()).
+						fileName(multiPart.getFileName()).
+						mimeType(multiPart.getMimeType()).
+						build());
+			}
+		}
+		String uriPath = PathSupport.getPath(uri);
+		String originalUriPath = PathSupport.getPath(originalPath);
+		requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(uri, originalUriPath,
+				uriPath, uri, uri, new Object[0], method.toString(), null,
+				Collections.<Filter>emptyList().iterator(), new HashMap<String, Object>()));
+	}
 
 	private void verifyNoBodyAndMultipartTogether() {
 		if (requestBody != null && !multiParts.isEmpty()) {
@@ -402,7 +433,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 			List<Header> responseHeaders = assembleHeaders(result.getResponseHeaders());
 			restAssuredResponse.setResponseHeaders(new Headers(responseHeaders));
 			restAssuredResponse.setRpr(getRpr());
-			restAssuredResponse.setStatusLine(buildResultString(result.getStatus()));
+			restAssuredResponse.setStatusLine(String.valueOf(result.getStatus().value()));
 			restAssuredResponse.setFilterContextProperties(new HashMap() {{
 				put(TimingFilter.RESPONSE_TIME_MILLISECONDS, responseTime);
 			}});
@@ -420,16 +451,6 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 //			} // TODO
 		}
 		return restAssuredResponse;
-	}
-
-	private String buildResultString(HttpStatus status){
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append(status.toString());
-		if(isNotBlank(status.getReasonPhrase())) {
-			stringBuilder.append(": ");
-			stringBuilder.append(status.getReasonPhrase());
-		}
-		return stringBuilder.toString();
 	}
 
 	private List<Header> assembleHeaders(HttpHeaders headers) {
@@ -453,8 +474,6 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 		).flatMap(Collection::stream).collect(Collectors.toList());
 		return new Cookies(cookies);
 	}
-
-
 
 	@Override
 	public WebTestClientResponse get(String path, Map<String, ?> pathParams) {
