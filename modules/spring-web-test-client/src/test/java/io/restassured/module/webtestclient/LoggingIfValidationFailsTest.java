@@ -122,35 +122,39 @@ public class LoggingIfValidationFailsTest {
 		RestAssuredWebTestClient.enableLoggingOfRequestAndResponseIfValidationFails(HEADERS);
 
 		try {
-			given().
-					standaloneSetup(new PostController()).
-					param("name", "Johan").
-					when().
-					post("/greetingPost").
-					then().
-					body("id", equalTo(1)).
-					body("content", equalTo("Hello, Johan2!"));
+			given()
+					.standaloneSetup(new PostController())
+					.param("name", "Johan")
+					.when()
+					.post("/greetingPost")
+					.then()
+					.body("id", equalTo(1))
+					.body("content", equalTo("Hello, Johan2!"));
 
 			fail("Should throw AssertionError");
 		} catch (AssertionError e) {
-			assertThat(writer.toString(), equalTo("Headers:\t\tApi-Key=1234\n\t\t\t\tContent-Type=application/x-www-form-urlencoded;charset="
-					+ RestAssuredWebTestClientConfig.config().getEncoderConfig().defaultContentCharset() + "\n\nContent-Type: application/json;charset=UTF-8\n"));
+			assertThat(writer.toString(),
+					equalTo("Headers:\t\tApi-Key=1234\n\t\t\t\tContent-Type=application/x-www-form-urlencoded;charset="
+							+ RestAssuredWebTestClientConfig.config().getEncoderConfig().defaultContentCharset()
+							+ "\n\nContent-Type: application/json;charset=UTF-8\nContent-Length: 34\n"));
 		}
 	}
 
 	@Test
 	public void
 	doesnt_log_if_request_or_response_when_validation_succeeds_when_request_and_response_logging_if_validation_fails_is_enabled() {
-		RestAssuredWebTestClient.config = new RestAssuredWebTestClientConfig().logConfig(new LogConfig(captor, true).enableLoggingOfRequestAndResponseIfValidationFails());
+		RestAssuredWebTestClient.config = new RestAssuredWebTestClientConfig()
+				.logConfig(new LogConfig(captor, true)
+						.enableLoggingOfRequestAndResponseIfValidationFails());
 
-		given().
-				standaloneSetup(new PostController()).
-				param("name", "Johan").
-				when().
-				post("/greetingPost").
-				then().
-				body("id", equalTo(1)).
-				body("content", equalTo("Hello, Johan!"));
+		given()
+				.standaloneSetup(new PostController())
+				.param("name", "Johan")
+				.when()
+				.post("/greetingPost")
+				.then()
+				.body("id", equalTo(1))
+				.body("content", equalTo("Hello, Johan!"));
 
 		assertThat(writer.toString(), isEmptyString());
 	}
@@ -158,19 +162,21 @@ public class LoggingIfValidationFailsTest {
 	@Test
 	public void
 	logging_is_applied_when_using_non_static_response_specifications() {
-		RestAssuredWebTestClient.config = new RestAssuredWebTestClientConfig().logConfig(new LogConfig(captor, true).enableLoggingOfRequestAndResponseIfValidationFails());
+		RestAssuredWebTestClient.config = new RestAssuredWebTestClientConfig()
+				.logConfig(new LogConfig(captor, true)
+						.enableLoggingOfRequestAndResponseIfValidationFails());
 
 		try {
-			given().
-					standaloneSetup(new PostController()).
-					param("name", "Johan").
-					when().
-					post("/greetingPost").
-					then().
-					spec(new ResponseSpecBuilder().
-							expectBody("id", equalTo(2)).
-							expectBody("content", equalTo("Hello, Johan2!")).
-							build());
+			given()
+					.standaloneSetup(new PostController())
+					.param("name", "Johan")
+					.when()
+					.post("/greetingPost")
+					.then()
+					.spec(new ResponseSpecBuilder()
+							.expectBody("id", equalTo(2))
+							.expectBody("content", equalTo("Hello, Johan2!"))
+							.build());
 			fail("Should throw AssertionError");
 		} catch (AssertionError e) {
 			assertThat(writer.toString(), not(isEmptyOrNullString()));

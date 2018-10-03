@@ -112,6 +112,9 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	                                             WebTestClientRequestSpecification requestSpecification,
 	                                             ResponseSpecification responseSpecification) {
 		this.logRepository = new LogRepository();
+		this.basePath = basePath;
+		this.responseSpecification = responseSpecification;
+		assignConfig(config);
 		this.webTestClientFactory = webTestClientFactory == null ? new BuilderBasedWebTestClientFactory(null)
 				: webTestClientFactory;
 		if (requestSpecification != null) {
@@ -121,9 +124,6 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 //		if (authentication != null) {  // TODO
 //			authentication.authenticate(this);
 //		}
-		this.basePath = basePath;
-		this.responseSpecification = responseSpecification;
-		assignConfig(config);
 	}
 
 	// TODO: extract duplicate?

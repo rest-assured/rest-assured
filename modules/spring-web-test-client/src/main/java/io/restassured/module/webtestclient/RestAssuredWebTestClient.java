@@ -20,6 +20,7 @@ import java.net.URL;
 import java.util.Map;
 import java.util.function.Function;
 
+import io.restassured.config.LogConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Method;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
@@ -39,6 +40,8 @@ import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.util.UriBuilder;
+
+import static io.restassured.config.LogConfig.logConfig;
 
 /**
  * @author Olga Maciaszek-Sharma
@@ -309,8 +312,23 @@ public class RestAssuredWebTestClient {
 		enableLoggingOfRequestAndResponseIfValidationFails(LogDetail.ALL);
 	}
 
-	public static void enableLoggingOfRequestAndResponseIfValidationFails(LogDetail logDetail) {
-		// FIXME
+	static void enableLoggingOfRequestAndResponseIfValidationFails(LogDetail logDetail) {
+		config = config == null ? new RestAssuredWebTestClientConfig() : config;
+		config = config.logConfig(logConfig().enableLoggingOfRequestAndResponseIfValidationFails(logDetail));
+		// Update request specification if already defined otherwise it'll override the configs.
+		// Note that request spec also influence response spec when it comes to logging if validation fails
+		// due to the way filters work
+		if (requestSpecification instanceof WebTestClientRequestSpecificationImpl) {
+			RestAssuredWebTestClientConfig restAssuredConfig = ((WebTestClientRequestSpecificationImpl) requestSpecification)
+					.getRestAssuredWebTestClientConfig();
+			if (restAssuredConfig == null) {
+				restAssuredConfig = config;
+			} else {
+				LogConfig logConfigForRequestSpec = restAssuredConfig.getLogConfig().enableLoggingOfRequestAndResponseIfValidationFails(logDetail);
+				restAssuredConfig = restAssuredConfig.logConfig(logConfigForRequestSpec);
+			}
+			requestSpecification.config(restAssuredConfig);
+		}
 	}
 
 	/**
