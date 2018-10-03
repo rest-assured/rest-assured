@@ -29,6 +29,7 @@ import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
+import io.restassured.module.spring.commons.config.SpecificationConfig;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
 
 import org.springframework.context.ApplicationContext;
@@ -800,6 +801,8 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	 * @return The request specification
 	 */
 	WebTestClientRequestSpecification config(RestAssuredWebTestClientConfig config);
+
+	WebTestClientRequestSpecification config(SpecificationConfig config);
 
 	/**
 	 * Add request data from a pre-defined specification. E.g.

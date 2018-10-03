@@ -53,6 +53,7 @@ import io.restassured.module.spring.commons.Serializer;
 import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.spring.commons.config.ConfigConverter;
 import io.restassured.module.spring.commons.config.ConfigMergeUtils;
+import io.restassured.module.spring.commons.config.SpecificationConfig;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
 import io.restassured.module.webtestclient.config.WebTestClientParamConfig;
 import io.restassured.module.webtestclient.response.WebTestClientResponse;
@@ -491,6 +492,15 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	@Override
 	public WebTestClientRequestSpecification config(RestAssuredWebTestClientConfig config) {
 		assignConfig(config);
+		return this;
+	}
+
+	@Override
+	public WebTestClientRequestSpecification config(SpecificationConfig config) {
+		if (!(config instanceof RestAssuredWebTestClientConfig)) {
+			throw new IllegalArgumentException("Only WebTestClientRequestSpecificationConfig allowed here");
+		}
+		assignConfig((RestAssuredWebTestClientConfig) config);
 		return this;
 	}
 
