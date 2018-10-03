@@ -16,16 +16,15 @@
 
 package io.restassured.module.webtestclient.setup;
 
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-
+@RestController
 public class ParserController {
 
-    @RequestMapping(value = "/parserWithUnknownContentType", method = GET, produces = "some/thing")
-    public @ResponseBody String parserWithUnknownContentType(@RequestParam(value = "param") String param) {
+    @GetMapping(value = "/parserWithUnknownContentType", produces = "some/thing")
+    public String parserWithUnknownContentType(@RequestParam(value = "param") String param) {
         return "{ \"param\" : \"" + param + "\" }";
     }
 }

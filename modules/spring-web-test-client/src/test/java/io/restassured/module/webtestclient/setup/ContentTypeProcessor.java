@@ -20,7 +20,6 @@ public class ContentTypeProcessor {
 	}
 }
 
-
 class RequestContentTypeWrapper {
 
 	public String requestContentType;

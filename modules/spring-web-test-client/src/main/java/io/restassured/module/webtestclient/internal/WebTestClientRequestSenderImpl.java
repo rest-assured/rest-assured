@@ -406,7 +406,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 	}
 
 	private WebTestClientResponse performRequest(WebTestClient.RequestBodySpec requestBuilder) {
-		FluxExchangeResult<Object> result;
+		FluxExchangeResult<String> result;
 
 //		if (isSpringSecurityInClasspath() && authentication instanceof org.springframework.security.core.Authentication) {
 //			org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication((org.springframework.security.core.Authentication) authentication);
@@ -421,7 +421,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 			final long start = System.currentTimeMillis();  // TODO support webtestclient expect assertions
 			WebTestClient.ResponseSpec responseSpec = requestBuilder.exchange();
 			final long responseTime = System.currentTimeMillis() - start;
-			result = responseSpec.returnResult(Object.class);
+			result = responseSpec.returnResult(String.class);
 			restAssuredResponse = new WebTestClientRestAssuredResponseImpl(responseSpec, logRepository);
 			restAssuredResponse.setConfig(ConfigConverter.convertToRestAssuredConfig(config));
 			restAssuredResponse.setContent(result.getResponseBodyContent());
