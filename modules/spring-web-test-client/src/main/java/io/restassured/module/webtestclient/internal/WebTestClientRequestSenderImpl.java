@@ -43,7 +43,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
@@ -255,17 +254,17 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 			sendMultiPartRequest();
 		}
 
-//		if (!formParams.isEmpty()) {  // TODO: handle form params
-//			if (method == GET) {
-//				throw new IllegalArgumentException("Cannot use form parameters in a GET request");
-//			}
-//			new ParamApplier(formParams) {
-//				@Override
-//				protected void applyParam(String paramName, String[] paramValues) {
-//					uriComponentsBuilder.queryParam(paramName, paramValues);
-//				}
-//			}.applyParams();
-//		}
+		if (!formParams.isEmpty()) {
+			if (method == GET) {
+				throw new IllegalArgumentException("Cannot use form parameters in a GET request");
+			}
+			new ParamApplier(formParams) {
+				@Override
+				protected void applyParam(String paramName, String[] paramValues) {
+					uriComponentsBuilder.queryParam(paramName, paramValues);
+				}
+			}.applyParams();
+		}
 
 		String uri = uriComponentsBuilder.buildAndExpand(pathParams).encode().toUriString();
 

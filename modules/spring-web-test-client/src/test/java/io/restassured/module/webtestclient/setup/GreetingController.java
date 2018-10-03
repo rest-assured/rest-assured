@@ -20,13 +20,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 /**
  * This controller has been copied from <a href="http://spring.io/guides/gs/rest-service/">Spring Guides</a>.
@@ -37,22 +35,22 @@ public class GreetingController {
     private static final String template = "Hello, %s!";
     private final AtomicLong counter = new AtomicLong();
 
-    @RequestMapping(value = "/greeting", method = GET)
-    public @ResponseBody Greeting greeting(
-            @RequestParam(value="name", required=false, defaultValue="World") String name) {
-        return new Greeting(counter.incrementAndGet(), String.format(template, name));
-    }
-
-    @RequestMapping(method = GET, produces = "application/json")
+	@GetMapping(produces = "application/json")
     public Mono<ResponseEntity> simpleGreeting() {
         ResponseEntity responseEntity = ResponseEntity.ok(new Greeting(counter.incrementAndGet(),
                 String.format(template, "World")));
         return Mono.justOrEmpty(responseEntity);
     }
 
-    @RequestMapping(value = "/greeting", method = POST, consumes = "application/json", produces = "application/json")
+	@PostMapping(value = "/greeting", consumes = "application/json", produces = "application/json")
     public @ResponseBody Greeting greetingWithRequiredContentType(
             @RequestParam(value="name", required=false, defaultValue="World") String name) {
         return greeting(name);
+    }
+
+	@GetMapping(value = "/greeting")
+    public @ResponseBody Greeting greeting(
+            @RequestParam(value="name", required=false, defaultValue="World") String name) {
+        return new Greeting(counter.incrementAndGet(), String.format(template, name));
     }
 }
