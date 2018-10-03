@@ -627,7 +627,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	}
 
 	// TODO: extract duplicate?
-	private String getRequestContentType() {
+	public String getRequestContentType() {
 		Header header = requestHeaders.get(CONTENT_TYPE);
 		if (header != null) {
 			return header.getValue();

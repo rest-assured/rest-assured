@@ -199,7 +199,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 		String httpMethodAsString = notNull(trimToNull(method), "HTTP Method");
 		HttpMethod httpMethod = HttpMethod.resolve(httpMethodAsString.toUpperCase());
 		if (httpMethod == null) {
-			throw new IllegalArgumentException("HTTP method '" + method + "' is not supported by MockMvc");
+			throw new IllegalArgumentException("HTTP method '" + method + "' is not supported by WebTestClient");
 		}
 		return httpMethod;
 	}	@Override

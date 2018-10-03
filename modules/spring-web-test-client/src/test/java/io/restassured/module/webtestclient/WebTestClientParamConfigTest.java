@@ -29,7 +29,7 @@ import static org.hamcrest.Matchers.equalTo;
 public class WebTestClientParamConfigTest {
 
 	@Before
-	public void configureMockMvcInstance() {
+	public void configureWebTestClientInstance() {
 		RestAssuredWebTestClient.standaloneSetup(new MultiValueController());
 	}
 
