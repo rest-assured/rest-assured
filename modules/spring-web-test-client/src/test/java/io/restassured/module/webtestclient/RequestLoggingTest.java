@@ -44,76 +44,92 @@ public class RequestLoggingTest {
 	given_config_is_stored_in_writer() {
 		writer = new StringWriter();
 		PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
-		RestAssuredWebTestClient.config = new RestAssuredWebTestClientConfig().logConfig(new LogConfig(captor, true));
+		RestAssuredWebTestClient.config = new RestAssuredWebTestClientConfig()
+				.logConfig(new LogConfig(captor, true));
 	}
 
 	@After
 	public void
-	reset_rest_assured() throws Exception {
+	reset_rest_assured() {
 		RestAssured.reset();
 	}
 
 	@Test
 	public void
 	logging_param_works() {
-		RestAssuredWebTestClient.given().
-				log().all().
-				standaloneSetup(new PostController()).
-				param("name", "Johan").
-				when().
-				post("/greetingPost").
-				then().
-				body("id", equalTo(1)).
-				body("content", equalTo("Hello, Johan!"));
+		RestAssuredWebTestClient.given()
+				.log().all()
+				.standaloneSetup(new PostController())
+				.param("name", "Johan")
+				.when()
+				.post("/greetingPost")
+				.then()
+				.body("id", equalTo(1))
+				.body("content", equalTo("Hello, Johan!"));
 
-		assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/greetingPost\nProxy:\t\t\t<none>\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/x-www-form-urlencoded;charset=" + RestAssuredWebTestClientConfig.config().getEncoderConfig().defaultContentCharset() + "\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
+		assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:" +
+				"\thttp://localhost:8080/greetingPost\nProxy:\t\t\t<none>\nRequest params:\tname=Johan\nQuery params:" +
+				"\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/x-www-form-urlencoded;charset="
+				+ RestAssuredWebTestClientConfig.config().getEncoderConfig().defaultContentCharset()
+				+ "\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
 	}
 
 	@Test
 	public void
 	logging_query_param_works() {
-		RestAssuredWebTestClient.given().
-				log().all().
-				standaloneSetup(new GreetingController()).
-				queryParam("name", "Johan").
-				when().
-				get("/greeting").
-				then().
-				body("id", equalTo(1)).
-				body("content", equalTo("Hello, Johan!"));
+		RestAssuredWebTestClient.given()
+				.log().all()
+				.standaloneSetup(new GreetingController())
+				.queryParam("name", "Johan")
+				.when()
+				.get("/greeting")
+				.then()
+				.body("id", equalTo(1))
+				.body("content", equalTo("Hello, Johan!"));
 
-		assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest URI:\thttp://localhost:8080/greeting?name=Johan\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\tname=Johan\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\t<none>\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
+		assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest URI:" +
+				"\thttp://localhost:8080/greeting?name=Johan\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:" +
+				"\tname=Johan\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\t<none>\nCookies:\t\t<none>" +
+				"\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
 	}
 
 	@Test
 	public void
 	logging_form_param_works() {
-		RestAssuredWebTestClient.given().
-				log().all().
-				standaloneSetup(new PostController()).
-				formParam("name", "Johan").
-				when().
-				post("/greetingPost").
-				then().
-				body("id", equalTo(1)).
-				body("content", equalTo("Hello, Johan!"));
+		RestAssuredWebTestClient.given()
+				.log().all()
+				.standaloneSetup(new PostController())
+				.formParam("name", "Johan")
+				.when()
+				.post("/greetingPost")
+				.then()
+				.body("id", equalTo(1))
+				.body("content", equalTo("Hello, Johan!"));
 
-		assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/greetingPost\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\tname=Johan\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/x-www-form-urlencoded;charset=" + RestAssuredWebTestClientConfig.config().getEncoderConfig().defaultContentCharset() + "\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
+		assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:" +
+				"\thttp://localhost:8080/greetingPost\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:" +
+				"\t<none>\nForm params:\tname=Johan\nPath params:\t<none>\nHeaders:" +
+				"\t\tContent-Type=application/x-www-form-urlencoded;charset="
+				+ RestAssuredWebTestClientConfig.config().getEncoderConfig().defaultContentCharset()
+				+ "\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
 	}
 
 	@Test
 	public void
 	can_supply_string_as_body_for_post() {
-		RestAssuredWebTestClient.given().
-				standaloneSetup(new PostController()).
-				log().all().
-				body("a string").
-				when().
-				post("/stringBody").
-				then().
-				body(equalTo("a string"));
+		RestAssuredWebTestClient.given()
+				.standaloneSetup(new PostController())
+				.log().all()
+				.body("a string")
+				.when()
+				.post("/stringBody")
+				.then()
+				.body(equalTo("a string"));
 
-		assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/stringBody\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\t<none>\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\na string\n"));
+		assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:" +
+				"\thttp://localhost:8080/stringBody\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:" +
+				"\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\t<none>\nCookies:\t\t<none>" +
+				"\nMultiparts:\t\t<none>\nBody:\na string\n"));
 	}
 
 	@Test
@@ -122,53 +138,61 @@ public class RequestLoggingTest {
 		RestAssuredWebTestClient.basePath = "/my-path";
 
 		try {
-			RestAssuredWebTestClient.given().
-					log().all().
-					standaloneSetup(new BasePathController()).
-					param("name", "Johan").
-					when().
-					get("/greetingPath").
-					then().
-					statusCode(200).
-					body("content", equalTo("Hello, Johan!"));
+			RestAssuredWebTestClient.given()
+					.log().all()
+					.standaloneSetup(new BasePathController())
+					.param("name", "Johan")
+					.when()
+					.get("/greetingPath")
+					.then()
+					.statusCode(200)
+					.body("content", equalTo("Hello, Johan!"));
 		} finally {
 			RestAssuredWebTestClient.reset();
 		}
-		assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest URI:\thttp://localhost:8080/my-path/greetingPath?name=Johan\nProxy:\t\t\t<none>\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\t<none>\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
+		assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest URI:" +
+				"\thttp://localhost:8080/my-path/greetingPath?name=Johan\nProxy:\t\t\t<none>\nRequest params:" +
+				"\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\t<none>" +
+				"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
 	}
 
 	@Test
 	public void
 	logging_if_request_validation_fails_works() {
 		try {
-			RestAssuredWebTestClient.given().
-					log().ifValidationFails().
-					standaloneSetup(new PostController()).
-					param("name", "Johan").
-					when().
-					post("/greetingPost").
-					then().
-					body("id", equalTo(1)).
-					body("content", equalTo("Hello, Johan2!"));
+			RestAssuredWebTestClient.given()
+					.log().ifValidationFails()
+					.standaloneSetup(new PostController())
+					.param("name", "Johan")
+					.when()
+					.post("/greetingPost")
+					.then()
+					.body("id", equalTo(1))
+					.body("content", equalTo("Hello, Johan2!"));
 
 			fail("Should throw AssertionError");
 		} catch (AssertionError e) {
-			assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/greetingPost\nProxy:\t\t\t<none>\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/x-www-form-urlencoded;charset=" + RestAssuredWebTestClientConfig.config().getEncoderConfig().defaultContentCharset() + "\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
+			assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:" +
+					"\thttp://localhost:8080/greetingPost\nProxy:\t\t\t<none>\nRequest params:\tname=Johan" +
+					"\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:" +
+					"\t\tContent-Type=application/x-www-form-urlencoded;charset="
+					+ RestAssuredWebTestClientConfig.config().getEncoderConfig().defaultContentCharset()
+					+ "\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
 		}
 	}
 
 	@Test
 	public void
 	doesnt_log_if_request_validation_succeeds_when_request_logging_if_validation_fails_is_enabled() {
-		RestAssuredWebTestClient.given().
-				log().ifValidationFails().
-				standaloneSetup(new PostController()).
-				param("name", "Johan").
-				when().
-				post("/greetingPost").
-				then().
-				body("id", equalTo(1)).
-				body("content", equalTo("Hello, Johan!"));
+		RestAssuredWebTestClient.given()
+				.log().ifValidationFails()
+				.standaloneSetup(new PostController())
+				.param("name", "Johan")
+				.when()
+				.post("/greetingPost")
+				.then()
+				.body("id", equalTo(1))
+				.body("content", equalTo("Hello, Johan!"));
 
 		assertThat(writer.toString(), isEmptyString());
 	}
