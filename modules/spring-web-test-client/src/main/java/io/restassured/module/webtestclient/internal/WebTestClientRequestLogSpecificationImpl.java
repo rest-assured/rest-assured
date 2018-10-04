@@ -12,7 +12,6 @@ import io.restassured.internal.LogSpecificationImpl;
 import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestLogSpecification;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecification;
-import io.restassured.specification.FilterableRequestSpecification;
 
 /**
  * @author Olga Maciaszek-Sharma
@@ -27,60 +26,60 @@ public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationIm
 
 	@Override
 	public WebTestClientRequestSpecification body() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return body(shouldPrettyPrint(toRequestSpecification()));
 	}
 
 	@Override
 	public WebTestClientRequestSpecification body(boolean shouldPrettyPrint) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return logWith(LogDetail.BODY, shouldPrettyPrint);
 	}
 
 	@Override
 	public WebTestClientRequestSpecification all() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return all(shouldPrettyPrint(toRequestSpecification()));
 	}
 
 	@Override
 	public WebTestClientRequestSpecification all(boolean shouldPrettyPrint) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return logWith(LogDetail.ALL, shouldPrettyPrint);
 	}
 
 	@Override
 	public WebTestClientRequestSpecification everything() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return all();
 	}
 
 	@Override
 	public WebTestClientRequestSpecification everything(boolean shouldPrettyPrint) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return all(shouldPrettyPrint);
 	}
 
 	@Override
 	public WebTestClientRequestSpecification headers() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return logWith(LogDetail.HEADERS);
 	}
 
 	@Override
 	public WebTestClientRequestSpecification cookies() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return logWith(LogDetail.COOKIES);
 	}
 
 	@Override
 	public WebTestClientRequestSpecification ifValidationFails() {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return ifValidationFails(LogDetail.ALL);
 	}
 
 	@Override
 	public WebTestClientRequestSpecification ifValidationFails(LogDetail logDetail) {
-		throw new UnsupportedOperationException("Please, implement me.");
+		return ifValidationFails(logDetail, shouldPrettyPrint(toRequestSpecification()));
 	}
 
 	@Override
 	public WebTestClientRequestSpecification ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(baos);
-		requestSpecification.getLogRepository().registerRequestLog(baos);
-		return logWith(logDetail, shouldPrettyPrint, ps);
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		PrintStream printStream = new PrintStream(byteArrayOutputStream);
+		requestSpecification.getLogRepository().registerRequestLog(byteArrayOutputStream);
+		return logWith(logDetail, shouldPrettyPrint, printStream);
 	}
 
 	private WebTestClientRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled,
@@ -89,11 +88,6 @@ public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationIm
 				.getLogConfig().shouldUrlEncodeRequestUri();
 		requestSpecification.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri));
 		return requestSpecification;
-	}
-
-	// TODO
-	private FilterableRequestSpecification toFilterableRequestSpecification(WebTestClientRequestSpecification requestSpecification) {
-		throw new UnsupportedOperationException("Please, implement me.");
 	}
 
 	private WebTestClientRequestSpecification logWith(LogDetail logDetail) {
@@ -109,9 +103,10 @@ public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationIm
 		return logWith(LogDetail.PARAMS);
 	}
 
-	// FIXME
 	private RequestSpecificationImpl toRequestSpecification() {
-		return new RequestSpecificationImpl("", 8080, "", new NoAuthScheme(), Collections.<Filter>emptyList(), null, true, requestSpecification.getRestAssuredConfig(), requestSpecification.getLogRepository(), null
+		return new RequestSpecificationImpl("", 8080, "", new NoAuthScheme(),
+				Collections.<Filter>emptyList(), null, true,
+				requestSpecification.getRestAssuredConfig(), requestSpecification.getLogRepository(), null
 		);
 	}
 

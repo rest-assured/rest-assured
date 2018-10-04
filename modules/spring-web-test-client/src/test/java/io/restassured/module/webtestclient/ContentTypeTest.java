@@ -22,7 +22,6 @@ import io.restassured.module.webtestclient.setup.ContentTypeProcessor;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
@@ -30,6 +29,7 @@ import static java.nio.charset.StandardCharsets.UTF_16;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.web.reactive.function.server.RequestPredicates.method;
 import static org.springframework.web.reactive.function.server.RequestPredicates.path;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
@@ -38,8 +38,8 @@ public class ContentTypeTest {
 
 	@BeforeClass
 	public static void configureWebTestClientInstance() {
-		RouterFunction<ServerResponse> setAttributesRoute = route(path("/contentType").and(method(HttpMethod.GET)),
-				new ContentTypeProcessor()::processContentType);
+		RouterFunction<ServerResponse> setAttributesRoute = route(path("/contentType")
+				.and(method(GET)), new ContentTypeProcessor()::processContentType);
 		RestAssuredWebTestClient.standaloneSetup(setAttributesRoute);
 	}
 
