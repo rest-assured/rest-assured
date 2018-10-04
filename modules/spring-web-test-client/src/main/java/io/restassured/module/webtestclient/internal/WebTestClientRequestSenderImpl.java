@@ -39,10 +39,10 @@ import io.restassured.module.webtestclient.response.WebTestClientResponse;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestAsyncConfigurer;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestAsyncSender;
 import io.restassured.specification.ResponseSpecification;
-import org.apache.commons.lang3.StringUtils;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
@@ -60,6 +60,7 @@ import static io.restassured.module.spring.commons.HeaderHelper.mapToArray;
 import static io.restassured.module.spring.commons.RequestLogger.logParamsAndHeaders;
 import static io.restassured.module.spring.commons.RequestLogger.logRequestBody;
 import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
 import static org.springframework.http.HttpMethod.DELETE;
@@ -245,8 +246,8 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 				}
 			}.applyParams();
 
-			if (StringUtils.isBlank(requestContentType) && method == POST && !isMultipartRequest()) {  // TODO: handle POST content type
-				setContentTypeToApplicationFormUrlEncoded(requestContentType);
+			if (isBlank(requestContentType) && method == POST && !isMultipartRequest()) {  // TODO: handle POST content type
+				setContentTypeToApplicationFormUrlEncoded();
 			}
 		}
 
@@ -264,15 +265,16 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 					uriComponentsBuilder.queryParam(paramName, paramValues);
 				}
 			}.applyParams();
+			if (isBlank(requestContentType) && !isMultipartRequest()) {
+				setContentTypeToApplicationFormUrlEncoded();
+			}
 		}
-
 		String uri = uriComponentsBuilder.buildAndExpand(pathParams).encode().toUriString();
-
 		WebTestClient.RequestBodySpec requestBodySpec = webTestClient.method(method)
 				.uri(uri); // TODO
 
 
-		if (StringUtils.isNotBlank(requestContentType)) {
+		if (isNotBlank(requestContentType)) {
 			requestBodySpec.contentType(parseMediaType(requestContentType));
 		}
 
@@ -320,12 +322,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 		return !multiParts.isEmpty();
 	}
 
-	private void setContentTypeToApplicationFormUrlEncoded(String requestContentType) {
-		requestContentType = parseMediaType(HeaderHelper.buildApplicationFormEncodedContentType(config,
-				APPLICATION_FORM_URLENCODED_VALUE)).toString();
-		List<Header> newHeaders = new ArrayList<Header>(headers.asList());
-		newHeaders.add(new Header(CONTENT_TYPE, requestContentType));
-		headers = new Headers(newHeaders);
+	private void verifyNoBodyAndMultipartTogether() {
+		if (requestBody != null && !multiParts.isEmpty()) {
+			throw new IllegalStateException("You cannot specify a request body and a multi-part body in the same request." +
+					" Perhaps you want to change the body to a multi part?");
+		}
 	}
 
 	private void logRequestIfApplicable(HttpMethod method, String uri, String originalPath, Object[] unnamedPathParams) {
@@ -354,10 +355,12 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 				Collections.<Filter>emptyList().iterator(), new HashMap<String, Object>()));
 	}
 
-	private void verifyNoBodyAndMultipartTogether() {
-		if (requestBody != null && !multiParts.isEmpty()) {
-			throw new IllegalStateException("You cannot specify a request body and a multi-part body in the same request. Perhaps you want to change the body to a multi part?");
-		}
+	private void setContentTypeToApplicationFormUrlEncoded() {
+		String requestContentType = parseMediaType(HeaderHelper.buildApplicationFormEncodedContentType(config,
+				APPLICATION_FORM_URLENCODED_VALUE)).toString();
+		List<Header> newHeaders = new ArrayList<Header>(headers.asList());
+		newHeaders.add(new Header(CONTENT_TYPE, requestContentType));
+		headers = new Headers(newHeaders);
 	}
 
 	private void sendMultiPartRequest() {
@@ -432,7 +435,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 			List<Header> responseHeaders = assembleHeaders(result.getResponseHeaders());
 			restAssuredResponse.setResponseHeaders(new Headers(responseHeaders));
 			restAssuredResponse.setRpr(getRpr());
-			restAssuredResponse.setStatusLine(String.valueOf(result.getStatus().value()));
+			restAssuredResponse.setStatusLine(buildResultString(result.getStatus()));
 			restAssuredResponse.setFilterContextProperties(new HashMap() {{
 				put(TimingFilter.RESPONSE_TIME_MILLISECONDS, responseTime);
 			}});
@@ -450,6 +453,16 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 //			} // TODO
 		}
 		return restAssuredResponse;
+	}
+
+	private String buildResultString(HttpStatus status) {
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append(status.value());
+		if (status.isError() && isNotBlank(status.getReasonPhrase())) {
+			stringBuilder.append(": ");
+			stringBuilder.append(status.getReasonPhrase());
+		}
+		return stringBuilder.toString();
 	}
 
 	private List<Header> assembleHeaders(HttpHeaders headers) {
