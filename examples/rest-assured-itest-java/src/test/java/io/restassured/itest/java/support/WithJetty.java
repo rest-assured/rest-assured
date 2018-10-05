@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,16 @@ import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
 import java.io.File;
 import java.util.Collections;
+
+import static io.restassured.itest.java.support.WithJetty.JettyOption.RESET_REST_ASSURED_BEFORE_TEST;
 
 public abstract class WithJetty {
     public static final String itestPath;
@@ -39,6 +44,16 @@ public abstract class WithJetty {
     static {
         String fileSeparator = System.getProperty("file.separator");
         itestPath = fileSeparator + "examples" + fileSeparator + "rest-assured-itest-java";
+    }
+
+    private final JettyOption jettyOption;
+
+    protected WithJetty() {
+        this(RESET_REST_ASSURED_BEFORE_TEST);
+    }
+
+    protected WithJetty(JettyOption jettyOption) {
+        this.jettyOption = jettyOption;
     }
 
     @Rule
@@ -126,7 +141,9 @@ public abstract class WithJetty {
 
     @Before
     public void setUpBeforeTest() {
-        RestAssured.reset();
+        if (jettyOption == RESET_REST_ASSURED_BEFORE_TEST) {
+            RestAssured.reset();
+        }
     }
 
     private static File gotoProjectRoot() {
@@ -144,4 +161,9 @@ public abstract class WithJetty {
     }
 
     private static Server server;
+
+    public enum JettyOption {
+        RESET_REST_ASSURED_BEFORE_TEST,
+        DONT_RESET_REST_ASSURED_BEFORE_TEST
+    }
 }
