@@ -52,17 +52,6 @@ public class WebTestClientRequestSpecBuilder {
 		}
 	}
 
-//	FIXME
-//	/**
-//	 * If you need to specify some credentials when performing a request.
-//	 *
-//	 * @return The request specification builder
-//	 */
-//	public WebTestClientRequestSpecBuilder setAuth(WebTestClientAuthenticationScheme auth) {
-//		auth.authenticate(spec);
-//		return this;
-//	}
-
 	/**
 	 * Specify a String request body (such as e.g. JSON or XML) to be sent with the request. This works for the
 	 * POST, PUT and PATCH methods only. Trying to do this for the other http methods will cause an exception to be thrown.

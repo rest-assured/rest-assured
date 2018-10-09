@@ -6,7 +6,6 @@ import io.restassured.module.spring.commons.config.ClientConfig;
 /**
  * @author Olga Maciaszek-Sharma
  */
-// TODO: consider removing this class if base can be used instead!!!
 public class WebTestClientConfig implements ClientConfig, Config {
 
 	private final boolean userConfigured;

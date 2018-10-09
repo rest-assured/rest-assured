@@ -33,11 +33,8 @@ import io.restassured.module.spring.commons.config.SpecificationConfig;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.reactive.function.server.RouterFunction;
 
@@ -919,9 +916,9 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	WebTestClientRequestSpecification standaloneSetup(RouterFunction routerFunction, WebTestClientConfigurer... configurers);
 
 	/**
-	 * Provide a {@link org.springframework.test.web.servlet.WebTestClient} instance to that REST Assured will use when making this request.
+	 * Provide a {@link org.springframework.test.web.reactive.server.WebTestClient} instance to that REST Assured will use when making this request.
 	 *
-	 * @param WebTestClient The mock mvc instance to use.
+	 * @param  webTestClient mock mvc instance to use.
 	 * @return The request specification
 	 */
 	WebTestClientRequestSpecification webTestClient(WebTestClient webTestClient);
@@ -935,20 +932,11 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	 * a {@link javax.servlet.ServletContext}.
 	 *
 	 * @param context                  The web application context to use
-	 * @param WebTestClientConfigurers {@link WebTestClientConfigurer}'s to be applied when creating a {@link WebTestClient} instance of this WebApplicationContext (optional)
+	 * @param configurers {@link WebTestClientConfigurer}'s to be applied when creating a {@link WebTestClient} instance of this WebApplicationContext (optional)
 	 */ // TODO: Applicatin context?
 	WebTestClientRequestSpecification webAppContextSetup(WebApplicationContext context, WebTestClientConfigurer... configurers);
 
 	WebTestClientRequestSpecification applicationContextSetup(ApplicationContext context, WebTestClientConfigurer... configurers);
-
-//	/**  // TODO: verify
-//	 * Intercept the {@link org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder} created by REST Assured before it's
-//	 * used to perform the request.
-//	 *
-//	 * @param interceptor The interceptor
-//	 * @return The request specification
-//	 */
-//	WebTestClientRequestSpecification interceptor(MockHttpServletRequestBuilderInterceptor interceptor);
 
 	/**
 	 * Syntactic sugar
@@ -956,26 +944,4 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	 * @return The same {@link WebTestClientRequestSpecification} instance.
 	 */
 	WebTestClientRequestSpecification and();
-
-	/**
-	 * An extension point for further initialization of {@link MockHttpServletRequest}
-	 * in ways not built directly into the {@code MockHttpServletRequestBuilder}.
-	 * Implementation of this interface can have builder-style methods themselves
-	 * and be made accessible through static factory methods.
-	 * <p>
-	 * Note that it's recommended to use {@link WebTestClientAuthenticationSpecification#with(RequestPostProcessor, RequestPostProcessor...)} instead of this method when setting authentication/authorization based RequestPostProcessors.
-	 * For example:
-	 * <pre>
-	 * given().auth().with(httpBasic("username", "password")). ..
-	 * </pre>
-	 * </p>
-	 *
-	 * @param postProcessor            a post-processor to add
-	 * @param additionalPostProcessors Additional post-processors to add
-	 * @see MockHttpServletRequestBuilder#with(RequestPostProcessor)
-	 */
-
-	// TODO:?
-//	WebTestClientRequestSpecification postProcessors(RequestPostProcessor postProcessor, RequestPostProcessor... additionalPostProcessors);
-
 }

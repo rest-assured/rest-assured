@@ -97,7 +97,6 @@ public class RestAssuredWebTestClient {
 		basePath = "/";
 		responseSpecification = null;
 		requestSpecification = null;
-		// authentication = null; //TODO: ?
 	}
 
 	public static WebTestClientResponse get(String path, Object... pathParams) {

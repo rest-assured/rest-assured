@@ -85,14 +85,7 @@ import static org.springframework.http.MediaType.parseMediaType;
  */
 public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsyncSender, WebTestClientRequestAsyncConfigurer {
 
-	/*
-	 List<ResultHandler> resultHandlers,
-	 List<RequestPostProcessor> requestPostProcessors,
-	 */
-
-	private static final String ATTRIBUTE_NAME_URL_TEMPLATE = "org.springframework.restdocs.urlTemplate";
 	private static final String CONTENT_TYPE = "Content-Type";
-	private static final String LINE_SEPARATOR = "line.separator";
 
 	private final WebTestClient webTestClient;
 	private final Map<String, Object> params;
@@ -101,7 +94,6 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 	private final Map<String, Object> attributes;
 	private final RestAssuredWebTestClientConfig config;
 	private final Object requestBody;
-	private final Object authentication;
 	private final Cookies cookies;
 	private final List<MultiPartInternal> multiParts;
 	private final boolean isAsyncRequest;
@@ -120,10 +112,10 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 	                               Cookies cookies, Map<String, Object> sessionAttributes,
 	                               List<MultiPartInternal> multiParts, RequestLoggingFilter requestLoggingFilter,
 	                               String basePath, ResponseSpecification responseSpecification,
-	                               Object authentication, LogRepository logRepository) {
+	                               LogRepository logRepository) {
 		this(webTestClient, params, queryParams, formParams, attributes, config, requestBody, headers, cookies,
 				sessionAttributes, multiParts, requestLoggingFilter,
-				basePath, responseSpecification, authentication, logRepository, false);
+				basePath, responseSpecification, logRepository, false);
 	}
 
 	private WebTestClientRequestSenderImpl(WebTestClient webTestClient, Map<String, Object> params, Map<String,
@@ -133,7 +125,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 	                                       List<MultiPartInternal> multiParts,
 	                                       RequestLoggingFilter requestLoggingFilter, String basePath,
 	                                       ResponseSpecification responseSpecification,
-	                                       Object authentication, LogRepository logRepository, boolean isAsyncRequest) {
+	                                       LogRepository logRepository, boolean isAsyncRequest) {
 		this.webTestClient = webTestClient;
 		this.params = params;
 		this.queryParams = queryParams;
@@ -147,7 +139,6 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 		this.multiParts = multiParts;
 		this.basePath = basePath;
 		this.responseSpecification = responseSpecification;
-		this.authentication = authentication;
 		this.logRepository = logRepository;
 		this.isAsyncRequest = isAsyncRequest;
 		this.requestLoggingFilter = requestLoggingFilter;
@@ -156,7 +147,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 	public WebTestClientRequestAsyncConfigurer async() {
 		return new WebTestClientRequestSenderImpl(webTestClient, params, queryParams, formParams,
 				attributes, config, requestBody, headers, cookies, sessionAttributes, multiParts, requestLoggingFilter,
-				basePath, responseSpecification, authentication, logRepository, true);
+				basePath, responseSpecification, logRepository, true);
 	}
 
 	@Override
@@ -335,6 +326,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 		headers = new Headers(newHeaders);
 	}
 
+	// FIXME
 	private void sendMultiPartRequest() {
 
 //		if (multiParts.isEmpty()) {
@@ -406,29 +398,20 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 				Collections.<Filter>emptyList().iterator(), new HashMap<>()));
 	}
 
+
+	// TODO: support different types?
 	private WebTestClientResponse performRequest(WebTestClient.RequestBodySpec requestBuilder) {
 		FluxExchangeResult<String> result;
-
-//		if (isSpringSecurityInClasspath() && authentication instanceof org.springframework.security.core.Authentication) {
-//			org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication((org.springframework.security.core.Authentication) authentication);
-//		}
-//		if (authentication instanceof Principal) {
-//			requestBuilder.principal((Principal) authentication);
-//		} // TODO: handle auth
 
 		WebTestClientRestAssuredResponseImpl restAssuredResponse;
 
 		try {
-			final long start = System.currentTimeMillis();  // TODO support webtestclient expect assertions
+			final long start = System.currentTimeMillis();
 			WebTestClient.ResponseSpec responseSpec = requestBuilder.exchange();
 			final long responseTime = System.currentTimeMillis() - start;
 			result = responseSpec.returnResult(String.class);
 			restAssuredResponse = new WebTestClientRestAssuredResponseImpl(responseSpec, logRepository);
 			restAssuredResponse.setConfig(ConfigConverter.convertToRestAssuredConfig(config));
-//			Flux<byte[]> responseBodyFlux = responseSpec.returnResult(byte[].class).getResponseBody().cache();
-//			restAssuredResponse.setContent(responseBodyFlux.ignoreElements()
-//					.timeout(timeout, Mono.error(TIMEOUT_ERROR))
-//					.then(Mono.defer(() -> Mono.justOrEmpty(getResponseBodyContent(responseBodyFlux)))).block());
 			byte[] responseBodyContent = Optional.ofNullable(consumer).map(consumer ->
 					responseSpec.expectBody().consumeWith(consumer).returnResult().getResponseBodyContent())
 					.orElseGet(() -> responseSpec.expectBody().returnResult().getResponseBodyContent());
@@ -453,10 +436,6 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 
 		} catch (Exception e) {
 			return SafeExceptionRethrower.safeRethrow(e);
-//		} finally {
-//			if (isSpringSecurityInClasspath()) {
-//				org.springframework.security.core.context.SecurityContextHolder.clearContext();
-//			} // TODO
 		}
 		return restAssuredResponse;
 	}

@@ -96,17 +96,12 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	private LogRepository logRepository;
 	private WebTestClientFactory webTestClientFactory;
 	private final ParameterUpdater
-			parameterUpdater = new ParameterUpdater(new ParameterUpdater.Serializer() {
-		public String serializeIfNeeded(Object value) {
-			return WebTestClientRequestSpecificationImpl.this.serializeIfNeeded(value);
-		}
-	});
+			parameterUpdater = new ParameterUpdater(WebTestClientRequestSpecificationImpl.this::serializeIfNeeded);
 	private Headers requestHeaders = new Headers();
 	private String basePath;
 	private RequestLoggingFilter requestLoggingFilter;
 	private List<MultiPartInternal> multiParts = new ArrayList<MultiPartInternal>();
 	private Cookies cookies = new Cookies();
-	private ExchangeFilterFunction authentication;
 	private AsyncConfig asyncConfig;
 
 
@@ -124,10 +119,6 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		if (requestSpecification != null) {
 			spec(requestSpecification);
 		}
-
-//		if (authentication != null) {  // TODO
-//			authentication.authenticate(this);
-//		}
 	}
 
 	// TODO: extract duplicate?
@@ -538,10 +529,6 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		if (otherRequestLoggingFilter != null) {
 			requestLoggingFilter = otherRequestLoggingFilter;
 		}
-		ExchangeFilterFunction otherAuth = specificationToMerge.getAuthentication();
-		if (otherAuth != null) {
-			this.authentication = otherAuth;
-		}
 		AsyncConfig otherAsyncConfig = specificationToMerge.getAsyncConfig();
 		if (otherAsyncConfig != null) {
 			asyncConfig = otherAsyncConfig;
@@ -576,7 +563,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		WebTestClient webTestClient = webTestClientFactory.build(config.getWebTestClientConfig());
 		return new WebTestClientRequestSenderImpl(webTestClient, params, queryParams, formParams, attributes, config, requestBody,
 				requestHeaders, cookies, sessionAttributes, multiParts, requestLoggingFilter, basePath,
-				responseSpecification, authentication, logRepository);
+				responseSpecification, logRepository);
 	}
 
 	@Override
@@ -946,10 +933,6 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 
 	public RequestLoggingFilter getRequestLoggingFilter() {
 		return requestLoggingFilter;
-	}
-
-	public ExchangeFilterFunction getAuthentication() {
-		return authentication;
 	}
 
 	public AsyncConfig getAsyncConfig() {

@@ -15,11 +15,8 @@
  */
 package io.restassured.module.webtestclient.setup;
 
-import java.security.Principal;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,29 +32,6 @@ public class SecuredController {
 
     @RequestMapping(value = "/springSecurityGreeting", method = GET)
     public @ResponseBody Greeting greeting(@RequestParam(value = "name", required = false, defaultValue = "World") String name) {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (user == null || !user.getUsername().equals("authorized_user")) {
-            throw new IllegalArgumentException("Not authorized");
-        }
-
-        return new Greeting(counter.incrementAndGet(), String.format(template, name));
-    }
-
-    @RequestMapping(value = "/principalGreeting", method = GET)
-    public @ResponseBody Greeting greeting(@RequestParam(value = "name", required = false, defaultValue = "World") String name, Principal principal) {
-        if (principal == null || !principal.getName().equals("authorized_user")) {
-            throw new IllegalArgumentException("Not authorized");
-        }
-
-        return new Greeting(counter.incrementAndGet(), String.format(template, name));
-    }
-
-    @RequestMapping(value = "/setAuthenticationSetBoth", method = GET)
-    public @ResponseBody Greeting setAuthenticationSetBoth(@RequestParam(value = "name", required = false, defaultValue = "World") String name, Principal principal) {
-        if (!SecurityContextHolder.getContext().getAuthentication().equals(principal)) {
-            throw new IllegalArgumentException("Authentication not equal principal!");
-        }
-
         return new Greeting(counter.incrementAndGet(), String.format(template, name));
     }
 }
