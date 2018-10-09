@@ -17,12 +17,14 @@
 package io.restassured.module.webtestclient.specification;
 
 import java.net.URI;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import io.restassured.http.Method;
 import io.restassured.module.webtestclient.response.WebTestClientResponse;
 import io.restassured.specification.RequestSenderOptions;
 
+import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.web.util.UriBuilder;
 
 /**
@@ -47,4 +49,7 @@ public interface WebTestClientRequestSender extends RequestSenderOptions<WebTest
 	WebTestClientResponse request(Method method, Function<UriBuilder, URI> uriFunction);
 
 	WebTestClientResponse request(String method, Function<UriBuilder, URI> uriFunction);
+
+	// TODO: add usage example
+	WebTestClientRequestSender consumeWith(Consumer<EntityExchangeResult<byte[]>> consumer);
 }

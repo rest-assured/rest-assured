@@ -19,10 +19,8 @@ package io.restassured.module.webtestclient.response;
 import io.restassured.response.ResponseBody;
 import io.restassured.response.ResponseOptions;
 import io.restassured.response.Validatable;
-import reactor.core.publisher.Flux;
 
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
-import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
  * @author Olga Maciaszek-Sharma
@@ -33,9 +31,4 @@ public interface WebTestClientResponse extends ResponseBody<WebTestClientRespons
 	FluxExchangeResult<Object> getWebTestClientResult();
 
 	FluxExchangeResult<Object> webTestClientResult();
-
-	WebTestClient.ResponseSpec getResponseSpec();
-
-	WebTestClient.ResponseSpec responseSpec();
-
 }

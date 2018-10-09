@@ -6,15 +6,16 @@ import io.restassured.module.spring.commons.config.ClientConfig;
 /**
  * @author Olga Maciaszek-Sharma
  */
+// TODO: consider removing this class if base can be used instead!!!
 public class WebTestClientConfig implements ClientConfig, Config {
 
 	private final boolean userConfigured;
 
 	public WebTestClientConfig() {
-		this(false, true);
+		this(true);
 	}
 
-	public WebTestClientConfig(boolean userConfigured, boolean automaticallyApplySpringSecurityFilters) {
+	public WebTestClientConfig(boolean userConfigured) {
 		this.userConfigured = userConfigured;
 	}
 
@@ -23,4 +24,19 @@ public class WebTestClientConfig implements ClientConfig, Config {
 		return userConfigured;
 	}
 
+	/**
+	 * Just syntactic sugar.
+	 *
+	 * @return A new instance of {@link WebTestClientConfig}.
+	 */
+	public static WebTestClientConfig webTestClientConfig() {
+		return new WebTestClientConfig();
+	}
+
+	/**
+	 * Just syntactic sugar to make the DSL more English-like.
+	 */
+	public WebTestClientConfig with() {
+		return this;
+	}
 }

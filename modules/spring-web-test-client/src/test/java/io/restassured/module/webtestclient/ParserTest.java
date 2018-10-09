@@ -23,9 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.springframework.web.util.UriUtils;
-
-import static org.apache.commons.codec.Charsets.UTF_8;
 import static org.hamcrest.Matchers.equalTo;
 
 public class ParserTest {
@@ -38,7 +35,7 @@ public class ParserTest {
 
 	@After
 	public void
-	rest_assured_is_reset() throws Exception {
+	rest_assured_is_reset() {
 		RestAssuredWebTestClient.reset();
 	}
 
@@ -48,27 +45,27 @@ public class ParserTest {
 		RestAssuredWebTestClient.responseSpecification = new ResponseSpecBuilder()
 				.registerParser("some/thing", Parser.JSON).build();
 
-		RestAssuredWebTestClient.given().
-				param("param", "my param").
-				when().
-				get("/parserWithUnknownContentType").
-				then().
-				statusCode(200).
-				contentType(equalTo("some/thing;charset=UTF-8")).
-				body("param", equalTo(UriUtils.encode("my param", UTF_8)));
+		RestAssuredWebTestClient.given()
+				.param("param", "my param")
+				.when()
+				.get("/parserWithUnknownContentType")
+				.then()
+				.statusCode(200)
+				.contentType(equalTo("some/thing;charset=UTF-8"))
+				.body("param", equalTo("my param"));
 	}
 
 	@Test
 	public void
 	using_non_static_parser_its_possible_to_parse_unknown_content_types() {
-		RestAssuredWebTestClient.given().
-				param("param", "my param").
-				when().
-				get("/parserWithUnknownContentType").
-				then().
-				parser("some/thing", Parser.JSON).
-				statusCode(200).
-				contentType(equalTo("some/thing;charset=UTF-8")).
-				body("param", equalTo(UriUtils.encode("my param", UTF_8)));
+		RestAssuredWebTestClient.given()
+				.param("param", "my param")
+				.when()
+				.get("/parserWithUnknownContentType")
+				.then()
+				.parser("some/thing", Parser.JSON)
+				.statusCode(200)
+				.contentType(equalTo("some/thing;charset=UTF-8"))
+				.body("param", equalTo("my param"));
 	}
 }

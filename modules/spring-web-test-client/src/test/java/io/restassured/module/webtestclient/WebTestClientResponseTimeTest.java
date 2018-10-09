@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 
 public class WebTestClientResponseTimeTest {
@@ -35,9 +36,7 @@ public class WebTestClientResponseTimeTest {
 				.post("/greetingPost")
 				.then()
 				.time(lessThan(3L), SECONDS)
-				.expect()
-				.expectStatus()
-				.is2xxSuccessful();
+				.statusCode(is(200));
 	}
 
 	@Test

@@ -21,7 +21,6 @@ import io.restassured.module.webtestclient.setup.GreetingController;
 import org.junit.Test;
 
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
-import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -65,24 +64,5 @@ public class ExtractTest {
 						.response().webTestClientResult();
 
 		assertThat(result.getResponseHeaders().getContentType().toString()).isEqualTo(APPLICATION_JSON_UTF8.toString());
-	}
-
-	@Test
-	public void
-	can_extract_webt_test_client_response_spec() {
-		WebTestClient.ResponseSpec responseSpec =
-
-				RestAssuredWebTestClient.given()
-						.standaloneSetup(new GreetingController())
-						.param("name", "Johan")
-						.when()
-						.get("/greeting")
-						.then()
-						.statusCode(200)
-						.body("id", equalTo(1))
-						.extract()
-						.response().responseSpec();
-
-		responseSpec.expectHeader().contentType(APPLICATION_JSON_UTF8.toString());
 	}
 }

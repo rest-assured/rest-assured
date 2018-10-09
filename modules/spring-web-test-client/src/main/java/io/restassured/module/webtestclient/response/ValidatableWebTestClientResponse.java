@@ -16,7 +16,12 @@
 
 package io.restassured.module.webtestclient.response;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import io.restassured.response.ValidatableResponseOptions;
+import org.hamcrest.Matcher;
+import reactor.core.publisher.Flux;
 
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -28,16 +33,16 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 public interface ValidatableWebTestClientResponse extends ValidatableResponseOptions<ValidatableWebTestClientResponse,
 		WebTestClientResponse> {
 
-	/**
-	 * @return underlying {@link WebTestClient.ResponseSpec instance}
-	 */
-	WebTestClient.ResponseSpec responseSpec();
+	ValidatableWebTestClientResponse assertThatBody(Matcher matcher);
 
-	/**
-	 * An alias method for {@link ValidatableWebTestClientResponse#responseSpec()} method in order to provide a consistent
-	 * API
-	 *
-	 * @return underlying {@link WebTestClient.ResponseSpec instance}
-	 */
-	WebTestClient.ResponseSpec expect();
+	ValidatableWebTestClientResponse expectBody(Matcher matcher);
+
+	ValidatableWebTestClientResponse isEqualTo(Object expected);
+
+	ValidatableWebTestClientResponse expectHeaders(Matcher matcher);
+
+	<R> ValidatableWebTestClientResponse expectBody(Function<Flux, R> bodyMapper, Matcher<R> matcher);
+
+	ValidatableWebTestClientResponse expectBody(Consumer consumer);
+
 }

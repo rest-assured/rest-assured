@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import io.restassured.config.LogConfig;
@@ -59,10 +60,12 @@ import io.restassured.module.webtestclient.config.WebTestClientParamConfig;
 import io.restassured.module.webtestclient.response.WebTestClientResponse;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestAsyncSender;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestLogSpecification;
+import io.restassured.module.webtestclient.specification.WebTestClientRequestSender;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
 import org.springframework.web.context.WebApplicationContext;
@@ -678,6 +681,11 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	@Override
 	public WebTestClientResponse request(String method, Function<UriBuilder, URI> uriFunction) {
 		return when().request(method, uriFunction);
+	}
+
+	@Override
+	public WebTestClientRequestSender consumeWith(Consumer<EntityExchangeResult<byte[]>> consumer) {
+		return when().consumeWith(consumer);
 	}
 
 	@Override

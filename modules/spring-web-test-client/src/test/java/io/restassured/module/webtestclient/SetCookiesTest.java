@@ -1,7 +1,6 @@
 package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.CookieProcessor;
-import org.apache.commons.codec.Charsets;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -10,9 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import org.springframework.web.util.UriUtils;
 
-import static org.apache.commons.codec.Charsets.UTF_8;
 import static org.springframework.web.reactive.function.server.RequestPredicates.method;
 import static org.springframework.web.reactive.function.server.RequestPredicates.path;
 
@@ -44,8 +41,8 @@ public class SetCookiesTest {
 				.get("/setCookies")
 				.then()
 				.statusCode(200)
-				.cookie("name", UriUtils.encode("John Doe", UTF_8))
-				.cookie("project", UriUtils.encode("rest assured", UTF_8));
+				.cookie("name", "John Doe")
+				.cookie("project", "rest assured");
 	}
 
 }

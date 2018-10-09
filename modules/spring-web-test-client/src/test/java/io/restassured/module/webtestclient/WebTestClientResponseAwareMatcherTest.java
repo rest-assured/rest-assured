@@ -18,10 +18,8 @@ package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.matcher.RestAssuredWebTestClientMatchers;
 import io.restassured.module.webtestclient.setup.ResponseAwareMatcherController;
-import io.restassured.path.json.JsonPath;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 
 public class WebTestClientResponseAwareMatcherTest {
@@ -36,23 +34,6 @@ public class WebTestClientResponseAwareMatcherTest {
 				.then()
 				.statusCode(200)
 				.body("_links.self.href", RestAssuredWebTestClientMatchers.endsWithPath("id"))
-				.body("status", equalTo("ongoing"));
-	}
-
-	@Test
-	public void
-	can_use_custom_matcher_for_response_aware_matching() {
-		RestAssuredWebTestClient.given()
-				.standaloneSetup(new ResponseAwareMatcherController())
-				.when()
-				.get("/responseAware")
-				.then()
-				.statusCode(200)
-				.body("_links.self.href", response -> {
-					String result = response.getResponseSpec().returnResult(String.class).toString();
-					String jsonContentAsString = result.substring(result.indexOf('{'));
-					return endsWith(new JsonPath(jsonContentAsString).getString("id"));
-				})
 				.body("status", equalTo("ongoing"));
 	}
 }

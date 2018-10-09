@@ -14,18 +14,20 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  */
 public class WebTestClientRestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<WebTestClientResponse> implements WebTestClientResponse {
 
-	private final WebTestClient.ResponseSpec responseSpec;
+	// FIXME: final
+	private WebTestClient.ResponseSpec responseSpec;
 	private final LogRepository logRepository;
 
-	public WebTestClientRestAssuredResponseImpl(WebTestClient.ResponseSpec responseSpec, LogRepository logRepository) {
+	public WebTestClientRestAssuredResponseImpl(WebTestClient.ResponseSpec responseSpec,
+	                                            LogRepository logRepository) {
 		this.responseSpec = responseSpec;
 		this.logRepository = logRepository;
 	}
 
 	@Override
 	public ValidatableWebTestClientResponse then() {
-		ValidatableWebTestClientResponse response = new ValidatableWebTestClientResponseImpl(responseSpec,
-				getRpr(), getConfig(), this, this, logRepository);
+		ValidatableWebTestClientResponse response = new ValidatableWebTestClientResponseImpl(
+				responseSpec, getRpr(), getConfig(), this, this, logRepository);
 		LogConfig logConfig = getConfig().getLogConfig();
 		if (logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
 			response.log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
@@ -41,13 +43,7 @@ public class WebTestClientRestAssuredResponseImpl extends RestAssuredResponseOpt
 		return responseSpec.returnResult(Object.class);
 	}
 
-	@Override
-	public WebTestClient.ResponseSpec getResponseSpec() {
-		return responseSpec;
-	}
-
-	@Override
-	public WebTestClient.ResponseSpec responseSpec() {
-		return getResponseSpec();
+	public void setResponseSpec(WebTestClient.ResponseSpec responseSpec) {
+		this.responseSpec = responseSpec;
 	}
 }

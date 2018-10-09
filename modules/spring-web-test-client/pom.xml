@@ -31,6 +31,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>5.1.0.RELEASE</spring.version>
         <servlet-api.version>4.0.1</servlet-api.version>
+        <spring.restdocs.version>2.0.2.RELEASE</spring.restdocs.version>
     </properties>
 
     <build>
@@ -135,6 +136,19 @@
             <version>2.9.6</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.restdocs</groupId>
+            <artifactId>spring-restdocs-core</artifactId>
+            <version>${spring.restdocs.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.restdocs</groupId>
+            <artifactId>spring-restdocs-webtestclient</artifactId>
+            <version>${spring.restdocs.version}</version>
+            <scope>test</scope>
+        </dependency>
+
 
         <!--Provided-->
         <dependency>
