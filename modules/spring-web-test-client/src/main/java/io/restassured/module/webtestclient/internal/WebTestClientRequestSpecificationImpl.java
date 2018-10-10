@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.restassured.module.webtestclient.internal;
 
 import java.io.File;
@@ -76,9 +75,6 @@ import static io.restassured.internal.assertion.AssertParameter.notNull;
 import static io.restassured.internal.multipart.MultiPartInternal.OCTET_STREAM;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
-/**
- * @author Olga Maciaszek-Sharma
- */
 public class WebTestClientRequestSpecificationImpl implements WebTestClientRequestSpecification {
 
 	private static final String CONTENT_TYPE = "Content-Type";
@@ -118,7 +114,6 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		}
 	}
 
-	// TODO: extract duplicate?
 	private void assignConfig(RestAssuredWebTestClientConfig config) {
 		if (config == null) {
 			this.config = new RestAssuredWebTestClientConfig();
@@ -613,7 +608,6 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		return requestBody;
 	}
 
-	// TODO: extract duplicate?
 	public String getRequestContentType() {
 		Header header = requestHeaders.get(CONTENT_TYPE);
 		if (header != null) {

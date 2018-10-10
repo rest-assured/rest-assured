@@ -27,9 +27,6 @@ import io.restassured.specification.RequestSenderOptions;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.web.util.UriBuilder;
 
-/**
- * @author Olga Maciaszek-Sharma
- */
 public interface WebTestClientRequestSender extends RequestSenderOptions<WebTestClientResponse> {
 
 	WebTestClientResponse get(Function<UriBuilder, URI> uriFunction);

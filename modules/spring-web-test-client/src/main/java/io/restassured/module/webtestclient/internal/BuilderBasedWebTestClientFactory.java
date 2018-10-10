@@ -20,9 +20,6 @@ import io.restassured.module.webtestclient.config.WebTestClientConfig;
 
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-/**
- * @author Olga Maciaszek-Sharma
- */
 public class BuilderBasedWebTestClientFactory implements WebTestClientFactory {
 
 	private final WebTestClient.Builder builder;

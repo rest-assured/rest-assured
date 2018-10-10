@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,6 @@ public class AsyncConfig implements Config {
     /**
      * Creates a new {@link AsyncConfig} with timeout.
      *
-     *
      * @param duration The duration
      * @param timeUnit The time unit
      */
@@ -65,6 +64,19 @@ public class AsyncConfig implements Config {
         this.duration = duration;
         this.timeUnit = timeUnit;
         this.userConfigured = isUserConfigured;
+    }
+
+    public static AsyncConfig withTimeout(long duration, TimeUnit timeUnit) {
+        return new AsyncConfig(timeUnit.toMillis(duration));
+    }
+
+    /**
+     * Just syntactic sugar.
+     *
+     * @return A new instance of {@link AsyncConfig}.
+     */
+    public static AsyncConfig asyncConfig() {
+        return new AsyncConfig();
     }
 
     /**
@@ -99,23 +111,10 @@ public class AsyncConfig implements Config {
         return userConfigured;
     }
 
-    public static AsyncConfig withTimeout(long duration, TimeUnit timeUnit) {
-        return new AsyncConfig(timeUnit.toMillis(duration));
-    }
-
     /**
      * Just syntactic sugar to make the DSL more english like.
      */
     public AsyncConfig with() {
         return this;
-    }
-
-    /**
-     * Just syntactic sugar.
-     *
-     * @return A new instance of {@link AsyncConfig}.
-     */
-    public static AsyncConfig asyncConfig() {
-        return new AsyncConfig();
     }
 }

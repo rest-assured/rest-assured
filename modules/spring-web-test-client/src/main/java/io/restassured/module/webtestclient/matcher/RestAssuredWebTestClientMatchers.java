@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,17 @@
 
 package io.restassured.module.webtestclient.matcher;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.Reader;
-import java.net.URL;
-
 import io.restassured.internal.matcher.xml.XmlDtdMatcher;
 import io.restassured.internal.matcher.xml.XmlXsdMatcher;
 import io.restassured.matcher.ResponseAwareMatcher;
 import io.restassured.matcher.RestAssuredMatchers;
 import io.restassured.module.webtestclient.response.WebTestClientResponse;
 import org.hamcrest.Matcher;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.Reader;
+import java.net.URL;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;

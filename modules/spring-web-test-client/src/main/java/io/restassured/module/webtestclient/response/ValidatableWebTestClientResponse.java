@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,7 @@
 
 package io.restassured.module.webtestclient.response;
 
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import io.restassured.response.ValidatableResponseOptions;
-import org.hamcrest.Matcher;
-import reactor.core.publisher.Flux;
-
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
@@ -32,17 +26,5 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  */
 public interface ValidatableWebTestClientResponse extends ValidatableResponseOptions<ValidatableWebTestClientResponse,
 		WebTestClientResponse> {
-
-	ValidatableWebTestClientResponse assertThatBody(Matcher matcher);
-
-	ValidatableWebTestClientResponse expectBody(Matcher matcher);
-
-	ValidatableWebTestClientResponse isEqualTo(Object expected);
-
-	ValidatableWebTestClientResponse expectHeaders(Matcher matcher);
-
-	<R> ValidatableWebTestClientResponse expectBody(Function<Flux, R> bodyMapper, Matcher<R> matcher);
-
-	ValidatableWebTestClientResponse expectBody(Consumer consumer);
 
 }

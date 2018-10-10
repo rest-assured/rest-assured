@@ -1,11 +1,19 @@
+/*
+ * Copyright 2018 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.restassured.module.webtestclient.specification;
-
-import java.io.File;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.Map;
 
 import io.restassured.config.LogConfig;
 import io.restassured.config.SessionConfig;
@@ -20,16 +28,19 @@ import io.restassured.module.webtestclient.RestAssuredWebTestClient;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
 import io.restassured.module.webtestclient.internal.WebTestClientFactory;
 import io.restassured.module.webtestclient.internal.WebTestClientRequestSpecificationImpl;
-
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Map;
+
 import static io.restassured.internal.assertion.AssertParameter.notNull;
 
-/**
- * @author Olga Maciaszek-Sharma
- */
 public class WebTestClientRequestSpecBuilder {
 
 	private WebTestClientRequestSpecificationImpl spec;
@@ -96,7 +107,7 @@ public class WebTestClientRequestSpecBuilder {
 	 * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
 	 * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
 	 * <p>
-	 * Note that {@link #setBody(Object, ObjectMapper)}
+	 * Note that {@link #setBody(Object, ObjectMapperType)}
 	 * are the same except for the syntactic difference.
 	 * </p>
 	 *
@@ -126,7 +137,7 @@ public class WebTestClientRequestSpecBuilder {
 	 *         post("/beautiful-message");
 	 * </pre>
 	 * </p>
-	 * Note that {@link #setBody(Object, ObjectMapperType)}
+	 * Note that {@link #setBody(Object, ObjectMapper)}
 	 * are the same except for the syntactic difference.
 	 * </p>
 	 *
@@ -566,15 +577,15 @@ public class WebTestClientRequestSpecBuilder {
 	}
 
 	/**
-	 * The mock mvc instance to use.
+	 * The webTestClient instance to use.
 	 * <p/>
 	 * Note that this will override the any {@link org.springframework.test.web.reactive.server.WebTestClient} instances configured by other setters.*
 	 *
-	 * @param WebTestClient The mock mvc instance
+	 * @param webTestClient The WebTestClient instance
 	 * @return WebTestClientRequestSpecBuilder
 	 */
-	public WebTestClientRequestSpecBuilder setWebTestClient(WebTestClient WebTestClient) {
-		spec.webTestClient(WebTestClient);
+	public WebTestClientRequestSpecBuilder setWebTestClient(WebTestClient webTestClient) {
+		spec.webTestClient(webTestClient);
 		return this;
 	}
 

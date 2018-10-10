@@ -20,15 +20,7 @@ import io.restassured.response.ResponseBody;
 import io.restassured.response.ResponseOptions;
 import io.restassured.response.Validatable;
 
-import org.springframework.test.web.reactive.server.FluxExchangeResult;
-
-/**
- * @author Olga Maciaszek-Sharma
- */
 public interface WebTestClientResponse extends ResponseBody<WebTestClientResponse>,
 		ResponseOptions<WebTestClientResponse>, Validatable<ValidatableWebTestClientResponse, WebTestClientResponse> {
 
-	FluxExchangeResult<Object> getWebTestClientResult();
-
-	FluxExchangeResult<Object> webTestClientResult();
 }

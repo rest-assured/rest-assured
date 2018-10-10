@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.module.spring.commons;
+package io.restassured.module.mockmvc.internal;
 
 import static io.restassured.internal.classpath.ClassPathResolver.existInCP;
 

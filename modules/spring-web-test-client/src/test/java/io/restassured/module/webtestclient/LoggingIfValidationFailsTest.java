@@ -16,11 +16,9 @@
 
 package io.restassured.module.webtestclient;
 
-import java.io.PrintStream;
-import java.io.StringWriter;
-
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.LogConfig;
+import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
 import io.restassured.module.webtestclient.setup.PostController;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder;
@@ -28,6 +26,10 @@ import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.web.util.UriUtils;
+
+import java.io.PrintStream;
+import java.io.StringWriter;
 
 import static io.restassured.filter.log.LogDetail.HEADERS;
 import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given;
@@ -37,6 +39,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -59,8 +62,7 @@ public class LoggingIfValidationFailsTest {
 	}
 
 	@Test
-	public void
-	logging_of_both_request_and_response_validation_works_when_test_fails() {
+    public void logging_of_both_request_and_response_validation_works_when_test_fails() {
 		RestAssuredWebTestClient.config = new RestAssuredWebTestClientConfig()
 				.logConfig(new LogConfig(captor, true)
 						.enableLoggingOfRequestAndResponseIfValidationFails());
@@ -85,8 +87,33 @@ public class LoggingIfValidationFailsTest {
 	}
 
 	@Test
-	public void
-	logging_of_both_request_and_response_validation_works_when_test_fails_when_configured_with_log_detail() {
+    public void logging_of_both_request_with_uri_function_and_response_validation_works_when_test_fails() {
+        RestAssuredWebTestClient.config = new RestAssuredWebTestClientConfig()
+                .logConfig(new LogConfig(captor, true)
+                        .enableLoggingOfRequestAndResponseIfValidationFails());
+
+        try {
+            given()
+                    .standaloneSetup(new PostController())
+                    .contentType(ContentType.URLENC)
+                    .when()
+                    .post(uriBuilder -> uriBuilder.path("/greetingPost").queryParam("name", "Johan").build())
+                    .then()
+                    .body("id", equalTo(1))
+                    .body("content", equalTo("Hello, Johan2!"));
+
+            fail("Should throw AssertionError");
+        } catch (AssertionError e) {
+            assertThat(writer.toString(), containsString(UriUtils.encode("Request from uri function", defaultCharset())));
+            assertThat(writer.toString(), containsString("Request method:\tPOST\n"));
+            assertThat(writer.toString(), containsString("Proxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/x-www-form-urlencoded"
+                    + "\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n\n" + ""
+                    + "200\nContent-Type: application/json;charset=UTF-8\nContent-Length: 34\n\n{\n    \"id\": 1,\n    \"content\": \"Hello, Johan!\"\n}\n"));
+        }
+    }
+
+    @Test
+    public void logging_of_both_request_and_response_validation_works_when_test_fails_when_configured_with_log_detail() {
 		RestAssuredWebTestClient.config = new RestAssuredWebTestClientConfig()
 				.logConfig(new LogConfig(captor, true)
 						.enableLoggingOfRequestAndResponseIfValidationFails(HEADERS));

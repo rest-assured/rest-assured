@@ -1,8 +1,19 @@
+/*
+ * Copyright 2018 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.restassured.module.webtestclient.internal;
-
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.Collections;
 
 import io.restassured.authentication.NoAuthScheme;
 import io.restassured.filter.Filter;
@@ -13,9 +24,10 @@ import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestLogSpecification;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecification;
 
-/**
- * @author Olga Maciaszek-Sharma
- */
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Collections;
+
 public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationImpl implements WebTestClientRequestLogSpecification {
 
 	private final WebTestClientRequestSpecificationImpl requestSpecification;
@@ -82,8 +94,16 @@ public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationIm
 		return logWith(logDetail, shouldPrettyPrint, printStream);
 	}
 
+	public WebTestClientRequestSpecification params() {
+		return logWith(LogDetail.PARAMS);
+	}
+
+	public WebTestClientRequestSpecification parameters() {
+		return logWith(LogDetail.PARAMS);
+	}
+
 	private WebTestClientRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled,
-	                                                  PrintStream printStream) {
+													  PrintStream printStream) {
 		boolean shouldUrlEncodeRequestUri = requestSpecification.getRestAssuredWebTestClientConfig()
 				.getLogConfig().shouldUrlEncodeRequestUri();
 		requestSpecification.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri));
@@ -93,14 +113,6 @@ public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationIm
 	private WebTestClientRequestSpecification logWith(LogDetail logDetail) {
 		RequestSpecificationImpl reqSpec = toRequestSpecification();
 		return logWith(logDetail, shouldPrettyPrint(reqSpec));
-	}
-
-	public WebTestClientRequestSpecification params() {
-		return logWith(LogDetail.PARAMS);
-	}
-
-	public WebTestClientRequestSpecification parameters() {
-		return logWith(LogDetail.PARAMS);
 	}
 
 	private RequestSpecificationImpl toRequestSpecification() {

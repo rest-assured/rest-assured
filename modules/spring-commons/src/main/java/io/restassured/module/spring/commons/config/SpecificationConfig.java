@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016-2018 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.restassured.module.spring.commons.config;
 
 import io.restassured.config.DecoderConfig;
@@ -11,59 +26,56 @@ import io.restassured.config.ParamConfig;
 import io.restassured.config.SessionConfig;
 import io.restassured.config.XmlConfig;
 
-/**
- * @author Olga Maciaszek-Sharma
- */
 public interface SpecificationConfig {
 
-	boolean isUserConfigured();
+    boolean isUserConfigured();
 
-	DecoderConfig getDecoderConfig();
+    DecoderConfig getDecoderConfig();
 
-	SpecificationConfig decoderConfig(DecoderConfig decoderConfig);
+    SpecificationConfig decoderConfig(DecoderConfig decoderConfig);
 
-	EncoderConfig getEncoderConfig();
+    EncoderConfig getEncoderConfig();
 
-	SpecificationConfig encoderConfig(EncoderConfig encoderConfig);
+    SpecificationConfig encoderConfig(EncoderConfig encoderConfig);
 
-	HeaderConfig getHeaderConfig();
+    HeaderConfig getHeaderConfig();
 
-	SpecificationConfig headerConfig(HeaderConfig headerConfig);
+    SpecificationConfig headerConfig(HeaderConfig headerConfig);
 
-	JsonConfig getJsonConfig();
+    JsonConfig getJsonConfig();
 
-	SpecificationConfig jsonConfig(JsonConfig jsonConfig);
+    SpecificationConfig jsonConfig(JsonConfig jsonConfig);
 
-	LogConfig getLogConfig();
+    LogConfig getLogConfig();
 
-	SpecificationConfig logConfig(LogConfig logConfig);
+    SpecificationConfig logConfig(LogConfig logConfig);
 
-	ObjectMapperConfig getObjectMapperConfig();
+    ObjectMapperConfig getObjectMapperConfig();
 
-	SpecificationConfig objectMapperConfig(ObjectMapperConfig objectMapperConfig);
+    SpecificationConfig objectMapperConfig(ObjectMapperConfig objectMapperConfig);
 
-	SessionConfig getSessionConfig();
+    SessionConfig getSessionConfig();
 
-	SpecificationConfig sessionConfig(SessionConfig sessionConfig);
+    SpecificationConfig sessionConfig(SessionConfig sessionConfig);
 
-	XmlConfig getXmlConfig();
+    XmlConfig getXmlConfig();
 
-	SpecificationConfig xmlConfig(XmlConfig xmlConfig);
+    SpecificationConfig xmlConfig(XmlConfig xmlConfig);
 
-	AsyncConfig getAsyncConfig();
+    AsyncConfig getAsyncConfig();
 
-	SpecificationConfig asyncConfig(AsyncConfig asyncConfig);
+    SpecificationConfig asyncConfig(AsyncConfig asyncConfig);
 
-	MultiPartConfig getMultiPartConfig();
+    MultiPartConfig getMultiPartConfig();
 
-	SpecificationConfig multiPartConfig(MultiPartConfig multiPartConfig);
+    SpecificationConfig multiPartConfig(MultiPartConfig multiPartConfig);
 
-	ClientConfig getClientConfig();
+    ClientConfig getClientConfig();
 
-	SpecificationConfig clientConfig(ClientConfig clientConfig);
+    SpecificationConfig clientConfig(ClientConfig clientConfig);
 
-	ParamConfig getParamConfig();
+    ParamConfig getParamConfig();
 
-	SpecificationConfig paramConfig(ParamConfig paramConfig);
+    SpecificationConfig paramConfig(ParamConfig paramConfig);
 
 }

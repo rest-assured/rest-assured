@@ -44,7 +44,6 @@ import org.springframework.web.util.UriBuilder;
 import static io.restassured.config.LogConfig.logConfig;
 
 /**
- * @author Olga Maciaszek-Sharma
  * The Spring Web Test Client module's equivalent of {@link io.restassured.RestAssured}. This is the starting point of the DSL.
  * <p>Note that some Javadoc is copied from Spring Web Test Client test documentation.</p>
  */

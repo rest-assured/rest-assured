@@ -16,11 +16,6 @@
 
 package io.restassured.module.webtestclient.specification;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Map;
-
 import io.restassured.config.SessionConfig;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
@@ -31,16 +26,17 @@ import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.module.spring.commons.config.SpecificationConfig;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.reactive.function.server.RouterFunction;
 
-/**
- * @author Olga Maciaszek-Sharma
- */
+import java.io.File;
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.Map;
+
 public interface WebTestClientRequestSpecification extends WebTestClientRequestSender {
 
 	/**
@@ -787,7 +783,7 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	WebTestClientRequestSpecification multiPart(String controlName, String contentBody, String mimeType);
 
 	/**
-	 * Define a REST Assured Mock Mvc configuration. E.g.
+	 * Define a REST Assured WebTestClient configuration. E.g.
 	 * <pre>
 	 * given().config(newConfig().logConfig(new LogConfig(captor, true))). ..
 	 * </pre>
@@ -874,22 +870,13 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 
 	/**
 	 * Build a {@link WebTestClient} by registering one or more {@code @Controller}'s
-	 * instances and configuring Spring MVC infrastructure programmatically.
+	 * instances and configuring Spring infrastructure programmatically.
 	 * This allows full control over the instantiation and initialization of
 	 * controllerOrWebTestClientConfigurer, and their dependencies, similar to plain unit tests while
 	 * also making it possible to test one controller at a time.
 	 * <p/>
-	 * <p>When this option is used, the minimum infrastructure required by the
-	 * {@link org.springframework.web.servlet.DispatcherServlet} to serve requests with annotated controllerOrWebTestClientConfigurer is
-	 * automatically created, and can be customized, resulting in configuration
-	 * that is equivalent to what the MVC Java configuration provides except
-	 * using builder style methods.
+	 * <p>This uses the {@link WebTestClient#bindToController(Object...)} method under the hood.
 	 * <p/>
-	 * <p>If the Spring MVC configuration of an application is relatively
-	 * straight-forward, for example when using the MVC namespace or the MVC
-	 * Java config, then using this builder might be a good option for testing
-	 * a majority of controllers. A much smaller number of tests can be used
-	 * to focus on testing and verifying the actual Spring MVC configuration.
 	 *
 	 * @param controllerOrWebTestClientConfigurer one or more {@link org.springframework.stereotype.Controller @Controller}'s to test
 	 *                                            or a combination of controllers and {@link WebTestClientConfigurer}
@@ -898,18 +885,14 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 
 	/**
 	 * Build a {@link WebTestClient} by using a provided {@code AbstractWebTestClientBuilder}
-	 * for configuring Spring MVC infrastructure programmatically.
+	 * for configuring Spring infrastructure programmatically.
 	 * This allows full control over the instantiation and initialization of
 	 * controllers, and their dependencies, similar to plain unit tests while
 	 * also making it possible to test one controller at a time.
 	 * <p/>
-	 * <p>If the Spring MVC configuration of an application is relatively
-	 * straight-forward, for example when using the MVC namespace or the MVC
-	 * Java config, then using this builder might be a good option for testing
-	 * a majority of controllers. A much smaller number of tests can be used
-	 * to focus on testing and verifying the actual Spring MVC configuration.
+	 * <p>This uses the {@link WebTestClient.Builder} to set up the WebTestClient instance.
 	 *
-	 * @param builder {@link org.springframework.test.web.servlet.setup.AbstractWebTestClientBuilder} to build the MVC mock
+	 * @param builder {@link WebTestClient.Builder} to build the WebTestClient instance.
 	 */
 	WebTestClientRequestSpecification standaloneSetup(WebTestClient.Builder builder);
 
@@ -918,7 +901,7 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	/**
 	 * Provide a {@link org.springframework.test.web.reactive.server.WebTestClient} instance to that REST Assured will use when making this request.
 	 *
-	 * @param  webTestClient mock mvc instance to use.
+	 * @param  webTestClient WebTestClient instance to use.
 	 * @return The request specification
 	 */
 	WebTestClientRequestSpecification webTestClient(WebTestClient webTestClient);
@@ -926,14 +909,13 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	/**
 	 * Build a {@link WebTestClient} using the given, fully initialized, i.e.
 	 * refreshed, {@link WebApplicationContext} and assign it to REST Assured.
-	 * The {@link org.springframework.web.servlet.DispatcherServlet}
-	 * will use the context to discover Spring MVC infrastructure and
-	 * application controllers in it. The context must have been configured with
-	 * a {@link javax.servlet.ServletContext}.
+	 *
+	 * This method has been kept for consistency, but, actually, it is only be used as {@link ApplicationContext}.
+	 * The effect of calling this method is same as for {@link WebTestClientRequestSpecification#applicationContextSetup(ApplicationContext, WebTestClientConfigurer...)}
 	 *
 	 * @param context                  The web application context to use
 	 * @param configurers {@link WebTestClientConfigurer}'s to be applied when creating a {@link WebTestClient} instance of this WebApplicationContext (optional)
-	 */ // TODO: Applicatin context?
+	 */
 	WebTestClientRequestSpecification webAppContextSetup(WebApplicationContext context, WebTestClientConfigurer... configurers);
 
 	WebTestClientRequestSpecification applicationContextSetup(ApplicationContext context, WebTestClientConfigurer... configurers);

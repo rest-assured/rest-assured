@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.restassured.module.webtestclient.internal;
 
 import io.restassured.module.webtestclient.config.WebTestClientConfig;
 
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-/**
- * @author Olga Maciaszek-Sharma
- */
 public interface WebTestClientFactory {
 
 	WebTestClient build(WebTestClientConfig webTestClientConfig);
