@@ -33,8 +33,8 @@ public class WebTestClientNonStaticRequestAndResponseSpecTest {
 	@Test
 	public void
 	request_and_response_spec_can_be_defined_statically() {
-		RestAssuredWebTestClient.given().
-				spec(new WebTestClientRequestSpecBuilder()
+		RestAssuredWebTestClient.given()
+				.spec(new WebTestClientRequestSpecBuilder()
 						.setContentType(ContentType.JSON)
 						.addHeader("accept", ContentType.JSON.toString())
 						.build())

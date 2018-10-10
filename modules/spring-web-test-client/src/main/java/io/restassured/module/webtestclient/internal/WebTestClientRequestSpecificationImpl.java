@@ -58,7 +58,6 @@ import io.restassured.module.spring.commons.config.SpecificationConfig;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
 import io.restassured.module.webtestclient.config.WebTestClientParamConfig;
 import io.restassured.module.webtestclient.response.WebTestClientResponse;
-import io.restassured.module.webtestclient.specification.WebTestClientRequestAsyncSender;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestLogSpecification;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSender;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecification;
@@ -69,7 +68,6 @@ import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.util.UriBuilder;
 
@@ -90,7 +88,6 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	private final Map<String, Object> formParams = new LinkedHashMap<String, Object>();
 	private final Map<String, Object> attributes = new LinkedHashMap<String, Object>();
 	private final ResponseSpecification responseSpecification;
-	private final Map<String, Object> sessionAttributes = new LinkedHashMap<String, Object>();
 	private RestAssuredWebTestClientConfig config;
 	private Object requestBody = null;
 	private LogRepository logRepository;
@@ -554,7 +551,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	}
 
 	@Override
-	public WebTestClientRequestAsyncSender when() {
+	public WebTestClientRequestSender when() {
 		LogConfig logConfig = config.getLogConfig();
 		if (requestLoggingFilter == null && logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
 			log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(),
@@ -562,7 +559,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 		}
 		WebTestClient webTestClient = webTestClientFactory.build(config.getWebTestClientConfig());
 		return new WebTestClientRequestSenderImpl(webTestClient, params, queryParams, formParams, attributes, config, requestBody,
-				requestHeaders, cookies, sessionAttributes, multiParts, requestLoggingFilter, basePath,
+				requestHeaders, cookies, multiParts, requestLoggingFilter, basePath,
 				responseSpecification, logRepository);
 	}
 

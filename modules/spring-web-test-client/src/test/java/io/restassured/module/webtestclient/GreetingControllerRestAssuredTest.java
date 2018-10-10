@@ -28,7 +28,7 @@ public class GreetingControllerRestAssuredTest {
 
 	@Test
 	public void
-	uses_predefined_web_test_client_instance() throws Exception {
+	uses_predefined_web_test_client_instance() {
 		WebTestClient webTestClient = bindToController(new GreetingController()).build();
 
 		RestAssuredWebTestClient.given()

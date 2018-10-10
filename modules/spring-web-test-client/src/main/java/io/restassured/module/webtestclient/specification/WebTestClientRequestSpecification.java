@@ -870,7 +870,7 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	 *
 	 * @return The {@link WebTestClientRequestSender} that let's you send the request.
 	 */
-	WebTestClientRequestAsyncSender when();
+	WebTestClientRequestSender when();
 
 	/**
 	 * Build a {@link WebTestClient} by registering one or more {@code @Controller}'s

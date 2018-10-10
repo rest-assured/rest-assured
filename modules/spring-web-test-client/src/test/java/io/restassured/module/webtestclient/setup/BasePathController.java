@@ -16,30 +16,27 @@
 
 package io.restassured.module.webtestclient.setup;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import reactor.core.publisher.Mono;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * This controller has been copied from <a href="http://spring.io/guides/gs/rest-service/">Spring Guides</a>.
  */
-@Controller
+@RestController
 public class BasePathController {
 
     private static final String template = "Hello, %s!";
 
-    @RequestMapping(value = "/my-path/greetingPath", method = GET)
-    public @ResponseBody Greeting greeting(
-            @RequestParam(value="name", required=false, defaultValue="World") String name) {
-        return new Greeting(0, String.format(template, name));
+    @GetMapping("/my-path/greetingPath")
+    public Mono<Greeting> greeting(@RequestParam(value = "name", required = false, defaultValue = "World") String name) {
+        return Mono.just(new Greeting(0, String.format(template, name)));
     }
 
-    @RequestMapping(value = "/", method = GET)
-    public @ResponseBody Greeting greeting2(
-            @RequestParam(value="name", required=false, defaultValue="World") String name) {
-        return new Greeting(1, String.format(template, name));
+    @GetMapping(value = "/")
+    public Mono<Greeting> greetingOnBaseEndpoint(@RequestParam(value = "name", required = false, defaultValue = "World") String name) {
+        return Mono.just(new Greeting(1, String.format(template, name)));
     }
 }

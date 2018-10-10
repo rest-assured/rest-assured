@@ -357,9 +357,6 @@ public class WebTestClientSpecificationMergingTest {
 		WebTestClientRequestSpecification spec = RestAssuredWebTestClient.given().config(thisConfig).spec(specToMerge);
 
 		// Then
-
-		// This assertion is commented out since for some reason it fails during the release process
-//        assertThat(implementation(spec).getRestAssuredWebTestClientConfig()).isSameAs(thisConfig);
 		Assertions.assertThat(implementation(spec).getQueryParams()).containsOnly(entry("param1", "value1"));
 		assertThat(implementation(spec).getRestAssuredWebTestClientConfig()
 				.getJsonConfig().numberReturnType()).isEqualTo(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE);
@@ -430,50 +427,6 @@ public class WebTestClientSpecificationMergingTest {
 				"Multiparts:\t\t<none>\n"
 		);
 	}
-
-//	@Test  // TODO
-//	public void
-//	authentication_is_overwritten_when_defined_in_specification() {
-//		// Given
-//		MockMvcAuthenticationScheme otherAuth = RestAssuredWebTestClient.principal("other");
-//		MockMvcAuthenticationScheme thisAuth = RestAssuredWebTestClient.principal("this");
-//		WebTestClientRequestSpecification specToMerge = new WebTestClientRequestSpecBuilder().setAuth(otherAuth).build();
-//
-//		// When
-//		WebTestClientRequestSpecification spec = RestAssuredWebTestClient.given().spec(new WebTestClientRequestSpecBuilder().setAuth(thisAuth).build()).spec(specToMerge);
-//
-//		// Then
-//		assertThat(((TestingAuthenticationToken) implementation(spec).getAuthentication()).getPrincipal()).isEqualTo("other");
-//	}
-
-//	@Test  // TODO
-//	public void
-//	authentication_is_overwritten_when_using_dsl_and_defined_in_specification() {
-//		// Given
-//		MockMvcAuthenticationScheme otherAuth = RestAssuredWebTestClient.principal("other");
-//		WebTestClientRequestSpecification specToMerge = new WebTestClientRequestSpecBuilder().setAuth(otherAuth).build();
-//
-//		// When
-//		WebTestClientRequestSpecification spec = RestAssuredWebTestClient.given().auth().principal("this").and().spec(specToMerge);
-//
-//		// Then
-//		assertThat(((TestingAuthenticationToken) implementation(spec).getAuthentication()).getPrincipal()).isEqualTo("other");
-//	}
-
-//	@Test  // TODO
-//	public void
-//	authentication_is_not_overwritten_when_not_defined_in_specification() {
-//		// Given
-//		MockMvcAuthenticationScheme thisAuth = RestAssuredWebTestClient.principal("this");
-//		WebTestClientRequestSpecification specToMerge = new WebTestClientRequestSpecBuilder().addQueryParam("param1", "value1").build();
-//
-//		// When
-//		WebTestClientRequestSpecification spec = RestAssuredWebTestClient.given().spec(new WebTestClientRequestSpecBuilder().setAuth(thisAuth).build()).spec(specToMerge);
-//
-//		// Then
-//		assertThat(((TestingAuthenticationToken) implementation(spec).getAuthentication()).getPrincipal()).isEqualTo("this");
-//		Assertions.assertThat(implementation(spec).getQueryParams()).containsOnly(entry("param1", "value1"));
-//	}
 
 	@Test
 	public void

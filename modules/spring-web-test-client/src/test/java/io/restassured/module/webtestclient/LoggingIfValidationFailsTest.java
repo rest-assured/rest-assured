@@ -32,6 +32,7 @@ import org.junit.Test;
 import static io.restassured.filter.log.LogDetail.HEADERS;
 import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given;
 import static io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig.config;
+import static java.nio.charset.Charset.defaultCharset;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.isEmptyString;
@@ -48,7 +49,7 @@ public class LoggingIfValidationFailsTest {
 	public void
 	given_writer_and_captor_is_initialized() {
 		writer = new StringWriter();
-		captor = new PrintStream(new WriterOutputStream(writer), true);
+		captor = new PrintStream(new WriterOutputStream(writer, defaultCharset()), true);
 	}
 
 	@After

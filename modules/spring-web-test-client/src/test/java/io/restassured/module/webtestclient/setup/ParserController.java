@@ -16,6 +16,8 @@
 
 package io.restassured.module.webtestclient.setup;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ParserController {
 
     @GetMapping(value = "/parserWithUnknownContentType", produces = "some/thing")
-    public String parserWithUnknownContentType(@RequestParam(value = "param") String param) {
-        return "{ \"param\" : \"" + param + "\" }";
+    public Mono<String> parserWithUnknownContentType(@RequestParam(value = "param") String param) {
+        return Mono.just("{ \"param\" : \"" + param + "\" }");
     }
 }

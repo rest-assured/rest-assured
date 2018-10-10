@@ -30,6 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import static java.nio.charset.Charset.defaultCharset;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertThat;
@@ -43,7 +44,7 @@ public class RequestLoggingTest {
 	public void
 	given_config_is_stored_in_writer() {
 		writer = new StringWriter();
-		PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+		PrintStream captor = new PrintStream(new WriterOutputStream(writer, defaultCharset()), true);
 		RestAssuredWebTestClient.config = new RestAssuredWebTestClientConfig()
 				.logConfig(new LogConfig(captor, true));
 	}

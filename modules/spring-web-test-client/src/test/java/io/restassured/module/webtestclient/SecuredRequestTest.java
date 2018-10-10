@@ -22,13 +22,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given;
 import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
 import static org.springframework.web.reactive.function.server.RequestPredicates.method;
 import static org.springframework.web.reactive.function.server.RequestPredicates.path;
 
@@ -43,7 +43,7 @@ public class SecuredRequestTest {
 		RouterFunction<ServerResponse> routerFunction = RouterFunctions
 				.route(path("/securedGreeting").and(method(HttpMethod.GET)),
 						new SecuredProcessor()::processSecuredRequest);
-		RestAssuredWebTestClient.standaloneSetup(routerFunction, ExchangeFilterFunctions.basicAuthentication("test", "pass"));
+		RestAssuredWebTestClient.standaloneSetup(routerFunction, basicAuthentication("test", "pass"));
 		given()
 				.when()
 				.get("/securedGreeting")

@@ -23,7 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -43,14 +42,14 @@ public class GreetingController {
     }
 
 	@PostMapping(value = "/greeting", consumes = "application/json", produces = "application/json")
-    public @ResponseBody Greeting greetingWithRequiredContentType(
+	public Mono<Greeting> greetingWithRequiredContentType(
             @RequestParam(value="name", required=false, defaultValue="World") String name) {
-        return greeting(name);
+		return greeting(name);
     }
 
 	@GetMapping(value = "/greeting")
-    public @ResponseBody Greeting greeting(
+	public Mono<Greeting> greeting(
             @RequestParam(value="name", required=false, defaultValue="World") String name) {
-        return new Greeting(counter.incrementAndGet(), String.format(template, name));
+		return Mono.just(new Greeting(counter.incrementAndGet(), String.format(template, name)));
     }
 }

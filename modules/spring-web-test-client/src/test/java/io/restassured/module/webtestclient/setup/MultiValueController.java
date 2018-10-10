@@ -17,29 +17,31 @@ package io.restassured.module.webtestclient.setup;
 
 import java.util.List;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
-@Controller
+@RestController
 public class MultiValueController {
 
     @RequestMapping(value = "/multiValueParam", method = {POST, GET}, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String multiValueParam(@RequestParam("list") List<String> listValues) {
-        return "{ \"list\" : \"" + String.join(",", listValues) + "\" }";
+    public Mono<String> multiValueParam(@RequestParam("list") List<String> listValues) {
+        return Mono.just("{ \"list\" : \"" + String.join(",", listValues) + "\" }");
     }
 
-    @RequestMapping(value = "/threeMultiValueParam", method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody String threeMultiValueParam(@RequestParam("list") List<String> list1Values,
-                                                     @RequestParam("list2") List<String> list2Values,
-                                                     @RequestParam("list3") List<String> list3Values) {
-        return "{ \"list\" : \"" + String.join(",", list1Values) + "\"," +
+    @PostMapping(value = "/threeMultiValueParam", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<String> threeMultiValueParam(@RequestParam("list") List<String> list1Values,
+                                             @RequestParam("list2") List<String> list2Values,
+                                             @RequestParam("list3") List<String> list3Values) {
+        return Mono.just("{ \"list\" : \"" + String.join(",", list1Values) + "\"," +
                 " \"list2\" : \"" + String.join(",", list2Values) + "\", " +
-                " \"list3\" : \"" + String.join(",", list3Values) + "\" }";
+                " \"list3\" : \"" + String.join(",", list3Values) + "\" }");
     }
 }

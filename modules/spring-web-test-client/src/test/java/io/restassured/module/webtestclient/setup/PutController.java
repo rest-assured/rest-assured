@@ -18,10 +18,11 @@ package io.restassured.module.webtestclient.setup;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
@@ -34,17 +35,17 @@ public class PutController {
     private final AtomicLong counter = new AtomicLong();
 
     @PutMapping(value = "/greetingPut", consumes = APPLICATION_FORM_URLENCODED_VALUE)
-    public Greeting greeting(@RequestParam("name") String name) {
-        return new Greeting(counter.incrementAndGet(), String.format(template, name));
+    public Mono<Greeting> greeting(@RequestParam("name") String name) {
+        return Mono.just(new Greeting(counter.incrementAndGet(), String.format(template, name)));
     }
 
     @PutMapping("/stringBody")
-    public String stringBody(@RequestBody String body) {
-        return body;
+    public Mono<String> stringBody(@RequestBody String body) {
+        return Mono.just(body);
     }
 
     @PutMapping(value = "/jsonReflect", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public @ResponseBody String jsonReflect(@RequestBody String body) {
-        return body;
+    public Mono<String> jsonReflect(@RequestBody String body) {
+        return Mono.just(body);
     }
 }

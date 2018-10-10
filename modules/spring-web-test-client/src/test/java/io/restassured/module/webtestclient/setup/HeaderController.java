@@ -16,19 +16,20 @@
 
 package io.restassured.module.webtestclient.setup;
 
+import reactor.core.publisher.Mono;
+
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
 @RestController
 public class HeaderController {
 
-    @RequestMapping(value = "/header", method = GET, produces = APPLICATION_JSON_VALUE)
-    public String header(@RequestHeader("headerName") String headerValue,
-                                       @RequestHeader(value = "User-Agent", required = false) String userAgent) {
-        return "{\"headerName\" : \""+headerValue+"\", \"user-agent\" : \""+userAgent+"\"}";
+    @GetMapping(value = "/header", produces = APPLICATION_JSON_VALUE)
+    public Mono<String> header(@RequestHeader("headerName") String headerValue,
+                               @RequestHeader(value = "User-Agent", required = false) String userAgent) {
+        return Mono.just("{\"headerName\" : \"" + headerValue + "\", \"user-agent\" : \"" + userAgent + "\"}");
     }
 }

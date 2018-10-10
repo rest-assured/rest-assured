@@ -39,8 +39,6 @@ import io.restassured.module.spring.commons.ParamApplier;
 import io.restassured.module.spring.commons.config.ConfigConverter;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
 import io.restassured.module.webtestclient.response.WebTestClientResponse;
-import io.restassured.module.webtestclient.specification.WebTestClientRequestAsyncConfigurer;
-import io.restassured.module.webtestclient.specification.WebTestClientRequestAsyncSender;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSender;
 import io.restassured.specification.ResponseSpecification;
 import org.apache.commons.codec.Charsets;
@@ -83,7 +81,7 @@ import static org.springframework.http.MediaType.parseMediaType;
 /**
  * @author Olga Maciaszek-Sharma
  */
-public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsyncSender, WebTestClientRequestAsyncConfigurer {
+public class WebTestClientRequestSenderImpl implements WebTestClientRequestSender {
 
 	private static final String CONTENT_TYPE = "Content-Type";
 
@@ -96,36 +94,21 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 	private final Object requestBody;
 	private final Cookies cookies;
 	private final List<MultiPartInternal> multiParts;
-	private final boolean isAsyncRequest;
 	private final String basePath;
 	private final ResponseSpecification responseSpecification;
-	private final Map<String, Object> sessionAttributes;
 	private final LogRepository logRepository;
 	private Headers headers;
 	private final RequestLoggingFilter requestLoggingFilter;
 	private Consumer<EntityExchangeResult<byte[]>> consumer;
 
-	WebTestClientRequestSenderImpl(WebTestClient webTestClient, Map<String, Object> params,
-	                               Map<String, Object> queryParams, Map<String, Object> formParams,
-	                               Map<String, Object> attributes,
-	                               RestAssuredWebTestClientConfig config, Object requestBody, Headers headers,
-	                               Cookies cookies, Map<String, Object> sessionAttributes,
-	                               List<MultiPartInternal> multiParts, RequestLoggingFilter requestLoggingFilter,
-	                               String basePath, ResponseSpecification responseSpecification,
-	                               LogRepository logRepository) {
-		this(webTestClient, params, queryParams, formParams, attributes, config, requestBody, headers, cookies,
-				sessionAttributes, multiParts, requestLoggingFilter,
-				basePath, responseSpecification, logRepository, false);
-	}
-
-	private WebTestClientRequestSenderImpl(WebTestClient webTestClient, Map<String, Object> params, Map<String,
+	public WebTestClientRequestSenderImpl(WebTestClient webTestClient, Map<String, Object> params, Map<String,
 			Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
-	                                       RestAssuredWebTestClientConfig config, Object requestBody, Headers headers,
-	                                       Cookies cookies, Map<String, Object> sessionAttributes,
-	                                       List<MultiPartInternal> multiParts,
-	                                       RequestLoggingFilter requestLoggingFilter, String basePath,
-	                                       ResponseSpecification responseSpecification,
-	                                       LogRepository logRepository, boolean isAsyncRequest) {
+	                                      RestAssuredWebTestClientConfig config, Object requestBody, Headers headers,
+	                                      Cookies cookies,
+	                                      List<MultiPartInternal> multiParts,
+	                                      RequestLoggingFilter requestLoggingFilter, String basePath,
+	                                      ResponseSpecification responseSpecification,
+	                                      LogRepository logRepository) {
 		this.webTestClient = webTestClient;
 		this.params = params;
 		this.queryParams = queryParams;
@@ -135,19 +118,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestAsync
 		this.requestBody = requestBody;
 		this.headers = headers;
 		this.cookies = cookies;
-		this.sessionAttributes = sessionAttributes;
 		this.multiParts = multiParts;
 		this.basePath = basePath;
 		this.responseSpecification = responseSpecification;
 		this.logRepository = logRepository;
-		this.isAsyncRequest = isAsyncRequest;
 		this.requestLoggingFilter = requestLoggingFilter;
-	}
-	@Override
-	public WebTestClientRequestAsyncConfigurer async() {
-		return new WebTestClientRequestSenderImpl(webTestClient, params, queryParams, formParams,
-				attributes, config, requestBody, headers, cookies, sessionAttributes, multiParts, requestLoggingFilter,
-				basePath, responseSpecification, logRepository, true);
 	}
 
 	@Override

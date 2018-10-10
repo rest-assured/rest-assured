@@ -31,9 +31,7 @@ public class ExtractTest {
 	@Test
 	public void
 	can_extract_rest_assured_web_test_client_response() {
-		WebTestClientResponse response =
-
-				RestAssuredWebTestClient.given()
+		WebTestClientResponse response = RestAssuredWebTestClient.given()
 						.standaloneSetup(new GreetingController())
 						.param("name", "Johan")
 						.when()
@@ -50,9 +48,7 @@ public class ExtractTest {
 	@Test
 	public void
 	can_extract_web_test_client_result() {
-		FluxExchangeResult<Object> result =
-
-				RestAssuredWebTestClient.given()
+		FluxExchangeResult<Object> result = RestAssuredWebTestClient.given()
 						.standaloneSetup(new GreetingController())
 						.param("name", "Johan")
 						.when()

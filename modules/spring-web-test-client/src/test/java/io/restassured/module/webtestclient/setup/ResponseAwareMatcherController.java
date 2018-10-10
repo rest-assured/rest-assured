@@ -16,6 +16,8 @@
 
 package io.restassured.module.webtestclient.setup;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,8 +27,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class ResponseAwareMatcherController {
 
     @GetMapping(value = "/responseAware", produces = APPLICATION_JSON_VALUE)
-    public String parserWithUnknownContentType() {
-        return "{\n" +
+    public Mono<String> parserWithUnknownContentType() {
+        return Mono.just("{\n" +
                 "        \"playerOneId\":\"a084a81a-6bc9-418d-b107-5cb5ce249b77\",\n" +
                 "            \"playerTwoId\":\"88867e23-0b38-4c43-ad8e-161ba5062c7d\",\n" +
                 "            \"status\":\"ongoing\",\n" +
@@ -42,6 +44,6 @@ public class ResponseAwareMatcherController {
                 "        }\n" +
                 "    },\n" +
                 "        \"id\":\"2dd68f2d-37df-4eed-9fce-5d9ce23a6745\"\n" +
-                "    }";
+                "    }");
     }
 }
