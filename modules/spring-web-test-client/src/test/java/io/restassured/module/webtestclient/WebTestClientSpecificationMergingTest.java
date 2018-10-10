@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
  */
 
 package io.restassured.module.webtestclient;
-
-import java.io.PrintStream;
-import java.io.StringWriter;
 
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
@@ -36,8 +33,10 @@ import org.apache.commons.io.output.WriterOutputStream;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
-
 import org.springframework.test.web.reactive.server.WebTestClient;
+
+import java.io.PrintStream;
+import java.io.StringWriter;
 
 import static io.restassured.config.JsonConfig.jsonConfig;
 import static io.restassured.config.SessionConfig.sessionConfig;

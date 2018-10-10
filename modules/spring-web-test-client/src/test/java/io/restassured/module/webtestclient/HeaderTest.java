@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package io.restassured.module.webtestclient;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.module.webtestclient.setup.HeaderController;
@@ -28,6 +25,9 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given;
 import static org.hamcrest.Matchers.endsWith;

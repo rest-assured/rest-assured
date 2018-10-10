@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,6 @@
 
 package io.restassured.module.webtestclient;
 
-import java.io.PrintStream;
-import java.io.StringWriter;
-
 import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
@@ -29,6 +26,9 @@ import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.PrintStream;
+import java.io.StringWriter;
 
 import static java.nio.charset.Charset.defaultCharset;
 import static org.hamcrest.Matchers.equalTo;

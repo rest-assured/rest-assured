@@ -51,8 +51,8 @@ class ExchangeResultConverter {
                                                                RestAssuredWebTestClientConfig config,
                                                                Consumer<EntityExchangeResult<byte[]>> consumer,
                                                                ResponseParserRegistrar responseParserRegistrar) {
-        WebTestClientRestAssuredResponseImpl restAssuredResponse;
-        restAssuredResponse = new WebTestClientRestAssuredResponseImpl(responseSpec, logRepository);
+        WebTestClientRestAssuredResponseImpl restAssuredResponse = new WebTestClientRestAssuredResponseImpl(responseSpec,
+                logRepository);
         restAssuredResponse.setConfig(ConfigConverter.convertToRestAssuredConfig(config));
         byte[] responseBodyContent = ofNullable(consumer).map(theConsumer ->
                 responseSpec.expectBody().consumeWith(theConsumer).returnResult().getResponseBodyContent())
@@ -73,14 +73,12 @@ class ExchangeResultConverter {
         return restAssuredResponse;
     }
 
-
     private List<Header> assembleHeaders(HttpHeaders headers) {
         return headers.keySet().stream()
                 .map(headerName -> headers.get(headerName).stream()
                         .map(headerValue -> new Header(headerName, headerValue))
                         .collect(Collectors.toList())).flatMap(Collection::stream).collect(Collectors.toList());
     }
-
 
     private String buildResultString(HttpStatus status) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -91,7 +89,6 @@ class ExchangeResultConverter {
         }
         return stringBuilder.toString();
     }
-
 
     private Cookies convertCookies(MultiValueMap<String, ResponseCookie> responseCookies) {
         List<Cookie> cookies = responseCookies.keySet().stream().map(cookie -> responseCookies.get(cookie).stream()
