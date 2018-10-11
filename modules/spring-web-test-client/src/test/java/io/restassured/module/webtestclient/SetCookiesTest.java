@@ -56,5 +56,4 @@ public class SetCookiesTest {
 				.cookie("name", "John Doe")
 				.cookie("project", "rest assured");
 	}
-
 }
