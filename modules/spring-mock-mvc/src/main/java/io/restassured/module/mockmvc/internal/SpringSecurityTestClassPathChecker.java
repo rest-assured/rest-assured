@@ -21,7 +21,7 @@ import static io.restassured.internal.classpath.ClassPathResolver.existInCP;
 /**
  * Checks whether or not the spring-security-test module is in classpath
  */
-public class SpringSecurityTestClassPathChecker {
+class SpringSecurityTestClassPathChecker {
     private static final String SECURITY_MOCK_MVC_CONFIGURERS_CLASS_NAME = "org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers";
 
     public static boolean isSpringSecurityTestInClasspath() {

@@ -21,7 +21,17 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 public interface WebTestClientFactory {
 
+	/**
+	 * Builds and returns a {@link WebTestClient} instance based on provided configuration
+	 * @param webTestClientConfig configuration to be used during WebTestClient instantiation
+	 * @return a WebTestClient instance
+	 */
 	WebTestClient build(WebTestClientConfig webTestClientConfig);
 
+	/**
+	 * Checks if underlying {@link WebTestClient} or {@link org.springframework.test.web.reactive.server.WebTestClient.Builder}
+	 * is not null
+	 * @return verification result
+	 */
 	boolean isAssigned();
 }
