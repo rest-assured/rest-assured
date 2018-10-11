@@ -17,7 +17,6 @@
 package io.restassured.module.webtestclient.internal;
 
 import io.restassured.module.webtestclient.config.WebTestClientConfig;
-
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 public class BuilderBasedWebTestClientFactory implements WebTestClientFactory {
@@ -31,7 +30,7 @@ public class BuilderBasedWebTestClientFactory implements WebTestClientFactory {
 	@Override
 	public synchronized WebTestClient build(WebTestClientConfig webTestClientConfig) {
 		if (!isAssigned()) {
-			throw new IllegalStateException("You haven't configured a MockMVC instance. You can do this statically\n\nRestAssuredMockMvc.mockMvc(..)\nRestAssuredMockMvc.standaloneSetup(..);\nRestAssuredMockMvc.webAppContextSetup(..);\n\nor using the DSL:\n\ngiven().\n\t\tmockMvc(..). ..\n");
+			throw new IllegalStateException("You haven't configured a WebTestClient instance. You can do this statically\n\nRestAssuredWebTestClient.mockMvc(..)\nRestAssuredWebTestClient.standaloneSetup(..);\nRestAssuredWebTestClient.webAppContextSetup(..);\n\nor using the DSL:\n\ngiven().\n\t\tmockMvc(..). ..\n");
 		}
 		return builder.build();
 	}

@@ -21,7 +21,7 @@ import io.restassured.config.Config;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Configuration for MockMVC async requests
+ * Configuration for async requests
  */
 public class AsyncConfig implements Config {
 
