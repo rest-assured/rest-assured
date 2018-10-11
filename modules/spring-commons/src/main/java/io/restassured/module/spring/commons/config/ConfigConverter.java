@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,30 +14,26 @@
  * limitations under the License.
  */
 
-package io.restassured.module.mockmvc.internal;
+package io.restassured.module.spring.commons.config;
 
 import io.restassured.config.ParamConfig;
 import io.restassured.config.RestAssuredConfig;
-import io.restassured.module.mockmvc.config.MockMvcParamConfig;
-import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 
 import java.lang.reflect.Field;
 
-import static io.restassured.module.mockmvc.internal.UpdateStrategyConverter.convert;
+public class ConfigConverter {
 
-class ConfigConverter {
-
-    public static RestAssuredConfig convertToRestAssuredConfig(RestAssuredMockMvcConfig mvcConfig) {
-        return new RestAssuredConfig().jsonConfig(mvcConfig.getJsonConfig()).xmlConfig(mvcConfig.getXmlConfig()).sessionConfig(mvcConfig.getSessionConfig()).
-                objectMapperConfig(mvcConfig.getObjectMapperConfig()).logConfig(mvcConfig.getLogConfig()).encoderConfig(mvcConfig.getEncoderConfig()).
-                decoderConfig(mvcConfig.getDecoderConfig()).multiPartConfig(mvcConfig.getMultiPartConfig()).paramConfig(toParamConfig(mvcConfig.getParamConfig()));
+    public static RestAssuredConfig convertToRestAssuredConfig(SpecificationConfig specificationConfig) {
+        return new RestAssuredConfig().jsonConfig(specificationConfig.getJsonConfig()).xmlConfig(specificationConfig.getXmlConfig()).sessionConfig(specificationConfig.getSessionConfig()).
+                objectMapperConfig(specificationConfig.getObjectMapperConfig()).logConfig(specificationConfig.getLogConfig()).encoderConfig(specificationConfig.getEncoderConfig()).
+                decoderConfig(specificationConfig.getDecoderConfig()).multiPartConfig(specificationConfig.getMultiPartConfig()).paramConfig(toParamConfig(specificationConfig.getParamConfig()));
     }
 
-    private static ParamConfig toParamConfig(MockMvcParamConfig cfg) {
-        ParamConfig config = new ParamConfig(convert(cfg.queryParamsUpdateStrategy()),
-                convert(cfg.formParamsUpdateStrategy()), convert(cfg.requestParamsUpdateStrategy()));
+    private static ParamConfig toParamConfig(ParamConfig baseConfig) {
+        ParamConfig config = new ParamConfig(baseConfig.queryParamsUpdateStrategy(),
+                baseConfig.formParamsUpdateStrategy(), baseConfig.requestParamsUpdateStrategy());
         // We need to set the user configured flag to false if needed
-        if (!cfg.isUserConfigured()) {
+        if (!baseConfig.isUserConfigured()) {
             Field userConfigured = null;
             try {
                 userConfigured = config.getClass().getDeclaredField("userConfigured");

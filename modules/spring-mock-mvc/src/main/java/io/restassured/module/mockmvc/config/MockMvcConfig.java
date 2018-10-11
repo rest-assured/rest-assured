@@ -18,6 +18,8 @@ package io.restassured.module.mockmvc.config;
 
 import io.restassured.config.Config;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import io.restassured.module.spring.commons.config.ClientConfig;
+
 import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
@@ -25,7 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 /**
  * General configuration of the Spring Mock MVC module
  */
-public class MockMvcConfig implements Config {
+public class MockMvcConfig implements ClientConfig, Config {
 
     private final boolean userConfigured;
     private final boolean automaticallyApplySpringSecurityMockMvcConfigurer;
