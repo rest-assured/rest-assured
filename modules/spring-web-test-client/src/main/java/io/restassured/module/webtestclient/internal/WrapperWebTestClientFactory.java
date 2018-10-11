@@ -29,6 +29,9 @@ public class WrapperWebTestClientFactory implements WebTestClientFactory {
 
 	@Override
 	public synchronized WebTestClient build(WebTestClientConfig webTestClientConfig) {
+		if (!isAssigned()) {
+			throw new IllegalStateException("You haven't configured a MockMVC instance. You can do this statically\n\nRestAssuredMockMvc.mockMvc(..)\nRestAssuredMockMvc.standaloneSetup(..);\nRestAssuredMockMvc.webAppContextSetup(..);\n\nor using the DSL:\n\ngiven().\n\t\tmockMvc(..). ..\n");
+		}
 		return webTestClient;
 	}
 

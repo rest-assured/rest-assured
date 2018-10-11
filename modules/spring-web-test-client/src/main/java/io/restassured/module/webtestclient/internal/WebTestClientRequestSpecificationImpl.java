@@ -678,7 +678,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 
 	@Override
 	public WebTestClientResponse post(String path, Object... pathParams) {
-		return when().get(path, pathParams);
+		return when().post(path, pathParams);
 	}
 
 	@Override
