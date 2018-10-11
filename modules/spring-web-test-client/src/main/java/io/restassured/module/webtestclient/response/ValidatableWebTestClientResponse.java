@@ -24,7 +24,5 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  * {@link WebTestClient.ResponseSpec} so that user can make subsequent assertions using the
  * {@link WebTestClient.ResponseSpec} API.
  */
-public interface ValidatableWebTestClientResponse extends ValidatableResponseOptions<ValidatableWebTestClientResponse,
-		WebTestClientResponse> {
-
+public interface ValidatableWebTestClientResponse extends ValidatableResponseOptions<ValidatableWebTestClientResponse, WebTestClientResponse> {
 }

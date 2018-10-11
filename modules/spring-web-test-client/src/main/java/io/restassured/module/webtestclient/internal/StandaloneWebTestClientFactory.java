@@ -39,15 +39,15 @@ public class StandaloneWebTestClientFactory {
 
 	public static WebTestClientFactory of(Object[] controllersOrConfigurersOrExchangeFilterFunctions) {
 		Map<Boolean, List<Object>> partitionedByConfigurer = Arrays.stream(controllersOrConfigurersOrExchangeFilterFunctions)
-				.collect(partitioningBy(element -> element instanceof WebTestClientConfigurer));
+				.collect(partitioningBy(WebTestClientConfigurer.class::isInstance));
 		List<Object> controllersAndExchangeFunctions = partitionedByConfigurer.get(false);
 		Map<Boolean, List<Object>> partitionedByExchangeFunction = controllersAndExchangeFunctions.stream()
-				.collect(partitioningBy(element -> element instanceof ExchangeFilterFunction));
+				.collect(partitioningBy(ExchangeFilterFunction.class::isInstance));
 		List<WebTestClientConfigurer> configurers = partitionedByConfigurer.get(true).stream()
-				.map(configurer -> (WebTestClientConfigurer) configurer)
+				.map(WebTestClientConfigurer.class::cast)
 				.collect(toList());
 		List<ExchangeFilterFunction> exchangeFilterFunctions = partitionedByExchangeFunction.get(true).stream()
-				.map(element -> (ExchangeFilterFunction) element)
+				.map(ExchangeFilterFunction.class::cast)
 				.collect(toList());
 		WebTestClient.Builder builder = WebTestClient.bindToController(partitionedByExchangeFunction.get(false)
 				.toArray())
@@ -68,12 +68,12 @@ public class StandaloneWebTestClientFactory {
 	private static void applyConfigurersAndFilter(Object[] configurersOrExchangeFilterFunctions,
 												  WebTestClient.Builder builder) {
 		Map<Boolean, List<Object>> partitionedByConfigurer = Arrays.stream(configurersOrExchangeFilterFunctions)
-				.collect(partitioningBy(element -> element instanceof WebTestClientConfigurer));
-		partitionedByConfigurer.get(true).stream().map(configurer -> (WebTestClientConfigurer) configurer)
+				.collect(partitioningBy(WebTestClientConfigurer.class::isInstance));
+		partitionedByConfigurer.get(true).stream().map(WebTestClientConfigurer.class::cast)
 				.forEach(builder::apply);
 		partitionedByConfigurer.get(false).stream()
-				.filter(element -> element instanceof ExchangeFilterFunction)
-				.map(element -> (ExchangeFilterFunction) element)
+				.filter(ExchangeFilterFunction.class::isInstance)
+				.map(ExchangeFilterFunction.class::cast)
 				.forEach(builder::filter);
 	}
 }

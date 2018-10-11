@@ -66,7 +66,7 @@ class ExchangeResultConverter {
         restAssuredResponse.setResponseHeaders(new Headers(responseHeaders));
         restAssuredResponse.setRpr(responseParserRegistrar);
         restAssuredResponse.setStatusLine(buildResultString(result.getStatus()));
-        restAssuredResponse.setFilterContextProperties(new HashMap() {{
+        restAssuredResponse.setFilterContextProperties(new HashMap<Object, Object>() {{
             put(TimingFilter.RESPONSE_TIME_MILLISECONDS, responseTime);
         }});
         restAssuredResponse.setCookies(convertCookies(result.getResponseCookies()));

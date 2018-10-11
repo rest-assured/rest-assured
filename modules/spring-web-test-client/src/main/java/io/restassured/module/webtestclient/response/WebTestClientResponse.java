@@ -20,7 +20,5 @@ import io.restassured.response.ResponseBody;
 import io.restassured.response.ResponseOptions;
 import io.restassured.response.Validatable;
 
-public interface WebTestClientResponse extends ResponseBody<WebTestClientResponse>,
-		ResponseOptions<WebTestClientResponse>, Validatable<ValidatableWebTestClientResponse, WebTestClientResponse> {
-
+public interface WebTestClientResponse extends ResponseBody<WebTestClientResponse>, ResponseOptions<WebTestClientResponse>, Validatable<ValidatableWebTestClientResponse, WebTestClientResponse> {
 }
