@@ -98,10 +98,6 @@ public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationIm
 		return logWith(LogDetail.PARAMS);
 	}
 
-	public WebTestClientRequestSpecification parameters() {
-		return logWith(LogDetail.PARAMS);
-	}
-
 	private WebTestClientRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled,
 													  PrintStream printStream) {
 		boolean shouldUrlEncodeRequestUri = requestSpecification.getRestAssuredWebTestClientConfig()
