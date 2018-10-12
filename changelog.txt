@@ -3,7 +3,7 @@ Changelog next version
 * Added OSGi support (thanks to ponziani for pull request)
 * Make it clear that junit is only a test scope dependency (thanks to Eric Pabst for pull request)
 * Changed MockMvcParamConfig.attributeUpdateStrategy() to actually return the attributeUpdateStrategy and not the formParamsUpdateStrategy.
-* Added a spring-web-test-client module which let's you unit test Spring Webflux Controllers using the REST Assured DSL. Depend on artifact id "spring-web-test-client" using group id "io.rest-assured" from Maven to use it. Then use io.restassured.module.webtestclient.RestAssuredWebTestClient to get started (thanks to Olga Maciaszek for pull request)
+* Added a spring-web-test-client module which let's you unit test Spring Webflux Controllers using the REST Assured DSL. Depend on artifact id "spring-web-test-client" using group id "io.rest-assured" from Maven to use it. Then use io.restassured.module.webtestclient.RestAssuredWebTestClient to get started (thanks to Olga Maciaszek-Sharma for pull request)
 
 Changelog 3.1.1 (2018-08-17)
 ----------------------------
