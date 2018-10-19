@@ -21,6 +21,7 @@ package io.restassured.assertion
 import io.restassured.internal.ResponseParserRegistrar
 import io.restassured.internal.http.ContentTypeExtractor
 import io.restassured.internal.path.json.JSONAssertion
+import io.restassured.internal.path.xml.XMLAssertion
 import io.restassured.parsing.Parser
 import io.restassured.response.Response
 

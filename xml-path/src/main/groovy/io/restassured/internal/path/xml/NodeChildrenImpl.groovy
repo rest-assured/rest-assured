@@ -19,7 +19,6 @@
 package io.restassured.internal.path.xml
 
 import io.restassured.path.xml.element.Node
-import io.restassured.assertion.XMLAssertion
 import io.restassured.path.xml.element.NodeChildren
 
 class NodeChildrenImpl extends NodeBase implements NodeChildren {
