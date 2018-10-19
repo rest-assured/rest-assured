@@ -99,7 +99,7 @@
         <dependency>
             <groupId>org.restlet.jse</groupId>
             <artifactId>org.restlet</artifactId>
-            <version>2.3.11</version>
+            <version>2.3.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
