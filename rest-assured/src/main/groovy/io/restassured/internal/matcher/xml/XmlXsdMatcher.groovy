@@ -91,11 +91,7 @@ class XmlXsdMatcher extends BaseMatcher<String> {
 
   public static XmlXsdMatcher matchesXsdInClasspath(String path) {
     notNull(path, "Path that points to the XSD in classpath")
-    InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path)
-    if (!stream) {
-      // Fallback if not found (this enables paths starting with slash)
-      stream = getClass().getResourceAsStream(path)
-    }
+    InputStream stream = LoadFromClasspathSupport.loadFromClasspath(path)
     return matchesXsd(stream);
   }
 }

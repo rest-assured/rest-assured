@@ -131,11 +131,7 @@ class XmlDtdMatcher extends BaseMatcher<String> {
 
   static Matcher<String> matchesDtdInClasspath(String path) {
     notNull(path, "Path that points to the DTD in classpath")
-    InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(path)
-    if (!stream) {
-      // Fallback if not found (this enables paths starting with slash)
-      stream = getClass().getResourceAsStream(path)
-    }
+    InputStream stream = LoadFromClasspathSupport.loadFromClasspath(path)
     return matchesDtd(stream);
   }
 

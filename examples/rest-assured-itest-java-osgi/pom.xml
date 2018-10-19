@@ -24,9 +24,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>rest-assured-itest-java-osgi</artifactId>
-    <name>REST Assured Java integration tests</name>
-    <description>REST Assured Java integration tests. Here you'll find various examples of how to use rest-assured.
-    </description>
+    <name>REST Assured Java OSGI integration tests</name>
+    <description>REST Assured Java OSGI integration tests. Here you'll find various examples of how to use rest-assured with OSGi.</description>
 
     <properties>
         <animal.sniffer.skip>true</animal.sniffer.skip>

@@ -30,9 +30,18 @@
         <module>scalatra-example</module>
         <module>scalatra-webapp</module>
         <module>rest-assured-itest-java</module>
-        <module>rest-assured-itest-java-osgi</module>
+
         <module>spring-mvc-webapp</module>
         <module>scala-example</module>
         <module>scala-mock-mvc-example</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>osgi-tests</id>
+            <modules>
+                <module>rest-assured-itest-java-osgi</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

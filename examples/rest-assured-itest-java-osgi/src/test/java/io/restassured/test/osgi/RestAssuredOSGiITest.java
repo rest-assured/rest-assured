@@ -28,10 +28,7 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import java.net.UnknownHostException;
 
 import static io.restassured.RestAssured.given;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
+import static org.ops4j.pax.exam.CoreOptions.*;
 
 @RunWith(PaxExam.class)
 /**
@@ -56,7 +53,8 @@ public class RestAssuredOSGiITest {
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject()),
-                        wrappedBundle(mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-all").version("2.4.12")),
+                        wrappedBundle(mavenBundle("javax.activation", "activation").version("1.1.1")),
+                        wrappedBundle(mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-all").version("2.4.15")),
 
                         /* Rest Assured dependencie needed in the Pax Exam container to be able to execute the test below */
                         mavenBundle("io.rest-assured", "rest-assured").versionAsInProject()
