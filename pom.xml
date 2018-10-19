@@ -61,7 +61,7 @@
         <gmaven.version>1.5</gmaven.version>
         <hamcrest.version>1.3</hamcrest.version>
         <jackson1.version>1.9.11</jackson1.version>
-        <jackson2.version>2.7.3</jackson2.version>
+        <jackson2.version>2.9.7</jackson2.version>
         <maven-javadoc.version>2.9.1</maven-javadoc.version>
         <surefire.version>2.22.0</surefire.version>
     </properties>
