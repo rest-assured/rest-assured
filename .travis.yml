@@ -7,11 +7,11 @@ cache:
   
 matrix:
   include:
-    - env: PROFILES='osgi-tests'
+    - env: PROFILES='-P osgi-tests'
       jdk: oraclejdk8
-    - env: PROFILES=' '
+    - env: PROFILES=''
       jdk: oraclejdk11
 
 script:
   - echo JAVA_HOME = ${JAVA_HOME}
-  - mvn clean install -B -P $PROFILES
+  - mvn clean install -B $PROFILES
