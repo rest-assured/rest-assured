@@ -17,7 +17,6 @@ package io.restassured.itest.java;
 
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.itest.java.support.WriteLogsToDisk;
-import org.apache.commons.io.FileUtils;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +27,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,11 +43,11 @@ public class LoggingToDiskTest extends WithJetty {
         super(DONT_RESET_REST_ASSURED_BEFORE_TEST);
     }
 
-    private static String directory;
+    private static File directory;
 
     static {
         try {
-            directory = Files.createTempDirectory("ra").toFile().toString();
+            directory = Files.createTempDirectory("ra").toFile();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -88,26 +86,22 @@ public class LoggingToDiskTest extends WithJetty {
     // This test needs to be executed last, thus @FixMethodOrder
     @Test
     public void make_sure_logging_to_disk_works() throws Exception {
-        try {
-            List<FileAndContents> files = Files.list(Paths.get(directory))
-                    .filter(file -> !file.endsWith(testName.getMethodName() + ".log"))
-                    .map(file -> {
-                        try {
-                            return FileAndContents.of(file.getFileName().toString(), Files.readAllLines(file));
-                        } catch (IOException e) {
-                            throw new UncheckedIOException(e);
-                        }
-                    })
-                    .collect(Collectors.toList());
+        List<FileAndContents> files = Files.list(directory.toPath())
+                .filter(file -> !file.endsWith(testName.getMethodName() + ".log"))
+                .map(file -> {
+                    try {
+                        return FileAndContents.of(file.getFileName().toString(), Files.readAllLines(file));
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                })
+                .collect(Collectors.toList());
 
-            assertThat(files.toString(), files, hasSize(2));
-            assertThat(files.get(0).fileName, is("example1.log"));
-            assertThat(files.get(0).content.getLast(), is("{\"greeting\":\"Greetings John Doe\"}"));
-            assertThat(files.get(1).fileName, is("example2.log"));
-            assertThat(files.get(1).content.getLast(), is("{\"greeting\":\"Greetings Jane Doe\"}"));
-        } finally {
-            FileUtils.deleteDirectory(new File(directory));
-        }
+        assertThat(files.toString(), files, hasSize(2));
+        assertThat(files.get(0).fileName, is("example1.log"));
+        assertThat(files.get(0).content.getLast(), is("{\"greeting\":\"Greetings John Doe\"}"));
+        assertThat(files.get(1).fileName, is("example2.log"));
+        assertThat(files.get(1).content.getLast(), is("{\"greeting\":\"Greetings Jane Doe\"}"));
     }
 
     private static class FileAndContents {

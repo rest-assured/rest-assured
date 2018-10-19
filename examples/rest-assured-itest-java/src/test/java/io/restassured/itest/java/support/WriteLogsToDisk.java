@@ -18,6 +18,7 @@ package io.restassured.itest.java.support;
 import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
@@ -26,21 +27,18 @@ import java.io.*;
 
 public class WriteLogsToDisk extends TestWatcher {
 
-    private final String logFolder;
+    private final File logFolder;
     private PrintStream printStream;
     private LogConfig originalLogConfig;
 
-    public WriteLogsToDisk(String logFolder) {
-        File dir = new File(logFolder);
-        if (!dir.exists()) {
-            //noinspection ResultOfMethodCallIgnored
-            dir.mkdirs();
+    public WriteLogsToDisk(File logFolder) {
+        try {
+            FileUtils.forceMkdir(logFolder);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        if (logFolder.endsWith("/")) {
-            this.logFolder = logFolder.substring(0, logFolder.length() - 1);
-        } else {
-            this.logFolder = logFolder;
-        }
+        logFolder.deleteOnExit();
+        this.logFolder = logFolder;
     }
 
     @Override
@@ -48,7 +46,10 @@ public class WriteLogsToDisk extends TestWatcher {
         originalLogConfig = RestAssured.config().getLogConfig();
         FileWriter fileWriter;
         try {
-            fileWriter = new FileWriter(logFolder + "/" + description.getMethodName() + ".log");
+            String logFileName = description.getMethodName() + ".log";
+            File logFile = new File(logFolder, logFileName);
+            logFile.deleteOnExit();
+            fileWriter = new FileWriter(logFile);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
