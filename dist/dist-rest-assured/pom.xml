@@ -19,7 +19,7 @@
     <parent>
         <artifactId>dist</artifactId>
         <groupId>io.rest-assured</groupId>
-        <version>3.2.0</version>
+        <version>3.2.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
