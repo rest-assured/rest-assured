@@ -5,7 +5,8 @@ jdk:
   - oraclejdk8
 
 script:
-  - jdk_switcher use oraclejdk8
   - mvn clean install -B -P osgi-tests
-  - jdk_switcher use oraclejdk11
+  # Switch to openjdk 11, see docs at https://docs.travis-ci.com/user/languages/java/
+  - export JAVA_HOME=$HOME/openjdk11
+  - $TRAVIS_BUILD_DIR/install-jdk.sh --install openjdk11 --target $JAVA_HOME
   - mvn clean install -B
