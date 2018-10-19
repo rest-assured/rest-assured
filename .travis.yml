@@ -1,6 +1,9 @@
 language: java
 sudo: false
 
+jdk:
+  - oraclejdk8
+
 script:
   - jdk_switcher use oraclejdk8
   - mvn clean install -B -P osgi-tests
