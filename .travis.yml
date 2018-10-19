@@ -1,12 +1,13 @@
 language: java
 sudo: false
 
-jdk:
-  - oraclejdk8
+matrix:
+  include:
+    - env: PROFILES='osgi-tests'
+      jdk: oraclejdk8
+    - env: PROFILES=''
+      jdk: oraclejdk8
 
 script:
-  - mvn clean install -B -P osgi-tests
-  # Switch to openjdk 11, see docs at https://docs.travis-ci.com/user/languages/java/
-  - export JAVA_HOME=$HOME/openjdk11
-  - $TRAVIS_BUILD_DIR/install-jdk.sh --install openjdk11 --target $JAVA_HOME
-  - mvn clean install -B
+  - echo JAVA_HOME = ${JAVA_HOME}
+  - mvn clean install -B -P $PROFILES
