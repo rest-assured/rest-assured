@@ -11,9 +11,9 @@ languages into the Java domain.
 
 
 ## News 
+* 2018-10-19: REST Assured [3.2.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.2.0-dist.zip) is released. This release adds support for Java 11 and OSGi. It also includes support for [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) by using the new [spring-web-test-client](https://github.com/rest-assured/rest-assured/wiki/Usage#spring-web-test-client-module) module. Please see [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes32) and [getting started guide](https://github.com/rest-assured/rest-assured/wiki/GettingStarted) for more details.
 * 2018-10-05: Johan blogs on how to configure REST Assured to log to disk instead of to the console. You can find the blog post [here](http://code.haleby.se/2018/10/05/logging-to-disk-with-rest-assured/). Also added info about this to the [FAQ](https://github.com/rest-assured/rest-assured/wiki/FAQ#4-logging-rest-assured-logs-to-disk). 
 * 2018-08-17: REST Assured [3.1.1](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.1.1-dist.zip) is released with bug fixes and improvements. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for details.
-* 2018-04-20: REST Assured [3.1.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.1.0-dist.zip) is released. This release includes fixes and improvements such as ability to resolve and include additional parameters in a form authentication request (see [here](https://github.com/rest-assured/rest-assured/wiki/Usage#include-additional-fields-in-form-authentication) for example) and ability to [extract values](https://github.com/rest-assured/rest-assured/wiki/Usage#querying-requestspecification) from a `RequestSpecification`. Please see [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes31) and [getting started guide](https://github.com/rest-assured/rest-assured/wiki/GettingStarted) for more details.
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
