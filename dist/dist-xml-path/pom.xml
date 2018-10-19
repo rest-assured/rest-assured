@@ -28,7 +28,7 @@
 
     <name>XmlPath distribution jar</name>
     <build>
-        <finalName>json-path-${project.version}</finalName>
+        <finalName>xml-path-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
