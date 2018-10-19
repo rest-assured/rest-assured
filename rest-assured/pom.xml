@@ -22,12 +22,12 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-parent</artifactId>
-        <version>3.1.2-SNAPSHOT</version>
+        <version>3.2.0</version>
     </parent>
 
     <groupId>io.rest-assured</groupId>
     <artifactId>rest-assured</artifactId>
-    <version>3.1.2-SNAPSHOT</version>
+    <version>3.2.0</version>
     <packaging>bundle</packaging>
 
     <name>REST Assured</name>
@@ -49,7 +49,7 @@
                     <instructions>
                         <Export-Package>io.restassured.*</Export-Package>
                         <Import-Package>*</Import-Package>
-                        <Private-Package></Private-Package>
+                        <Private-Package />
                     </instructions>
                 </configuration>
             </plugin>
@@ -97,12 +97,12 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-path</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
+            <version>3.2.0</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>xml-path</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
+            <version>3.2.0</version>
         </dependency>
         <!-- Optional dependencies -->
         <dependency>
