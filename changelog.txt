@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 3.2.0 (2018-10-19)
+----------------------------
 * Added OSGi support (thanks to ponziani for pull request)
 * Make it clear that junit is only a test scope dependency (thanks to Eric Pabst for pull request)
 * Changed MockMvcParamConfig.attributeUpdateStrategy() to actually return the attributeUpdateStrategy and not the formParamsUpdateStrategy.
