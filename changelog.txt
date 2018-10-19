@@ -7,6 +7,7 @@ Changelog next version
 * Upgraded to from Groovy 2.4.12 to 2.4.15
 * Upgraded Scala from version 2.11.12 to 2.12.7, this also means that the Scala support module now requires Java 8.
 * Rest Assured now requires Java 6 (previously Java 5 was required).
+* Moved XmlAssertion from io.restassured.assertion package to io.restassured.internal.path.xml since it's an internal class (issue 1051)
 
 Changelog 3.1.1 (2018-08-17)
 ----------------------------
