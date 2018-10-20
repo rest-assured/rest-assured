@@ -35,10 +35,7 @@ import static io.restassured.filter.log.LogDetail.HEADERS;
 import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given;
 import static io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig.config;
 import static java.nio.charset.Charset.defaultCharset;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
-import static org.hamcrest.Matchers.isEmptyString;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -79,10 +76,28 @@ public class LoggingIfValidationFailsTest {
 
 			fail("Should throw AssertionError");
 		} catch (AssertionError e) {
-			assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/greetingPost\nProxy:\t\t\t<none>\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/x-www-form-urlencoded;charset="
-					+ config().getEncoderConfig().defaultContentCharset()
-					+ "\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n\n" + ""
-					+ "200\nContent-Type: application/json;charset=UTF-8\nContent-Length: 34\n\n{\n    \"id\": 1,\n    \"content\": \"Hello, Johan!\"\n}\n"));
+			assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+							"Request URI:\thttp://localhost:8080/greetingPost%n" +
+							"Proxy:\t\t\t<none>%n" +
+							"Request params:\tname=Johan%n" +
+							"Query params:\t<none>%n" +
+							"Form params:\t<none>%n" +
+							"Path params:\t<none>%n" +
+							"Headers:\t\tContent-Type=application/x-www-form-urlencoded;charset=%s%n" +
+							"Cookies:\t\t<none>%n" +
+							"Multiparts:\t\t<none>%n" +
+							"Body:\t\t\t<none>%n" +
+							"%n" +
+							"200%n" +
+							"Content-Type: application/json;charset=UTF-8%n" +
+							"Content-Length: 34%n" +
+							"%n" +
+							"{\n" +
+							"    \"id\": 1,\n" +
+							"    \"content\": \"Hello, Johan!\"\n" +
+							"}%n",
+					config().getEncoderConfig().defaultContentCharset()
+			)));
 		}
 	}
 
@@ -105,12 +120,28 @@ public class LoggingIfValidationFailsTest {
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
             assertThat(writer.toString(), containsString(UriUtils.encode("Request from uri function", defaultCharset())));
-            assertThat(writer.toString(), containsString("Request method:\tPOST\n"));
-            assertThat(writer.toString(), containsString("Proxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/x-www-form-urlencoded"
-                    + "\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n\n" + ""
-                    + "200\nContent-Type: application/json;charset=UTF-8\nContent-Length: 34\n\n{\n    \"id\": 1,\n    \"content\": \"Hello, Johan!\"\n}\n"));
-        }
-    }
+            assertThat(writer.toString(), containsString(String.format("Request method:\tPOST%n")));
+			assertThat(writer.toString(), containsString(String.format("Proxy:\t\t\t<none>%n" +
+					"Request params:\t<none>%n" +
+					"Query params:\t<none>%n" +
+					"Form params:\t<none>%n" +
+					"Path params:\t<none>%n" +
+					"Headers:\t\tContent-Type=application/x-www-form-urlencoded%n" +
+					"Cookies:\t\t<none>%n" +
+					"Multiparts:\t\t<none>%n" +
+					"Body:\t\t\t<none>%n" +
+					"%n" +
+					"200%n" +
+					"Content-Type: application/json;charset=UTF-8%n" +
+					"Content-Length: 34%n" +
+					"%n" +
+					"{\n" +
+					"    \"id\": 1,\n" +
+					"    \"content\": \"Hello, Johan!\"\n" +
+					"}%n"
+			)));
+		}
+	}
 
     @Test
     public void logging_of_both_request_and_response_validation_works_when_test_fails_when_configured_with_log_detail() {
@@ -130,9 +161,12 @@ public class LoggingIfValidationFailsTest {
 
 			fail("Should throw AssertionError");
 		} catch (AssertionError e) {
-			assertThat(writer.toString(), equalTo("Headers:\t\tContent-Type=application/x-www-form-urlencoded;charset="
-					+ config().getEncoderConfig().defaultContentCharset() + "\n\n"
-					+ "Content-Type: application/json;charset=UTF-8\nContent-Length: 34\n"));
+			assertThat(writer.toString(), equalTo(String.format("" +
+							"Headers:\t\tContent-Type=application/x-www-form-urlencoded;charset=%s%n" +
+							"%n" +
+							"Content-Type: application/json;charset=UTF-8%n" +
+							"Content-Length: 34%n",
+					config().getEncoderConfig().defaultContentCharset())));
 		}
 	}
 
@@ -161,10 +195,13 @@ public class LoggingIfValidationFailsTest {
 
 			fail("Should throw AssertionError");
 		} catch (AssertionError e) {
-			assertThat(writer.toString(),
-					equalTo("Headers:\t\tApi-Key=1234\n\t\t\t\tContent-Type=application/x-www-form-urlencoded;charset="
-							+ RestAssuredWebTestClientConfig.config().getEncoderConfig().defaultContentCharset()
-							+ "\n\nContent-Type: application/json;charset=UTF-8\nContent-Length: 34\n"));
+			assertThat(writer.toString(), equalTo(String.format("Headers:\t\tApi-Key=1234%n" +
+							"\t\t\t\tContent-Type=application/x-www-form-urlencoded;charset=%s%n" +
+							"%n" +
+							"Content-Type: application/json;charset=UTF-8%n" +
+							"Content-Length: 34%n",
+					RestAssuredWebTestClientConfig.config().getEncoderConfig().defaultContentCharset())
+			));
 		}
 	}
 

@@ -28,6 +28,7 @@ import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.ProxySpecification;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -43,7 +44,6 @@ import static io.restassured.filter.log.LogDetail.*;
  */
 public class RequestPrinter {
     private static final String TAB = "\t";
-    private static final String NEW_LINE = System.getProperty("line.separator");
     private static final String EQUALS = "=";
     private static final String NONE = "<none>";
 
@@ -81,10 +81,7 @@ public class RequestPrinter {
             addBody(requestSpec, builder, shouldPrettyPrint);
         }
 
-        String logString = builder.toString();
-        if (logString.endsWith("\n")) {
-            logString = StringUtils.removeEnd(logString, "\n");
-        }
+        final String logString = StringUtils.removeEnd(builder.toString(), SystemUtils.LINE_SEPARATOR);
         stream.println(logString);
         return logString;
     }
@@ -98,7 +95,7 @@ public class RequestPrinter {
         } else {
             builder.append(proxySpec.toString());
         }
-        builder.append(NEW_LINE);
+        builder.append(SystemUtils.LINE_SEPARATOR);
     }
 
     private static void addBody(FilterableRequestSpecification requestSpec, StringBuilder builder, boolean shouldPrettyPrint) {
@@ -110,7 +107,7 @@ public class RequestPrinter {
             } else {
                 body = requestSpec.getBody();
             }
-            builder.append(NEW_LINE).append(body);
+            builder.append(SystemUtils.LINE_SEPARATOR).append(body);
         } else {
             appendTab(appendTwoTabs(builder)).append(NONE);
         }
@@ -120,7 +117,7 @@ public class RequestPrinter {
         builder.append("Cookies:");
         final Cookies cookies = requestSpec.getCookies();
         if (!cookies.exist()) {
-            appendTwoTabs(builder).append(NONE).append(NEW_LINE);
+            appendTwoTabs(builder).append(NONE).append(SystemUtils.LINE_SEPARATOR);
         }
         int i = 0;
         for (Cookie cookie : cookies) {
@@ -129,7 +126,7 @@ public class RequestPrinter {
             } else {
                 appendFourTabs(builder);
             }
-            builder.append(cookie).append(NEW_LINE);
+            builder.append(cookie).append(SystemUtils.LINE_SEPARATOR);
         }
     }
 
@@ -137,7 +134,7 @@ public class RequestPrinter {
         builder.append("Headers:");
         final Headers headers = requestSpec.getHeaders();
         if (!headers.exist()) {
-            appendTwoTabs(builder).append(NONE).append(NEW_LINE);
+            appendTwoTabs(builder).append(NONE).append(SystemUtils.LINE_SEPARATOR);
         } else {
             int i = 0;
             for (Header header : headers) {
@@ -146,7 +143,7 @@ public class RequestPrinter {
                 } else {
                     appendFourTabs(builder);
                 }
-                builder.append(header).append(NEW_LINE);
+                builder.append(header).append(SystemUtils.LINE_SEPARATOR);
             }
         }
     }
@@ -156,50 +153,55 @@ public class RequestPrinter {
         builder.append("Multiparts:");
         final List<MultiPartSpecification> multiParts = requestSpec.getMultiPartParams();
         if (multiParts.isEmpty()) {
-            appendTwoTabs(builder).append(NONE).append(NEW_LINE);
+            appendTwoTabs(builder).append(NONE).append(SystemUtils.LINE_SEPARATOR);
         } else {
             for (int i = 0; i < multiParts.size(); i++) {
                 MultiPartSpecification multiPart = multiParts.get(i);
                 if (i == 0) {
                     appendTwoTabs(builder);
                 } else {
-                    appendFourTabs(builder.append(NEW_LINE));
+                    appendFourTabs(builder.append(SystemUtils.LINE_SEPARATOR));
                 }
 
                 builder.append("------------");
-                appendFourTabs(appendFourTabs(builder.append(NEW_LINE)).append("Content-Disposition: ")
-                        .append(requestSpec.getContentType().replace("multipart/", "")).append("; name = ")
-                        .append(multiPart.getControlName()).append(multiPart.hasFileName() ? "; filename = " + multiPart.getFileName() : "")
-                        .append(NEW_LINE)).append("Content-Type: ").append(multiPart.getMimeType());
+                appendFourTabs(appendFourTabs(builder.append(SystemUtils.LINE_SEPARATOR))
+                        .append("Content-Disposition: ")
+                        .append(requestSpec.getContentType().replace("multipart/", ""))
+                        .append("; name = ").append(multiPart.getControlName())
+                        .append(multiPart.hasFileName() ? "; filename = " + multiPart.getFileName() : "")
+                        .append(SystemUtils.LINE_SEPARATOR))
+                        .append("Content-Type: ")
+                        .append(multiPart.getMimeType());
                 final Map<String, String> headers = multiPart.getHeaders();
                 if (!headers.isEmpty()) {
                     final Set<Entry<String, String>> headerEntries = headers.entrySet();
                     for (Entry<String, String> headerEntry : headerEntries) {
-                        appendFourTabs(appendFourTabs(builder.append(NEW_LINE)).append(headerEntry.getKey()).append(": ").append(headerEntry.getValue()));
+                        appendFourTabs(appendFourTabs(builder.append(SystemUtils.LINE_SEPARATOR))
+                                .append(headerEntry.getKey()).append(": ").append(headerEntry.getValue()));
                     }
                 }
-                builder.append(NEW_LINE); // There's a newline between headers and content in multi-parts
+                builder.append(SystemUtils.LINE_SEPARATOR); // There's a newline between headers and content in multi-parts
                 if (multiPart.getContent() instanceof InputStream) {
-                    appendFourTabs(builder.append(NEW_LINE)).append("<inputstream>");
+                    appendFourTabs(builder.append(SystemUtils.LINE_SEPARATOR)).append("<inputstream>");
                 } else {
                     Parser parser = Parser.fromContentType(multiPart.getMimeType());
                     String prettified = new Prettifier().prettify(multiPart.getContent().toString(), parser);
-                    String prettifiedIndented = StringUtils.replace(prettified, NEW_LINE, NEW_LINE + TAB + TAB + TAB + TAB);
-                    appendFourTabs(builder.append(NEW_LINE)).append(prettifiedIndented);
+                    String prettifiedIndented = StringUtils.replace(prettified, SystemUtils.LINE_SEPARATOR, SystemUtils.LINE_SEPARATOR + TAB + TAB + TAB + TAB);
+                    appendFourTabs(builder.append(SystemUtils.LINE_SEPARATOR)).append(prettifiedIndented);
                 }
             }
-            builder.append(NEW_LINE);
+            builder.append(SystemUtils.LINE_SEPARATOR);
         }
     }
 
     private static void addSingle(StringBuilder builder, String str, String requestPath) {
-        appendTab(builder.append(str)).append(requestPath).append(NEW_LINE);
+        appendTab(builder.append(str)).append(requestPath).append(SystemUtils.LINE_SEPARATOR);
     }
 
     private static void addMapDetails(StringBuilder builder, String title, Map<String, ?> map) {
         appendTab(builder.append(title));
         if (map.isEmpty()) {
-            builder.append(NONE).append(NEW_LINE);
+            builder.append(NONE).append(SystemUtils.LINE_SEPARATOR);
         } else {
             int i = 0;
             for (Entry<String, ?> entry : map.entrySet()) {
@@ -211,7 +213,7 @@ public class RequestPrinter {
                 if (!(value instanceof NoParameterValue)) {
                     builder.append(EQUALS).append(value);
                 }
-                builder.append(NEW_LINE);
+                builder.append(SystemUtils.LINE_SEPARATOR);
             }
         }
     }

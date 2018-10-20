@@ -19,6 +19,8 @@ package io.restassured.itest.java;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.ResponseSpecification;
+import org.apache.commons.lang3.SystemUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.get;
@@ -26,8 +28,18 @@ import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeFalse;
 
 public class ResponseTimeITest extends WithJetty {
+
+    @Before
+    public void
+    disable_tests_on_windows() {
+        // These tests are flaky (fail every now and then) on Windows due to System#currentTimeMillis() precision.
+        // See JavaDoc on System#currentTimeMillis() and TimingFilter.
+        // Be sure to warm up the JVM and execute the tests multiple times to see the failures on Windows
+        assumeFalse("High precision dependent tests are disabled on Windows", SystemUtils.IS_OS_WINDOWS);
+    }
 
     @Test public void
     response_time_can_be_extracted() {

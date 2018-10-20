@@ -366,7 +366,18 @@ public class SpecificationBuilderITest extends WithJetty {
         then().
                 body("fullName", equalTo("John Doe"));
 
-        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest URI:\thttp://localhost:8080/John/Doe\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\tfirstName=John\n\t\t\t\tlastName=Doe\nHeaders:\t\tAccept=*/*\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                "Request URI:\thttp://localhost:8080/John/Doe%n" +
+                "Proxy:\t\t\t<none>%n" +
+                "Request params:\t<none>%n" +
+                "Query params:\t<none>%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\tfirstName=John%n" +
+                "\t\t\t\tlastName=Doe%n" +
+                "Headers:\t\tAccept=*/*%n" +
+                "Cookies:\t\t<none>%n" +
+                "Multiparts:\t\t<none>%n" +
+                "Body:\t\t\t<none>%n")));
     }
 
     @Test

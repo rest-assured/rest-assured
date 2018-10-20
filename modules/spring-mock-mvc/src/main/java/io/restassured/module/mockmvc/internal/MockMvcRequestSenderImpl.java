@@ -63,6 +63,7 @@ import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.spring.commons.config.ConfigConverter;
 import io.restassured.specification.ResponseSpecification;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -100,7 +101,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAsyncConfigurer, MockMvcRequestAsyncSender {
     private static final String ATTRIBUTE_NAME_URL_TEMPLATE = "org.springframework.restdocs.urlTemplate";
     private static final String CONTENT_TYPE = "Content-Type";
-    private static final String LINE_SEPARATOR = "line.separator";
+    private static final String CHARSET = "charset";
 
     private final MockMvc mockMvc;
     private final Map<String, Object> params;

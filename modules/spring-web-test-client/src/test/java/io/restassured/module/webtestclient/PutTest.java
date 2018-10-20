@@ -60,7 +60,7 @@ public class PutTest {
 				.log().all()
 				.statusCode(415);
 
-		assertThat(writer.toString(), equalTo("415: Unsupported Media Type\n"));
+		assertThat(writer.toString(), equalTo(String.format("415: Unsupported Media Type%n")));
 	}
 
 	@Test
