@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* Upgraded json-schema-validator from version 2.2.6 to 2.2.10 (thanks to thorin for pull request)
+
 Changelog 3.2.0 (2018-10-19)
 ----------------------------
 * Added OSGi support (thanks to ponziani for pull request)
