@@ -33,10 +33,7 @@ import io.restassured.internal.mapping.ObjectMapping
 import io.restassured.internal.print.ResponsePrinter
 import io.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper
 import io.restassured.internal.support.Prettifier
-import io.restassured.mapper.DataToDeserialize
-import io.restassured.mapper.ObjectMapper
-import io.restassured.mapper.ObjectMapperDeserializationContext
-import io.restassured.mapper.ObjectMapperType
+import io.restassured.mapper.*
 import io.restassured.path.json.JsonPath
 import io.restassured.path.json.config.JsonPathConfig
 import io.restassured.path.xml.XmlPath
@@ -233,6 +230,11 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     notNull mapper, "Object mapper"
     def ctx = createObjectMapperDeserializationContext(cls)
     return mapper.deserialize(ctx) as T
+  }
+
+  def <T> T "as"(TypeRef<T> typeRef, ResponseBodyData responseBodyData) {
+    notNull typeRef, "Type ref"
+    return "as"(typeRef.getType(), responseBodyData)
   }
 
   def String findCharset() {

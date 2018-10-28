@@ -34,7 +34,7 @@ import org.apache.commons.lang3.Validate
 
 import java.lang.reflect.Type
 
-import static ContentType.ANY
+import static io.restassured.http.ContentType.ANY
 import static io.restassured.internal.assertion.AssertParameter.notNull
 import static io.restassured.mapper.resolver.ObjectMapperResolver.*
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
