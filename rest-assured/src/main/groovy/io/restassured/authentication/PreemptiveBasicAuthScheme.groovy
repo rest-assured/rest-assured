@@ -24,7 +24,7 @@ import io.restassured.internal.http.HTTPBuilder
  * Used for basic and digest authentication
  */
 class PreemptiveBasicAuthScheme implements AuthenticationScheme {
-  private static final String AUTH_ENCODING = 'iso-8859-1'
+  private static final String AUTH_ENCODING = 'UTF-8'
 
   def String userName
   def String password
