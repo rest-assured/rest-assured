@@ -19,6 +19,7 @@ package io.restassured.specification;
 import io.restassured.function.RestAssuredFunction;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookie;
+import io.restassured.internal.ResponseValidationFailureListener;
 import io.restassured.matcher.DetailedCookieMatcher;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;

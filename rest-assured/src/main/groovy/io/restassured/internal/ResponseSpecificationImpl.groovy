@@ -29,7 +29,6 @@ import io.restassured.parsing.Parser
 import io.restassured.response.Response
 import io.restassured.specification.*
 import org.apache.commons.lang3.StringUtils
-import org.apache.commons.lang3.SystemUtils
 import org.apache.commons.lang3.Validate
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
@@ -471,14 +470,14 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
             validations.addAll(bodyMatchers.validate(response, contentParser, cfg))
           }
         } catch (Exception e) {
-          logRequestAndResponseIfEnabled();
+          fireFailureListeners(response)
           throw e;
         }
 
         def errors = validations.findAll { !it.success }
         def numberOfErrors = errors.size()
         if (numberOfErrors > 0) {
-          logRequestAndResponseIfEnabled()
+          fireFailureListeners(response)
           def errorMessage = errors.collect { it.errorMessage }.join("\n")
           def s = numberOfErrors > 1 ? "s" : ""
           throw new AssertionError("$numberOfErrors expectation$s failed.\n$errorMessage")
@@ -486,22 +485,12 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
       }
     }
 
-    private def void logRequestAndResponseIfEnabled() {
-      if (logRepository != null) {
-        def stream = config.getLogConfig().defaultStream()
-        def requestLog = logRepository.requestLog
-        def responseLog = logRepository.responseLog
-        def requestLogHasText = StringUtils.isNotEmpty(requestLog)
-        if (requestLogHasText) {
-          stream.print(requestLog)
-        }
-        if (StringUtils.isNotEmpty(responseLog)) {
-          if (requestLogHasText) {
-            stream.print(SystemUtils.LINE_SEPARATOR);
-          }
-          stream.print(responseLog)
-        }
-      }
+    private void fireFailureListeners(Response response) {
+      config.getFailureConfig().getFailureListeners().each {
+        it.onFailure(
+                ResponseSpecificationImpl.this.requestSpecification,
+                ResponseSpecificationImpl.this,
+                response) }
     }
 
     private def validateContentType(Response response) {
