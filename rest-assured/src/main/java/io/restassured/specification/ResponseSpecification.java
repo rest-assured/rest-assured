@@ -16,9 +16,9 @@
 
 package io.restassured.specification;
 
+import io.restassured.filter.log.LogDetail;
 import io.restassured.function.RestAssuredFunction;
 import io.restassured.http.ContentType;
-import io.restassured.http.Cookie;
 import io.restassured.matcher.DetailedCookieMatcher;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
@@ -1220,4 +1220,15 @@ public interface ResponseSpecification {
      * @param parser The parser to use when verifying the response if no other parser is found for the response content-type.
      */
     ResponseSpecification defaultParser(Parser parser);
+
+     /**
+     * Log different parts of the {@link ResponseSpecification} by using {@link LogDetail}.
+     * This is mainly useful for debug purposes when writing your tests. It's a shortcut for:
+     * <pre>
+     * given().filter(new ResponseLoggingFilter(logDetail))). ..
+     * </pre>
+     *
+     * @param logDetail The log detail
+     */
+    ResponseSpecification logDetail(LogDetail logDetail);
 }
