@@ -36,13 +36,14 @@ import static io.restassured.config.RedirectConfig.redirectConfig;
 import static io.restassured.config.RestAssuredConfig.newConfig;
 import static io.restassured.filter.log.LogDetail.ALL;
 import static java.util.Arrays.asList;
+import static org.apache.http.HttpStatus.SC_OK;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class SpecificationBuilderITest extends WithJetty {
 
     @Test
-    public void expectingSpecificationMergesTheCurrentSpecificationWithTheSuppliedOne() throws Exception {
+    public void expectingSpecificationMergesTheCurrentSpecificationWithTheSuppliedOne() {
         final ResponseSpecBuilder builder = new ResponseSpecBuilder();
         builder.expectBody("store.book.size()", is(4)).expectStatusCode(200);
         final ResponseSpecification responseSpecification = builder.build();
@@ -55,7 +56,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsSpecifyingDefaultResponseSpec() throws Exception {
+    public void supportsSpecifyingDefaultResponseSpec() {
         RestAssured.responseSpecification = new ResponseSpecBuilder().expectBody("store.book.size()", is(4)).expectStatusCode(200).build();
 
         try {
@@ -69,7 +70,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void expectingSpecMergesTheCurrentSpecificationWithTheSuppliedOne() throws Exception {
+    public void expectingSpecMergesTheCurrentSpecificationWithTheSuppliedOne() {
         final ResponseSpecBuilder builder = new ResponseSpecBuilder();
         builder.expectBody("store.book.size()", is(4)).expectStatusCode(200);
         final ResponseSpecification responseSpecification = builder.build();
@@ -82,7 +83,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void bodyExpectationsAreNotOverwritten() throws Exception {
+    public void bodyExpectationsAreNotOverwritten() {
         final ResponseSpecBuilder builder = new ResponseSpecBuilder();
         builder.expectBody("store.book.size()", is(4)).expectStatusCode(200);
         final ResponseSpecification responseSpecification = builder.build();
@@ -96,7 +97,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void responseSpecificationSupportsMergingWithAnotherResponseSpecification() throws Exception {
+    public void responseSpecificationSupportsMergingWithAnotherResponseSpecification() {
         final ResponseSpecification specification = expect().body("store.book.size()", equalTo(4));
         final ResponseSpecification built = new ResponseSpecBuilder().expectStatusCode(200).addResponseSpecification(specification).build();
 
@@ -109,7 +110,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void responseSpecificationCanExpectBodyWithArgs () throws Exception {
+    public void responseSpecificationCanExpectBodyWithArgs () {
         final ResponseSpecification spec = new ResponseSpecBuilder().rootPath("store.book[%d]").expectBody("author", withArgs(0), equalTo("Nigel Rees")).build();
 
         expect().
@@ -120,7 +121,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void responseSpecificationCanExpectContentWithArgs () throws Exception {
+    public void responseSpecificationCanExpectContentWithArgs() {
         final ResponseSpecification spec = new ResponseSpecBuilder().rootPath("store.book[%d]").expectContent("author", withArgs(0), equalTo("Nigel Rees")).build();
 
         expect().
@@ -131,7 +132,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsSpecifyingParametersInRequestSpecBuilder() throws Exception {
+    public void supportsSpecifyingParametersInRequestSpecBuilder() {
         final RequestSpecification spec = new RequestSpecBuilder().addParameter("firstName", "John").addParam("lastName", "Doe").build();
 
         given().
@@ -144,7 +145,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsSpecifyingDefaultRequestSpec() throws Exception {
+    public void supportsSpecifyingDefaultRequestSpec() {
         RestAssured.requestSpecification = new RequestSpecBuilder().addParameter("firstName", "John").addParam("lastName", "Doe").build();
         try {
             expect().
@@ -158,7 +159,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsSpecifyingQueryParametersInRequestSpecBuilderWhenGet() throws Exception {
+    public void supportsSpecifyingQueryParametersInRequestSpecBuilderWhenGet() {
         final RequestSpecification spec = new RequestSpecBuilder().addQueryParameter("firstName", "John").addQueryParam("lastName", "Doe").build();
 
         given().
@@ -171,7 +172,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsSpecifyingQueryParametersInRequestSpecBuilderWhenPost() throws Exception {
+    public void supportsSpecifyingQueryParametersInRequestSpecBuilderWhenPost() {
         final RequestSpecification spec = new RequestSpecBuilder().addQueryParameter("firstName", "John").addQueryParam("lastName", "Doe").build();
 
         given().
@@ -184,7 +185,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsMergesParametersWhenUsingRequestSpecBuilder() throws Exception {
+    public void supportsMergesParametersWhenUsingRequestSpecBuilder() {
         final RequestSpecification spec = new RequestSpecBuilder().addParameter("firstName", "John").build();
 
         given().
@@ -198,7 +199,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsMergingCookiesWhenUsingRequestSpecBuilder() throws Exception {
+    public void supportsMergingCookiesWhenUsingRequestSpecBuilder() {
         final RequestSpecification spec1 = new RequestSpecBuilder().addCookie("cookie3", "value3").build();
         final RequestSpecification spec2 = new RequestSpecBuilder().addCookie("cookie1", "value1").addRequestSpecification(spec1).build();
 
@@ -212,7 +213,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsMergingHeadersWhenUsingRequestSpecBuilder() throws Exception {
+    public void supportsMergingHeadersWhenUsingRequestSpecBuilder() {
         final RequestSpecification spec = new RequestSpecBuilder().addHeader("header1", "value1").build();
 
         given().
@@ -226,7 +227,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsMergingRequestSpecHeadersUsingTheBuilder() throws Exception {
+    public void supportsMergingRequestSpecHeadersUsingTheBuilder() {
         final RequestSpecification spec = given().header("header2", "value2");
         final RequestSpecification spec2 = new RequestSpecBuilder().addHeader("header1", "value1").addRequestSpecification(spec).build();
 
@@ -242,7 +243,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void requestSpecBuilderSupportsSettingAuthentication() throws Exception {
+    public void requestSpecBuilderSupportsSettingAuthentication() {
         final RequestSpecification spec = new RequestSpecBuilder().setAuth(basic("jetty", "jetty")).build();
 
         given().
@@ -254,7 +255,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsMergingMultiValueParametersWhenUsingRequestSpecBuilder() throws Exception {
+    public void supportsMergingMultiValueParametersWhenUsingRequestSpecBuilder() {
         final RequestSpecification spec = new RequestSpecBuilder().addParam("list", "1", "2", "3").build();
 
         given().
@@ -266,7 +267,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsMergingMultiValueQueryParametersWhenUsingRequestSpecBuilder() throws Exception {
+    public void supportsMergingMultiValueQueryParametersWhenUsingRequestSpecBuilder() {
         final RequestSpecification spec = new RequestSpecBuilder().addQueryParam("list", "1", "2", "3").build();
 
         given().
@@ -278,7 +279,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsMergingMultiValueFormParametersWhenUsingRequestSpecBuilder() throws Exception {
+    public void supportsMergingMultiValueFormParametersWhenUsingRequestSpecBuilder() {
         final RequestSpecification spec = new RequestSpecBuilder().addFormParam("list", "1", "2", "3").build();
 
         given().
@@ -290,7 +291,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsMergingMultiValueParametersUsingListWhenUsingRequestSpecBuilder() throws Exception {
+    public void supportsMergingMultiValueParametersUsingListWhenUsingRequestSpecBuilder() {
         final RequestSpecification spec = new RequestSpecBuilder().addParam("list", asList("1", "2", "3")).build();
 
         given().
@@ -302,7 +303,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsMergingMultiValueQueryParametersUsingListWhenUsingRequestSpecBuilder() throws Exception {
+    public void supportsMergingMultiValueQueryParametersUsingListWhenUsingRequestSpecBuilder() {
         final RequestSpecification spec = new RequestSpecBuilder().addQueryParam("list", asList("1", "2", "3")).build();
 
         given().
@@ -314,7 +315,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsMergingMultiValueFormParametersUsingListWhenUsingRequestSpecBuilder() throws Exception {
+    public void supportsMergingMultiValueFormParametersUsingListWhenUsingRequestSpecBuilder() {
         final RequestSpecification spec = new RequestSpecBuilder().addFormParam("list", asList("1", "2", "3")).build();
 
         given().
@@ -326,7 +327,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsMergingFormParametersWhenUsingRequestSpecBuilder() throws Exception {
+    public void supportsMergingFormParametersWhenUsingRequestSpecBuilder() {
         final RequestSpecification spec = new RequestSpecBuilder().addFormParam("lastName", "Doe").build();
 
         given().
@@ -339,7 +340,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsMergingPathParametersWhenUsingRequestSpecBuilder() throws Exception {
+    public void supportsMergingPathParametersWhenUsingRequestSpecBuilder() {
         final RequestSpecification spec = new RequestSpecBuilder().addPathParam("lastName", "Doe").build();
 
         given().
@@ -352,7 +353,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsSettingLoggingWhenUsingRequestSpecBuilder() throws Exception {
+    public void supportsSettingLoggingWhenUsingRequestSpecBuilder() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         final RequestSpecification spec = new RequestSpecBuilder().setConfig(newConfig().logConfig(logConfig().defaultStream(captor))).and().log(ALL).build();
@@ -381,7 +382,59 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void supportsSettingConfigWhenUsingRequestSpecBuilder() throws Exception {
+    public void supportsSettingLoggingWhenUsingRequestAndResponseSpecBuilder() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final RequestSpecification requestSpec = new RequestSpecBuilder().
+             setConfig(newConfig().logConfig(logConfig().defaultStream(captor))).
+             addPathParam("firstName", "John").
+             addPathParam("lastName", "Doe").build();
+        final ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(SC_OK).log(ALL).build();
+
+        given(requestSpec, responseSpec).
+                                         get("/{firstName}/{lastName}");
+
+        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
+                "Content-Type: application/json;charset=utf-8%n" +
+                "Content-Length: 59%n" +
+                "Server: Jetty(9.3.2.v20150730)%n" +
+                "%n" +
+                "{%n" +
+                "    \"firstName\": \"John\",%n" +
+                "    \"lastName\": \"Doe\",%n" +
+                "    \"fullName\": \"John Doe\"%n" +
+                "}%n")));
+    }
+
+    @Test
+    public void supportsSettingLoggingWhenUsingOnlyResponseSpecBuilder() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(SC_OK).log(ALL).build();
+
+        given().
+                config(newConfig().logConfig(logConfig().defaultStream(captor))).
+                pathParameter("firstName", "John").
+                pathParameter("lastName", "Doe").
+                get("/{firstName}/{lastName}").
+        then().
+               spec(responseSpec).
+               body("fullName", equalTo("John Doe"));
+
+        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
+                "Content-Type: application/json;charset=utf-8%n" +
+                "Content-Length: 59%n" +
+                "Server: Jetty(9.3.2.v20150730)%n" +
+                "%n" +
+                "{%n" +
+                "    \"firstName\": \"John\",%n" +
+                "    \"lastName\": \"Doe\",%n" +
+                "    \"fullName\": \"John Doe\"%n" +
+                "}%n")));
+    }
+
+    @Test
+    public void supportsSettingConfigWhenUsingRequestSpecBuilder() {
         final RequestSpecification spec = new RequestSpecBuilder().setConfig(newConfig().redirect(redirectConfig().followRedirects(false))).build();
 
         given().
@@ -395,7 +448,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void mergesStaticallyDefinedResponseSpecificationsCorrectly() throws Exception {
+    public void mergesStaticallyDefinedResponseSpecificationsCorrectly() {
         RestAssured.responseSpecification = new ResponseSpecBuilder().expectCookie("Cookie1", "Value1").build();
         ResponseSpecification reqSpec1 = new ResponseSpecBuilder().expectCookie("Cookie2", "Value2").build();
         ResponseSpecification reqSpec2 = new ResponseSpecBuilder().expectCookie("Cookie3", "Value3").build();
@@ -438,7 +491,7 @@ public class SpecificationBuilderITest extends WithJetty {
     }
 
     @Test
-    public void mergesStaticallyDefinedRequestSpecificationsCorrectly() throws Exception {
+    public void mergesStaticallyDefinedRequestSpecificationsCorrectly() {
         RestAssured.requestSpecification = new RequestSpecBuilder().addCookie("Cookie1", "Value1").build();
         RequestSpecification reqSpec1 = new RequestSpecBuilder().addCookie("Cookie2", "Value2").build();
         RequestSpecification reqSpec2 = new RequestSpecBuilder().addCookie("Cookie3", "Value3").build();
