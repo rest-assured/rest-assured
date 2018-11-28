@@ -4,6 +4,9 @@ Changelog next version
 * Added io.restassured.mapper.TypeRef class that allows you to deserialize the response to a container with generic type. For example:
     List<Map<String, Object>> products = get("/products").as(new TypeRef<List<Map<String, Object>>>() {});
   Currently this only works for JSON :(
+* Add logging functionality to the ResponseSpecBuilder, i.e. you can now do:
+    ResponseSpecification spec = new ResponseSpecBuilder().log(LogDetail.ALL).build();
+  (issue 579). Thanks to Aleksandr Podkutin for pull request!
 
 Changelog 3.2.0 (2018-10-19)
 ----------------------------
