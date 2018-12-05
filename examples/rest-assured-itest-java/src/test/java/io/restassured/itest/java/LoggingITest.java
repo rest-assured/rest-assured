@@ -48,8 +48,11 @@ import java.net.URLEncoder;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.config.EncoderConfig.encoderConfig;
+import static io.restassured.config.LogConfig.logConfig;
 import static io.restassured.config.RestAssuredConfig.config;
+import static io.restassured.config.RestAssuredConfig.newConfig;
 import static io.restassured.filter.log.ErrorLoggingFilter.logErrorsTo;
+import static io.restassured.filter.log.LogDetail.ALL;
 import static io.restassured.filter.log.LogDetail.COOKIES;
 import static io.restassured.filter.log.RequestLoggingFilter.logRequestTo;
 import static io.restassured.filter.log.ResponseLoggingFilter.logResponseTo;
@@ -62,17 +65,17 @@ import static org.junit.Assert.fail;
 public class LoggingITest extends WithJetty {
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         RestAssured.config = config().logConfig(LogConfig.logConfig().enablePrettyPrinting(false));
     }
 
     @After
-    public void teardown() throws Exception {
+    public void teardown() {
         RestAssured.reset();
     }
 
     @Test
-    public void errorLoggingFilterWorks() throws Exception {
+    public void errorLoggingFilterWorks() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logErrorsTo(captor)).and().expect().body(equalTo("ERROR")).when().get("/409");
@@ -80,22 +83,27 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logErrorsUsingRequestSpec() throws Exception {
+    public void logErrorsUsingRequestSpec() {
         expect().log().ifError().body(equalTo("ERROR")).when().get("/409");
     }
 
     @Test
-    public void logUsingRequestSpec() throws Exception {
+    public void logUsingRequestSpec() {
         given().log().everything().and().expect().body(equalTo("ERROR")).when().get("/409");
     }
 
     @Test
-    public void logUsingResponseSpec() throws Exception {
+    public void logUsingResponseSpec() {
         expect().log().everything().body(equalTo("ERROR")).when().get("/409");
     }
 
     @Test
-    public void logResponseThatHasCookiesWithLogDetailAll() throws Exception {
+    public void logUsingResponseSpecLogDetail() {
+        expect().logDetail(ALL).body(equalTo("ERROR")).when().get("/409");
+    }
+
+    @Test
+    public void logResponseThatHasCookiesWithLogDetailAll() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor)).and().expect().body(equalTo("OK")).when().get("/multiCookie");
@@ -114,7 +122,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logResponseThatHasCookiesWithLogDetailCookies() throws Exception {
+    public void logResponseThatHasCookiesWithLogDetailCookies() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor, COOKIES)).and().expect().body(equalTo("OK")).when().get("/multiCookie");
@@ -125,7 +133,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingResponseFilterLogsErrors() throws Exception {
+    public void loggingResponseFilterLogsErrors() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor)).and().expect().body(equalTo("ERROR")).when().get("/409");
@@ -133,7 +141,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingResponseFilterLogsNonErrors() throws Exception {
+    public void loggingResponseFilterLogsNonErrors() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor)).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
@@ -141,7 +149,22 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingResponseFilterLogsToSpecifiedWriterWhenMatcherIsFulfilled() throws Exception {
+    public void loggingByResponseSpecLogDetailNonErrors() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        given().
+                 config(newConfig().logConfig(logConfig().defaultStream(captor).enablePrettyPrinting(false))).
+        expect().
+                 logDetail(ALL).
+                 body("greeting", equalTo("Greetings John Doe")).
+        when().
+                 get("/greet?firstName=John&lastName=Doe");
+
+        assertThat(writer.toString(), containsString("{\"greeting\":\"Greetings John Doe\"}"));
+    }
+
+    @Test
+    public void loggingResponseFilterLogsToSpecifiedWriterWhenMatcherIsFulfilled() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseToIfMatches(captor, equalTo(200))).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
@@ -149,7 +172,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingResponseFilterDoesntLogWhenSpecifiedMatcherIsNotFulfilled() throws Exception {
+    public void loggingResponseFilterDoesntLogWhenSpecifiedMatcherIsNotFulfilled() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseToIfMatches(captor, equalTo(400))).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
@@ -157,7 +180,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingResponseFilterLogsWhenExpectationsFail() throws Exception {
+    public void loggingResponseFilterLogsWhenExpectationsFail() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         try {
@@ -169,7 +192,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingRequestFilterWithParamsCookiesAndHeaders() throws Exception {
+    public void loggingRequestFilterWithParamsCookiesAndHeaders() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().
@@ -218,12 +241,12 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void loggingRequestFilterDoesntAcceptStatusAsLogDetail() throws Exception {
+    public void loggingRequestFilterDoesntAcceptStatusAsLogDetail() {
         new RequestLoggingFilter(LogDetail.STATUS);
     }
 
     @Test
-    public void loggingRequestFilterWithExplicitContentType() throws Exception {
+    public void loggingRequestFilterWithExplicitContentType() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().
@@ -253,7 +276,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingRequestFilterPathParams() throws Exception {
+    public void loggingRequestFilterPathParams() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -281,7 +304,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingRequestFilterWithBody() throws Exception {
+    public void loggingRequestFilterWithBody() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -306,7 +329,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingRequestAndResponseAtTheSameTimeWhenRequestFilterIsAddedBeforeResponseFilter() throws Exception {
+    public void loggingRequestAndResponseAtTheSameTimeWhenRequestFilterIsAddedBeforeResponseFilter() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -342,7 +365,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingRequestAndResponseAtTheSameTimeWhenResponseFilterIsAddedBeforeRequestFilter() throws Exception {
+    public void loggingRequestAndResponseAtTheSameTimeWhenResponseFilterIsAddedBeforeRequestFilter() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -378,7 +401,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logEverythingResponseUsingLogSpec() throws Exception {
+    public void logEverythingResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -401,7 +424,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logIfStatusCodeIsEqualToResponseUsingLogSpec() throws Exception {
+    public void logIfStatusCodeIsEqualToResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -421,7 +444,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void doesntLogIfStatusCodeIsNotEqualToResponseUsingLogSpec() throws Exception {
+    public void doesntLogIfStatusCodeIsNotEqualToResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -436,7 +459,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logIfStatusCodeMatchesResponseUsingLogSpec() throws Exception {
+    public void logIfStatusCodeMatchesResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -456,7 +479,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logOnlyBodyUsingResponseUsingLogSpec() throws Exception {
+    public void logOnlyBodyUsingResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -475,7 +498,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logOnlyResponseBodyWithPrettyPrintingWhenJson() throws Exception {
+    public void logOnlyResponseBodyWithPrettyPrintingWhenJson() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -498,7 +521,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logOnlyResponseBodyWithPrettyPrintingWhenXml() throws Exception {
+    public void logOnlyResponseBodyWithPrettyPrintingWhenXml() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -524,7 +547,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logOnlyResponseBodyWithPrettyPrintingWhenHtml() throws Exception {
+    public void logOnlyResponseBodyWithPrettyPrintingWhenHtml() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -548,7 +571,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logAllWithPrettyPrintingWhenJson() throws Exception {
+    public void logAllWithPrettyPrintingWhenJson() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -576,7 +599,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logAllWithPrettyPrintingUsingDSLWhenJson() throws Exception {
+    public void logAllWithPrettyPrintingUsingDSLWhenJson() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -604,7 +627,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logAllWithNoPrettyPrintingUsingDSLWhenJson() throws Exception {
+    public void logAllWithNoPrettyPrintingUsingDSLWhenJson() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -628,7 +651,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logOnlyResponseBodyWithPrettyPrintingUsingDSLWhenXml() throws Exception {
+    public void logOnlyResponseBodyWithPrettyPrintingUsingDSLWhenXml() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -654,7 +677,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logOnlyResponseBodyWithNoPrettyPrintingUsingDSLWhenXml() throws Exception {
+    public void logOnlyResponseBodyWithNoPrettyPrintingUsingDSLWhenXml() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -670,7 +693,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logOnlyStatusUsingResponseUsingLogSpec() throws Exception {
+    public void logOnlyStatusUsingResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -689,7 +712,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logOnlyHeadersUsingResponseUsingLogSpec() throws Exception {
+    public void logOnlyHeadersUsingResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -710,7 +733,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logOnlyHeadersUsingResponseUsingLogSpecWhenMultiHeaders() throws Exception {
+    public void logOnlyHeadersUsingResponseUsingLogSpecWhenMultiHeaders() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -730,7 +753,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logOnlyCookiesUsingResponseLogSpec() throws Exception {
+    public void logOnlyCookiesUsingResponseLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -749,7 +772,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logBodyPrettyPrintedUsingResponseLogSpecWhenContentTypeDoesntMatchContent() throws Exception {
+    public void logBodyPrettyPrintedUsingResponseLogSpecWhenContentTypeDoesntMatchContent() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -770,7 +793,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logAllUsingRequestLogSpec() throws Exception {
+    public void logAllUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -796,7 +819,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logParamsUsingRequestLogSpec() throws Exception {
+    public void logParamsUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -817,7 +840,7 @@ public class LoggingITest extends WithJetty {
 
 
    @Test
-    public void logNoValueParamsUsingRequestLogSpec() throws Exception {
+    public void logNoValueParamsUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -837,7 +860,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logBodyUsingRequestLogSpec() throws Exception {
+    public void logBodyUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -853,7 +876,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logBodyWithPrettyPrintingUsingRequestLogSpec() throws Exception {
+    public void logBodyWithPrettyPrintingUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -872,7 +895,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logBodyWithPrettyPrintingUsingDslAndRequestLogSpec() throws Exception {
+    public void logBodyWithPrettyPrintingUsingDslAndRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -891,7 +914,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logBodyWithPrettyPrintingUsingRequestLogSpecAndObjectMapping() throws Exception {
+    public void logBodyWithPrettyPrintingUsingRequestLogSpecAndObjectMapping() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -909,7 +932,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logBodyWithPrettyPrintingUsingRequestLogSpecAndObjectMappingWhenXML() throws Exception {
+    public void logBodyWithPrettyPrintingUsingRequestLogSpecAndObjectMappingWhenXML() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -932,7 +955,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logCookiesUsingRequestLogSpec() throws Exception {
+    public void logCookiesUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -952,7 +975,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logHeadersUsingRequestLogSpec() throws Exception {
+    public void logHeadersUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -973,7 +996,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logBodyPrettyPrintedUsingRequestLogSpecWhenContentTypeDoesntMatchContent() throws Exception {
+    public void logBodyPrettyPrintedUsingRequestLogSpecWhenContentTypeDoesntMatchContent() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -1001,7 +1024,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logAllWhenBasePathIsDefinedUsingRequestLogSpec() throws Exception {
+    public void logAllWhenBasePathIsDefinedUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         RestAssured.basePath = "/reflect";
@@ -1034,7 +1057,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logAllWhenBaseURIIsDefinedUsingRequestLogSpec() throws Exception {
+    public void logAllWhenBaseURIIsDefinedUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         RestAssured.baseURI = "http://localhost:8080/reflect";
@@ -1067,7 +1090,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logAllWhenBasePathAndBasePortAndBaseURIIsDefinedUsingRequestLogSpec() throws Exception {
+    public void logAllWhenBasePathAndBasePortAndBaseURIIsDefinedUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         RestAssured.baseURI = "http://localhost";
@@ -1102,7 +1125,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logsFullyQualifiedUrlsAreLoggedCorrectly() throws Exception {
+    public void logsFullyQualifiedUrlsAreLoggedCorrectly() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -1120,7 +1143,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logsXmlNamespacesCorrectly() throws Exception {
+    public void logsXmlNamespacesCorrectly() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -1352,7 +1375,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test public void
-    shows_request_log_as_without_url_encoding_when_explicitly_instructing_request_logging_filter_to_do_so() throws UnsupportedEncodingException {
+    shows_request_log_as_without_url_encoding_when_explicitly_instructing_request_logging_filter_to_do_so() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 

@@ -17,7 +17,9 @@
 package io.restassured.builder;
 
 import io.restassured.RestAssured;
+import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ResponseSpecificationImpl;
@@ -35,6 +37,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static io.restassured.RestAssured.rootPath;
+import static io.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
  * You can use the builder to construct a response specification. The specification can be used as e.g.
@@ -671,6 +674,18 @@ public class ResponseSpecBuilder {
 
         ResponseSpecificationImpl rs = (ResponseSpecificationImpl) specification;
         SpecificationMerger.merge((ResponseSpecificationImpl) spec, rs);
+        return this;
+    }
+
+    /**
+     * Enabled logging with the specified log detail. Set a {@link LogConfig} to configure the print stream and pretty printing options.
+     *
+     * @param logDetail The log detail.
+     * @return ResponseSpecBuilder
+     */
+    public ResponseSpecBuilder log(LogDetail logDetail) {
+        notNull(logDetail, LogDetail.class);
+        spec.logDetail(logDetail);
         return this;
     }
 

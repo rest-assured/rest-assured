@@ -19,6 +19,7 @@ package io.restassured.internal
 
 import io.restassured.assertion.*
 import io.restassured.config.RestAssuredConfig
+import io.restassured.filter.log.LogDetail
 import io.restassured.function.RestAssuredFunction
 import io.restassured.http.ContentType
 import io.restassured.internal.MapCreator.CollisionStrategy
@@ -58,6 +59,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   def RestAssuredConfig config
   private Response response
   private Tuple2<Matcher<Long>, TimeUnit> expectedResponseTime;
+  private LogDetail responseLogDetail
 
   private contentParser
   def LogRepository logRepository
@@ -295,6 +297,15 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   def ResponseLogSpecification log() {
     return new ResponseLogSpecificationImpl(responseSpecification: this, logRepository: logRepository)
+  }
+
+  ResponseSpecificationImpl logDetail(LogDetail logDetail) {
+    this.responseLogDetail = logDetail
+    this
+  }
+
+  LogDetail getLogDetail() {
+    responseLogDetail
   }
 
   def RequestSender when() {
