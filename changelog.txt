@@ -7,6 +7,7 @@ Changelog next version
 * Add logging functionality to the ResponseSpecBuilder, i.e. you can now do:
     ResponseSpecification spec = new ResponseSpecBuilder().log(LogDetail.ALL).build();
   (issue 579). Thanks to Aleksandr Podkutin for pull request!
+* httpmime dependency is updated to version 4.5.3 and is now consistent with httpclient (thanks to Rüdiger Herrmann for pull request).
 
 Changelog 3.2.0 (2018-10-19)
 ----------------------------
