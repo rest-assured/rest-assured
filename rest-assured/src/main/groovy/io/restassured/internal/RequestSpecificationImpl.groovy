@@ -1730,6 +1730,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
     restAssuredConfig = config ?: new RestAssuredConfig()
 
+    if (!filters.any { ResponseLoggingFilter.class.isAssignableFrom(it.getClass()) } && responseSpecification?.getLogDetail()) {
+      filters.add(new ResponseLoggingFilter(responseSpecification.getLogDetail(),
+      logConfig.isPrettyPrintingEnabled(), logConfig.defaultStream()))
+    }
+
     // Sort filters by order
     filters = filters.toSorted { f1, f2 -> getFilterOrder(f1) <=> getFilterOrder(f2) }
 

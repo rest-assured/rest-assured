@@ -217,6 +217,17 @@ public class ProxyITest extends WithJetty {
         then().
                 header("Via", not(isEmptyOrNullString()));
 
-        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest URI:\thttp://localhost:8080/greetJSON?firstName=John&lastName=Doe\nProxy:\t\t\thttp://127.0.0.1:8888\nRequest params:\tfirstName=John\n\t\t\t\tlastName=Doe\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                "Request URI:\thttp://localhost:8080/greetJSON?firstName=John&lastName=Doe%n" +
+                "Proxy:\t\t\thttp://127.0.0.1:8888%n" +
+                "Request params:\tfirstName=John%n" +
+                "\t\t\t\tlastName=Doe%n" +
+                "Query params:\t<none>%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\t<none>%n" +
+                "Headers:\t\tAccept=*/*%n" +
+                "Cookies:\t\t<none>%n" +
+                "Multiparts:\t\t<none>%n" +
+                "Body:\t\t\t<none>%n")));
     }
 }

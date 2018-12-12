@@ -19,7 +19,7 @@
     <parent>
         <artifactId>rest-assured-parent</artifactId>
         <groupId>io.rest-assured</groupId>
-        <version>3.1.2-SNAPSHOT</version>
+        <version>3.2.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -40,7 +40,7 @@
                     <instructions>
                         <Export-Package>io.restassured.*</Export-Package>
                         <Import-Package>*</Import-Package>
-                        <Private-Package></Private-Package>
+                        <Private-Package />
                     </instructions>
                 </configuration>
             </plugin>
@@ -60,7 +60,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured-common</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
+            <version>3.2.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -74,6 +74,16 @@
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-osgi</artifactId>
+        </dependency>
+        <!-- Note that we're not using the standard 'javax.activation:activation:1.1.1' since it doesn't work with OSGi-->
+        <dependency>
+            <groupId>org.apache.sling</groupId>
+            <artifactId>org.apache.sling.javax.activation</artifactId>
+        </dependency>
+        
         <!-- Test -->
         <dependency>
             <groupId>org.hamcrest</groupId>

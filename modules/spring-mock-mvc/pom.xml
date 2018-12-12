@@ -20,23 +20,28 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>3.1.2-SNAPSHOT</version>
+        <version>3.2.1-SNAPSHOT</version>
     </parent>
     <artifactId>spring-mock-mvc</artifactId>
-    <version>3.1.2-SNAPSHOT</version>
+    <version>3.2.1-SNAPSHOT</version>
     <name>spring-mock-mvc</name>
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>4.2.6.RELEASE</spring.version>
-        <spring.security.version>4.1.0.RELEASE</spring.security.version>
+        <spring.security.version>4.2.9.RELEASE</spring.security.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
+            <version>3.2.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>spring-commons</artifactId>
+            <version>3.2.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

@@ -19,7 +19,7 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>3.1.2-SNAPSHOT</version>
+        <version>3.2.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,7 +29,7 @@
     <description>Scala support for REST Assured</description>
 
     <properties>
-        <scala.version>2.11.12</scala.version>
+        <scala.version>2.12.7</scala.version>
     </properties>
 
     <build>
@@ -79,7 +79,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>3.1.2-SNAPSHOT</version>
+            <version>3.2.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

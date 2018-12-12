@@ -35,6 +35,7 @@ import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.WriterOutputStream;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,8 +48,11 @@ import java.net.URLEncoder;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.config.EncoderConfig.encoderConfig;
+import static io.restassured.config.LogConfig.logConfig;
 import static io.restassured.config.RestAssuredConfig.config;
+import static io.restassured.config.RestAssuredConfig.newConfig;
 import static io.restassured.filter.log.ErrorLoggingFilter.logErrorsTo;
+import static io.restassured.filter.log.LogDetail.ALL;
 import static io.restassured.filter.log.LogDetail.COOKIES;
 import static io.restassured.filter.log.RequestLoggingFilter.logRequestTo;
 import static io.restassured.filter.log.ResponseLoggingFilter.logResponseTo;
@@ -60,20 +64,18 @@ import static org.junit.Assert.fail;
 
 public class LoggingITest extends WithJetty {
 
-    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
-
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         RestAssured.config = config().logConfig(LogConfig.logConfig().enablePrettyPrinting(false));
     }
 
     @After
-    public void teardown() throws Exception {
+    public void teardown() {
         RestAssured.reset();
     }
 
     @Test
-    public void errorLoggingFilterWorks() throws Exception {
+    public void errorLoggingFilterWorks() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logErrorsTo(captor)).and().expect().body(equalTo("ERROR")).when().get("/409");
@@ -81,39 +83,57 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logErrorsUsingRequestSpec() throws Exception {
+    public void logErrorsUsingRequestSpec() {
         expect().log().ifError().body(equalTo("ERROR")).when().get("/409");
     }
 
     @Test
-    public void logUsingRequestSpec() throws Exception {
+    public void logUsingRequestSpec() {
         given().log().everything().and().expect().body(equalTo("ERROR")).when().get("/409");
     }
 
     @Test
-    public void logUsingResponseSpec() throws Exception {
+    public void logUsingResponseSpec() {
         expect().log().everything().body(equalTo("ERROR")).when().get("/409");
     }
 
     @Test
-    public void logResponseThatHasCookiesWithLogDetailAll() throws Exception {
+    public void logUsingResponseSpecLogDetail() {
+        expect().logDetail(ALL).body(equalTo("ERROR")).when().get("/409");
+    }
+
+    @Test
+    public void logResponseThatHasCookiesWithLogDetailAll() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor)).and().expect().body(equalTo("OK")).when().get("/multiCookie");
-        assertThat(writer.toString(), allOf(startsWith("HTTP/1.1 200 OK\nContent-Type: text/plain;charset=utf-8\nSet-Cookie: cookie1=cookieValue1;Domain=localhost\nExpires:"),
-                containsString("Set-Cookie: cookie1=cookieValue2;Version=1;Path=/;Domain=localhost;Expires="), endsWith(";Max-Age=1234567;Secure;Comment=\"My Purpose\"\nContent-Length: 2\nServer: Jetty(9.3.2.v20150730)\n\nOK" + LINE_SEPARATOR)));
+        assertThat(writer.toString(), allOf(
+                startsWith(String.format("HTTP/1.1 200 OK%n" +
+                        "Content-Type: text/plain;charset=utf-8%n" +
+                        "Set-Cookie: cookie1=cookieValue1;Domain=localhost%n" +
+                        "Expires:")),
+                containsString("Set-Cookie: cookie1=cookieValue2;Version=1;Path=/;Domain=localhost;Expires="),
+                endsWith(String.format(";Max-Age=1234567;Secure;Comment=\"My Purpose\"%n" +
+                        "Content-Length: 2%n" +
+                        "Server: Jetty(9.3.2.v20150730)%n" +
+                        "%n" +
+                        "OK%n"))
+        ));
     }
 
     @Test
-    public void logResponseThatHasCookiesWithLogDetailCookies() throws Exception {
+    public void logResponseThatHasCookiesWithLogDetailCookies() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor, COOKIES)).and().expect().body(equalTo("OK")).when().get("/multiCookie");
-        assertThat(writer.toString(), allOf(startsWith("cookie1=cookieValue1;Domain=localhost\ncookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Expires="), endsWith(";Version=1" + LINE_SEPARATOR)));
+        assertThat(writer.toString(), allOf(
+                startsWith("cookie1=cookieValue1;Domain=localhost\ncookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Expires="),
+                endsWith(String.format(";Version=1%n"))
+        ));
     }
 
     @Test
-    public void loggingResponseFilterLogsErrors() throws Exception {
+    public void loggingResponseFilterLogsErrors() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor)).and().expect().body(equalTo("ERROR")).when().get("/409");
@@ -121,7 +141,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingResponseFilterLogsNonErrors() throws Exception {
+    public void loggingResponseFilterLogsNonErrors() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor)).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
@@ -129,7 +149,22 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingResponseFilterLogsToSpecifiedWriterWhenMatcherIsFulfilled() throws Exception {
+    public void loggingByResponseSpecLogDetailNonErrors() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        given().
+                 config(newConfig().logConfig(logConfig().defaultStream(captor).enablePrettyPrinting(false))).
+        expect().
+                 logDetail(ALL).
+                 body("greeting", equalTo("Greetings John Doe")).
+        when().
+                 get("/greet?firstName=John&lastName=Doe");
+
+        assertThat(writer.toString(), containsString("{\"greeting\":\"Greetings John Doe\"}"));
+    }
+
+    @Test
+    public void loggingResponseFilterLogsToSpecifiedWriterWhenMatcherIsFulfilled() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseToIfMatches(captor, equalTo(200))).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
@@ -137,7 +172,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingResponseFilterDoesntLogWhenSpecifiedMatcherIsNotFulfilled() throws Exception {
+    public void loggingResponseFilterDoesntLogWhenSpecifiedMatcherIsNotFulfilled() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseToIfMatches(captor, equalTo(400))).expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
@@ -145,7 +180,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingResponseFilterLogsWhenExpectationsFail() throws Exception {
+    public void loggingResponseFilterLogsWhenExpectationsFail() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         try {
@@ -157,7 +192,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void loggingRequestFilterWithParamsCookiesAndHeaders() throws Exception {
+    public void loggingRequestFilterWithParamsCookiesAndHeaders() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().
@@ -179,18 +214,39 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/greet");
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/greet?something1=else1&something2=else2&something3=else3\nProxy:\t\t\t<none>\nRequest params:\thello1=world1\n\t\t\t\thello2=world2\n\t\t\t\tmultiParam=[multi1, multi2]\nQuery params:\tsomething1=else1\n\t\t\t\tsomething2=else2\n\t\t\t\tsomething3=else3\nForm params:\tfirstName=John\n\t\t\t\tlastName=Doe\nPath params:\t<none>\nHeaders:\t\tmultiHeader=headerValue1\n\t\t\t\tmultiHeader=headerValue2\n\t\t\t\tstandardHeader=standard header value\n\t\t\t\tAccept=*/*\n" +
-                "\t\t\t\tContent-Type=application/x-www-form-urlencoded; charset=" + RestAssured.config().getEncoderConfig().defaultContentCharset() +
-                "\nCookies:\t\tmultiCookie=value1\n\t\t\t\tmultiCookie=value2\n\t\t\t\tstandardCookie=standard value\nMultiparts:\t\t<none>\nBody:\t\t\t<none>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                        "Request URI:\thttp://localhost:8080/greet?something1=else1&something2=else2&something3=else3%n" +
+                        "Proxy:\t\t\t<none>%n" +
+                        "Request params:\thello1=world1%n" +
+                        "\t\t\t\thello2=world2%n" +
+                        "\t\t\t\tmultiParam=[multi1, multi2]%n" +
+                        "Query params:\tsomething1=else1%n" +
+                        "\t\t\t\tsomething2=else2%n" +
+                        "\t\t\t\tsomething3=else3%n" +
+                        "Form params:\tfirstName=John%n" +
+                        "\t\t\t\tlastName=Doe%n" +
+                        "Path params:\t<none>%n" +
+                        "Headers:\t\tmultiHeader=headerValue1%n" +
+                        "\t\t\t\tmultiHeader=headerValue2%n" +
+                        "\t\t\t\tstandardHeader=standard header value%n" +
+                        "\t\t\t\tAccept=*/*%n" +
+                        "" +
+                        "\t\t\t\tContent-Type=application/x-www-form-urlencoded; charset=%s%n" +
+                        "Cookies:\t\tmultiCookie=value1%n" +
+                        "\t\t\t\tmultiCookie=value2%n" +
+                        "\t\t\t\tstandardCookie=standard value%n" +
+                        "Multiparts:\t\t<none>%n" +
+                        "Body:\t\t\t<none>%n",
+                RestAssured.config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void loggingRequestFilterDoesntAcceptStatusAsLogDetail() throws Exception {
+    public void loggingRequestFilterDoesntAcceptStatusAsLogDetail() {
         new RequestLoggingFilter(LogDetail.STATUS);
     }
 
     @Test
-    public void loggingRequestFilterWithExplicitContentType() throws Exception {
+    public void loggingRequestFilterWithExplicitContentType() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().
@@ -203,11 +259,24 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/greet");
 
-        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe\nProxy:\t\t\t<none>\nRequest params:\tfirstName=John\n\t\t\t\tlastName=Doe\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                        "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe%n" +
+                        "Proxy:\t\t\t<none>%n" +
+                        "Request params:\tfirstName=John%n" +
+                        "\t\t\t\tlastName=Doe%n" +
+                        "Query params:\t<none>%n" +
+                        "Form params:\t<none>%n" +
+                        "Path params:\t<none>%n" +
+                        "Headers:\t\tAccept=*/*%n" +
+                        "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                        "Cookies:\t\t<none>%n" +
+                        "Multiparts:\t\t<none>%n" +
+                        "Body:\t\t\t<none>%n",
+                RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
     }
 
     @Test
-    public void loggingRequestFilterPathParams() throws Exception {
+    public void loggingRequestFilterPathParams() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -220,11 +289,22 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/{firstName}/{lastName}");
 
-        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest URI:\thttp://localhost:8080/John/Doe\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\tfirstName=John\n\t\t\t\tlastName=Doe\nHeaders:\t\tAccept=*/*\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                "Request URI:\thttp://localhost:8080/John/Doe%n" +
+                "Proxy:\t\t\t<none>%n" +
+                "Request params:\t<none>%n" +
+                "Query params:\t<none>%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\tfirstName=John%n" +
+                "\t\t\t\tlastName=Doe%n" +
+                "Headers:\t\tAccept=*/*%n" +
+                "Cookies:\t\t<none>%n" +
+                "Multiparts:\t\t<none>%n" +
+                "Body:\t\t\t<none>%n")));
     }
 
     @Test
-    public void loggingRequestFilterWithBody() throws Exception {
+    public void loggingRequestFilterWithBody() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -232,11 +312,24 @@ public class LoggingITest extends WithJetty {
         object.setHello("Hello world");
         given().filter(new RequestLoggingFilter(captor)).and().body(object).expect().defaultParser(JSON).when().post("/reflect");
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/reflect\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=text/plain; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                        "Request URI:\thttp://localhost:8080/reflect%n" +
+                        "Proxy:\t\t\t<none>%n" +
+                        "Request params:\t<none>%n" +
+                        "Query params:\t<none>%n" +
+                        "Form params:\t<none>%n" +
+                        "Path params:\t<none>%n" +
+                        "Headers:\t\tAccept=*/*%n" +
+                        "\t\t\t\tContent-Type=text/plain; charset=%s%n" +
+                        "Cookies:\t\t<none>%n" +
+                        "Multiparts:\t\t<none>%n" +
+                        "Body:%n" +
+                        "{\"hello\":\"Hello world\"}%n",
+                RestAssured.config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test
-    public void loggingRequestAndResponseAtTheSameTimeWhenRequestFilterIsAddedBeforeResponseFilter() throws Exception {
+    public void loggingRequestAndResponseAtTheSameTimeWhenRequestFilterIsAddedBeforeResponseFilter() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -250,11 +343,29 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/reflect");
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/reflect\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=text/plain; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR + "HTTP/1.1 200 OK\nContent-Type: text/plain;charset=iso-8859-1\nContent-Length: 23\nServer: Jetty(9.3.2.v20150730)\n\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                        "Request URI:\thttp://localhost:8080/reflect%n" +
+                        "Proxy:\t\t\t<none>%n" +
+                        "Request params:\t<none>%n" +
+                        "Query params:\t<none>%n" +
+                        "Form params:\t<none>%n" +
+                        "Path params:\t<none>%n" +
+                        "Headers:\t\tAccept=*/*%n" +
+                        "\t\t\t\tContent-Type=text/plain; charset=%s%n" +
+                        "Cookies:\t\t<none>%n" +
+                        "Multiparts:\t\t<none>%n" +
+                        "Body:%n" +
+                        "{\"hello\":\"Hello world\"}%n" + "HTTP/1.1 200 OK%n" +
+                        "Content-Type: text/plain;charset=iso-8859-1%n" +
+                        "Content-Length: 23%n" +
+                        "Server: Jetty(9.3.2.v20150730)%n" +
+                        "%n" +
+                        "{\"hello\":\"Hello world\"}%n",
+                RestAssured.config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test
-    public void loggingRequestAndResponseAtTheSameTimeWhenResponseFilterIsAddedBeforeRequestFilter() throws Exception {
+    public void loggingRequestAndResponseAtTheSameTimeWhenResponseFilterIsAddedBeforeRequestFilter() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -268,11 +379,29 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/reflect");
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/reflect\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=text/plain; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR + "HTTP/1.1 200 OK\nContent-Type: text/plain;charset=iso-8859-1\nContent-Length: 23\nServer: Jetty(9.3.2.v20150730)\n\n{\"hello\":\"Hello world\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                        "Request URI:\thttp://localhost:8080/reflect%n" +
+                        "Proxy:\t\t\t<none>%n" +
+                        "Request params:\t<none>%n" +
+                        "Query params:\t<none>%n" +
+                        "Form params:\t<none>%n" +
+                        "Path params:\t<none>%n" +
+                        "Headers:\t\tAccept=*/*%n" +
+                        "\t\t\t\tContent-Type=text/plain; charset=%s%n" +
+                        "Cookies:\t\t<none>%n" +
+                        "Multiparts:\t\t<none>%n" +
+                        "Body:%n" +
+                        "{\"hello\":\"Hello world\"}%n" + "HTTP/1.1 200 OK%n" +
+                        "Content-Type: text/plain;charset=iso-8859-1%n" +
+                        "Content-Length: 23%n" +
+                        "Server: Jetty(9.3.2.v20150730)%n" +
+                        "%n" +
+                        "{\"hello\":\"Hello world\"}%n",
+                RestAssured.config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test
-    public void logEverythingResponseUsingLogSpec() throws Exception {
+    public void logEverythingResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -286,11 +415,16 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/{firstName}/{lastName}");
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json;charset=utf-8\nContent-Length: 59\nServer: Jetty(9.3.2.v20150730)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
+                "Content-Type: application/json;charset=utf-8%n" +
+                "Content-Length: 59%n" +
+                "Server: Jetty(9.3.2.v20150730)%n" +
+                "%n" +
+                "{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}%n")));
     }
 
     @Test
-    public void logIfStatusCodeIsEqualToResponseUsingLogSpec() throws Exception {
+    public void logIfStatusCodeIsEqualToResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -301,11 +435,16 @@ public class LoggingITest extends WithJetty {
                 when().
                 get("/409");
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type: text/plain;charset=utf-8\nContent-Length: 5\nServer: Jetty(9.3.2.v20150730)\n\nERROR" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 409 Conflict%n" +
+                "Content-Type: text/plain;charset=utf-8%n" +
+                "Content-Length: 5%n" +
+                "Server: Jetty(9.3.2.v20150730)%n" +
+                "%n" +
+                "ERROR%n")));
     }
 
     @Test
-    public void doesntLogIfStatusCodeIsNotEqualToResponseUsingLogSpec() throws Exception {
+    public void doesntLogIfStatusCodeIsNotEqualToResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -320,7 +459,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logIfStatusCodeMatchesResponseUsingLogSpec() throws Exception {
+    public void logIfStatusCodeMatchesResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -331,11 +470,16 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/409");
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 409 Conflict\nContent-Type: text/plain;charset=utf-8\nContent-Length: 5\nServer: Jetty(9.3.2.v20150730)\n\nERROR" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 409 Conflict%n" +
+                "Content-Type: text/plain;charset=utf-8%n" +
+                "Content-Length: 5%n" +
+                "Server: Jetty(9.3.2.v20150730)%n" +
+                "%n" +
+                "ERROR%n")));
     }
 
     @Test
-    public void logOnlyBodyUsingResponseUsingLogSpec() throws Exception {
+    public void logOnlyBodyUsingResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -350,11 +494,11 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}%n")));
     }
 
     @Test
-    public void logOnlyResponseBodyWithPrettyPrintingWhenJson() throws Exception {
+    public void logOnlyResponseBodyWithPrettyPrintingWhenJson() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -369,11 +513,15 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("{\n" +
+                "    \"firstName\": \"John\",\n" +
+                "    \"lastName\": \"Doe\",\n" +
+                "    \"fullName\": \"John Doe\"\n" +
+                "}%n")));
     }
 
     @Test
-    public void logOnlyResponseBodyWithPrettyPrintingWhenXml() throws Exception {
+    public void logOnlyResponseBodyWithPrettyPrintingWhenXml() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -385,11 +533,21 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/videos-not-formatted");
 
-        assertThat(writer.toString(), equalTo("<videos>\n  <music>\n    <title>Video Title 1</title>\n    <artist>Artist 1</artist>\n  </music>\n  <music>\n    <title>Video Title 2</title>\n    <artist>Artist 2</artist>\n    <artist>Artist 3</artist>\n  </music>\n</videos>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("<videos>\n" +
+                "  <music>\n" +
+                "    <title>Video Title 1</title>\n" +
+                "    <artist>Artist 1</artist>\n" +
+                "  </music>\n" +
+                "  <music>\n" +
+                "    <title>Video Title 2</title>\n" +
+                "    <artist>Artist 2</artist>\n" +
+                "    <artist>Artist 3</artist>\n" +
+                "  </music>\n" +
+                "</videos>%n")));
     }
 
     @Test
-    public void logOnlyResponseBodyWithPrettyPrintingWhenHtml() throws Exception {
+    public void logOnlyResponseBodyWithPrettyPrintingWhenHtml() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -401,11 +559,19 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/textHTML-not-formatted");
 
-        assertThat(writer.toString(), equalTo("<html>\n  <head>\n    <title>my title</title>\n  </head>\n  <body>\n    <p>paragraph 1</p>\n    <p>paragraph 2</p>\n  </body>\n</html>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("<html>\n" +
+                "  <head>\n" +
+                "    <title>my title</title>\n" +
+                "  </head>\n" +
+                "  <body>\n" +
+                "    <p>paragraph 1</p>\n" +
+                "    <p>paragraph 2</p>\n" +
+                "  </body>\n" +
+                "</html>%n")));
     }
 
     @Test
-    public void logAllWithPrettyPrintingWhenJson() throws Exception {
+    public void logAllWithPrettyPrintingWhenJson() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -420,11 +586,20 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json;charset=utf-8\nContent-Length: 59\nServer: Jetty(9.3.2.v20150730)\n\n{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
+                "Content-Type: application/json;charset=utf-8%n" +
+                "Content-Length: 59%n" +
+                "Server: Jetty(9.3.2.v20150730)%n" +
+                "%n" +
+                "{\n" +
+                "    \"firstName\": \"John\",\n" +
+                "    \"lastName\": \"Doe\",\n" +
+                "    \"fullName\": \"John Doe\"\n" +
+                "}%n")));
     }
 
     @Test
-    public void logAllWithPrettyPrintingUsingDSLWhenJson() throws Exception {
+    public void logAllWithPrettyPrintingUsingDSLWhenJson() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -439,11 +614,20 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json;charset=utf-8\nContent-Length: 59\nServer: Jetty(9.3.2.v20150730)\n\n{\n    \"firstName\": \"John\",\n    \"lastName\": \"Doe\",\n    \"fullName\": \"John Doe\"\n}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
+                "Content-Type: application/json;charset=utf-8%n" +
+                "Content-Length: 59%n" +
+                "Server: Jetty(9.3.2.v20150730)%n" +
+                "%n" +
+                "{\n" +
+                "    \"firstName\": \"John\",\n" +
+                "    \"lastName\": \"Doe\",\n" +
+                "    \"fullName\": \"John Doe\"\n" +
+                "}%n")));
     }
 
     @Test
-    public void logAllWithNoPrettyPrintingUsingDSLWhenJson() throws Exception {
+    public void logAllWithNoPrettyPrintingUsingDSLWhenJson() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -458,11 +642,16 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json;charset=utf-8\nContent-Length: 59\nServer: Jetty(9.3.2.v20150730)\n\n{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
+                "Content-Type: application/json;charset=utf-8%n" +
+                "Content-Length: 59%n" +
+                "Server: Jetty(9.3.2.v20150730)%n" +
+                "%n" +
+                "{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}%n")));
     }
 
     @Test
-    public void logOnlyResponseBodyWithPrettyPrintingUsingDSLWhenXml() throws Exception {
+    public void logOnlyResponseBodyWithPrettyPrintingUsingDSLWhenXml() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -474,11 +663,21 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/videos-not-formatted");
 
-        assertThat(writer.toString(), equalTo("<videos>\n  <music>\n    <title>Video Title 1</title>\n    <artist>Artist 1</artist>\n  </music>\n  <music>\n    <title>Video Title 2</title>\n    <artist>Artist 2</artist>\n    <artist>Artist 3</artist>\n  </music>\n</videos>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("<videos>\n" +
+                "  <music>\n" +
+                "    <title>Video Title 1</title>\n" +
+                "    <artist>Artist 1</artist>\n" +
+                "  </music>\n" +
+                "  <music>\n" +
+                "    <title>Video Title 2</title>\n" +
+                "    <artist>Artist 2</artist>\n" +
+                "    <artist>Artist 3</artist>\n" +
+                "  </music>\n" +
+                "</videos>%n")));
     }
 
     @Test
-    public void logOnlyResponseBodyWithNoPrettyPrintingUsingDSLWhenXml() throws Exception {
+    public void logOnlyResponseBodyWithNoPrettyPrintingUsingDSLWhenXml() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -490,11 +689,11 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/videos-not-formatted");
 
-        assertThat(writer.toString(), equalTo("<videos><music><title>Video Title 1</title><artist>Artist 1</artist></music><music><title>Video Title 2</title><artist>Artist 2</artist><artist>Artist 3</artist></music></videos>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("<videos><music><title>Video Title 1</title><artist>Artist 1</artist></music><music><title>Video Title 2</title><artist>Artist 2</artist><artist>Artist 3</artist></music></videos>%n")));
     }
 
     @Test
-    public void logOnlyStatusUsingResponseUsingLogSpec() throws Exception {
+    public void logOnlyStatusUsingResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -509,11 +708,11 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n")));
     }
 
     @Test
-    public void logOnlyHeadersUsingResponseUsingLogSpec() throws Exception {
+    public void logOnlyHeadersUsingResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -528,11 +727,13 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo("Content-Type: application/json;charset=utf-8\nContent-Length: 59\nServer: Jetty(9.3.2.v20150730)" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Content-Type: application/json;charset=utf-8%n" +
+                "Content-Length: 59%n" +
+                "Server: Jetty(9.3.2.v20150730)%n")));
     }
 
     @Test
-    public void logOnlyHeadersUsingResponseUsingLogSpecWhenMultiHeaders() throws Exception {
+    public void logOnlyHeadersUsingResponseUsingLogSpecWhenMultiHeaders() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -544,11 +745,15 @@ public class LoggingITest extends WithJetty {
                 get("/multiValueHeader");
 
 
-        assertThat(writer.toString(), equalTo("Content-Type: text/plain;charset=utf-8\nMultiHeader: Value 1\nMultiHeader: Value 2\nContent-Length: 0\nServer: Jetty(9.3.2.v20150730)" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Content-Type: text/plain;charset=utf-8%n" +
+                "MultiHeader: Value 1%n" +
+                "MultiHeader: Value 2%n" +
+                "Content-Length: 0%n" +
+                "Server: Jetty(9.3.2.v20150730)%n")));
     }
 
     @Test
-    public void logOnlyCookiesUsingResponseLogSpec() throws Exception {
+    public void logOnlyCookiesUsingResponseLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -559,11 +764,15 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/multiCookie");
 
-        assertThat(writer.toString(), allOf(startsWith("cookie1=cookieValue1;Domain=localhost\ncookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Expires="), endsWith(";Version=1" + LINE_SEPARATOR)));
+        assertThat(writer.toString(), allOf(
+                startsWith("cookie1=cookieValue1;Domain=localhost\n" +
+                        "cookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Expires="),
+                endsWith(String.format(";Version=1%n"))
+        ));
     }
 
     @Test
-    public void logBodyPrettyPrintedUsingResponseLogSpecWhenContentTypeDoesntMatchContent() throws Exception {
+    public void logBodyPrettyPrintedUsingResponseLogSpecWhenContentTypeDoesntMatchContent() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -575,11 +784,16 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/contentTypeJsonButContentIsNotJson");
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: application/json;charset=utf-8\nContent-Length: 33\nServer: Jetty(9.3.2.v20150730)\n\nThis is not a valid JSON document" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
+                "Content-Type: application/json;charset=utf-8%n" +
+                "Content-Length: 33%n" +
+                "Server: Jetty(9.3.2.v20150730)%n" +
+                "%n" +
+                "This is not a valid JSON document%n")));
     }
 
     @Test
-    public void logAllUsingRequestLogSpec() throws Exception {
+    public void logAllUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -591,11 +805,21 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/greetJSON");
 
-        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest URI:\thttp://localhost:8080/greetJSON?firstName=John&lastName=Doe\nProxy:\t\t\t<none>\nRequest params:\tfirstName=John\nQuery params:\tlastName=Doe\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                "Request URI:\thttp://localhost:8080/greetJSON?firstName=John&lastName=Doe%n" +
+                "Proxy:\t\t\t<none>%n" +
+                "Request params:\tfirstName=John%n" +
+                "Query params:\tlastName=Doe%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\t<none>%n" +
+                "Headers:\t\tAccept=*/*%n" +
+                "Cookies:\t\t<none>%n" +
+                "Multiparts:\t\t<none>%n" +
+                "Body:\t\t\t<none>%n")));
     }
 
     @Test
-    public void logParamsUsingRequestLogSpec() throws Exception {
+    public void logParamsUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -607,12 +831,16 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/greetJSON");
 
-        assertThat(writer.toString(), equalTo("Request params:\tfirstName=John\nQuery params:\tlastName=Doe\nForm params:\t<none>\nPath params:\t<none>\nMultiparts:\t\t<none>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request params:\tfirstName=John%n" +
+                "Query params:\tlastName=Doe%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\t<none>%n" +
+                "Multiparts:\t\t<none>%n")));
     }
 
 
    @Test
-    public void logNoValueParamsUsingRequestLogSpec() throws Exception {
+    public void logNoValueParamsUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -624,11 +852,15 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/noValueParam");
 
-        assertThat(writer.toString(), equalTo("Request params:\t<none>\nQuery params:\tqueryParam\nForm params:\tformParam\nPath params:\t<none>\nMultiparts:\t\t<none>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request params:\t<none>%n" +
+                "Query params:\tqueryParam%n" +
+                "Form params:\tformParam%n" +
+                "Path params:\t<none>%n" +
+                "Multiparts:\t\t<none>%n")));
     }
 
     @Test
-    public void logBodyUsingRequestLogSpec() throws Exception {
+    public void logBodyUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -640,11 +872,11 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/greetJSON");
 
-        assertThat(writer.toString(), equalTo("Body:\t\t\t<none>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Body:\t\t\t<none>%n")));
     }
 
     @Test
-    public void logBodyWithPrettyPrintingUsingRequestLogSpec() throws Exception {
+    public void logBodyWithPrettyPrintingUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -656,11 +888,14 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/body");
 
-        assertThat(writer.toString(), equalTo("Body:\n{\n    \"something\": \"else\"\n}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Body:%n" +
+                "{\n" +
+                "    \"something\": \"else\"\n" +
+                "}%n")));
     }
 
     @Test
-    public void logBodyWithPrettyPrintingUsingDslAndRequestLogSpec() throws Exception {
+    public void logBodyWithPrettyPrintingUsingDslAndRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -672,11 +907,14 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/body");
 
-        assertThat(writer.toString(), equalTo("Body:\n{\n    \"something\": \"else\"\n}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Body:%n" +
+                "{\n" +
+                "    \"something\": \"else\"\n" +
+                "}%n")));
     }
 
     @Test
-    public void logBodyWithPrettyPrintingUsingRequestLogSpecAndObjectMapping() throws Exception {
+    public void logBodyWithPrettyPrintingUsingRequestLogSpecAndObjectMapping() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -690,11 +928,11 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/body");
 
-        assertThat(writer.toString(), equalTo("Body:\n{\n    \"message\": \"My message\"\n}" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Body:%n{\n    \"message\": \"My message\"\n}%n")));
     }
 
     @Test
-    public void logBodyWithPrettyPrintingUsingRequestLogSpecAndObjectMappingWhenXML() throws Exception {
+    public void logBodyWithPrettyPrintingUsingRequestLogSpecAndObjectMappingWhenXML() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -709,11 +947,15 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/body");
 
-        assertThat(writer.toString(), equalTo("Body:\n<greeting>\n  <firstName>John</firstName>\n  <lastName>Doe</lastName>\n</greeting>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Body:%n" +
+                "<greeting>\n" +
+                "  <firstName>John</firstName>\n" +
+                "  <lastName>Doe</lastName>\n" +
+                "</greeting>%n")));
     }
 
     @Test
-    public void logCookiesUsingRequestLogSpec() throws Exception {
+    public void logCookiesUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -726,11 +968,14 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/reflect");
 
-        assertThat(writer.toString(), equalTo("Cookies:\t\tmyCookie1=myCookieValue1\n\t\t\t\tmyCookie2=myCookieValue2\n\t\t\t\tmyMultiCookie=myMultiCookieValue1\n\t\t\t\tmyMultiCookie=myMultiCookieValue2" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Cookies:\t\tmyCookie1=myCookieValue1%n" +
+                "\t\t\t\tmyCookie2=myCookieValue2%n" +
+                "\t\t\t\tmyMultiCookie=myMultiCookieValue1%n" +
+                "\t\t\t\tmyMultiCookie=myMultiCookieValue2%n")));
     }
 
     @Test
-    public void logHeadersUsingRequestLogSpec() throws Exception {
+    public void logHeadersUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -743,11 +988,15 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/multiHeaderReflect");
 
-        assertThat(writer.toString(), equalTo("Headers:\t\tmyHeader1=myHeaderValue1\n\t\t\t\tmyHeader2=myHeaderValue2\n\t\t\t\tmyMultiHeader=myMultiHeaderValue1\n\t\t\t\tmyMultiHeader=myMultiHeaderValue2\n\t\t\t\tAccept=*/*" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Headers:\t\tmyHeader1=myHeaderValue1%n" +
+                "\t\t\t\tmyHeader2=myHeaderValue2%n" +
+                "\t\t\t\tmyMultiHeader=myMultiHeaderValue1%n" +
+                "\t\t\t\tmyMultiHeader=myMultiHeaderValue2%n" +
+                "\t\t\t\tAccept=*/*%n")));
     }
 
     @Test
-    public void logBodyPrettyPrintedUsingRequestLogSpecWhenContentTypeDoesntMatchContent() throws Exception {
+    public void logBodyPrettyPrintedUsingRequestLogSpecWhenContentTypeDoesntMatchContent() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -759,11 +1008,23 @@ public class LoggingITest extends WithJetty {
         when().
                 post("/reflect");
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/reflect\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\nThis is not JSON" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                "Request URI:\thttp://localhost:8080/reflect%n" +
+                "Proxy:\t\t\t<none>%n" +
+                "Request params:\t<none>%n" +
+                "Query params:\t<none>%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\t<none>%n" +
+                "Headers:\t\tAccept=*/*%n" +
+                "\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+"%n" +
+                "Cookies:\t\t<none>%n" +
+                "Multiparts:\t\t<none>%n" +
+                "Body:%n" +
+                "This is not JSON%n")));
     }
 
     @Test
-    public void logAllWhenBasePathIsDefinedUsingRequestLogSpec() throws Exception {
+    public void logAllWhenBasePathIsDefinedUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         RestAssured.basePath = "/reflect";
@@ -779,11 +1040,24 @@ public class LoggingITest extends WithJetty {
             RestAssured.reset();
         }
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/reflect/\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=text/plain; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\nhello" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                        "Request URI:\thttp://localhost:8080/reflect/%n" +
+                        "Proxy:\t\t\t<none>%n" +
+                        "Request params:\t<none>%n" +
+                        "Query params:\t<none>%n" +
+                        "Form params:\t<none>%n" +
+                        "Path params:\t<none>%n" +
+                        "Headers:\t\tAccept=*/*%n" +
+                        "\t\t\t\tContent-Type=text/plain; charset=%s%n" +
+                        "Cookies:\t\t<none>%n" +
+                        "Multiparts:\t\t<none>%n" +
+                        "Body:%n" +
+                        "hello%n",
+                RestAssured.config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test
-    public void logAllWhenBaseURIIsDefinedUsingRequestLogSpec() throws Exception {
+    public void logAllWhenBaseURIIsDefinedUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         RestAssured.baseURI = "http://localhost:8080/reflect";
@@ -799,11 +1073,24 @@ public class LoggingITest extends WithJetty {
             RestAssured.reset();
         }
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/reflect/\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=text/plain; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\nhello" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                        "Request URI:\thttp://localhost:8080/reflect/%n" +
+                        "Proxy:\t\t\t<none>%n" +
+                        "Request params:\t<none>%n" +
+                        "Query params:\t<none>%n" +
+                        "Form params:\t<none>%n" +
+                        "Path params:\t<none>%n" +
+                        "Headers:\t\tAccept=*/*%n" +
+                        "\t\t\t\tContent-Type=text/plain; charset=%s%n" +
+                        "Cookies:\t\t<none>%n" +
+                        "Multiparts:\t\t<none>%n" +
+                        "Body:%n" +
+                        "hello%n",
+                RestAssured.config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test
-    public void logAllWhenBasePathAndBasePortAndBaseURIIsDefinedUsingRequestLogSpec() throws Exception {
+    public void logAllWhenBasePathAndBasePortAndBaseURIIsDefinedUsingRequestLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         RestAssured.baseURI = "http://localhost";
@@ -821,11 +1108,24 @@ public class LoggingITest extends WithJetty {
             RestAssured.reset();
         }
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/reflect/\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=text/plain; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\nhello" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                        "Request URI:\thttp://localhost:8080/reflect/%n" +
+                        "Proxy:\t\t\t<none>%n" +
+                        "Request params:\t<none>%n" +
+                        "Query params:\t<none>%n" +
+                        "Form params:\t<none>%n" +
+                        "Path params:\t<none>%n" +
+                        "Headers:\t\tAccept=*/*%n" +
+                        "\t\t\t\tContent-Type=text/plain; charset=%s%n" +
+                        "Cookies:\t\t<none>%n" +
+                        "Multiparts:\t\t<none>%n" +
+                        "Body:%n" +
+                        "hello%n",
+                RestAssured.config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test
-    public void logsFullyQualifiedUrlsAreLoggedCorrectly() throws Exception {
+    public void logsFullyQualifiedUrlsAreLoggedCorrectly() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -838,11 +1138,12 @@ public class LoggingITest extends WithJetty {
                     }
                 }).get("http://www.beijingchina.net.cn/transportation/train/train-to-shanghai.html");
 
-        assertThat(writer.toString(), startsWith("Request method:\tGET\nRequest URI:\thttp://www.beijingchina.net.cn/transportation/train/train-to-shanghai.html"));
+        assertThat(writer.toString(), startsWith(String.format("Request method:\tGET%n" +
+                "Request URI:\thttp://www.beijingchina.net.cn/transportation/train/train-to-shanghai.html")));
     }
 
     @Test
-    public void logsXmlNamespacesCorrectly() throws Exception {
+    public void logsXmlNamespacesCorrectly() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -853,7 +1154,10 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/namespace-example");
 
-        assertThat(writer.toString(), containsString("foo xmlns:ns=\"http://localhost/\">\n      <bar>sudo </bar>\n      <ns:bar>make me a sandwich!</ns:bar>\n    </foo>"));
+        assertThat(writer.toString(), containsString(String.format("foo xmlns:ns=\"http://localhost/\">\n" +
+                "      <bar>sudo </bar>\n" +
+                "      <ns:bar>make me a sandwich!</ns:bar>\n" +
+                "    </foo>")));
     }
 
     @Test
@@ -881,7 +1185,54 @@ public class LoggingITest extends WithJetty {
                 statusCode(200).
                 body(is(new String(bytes)));
 
-        assertThat(writer.toString(), equalTo("HTTP/1.1 200 OK\nContent-Type: text/plain;charset=utf-8\nContent-Length: 1512\nServer: Jetty(9.3.2.v20150730)\n\n<!--\n  ~ Copyright 2013 the original author or authors.\n  ~\n  ~ Licensed under the Apache License, Version 2.0 (the \"License\");\n  ~ you may not use this file except in compliance with the License.\n  ~ You may obtain a copy of the License at\n  ~\n  ~        http://www.apache.org/licenses/LICENSE-2.0\n  ~\n  ~ Unless required by applicable law or agreed to in writing, software\n  ~ distributed under the License is distributed on an \"AS IS\" BASIS,\n  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n  ~ See the License for the specific language governing permissions and\n  ~ limitations under the License.\n  -->\n<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\">\n  <xs:element name=\"records\">\n    <xs:complexType>\n      <xs:sequence>\n        <xs:element maxOccurs=\"unbounded\" ref=\"car\"/>\n      </xs:sequence>\n    </xs:complexType>\n  </xs:element>\n  <xs:element name=\"car\">\n    <xs:complexType>\n      <xs:sequence>\n        <xs:element ref=\"country\"/>\n        <xs:element ref=\"record\"/>\n      </xs:sequence>\n      <xs:attribute name=\"make\" use=\"required\" type=\"xs:NCName\"/>\n      <xs:attribute name=\"name\" use=\"required\"/>\n      <xs:attribute name=\"year\" use=\"required\" type=\"xs:integer\"/>\n    </xs:complexType>\n  </xs:element>\n  <xs:element name=\"country\" type=\"xs:string\"/>\n  <xs:element name=\"record\">\n    <xs:complexType mixed=\"true\">\n      <xs:attribute name=\"type\" use=\"required\" type=\"xs:NCName\"/>\n    </xs:complexType>\n  </xs:element>\n</xs:schema>"+LINE_SEPARATOR));
+        assertThat(writer.toString(), allOf(
+                startsWith(String.format("HTTP/1.1 200 OK%n" +
+                        "Content-Type: text/plain;charset=utf-8%n" +
+                        "Content-Length: ")),
+                endsWith(String.format("Server: Jetty(9.3.2.v20150730)%n" +
+                        "%n" +
+                        "<!--%n" +
+                        "  ~ Copyright 2013 the original author or authors.%n" +
+                        "  ~%n" +
+                        "  ~ Licensed under the Apache License, Version 2.0 (the \"License\");%n" +
+                        "  ~ you may not use this file except in compliance with the License.%n" +
+                        "  ~ You may obtain a copy of the License at%n" +
+                        "  ~%n" +
+                        "  ~        http://www.apache.org/licenses/LICENSE-2.0%n" +
+                        "  ~%n" +
+                        "  ~ Unless required by applicable law or agreed to in writing, software%n" +
+                        "  ~ distributed under the License is distributed on an \"AS IS\" BASIS,%n" +
+                        "  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.%n" +
+                        "  ~ See the License for the specific language governing permissions and%n" +
+                        "  ~ limitations under the License.%n" +
+                        "  -->%n" +
+                        "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" elementFormDefault=\"qualified\">%n" +
+                        "  <xs:element name=\"records\">%n" +
+                        "    <xs:complexType>%n" +
+                        "      <xs:sequence>%n" +
+                        "        <xs:element maxOccurs=\"unbounded\" ref=\"car\"/>%n" +
+                        "      </xs:sequence>%n" +
+                        "    </xs:complexType>%n" +
+                        "  </xs:element>%n" +
+                        "  <xs:element name=\"car\">%n" +
+                        "    <xs:complexType>%n" +
+                        "      <xs:sequence>%n" +
+                        "        <xs:element ref=\"country\"/>%n" +
+                        "        <xs:element ref=\"record\"/>%n" +
+                        "      </xs:sequence>%n" +
+                        "      <xs:attribute name=\"make\" use=\"required\" type=\"xs:NCName\"/>%n" +
+                        "      <xs:attribute name=\"name\" use=\"required\"/>%n" +
+                        "      <xs:attribute name=\"year\" use=\"required\" type=\"xs:integer\"/>%n" +
+                        "    </xs:complexType>%n" +
+                        "  </xs:element>%n" +
+                        "  <xs:element name=\"country\" type=\"xs:string\"/>%n" +
+                        "  <xs:element name=\"record\">%n" +
+                        "    <xs:complexType mixed=\"true\">%n" +
+                        "      <xs:attribute name=\"type\" use=\"required\" type=\"xs:NCName\"/>%n" +
+                        "    </xs:complexType>%n" +
+                        "  </xs:element>%n" +
+                        "</xs:schema>%n"))
+        ));
     }
 
     @Test public void
@@ -899,7 +1250,18 @@ public class LoggingITest extends WithJetty {
         then().
                 statusCode(200);
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/contentTypeAsBody\nProxy:\t\t\t<none>\nRequest params:\tfoo=bar\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/xml\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                "Request URI:\thttp://localhost:8080/contentTypeAsBody%n" +
+                "Proxy:\t\t\t<none>%n" +
+                "Request params:\tfoo=bar%n" +
+                "Query params:\t<none>%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\t<none>%n" +
+                "Headers:\t\tAccept=*/*%n" +
+                "\t\t\t\tContent-Type=application/xml%n" +
+                "Cookies:\t\t<none>%n" +
+                "Multiparts:\t\t<none>%n" +
+                "Body:\t\t\t<none>%n")));
     }
 
     @Test public void
@@ -916,7 +1278,19 @@ public class LoggingITest extends WithJetty {
         then().
                 statusCode(200);
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/contentTypeAsBody\nProxy:\t\t\t<none>\nRequest params:\tfoo=bar\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/xml; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>"+LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                        "Request URI:\thttp://localhost:8080/contentTypeAsBody%n" +
+                        "Proxy:\t\t\t<none>%n" +
+                        "Request params:\tfoo=bar%n" +
+                        "Query params:\t<none>%n" +
+                        "Form params:\t<none>%n" +
+                        "Path params:\t<none>%n" +
+                        "Headers:\t\tAccept=*/*%n" +
+                        "\t\t\t\tContent-Type=application/xml; charset=%s%n" +
+                        "Cookies:\t\t<none>%n" +
+                        "Multiparts:\t\t<none>%n" +
+                        "Body:\t\t\t<none>%n",
+                RestAssured.config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test public void
@@ -933,7 +1307,20 @@ public class LoggingITest extends WithJetty {
         then().
                 body("greeting", equalTo("Greetings John Doe"));
 
-        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\tfirstName=John\n\t\t\t\tlastName=Doe\nPath params:\t<none>\nHeaders:\t\tAccept=*/*\n\t\t\t\tContent-Type=application/x-www-form-urlencoded; charset="+ RestAssured.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>"+LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                        "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe%n" +
+                        "Proxy:\t\t\t<none>%n" +
+                        "Request params:\t<none>%n" +
+                        "Query params:\t<none>%n" +
+                        "Form params:\tfirstName=John%n" +
+                        "\t\t\t\tlastName=Doe%n" +
+                        "Path params:\t<none>%n" +
+                        "Headers:\t\tAccept=*/*%n" +
+                        "\t\t\t\tContent-Type=application/x-www-form-urlencoded; charset=%s%n" +
+                        "Cookies:\t\t<none>%n" +
+                        "Multiparts:\t\t<none>%n" +
+                        "Body:\t\t\t<none>%n",
+                RestAssured.config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test public void
@@ -950,7 +1337,7 @@ public class LoggingITest extends WithJetty {
         then().
                 statusCode(200);
 
-        assertThat(writer.toString(), equalTo("Request method:\tGET" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n")));
     }
 
     @Test public void
@@ -967,7 +1354,7 @@ public class LoggingITest extends WithJetty {
         then().
                 statusCode(200);
 
-        assertThat(writer.toString(), equalTo("Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe%n")));
     }
 
     @Test public void
@@ -984,11 +1371,11 @@ public class LoggingITest extends WithJetty {
         then().
                 statusCode(200);
 
-        assertThat(writer.toString(), equalTo("Request URI:\thttp://localhost:8080/greet?firstName=John" + URLEncoder.encode("#€", "UTF-8") + "&lastName=Doe" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo("Request URI:\thttp://localhost:8080/greet?firstName=John" + URLEncoder.encode("#€", "UTF-8") + "&lastName=Doe" + SystemUtils.LINE_SEPARATOR));
     }
 
     @Test public void
-    shows_request_log_as_without_url_encoding_when_explicitly_instructing_request_logging_filter_to_do_so() throws UnsupportedEncodingException {
+    shows_request_log_as_without_url_encoding_when_explicitly_instructing_request_logging_filter_to_do_so() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -1001,7 +1388,7 @@ public class LoggingITest extends WithJetty {
         then().
                 statusCode(200);
 
-        assertThat(writer.toString(), equalTo("Request URI:\thttp://localhost:8080/greet?firstName=John#€&lastName=Doe" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("Request URI:\thttp://localhost:8080/greet?firstName=John#€&lastName=Doe%n")));
     }
 
     // This was previously a bug (https://github.com/rest-assured/rest-assured/issues/684)
@@ -1028,6 +1415,6 @@ public class LoggingITest extends WithJetty {
         then().
                 statusCode(200);
 
-        assertThat(writer.toString(), equalTo("200" + LINE_SEPARATOR + "Content-Type: application/xml" + LINE_SEPARATOR));
+        assertThat(writer.toString(), equalTo(String.format("200%nContent-Type: application/xml%n")));
     }
 }

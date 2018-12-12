@@ -1,6 +1,6 @@
 #!/bin/sh
 read -p "Version to generate javadoc for: " version
-project_names=(json-path xml-path rest-assured rest-assured-commmon spring-mock-mvc json-schema-validator scala-support)
+project_names=(json-path xml-path rest-assured rest-assured-commmon spring-mock-mvc json-schema-validator scala-support spring-web-test-client)
 
 echo "Generating Javadoc for version ${version}."
 

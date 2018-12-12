@@ -16,27 +16,52 @@
 
 package io.restassured.module.mockmvc.internal;
 
-import io.restassured.config.EncoderConfig;
-import io.restassured.config.HeaderConfig;
+import java.io.File;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.http.*;
+import io.restassured.http.ContentType;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.http.Method;
 import io.restassured.internal.MapCreator;
 import io.restassured.internal.MapCreator.CollisionStrategy;
-import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.log.LogRepository;
-import io.restassured.internal.mapping.ObjectMapperSerializationContextImpl;
 import io.restassured.internal.mapping.ObjectMapping;
 import io.restassured.internal.support.ParameterUpdater;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
-import io.restassured.module.mockmvc.config.AsyncConfig;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
-import io.restassured.module.mockmvc.specification.*;
+import io.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme;
+import io.restassured.module.mockmvc.specification.MockMvcAuthenticationSpecification;
+import io.restassured.module.mockmvc.specification.MockMvcRequestAsyncSender;
+import io.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import io.restassured.module.spring.commons.BodyHelper;
+import io.restassured.module.spring.commons.CookieHelper;
+import io.restassured.module.spring.commons.HeaderHelper;
+import io.restassured.module.spring.commons.Serializer;
+import io.restassured.module.spring.commons.config.AsyncConfig;
+import io.restassured.module.spring.commons.config.ConfigConverter;
+import io.restassured.module.spring.commons.config.ConfigMergeUtils;
 import io.restassured.specification.ResponseSpecification;
+
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
@@ -45,13 +70,6 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.io.File;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.security.Principal;
-import java.util.*;
 
 import static io.restassured.internal.assertion.AssertParameter.notNull;
 import static io.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;
@@ -89,7 +107,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private RequestLoggingFilter requestLoggingFilter;
 
-    private final ParameterUpdater parameterUpdater = new ParameterUpdater(new ParameterUpdater.Serializer() {
+    private final ParameterUpdater
+            parameterUpdater = new ParameterUpdater(new ParameterUpdater.Serializer() {
         public String serializeIfNeeded(Object value) {
             return MockMvcRequestSpecificationImpl.this.serializeIfNeeded(value);
         }
@@ -208,88 +227,20 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification headers(Map<String, ?> headers) {
         notNull(headers, "headers");
-        List<Header> headerList = new ArrayList<Header>();
-        if (this.requestHeaders.exist()) {
-            for (Header requestHeader : this.requestHeaders) {
-                headerList.add(requestHeader);
-            }
-        }
-
-        for (Map.Entry<String, ?> stringEntry : headers.entrySet()) {
-            Object value = stringEntry.getValue();
-            if (value instanceof List) {
-                List<?> values = (List<?>) value;
-                for (Object o : values) {
-                    headerList.add(new Header(stringEntry.getKey(), serializeIfNeeded(o)));
-                }
-            } else {
-                headerList.add(new Header(stringEntry.getKey(), serializeIfNeeded(value)));
-            }
-        }
-
-        this.requestHeaders = new Headers(headerList);
+        this.requestHeaders = HeaderHelper.headers(requestHeaders, headers, cfg);
         return this;
     }
 
     public MockMvcRequestSpecification headers(Headers headers) {
         notNull(headers, "Headers");
-        if (headers.exist()) {
-            List<Header> headerList = new ArrayList<Header>();
-            if (this.requestHeaders.exist()) {
-                for (Header requestHeader : this.requestHeaders) {
-                    headerList.add(requestHeader);
-                }
-            }
-
-            for (Header requestHeader : headers) {
-                headerList.add(requestHeader);
-            }
-
-            this.requestHeaders = new Headers(removeMergedHeadersIfNeeded(headerList));
-        }
+        requestHeaders = HeaderHelper.headers(requestHeaders, headers, cfg.getHeaderConfig());
         return this;
-    }
-
-    private List<Header> removeMergedHeadersIfNeeded(List<Header> headerList) {
-        HeaderConfig headerConfig = cfg.getHeaderConfig();
-        List<Header> filteredList = new ArrayList<Header>();
-        for (Header header : headerList) {
-            String headerName = header.getName();
-            if (headerConfig.shouldOverwriteHeaderWithName(headerName)) {
-                int index = -1;
-                for (int i = 0; i < filteredList.size(); i++) {
-                    Header filteredHeader = filteredList.get(i);
-                    if (filteredHeader.hasSameNameAs(header)) {
-                        index = i;
-                        break;
-                    }
-                }
-
-                if (index != -1) {
-                    filteredList.remove(index);
-                }
-            }
-
-            filteredList.add(header);
-        }
-        return filteredList;
     }
 
     public MockMvcRequestSpecification header(final String headerName, final Object headerValue, Object... additionalHeaderValues) {
         notNull(headerName, "Header name");
         notNull(headerValue, "Header value");
-
-        List<Header> headerList = new ArrayList<Header>() {{
-            add(new Header(headerName, serializeIfNeeded(headerValue)));
-        }};
-
-        if (additionalHeaderValues != null) {
-            for (Object additionalHeaderValue : additionalHeaderValues) {
-                headerList.add(new Header(headerName, serializeIfNeeded(additionalHeaderValue)));
-            }
-        }
-
-        return headers(new Headers(headerList));
+        return headers(HeaderHelper.headers(requestHeaders, headerName, headerValue, cfg, additionalHeaderValues));
     }
 
 
@@ -380,13 +331,13 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification attribute(String attributeName, Object attributeValue) {
         notNull(attributeName, "attributeName");
         notNull(attributeValue, "attributeValue");
-        parameterUpdater.updateZeroToManyParameters(convert(cfg.getParamConfig().attributeUpdateStrategy()), attributes, attributeName, attributeValue);
+        parameterUpdater.updateZeroToManyParameters(convert(cfg.getMockMvcParamConfig().attributeUpdateStrategy()), attributes, attributeName, attributeValue);
         return this;
     }
 
     public MockMvcRequestSpecification attributes(Map<String, ?> attributesMap) {
         notNull(attributesMap, "attributesMap");
-        parameterUpdater.updateParameters(convert(cfg.getParamConfig().attributeUpdateStrategy()), (Map<String, Object>) attributesMap, attributes);
+        parameterUpdater.updateParameters(convert(cfg.getMockMvcParamConfig().attributeUpdateStrategy()), (Map<String, Object>) attributesMap, attributes);
         return this;
     }
 
@@ -412,19 +363,15 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
 
         String requestContentType = getRequestContentType();
-        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, cfg.getObjectMapperConfig(), cfg.getEncoderConfig());
+        this.requestBody = ObjectMapping.serialize(object, requestContentType,
+                Serializer.findEncoderCharsetOrReturnDefault(requestContentType, cfg), null, cfg.getObjectMapperConfig(), cfg.getEncoderConfig());
         return this;
     }
 
     public MockMvcRequestSpecification body(Object object, ObjectMapper mapper) {
         notNull(object, "object");
         notNull(mapper, "Object mapper");
-        String requestContentType = getRequestContentType();
-        ObjectMapperSerializationContextImpl ctx = new ObjectMapperSerializationContextImpl();
-        ctx.setObject(object);
-        ctx.setCharset(findEncoderCharsetOrReturnDefault(requestContentType));
-        ctx.setContentType(requestContentType);
-        this.requestBody = mapper.serialize(ctx);
+        this.requestBody = BodyHelper.toSerializedBody(object, mapper, cfg, requestHeaders);
         return this;
     }
 
@@ -432,7 +379,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         notNull(object, "object");
         notNull(mapperType, "Object mapper type");
         String requestContentType = getRequestContentType();
-        this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType, cfg.getObjectMapperConfig(), cfg.getEncoderConfig());
+        this.requestBody = ObjectMapping.serialize(object, requestContentType,
+                Serializer.findEncoderCharsetOrReturnDefault(requestContentType, cfg), mapperType, cfg.getObjectMapperConfig(), cfg.getEncoderConfig());
         return this;
     }
 
@@ -442,55 +390,20 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcRequestSpecification cookies(Map<String, ?> cookies) {
         notNull(cookies, "cookies");
-        List<Cookie> cookieList = new ArrayList<Cookie>();
-        if (this.cookies.exist()) {
-            for (Cookie requestCookie : this.cookies) {
-                cookieList.add(requestCookie);
-            }
-        }
-
-        for (Map.Entry<String, ?> stringEntry : cookies.entrySet()) {
-            cookieList.add(new Cookie.Builder(stringEntry.getKey(), serializeIfNeeded(stringEntry.getValue())).build());
-        }
-
-        this.cookies = new Cookies(cookieList);
+        this.cookies = CookieHelper.cookies(this.cookies, cookies, requestHeaders, cfg);
         return this;
     }
 
     public MockMvcRequestSpecification cookies(Cookies cookies) {
         notNull(cookies, "Cookies");
-        if (cookies.exist()) {
-            List<Cookie> cookieList = new ArrayList<Cookie>();
-            if (this.cookies.exist()) {
-                for (Cookie cookie : this.cookies) {
-                    cookieList.add(cookie);
-                }
-            }
-
-            for (Cookie cookie : cookies) {
-                cookieList.add(cookie);
-            }
-
-            this.cookies = new Cookies(cookieList);
-        }
+        this.cookies = CookieHelper.cookies(this.cookies, cookies);
         return this;
     }
 
     public MockMvcRequestSpecification cookie(final String cookieName, final Object cookieValue, Object... additionalValues) {
         notNull(cookieName, "Cookie name");
         notNull(cookieValue, "Cookie value");
-
-        List<Cookie> cookieList = new ArrayList<Cookie>() {{
-            add(new Cookie.Builder(cookieName, serializeIfNeeded(cookieValue)).build());
-        }};
-
-        if (additionalValues != null) {
-            for (Object additionalCookieValue : additionalValues) {
-                cookieList.add(new Cookie.Builder(cookieName, serializeIfNeeded(additionalCookieValue)).build());
-            }
-        }
-
-        return cookies(new Cookies(cookieList));
+        return cookies(CookieHelper.cookie(cookieName, cookieValue, requestHeaders, cfg, additionalValues));
     }
 
     public MockMvcRequestSpecification cookie(Cookie cookie) {
@@ -519,12 +432,13 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     public MockMvcRequestSpecification multiPart(String controlName, Object object, String mimeType) {
-        multiParts.add(new MockMvcMultiPart(cfg.getMultiPartConfig(), controlName, serializeIfNeeded(object, mimeType), mimeType));
+        multiParts.add(new MockMvcMultiPart(cfg.getMultiPartConfig(), controlName,
+                Serializer.serializeIfNeeded(object, mimeType, cfg), mimeType));
         return this;
     }
 
     public MockMvcRequestSpecification multiPart(String controlName, String filename, Object object, String mimeType) {
-        multiParts.add(new MockMvcMultiPart(controlName, filename, serializeIfNeeded(object, mimeType), mimeType));
+        multiParts.add(new MockMvcMultiPart(controlName, filename, Serializer.serializeIfNeeded(object, mimeType, cfg), mimeType));
         return this;
     }
 
@@ -624,64 +538,15 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return this;
     }
 
-    private static void mergeConfig(MockMvcRequestSpecificationImpl thisOne, MockMvcRequestSpecificationImpl other) {
-        RestAssuredMockMvcConfig thisConfig = thisOne.getRestAssuredMockMvcConfig();
-        RestAssuredMockMvcConfig otherConfig = other.getRestAssuredMockMvcConfig();
-        boolean thisIsUserConfigured = thisConfig.isUserConfigured();
-        boolean otherIsUserConfigured = otherConfig.isUserConfigured();
-        if (thisIsUserConfigured && otherIsUserConfigured) {
-            if (otherConfig.getDecoderConfig().isUserConfigured()) {
-                thisConfig = thisConfig.decoderConfig(otherConfig.getDecoderConfig());
-            }
-
-            if (otherConfig.getEncoderConfig().isUserConfigured()) {
-                thisConfig = thisConfig.encoderConfig(otherConfig.getEncoderConfig());
-            }
-
-            if (otherConfig.getHeaderConfig().isUserConfigured()) {
-                thisConfig = thisConfig.headerConfig(otherConfig.getHeaderConfig());
-            }
-
-            if (otherConfig.getJsonConfig().isUserConfigured()) {
-                thisConfig = thisConfig.jsonConfig(otherConfig.getJsonConfig());
-            }
-
-            if (otherConfig.getLogConfig().isUserConfigured()) {
-                thisConfig = thisConfig.logConfig(otherConfig.getLogConfig());
-            }
-
-            if (otherConfig.getObjectMapperConfig().isUserConfigured()) {
-                thisConfig = thisConfig.objectMapperConfig(otherConfig.getObjectMapperConfig());
-            }
-
-            if (otherConfig.getSessionConfig().isUserConfigured()) {
-                thisConfig = thisConfig.sessionConfig(otherConfig.getSessionConfig());
-            }
-
-            if (otherConfig.getXmlConfig().isUserConfigured()) {
-                thisConfig = thisConfig.xmlConfig(otherConfig.getXmlConfig());
-            }
-
-            if (otherConfig.getAsyncConfig().isUserConfigured()) {
-                thisConfig = thisConfig.asyncConfig(otherConfig.getAsyncConfig());
-            }
-
-            if (otherConfig.getMultiPartConfig().isUserConfigured()) {
-                thisConfig = thisConfig.multiPartConfig(otherConfig.getMultiPartConfig());
-            }
-
-            if (otherConfig.getMockMvcConfig().isUserConfigured()) {
-                thisConfig = thisConfig.mockMvcConfig(otherConfig.getMockMvcConfig());
-            }
-
-            if (otherConfig.getParamConfig().isUserConfigured()) {
-                thisConfig = thisConfig.paramConfig(otherConfig.getParamConfig());
-            }
-
-            thisOne.config(thisConfig);
-        } else if (!thisIsUserConfigured && otherIsUserConfigured) {
-            thisOne.config(otherConfig);
-        }
+    /**
+     * Set session attributes.
+     *
+     * @param sessionAttributes the session attributes
+     */
+    public MockMvcRequestSpecification sessionAttrs(Map<String, Object> sessionAttributes) {
+        notNull(sessionAttributes, "sessionAttributes");
+        parameterUpdater.updateParameters(convert(cfg.getMockMvcParamConfig().sessionAttributesUpdateStrategy()), sessionAttributes, this.sessionAttributes);
+        return this;
     }
 
     public MockMvcRequestSpecification sessionId(String sessionIdValue) {
@@ -692,14 +557,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         notNull(sessionIdName, "Session id name");
         notNull(sessionIdValue, "Session id value");
         if (cookies.hasCookieWithName(sessionIdName)) {
-            List<Cookie> allOtherCookies = new ArrayList<Cookie>();
-            for (Cookie cookie : cookies) {
-                if (!cookie.getName().equalsIgnoreCase(sessionIdName)) {
-                    allOtherCookies.add(cookie);
-                }
-            }
-            allOtherCookies.add(new Cookie.Builder(sessionIdName, sessionIdValue).build());
-            this.cookies = new Cookies(allOtherCookies);
+            CookieHelper.sessionId(cookies, sessionIdName, sessionIdValue);
         } else {
             cookie(sessionIdName, sessionIdValue);
         }
@@ -726,25 +584,8 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
                 logRepository);
     }
 
-    private String findEncoderCharsetOrReturnDefault(String contentType) {
-        String charset = CharsetExtractor.getCharsetFromContentType(contentType);
-        if (charset == null) {
-            EncoderConfig encoderConfig = cfg.getEncoderConfig();
-            if (encoderConfig.hasDefaultCharsetForContentType(contentType)) {
-                charset = encoderConfig.defaultCharsetForContentType(contentType);
-            } else {
-                charset = encoderConfig.defaultContentCharset();
-            }
-        }
-        return charset;
-    }
-
     private String serializeIfNeeded(Object object) {
-        return serializeIfNeeded(object, getRequestContentType());
-    }
-
-    private String serializeIfNeeded(Object object, String contentType) {
-        return isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, cfg.getObjectMapperConfig(), cfg.getEncoderConfig()) : object.toString();
+        return Serializer.serializeIfNeeded(object, getRequestContentType(), cfg);
     }
 
     public MockMvcResponse get(String path, Object... pathParams) {
@@ -1075,18 +916,12 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
      */
     public MockMvcRequestSpecification sessionAttr(String name, Object value) {
         notNull(name, "Session attribute name");
-        parameterUpdater.updateZeroToManyParameters(convert(cfg.getParamConfig().sessionAttributesUpdateStrategy()), sessionAttributes, name, value);
+        parameterUpdater.updateZeroToManyParameters(convert(cfg.getMockMvcParamConfig().sessionAttributesUpdateStrategy()), sessionAttributes, name, value);
         return this;
     }
 
-    /**
-     * Set session attributes.
-     *
-     * @param sessionAttributes the session attributes
-     */
-    public MockMvcRequestSpecification sessionAttrs(Map<String, Object> sessionAttributes) {
-        notNull(sessionAttributes, "sessionAttributes");
-        parameterUpdater.updateParameters(convert(cfg.getParamConfig().sessionAttributesUpdateStrategy()), sessionAttributes, this.sessionAttributes);
-        return this;
+    private void mergeConfig(MockMvcRequestSpecificationImpl thisOne, MockMvcRequestSpecificationImpl other) {
+        config((RestAssuredMockMvcConfig) ConfigMergeUtils.mergeConfig(thisOne.getRestAssuredMockMvcConfig(),
+                other.getRestAssuredMockMvcConfig()));
     }
 }

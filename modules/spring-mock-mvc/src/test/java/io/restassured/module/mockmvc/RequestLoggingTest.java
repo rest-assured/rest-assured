@@ -63,7 +63,17 @@ public class RequestLoggingTest {
                 body("id", equalTo(1)).
                 body("content", equalTo("Hello, Johan!"));
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/greetingPost\nProxy:\t\t\t<none>\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/x-www-form-urlencoded;charset="+ RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                        "Request URI:\thttp://localhost:8080/greetingPost%n" +
+                        "Proxy:\t\t\t<none>%n" +
+                        "Request params:\tname=Johan%n" +
+                        "Query params:\t<none>%n" +
+                        "Form params:\t<none>%n" +
+                        "Path params:\t<none>%n" +
+                        "Headers:\t\tContent-Type=application/x-www-form-urlencoded;charset=%s%nCookies:\t\t<none>%n" +
+                        "Multiparts:\t\t<none>%n" +
+                        "Body:\t\t\t<none>%n",
+                RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test public void
@@ -78,7 +88,17 @@ public class RequestLoggingTest {
                 body("id", equalTo(1)).
                 body("content", equalTo("Hello, Johan!"));
 
-        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest URI:\thttp://localhost:8080/greeting?name=Johan\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\tname=Johan\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\t<none>\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                "Request URI:\thttp://localhost:8080/greeting?name=Johan%n" +
+                "Proxy:\t\t\t<none>%n" +
+                "Request params:\t<none>%n" +
+                "Query params:\tname=Johan%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\t<none>%n" +
+                "Headers:\t\t<none>%n" +
+                "Cookies:\t\t<none>%n" +
+                "Multiparts:\t\t<none>%n" +
+                "Body:\t\t\t<none>%n")));
     }
 
     @Test public void
@@ -93,7 +113,16 @@ public class RequestLoggingTest {
                 body("id", equalTo(1)).
                 body("content", equalTo("Hello, Johan!"));
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/greetingPost\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\tname=Johan\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/x-www-form-urlencoded;charset="+ RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                        "Request URI:\thttp://localhost:8080/greetingPost%n" +
+                        "Proxy:\t\t\t<none>%nRequest params:\t<none>%n" +
+                        "Query params:\t<none>%n" +
+                        "Form params:\tname=Johan%n" +
+                        "Path params:\t<none>%n" +
+                        "Headers:\t\tContent-Type=application/x-www-form-urlencoded;charset=%s%nCookies:\t\t<none>%n" +
+                        "Multiparts:\t\t<none>%n" +
+                        "Body:\t\t\t<none>%n",
+                RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test public void
@@ -107,7 +136,18 @@ public class RequestLoggingTest {
         then().
                 body(equalTo("a string"));
 
-        assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/stringBody\nProxy:\t\t\t<none>\nRequest params:\t<none>\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\t<none>\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\na string\n"));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                "Request URI:\thttp://localhost:8080/stringBody%n" +
+                "Proxy:\t\t\t<none>%n" +
+                "Request params:\t<none>%n" +
+                "Query params:\t<none>%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\t<none>%n" +
+                "Headers:\t\t<none>%n" +
+                "Cookies:\t\t<none>%n" +
+                "Multiparts:\t\t<none>%n" +
+                "Body:%n" +
+                "a string%n")));
     }
 
     @Test public void
@@ -127,7 +167,17 @@ public class RequestLoggingTest {
         } finally {
             RestAssuredMockMvc.reset();
         }
-        assertThat(writer.toString(), equalTo("Request method:\tGET\nRequest URI:\thttp://localhost:8080/my-path/greetingPath?name=Johan\nProxy:\t\t\t<none>\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\t<none>\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                "Request URI:\thttp://localhost:8080/my-path/greetingPath?name=Johan%n" +
+                "Proxy:\t\t\t<none>%n" +
+                "Request params:\tname=Johan%n" +
+                "Query params:\t<none>%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\t<none>%n" +
+                "Headers:\t\t<none>%n" +
+                "Cookies:\t\t<none>%n" +
+                "Multiparts:\t\t<none>%n" +
+                "Body:\t\t\t<none>%n")));
     }
 
     @Test public void
@@ -145,7 +195,18 @@ public class RequestLoggingTest {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Request method:\tPOST\nRequest URI:\thttp://localhost:8080/greetingPost\nProxy:\t\t\t<none>\nRequest params:\tname=Johan\nQuery params:\t<none>\nForm params:\t<none>\nPath params:\t<none>\nHeaders:\t\tContent-Type=application/x-www-form-urlencoded;charset="+ RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset()+"\nCookies:\t\t<none>\nMultiparts:\t\t<none>\nBody:\t\t\t<none>\n"));
+            assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
+                            "Request URI:\thttp://localhost:8080/greetingPost%n" +
+                            "Proxy:\t\t\t<none>%n" +
+                            "Request params:\tname=Johan%n" +
+                            "Query params:\t<none>%n" +
+                            "Form params:\t<none>%n" +
+                            "Path params:\t<none>%n" +
+                            "Headers:\t\tContent-Type=application/x-www-form-urlencoded;charset=%s%n" +
+                            "Cookies:\t\t<none>%n" +
+                            "Multiparts:\t\t<none>%n" +
+                            "Body:\t\t\t<none>%n",
+                    RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset())));
         }
     }
 

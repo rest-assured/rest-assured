@@ -16,7 +16,19 @@
 
 package io.restassured.module.mockmvc.config;
 
-import io.restassured.config.*;
+import io.restassured.config.DecoderConfig;
+import io.restassured.config.EncoderConfig;
+import io.restassured.config.HeaderConfig;
+import io.restassured.config.JsonConfig;
+import io.restassured.config.LogConfig;
+import io.restassured.config.MultiPartConfig;
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.config.ParamConfig;
+import io.restassured.config.SessionConfig;
+import io.restassured.config.XmlConfig;
+import io.restassured.module.spring.commons.config.AsyncConfig;
+import io.restassured.module.spring.commons.config.ClientConfig;
+import io.restassured.module.spring.commons.config.SpecificationConfig;
 
 import static io.restassured.internal.assertion.AssertParameter.notNull;
 
@@ -29,7 +41,7 @@ import static io.restassured.internal.assertion.AssertParameter.notNull;
  * </pre>
  * </p>
  */
-public class RestAssuredMockMvcConfig implements Config {
+public class RestAssuredMockMvcConfig implements SpecificationConfig {
 
     // When adding a config here don't forget to update isUserConfigured method
     private final LogConfig logConfig;
@@ -223,6 +235,17 @@ public class RestAssuredMockMvcConfig implements Config {
                 objectMapperConfig, jsonConfig, xmlConfig, headerConfig, asyncConfig, multiPartConfig, mockMvcConfig, paramConfig);
     }
 
+    public ClientConfig getClientConfig() {
+        return getMockMvcConfig();
+    }
+
+    public SpecificationConfig clientConfig(ClientConfig clientConfig) {
+        if (!(clientConfig instanceof MockMvcConfig)) {
+            throw new IllegalArgumentException("Wrong ClientConfig type supplied");
+        }
+        return mockMvcConfig((MockMvcConfig) clientConfig);
+    }
+
     /**
      * Set the parameter config
      *
@@ -335,7 +358,18 @@ public class RestAssuredMockMvcConfig implements Config {
     /**
      * @return The Param Config
      */
-    public MockMvcParamConfig getParamConfig() {
+    public ParamConfig getParamConfig() {
+        return paramConfig;
+    }
+
+    public SpecificationConfig paramConfig(ParamConfig paramConfig) {
+        if (!(paramConfig instanceof MockMvcParamConfig)) {
+            throw new IllegalArgumentException("Wrong ClientConfig type supplied");
+        }
+        return paramConfig((MockMvcParamConfig) paramConfig);
+    }
+
+    public MockMvcParamConfig getMockMvcParamConfig() {
         return paramConfig;
     }
 

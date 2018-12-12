@@ -39,8 +39,6 @@ import static org.junit.Assert.fail;
 
 public class LogIfValidationFailsITest extends WithJetty {
 
-    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
-
     @Before
     public void setup() throws Exception {
         RestAssured.config = RestAssuredConfig.config().logConfig(LogConfig.logConfig().enablePrettyPrinting(false));
@@ -70,10 +68,20 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Request method:\tGET" + LINE_SEPARATOR + "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe" + LINE_SEPARATOR +
-                    "Proxy:\t\t\t<none>" + LINE_SEPARATOR + "Request params:\tfirstName=John" + LINE_SEPARATOR + "\t\t\t\tlastName=Doe" + LINE_SEPARATOR + "Query params:\t<none>" + LINE_SEPARATOR +
-                    "Form params:\t<none>" + LINE_SEPARATOR + "Path params:\t<none>" + LINE_SEPARATOR +
-                    "Headers:\t\tAccept=*/*" + LINE_SEPARATOR + "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON) + LINE_SEPARATOR + "Cookies:\t\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>" + LINE_SEPARATOR + "Body:\t\t\t<none>" + LINE_SEPARATOR));
+            assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                            "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe%n" +
+                            "Proxy:\t\t\t<none>%n" +
+                            "Request params:\tfirstName=John%n" +
+                            "\t\t\t\tlastName=Doe%n" +
+                            "Query params:\t<none>%n" +
+                            "Form params:\t<none>%n" +
+                            "Path params:\t<none>%n" +
+                            "Headers:\t\tAccept=*/*%n" +
+                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "Cookies:\t\t<none>%n" +
+                            "Multiparts:\t\t<none>%n" +
+                            "Body:\t\t\t<none>%n",
+                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
         }
     }
 
@@ -96,10 +104,20 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Request method:\tGET" + LINE_SEPARATOR + "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe" + LINE_SEPARATOR +
-                    "Proxy:\t\t\t<none>" + LINE_SEPARATOR + "Request params:\tfirstName=John" + LINE_SEPARATOR + "\t\t\t\tlastName=Doe" + LINE_SEPARATOR + "Query params:\t<none>" + LINE_SEPARATOR +
-                    "Form params:\t<none>" + LINE_SEPARATOR + "Path params:\t<none>" + LINE_SEPARATOR +
-                    "Headers:\t\tAccept=*/*" + LINE_SEPARATOR + "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON) + LINE_SEPARATOR + "Cookies:\t\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>" + LINE_SEPARATOR + "Body:\t\t\t<none>" + LINE_SEPARATOR));
+            assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                            "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe%n" +
+                            "Proxy:\t\t\t<none>%n" +
+                            "Request params:\tfirstName=John%n" +
+                            "\t\t\t\tlastName=Doe%n" +
+                            "Query params:\t<none>%n" +
+                            "Form params:\t<none>%n" +
+                            "Path params:\t<none>%n" +
+                            "Headers:\t\tAccept=*/*%n" +
+                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "Cookies:\t\t<none>%n" +
+                            "Multiparts:\t\t<none>%n" +
+                            "Body:\t\t\t<none>%n",
+                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
         }
     }
 
@@ -159,7 +177,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}" + LINE_SEPARATOR));
+            assertThat(writer.toString(), equalTo(String.format("{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}%n")));
         }
     }
 
@@ -181,7 +199,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}" + LINE_SEPARATOR));
+            assertThat(writer.toString(), equalTo(String.format("{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}%n")));
         }
     }
 
@@ -237,14 +255,30 @@ public class LogIfValidationFailsITest extends WithJetty {
                     statusCode(400);
 
               fail("Should throw AssertionError");
-          } catch (AssertionError e) {
-              assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+
-                      "Proxy:\t\t\t<none>"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+
-                      "Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Headers:\t\tAccept=*/*"+LINE_SEPARATOR+
-                      "\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+LINE_SEPARATOR+
-                      "Cookies:\t\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR+LINE_SEPARATOR+
-                      "HTTP/1.1 200 OK"+LINE_SEPARATOR+"Content-Type: application/json;charset=utf-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(9.3.2.v20150730)"+LINE_SEPARATOR+""+LINE_SEPARATOR+"{"+LINE_SEPARATOR+"    \"greeting\": \"Greetings John Doe\""+LINE_SEPARATOR+"}"+LINE_SEPARATOR+""));
-          }
+        } catch (AssertionError e) {
+            assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                            "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe%n" +
+                            "Proxy:\t\t\t<none>%n" +
+                            "Request params:\tfirstName=John%n" +
+                            "\t\t\t\tlastName=Doe%n" +
+                            "Query params:\t<none>%n" +
+                            "Form params:\t<none>%n" +
+                            "Path params:\t<none>%n" +
+                            "Headers:\t\tAccept=*/*%n" +
+                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "Cookies:\t\t<none>%n" +
+                            "Multiparts:\t\t<none>%n" +
+                            "Body:\t\t\t<none>%n%n" +
+                            "HTTP/1.1 200 OK%n" +
+                            "Content-Type: application/json;charset=utf-8%n" +
+                            "Content-Length: 33%n" +
+                            "Server: Jetty(9.3.2.v20150730)%n" +
+                            "%n" +
+                            "{\n" +
+                            "    \"greeting\": \"Greetings John Doe\"\n" +
+                            "}%n",
+                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+        }
     }
 
     @Test
@@ -264,14 +298,30 @@ public class LogIfValidationFailsITest extends WithJetty {
                     body("room.size()", is(2));
 
               fail("Should throw IllegalArgumentException");
-          } catch (IllegalArgumentException e) {
-              assertThat(writer.toString(), equalTo("Request method:\tGET"+LINE_SEPARATOR+"Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe"+LINE_SEPARATOR+
-                      "Proxy:\t\t\t<none>"+LINE_SEPARATOR+"Request params:\tfirstName=John"+LINE_SEPARATOR+"\t\t\t\tlastName=Doe"+LINE_SEPARATOR+"Query params:\t<none>"+LINE_SEPARATOR+
-                      "Form params:\t<none>"+LINE_SEPARATOR+"Path params:\t<none>"+LINE_SEPARATOR+"Headers:\t\tAccept=*/*"+LINE_SEPARATOR+
-                      "\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+LINE_SEPARATOR+
-                      "Cookies:\t\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>"+LINE_SEPARATOR+"Body:\t\t\t<none>" + LINE_SEPARATOR+LINE_SEPARATOR+
-                      "HTTP/1.1 200 OK"+LINE_SEPARATOR+"Content-Type: application/json;charset=utf-8"+LINE_SEPARATOR+"Content-Length: 33"+LINE_SEPARATOR+"Server: Jetty(9.3.2.v20150730)"+LINE_SEPARATOR+""+LINE_SEPARATOR+"{"+LINE_SEPARATOR+"    \"greeting\": \"Greetings John Doe\""+LINE_SEPARATOR+"}"+LINE_SEPARATOR+""));
-          }
+        } catch (IllegalArgumentException e) {
+            assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                            "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe%n" +
+                            "Proxy:\t\t\t<none>%n" +
+                            "Request params:\tfirstName=John%n" +
+                            "\t\t\t\tlastName=Doe%n" +
+                            "Query params:\t<none>%n" +
+                            "Form params:\t<none>%n" +
+                            "Path params:\t<none>%n" +
+                            "Headers:\t\tAccept=*/*%n" +
+                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "Cookies:\t\t<none>%n" +
+                            "Multiparts:\t\t<none>%n" +
+                            "Body:\t\t\t<none>%n%n" +
+                            "HTTP/1.1 200 OK%n" +
+                            "Content-Type: application/json;charset=utf-8%n" +
+                            "Content-Length: 33%n" +
+                            "Server: Jetty(9.3.2.v20150730)%n" +
+                            "%n" +
+                            "{\n" +
+                            "    \"greeting\": \"Greetings John Doe\"\n" +
+                            "}%n",
+                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+        }
     }
 
     @Test
@@ -290,12 +340,16 @@ public class LogIfValidationFailsITest extends WithJetty {
             then().
                     statusCode(400);
 
-              fail("Should throw AssertionError");
-          } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Headers:\t\tAccept=*/*" + LINE_SEPARATOR +
-                    "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON) + LINE_SEPARATOR + LINE_SEPARATOR +
-                    "Content-Type: application/json;charset=utf-8" + LINE_SEPARATOR + "Content-Length: 33" + LINE_SEPARATOR + "Server: Jetty(9.3.2.v20150730)" + LINE_SEPARATOR));
-          }
+            fail("Should throw AssertionError");
+        } catch (AssertionError e) {
+            assertThat(writer.toString(), equalTo(String.format("Headers:\t\tAccept=*/*%n" +
+                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "%n" +
+                            "Content-Type: application/json;charset=utf-8%n" +
+                            "Content-Length: 33%n" +
+                            "Server: Jetty(9.3.2.v20150730)%n",
+                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+        }
     }
 
     @Test
@@ -316,14 +370,25 @@ public class LogIfValidationFailsITest extends WithJetty {
                     statusCode(400);
 
               fail("Should throw AssertionError");
-          } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Request method:\tGET" + LINE_SEPARATOR + "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe" + LINE_SEPARATOR +
-                    "Proxy:\t\t\t<none>" + LINE_SEPARATOR + "Request params:\tfirstName=John" + LINE_SEPARATOR + "\t\t\t\tlastName=Doe" + LINE_SEPARATOR + "Query params:\t<none>" + LINE_SEPARATOR +
-                    "Form params:\t<none>" + LINE_SEPARATOR + "Path params:\t<none>" + LINE_SEPARATOR + "Headers:\t\tAccept=*/*" + LINE_SEPARATOR +
-                    "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON) + LINE_SEPARATOR +
-                    "Cookies:\t\t<none>" + LINE_SEPARATOR + "Multiparts:\t\t<none>" + LINE_SEPARATOR + "Body:\t\t\t<none>" + LINE_SEPARATOR +
-                    "Content-Type: application/json;charset=utf-8" + LINE_SEPARATOR + "Content-Length: 33" + LINE_SEPARATOR + "Server: Jetty(9.3.2.v20150730)" + LINE_SEPARATOR));
-          }
+        } catch (AssertionError e) {
+            assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                            "Request URI:\thttp://localhost:8080/greet?firstName=John&lastName=Doe%n" +
+                            "Proxy:\t\t\t<none>%n" +
+                            "Request params:\tfirstName=John%n" +
+                            "\t\t\t\tlastName=Doe%n" +
+                            "Query params:\t<none>%n" +
+                            "Form params:\t<none>%n" +
+                            "Path params:\t<none>%n" +
+                            "Headers:\t\tAccept=*/*%n" +
+                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "Cookies:\t\t<none>%n" +
+                            "Multiparts:\t\t<none>%n" +
+                            "Body:\t\t\t<none>%n" +
+                            "Content-Type: application/json;charset=utf-8%n" +
+                            "Content-Length: 33%n" +
+                            "Server: Jetty(9.3.2.v20150730)%n",
+                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+        }
     }
 
     @Test public void
@@ -349,10 +414,15 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Headers:\t\t" +
-                    "Api-Key=1234" + LINE_SEPARATOR + "\t\t\t\tAccept=*/*" + LINE_SEPARATOR +
-                    "\t\t\t\tContent-Type=application/json; charset=" + RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON) + LINE_SEPARATOR + LINE_SEPARATOR +
-                    "Content-Type: application/json;charset=utf-8\nContent-Length: 33\nServer: Jetty(9.3.2.v20150730)\n"));
+            assertThat(writer.toString(), equalTo(String.format("Headers:\t\t" +
+                            "Api-Key=1234%n" +
+                            "\t\t\t\tAccept=*/*%n" +
+                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "%n" +
+                            "Content-Type: application/json;charset=utf-8%n" +
+                            "Content-Length: 33%n" +
+                            "Server: Jetty(9.3.2.v20150730)%n",
+                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
         }
     }
 
@@ -408,7 +478,14 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo("Headers:\t\tApi-Key=1234\n\t\t\t\tAccept=*/*\n\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+"\n\nContent-Type: application/json;charset=utf-8\nContent-Length: 33\nServer: Jetty(9.3.2.v20150730)\n"));
+            assertThat(writer.toString(), equalTo(String.format("Headers:\t\tApi-Key=1234%n" +
+                            "\t\t\t\tAccept=*/*%n" +
+                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "%n" +
+                            "Content-Type: application/json;charset=utf-8%n" +
+                            "Content-Length: 33%n" +
+                            "Server: Jetty(9.3.2.v20150730)%n",
+                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
         }
     }
 

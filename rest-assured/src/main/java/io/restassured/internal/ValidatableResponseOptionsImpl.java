@@ -311,6 +311,10 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
                 impl.setConfig(impl.getConfig().logConfig(globalLogConfig));
                 impl.setLogRepository(responseSpec.getLogRepository());
             }
+            if (impl.getLogDetail() != null) {
+                logResponse(impl.getLogDetail(), globalLogConfig.isPrettyPrintingEnabled(),
+                globalLogConfig.defaultStream());
+            }
         }
 
         // Finally validate the response

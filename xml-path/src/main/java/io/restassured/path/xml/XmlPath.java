@@ -16,12 +16,13 @@
 
 package io.restassured.path.xml;
 
-import io.restassured.assertion.XMLAssertion;
+import groovy.lang.GroovyRuntimeException;
+import groovy.util.XmlSlurper;
+import groovy.util.slurpersupport.GPathResult;
+import groovy.xml.XmlUtil;
+import io.restassured.internal.assertion.AssertParameter;
 import io.restassured.internal.path.ObjectConverter;
-import io.restassured.internal.path.xml.GroovyNodeSerializer;
-import io.restassured.internal.path.xml.NodeBase;
-import io.restassured.internal.path.xml.XmlPrettifier;
-import io.restassured.internal.path.xml.XmlRenderer;
+import io.restassured.internal.path.xml.*;
 import io.restassured.internal.path.xml.mapping.XmlObjectDeserializer;
 import io.restassured.mapper.factory.JAXBObjectMapperFactory;
 import io.restassured.path.xml.config.XmlParserType;
@@ -29,11 +30,6 @@ import io.restassured.path.xml.config.XmlPathConfig;
 import io.restassured.path.xml.element.Node;
 import io.restassured.path.xml.element.NodeChildren;
 import io.restassured.path.xml.exception.XmlPathException;
-import groovy.lang.GroovyRuntimeException;
-import groovy.util.XmlSlurper;
-import groovy.util.slurpersupport.GPathResult;
-import groovy.xml.XmlUtil;
-import io.restassured.internal.assertion.AssertParameter;
 import org.apache.commons.lang3.Validate;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -45,7 +41,6 @@ import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
 
-import static io.restassured.internal.assertion.AssertParameter.notNull;
 import static io.restassured.path.xml.XmlPath.CompatibilityMode.XML;
 
 /**

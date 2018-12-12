@@ -1,8 +1,24 @@
 Changelog next version
 ----------------------
+* Upgraded json-schema-validator from version 2.2.6 to 2.2.10 (thanks to thorin for pull request)
+* Added io.restassured.mapper.TypeRef class that allows you to deserialize the response to a container with generic type. For example:
+    List<Map<String, Object>> products = get("/products").as(new TypeRef<List<Map<String, Object>>>() {});
+  Currently this only works for JSON :(
+* Add logging functionality to the ResponseSpecBuilder, i.e. you can now do:
+    ResponseSpecification spec = new ResponseSpecBuilder().log(LogDetail.ALL).build();
+  (issue 579). Thanks to Aleksandr Podkutin for pull request!
+* httpmime dependency is updated to version 4.5.3 and is now consistent with httpclient (thanks to Rüdiger Herrmann for pull request).
+
+Changelog 3.2.0 (2018-10-19)
+----------------------------
 * Added OSGi support (thanks to ponziani for pull request)
 * Make it clear that junit is only a test scope dependency (thanks to Eric Pabst for pull request)
 * Changed MockMvcParamConfig.attributeUpdateStrategy() to actually return the attributeUpdateStrategy and not the formParamsUpdateStrategy.
+* Added a spring-web-test-client module which let's you unit test Spring Webflux Controllers using the REST Assured DSL. Depend on artifact id "spring-web-test-client" using group id "io.rest-assured" from Maven to use it. Then use io.restassured.module.webtestclient.RestAssuredWebTestClient to get started (thanks to Olga Maciaszek-Sharma for pull request)
+* Upgraded to from Groovy 2.4.12 to 2.4.15
+* Upgraded Scala from version 2.11.12 to 2.12.7, this also means that the Scala support module now requires Java 8.
+* Rest Assured now requires Java 6 (previously Java 5 was required).
+* Moved XmlAssertion from io.restassured.assertion package to io.restassured.internal.path.xml since it's an internal class (issue 1051)
 
 Changelog 3.1.1 (2018-08-17)
 ----------------------------

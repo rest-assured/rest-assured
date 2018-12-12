@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2016-2018 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package io.restassured.module.mockmvc.config;
+package io.restassured.module.spring.commons.config;
 
 import io.restassured.config.Config;
 
 import java.util.concurrent.TimeUnit;
 
 /**
- * Configuration for MockMVC async requests
+ * Configuration for async requests
  */
 public class AsyncConfig implements Config {
 
@@ -66,6 +66,19 @@ public class AsyncConfig implements Config {
         this.userConfigured = isUserConfigured;
     }
 
+    public static AsyncConfig withTimeout(long duration, TimeUnit timeUnit) {
+        return new AsyncConfig(timeUnit.toMillis(duration));
+    }
+
+    /**
+     * Just syntactic sugar.
+     *
+     * @return A new instance of {@link AsyncConfig}.
+     */
+    public static AsyncConfig asyncConfig() {
+        return new AsyncConfig();
+    }
+
     /**
      * Specify the timeout for the async request in milliseconds.
      *
@@ -98,23 +111,10 @@ public class AsyncConfig implements Config {
         return userConfigured;
     }
 
-    public static AsyncConfig withTimeout(long duration, TimeUnit timeUnit) {
-        return new AsyncConfig(timeUnit.toMillis(duration));
-    }
-
     /**
      * Just syntactic sugar to make the DSL more english like.
      */
     public AsyncConfig with() {
         return this;
-    }
-
-    /**
-     * Just syntactic sugar.
-     *
-     * @return A new instance of {@link AsyncConfig}.
-     */
-    public static AsyncConfig asyncConfig() {
-        return new AsyncConfig();
     }
 }

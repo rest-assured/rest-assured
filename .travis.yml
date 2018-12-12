@@ -1,8 +1,17 @@
 language: java
 sudo: false
 
-jdk:
-  - oraclejdk8
+cache:
+  directories:
+  - $HOME/.m2
+  
+matrix:
+  include:
+    - env: PROFILES='-P osgi-tests'
+      jdk: oraclejdk8
+    - env: PROFILES=''
+      jdk: oraclejdk11
 
 script:
-  - mvn clean install -B
+  - echo JAVA_HOME = ${JAVA_HOME}
+  - mvn clean install -B $PROFILES

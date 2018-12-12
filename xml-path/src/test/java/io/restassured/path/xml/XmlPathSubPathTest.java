@@ -82,12 +82,12 @@ public class XmlPathSubPathTest {
     @Test public void
     error_messages_on_invalid_subpath_looks_ok() {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Invalid path:\n" +
-                "unexpected token: [ @ line 1, column 49.\n" +
-                "   category[0].item.price.[0]\n" +
-                "                          ^\n" +
-                "\n" +
-                "1 error");
+        exception.expectMessage(String.format("Invalid path:%n" +
+                "unexpected token: [ @ line 1, column 49.%n" +
+                "   category[0].item.price.[0]%n" +
+                "                          ^%n" +
+                "%n" +
+                "1 error"));
 
         Node category = with(XML).get("shopping");
         final float firstPrice = category.getPath("category[0].item.price.[0]", float.class);

@@ -19,6 +19,7 @@ package io.restassured.internal
 
 import io.restassured.assertion.*
 import io.restassured.config.RestAssuredConfig
+import io.restassured.filter.log.LogDetail
 import io.restassured.function.RestAssuredFunction
 import io.restassured.http.ContentType
 import io.restassured.internal.MapCreator.CollisionStrategy
@@ -29,6 +30,7 @@ import io.restassured.parsing.Parser
 import io.restassured.response.Response
 import io.restassured.specification.*
 import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.SystemUtils
 import org.apache.commons.lang3.Validate
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
@@ -58,6 +60,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   def RestAssuredConfig config
   private Response response
   private Tuple2<Matcher<Long>, TimeUnit> expectedResponseTime;
+  private LogDetail responseLogDetail
 
   private contentParser
   def LogRepository logRepository
@@ -297,6 +300,15 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return new ResponseLogSpecificationImpl(responseSpecification: this, logRepository: logRepository)
   }
 
+  ResponseSpecificationImpl logDetail(LogDetail logDetail) {
+    this.responseLogDetail = logDetail
+    this
+  }
+
+  LogDetail getLogDetail() {
+    responseLogDetail
+  }
+
   def RequestSender when() {
     return requestSpecification;
   }
@@ -496,7 +508,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         }
         if (StringUtils.isNotEmpty(responseLog)) {
           if (requestLogHasText) {
-            stream.print("\n");
+            stream.print(SystemUtils.LINE_SEPARATOR);
           }
           stream.print(responseLog)
         }

@@ -25,8 +25,7 @@ import org.apache.commons.lang3.Validate;
 import java.io.PrintStream;
 
 /**
- * Configure the logging for REST Assured. <p>Note that <i>only</i>
- * log things known to REST Assured (i.e. the request- and response specifications) will be logged. If you need to log what's <i>actually</i> sent on the wire
+ * Configure the logging for REST Assured. <p>Note that <i>only</i> things known to REST Assured (i.e. the request- and response specifications) will be logged. If you need to log what's <i>actually</i> sent on the wire
  * refer to the <a href="http://hc.apache.org/httpcomponents-client-ga/logging.html">HTTP Client logging docs</a> or use an external tool such as
  * <a href="http://www.wireshark.org/">Wireshark</a>.</p>
  */

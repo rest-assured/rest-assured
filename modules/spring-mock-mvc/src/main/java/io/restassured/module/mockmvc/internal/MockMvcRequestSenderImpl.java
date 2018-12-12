@@ -16,31 +16,55 @@
 
 package io.restassured.module.mockmvc.internal;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import io.restassured.RestAssured;
 import io.restassured.authentication.NoAuthScheme;
 import io.restassured.builder.MultiPartSpecBuilder;
-import io.restassured.config.EncoderConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.time.TimingFilter;
-import io.restassured.http.*;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.http.Method;
 import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ResponseSpecificationImpl;
 import io.restassured.internal.filter.FilterContextImpl;
-import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.support.PathSupport;
 import io.restassured.internal.util.SafeExceptionRethrower;
-import io.restassured.module.mockmvc.config.AsyncConfig;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestAsyncConfigurer;
 import io.restassured.module.mockmvc.specification.MockMvcRequestAsyncSender;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSender;
+import io.restassured.module.spring.commons.BodyHelper;
+import io.restassured.module.spring.commons.HeaderHelper;
+import io.restassured.module.spring.commons.ParamApplier;
+import io.restassured.module.spring.commons.config.AsyncConfig;
+import io.restassured.module.spring.commons.config.ConfigConverter;
 import io.restassured.specification.ResponseSpecification;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -56,20 +80,21 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.*;
-import java.net.URI;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.security.Principal;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
 import static io.restassured.internal.assertion.AssertParameter.notNull;
 import static io.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash;
 import static io.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
+import static io.restassured.module.spring.commons.HeaderHelper.mapToArray;
+import static io.restassured.module.spring.commons.RequestLogger.logParamsAndHeaders;
+import static io.restassured.module.spring.commons.RequestLogger.logRequestBody;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
-import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.HEAD;
+import static org.springframework.http.HttpMethod.OPTIONS;
+import static org.springframework.http.HttpMethod.PATCH;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 
@@ -77,7 +102,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     private static final String ATTRIBUTE_NAME_URL_TEMPLATE = "org.springframework.restdocs.urlTemplate";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String CHARSET = "charset";
-    private static final String LINE_SEPARATOR = "line.separator";
 
     private final MockMvc mockMvc;
     private final Map<String, Object> params;
@@ -242,7 +266,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     }
 
     private ResponseParserRegistrar getRpr() {
-        if (responseSpecification != null && responseSpecification instanceof ResponseSpecificationImpl) {
+        if (responseSpecification instanceof ResponseSpecificationImpl) {
             return ((ResponseSpecificationImpl) responseSpecification).getRpr();
         }
         return new ResponseParserRegistrar();
@@ -257,13 +281,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             builder.append(" ").append(resolvedException.getMessage());
         }
         return builder.toString();
-    }
-
-    private Object[] mapToArray(Map<String, ?> map) {
-        if (map == null) {
-            return new Object[0];
-        }
-        return map.values().toArray(new Object[map.values().size()]);
     }
 
     private MockMvcResponse sendRequest(HttpMethod method, String path, Object[] pathParams) {
@@ -299,7 +316,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             request = MockMvcRequestBuilders.fileUpload(uri, pathParams);
         }
 
-        String requestContentType = findContentType();
+        String requestContentType = HeaderHelper.findContentType(headers, (List<Object>) (List<?>) multiParts, config);
 
         if (!params.isEmpty()) {
             new ParamApplier(params) {
@@ -419,7 +436,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             if (requestBody instanceof byte[]) {
                 request.content((byte[]) requestBody);
             } else if (requestBody instanceof File) {
-                byte[] bytes = toByteArray((File) requestBody);
+                byte[] bytes = BodyHelper.toByteArray((File) requestBody);
                 request.content(bytes);
             } else {
                 request.content(requestBody.toString());
@@ -431,68 +448,8 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return performRequest(request);
     }
 
-    // TODO Extract content-type from headers and apply charset if needed!
-    private String findContentType() {
-        String requestContentType = headers.getValue(CONTENT_TYPE);
-        if (StringUtils.isBlank(requestContentType) && !multiParts.isEmpty()) {
-            requestContentType = "multipart/" + config.getMultiPartConfig().defaultSubtype();
-        }
-
-        EncoderConfig encoderConfig = config.getEncoderConfig();
-        if (requestContentType != null && encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !StringUtils.containsIgnoreCase(requestContentType, CHARSET)) {
-            // Append default charset to request content type
-            requestContentType += "; charset=";
-            if (encoderConfig.hasDefaultCharsetForContentType(requestContentType)) {
-                requestContentType += encoderConfig.defaultCharsetForContentType(requestContentType);
-            } else {
-                requestContentType += encoderConfig.defaultContentCharset();
-            }
-        }
-        return requestContentType;
-    }
-
-
-    private static byte[] toByteArray(File file) {
-        ByteArrayOutputStream ous = null;
-        InputStream ios = null;
-        try {
-            byte[] buffer = new byte[4096];
-            ous = new ByteArrayOutputStream();
-            ios = new FileInputStream(file);
-            int read = 0;
-            while ((read = ios.read(buffer)) != -1) {
-                ous.write(buffer, 0, read);
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if (ous != null) {
-                    ous.close();
-                }
-                if (ios != null) {
-                    ios.close();
-                }
-            } catch (IOException ignored) {
-            }
-        }
-
-        return ous.toByteArray();
-    }
-
     private void setContentTypeToApplicationFormUrlEncoded(MockHttpServletRequestBuilder request) {
-        String contentType = APPLICATION_FORM_URLENCODED_VALUE;
-        EncoderConfig encoderConfig = config.getEncoderConfig();
-        if (encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()) {
-            contentType += "; charset=";
-            if (encoderConfig.hasDefaultCharsetForContentType(contentType)) {
-                contentType += encoderConfig.defaultCharsetForContentType(contentType);
-            } else {
-                contentType += encoderConfig.defaultContentCharset();
-
-            }
-        }
-        MediaType mediaType = MediaType.parseMediaType(contentType);
+        MediaType mediaType = MediaType.parseMediaType(HeaderHelper.buildApplicationFormEncodedContentType(config, APPLICATION_FORM_URLENCODED_VALUE));
         request.contentType(mediaType);
         List<Header> newHeaders = new ArrayList<Header>(headers.asList());
         newHeaders.add(new Header(CONTENT_TYPE, mediaType.toString()));
@@ -510,65 +467,8 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
         final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("http://localhost", RestAssured.UNDEFINED_PORT, "", new NoAuthScheme(), Collections.<Filter>emptyList(),
                 null, true, ConfigConverter.convertToRestAssuredConfig(config), logRepository, null);
-        reqSpec.setMethod(method.toString());
-        reqSpec.path(uri);
-        reqSpec.buildUnnamedPathParameterTuples(unnamedPathParams);
-        if (params != null) {
-            new ParamLogger(params) {
-                protected void logParam(String paramName, Object paramValue) {
-                    reqSpec.param(paramName, paramValue);
-                }
-            }.logParams();
-        }
-
-        if (queryParams != null) {
-            new ParamLogger(queryParams) {
-                protected void logParam(String paramName, Object paramValue) {
-                    reqSpec.queryParam(paramName, paramValue);
-                }
-            }.logParams();
-        }
-
-        if (formParams != null) {
-            new ParamLogger(formParams) {
-                protected void logParam(String paramName, Object paramValue) {
-                    reqSpec.formParam(paramName, paramValue);
-                }
-            }.logParams();
-        }
-
-        if (headers != null) {
-            for (Header header : headers) {
-                reqSpec.header(header);
-            }
-        }
-
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                reqSpec.cookie(cookie);
-            }
-        }
-
-        if (requestBody != null) {
-            if (requestBody instanceof byte[]) {
-                reqSpec.body((byte[]) requestBody);
-            } else if (requestBody instanceof File) {
-                String contentType = findContentType();
-                String charset = null;
-                if (StringUtils.isNotBlank(contentType)) {
-                    charset = CharsetExtractor.getCharsetFromContentType(contentType);
-                }
-
-                if (charset == null) {
-                    charset = Charset.defaultCharset().toString();
-                }
-
-                String string = fileToString((File) requestBody, charset);
-                reqSpec.body(string);
-            } else {
-                reqSpec.body(requestBody);
-            }
-        }
+        logParamsAndHeaders(reqSpec, method.toString(), uri, unnamedPathParams, params, queryParams, formParams, headers, cookies);
+        logRequestBody(reqSpec, requestBody, headers, (List<Object>) (List<?>) multiParts, config);
 
         if (multiParts != null) {
             for (MockMvcMultiPart multiPart : multiParts) {
@@ -583,26 +483,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         String uriPath = PathSupport.getPath(uri);
         String originalUriPath = PathSupport.getPath(originalPath);
         requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(uri, originalUriPath, uriPath, uri, uri, new Object[0], method.toString(), null, Collections.<Filter>emptyList().iterator(), new HashMap<String, Object>()));
-    }
-
-    private String fileToString(File file, String charset) {
-        StringBuilder fileContents = new StringBuilder((int) file.length());
-        Scanner scanner;
-        try {
-            scanner = new Scanner(file, charset);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        String lineSeparator = System.getProperty(LINE_SEPARATOR);
-
-        try {
-            while (scanner.hasNextLine()) {
-                fileContents.append(scanner.nextLine()).append(lineSeparator);
-            }
-            return fileContents.toString();
-        } finally {
-            scanner.close();
-        }
     }
 
     public MockMvcResponse get(String path, Object... pathParams) {
@@ -804,63 +684,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams,
                 attributes, config, requestBody, headers, cookies, sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor,
                 basePath, responseSpecification, authentication, logRepository, true);
-    }
-
-    private abstract static class ParamApplier {
-        private Map<String, Object> map;
-
-        protected ParamApplier(Map<String, Object> parameters) {
-            this.map = parameters;
-        }
-
-        public void applyParams() {
-            for (Map.Entry<String, Object> listEntry : map.entrySet()) {
-                Object value = listEntry.getValue();
-                String[] stringValues;
-                if (value instanceof Collection) {
-                    Collection col = (Collection) value;
-                    stringValues = new String[col.size()];
-                    int index = 0;
-                    for (Object val : col) {
-                        stringValues[index] = val == null ? null : val.toString();
-                        index++;
-                    }
-                } else {
-                    stringValues = new String[1];
-                    stringValues[0] = value == null ? null : value.toString();
-                }
-                applyParam(listEntry.getKey(), stringValues);
-            }
-        }
-
-        protected abstract void applyParam(String paramName, String[] paramValues);
-    }
-
-    private abstract static class ParamLogger {
-        private Map<String, Object> map;
-
-        protected ParamLogger(Map<String, Object> parameters) {
-            this.map = parameters;
-        }
-
-        public void logParams() {
-            for (Map.Entry<String, Object> stringListEntry : map.entrySet()) {
-                Object value = stringListEntry.getValue();
-                Collection<Object> values;
-                if (value instanceof Collection) {
-                    values = (Collection<Object>) value;
-                } else {
-                    values = new ArrayList<Object>();
-                    values.add(value);
-                }
-
-                for (Object theValue : values) {
-                    logParam(stringListEntry.getKey(), theValue);
-                }
-            }
-        }
-
-        protected abstract void logParam(String paramName, Object paramValue);
     }
 
     private HttpMethod toValidHttpMethod(String method) {

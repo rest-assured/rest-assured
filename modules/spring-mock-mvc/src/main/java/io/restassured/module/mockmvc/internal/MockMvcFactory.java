@@ -17,6 +17,7 @@
 package io.restassured.module.mockmvc.internal;
 
 import io.restassured.module.mockmvc.config.MockMvcConfig;
+
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;

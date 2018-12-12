@@ -15,7 +15,7 @@
  */
 
 
-package io.restassured.assertion
+package io.restassured.internal.path.xml
 
 import groovy.util.slurpersupport.*
 import io.restassured.internal.assertion.Assertion

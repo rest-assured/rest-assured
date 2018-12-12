@@ -16,20 +16,21 @@
 
 package io.restassured.path.json;
 
+import groovy.json.JsonBuilder;
+import groovy.json.JsonOutput;
 import io.restassured.internal.assertion.AssertParameter;
 import io.restassured.internal.path.ObjectConverter;
 import io.restassured.internal.path.json.ConfigurableJsonSlurper;
 import io.restassured.internal.path.json.JSONAssertion;
 import io.restassured.internal.path.json.JsonPrettifier;
 import io.restassured.internal.path.json.mapping.JsonObjectDeserializer;
+import io.restassured.mapper.TypeRef;
 import io.restassured.mapper.factory.GsonObjectMapperFactory;
 import io.restassured.mapper.factory.Jackson1ObjectMapperFactory;
 import io.restassured.mapper.factory.Jackson2ObjectMapperFactory;
 import io.restassured.path.json.config.JsonParserType;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.json.exception.JsonPathException;
-import groovy.json.JsonBuilder;
-import groovy.json.JsonOutput;
 
 import java.io.*;
 import java.net.URL;
@@ -556,6 +557,61 @@ public class JsonPath {
         }
 
         return jsonStringToObject((String) object, objectType);
+    }
+
+    /**
+     * Get the result of a Object path expression as a java Object with generic type.
+     * E.g. given the following Object document:
+     * <pre>
+     * { "store": {
+     *   "book": [
+     *    { "category": "reference",
+     *      "author": "Nigel Rees",
+     *      "title": "Sayings of the Century",
+     *      "price": 8.95
+     *    },
+     *    { "category": "fiction",
+     *      "author": "Evelyn Waugh",
+     *      "title": "Sword of Honour",
+     *      "price": 12.99
+     *    },
+     *    { "category": "fiction",
+     *      "author": "Herman Melville",
+     *      "title": "Moby Dick",
+     *      "isbn": "0-553-21311-3",
+     *      "price": 8.99
+     *    },
+     *    { "category": "fiction",
+     *      "author": "J. R. R. Tolkien",
+     *      "title": "The Lord of the Rings",
+     *      "isbn": "0-395-19395-8",
+     *      "price": 22.99
+     *    }
+     *  ],
+     *    "bicycle": {
+     *      "color": "red",
+     *      "price": 19.95
+     *    }
+     *  }
+     * }
+     * </pre>
+     * And you want to get a book as a <code>Map&lt;String, Object&gt;</code>:
+     * <p/>
+     * Then
+     * <pre>
+     * Map&lt;String, Object&gt; book = from(Object).getObject("store.book[2]", new TypeRef&lt;Map&lt;String, Object&gt;&gt;() {});
+     * </pre>
+     * <p/>
+     * maps the second book to a Book instance.
+     *
+     * @param path       The path to the object to map
+     * @param typeRef    The class type of the expected object
+     * @param <T>        The type of the expected object
+     * @return The object
+     */
+    public <T> T getObject(String path, TypeRef<T> typeRef) {
+        AssertParameter.notNull("objectType", "Type ref");
+        return getObject(path, typeRef.getTypeAsClass());
     }
 
     /**

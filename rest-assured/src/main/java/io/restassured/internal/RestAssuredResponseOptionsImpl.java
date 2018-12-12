@@ -24,6 +24,7 @@ import io.restassured.http.Headers;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
+import io.restassured.mapper.TypeRef;
 import io.restassured.path.json.JsonPath;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.xml.XmlPath;
@@ -171,6 +172,11 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public <T> T as(Class<T> cls, ObjectMapper mapper) {
         return groovyResponse.as(cls, mapper);
+    }
+
+    @Override
+    public <T> T as(TypeRef<T> typeRef) {
+        return groovyResponse.as(typeRef, this);
     }
 
     public <T> T as(Type cls) {

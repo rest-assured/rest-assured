@@ -16,15 +16,15 @@
 
 package io.restassured.module.mockmvc;
 
+import java.util.concurrent.TimeUnit;
+
 import io.restassured.module.mockmvc.http.PostAsyncController;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.concurrent.TimeUnit;
-
-import static io.restassured.module.mockmvc.config.AsyncConfig.withTimeout;
 import static io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig.newConfig;
+import static io.restassured.module.spring.commons.config.AsyncConfig.withTimeout;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
