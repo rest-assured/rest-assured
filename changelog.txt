@@ -8,6 +8,7 @@ Changelog next version
     ResponseSpecification spec = new ResponseSpecBuilder().log(LogDetail.ALL).build();
   (issue 579). Thanks to Aleksandr Podkutin for pull request!
 * httpmime dependency is updated to version 4.5.3 and is now consistent with httpclient (thanks to Rüdiger Herrmann for pull request).
+* Updated commons-fileupload from 1.3.1 to 1.3.3 to fix security issues
 
 Changelog 3.2.0 (2018-10-19)
 ----------------------------
