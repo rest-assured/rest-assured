@@ -20,12 +20,12 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-parent</artifactId>
-        <version>3.2.1-SNAPSHOT</version>
+        <version>3.3.0</version>
     </parent>
     <groupId>io.rest-assured</groupId>
     <artifactId>rest-assured-common</artifactId>
     <packaging>bundle</packaging>
-    <version>3.2.1-SNAPSHOT</version>
+    <version>3.3.0</version>
     <name>rest-assured-common</name>
     <url>http://maven.apache.org</url>
     <properties>
