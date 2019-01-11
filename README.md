@@ -11,9 +11,9 @@ languages into the Java domain.
 
 
 ## News 
+* 2019-01-11: REST Assured [3.3.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.3.0-dist.zip) is released. This release introduces better support for [de-serializing with generics](https://github.com/rest-assured/rest-assured/wiki/Usage#deserialization-with-generics), [Java 9 split packages](https://github.com/rest-assured/rest-assured/wiki/GettingStarted#java-9), [ResponseValidationListeners](https://github.com/rest-assured/rest-assured/wiki/Usage#failure-config) as well as bug fixes and various improvements. Please see [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes33) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2018-10-19: REST Assured [3.2.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.2.0-dist.zip) is released. This release adds support for Java 11 and OSGi. It also includes support for [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) by using the new [spring-web-test-client](https://github.com/rest-assured/rest-assured/wiki/Usage#spring-web-test-client-module) module. Please see [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes32) and [getting started guide](https://github.com/rest-assured/rest-assured/wiki/GettingStarted) for more details.
 * 2018-10-05: Johan blogs on how to configure REST Assured to log to disk instead of to the console. You can find the blog post [here](http://code.haleby.se/2018/10/05/logging-to-disk-with-rest-assured/). Also added info about this to the [FAQ](https://github.com/rest-assured/rest-assured/wiki/FAQ#4-logging-rest-assured-logs-to-disk). 
-* 2018-08-17: REST Assured [3.1.1](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.1.1-dist.zip) is released with bug fixes and improvements. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for details.
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
@@ -80,11 +80,11 @@ REST Assured supports any HTTP method but has explicit support for *POST*, *GET*
 * [Getting started](https://github.com/rest-assured/rest-assured/wiki/GettingStarted)
 * [Downloads](https://github.com/rest-assured/rest-assured/wiki/Downloads)
 * [Usage Guide](https://github.com/rest-assured/rest-assured/wiki/Usage) (click [here](https://github.com/rest-assured/rest-assured/wiki/Usage_Legacy) for legacy documentation)
-* [Javadoc](http://www.javadoc.io/doc/io.rest-assured/rest-assured/3.2.0)
-* [Rest Assured Javadoc](http://static.javadoc.io/io.rest-assured/rest-assured/3.2.0/io/restassured/RestAssured.html)
+* [Javadoc](http://www.javadoc.io/doc/io.rest-assured/rest-assured/3.3.0)
+* [Rest Assured Javadoc](http://static.javadoc.io/io.rest-assured/rest-assured/3.3.0/io/restassured/RestAssured.html)
 * [Rest AssuredMockMvc Javadoc](http://static.javadoc.io/io.rest-assured/spring-mock-mvc/3.1.1/io/restassured/module/mockmvc/RestAssuredMockMvc.html)
-* [XmlPath Javadoc](http://static.javadoc.io/io.rest-assured/xml-path/3.2.0/io/restassured/path/xml/XmlPath.html)
-* [JsonPath Javadoc](http://static.javadoc.io/io.rest-assured/json-path/3.2.0/io/restassured/path/json/JsonPath.html)
+* [XmlPath Javadoc](http://static.javadoc.io/io.rest-assured/xml-path/3.3.0/io/restassured/path/xml/XmlPath.html)
+* [JsonPath Javadoc](http://static.javadoc.io/io.rest-assured/json-path/3.3.0/io/restassured/path/json/JsonPath.html)
 * [Release Notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes)
 * [FAQ](https://github.com/rest-assured/rest-assured/wiki/FAQ)
 
