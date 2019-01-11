@@ -17,13 +17,17 @@
 package io.restassured.config;
 
 import io.restassured.internal.LogRequestAndResponseOnFailListener;
-import io.restassured.internal.ResponseValidationFailureListener;
+import io.restassured.listener.ResponseValidationFailureListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
+import static io.restassured.internal.assertion.AssertParameter.notNull;
+
 /**
- * Configure the failure listeners. It allows registering instances of {@link io.restassured.internal.ResponseValidationFailureListener}
+ * Configure the failure listeners. It allows registering instances of {@link ResponseValidationFailureListener}
  * that are invoked when validation fails for any response with relevant parameters.
  * Listeners solve the problem when you want to access response after failure - normally it is impossible
  * because validation failure ends with exception rather then returning anything that could be used to extract
@@ -49,6 +53,7 @@ public class FailureConfig implements Config {
 
     private FailureConfig(List<ResponseValidationFailureListener> failureListeners, boolean isUserConfigured) {
         this.isUserConfigured = isUserConfigured;
+        this.failureListeners = new ArrayList<ResponseValidationFailureListener>();
         this.failureListeners.addAll(failureListeners);
         this.failureListeners.add(DEFAULT_LOG_LISTENER);
     }
@@ -59,5 +64,32 @@ public class FailureConfig implements Config {
 
     public List<ResponseValidationFailureListener> getFailureListeners() {
         return failureListeners;
+    }
+
+    public static FailureConfig failureConfig() {
+        return new FailureConfig();
+    }
+
+    /**
+     * Syntactic sugar.
+     *
+     * @return The same failure config instance.
+     */
+    public FailureConfig with() {
+        return this;
+    }
+
+    public FailureConfig failureListeners(Collection<ResponseValidationFailureListener> responseValidationFailureListeners) {
+        return new FailureConfig(new ArrayList<ResponseValidationFailureListener>(responseValidationFailureListeners), true);
+    }
+
+    public FailureConfig failureListeners(ResponseValidationFailureListener first, ResponseValidationFailureListener... more) {
+        notNull(first, ResponseValidationFailureListener.class.getSimpleName());
+        List<ResponseValidationFailureListener> listeners = new ArrayList<ResponseValidationFailureListener>();
+        listeners.add(first);
+        if (more != null) {
+            Collections.addAll(listeners, more);
+        }
+        return failureListeners(listeners);
     }
 }

@@ -4,6 +4,7 @@ import io.restassured.config.FailureConfig
 import io.restassured.config.LogConfig
 import io.restassured.config.RestAssuredConfig
 import io.restassured.internal.log.LogRepository
+import io.restassured.listener.ResponseValidationFailureListener
 import io.restassured.response.Response
 import io.restassured.specification.RequestSpecification
 import org.junit.Test
@@ -13,11 +14,7 @@ import java.nio.charset.Charset
 import static org.hamcrest.CoreMatchers.equalTo
 import static org.mockito.Matchers.any
 import static org.mockito.Matchers.same
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.never
-import static org.mockito.Mockito.times
-import static org.mockito.Mockito.verify
-import static org.mockito.Mockito.when
+import static org.mockito.Mockito.*
 
 /**
  * Initial state for all checks here is response spec with response body loaded into its logRepository. This
@@ -60,7 +57,7 @@ class ResponseSpecificationImplTest {
     @Test
     void "Should call custom failure listener when validation fails"() {
         //given
-        ResponseValidationFailureListener customListener = mock(ResponseValidationFailureListener)
+      ResponseValidationFailureListener customListener = mock(ResponseValidationFailureListener)
         ResponseSpecificationImpl respSpecImpl = createRespSpec(UNEXPECTED_BODY, System.out, customListener)
         Response matchingResponse = when(mock(Response).asString()).thenReturn(UNEXPECTED_BODY).getMock()
         //when
