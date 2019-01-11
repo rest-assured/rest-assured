@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 3.3.0 (2019-01-11)
+----------------------------
 * Upgraded json-schema-validator from version 2.2.6 to 2.2.10 (thanks to thorin for pull request)
 * Added io.restassured.mapper.TypeRef class that allows you to deserialize the response to a container with generic type. For example:
     List<Map<String, Object>> products = get("/products").as(new TypeRef<List<Map<String, Object>>>() {});
