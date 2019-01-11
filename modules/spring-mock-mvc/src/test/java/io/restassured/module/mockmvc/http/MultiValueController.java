@@ -15,6 +15,7 @@
  */
 package io.restassured.module.mockmvc.http;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,15 +32,15 @@ public class MultiValueController {
 
     @RequestMapping(value = "/multiValueParam", method = {POST, GET}, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String multiValueParam(@RequestParam("list") List<String> listValues) {
-        return "{ \"list\" : \"" + String.join(",", listValues) + "\" }";
+        return "{ \"list\" : \"" + StringUtils.join(listValues, ",") + "\" }";
     }
 
     @RequestMapping(value = "/threeMultiValueParam", method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String threeMultiValueParam(@RequestParam("list") List<String> list1Values,
                                                      @RequestParam("list2") List<String> list2Values,
                                                      @RequestParam("list3") List<String> list3Values) {
-        return "{ \"list\" : \"" + String.join(",", list1Values) + "\"," +
-                " \"list2\" : \"" + String.join(",", list2Values) + "\", " +
-                " \"list3\" : \"" + String.join(",", list3Values) + "\" }";
+        return "{ \"list\" : \"" + StringUtils.join(list1Values, ",") + "\"," +
+                " \"list2\" : \"" + StringUtils.join(list2Values, ",") + "\", " +
+                " \"list3\" : \"" + StringUtils.join(list3Values, ",") + "\" }";
     }
 }

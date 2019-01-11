@@ -16,22 +16,22 @@
 
 package io.restassured.module.mockmvc;
 
+import io.restassured.config.EncoderConfig;
 import io.restassured.http.ContentType;
 import io.restassured.module.mockmvc.http.GreetingController;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
-import io.restassured.config.EncoderConfig;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.util.MultiValueMap;
 
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ContentTypeTest {
+
+    private static final String UTF_16 = "UTF-16";
 
     @Test public void
     adds_default_charset_to_content_type_by_default() {
@@ -60,7 +60,7 @@ public class ContentTypeTest {
 
         RestAssuredMockMvc.given().
                 standaloneSetup(new GreetingController()).
-                config(RestAssuredMockMvc.config().encoderConfig(EncoderConfig.encoderConfig().defaultCharsetForContentType(StandardCharsets.UTF_16.toString(), ContentType.JSON))).
+                config(RestAssuredMockMvc.config().encoderConfig(EncoderConfig.encoderConfig().defaultCharsetForContentType(UTF_16, ContentType.JSON))).
                 contentType(ContentType.JSON).
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
@@ -73,7 +73,7 @@ public class ContentTypeTest {
         then().
                statusCode(200);
 
-        assertThat(contentType.get()).isEqualTo("application/json;charset=" + StandardCharsets.UTF_16.toString());
+        assertThat(contentType.get()).isEqualTo("application/json;charset=" + UTF_16);
         assertThat(contentType.get()).doesNotContain(RestAssuredMockMvc.config().getEncoderConfig().defaultContentCharset());
     }
 
@@ -83,7 +83,7 @@ public class ContentTypeTest {
 
         RestAssuredMockMvc.given().
                 standaloneSetup(new GreetingController()).
-                contentType(ContentType.JSON.withCharset("UTF-16")).
+                contentType(ContentType.JSON.withCharset(UTF_16)).
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
                         MultiValueMap<String, Object> headers = Whitebox.getInternalState(requestBuilder, "headers");
