@@ -79,6 +79,7 @@
     <modules>
         <module>modules</module>
         <module>rest-assured</module>
+        <module>rest-assured-all</module>
         <module>examples</module>
         <module>json-path</module>
         <module>rest-assured-common</module>
