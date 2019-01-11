@@ -8,5 +8,5 @@ target
 .springBeans
 .idea
 classes/
-examples/rest-assured-itest-java/lib/
 lib/
+rest-assured-all/dependency-reduced-pom.xml
