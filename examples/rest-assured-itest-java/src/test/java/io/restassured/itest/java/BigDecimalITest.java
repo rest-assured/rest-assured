@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 
+import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static io.restassured.config.JsonConfig.jsonConfig;
 import static org.hamcrest.Matchers.equalTo;
@@ -44,7 +45,19 @@ public class BigDecimalITest extends WithJetty {
     }
 
     @Test public void
-    big_decimal_works() {
+    big_decimal_works_when_configured_in_given_clause() {
+        given().
+                config(RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL))).
+        when().
+                get("/amount").
+        then().
+                body("amount", equalTo(new BigDecimal("250.00")));
+    }
+
+    @Test public void
+    big_decimal_works_when_configured_statically() {
+        RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL));
+
         when().
                 get("/amount").
         then().
@@ -53,6 +66,8 @@ public class BigDecimalITest extends WithJetty {
 
     @Test public void
     floats_are_used_as_big_decimal_in_anonymous_list_with_numbers_when_configured_accordingly() {
+        RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL));
+
         when().
                 get("/anonymous_list_with_numbers").
         then().
