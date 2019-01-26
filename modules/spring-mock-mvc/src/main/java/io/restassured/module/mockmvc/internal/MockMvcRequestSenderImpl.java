@@ -362,15 +362,14 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             request.requestAttr(ATTRIBUTE_NAME_URL_TEMPLATE, PathSupport.getPath(uri));
         }
 
-
-        if (StringUtils.isNotBlank(requestContentType)) {
-            request.contentType(MediaType.parseMediaType(requestContentType));
-        }
-
         if (headers.exist()) {
             for (Header header : headers) {
                 request.header(header.getName(), header.getValue());
             }
+        }
+
+        if (StringUtils.isNotBlank(requestContentType)) {
+            request.contentType(MediaType.parseMediaType(requestContentType));
         }
 
         if (cookies.exist()) {

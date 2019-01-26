@@ -25,6 +25,8 @@ import org.powermock.reflect.Whitebox;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.util.MultiValueMap;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -118,5 +120,54 @@ public class ContentTypeTest {
                 statusCode(200);
 
         assertThat(contentType.get()).isEqualTo("application/json");
+    }
+
+    @Test public void
+    doesnt_duplication_of_content_type_with_default_charset() {
+        final List<String> contentTypes = new ArrayList<String>();
+
+        RestAssuredMockMvc.given().
+                standaloneSetup(new GreetingController()).
+                contentType(ContentType.JSON).
+                interceptor(new MockHttpServletRequestBuilderInterceptor() {
+                    public void intercept(MockHttpServletRequestBuilder requestBuilder) {
+                        MultiValueMap<String, Object> headers = Whitebox.getInternalState(requestBuilder, "headers");
+                        for (Object header : headers.get("Content-Type")) {
+                            contentTypes.add(String.valueOf(header));
+                        }
+                    }
+                }).
+        when().
+                get("/greeting?name={name}", "Johan").
+        then().
+                statusCode(200);
+
+        assertThat(contentTypes.size()).isEqualTo(1);
+        assertThat(contentTypes.get(0)).isEqualTo("application/json;charset=ISO-8859-1");
+    }
+
+    @Test public void
+    doesnt_duplication_of_content_type() {
+        final List<String> contentTypes = new ArrayList<String>();
+
+        RestAssuredMockMvc.given().
+                config(RestAssuredMockMvc.config().encoderConfig(EncoderConfig.encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
+                standaloneSetup(new GreetingController()).
+                contentType(ContentType.JSON).
+                interceptor(new MockHttpServletRequestBuilderInterceptor() {
+                    public void intercept(MockHttpServletRequestBuilder requestBuilder) {
+                        MultiValueMap<String, Object> headers = Whitebox.getInternalState(requestBuilder, "headers");
+                        for (Object header : headers.get("Content-Type")) {
+                            contentTypes.add(String.valueOf(header));
+                        }
+                    }
+                }).
+        when().
+                get("/greeting?name={name}", "Johan").
+        then().
+                statusCode(200);
+
+        assertThat(contentTypes.size()).isEqualTo(1);
+        assertThat(contentTypes.get(0)).isEqualTo("application/json");
     }
 }
