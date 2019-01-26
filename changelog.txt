@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* Fix duplication of content type in the Spring MockMvc module (thanks to Gemini Kim for pull request)
+
 Changelog 3.3.0 (2019-01-11)
 ----------------------------
 * Upgraded json-schema-validator from version 2.2.6 to 2.2.10 (thanks to thorin for pull request)
