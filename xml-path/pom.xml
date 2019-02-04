@@ -39,7 +39,11 @@
                 <configuration>
                     <instructions>
                         <Export-Package>io.restassured.*</Export-Package>
-                        <Import-Package>*</Import-Package>
+                        <Import-Package>
+							groovy.*;version="${groovy.range}",
+                            org.codehaus.groovy.*;version="${groovy.range}",
+                            *
+						</Import-Package>
                         <Private-Package />
                     </instructions>
                 </configuration>
