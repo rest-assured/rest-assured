@@ -1,7 +1,7 @@
 Changelog next version
 ----------------------
 * Fix duplication of content type in the Spring MockMvc module (thanks to Gemini Kim for pull request)
-* Fixed issue with overwriting FailureConfig on settings other configs (#1127)
+* Fixed issue with overwriting FailureConfig on settings other configs (#1127) (thanks to Victor Orlovsky for pull request)
 
 Changelog 3.3.0 (2019-01-11)
 ----------------------------
