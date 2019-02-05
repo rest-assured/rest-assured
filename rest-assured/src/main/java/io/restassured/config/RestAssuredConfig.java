@@ -113,7 +113,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(redirectConfig, conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
                 conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
-                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -127,7 +127,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), httpClientConfig, conf(LogConfig.class), conf(EncoderConfig.class),
                 conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
-                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -141,7 +141,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), logConfig, conf(EncoderConfig.class),
                 conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
-                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -155,7 +155,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), encoderConfig,
                 conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
-                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -169,7 +169,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
                 decoderConfig, conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
-                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -183,7 +183,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
                 conf(DecoderConfig.class), sessionConfig, conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
-                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -197,7 +197,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
                 conf(DecoderConfig.class), conf(SessionConfig.class), objectMapperConfig, conf(ConnectionConfig.class),
                 conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
-                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -211,7 +211,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
                 conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), connectionConfig,
                 conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
-                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -225,7 +225,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
                 conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 jsonConfig, conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class),
-                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                conf(HeaderConfig.class), conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class),conf(FailureConfig.class));
     }
 
     /**
@@ -239,7 +239,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
                 conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 conf(JsonConfig.class), xmlConfig, conf(SSLConfig.class), conf(MatcherConfig.class), conf(HeaderConfig.class),
-                conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -253,7 +253,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
                 conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 conf(JsonConfig.class), conf(XmlConfig.class), sslConfig, conf(MatcherConfig.class), conf(HeaderConfig.class),
-                conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -267,7 +267,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
                 conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), matcherConfig, conf(HeaderConfig.class),
-                conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -281,7 +281,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
                 conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class), headerConfig,
-                conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                conf(MultiPartConfig.class), conf(ParamConfig.class), conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -295,7 +295,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
                 conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class), conf(HeaderConfig.class),
-                multiPartConfig, conf(ParamConfig.class), conf(OAuthConfig.class), new FailureConfig());
+                multiPartConfig, conf(ParamConfig.class), conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -309,7 +309,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
                 conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class), conf(HeaderConfig.class),
-                conf(MultiPartConfig.class), paramConfig, conf(OAuthConfig.class), new FailureConfig());
+                conf(MultiPartConfig.class), paramConfig, conf(OAuthConfig.class), conf(FailureConfig.class));
     }
 
     /**
@@ -323,7 +323,7 @@ public class RestAssuredConfig implements Config {
         return new RestAssuredConfig(conf(RedirectConfig.class), conf(HttpClientConfig.class), conf(LogConfig.class), conf(EncoderConfig.class),
                 conf(DecoderConfig.class), conf(SessionConfig.class), conf(ObjectMapperConfig.class), conf(ConnectionConfig.class),
                 conf(JsonConfig.class), conf(XmlConfig.class), conf(SSLConfig.class), conf(MatcherConfig.class), conf(HeaderConfig.class),
-                conf(MultiPartConfig.class), conf(ParamConfig.class), oauthConfig, new FailureConfig());
+                conf(MultiPartConfig.class), conf(ParamConfig.class), oauthConfig, conf(FailureConfig.class));
     }
 
     /**
