@@ -60,6 +60,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   private Response response
   private Tuple2<Matcher<Long>, TimeUnit> expectedResponseTime;
   private LogDetail responseLogDetail
+  private String onFailMessage
 
   private contentParser
   def LogRepository logRepository
@@ -304,6 +305,11 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     this
   }
 
+  ResponseSpecification onFailMessage(String message) {
+    this.onFailMessage = message
+    this
+  }
+
   LogDetail getLogDetail() {
     responseLogDetail
   }
@@ -491,9 +497,13 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
           fireFailureListeners(response)
           def errorMessage = errors.collect { it.errorMessage }.join("\n")
           def s = numberOfErrors > 1 ? "s" : ""
-          throw new AssertionError("$numberOfErrors expectation$s failed.\n$errorMessage")
+          throw new AssertionError("$numberOfErrors expectation$s failed.\n$errorMessage$formattedOnFailMessage")
         }
       }
+    }
+
+    private String getFormattedOnFailMessage() {
+      onFailMessage ? "\nOn fail message: $onFailMessage" : ""
     }
 
     private void fireFailureListeners(Response response) {

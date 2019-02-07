@@ -93,6 +93,32 @@ public class ErrorMessageITest extends WithJetty {
     }
 
     @Test public void
+    error_message_with_on_fail_message_look_ok_when_mixing_body_and_status_code_errors() {
+        exception.expect(AssertionError.class);
+        exception.expectMessage("3 expectations failed.\n" +
+                "Expected status code <201> but was <200>.\n" +
+                "\n" +
+                "JSON path lotto.lottoId doesn't match.\n" +
+                "Expected: a value less than <2>\n" +
+                "  Actual: 5\n" +
+                "\n" +
+                "JSON path lotto.winning-numbers doesn't match.\n" +
+                "Expected: a collection containing <21>\n" +
+                "  Actual: [2, 45, 34, 23, 7, 5, 3]\n" +
+                "\n" +
+                "On fail message: An additional information to find the cause of the error");
+
+        expect().
+                statusCode(201).
+                body("lotto.lottoId", greaterThan(4)).
+                body("lotto.lottoId", lessThan(2)).
+                body("lotto.winning-numbers", hasItem(21)).
+                onFailMessage("An additional information to find the cause of the error").
+                when().
+                get("/lotto");
+    }
+
+    @Test public void
     error_message_with_failed_xpath_expected_looks_ok() {
         exception.expect(AssertionError.class);
         exception.expectMessage(equalTo("1 expectation failed.\n"+

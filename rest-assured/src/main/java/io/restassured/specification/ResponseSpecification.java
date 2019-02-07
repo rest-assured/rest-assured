@@ -1231,4 +1231,13 @@ public interface ResponseSpecification {
      * @param logDetail The log detail
      */
     ResponseSpecification logDetail(LogDetail logDetail);
+
+    /**
+     * Add user message to final mismatch description.
+     * <p/>
+     * This is useful when you need to associate a mismatch description with additional user information. For example, in parallel execution.
+     *
+     * @param message The user message
+     */
+    ResponseSpecification onFailMessage(String message);
 }
