@@ -23,6 +23,7 @@ public class ObjectMapperResolver {
     private static final boolean isJackson2Present = existInCP("com.fasterxml.jackson.databind.ObjectMapper") && existInCP("com.fasterxml.jackson.core.JsonGenerator");
     private static final boolean isJaxbPresent = existInCP("javax.xml.bind.Binder");
     private static final boolean isGsonPresent = existInCP("com.google.gson.Gson");
+    private static final boolean isJohnzonPresent = existInCP("org.apache.johnzon.mapper.Mapper");
 
     public static boolean isJackson1InClassPath() {
         return isJackson1Present;
@@ -38,5 +39,9 @@ public class ObjectMapperResolver {
 
     public static boolean isGsonInClassPath() {
         return isGsonPresent;
+    }
+    
+    public static boolean isJohnzonInClassPath() {
+        return isJohnzonPresent;
     }
 }
