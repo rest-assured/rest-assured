@@ -22,7 +22,6 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.function.RestAssuredFunction;
 import io.restassured.http.ContentType;
-import io.restassured.http.Cookie;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.print.ResponsePrinter;
 import io.restassured.internal.util.SafeExceptionRethrower;
@@ -307,15 +306,17 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         if (responseSpecification instanceof ResponseSpecificationImpl) {
             ResponseSpecificationImpl impl = (ResponseSpecificationImpl) responseSpecification;
             LogConfig globalLogConfig = responseSpec.getConfig().getLogConfig();
+            impl.setConfig(config);
             if (globalLogConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
-                impl.setConfig(impl.getConfig().logConfig(globalLogConfig));
                 impl.setLogRepository(responseSpec.getLogRepository());
             }
             if (impl.getLogDetail() != null) {
                 logResponse(impl.getLogDetail(), globalLogConfig.isPrettyPrintingEnabled(),
-                globalLogConfig.defaultStream());
+                        globalLogConfig.defaultStream());
             }
+
         }
+
 
         // Finally validate the response
         responseSpecification.validate(response);

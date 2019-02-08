@@ -17,19 +17,22 @@
 package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
+import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.config.*;
 import io.restassured.itest.java.support.WithJetty;
-import io.restassured.config.EncoderConfig;
-import io.restassured.config.JsonConfig;
-import io.restassured.config.RedirectConfig;
-import io.restassured.config.RestAssuredConfig;
+import io.restassured.listener.ResponseValidationFailureListener;
 import io.restassured.path.json.config.JsonPathConfig;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.restassured.RestAssured.expect;
 import static io.restassured.RestAssured.given;
+import static io.restassured.config.FailureConfig.failureConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.fail;
 
 public class ConfigITest extends WithJetty {
 
@@ -82,5 +85,36 @@ public class ConfigITest extends WithJetty {
         } finally {
             RestAssured.reset();
         }
+    }
+
+    @Test
+    public void configurationsDefinedGloballyAreAppliedWhenUsingResponseSpecBuilders() {
+        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+        ResponseValidationFailureListener failureListener = (reqSpec, respSpec, resp) -> atomicBoolean.set(true);
+
+        try {
+            given().config(RestAssuredConfig.config().failureConfig(failureConfig().failureListeners(failureListener)))
+                    .get("http://jsonplaceholder.typicode.com/todos/1").then()
+                    .spec(new ResponseSpecBuilder().expectStatusCode(400).build());
+            fail("Should throw exception");
+        } catch (Error ignored) {
+        }
+
+        assertThat(atomicBoolean.get(), is(true));
+    }
+
+    @Test
+    public void configurationsDefinedInDslAreAppliedWhenUsingResponseSpecBuilders() {
+        AtomicBoolean atomicBoolean = new AtomicBoolean(false);
+        ResponseValidationFailureListener failureListener = (reqSpec, respSpec, resp) -> atomicBoolean.set(true);
+
+        try {
+            given().config(RestAssuredConfig.config().failureConfig(failureConfig().failureListeners(failureListener))).get("http://jsonplaceholder.typicode.com/todos/1")
+                    .then().spec(new ResponseSpecBuilder().expectStatusCode(400).build());
+            fail("Should throw exception");
+        } catch (Error ignored) {
+        }
+
+        assertThat(atomicBoolean.get(), is(true));
     }
 }
