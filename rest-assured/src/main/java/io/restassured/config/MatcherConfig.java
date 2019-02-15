@@ -16,10 +16,10 @@
 
 package io.restassured.config;
 
-import io.restassured.internal.assertion.AssertParameter;
-
 import static io.restassured.config.MatcherConfig.ErrorDescriptionType.REST_ASSURED;
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+
+import io.restassured.internal.common.assertion.AssertParameter;
 
 /**
  * Allow you to configure settings for response matchers.

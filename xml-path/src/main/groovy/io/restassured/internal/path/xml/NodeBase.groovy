@@ -21,7 +21,7 @@
 package io.restassured.internal.path.xml
 
 import io.restassured.path.xml.element.Node
-import io.restassured.internal.path.ObjectConverter
+import io.restassured.internal.common.path.ObjectConverter
 
 abstract class NodeBase {
 

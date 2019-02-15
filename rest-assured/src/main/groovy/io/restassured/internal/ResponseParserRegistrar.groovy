@@ -22,7 +22,7 @@ package io.restassured.internal
 
 import io.restassured.parsing.Parser
 
-import static io.restassured.internal.assertion.AssertParameter.notNull
+import static io.restassured.internal.common.assertion.AssertParameter.notNull
 import static io.restassured.internal.http.ContentTypeExtractor.getContentTypeWithoutCharset
 
 /**

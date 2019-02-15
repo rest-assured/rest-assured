@@ -14,34 +14,20 @@
  * limitations under the License.
  */
 
+package io.restassured.internal.common.classpath;
 
+public class ClassPathResolver {
 
-
-package io.restassured.internal.mapper
-
-import io.restassured.common.mapper.DataToDeserialize
-import io.restassured.common.mapper.ObjectDeserializationContext
-
-import java.lang.reflect.Type
-
-class ObjectDeserializationContextImpl implements ObjectDeserializationContext {
-
-    def DataToDeserialize dataToDeserialize
-    def Type type
-    def charset
-
-    @Override
-    DataToDeserialize getDataToDeserialize() {
-        return dataToDeserialize
+    public static boolean existInCP(String className) {
+        return existsInCP(className, ClassPathResolver.class.getClassLoader()) || existsInCP(className, Thread.currentThread().getContextClassLoader());
     }
 
-    @Override
-    Type getType() {
-        return type
-    }
-
-    @Override
-    String getCharset() {
-        return charset
+    private static boolean existsInCP(String className, ClassLoader classLoader) {
+        try {
+            Class.forName(className, false, classLoader);
+            return true;
+        } catch (Throwable e) {
+            return false;
+        }
     }
 }

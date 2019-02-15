@@ -33,7 +33,7 @@ import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
-import static io.restassured.internal.assertion.AssertParameter.notNull
+import static io.restassured.internal.common.assertion.AssertParameter.notNull
 
 class XmlDtdMatcher extends BaseMatcher<String> {
   def dtd

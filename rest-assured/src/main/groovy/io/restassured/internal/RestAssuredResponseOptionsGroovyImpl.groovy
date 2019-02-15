@@ -49,7 +49,7 @@ import java.lang.reflect.Type
 import java.nio.charset.Charset
 import java.util.concurrent.TimeUnit
 
-import static io.restassured.internal.assertion.AssertParameter.notNull
+import static io.restassured.internal.common.assertion.AssertParameter.notNull
 import static io.restassured.path.json.config.JsonPathConfig.jsonPathConfig
 import static io.restassured.path.xml.config.XmlPathConfig.xmlPathConfig
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase

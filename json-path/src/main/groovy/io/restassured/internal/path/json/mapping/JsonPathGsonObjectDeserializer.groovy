@@ -24,7 +24,7 @@ import io.restassured.common.mapper.ObjectDeserializationContext
 import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 
-import static io.restassured.internal.assertion.AssertParameter.notNull
+import static io.restassured.internal.common.assertion.AssertParameter.notNull
 
 class JsonPathGsonObjectDeserializer implements JsonPathObjectDeserializer {
     private final GsonObjectMapperFactory factory

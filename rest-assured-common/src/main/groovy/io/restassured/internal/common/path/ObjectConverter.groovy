@@ -16,7 +16,7 @@
 
 
 
-package io.restassured.internal.path
+package io.restassured.internal.common.path
 
 class ObjectConverter {
     def static <T> T convertObjectTo(Object object, Class<T> explicitType) {

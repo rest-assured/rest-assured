@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static java.lang.String.format;
 
 /**

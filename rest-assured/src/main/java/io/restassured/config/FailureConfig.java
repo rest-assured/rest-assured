@@ -19,12 +19,12 @@ package io.restassured.config;
 import io.restassured.internal.LogRequestAndResponseOnFailListener;
 import io.restassured.listener.ResponseValidationFailureListener;
 
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import static io.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
  * Configure the failure listeners. It allows registering instances of {@link ResponseValidationFailureListener}

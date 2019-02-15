@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.restassured.internal.common.assertion
 
-package io.restassured.internal.classpath;
+class AssertParameter {
 
-public class ClassPathResolver {
+  def static <T> T notNull(T object, Class aClass) {
+    notNull(object, aClass.getSimpleName())
+  }
 
-    public static boolean existInCP(String className) {
-        return existsInCP(className, ClassPathResolver.class.getClassLoader()) || existsInCP(className, Thread.currentThread().getContextClassLoader());
+  def static <T> T notNull(T object, String parameterName) {
+    if (object == null) {
+      throw new IllegalArgumentException("$parameterName cannot be null")
     }
-
-    private static boolean existsInCP(String className, ClassLoader classLoader) {
-        try {
-            Class.forName(className, false, classLoader);
-            return true;
-        } catch (Throwable e) {
-            return false;
-        }
-    }
+    object
+  }
 }

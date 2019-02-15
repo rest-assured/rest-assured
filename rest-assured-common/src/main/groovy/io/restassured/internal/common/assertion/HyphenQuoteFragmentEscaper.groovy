@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.internal.assertion
+package io.restassured.internal.common.assertion
 
 import org.apache.commons.lang3.StringUtils
 

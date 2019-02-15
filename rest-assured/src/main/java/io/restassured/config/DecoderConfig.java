@@ -23,7 +23,7 @@ import org.apache.commons.lang3.Validate;
 import java.nio.charset.Charset;
 import java.util.*;
 
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static org.apache.commons.lang3.StringUtils.trim;
 
 /**

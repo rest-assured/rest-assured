@@ -16,7 +16,7 @@
 
 package io.restassured.common.mapper.resolver;
 
-import static io.restassured.internal.classpath.ClassPathResolver.existInCP;
+import static io.restassured.internal.common.classpath.ClassPathResolver.existInCP;
 
 public class ObjectMapperResolver {
     private static final boolean isJackson1Present = existInCP("org.codehaus.jackson.map.ObjectMapper") && existInCP("org.codehaus.jackson.JsonGenerator");

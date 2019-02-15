@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.internal.assertion
+package io.restassured.internal.common.assertion
 
 /**
  * A {@link PathFragmentEscaper} that escapes the path fragment with <code>getAt('<fragment>')</code>

@@ -22,7 +22,7 @@ import io.restassured.specification.RequestSpecification
 import io.restassured.spi.AuthFilter
 
 import static io.restassured.authentication.CertificateAuthSettings.certAuthSettings
-import static io.restassured.internal.assertion.AssertParameter.notNull
+import static io.restassured.internal.common.assertion.AssertParameter.notNull
 
 /**
  * Specify an authentication scheme to use when sending a request.

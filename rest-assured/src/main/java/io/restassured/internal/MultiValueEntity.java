@@ -16,9 +16,9 @@
 
 package io.restassured.internal;
 
-import java.util.*;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import java.util.*;
 
 public class MultiValueEntity<T extends NameAndValue> implements Iterable<T> {
 

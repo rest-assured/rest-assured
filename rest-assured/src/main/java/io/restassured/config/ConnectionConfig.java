@@ -20,7 +20,7 @@ import org.apache.commons.lang3.Validate;
 
 import java.util.concurrent.TimeUnit;
 
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 /**

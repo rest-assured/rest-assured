@@ -18,9 +18,9 @@ package io.restassured.http;
 
 import io.restassured.internal.MultiValueEntity;
 
-import java.util.*;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import java.util.*;
 
 /**
  * Represents collection of headers

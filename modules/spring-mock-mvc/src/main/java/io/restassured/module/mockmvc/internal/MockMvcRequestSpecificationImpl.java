@@ -71,7 +71,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static io.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;
 import static io.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
 import static io.restassured.module.mockmvc.internal.UpdateStrategyConverter.convert;

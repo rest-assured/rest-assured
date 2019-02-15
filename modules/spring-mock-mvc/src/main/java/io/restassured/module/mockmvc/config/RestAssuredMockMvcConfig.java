@@ -16,6 +16,8 @@
 
 package io.restassured.module.mockmvc.config;
 
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+
 import io.restassured.config.DecoderConfig;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.HeaderConfig;
@@ -29,8 +31,6 @@ import io.restassured.config.XmlConfig;
 import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.spring.commons.config.ClientConfig;
 import io.restassured.module.spring.commons.config.SpecificationConfig;
-
-import static io.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
  * Main configuration for REST Assured Mock MVC that allows you to configure advanced settings.

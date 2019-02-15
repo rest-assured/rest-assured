@@ -17,7 +17,7 @@
 package io.restassured.http;
 
 import io.restassured.internal.NameAndValue;
-import io.restassured.internal.assertion.AssertParameter;
+import io.restassured.internal.common.assertion.AssertParameter;
 
 /**
  * Represents a HTTP header

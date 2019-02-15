@@ -16,9 +16,10 @@
 
 package io.restassured.authentication;
 
-import io.restassured.internal.assertion.AssertParameter;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
+
+import io.restassured.internal.common.assertion.AssertParameter;
 
 import java.security.KeyStore;
 

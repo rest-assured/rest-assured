@@ -16,9 +16,9 @@
 
 package io.restassured.internal.path.json
 
-import io.restassured.internal.assertion.Assertion
+import io.restassured.internal.common.assertion.Assertion
 
-import static io.restassured.internal.assertion.AssertionSupport.*
+import static io.restassured.internal.common.assertion.AssertionSupport.*
 
 class JSONAssertion implements Assertion {
   String key;

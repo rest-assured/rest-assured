@@ -148,6 +148,48 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.basepom.maven</groupId>
+                    <artifactId>duplicate-finder-maven-plugin</artifactId>
+                    <version>1.3.0</version>
+                    <executions>
+                        <execution>
+                            <id>duplicate-check</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <failBuildInCaseOfDifferentContentConflict>true</failBuildInCaseOfDifferentContentConflict>
+                        <failBuildInCaseOfEqualContentConflict>true</failBuildInCaseOfEqualContentConflict>
+                        <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
+                        <ignoredResourcePatterns>
+                            <ignoredResourcePattern>.*\.gitkeep$</ignoredResourcePattern>
+                            <ignoredResourcePattern>log4j\.properties</ignoredResourcePattern>
+                            <!-- Jetty about.html pages -->
+                            <ignoredResourcePattern>.*about\.html$</ignoredResourcePattern>
+                            <!--
+                                Found duplicate (but equal) resources in
+                                [com.github.fge:json-schema-core:1.2.5, com.github.fge:json-schema-validator:2.2.6]
+                            -->
+                            <ignoredResourcePattern>.*draftv[34]/schema$</ignoredResourcePattern>
+                            <!-- Scala lang -->
+                            <ignoredResourcePattern>rootdoc\.txt</ignoredResourcePattern>
+                        </ignoredResourcePatterns>
+                        <ignoredClassPatterns>
+                            <!-- Jigsaw project (Java 9) and later module-info classes. -->
+                            <ignoredClassPattern>.*\.module-info$</ignoredClassPattern>
+                            <ignoredClassPattern>javax\.activation.*</ignoredClassPattern>
+                            <!-- Spring AOP -->
+                            <ignoredClassPattern>org\.aopalliance.*</ignoredClassPattern>
+                            <!-- OSGi -->
+                            <ignoredClassPattern>org\.osgi.*</ignoredClassPattern>
+                            <ignoredClassPattern>org\.ops4j.*</ignoredClassPattern>
+                        </ignoredClassPatterns>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -202,6 +244,10 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.basepom.maven</groupId>
+                <artifactId>duplicate-finder-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

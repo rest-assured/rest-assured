@@ -16,9 +16,10 @@
 
 package io.restassured.internal.http;
 
-import io.restassured.internal.assertion.AssertParameter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+
+import io.restassured.internal.common.assertion.AssertParameter;
 
 import java.net.URI;
 

@@ -23,7 +23,7 @@ import io.restassured.config.SessionConfig
 import io.restassured.http.Cookies
 import io.restassured.spi.AuthFilter
 
-import static io.restassured.internal.assertion.AssertParameter.notNull
+import static io.restassured.internal.common.assertion.AssertParameter.notNull
 
 class SpecificationMerger {
 

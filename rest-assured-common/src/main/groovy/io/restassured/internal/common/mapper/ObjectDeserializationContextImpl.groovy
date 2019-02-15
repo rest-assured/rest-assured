@@ -13,18 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.restassured.internal.assertion
 
-class AssertParameter {
 
-  def static <T> T notNull(T object, Class aClass) {
-    notNull(object, aClass.getSimpleName())
-  }
 
-  def static <T> T notNull(T object, String parameterName) {
-    if (object == null) {
-      throw new IllegalArgumentException("$parameterName cannot be null")
+
+package io.restassured.internal.common.mapper
+
+import io.restassured.common.mapper.DataToDeserialize
+import io.restassured.common.mapper.ObjectDeserializationContext
+
+import java.lang.reflect.Type
+
+class ObjectDeserializationContextImpl implements ObjectDeserializationContext {
+
+    def DataToDeserialize dataToDeserialize
+    def Type type
+    def charset
+
+    @Override
+    DataToDeserialize getDataToDeserialize() {
+        return dataToDeserialize
     }
-    object
-  }
+
+    @Override
+    Type getType() {
+        return type
+    }
+
+    @Override
+    String getCharset() {
+        return charset
+    }
 }
