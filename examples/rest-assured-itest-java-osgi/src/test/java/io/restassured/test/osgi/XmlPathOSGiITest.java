@@ -54,9 +54,13 @@ public class XmlPathOSGiITest {
                         wrappedBundle(mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.activation", "activation").version("1.1.1")),
                         wrappedBundle(mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-all").version("2.4.15")),
+                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
+                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
+                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
 
                         /* Rest Assured dependencies needed in the Pax Exam container to be able to execute the tests below */
                         mavenBundle("io.rest-assured", "xml-path").versionAsInProject(),
+                        mavenBundle("io.rest-assured", "rest-assured").versionAsInProject(),
                         mavenBundle("io.rest-assured", "rest-assured-common").versionAsInProject()
                 };
     }
