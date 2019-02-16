@@ -59,6 +59,7 @@ public class XmlPathOSGiITest {
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
 
                         /* Rest Assured dependencies needed in the Pax Exam container to be able to execute the tests below */
+                        mavenBundle("io.rest-assured", "json-path").versionAsInProject(),
                         mavenBundle("io.rest-assured", "xml-path").versionAsInProject(),
                         mavenBundle("io.rest-assured", "rest-assured").versionAsInProject(),
                         mavenBundle("io.rest-assured", "rest-assured-common").versionAsInProject()

@@ -57,7 +57,10 @@ public class RestAssuredOSGiITest {
                         wrappedBundle(mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-all").version("2.4.15")),
 
                         /* Rest Assured dependencie needed in the Pax Exam container to be able to execute the test below */
-                        mavenBundle("io.rest-assured", "rest-assured").versionAsInProject()
+                        mavenBundle("io.rest-assured", "json-path").versionAsInProject(),
+                        mavenBundle("io.rest-assured", "xml-path").versionAsInProject(),
+                        mavenBundle("io.rest-assured", "rest-assured").versionAsInProject(),
+                        mavenBundle("io.rest-assured", "rest-assured-common").versionAsInProject()
                 };
     }
 
