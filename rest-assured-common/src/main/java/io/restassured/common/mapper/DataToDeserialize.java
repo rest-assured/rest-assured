@@ -14,17 +14,29 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper.factory;
+package io.restassured.common.mapper;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import java.io.InputStream;
 
-import java.lang.reflect.Type;
+public interface DataToDeserialize {
+    /**
+     * Get the data as a string.
+     *
+     * @return The data as a string.
+     */
+    String asString();
 
-/**
- * Simply creates a new Jackson 1.0 ObjectMapper
- */
-public class DefaultJackson1ObjectMapperFactory implements Jackson1ObjectMapperFactory {
-    public ObjectMapper create(Type cls, String charset) {
-        return new ObjectMapper();
-    }
+    /**
+     * Get the data as a byte array.
+     *
+     * @return The data as a array.
+     */
+    byte[] asByteArray();
+
+    /**
+     * Get the data as an input stream.
+     *
+     * @return The data as an input stream.
+     */
+    InputStream asInputStream();
 }

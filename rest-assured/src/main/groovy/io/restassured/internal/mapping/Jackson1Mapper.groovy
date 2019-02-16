@@ -20,7 +20,7 @@ package io.restassured.internal.mapping
 import io.restassured.internal.path.json.mapping.JsonPathJackson1ObjectDeserializer
 import io.restassured.mapper.ObjectMapper
 import io.restassured.mapper.ObjectMapperSerializationContext
-import io.restassured.mapper.factory.Jackson1ObjectMapperFactory
+import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 import io.restassured.mapper.ObjectMapperDeserializationContext
 import org.codehaus.jackson.JsonEncoding

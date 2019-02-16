@@ -16,8 +16,8 @@
 
 package io.restassured.itest.java;
 
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.itest.java.support.WithJetty;
-import io.restassured.mapper.TypeRef;
 import io.restassured.response.Response;
 import org.junit.Test;
 

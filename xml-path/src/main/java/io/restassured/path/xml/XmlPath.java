@@ -24,12 +24,13 @@ import io.restassured.internal.assertion.AssertParameter;
 import io.restassured.internal.path.ObjectConverter;
 import io.restassured.internal.path.xml.*;
 import io.restassured.internal.path.xml.mapping.XmlObjectDeserializer;
-import io.restassured.mapper.factory.JAXBObjectMapperFactory;
 import io.restassured.path.xml.config.XmlParserType;
 import io.restassured.path.xml.config.XmlPathConfig;
 import io.restassured.path.xml.element.Node;
 import io.restassured.path.xml.element.NodeChildren;
 import io.restassured.path.xml.exception.XmlPathException;
+import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory;
+
 import org.apache.commons.lang3.Validate;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;

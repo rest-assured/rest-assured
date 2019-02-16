@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper.factory;
+package io.restassured.path.json.mapper.factory;
 
-import javax.xml.bind.JAXBContext;
+import org.codehaus.jackson.map.ObjectMapper;
+
+import io.restassured.common.mapper.factory.ObjectMapperFactory;
 
 /**
- * Interface for JAXB object mappers. Implement this class and register it to the ObjectMapperConfig if you
- * want to override default settings for the JAXB object mapper.
+ * Interface for Jackson 1.0 based object mappers. Implement this class and register it to the ObjectMapperConfig if you
+ * want to override default settings for the Jackson object mapper.
  */
-public interface JAXBObjectMapperFactory extends ObjectMapperFactory<JAXBContext> {
+public interface Jackson1ObjectMapperFactory extends ObjectMapperFactory<ObjectMapper> {
 }

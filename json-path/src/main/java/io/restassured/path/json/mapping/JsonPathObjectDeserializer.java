@@ -16,7 +16,7 @@
 
 package io.restassured.path.json.mapping;
 
-import io.restassured.mapper.ObjectDeserializationContext;
+import io.restassured.common.mapper.ObjectDeserializationContext;
 
 /**
  * Interface for all JsonPath object deserializers. It's possible to roll your own implementation if the pre-defined

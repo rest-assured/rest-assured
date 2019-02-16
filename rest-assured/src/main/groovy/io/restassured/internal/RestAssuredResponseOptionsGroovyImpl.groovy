@@ -33,6 +33,7 @@ import io.restassured.internal.mapping.ObjectMapping
 import io.restassured.internal.print.ResponsePrinter
 import io.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper
 import io.restassured.internal.support.Prettifier
+import io.restassured.common.mapper.*
 import io.restassured.mapper.*
 import io.restassured.path.json.JsonPath
 import io.restassured.path.json.config.JsonPathConfig

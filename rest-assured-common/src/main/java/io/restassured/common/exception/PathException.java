@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper.factory;
+package io.restassured.common.exception;
 
+public abstract class PathException extends RuntimeException {
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-/**
- * Interface for Jackson 2.0 based object mappers. Implement this class and register it to the ObjectMapperConfig if you
- * want to override default settings for the Jackson 2.0 object mapper.
- */
-public interface Jackson2ObjectMapperFactory extends ObjectMapperFactory<ObjectMapper> {
+    public PathException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

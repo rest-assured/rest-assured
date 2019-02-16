@@ -18,19 +18,19 @@ package io.restassured.path.json;
 
 import groovy.json.JsonBuilder;
 import groovy.json.JsonOutput;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.internal.assertion.AssertParameter;
 import io.restassured.internal.path.ObjectConverter;
 import io.restassured.internal.path.json.ConfigurableJsonSlurper;
 import io.restassured.internal.path.json.JSONAssertion;
 import io.restassured.internal.path.json.JsonPrettifier;
 import io.restassured.internal.path.json.mapping.JsonObjectDeserializer;
-import io.restassured.mapper.TypeRef;
-import io.restassured.mapper.factory.GsonObjectMapperFactory;
-import io.restassured.mapper.factory.Jackson1ObjectMapperFactory;
-import io.restassured.mapper.factory.Jackson2ObjectMapperFactory;
 import io.restassured.path.json.config.JsonParserType;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.json.exception.JsonPathException;
+import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory;
 
 import java.io.*;
 import java.net.URL;

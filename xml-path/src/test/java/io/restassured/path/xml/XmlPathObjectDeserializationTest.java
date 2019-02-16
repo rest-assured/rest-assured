@@ -16,11 +16,11 @@
 
 package io.restassured.path.xml;
 
-import io.restassured.mapper.ObjectDeserializationContext;
 import io.restassured.path.xml.mapping.XmlPathObjectDeserializer;
 import io.restassured.path.xml.support.CoolGreeting;
 import io.restassured.path.xml.support.Greeting;
 import io.restassured.path.xml.support.Greetings;
+import io.restassured.common.mapper.ObjectDeserializationContext;
 import io.restassured.path.xml.config.XmlPathConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Rule;

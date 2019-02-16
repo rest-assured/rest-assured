@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper.factory;
+package io.restassured.path.json.mapper.factory;
+
+import com.google.gson.Gson;
 
 import java.lang.reflect.Type;
 
 /**
- * The base interface for object mapper factories.
- * @param <T> The type of the created object mapper.
+ * Simply creates a new Gson instance.
  */
-public interface ObjectMapperFactory<T> {
-
-    /**
-     * Create the object mapper instance.
-     *
-     * @param cls The type of the class to serialize or de-serialize
-     * @param charset The charset
-     * @return An object mapper instance
-     */
-    T create(Type cls, String charset);
+public class DefaultGsonObjectMapperFactory implements GsonObjectMapperFactory {
+    public Gson create(Type cls, String charset) {
+        return new Gson();
+    }
 }

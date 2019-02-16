@@ -52,9 +52,16 @@ public class JsonPathOSGiITest {
                         Some of these need to be wrapped because they are not available as OSGi bundles */
                         mavenBundle("org.apache.commons", "commons-lang3").versionAsInProject(),
                         wrappedBundle(mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-all").version("2.4.15")),
+                        wrappedBundle(mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject()),
+                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
+                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
+                        wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
+                        wrappedBundle(mavenBundle().groupId("org.ccil.cowan.tagsoup").artifactId("tagsoup").versionAsInProject()),
 
                         /* Rest Assured dependencies needed in the Pax Exam container to be able to execute the tests below */
                         mavenBundle("io.rest-assured", "json-path").versionAsInProject(),
+                        mavenBundle("io.rest-assured", "xml-path").versionAsInProject(),
+                        mavenBundle("io.rest-assured", "rest-assured").versionAsInProject(),
                         mavenBundle("io.rest-assured", "rest-assured-common").versionAsInProject()
                 };
     }

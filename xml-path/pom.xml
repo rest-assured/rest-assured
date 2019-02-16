@@ -38,13 +38,12 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>io.restassured.*</Export-Package>
+                        <Export-Package>io.restassured.path.xml.*</Export-Package>
                         <Import-Package>
 							groovy.*;version="${groovy.range}",
                             org.codehaus.groovy.*;version="${groovy.range}",
                             *
 						</Import-Package>
-                        <Private-Package />
                     </instructions>
                 </configuration>
             </plugin>

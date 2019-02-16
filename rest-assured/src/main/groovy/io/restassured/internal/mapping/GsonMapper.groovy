@@ -20,7 +20,7 @@ package io.restassured.internal.mapping
 import io.restassured.mapper.ObjectMapper
 import io.restassured.mapper.ObjectMapperDeserializationContext
 import io.restassured.mapper.ObjectMapperSerializationContext
-import io.restassured.mapper.factory.GsonObjectMapperFactory
+import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 import io.restassured.internal.path.json.mapping.JsonPathGsonObjectDeserializer
 

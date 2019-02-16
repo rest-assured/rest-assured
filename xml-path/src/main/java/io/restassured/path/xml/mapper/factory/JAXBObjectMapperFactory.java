@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper.factory;
+package io.restassured.path.xml.mapper.factory;
 
-import com.google.gson.Gson;
+import javax.xml.bind.JAXBContext;
+
+import io.restassured.common.mapper.factory.ObjectMapperFactory;
 
 /**
- * Interface for Gson object mappers. Implement this class and register it to the ObjectMapperConfig if you
- * want to override default settings for the Gson object mapper.
+ * Interface for JAXB object mappers. Implement this class and register it to the ObjectMapperConfig if you
+ * want to override default settings for the JAXB object mapper.
  */
-public interface GsonObjectMapperFactory extends ObjectMapperFactory<Gson> {
+public interface JAXBObjectMapperFactory extends ObjectMapperFactory<JAXBContext> {
 }

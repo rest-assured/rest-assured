@@ -28,7 +28,7 @@ import io.restassured.itest.java.objects.Message;
 import io.restassured.itest.java.support.MyEnum;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.mapper.ObjectMapperType;
-import io.restassured.mapper.factory.DefaultJackson2ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.DefaultJackson2ObjectMapperFactory;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;

@@ -14,24 +14,18 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper.factory;
+package io.restassured.path.json.mapper.factory;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.lang.reflect.Type;
 
 /**
- * Simply creates a new JAXBContext based on the supplied class.
+ * Simply creates a new Jackson 2.0 ObjectMapper
  */
-public class DefaultJAXBObjectMapperFactory implements JAXBObjectMapperFactory {
-    public JAXBContext create(Type cls, String charset) {
-        try {
-            if (cls instanceof Class) {
-                return JAXBContext.newInstance((Class<?>) cls);
-            }
-            throw new RuntimeException("JAXB does not support type" + cls);
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
+public class DefaultJackson2ObjectMapperFactory implements Jackson2ObjectMapperFactory {
+    public ObjectMapper create(Type cls, String charset) {
+        return new ObjectMapper().findAndRegisterModules();
     }
 }

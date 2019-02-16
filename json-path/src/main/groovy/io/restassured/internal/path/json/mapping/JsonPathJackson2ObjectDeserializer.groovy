@@ -20,8 +20,8 @@ package io.restassured.internal.path.json.mapping
 
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.restassured.mapper.ObjectDeserializationContext
-import io.restassured.mapper.factory.Jackson2ObjectMapperFactory
+import io.restassured.common.mapper.ObjectDeserializationContext
+import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 
 import java.lang.reflect.Type

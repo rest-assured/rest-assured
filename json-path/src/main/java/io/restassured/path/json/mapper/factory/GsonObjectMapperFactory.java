@@ -14,29 +14,15 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper;
+package io.restassured.path.json.mapper.factory;
 
-import java.io.InputStream;
+import com.google.gson.Gson;
 
-public interface DataToDeserialize {
-    /**
-     * Get the data as a string.
-     *
-     * @return The data as a string.
-     */
-    String asString();
+import io.restassured.common.mapper.factory.ObjectMapperFactory;
 
-    /**
-     * Get the data as a byte array.
-     *
-     * @return The data as a array.
-     */
-    byte[] asByteArray();
-
-    /**
-     * Get the data as an input stream.
-     *
-     * @return The data as an input stream.
-     */
-    InputStream asInputStream();
+/**
+ * Interface for Gson object mappers. Implement this class and register it to the ObjectMapperConfig if you
+ * want to override default settings for the Gson object mapper.
+ */
+public interface GsonObjectMapperFactory extends ObjectMapperFactory<Gson> {
 }

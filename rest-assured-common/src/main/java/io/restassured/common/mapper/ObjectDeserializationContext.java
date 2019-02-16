@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper;
+package io.restassured.common.mapper;
 
 import java.lang.reflect.Type;
 
