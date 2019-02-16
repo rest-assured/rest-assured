@@ -16,7 +16,7 @@
 
 package io.restassured.path.json;
 
-import io.restassured.mapper.TypeRef;
+import io.restassured.common.mapper.TypeRef;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.json.exception.JsonPathException;
 import io.restassured.path.json.support.Book;

@@ -19,7 +19,7 @@ import io.restassured.mapper.ObjectMapperSerializationContext
 import io.restassured.internal.path.xml.mapping.XmlPathJaxbObjectDeserializer
 import io.restassured.mapper.ObjectMapper
 import io.restassured.mapper.ObjectMapperDeserializationContext
-import io.restassured.mapper.factory.JAXBObjectMapperFactory
+import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory
 import io.restassured.path.xml.mapping.XmlPathObjectDeserializer
 
 import javax.xml.bind.JAXBContext

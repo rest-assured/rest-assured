@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper.factory;
+package io.restassured.path.xml.mapper.factory;
 
-import com.google.gson.Gson;
-
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import java.lang.reflect.Type;
 
 /**
- * Simply creates a new Gson instance.
+ * Simply creates a new JAXBContext based on the supplied class.
  */
-public class DefaultGsonObjectMapperFactory implements GsonObjectMapperFactory {
-    public Gson create(Type cls, String charset) {
-        return new Gson();
+public class DefaultJAXBObjectMapperFactory implements JAXBObjectMapperFactory {
+    public JAXBContext create(Type cls, String charset) {
+        try {
+            if (cls instanceof Class) {
+                return JAXBContext.newInstance((Class<?>) cls);
+            }
+            throw new RuntimeException("JAXB does not support type" + cls);
+        } catch (JAXBException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

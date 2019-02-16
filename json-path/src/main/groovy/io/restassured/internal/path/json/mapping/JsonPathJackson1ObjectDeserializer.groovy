@@ -18,8 +18,8 @@
 
 package io.restassured.internal.path.json.mapping
 
-import io.restassured.mapper.ObjectDeserializationContext
-import io.restassured.mapper.factory.Jackson1ObjectMapperFactory
+import io.restassured.common.mapper.ObjectDeserializationContext
+import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 import org.codehaus.jackson.type.JavaType
 

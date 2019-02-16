@@ -16,7 +16,7 @@
 
 package io.restassured.path.json;
 
-import io.restassured.mapper.ObjectDeserializationContext;
+import io.restassured.common.mapper.ObjectDeserializationContext;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer;
 import io.restassured.path.json.support.Greeting;

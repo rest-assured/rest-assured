@@ -16,6 +16,8 @@
 
 package io.restassured.mapper;
 
+import io.restassured.common.mapper.ObjectDeserializationContext;
+
 /**
  * Class containing details needed for REST Assured deserializers to convert a response to a Java class.
  */

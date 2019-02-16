@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper.resolver;
+package io.restassured.common.mapper.resolver;
 
 import static io.restassured.internal.classpath.ClassPathResolver.existInCP;
 

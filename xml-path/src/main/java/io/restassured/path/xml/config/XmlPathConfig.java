@@ -16,9 +16,9 @@
 
 package io.restassured.path.xml.config;
 
-import io.restassured.mapper.factory.DefaultJAXBObjectMapperFactory;
-import io.restassured.mapper.factory.JAXBObjectMapperFactory;
 import io.restassured.path.xml.XmlPath;
+import io.restassured.path.xml.mapper.factory.DefaultJAXBObjectMapperFactory;
+import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory;
 import io.restassured.path.xml.mapping.XmlPathObjectDeserializer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;

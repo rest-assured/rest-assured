@@ -14,18 +14,22 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper.factory;
-
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+package io.restassured.common.mapper.factory;
 
 import java.lang.reflect.Type;
 
 /**
- * Simply creates a new Jackson 2.0 ObjectMapper
+ * The base interface for object mapper factories.
+ * @param <T> The type of the created object mapper.
  */
-public class DefaultJackson2ObjectMapperFactory implements Jackson2ObjectMapperFactory {
-    public ObjectMapper create(Type cls, String charset) {
-        return new ObjectMapper().findAndRegisterModules();
-    }
+public interface ObjectMapperFactory<T> {
+
+    /**
+     * Create the object mapper instance.
+     *
+     * @param cls The type of the class to serialize or de-serialize
+     * @param charset The charset
+     * @return An object mapper instance
+     */
+    T create(Type cls, String charset);
 }

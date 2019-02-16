@@ -20,8 +20,8 @@
 
 package io.restassured.internal.path.json.mapping
 
-import io.restassured.mapper.ObjectDeserializationContext
-import io.restassured.mapper.factory.GsonObjectMapperFactory
+import io.restassured.common.mapper.ObjectDeserializationContext
+import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 
 import static io.restassured.internal.assertion.AssertParameter.notNull

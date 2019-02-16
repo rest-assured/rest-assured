@@ -20,14 +20,14 @@
 package io.restassured.internal.path.xml.mapping
 
 import io.restassured.internal.mapper.ObjectDeserializationContextImpl
-import io.restassured.mapper.DataToDeserialize
-import io.restassured.mapper.ObjectDeserializationContext
-import io.restassured.mapper.factory.JAXBObjectMapperFactory
+import io.restassured.common.mapper.DataToDeserialize
+import io.restassured.common.mapper.ObjectDeserializationContext
+import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory
 import io.restassured.path.xml.config.XmlParserType
 import io.restassured.path.xml.config.XmlPathConfig
 import org.apache.commons.lang3.Validate
 
-import static io.restassured.mapper.resolver.ObjectMapperResolver.isJAXBInClassPath
+import static io.restassured.common.mapper.resolver.ObjectMapperResolver.isJAXBInClassPath
 
 class XmlObjectDeserializer {
 

@@ -44,7 +44,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>io.restassured.mapper.*, io.restassured.path.json.*</Export-Package>
+                        <Export-Package>io.restassured.path.json.*</Export-Package>
                         <Import-Package>
 							groovy.*;version="${groovy.range}",
                             org.codehaus.groovy.*;version="${groovy.range}",

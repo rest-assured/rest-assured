@@ -23,7 +23,7 @@ import io.restassured.mapper.ObjectMapper
 import io.restassured.mapper.ObjectMapperSerializationContext
 import io.restassured.internal.path.json.mapping.JsonPathJackson2ObjectDeserializer
 import io.restassured.mapper.ObjectMapperDeserializationContext
-import io.restassured.mapper.factory.Jackson2ObjectMapperFactory
+import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 
 /**

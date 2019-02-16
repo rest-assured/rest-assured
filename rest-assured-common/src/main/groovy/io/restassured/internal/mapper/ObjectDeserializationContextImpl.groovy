@@ -19,8 +19,8 @@
 
 package io.restassured.internal.mapper
 
-import io.restassured.mapper.DataToDeserialize
-import io.restassured.mapper.ObjectDeserializationContext
+import io.restassured.common.mapper.DataToDeserialize
+import io.restassured.common.mapper.ObjectDeserializationContext
 
 import java.lang.reflect.Type
 

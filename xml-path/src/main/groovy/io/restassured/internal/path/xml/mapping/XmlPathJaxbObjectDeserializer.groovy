@@ -17,8 +17,8 @@
 
 package io.restassured.internal.path.xml.mapping
 
-import io.restassured.mapper.ObjectDeserializationContext
-import io.restassured.mapper.factory.JAXBObjectMapperFactory
+import io.restassured.common.mapper.ObjectDeserializationContext
+import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory
 import io.restassured.path.xml.mapping.XmlPathObjectDeserializer
 
 import javax.xml.bind.JAXBContext

@@ -21,14 +21,14 @@ import io.restassured.config.EncoderConfig
 import io.restassured.config.ObjectMapperConfig
 import io.restassured.http.ContentType
 import io.restassured.internal.http.ContentTypeExtractor
-import io.restassured.mapper.DataToDeserialize
+import io.restassured.common.mapper.DataToDeserialize
 import io.restassured.mapper.ObjectMapperDeserializationContext
 import io.restassured.mapper.ObjectMapperSerializationContext
 import io.restassured.mapper.ObjectMapperType
-import io.restassured.mapper.factory.GsonObjectMapperFactory
-import io.restassured.mapper.factory.JAXBObjectMapperFactory
-import io.restassured.mapper.factory.Jackson1ObjectMapperFactory
-import io.restassured.mapper.factory.Jackson2ObjectMapperFactory
+import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory
+import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory
+import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory
+import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory
 import io.restassured.response.ResponseBodyData
 import org.apache.commons.lang3.Validate
 
@@ -36,7 +36,7 @@ import java.lang.reflect.Type
 
 import static io.restassured.http.ContentType.ANY
 import static io.restassured.internal.assertion.AssertParameter.notNull
-import static io.restassured.mapper.resolver.ObjectMapperResolver.*
+import static io.restassured.common.mapper.resolver.ObjectMapperResolver.*
 import static org.apache.commons.lang3.StringUtils.containsIgnoreCase
 
 class ObjectMapping {

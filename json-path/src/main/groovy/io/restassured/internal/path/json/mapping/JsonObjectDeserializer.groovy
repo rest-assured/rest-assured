@@ -20,12 +20,12 @@
 package io.restassured.internal.path.json.mapping
 
 import io.restassured.internal.mapper.ObjectDeserializationContextImpl
-import io.restassured.mapper.DataToDeserialize
-import io.restassured.mapper.ObjectDeserializationContext
-import io.restassured.mapper.factory.GsonObjectMapperFactory
-import io.restassured.mapper.factory.Jackson1ObjectMapperFactory
-import io.restassured.mapper.factory.Jackson2ObjectMapperFactory
-import io.restassured.mapper.resolver.ObjectMapperResolver
+import io.restassured.common.mapper.DataToDeserialize
+import io.restassured.common.mapper.ObjectDeserializationContext
+import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory
+import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory
+import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory
+import io.restassured.common.mapper.resolver.ObjectMapperResolver
 import io.restassured.path.json.config.JsonParserType
 import io.restassured.path.json.config.JsonPathConfig
 import org.apache.commons.lang3.Validate

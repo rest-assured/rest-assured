@@ -45,7 +45,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>io.restassured.mapper.*, io.restassured.exception.*</Export-Package>
+                        <Export-Package>io.restassured.common.*</Export-Package>
                         <Import-Package>
 							groovy.*;version="${groovy.range}",
                             org.codehaus.groovy.*;version="${groovy.range}",

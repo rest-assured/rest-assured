@@ -16,7 +16,7 @@
 
 package io.restassured.path.xml.exception;
 
-import io.restassured.exception.PathException;
+import io.restassured.common.exception.PathException;
 
 public class XmlPathException extends PathException {
 

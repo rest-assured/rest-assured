@@ -47,7 +47,12 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>io.restassured.*, !io.restassured.path.xml.*, !io.restassured.path.json.*</Export-Package>
+                        <Export-Package>
+                        	!io.restassured.path.xml.*,
+                        	!io.restassured.path.json.*,
+                        	!io.restassured.common.*,
+                        	io.restassured.*
+                        </Export-Package>
                         <Import-Package>
 							groovy.*;version="${groovy.range}",
                             org.codehaus.groovy.*;version="${groovy.range}",

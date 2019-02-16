@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper.factory;
+package io.restassured.path.json.mapper.factory;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
+import java.lang.reflect.Type;
+
 /**
- * Interface for Jackson 1.0 based object mappers. Implement this class and register it to the ObjectMapperConfig if you
- * want to override default settings for the Jackson object mapper.
+ * Simply creates a new Jackson 1.0 ObjectMapper
  */
-public interface Jackson1ObjectMapperFactory extends ObjectMapperFactory<ObjectMapper> {
+public class DefaultJackson1ObjectMapperFactory implements Jackson1ObjectMapperFactory {
+    public ObjectMapper create(Type cls, String charset) {
+        return new ObjectMapper();
+    }
 }

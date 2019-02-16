@@ -16,7 +16,7 @@
 
 package io.restassured.path.json.exception;
 
-import io.restassured.exception.PathException;
+import io.restassured.common.exception.PathException;
 
 public class JsonPathException extends PathException {
 
