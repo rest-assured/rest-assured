@@ -18,7 +18,7 @@
 package io.restassured.internal
 
 import io.restassured.http.Method
-import io.restassured.internal.assertion.AssertParameter
+import io.restassured.internal.common.assertion.AssertParameter
 import io.restassured.response.Response
 import io.restassured.specification.RequestSender
 import io.restassured.specification.RequestSpecification

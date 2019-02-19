@@ -17,7 +17,7 @@
 
 package io.restassured.internal
 
-import static io.restassured.internal.assertion.AssertParameter.notNull
+import static io.restassured.internal.common.assertion.AssertParameter.notNull
 
 class MapCreator {
 

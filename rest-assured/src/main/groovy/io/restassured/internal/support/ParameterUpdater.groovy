@@ -20,7 +20,7 @@ import io.restassured.config.ParamConfig.UpdateStrategy
 import io.restassured.internal.NoParameterValue
 
 import static io.restassured.config.ParamConfig.UpdateStrategy.MERGE
-import static io.restassured.internal.assertion.AssertParameter.notNull
+import static io.restassured.internal.common.assertion.AssertParameter.notNull
 import static java.util.Arrays.asList
 
 class ParameterUpdater {

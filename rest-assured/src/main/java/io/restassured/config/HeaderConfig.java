@@ -16,10 +16,10 @@
 
 package io.restassured.config;
 
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import static io.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
  * Allow you to configure settings for headers.

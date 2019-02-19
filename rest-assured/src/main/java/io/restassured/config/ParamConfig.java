@@ -16,11 +16,11 @@
 
 package io.restassured.config;
 
-import io.restassured.internal.assertion.AssertParameter;
-
 import static io.restassured.config.ParamConfig.UpdateStrategy.MERGE;
 import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE;
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+
+import io.restassured.internal.common.assertion.AssertParameter;
 
 /**
  * Param config determines how different parameter types in REST Assured should be updated when adding multiple parameters

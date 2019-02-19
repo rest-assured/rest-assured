@@ -17,7 +17,7 @@
 
 package io.restassured.internal.path.xml
 
-import io.restassured.internal.assertion.AssertParameter
+import io.restassured.internal.common.assertion.AssertParameter
 import io.restassured.path.xml.element.Node
 import io.restassured.path.xml.element.NodeChildren
 

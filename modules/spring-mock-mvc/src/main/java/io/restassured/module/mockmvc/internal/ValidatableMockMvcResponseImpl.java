@@ -19,7 +19,7 @@ package io.restassured.module.mockmvc.internal;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ValidatableResponseOptionsImpl;
-import io.restassured.internal.assertion.AssertParameter;
+import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.module.mockmvc.response.MockMvcResponse;

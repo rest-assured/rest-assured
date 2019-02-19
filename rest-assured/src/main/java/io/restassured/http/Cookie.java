@@ -18,11 +18,11 @@ package io.restassured.http;
 
 import io.restassured.internal.NameAndValue;
 
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-
-import static io.restassured.internal.assertion.AssertParameter.notNull;
 
 /**
  * Cookie class represents a token or short packet of state information

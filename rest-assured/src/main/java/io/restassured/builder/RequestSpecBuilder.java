@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.restassured.RestAssured.*;
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 /**
  * You can use the builder to construct a request specification. The specification can be used as e.g.

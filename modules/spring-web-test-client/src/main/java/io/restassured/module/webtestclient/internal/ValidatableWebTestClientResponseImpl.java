@@ -18,7 +18,7 @@ package io.restassured.module.webtestclient.internal;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ValidatableResponseOptionsImpl;
-import io.restassured.internal.assertion.AssertParameter;
+import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.module.webtestclient.response.ValidatableWebTestClientResponse;
 import io.restassured.module.webtestclient.response.WebTestClientResponse;

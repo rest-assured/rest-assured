@@ -71,7 +71,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.util.UriBuilder;
 
 import static io.restassured.internal.MapCreator.CollisionStrategy.OVERWRITE;
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static io.restassured.internal.multipart.MultiPartInternal.OCTET_STREAM;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 

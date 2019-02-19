@@ -16,9 +16,10 @@
 
 package io.restassured.config;
 
-import io.restassured.internal.assertion.AssertParameter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.mime.HttpMultipartMode;
+
+import io.restassured.internal.common.assertion.AssertParameter;
 
 import java.nio.charset.Charset;
 

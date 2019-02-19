@@ -16,7 +16,7 @@
 
 package io.restassured.module.mockmvc.internal;
 
-import static io.restassured.internal.classpath.ClassPathResolver.existInCP;
+import static io.restassured.internal.common.classpath.ClassPathResolver.existInCP;
 
 /**
  * Checks whether or not the spring-restdocs-mockmvc module is in classpath

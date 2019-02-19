@@ -37,7 +37,7 @@ import org.hamcrest.Matchers
 import java.util.concurrent.TimeUnit
 
 import static io.restassured.http.ContentType.ANY
-import static io.restassured.internal.assertion.AssertParameter.notNull
+import static io.restassured.internal.common.assertion.AssertParameter.notNull
 import static org.apache.commons.lang3.StringUtils.substringAfter
 import static org.hamcrest.Matchers.equalTo
 

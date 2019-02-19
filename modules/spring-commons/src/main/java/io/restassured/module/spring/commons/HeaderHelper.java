@@ -22,11 +22,11 @@ import io.restassured.http.Headers;
 import io.restassured.module.spring.commons.config.SpecificationConfig;
 import org.apache.commons.lang3.StringUtils;
 
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static io.restassured.internal.assertion.AssertParameter.notNull;
 
 public class HeaderHelper {
 

@@ -20,7 +20,7 @@ import io.restassured.authentication.PreemptiveOAuth2HeaderScheme
 import io.restassured.specification.PreemptiveAuthSpec
 import io.restassured.specification.RequestSpecification
 
-import static io.restassured.internal.assertion.AssertParameter.notNull
+import static io.restassured.internal.common.assertion.AssertParameter.notNull
 
 /**
  * Specify a preemptive authentication scheme to use when sending a request.

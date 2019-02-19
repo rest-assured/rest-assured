@@ -16,7 +16,7 @@
 
 package io.restassured.config;
 
-import io.restassured.internal.assertion.AssertParameter;
+import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import org.apache.commons.lang3.Validate;
 import org.apache.http.conn.ssl.SSLSocketFactory;

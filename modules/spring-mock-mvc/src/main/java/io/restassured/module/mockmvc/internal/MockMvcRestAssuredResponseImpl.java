@@ -18,15 +18,16 @@ package io.restassured.module.mockmvc.internal;
 
 import io.restassured.config.LogConfig;
 import io.restassured.internal.RestAssuredResponseOptionsImpl;
+import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
-import io.restassured.internal.assertion.AssertParameter;
+
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-
-import static io.restassured.internal.assertion.AssertParameter.notNull;
 
 public class MockMvcRestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<MockMvcResponse> implements MockMvcResponse {
 

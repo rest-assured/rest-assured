@@ -18,6 +18,8 @@ package io.restassured.internal.path;
 
 import org.junit.Test;
 
+import io.restassured.internal.common.path.ObjectConverter;
+
 import java.util.ArrayList;
 
 import static org.hamcrest.CoreMatchers.is;

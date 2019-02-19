@@ -45,7 +45,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.restassured.config.LogConfig.logConfig;
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 /**
  * The Spring MVC module's equivalent of {@link RestAssured}. This is the starting point of the DSL.

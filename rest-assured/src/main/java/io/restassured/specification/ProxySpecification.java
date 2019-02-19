@@ -16,10 +16,11 @@
 
 package io.restassured.specification;
 
-import io.restassured.internal.assertion.AssertParameter;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+
 import org.apache.commons.lang3.StringUtils;
 
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import io.restassured.internal.common.assertion.AssertParameter;
 
 /**
  * A proxy specification that defines a hostname, port and scheme for the proxy.

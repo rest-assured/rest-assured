@@ -21,7 +21,7 @@ import io.restassured.config.ParamConfig;
 
 import static io.restassured.config.ParamConfig.UpdateStrategy.MERGE;
 import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE;
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 /**
  * Determines how different parameter types in REST Assured MockMvc should be updated when adding multiple parameters

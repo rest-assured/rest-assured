@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package io.restassured.internal.assertion
+package io.restassured.internal.common.assertion
 
 /**
- * Escapes a path fragment if required
+ * A {@link PathFragmentEscaper} that escapes the path fragment with quotes
  */
-interface PathFragmentEscaper {
+abstract class EndToEndQuoteFragmentEscaper implements PathFragmentEscaper {
 
-  boolean shouldEscape(String pathFragment)
-
-  String escape(String pathFragment)
-
+  @Override
+  String escape(String pathFragment) {
+    return "'" + pathFragment + "'"
+  }
 }

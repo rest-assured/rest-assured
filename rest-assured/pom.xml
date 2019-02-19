@@ -49,8 +49,11 @@
                     <instructions>
                         <Export-Package>
                         	!io.restassured.path.xml.*,
-                        	!io.restassured.path.json.*,
-                        	!io.restassured.common.*,
+                            !io.restassured.path.json.*,
+                            !io.restassured.common.*,
+                            !io.restassured.internal.path.xml.*,
+                            !io.restassured.internal.path.json.*,
+                            !io.restassured.internal.common.*,
                         	io.restassured.*
                         </Export-Package>
                         <Import-Package>
@@ -60,6 +63,10 @@
 						</Import-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.basepom.maven</groupId>
+                <artifactId>duplicate-finder-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

@@ -18,10 +18,10 @@ package io.restassured.module.mockmvc.internal;
 
 import io.restassured.config.MultiPartConfig;
 
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+
 import java.io.File;
 import java.io.InputStream;
-
-import static io.restassured.internal.assertion.AssertParameter.notNull;
 
 class MockMvcMultiPart {
     private static final String OCTET_STREAM = "application/octet-stream";

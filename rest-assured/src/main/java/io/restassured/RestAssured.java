@@ -24,7 +24,7 @@ import io.restassured.filter.Filter;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Method;
 import io.restassured.internal.*;
-import io.restassured.internal.assertion.AssertParameter;
+import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.matcher.RestAssuredMatchers;

@@ -33,13 +33,13 @@ import io.restassured.specification.Argument;
 import io.restassured.specification.ResponseSpecification;
 import org.hamcrest.Matcher;
 
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static io.restassured.internal.assertion.AssertParameter.notNull;
 
 @SuppressWarnings("unchecked")
 public abstract class ValidatableResponseOptionsImpl<T extends ValidatableResponseOptions<T, R>, R extends ResponseBody<R> & ResponseOptions<R>> implements ValidatableResponseLogSpec<T, R> {

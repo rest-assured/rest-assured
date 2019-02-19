@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.restassured.internal.assertion.AssertParameter.notNull;
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.trim;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;

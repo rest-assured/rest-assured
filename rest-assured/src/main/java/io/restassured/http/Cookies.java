@@ -17,7 +17,7 @@
 package io.restassured.http;
 
 import io.restassured.internal.MultiValueEntity;
-import io.restassured.internal.assertion.AssertParameter;
+import io.restassured.internal.common.assertion.AssertParameter;
 
 import java.util.*;
 

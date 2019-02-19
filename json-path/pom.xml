@@ -44,7 +44,10 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>io.restassured.path.json.*</Export-Package>
+                        <Export-Package>
+                        	io.restassured.path.json.*,
+                        	io.restassured.internal.path.json.*
+                       	</Export-Package>
                         <Import-Package>
 							groovy.*;version="${groovy.range}",
                             org.codehaus.groovy.*;version="${groovy.range}",
@@ -53,7 +56,10 @@
                     </instructions>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.basepom.maven</groupId>
+                <artifactId>duplicate-finder-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 

@@ -45,7 +45,10 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>io.restassured.common.*</Export-Package>
+                        <Export-Package>
+                        	io.restassured.common.*, 
+                        	io.restassured.internal.common.*
+                        </Export-Package>
                         <Import-Package>
 							groovy.*;version="${groovy.range}",
                             org.codehaus.groovy.*;version="${groovy.range}",
@@ -53,6 +56,10 @@
 						</Import-Package>
                     </instructions>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.basepom.maven</groupId>
+                <artifactId>duplicate-finder-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

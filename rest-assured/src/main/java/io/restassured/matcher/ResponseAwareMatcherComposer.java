@@ -16,7 +16,7 @@
 
 package io.restassured.matcher;
 
-import io.restassured.internal.assertion.AssertParameter;
+import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.response.ResponseBody;
 import io.restassured.response.ResponseOptions;
 import org.hamcrest.Matcher;

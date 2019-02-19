@@ -32,14 +32,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
-
-import static io.restassured.internal.assertion.AssertParameter.notNull;
 
 public class WebTestClientRequestSpecBuilder {
 

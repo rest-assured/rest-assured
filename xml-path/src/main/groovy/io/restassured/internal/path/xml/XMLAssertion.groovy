@@ -18,13 +18,13 @@
 package io.restassured.internal.path.xml
 
 import groovy.util.slurpersupport.*
-import io.restassured.internal.assertion.Assertion
+import io.restassured.internal.common.assertion.Assertion
 import io.restassured.internal.path.xml.NodeChildrenImpl
 import io.restassured.internal.path.xml.NodeImpl
 import io.restassured.path.xml.element.PathElement
 import org.apache.commons.lang3.StringUtils
 
-import static io.restassured.internal.assertion.AssertionSupport.*
+import static io.restassured.internal.common.assertion.AssertionSupport.*
 
 class XMLAssertion implements Assertion {
     private static final String DOT = "."

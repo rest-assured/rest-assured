@@ -73,7 +73,7 @@ import static PathSupport.mergeAndRemoveDoubleSlash
 import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE
 import static io.restassured.http.ContentType.*
 import static io.restassured.http.Method.*
-import static io.restassured.internal.assertion.AssertParameter.notNull
+import static io.restassured.internal.common.assertion.AssertParameter.notNull
 import static io.restassured.internal.serialization.SerializationSupport.isSerializableCandidate
 import static java.lang.String.format
 import static java.util.Arrays.asList
