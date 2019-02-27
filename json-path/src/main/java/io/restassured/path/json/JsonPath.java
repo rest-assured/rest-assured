@@ -1067,6 +1067,8 @@ public class JsonPath {
             cfg = cfg.defaultParserType(JsonParserType.GSON);
         } else if (cfg.hasCustomJackson20ObjectMapperFactory()) {
             cfg = cfg.defaultParserType(JsonParserType.JACKSON_2);
+        } else if (cfg.hasCustomJohnzonObjectMapperFactory()) {
+            cfg = cfg.defaultParserType(JsonParserType.JOHNZON);
         }
 
         return JsonObjectDeserializer.deserialize(object, objectType, cfg);

@@ -20,5 +20,5 @@ package io.restassured.mapper;
  * The predefined object mappers that can be used with REST Assured
  */
 public enum ObjectMapperType {
-    JACKSON_2, JACKSON_1, GSON, JAXB
+    JACKSON_2, JACKSON_1, GSON, JAXB, JOHNZON
 }

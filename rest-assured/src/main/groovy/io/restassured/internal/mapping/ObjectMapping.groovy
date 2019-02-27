@@ -29,6 +29,7 @@ import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory
 import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory
 import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory
 import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory
+import io.restassured.path.json.mapper.factory.JohnzonObjectMapperFactory
 import io.restassured.response.ResponseBodyData
 import org.apache.commons.lang3.Validate
 
@@ -59,6 +60,8 @@ class ObjectMapping {
         return parseWithJackson1(deserializationCtx, objectMapperConfig.jackson1ObjectMapperFactory()) as T
       } else if (isGsonInClassPath()) {
         return parseWithGson(deserializationCtx, objectMapperConfig.gsonObjectMapperFactory()) as T
+      } else if (isJohnzonInClassPath()) {
+        return parseWithJohnzon(deserializationCtx, objectMapperConfig.johnzonObjectMapperFactory()) as T
       }
       throw new IllegalStateException("Cannot parse object because no JSON deserializer found in classpath. Please put either Jackson (Databind) or Gson in the classpath.")
     } else if (containsIgnoreCase(contentType, "xml")) {
@@ -74,7 +77,9 @@ class ObjectMapping {
           return parseWithJackson1(deserializationCtx, objectMapperConfig.jackson1ObjectMapperFactory()) as T
         } else if (isGsonInClassPath()) {
           return parseWithGson(deserializationCtx, objectMapperConfig.gsonObjectMapperFactory()) as T
-        }
+		} else if (isJohnzonInClassPath()) {
+			return parseWithJohnzon(deserializationCtx, objectMapperConfig.johnzonObjectMapperFactory()) as T
+		}
       } else if (containsIgnoreCase(defaultContentType, "xml")) {
         if (isJAXBInClassPath()) {
           return parseWithJaxb(deserializationCtx, objectMapperConfig.jaxbObjectMapperFactory()) as T
@@ -94,6 +99,8 @@ class ObjectMapping {
       return parseWithGson(ctx, config.gsonObjectMapperFactory()) as T
     } else if (mapperType == ObjectMapperType.JAXB && isJAXBInClassPath()) {
       return parseWithJaxb(ctx, config.jaxbObjectMapperFactory()) as T
+    } else if (mapperType == ObjectMapperType.JOHNZON && isJohnzonInClassPath()) {
+      return parseWithJohnzon(ctx, config.johnzonObjectMapperFactory()) as T
     } else {
       def lowerCase = mapperType.toString().toLowerCase()
       throw new IllegalArgumentException("Cannot map response body with mapper $mapperType because $lowerCase doesn't exist in the classpath.")
@@ -123,6 +130,8 @@ class ObjectMapping {
         return serializeWithGson(serializationCtx, config.gsonObjectMapperFactory())
       } else if (isJAXBInClassPath()) {
         return serializeWithJaxb(serializationCtx, config.jaxbObjectMapperFactory())
+      } else if (isJohnzonInClassPath()) {
+        return serializeWithJohnzon(serializationCtx, config.johnzonObjectMapperFactory())
       }
       throw new IllegalArgumentException("Cannot serialize because no JSON or XML serializer found in classpath.")
     } else {
@@ -134,6 +143,8 @@ class ObjectMapping {
           return serializeWithJackson1(serializationCtx, config.jackson1ObjectMapperFactory())
         } else if (isGsonInClassPath()) {
           return serializeWithGson(serializationCtx, config.gsonObjectMapperFactory())
+        } else if (isJohnzonInClassPath()) {
+          return serializeWithJohnzon(serializationCtx, config.johnzonObjectMapperFactory())
         }
         throw new IllegalStateException("Cannot serialize object because no JSON serializer found in classpath. Please put either Jackson (Databind) or Gson in the classpath.")
       } else if (containsIgnoreCase(ct, "xml") || encoderConfig.contentEncoders().get(ContentTypeExtractor.getContentTypeWithoutCharset(ct)) == ContentType.XML) {
@@ -165,6 +176,8 @@ class ObjectMapping {
       return serializeWithGson(ctx, config.gsonObjectMapperFactory())
     } else if (mapperType == ObjectMapperType.JAXB && isJAXBInClassPath()) {
       return serializeWithJaxb(ctx, config.jaxbObjectMapperFactory())
+    } else if (mapperType == ObjectMapperType.JOHNZON && isJohnzonInClassPath()) {
+      return serializeWithJohnzon(ctx, config.johnzonObjectMapperFactory())
     } else {
       def lowerCase = mapperType.toString().toLowerCase()
       throw new IllegalArgumentException("Cannot serialize object with mapper $mapperType because $lowerCase doesn't exist in the classpath.")
@@ -188,6 +201,10 @@ class ObjectMapping {
     new JaxbMapper(factory).serialize(ctx)
   }
 
+  private static String serializeWithJohnzon(ObjectMapperSerializationContext ctx, JohnzonObjectMapperFactory factory) {
+    new JohnzonMapper(factory).serialize(ctx)
+  }
+	
   private static def parseWithJaxb(ObjectMapperDeserializationContext ctx, JAXBObjectMapperFactory factory) {
     new JaxbMapper(factory).deserialize(ctx)
   }
@@ -204,6 +221,10 @@ class ObjectMapping {
     new Jackson2Mapper(factory).deserialize(ctx)
   }
 
+  static def parseWithJohnzon(ObjectMapperDeserializationContext ctx, JohnzonObjectMapperFactory factory) {
+    new JohnzonMapper(factory).deserialize(ctx)
+  }
+	
   private static ObjectMapperDeserializationContext deserializationContext(ResponseBodyData responseData, Type cls, contentType, charset) {
     def ctx = new ObjectMapperDeserializationContextImpl()
     ctx.type = cls
