@@ -4,6 +4,7 @@ Changelog next version
 * Fixed issue with overwriting FailureConfig on settings other configs (#1127) (thanks to Victor Orlovsky for pull request)
 * Added version range for the Groovy dependency for the osgi module to be between 2.4 and less than 2.5. This is because the API has changed in Groovy 2.5. (thanks to Rikske54 for pull request)
 * Fixed so that using a ResponseSpecBuilder doesn't overwrite the configured config implicitly (issue 1128)
+* Add Apache Johnzon object mapper support (thanks to Andriy Redko for pull request)
 
 Changelog 3.3.0 (2019-01-11)
 ----------------------------
