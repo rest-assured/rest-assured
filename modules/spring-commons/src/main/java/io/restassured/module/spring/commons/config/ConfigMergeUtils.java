@@ -72,6 +72,10 @@ public class ConfigMergeUtils {
                 base = base.paramConfig(toMerge.getParamConfig());
             }
 
+            if (toMerge.getMatcherConfig().isUserConfigured()) {
+                base = base.matcherConfig(toMerge.getMatcherConfig());
+            }
+
             return base;
         } else {
             return toMerge;
