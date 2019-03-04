@@ -480,7 +480,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
             }
             validations.addAll(bodyMatchers.validate(response, contentParser, cfg))
           }
-        } catch (Exception e) {
+        } catch (Throwable e) {
           fireFailureListeners(response)
           throw e;
         }
