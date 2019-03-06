@@ -44,8 +44,7 @@ public class ContentTypeTest {
                 contentType(ContentType.JSON).
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        MultiValueMap<String, Object> headers = Whitebox.getInternalState(requestBuilder, "headers");
-                        contentType.set(String.valueOf(headers.getFirst("Content-Type")));
+                        contentType.set(String.valueOf(Whitebox.getInternalState(requestBuilder, "contentType")));
                     }
                 }).
         when().
@@ -66,8 +65,7 @@ public class ContentTypeTest {
                 contentType(ContentType.JSON).
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        MultiValueMap<String, Object> headers = Whitebox.getInternalState(requestBuilder, "headers");
-                        contentType.set(String.valueOf(headers.getFirst("Content-Type")));
+                        contentType.set(String.valueOf(Whitebox.getInternalState(requestBuilder, "contentType")));
                     }
                 }).
         when().
@@ -88,8 +86,7 @@ public class ContentTypeTest {
                 contentType(ContentType.JSON.withCharset(UTF_16)).
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        MultiValueMap<String, Object> headers = Whitebox.getInternalState(requestBuilder, "headers");
-                        contentType.set(String.valueOf(headers.getFirst("Content-Type")));
+                        contentType.set(String.valueOf(Whitebox.getInternalState(requestBuilder, "contentType")));
                     }
                 }).
         when().
@@ -110,8 +107,7 @@ public class ContentTypeTest {
                 contentType(ContentType.JSON).
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        MultiValueMap<String, Object> headers = Whitebox.getInternalState(requestBuilder, "headers");
-                        contentType.set(String.valueOf(headers.getFirst("Content-Type")));
+                        contentType.set(String.valueOf(Whitebox.getInternalState(requestBuilder, "contentType")));
                     }
                 }).
         when().
@@ -131,10 +127,7 @@ public class ContentTypeTest {
                 contentType(ContentType.JSON).
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        MultiValueMap<String, Object> headers = Whitebox.getInternalState(requestBuilder, "headers");
-                        for (Object header : headers.get("Content-Type")) {
-                            contentTypes.add(String.valueOf(header));
-                        }
+                        contentTypes.add(String.valueOf(Whitebox.getInternalState(requestBuilder, "contentType")));
                     }
                 }).
         when().
@@ -156,10 +149,7 @@ public class ContentTypeTest {
                 contentType(ContentType.JSON).
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        MultiValueMap<String, Object> headers = Whitebox.getInternalState(requestBuilder, "headers");
-                        for (Object header : headers.get("Content-Type")) {
-                            contentTypes.add(String.valueOf(header));
-                        }
+                        contentTypes.add(String.valueOf(Whitebox.getInternalState(requestBuilder, "contentType")));
                     }
                 }).
         when().
