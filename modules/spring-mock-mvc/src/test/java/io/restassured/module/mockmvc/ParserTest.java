@@ -47,7 +47,7 @@ public class ParserTest {
                 get("/parserWithUnknownContentType").
         then().
                 statusCode(200).
-                contentType(equalTo("some/thing")).
+                contentType(equalTo("some/thing;charset=ISO-8859-1")).
                 body("param", equalTo("my param"));
     }
 
@@ -60,7 +60,7 @@ public class ParserTest {
         then().
                 parser("some/thing", Parser.JSON).
                 statusCode(200).
-                contentType(equalTo("some/thing")).
+                contentType(equalTo("some/thing;charset=ISO-8859-1")).
                 body("param", equalTo("my param"));
     }
 }
