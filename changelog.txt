@@ -7,7 +7,7 @@ Changelog next version
 * Add Apache Johnzon object mapper support (thanks to Andriy Redko for pull request)
 * Add support for MatcherConfig in RestAssuredMockMvcConfig (#1071) (thanks to Jurriaan Pruijs for pull request)
 * Supported for logging when thrown assertion errors from matcher internal #1129 (thanks to Gemini Kim for pull request)
-* Fixed so that there no longer are multiple versions of org.springframework:spring-web:jar, leading to inconsistent semantic behaviors (thanks to HelloCoCooo for pull request)
+* Fixed so that there no longer are multiple versions of org.springframework:spring-web:jar, leading to inconsistent semantic behaviors (#1143) (thanks to HelloCoCooo for pull request)
 
 Changelog 3.3.0 (2019-01-11)
 ----------------------------
