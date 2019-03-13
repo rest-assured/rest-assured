@@ -11,9 +11,9 @@ languages into the Java domain.
 
 
 ## News 
+* 2019-03-13: [Bas Dijkstra](https://twitter.com/_basdijkstra) has made a really great introductionary screencast to REST Assured. You can check it out [here](https://testautomationu.applitools.com/automating-your-api-tests-with-rest-assured/).
 * 2019-01-11: REST Assured [3.3.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.3.0-dist.zip) is released. This release introduces better support for [de-serializing with generics](https://github.com/rest-assured/rest-assured/wiki/Usage#deserialization-with-generics), [Java 9 split packages](https://github.com/rest-assured/rest-assured/wiki/GettingStarted#java-9), [ResponseValidationListeners](https://github.com/rest-assured/rest-assured/wiki/Usage#failure-config) as well as bug fixes and various improvements. Please see [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes33) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2018-10-19: REST Assured [3.2.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.2.0-dist.zip) is released. This release adds support for Java 11 and OSGi. It also includes support for [Spring Webflux](https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html) by using the new [spring-web-test-client](https://github.com/rest-assured/rest-assured/wiki/Usage#spring-web-test-client-module) module. Please see [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes32) and [getting started guide](https://github.com/rest-assured/rest-assured/wiki/GettingStarted) for more details.
-* 2018-10-05: Johan blogs on how to configure REST Assured to log to disk instead of to the console. You can find the blog post [here](http://code.haleby.se/2018/10/05/logging-to-disk-with-rest-assured/). Also added info about this to the [FAQ](https://github.com/rest-assured/rest-assured/wiki/FAQ#4-logging-rest-assured-logs-to-disk). 
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
