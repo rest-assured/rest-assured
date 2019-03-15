@@ -26,7 +26,6 @@ import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.http.GreetingController;
 import io.restassured.module.mockmvc.http.PostController;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
-import io.restassured.module.mockmvc.internal.MockMvcFactory;
 import io.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import io.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder;
@@ -176,7 +175,8 @@ public class MockMvcRequestSpecificationMergingTest {
         MockMvcRequestSpecification spec = RestAssuredMockMvc.given().mockMvc(thisMockMvcInstance).spec(specToMerge);
 
         // Then
-        assertThat(Whitebox.<MockMvcFactory>getInternalState(implOf(spec).getMockMvcFactory(), "mockMvc")).isSameAs(otherMockMvcInstance);
+        Object mockMvc = Whitebox.getInternalState(implOf(spec).getMockMvcFactory(), "mockMvc"); // Don't change this to a one-liner, since then it won't work on JDK 11
+        assertThat(mockMvc).isSameAs(otherMockMvcInstance);
     }
 
     @Test public void
@@ -189,7 +189,8 @@ public class MockMvcRequestSpecificationMergingTest {
         MockMvcRequestSpecification spec = RestAssuredMockMvc.given().mockMvc(mockMvcInstance).spec(specToMerge);
 
         // Then
-        assertThat(Whitebox.<MockMvcFactory>getInternalState(implOf(spec).getMockMvcFactory(), "mockMvc")).isSameAs(mockMvcInstance);
+        Object mockMvc = Whitebox.getInternalState(implOf(spec).getMockMvcFactory(), "mockMvc"); // Don't change this to a one-liner, since then it won't work on JDK 11
+        assertThat(mockMvc).isSameAs(mockMvcInstance);
         Assertions.assertThat(implOf(spec).getQueryParams()).containsOnly(entry("param1", "value1"));
     }
 
