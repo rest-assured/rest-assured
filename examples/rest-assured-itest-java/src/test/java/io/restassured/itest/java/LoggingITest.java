@@ -1192,7 +1192,7 @@ public class LoggingITest extends WithJetty {
                 endsWith(String.format("Server: Jetty(9.3.2.v20150730)%n" +
                         "%n" +
                         "<!--%n" +
-                        "  ~ Copyright 2013 the original author or authors.%n" +
+                        "  ~ Copyright 2019 the original author or authors.%n" +
                         "  ~%n" +
                         "  ~ Licensed under the Apache License, Version 2.0 (the \"License\");%n" +
                         "  ~ you may not use this file except in compliance with the License.%n" +
