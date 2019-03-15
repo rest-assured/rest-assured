@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 /**
  * Implement this interface to intercept the {@link MockHttpServletRequestBuilder} before it's built.
  */
+@FunctionalInterface
 public interface MockHttpServletRequestBuilderInterceptor {
 
     /**

@@ -17,14 +17,10 @@
 // @formatter:off
 package io.restassured.module.mockmvc;
 
-import io.restassured.function.RestAssuredFunction;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
-import io.restassured.matcher.ResponseAwareMatcher;
 import io.restassured.module.mockmvc.http.HeaderController;
 import io.restassured.module.mockmvc.http.RedirectController;
-import io.restassured.module.mockmvc.response.MockMvcResponse;
-import org.hamcrest.Matcher;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -70,10 +66,7 @@ public class HeaderTest {
         when().
                 get("/header").
         then().
-                header("Content-Length", new RestAssuredFunction<String, Integer>() {
-                                                public Integer apply(String s) {
-                                                    return Integer.parseInt(s);
-                                                }}, lessThanOrEqualTo(1000));
+                header("Content-Length", Integer::parseInt, lessThanOrEqualTo(1000));
     }
 
     @Test public void
@@ -86,10 +79,7 @@ public class HeaderTest {
         when().
                 get("/header").
         then().
-                header("Content-Length", new RestAssuredFunction<String, Integer>() {
-                                                public Integer apply(String s) {
-                                                    return Integer.parseInt(s);
-                                                }}, greaterThan(1000));
+                header("Content-Length", Integer::parseInt, greaterThan(1000));
     }
 
     @Test public void
@@ -118,7 +108,7 @@ public class HeaderTest {
 
     @Test public void
     can_send_headers_using_map() {
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("headerName", "John Doe");
         headers.put("user-agent", "rest assured");
 
@@ -145,17 +135,14 @@ public class HeaderTest {
     }
 
     @Test
-    public void canUseResponseAwareMatchersForHeaderValidation() throws Exception {
+    public void canUseResponseAwareMatchersForHeaderValidation() {
         given().
                 standaloneSetup(new RedirectController()).
         when().
                 get("/redirect").
         then().
                 statusCode(301).
-                header("Location", new ResponseAwareMatcher<MockMvcResponse>() {
-                    public Matcher<?> matcher(MockMvcResponse response) throws Exception {
-                            return endsWith("/redirect/"+response.path("id"));
-                    }});
+                header("Location", response-> endsWith("/redirect/"+response.path("id")));
     }
 }
 

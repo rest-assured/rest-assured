@@ -151,11 +151,7 @@ public class RestAssuredMatchers {
      * @return A {@link ResponseAwareMatcher}
      */
     public static ResponseAwareMatcher<Response> equalToPath(final String path) {
-        return new ResponseAwareMatcher<Response>() {
-            public Matcher<?> matcher(Response response) {
-                return equalTo(response.path(path));
-            }
-        };
+        return response -> equalTo(response.path(path));
     }
 
     /**
@@ -176,11 +172,7 @@ public class RestAssuredMatchers {
      * @return A {@link ResponseAwareMatcher}
      */
     public static ResponseAwareMatcher<Response> endsWithPath(final String path) {
-        return new ResponseAwareMatcher<Response>() {
-            public Matcher<?> matcher(Response response) {
-                return endsWith(response.<String>path(path));
-            }
-        };
+        return response -> endsWith(response.<String>path(path));
     }
 
     /**
@@ -202,11 +194,7 @@ public class RestAssuredMatchers {
      * @return A {@link ResponseAwareMatcher}
      */
     public static ResponseAwareMatcher<Response> startsWithPath(final String path) {
-        return new ResponseAwareMatcher<Response>() {
-            public Matcher<?> matcher(Response response) {
-                return startsWith(response.<String>path(path));
-            }
-        };
+        return response -> startsWith(response.<String>path(path));
     }
 
     /**
@@ -227,11 +215,7 @@ public class RestAssuredMatchers {
      * @return A {@link ResponseAwareMatcher}
      */
     public static ResponseAwareMatcher<Response> containsPath(final String path) {
-        return new ResponseAwareMatcher<Response>() {
-            public Matcher<?> matcher(Response response) {
-                return containsString(response.<String>path(path));
-            }
-        };
+        return response -> containsString(response.<String>path(path));
     }
 
     public static DetailedCookieMatcher detailedCookie() {

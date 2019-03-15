@@ -44,6 +44,7 @@ import org.hamcrest.Matcher;
  *
  * @param <T> The type of the response.
  */
+@FunctionalInterface
 public interface ResponseAwareMatcher<T extends ResponseBody<T> & ResponseOptions<T>> {
 
     /**

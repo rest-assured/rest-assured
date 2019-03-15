@@ -17,7 +17,6 @@
 package io.restassured.specification;
 
 import io.restassured.filter.log.LogDetail;
-import io.restassured.function.RestAssuredFunction;
 import io.restassured.http.ContentType;
 import io.restassured.matcher.DetailedCookieMatcher;
 import io.restassured.parsing.Parser;
@@ -28,6 +27,7 @@ import org.hamcrest.Matcher;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * Allows you to specify how the expected response must look like in order for a test to pass.
@@ -293,7 +293,7 @@ public interface ResponseSpecification {
      * @param expectedValueMatcher The Hamcrest matcher that must conform to the value
      * @return the response specification
      */
-    <T> ResponseSpecification header(String headerName, RestAssuredFunction<String, T> mappingFunction, Matcher<? super T> expectedValueMatcher);
+    <T> ResponseSpecification header(String headerName, Function<String, T> mappingFunction, Matcher<? super T> expectedValueMatcher);
 
     /**
      * Expect that a response header matches the supplied name and value.

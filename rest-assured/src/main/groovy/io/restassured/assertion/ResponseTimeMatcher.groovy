@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit
 
 class ResponseTimeMatcher {
 
-  def Matcher<Long> matcher
-  def TimeUnit timeUnit
+  Matcher<Long> matcher
+  TimeUnit timeUnit
 
   def validate(Response response) {
     def errorMessage = ""
@@ -35,11 +35,11 @@ class ResponseTimeMatcher {
       errorMessage = "No time was recorded, cannot perform response time validation."
       success = false
     } else if (!matcher.matches(time)) {
-      def timeMillis = response.getTime();
+      def timeMillis = response.getTime()
       success = false
       errorMessage = "Expected response time was not $matcher ${timeUnit.toString().toLowerCase()}, was $timeMillis milliseconds ($time ${timeUnit.toString().toLowerCase()})."
     }
 
-    return [success: success, errorMessage: errorMessage];
+    return [success: success, errorMessage: errorMessage]
   }
 }

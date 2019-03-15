@@ -24,19 +24,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.data.MapEntry.entry;
+import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.assertTrue;
 
+@SuppressWarnings("unchecked")
 public class HttpClientConfigTest {
 
     private static final String CUSTOM_MAX_REDIRECTS = "100";
 
     @Test
-    public void cookiePolicyIsSetToIgnoreCookiesByDefault() throws Exception {
+    public void cookiePolicyIsSetToIgnoreCookiesByDefault() {
         final HttpClientConfig httpClientConfig = new HttpClientConfig();
 
-        assertThat(httpClientConfig.params())
-                .contains(entry(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES));
+        Map<String, Object> params = (Map<String, Object>) httpClientConfig.params();
+        assertThat(params).containsEntry(ClientPNames.COOKIE_POLICY, CookiePolicy.IGNORE_COOKIES);
     }
 
     @Test
@@ -46,7 +47,8 @@ public class HttpClientConfigTest {
                 .reuseHttpClientInstance()
                 .setParam(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
 
-        assertThat(httpClientConfig.params())
+        Map<String, Object> params = (Map<String, Object>) httpClientConfig.params();
+        assertThat(params)
                 .contains(
                         entry(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS),
                         entry(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
@@ -61,7 +63,8 @@ public class HttpClientConfigTest {
                 .setParam(ClientPNames.MAX_REDIRECTS, "50")
                 .setParam(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS);
 
-        assertThat(httpClientConfig.params())
+        Map<String, Object> params = (Map<String, Object>) httpClientConfig.params();
+        assertThat(params)
                 .contains(entry(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS));
     }
 
@@ -78,7 +81,8 @@ public class HttpClientConfigTest {
                 .reuseHttpClientInstance()
                 .addParams(cookieParam);
 
-        assertThat(httpClientConfig.params())
+        Map<String, Object> params = (Map<String, Object>) httpClientConfig.params();
+        assertThat(params)
                 .contains(
                         entry(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS),
                         entry(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
@@ -100,9 +104,9 @@ public class HttpClientConfigTest {
                 .reuseHttpClientInstance()
                 .addParams(cookieParam);
 
-        assertThat(httpClientConfig.params())
+        Map<String, Object> params = (Map<String, Object>) httpClientConfig.params();
+        assertThat(params)
                 .contains(entry(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS));
 
     }
-
 }

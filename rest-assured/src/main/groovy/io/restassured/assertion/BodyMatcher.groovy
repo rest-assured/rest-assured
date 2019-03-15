@@ -35,19 +35,19 @@ import static org.apache.commons.lang3.StringUtils.*
 class BodyMatcher {
   private static final String XPATH = "XPath"
   def key
-  def Matcher matcher
-  def ResponseParserRegistrar rpr
+  Matcher matcher
+  ResponseParserRegistrar rpr
 
   def validate(Response response, contentParser, RestAssuredConfig config) {
     def success = true
-    def errorMessage = "";
+    def errorMessage = ""
 
     contentParser = fallbackToResponseBodyIfContentParserIsNull(response, contentParser)
     if (key == null) {
       if (isXPathMatcher()) {
-        def xmlConfig = config.getXmlConfig();
+        def xmlConfig = config.getXmlConfig()
         boolean namespaceAware = xmlConfig.isNamespaceAware()
-        def Map<String, Boolean> features = xmlConfig.features()
+        Map<String, Boolean> features = xmlConfig.features()
 
         def factory = DocumentBuilderFactory.newInstance()
         factory.setNamespaceAware(namespaceAware)
@@ -57,14 +57,14 @@ class BodyMatcher {
           }
         }
 
-        def properties = xmlConfig.properties();
+        def properties = xmlConfig.properties()
         if (!properties.isEmpty()) {
           properties.each { name, value ->
             factory.setAttribute(name, value)
           }
         }
 
-        Element node = factory.newDocumentBuilder().parse(new ByteArrayInputStream(response.asByteArray())).getDocumentElement();
+        Element node = factory.newDocumentBuilder().parse(new ByteArrayInputStream(response.asByteArray())).getDocumentElement()
         if (!matcher.matches(node)) {
           success = false
           if (config.matcherConfig.hasErrorDescriptionType(REST_ASSURED)) {
@@ -107,15 +107,15 @@ class BodyMatcher {
         }
       }
     }
-    return [success: success, errorMessage: errorMessage];
+    return [success: success, errorMessage: errorMessage]
   }
 
   private static String getDescription(Matcher matcher, Object actual) {
-    Description description = new StringDescription();
+    Description description = new StringDescription()
     description.appendText("\nExpected: ")
             .appendDescriptionOf(matcher)
-            .appendText("\n  Actual: ");
-    matcher.describeMismatch(actual, description);
+            .appendText("\n  Actual: ")
+    matcher.describeMismatch(actual, description)
     return description.toString()
   }
 
@@ -144,11 +144,11 @@ class BodyMatcher {
     matcher instanceof HasXPath || isNestedMatcherContainingXPathMatcher()
   }
 
-  def boolean requiresTextParsing() {
+  boolean requiresTextParsing() {
     key == null || isXPathMatcher()
   }
 
-  def boolean requiresPathParsing() {
+  boolean requiresPathParsing() {
     !requiresTextParsing()
   }
 }

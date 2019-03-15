@@ -22,7 +22,7 @@ class HeaderMatcher {
 
   def headerName
   def mappingFunction
-  def Matcher matcher
+  Matcher matcher
 
   def validateHeader(headers) {
     def success = true

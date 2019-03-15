@@ -27,6 +27,7 @@ import io.restassured.specification.FilterableResponseSpecification;
  *
  * If you need an ordered filter you should implement {@link OrderedFilter}.
  */
+@FunctionalInterface
 public interface Filter {
 
     /**

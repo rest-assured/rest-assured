@@ -26,6 +26,7 @@ import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.http.GreetingController;
 import io.restassured.module.mockmvc.http.PostController;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
+import io.restassured.module.mockmvc.internal.MockMvcFactory;
 import io.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import io.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder;
@@ -37,7 +38,6 @@ import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.io.PrintStream;
@@ -176,7 +176,7 @@ public class MockMvcRequestSpecificationMergingTest {
         MockMvcRequestSpecification spec = RestAssuredMockMvc.given().mockMvc(thisMockMvcInstance).spec(specToMerge);
 
         // Then
-        assertThat(Whitebox.getInternalState(implOf(spec).getMockMvcFactory(), "mockMvc")).isSameAs(otherMockMvcInstance);
+        assertThat(Whitebox.<MockMvcFactory>getInternalState(implOf(spec).getMockMvcFactory(), "mockMvc")).isSameAs(otherMockMvcInstance);
     }
 
     @Test public void
@@ -189,7 +189,7 @@ public class MockMvcRequestSpecificationMergingTest {
         MockMvcRequestSpecification spec = RestAssuredMockMvc.given().mockMvc(mockMvcInstance).spec(specToMerge);
 
         // Then
-        assertThat(Whitebox.getInternalState(implOf(spec).getMockMvcFactory(), "mockMvc")).isSameAs(mockMvcInstance);
+        assertThat(Whitebox.<MockMvcFactory>getInternalState(implOf(spec).getMockMvcFactory(), "mockMvc")).isSameAs(mockMvcInstance);
         Assertions.assertThat(implOf(spec).getQueryParams()).containsOnly(entry("param1", "value1"));
     }
 
@@ -310,15 +310,9 @@ public class MockMvcRequestSpecificationMergingTest {
     @Test public void
     interception_is_overwritten_when_defined_in_specification() {
         // Given
-        MockHttpServletRequestBuilderInterceptor otherInterceptor = new MockHttpServletRequestBuilderInterceptor() {
-            public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-            }
-        };
+        MockHttpServletRequestBuilderInterceptor otherInterceptor = requestBuilder -> {};
 
-        MockHttpServletRequestBuilderInterceptor thisInterceptor = new MockHttpServletRequestBuilderInterceptor() {
-            public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-            }
-        };
+        MockHttpServletRequestBuilderInterceptor thisInterceptor = requestBuilder -> {};
 
         MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().setMockHttpServletRequestBuilderInterceptor(otherInterceptor).build();
 
@@ -332,10 +326,7 @@ public class MockMvcRequestSpecificationMergingTest {
     @Test public void
     interception_is_not_overwritten_when_not_defined_in_specification() {
         // Given
-        MockHttpServletRequestBuilderInterceptor thisInterceptor = new MockHttpServletRequestBuilderInterceptor() {
-            public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-            }
-        };
+        MockHttpServletRequestBuilderInterceptor thisInterceptor = requestBuilder -> {};
         MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().addQueryParam("param1", "value1").build();
 
         // When

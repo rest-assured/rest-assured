@@ -35,7 +35,7 @@ public class Headers implements Iterable<Header> {
 
     public Headers(List<Header> headers) {
         notNull(headers, "Headers");
-        this.headers = new MultiValueEntity<Header>(headers);
+        this.headers = new MultiValueEntity<>(headers);
     }
 
     /**

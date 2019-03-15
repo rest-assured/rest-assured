@@ -16,7 +16,6 @@
 
 package io.restassured.response;
 
-import io.restassured.function.RestAssuredFunction;
 import io.restassured.http.ContentType;
 import io.restassured.matcher.DetailedCookieMatcher;
 import io.restassured.matcher.ResponseAwareMatcher;
@@ -29,6 +28,7 @@ import org.hamcrest.Matcher;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * A validatable response of a request made by REST Assured.
@@ -495,7 +495,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * @param expectedValueMatcher The Hamcrest matcher that must conform to the value
      * @return the response specification
      */
-    <V> T header(String headerName, RestAssuredFunction<String, V> mappingFunction, Matcher<? super V> expectedValueMatcher);
+    <V> T header(String headerName, Function<String, V> mappingFunction, Matcher<? super V> expectedValueMatcher);
 
     /**
      * Validate that a response header matches the supplied name and value.

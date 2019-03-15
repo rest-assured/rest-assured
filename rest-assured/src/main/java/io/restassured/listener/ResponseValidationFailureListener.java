@@ -20,7 +20,19 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 
+/**
+ * An interface that can be implemented to get callback when a failure occurs during test execution.
+ */
+@FunctionalInterface
 public interface ResponseValidationFailureListener {
+
+    /**
+     * Called when a failure occurs
+     *
+     * @param requestSpecification The request specification
+     * @param responseSpecification The reponse specification
+     * @param response The actual response
+     */
     void onFailure(RequestSpecification requestSpecification,
                    ResponseSpecification responseSpecification,
                    Response response);

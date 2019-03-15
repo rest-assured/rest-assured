@@ -20,7 +20,6 @@ import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
-import io.restassured.function.RestAssuredFunction;
 import io.restassured.http.ContentType;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.print.ResponsePrinter;
@@ -38,6 +37,7 @@ import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
@@ -154,7 +154,7 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         return (T) this;
     }
 
-    public <U> T header(String headerName, RestAssuredFunction<String, U> f, Matcher<? super U> matcher) {
+    public <U> T header(String headerName, Function<String, U> f, Matcher<? super U> matcher) {
         responseSpec.header(headerName, f, matcher);
         return (T) this;
     }

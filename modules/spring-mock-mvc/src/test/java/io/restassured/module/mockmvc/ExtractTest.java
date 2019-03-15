@@ -42,7 +42,7 @@ public class ExtractTest {
         extract().
                 response();
 
-        assertThat(response.path("content")).isEqualTo("Hello, Johan!");
+        assertThat(response.<String>path("content")).isEqualTo("Hello, Johan!");
     }
 
     @Test public void

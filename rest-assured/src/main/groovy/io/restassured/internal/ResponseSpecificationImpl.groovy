@@ -20,7 +20,6 @@ package io.restassured.internal
 import io.restassured.assertion.*
 import io.restassured.config.RestAssuredConfig
 import io.restassured.filter.log.LogDetail
-import io.restassured.function.RestAssuredFunction
 import io.restassured.http.ContentType
 import io.restassured.internal.MapCreator.CollisionStrategy
 import io.restassured.internal.log.LogRepository
@@ -35,6 +34,7 @@ import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 
 import java.util.concurrent.TimeUnit
+import java.util.function.Function
 
 import static io.restassured.http.ContentType.ANY
 import static io.restassured.internal.common.assertion.AssertParameter.notNull
@@ -163,7 +163,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return headers(MapCreator.createMapFromParams(CollisionStrategy.MERGE, firstExpectedHeaderName, firstExpectedHeaderValue, expectedHeaders))
   }
 
-  def <T> ResponseSpecification header(String headerName, RestAssuredFunction<String, T> mappingFunction, Matcher<? super T> expectedValueMatcher) {
+  def <T> ResponseSpecification header(String headerName, Function<String, T> mappingFunction, Matcher<? super T> expectedValueMatcher) {
     notNull headerName, "Header name"
     notNull mappingFunction, "Mapping function"
     notNull expectedValueMatcher, "Hamcrest matcher"

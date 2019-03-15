@@ -55,7 +55,12 @@ Changelog next version
         * parameter
         * queryParameter
         * queryParameters
-
+* Rest Assured now requires Java 8 (previously Java 6 was required)
+* Removed io.restassured.function.RestAssuredFunction - use java.util.function.Function instead
+* Made io.restassured.matcher.ResponseAwareMatcher a proper annotated functional interface
+* Made io.restassured.filter.Filter a proper annotated functional interface
+* Made io.restassured.listener.ResponseValidationFailureListener a proper annotated functional interface
+* Made io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor a proper annotated functional interface
 
 Changelog 3.3.0 (2019-01-11)
 ----------------------------
