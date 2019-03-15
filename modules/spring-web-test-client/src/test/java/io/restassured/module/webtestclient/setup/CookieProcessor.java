@@ -26,20 +26,20 @@ import reactor.core.publisher.Mono;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("unchecked")
 public class CookieProcessor {
 
-	public Mono<ServerResponse> processCookies(ServerRequest request) {
-		MultiValueMap processedResponseCookies = new LinkedMultiValueMap();
-		request.queryParams().keySet()
-				.stream()
-				.map(queryParamName -> request.queryParams().get(queryParamName).stream()
-						.map(queryParam -> ResponseCookie.from(queryParamName, queryParam).build())
-						.collect(Collectors.toList()))
-				.flatMap(Collection::stream)
-				.forEach(processedCookie -> processedResponseCookies.add(processedCookie.getName(), processedCookie));
+    public Mono<ServerResponse> processCookies(ServerRequest request) {
+        MultiValueMap processedResponseCookies = new LinkedMultiValueMap();
+        request.queryParams().keySet()
+                .stream()
+                .map(queryParamName -> request.queryParams().get(queryParamName).stream()
+                        .map(queryParam -> ResponseCookie.from(queryParamName, queryParam).build())
+                        .collect(Collectors.toList()))
+                .flatMap(Collection::stream)
+                .forEach(processedCookie -> processedResponseCookies.add(processedCookie.getName(), processedCookie));
 
-		return ServerResponse.ok().cookies(
-				cookies -> cookies.addAll(processedResponseCookies)).contentType(MediaType.APPLICATION_JSON).build();
-
-	}
+        return ServerResponse.ok().cookies(
+                cookies -> cookies.addAll(processedResponseCookies)).contentType(MediaType.APPLICATION_JSON).build();
+    }
 }
