@@ -2055,7 +2055,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         int status = resp.getStatusLine().getStatusCode();
         Closure responseClosure = delegate.findResponseHandler(status);
 
-        final Object returnVal;
+        Object returnVal;
         Object[] closureArgs = null;
         switch (responseClosure.getMaximumNumberOfParameters()) {
           case 1:
