@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,14 +37,14 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 
-import static io.restassured.internal.common.assertion.AssertParameter.notNull;
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
+
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 /**
  * You can use the builder to construct a request specification. The specification can be used as e.g.

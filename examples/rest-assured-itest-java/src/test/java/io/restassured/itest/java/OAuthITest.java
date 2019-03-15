@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package io.restassured.itest.java;
 
 import io.restassured.authentication.AuthenticationScheme;
+import io.restassured.authentication.OAuthSignature;
 import io.restassured.authentication.PreemptiveOAuth2HeaderScheme;
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.filter.Filter;
@@ -24,7 +25,6 @@ import io.restassured.filter.FilterContext;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
-import io.restassured.authentication.OAuthSignature;
 import org.junit.Ignore;
 import org.junit.Test;
 

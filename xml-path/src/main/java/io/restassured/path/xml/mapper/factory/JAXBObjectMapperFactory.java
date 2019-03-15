@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package io.restassured.path.xml.mapper.factory;
 
-import javax.xml.bind.JAXBContext;
-
 import io.restassured.common.mapper.factory.ObjectMapperFactory;
+
+import javax.xml.bind.JAXBContext;
 
 /**
  * Interface for JAXB object mappers. Implement this class and register it to the ObjectMapperConfig if you

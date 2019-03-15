@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,12 @@
  */
 package io.restassured.module.webtestclient.internal;
 
-import java.io.File;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 import io.restassured.config.LogConfig;
 import io.restassured.config.MultiPartConfig;
 import io.restassured.config.ParamConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.http.ContentType;
-import io.restassured.http.Cookie;
-import io.restassured.http.Cookies;
-import io.restassured.http.Header;
-import io.restassured.http.Headers;
-import io.restassured.http.Method;
+import io.restassured.http.*;
 import io.restassured.internal.MapCreator;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapping;
@@ -61,7 +43,6 @@ import io.restassured.module.webtestclient.specification.WebTestClientRequestLog
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSender;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecification;
 import io.restassured.specification.ResponseSpecification;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -69,6 +50,14 @@ import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.util.UriBuilder;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static io.restassured.internal.MapCreator.CollisionStrategy.OVERWRITE;
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;

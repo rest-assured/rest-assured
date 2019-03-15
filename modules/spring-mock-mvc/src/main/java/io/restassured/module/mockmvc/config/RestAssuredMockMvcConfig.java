@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,12 @@
 
 package io.restassured.module.mockmvc.config;
 
-import static io.restassured.internal.common.assertion.AssertParameter.notNull;
-
-import io.restassured.config.DecoderConfig;
-import io.restassured.config.EncoderConfig;
-import io.restassured.config.HeaderConfig;
-import io.restassured.config.JsonConfig;
-import io.restassured.config.LogConfig;
-import io.restassured.config.MatcherConfig;
-import io.restassured.config.MultiPartConfig;
-import io.restassured.config.ObjectMapperConfig;
-import io.restassured.config.ParamConfig;
-import io.restassured.config.SessionConfig;
-import io.restassured.config.XmlConfig;
+import io.restassured.config.*;
 import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.spring.commons.config.ClientConfig;
 import io.restassured.module.spring.commons.config.SpecificationConfig;
+
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 /**
  * Main configuration for REST Assured Mock MVC that allows you to configure advanced settings.

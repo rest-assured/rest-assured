@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package io.restassured.module.mockmvc;
 
-import java.util.concurrent.TimeUnit;
-
 import io.restassured.module.mockmvc.http.PostAsyncController;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.concurrent.TimeUnit;
 
 import static io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig.newConfig;
 import static io.restassured.module.spring.commons.config.AsyncConfig.withTimeout;

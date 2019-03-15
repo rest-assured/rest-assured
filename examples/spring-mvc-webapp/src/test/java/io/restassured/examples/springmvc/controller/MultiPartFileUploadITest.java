@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package io.restassured.examples.springmvc.controller;
 import io.restassured.examples.springmvc.config.MainConfiguration;
 import io.restassured.examples.springmvc.support.Greeting;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
-import io.restassured.path.json.JsonPath;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.path.json.JsonPath;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;

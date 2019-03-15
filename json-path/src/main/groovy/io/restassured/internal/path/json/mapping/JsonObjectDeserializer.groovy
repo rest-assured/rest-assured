@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,16 @@
 
 package io.restassured.internal.path.json.mapping
 
-import io.restassured.internal.common.mapper.ObjectDeserializationContextImpl
 import io.restassured.common.mapper.DataToDeserialize
 import io.restassured.common.mapper.ObjectDeserializationContext
 import io.restassured.common.mapper.resolver.ObjectMapperResolver
+import io.restassured.internal.common.mapper.ObjectDeserializationContextImpl
+import io.restassured.path.json.config.JsonParserType
+import io.restassured.path.json.config.JsonPathConfig
 import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory
 import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory
 import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory
 import io.restassured.path.json.mapper.factory.JohnzonObjectMapperFactory
-import io.restassured.path.json.config.JsonParserType
-import io.restassured.path.json.config.JsonPathConfig
 import org.apache.commons.lang3.Validate
 
 class JsonObjectDeserializer {

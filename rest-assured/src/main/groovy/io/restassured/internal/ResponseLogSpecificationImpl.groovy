@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ package io.restassured.internal
 
 import io.restassured.filter.log.LogDetail
 import io.restassured.filter.log.ResponseLoggingFilter
-import io.restassured.specification.ResponseSpecification
 import io.restassured.internal.log.LogRepository
 import io.restassured.specification.ResponseLogSpecification
+import io.restassured.specification.ResponseSpecification
 import org.hamcrest.Matcher
 
 import static org.hamcrest.Matchers.equalTo

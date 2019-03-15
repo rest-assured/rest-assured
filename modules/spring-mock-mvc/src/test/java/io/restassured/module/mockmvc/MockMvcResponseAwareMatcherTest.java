@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package io.restassured.module.mockmvc;
 
 import io.restassured.matcher.ResponseAwareMatcher;
 import io.restassured.module.mockmvc.http.ResponseAwareMatcherController;
+import io.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.path.json.JsonPath;
-import io.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 

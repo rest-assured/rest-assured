@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,15 @@ package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
 import io.restassured.builder.ResponseBuilder;
+import io.restassured.config.DecoderConfig;
 import io.restassured.config.HttpClientConfig;
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.FilterContext;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
-import io.restassured.config.DecoderConfig;
-import io.restassured.config.RestAssuredConfig;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.http.Header;
 import org.apache.http.client.HttpClient;

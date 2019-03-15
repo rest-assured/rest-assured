@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package io.restassured.itest.java;
 
 import com.github.fge.jsonschema.cfg.ValidationConfiguration;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
-import io.restassured.itest.java.support.WithJetty;
-import io.restassured.module.jsv.JsonSchemaValidator;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
+import io.restassured.itest.java.support.WithJetty;
+import io.restassured.module.jsv.JsonSchemaValidator;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
@@ -32,7 +32,6 @@ import java.net.URI;
 import static com.github.fge.jsonschema.SchemaVersion.DRAFTV3;
 import static com.github.fge.jsonschema.SchemaVersion.DRAFTV4;
 import static io.restassured.RestAssured.*;
-import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
 import static io.restassured.module.jsv.JsonSchemaValidatorSettings.settings;
 import static org.hamcrest.Matchers.*;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ package io.restassured.internal.mapping
 
 import com.fasterxml.jackson.core.JsonEncoding
 import com.fasterxml.jackson.core.JsonGenerator
-import io.restassured.mapper.ObjectMapper
-import io.restassured.mapper.ObjectMapperSerializationContext
 import io.restassured.internal.path.json.mapping.JsonPathJackson2ObjectDeserializer
+import io.restassured.mapper.ObjectMapper
 import io.restassured.mapper.ObjectMapperDeserializationContext
+import io.restassured.mapper.ObjectMapperSerializationContext
 import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 

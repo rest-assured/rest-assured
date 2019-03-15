@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,10 @@
 
 package io.restassured.module.mockmvc.internal;
 
-import java.io.File;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URL;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.http.ContentType;
-import io.restassured.http.Cookie;
-import io.restassured.http.Cookies;
-import io.restassured.http.Header;
-import io.restassured.http.Headers;
-import io.restassured.http.Method;
+import io.restassured.http.*;
 import io.restassured.internal.MapCreator;
 import io.restassured.internal.MapCreator.CollisionStrategy;
 import io.restassured.internal.log.LogRepository;
@@ -48,11 +30,7 @@ import io.restassured.mapper.ObjectMapperType;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
-import io.restassured.module.mockmvc.specification.MockMvcAuthenticationScheme;
-import io.restassured.module.mockmvc.specification.MockMvcAuthenticationSpecification;
-import io.restassured.module.mockmvc.specification.MockMvcRequestAsyncSender;
-import io.restassured.module.mockmvc.specification.MockMvcRequestLogSpecification;
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import io.restassured.module.mockmvc.specification.*;
 import io.restassured.module.spring.commons.BodyHelper;
 import io.restassured.module.spring.commons.CookieHelper;
 import io.restassured.module.spring.commons.HeaderHelper;
@@ -61,7 +39,6 @@ import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.spring.commons.config.ConfigConverter;
 import io.restassured.module.spring.commons.config.ConfigMergeUtils;
 import io.restassured.specification.ResponseSpecification;
-
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
@@ -70,6 +47,13 @@ import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
 import org.springframework.web.context.WebApplicationContext;
+
+import java.io.File;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.security.Principal;
+import java.util.*;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static io.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;

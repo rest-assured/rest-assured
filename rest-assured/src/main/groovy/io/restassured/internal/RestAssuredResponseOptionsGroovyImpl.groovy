@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package io.restassured.internal
 
 import groovy.xml.StreamingMarkupBuilder
 import io.restassured.assertion.CookieMatcher
+import io.restassured.common.mapper.DataToDeserialize
+import io.restassured.common.mapper.TypeRef
 import io.restassured.config.DecoderConfig
 import io.restassured.config.RestAssuredConfig
 import io.restassured.filter.log.LogDetail
@@ -33,8 +35,9 @@ import io.restassured.internal.mapping.ObjectMapping
 import io.restassured.internal.print.ResponsePrinter
 import io.restassured.internal.support.CloseHTTPClientConnectionInputStreamWrapper
 import io.restassured.internal.support.Prettifier
-import io.restassured.common.mapper.*
-import io.restassured.mapper.*
+import io.restassured.mapper.ObjectMapper
+import io.restassured.mapper.ObjectMapperDeserializationContext
+import io.restassured.mapper.ObjectMapperType
 import io.restassured.path.json.JsonPath
 import io.restassured.path.json.config.JsonPathConfig
 import io.restassured.path.xml.XmlPath

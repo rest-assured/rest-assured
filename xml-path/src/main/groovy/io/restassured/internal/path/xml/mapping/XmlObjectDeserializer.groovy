@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@
 
 package io.restassured.internal.path.xml.mapping
 
-import io.restassured.internal.common.mapper.ObjectDeserializationContextImpl
 import io.restassured.common.mapper.DataToDeserialize
 import io.restassured.common.mapper.ObjectDeserializationContext
-import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory
+import io.restassured.internal.common.mapper.ObjectDeserializationContextImpl
 import io.restassured.path.xml.config.XmlParserType
 import io.restassured.path.xml.config.XmlPathConfig
+import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory
 import org.apache.commons.lang3.Validate
 
 import static io.restassured.common.mapper.resolver.ObjectMapperResolver.isJAXBInClassPath

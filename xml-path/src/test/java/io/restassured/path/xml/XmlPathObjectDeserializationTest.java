@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 the original author or authors.
+ * Copyright 2019 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package io.restassured.path.xml;
 
+import io.restassured.common.mapper.ObjectDeserializationContext;
+import io.restassured.path.xml.config.XmlPathConfig;
 import io.restassured.path.xml.mapping.XmlPathObjectDeserializer;
 import io.restassured.path.xml.support.CoolGreeting;
 import io.restassured.path.xml.support.Greeting;
 import io.restassured.path.xml.support.Greetings;
-import io.restassured.common.mapper.ObjectDeserializationContext;
-import io.restassured.path.xml.config.XmlPathConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Rule;
 import org.junit.Test;
