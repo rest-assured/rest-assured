@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-
-
-
-
 package io.restassured.internal.path.json.mapping
 
 import io.restassured.common.mapper.ObjectDeserializationContext

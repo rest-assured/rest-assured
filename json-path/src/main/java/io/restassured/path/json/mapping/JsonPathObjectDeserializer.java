@@ -22,6 +22,7 @@ import io.restassured.common.mapper.ObjectDeserializationContext;
  * Interface for all JsonPath object deserializers. It's possible to roll your own implementation if the pre-defined
  * de-serializers are not enough.
  */
+@FunctionalInterface
 public interface JsonPathObjectDeserializer {
     /**
      * De-serialize data to an instance of <code>T</code>.
