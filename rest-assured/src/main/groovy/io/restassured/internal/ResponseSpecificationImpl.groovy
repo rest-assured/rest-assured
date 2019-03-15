@@ -55,14 +55,14 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   private def contentType;
   private Response restAssuredResponse;
   private String bodyRootPath;
-  def ResponseParserRegistrar rpr;
-  def RestAssuredConfig config
+  ResponseParserRegistrar rpr;
+  RestAssuredConfig config
   private Response response
   private Tuple2<Matcher<Long>, TimeUnit> expectedResponseTime;
   private LogDetail responseLogDetail
 
   private contentParser
-  def LogRepository logRepository
+  LogRepository logRepository
 
   ResponseSpecificationImpl(String bodyRootPath, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
                             RestAssuredConfig config, LogRepository logRepository) {
@@ -82,17 +82,17 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     this.logRepository = logRepository
   }
 
-  def ResponseSpecification content(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
+  ResponseSpecification body(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
     throwIllegalStateExceptionIfRootPathIsNotDefined("specify arguments")
-    content("", arguments, matcher, additionalKeyMatcherPairs)
+    body("", arguments, matcher, additionalKeyMatcherPairs)
   }
 
-  def Response validate(Response response) {
+  Response validate(Response response) {
     assertionClosure.validate(response)
     response
   }
 
-  def ResponseSpecification content(Matcher matcher, Matcher... additionalMatchers) {
+  ResponseSpecification body(Matcher matcher, Matcher... additionalMatchers) {
     notNull(matcher, "matcher")
     validateResponseIfRequired {
       bodyMatchers << new BodyMatcher(key: null, matcher: matcher, rpr: rpr)
@@ -103,15 +103,15 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return this
   }
 
-  def ResponseSpecification content(String key, Matcher matcher, Object... additionalKeyMatcherPairs) {
-    content(key, Collections.emptyList(), matcher, additionalKeyMatcherPairs)
+  ResponseSpecification body(String key, Matcher matcher, Object... additionalKeyMatcherPairs) {
+    body(key, Collections.emptyList(), matcher, additionalKeyMatcherPairs)
   }
 
-  def ResponseSpecification time(Matcher<Long> matcher) {
+  ResponseSpecification time(Matcher<Long> matcher) {
     time(matcher, TimeUnit.MILLISECONDS)
   }
 
-  def ResponseSpecification time(Matcher<Long> matcher, TimeUnit timeUnit) {
+  ResponseSpecification time(Matcher<Long> matcher, TimeUnit timeUnit) {
     notNull(matcher, Matcher.class)
     notNull(timeUnit, TimeUnit.class)
     validateResponseIfRequired {
@@ -120,7 +120,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     this
   }
 
-  def ResponseSpecification statusCode(Matcher<? super Integer> expectedStatusCode) {
+  ResponseSpecification statusCode(Matcher<? super Integer> expectedStatusCode) {
     notNull(expectedStatusCode, "expectedStatusCode")
     validateResponseIfRequired {
       this.expectedStatusCode = expectedStatusCode
@@ -128,12 +128,12 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return this
   }
 
-  def ResponseSpecification statusCode(int expectedStatusCode) {
+  ResponseSpecification statusCode(int expectedStatusCode) {
     notNull(expectedStatusCode, "expectedStatusCode")
     return statusCode(equalTo(expectedStatusCode));
   }
 
-  def ResponseSpecification statusLine(Matcher<? super String> expectedStatusLine) {
+  ResponseSpecification statusLine(Matcher<? super String> expectedStatusLine) {
     notNull(expectedStatusLine, "expectedStatusLine")
     validateResponseIfRequired {
       this.expectedStatusLine = expectedStatusLine
@@ -141,7 +141,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return this
   }
 
-  def ResponseSpecification headers(Map expectedHeaders) {
+  ResponseSpecification headers(Map expectedHeaders) {
     notNull(expectedHeaders, "expectedHeaders")
     validateResponseIfRequired {
       expectedHeaders.each { headerName, matcher ->
@@ -157,7 +157,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return this
   }
 
-  def ResponseSpecification headers(String firstExpectedHeaderName, Object firstExpectedHeaderValue, Object... expectedHeaders) {
+  ResponseSpecification headers(String firstExpectedHeaderName, Object firstExpectedHeaderValue, Object... expectedHeaders) {
     notNull firstExpectedHeaderName, "firstExpectedHeaderName"
     notNull firstExpectedHeaderValue, "firstExpectedHeaderValue"
     return headers(MapCreator.createMapFromParams(CollisionStrategy.MERGE, firstExpectedHeaderName, firstExpectedHeaderValue, expectedHeaders))
@@ -173,7 +173,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     this
   }
 
-  def ResponseSpecification header(String headerName, Matcher expectedValueMatcher) {
+  ResponseSpecification header(String headerName, Matcher expectedValueMatcher) {
     notNull headerName, "headerName"
     notNull expectedValueMatcher, "expectedValueMatcher"
 
@@ -183,11 +183,11 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     this;
   }
 
-  def ResponseSpecification header(String headerName, String expectedValue) {
+  ResponseSpecification header(String headerName, String expectedValue) {
     return header(headerName, equalTo(expectedValue))
   }
 
-  def ResponseSpecification cookies(Map expectedCookies) {
+  ResponseSpecification cookies(Map expectedCookies) {
     notNull expectedCookies, "expectedCookies"
 
     validateResponseIfRequired {
@@ -204,7 +204,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return this
   }
 
-  def ResponseSpecification cookies(String firstExpectedCookieName, Object firstExpectedCookieValue, Object... expectedCookieNameValuePairs) {
+  ResponseSpecification cookies(String firstExpectedCookieName, Object firstExpectedCookieValue, Object... expectedCookieNameValuePairs) {
     notNull firstExpectedCookieName, "firstExpectedCookieName"
     notNull firstExpectedCookieValue, "firstExpectedCookieValue"
     notNull expectedCookieNameValuePairs, "expectedCookieNameValuePairs"
@@ -212,7 +212,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return cookies(MapCreator.createMapFromParams(CollisionStrategy.MERGE, firstExpectedCookieName, firstExpectedCookieValue, expectedCookieNameValuePairs))
   }
 
-  def ResponseSpecification cookie(String cookieName, Matcher expectedValueMatcher) {
+  ResponseSpecification cookie(String cookieName, Matcher expectedValueMatcher) {
     notNull cookieName, "cookieName"
     notNull expectedValueMatcher, "expectedValueMatcher"
     validateResponseIfRequired {
@@ -221,7 +221,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     this;
   }
 
-  def ResponseSpecification cookie(String cookieName, DetailedCookieMatcher detailedCookieMatcher) {
+  ResponseSpecification cookie(String cookieName, DetailedCookieMatcher detailedCookieMatcher) {
     notNull cookieName, "cookieName"
     notNull detailedCookieMatcher, "cookieMatcher"
     validateResponseIfRequired {
@@ -230,45 +230,29 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     this;
   }
 
-  def ResponseSpecification cookie(String cookieName) {
+  ResponseSpecification cookie(String cookieName) {
     notNull cookieName, "cookieName"
     return cookie(cookieName, Matchers.<String> anything())
   }
 
-  def ResponseSpecification cookie(String cookieName, Object expectedValue) {
+  ResponseSpecification cookie(String cookieName, Object expectedValue) {
     return cookie(cookieName, equalTo(expectedValue))
   }
 
-  def ResponseSpecification spec(ResponseSpecification responseSpecificationToMerge) {
+  ResponseSpecification spec(ResponseSpecification responseSpecificationToMerge) {
     SpecificationMerger.merge(this, responseSpecificationToMerge);
     return this
   }
 
-  def ResponseSpecification specification(ResponseSpecification responseSpecificationToMerge) {
+  ResponseSpecification specification(ResponseSpecification responseSpecificationToMerge) {
     return spec(responseSpecificationToMerge)
   }
 
-  def ResponseSpecification statusLine(String expectedStatusLine) {
+  ResponseSpecification statusLine(String expectedStatusLine) {
     return statusLine(equalTo(expectedStatusLine))
   }
 
-  def ResponseSpecification body(Matcher matcher, Matcher... additionalMatchers) {
-    return content(matcher, additionalMatchers);
-  }
-
-  public ResponseSpecification body(String key, Matcher matcher, Object... additionalKeyMatcherPairs) {
-    return content(key, Collections.emptyList(), matcher, additionalKeyMatcherPairs);
-  }
-
-  def ResponseSpecification body(String key, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
-    return content(key, arguments, matcher, additionalKeyMatcherPairs)
-  }
-
-  def ResponseSpecification body(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
-    return content(arguments, matcher, additionalKeyMatcherPairs)
-  }
-
-  def ResponseSpecification content(String key, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
+  ResponseSpecification body(String key, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
     notNull(key, "key")
     notNull(matcher, "matcher")
 
@@ -295,7 +279,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return this
   }
 
-  def ResponseLogSpecification log() {
+  ResponseLogSpecification log() {
     return new ResponseLogSpecificationImpl(responseSpecification: this, logRepository: logRepository)
   }
 
@@ -308,75 +292,75 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     responseLogDetail
   }
 
-  def RequestSender when() {
+  RequestSender when() {
     return requestSpecification;
   }
 
-  def ResponseSpecification response() {
+  ResponseSpecification response() {
     return this;
   }
 
-  def RequestSpecification given() {
+  RequestSpecification given() {
     return requestSpecification;
   }
 
-  def ResponseSpecification that() {
+  ResponseSpecification that() {
     return this;
   }
 
-  def RequestSpecification request() {
+  RequestSpecification request() {
     return requestSpecification;
   }
 
-  def ResponseSpecification parser(String contentType, Parser parser) {
+  ResponseSpecification parser(String contentType, Parser parser) {
     rpr.registerParser(contentType, parser)
     this
   }
 
-  def ResponseSpecification and() {
+  ResponseSpecification and() {
     return this;
   }
 
-  def RequestSpecification with() {
+  RequestSpecification with() {
     return given();
   }
 
-  def ResponseSpecification then() {
+  ResponseSpecification then() {
     return this;
   }
 
-  def ResponseSpecification expect() {
+  ResponseSpecification expect() {
     return this;
   }
 
-  def ResponseSpecification rootPath(String rootPath) {
+  ResponseSpecification rootPath(String rootPath) {
     return this.rootPath(rootPath, [])
   }
 
-  def ResponseSpecification root(String rootPath) {
+  ResponseSpecification root(String rootPath) {
     return this.rootPath(rootPath);
   }
 
-  def ResponseSpecification noRoot() {
+  ResponseSpecification noRoot() {
     return noRootPath()
   }
 
-  def ResponseSpecification noRootPath() {
+  ResponseSpecification noRootPath() {
     return rootPath("")
   }
 
-  def ResponseSpecification appendRoot(String pathToAppend) {
+  ResponseSpecification appendRoot(String pathToAppend) {
     return appendRoot(pathToAppend, [])
   }
 
-  def ResponseSpecification appendRoot(String pathToAppend, List<Argument> arguments) {
+  ResponseSpecification appendRoot(String pathToAppend, List<Argument> arguments) {
     notNull pathToAppend, "Path to append to root path"
     notNull arguments, "Arguments for path to append"
     def mergedPath = mergeKeyWithRootPath(pathToAppend)
     rootPath(mergedPath, arguments)
   }
 
-  def ResponseSpecification detachRoot(String pathToDetach) {
+  ResponseSpecification detachRoot(String pathToDetach) {
     notNull pathToDetach, "Path to detach from root path"
     throwIllegalStateExceptionIfRootPathIsNotDefined("detach path")
     pathToDetach = StringUtils.trim(pathToDetach);
@@ -390,28 +374,28 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     this
   }
 
-  def ResponseSpecification rootPath(String rootPath, List<Argument> arguments) {
+  ResponseSpecification rootPath(String rootPath, List<Argument> arguments) {
     notNull rootPath, "Root path"
     notNull arguments, "Arguments"
     this.bodyRootPath = applyArguments(rootPath, arguments)
     return this
   }
 
-  def ResponseSpecification root(String rootPath, List<Argument> arguments) {
+  ResponseSpecification root(String rootPath, List<Argument> arguments) {
     return this.rootPath(rootPath, arguments)
   }
 
-  def boolean hasBodyAssertionsDefined() {
+  boolean hasBodyAssertionsDefined() {
     return bodyMatchers.containsMatchers()
   }
 
-  def boolean hasAssertionsDefined() {
+  boolean hasAssertionsDefined() {
     return hasBodyAssertionsDefined() || !headerAssertions.isEmpty() ||
             !cookieAssertions.isEmpty() || expectedStatusCode != null || expectedStatusLine != null ||
             contentType != null || expectedResponseTime != null
   }
 
-  def ResponseSpecification defaultParser(Parser parser) {
+  ResponseSpecification defaultParser(Parser parser) {
     notNull parser, "Parser"
     rpr.defaultParser = parser
     return this
@@ -636,7 +620,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     key
   }
 
-  def void throwIllegalStateExceptionIfRootPathIsNotDefined(String description) {
+  void throwIllegalStateExceptionIfRootPathIsNotDefined(String description) {
     if (rootPath == null || rootPath.isEmpty()) {
       throw new IllegalStateException("Cannot $description when root path is empty")
     }

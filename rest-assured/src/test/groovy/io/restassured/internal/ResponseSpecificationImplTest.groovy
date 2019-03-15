@@ -110,7 +110,7 @@ class ResponseSpecificationImplTest {
                         .failureConfig(new FailureConfig(customFailureListeners)),
                 logRepository)
 
-        respSpecImpl.content(equalTo(EXPECTED_BODY))
+        respSpecImpl.body(equalTo(EXPECTED_BODY))
 
         respSpecImpl
     }

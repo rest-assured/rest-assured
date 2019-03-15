@@ -35,7 +35,7 @@ public class SpecificationsDemoITest extends WithJetty {
                 addQueryParam("category", "books").addCookie("user", "admin").build();
 
         given().
-                 specification(books).
+                 spec(books).
         expect().
                  body(equalTo("Catch 22")).
         when().
@@ -50,7 +50,7 @@ public class SpecificationsDemoITest extends WithJetty {
         given().
                  param("name", "John Doe").
         expect().
-                 specification(spec).
+                 spec(spec).
                  body("firstName", is("John")).
                  body("lastName", is("Doe")).
         when().

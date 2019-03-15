@@ -35,148 +35,12 @@ import java.util.concurrent.TimeUnit;
 public interface ResponseSpecification {
 
     /**
-     * Expect that the response content conforms to one or more Hamcrest matchers. E.g.
-     * <pre>
-     * // Expect that the response content (body) contains the string "winning-numbers"
-     * expect().content(containsString("winning-numbers")).when().get("/lotto");
-     *
-     * // Expect that the response content (body) contains the string "winning-numbers" and "winners"
-     * expect().content(containsString("winning-numbers"), containsString("winners")).when().get("/lotto");
-     * </pre>
-     *
-     * @param matcher            The hamcrest matcher that must response content must match.
-     * @param additionalMatchers Optionally additional hamcrest matchers that must return <code>true</code>.
-     * @return the response specification
-     * @deprecated Use {@link #body(Matcher, Matcher[])} instead
-     */
-    @Deprecated
-    ResponseSpecification content(Matcher<?> matcher, Matcher<?>... additionalMatchers);
-
-    /**
-     * This as special kind of expectation that is mainly useful when you've specified a root path with an argument placeholder.
-     * For example:
-     * <pre>
-     * expect().
-     *          root("x.%s"). // Root path with a placeholder
-     *          content(withArgs("firstName"), equalTo(..)).
-     *          content(withArgs("lastName"), equalTo(..)).
-     * when().
-     *          get(..);
-     * </pre>
-     * <p/>
-     * Note that this is the same as doing:
-     * <pre>
-     * expect().
-     *          root("x.%s"). // Root path with a placeholder
-     *          content(withArgs("firstName"), equalTo(..)).
-     *          content(withArgs("lastName"), equalTo(..)).
-     * when().
-     *          get(..);
-     * </pre>
-     * <p/>
-     * <p>
-     * Note that this method is the same as {@link #body(java.util.List, org.hamcrest.Matcher, Object...)} but with a method name.
-     * </p>
-     *
-     * @param arguments                 The arguments to apply to the root path.
-     * @param matcher                   The hamcrest matcher that must response body must match.
-     * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
-     * @return the response specification
-     * @see #body(String, org.hamcrest.Matcher, Object...)
-     * @deprecated use {@link #body(List, Matcher, Object...)} instead
-     */
-    @Deprecated
-    ResponseSpecification content(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs);
-
-    /**
      * Validates the specified response against this ResponseSpecification
      *
      * @param response The response to validate
      * @return The same response
      */
     Response validate(Response response);
-
-    /**
-     * Expect that the JSON or XML response content conforms to one or more Hamcrest matchers.<br>
-     * <h3>JSON example</h3>
-     * <p>
-     * Assume that a GET request to "/lotto" returns a JSON response containing:
-     * <pre>
-     * { "lotto":{
-     *   "lottoId":5,
-     *   "winning-numbers":[2,45,34,23,7,5,3],
-     *   "winners":[{
-     *     "winnerId":23,
-     *     "numbers":[2,45,34,23,3,5]
-     *   },{
-     *     "winnerId":54,
-     *     "numbers":[52,3,12,11,18,22]
-     *   }]
-     *  }}
-     * </pre>
-     * <p/>
-     * You can verify that the lottoId is equal to 5 like this:
-     * <pre>
-     * expect().content("lotto.lottoId", equalTo(5)).when().get("/lotto");
-     * </pre>
-     * <p/>
-     * You can also verify that e.g. one of the the winning numbers is 45.
-     * <pre>
-     * expect().content("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
-     * </pre>
-     * <p/>
-     * Or both at the same time:
-     * <pre>
-     * expect().content("lotto.lottoId", equalTo(5)).and().content("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
-     * </pre>
-     * <p/>
-     * or a slightly short version:
-     * <pre>
-     * expect().content("lotto.lottoId", equalTo(5), "lotto.winning-numbers", hasItem(45)).when().get("/lotto");
-     * </pre>
-     * </p>
-     * <h3>XML example</h3>
-     * <p>
-     * Assume that a GET request to "/xml" returns a XML response containing:
-     * <pre>
-     * &lt;greeting&gt;
-     *    &lt;firstName&gt;John&lt;/firstName&gt;
-     *    &lt;lastName&gt;Doe&lt;/lastName&gt;
-     * &lt;/greeting&gt;
-     * </pre>
-     * </p>
-     * <p/>
-     * You can now verify that the firstName is equal to "John" like this:
-     * <pre>
-     * expect().content("greeting.firstName", equalTo("John")).when().get("/xml");
-     * </pre>
-     * <p/>
-     * To verify both the first name and last name you can do like this:
-     * <pre>
-     * expect().content("greeting.firstName", equalTo("John")).and().content("greeting.lastName", equalTo("Doe")).when().get("/xml");
-     * </pre>
-     * <p/>
-     * Or the slightly shorter version of:
-     * <pre>
-     * expect().content("greeting.firstName", equalTo("John"), "greeting.lastName", equalTo("Doe")).when().get("/xml");
-     * </pre>
-     * <h3>Notes</h3>
-     * <p>
-     * Note that if the response content type is not of type <tt>application/xml</tt> or <tt>application/json</tt> you
-     * <i>cannot</i> use this verification.
-     * </p>
-     * <p/>
-     * <p>
-     * The only difference between the <code>content</code> and <code>body</code> methods are of syntactic nature.
-     * </p>
-     *
-     * @param matcher                   The hamcrest matcher that must response content must match.
-     * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
-     * @return the response specification
-     * @deprecated Use {@link #body(String, Matcher, Object...)} instead
-     */
-    @Deprecated
-    ResponseSpecification content(String key, Matcher<?> matcher, Object... additionalKeyMatcherPairs);
 
     /**
      * Validate that the response time (in milliseconds) matches the supplied <code>matcher</code>. For example:
@@ -602,53 +466,6 @@ public interface ResponseSpecification {
     ResponseLogSpecification log();
 
     /**
-     * Set the root path of the response body so that you don't need to write the entire path for each expectation.
-     * E.g. instead of writing:
-     * <p/>
-     * <pre>
-     * expect().
-     *          body("x.y.firstName", is(..)).
-     *          body("x.y.lastName", is(..)).
-     *          body("x.y.age", is(..)).
-     *          body("x.y.gender", is(..)).
-     * when().
-     *          get(..);
-     * </pre>
-     * <p/>
-     * you can use a root path and do:
-     * <pre>
-     * expect().
-     *          rootPath("x.y").
-     *          body("firstName", is(..)).
-     *          body("lastName", is(..)).
-     *          body("age", is(..)).
-     *          body("gender", is(..)).
-     * when().
-     *          get(..);
-     * </pre>
-     * <p/>
-     * Note that this method is exactly the same as {@link #root(String)}.
-     *
-     * @param rootPath The root path to use.
-     * @deprecated Use {@link #root(String)} instead
-     */
-    @Deprecated
-    ResponseSpecification rootPath(String rootPath);
-
-    /**
-     * Set the root path with arguments of the response body so that you don't need to write the entire path for each expectation.
-     * <p/>
-     * Note that this method is exactly the same as {@link #root(String, java.util.List)}.
-     *
-     * @param rootPath  The root path to use.
-     * @param arguments A list of arguments. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
-     * @see #root(String)
-     * @deprecated Use {@link #root(String, List)} instead
-     */
-    @Deprecated
-    ResponseSpecification rootPath(String rootPath, List<Argument> arguments);
-
-    /**
      * Set the root path with arguments of the response body so that you don't need to write the entire path for each expectation.
      *
      * @param rootPath  The root path to use.
@@ -708,31 +525,6 @@ public interface ResponseSpecification {
      * @see #root(String)
      */
     ResponseSpecification noRoot();
-
-    /**
-     * Reset the root path of the response body so that you don't need to write the entire path for each expectation.
-     * For example:
-     * <p/>
-     * <pre>
-     * when().
-     *          get(..);
-     * then().
-     *          root("x.y").
-     *          body("firstName", is(..)).
-     *          body("lastName", is(..)).
-     *          noRoot()
-     *          body("z.something1", is(..)).
-     *          body("w.something2", is(..)).
-     * </pre>
-     * <p/>
-     * This is the same as calling <code>rootPath("")</code> but more expressive.
-     * Note that this method is exactly the same as {@link #noRoot()} but slightly more expressive.
-     *
-     * @see #root(String)
-     * @deprecated Use {@link #noRoot()} instead
-     */
-    @Deprecated
-    ResponseSpecification noRootPath();
 
     /**
      * Append the given path to the root path of the response body so that you don't need to write the entire path for each expectation.
@@ -956,39 +748,6 @@ public interface ResponseSpecification {
     ResponseSpecification body(String path, Matcher<?> matcher, Object... additionalKeyMatcherPairs);
 
     /**
-     * Same as {@link #body(String, java.util.List, org.hamcrest.Matcher, Object...)} expect that you can pass arguments to the path. This
-     * is useful in situations where you have e.g. pre-defined variables that constitutes the path:
-     * <pre>
-     * String someSubPath = "else";
-     * int index = 1;
-     * expect().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
-     * </pre>
-     * <p/>
-     * or if you have complex root paths and don't wish to duplicate the path for small variations:
-     * <pre>
-     * expect().
-     *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
-     *          body(withArgs(0), hasItem("first")).
-     *          body(withArgs(1), hasItem("second")).
-     *          ..
-     * </pre>
-     * <p/>
-     * The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
-     * <p>
-     * Note that <code>withArgs</code> can be statically imported from the <code>io.restassured.RestAssured</code> class.
-     * </p>
-     *
-     * @param path                      The body path
-     * @param matcher                   The hamcrest matcher that must response body must match.
-     * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
-     * @return the response specification
-     * @see #content(String, org.hamcrest.Matcher, Object...)
-     * @deprecated Use {@link #body(String, List, Matcher, Object...)} instead
-     */
-    @Deprecated
-    ResponseSpecification content(String path, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs);
-
-    /**
      * Syntactic sugar, e.g.
      * <pre>
      * expect().body(containsString("OK")).when().get("/something");
@@ -1144,45 +903,6 @@ public interface ResponseSpecification {
     ResponseSpecification spec(ResponseSpecification responseSpecificationToMerge);
 
     /**
-     * Expect that the response matches an entire specification.
-     * <pre>
-     * ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).build();
-     *
-     * expect().
-     *         specification(responseSpec).
-     *         body("x.y.z", equalTo("something")).
-     * when().
-     *        get("/something");
-     * </pre>
-     * <p/>
-     * This is useful when you want to reuse multiple different expectations in several tests.
-     * <p/>
-     * The specification passed to this method is merged with the current specification. Note that the supplied specification
-     * can overwrite data in the current specification. The following settings are overwritten:
-     * <ul>
-     * <li>Content type</li>
-     * <li>Root path</
-     * <li>Status code</li>
-     * <li>Status line</li>
-     * </ul>
-     * The following settings are merged:
-     * <ul>
-     * <li>Response body expectations</li>
-     * <li>Cookies</li>
-     * <li>Headers</li>
-     * </ul>
-     * <p/>
-     * <p/>
-     * This method is the same as {@link #spec(ResponseSpecification)} but the name is a bit longer.
-     *
-     * @param responseSpecificationToMerge The specification to merge with.
-     * @return the response specification
-     * @deprecated Use {@link #spec(ResponseSpecification)} instead
-     */
-    @Deprecated
-    ResponseSpecification specification(ResponseSpecification responseSpecificationToMerge);
-
-    /**
      * Register a content-type to be parsed using a predefined parser. E.g. let's say you want parse
      * content-type <tt>application/vnd.uoml+xml</tt> with the XML parser to be able to verify the response using the XML dot notations:
      * <pre>
@@ -1221,7 +941,7 @@ public interface ResponseSpecification {
      */
     ResponseSpecification defaultParser(Parser parser);
 
-     /**
+    /**
      * Log different parts of the {@link ResponseSpecification} by using {@link LogDetail}.
      * This is mainly useful for debug purposes when writing your tests. It's a shortcut for:
      * <pre>

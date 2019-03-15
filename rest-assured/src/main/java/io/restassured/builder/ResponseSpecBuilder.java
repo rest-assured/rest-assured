@@ -67,89 +67,6 @@ public class ResponseSpecBuilder {
     }
 
     /**
-     * Expect that the response content conforms to one or more Hamcrest matchers.
-     *
-     * @param matcher The hamcrest matcher that must response content must match.
-     * @return The builder
-     * @deprecated Use {@link #expectBody(Matcher)} instead
-     */
-    @Deprecated
-    public ResponseSpecBuilder expectContent(Matcher<?> matcher) {
-        spec.content(matcher);
-        return this;
-    }
-
-    /**
-     * Expect that the JSON or XML response content conforms to one or more Hamcrest matchers.<br>
-     * <h3>JSON example</h3>
-     * <p/>
-     * Assume that a GET request to "/lotto" returns a JSON response containing:
-     * <pre>
-     * { "lotto":{
-     *   "lottoId":5,
-     *   "winning-numbers":[2,45,34,23,7,5,3],
-     *   "winners":[{
-     *     "winnerId":23,
-     *     "numbers":[2,45,34,23,3,5]
-     *   },{
-     *     "winnerId":54,
-     *     "numbers":[52,3,12,11,18,22]
-     *   }]
-     *  }}
-     * </pre>
-     * <p/>
-     * You can verify that the lottoId is equal to 5 like this:
-     * <pre>
-     * ResponseSpecBuilder builder = new ResponseSpecBuilder();
-     * builder.expectContent("lotto.lottoId", equalTo(5));
-     * </pre>
-     *
-     * @param matcher The hamcrest matcher that the response content must match.
-     * @return The builder
-     * @deprecated Use {@link #expectBody(String, Matcher)} instead
-     */
-    @Deprecated
-    public ResponseSpecBuilder expectContent(String path, Matcher<?> matcher) {
-        spec.content(path, matcher);
-        return this;
-    }
-
-    /**
-     * Same as {@link #expectContent(String, org.hamcrest.Matcher)} expect that you can pass arguments to the path. This
-     * is useful in situations where you have e.g. pre-defined variables that constitutes the path:
-     * <pre>
-     * String someSubPath = "else";
-     * int index = 1;
-     * expect().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
-     * </pre>
-     * <p/>
-     * or if you have complex root paths and don't wish to duplicate the path for small variations:
-     * <pre>
-     * expect().
-     *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
-     *          body(withArgs(0), hasItem("first")).
-     *          body(withArgs(1), hasItem("second")).
-     *          ..
-     * </pre>
-     * <p/>
-     * The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
-     * <p>
-     * Note that <code>withArgs</code> can be statically imported from the <code>io.restassured.RestAssured</code> class.
-     * </p>
-     *
-     * @param path    The body path
-     * @param matcher The hamcrest matcher that must response body must match.
-     * @return the response specification
-     * @see #expectBody(String, Matcher)
-     * @deprecated Use {@link #expectBody(String, List, Matcher)} instead
-     */
-    @Deprecated
-    public ResponseSpecBuilder expectContent(String path, List<Argument> arguments, Matcher<?> matcher) {
-        spec.content(path, arguments, matcher);
-        return this;
-    }
-
-    /**
      * Expect that the response status code matches the given Hamcrest matcher.
      *
      * @param expectedStatusCode The expected status code matcher.
@@ -389,7 +306,7 @@ public class ResponseSpecBuilder {
      * @param rootPath The root path to use.
      */
     public ResponseSpecBuilder rootPath(String rootPath) {
-        spec.rootPath(rootPath);
+        spec.root(rootPath);
         return this;
     }
 
@@ -399,10 +316,10 @@ public class ResponseSpecBuilder {
      *
      * @param rootPath  The root path to use.
      * @param arguments The arguments.
-     * @see ResponseSpecification#rootPath(String, java.util.List)
+     * @see ResponseSpecification#root(String, java.util.List)
      */
     public ResponseSpecBuilder rootPath(String rootPath, List<Argument> arguments) {
-        spec.rootPath(rootPath, arguments);
+        spec.root(rootPath, arguments);
         return this;
     }
 
@@ -500,7 +417,7 @@ public class ResponseSpecBuilder {
      * @see #rootPath(String)
      */
     public ResponseSpecBuilder noRootPath() {
-        spec.noRootPath();
+        spec.noRoot();
         return this;
     }
 

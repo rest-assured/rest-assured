@@ -43,7 +43,7 @@ public class ObjectMappingITest extends WithJetty {
 
     @Test
     public void mapResponseToObjectUsingJaxb() throws Exception {
-        final Greeting object = given().parameters("firstName", "John", "lastName", "Doe").when().get("/greetXML").as(Greeting.class);
+        final Greeting object = given().params("firstName", "John", "lastName", "Doe").when().get("/greetXML").as(Greeting.class);
 
         assertThat(object.getFirstName(), equalTo("John"));
         assertThat(object.getLastName(), equalTo("Doe"));
@@ -144,7 +144,7 @@ public class ObjectMappingITest extends WithJetty {
 
     @Test
     public void mapResponseToObjectUsingJaxbWithJaxObjectMapperDefined() throws Exception {
-        final Greeting object = given().parameters("firstName", "John", "lastName", "Doe").when().get("/greetXML").as(Greeting.class, ObjectMapperType.JAXB);
+        final Greeting object = given().params("firstName", "John", "lastName", "Doe").when().get("/greetXML").as(Greeting.class, ObjectMapperType.JAXB);
 
         assertThat(object.getFirstName(), equalTo("John"));
         assertThat(object.getLastName(), equalTo("Doe"));

@@ -35,13 +35,13 @@ class ParameterMapBuilderTest {
   }
 
   @Test(expected = IllegalArgumentException.class)
-  def void mapThrowIAEWhenOddNumberOfStringsAreSupplied() throws Exception {
-    requestBuilder.parameters("key1", "value1", "key2");
+  void mapThrowIAEWhenOddNumberOfStringsAreSupplied() throws Exception {
+    requestBuilder.params("key1", "value1", "key2");
   }
 
   @Test
-  def void mapBuildsAMapBasedOnTheSuppliedKeysAndValues() throws Exception {
-    def map = requestBuilder.parameters("key1", "value1", "key2", "value2").requestParameters;
+  void mapBuildsAMapBasedOnTheSuppliedKeysAndValues() throws Exception {
+    def map = requestBuilder.params("key1", "value1", "key2", "value2").requestParameters;
 
     assertEquals 2, map.size()
     assertEquals "value1", map.get("key1")
@@ -49,32 +49,32 @@ class ParameterMapBuilderTest {
   }
 
   @Test
-  def void removesParamOnRemoveParamMethod() throws Exception {
-    requestBuilder.parameters("key1", "value1");
+  void removesParamOnRemoveParamMethod() throws Exception {
+    requestBuilder.params("key1", "value1");
     def map = requestBuilder.removeParam("key1").requestParameters
 
     assertEquals 0, map.size()
   }
 
   @Test
-  def void removesQueryParamOnRemoveQueryParamMethod() throws Exception {
-    requestBuilder.queryParameters("key1", "value1");
+  void removesQueryParamOnRemoveQueryParamMethod() throws Exception {
+    requestBuilder.queryParams("key1", "value1");
     def map = requestBuilder.removeQueryParam("key1").queryParameters
 
     assertEquals 0, map.size()
   }
 
   @Test
-  def void removesFormParamOnRemoveFormParamMethod() throws Exception {
-    requestBuilder.queryParameters("key1", "value1");
+  void removesFormParamOnRemoveFormParamMethod() throws Exception {
+    requestBuilder.queryParams("key1", "value1");
     def map = requestBuilder.removeFormParam("key1").formParameters
 
     assertEquals 0, map.size()
   }
 
   @Test
-  def void removesPathParamOnRemoveFormPathMethod() throws Exception {
-    requestBuilder.pathParameters("key1", "value1");
+  void removesPathParamOnRemoveFormPathMethod() throws Exception {
+    requestBuilder.pathParams("key1", "value1");
     def map = requestBuilder.removePathParam("key1").namedPathParameters
 
     assertEquals 0, map.size()

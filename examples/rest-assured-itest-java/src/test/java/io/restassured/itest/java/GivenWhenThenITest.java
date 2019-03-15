@@ -53,7 +53,7 @@ public class GivenWhenThenITest extends WithJetty {
     @Test public void
     given_when_then_works_with_xpath_assertions() {
         given().
-                parameters("firstName", "John", "lastName", "Doe").
+                params("firstName", "John", "lastName", "Doe").
         when().
                 get("/greetXML").
         then().
@@ -63,7 +63,7 @@ public class GivenWhenThenITest extends WithJetty {
     @Test public void
     given_when_then_works_with_multiple_body_assertions() {
         given().
-                parameters("firstName", "John", "lastName", "Doe").
+                params("firstName", "John", "lastName", "Doe").
         when().
                 get("/greetXML").
         then().

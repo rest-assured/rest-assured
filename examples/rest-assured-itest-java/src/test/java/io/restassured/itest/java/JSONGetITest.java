@@ -31,44 +31,45 @@ import static io.restassured.RestAssured.*;
 import static io.restassured.parsing.Parser.JSON;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class JSONGetITest extends WithJetty {
 
     @Test
-    public void simpleJSONAndHamcrestMatcher() throws Exception {
+    public void simpleJSONAndHamcrestMatcher() {
         expect().body("hello", equalTo("Hello Scalatra")).when().get("/hello");
     }
 
     @Test
-    public void gpathJSONAndHamcrestMatcher() throws Exception {
+    public void gpathJSONAndHamcrestMatcher() {
         expect().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
     }
 
     @Test
-    public void gpathAssertionWithHamcrestMatcherAndJSONReturnsArray() throws Exception {
+    public void gpathAssertionWithHamcrestMatcherAndJSONReturnsArray() {
         expect().body("lotto.winners.winnerId", hasItems(23, 54)).when().get("/lotto");
     }
 
     @Test
-    public void parameterSupportWithStandardHashMap() throws Exception {
-        Map<String, String> parameters = new HashMap<String, String>();
-        parameters.put("firstName", "John");
-        parameters.put("lastName", "Doe");
-        given().parameters(parameters).then().expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
-    }
-
-    @Test
-    public void paramSupportWithStandardHashMap() throws Exception {
-        Map<String, String> parameters = new HashMap<String, String>();
+    public void parameterSupportWithStandardHashMap() {
+        Map<String, String> parameters = new HashMap<>();
         parameters.put("firstName", "John");
         parameters.put("lastName", "Doe");
         given().params(parameters).then().expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
 
     @Test
-    public void queryParamWithBooleanWorks() throws Exception {
+    public void paramSupportWithStandardHashMap() {
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("firstName", "John");
+        parameters.put("lastName", "Doe");
+        given().params(parameters).then().expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    }
+
+    @Test
+    public void queryParamWithBooleanWorks() {
         given().
                 queryParam("firstName", true).
                 queryParam("lastName", false).
@@ -79,7 +80,7 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void formParamAreTreatedAsQueryParamsForGetRequests() throws Exception {
+    public void formParamAreTreatedAsQueryParamsForGetRequests() {
         given().
                 formParam("firstName", "John").
                 formParam("lastName", "Doe").
@@ -90,56 +91,56 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void parameterSupportWithMapBuilder() throws Exception {
-        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    public void parameterSupportWithMapBuilder() {
+        with().params("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
 
     @Test
-    public void multipleParametersAreConcatenated() throws Exception {
-        with().parameters("firstName", "John").and().parameters("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    public void multipleParametersAreConcatenated() {
+        with().params("firstName", "John").and().params("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
 
     @Test
-    public void multipleSingleParametersAreConcatenated() throws Exception {
-        with().parameter("firstName", "John").and().parameter("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    public void multipleSingleParametersAreConcatenated() {
+        with().param("firstName", "John").and().param("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
 
     @Test
-    public void mixingSingleAndMultipleParametersConcatenatesThem() throws Exception {
-        with().parameters("firstName", "John").and().parameter("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
-    }
-
-    @Test
-    public void mixingSingleAndMultipleParamsConcatenatesThem() throws Exception {
+    public void mixingSingleAndMultipleParametersConcatenatesThem() {
         with().params("firstName", "John").and().param("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
 
     @Test
-    public void restAssuredSupportsSpecifyingRequestParamsInGet() throws Exception {
+    public void mixingSingleAndMultipleParamsConcatenatesThem() {
+        with().params("firstName", "John").and().param("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    }
+
+    @Test
+    public void restAssuredSupportsSpecifyingRequestParamsInGet() {
         expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe");
     }
 
     @Test
-    public void restAssuredSupportsPrintingTheResponse() throws Exception {
+    public void restAssuredSupportsPrintingTheResponse() {
         final String greeting = expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe").print();
 
         assertThat(greeting, equalTo("{\"greeting\":\"Greetings John Doe\"}"));
     }
 
     @Test
-    public void restAssuredSupportsPrettyPrintingTheResponse() throws Exception {
+    public void restAssuredSupportsPrettyPrintingTheResponse() {
         final String greeting = expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?firstName=John&lastName=Doe").prettyPrint();
 
         assertThat(greeting, equalTo("{\n    \"greeting\": \"Greetings John Doe\"\n}"));
     }
 
     @Test
-    public void restAssuredSupportsSpecifyingRequestParamsInGetWhenAlsoSpecifyingBaseUri() throws Exception {
+    public void restAssuredSupportsSpecifyingRequestParamsInGetWhenAlsoSpecifyingBaseUri() {
         expect().body("greeting", equalTo("Greetings John Doe")).when().get("http://localhost:8080/greet?firstName=John&lastName=Doe");
     }
 
     @Test
-    public void iaeIsThrownWhenNoParamsSpecifiedAfterGetPath() throws Exception {
+    public void iaeIsThrownWhenNoParamsSpecifiedAfterGetPath() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Request URI cannot end with ?");
 
@@ -147,17 +148,17 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void newSyntax() throws Exception {
-        expect().content("lotto.lottoId", equalTo(5)).when().get("/lotto");
+    public void newSyntax() {
+        expect().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
     }
 
     @Test
-    public void newSyntaxWithParameters() throws Exception {
-        expect().content("greeting", equalTo("Greetings John Doe")).with().parameters("firstName", "John", "lastName", "Doe").when().get("/greet");
+    public void newSyntaxWithParameters() {
+        expect().body("greeting", equalTo("Greetings John Doe")).with().params("firstName", "John", "lastName", "Doe").when().get("/greet");
     }
 
     @Test
-    public void newSyntaxWithWrongStatusCode() throws Exception {
+    public void newSyntaxWithWrongStatusCode() {
         // Given
         exception.expect(AssertionError.class);
         exception.expectMessage(equalTo("1 expectation failed.\n" +
@@ -168,17 +169,17 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void newSyntaxWithCorrectStatusCodeUsingInt() throws Exception {
+    public void newSyntaxWithCorrectStatusCodeUsingInt() {
         expect().statusCode(200).and().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
     }
 
     @Test
-    public void newSyntaxWithCorrectStatusCodeUsingHamcrestMatcher() throws Exception {
+    public void newSyntaxWithCorrectStatusCodeUsingHamcrestMatcher() {
         expect().statusCode(allOf(greaterThanOrEqualTo(200), lessThan(300))).and().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
     }
 
     @Test
-    public void newSyntaxWithWrongStatusLine() throws Exception {
+    public void newSyntaxWithWrongStatusLine() {
         // Given
         exception.expect(AssertionError.class);
         exception.expectMessage(equalTo("1 expectation failed.\n" +
@@ -189,69 +190,69 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void newSyntaxWithCorrectStatusLineUsingHamcrestMatcher() throws Exception {
+    public void newSyntaxWithCorrectStatusLineUsingHamcrestMatcher() {
         expect().statusLine(containsString("200 OK")).and().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
     }
 
     @Test
-    public void newSyntaxWithCorrectStatusLineUsingStringMatching() throws Exception {
+    public void newSyntaxWithCorrectStatusLineUsingStringMatching() {
         expect().statusLine("HTTP/1.1 200 OK").and().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
     }
 
     @Test
-    public void jsonHamcrestEqualBody() throws Exception {
+    public void jsonHamcrestEqualBody() {
         final String expectedBody = "{\"lotto\":{\"lottoId\":5,\"winning-numbers\":[2,45,34,23,7,5,3],\"winners\":[{\"winnerId\":23,\"numbers\":[2,45,34,23,3,5]},{\"winnerId\":54,\"numbers\":[52,3,12,11,18,22]}]}}";
         expect().body(equalTo(expectedBody)).when().get("/lotto");
     }
 
     @Test
-    public void restAssuredSupportsFullyQualifiedURI() throws Exception {
+    public void restAssuredSupportsFullyQualifiedURI() {
         final String expectedBody = "{\"lotto\":{\"lottoId\":5,\"winning-numbers\":[2,45,34,23,7,5,3],\"winners\":[{\"winnerId\":23,\"numbers\":[2,45,34,23,3,5]},{\"winnerId\":54,\"numbers\":[52,3,12,11,18,22]}]}}";
         expect().body(equalTo(expectedBody)).when().get("http://localhost:8080/lotto");
     }
 
     @Test
-    public void multipleBodyHamcrestMatchersShortVersion() throws Exception {
+    public void multipleBodyHamcrestMatchersShortVersion() {
         expect().body(containsString("winning-numbers"), containsString("winners")).when().get("/lotto");
     }
 
     @Test
-    public void multipleBodyHamcrestMatchersLongVersion() throws Exception {
+    public void multipleBodyHamcrestMatchersLongVersion() {
         expect().body(containsString("winning-numbers")).and().body(containsString("winners")).when().get("/lotto");
     }
 
     @Test
-    public void multipleBodyJsonStringMatchersAndHamcrestMatchersShortVersion() throws Exception {
+    public void multipleBodyJsonStringMatchersAndHamcrestMatchersShortVersion() {
         expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItem(45)).when().get("/lotto");
     }
 
     @Test
-    public void multipleBodyJsonStringMatchersAndHamcrestMatchersLongVersion() throws Exception {
+    public void multipleBodyJsonStringMatchersAndHamcrestMatchersLongVersion() {
         expect().that().body("lotto.lottoId", greaterThan(2)).and().that().body("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
     }
 
     @Test
-    public void multipleContentHamcrestMatchersShortVersion() throws Exception {
+    public void multipleContentHamcrestMatchersShortVersion() {
         expect().body(containsString("winning-numbers"), containsString("winners")).when().get("/lotto");
     }
 
     @Test
-    public void multipleContentHamcrestMatchersLongVersion() throws Exception {
+    public void multipleContentHamcrestMatchersLongVersion() {
         expect().body(containsString("winning-numbers")).and().body(containsString("winners")).when().get("/lotto");
     }
 
     @Test
-    public void multipleContentJsonStringMatchersAndHamcrestMatchersShortVersion() throws Exception {
+    public void multipleContentJsonStringMatchersAndHamcrestMatchersShortVersion() {
         expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItem(45)).when().get("/lotto");
     }
 
     @Test
-    public void multipleContentJsonStringMatchersAndHamcrestMatchersLongVersion() throws Exception {
+    public void multipleContentJsonStringMatchersAndHamcrestMatchersLongVersion() {
         expect().that().body("lotto.lottoId", greaterThan(2)).and().that().body("lotto.winning-numbers", hasItem(45)).when().get("/lotto");
     }
 
     @Test
-    public void hasItemHamcrestMatchingThrowsGoodErrorMessagesWhenExpectedItemNotFoundInArray() throws Exception {
+    public void hasItemHamcrestMatchingThrowsGoodErrorMessagesWhenExpectedItemNotFoundInArray() {
         exception.expect(AssertionError.class);
         exception.expectMessage(containsString("JSON path lotto.winning-numbers doesn't match."));
         exception.expectMessage(containsString("Expected: a collection containing <43>"));
@@ -261,96 +262,96 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void specificationSyntax() throws Exception {
-        final RequestSpecification requestSpecification = with().parameters("firstName", "John", "lastName", "Doe");
+    public void specificationSyntax() {
+        final RequestSpecification requestSpecification = with().params("firstName", "John", "lastName", "Doe");
         final ResponseSpecification responseSpecification = expect().body("greeting", equalTo("Greetings John Doe"));
         given(requestSpecification, responseSpecification).get("/greet");
     }
 
     @Test
-    public void contentTypeSpecification() throws Exception {
-        final RequestSpecification requestSpecification = given().contentType(ContentType.TEXT).with().parameters("firstName", "John", "lastName", "Doe");
+    public void contentTypeSpecification() {
+        final RequestSpecification requestSpecification = given().contentType(ContentType.TEXT).with().params("firstName", "John", "lastName", "Doe");
         final ResponseSpecification responseSpecification = expect().contentType(ContentType.JSON).and().body("greeting", equalTo("Greetings John Doe"));
         given(requestSpecification, responseSpecification).get("/greet");
     }
 
     @Test
-    public void contentTypeSpecificationWithHamcrestMatcher() throws Exception {
-        final RequestSpecification requestSpecification = given().contentType(ContentType.TEXT).with().parameters("firstName", "John", "lastName", "Doe");
+    public void contentTypeSpecificationWithHamcrestMatcher() {
+        final RequestSpecification requestSpecification = given().contentType(ContentType.TEXT).with().params("firstName", "John", "lastName", "Doe");
         final ResponseSpecification responseSpecification = expect().contentType(equalTo("application/json;charset=utf-8")).and().body("greeting", equalTo("Greetings John Doe"));
         given(requestSpecification, responseSpecification).get("/greet");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingCookie() throws Exception {
+    public void requestSpecificationAllowsSpecifyingCookie() {
         given().cookie("username", "John").then().expect().body(equalTo("username")).when().get("/cookie");
     }
 
     @Test
-    public void supportsValidatingCookiesWithNoValue() throws Exception {
+    public void supportsValidatingCookiesWithNoValue() {
         expect().cookie("some_cookie").when().get("/key_only_cookie");
     }
 
     @Test
-    public void supportsGettingListSize() throws Exception {
+    public void supportsGettingListSize() {
         expect().body("store.book.category.size()", equalTo(4)).when().get("/jsonStore");
     }
 
     @Test
-    public void supportsGettingListItemInArrayStyle() throws Exception {
+    public void supportsGettingListItemInArrayStyle() {
         expect().body("store.book[0].author", equalTo("Nigel Rees")).when().get("/jsonStore");
     }
 
     @Test
-    public void supportsGettingListItemInNonArrayStyle() throws Exception {
+    public void supportsGettingListItemInNonArrayStyle() {
         expect().body("store.book.getAt(0).author", equalTo("Nigel Rees")).when().get("/jsonStore");
     }
 
     @Test
-    public void supportsGettingSingleFloat() throws Exception {
+    public void supportsGettingSingleFloat() {
         expect().body("store.book[0].price", equalTo(8.95f)).when().get("/jsonStore");
     }
 
     @Test
-    public void supportsGettingMap() throws Exception {
+    public void supportsGettingMap() {
         expect().body("store.book", hasItem(hasEntry("category", "reference"))).when().get("/jsonStore");
     }
 
     @Test
-    public void findAllBooksWithPriceGreaterThanTen() throws Exception {
+    public void findAllBooksWithPriceGreaterThanTen() {
         expect().body("store.book.findAll { book -> book.price > 10 }.size()", equalTo(2)).when().get("/jsonStore");
     }
 
     @Test
-    public void getLastElementInList() throws Exception {
+    public void getLastElementInList() {
         expect().body("store.book[-1].title", equalTo("The Lord of the Rings")).when().get("/jsonStore");
     }
 
     @Test
-    public void getFirstTwoElementsInList() throws Exception {
+    public void getFirstTwoElementsInList() {
         expect().body("store.book[0,1].title", hasItems("Sayings of the Century", "Sword of Honour")).when().get("/jsonStore");
     }
 
     @Test
-    public void getFirstAndLastElementsInList() throws Exception {
+    public void getFirstAndLastElementsInList() {
         expect().body("store.book[0,-1].title", hasItems("Sayings of the Century", "The Lord of the Rings")).when().get("/jsonStore");
     }
 
     @Test
-    public void getRangeInList() throws Exception {
+    public void getRangeInList() {
         expect().body("store.book[0..2].size()", equalTo(3)).when().get("/jsonStore");
     }
 
     @SuppressWarnings("unchecked")
     @Test
-    public void supportsGettingResponseBodyWhenStatusCodeIs401() throws Exception {
+    public void supportsGettingResponseBodyWhenStatusCodeIs401() {
         final Response response = get("/secured/hello");
 
         assertThat(response.getBody().asString(), allOf(containsString("401"), containsString("Unauthorized")));
     }
 
     @Test
-    public void throwsNiceErrorMessageWhenIllegalPath() throws Exception {
+    public void throwsNiceErrorMessageWhenIllegalPath() {
         exception.expect(AssertionError.class);
         exception.expectMessage("1 expectation failed.\n" +
                 "JSON path store.unknown.unknown.get(0) doesn't match.\n" +
@@ -361,40 +362,40 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void supportsParsingJsonLists() throws Exception {
+    public void supportsParsingJsonLists() {
         expect().body("address[0]", equalTo("Spangatan")).when().get("/jsonList");
     }
 
     @Test
-    public void supportsGettingEmptyResponseBody() throws Exception {
+    public void supportsGettingEmptyResponseBody() {
         final String body = get("/emptyBody").asString();
 
         assertThat(body, equalTo(""));
     }
 
     @Test
-    public void parametersAndQueryParametersAreConcatenated() throws Exception {
-        with().parameters("firstName", "John").and().queryParameters("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    public void parametersAndQueryParametersAreConcatenated() {
+        with().params("firstName", "John").and().queryParams("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
 
     @Test
-    public void parameterAndQueryParameterAreConcatenated() throws Exception {
-        with().parameter("firstName", "John").and().queryParameter("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
+    public void parameterAndQueryParameterAreConcatenated() {
+        with().param("firstName", "John").and().queryParam("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
     }
 
     @Test
-    public void queryParametersCanBeUsedWithInts() throws Exception {
-        with().queryParam("firstName", 1234).and().queryParameter("lastName", 5678).expect().body("greeting", equalTo("Greetings 1234 5678")).when().get("/greet");
+    public void queryParametersCanBeUsedWithInts() {
+        with().queryParam("firstName", 1234).and().queryParam("lastName", 5678).expect().body("greeting", equalTo("Greetings 1234 5678")).when().get("/greet");
     }
 
     @Test
-    public void multiValueParametersWorks() throws Exception {
+    public void multiValueParametersWorks() {
         with().param("list", "1").param("list", "2").param("list", "3").expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 
     @Test
-    public void multiValueParametersWorksForSets() throws Exception {
-        final Set<String> paramValues = new LinkedHashSet<String>();
+    public void multiValueParametersWorksForSets() {
+        final Set<String> paramValues = new LinkedHashSet<>();
         paramValues.add("1");
         paramValues.add("2");
         paramValues.add("3");
@@ -402,14 +403,14 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void multiValueParametersWorksWhenPassingInMap() throws Exception {
-        final HashMap<String, String> hashMap = new HashMap<String, String>();
+    public void multiValueParametersWorksWhenPassingInMap() {
+        final HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("list", "3");
-        with().param("list", "1").param("list", "2").parameters(hashMap).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+        with().param("list", "1").param("list", "2").params(hashMap).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 
     @Test
-    public void multiValueQueryParametersWorks() throws Exception {
+    public void multiValueQueryParametersWorks() {
         with().queryParam("list", "1").queryParam("list", "2").queryParam("list", "3").expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 
@@ -417,7 +418,7 @@ public class JSONGetITest extends WithJetty {
      * Asserts that <a href="https://code.google.com/p/rest-assured/issues/detail?id=169">issue 169</a> is resolved
      */
     @Test
-    public void multiValueQueryParametersWorksWhenSpecifiedInTheUrl() throws Exception {
+    public void multiValueQueryParametersWorksWhenSpecifiedInTheUrl() {
         expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam?list=1&list=2&list=3");
     }
 
@@ -425,7 +426,7 @@ public class JSONGetITest extends WithJetty {
      * Asserts that <a href="https://code.google.com/p/rest-assured/issues/detail?id=169">issue 169</a> is resolved
      */
     @Test
-    public void multiValueQueryParametersWorksWhenSpecifiedInInTheFluentAPIAsPathParameters() throws Exception {
+    public void multiValueQueryParametersWorksWhenSpecifiedInInTheFluentAPIAsPathParameters() {
         given().
                 pathParam("one", "1").
                 pathParam("two", "2").
@@ -437,49 +438,49 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void multiValueQueryParametersWorksWhenPassingInMap() throws Exception {
-        final HashMap<String, String> hashMap = new HashMap<String, String>();
+    public void multiValueQueryParametersWorksWhenPassingInMap() {
+        final HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("list", "3");
         with().queryParam("list", "1").queryParam("list", "2").queryParams(hashMap).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 
     @Test
-    public void multiValueParametersWorksWhenPassingInList() throws Exception {
+    public void multiValueParametersWorksWhenPassingInList() {
         with().param("list", asList("1", "2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 
     @Test
-    public void multiValueQueryParametersWorksWhenPassingInListWithInts() throws Exception {
+    public void multiValueQueryParametersWorksWhenPassingInListWithInts() {
         with().queryParam("list", asList(1, 2, 3)).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 
     @Test
-    public void multiValueParametersSupportsAppendingWhenPassingInList() throws Exception {
+    public void multiValueParametersSupportsAppendingWhenPassingInList() {
         with().param("list", "1").param("list", asList("2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 
     @Test
-    public void multiValueQueryParametersSupportsAppendingWhenPassingInList() throws Exception {
-        with().param("list", asList("1")).param("list", asList("2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
+    public void multiValueQueryParametersSupportsAppendingWhenPassingInList() {
+        with().param("list", singletonList("1")).param("list", asList("2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 
     @Test
-    public void paramSupportsMultipleValues() throws Exception {
+    public void paramSupportsMultipleValues() {
         with().param("list", "1", "2", "3").expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
     }
 
     @Test
-    public void supportsAssertingThatJsonPathDoesntExist() throws Exception {
+    public void supportsAssertingThatJsonPathDoesntExist() {
         with().params("firstName", "John", "lastName", "Doe").expect().body("something", nullValue()).when().get("/greet");
     }
 
     @Test
-    public void supportsAssertingThatHeaderDoesntExist() throws Exception {
+    public void supportsAssertingThatHeaderDoesntExist() {
         with().params("firstName", "John", "lastName", "Doe").expect().header("something", nullValue(String.class)).when().get("/greet");
     }
 
     @Test
-    public void supportsRegisteringJsonParserForAGivenMimeType() throws Exception {
+    public void supportsRegisteringJsonParserForAGivenMimeType() {
         final String mimeType = "application/vnd.uoml+json";
         RestAssured.registerParser(mimeType, JSON);
         try {
@@ -490,7 +491,7 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test(expected = Exception.class)
-    public void registeringJsonParserForAGivenMimeTypeButResponseIsNotJson() throws Exception {
+    public void registeringJsonParserForAGivenMimeTypeButResponseIsNotJson() {
         final String mimeType = "application/something+json";
         RestAssured.registerParser(mimeType, JSON);
         try {
@@ -501,17 +502,17 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void givenNoBodyExpectationsThenNonBodyExpectationsWorkEvenThoughContentTypeAndBodyContentDoesNotMatch() throws Exception {
+    public void givenNoBodyExpectationsThenNonBodyExpectationsWorkEvenThoughContentTypeAndBodyContentDoesNotMatch() {
         expect().statusCode(200).and().header("Content-Type", notNullValue(String.class)).when().get("/contentTypeJsonButBodyIsNotJson");
     }
 
     @Test(expected = JsonException.class)
-    public void malformedJson() throws Exception {
+    public void malformedJson() {
         expect().body("a", is(123456)).when().get("/malformedJson");
     }
 
     @Test
-    public void statusCodeHasPriorityOverJsonParsingWhenErrorOccurs() throws Exception {
+    public void statusCodeHasPriorityOverJsonParsingWhenErrorOccurs() {
         exception.expect(IllegalStateException.class);
         exception.expectMessage(equalTo("Expected response body to be verified as JSON, HTML or XML but content-type 'text/plain' is not supported out of the box.\n" +
                 "Try registering a custom parser using:\n" +
@@ -527,7 +528,7 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void canParseJsonPathWithAFragmentStartingWithAtSign() throws Exception {
+    public void canParseJsonPathWithAFragmentStartingWithAtSign() {
         expect().
                 statusCode(200).
                 body("body.@id", is(10)).
@@ -536,7 +537,7 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void canParseJsonPathWithAnEscapedFragmentStartingWithAtSign() throws Exception {
+    public void canParseJsonPathWithAnEscapedFragmentStartingWithAtSign() {
         expect().
                 statusCode(200).
                 body("body.'@id'", is(10)).
@@ -545,17 +546,17 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void supportsParsingJsonWhenContentTypeEndsWithPlusJson() throws Exception {
+    public void supportsParsingJsonWhenContentTypeEndsWithPlusJson() {
         expect().body("message", equalTo("It works")).when().get("/mimeTypeWithPlusJson");
     }
 
     @Test
-    public void contentTypeButNoBody() throws Exception {
+    public void contentTypeButNoBody() {
         expect().contentType(ContentType.JSON).when().get("/contentTypeButNoBody");
     }
 
     @Test
-    public void contentTypeButNoBodyWhenError() throws Exception {
+    public void contentTypeButNoBodyWhenError() {
         exception.expect(AssertionError.class);
         exception.expectMessage("Cannot assert that path \"error\" matches null because the response body is empty.");
 
@@ -563,7 +564,7 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void uuidIsTreatedAsString() throws Exception {
+    public void uuidIsTreatedAsString() {
         UUID uuid1 = UUID.randomUUID();
         UUID uuid2 = UUID.randomUUID();
 

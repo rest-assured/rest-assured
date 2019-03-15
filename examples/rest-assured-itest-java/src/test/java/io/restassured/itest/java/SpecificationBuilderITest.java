@@ -43,19 +43,6 @@ import static org.junit.Assert.assertThat;
 public class SpecificationBuilderITest extends WithJetty {
 
     @Test
-    public void expectingSpecificationMergesTheCurrentSpecificationWithTheSuppliedOne() {
-        final ResponseSpecBuilder builder = new ResponseSpecBuilder();
-        builder.expectBody("store.book.size()", is(4)).expectStatusCode(200);
-        final ResponseSpecification responseSpecification = builder.build();
-
-        expect().
-                specification(responseSpecification).
-                body("store.book[0].author", equalTo("Nigel Rees")).
-        when().
-                get("/jsonStore");
-    }
-
-    @Test
     public void supportsSpecifyingDefaultResponseSpec() {
         RestAssured.responseSpecification = new ResponseSpecBuilder().expectBody("store.book.size()", is(4)).expectStatusCode(200).build();
 
@@ -122,18 +109,18 @@ public class SpecificationBuilderITest extends WithJetty {
 
     @Test
     public void responseSpecificationCanExpectContentWithArgs() {
-        final ResponseSpecification spec = new ResponseSpecBuilder().rootPath("store.book[%d]").expectContent("author", withArgs(0), equalTo("Nigel Rees")).build();
+        final ResponseSpecification spec = new ResponseSpecBuilder().rootPath("store.book[%d]").expectBody("author", withArgs(0), equalTo("Nigel Rees")).build();
 
         expect().
                 spec(spec).
-                content("title", withArgs(1), equalTo("Sword of Honour")).
+                body("title", withArgs(1), equalTo("Sword of Honour")).
         when().
                 get("/jsonStore");
     }
 
     @Test
     public void supportsSpecifyingParametersInRequestSpecBuilder() {
-        final RequestSpecification spec = new RequestSpecBuilder().addParameter("firstName", "John").addParam("lastName", "Doe").build();
+        final RequestSpecification spec = new RequestSpecBuilder().addParam("firstName", "John").addParam("lastName", "Doe").build();
 
         given().
                 spec(spec).
@@ -146,7 +133,7 @@ public class SpecificationBuilderITest extends WithJetty {
 
     @Test
     public void supportsSpecifyingDefaultRequestSpec() {
-        RestAssured.requestSpecification = new RequestSpecBuilder().addParameter("firstName", "John").addParam("lastName", "Doe").build();
+        RestAssured.requestSpecification = new RequestSpecBuilder().addParam("firstName", "John").addParam("lastName", "Doe").build();
         try {
             expect().
                     body("greeting.firstName", equalTo("John")).
@@ -160,7 +147,7 @@ public class SpecificationBuilderITest extends WithJetty {
 
     @Test
     public void supportsSpecifyingQueryParametersInRequestSpecBuilderWhenGet() {
-        final RequestSpecification spec = new RequestSpecBuilder().addQueryParameter("firstName", "John").addQueryParam("lastName", "Doe").build();
+        final RequestSpecification spec = new RequestSpecBuilder().addQueryParam("firstName", "John").addQueryParam("lastName", "Doe").build();
 
         given().
                 spec(spec).
@@ -173,7 +160,7 @@ public class SpecificationBuilderITest extends WithJetty {
 
     @Test
     public void supportsSpecifyingQueryParametersInRequestSpecBuilderWhenPost() {
-        final RequestSpecification spec = new RequestSpecBuilder().addQueryParameter("firstName", "John").addQueryParam("lastName", "Doe").build();
+        final RequestSpecification spec = new RequestSpecBuilder().addQueryParam("firstName", "John").addQueryParam("lastName", "Doe").build();
 
         given().
                 spec(spec).
@@ -186,7 +173,7 @@ public class SpecificationBuilderITest extends WithJetty {
 
     @Test
     public void supportsMergesParametersWhenUsingRequestSpecBuilder() {
-        final RequestSpecification spec = new RequestSpecBuilder().addParameter("firstName", "John").build();
+        final RequestSpecification spec = new RequestSpecBuilder().addParam("firstName", "John").build();
 
         given().
                 spec(spec).
@@ -332,7 +319,7 @@ public class SpecificationBuilderITest extends WithJetty {
 
         given().
                 spec(spec).
-                formParameter("firstName", "John").
+                formParam("firstName", "John").
         expect().
                 body("greeting", Matchers.equalTo("Greetings John Doe")).
         when().
@@ -345,7 +332,7 @@ public class SpecificationBuilderITest extends WithJetty {
 
         given().
                 spec(spec).
-                pathParameter("firstName", "John").
+                pathParam("firstName", "John").
         expect().
                 body("fullName", equalTo("John Doe")).
         when().
@@ -360,8 +347,8 @@ public class SpecificationBuilderITest extends WithJetty {
 
         given().
                 spec(spec).
-                pathParameter("firstName", "John").
-                pathParameter("lastName", "Doe").
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
         when().
                 get("/{firstName}/{lastName}").
         then().
@@ -414,8 +401,8 @@ public class SpecificationBuilderITest extends WithJetty {
 
         given().
                 config(newConfig().logConfig(logConfig().defaultStream(captor))).
-                pathParameter("firstName", "John").
-                pathParameter("lastName", "Doe").
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
                 get("/{firstName}/{lastName}").
         then().
                spec(responseSpec).

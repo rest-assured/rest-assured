@@ -36,7 +36,7 @@ public class XMLGetITest extends WithJetty {
 
     @Test
     public void xmlParameterSupport() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().get("/greetXML");
+        RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().get("/greetXML");
     }
 
     @Test
@@ -46,27 +46,27 @@ public class XMLGetITest extends WithJetty {
 
     @Test
     public void xmlParameterSupportWithAnotherAssertion() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).when().get("/greetXML");
+        RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).when().get("/greetXML");
     }
 
     @Test
     public void childrenElements() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.children()", hasItems("John", "Doe")).when().get("/anotherGreetXML");
+        RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.name.children()", hasItems("John", "Doe")).when().get("/anotherGreetXML");
     }
 
     @Test
     public void childrenElementsSize() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.children().size()", equalTo(2)).when().get("/anotherGreetXML");
+        RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.name.children().size()", equalTo(2)).when().get("/anotherGreetXML");
     }
 
     @Test
     public void childrenElementsIsEmpty() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.notDefined.children().isEmpty()", equalTo(true)).when().get("/anotherGreetXML");
+        RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.name.notDefined.children().isEmpty()", equalTo(true)).when().get("/anotherGreetXML");
     }
 
     @Test
     public void xmlNestedElements2() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.name.firstName", equalTo("John")).when().get("/anotherGreetXML");
+        RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.name.firstName", equalTo("John")).when().get("/anotherGreetXML");
     }
 
     @Test
@@ -77,17 +77,17 @@ public class XMLGetITest extends WithJetty {
                 "        <lastName>Doe</lastName>\n" +
                 "      </name>\n" +
                 "    </greeting>";
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body(equalTo(expectedBody)).when().get("/anotherGreetXML");
+        RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body(equalTo(expectedBody)).when().get("/anotherGreetXML");
     }
 
     @Test
     public void newSyntaxWithXPath() throws Exception {
-        RestAssured.expect().body(hasXPath("/greeting/name/firstName[text()='John']")).then().with().parameters("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
+        RestAssured.expect().body(hasXPath("/greeting/name/firstName[text()='John']")).then().with().params("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
     }
 
     @Test
     public void newSyntaxWithXPathWithContainsMatcher() throws Exception {
-        RestAssured.expect().body(hasXPath("/greeting/name/firstName", containsString("Jo"))).given().parameters("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
+        RestAssured.expect().body(hasXPath("/greeting/name/firstName", containsString("Jo"))).given().params("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
     }
 
     @Test
@@ -168,22 +168,22 @@ public class XMLGetITest extends WithJetty {
 
     @Test
     public void whenReturningANonCollectionAndNonArrayThenSizeIsOne() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName.size()", equalTo(1)).when().get("/greetXML");
+        RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName.size()", equalTo(1)).when().get("/greetXML");
     }
 
     @Test
     public void supportBodyExpectationsWithMinusInRootObject() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("a-greeting.firstName", equalTo("John")).when().get("/xmlWithMinusInRoot");
+        RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("a-greeting.firstName", equalTo("John")).when().get("/xmlWithMinusInRoot");
     }
 
     @Test
     public void supportBodyExpectationsWithMinusInChildObject() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.your-firstName", equalTo("John")).when().get("/xmlWithMinusInChild");
+        RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.your-firstName", equalTo("John")).when().get("/xmlWithMinusInChild");
     }
 
     @Test
     public void supportBodyExpectationsWithUnderscoreInChildObject() throws Exception {
-        RestAssured.with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.your_firstName", equalTo("John")).when().get("/xmlWithUnderscoreInChild");
+        RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.your_firstName", equalTo("John")).when().get("/xmlWithUnderscoreInChild");
     }
 
     @Test
@@ -227,7 +227,7 @@ public class XMLGetITest extends WithJetty {
     public void supportsRegisteringCustomParserForAGivenMimeTypeUsingResponseSpec() throws Exception {
         final String mimeType = "application/something-custom";
         final ResponseSpecification specification = new ResponseSpecBuilder().registerParser(mimeType, Parser.XML).build();
-        RestAssured.expect().specification(specification).and().body("body.message", equalTo("Custom mime-type")).when().get("/customMimeType");
+        RestAssured.expect().spec(specification).and().body("body.message", equalTo("Custom mime-type")).when().get("/customMimeType");
     }
 
     @Test

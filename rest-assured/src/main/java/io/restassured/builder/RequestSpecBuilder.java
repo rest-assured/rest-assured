@@ -83,9 +83,6 @@ public class RequestSpecBuilder {
      * Specify a String request body (such as e.g. JSON or XML) to be sent with the request. This works for the
      * POST, PUT and PATCH methods only. Trying to do this for the other http methods will cause an exception to be thrown.
      * <p/>
-     * <p>
-     * Note that {@link #setBody(String)} and {@link #setContent(String)} are the same except for the syntactic difference.
-     * </p>
      *
      * @param body The body to send.
      * @return The request specification builder
@@ -98,9 +95,6 @@ public class RequestSpecBuilder {
     /**
      * Specify a byte array request body to be sent with the request. This only works for the
      * POST http method. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Note that {@link #setBody(byte[])} and {@link #setContent(byte[])} are the same except for the syntactic difference.
-     * </p>
      *
      * @param body The body to send.
      * @return The request specification builder
@@ -116,9 +110,6 @@ public class RequestSpecBuilder {
      * be converted to a String and put in the request body. This works for the POST, PUT and PATCH methods only.
      * Trying to do this for the other http methods will cause an exception to be thrown.
      * <p/>
-     * <p>
-     * Note that {@link #setBody(Object)}  and {@link #setContent(Object)} are the same except for the syntactic difference.
-     * </p>
      *
      * @param object The object to serialize and send with the request
      * @return The request specification
@@ -131,10 +122,6 @@ public class RequestSpecBuilder {
     /**
      * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
      * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Note that {@link #setBody(Object, ObjectMapper)}  and {@link #setContent(Object, ObjectMapper)}
-     * are the same except for the syntactic difference.
-     * </p>
      *
      * @param object The object to serialize and send with the request
      * @param mapper The object mapper
@@ -162,119 +149,12 @@ public class RequestSpecBuilder {
      *         post("/beautiful-message");
      * </pre>
      * </p>
-     * Note that {@link #setBody(Object, ObjectMapperType)}  and {@link #setContent(Object, ObjectMapperType)}
-     * are the same except for the syntactic difference.
-     * </p>
      *
      * @param object     The object to serialize and send with the request
      * @param mapperType The object mapper type to be used
      * @return The request specification
      */
     public RequestSpecBuilder setBody(Object object, ObjectMapperType mapperType) {
-        spec.body(object, mapperType);
-        return this;
-    }
-
-    /**
-     * Specify a String request content (such as e.g. JSON or XML) to be sent with the request. This works for the
-     * POST, PUT and PATCH methods only. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Note that {@link #setBody(String)} and {@link #setContent(String)} are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param content The content to send.
-     * @return The request specification builder
-     * @deprecated Use #setBody(String) instead
-     */
-    @Deprecated
-    public RequestSpecBuilder setContent(String content) {
-        spec.content(content);
-        return this;
-    }
-
-    /**
-     * Specify a byte array request content to be sent with the request. This only works for the
-     * POST http method. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Note that {@link #setBody(byte[])} and {@link #setContent(byte[])} are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param content The content to send.
-     * @return The request specification builder
-     * @deprecated Use {@link #setBody(byte[])} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder setContent(byte[] content) {
-        spec.content(content);
-        return this;
-    }
-
-    /**
-     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request.
-     * If the object is a primitive or <a href="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html">Number</a> the object will
-     * be converted to a String and put in the request body. This works for the POST, PUT and PATCH methods only.
-     * Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p/>
-     * <p>
-     * Note that {@link #setBody(Object)} and {@link #setContent(Object)} are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param object The object to serialize and send with the request
-     * @return The request specification
-     * @deprecated Use #setBody(Object) instead
-     */
-    @Deprecated
-    public RequestSpecBuilder setContent(Object object) {
-        spec.body(object);
-        return this;
-    }
-
-    /**
-     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
-     * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Note that {@link #setBody(Object, ObjectMapper)}  and {@link #setContent(Object, ObjectMapper)}
-     * are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param object The object to serialize and send with the request
-     * @param mapper The object mapper
-     * @return The request specification
-     * @deprecated Use #setBody(Object, ObjectMapper) instead
-     */
-    @Deprecated
-    public RequestSpecBuilder setContent(Object object, ObjectMapper mapper) {
-        spec.body(object, mapper);
-        return this;
-    }
-
-    /**
-     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper type.
-     * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Example of use:
-     * <pre>
-     * Message message = new Message();
-     * message.setMessage("My beautiful message");
-     *
-     * given().
-     *         body(message, ObjectMapper.GSON).
-     * expect().
-     *         content(equalTo("Response to a beautiful message")).
-     * when().
-     *         post("/beautiful-message");
-     * </pre>
-     * </p>
-     * Note that {@link #setBody(Object, ObjectMapperType)}  and {@link #setContent(Object, ObjectMapperType)}
-     * are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param object     The object to serialize and send with the request
-     * @param mapperType The object mapper type to be used
-     * @return The request specification
-     * @deprecated Use #setBody(Object, ObjectMapperType) instead
-     */
-    public RequestSpecBuilder setContent(Object object, ObjectMapperType mapperType) {
         spec.body(object, mapperType);
         return this;
     }
@@ -365,47 +245,6 @@ public class RequestSpecBuilder {
      *
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification builder
-     * @deprecated Use {@link #addParams(Map)} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder addParameters(Map<String, ?> parametersMap) {
-        spec.parameters(parametersMap);
-        return this;
-    }
-
-    /**
-     * Add a parameter to be sent with the request.
-     *
-     * @param parameterName   The parameter name
-     * @param parameterValues Zero to many parameter values for this parameter name.
-     * @return The request specification builder
-     * @deprecated Use {@link #addParam(String, Object...)} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder addParameter(String parameterName, Object... parameterValues) {
-        spec.parameter(parameterName, parameterValues);
-        return this;
-    }
-
-    /**
-     * Add a multi-value parameter to be sent with the request.
-     *
-     * @param parameterName   The parameter key
-     * @param parameterValues The parameter values
-     * @return The request specification builder
-     * @deprecated Use {@link #addParam(String, Collection)} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder addParameter(String parameterName, Collection<?> parameterValues) {
-        spec.parameter(parameterName, parameterValues);
-        return this;
-    }
-
-    /**
-     * Add parameters to be sent with the request as Map.
-     *
-     * @param parametersMap The Map containing the parameter names and their values to send with the request.
-     * @return The request specification builder
      */
     public RequestSpecBuilder addParams(Map<String, ?> parametersMap) {
         spec.params(parametersMap);
@@ -437,7 +276,7 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Method to remove parameter added with {@link #addParameter(String, Object...)} from map.
+     * Method to remove parameter added with {@link #addParam(String, Object...)} from map.
      * Removes all values of this parameter
      *
      * @param parameterName The parameter key
@@ -445,50 +284,6 @@ public class RequestSpecBuilder {
      */
     public RequestSpecBuilder removeParam(String parameterName) {
         spec.removeParam(parameterName);
-        return this;
-    }
-
-    /**
-     * Add query parameters to be sent with the request as a Map. This method is the same as {@link #addParameters(java.util.Map)}
-     * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
-     *
-     * @param parametersMap The Map containing the parameter names and their values to send with the request.
-     * @return The request specification builder
-     * @deprecated Use {@link #addQueryParams(Map)} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder addQueryParameters(Map<String, ?> parametersMap) {
-        spec.queryParameters(parametersMap);
-        return this;
-    }
-
-    /**
-     * Add a query parameter to be sent with the request. This method is the same as {@link #addParameter(String, Object...)} )}
-     * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
-     *
-     * @param parameterName   The parameter key
-     * @param parameterValues Zero to many parameter values for this parameter name.
-     * @return The request specification builder
-     * @deprecated Use {@link #addQueryParam(String, Object...)} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder addQueryParameter(String parameterName, Object... parameterValues) {
-        spec.queryParameter(parameterName, parameterValues);
-        return this;
-    }
-
-    /**
-     * Add a query parameter to be sent with the request. This method is the same as {@link #addParameter(String, java.util.Collection)}
-     * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
-     *
-     * @param parameterName   The parameter key
-     * @param parameterValues The parameter values
-     * @return The request specification builder
-     * @deprecated Use {@link #addQueryParam(String, Collection)} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder addQueryParameter(String parameterName, Collection<?> parameterValues) {
-        spec.parameter(parameterName, parameterValues);
         return this;
     }
 
@@ -512,7 +307,6 @@ public class RequestSpecBuilder {
      *
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification builder
-     * @see #addQueryParameters(java.util.Map)
      */
     public RequestSpecBuilder addQueryParams(Map<String, ?> parametersMap) {
         spec.queryParams(parametersMap);
@@ -526,7 +320,6 @@ public class RequestSpecBuilder {
      * @param parameterName   The parameter key
      * @param parameterValues Zero to many parameter values for this parameter name.
      * @return The request specification builder
-     * @see #addQueryParameter(String, Object...)
      */
     public RequestSpecBuilder addQueryParam(String parameterName, Object... parameterValues) {
         spec.queryParam(parameterName, parameterValues);
@@ -534,7 +327,7 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Method to remove parameter added with {@link #addQueryParameter(String, Object...)} from map.
+     * Method to remove parameter added with from map.
      * Removes all values of this parameter
      *
      * @param parameterName The parameter key
@@ -545,53 +338,8 @@ public class RequestSpecBuilder {
         return this;
     }
 
-
     /**
-     * Add query parameters to be sent with the request as a Map. This method is the same as {@link #addParameters(java.util.Map)}
-     * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
-     *
-     * @param parametersMap The Map containing the parameter names and their values to send with the request.
-     * @return The request specification builder
-     * @deprecated Use {@link #addFormParams(Map)} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder addFormParameters(Map<String, ?> parametersMap) {
-        spec.formParameters(parametersMap);
-        return this;
-    }
-
-    /**
-     * Add a form parameter to be sent with the request. This method is the same as {@link #addParameter(String, Object...)} )}
-     * for all HTTP methods except PUT where this method can be used to differentiate between form and query params.
-     *
-     * @param parameterName   The parameter key
-     * @param parameterValues Zero to many parameter values for this parameter name.
-     * @return The request specification builder
-     * @deprecated Use {@link #addFormParam(String, Object...)} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder addFormParameter(String parameterName, Object... parameterValues) {
-        spec.formParameter(parameterName, parameterValues);
-        return this;
-    }
-
-    /**
-     * Add a form parameter to be sent with the request. This method is the same as {@link #addParameter(String, java.util.Collection)}
-     * for all HTTP methods except PUT where this method can be used to differentiate between form and query params.
-     *
-     * @param parameterName   The parameter key
-     * @param parameterValues The parameter values
-     * @return The request specification builder
-     * @deprecated Use {@link #addFormParam(String, Collection)} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder addFormParameter(String parameterName, Collection<?> parameterValues) {
-        spec.formParam(parameterName, parameterValues);
-        return this;
-    }
-
-    /**
-     * Add a form parameter to be sent with the request. This method is the same as {@link #addParameter(String, java.util.Collection)}
+     * Add a form parameter to be sent with the request. This method is the same as {@link #addParam(String, java.util.Collection)}
      * for all HTTP methods except PUT where this method can be used to differentiate between form and query params.
      *
      * @param parameterName   The parameter key
@@ -605,13 +353,11 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Add query parameters to be sent with the request as a Map. This method is the same as {@link #addParameters(java.util.Map)}
+     * Add query parameters to be sent with the request as a Map. This method is the same as {@link #addParams(java.util.Map)}
      * for all HTTP methods except POST where this method can be used to differentiate between form and query params.
      *
      * @param parametersMap The Map containing the parameter names and their values to send with the request.
-     * @param parametersMap The Map containing the parameter names and their values to send with the request.
      * @return The request specification builder
-     * @see #addFormParameters(java.util.Map)
      */
     public RequestSpecBuilder addFormParams(Map<String, ?> parametersMap) {
         spec.formParams(parametersMap);
@@ -619,7 +365,7 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Add a form parameter to be sent with the request. This method is the same as {@link #addParameter(String, Object...)} )}
+     * Add a form parameter to be sent with the request. This method is the same as {@link #addParam(String, Object...)} )}
      * for all HTTP methods except PUT where this method can be used to differentiate between form and query params.
      *
      * @param parameterName   The parameter key
@@ -633,7 +379,7 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Method to remove parameter added with {@link #addFormParameter(String, Object...)} from map.
+     * Method to remove parameter added with {@link #addFormParam(String, Object...)} from map.
      * Removes all values of this parameter
      *
      * @param parameterName The parameter key
@@ -641,107 +387,6 @@ public class RequestSpecBuilder {
      */
     public RequestSpecBuilder removeFormParam(String parameterName) {
         spec.removeFormParam(parameterName);
-        return this;
-    }
-
-    /**
-     * Specify a path parameter. Path parameters are used to improve readability of the request path. E.g. instead
-     * of writing:
-     * <pre>
-     * expect().statusCode(200).when().get("/item/"+myItem.getItemNumber()+"/buy/"+2);
-     * </pre>
-     * you can write:
-     * <pre>
-     * given().
-     *         pathParameter("itemNumber", myItem.getItemNumber()).
-     *         pathParameter("amount", 2).
-     * expect().
-     *          statusCode(200).
-     * when().
-     *        get("/item/{itemNumber}/buy/{amount}");
-     * </pre>
-     * <p/>
-     * which improves readability and allows the path to be reusable in many tests. Another alternative is to use:
-     * <pre>
-     * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
-     * </pre>
-     *
-     * @param parameterName  The parameter key
-     * @param parameterValue The parameter value
-     * @return The request specification
-     * @deprecated Use {@link #addPathParam(String, Object)} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder addPathParameter(String parameterName, Object parameterValue) {
-        spec.pathParameter(parameterName, parameterValue);
-        return this;
-    }
-
-    /**
-     * Specify multiple path parameter name-value pairs. Path parameters are used to improve readability of the request path. E.g. instead
-     * of writing:
-     * <pre>
-     * expect().statusCode(200).when().get("/item/"+myItem.getItemNumber()+"/buy/"+2);
-     * </pre>
-     * you can write:
-     * <pre>
-     * given().
-     *         pathParameters("itemNumber", myItem.getItemNumber(), "amount", 2).
-     * expect().
-     *          statusCode(200).
-     * when().
-     *        get("/item/{itemNumber}/buy/{amount}");
-     * </pre>
-     * <p/>
-     * which improves readability and allows the path to be reusable in many tests. Another alternative is to use:
-     * <pre>
-     * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
-     * </pre>
-     *
-     * @param firstParameterName      The name of the first parameter
-     * @param firstParameterValue     The value of the first parameter
-     * @param parameterNameValuePairs Additional parameters in name-value pairs.
-     * @return The request specification
-     * @deprecated Use {@link #addPathParams(String, Object, Object...)} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder addPathParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
-        spec.pathParameters(firstParameterName, firstParameterValue, parameterNameValuePairs);
-        return this;
-    }
-
-    /**
-     * Specify multiple path parameter name-value pairs. Path parameters are used to improve readability of the request path. E.g. instead
-     * of writing:
-     * <pre>
-     * expect().statusCode(200).when().get("/item/"+myItem.getItemNumber()+"/buy/"+2);
-     * </pre>
-     * you can write:
-     * <pre>
-     * Map&lt;String,Object&gt; pathParams = new HashMap&lt;String,Object&gt;();
-     * pathParams.add("itemNumber",myItem.getItemNumber());
-     * pathParams.add("amount",2);
-     *
-     * given().
-     *         pathParameters(pathParams).
-     * expect().
-     *          statusCode(200).
-     * when().
-     *        get("/item/{itemNumber}/buy/{amount}");
-     * </pre>
-     * <p/>
-     * which improves readability and allows the path to be reusable in many tests. Another alternative is to use:
-     * <pre>
-     * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
-     * </pre>
-     *
-     * @param parameterNameValuePairs A map containing the path parameters.
-     * @return The request specification
-     * @deprecated Use {@link #addPathParams(Map)} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder addPathParameters(Map<String, ?> parameterNameValuePairs) {
-        spec.pathParameters(parameterNameValuePairs);
         return this;
     }
 
@@ -841,7 +486,7 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Method to remove parameter added with {@link #addPathParameter(String, Object)} from map.
+     * Method to remove parameter added with {@link #addPathParam(String, Object)} from map.
      * Removes all values of this parameter.
      *
      * @param parameterName The parameter key
@@ -1205,21 +850,10 @@ public class RequestSpecBuilder {
      * If you need to specify some credentials when performing a request.
      *
      * @return The request specification builder
-     * @deprecated Use {@link #setAuth(AuthenticationScheme)} instead
-     */
-    @Deprecated
-    public RequestSpecBuilder setAuthentication(AuthenticationScheme auth) {
-        spec.setAuthenticationScheme(auth);
-        return this;
-    }
-
-    /**
-     * If you need to specify some credentials when performing a request.
-     *
-     * @return The request specification builder
      */
     public RequestSpecBuilder setAuth(AuthenticationScheme auth) {
-        return setAuthentication(auth);
+        spec.setAuthenticationScheme(auth);
+        return this;
     }
 
     /**

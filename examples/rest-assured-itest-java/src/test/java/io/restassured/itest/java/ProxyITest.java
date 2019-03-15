@@ -140,7 +140,7 @@ public class ProxyITest extends WithJetty {
         RequestSpecification specification = new RequestSpecBuilder().setProxy("localhost").build();
 
         given().
-                specification(specification).
+                spec(specification).
                 param("firstName", "John").
                 param("lastName", "Doe").
         when().

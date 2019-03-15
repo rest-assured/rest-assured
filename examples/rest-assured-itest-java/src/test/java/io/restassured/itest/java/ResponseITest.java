@@ -68,7 +68,7 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void whenNoExpectationsDefinedThenPostCanReturnBodyAsString() throws Exception {
-        final String body = with().parameters("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().body().asString();
+        final String body = with().params("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().body().asString();
         assertEquals("<greeting><firstName>John</firstName>\n" +
                 "      <lastName>Doe</lastName>\n" +
                 "    </greeting>", body);
@@ -95,7 +95,7 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void whenNoExpectationsDefinedThenDeleteWithBodyCanReturnBodyAsString() throws Exception {
-        final String actual = given().parameters("firstName", "John", "lastName", "Doe").when().delete("/greet").thenReturn().asString();
+        final String actual = given().params("firstName", "John", "lastName", "Doe").when().delete("/greet").thenReturn().asString();
         assertEquals("{\"greeting\":\"Greetings John Doe\"}", actual);
     }
 
@@ -175,7 +175,7 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void usingXmlPathViewFromTheResponse() throws Exception {
-        final String firstName = with().parameters("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().xmlPath().getString("greeting.firstName");
+        final String firstName = with().params("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().xmlPath().getString("greeting.firstName");
 
         assertThat(firstName, equalTo("John"));
     }
@@ -214,7 +214,7 @@ public class ResponseITest extends WithJetty {
 
     @Test
     public void usingPathWithContentTypeXmlFromTheResponse() throws Exception {
-        final String firstName = with().parameters("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().path("greeting.firstName");
+        final String firstName = with().params("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().path("greeting.firstName");
 
         assertThat(firstName, equalTo("John"));
     }

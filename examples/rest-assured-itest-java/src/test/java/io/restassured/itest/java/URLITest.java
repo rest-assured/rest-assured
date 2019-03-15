@@ -995,7 +995,7 @@ public class URLITest extends WithJetty {
      * @throws Exception
      */
     @Test
-    public void get_request_with_query_parameters_as_map_that_contains_collection_as_one_of_parameters() throws Exception {
+    public void get_request_with_query_parameters_as_map_that_contains_collection_as_one_of_params() throws Exception {
         final ArrayList<String> parameterValues = new ArrayList<String>() {{
             add("value1");
             add("value2");
@@ -1019,7 +1019,7 @@ public class URLITest extends WithJetty {
      * @throws Exception
      */
     @Test
-    public void get_request_with_form_parameters_as_map_that_contains_collection_as_one_of_parameters() throws Exception {
+    public void get_request_with_form_parameters_as_map_that_contains_collection_as_one_of_params() throws Exception {
         final List parameterValues = new ArrayList<String>() {{
             add("value1");
             add("value2");

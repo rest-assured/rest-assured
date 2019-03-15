@@ -104,7 +104,7 @@ public class ErrorMessageITest extends WithJetty {
                 "      </name>\n" +
                 "    </greeting>\n"));
 
-        expect().body(hasXPath("/greeting/name/firstName[text()='John2']")).with().parameters("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
+        expect().body(hasXPath("/greeting/name/firstName[text()='John2']")).with().params("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
     }
 
     @Test public void
@@ -120,7 +120,7 @@ public class ErrorMessageITest extends WithJetty {
                 "      </name>\n" +
                 "    </greeting>\n");
 
-        expect().body(containsString("something")).with().parameters("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
+        expect().body(containsString("something")).with().params("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
     }
 
     @Test public void

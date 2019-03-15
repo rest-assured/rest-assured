@@ -44,7 +44,7 @@ public class NonMultiPartUploadITest extends WithJetty {
         // When
         given().
                 contentType(ContentType.BINARY).
-                content(bytes).
+                body(bytes).
         when().
                 post("/file").
         then().
@@ -59,7 +59,7 @@ public class NonMultiPartUploadITest extends WithJetty {
 
         // When
         given().
-                content(bytes).
+                body(bytes).
         when().
                 put("/file").
         then().
@@ -74,7 +74,7 @@ public class NonMultiPartUploadITest extends WithJetty {
 
         // When
         given().
-                content(bytes).
+                body(bytes).
         when().
                 post("/file").
         then().
@@ -90,7 +90,7 @@ public class NonMultiPartUploadITest extends WithJetty {
         // When
         given().
                 contentType(ContentType.BINARY).
-                content(file).
+                body(file).
         when().
                 post("/file").
         then().
@@ -106,7 +106,7 @@ public class NonMultiPartUploadITest extends WithJetty {
         // When
         given().
                 contentType(ContentType.BINARY).
-                content(file).
+                body(file).
         when().
                 put("/file").
         then().
@@ -122,7 +122,7 @@ public class NonMultiPartUploadITest extends WithJetty {
         // When
         given().
                 contentType(ContentType.BINARY).
-                content(inputStream).
+                body(inputStream).
         when().
                 post("/file").
         then().
@@ -138,7 +138,7 @@ public class NonMultiPartUploadITest extends WithJetty {
         // When
         given().
                 contentType(ContentType.BINARY).
-                content(inputStream).
+                body(inputStream).
         when().
                 put("/file").
         then().

@@ -526,7 +526,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test public void
-    named_path_parameters_have_precedence_over_unnamed_path_parameters() {
+    named_path_parameters_have_precedence_over_unnamed_path_params() {
         given().
                 pathParam("middleName", "The Beast").
         when().
@@ -539,7 +539,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test public void
-    can_specify_space_only_named_path_parameters() {
+    can_specify_space_only_named_path_params() {
         given().
                 pathParam("firstName", "John").
                 pathParam("lastName", " ").
@@ -552,7 +552,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test public void
-    can_specify_space_only_unnamed_path_parameters() {
+    can_specify_space_only_unnamed_path_params() {
         when().
                 get("/{firstName}/{lastName}", "John", " ").
         then().
@@ -562,7 +562,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test public void
-    can_specify_empty_named_path_parameters() {
+    can_specify_empty_named_path_params() {
         given().
                 pathParam("firstName", "John").
                 pathParam("lastName", "").
@@ -573,7 +573,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test public void
-    can_specify_empty_unnamed_path_parameters() {
+    can_specify_empty_unnamed_path_params() {
         when().
                 get("/{firstName}/{lastName}", "John", "").
         then().

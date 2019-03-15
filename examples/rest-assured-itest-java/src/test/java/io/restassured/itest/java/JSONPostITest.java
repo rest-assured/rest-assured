@@ -38,27 +38,17 @@ import static org.junit.Assert.assertThat;
 public class JSONPostITest extends WithJetty {
 
     @Test
-    public void simpleJSONAndHamcrestMatcher() throws Exception {
-        given().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().post("/greet");
+    public void simpleJSONAndHamcrestMatcher() {
+        given().params("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().post("/greet");
     }
 
     @Test
-    public void parametersAcceptsIntArguments() throws Exception {
-        given().parameters("firstName", 1234, "lastName", 5678).expect().body("greeting", equalTo("Greetings 1234 5678")).when().post("/greet");
-    }
-
-    @Test
-    public void formParametersAcceptsIntArguments() throws Exception {
-        given().formParameters("firstName", 1234, "lastName", 5678).expect().body("greeting", equalTo("Greetings 1234 5678")).when().post("/greet");
-    }
-
-    @Test
-    public void formParamsAcceptsIntArguments() throws Exception {
+    public void formParamsAcceptsIntArguments() {
         given().formParams("firstName", 1234, "lastName", 5678).expect().body("greeting", equalTo("Greetings 1234 5678")).when().post("/greet");
     }
 
     @Test
-    public void formParamAcceptsIntArguments() throws Exception {
+    public void formParamAcceptsIntArguments() {
         given().
                 formParam("firstName", 1234).
                 formParam("lastName", 5678).
@@ -69,22 +59,22 @@ public class JSONPostITest extends WithJetty {
     }
 
     @Test
-    public void bodyWithSingleHamcrestMatching() throws Exception {
-        given().parameters("firstName", "John", "lastName", "Doe").expect().body(containsString("greeting")).when().post("/greet");
+    public void bodyWithSingleHamcrestMatching() {
+        given().params("firstName", "John", "lastName", "Doe").expect().body(containsString("greeting")).when().post("/greet");
     }
 
     @Test
-    public void bodyWithSingleHamcrestMatchingUsingPathParams() throws Exception {
+    public void bodyWithSingleHamcrestMatchingUsingPathParams() {
         expect().body(containsString("greeting")).when().post("/greet?firstName=John&lastName=Doe");
     }
 
     @Test
-    public void bodyHamcrestMatcherWithoutKey() throws Exception {
-        given().parameters("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().post("/greet");
+    public void bodyHamcrestMatcherWithoutKey() {
+        given().params("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().post("/greet");
     }
 
     @Test
-    public void usingRequestSpecWithParamsWorksWithPost() throws Exception {
+    public void usingRequestSpecWithParamsWorksWithPost() {
         RestAssured.requestSpecification = new RequestSpecBuilder().addParam("firstName", "John").addParam("lastName", "Doe").build();
         try {
             expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().post("/greet");
@@ -94,117 +84,117 @@ public class JSONPostITest extends WithJetty {
     }
 
     @Test
-    public void requestContentType() throws Exception {
-        final RequestSpecification requestSpecification = given().contentType(ContentType.URLENC).with().parameters("firstName", "John", "lastName", "Doe");
+    public void requestContentType() {
+        final RequestSpecification requestSpecification = given().contentType(ContentType.URLENC).with().params("firstName", "John", "lastName", "Doe");
         final ResponseSpecification responseSpecification = expect().contentType(ContentType.JSON).and().body("greeting", equalTo("Greetings John Doe"));
         given(requestSpecification, responseSpecification).post("/greet");
     }
 
     @Test
-    public void uriNotFoundTWhenPost() throws Exception {
+    public void uriNotFoundTWhenPost() {
         expect().statusCode(greaterThanOrEqualTo(400)).when().post("/lotto");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingHeaders() throws Exception {
+    public void requestSpecificationAllowsSpecifyingHeaders() {
         given().headers("MyHeader", "Something").and().expect().body(containsString("MyHeader")).when().post("/header");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingStringBodyForPost() throws Exception {
+    public void requestSpecificationAllowsSpecifyingStringBodyForPost() {
         given().request().body("some body").then().expect().response().body(equalTo("some body")).when().post("/body");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingJsonBodyForPost() throws Exception {
+    public void requestSpecificationAllowsSpecifyingJsonBodyForPost() {
         given().body("{ \"message\" : \"hello world\"}").with().contentType(ContentType.JSON).then().expect().body(equalTo("hello world")).when().post("/jsonBody");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingJsonBodyAsInputStreamForPost() throws Exception {
+    public void requestSpecificationAllowsSpecifyingJsonBodyAsInputStreamForPost() {
         InputStream inputStream = getClass().getResourceAsStream("/message.json");
 
         given().body(inputStream).with().contentType(ContentType.JSON).then().expect().body(equalTo("hello world")).when().post("/jsonBody");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingStringForPost() throws Exception {
+    public void requestSpecificationAllowsSpecifyingStringForPost() {
         given().body("tjo").and().expect().body(equalTo("tjo")).when().post("/reflect");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingIntForPost() throws Exception {
+    public void requestSpecificationAllowsSpecifyingIntForPost() {
         given().body(2).and().expect().body(equalTo("2")).when().post("/reflect");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingFloatForPost() throws Exception {
+    public void requestSpecificationAllowsSpecifyingFloatForPost() {
         given().body(2f).and().expect().body(equalTo("2.0")).when().post("/reflect");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingDoubleForPost() throws Exception {
+    public void requestSpecificationAllowsSpecifyingDoubleForPost() {
         given().body(2d).and().expect().body(equalTo("2.0")).when().post("/reflect");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingShortForPost() throws Exception {
+    public void requestSpecificationAllowsSpecifyingShortForPost() {
         given().body((short) 2).and().expect().body(equalTo("2")).when().post("/reflect");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingBooleanForPost() throws Exception {
+    public void requestSpecificationAllowsSpecifyingBooleanForPost() {
         given().body(true).and().expect().body(equalTo("true")).when().post("/reflect");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingJsonContentForPost() throws Exception {
-        given().content("{ \"message\" : \"hello world\"}").with().contentType(ContentType.JSON).and().expect().body(equalTo("hello world")).when().post("/jsonBody");
+    public void requestSpecificationAllowsSpecifyingJsonContentForPost() {
+        given().body("{ \"message\" : \"hello world\"}").with().contentType(ContentType.JSON).and().expect().body(equalTo("hello world")).when().post("/jsonBody");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingJsonBodyAsStringForPost() throws Exception {
+    public void requestSpecificationAllowsSpecifyingJsonBodyAsStringForPost() {
         given().body("{ \"message\" : \"hello world\"}").with().contentType("application/json").then().expect().body(equalTo("hello world")).when().post("/jsonBody");
     }
 
     @Test
-    public void responseSpecificationAllowsSpecifyingJsonBodyForPost() throws Exception {
+    public void responseSpecificationAllowsSpecifyingJsonBodyForPost() {
         given().header("accept", "application/json").body("{ \"message\" : \"hello world\"}").expect().contentType(ContentType.JSON).and().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
     }
 
     @Test
-    public void responseSpecificationAllowsSpecifyingJsonBodyAsStringForPost() throws Exception {
+    public void responseSpecificationAllowsSpecifyingJsonBodyAsStringForPost() {
         given().header("accept", "application/json").body("{ \"message\" : \"hello world\"}").expect().contentType("application/json").and().body(equalTo("hello world")).when().post("/jsonBodyAcceptHeader");
     }
 
     @Test
-    public void multiValueParametersSupportsAppendingWhenPassingInList() throws Exception {
+    public void multiValueParametersSupportsAppendingWhenPassingInList() {
         with().param("list", "1").param("list", asList("2", "3")).expect().body("list", equalTo("1,2,3")).when().post("/multiValueParam");
     }
 
     @Test
-    public void supportsReturningPostBody() throws Exception {
-        final String body = with().parameters("firstName", "John", "lastName", "Doe").when().post("/greet").asString();
+    public void supportsReturningPostBody() {
+        final String body = with().params("firstName", "John", "lastName", "Doe").when().post("/greet").asString();
 
         final JsonPath jsonPath = new JsonPath(body);
         assertThat(jsonPath.getString("greeting"), equalTo("Greetings John Doe"));
     }
 
     @Test
-    public void supportsGettingResponseBodyWhenStatusCodeIs401() throws Exception {
+    public void supportsGettingResponseBodyWhenStatusCodeIs401() {
         final Response response = post("/secured/hello");
 
         assertThat(response.getBody().asString(), allOf(containsString("401"), containsString("Unauthorized")));
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingBinaryBodyForPost() throws Exception {
+    public void requestSpecificationAllowsSpecifyingBinaryBodyForPost() {
         byte[] body = { 23, 42, 127, 123};
         given().body(body).then().expect().body(equalTo("23, 42, 127, 123")).when().post("/binaryBody");
     }
 
     @Test
-    public void requestSpecificationWithContentTypeOctetStreamAllowsSpecifyingBinaryBodyForPost() throws Exception {
+    public void requestSpecificationWithContentTypeOctetStreamAllowsSpecifyingBinaryBodyForPost() {
         byte[] bytes = "somestring".getBytes();
         final String expectedResponseBody = join(toObject(bytes), ", ");
 
@@ -219,7 +209,7 @@ public class JSONPostITest extends WithJetty {
     }
 
     @Test
-    public void requestSpecificationWithUnrecognizedContentTypeAllowsSpecifyingBinaryBodyForPost() throws Exception {
+    public void requestSpecificationWithUnrecognizedContentTypeAllowsSpecifyingBinaryBodyForPost() {
         byte[] bytes = "somestring".getBytes();
         final String expectedResponseBody = join(toObject(bytes), ", ");
 
@@ -234,7 +224,7 @@ public class JSONPostITest extends WithJetty {
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingCookie() throws Exception {
+    public void requestSpecificationAllowsSpecifyingCookie() {
         given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().post("/cookie");
     }
 
@@ -245,7 +235,7 @@ public class JSONPostITest extends WithJetty {
     }
 
     @Test
-    public void customJsonCompatibleContentTypeWithBody() throws Exception {
+    public void customJsonCompatibleContentTypeWithBody() {
         byte[] bytes = "Some Text".getBytes();
         given().
                 contentType("application/vnd.myitem+json").
@@ -257,7 +247,7 @@ public class JSONPostITest extends WithJetty {
     }
 
     @Test
-    public void queryParametersInPostAreUrlEncoded() throws Exception {
+    public void queryParametersInPostAreUrlEncoded() {
         expect().body("first", equalTo("http://myurl.com")).when().post("/param-reflect?first=http://myurl.com");
     }
 }

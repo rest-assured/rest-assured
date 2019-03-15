@@ -105,7 +105,7 @@ public class DecoderConfigITest extends WithJetty {
         String path = "/mobile";
 
         Response response = expect().statusCode(200).given().relaxedHTTPSValidation()
-                .parameters("Oper_Name", "getConfigInfo",
+                .params("Oper_Name", "getConfigInfo",
                         "Config_Ver", "1.0",
                         "Os_Ver", "5.0.1",
                         "Device_Type", "iPhone OS",

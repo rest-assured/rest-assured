@@ -825,7 +825,7 @@ public class LoggingITest extends WithJetty {
 
         given().
                 config(config().logConfig(new LogConfig(captor, true))).
-                log().parameters().
+                log().params().
                 param("firstName", "John").
                 queryParam("lastName", "Doe").
         when().
@@ -846,7 +846,7 @@ public class LoggingITest extends WithJetty {
 
         given().
                 config(config().logConfig(new LogConfig(captor, true))).
-                log().parameters().
+                log().params().
                 formParam("formParam").
                 queryParam("queryParam").
         when().

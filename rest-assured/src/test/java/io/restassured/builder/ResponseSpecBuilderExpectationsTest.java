@@ -76,23 +76,22 @@ public class ResponseSpecBuilderExpectationsTest {
     }
 
     @Parameters(name = "{0}")
-    @SuppressWarnings("deprecation")
     public static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][]{{
                 "Content matcher",
                 when(responseMock().asString()).thenReturn("goodBody").getMock(),
                 when(responseMock().asString()).thenReturn("badBody").getMock(),
-                new ResponseSpecBuilder().expectContent(startsWith("good")),
+                new ResponseSpecBuilder().expectBody(startsWith("good")),
         }, {
                 "Content matcher with path",
                 responseMockInJson("{\"name\": \"goodValue\"}"),
                 responseMockInJson("{\"name\": \"badValue\"}"),
-                new ResponseSpecBuilder().expectContent("name", startsWith("good")),
+                new ResponseSpecBuilder().expectBody("name", startsWith("good")),
         }, {
                 "Content matcher with parametrized path",
                 responseMockInJson("{\"name\": [\"value1\", \"value2\"]}"),
                 responseMockInJson("{\"name\": [\"value3\", \"value4\"]}"),
-                new ResponseSpecBuilder().expectContent("name[%d]", withArgs(1), endsWith("2")),
+                new ResponseSpecBuilder().expectBody("name[%d]", withArgs(1), endsWith("2")),
         }, {
                 "Status code matcher",
                 when(responseMock().getStatusCode()).thenReturn(567).getMock(),

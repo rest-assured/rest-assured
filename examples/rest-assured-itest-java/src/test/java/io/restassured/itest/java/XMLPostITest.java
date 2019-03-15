@@ -26,27 +26,27 @@ public class XMLPostITest extends WithJetty {
 
     @Test
     public void xmlParameterSupport() throws Exception {
-        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
+        with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().post("/greetXML");
     }
 
     @Test
     public void xmlParameterSupportWithAnotherAssertion() throws Exception {
-        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).when().post("/greetXML");
+        with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).when().post("/greetXML");
     }
 
     @Test
     public void xmlWithLists() throws Exception {
-        with().parameters("firstName", "John", "lastName", "Doe").expect().body("greeting.children()", hasItems("John", "Doe")).when().post("/greetXML");
+        with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.children()", hasItems("John", "Doe")).when().post("/greetXML");
     }
 
     @Test
     public void postWithXPath() throws Exception {
-        expect().body(hasXPath("/greeting/name/firstName[text()='John']")).with().parameters("firstName", "John", "lastName", "Doe").post("/anotherGreetXML");
+        expect().body(hasXPath("/greeting/name/firstName[text()='John']")).with().params("firstName", "John", "lastName", "Doe").post("/anotherGreetXML");
     }
 
     @Test
     public void postWithXPathContainingHamcrestMatcher() throws Exception {
-        expect().body(hasXPath("/greeting/name/firstName", containsString("Jo"))).with().parameters("firstName", "John", "lastName", "Doe").post("/anotherGreetXML");
+        expect().body(hasXPath("/greeting/name/firstName", containsString("Jo"))).with().params("firstName", "John", "lastName", "Doe").post("/anotherGreetXML");
     }
 
     @Test

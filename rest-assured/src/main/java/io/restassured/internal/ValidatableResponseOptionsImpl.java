@@ -85,17 +85,17 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
     }
 
     public T content(Matcher<?> matcher, Matcher<?>... additionalMatchers) {
-        responseSpec.content(matcher, additionalMatchers);
+        responseSpec.body(matcher, additionalMatchers);
         return (T) this;
     }
 
     public T content(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
-        responseSpec.content(arguments, matcher, additionalKeyMatcherPairs);
+        responseSpec.body(arguments, matcher, additionalKeyMatcherPairs);
         return (T) this;
     }
 
     public T content(String key, Matcher<?> matcher, Object... additionalKeyMatcherPairs) {
-        responseSpec.content(key, matcher, additionalKeyMatcherPairs);
+        responseSpec.body(key, matcher, additionalKeyMatcherPairs);
         return (T) this;
     }
 
@@ -276,7 +276,7 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
 
 
     public T content(String path, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
-        responseSpec.content(path, arguments, matcher, additionalKeyMatcherPairs);
+        responseSpec.body(path, arguments, matcher, additionalKeyMatcherPairs);
         return (T) this;
     }
 

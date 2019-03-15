@@ -601,54 +601,6 @@ public class RestAssured {
      * <pre>
      * String someSubPath = "else";
      * int index = 1;
-     * expect().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
-     * </pre>
-     * <p/>
-     * or if you have complex root paths and don't wish to duplicate the path for small variations:
-     * <pre>
-     * get("/x").then().assertThat().
-     *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
-     *          body(withArgs(0), hasItem("first")).
-     *          body(withArgs(1), hasItem("second")).
-     *          ..
-     * </pre>
-     * <p/>
-     * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
-     *
-     * @return A list of arguments that can be used to build up the response specification
-     * @deprecated Use {@link #withArgs(Object, Object...)} instead
-     */
-    @Deprecated
-    public static List<Argument> withArguments(Object firstArgument, Object... additionalArguments) {
-        return withArgs(firstArgument, additionalArguments);
-    }
-
-    /**
-     * Create a list of no arguments that can be used to create parts of the path in a response specification for JSON, XML or HTML validation.
-     * This is useful in situations where you have e.g. pre-defined variables that constitutes the key. For example:
-     * <pre>
-     * get("/jsonStore").then().
-     *          root("store.%s", withArgs("book")).
-     *          body("category.size()", equalTo(4)).
-     *          appendRoot("%s.%s", withArgs("author", "size()")).
-     *          body(withNoArguments(), equalTo(4));
-     * </pre>
-     * <p/>
-     *
-     * @return A list of no arguments that can be used to build up the response specification
-     * @deprecated Use {@link #withNoArgs()} instead
-     */
-    @Deprecated
-    public static List<Argument> withNoArguments() {
-        return withNoArgs();
-    }
-
-    /**
-     * Create a list of arguments that can be used to create parts of the path in a body/content expression.
-     * This is useful in situations where you have e.g. pre-defined variables that constitutes the key. For example:
-     * <pre>
-     * String someSubPath = "else";
-     * int index = 1;
      * when().get().then().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
      * </pre>
      * <p/>

@@ -35,7 +35,7 @@ public class DeleteITest extends WithJetty {
 
     @Test
     public void bodyHamcrestMatcherWithoutKey() throws Exception {
-        given().parameters("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().delete("/greet");
+        given().params("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().delete("/greet");
     }
 
     @Test

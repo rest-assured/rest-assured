@@ -21,6 +21,41 @@ Changelog next version
     * io.restassured.mapper.factory.DefaultJackson2ObjectMapperFactory has been moved to io.restassured.path.json.mapper.factory.DefaultJackson2ObjectMapperFactory
     * io.restassured.mapper.resolver.ObjectMapperResolver has been moved to io.restassured.common.mapper.resolver.ObjectMapperResolver
     * io.restassured.exception.PathException has been moved to io.restassured.common.exception.PathException
+* Removed deprecated methods:
+    * io.restassured.RestAssured
+        * withArguments
+        * withNoArguments
+    * io.restassured.builder.ResponseSpecBuilder
+        * expectContent
+    * io.restassured.builder.RequestSpecBuilder
+        * setContent
+        * addParameters
+        * addParameter
+        * addQueryParameters
+        * addQueryParameter
+        * addFormParameters
+        * addFormParameter
+        * addPathParameter
+        * addPathParameters
+        * setAuthentication
+    * io.restassured.specification.ResponseSpecification
+        * content
+        * rootPath
+        * noRootPath
+        * specification
+    * io.restassured.specification.RequestSpecification
+        * content
+        * formParameters
+        * formParameter
+        * pathParameter
+        * pathParameters
+        * authentication
+        * specification
+        * parameters
+        * parameter
+        * queryParameter
+        * queryParameters
+
 
 Changelog 3.3.0 (2019-01-11)
 ----------------------------

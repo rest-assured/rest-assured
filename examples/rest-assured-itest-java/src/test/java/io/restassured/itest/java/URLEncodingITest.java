@@ -72,7 +72,7 @@ public class URLEncodingITest extends WithJetty {
     public void urlEncodingDisabledUsingRequestSpecBuilder() {
         final RequestSpecification specification = new RequestSpecBuilder().setUrlEncodingEnabled(false).build();
 
-        final String body = given().specification(specification).get("https://jira.atlassian.com:443/rest/api/2.0.alpha1/search?jql=project%20=%20BAM%20AND%20issuetype%20=%20Bug").asString();
+        final String body = given().spec(specification).get("https://jira.atlassian.com:443/rest/api/2.0.alpha1/search?jql=project%20=%20BAM%20AND%20issuetype%20=%20Bug").asString();
         assertThat(body, containsString("issues"));
     }
 

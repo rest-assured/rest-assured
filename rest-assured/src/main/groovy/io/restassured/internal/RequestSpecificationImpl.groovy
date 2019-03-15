@@ -68,13 +68,13 @@ import java.util.Map.Entry
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-import static PathSupport.isFullyQualified
-import static PathSupport.mergeAndRemoveDoubleSlash
 import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE
 import static io.restassured.http.ContentType.*
 import static io.restassured.http.Method.*
 import static io.restassured.internal.common.assertion.AssertParameter.notNull
 import static io.restassured.internal.serialization.SerializationSupport.isSerializableCandidate
+import static io.restassured.internal.support.PathSupport.isFullyQualified
+import static io.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash
 import static java.lang.String.format
 import static java.util.Arrays.asList
 import static org.apache.commons.lang3.StringUtils.*
@@ -108,7 +108,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private Map<String, String> formParameters = new LinkedHashMap()
   private Map<String, String> namedPathParameters = [:]
   private Map<String, String> httpClientParams = [:]
-  def AuthenticationScheme authenticationScheme = new NoAuthScheme()
+  AuthenticationScheme authenticationScheme = new NoAuthScheme()
   private FilterableResponseSpecification responseSpecification;
   private Headers requestHeaders = new Headers([])
   private Cookies cookies = new Cookies([])
@@ -151,280 +151,264 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this.proxySpecification = proxySpecification
   }
 
-  def RequestSpecification when() {
+  RequestSpecification when() {
     return this;
   }
 
-  def RequestSpecification given() {
+  RequestSpecification given() {
     return this;
   }
 
-  def RequestSpecification that() {
+  RequestSpecification that() {
     return this;
   }
 
-  def ResponseSpecification response() {
+  ResponseSpecification response() {
     return responseSpecification;
   }
 
-  def Response get(String path, Object... pathParams) {
+  Response get(String path, Object... pathParams) {
     applyPathParamsAndSendRequest(GET, path, pathParams)
   }
 
-  def Response post(String path, Object... pathParams) {
+  Response post(String path, Object... pathParams) {
     applyPathParamsAndSendRequest(POST, path, pathParams)
   }
 
-  def Response put(String path, Object... pathParams) {
+  Response put(String path, Object... pathParams) {
     applyPathParamsAndSendRequest(PUT, path, pathParams)
   }
 
-  def Response delete(String path, Object... pathParams) {
+  Response delete(String path, Object... pathParams) {
     applyPathParamsAndSendRequest(DELETE, path, pathParams)
   }
 
-  def Response head(String path, Object... pathParams) {
+  Response head(String path, Object... pathParams) {
     applyPathParamsAndSendRequest(HEAD, path, pathParams)
   }
 
-  def Response patch(String path, Object... pathParams) {
+  Response patch(String path, Object... pathParams) {
     applyPathParamsAndSendRequest(PATCH, path, pathParams)
   }
 
-  def Response options(String path, Object... pathParams) {
+  Response options(String path, Object... pathParams) {
     applyPathParamsAndSendRequest(OPTIONS, path, pathParams)
   }
 
-  def Response get(URI uri) {
+  Response get(URI uri) {
     get(notNull(uri, "URI").toString())
   }
 
-  def Response post(URI uri) {
+  Response post(URI uri) {
     post(notNull(uri, "URI").toString())
   }
 
-  def Response put(URI uri) {
+  Response put(URI uri) {
     put(notNull(uri, "URI").toString())
   }
 
-  def Response delete(URI uri) {
+  Response delete(URI uri) {
     delete(notNull(uri, "URI").toString())
   }
 
-  def Response head(URI uri) {
+  Response head(URI uri) {
     head(notNull(uri, "URI").toString())
   }
 
-  def Response patch(URI uri) {
+  Response patch(URI uri) {
     patch(notNull(uri, "URI").toString())
   }
 
-  def Response options(URI uri) {
+  Response options(URI uri) {
     options(notNull(uri, "URI").toString())
   }
 
-  def Response get(URL url) {
+  Response get(URL url) {
     get(notNull(url, "URL").toString())
   }
 
-  def Response post(URL url) {
+  Response post(URL url) {
     post(notNull(url, "URL").toString())
   }
 
-  def Response put(URL url) {
+  Response put(URL url) {
     put(notNull(url, "URL").toString())
   }
 
-  def Response delete(URL url) {
+  Response delete(URL url) {
     delete(notNull(url, "URL").toString())
   }
 
-  def Response head(URL url) {
+  Response head(URL url) {
     head(notNull(url, "URL").toString())
   }
 
-  def Response patch(URL url) {
+  Response patch(URL url) {
     patch(notNull(url, "URL").toString())
   }
 
-  def Response options(URL url) {
+  Response options(URL url) {
     options(notNull(url, "URL").toString())
   }
 
-  def Response get() {
+  Response get() {
     get("")
   }
 
-  def Response post() {
+  Response post() {
     post("")
   }
 
-  def Response put() {
+  Response put() {
     put("")
   }
 
-  def Response delete() {
+  Response delete() {
     delete("")
   }
 
-  def Response head() {
+  Response head() {
     head("")
   }
 
-  def Response patch() {
+  Response patch() {
     patch("")
   }
 
-  def Response options() {
+  Response options() {
     options("")
   }
 
-  def Response request(Method method) {
+  Response request(Method method) {
     request(notNull(method, Method.class).name())
   }
 
-  def Response request(String method) {
+  Response request(String method) {
     request(method, "")
   }
 
-  def Response request(Method method, String path, Object... pathParams) {
+  Response request(Method method, String path, Object... pathParams) {
     return request(notNull(method, Method.class).name(), path, pathParams)
   }
 
-  def Response request(String method, String path, Object... pathParams) {
+  Response request(String method, String path, Object... pathParams) {
     applyPathParamsAndSendRequest(method, path, pathParams)
   }
 
-  def Response request(Method method, URI uri) {
+  Response request(Method method, URI uri) {
     request(method, notNull(uri, URI.class).toString())
   }
 
-  def Response request(Method method, URL url) {
+  Response request(Method method, URL url) {
     request(method, notNull(url, URL.class).toString())
   }
 
-  def Response request(String method, URI uri) {
+  Response request(String method, URI uri) {
     request(method, notNull(uri, URI.class).toString())
   }
 
-  def Response request(String method, URL url) {
+  Response request(String method, URL url) {
     request(method, notNull(url, URL.class).toString())
   }
 
-  def Response get(String path, Map pathParams) {
-    pathParameters(pathParams)
+  Response get(String path, Map pathParamsMap) {
+    pathParams(pathParamsMap)
     applyPathParamsAndSendRequest(GET, path)
   }
 
-  def Response post(String path, Map pathParams) {
-    pathParameters(pathParams)
+  Response post(String path, Map pathParamsMap) {
+    pathParams(pathParamsMap)
     applyPathParamsAndSendRequest(POST, path)
   }
 
-  def Response put(String path, Map pathParams) {
-    pathParameters(pathParams)
+  Response put(String path, Map pathParamsMap) {
+    pathParams(pathParamsMap)
     applyPathParamsAndSendRequest(PUT, path)
   }
 
-  def Response delete(String path, Map pathParams) {
-    pathParameters(pathParams)
+  Response delete(String path, Map pathParamsMap) {
+    pathParams(pathParamsMap)
     applyPathParamsAndSendRequest(DELETE, path)
   }
 
-  def Response head(String path, Map pathParams) {
-    pathParameters(pathParams)
+  Response head(String path, Map pathParamsMap) {
+    pathParams(pathParamsMap)
     applyPathParamsAndSendRequest(HEAD, path)
   }
 
-  def Response patch(String path, Map pathParams) {
-    pathParameters(pathParams)
+  Response patch(String path, Map pathParamsMap) {
+    pathParams(pathParamsMap)
     applyPathParamsAndSendRequest(PATCH, path)
   }
 
-  def Response options(String path, Map pathParams) {
-    pathParameters(pathParams)
+  Response options(String path, Map pathParamsMap) {
+    pathParams(pathParamsMap)
     applyPathParamsAndSendRequest(OPTIONS, path)
   }
 
-  def RequestSpecification parameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+  RequestSpecification params(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
     notNull firstParameterName, "firstParameterName"
     notNull firstParameterValue, "firstParameterValue"
-    return parameters(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs))
+    return params(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs))
   }
 
-  def RequestSpecification parameters(Map parametersMap) {
+  RequestSpecification params(Map parametersMap) {
     notNull parametersMap, "parametersMap"
     parameterUpdater.updateParameters(restAssuredConfig().paramConfig.requestParamsUpdateStrategy(), parametersMap, requestParameters)
     return this
   }
 
-  def RequestSpecification params(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
-    return parameters(firstParameterName, firstParameterValue, parameterNameValuePairs)
+  RequestSpecification param(String parameterName, Object... parameterValues) {
+    notNull parameterName, "parameterName"
+    parameterUpdater.updateZeroToManyParameters(restAssuredConfig().paramConfig.requestParamsUpdateStrategy(), requestParameters, parameterName, parameterValues)
+    return this
   }
 
-  def RequestSpecification params(Map parametersMap) {
-    return parameters(parametersMap)
-  }
-
-  def RequestSpecification param(String parameterName, Object... parameterValues) {
-    return parameter(parameterName, parameterValues)
-  }
-
-  def FilterableRequestSpecification removeParam(String parameterName) {
+  FilterableRequestSpecification removeParam(String parameterName) {
     notNull parameterName, "parameterName"
     requestParameters.remove(parameterName)
     return this
   }
 
-  def RequestSpecification parameter(String parameterName, Collection<?> parameterValues) {
-    notNull parameterName, "parameterName"
+  RequestSpecification param(String parameterName, Collection<?> parameterValues) {
     notNull parameterValues, "parameterValues"
-    parameterUpdater.updateCollectionParameter(restAssuredConfig().paramConfig.requestParamsUpdateStrategy(), requestParameters, parameterName, parameterValues)
-    return this
+    return param(parameterName, parameterValues.toArray())
   }
 
-  def RequestSpecification param(String parameterName, Collection<?> parameterValues) {
-    return parameter(parameterName, parameterValues)
-  }
-
-  def RequestSpecification queryParameter(String parameterName, Collection<?> parameterValues) {
+  RequestSpecification queryParam(String parameterName, Collection<?> parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
     parameterUpdater.updateCollectionParameter(restAssuredConfig().getParamConfig().queryParamsUpdateStrategy(), queryParameters, parameterName, parameterValues)
     return this
   }
 
-  def RequestSpecification queryParam(String parameterName, Collection<?> parameterValues) {
-    return queryParameter(parameterName, parameterValues)
-  }
-
-  def FilterableRequestSpecification removeQueryParam(String parameterName) {
+  FilterableRequestSpecification removeQueryParam(String parameterName) {
     notNull parameterName, "parameterName"
     queryParameters.remove(parameterName)
     return this
   }
 
-  def FilterableRequestSpecification removeHeader(String headerName) {
+  FilterableRequestSpecification removeHeader(String headerName) {
     notNull headerName, "headerName"
     def headersLeftAfterRemove = headers.findAll { !headerName.equalsIgnoreCase(it.getName()) }
     this.requestHeaders = new Headers(headersLeftAfterRemove)
     this
   }
 
-  def FilterableRequestSpecification removeCookie(String cookieName) {
+  FilterableRequestSpecification removeCookie(String cookieName) {
     notNull cookieName, "cookieName"
     def cookiesLeftAfterRemove = cookies.findAll { !cookieName.equalsIgnoreCase(it.getName()) }
     this.cookies = new Cookies(cookiesLeftAfterRemove)
     this
   }
 
-  def FilterableRequestSpecification removeCookie(Cookie cookie) {
+  FilterableRequestSpecification removeCookie(Cookie cookie) {
     notNull cookie, "cookie"
     removeCookie(cookie.getName())
     this
   }
 
-  def FilterableRequestSpecification replaceHeader(String headerName, String newValue) {
+  FilterableRequestSpecification replaceHeader(String headerName, String newValue) {
     notNull headerName, "headerName"
     removeHeader(headerName)
     def headerList = []
@@ -434,162 +418,117 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  def FilterableRequestSpecification replaceCookie(String cookieName, String value) {
+  FilterableRequestSpecification replaceCookie(String cookieName, String value) {
     notNull cookieName, "cookieName"
     removeCookie(cookieName)
     cookie(cookieName, value)
     this
   }
 
-  def FilterableRequestSpecification replaceCookie(Cookie cookie) {
+  FilterableRequestSpecification replaceCookie(Cookie cookie) {
     notNull cookie, "cookie"
     removeCookie(cookie.getName())
     this.cookie(cookie)
     this
   }
 
-  def FilterableRequestSpecification replaceHeaders(Headers headers) {
+  FilterableRequestSpecification replaceHeaders(Headers headers) {
     notNull headers, "headers"
     this.requestHeaders = new Headers(headers.asList())
     this
   }
 
-  def FilterableRequestSpecification replaceCookies(Cookies cookies) {
+  FilterableRequestSpecification replaceCookies(Cookies cookies) {
     notNull cookies, "cookies"
     this.cookies = new Cookies(cookies.asList())
     this
   }
 
-  def FilterableRequestSpecification removeHeaders() {
+  FilterableRequestSpecification removeHeaders() {
     this.requestHeaders = new Headers([])
     this
   }
 
-  def FilterableRequestSpecification removeCookies() {
+  FilterableRequestSpecification removeCookies() {
     this.cookies = new Cookies([])
     this
   }
 
-  def RequestSpecification parameter(String parameterName, Object... parameterValues) {
-    notNull parameterName, "parameterName"
-    parameterUpdater.updateZeroToManyParameters(restAssuredConfig().paramConfig.requestParamsUpdateStrategy(), requestParameters, parameterName, parameterValues)
-    return this
-  }
 
-  def RequestSpecification queryParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+  RequestSpecification queryParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
     notNull firstParameterName, "firstParameterName"
     notNull firstParameterValue, "firstParameterValue"
-    return queryParameters(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs))
+    return queryParams(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs))
   }
 
-  def RequestSpecification queryParameters(Map parametersMap) {
+  RequestSpecification queryParams(Map parametersMap) {
     notNull parametersMap, "parametersMap"
     parameterUpdater.updateParameters(restAssuredConfig().paramConfig.queryParamsUpdateStrategy(), parametersMap, queryParameters)
     return this
   }
 
-  def RequestSpecification queryParameter(String parameterName, Object... parameterValues) {
+  RequestSpecification queryParam(String parameterName, Object... parameterValues) {
     notNull parameterName, "parameterName"
     parameterUpdater.updateZeroToManyParameters(restAssuredConfig().paramConfig.queryParamsUpdateStrategy(), queryParameters, parameterName, parameterValues)
     return this
   }
 
-  def RequestSpecification queryParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
-    return queryParameters(firstParameterName, firstParameterValue, parameterNameValuePairs);
-  }
-
-  def RequestSpecification queryParams(Map parametersMap) {
-    return queryParameters(parametersMap)
-  }
-
-  def RequestSpecification queryParam(String parameterName, Object... parameterValues) {
-    return queryParameter(parameterName, parameterValues)
-  }
-
-  def RequestSpecification formParameter(String parameterName, Collection<?> parameterValues) {
+  RequestSpecification formParam(String parameterName, Collection<?> parameterValues) {
     notNull parameterName, "parameterName"
     notNull parameterValues, "parameterValues"
     parameterUpdater.updateCollectionParameter(restAssuredConfig().paramConfig.formParamsUpdateStrategy(), formParameters, parameterName, parameterValues)
     return this
   }
 
-  def RequestSpecification formParam(String parameterName, Collection<?> parameterValues) {
-    return formParameter(parameterName, parameterValues)
-  }
-
-  def FilterableRequestSpecification removeFormParam(String parameterName) {
+  FilterableRequestSpecification removeFormParam(String parameterName) {
     notNull parameterName, "parameterName"
     formParameters.remove(parameterName)
     return this
   }
 
-  def RequestSpecification formParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+  RequestSpecification formParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
     notNull firstParameterName, "firstParameterName"
     notNull firstParameterValue, "firstParameterValue"
-    return formParameters(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs))
+    return formParams(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs))
   }
 
-  def RequestSpecification formParameters(Map parametersMap) {
+  RequestSpecification formParams(Map parametersMap) {
     notNull parametersMap, "parametersMap"
     parameterUpdater.updateParameters(restAssuredConfig().paramConfig.formParamsUpdateStrategy(), parametersMap, formParameters)
     return this
   }
 
-  def RequestSpecification formParameter(String parameterName, Object... additionalParameterValues) {
+  RequestSpecification formParam(String parameterName, Object... additionalParameterValues) {
     notNull parameterName, "parameterName"
     parameterUpdater.updateZeroToManyParameters(restAssuredConfig().paramConfig.formParamsUpdateStrategy(), formParameters, parameterName, additionalParameterValues)
     return this
   }
 
-  def RequestSpecification formParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
-    return formParameters(firstParameterName, firstParameterValue, parameterNameValuePairs);
-  }
-
-  def RequestSpecification formParams(Map parametersMap) {
-    return formParameters(parametersMap)
-  }
-
-  def RequestSpecification formParam(String parameterName, Object... parameterValues) {
-    return formParameter(parameterName, parameterValues)
-  }
-
-  def RequestSpecification urlEncodingEnabled(boolean isEnabled) {
+  RequestSpecification urlEncodingEnabled(boolean isEnabled) {
     this.urlEncodingEnabled = isEnabled
     return this
   }
 
-  def RequestSpecification pathParameter(String parameterName, Object parameterValue) {
+  RequestSpecification pathParam(String parameterName, Object parameterValue) {
     notNull parameterName, "parameterName"
     notNull parameterValue, "parameterValue"
     parameterUpdater.updateStandardParameter(REPLACE, namedPathParameters, parameterName, parameterValue)
     return this
   }
 
-  def RequestSpecification pathParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+  RequestSpecification pathParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
     notNull firstParameterName, "firstParameterName"
     notNull firstParameterValue, "firstParameterValue"
-    return pathParameters(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs))
+    return pathParams(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs))
   }
 
-  def RequestSpecification pathParameters(Map parameterNameValuePairs) {
+  RequestSpecification pathParams(Map parameterNameValuePairs) {
     notNull parameterNameValuePairs, "parameterNameValuePairs"
     parameterUpdater.updateParameters(REPLACE, parameterNameValuePairs, namedPathParameters)
     return this
   }
 
-  def RequestSpecification pathParam(String parameterName, Object parameterValue) {
-    return pathParameter(parameterName, parameterValue)
-  }
-
-  def RequestSpecification pathParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
-    return pathParameters(firstParameterName, firstParameterValue, parameterNameValuePairs)
-  }
-
-  def RequestSpecification pathParams(Map parameterNameValuePairs) {
-    return pathParameters(parameterNameValuePairs)
-  }
-
-  def FilterableRequestSpecification removePathParam(String parameterName) {
+  FilterableRequestSpecification removePathParam(String parameterName) {
     notNull parameterName, "parameterName"
     removeNamedPathParam(parameterName)
     removeUnnamedPathParam(parameterName)
@@ -620,73 +559,73 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return this
   }
 
-  def RequestSpecification config(RestAssuredConfig config) {
+  RequestSpecification config(RestAssuredConfig config) {
     this.restAssuredConfig = config
     responseSpecification?.config = config
     this
   }
 
-  def RequestSpecification keyStore(String pathToJks, String password) {
+  RequestSpecification keyStore(String pathToJks, String password) {
     def sslConfig = restAssuredConfig().getSSLConfig()
     // Allow all host names in order to be backward compatible
     restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keyStore(pathToJks, password).allowAllHostnames())
     this
   }
 
-  def RequestSpecification keyStore(File pathToJks, String password) {
+  RequestSpecification keyStore(File pathToJks, String password) {
     def sslConfig = restAssuredConfig().getSSLConfig()
     // Allow all host names in order to be backward compatible
     restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keyStore(pathToJks, password).allowAllHostnames())
     this
   }
 
-  def RequestSpecification trustStore(String path, String password) {
+  RequestSpecification trustStore(String path, String password) {
     def sslConfig = restAssuredConfig().getSSLConfig()
     restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.trustStore(path, password).allowAllHostnames())
     this
   }
 
-  def RequestSpecification trustStore(File path, String password) {
+  RequestSpecification trustStore(File path, String password) {
     def sslConfig = restAssuredConfig().getSSLConfig()
     restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.trustStore(path, password).allowAllHostnames())
     this
   }
 
-  def RequestSpecification trustStore(KeyStore trustStore) {
+  RequestSpecification trustStore(KeyStore trustStore) {
     def sslConfig = restAssuredConfig().getSSLConfig()
     restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.trustStore(trustStore))
     this
   }
 
-  def RequestSpecification keyStore(KeyStore keyStore) {
+  RequestSpecification keyStore(KeyStore keyStore) {
     def sslConfig = restAssuredConfig().getSSLConfig()
     restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.keyStore(keyStore))
     this
   }
 
-  def RequestSpecification relaxedHTTPSValidation() {
+  RequestSpecification relaxedHTTPSValidation() {
     relaxedHTTPSValidation(SSL)
   }
 
-  def RequestSpecification relaxedHTTPSValidation(String protocol) {
+  RequestSpecification relaxedHTTPSValidation(String protocol) {
     def sslConfig = restAssuredConfig().getSSLConfig()
     restAssuredConfig = restAssuredConfig().sslConfig(sslConfig.relaxedHTTPSValidation(protocol))
     this
   }
 
-  def RequestSpecification filter(Filter filter) {
+  RequestSpecification filter(Filter filter) {
     notNull filter, "Filter"
     filters << filter
     return this
   }
 
-  def RequestSpecification filters(List<Filter> filters) {
+  RequestSpecification filters(List<Filter> filters) {
     notNull filters, "Filters"
     this.filters.addAll(filters)
     return this
   }
 
-  def RequestSpecification filters(Filter filter, Filter... additionalFilter) {
+  RequestSpecification filters(Filter filter, Filter... additionalFilter) {
     notNull filter, "Filter"
     this.filters.add(filter)
     additionalFilter?.each {
@@ -695,39 +634,39 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return this
   }
 
-  def RequestLogSpecification log() {
+  RequestLogSpecification log() {
     return new RequestLogSpecificationImpl(requestSpecification: this, logRepository: logRepository)
   }
 
-  def RequestSpecification and() {
+  RequestSpecification and() {
     return this;
   }
 
-  def RequestSpecification request() {
+  RequestSpecification request() {
     return this;
   }
 
-  def RequestSpecification with() {
+  RequestSpecification with() {
     return this;
   }
 
-  def ResponseSpecification then() {
+  ResponseSpecification then() {
     return responseSpecification;
   }
 
-  def ResponseSpecification expect() {
+  ResponseSpecification expect() {
     return responseSpecification;
   }
 
-  def AuthenticationSpecification auth() {
+  AuthenticationSpecification auth() {
     return new AuthenticationSpecificationImpl(this);
   }
 
-  def AuthenticationSpecification authentication() {
+  AuthenticationSpecification authentication() {
     return auth();
   }
 
-  def RequestSpecification port(int port) {
+  RequestSpecification port(int port) {
     if (port < 1 && port != RestAssured.UNDEFINED_PORT) {
       throw new IllegalArgumentException("Port must be greater than 0")
     }
@@ -735,35 +674,29 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return this
   }
 
-  def RequestSpecification body(String body) {
+  RequestSpecification body(String body) {
     notNull body, "body"
     this.requestBody = body;
     return this;
   }
 
-  RequestSpecification content(String content) {
-    notNull content, "content"
-    this.requestBody = content;
-    return this
-  }
-
-  def RequestSpecification baseUri(String baseUri) {
+  RequestSpecification baseUri(String baseUri) {
     notNull baseUri, "Base URI"
     this.baseUri = baseUri;
     return this;
   }
 
-  def RequestSpecification basePath(String basePath) {
+  RequestSpecification basePath(String basePath) {
     notNull basePath, "Base Path"
     this.basePath = basePath;
     return this;
   }
 
-  def RequestSpecification proxy(String host, int port) {
+  RequestSpecification proxy(String host, int port) {
     proxy(ProxySpecification.host(host).withPort(port))
   }
 
-  def RequestSpecification proxy(String host) {
+  RequestSpecification proxy(String host) {
     if (UriValidator.isUri(host)) {
       proxy(new URI(host))
     } else {
@@ -771,73 +704,54 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
   }
 
-  def RequestSpecification proxy(int port) {
+  RequestSpecification proxy(int port) {
     proxy(ProxySpecification.port(port))
   }
 
-  def RequestSpecification proxy(String host, int port, String scheme) {
+  RequestSpecification proxy(String host, int port, String scheme) {
     proxy(new org.apache.http.client.utils.URIBuilder().setHost(host).setPort(port).setScheme(scheme).build())
   }
 
-  def RequestSpecification proxy(URI uri) {
+  RequestSpecification proxy(URI uri) {
     notNull(uri, URI.class)
     proxy(new ProxySpecification(uri.host, uri.port, uri.scheme));
   }
 
-  def RequestSpecification proxy(ProxySpecification proxySpecification) {
+  RequestSpecification proxy(ProxySpecification proxySpecification) {
     notNull(proxySpecification, ProxySpecification.class)
     this.proxySpecification = proxySpecification
     this
   }
 
-  def RequestSpecification body(byte[] body) {
+  RequestSpecification body(byte[] body) {
     notNull body, "body"
     this.requestBody = body;
     return this;
   }
 
-  def RequestSpecification body(File body) {
+  RequestSpecification body(File body) {
     notNull body, "body"
     this.requestBody = body;
     return this;
   }
 
-  def RequestSpecification body(InputStream body) {
+  RequestSpecification body(InputStream body) {
     notNull body, "body"
     this.requestBody = body;
     return this;
   }
 
-  def RequestSpecification content(byte[] content) {
-    notNull content, "content"
-    return body(content);
-  }
-
-  def RequestSpecification content(File content) {
-    notNull content, "content"
-    return body(content);
-  }
-
-  def RequestSpecification content(InputStream content) {
-    notNull content, "content"
-    return body(content);
-  }
-
-  def RequestSpecification body(Object object) {
+  RequestSpecification body(Object object) {
     notNull object, "object"
     if (!isSerializableCandidate(object)) {
-      return content(object.toString());
+      return body(object.toString());
     }
 
     this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, objectMappingConfig(), restAssuredConfig().getEncoderConfig());
     this
   }
 
-  def RequestSpecification content(Object object) {
-    return body(object)
-  }
-
-  def RequestSpecification body(Object object, ObjectMapper mapper) {
+  RequestSpecification body(Object object, ObjectMapper mapper) {
     notNull object, "object"
     notNull mapper, "Object mapper"
     def ctx = new ObjectMapperSerializationContextImpl();
@@ -848,42 +762,34 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  def RequestSpecification body(Object object, ObjectMapperType mapperType) {
+  RequestSpecification body(Object object, ObjectMapperType mapperType) {
     notNull object, "object"
     notNull mapperType, "Object mapper type"
     this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), mapperType, objectMappingConfig(), restAssuredConfig().getEncoderConfig())
     this
   }
 
-  def RequestSpecification content(Object object, ObjectMapper mapper) {
-    return body(object, mapper)
-  }
-
-  def RequestSpecification content(Object object, ObjectMapperType mapperType) {
-    return body(object, mapperType)
-  }
-
-  def RequestSpecification contentType(ContentType contentType) {
+  RequestSpecification contentType(ContentType contentType) {
     notNull contentType, ContentType.class
     header(CONTENT_TYPE, contentType)
   }
 
-  def RequestSpecification contentType(String contentType) {
+  RequestSpecification contentType(String contentType) {
     notNull contentType, "Content-Type header cannot be null"
     header(CONTENT_TYPE, contentType)
   }
 
-  def RequestSpecification accept(ContentType contentType) {
+  RequestSpecification accept(ContentType contentType) {
     notNull contentType, "Accept header"
     accept(contentType.getAcceptHeader())
   }
 
-  def RequestSpecification accept(String mediaTypes) {
+  RequestSpecification accept(String mediaTypes) {
     notNull mediaTypes, "Accept header media range"
     header(ACCEPT_HEADER_NAME, mediaTypes)
   }
 
-  def RequestSpecification headers(Map headers) {
+  RequestSpecification headers(Map headers) {
     notNull headers, "headers"
     def headerList = []
     if (this.requestHeaders.exist()) {
@@ -918,10 +824,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  private def List removeMergedHeadersIfNeeded(List headerList) {
+  private List removeMergedHeadersIfNeeded(List headerList) {
     def headers = headerList.inject([], { acc, header ->
       def headerConfig = restAssuredConfig().getHeaderConfig()
-      def String headerName = header.getName()
+      String headerName = header.getName()
       if (headerConfig.shouldOverwriteHeaderWithName(headerName)) {
         acc = acc.findAll { !headerName.equalsIgnoreCase(it.getName()) }
       }
@@ -943,7 +849,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return headers(new Headers(headerList))
   }
 
-  def RequestSpecification header(Header header) {
+  RequestSpecification header(Header header) {
     notNull header, "Header"
 
     return headers(new Headers(asList(header)));
@@ -970,7 +876,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return this;
   }
 
-  def RequestSpecification cookies(Cookies cookies) {
+  RequestSpecification cookies(Cookies cookies) {
     notNull cookies, "cookies"
     if (cookies.exist()) {
       def cookieList = []
@@ -994,16 +900,16 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return cookies(new Cookies(cookieList))
   }
 
-  def RequestSpecification cookie(Cookie cookie) {
+  RequestSpecification cookie(Cookie cookie) {
     notNull cookie, "Cookie"
     return cookies(new Cookies(asList(cookie)));
   }
 
-  def RequestSpecification cookie(String cookieName) {
+  RequestSpecification cookie(String cookieName) {
     cookie(cookieName, null)
   }
 
-  def RedirectSpecification redirects() {
+  RedirectSpecification redirects() {
     new RedirectSpecificationImpl(this, httpClientParams)
   }
 
@@ -1034,7 +940,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  def RequestSpecification multiPart(MultiPartSpecification multiPartSpec) {
+  RequestSpecification multiPart(MultiPartSpecification multiPartSpec) {
     notNull multiPartSpec, "Multi-part specification"
     def mimeType = multiPartSpec.mimeType
     def content
@@ -1070,69 +976,69 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return this
   }
 
-  def RequestSpecification multiPart(String controlName, File file) {
+  RequestSpecification multiPart(String controlName, File file) {
     multiParts << new MultiPartInternal(controlName: controlName, content: file, fileName: file.getName())
     this
   }
 
-  def RequestSpecification multiPart(File file) {
+  RequestSpecification multiPart(File file) {
     multiParts << new MultiPartInternal(controlName: restAssuredConfig().getMultiPartConfig().defaultControlName(), content: file, fileName: file.getName())
     this
   }
 
-  def RequestSpecification multiPart(String controlName, File file, String mimeType) {
+  RequestSpecification multiPart(String controlName, File file, String mimeType) {
     multiParts << new MultiPartInternal(controlName: controlName, content: file, mimeType: mimeType, fileName: file.getName())
     this
   }
 
-  def RequestSpecification multiPart(String controlName, Object object) {
+  RequestSpecification multiPart(String controlName, Object object) {
     def mimeType = ANY.matches(requestContentType) ? JSON.toString() : requestContentType
     return multiPart(controlName, object, mimeType)
   }
 
-  def RequestSpecification multiPart(String controlName, Object object, String mimeType) {
+  RequestSpecification multiPart(String controlName, Object object, String mimeType) {
     def possiblySerializedObject = serializeIfNeeded(object, mimeType)
     multiParts << new MultiPartInternal(controlName: controlName, content: possiblySerializedObject, mimeType: mimeType, fileName: restAssuredConfig().getMultiPartConfig().defaultFileName())
     this
   }
 
-  def RequestSpecification multiPart(String controlName, String filename, Object object, String mimeType) {
+  RequestSpecification multiPart(String controlName, String filename, Object object, String mimeType) {
     def possiblySerializedObject = serializeIfNeeded(object, mimeType)
     multiParts << new MultiPartInternal(controlName: controlName, content: possiblySerializedObject, mimeType: mimeType, fileName: filename)
     this
   }
 
-  def RequestSpecification multiPart(String name, String fileName, byte[] bytes) {
+  RequestSpecification multiPart(String name, String fileName, byte[] bytes) {
     multiParts << new MultiPartInternal(controlName: name, content: bytes, fileName: fileName)
     this
   }
 
-  def RequestSpecification multiPart(String name, String fileName, byte[] bytes, String mimeType) {
+  RequestSpecification multiPart(String name, String fileName, byte[] bytes, String mimeType) {
     multiParts << new MultiPartInternal(controlName: name, content: bytes, mimeType: mimeType, fileName: fileName)
     this
   }
 
-  def RequestSpecification multiPart(String name, String fileName, InputStream stream) {
+  RequestSpecification multiPart(String name, String fileName, InputStream stream) {
     multiParts << new MultiPartInternal(controlName: name, content: stream, fileName: fileName)
     this
   }
 
-  def RequestSpecification multiPart(String name, String fileName, InputStream stream, String mimeType) {
+  RequestSpecification multiPart(String name, String fileName, InputStream stream, String mimeType) {
     multiParts << new MultiPartInternal(controlName: name, content: stream, mimeType: mimeType, fileName: fileName)
     this
   }
 
-  def RequestSpecification multiPart(String name, String contentBody) {
+  RequestSpecification multiPart(String name, String contentBody) {
     multiParts << new MultiPartInternal(controlName: name, content: contentBody, fileName: restAssuredConfig().getMultiPartConfig().defaultFileName())
     this
   }
 
-  def RequestSpecification multiPart(String name, NoParameterValue contentBody) {
+  RequestSpecification multiPart(String name, NoParameterValue contentBody) {
     multiParts << new MultiPartInternal(controlName: name, content: contentBody, fileName: restAssuredConfig().getMultiPartConfig().defaultFileName())
     this
   }
 
-  def RequestSpecification multiPart(String name, String contentBody, String mimeType) {
+  RequestSpecification multiPart(String name, String contentBody, String mimeType) {
     multiParts << new MultiPartInternal(controlName: name, content: contentBody, mimeType: mimeType, fileName: restAssuredConfig().getMultiPartConfig().defaultFileName())
     this
   }
@@ -1159,7 +1065,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     new FilterContextImpl(requestUriForLogging, getUserDefinedPath(), getDerivedPath(uri), uri, path, unnamedPathParamValues.toArray(), method, assertionClosure, filters, properties);
   }
 
-  private def String generateRequestUriForLogging(uri, method) {
+  private String generateRequestUriForLogging(uri, method) {
     def targetUri
     def allQueryParams = [:]
 
@@ -1178,7 +1084,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       if (!isBlank(queryParamsDefinedInPath)) {
         def splittedQueryParams = split(queryParamsDefinedInPath, "&");
         splittedQueryParams.each { queryNameWithPotentialValue ->
-          def String[] splitted = split(queryNameWithPotentialValue, "=", 2)
+          String[] splitted = split(queryNameWithPotentialValue, "=", 2)
           def queryParamHasValueDefined = splitted.size() > 1 || queryNameWithPotentialValue.contains("=")
           if (queryParamHasValueDefined) {
             // Handles the special case where the query param is defined with an empty value
@@ -1218,7 +1124,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   @SuppressWarnings("GroovyUnusedDeclaration")
   private
-  def Response sendRequest(path, assertionClosure, FilterableRequestSpecification requestSpecification, Map filterContextProperties) {
+  Response sendRequest(path, assertionClosure, FilterableRequestSpecification requestSpecification, Map filterContextProperties) {
     notNull path, "Path"
     path = extractRequestParamsIfNeeded(path);
     def method = requestSpecification.getMethod()
@@ -1243,7 +1149,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     // Allow returning a the response
     def restAssuredResponse = new RestAssuredResponseImpl(logRepository: logRepository)
-    def RestAssuredConfig cfg = config ?: new RestAssuredConfig();
+    RestAssuredConfig cfg = config ?: new RestAssuredConfig();
     restAssuredResponse.setSessionIdName(cfg.getSessionConfig().sessionIdName())
     restAssuredResponse.setDecoderConfig(cfg.getDecoderConfig())
     restAssuredResponse.setConnectionManager(http.client.connectionManager)
@@ -1295,7 +1201,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return restAssuredResponse
   }
 
-  def void assertCorrectNumberOfPathParams() {
+  void assertCorrectNumberOfPathParams() {
     // Path param size is named - (unnamed - named) since named path params may override unnamed if they target the same placeholder
     if (!getRedundantNamedPathParams().isEmpty() || !getRedundantUnnamedPathParamValues().isEmpty() || !getUndefinedPathParamPlaceholders().isEmpty()) {
       def pathParamPlaceholderSize = getPathParamPlaceholders().size()
@@ -1342,7 +1248,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
   }
 
-  def boolean shouldApplySSLConfig(http, RestAssuredConfig cfg) {
+  boolean shouldApplySSLConfig(http, RestAssuredConfig cfg) {
     URI uri = ((URIBuilder) http.getUri()).toURI();
     if (uri == null) throw new IllegalStateException("a default URI must be set");
     uri.getScheme()?.toLowerCase() == "https" && cfg.getSSLConfig().isUserConfigured() && !(authenticationScheme instanceof CertAuthScheme)
@@ -1649,7 +1555,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private String getTargetUriFromUrl(URL url) {
     def builder = new StringBuilder();
     def protocol = url.getProtocol()
-    def boolean useDefaultHttps = false
+    boolean useDefaultHttps = false
     if (port == DEFAULT_HTTP_TEST_PORT && protocol.equalsIgnoreCase("https")) {
       useDefaultHttps = true
     }
@@ -1671,11 +1577,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return builder.toString()
   }
 
-  private def boolean hasAuthorityEqualToLocalhost(uri) {
+  private boolean hasAuthorityEqualToLocalhost(uri) {
     uri.getAuthority().trim().equalsIgnoreCase(LOCALHOST)
   }
 
-  private def boolean hasPortDefined(uri) {
+  private boolean hasPortDefined(uri) {
     return uri.getPort() != -1;
   }
 
@@ -1732,7 +1638,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     if (!filters.any { ResponseLoggingFilter.class.isAssignableFrom(it.getClass()) } && responseSpecification?.getLogDetail()) {
       filters.add(new ResponseLoggingFilter(responseSpecification.getLogDetail(),
-      logConfig.isPrettyPrintingEnabled(), logConfig.defaultStream()))
+              logConfig.isPrettyPrintingEnabled(), logConfig.defaultStream()))
     }
 
     // Sort filters by order
@@ -1755,7 +1661,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     applyPathParamsAndSendRequest(notNull(method, Method.class).name(), path, unnamedPathParams)
   }
 
-  def void buildUnnamedPathParameterTuples(Object[] unnamedPathParameterValues) {
+  void buildUnnamedPathParameterTuples(Object[] unnamedPathParameterValues) {
     if (unnamedPathParameterValues == null || unnamedPathParameterValues.length == 0) {
       this.unnamedPathParamsTuples = new ArrayList<Tuple2<String, String>>();
     } else {
@@ -1771,7 +1677,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
   }
 
-  def String partiallyApplyPathParams(String path, boolean encodePath, List<String> unnamedPathParams) {
+  String partiallyApplyPathParams(String path, boolean encodePath, List<String> unnamedPathParams) {
     def unnamedPathParamSize = unnamedPathParams?.size() ?: 0
 
     def host = getTargetURI(path)
@@ -1867,7 +1773,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
 
-  private def String findNamedPathParamValue(String pathParamName, pathParamNameUsageCount) {
+  private String findNamedPathParamValue(String pathParamName, pathParamNameUsageCount) {
     def pathParamValues = this.namedPathParameters.get(pathParamName);
     def pathParamValue
     if (pathParamValues instanceof Collection) {
@@ -1896,7 +1802,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
 
-  private def String encode(Object string, EncodingTarget encodingType) {
+  private String encode(Object string, EncodingTarget encodingType) {
     string = string.toString()
     if (urlEncodingEnabled) {
       def charset
@@ -1938,7 +1844,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return value
   }
 
-  def void setResponseSpecification(ResponseSpecification responseSpecification) {
+  void setResponseSpecification(ResponseSpecification responseSpecification) {
     this.responseSpecification = responseSpecification
   }
 
@@ -1973,11 +1879,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return host.getPort()
   }
 
-  def Map<String, String> getFormParams() {
+  Map<String, String> getFormParams() {
     return Collections.unmodifiableMap(formParameters)
   }
 
-  def Map<String, String> getPathParams() {
+  Map<String, String> getPathParams() {
     def namedPathParams = getNamedPathParams()
     def map = new LinkedHashMap<String, String>(namedPathParams)
     map.putAll(getUnnamedPathParams().findAll { !namedPathParams.keySet().contains(it.key) })
@@ -2035,11 +1941,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return Collections.unmodifiableList(filters)
   }
 
-  def RestAssuredConfig getConfig() {
+  RestAssuredConfig getConfig() {
     return restAssuredConfig
   }
 
-  def HttpClient getHttpClient() {
+  HttpClient getHttpClient() {
     return httpClient
     // @Delegate doesn't work because of http://jira.codehaus.org/browse/GROOVY-4647 (when it's fixed 9619c3b should be used instead)
   }
@@ -2072,7 +1978,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return requestHeaders.getValue(CONTENT_TYPE)
   }
 
-  def RequestSpecification noFilters() {
+  RequestSpecification noFilters() {
     this.filters.clear()
     this
   }
@@ -2191,7 +2097,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
      * Is is for
      */
 
-    private def boolean shouldApplyContentTypeFromRestAssuredConfigDelegate(delegate, HttpRequestBase reqMethod) {
+    private boolean shouldApplyContentTypeFromRestAssuredConfigDelegate(delegate, HttpRequestBase reqMethod) {
       def requestContentType = delegate.getRequestContentType()
       requestContentType != null && requestContentType != ANY.toString() &&
               (!reqMethod.hasProperty("entity") || reqMethod.entity?.contentType == null) &&
@@ -2207,7 +2113,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
      * content-type is defined.
      */
     protected Object parseResponse(HttpResponse resp, Object contentType) {
-      def Parser definedDefaultParser = responseSpecification.rpr.defaultParser
+      Parser definedDefaultParser = responseSpecification.rpr.defaultParser
       if (definedDefaultParser != null && ANY.toString().equals(contentType.toString())) {
         try {
           HttpResponseContentTypeFinder.findContentType(resp);
@@ -2244,7 +2150,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
   }
 
-  private def String assembleCompleteTargetPath(requestPath) {
+  private String assembleCompleteTargetPath(requestPath) {
     def targetUri
     def targetPath
     if (isFullyQualified(requestPath)) {
@@ -2257,7 +2163,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return mergeAndRemoveDoubleSlash(mergeAndRemoveDoubleSlash(targetUri, targetPath), requestPath);
   }
 
-  private def String findEncoderCharsetOrReturnDefault(String contentType) {
+  private String findEncoderCharsetOrReturnDefault(String contentType) {
     def charset = CharsetExtractor.getCharsetFromContentType(contentType)
     if (charset == null) {
       final EncoderConfig cfg
@@ -2276,27 +2182,27 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     charset
   }
 
-  private def ObjectMapperConfig objectMappingConfig() {
+  private ObjectMapperConfig objectMappingConfig() {
     return config == null ? ObjectMapperConfig.objectMapperConfig() : config.getObjectMapperConfig();
   }
 
-  private def HttpClientConfig httpClientConfig() {
+  private HttpClientConfig httpClientConfig() {
     return config == null ? HttpClientConfig.httpClientConfig() : config.getHttpClientConfig();
   }
 
-  private def ConnectionConfig connectionConfig() {
+  private ConnectionConfig connectionConfig() {
     return config == null ? ConnectionConfig.connectionConfig() : config.getConnectionConfig();
   }
 
-  private def EncoderConfig encoderConfig() {
+  private EncoderConfig encoderConfig() {
     return config == null ? EncoderConfig.encoderConfig() : config.getEncoderConfig();
   }
 
-  private def SessionConfig sessionConfig() {
+  private SessionConfig sessionConfig() {
     return config == null ? SessionConfig.sessionConfig() : config.getSessionConfig();
   }
 
-  def RestAssuredConfig restAssuredConfig() {
+  RestAssuredConfig restAssuredConfig() {
     config ?: new RestAssuredConfig()
   }
 
@@ -2304,7 +2210,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     BODY, QUERY
   }
 
-  static def List getPlaceholders(String uri) {
+  static List getPlaceholders(String uri) {
     Pattern p = Pattern.compile(Pattern.quote(TEMPLATE_START) + "(.*?)" + Pattern.quote(TEMPLATE_END))
     Matcher m = p.matcher(uri)
     def placeholders = new LinkedHashSet<String>() // Remove duplicates such as if we have get("/{x}/{x}")
@@ -2339,7 +2245,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     Collections.unmodifiableList(Collections.emptyList())
   }
 
-  def void removeUnnamedPathParamAtIndex(int indexOfParamName) {
+  void removeUnnamedPathParamAtIndex(int indexOfParamName) {
     unnamedPathParamsTuples.remove(indexOfParamName)
     // We define the a tuple with "null, null" in order to retain path parameter order
     unnamedPathParamsTuples.add(indexOfParamName, new Tuple2<String, String>(null, null))

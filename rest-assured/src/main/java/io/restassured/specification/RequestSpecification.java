@@ -66,9 +66,6 @@ public interface RequestSpecification extends RequestSender {
      * This will POST a request containing <code>someBytes</code> to "/json" and expect that the response body equals to "hello world".
      * </p>
      * <p/>
-     * <p>
-     * Note that this method and {@link #content(byte[])} are the same except for the syntactic difference.
-     * </p>
      *
      * @param body The body to send.
      * @return The request specification
@@ -170,8 +167,6 @@ public interface RequestSpecification extends RequestSender {
      *         body(equalTo("Response to a beautiful message")).
      * </pre>
      * </p>
-     * Note that this method and {@link #content(Object, ObjectMapperType)} are the same except for the syntactic difference.
-     * </p>
      *
      * @param object The object to serialize and send with the request
      * @param mapper The object mapper
@@ -202,196 +197,6 @@ public interface RequestSpecification extends RequestSender {
      * @return The request specification
      */
     RequestSpecification body(Object object, ObjectMapperType mapperType);
-
-    /**
-     * Specify a String request content (such as e.g. JSON or XML) that'll be sent with the request. This works for the
-     * POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Example of use:
-     * <pre>
-     * given().content("{ \"message\" : \"hello world\"}").then().expect().content(equalTo("hello world")).when().post("/json");
-     * </pre>
-     * This will POST a request containing JSON to "/json" and expect that the response content equals to "hello world".
-     * </p>
-     * <p/>
-     * <p>
-     * Note that {@link #body(String)} and this method are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param content The content to send.
-     * @return The request specification
-     * @deprecated Use {@link #body(String)} instead
-     */
-    @Deprecated
-    RequestSpecification content(String content);
-
-    /**
-     * Specify a byte array request content that'll be sent with the request. This only works for the
-     * POST, PATCH and PUT http method. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Example of use:
-     * <pre>
-     * byte[] someBytes = ..
-     * given().content(someBytes).then().expect().content(equalTo("hello world")).when().post("/json");
-     * </pre>
-     * This will POST a request containing <code>someBytes</code> to "/json" and expect that the response content equals to "hello world".
-     * </p>
-     * <p/>
-     * <p>
-     * Note that {@link #body(byte[])} and this method are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param content The content to send.
-     * @return The request specification
-     * @deprecated Use {@link #body(byte[])} instead
-     */
-    @Deprecated
-    RequestSpecification content(byte[] content);
-
-    /**
-     * Specify file content that'll be sent with the request. This only works for the
-     * POST, PATCH and PUT http method. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Example of use:
-     * <pre>
-     * File myFile = ..
-     * given().content(myFile).when().post("/json").then().content(equalTo("hello world"));
-     * </pre>
-     * This will POST a request containing <code>myFile</code> to "/json" and expect that the response content equals to "hello world".
-     * </p>
-     * <p/>
-     * <p>
-     * Note that {@link #body(File)} and this method are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param content The content to send.
-     * @return The request specification
-     * @deprecated Use {@link #body(File)} instead
-     */
-    @Deprecated
-    RequestSpecification content(File content);
-
-    /**
-     * Specify file content that'll be sent with the request. This only works for the
-     * POST, PATCH and PUT http method. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Example of use:
-     * <pre>
-     * InputStream myInputStream = ..
-     * given().content(myInputStream).when().post("/json").then().content(equalTo("hello world"));
-     * </pre>
-     * This will POST a request containing <code>myInputStream</code> to "/json" and expect that the response content equals to "hello world".
-     * </p>
-     * <p/>
-     * <p>
-     * Note that {@link #body(java.io.InputStream)} and this method are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param content The content to send.
-     * @return The request specification
-     * @deprecated Use {@link #body(InputStream)} instead
-     */
-    @Deprecated
-    RequestSpecification content(InputStream content);
-
-    /**
-     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request.
-     * If the object is a primitive or <a href="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html">Number</a> the object will
-     * be converted to a String and put in the request body. This works for the POST and PUT methods only.
-     * Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Example of use:
-     * <pre>
-     * Message message = new Message();
-     * message.setMessage("My beautiful message");
-     *
-     * given().
-     *         contentType("application/json").
-     *         content(message).
-     * expect().
-     *         content(equalTo("Response to a beautiful message")).
-     * when().
-     *         post("/beautiful-message");
-     * </pre>
-     * </p>
-     * Since the content-type is "application/json" then REST Assured will automatically try to serialize the object using
-     * <a href="https://github.com/FasterXML/jackson">Jackson</a> or <a href="https://github.com/google/gson">Gson</a> if they are
-     * available in the classpath. If any of these frameworks are not in the classpath then an exception is thrown.
-     * <br />
-     * If the content-type is "application/xml" then REST Assured will automatically try to serialize the object using <a href="http://jaxb.java.net/">JAXB</a>
-     * if it's available in the classpath. Otherwise an exception will be thrown.
-     * <br />
-     * If no request content-type is specified then REST Assured determine the parser in the following order:
-     * <ol>
-     * <li>Jackson</li>
-     * <li>Gson</li>
-     * <li>JAXB</li>
-     * </ol>
-     * <p>
-     * Note that {@link #body(Object)} and this method are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param object The object to serialize and send with the request
-     * @return The request specification
-     * @deprecated Use {@link #body(Object)} instead
-     */
-    @Deprecated
-    RequestSpecification content(Object object);
-
-    /**
-     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper type.
-     * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Example of use:
-     * <pre>
-     * Message message = new Message();
-     * message.setMessage("My beautiful message");
-     *
-     * given().
-     *         content(message, ObjectMapperType.GSON).
-     * expect().
-     *         content(equalTo("Response to a beautiful message")).
-     * when().
-     *         post("/beautiful-message");
-     * </pre>
-     * </p>
-     * Note that {@link #body(Object, ObjectMapperType)} and this method are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param object     The object to serialize and send with the request
-     * @param mapperType The object mapper type to use
-     * @return The request specification
-     * @deprecated Use {@link #body(Object, ObjectMapperType)} instead
-     */
-    @Deprecated
-    RequestSpecification content(Object object, ObjectMapperType mapperType);
-
-    /**
-     * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
-     * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
-     * <p>
-     * Example of use:
-     * <pre>
-     * Message message = new Message();
-     * message.setMessage("My beautiful message");
-     *
-     * given().
-     *         content(message, new MyObjectMapper()).
-     * expect().
-     *         content(equalTo("Response to a beautiful message")).
-     * when().
-     *         post("/beautiful-message");
-     * </pre>
-     * </p>
-     * Note that {@link #body(Object, ObjectMapper)} and this method are the same except for the syntactic difference.
-     * </p>
-     *
-     * @param object The object to serialize and send with the request
-     * @return The request specification
-     * @deprecated Use {@link #body(Object, ObjectMapper)} instead
-     */
-    @Deprecated
-    RequestSpecification content(Object object, ObjectMapper mapper);
 
     /**
      * Specify the redirect configuration for this request. E.g.
@@ -526,93 +331,6 @@ public interface RequestSpecification extends RequestSender {
     /**
      * Specify the parameters that'll be sent with the request. This is done by specifying the parameters in name-value pairs, e.g:
      * <pre>
-     * given().parameters("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().get("/parameters");
-     * </pre>
-     * <p/>
-     * This will send a GET request to "/parameters" with two parameters:
-     * <ol>
-     * <li>username=John</li>
-     * <li>token=1234</li>
-     * </ol>
-     * and expect that the response body is equal to "username, token".
-     *
-     * @param firstParameterName      The name of the first parameter
-     * @param firstParameterValue     The value of the first parameter
-     * @param parameterNameValuePairs Additional parameters in name-value pairs.
-     * @return The request specification
-     * @deprecated Use {@link #params(String, Object, Object...)} instead
-     */
-    @Deprecated
-    RequestSpecification parameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
-
-    /**
-     * Specify the parameters that'll be sent with the request as Map e.g:
-     * <pre>
-     * Map&lt;String, String&gt; parameters = new HashMap&lt;String, String&gt;();
-     * parameters.put("username", "John");
-     * parameters.put("token", "1234");
-     * given().parameters(parameters).then().expect().body(equalTo("username, token")).when().get("/cookie");
-     * </pre>
-     * <p/>
-     * This will send a GET request to "/cookie" with two parameters:
-     * <ol>
-     * <li>username=John</li>
-     * <li>token=1234</li>
-     * </ol>
-     * and expect that the response body is equal to "username, token".
-     *
-     * @param parametersMap The Map containing the parameter names and their values to send with the request.
-     * @return The request specification
-     * @deprecated Use {@link #params(Map)} instead
-     */
-    @Deprecated
-    RequestSpecification parameters(Map<String, ?> parametersMap);
-
-    /**
-     * Specify a parameter that'll be sent with the request e.g:
-     * <p>
-     * <pre>
-     * given().parameter("username", "John").and().expect().body(equalTo("username")).when().get("/cookie");
-     * </pre>
-     * This will set the parameter <code>username=John</code> in the GET request to "/cookie".
-     * </p>
-     * <p/>
-     * <p>
-     * You can also specify several parameters like this:
-     * <pre>
-     * given().parameter("username", "John").and().parameter("password", "1234").and().expect().body(equalTo("username")).when().get("/cookie");
-     * </pre>
-     * </p>
-     *
-     * @param parameterName   The parameter name
-     * @param parameterValues Zero to many parameter values for this parameter name
-     * @return The request specification
-     * @see #parameters(String, Object, Object...)
-     * @deprecated Use {@link #param(String, Object...)} instead
-     */
-    @Deprecated
-    RequestSpecification parameter(String parameterName, Object... parameterValues);
-
-    /**
-     * Specify a multi-value parameter that'll be sent with the request e.g:
-     * <p>
-     * <pre>
-     * given().parameter("cars", asList("Volvo", "Saab"))..;
-     * </pre>
-     * This will set the parameter <code>cars=Volvo</code> and <code>cars=Saab</code>.
-     * </p>
-     *
-     * @param parameterName   The parameter name
-     * @param parameterValues The parameter values
-     * @return The request specification
-     * @deprecated Use {@link #param(String, Collection)} instead
-     */
-    @Deprecated
-    RequestSpecification parameter(String parameterName, Collection<?> parameterValues);
-
-    /**
-     * Specify the parameters that'll be sent with the request. This is done by specifying the parameters in name-value pairs, e.g:
-     * <pre>
      * given().params("username", "John", "token", "1234").when().get("/parameters").then().assertThat().body(equalTo("username, token"));
      * </pre>
      * <p/>
@@ -690,66 +408,6 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification param(String parameterName, Collection<?> parameterValues);
 
     /**
-     * Specify the query parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(String, Object, Object...)}
-     * for all http methods except for POST where {@link #parameters(String, Object, Object...)} sets the form parameters and this method sets the
-     * query parameters.
-     *
-     * @param firstParameterName      The name of the first parameter
-     * @param firstParameterValue     The value of the first parameter
-     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
-     * @return The request specification
-     * @deprecated Use {@link #queryParams(String, Object, Object...)} instead
-     */
-    @Deprecated
-    RequestSpecification queryParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
-
-    /**
-     * Specify the query parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(Map)}
-     * for all http methods except for POST where {@link #parameters(Map)} sets the form parameters and this method sets the
-     * query parameters.
-     *
-     * @param parametersMap The Map containing the parameter names and their values to send with the request.
-     * @return The request specification
-     * @deprecated Use {@link #queryParams(Map)} instead
-     */
-    @Deprecated
-    RequestSpecification queryParameters(Map<String, ?> parametersMap);
-
-    /**
-     * Specify a query parameter that'll be sent with the request. Note that this method is the same as {@link #parameter(String, Object...)}
-     * for all http methods except for POST where {@link #parameter(String, Object...)} adds a form parameter and this method sets a
-     * query parameter.
-     *
-     * @param parameterName   The parameter name
-     * @param parameterValues Zero to many parameter values, i.e. you can specify multiple values for the same parameter
-     * @return The request specification
-     * @deprecated Use {@link #queryParam(String, Object...)} instead
-     */
-    @Deprecated
-    RequestSpecification queryParameter(String parameterName, Object... parameterValues);
-
-    /**
-     * Specify a multi-value query parameter that'll be sent with the request e.g:
-     * <p>
-     * <pre>
-     * given().queryParameter("cars", asList("Volvo", "Saab"))..;
-     * </pre>
-     * This will set the parameter <code>cars=Volvo</code> and <code>cars=Saab</code>.
-     * </p>
-     * <p/>
-     * Note that this method is the same as {@link #parameter(String, java.util.Collection)}
-     * for all http methods except for POST where {@link #parameter(String, java.util.Collection)} adds a form parameter and
-     * this method sets a query parameter.
-     *
-     * @param parameterName   The parameter name
-     * @param parameterValues The parameter values
-     * @return The request specification
-     * @deprecated Use {@link #queryParam(String, Collection)} instead
-     */
-    @Deprecated
-    RequestSpecification queryParameter(String parameterName, Collection<?> parameterValues);
-
-    /**
      * Specify the query parameters that'll be sent with the request. Note that this method is the same as {@link #params(String, Object, Object...)}
      * for all http methods except for POST where {@link #params(String, Object, Object...)} sets the form parameters and this method sets the
      * query parameters.
@@ -758,7 +416,6 @@ public interface RequestSpecification extends RequestSender {
      * @param firstParameterValue     The value of the first parameter
      * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
      * @return The request specification
-     * @see #queryParameters(String, Object, Object...)
      */
     RequestSpecification queryParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
 
@@ -804,67 +461,6 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification queryParam(String parameterName, Collection<?> parameterValues);
 
     /**
-     * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(String, Object, Object...)}
-     * for all http methods except for PUT where {@link #parameters(String, Object, Object...)} sets the query parameters and this method sets the
-     * form parameters.
-     *
-     * @param firstParameterName      The name of the first parameter
-     * @param firstParameterValue     The value of the first parameter
-     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
-     * @return The request specification
-     * @deprecated Use {@link #formParams(String, Object, Object...)} instead
-     */
-    @Deprecated
-    RequestSpecification formParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
-
-    /**
-     * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(Map)}
-     * for all http methods except for PUT where {@link #parameters(Map)} sets the query parameters and this method sets the
-     * form parameters.
-     *
-     * @param parametersMap The Map containing the parameter names and their values to send with the request.
-     * @return The request specification
-     * @deprecated Use {@link #formParams(Map)} instead
-     */
-    @Deprecated
-    RequestSpecification formParameters(Map<String, ?> parametersMap);
-
-    /**
-     * Specify a form parameter that'll be sent with the request. Note that this method is the same as {@link #parameter(String, Object...)}
-     * for all http methods except for PUT where {@link #parameter(String, Object...)} adds a query parameter and this method sets a
-     * form parameter.
-     *
-     * @param parameterName   The parameter name
-     * @param parameterValues Zero to many parameter values for this parameter.
-     * @return The request specification
-     * @see #parameter(String, Object...)
-     * @deprecated Use {@link #formParam(String, Object...)} instead
-     */
-    @Deprecated
-    RequestSpecification formParameter(String parameterName, Object... parameterValues);
-
-    /**
-     * Specify a multi-value form parameter that'll be sent with the request e.g:
-     * <p>
-     * <pre>
-     * given().formParameter("cars", asList("Volvo", "Saab"))..;
-     * </pre>
-     * This will set the parameter <code>cars=Volvo</code> and <code>cars=Saab</code>.
-     * </p>
-     * <p/>
-     * Note that this method is the same as {@link #parameter(String, java.util.Collection)}
-     * for all http methods except for PUT where {@link #parameter(String, java.util.Collection)} adds a query parameter and
-     * this method sets a form parameter.
-     *
-     * @param parameterName   The parameter name
-     * @param parameterValues The parameter values
-     * @return The request specification
-     * @deprecated Use {@link #formParam(String, Collection)} instead
-     */
-    @Deprecated
-    RequestSpecification formParameter(String parameterName, Collection<?> parameterValues);
-
-    /**
      * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #params(String, Object, Object...)}
      * for all http methods except for PUT where {@link #params(String, Object, Object...)} sets the query parameters and this method sets the
      * form parameters.
@@ -873,12 +469,11 @@ public interface RequestSpecification extends RequestSender {
      * @param firstParameterValue     The value of the first parameter
      * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
      * @return The request specification
-     * @see #formParameters(String, Object, Object...)
      */
     RequestSpecification formParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
 
     /**
-     * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #parameters(Map)}
+     * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #params(Map)}
      * for all http methods except for PUT where {@link #params(Map)} sets the query parameters and this method sets the
      * form parameters.
      *
@@ -889,7 +484,7 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification formParams(Map<String, ?> parametersMap);
 
     /**
-     * Specify a form parameter that'll be sent with the request. Note that this method is the same as {@link #parameter(String, Object...)}
+     * Specify a form parameter that'll be sent with the request. Note that this method is the same as {@link #param(String, Object...)}
      * for all http methods except for PUT where {@link #param(String, Object...)} adds a query parameter and this method sets a
      * form parameter.
      *
@@ -919,98 +514,6 @@ public interface RequestSpecification extends RequestSender {
      * @see #formParam(String, java.util.Collection)
      */
     RequestSpecification formParam(String parameterName, Collection<?> parameterValues);
-
-    /**
-     * Specify a path parameter. Path parameters are used to improve readability of the request path. E.g. instead
-     * of writing:
-     * <pre>
-     * expect().statusCode(200).when().get("/item/"+myItem.getItemNumber()+"/buy/"+2);
-     * </pre>
-     * you can write:
-     * <pre>
-     * given().
-     *         pathParameter("itemNumber", myItem.getItemNumber()).
-     *         pathParameter("amount", 2).
-     * expect().
-     *          statusCode(200).
-     * when().
-     *        get("/item/{itemNumber}/buy/{amount}");
-     * </pre>
-     * <p/>
-     * which improves readability and allows the path to be reusable in many tests. Another alternative is to use:
-     * <pre>
-     * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
-     * </pre>
-     *
-     * @param parameterName  The parameter name
-     * @param parameterValue The parameter value
-     * @return The request specification
-     * @deprecated Use {@link #pathParam(String, Object)} instead
-     */
-    @Deprecated
-    RequestSpecification pathParameter(String parameterName, Object parameterValue);
-
-    /**
-     * Specify multiple path parameter name-value pairs. Path parameters are used to improve readability of the request path. E.g. instead
-     * of writing:
-     * <pre>
-     * expect().statusCode(200).when().get("/item/"+myItem.getItemNumber()+"/buy/"+2);
-     * </pre>
-     * you can write:
-     * <pre>
-     * given().
-     *         pathParameters("itemNumber", myItem.getItemNumber(), "amount", 2).
-     * expect().
-     *          statusCode(200).
-     * when().
-     *        get("/item/{itemNumber}/buy/{amount}");
-     * </pre>
-     * <p/>
-     * which improves readability and allows the path to be reusable in many tests. Another alternative is to use:
-     * <pre>
-     * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
-     * </pre>
-     *
-     * @param firstParameterName      The name of the first parameter
-     * @param firstParameterValue     The value of the first parameter
-     * @param parameterNameValuePairs Additional parameters in name-value pairs.
-     * @return The request specification
-     * @deprecated Use {@link #pathParams(String, Object, Object...)} instead
-     */
-    @Deprecated
-    RequestSpecification pathParameters(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
-
-    /**
-     * Specify multiple path parameter name-value pairs. Path parameters are used to improve readability of the request path. E.g. instead
-     * of writing:
-     * <pre>
-     * expect().statusCode(200).when().get("/item/"+myItem.getItemNumber()+"/buy/"+2);
-     * </pre>
-     * you can write:
-     * <pre>
-     * Map&lt;String,Object&gt; pathParams = new HashMap&lt;String,Object&gt;();
-     * pathParams.add("itemNumber",myItem.getItemNumber());
-     * pathParams.add("amount",2);
-     *
-     * given().
-     *         pathParameters(pathParams).
-     * expect().
-     *          statusCode(200).
-     * when().
-     *        get("/item/{itemNumber}/buy/{amount}");
-     * </pre>
-     * <p/>
-     * which improves readability and allows the path to be reusable in many tests. Another alternative is to use:
-     * <pre>
-     * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
-     * </pre>
-     *
-     * @param parameterNameValuePairs A map containing the path parameters.
-     * @return The request specification
-     * @deprecated Use {@link #pathParams(Map)} instead
-     */
-    @Deprecated
-    RequestSpecification pathParameters(Map<String, ?> parameterNameValuePairs);
 
     /**
      * Specify a path parameter. Path parameters are used to improve readability of the request path. E.g. instead
@@ -1104,7 +607,6 @@ public interface RequestSpecification extends RequestSender {
      *
      * @param parameterNameValuePairs A map containing the path parameters.
      * @return The request specification
-     * @see #pathParameters(java.util.Map)
      */
     RequestSpecification pathParams(Map<String, ?> parameterNameValuePairs);
 
@@ -1582,16 +1084,6 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification multiPart(String controlName, String contentBody, String mimeType);
 
     /**
-     * If you need to specify some credentials when performing a request.
-     *
-     * @return The authentication specification
-     * @see AuthenticationSpecification
-     * @deprecated Use {@link #auth()} instead
-     */
-    @Deprecated
-    AuthenticationSpecification authentication();
-
-    /**
      * Specify authentication credentials when performing a request.
      *
      * @return The authentication specification
@@ -1650,50 +1142,11 @@ public interface RequestSpecification extends RequestSender {
      * <li>Headers</li>
      * </ul>
      * <p/>
-     * This method is the same as {@link #specification(RequestSpecification)} but the name is a bit shorter.
      *
      * @param requestSpecificationToMerge The specification to merge with.
      * @return the request specification
      */
     RequestSpecification spec(RequestSpecification requestSpecificationToMerge);
-
-    /**
-     * Add request data from a pre-defined specification. E.g.
-     * <pre>
-     * RequestSpecification requestSpec = new RequestSpecBuilder().addParam("parameter1", "value1").build();
-     *
-     * given().
-     *         spec(requestSpec).
-     *         param("parameter2", "value2").
-     * when().
-     *        get("/something");
-     * </pre>
-     * <p/>
-     * This is useful when you want to reuse an entire specification across multiple requests.
-     * <p/>
-     * The specification passed to this method is merged with the current specification. Note that the supplied specification
-     * can overwrite data in the current specification. The following settings are overwritten:
-     * <ul>
-     * <li>Port</li>
-     * <li>Authentication scheme</
-     * <li>Content type</li>
-     * <li>Request body</li>
-     * </ul>
-     * The following settings are merged:
-     * <ul>
-     * <li>Parameters</li>
-     * <li>Cookies</li>
-     * <li>Headers</li>
-     * </ul>
-     * <p/>
-     * This method is the same as {@link #spec(RequestSpecification)} but the name is a bit longer and thus more descriptive.
-     *
-     * @param requestSpecificationToMerge The specification to merge with.
-     * @return the request specification
-     * @deprecated Use {@link #spec(RequestSpecification)} instead
-     */
-    @Deprecated
-    RequestSpecification specification(RequestSpecification requestSpecificationToMerge);
 
     /**
      * Set the session id for this request. It will use the configured session id name from the configuration (by default this is {@value SessionConfig#DEFAULT_SESSION_ID_NAME}).

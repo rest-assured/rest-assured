@@ -39,7 +39,7 @@ public class PatchITest extends WithJetty {
 
     @Test
     public void bodyHamcrestMatcherWithoutKey() throws Exception {
-        given().parameters("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().patch("/greetPatch");
+        given().params("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().patch("/greetPatch");
     }
 
     @Test
@@ -55,7 +55,7 @@ public class PatchITest extends WithJetty {
 
     @Test
     public void patchWithFormParams() throws Exception {
-        given().formParameters("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().patch("/greetPatch");
+        given().formParams("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().patch("/greetPatch");
     }
 
     @Test
