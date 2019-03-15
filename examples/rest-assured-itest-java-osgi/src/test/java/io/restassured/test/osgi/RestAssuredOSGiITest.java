@@ -51,7 +51,7 @@ public class RestAssuredOSGiITest {
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.activation", "activation").version("1.1.1")),
-                        wrappedBundle(mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-all").version("2.4.15")),
+                        wrappedBundle(mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-all").version("2.5.6")),
 
                         /* Rest Assured dependencie needed in the Pax Exam container to be able to execute the test below */
                         mavenBundle("io.rest-assured", "json-path").versionAsInProject(),

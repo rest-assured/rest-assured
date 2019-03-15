@@ -19,7 +19,6 @@ package io.restassured.module.mockmvc;
 import io.restassured.config.EncoderConfig;
 import io.restassured.http.ContentType;
 import io.restassured.module.mockmvc.http.GreetingController;
-import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -36,16 +35,12 @@ public class ContentTypeTest {
 
     @Test public void
     adds_default_charset_to_content_type_by_default() {
-        final AtomicReference<String> contentType = new AtomicReference<String>();
+        final AtomicReference<String> contentType = new AtomicReference<>();
 
         RestAssuredMockMvc.given().
                 standaloneSetup(new GreetingController()).
                 contentType(ContentType.JSON).
-                interceptor(new MockHttpServletRequestBuilderInterceptor() {
-                    public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        contentType.set(String.valueOf(Whitebox.getInternalState(requestBuilder, "contentType")));
-                    }
-                }).
+                interceptor(requestBuilder -> contentType.set(extractContentType(requestBuilder))).
         when().
                 get("/greeting?name={name}", "Johan").
         then().
@@ -56,17 +51,13 @@ public class ContentTypeTest {
 
     @Test public void
     adds_specific_charset_to_content_type_by_default() {
-        final AtomicReference<String> contentType = new AtomicReference<String>();
+        final AtomicReference<String> contentType = new AtomicReference<>();
 
         RestAssuredMockMvc.given().
                 standaloneSetup(new GreetingController()).
                 config(RestAssuredMockMvc.config().encoderConfig(EncoderConfig.encoderConfig().defaultCharsetForContentType(UTF_16, ContentType.JSON))).
                 contentType(ContentType.JSON).
-                interceptor(new MockHttpServletRequestBuilderInterceptor() {
-                    public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        contentType.set(String.valueOf(Whitebox.getInternalState(requestBuilder, "contentType")));
-                    }
-                }).
+                interceptor(requestBuilder -> contentType.set(extractContentType(requestBuilder))).
         when().
                 get("/greeting?name={name}", "Johan").
         then().
@@ -78,16 +69,12 @@ public class ContentTypeTest {
 
     @Test public void
     doesnt_add_default_charset_to_content_type_if_charset_is_defined_explicitly() {
-        final AtomicReference<String> contentType = new AtomicReference<String>();
+        final AtomicReference<String> contentType = new AtomicReference<>();
 
         RestAssuredMockMvc.given().
                 standaloneSetup(new GreetingController()).
                 contentType(ContentType.JSON.withCharset(UTF_16)).
-                interceptor(new MockHttpServletRequestBuilderInterceptor() {
-                    public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        contentType.set(String.valueOf(Whitebox.getInternalState(requestBuilder, "contentType")));
-                    }
-                }).
+                interceptor(requestBuilder -> contentType.set(extractContentType(requestBuilder))).
         when().
                 get("/greeting?name={name}", "Johan").
         then().
@@ -98,17 +85,13 @@ public class ContentTypeTest {
 
     @Test public void
     doesnt_add_default_charset_to_content_type_if_configured_not_to_do_so() {
-        final AtomicReference<String> contentType = new AtomicReference<String>();
+        final AtomicReference<String> contentType = new AtomicReference<>();
 
         RestAssuredMockMvc.given().
                 config(RestAssuredMockMvc.config().encoderConfig(EncoderConfig.encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
                 standaloneSetup(new GreetingController()).
                 contentType(ContentType.JSON).
-                interceptor(new MockHttpServletRequestBuilderInterceptor() {
-                    public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        contentType.set(String.valueOf(Whitebox.getInternalState(requestBuilder, "contentType")));
-                    }
-                }).
+                interceptor(requestBuilder -> contentType.set(extractContentType(requestBuilder))).
         when().
                 get("/greeting?name={name}", "Johan").
         then().
@@ -119,16 +102,12 @@ public class ContentTypeTest {
 
     @Test public void
     doesnt_duplication_of_content_type_with_default_charset() {
-        final List<String> contentTypes = new ArrayList<String>();
+        final List<String> contentTypes = new ArrayList<>();
 
         RestAssuredMockMvc.given().
                 standaloneSetup(new GreetingController()).
                 contentType(ContentType.JSON).
-                interceptor(new MockHttpServletRequestBuilderInterceptor() {
-                    public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        contentTypes.add(String.valueOf(Whitebox.getInternalState(requestBuilder, "contentType")));
-                    }
-                }).
+                interceptor(requestBuilder -> contentTypes.add(extractContentType(requestBuilder))).
         when().
                 get("/greeting?name={name}", "Johan").
         then().
@@ -140,17 +119,13 @@ public class ContentTypeTest {
 
     @Test public void
     doesnt_duplication_of_content_type() {
-        final List<String> contentTypes = new ArrayList<String>();
+        final List<String> contentTypes = new ArrayList<>();
 
         RestAssuredMockMvc.given().
                 config(RestAssuredMockMvc.config().encoderConfig(EncoderConfig.encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
                 standaloneSetup(new GreetingController()).
                 contentType(ContentType.JSON).
-                interceptor(new MockHttpServletRequestBuilderInterceptor() {
-                    public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        contentTypes.add(String.valueOf(Whitebox.getInternalState(requestBuilder, "contentType")));
-                    }
-                }).
+                interceptor(requestBuilder -> contentTypes.add(extractContentType(requestBuilder))).
         when().
                 get("/greeting?name={name}", "Johan").
         then().
@@ -158,5 +133,15 @@ public class ContentTypeTest {
 
         assertThat(contentTypes.size()).isEqualTo(1);
         assertThat(contentTypes.get(0)).isEqualTo("application/json");
+    }
+
+    private String extractContentType(MockHttpServletRequestBuilder requestBuilder) {
+        Object contentType = Whitebox.getInternalState(requestBuilder, "contentType");
+        if (contentType instanceof String) {
+            return (String) contentType;
+        } else if (contentType instanceof char[]) {
+            return String.valueOf(contentType);
+        }
+        throw new IllegalArgumentException("Failed to extract content-type from " + MockHttpServletRequestBuilder.class.getName());
     }
 }

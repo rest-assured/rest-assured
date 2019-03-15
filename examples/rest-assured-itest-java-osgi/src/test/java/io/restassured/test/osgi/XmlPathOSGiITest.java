@@ -29,14 +29,14 @@ import static io.restassured.path.xml.XmlPath.from;
 import static org.junit.Assert.assertThat;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
-@RunWith(PaxExam.class)
 /**
  * This test aims to prove that xml-path is available as a valid OSGi bundle.
  */
+@RunWith(PaxExam.class)
 public class XmlPathOSGiITest {
 
     @Configuration
-    public static Option[] configure() throws Exception {
+    public static Option[] configure() {
         return new Option[]
                 {
                         mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
@@ -50,7 +50,7 @@ public class XmlPathOSGiITest {
                         wrappedBundle(mavenBundle().groupId("org.ccil.cowan.tagsoup").artifactId("tagsoup").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.activation", "activation").version("1.1.1")),
-                        wrappedBundle(mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-all").version("2.4.15")),
+                        wrappedBundle(mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-all").version("2.5.6")),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
@@ -64,7 +64,7 @@ public class XmlPathOSGiITest {
     }
 
     @Test
-    public void getUUIDParsesAStringResultToUUID() throws Exception {
+    public void getUUIDParsesAStringResultToUUID() {
         final String UUID_XML = "<some>\n" +
                 "  <thing id=\"1\">db24eeeb-7fe5-41d3-8f06-986b793ecc91</thing>\n" +
                 "  <thing id=\"2\">d69ded28-d75c-460f-9cbe-1412c60ed4cc</thing>\n" +

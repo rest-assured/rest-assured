@@ -415,7 +415,8 @@ public class XmlPath {
             throw new IllegalStateException("Internal error: XML object was not an instance of String, please report to the REST Assured mailing-list.");
         }
 
-        return XmlObjectDeserializer.deserialize((String) object, objectType, cfg);
+        //noinspection RedundantCast
+        return (T) XmlObjectDeserializer.deserialize((String) object, objectType, cfg);
     }
 
     private <T> T getFromPath(String path, boolean convertToJavaObject) {
@@ -426,6 +427,7 @@ public class XmlPath {
         }
         final String root = rootPath.equals("") ? rootPath : rootPath.endsWith(".") ? rootPath : rootPath + ".";
         xmlAssertion.setKey(root + path);
+        //noinspection unchecked
         return (T) xmlAssertion.getResult(input, convertToJavaObject, true);
     }
 

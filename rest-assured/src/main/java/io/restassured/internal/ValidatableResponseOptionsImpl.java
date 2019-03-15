@@ -57,10 +57,6 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         this.extractableResponse = extractableResponse;
     }
 
-    public T content(List<Argument> arguments, ResponseAwareMatcher<R> responseAwareMatcher) {
-        return content(arguments, getMatcherFromResponseAwareMatcher(responseAwareMatcher));
-    }
-
     public T body(List<Argument> arguments, ResponseAwareMatcher<R> responseAwareMatcher) {
         return body(arguments, getMatcherFromResponseAwareMatcher(responseAwareMatcher));
     }
@@ -72,31 +68,6 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
     public T body(String key, ResponseAwareMatcher<R> responseAwareMatcher) {
         notNull(responseAwareMatcher, ResponseAwareMatcher.class);
         return body(key, getMatcherFromResponseAwareMatcher(responseAwareMatcher));
-    }
-
-    public T content(String path, List<Argument> arguments, ResponseAwareMatcher<R> responseAwareMatcher) {
-        notNull(responseAwareMatcher, ResponseAwareMatcher.class);
-        return content(path, arguments, getMatcherFromResponseAwareMatcher(responseAwareMatcher));
-    }
-
-    public T content(String path, ResponseAwareMatcher<R> responseAwareMatcher) {
-        notNull(responseAwareMatcher, ResponseAwareMatcher.class);
-        return content(path, getMatcherFromResponseAwareMatcher(responseAwareMatcher));
-    }
-
-    public T content(Matcher<?> matcher, Matcher<?>... additionalMatchers) {
-        responseSpec.body(matcher, additionalMatchers);
-        return (T) this;
-    }
-
-    public T content(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
-        responseSpec.body(arguments, matcher, additionalKeyMatcherPairs);
-        return (T) this;
-    }
-
-    public T content(String key, Matcher<?> matcher, Object... additionalKeyMatcherPairs) {
-        responseSpec.body(key, matcher, additionalKeyMatcherPairs);
-        return (T) this;
     }
 
     public T body(String path, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs) {
@@ -294,11 +265,6 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
     }
 
     public T spec(ResponseSpecification responseSpecification) {
-        return specification(responseSpecification);
-    }
-
-    public T specification(ResponseSpecification responseSpecification) {
-        notNull(responseSpecification, ResponseSpecification.class);
         // We parse the response as a string here because we need to enforce it otherwise specs won't work
         response.asString();
 

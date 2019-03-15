@@ -1933,8 +1933,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return cookies
   }
 
-  def <T> T getBody() {
-    return requestBody
+  def getBody() {
+    requestBody
   }
 
   List<Filter> getDefinedFilters() {
@@ -1974,16 +1974,19 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return getContentType()
   }
 
+  @Override
   String getContentType() {
     return requestHeaders.getValue(CONTENT_TYPE)
   }
 
+  @Override
   RequestSpecification noFilters() {
     this.filters.clear()
     this
   }
 
-  def <T extends Filter> RequestSpecification noFiltersOfType(Class<T> filterType) {
+  @Override
+  RequestSpecification noFiltersOfType(Class filterType) {
     notNull filterType, "Filter type"
     this.filters.removeAll { filterType.isAssignableFrom(it.getClass()) }
     this

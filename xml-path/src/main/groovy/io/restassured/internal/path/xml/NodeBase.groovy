@@ -14,56 +14,54 @@
  * limitations under the License.
  */
 
-
-
-
-
 package io.restassured.internal.path.xml
 
 import io.restassured.internal.common.path.ObjectConverter
 import io.restassured.path.xml.element.Node
+import io.restassured.path.xml.element.PathElement
 
-abstract class NodeBase {
+abstract class NodeBase implements PathElement {
 
-    abstract <T> T get(String name)
+  @Override
+  abstract get(String name)
 
-    abstract <T> List<T> getList(String name)
+  abstract <T> List<T> getList(String name)
 
-    protected <T> T get(String name, iterator, boolean forceList) {
-        def found = []
-        while (iterator.hasNext()) {
-            def next = iterator.next();
-            if (next.name() == name) {
-                found << next
-            }
-        }
-        if (forceList) {
-            Collections.unmodifiableList(found)
-        } else if (found.size() == 1) {
-            found.get(0)
-        } else if (found.isEmpty()) {
-            null
-        } else {
-            Collections.unmodifiableList(found)
-        }
+  protected static <T> T get(String name, iterator, boolean forceList) {
+    def found = []
+    while (iterator.hasNext()) {
+      def next = iterator.next()
+      if (next.name() == name) {
+        found << next
+      }
     }
-
-    def abstract <T> T getPath(String path)
-
-    def <T> T getPath(String path, Class<T> explicitType) {
-        def object = getPath(path)
-        return ObjectConverter.convertObjectTo(object, explicitType)
+    if (forceList) {
+      Collections.unmodifiableList(found) as T
+    } else if (found.size() == 1) {
+      found.get(0)
+    } else if (found.isEmpty()) {
+      null
+    } else {
+      Collections.unmodifiableList(found) as T
     }
+  }
 
+  abstract getPath(String path)
 
-    public Node getNode(String name) {
-        return get(name)
-    }
+  @Override
+  def getPath(String path, Class explicitType) {
+    def object = getPath(path)
+    ObjectConverter.convertObjectTo(object, explicitType)
+  }
 
-    public List<Node> getNodes(String name) {
-        return getList(name)
-    }
+  Node getNode(String name) {
+    return get(name)
+  }
 
-    public abstract Object getBackingGroovyObject();
+  List<Node> getNodes(String name) {
+    return getList(name)
+  }
+
+  abstract Object getBackingGroovyObject();
 
 }

@@ -15,7 +15,6 @@
  */
 
 
-
 package io.restassured.internal.path.json.mapping
 
 import com.fasterxml.jackson.databind.JavaType
@@ -28,22 +27,22 @@ import java.lang.reflect.Type
 
 class JsonPathJackson2ObjectDeserializer implements JsonPathObjectDeserializer {
 
-    private final Jackson2ObjectMapperFactory factory;
+  private final Jackson2ObjectMapperFactory factory;
 
-    JsonPathJackson2ObjectDeserializer(Jackson2ObjectMapperFactory factory) {
-        this.factory = factory
-    }
+  JsonPathJackson2ObjectDeserializer(Jackson2ObjectMapperFactory factory) {
+    this.factory = factory
+  }
 
-    private ObjectMapper createJackson2ObjectMapper(Type cls, String charset) {
-        return factory.create(cls, charset)
-    }
+  private ObjectMapper createJackson2ObjectMapper(Type cls, String charset) {
+    return factory.create(cls, charset)
+  }
 
-    @Override
-    def <T> T deserialize(ObjectDeserializationContext context) {
-        def object = context.getDataToDeserialize().asString()
-        def cls = context.getType()
-        def mapper = createJackson2ObjectMapper(cls, context.getCharset())
-        JavaType javaType = mapper.constructType(cls)
-        return mapper.readValue(object, javaType) as T
-    }
+  @Override
+  deserialize(ObjectDeserializationContext context) {
+    def object = context.getDataToDeserialize().asString()
+    def cls = context.getType()
+    def mapper = createJackson2ObjectMapper(cls, context.getCharset())
+    JavaType javaType = mapper.constructType(cls)
+    mapper.readValue(object, javaType)
+  }
 }

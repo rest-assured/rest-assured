@@ -67,7 +67,7 @@ public class SpecificationsDemoITest extends WithJetty {
         when().
                  get("/demoResponseSpecification").
         then().
-                 specification(spec).
+                 spec(spec).
                  body("firstName", is("John")).
                  body("lastName", is("Doe"));
     }

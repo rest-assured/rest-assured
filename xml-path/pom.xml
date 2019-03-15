@@ -93,7 +93,7 @@
             <groupId>org.apache.sling</groupId>
             <artifactId>org.apache.sling.javax.activation</artifactId>
         </dependency>
-        
+
         <!-- Test -->
         <dependency>
             <groupId>org.hamcrest</groupId>

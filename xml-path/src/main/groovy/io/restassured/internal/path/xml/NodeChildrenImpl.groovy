@@ -15,94 +15,93 @@
  */
 
 
-
 package io.restassured.internal.path.xml
 
 import io.restassured.path.xml.element.Node
 import io.restassured.path.xml.element.NodeChildren
 
 class NodeChildrenImpl extends NodeBase implements NodeChildren {
-    def nodeList = []
-    def groovyNodes
+  def nodeList = []
+  def groovyNodes
 
-    Node get(int index) {
-        return nodeList.get(index)
+  Node get(int index) {
+    return nodeList.get(index)
+  }
+
+  int size() {
+    return nodeList.size()
+  }
+
+  boolean isEmpty() {
+    return nodeList.isEmpty()
+  }
+
+  Iterator<String> iterator() {
+    return new NodeListIterator()
+  }
+
+  def leftShift(Node node) {
+    nodeList << node
+  }
+
+  public String toString() {
+    def builder = new StringBuilder()
+    nodeList.each {
+      builder.append(it.toString())
     }
+    builder.toString()
+  }
 
-    int size() {
-        return nodeList.size()
-    }
+  Iterable<Node> nodeIterable() {
+    nodeList
+  }
 
-    boolean isEmpty() {
-        return nodeList.isEmpty()
-    }
+  def get(String name) {
+    get(name, nodeList.iterator(), false)
+  }
 
-    Iterator<String> iterator() {
-        return new NodeListIterator()
-    }
+  @Override
+  def getPath(String path) {
+    new XMLAssertion(key: path).getChildResultAsJavaObject(groovyNodes)
+  }
 
-    def leftShift(Node node) {
-        nodeList << node
-    }
+  @Override
+  Iterator<Node> nodeIterator() {
+    return nodeList.iterator()
+  }
 
-    public String toString() {
-        def builder = new StringBuilder()
-        nodeList.each {
-            builder.append(it.toString())
-        }
-        builder.toString()
-    }
+  @Override
+  List<Node> list() {
+    return Collections.unmodifiableList(nodeList)
+  }
 
-    Iterable<Node> nodeIterable() {
-        nodeList
-    }
+  @Override
+  <T> List<T> getList(String name) {
+    return get(name, nodeList.iterator(), true)
+  }
 
-    public <T> T get(String name) {
-        return get(name, nodeList.iterator(), false)
+  @Override
+  Object getBackingGroovyObject() {
+    return groovyNodes
+  }
+
+  class NodeListIterator implements Iterator<String> {
+    def iterator = nodeList.iterator()
+
+    @Override
+    boolean hasNext() {
+      return iterator.hasNext()
     }
 
     @Override
-    def <T> T getPath(String path) {
-        return new XMLAssertion(key: path).getChildResultAsJavaObject(groovyNodes) as T;
+    String next() {
+      def asString = iterator.next().toString()
+      return asString
     }
 
     @Override
-    Iterator<Node> nodeIterator() {
-        return nodeList.iterator()
+    void remove() {
+      throw new UnsupportedOperationException()
     }
-
-    @Override
-    List<Node> list() {
-        return Collections.unmodifiableList(nodeList)
-    }
-
-    @Override
-    def <T> List<T> getList(String name) {
-        return get(name, nodeList.iterator(), true)
-    }
-
-    @Override
-    Object getBackingGroovyObject() {
-        return groovyNodes
-    }
-
-    class NodeListIterator implements Iterator<String> {
-        def iterator = nodeList.iterator()
-
-        @Override
-        boolean hasNext() {
-            return iterator.hasNext()
-        }
-
-        @Override
-        String next() {
-            def asString = iterator.next().toString()
-            return asString
-        }
-
-        @Override
-        void remove() {
-            throw new UnsupportedOperationException()
-        }
-    }
+  }
 }

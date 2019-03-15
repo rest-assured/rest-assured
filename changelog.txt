@@ -62,7 +62,9 @@ Changelog next version
 * Made io.restassured.listener.ResponseValidationFailureListener a proper annotated functional interface
 * Made io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor a proper annotated functional interface
 * Made io.restassured.path.json.mapping.JsonPathObjectDeserializer a proper annotated functional interface
-* Upgraded Groovy dependency from 2.4.15 to 2.5.5
+* Upgraded Groovy dependency from 2.4.15 to 2.5.6
+* Removed io.restassured.response.ValidatableResponseOptions#specification(..), use io.restassured.response.ValidatableResponseOptions#spec instead
+* Removed io.restassured.response.ValidatableResponseOptions#content(..), use io.restassured.response.ValidatableResponseOptions#body(..) instead
 
 Changelog 3.3.0 (2019-01-11)
 ----------------------------

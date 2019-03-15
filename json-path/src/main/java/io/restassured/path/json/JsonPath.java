@@ -396,7 +396,8 @@ public class JsonPath {
                 if (t instanceof Map && !genericType.isAssignableFrom(Map.class)) {
                     // TODO Avoid double parsing
                     String str = objectToString(t);
-                    e = jsonStringToObject(str, genericType);
+                    //noinspection unchecked
+                    e = (T) jsonStringToObject(str, genericType);
                 } else {
                     e = ObjectConverter.convertObjectTo(t, genericType);
                 }
@@ -556,7 +557,7 @@ public class JsonPath {
             throw new IllegalStateException("Internal error: Json object was not an instance of String, please report to the REST Assured mailing-list.");
         }
 
-        return jsonStringToObject((String) object, objectType);
+        return (T) jsonStringToObject((String) object, objectType);
     }
 
     /**
@@ -1059,7 +1060,7 @@ public class JsonPath {
         return new JsonBuilder(object).toString();
     }
 
-    private <T> T jsonStringToObject(String object, Class<T> objectType) {
+    private Object jsonStringToObject(String object, Class objectType) {
         JsonPathConfig cfg = new JsonPathConfig(getJsonPathConfig());
         if (cfg.hasCustomJackson10ObjectMapperFactory()) {
             cfg = cfg.defaultParserType(JsonParserType.JACKSON_1);
@@ -1071,6 +1072,7 @@ public class JsonPath {
             cfg = cfg.defaultParserType(JsonParserType.JOHNZON);
         }
 
+        //noinspection unchecked
         return JsonObjectDeserializer.deserialize(object, objectType, cfg);
     }
 }

@@ -26,25 +26,24 @@ import java.lang.reflect.Type
 import static io.restassured.internal.common.assertion.AssertParameter.notNull
 
 class JsonPathJohnzonObjectDeserializer implements JsonPathObjectDeserializer {
-    private final JohnzonObjectMapperFactory factory
+  private final JohnzonObjectMapperFactory factory
 
-    JsonPathJohnzonObjectDeserializer(JohnzonObjectMapperFactory factory) {
-        notNull(factory, "JohnzonObjectMapperFactory")
-        this.factory = factory;
+  JsonPathJohnzonObjectDeserializer(JohnzonObjectMapperFactory factory) {
+    notNull(factory, "JohnzonObjectMapperFactory")
+    this.factory = factory;
+  }
+
+  private Mapper createJohnzonObjectMapper(Type cls, String charset) {
+    return factory.create(cls, charset)
+  }
+
+  @Override
+  def deserialize(ObjectDeserializationContext context) {
+    def cls = context.getType()
+    def mapper = createJohnzonObjectMapper(cls, context.getCharset())
+
+    context.getDataToDeserialize().asInputStream().withReader { reader ->
+      mapper.readObject(reader, cls)
     }
-	
-	private Mapper createJohnzonObjectMapper(Type cls, String charset) {
-		return factory.create(cls, charset)
-	}
-
-	@Override
-	def <T> T deserialize(ObjectDeserializationContext context) {
-		def object = context.getDataToDeserialize().asString()
-		def cls = context.getType()
-		def mapper = createJohnzonObjectMapper(cls, context.getCharset())
-		
-		context.getDataToDeserialize().asInputStream().withReader { reader ->
-			mapper.readObject(reader, cls)
-		}
-	}
+  }
 }

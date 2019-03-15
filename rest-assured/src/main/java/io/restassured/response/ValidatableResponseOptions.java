@@ -42,176 +42,6 @@ import java.util.function.Function;
 public interface ValidatableResponseOptions<T extends ValidatableResponseOptions<T, R>, R extends ResponseBody<R> & ResponseOptions<R>> {
 
     /**
-     * Validate that the response content conforms to one or more Hamcrest matchers. E.g.
-     * <pre>
-     * // Validate that the response content (body) contains the string "winning-numbers"
-     * get("/lotto").then().content(containsString("winning-numbers"));
-     *
-     * // Validate that the response content (body) contains the string "winning-numbers" and "winners"
-     * get("/lotto").then().assertThat().content(containsString("winning-numbers"), containsString("winners"));
-     * </pre>
-     *
-     * @param matcher            The hamcrest matcher that must response content must match.
-     * @param additionalMatchers Optionally additional hamcrest matchers that must return <code>true</code>.
-     * @return the response specification
-     */
-    T content(Matcher<?> matcher, Matcher<?>... additionalMatchers);
-
-    /**
-     * This as special kind of validation that is mainly useful when you've specified a root path with an argument placeholder.
-     * For example:
-     * <pre>
-     * get(..).then().assertThat().
-     *          root("x.%s"). // Root path with a placeholder
-     *          content(withArgs("firstName"), equalTo(..)).
-     *          content(withArgs("lastName"), equalTo(..)).
-     * </pre>
-     * <p/>
-     * Note that this is the same as doing:
-     * <pre>
-     * get(..).then().assertThat().
-     *          root("x.%s"). // Root path with a placeholder
-     *          body(withArgs("firstName"), equalTo(..)).
-     *          body(withArgs("lastName"), equalTo(..)).
-     * </pre>
-     * <p/>
-     * <p>
-     * Note that this method is the same as {@link #body(java.util.List, org.hamcrest.Matcher, Object...)} but with a method name.
-     * </p>
-     *
-     * @param arguments                 The arguments to apply to the root path.
-     * @param matcher                   The hamcrest matcher that must response body must match.
-     * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
-     * @return the response specification
-     * @see #body(String, org.hamcrest.Matcher, Object...)
-     */
-    T content(List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs);
-
-    /**
-     * Compare a path in the response body to something available in the response using arguments when root path is used.
-     * For example imagine that a resource "/x" returns the following JSON document:
-     * <pre>
-     * {
-     *    "data" : {
-     *        "user1" : {
-     *             "userId" : "my-id1",
-     *             "href" : "http://localhost:8080/my-id1"
-     *        },
-     *        "user2" : {
-     *             "userId" : "my-id2",
-     *             "href" : "http://localhost:8080/my-id2"
-     *        },
-     *    }
-     * }
-     * </pre>
-     * you can then verify the href using:
-     * <pre>
-     * when().
-     *        get("/x").
-     * then().
-     *        root("data.%s").
-     *        content(withArgs("user1"), new ResponseAwareMatcher<Response>() {
-     *                       public Matcher<?> matcher(Response response) {
-     *                           return equalTo("http://localhost:8080/" + response.path("userId"));
-     *                       }
-     *                  });
-     * </pre>
-     * Note that you can also use some of the predefined methods in {@link RestAssuredMatchers}.
-     * <p>
-     * Note that this method is the same as {@link #body(java.util.List, ResponseAwareMatcher)} expect for syntactic differences.
-     * </p>
-     *
-     * @param responseAwareMatcher The {@link ResponseAwareMatcher} that creates the Hamcrest matcher.
-     * @return the response specification
-     * @see #content(String, ResponseAwareMatcher)
-     * @see RestAssuredMatchers#endsWithPath(String)
-     * @see RestAssuredMatchers#startsWithPath(String)
-     * @see RestAssuredMatchers#containsPath(String)
-     * @see RestAssuredMatchers#equalToPath(String)
-     */
-    T content(List<Argument> arguments, ResponseAwareMatcher<R> responseAwareMatcher);
-
-    /**
-     * Validate that the JSON or XML response content conforms to one or more Hamcrest matchers.<br>
-     * <h3>JSON example</h3>
-     * <p>
-     * Assume that a GET request to "/lotto" returns a JSON response containing:
-     * <pre>
-     * { "lotto":{
-     *   "lottoId":5,
-     *   "winning-numbers":[2,45,34,23,7,5,3],
-     *   "winners":[{
-     *     "winnerId":23,
-     *     "numbers":[2,45,34,23,3,5]
-     *   },{
-     *     "winnerId":54,
-     *     "numbers":[52,3,12,11,18,22]
-     *   }]
-     *  }}
-     * </pre>
-     * <p/>
-     * You can verify that the lottoId is equal to 5 like this:
-     * <pre>
-     * get("/lotto").then().assertThat().content("lotto.lottoId", equalTo(5));
-     * </pre>
-     * <p/>
-     * You can also verify that e.g. one of the the winning numbers is 45.
-     * <pre>
-     * get("/lotto").then().content("lotto.winning-numbers", hasItem(45));
-     * </pre>
-     * <p/>
-     * Or both at the same time:
-     * <pre>
-     * get("/lotto").then().content("lotto.lottoId", equalTo(5)).and().content("lotto.winning-numbers", hasItem(45));
-     * </pre>
-     * <p/>
-     * or a slightly short version:
-     * <pre>
-     * get("/lotto").then().content("lotto.lottoId", equalTo(5), "lotto.winning-numbers", hasItem(45));
-     * </pre>
-     * </p>
-     * <h3>XML example</h3>
-     * <p>
-     * Assume that a GET request to "/xml" returns a XML response containing:
-     * <pre>
-     * &lt;greeting&gt;
-     *    &lt;firstName&gt;John&lt;/firstName&gt;
-     *    &lt;lastName&gt;Doe&lt;/lastName&gt;
-     * &lt;/greeting&gt;
-     * </pre>
-     * </p>
-     * <p/>
-     * You can now verify that the firstName is equal to "John" like this:
-     * <pre>
-     * get("/xml").then().content("greeting.firstName", equalTo("John"));
-     * </pre>
-     * <p/>
-     * To verify both the first name and last name you can do like this:
-     * <pre>
-     * get("/xml").then().content("greeting.firstName", equalTo("John")).and().content("greeting.lastName", equalTo("Doe"));
-     * </pre>
-     * <p/>
-     * Or the slightly shorter version of:
-     * <pre>
-     * get("/xml").then().content("greeting.firstName", equalTo("John"), "greeting.lastName", equalTo("Doe"));
-     * </pre>
-     * <h3>Notes</h3>
-     * <p>
-     * Note that if the response content type is not of type <tt>application/xml</tt> or <tt>application/json</tt> you
-     * <i>cannot</i> use this verification.
-     * </p>
-     * <p/>
-     * <p>
-     * The only difference between the <code>content</code> and <code>body</code> methods are of syntactic nature.
-     * </p>
-     *
-     * @param matcher                   The hamcrest matcher that must response content must match.
-     * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
-     * @return the response specification
-     */
-    T content(String key, Matcher<?> matcher, Object... additionalKeyMatcherPairs);
-
-    /**
      * Same as {@link #body(String, org.hamcrest.Matcher, Object...)} expect that you can pass arguments to the key. This
      * is useful in situations where you have e.g. pre-defined variables that constitutes the key:
      * <pre>
@@ -261,9 +91,6 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      *            content(withArgs("lastName"), equalTo(..)).
      * </pre>
      * <p/>
-     * <p>
-     * Note that this method is the same as {@link #content(java.util.List, org.hamcrest.Matcher, Object...)} but with a method name.
-     * </p>
      *
      * @param arguments                 The arguments to apply to the root path.
      * @param matcher                   The hamcrest matcher that must response body must match.
@@ -303,9 +130,6 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      *                  });
      * </pre>
      * Note that you can also use some of the predefined methods in {@link RestAssuredMatchers}.
-     * <p>
-     * Note that this method is the same as {@link #content(java.util.List, ResponseAwareMatcher)} expect for syntactic differences.
-     * </p>
      *
      * @param responseAwareMatcher The {@link ResponseAwareMatcher} that creates the Hamcrest matcher.
      * @return the response specification
@@ -966,9 +790,6 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      *                  });
      * </pre>
      * Note that you can also use some of the predefined methods in {@link RestAssuredMatchers}.
-     * <p>
-     * Note that this method is the same as {@link #content(String, ResponseAwareMatcher)}  expect for syntactic differences.
-     * </p>
      *
      * @param path                 The body path
      * @param responseAwareMatcher The {@link ResponseAwareMatcher} that creates the Hamcrest matcher.
@@ -1063,103 +884,6 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
     T body(String path, Matcher<?> matcher, Object... additionalKeyMatcherPairs);
 
     /**
-     * Same as {@link #body(String, java.util.List, org.hamcrest.Matcher, Object...)} expect that you can pass arguments to the path. This
-     * is useful in situations where you have e.g. pre-defined variables that constitutes the path:
-     * <pre>
-     * String someSubPath = "else";
-     * int index = 1;
-     * get("/x").then().assertThat().body("something.%s[%d]", withArgs(someSubPath, index), equalTo("some value")). ..
-     * </pre>
-     * <p/>
-     * or if you have complex root paths and don't wish to duplicate the path for small variations:
-     * <pre>
-     * get("/x").then()
-     *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
-     *          body(withArgs(0), hasItem("first")).
-     *          body(withArgs(1), hasItem("second")).
-     *          ..
-     * </pre>
-     * <p/>
-     * The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
-     * <p>
-     * Note that <code>withArgs</code> can be statically imported from the <code>io.restassured.RestAssured</code> class.
-     * </p>
-     *
-     * @param path                      The body path
-     * @param matcher                   The hamcrest matcher that must response body must match.
-     * @param additionalKeyMatcherPairs Optionally additional hamcrest matchers that must return <code>true</code>.
-     * @return the response specification
-     * @see #content(String, org.hamcrest.Matcher, Object...)
-     */
-    T content(String path, List<Argument> arguments, Matcher matcher, Object... additionalKeyMatcherPairs);
-
-    /**
-     * Compare a path in the response body to something available in the response using arguments.
-     * For example imagine that a resource "/x" returns the following JSON document:
-     * <pre>
-     * {
-     *      "userId" : "my-id",
-     *      "my.href" : "http://localhost:8080/my-id"
-     * }
-     * </pre>
-     * you can then verify the href using:
-     * <pre>
-     * get("/x").then().content("%s.href", withArgs("my"), new ResponseAwareMatcher<Response>() {
-     *                       public Matcher<?> matcher(Response response) {
-     *                           return equalTo("http://localhost:8080/" + response.path("userId"));
-     *                       }
-     *                  });
-     * </pre>
-     * Note that you can also use some of the predefined methods in {@link RestAssuredMatchers}.
-     * * <p>
-     * Note that this method is the same as {@link #body(String, java.util.List, ResponseAwareMatcher)} expect for syntactic differences.
-     * </p>
-     *
-     * @param path                 The body path
-     * @param responseAwareMatcher The {@link ResponseAwareMatcher} that creates the Hamcrest matcher.
-     * @return the response specification
-     * @see #content(String, ResponseAwareMatcher)
-     * @see RestAssuredMatchers#endsWithPath(String)
-     * @see RestAssuredMatchers#startsWithPath(String)
-     * @see RestAssuredMatchers#containsPath(String)
-     * @see RestAssuredMatchers#equalToPath(String)
-     */
-    T content(String path, List<Argument> arguments, ResponseAwareMatcher<R> responseAwareMatcher);
-
-    /**
-     * Compare a path in the response body to something available in the response, for example another path.
-     * For example imagine that a resource "/x" returns the following JSON document:
-     * <pre>
-     * {
-     *      "userId" : "my-id",
-     *      "href" : "http://localhost:8080/my-id"
-     * }
-     * </pre>
-     * you can then verify the href using:
-     * <pre>
-     * get("/x").then().content("href", new ResponseAwareMatcher<Response>() {
-     *                       public Matcher<?> matcher(Response response) {
-     *                           return equalTo("http://localhost:8080/" + response.path("userId"));
-     *                       }
-     *                  });
-     * </pre>
-     * Note that you can also use some of the predefined methods in {@link RestAssuredMatchers}.
-     * <p>
-     * Note that this method is the same as {@link #body(String, ResponseAwareMatcher)} expect for syntactic differences.
-     * </p>
-     *
-     * @param path                 The body path
-     * @param responseAwareMatcher The {@link ResponseAwareMatcher} that creates the Hamcrest matcher.
-     * @return the response specification
-     * @see #content(String, java.util.List, ResponseAwareMatcher)
-     * @see RestAssuredMatchers#endsWithPath(String)
-     * @see RestAssuredMatchers#startsWithPath(String)
-     * @see RestAssuredMatchers#containsPath(String)
-     * @see RestAssuredMatchers#equalToPath(String)
-     */
-    T content(String path, ResponseAwareMatcher<R> responseAwareMatcher);
-
-    /**
      * Syntactic sugar, e.g.
      * <pre>
      * get("/something").then().assertThat().body(containsString("OK")).and().body(containsString("something else"));
@@ -1230,47 +954,10 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * <li>Headers</li>
      * </ul>
      * <p/>
-     * This method is the same as {@link #specification(ResponseSpecification)} but the name is a bit shorter.
-     *
      * @param responseSpecificationToMerge The specification to merge with.
      * @return the response specification
      */
     T spec(ResponseSpecification responseSpecificationToMerge);
-
-    /**
-     * Validate that the response matches an entire specification.
-     * <pre>
-     * ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).build();
-     *
-     * get("/something").then().
-     *         specification(responseSpec).
-     *         body("x.y.z", equalTo("something"));
-     * </pre>
-     * <p/>
-     * This is useful when you want to reuse multiple different expectations in several tests.
-     * <p/>
-     * The specification passed to this method is merged with the current specification. Note that the supplied specification
-     * can overwrite data in the current specification. The following settings are overwritten:
-     * <ul>
-     * <li>Content type</li>
-     * <li>Root path</
-     * <li>Status code</li>
-     * <li>Status line</li>
-     * </ul>
-     * The following settings are merged:
-     * <ul>
-     * <li>Response body expectations</li>
-     * <li>Cookies</li>
-     * <li>Headers</li>
-     * </ul>
-     * <p/>
-     * <p/>
-     * This method is the same as {@link #spec(ResponseSpecification)} but the name is a bit longer.
-     *
-     * @param responseSpecificationToMerge The specification to merge with.
-     * @return the response specification
-     */
-    T specification(ResponseSpecification responseSpecificationToMerge);
 
     /**
      * Register a content-type to be parsed using a predefined parser. E.g. let's say you want parse

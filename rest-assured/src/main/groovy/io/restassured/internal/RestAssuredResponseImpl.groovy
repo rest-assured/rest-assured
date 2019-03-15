@@ -20,8 +20,32 @@ import io.restassured.response.ValidatableResponse
 
 class RestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<Response> implements Response {
 
-  public void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
+  void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
     groovyResponse.parseResponse(httpResponse, content, hasBodyAssertions, responseParserRegistrar);
+  }
+
+  // Unfortunately this is needed to make compilation from Maven happy
+  @Override
+  Response prettyPeek() {
+    super.prettyPeek()
+  }
+
+  // Unfortunately this is needed to make compilation from Maven happy
+  @Override
+  Response peek() {
+    super.peek()
+  }
+
+  @Override
+  Response thenReturn() {
+    //noinspection GroovyUncheckedAssignmentOfMemberOfRawType
+    return super.thenReturn()
+  }
+
+  @Override
+  Response andReturn() {
+    //noinspection GroovyUncheckedAssignmentOfMemberOfRawType
+    return super.andReturn()
   }
 
   ValidatableResponse then() {

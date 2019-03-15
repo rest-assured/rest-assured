@@ -54,7 +54,7 @@ public class DoubleITest extends WithJetty {
                 get("/anonymous_list_with_numbers").
         then().
                 statusCode(HttpStatus.SC_OK).
-                content("$", hasItems(100, 50, 31.0d));
+                body("$", hasItems(100, 50, 31.0d));
     }
 
     @Test public void

@@ -23,147 +23,147 @@ import io.restassured.path.xml.element.NodeChildren
 
 class NodeImpl extends NodeBase implements Node {
 
-    def attributes = [:]
-    def NodeChildren children = new NodeChildrenImpl()
-    def name
-    def value = null
-    def groovyNode
+  def attributes = [:]
+  NodeChildren children = new NodeChildrenImpl()
+  def name
+  def value = null
+  def groovyNode
+
+  @Override
+  Map<String, String> attributes() {
+    return Collections.unmodifiableMap(attributes)
+  }
+
+  @Override
+  String name() {
+    return name
+  }
+
+  @Override
+  Iterator<String> iterator() {
+    if (!children.isEmpty()) {
+      return children.iterator()
+    } else {
+      return new ValueIterator()
+    }
+  }
+
+  String toString() {
+    def builder = new StringBuilder()
+    if (children.isEmpty()) {
+      builder.append(value)
+    } else {
+      def iterator = children.iterator()
+      while (iterator.hasNext()) {
+        def next = iterator.next()
+        builder.append(next)
+      }
+    }
+    builder.toString()
+  }
+
+  /**
+   * The the Node on the nth index
+   *
+   * @param index The index of the node the get
+   * @return The node
+   */
+  Node get(int index) {
+    return children.get(index)
+  }
+
+  NodeChildren children() {
+    return children
+  }
+
+  def leftShift(Node node) {
+    children << node
+  }
+
+  String getAttribute(String name) {
+    AssertParameter.notNull(name, "name")
+    if (!name.startsWith("@")) {
+      name = "@" + name
+    }
+    return get(name)
+  }
+
+  float getFloat(String name) {
+    return get(name)
+  }
+
+  double getDouble(String name) {
+    return get(name)
+  }
+
+  char getChar(String name) {
+    return get(name)
+  }
+
+  boolean getBoolean(String name) {
+    return get(name)
+  }
+
+  long getLong(String name) {
+    return get(name)
+  }
+
+  int getInt(String name) {
+    return get(name)
+  }
+
+  short getShort(String name) {
+    return get(name)
+  }
+
+  byte getByte(String name) {
+    return get(name)
+  }
+
+  def get(String name) {
+    if (name.startsWith("@")) {
+      return attributes.get(name.substring(1))
+    }
+    return get(name, children.nodeIterator(), false)
+  }
+
+  @Override
+  def getPath(String path) {
+    new XMLAssertion(key: path).getChildResultAsJavaObject(groovyNode)
+  }
+
+  @Override
+  String value() {
+    return value
+  }
+
+  @Override
+  def <T> List<T> getList(String name) {
+    return get(name, children.nodeIterator(), true)
+  }
+
+  @Override
+  Object getBackingGroovyObject() {
+    return groovyNode
+  }
+
+  class ValueIterator implements Iterator<String> {
+    def hasNext = true
 
     @Override
-    Map<String, String> attributes() {
-        return Collections.unmodifiableMap(attributes)
+    boolean hasNext() {
+      return hasNext
     }
 
     @Override
-    String name() {
-        return name
+    String next() {
+      hasNext = false
+      return value
     }
 
     @Override
-    Iterator<String> iterator() {
-        if (!children.isEmpty()) {
-            return children.iterator()
-        } else {
-            return new ValueIterator()
-        }
+    void remove() {
+      throw new UnsupportedOperationException();
     }
-
-    public String toString() {
-        def builder = new StringBuilder()
-        if (children.isEmpty()) {
-            builder.append(value)
-        } else {
-            def iterator = children.iterator()
-            while (iterator.hasNext()) {
-                def next = iterator.next()
-                builder.append(next)
-            }
-        }
-        builder.toString()
-    }
-
-    /**
-     * The the Node on the nth index
-     *
-     * @param index The index of the node the get
-     * @return The node
-     */
-    Node get(int index) {
-        return children.get(index)
-    }
-
-    NodeChildren children() {
-        return children
-    }
-
-    def leftShift(Node node) {
-        children << node
-    }
-
-    String getAttribute(String name) {
-        AssertParameter.notNull(name, "name")
-        if (!name.startsWith("@")) {
-            name = "@" + name
-        }
-        return get(name)
-    }
-
-    float getFloat(String name) {
-        return get(name)
-    }
-
-    double getDouble(String name) {
-        return get(name)
-    }
-
-    char getChar(String name) {
-        return get(name)
-    }
-
-    boolean getBoolean(String name) {
-        return get(name)
-    }
-
-    long getLong(String name) {
-        return get(name)
-    }
-
-    int getInt(String name) {
-        return get(name)
-    }
-
-    short getShort(String name) {
-        return get(name)
-    }
-
-    byte getByte(String name) {
-        return get(name)
-    }
-
-    public <T> T get(String name) {
-        if (name.startsWith("@")) {
-            return attributes.get(name.substring(1))
-        }
-        return get(name, children.nodeIterator(), false)
-    }
-
-    @Override
-    def <T> T getPath(String path) {
-        return new XMLAssertion(key: path).getChildResultAsJavaObject(groovyNode) as T;
-    }
-
-    @Override
-    String value() {
-        return value
-    }
-
-    @Override
-    def <T> List<T> getList(String name) {
-        return get(name, children.nodeIterator(), true)
-    }
-
-    @Override
-    Object getBackingGroovyObject() {
-        return groovyNode
-    }
-
-    class ValueIterator implements Iterator<String> {
-        def hasNext = true
-
-        @Override
-        boolean hasNext() {
-            return hasNext
-        }
-
-        @Override
-        String next() {
-            hasNext = false
-            return value
-        }
-
-        @Override
-        void remove() {
-            throw new UnsupportedOperationException();
-        }
-    }
+  }
 }

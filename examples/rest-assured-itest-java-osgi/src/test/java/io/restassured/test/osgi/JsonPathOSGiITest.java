@@ -45,7 +45,7 @@ public class JsonPathOSGiITest {
                         /* Transitive dependencies needed in the Pax Exam container.
                         Some of these need to be wrapped because they are not available as OSGi bundles */
                         mavenBundle("org.apache.commons", "commons-lang3").versionAsInProject(),
-                        wrappedBundle(mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-all").version("2.4.15")),
+                        wrappedBundle(mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-all").version("2.5.6")),
                         wrappedBundle(mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),

@@ -163,7 +163,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return headers(MapCreator.createMapFromParams(CollisionStrategy.MERGE, firstExpectedHeaderName, firstExpectedHeaderValue, expectedHeaders))
   }
 
-  def <T> ResponseSpecification header(String headerName, Function<String, T> mappingFunction, Matcher<? super T> expectedValueMatcher) {
+  @Override
+  ResponseSpecification header(String headerName, Function mappingFunction, Matcher expectedValueMatcher) {
     notNull headerName, "Header name"
     notNull mappingFunction, "Mapping function"
     notNull expectedValueMatcher, "Hamcrest matcher"
@@ -485,7 +486,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         it.onFailure(
                 ResponseSpecificationImpl.this.requestSpecification,
                 ResponseSpecificationImpl.this,
-                response) }
+                response)
+      }
     }
 
     private def validateContentType(Response response) {

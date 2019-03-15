@@ -72,6 +72,6 @@ public class BigDecimalITest extends WithJetty {
                 get("/anonymous_list_with_numbers").
         then().
                 statusCode(HttpStatus.SC_OK).
-                content("$", hasItems(100, 50, BigDecimal.valueOf(31.0)));
+                body("$", hasItems(100, 50, BigDecimal.valueOf(31.0)));
     }
 }

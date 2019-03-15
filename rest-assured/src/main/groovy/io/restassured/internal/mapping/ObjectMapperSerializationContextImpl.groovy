@@ -21,30 +21,30 @@ import io.restassured.mapper.ObjectMapperSerializationContext
 
 class ObjectMapperSerializationContextImpl implements ObjectMapperSerializationContext {
 
-    def object
-    def contentType
-    def charset
+  def object
+  def contentType
+  def charset
 
-    @Override
-    Object getObjectToSerialize() {
-        return object
-    }
+  @Override
+  Object getObjectToSerialize() {
+    return object
+  }
 
-    @Override
-    def <T> T getObjectToSerializeAs(Class<T> expectedType) {
-        if(!expectedType.isAssignableFrom(object.getClass())) {
-            throw new IllegalArgumentException("Object to serialize is not of required type $expectedType")
-        }
-        return expectedType.cast(object)
+  @Override
+  def getObjectToSerializeAs(Class expectedType) {
+    if (!expectedType.isAssignableFrom(object.getClass())) {
+      throw new IllegalArgumentException("Object to serialize is not of required type $expectedType")
     }
+    expectedType.cast(object)
+  }
 
-    @Override
-    String getContentType() {
-        return contentType
-    }
+  @Override
+  String getContentType() {
+    return contentType
+  }
 
-    @Override
-    String getCharset() {
-        return charset
-    }
+  @Override
+  String getCharset() {
+    return charset
+  }
 }

@@ -23,15 +23,15 @@ import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 import static io.restassured.internal.common.assertion.AssertParameter.notNull
 
 class JsonPathGsonObjectDeserializer implements JsonPathObjectDeserializer {
-    private final GsonObjectMapperFactory factory
+  private final GsonObjectMapperFactory factory
 
-    JsonPathGsonObjectDeserializer(GsonObjectMapperFactory factory) {
-        notNull(factory, "GsonObjectMapperFactory")
-        this.factory = factory;
-    }
+  JsonPathGsonObjectDeserializer(GsonObjectMapperFactory factory) {
+    notNull(factory, "GsonObjectMapperFactory")
+    this.factory = factory;
+  }
 
-    @Override
-    def <T> T deserialize(ObjectDeserializationContext ctx) {
-        return factory.create(ctx.type, ctx.charset).fromJson(ctx.dataToDeserialize.asString(), ctx.type) as T;
-    }
+  @Override
+  def deserialize(ObjectDeserializationContext ctx) {
+    factory.create(ctx.type, ctx.charset).fromJson(ctx.dataToDeserialize.asString(), ctx.type)
+  }
 }

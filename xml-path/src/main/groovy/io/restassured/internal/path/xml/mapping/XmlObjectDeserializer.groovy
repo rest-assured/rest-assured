@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-
-
-
 package io.restassured.internal.path.xml.mapping
 
 import io.restassured.common.mapper.DataToDeserialize
@@ -31,55 +28,55 @@ import static io.restassured.common.mapper.resolver.ObjectMapperResolver.isJAXBI
 
 class XmlObjectDeserializer {
 
-    public static <T> T deserialize(String xml, Class<T> cls, XmlPathConfig xmlPathConfig) {
-        Validate.notNull(xmlPathConfig, "XmlPath configuration wasn't specified, cannot deserialize.")
-        def deserializationCtx = new ObjectDeserializationContextImpl()
-        def mapperType = xmlPathConfig.defaultParserType()
-        deserializationCtx.type = cls
-        deserializationCtx.charset = xmlPathConfig.charset()
-        deserializationCtx.dataToDeserialize = new DataToDeserialize() {
+  static <T> T deserialize(String xml, Class<T> cls, XmlPathConfig xmlPathConfig) {
+    Validate.notNull(xmlPathConfig, "XmlPath configuration wasn't specified, cannot deserialize.")
+    def deserializationCtx = new ObjectDeserializationContextImpl()
+    def mapperType = xmlPathConfig.defaultParserType()
+    deserializationCtx.type = cls
+    deserializationCtx.charset = xmlPathConfig.charset()
+    deserializationCtx.dataToDeserialize = new DataToDeserialize() {
 
-            @Override
-            String asString() {
-                return xml
-            }
+      @Override
+      String asString() {
+        return xml
+      }
 
-            @Override
-            byte[] asByteArray() {
-                return xml.getBytes(xmlPathConfig.charset())
-            }
+      @Override
+      byte[] asByteArray() {
+        return xml.getBytes(xmlPathConfig.charset())
+      }
 
-            @Override
-            InputStream asInputStream() {
-                return new ByteArrayInputStream(asByteArray())
-            }
-        }
-
-        if (xmlPathConfig.hasDefaultDeserializer()) {
-            return xmlPathConfig.defaultDeserializer().deserialize(deserializationCtx) as T;
-        } else if (mapperType != null || xmlPathConfig.hasDefaultParserType()) {
-            XmlParserType mapperTypeToUse = mapperType == null ? xmlPathConfig.defaultParserType() : mapperType;
-            return deserializeWithObjectMapper(deserializationCtx, mapperTypeToUse, xmlPathConfig)
-        }
-
-        if (isJAXBInClassPath()) {
-            return deserializeWithJaxb(deserializationCtx, xmlPathConfig.jaxbObjectMapperFactory()) as T
-        }
-
-        throw new IllegalStateException("Cannot deserialize object because no XML deserializer found in classpath. Please put JAXB in the classpath.")
+      @Override
+      InputStream asInputStream() {
+        return new ByteArrayInputStream(asByteArray())
+      }
     }
 
-    private static <T> T deserializeWithObjectMapper(ObjectDeserializationContext ctx, XmlParserType mapperType, XmlPathConfig config) {
-        if (mapperType == XmlParserType.JAXB && isJAXBInClassPath()) {
-            return deserializeWithJaxb(ctx, config.jaxbObjectMapperFactory()) as T
-        } else {
-            def lowerCase = mapperType.toString().toLowerCase()
-            throw new IllegalArgumentException("Cannot deserialize object using $mapperType because $lowerCase doesn't exist in the classpath.")
-        }
+    if (xmlPathConfig.hasDefaultDeserializer()) {
+      return xmlPathConfig.defaultDeserializer().deserialize(deserializationCtx) as T;
+    } else if (mapperType != null || xmlPathConfig.hasDefaultParserType()) {
+      XmlParserType mapperTypeToUse = mapperType == null ? xmlPathConfig.defaultParserType() : mapperType;
+      return deserializeWithObjectMapper(deserializationCtx, mapperTypeToUse, xmlPathConfig)
     }
 
-    static def deserializeWithJaxb(ObjectDeserializationContext ctx, JAXBObjectMapperFactory factory) {
-        new XmlPathJaxbObjectDeserializer(factory).deserialize(ctx)
+    if (isJAXBInClassPath()) {
+      return deserializeWithJaxb(deserializationCtx, xmlPathConfig.jaxbObjectMapperFactory()) as T
     }
+
+    throw new IllegalStateException("Cannot deserialize object because no XML deserializer found in classpath. Please put JAXB in the classpath.")
+  }
+
+  private static <T> T deserializeWithObjectMapper(ObjectDeserializationContext ctx, XmlParserType mapperType, XmlPathConfig config) {
+    if (mapperType == XmlParserType.JAXB && isJAXBInClassPath()) {
+      return deserializeWithJaxb(ctx, config.jaxbObjectMapperFactory()) as T
+    } else {
+      def lowerCase = mapperType.toString().toLowerCase()
+      throw new IllegalArgumentException("Cannot deserialize object using $mapperType because $lowerCase doesn't exist in the classpath.")
+    }
+  }
+
+  static def deserializeWithJaxb(ObjectDeserializationContext ctx, JAXBObjectMapperFactory factory) {
+    new XmlPathJaxbObjectDeserializer(factory).deserialize(ctx)
+  }
 
 }
