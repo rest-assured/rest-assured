@@ -65,6 +65,7 @@ Changelog next version
 * Upgraded Groovy dependency from 2.4.15 to 2.5.6
 * Removed io.restassured.response.ValidatableResponseOptions#specification(..), use io.restassured.response.ValidatableResponseOptions#spec instead
 * Removed io.restassured.response.ValidatableResponseOptions#content(..), use io.restassured.response.ValidatableResponseOptions#body(..) instead
+* Upgraded Hamcrest from version 1.3 to 2.1
 
 Changelog 3.3.0 (2019-01-11)
 ----------------------------

@@ -234,7 +234,7 @@ public class MultiPartITest extends WithJetty {
         when().
                 post("/multipart/filename").
         then().
-                body(isEmptyString()).
+                body(emptyString()).
                 statusCode(200);
     }
 
@@ -249,7 +249,7 @@ public class MultiPartITest extends WithJetty {
         when().
                 post("/multipart/filename").
         then().
-                body(isEmptyString()).
+                body(emptyString()).
                 statusCode(200);
     }
 

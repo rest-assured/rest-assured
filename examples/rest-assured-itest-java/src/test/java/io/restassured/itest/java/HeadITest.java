@@ -22,7 +22,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.hamcrest.Matchers.emptyOrNullString;
 
 public class HeadITest extends WithJetty {
     @Rule
@@ -31,6 +31,6 @@ public class HeadITest extends WithJetty {
     @Test
     public void headSupportsStringBody() throws Exception {
         // Scalatra doesn't return body but it is indeed sent
-        given().body("a body").expect().body(isEmptyOrNullString()).when().head("/returnContentTypeAsBody");
+        given().body("a body").expect().body(emptyOrNullString()).when().head("/returnContentTypeAsBody");
     }
 }

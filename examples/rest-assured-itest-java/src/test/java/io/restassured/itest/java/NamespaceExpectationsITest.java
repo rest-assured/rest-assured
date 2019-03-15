@@ -24,7 +24,7 @@ import static io.restassured.RestAssured.expect;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.XmlConfig.xmlConfig;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.text.IsEmptyString.isEmptyString;
+import static org.hamcrest.text.IsEmptyString.emptyString;
 
 public class NamespaceExpectationsITest extends WithJetty {
 
@@ -82,7 +82,7 @@ public class NamespaceExpectationsITest extends WithJetty {
         expect().
                 body("foo.bar.text()", equalTo("sudo make me a sandwich!")).
                 body(":foo.:bar.text()", equalTo("sudo ")).
-                body("foo.ns:bar.text()", isEmptyString()).
+                body("foo.ns:bar.text()", emptyString()).
         when().
                 get("/namespace-example");
     }

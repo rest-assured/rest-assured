@@ -139,7 +139,7 @@ public class LogIfValidationFailsITest extends WithJetty {
         then().
                 statusCode(200);
 
-        assertThat(writer.toString(), isEmptyString());
+        assertThat(writer.toString(), emptyString());
     }
 
     @Test
@@ -158,7 +158,7 @@ public class LogIfValidationFailsITest extends WithJetty {
         when().
                 get("/greet");
 
-        assertThat(writer.toString(), isEmptyString());
+        assertThat(writer.toString(), emptyString());
     }
 
     @Test
@@ -219,7 +219,7 @@ public class LogIfValidationFailsITest extends WithJetty {
         then().
                 log().ifValidationFails(LogDetail.BODY).
                 body("fullName", equalTo("John Doe"));
-        assertThat(writer.toString(), isEmptyString());
+        assertThat(writer.toString(), emptyString());
     }
 
     @Test
@@ -237,7 +237,7 @@ public class LogIfValidationFailsITest extends WithJetty {
         when().
                 get("/{firstName}/{lastName}");
 
-        assertThat(writer.toString(), isEmptyString());
+        assertThat(writer.toString(), emptyString());
     }
 
     @Test
@@ -452,7 +452,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), isEmptyString());
+            assertThat(writer.toString(), emptyString());
         }
     }
 
@@ -522,7 +522,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Test out to have failed by now");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), not(isEmptyOrNullString()));
+            assertThat(writer.toString(), not(emptyOrNullString()));
         }
     }
 
@@ -554,7 +554,7 @@ public class LogIfValidationFailsITest extends WithJetty {
 
             fail("Test out to have failed by now");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), not(isEmptyOrNullString()));
+            assertThat(writer.toString(), not(emptyOrNullString()));
         }
     }
 }

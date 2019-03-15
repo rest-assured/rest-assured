@@ -29,8 +29,8 @@ import java.io.PrintStream;
 import java.io.StringWriter;
 
 import static java.nio.charset.Charset.defaultCharset;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -95,6 +95,6 @@ public class ResponseLoggingTest {
 				.body("id", equalTo(1))
 				.body("content", equalTo("Hello, Johan!"));
 
-		assertThat(writer.toString(), isEmptyString());
+		assertThat(writer.toString(), emptyString());
 	}
 }

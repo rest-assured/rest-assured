@@ -20,8 +20,8 @@ import io.restassured.itest.java.support.WithJetty;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.when;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.isEmptyString;
 
 public class GzipITest extends WithJetty {
 
@@ -34,7 +34,7 @@ public class GzipITest extends WithJetty {
                 get("/gzip-empty-body").
                 then().
                 statusCode(200).
-                body(isEmptyString());
+                body(emptyString());
     }
 
     @Test public void

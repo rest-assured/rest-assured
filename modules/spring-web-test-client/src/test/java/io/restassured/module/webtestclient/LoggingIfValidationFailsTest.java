@@ -35,6 +35,7 @@ import static io.restassured.filter.log.LogDetail.HEADERS;
 import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given;
 import static io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig.config;
 import static java.nio.charset.Charset.defaultCharset;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertThat;
@@ -174,7 +175,7 @@ public class LoggingIfValidationFailsTest {
 	public void
 	logging_of_both_request_and_response_validation_works_when_test_fails_when_using_static_response_and_request_specs_declared_before_enable_logging() {
 		final StringWriter writer = new StringWriter();
-		final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+		final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
 		RestAssuredWebTestClient.responseSpecification = new ResponseSpecBuilder().expectStatusCode(200).build();
 		RestAssuredWebTestClient.requestSpecification = new WebTestClientRequestSpecBuilder()
@@ -221,7 +222,7 @@ public class LoggingIfValidationFailsTest {
 				.body("id", equalTo(1))
 				.body("content", equalTo("Hello, Johan!"));
 
-		assertThat(writer.toString(), isEmptyString());
+		assertThat(writer.toString(), emptyString());
 	}
 
 	@Test
@@ -244,7 +245,7 @@ public class LoggingIfValidationFailsTest {
 							.build());
 			fail("Should throw AssertionError");
 		} catch (AssertionError e) {
-			assertThat(writer.toString(), not(isEmptyOrNullString()));
+			assertThat(writer.toString(), not(emptyOrNullString()));
 		}
 	}
 }

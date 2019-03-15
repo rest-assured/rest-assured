@@ -68,7 +68,7 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                header("Via", not(isEmptyOrNullString()));
+                header("Via", not(emptyOrNullString()));
     }
 
     @Test public void
@@ -80,7 +80,7 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                header("Via", not(isEmptyOrNullString()));
+                header("Via", not(emptyOrNullString()));
 
     }
 
@@ -93,7 +93,7 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                header("Via", not(isEmptyOrNullString()));
+                header("Via", not(emptyOrNullString()));
     }
 
     @Ignore("Doesnt work with Proxy?")
@@ -106,7 +106,7 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                header("Via", not(isEmptyOrNullString()));
+                header("Via", not(emptyOrNullString()));
     }
 
     @Test public void
@@ -118,7 +118,7 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                header("Via", not(isEmptyOrNullString()));
+                header("Via", not(emptyOrNullString()));
     }
 
     @Test public void
@@ -130,7 +130,7 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                header("Via", not(isEmptyOrNullString())).
+                header("Via", not(emptyOrNullString())).
                 body("greeting.firstName", equalTo("John")).
                 body("greeting.lastName", equalTo("Doe"));
     }
@@ -146,7 +146,7 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                header("Via", not(isEmptyOrNullString()));
+                header("Via", not(emptyOrNullString()));
     }
 
     @Test public void
@@ -160,7 +160,7 @@ public class ProxyITest extends WithJetty {
             when().
                     get("/greetJSON").
             then().
-                    header("Via", not(isEmptyOrNullString()));
+                    header("Via", not(emptyOrNullString()));
         } finally {
             RestAssured.reset();
         }
@@ -177,7 +177,7 @@ public class ProxyITest extends WithJetty {
             when().
                     get("/greetJSON").
             then().
-                    header("Via", not(isEmptyOrNullString()));
+                    header("Via", not(emptyOrNullString()));
         } finally {
             RestAssured.reset();
         }
@@ -196,7 +196,7 @@ public class ProxyITest extends WithJetty {
             when().
                     get("/greetJSON").
             then().
-                    header("Via", not(isEmptyOrNullString()));
+                    header("Via", not(emptyOrNullString()));
         } finally {
             RestAssured.reset();
         }
@@ -215,7 +215,7 @@ public class ProxyITest extends WithJetty {
         when().
                 get("/greetJSON").
         then().
-                header("Via", not(isEmptyOrNullString()));
+                header("Via", not(emptyOrNullString()));
 
         assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
                 "Request URI:\thttp://localhost:8080/greetJSON?firstName=John&lastName=Doe%n" +

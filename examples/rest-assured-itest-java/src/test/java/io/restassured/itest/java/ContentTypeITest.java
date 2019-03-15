@@ -372,7 +372,7 @@ public class ContentTypeITest extends WithJetty {
         when().
                 get("/something").
         then().
-                contentType(isEmptyOrNullString());
+                contentType(emptyOrNullString());
     }
 
     @Test public void

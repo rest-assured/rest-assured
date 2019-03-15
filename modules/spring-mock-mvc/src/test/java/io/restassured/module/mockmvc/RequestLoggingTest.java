@@ -30,8 +30,8 @@ import org.junit.Test;
 import java.io.PrintStream;
 import java.io.StringWriter;
 
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -222,7 +222,7 @@ public class RequestLoggingTest {
                 body("id", equalTo(1)).
                 body("content", equalTo("Hello, Johan!"));
 
-        assertThat(writer.toString(), isEmptyString());
+        assertThat(writer.toString(), emptyString());
     }
 }
 

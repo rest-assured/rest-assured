@@ -85,7 +85,7 @@ public class FileDownloadITest extends WithJetty {
         IOUtils.closeQuietly(byteArrayOutputStream);
         IOUtils.closeQuietly(inputStream);
 
-        assertThat(writer.toString(), not(isEmptyOrNullString()));
+        assertThat(writer.toString(), not(emptyOrNullString()));
         assertThat(byteArrayOutputStream.size(), equalTo(expectedSize));
     }
 }

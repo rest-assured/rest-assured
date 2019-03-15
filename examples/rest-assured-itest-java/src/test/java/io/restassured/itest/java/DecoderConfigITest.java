@@ -113,7 +113,7 @@ public class DecoderConfigITest extends WithJetty {
                         "uApp_Id", "MDNR")
                .config(config().decoderConfig(DecoderConfig.decoderConfig().useNoWrapForInflateDecoding(true))).when().get(path);
 
-        assertThat(response.getBody().asString(), not(isEmptyOrNullString()));
+        assertThat(response.getBody().asString(), not(emptyOrNullString()));
     }
 
     @Test public void
