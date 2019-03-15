@@ -1154,10 +1154,10 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/namespace-example");
 
-        assertThat(writer.toString(), containsString(String.format("foo xmlns:ns=\"http://localhost/\">\n" +
+        assertThat(writer.toString(), containsString("foo xmlns:ns=\"http://localhost/\">\n" +
                 "      <bar>sudo </bar>\n" +
                 "      <ns:bar>make me a sandwich!</ns:bar>\n" +
-                "    </foo>")));
+                "    </foo>"));
     }
 
     @Test
