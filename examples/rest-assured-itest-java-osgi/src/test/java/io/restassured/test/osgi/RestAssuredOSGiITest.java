@@ -25,6 +25,8 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import java.net.UnknownHostException;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.restAssuredJunitBundles;
+import static org.ops4j.pax.exam.Constants.EXAM_FAIL_ON_UNRESOLVED_KEY;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
 @RunWith(PaxExam.class)
@@ -34,24 +36,31 @@ import static org.ops4j.pax.exam.CoreOptions.*;
 public class RestAssuredOSGiITest {
 
     @Configuration
-    public static Option[] configure() throws Exception {
+    public static Option[] configure() {
         return new Option[]
                 {
-                        mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
-                        junitBundles(),
-                        systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
+                        /* System Properties */
+                        systemProperty(EXAM_FAIL_ON_UNRESOLVED_KEY).value("true"),
                         systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("INFO"),
+
+                        /* Hamcrest & JUnit bundles */
+                        restAssuredJunitBundles(),
 
                         /* Transitive dependencies needed in the Pax Exam container.
                         Some of these need to be wrapped because they are not available as OSGi bundles */
-                        mavenBundle("org.apache.commons", "commons-lang3").versionAsInProject(),
+                        mavenBundle().groupId("org.apache.aries.spifly").artifactId("org.apache.aries.spifly.dynamic.bundle").version("1.2.1"),
+                        mavenBundle().groupId("org.hamcrest").artifactId("hamcrest").versionAsInProject(),
+                        mavenBundle().groupId("org.apache.commons").artifactId("commons-lang3").versionAsInProject(),
+                        mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-json").versionAsInProject().noStart(),
+                        mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-xml").versionAsInProject().noStart(),
+                        mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy").versionAsInProject(),
+
                         wrappedBundle(mavenBundle().groupId("org.ccil.cowan.tagsoup").artifactId("tagsoup").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.activation", "activation").version("1.1.1")),
-                        wrappedBundle(mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-all").version("2.5.6")),
 
                         /* Rest Assured dependencie needed in the Pax Exam container to be able to execute the test below */
                         mavenBundle("io.rest-assured", "json-path").versionAsInProject(),

@@ -22,11 +22,15 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
+import org.ops4j.pax.exam.options.libraries.JUnitBundlesOption;
 
 import java.util.UUID;
 
 import static io.restassured.path.xml.XmlPath.from;
+import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.restAssuredJunitBundles;
 import static org.junit.Assert.assertThat;
+import static org.ops4j.pax.exam.Constants.EXAM_FAIL_ON_UNRESOLVED_KEY;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
 /**
@@ -39,18 +43,25 @@ public class XmlPathOSGiITest {
     public static Option[] configure() {
         return new Option[]
                 {
-                        mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
-                        junitBundles(),
-                        systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
+                        /* System Properties */
+                        systemProperty(EXAM_FAIL_ON_UNRESOLVED_KEY).value("true"),
                         systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("INFO"),
+
+                        /* Hamcrest & JUnit bundles */
+                        restAssuredJunitBundles(),
 
                         /* Transitive dependencies needed in the Pax Exam container.
                         Some of these need to be wrapped because they are not available as OSGi bundles */
-                        mavenBundle("org.apache.commons", "commons-lang3").versionAsInProject(),
+                        mavenBundle().groupId("org.apache.aries.spifly").artifactId("org.apache.aries.spifly.dynamic.bundle").version("1.2.1"),
+                        mavenBundle().groupId("org.hamcrest").artifactId("hamcrest").versionAsInProject(),
+                        mavenBundle().groupId("org.apache.commons").artifactId("commons-lang3").versionAsInProject(),
+                        mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-json").versionAsInProject().noStart(),
+                        mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-xml").versionAsInProject().noStart(),
+                        mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy").versionAsInProject(),
+
                         wrappedBundle(mavenBundle().groupId("org.ccil.cowan.tagsoup").artifactId("tagsoup").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.activation", "activation").version("1.1.1")),
-                        wrappedBundle(mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-all").version("2.5.6")),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
