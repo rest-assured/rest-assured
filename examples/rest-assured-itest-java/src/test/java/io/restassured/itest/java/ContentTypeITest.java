@@ -432,6 +432,20 @@ public class ContentTypeITest extends WithJetty {
     }
 
     @Test public void
+    doesnt_ignore_tabs_between_content_type_and_charset_when_server_returns_no_spaces_between_content_type_and_charset_but_when_using_equal_to_hamcrest_matcher() {
+        given().
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder()
+                        .setStatusCode(200)
+                        .setHeader("Content-Type", "application/json;\t\tcharset=UTF-8")
+                        .setHeader("Some", "Value")
+                        .setBody("Test").build()).
+        when().
+                get("/something").
+        then().
+                contentType(not(equalTo(ContentType.JSON.withCharset(UTF_8))));
+    }
+
+    @Test public void
     doesnt_send_a_content_type_header_when_there_is_no_body() {
         when().
                 get("/headersWithValues").
