@@ -338,30 +338,22 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     return this.rootPath(rootPath, [])
   }
 
-  ResponseSpecification root(String rootPath) {
-    return this.rootPath(rootPath);
-  }
-
-  ResponseSpecification noRoot() {
-    return noRootPath()
-  }
-
   ResponseSpecification noRootPath() {
     return rootPath("")
   }
 
-  ResponseSpecification appendRoot(String pathToAppend) {
-    return appendRoot(pathToAppend, [])
+  ResponseSpecification appendRootPath(String pathToAppend) {
+    return appendRootPath(pathToAppend, [])
   }
 
-  ResponseSpecification appendRoot(String pathToAppend, List<Argument> arguments) {
+  ResponseSpecification appendRootPath(String pathToAppend, List<Argument> arguments) {
     notNull pathToAppend, "Path to append to root path"
     notNull arguments, "Arguments for path to append"
     def mergedPath = mergeKeyWithRootPath(pathToAppend)
     rootPath(mergedPath, arguments)
   }
 
-  ResponseSpecification detachRoot(String pathToDetach) {
+  ResponseSpecification detachRootPath(String pathToDetach) {
     notNull pathToDetach, "Path to detach from root path"
     throwIllegalStateExceptionIfRootPathIsNotDefined("detach path")
     pathToDetach = StringUtils.trim(pathToDetach);

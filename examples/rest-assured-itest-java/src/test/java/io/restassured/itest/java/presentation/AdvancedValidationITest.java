@@ -45,7 +45,7 @@ public class AdvancedValidationITest extends WithJetty {
     public void advancedJsonValidation() throws Exception {
         expect().
                 statusCode(allOf(greaterThanOrEqualTo(200), lessThanOrEqualTo(300))).
-                root("store.book").
+                rootPath("store.book").
                 body("findAll { book -> book.price < 10 }.title", hasItems("Sayings of the Century", "Moby Dick")).
                 body("author.collect { it.length() }.sum()", equalTo(53)).
         when().
@@ -56,7 +56,7 @@ public class AdvancedValidationITest extends WithJetty {
     public void advancedJsonValidation2() throws Exception {
         expect().
                 statusCode(allOf(greaterThanOrEqualTo(200), lessThanOrEqualTo(300))).
-                root("store.book").
+                rootPath("store.book").
                 body("findAll { book -> book.price < 10 }.title", hasItems("Sayings of the Century", "Moby Dick")).
                 body("price.min()", equalTo(8.95f)).
                 body("price.max()", equalTo(22.99f)).

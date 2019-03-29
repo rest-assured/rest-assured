@@ -306,7 +306,7 @@ public class ResponseSpecBuilder {
      * @param rootPath The root path to use.
      */
     public ResponseSpecBuilder rootPath(String rootPath) {
-        spec.root(rootPath);
+        spec.rootPath(rootPath);
         return this;
     }
 
@@ -354,7 +354,7 @@ public class ResponseSpecBuilder {
      * @param pathToAppend The root path to append.
      */
     public ResponseSpecBuilder appendRootPath(String pathToAppend) {
-        spec.appendRoot(pathToAppend);
+        spec.appendRootPath(pathToAppend);
         return this;
     }
 
@@ -392,7 +392,7 @@ public class ResponseSpecBuilder {
      * @param pathToAppend The root path to use. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      */
     public ResponseSpecBuilder appendRootPath(String pathToAppend, List<Argument> arguments) {
-        spec.appendRoot(pathToAppend, arguments);
+        spec.appendRootPath(pathToAppend, arguments);
         return this;
     }
 
@@ -417,7 +417,7 @@ public class ResponseSpecBuilder {
      * @see #rootPath(String)
      */
     public ResponseSpecBuilder noRootPath() {
-        spec.noRoot();
+        spec.noRootPath();
         return this;
     }
 
@@ -453,7 +453,7 @@ public class ResponseSpecBuilder {
      * @param pathToDetach The root path to detach.
      */
     public ResponseSpecBuilder detachRootPath(String pathToDetach) {
-        spec.detachRoot(pathToDetach);
+        spec.detachRootPath(pathToDetach);
         return this;
     }
 

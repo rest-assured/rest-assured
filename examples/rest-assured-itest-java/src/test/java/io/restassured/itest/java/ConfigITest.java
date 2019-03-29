@@ -67,7 +67,7 @@ public class ConfigITest extends WithJetty {
         given().
                 config(RestAssuredConfig.newConfig().jsonConfig(JsonConfig.jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL))).
         expect().
-                root("store.book").
+                rootPath("store.book").
                 body("price.min()", is(new BigDecimal("8.95"))).
                 body("price.max()", is(new BigDecimal("22.99"))).
         when().
@@ -80,7 +80,7 @@ public class ConfigITest extends WithJetty {
 
         try {
         expect().
-                root("store.book").
+                rootPath("store.book").
                 body("price.min()", is(new BigDecimal("8.95"))).
                 body("price.max()", is(new BigDecimal("22.99"))).
         when().

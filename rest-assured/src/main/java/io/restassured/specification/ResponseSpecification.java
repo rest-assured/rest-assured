@@ -88,7 +88,7 @@ public interface ResponseSpecification {
      * when().
      *          get()
      * then().
-     *          root("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
+     *          rootPath("filters.filterConfig[%d].filterConfigGroups.find { it.name == 'Gold' }.includes").
      *          body(withArgs(0), hasItem("first")).
      *          body(withArgs(1), hasItem("second")).
      *          ..
@@ -115,7 +115,7 @@ public interface ResponseSpecification {
      * when().
      *          get(..).
      * then().
-     *          root("x.%s"). // Root path with a placeholder
+     *          rootPath("x.%s"). // Root path with a placeholder
      *          body(withArgs("firstName"), equalTo(..)).
      *          body(withArgs("lastName"), equalTo(..)).
      * </pre>
@@ -125,7 +125,7 @@ public interface ResponseSpecification {
      * when().
      *          get(..);
      * then().
-     *          root("x.%s"). // Root path with a placeholder
+     *          rootPath("x.%s"). // Root path with a placeholder
      *          body(withArgs("firstName"), equalTo(..)).
      *          body(withArgs("lastName"), equalTo(..)).
      * </pre>
@@ -471,7 +471,19 @@ public interface ResponseSpecification {
      * @param rootPath  The root path to use.
      * @param arguments The list of substitution arguments. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java..
      */
-    ResponseSpecification root(String rootPath, List<Argument> arguments);
+    ResponseSpecification rootPath(String rootPath, List<Argument> arguments);
+
+    /**
+     * @param rootPath  The root path to use.
+     * @param arguments The list of substitution arguments. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java..
+     *
+     * @see #rootPath(String, List)
+     * @deprecated Use {@link #rootPath(String, List)} (String)} instead
+     */
+    @Deprecated
+    default ResponseSpecification root(String rootPath, List<Argument> arguments) {
+        return rootPath(rootPath);
+    }
 
     /**
      * Set the root path of the response body so that you don't need to write the entire path for each expectation.
@@ -492,7 +504,7 @@ public interface ResponseSpecification {
      * when().
      *         get(..).
      * then().
-     *        root("x.y").
+     *        rootPath("x.y").
      *        body("firstName", is(..)).
      *        body("lastName", is(..)).
      *        body("age", is(..)).
@@ -502,7 +514,17 @@ public interface ResponseSpecification {
      *
      * @param rootPath The root path to use.
      */
-    ResponseSpecification root(String rootPath);
+    ResponseSpecification rootPath(String rootPath);
+
+    /**
+     * @param rootPath The root path.
+     * @see #rootPath(String)
+     * @deprecated Use {@link #rootPath(String)} (String)} instead
+     */
+    @Deprecated
+    default ResponseSpecification root(String rootPath) {
+        return rootPath(rootPath);
+    }
 
     /**
      * Reset the root path of the response body so that you don't need to write the entire path for each expectation.
@@ -512,19 +534,27 @@ public interface ResponseSpecification {
      * when().
      *          get(..);
      * then().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("firstName", is(..)).
      *          body("lastName", is(..)).
-     *          noRoot()
+     *          noRootPath()
      *          body("z.something1", is(..)).
      *          body("w.something2", is(..)).
      * </pre>
      * <p/>
-     * This is the same as calling <code>root("")</code> but less verbose and the it communicates intent better.
+     * This is the same as calling <code>rootPath("")</code> but less verbose and the it communicates intent better.
      *
-     * @see #root(String)
+     * @see #rootPath(String)
      */
-    ResponseSpecification noRoot();
+    ResponseSpecification noRootPath();
+
+    /**
+     * @deprecated Use {@link #noRootPath()} instead
+     */
+    @Deprecated
+    default ResponseSpecification noRoot() {
+        return noRootPath();
+    }
 
     /**
      * Append the given path to the root path of the response body so that you don't need to write the entire path for each expectation.
@@ -532,7 +562,7 @@ public interface ResponseSpecification {
      * <p/>
      * <pre>
      * expect().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
      *          body("name.firstName", is(..)).
@@ -544,10 +574,10 @@ public interface ResponseSpecification {
      * you can use a append root and do:
      * <pre>
      * expect().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
-     *          appendRoot("name").
+     *          appendRootPath("name").
      *          body("firstName", is(..)).
      *          body("lastName", is(..)).
      * when().
@@ -556,7 +586,7 @@ public interface ResponseSpecification {
      *
      * @param pathToAppend The root path to append.
      */
-    ResponseSpecification appendRoot(String pathToAppend);
+    ResponseSpecification appendRootPath(String pathToAppend);
 
     /**
      * Append the given path to the root path with arguments supplied of the response body so that you don't need to write the entire path for each expectation.
@@ -566,7 +596,7 @@ public interface ResponseSpecification {
      * <pre>
      * String namePath = "name";
      * expect().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
      *          body(namePath + "first", is(..)).
@@ -579,10 +609,10 @@ public interface ResponseSpecification {
      * <pre>
      * String namePath = "name";
      * expect().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
-     *          appendRoot("%s", withArgs(namePath)).
+     *          appendRootPath("%s", withArgs(namePath)).
      *          body("first", is(..)).
      *          body("last", is(..)).
      * when().
@@ -591,7 +621,26 @@ public interface ResponseSpecification {
      *
      * @param pathToAppend The root path to use. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      */
-    ResponseSpecification appendRoot(String pathToAppend, List<Argument> arguments);
+    ResponseSpecification appendRootPath(String pathToAppend, List<Argument> arguments);
+
+    /**
+     * @param pathToAppend The root path to append.
+     * @see #appendRootPath(String, List)
+     * @deprecated Use {@link #appendRootPath(String, List)} instead
+     */
+    default ResponseSpecification appendRoot(String pathToAppend, List<Argument> arguments) {
+        return appendRootPath(pathToAppend, arguments);
+    }
+
+    /**
+     * @param pathToAppend The root path to append.
+     * @see #appendRootPath(String)
+     * @deprecated Use {@link #appendRootPath(String)} instead
+     */
+    @Deprecated
+    default ResponseSpecification appendRoot(String pathToAppend) {
+        return detachRootPath(pathToAppend);
+    }
 
     /**
      * Detach the given path from the root path.
@@ -601,10 +650,10 @@ public interface ResponseSpecification {
      * when().
      *          get(..);
      * then().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
-     *          root("x").
+     *          rootPath("x").
      *          body("firstName", is(..)).
      *          body("lastName", is(..)).
      * </pre>
@@ -614,17 +663,28 @@ public interface ResponseSpecification {
      * when().
      *          get(..);
      * then().
-     *          root("x.y").
+     *          rootPath("x.y").
      *          body("age", is(..)).
      *          body("gender", is(..)).
-     *          detachRoot("y").
+     *          detachRootPath("y").
      *          body("firstName", is(..)).
      *          body("lastName", is(..)).
      * </pre>
      *
      * @param pathToDetach The root path to detach.
      */
-    ResponseSpecification detachRoot(String pathToDetach);
+    ResponseSpecification detachRootPath(String pathToDetach);
+
+    /**
+     *
+     * @param pathToDetach The root path to detach.
+     * @see #detachRootPath(String)
+     * @deprecated Use {@link #detachRootPath(String)} instead
+     */
+    @Deprecated
+    default ResponseSpecification detachRoot(String pathToDetach) {
+        return detachRootPath(pathToDetach);
+    }
 
     /**
      * Set the response content type to be <code>contentType</code>.

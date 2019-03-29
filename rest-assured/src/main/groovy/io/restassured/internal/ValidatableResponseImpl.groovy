@@ -259,18 +259,18 @@ class ValidatableResponseImpl extends ValidatableResponseOptionsImpl<Validatable
   }
 
   @Override
-  ValidatableResponse appendRoot(String pathToAppend) {
-    return super.appendRoot(pathToAppend)
+  ValidatableResponse appendRootPath(String pathToAppend) {
+    return super.appendRootPath(pathToAppend)
   }
 
   @Override
-  ValidatableResponse appendRoot(String pathToAppend, List<Argument> arguments) {
-    return super.appendRoot(pathToAppend, arguments)
+  ValidatableResponse appendRootPath(String pathToAppend, List<Argument> arguments) {
+    return super.appendRootPath(pathToAppend, arguments)
   }
 
   @Override
-  ValidatableResponse detachRoot(String pathToDetach) {
-    return super.detachRoot(pathToDetach)
+  ValidatableResponse detachRootPath(String pathToDetach) {
+    return super.detachRootPath(pathToDetach)
   }
 
   @Override

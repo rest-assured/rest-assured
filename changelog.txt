@@ -40,8 +40,6 @@ Changelog next version
         * setAuthentication
     * io.restassured.specification.ResponseSpecification
         * content
-        * rootPath
-        * noRootPath
         * specification
     * io.restassured.specification.RequestSpecification
         * content
@@ -55,6 +53,8 @@ Changelog next version
         * parameter
         * queryParameter
         * queryParameters
+* Deprecations
+    * Deprecated all short versions of "root", for example "root(..)", "appendRoot(..)", "detachRoot(..)". Use "rootPath(..)", "appendRootPath(..)", "detachRootPath(..)" instead. This was introduced for better consistency and clearer intension..
 * Rest Assured now requires Java 8 (previously Java 6 was required)
 * Removed io.restassured.function.RestAssuredFunction - use java.util.function.Function instead
 * Made io.restassured.matcher.ResponseAwareMatcher a proper annotated functional interface

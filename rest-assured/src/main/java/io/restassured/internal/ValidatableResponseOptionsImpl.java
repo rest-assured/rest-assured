@@ -183,13 +183,13 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
 
 
     public T root(String rootPath) {
-        responseSpec.root(rootPath);
+        responseSpec.rootPath(rootPath);
         return (T) this;
     }
 
 
     public T noRoot() {
-        responseSpec.noRoot();
+        responseSpec.noRootPath();
         return (T) this;
     }
 
@@ -200,19 +200,19 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
     }
 
 
-    public T appendRoot(String pathToAppend) {
-        responseSpec.appendRoot(pathToAppend);
+    public T appendRootPath(String pathToAppend) {
+        responseSpec.appendRootPath(pathToAppend);
         return (T) this;
     }
 
 
-    public T appendRoot(String pathToAppend, List<Argument> arguments) {
-        responseSpec.appendRoot(pathToAppend, arguments);
+    public T appendRootPath(String pathToAppend, List<Argument> arguments) {
+        responseSpec.appendRootPath(pathToAppend, arguments);
         return (T) this;
     }
 
-    public T detachRoot(String pathToDetach) {
-        responseSpec.detachRoot(pathToDetach);
+    public T detachRootPath(String pathToDetach) {
+        responseSpec.detachRootPath(pathToDetach);
         return (T) this;
     }
 

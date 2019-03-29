@@ -28,7 +28,7 @@ public class PathArgumentsDemoITest extends WithJetty {
     @Test
     public void pathArgumentsDemo() throws Exception {
         expect().
-                root("rss.channel.item[%d].enclosure.@url").
+                rootPath("rss.channel.item[%d].enclosure.@url").
                 body(withArgs(0), endsWith("somejpg.jpg")).
                 body(withArgs(1), endsWith("someotherjpg.jpg")).
         when().

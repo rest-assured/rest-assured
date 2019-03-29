@@ -528,7 +528,9 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * @param rootPath  The root path to use.
      * @param arguments The list of substitution arguments. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java..
      * @see #rootPath(String)
+     * @deprecated Use {@link #rootPath(String, List)} instead
      */
+    @Deprecated
     T root(String rootPath, List<Argument> arguments);
 
     /**
@@ -556,7 +558,9 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * Note that this method is exactly the same as {@link #rootPath(String)} but slightly shorter.
      *
      * @param rootPath The root path to use.
+     * @deprecated Use {@link #rootPath(String)} instead
      */
+    @Deprecated
     T root(String rootPath);
 
     /**
@@ -577,7 +581,9 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * Note that this method is exactly the same as {@link #noRootPath()} but slightly shorter.
      *
      * @see #root(String)
+     * @deprecated Use {@link #noRootPath()} instead
      */
+    @Deprecated
     T noRoot();
 
     /**
@@ -597,7 +603,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * This is the same as calling <code>rootPath("")</code> but more expressive.
      * Note that this method is exactly the same as {@link #noRoot()} but slightly more expressive.
      *
-     * @see #root(String)
+     * @see #rootPath(String)
      */
     T noRootPath();
 
@@ -625,9 +631,19 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      *          body("lastName", is(..));
      * </pre>
      *
-     * @param pathToAppend The root path to use.
+     * @param pathToAppend The root path to append.
      */
-    T appendRoot(String pathToAppend);
+    T appendRootPath(String pathToAppend);
+
+    /**
+     * @param pathToAppend  The root path to append.
+     * @see #appendRootPath(String)
+     * @deprecated Use {@link #appendRootPath(String)} instead
+     */
+    @Deprecated
+    default T appendRoot(String pathToAppend) {
+        return appendRootPath(pathToAppend);
+    }
 
     /**
      * Append the given path to the root path with arguments supplied of the response body so that you don't need to write the entire path for each expectation.
@@ -656,9 +672,19 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      *          body("last", is(..)).
      * </pre>
      *
-     * @param pathToAppend The root path to use. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * @param pathToAppend The root path to append. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      */
-    T appendRoot(String pathToAppend, List<Argument> arguments);
+    T appendRootPath(String pathToAppend, List<Argument> arguments);
+
+    /**
+     * @param pathToAppend  The root path to append.
+     * @see #appendRootPath(String, List)
+     * @deprecated Use {@link #appendRootPath(String, List)} instead
+     */
+    @Deprecated
+    default T appendRoot(String pathToAppend, List<Argument> arguments) {
+        return appendRootPath(pathToAppend, arguments);
+    }
 
     /**
      * Detach the given path from the root path.
@@ -691,8 +717,17 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      *
      * @param pathToDetach The root path to detach.
      */
-    T detachRoot(String pathToDetach);
+    T detachRootPath(String pathToDetach);
 
+    /**
+     * @param pathToDetach  The root path to detach.
+     * @see #detachRootPath(String)
+     * @deprecated Use {@link #detachRootPath(String)} instead
+     */
+    @Deprecated
+    default T detachRoot(String pathToDetach) {
+        return appendRootPath(pathToDetach);
+    }
 
     /**
      * Set the response content type to be <code>contentType</code>.
