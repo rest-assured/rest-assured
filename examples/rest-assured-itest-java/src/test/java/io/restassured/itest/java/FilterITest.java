@@ -224,7 +224,7 @@ public class FilterITest extends WithJetty {
                 get("/greetJSON").
         then().
                 statusCode(200).
-                root("greeting").
+                rootPath("greeting").
                 body("firstName", equalTo("John")).
                 body("lastName", equalTo("Doe"));
     }

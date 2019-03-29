@@ -23,8 +23,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.either;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class RootPathITest extends WithJetty {
@@ -302,7 +301,7 @@ public class RootPathITest extends WithJetty {
         then().
                  rootPath("store.%s", withArgs("book")).
                  body("category.size()", equalTo(4)).
-                appendRootPath("%s.%s", withArgs("author")).
+                 appendRootPath("%s.%s", withArgs("author")).
                  body(withArgs("size()"), equalTo(4));
     }
 
@@ -313,5 +312,19 @@ public class RootPathITest extends WithJetty {
         then().
                  rootPath("store.%s.%s", withArgs("book")).
                  body("size()", withArgs("category"), equalTo(4));
+    }
+
+    @Test
+    public void supportsAppendingArgumentsDefinedInRootAtALaterStageInMultiExpectationBlocks() {
+        when().
+                get("/jsonStore").
+        then().
+                rootPath("store.book.find { it.author == '%s' }").
+                body(
+                        "price", withArgs("Nigel Rees"), is(8.95f),
+                        "price", withArgs("Evelyn Waugh"), is(12.99f),
+                        "price", withArgs("J. R. R. Tolkien"), is(22.99f),
+                        "title", withArgs("J. R. R. Tolkien"), is("The Lord of the Rings")
+                );
     }
 }

@@ -591,7 +591,7 @@ public class JSONGetITest extends WithJetty {
         when().
                 get("/lotto").
         then().
-                root("lotto").
+                rootPath("lotto").
                 body("lottoId", greaterThan(1),
                      "lottoId", equalTo(7),
                      "lottoId", lessThan(9));
@@ -600,7 +600,7 @@ public class JSONGetITest extends WithJetty {
     @Test public void
     specifying_multiple_with_args_without_additional_paths_works() {
         get("/jsonStore").then()
-                .root("store.book.find { it.author == '%s' }.price")
+                .rootPath("store.book.find { it.author == '%s' }.price")
                 .body(
                         withArgs("Nigel Rees"), is(8.95f),
                         withArgs("Evelyn Waugh"), is(12.99f),

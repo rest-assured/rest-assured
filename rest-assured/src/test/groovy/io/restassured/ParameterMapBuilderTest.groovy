@@ -21,22 +21,40 @@ package io.restassured
 import io.restassured.authentication.NoAuthScheme
 import io.restassured.internal.RequestSpecificationImpl
 import io.restassured.internal.log.LogRepository
+import io.restassured.specification.Argument
 import org.junit.Before
 import org.junit.Test
 
+import static io.restassured.RestAssured.withArgs
+import static org.assertj.core.api.Assertions.assertThat
+import static org.assertj.core.api.Assertions.catchThrowable
+import static org.hamcrest.Matchers.equalTo
 import static org.junit.Assert.assertEquals
 
 class ParameterMapBuilderTest {
   private RequestSpecificationImpl requestBuilder;
 
   @Before
-  public void setup() throws Exception {
+  void setup() throws Exception {
     requestBuilder = new RequestSpecificationImpl("baseURI", 20, "", new NoAuthScheme(), [], null, true, null, new LogRepository(), null);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   void mapThrowIAEWhenOddNumberOfStringsAreSupplied() throws Exception {
-    requestBuilder.params("key1", "value1", "key2");
+    def throwable = catchThrowable { requestBuilder.params("key1", "value1", "key2") }
+    assertThat(throwable).isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("Illegal argument 'value1' passed to body expectation 'key1', a list of ${Argument.class.name} is required.")
+  }
+
+  @Test
+  void mapThrowIAEWhenListOfStringIsSupplied() throws Exception {
+    def throwable = catchThrowable { requestBuilder.params("key1", ["value1"], "key2") }
+    assertThat(throwable).isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("Illegal argument '[value1]' passed to body expectation 'key1', a list of ${Argument.class.name} is required.")
+  }
+
+  @Test
+  void mapThrowIAEWhenMixingArgumentsAndNoArguments() throws Exception {
+    def throwable = catchThrowable { requestBuilder.params("key1", withArgs("hello"), "key2", "key", equalTo("2")) }
+    assertThat(throwable).isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("You must supply the same number of keys as values.")
   }
 
   @Test

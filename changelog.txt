@@ -66,6 +66,16 @@ Changelog next version
 * Removed io.restassured.response.ValidatableResponseOptions#specification(..), use io.restassured.response.ValidatableResponseOptions#spec instead
 * Removed io.restassured.response.ValidatableResponseOptions#content(..), use io.restassured.response.ValidatableResponseOptions#body(..) instead
 * Upgraded Hamcrest from version 1.3 to 2.1
+* Made it possible to specify a multi-expectation body with arguments. For example:
+    when().
+            get("/jsonStore").
+    then().
+            rootPath("store.book.find { it.author == '%s' }").
+            body(
+                    "price", withArgs("Nigel Rees"), is(8.95f),
+                    "price", withArgs("Evelyn Waugh"), is(12.99f)
+            );
+  (issue #1154)
 
 Changelog 3.3.0 (2019-01-11)
 ----------------------------

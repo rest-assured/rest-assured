@@ -52,7 +52,7 @@ public class ResponseAwareMatcherITest extends WithJetty {
                 get("/game").
         then().
                 statusCode(200).
-                root("_links.%s.href").
+                rootPath("_links.%s.href").
                 body(RestAssured.withArgs("self"), RestAssuredMatchers.endsWithPath("id"));
     }
 
