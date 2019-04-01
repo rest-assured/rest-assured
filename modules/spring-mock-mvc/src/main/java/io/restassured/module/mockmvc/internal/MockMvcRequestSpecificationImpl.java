@@ -39,6 +39,7 @@ import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.spring.commons.config.ConfigConverter;
 import io.restassured.module.spring.commons.config.ConfigMergeUtils;
 import io.restassured.specification.ResponseSpecification;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultHandler;
@@ -198,6 +199,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     public MockMvcRequestSpecification accept(ContentType contentType) {
         notNull(contentType, "contentType");
         return header(ACCEPT, contentType.getAcceptHeader());
+    }
+
+    public MockMvcRequestSpecification accept(MediaType... mediaTypes) {
+        notNull(mediaTypes, "mediaTypes");
+        return header(ACCEPT, MediaType.toString(Arrays.asList(mediaTypes)));
     }
 
     public MockMvcRequestSpecification accept(String mediaTypes) {

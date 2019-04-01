@@ -22,6 +22,7 @@ import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MockMvcBuilder;
@@ -77,6 +78,19 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * @see #header(String, Object, Object...)
      */
     MockMvcRequestSpecification accept(ContentType contentType);
+
+    /**
+     * Specify the accept header of the request. This just a shortcut for:
+     * <pre>
+     * header("Accept", contentType);
+     * </pre>
+     *
+     * @param mediaTypes The media type(s) that will be used as Accept header in the request.
+     * @return The request specification
+     * @see ContentType
+     * @see #header(String, Object, Object...)
+     */
+    MockMvcRequestSpecification accept(MediaType... mediaTypes);
 
     /**
      * Specify the accept header of the request. This just a shortcut for:
