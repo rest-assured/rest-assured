@@ -6,7 +6,7 @@ Changelog next version
 * Fixed so that using a ResponseSpecBuilder doesn't overwrite the configured config implicitly (issue 1128)
 * Add Apache Johnzon object mapper support (thanks to Andriy Redko for pull request)
 * Add support for MatcherConfig in RestAssuredMockMvcConfig (#1071) (thanks to Jurriaan Pruijs for pull request)
-* Supported for logging when thrown assertion errors from matcher internal #1129 (thanks to Gemini Kim for pull request)
+* Supported for logging when assertion errors thrown from internal matcher #1129 (thanks to Gemini Kim for pull request)
 * Fixed so that there no longer are multiple versions of org.springframework:spring-web:jar, leading to inconsistent semantic behaviors (#1143) (thanks to HelloCoCooo for pull request)
 * Fixed issues with the use of maven-bundle-plugin which created duplicate classes in the distributed jar-files (#1117) (big thanks to Milen Dyankov, Steven Huypens and Mark Kolich for the help!)
 * Breaking changes introduced when solving #1117:
