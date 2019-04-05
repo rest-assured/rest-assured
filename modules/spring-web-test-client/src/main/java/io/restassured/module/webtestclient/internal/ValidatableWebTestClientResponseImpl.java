@@ -23,6 +23,7 @@ import io.restassured.internal.log.LogRepository;
 import io.restassured.module.webtestclient.response.ValidatableWebTestClientResponse;
 import io.restassured.module.webtestclient.response.WebTestClientResponse;
 import io.restassured.response.ExtractableResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static io.restassured.module.webtestclient.internal.ResponseConverter.toStandardResponse;
@@ -41,6 +42,12 @@ public class ValidatableWebTestClientResponseImpl extends ValidatableResponseOpt
         super(responseParserRegistrar, config, toStandardResponse(response), extractableResponse, logRepository);
 		AssertParameter.notNull(responseSpec, WebTestClient.ResponseSpec.class);
 		this.response = response;
+	}
+
+	@Override
+	public ValidatableWebTestClientResponse status(HttpStatus expectedStatus) {
+		statusCode(expectedStatus.value());
+		return this;
 	}
 
 	@Override

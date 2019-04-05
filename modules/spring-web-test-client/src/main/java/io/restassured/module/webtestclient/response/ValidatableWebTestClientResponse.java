@@ -17,6 +17,7 @@
 package io.restassured.module.webtestclient.response;
 
 import io.restassured.response.ValidatableResponseOptions;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
@@ -25,4 +26,15 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  * {@link WebTestClient.ResponseSpec} API.
  */
 public interface ValidatableWebTestClientResponse extends ValidatableResponseOptions<ValidatableWebTestClientResponse, WebTestClientResponse> {
+    /**
+     * Validate that the response status matches an Spring-Framework HttpStatus. E.g.
+     * <pre>
+     * get("/something").then().assertThat().status(HttpStatus.OK);
+     * </pre>
+     * <p/>
+     *
+     * @param expectedStatus The expected status.
+     * @return the response specification
+     */
+    ValidatableWebTestClientResponse status(HttpStatus expectedStatus);
 }
