@@ -77,6 +77,7 @@ Changelog next version
             );
   (issue #1154)
 * MockMvc module now supports using MediaType for Accept header value (issue #1142). Thanks to Gemini Kim for pull request.
+* Support for using "HttpStatus" when validating response status when using MockMvc module. Thanks to Gemini Kim for pull request.
 
 Changelog 3.3.0 (2019-01-11)
 ----------------------------
