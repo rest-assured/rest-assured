@@ -25,6 +25,7 @@ import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
 import io.restassured.response.ExtractableResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultHandler;
 import org.springframework.test.web.servlet.ResultMatcher;
@@ -70,6 +71,11 @@ public class ValidatableMockMvcResponseImpl extends ValidatableResponseOptionsIm
                 SafeExceptionRethrower.safeRethrow(e);
             }
         }
+        return this;
+    }
+
+    public ValidatableMockMvcResponse status(HttpStatus expectedStatus) {
+        statusCode(expectedStatus.value());
         return this;
     }
 
