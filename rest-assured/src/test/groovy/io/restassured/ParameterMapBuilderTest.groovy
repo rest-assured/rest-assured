@@ -22,6 +22,7 @@ import io.restassured.authentication.NoAuthScheme
 import io.restassured.internal.RequestSpecificationImpl
 import io.restassured.internal.log.LogRepository
 import io.restassured.specification.Argument
+import io.restassured.specification.RequestSpecification
 import org.junit.Before
 import org.junit.Test
 
@@ -42,13 +43,14 @@ class ParameterMapBuilderTest {
   @Test
   void mapThrowIAEWhenOddNumberOfStringsAreSupplied() throws Exception {
     def throwable = catchThrowable { requestBuilder.params("key1", "value1", "key2") }
-    assertThat(throwable).isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("Illegal argument 'value1' passed to body expectation 'key1', a list of ${Argument.class.name} is required.")
+    assertThat(throwable).isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("You must supply the same number of keys as values.")
   }
 
+  // Does RA really handle conversion from map with multi-value parameters correctly?
   @Test
-  void mapThrowIAEWhenListOfStringIsSupplied() throws Exception {
-    def throwable = catchThrowable { requestBuilder.params("key1", ["value1"], "key2") }
-    assertThat(throwable).isExactlyInstanceOf(IllegalArgumentException.class).hasMessage("Illegal argument '[value1]' passed to body expectation 'key1', a list of ${Argument.class.name} is required.")
+  void doesntThrowWhenSecondParameterIsAMap() throws Exception {
+    def map = requestBuilder.params("key1", ["value1"]).requestParameters
+    assertThat(map).hasSize(1)
   }
 
   @Test

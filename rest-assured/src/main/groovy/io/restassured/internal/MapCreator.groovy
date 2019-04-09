@@ -17,6 +17,7 @@ package io.restassured.internal
 
 import groovy.transform.Canonical
 import io.restassured.specification.Argument
+import org.hamcrest.Matcher
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull
 
@@ -42,9 +43,11 @@ class MapCreator {
       throw new IllegalArgumentException("You must supply the same number of keys as values.")
     }
 
-    final int step
-    if (parameters[1] instanceof List) {
+    int step
+    if (parameters.length >= 3 && isRestAssuredArguments(parameters[1]) && parameters[2] instanceof Matcher) {
       step = 3
+    } else if (parameters.length % 2 != 0) {
+      throw new IllegalArgumentException("You must supply the same number of keys as values.")
     } else {
       step = 2
     }
@@ -61,7 +64,7 @@ class MapCreator {
       } else {
         args = parameters[i + 1]
         val = parameters[i + 2]
-        if (!(args instanceof List && args.every { it instanceof Argument })) {
+        if (!isRestAssuredArguments(args)) {
           throw new IllegalArgumentException("Illegal argument '$args' passed to body expectation '$key', a list of ${Argument.class.name} is required.")
         }
       }
@@ -82,6 +85,10 @@ class MapCreator {
     }
 
     return map
+  }
+
+  private static boolean isRestAssuredArguments(args) {
+    args instanceof List && args.every { it instanceof Argument }
   }
 
   private static Object[] createArgumentArray(String firstParam, ... parameters) {
