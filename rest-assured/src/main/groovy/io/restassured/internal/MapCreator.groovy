@@ -42,7 +42,13 @@ class MapCreator {
       throw new IllegalArgumentException("You must supply the same number of keys as values.")
     }
 
-    int step = parameters.length % 2 == 0 ? 2 : 3
+    final int step
+    if (parameters[1] instanceof List) {
+      step = 3
+    } else {
+      step = 2
+    }
+
     boolean argumentsDefined = step == 3
     Map<String, Object> map = new LinkedHashMap<String, Object>()
     for (int i = 0; i < parameters.length; i += step) {
