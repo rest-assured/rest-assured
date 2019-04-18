@@ -44,6 +44,7 @@ import io.restassured.module.webtestclient.specification.WebTestClientRequestSen
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
@@ -127,6 +128,12 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	public WebTestClientRequestSpecification accept(ContentType contentType) {
 		notNull(contentType, "contentType");
 		return header(ACCEPT, contentType.getAcceptHeader());
+	}
+
+	@Override
+	public WebTestClientRequestSpecification accept(MediaType... mediaTypes) {
+		notNull(mediaTypes, "mediaTypes");
+		return header(ACCEPT, MediaType.toString(Arrays.asList(mediaTypes)));
 	}
 
 	@Override
