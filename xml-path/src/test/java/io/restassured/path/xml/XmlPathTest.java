@@ -179,14 +179,14 @@ public class XmlPathTest {
 
     @Test
     public void rootPathNotEndingWithDot() throws Exception {
-        final XmlPath xmlPath = new XmlPath(XML).setRoot("shopping.category.item");
+        final XmlPath xmlPath = new XmlPath(XML).setRootPath("shopping.category.item");
         assertThat(xmlPath.getInt("size()"), equalTo(5));
         assertThat(xmlPath.getList("children().list()", String.class), hasItem("Pens"));
     }
 
     @Test
     public void rootPathEndingWithDot() throws Exception {
-        final XmlPath xmlPath = new XmlPath(XML).setRoot("shopping.category.item.");
+        final XmlPath xmlPath = new XmlPath(XML).setRootPath("shopping.category.item.");
         assertThat(xmlPath.getInt("size()"), equalTo(5));
         assertThat(xmlPath.getList("children().list()", String.class), hasItem("Pens"));
     }
@@ -649,7 +649,7 @@ public class XmlPathTest {
                     + " </root>";
 
         // When
-        XmlPath xmlPath = new XmlPath(xml).setRoot("root");
+        XmlPath xmlPath = new XmlPath(xml).setRootPath("root");
 
         // Then
         assertThat(xmlPath.getString("item[3].@type"), nullValue());

@@ -851,8 +851,24 @@ public class XmlPath {
      * </pre>
      *
      * @param rootPath The root path to use.
+     * @deprecated Use {@link #setRootPath(String)} instead
      */
+    @Deprecated
     public XmlPath setRoot(String rootPath) {
+        return setRootPath(rootPath);
+    }
+
+    /**
+     * Set the root path of the document so that you don't need to write the entire path. E.g.
+     * <pre>
+     * final XmlPath xmlPath = new XmlPath(XML).setRootPath("shopping.category.item");
+     * assertThat(xmlPath.getInt("size()"), equalTo(5));
+     * assertThat(xmlPath.getList("children().list()", String.class), hasItem("Pens"));
+     * </pre>
+     *
+     * @param rootPath The root path to use.
+     */
+    public XmlPath setRootPath(String rootPath) {
         AssertParameter.notNull(rootPath, "Root path");
         this.rootPath = rootPath;
         return this;

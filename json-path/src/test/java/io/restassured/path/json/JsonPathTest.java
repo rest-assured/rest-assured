@@ -210,14 +210,14 @@ public class JsonPathTest {
 
     @Test
     public void rootPath() {
-        final JsonPath jsonPath = new JsonPath(JSON).setRoot("store.book");
+        final JsonPath jsonPath = new JsonPath(JSON).setRootPath("store.book");
         assertThat(jsonPath.getInt("size()"), equalTo(4));
         assertThat(jsonPath.getList("author", String.class), hasItem("J. R. R. Tolkien"));
     }
 
     @Test
     public void rootPathFollowedByArrayIndexing() {
-        final JsonPath jsonPath = new JsonPath(JSON).setRoot("store.book");
+        final JsonPath jsonPath = new JsonPath(JSON).setRootPath("store.book");
         assertThat(jsonPath.getString("[0].author"), equalTo("Nigel Rees"));
     }
 

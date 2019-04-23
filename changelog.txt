@@ -54,7 +54,9 @@ Changelog next version
         * queryParameter
         * queryParameters
 * Deprecations
-    * Deprecated all short versions of "root", for example "root(..)", "appendRoot(..)", "detachRoot(..)". Use "rootPath(..)", "appendRootPath(..)", "detachRootPath(..)" instead. This was introduced for better consistency and clearer intension..
+    * Deprecated all short versions of "root", for example "root(..)", "appendRoot(..)", "detachRoot(..)". Use "rootPath(..)", "appendRootPath(..)", "detachRootPath(..)" instead. This was introduced for better consistency and clearer intention..
+    * Jsonpath#setRoot(..) - Use JsonPath#setRootPath(..) instead
+    * XmlPath#setRoot(..) - Use XmlPath#setRootPath(..) instead
 * Rest Assured now requires Java 8 (previously Java 6 was required)
 * Removed io.restassured.function.RestAssuredFunction - use java.util.function.Function instead
 * Made io.restassured.matcher.ResponseAwareMatcher a proper annotated functional interface

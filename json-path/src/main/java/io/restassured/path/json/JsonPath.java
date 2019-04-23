@@ -895,8 +895,23 @@ public class JsonPath {
      * </pre>
      *
      * @param rootPath The root path to use.
+     * @deprecated Use {@link #setRootPath(String)} instead
      */
+    @Deprecated
     public JsonPath setRoot(String rootPath) {
+        return setRootPath(rootPath);
+    }
+    /**
+     * Set the root path of the document so that you don't need to write the entire path. E.g.
+     * <pre>
+     * final JsonPath jsonPath = new JsonPath(Object).setRootPath("store.book");
+     * assertThat(jsonPath.getInt("size()"), equalTo(4));
+     * assertThat(jsonPath.getList("author", String.class), hasItem("J. R. R. Tolkien"));
+     * </pre>
+     *
+     * @param rootPath The root path to use.
+     */
+    public JsonPath setRootPath(String rootPath) {
         AssertParameter.notNull(rootPath, "Root path");
         this.rootPath = rootPath;
         return this;

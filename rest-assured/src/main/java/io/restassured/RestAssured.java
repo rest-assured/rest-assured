@@ -252,7 +252,7 @@ import static io.restassured.specification.ProxySpecification.host;
  *            String lastName = with(xml).get("greeting.lastName");
  *
  *            // or a bit more efficiently:
- *            XmlPath xmlPath = new XmlPath(xml).setRoot("greeting");
+ *            XmlPath xmlPath = new XmlPath(xml).setRootPath("greeting");
  *            String firstName = xmlPath.get("firstName");
  *            String lastName = xmlPath.get("lastName");
  *        </pre>
@@ -265,7 +265,7 @@ import static io.restassured.specification.ProxySpecification.host;
  *            List<Integer> winnerIds = with(json).get("lotto.winners.winnerId");
  *
  *            // or a bit more efficiently:
- *            JsonPath jsonPath = new JsonPath(json).setRoot("lotto");
+ *            JsonPath jsonPath = new JsonPath(json).setRootPath("lotto");
  *            int lottoId = jsonPath.getInt("lottoId");
  *            List<Integer> winnderIds = jsonPath.get("winnders.winnderId");
  *        </pre>

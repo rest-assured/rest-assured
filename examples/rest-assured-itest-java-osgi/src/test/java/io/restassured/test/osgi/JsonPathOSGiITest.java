@@ -76,7 +76,7 @@ public class JsonPathOSGiITest {
                 " \"lottoId\":5,\n" +
                 "}\n" +
                 "}";
-        JsonPath jsonPath = new JsonPath(JSON).setRoot("lotto");
+        JsonPath jsonPath = new JsonPath(JSON).setRootPath("lotto");
 
         assertThat(jsonPath.getInt("lottoId"), equalTo(5));
     }
