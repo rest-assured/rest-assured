@@ -81,6 +81,7 @@ Changelog next version
 * MockMvc module now supports using MediaType for Accept header value (issue #1142). Thanks to Gemini Kim for pull request.
 * Support for using "HttpStatus" when validating response status when using MockMvc module. Thanks to Gemini Kim for pull request.
 * MockMvc module now supports using MediaType for Accept header in WebTestClientRequest. Thanks to Gemini Kim for pull request.
+* Upgraded spring-webmvc dependency from version 4.3.19.RELEASE to 4.3.23.RELEASE (issue #1161)
 
 Changelog 3.3.0 (2019-01-11)
 ----------------------------
