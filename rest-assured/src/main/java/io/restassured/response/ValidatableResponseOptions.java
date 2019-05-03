@@ -288,7 +288,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * To verify that the Location header ends with "/x/{id}" you can do like this:
      * <p>
      * <pre>
-     * given().param("id", 1).body(..).post("/x").then().assertThat().header("Location", response -> response.endsWith("/x/") + response.path("id"));
+     * given().param("id", 1).body(..).post("/x").then().assertThat().header("Location", response -> endsWith("/x/" + response.path("id")));
      * </pre>
      * </p>
      * <p/>
