@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 4.0.0 (2019-05-10)
+----------------------------
 * Fix duplication of content type in the Spring MockMvc module (thanks to Gemini Kim for pull request)
 * Fixed issue with overwriting FailureConfig on settings other configs (#1127) (thanks to Victor Orlovsky for pull request)
 * Added version range for the Groovy dependency for the osgi module to be between 2.4 and less than 2.5. This is because the API has changed in Groovy 2.5. (thanks to Rikske54 for pull request)
