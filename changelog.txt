@@ -15,16 +15,15 @@ Changelog next version
 
     val message: String =
     Given {
-      port(7000)
-      header("Header", "Header")
-      body("hello")
-      filter { _, _, _ ->
-          ResponseBuilder().setStatusCode(200).setContentType(JSON).setBody("""{ "message" : "Hello World"}""").build()
-      }
+        port(7000)
+        header("Header", "Header")
+        body("hello")
     } When {
-      put("/the/path")
+        put("/the/path")
+     } Then {
+        statusCode(200)
     } Extract {
-      path("message")
+        path("message")
     }
   (issue 609)
 
