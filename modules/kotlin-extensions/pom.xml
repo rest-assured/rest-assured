@@ -29,6 +29,7 @@
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <dokka.version>0.9.18</dokka.version>
     </properties>
 
     <dependencies>
@@ -54,6 +55,33 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>jdk11</id>
+            <!-- We disable this plugin when running the jdk11 profile since
+            dokka doesn't work with JDK11. We the following error when using JDK11:
+
+            [ERROR] Failed to execute goal org.jetbrains.dokka:dokka-maven-plugin:0.9.18:dokka (default) on project kotlin-extensions: Execution default of goal org.jetbrains.dokka:dokka-maven-plugin:0.9.18:dokka failed: A required class was missing while executing org.jetbrains.dokka:dokka-maven-plugin:0.9.18:dokka: com/sun/tools/doclets/formats/html/HtmlDoclet
+
+            This is a know issue! See https://github.com/Kotlin/dokka/issues/294
+            -->
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jetbrains.dokka</groupId>
+                        <artifactId>dokka-maven-plugin</artifactId>
+                        <version>${dokka.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>none</phase> <!-- this disables plugin -->
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <build>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
@@ -90,7 +118,7 @@
                 <!-- See https://github.com/Kotlin/dokka#using-the-maven-plugin for more examples-->
                 <groupId>org.jetbrains.dokka</groupId>
                 <artifactId>dokka-maven-plugin</artifactId>
-                <version>0.9.18</version>
+                <version>${dokka.version}</version>
                 <executions>
                     <execution>
                         <phase>prepare-package</phase>
