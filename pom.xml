@@ -62,7 +62,7 @@
         <gmaven.version>1.5</gmaven.version>
         <hamcrest.version>2.1</hamcrest.version>
         <jackson1.version>1.9.11</jackson1.version>
-        <jackson2.version>2.9.8</jackson2.version>
+        <jackson2.version>2.9.9</jackson2.version>
         <johnzon.version>1.1.11</johnzon.version>
         <javax.json.version>1.1.4</javax.json.version>
         <maven-javadoc.version>2.9.1</maven-javadoc.version>

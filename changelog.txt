@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* Upgraded jackson2 from version 2.9.8 to 2.9.9 because of security issue in jackson-databind 2.9.8
+
 Changelog 4.0.0 (2019-05-10)
 ----------------------------
 * Fix duplication of content type in the Spring MockMvc module (thanks to Gemini Kim for pull request)
