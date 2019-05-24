@@ -16,6 +16,7 @@
 
 package io.restassured.builder;
 
+import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
 import io.restassured.http.ContentType;
 import io.restassured.http.Cookies;
@@ -217,6 +218,10 @@ public class ResponseBuilder {
             restAssuredResponse.setStatusLine(restAssuredResponse.statusCode());
         }
 
+        // Set a default config
+        if (restAssuredResponse.getConfig() == null) {
+            restAssuredResponse.setConfig(RestAssuredConfig.config());
+        }
         restAssuredResponse.setRpr(new ResponseParserRegistrar());
         return restAssuredResponse;
     }
