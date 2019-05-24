@@ -16,14 +16,30 @@
 
 package io.restassured.module.kotlin.extensions
 
+import io.restassured.RestAssured
 import io.restassured.builder.ResponseBuilder
+import io.restassured.filter.Filter
 import io.restassured.http.ContentType.JSON
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.catchThrowable
 import org.hamcrest.Matchers.equalTo
+import org.junit.Before
 import org.junit.Test
 
 
 class RestAssuredKotlinExtensionsTest {
+
+    @Before
+    fun `rest assured is configured`() {
+        RestAssured.filters(Filter { _, _, _ ->
+            ResponseBuilder().setStatusCode(200).setContentType(JSON).setBody("""{ "message" : "Hello World"}""").build()
+        })
+    }
+
+    @Test
+    fun `rest assured is reset after each test`() {
+        RestAssured.reset()
+    }
 
     @Test
     fun `basic rest assured kotlin extensions are compilable`() {
@@ -31,9 +47,6 @@ class RestAssuredKotlinExtensionsTest {
             port(7000)
             header("Header", "Header")
             body("hello")
-            filter { _, _, _ ->
-                ResponseBuilder().setStatusCode(200).setContentType(JSON).setBody("""{ "message" : "Hello World"}""").build()
-            }
         } When {
             put("/the/path")
         } Then {
@@ -48,9 +61,6 @@ class RestAssuredKotlinExtensionsTest {
             port(7000)
             header("Header", "Header")
             body("hello")
-            filter { _, _, _ ->
-                ResponseBuilder().setStatusCode(200).setContentType(JSON).setBody("""{ "message" : "Hello World"}""").build()
-            }
         } When {
             put("/the/path")
         } Extract {
@@ -78,5 +88,36 @@ class RestAssuredKotlinExtensionsTest {
         }
 
         assertThat(message).isEqualTo("Hello World")
+    }
+
+    @Test
+    fun `all expectations error messages are included in the error message`() {
+        val throwable = catchThrowable {
+            Given {
+                port(7000)
+                header("Header", "Header")
+                body("hello")
+            } When {
+                put("/the/path")
+            } Then {
+                statusCode(400)
+                body("message", equalTo("Another World"))
+                body("message", equalTo("Brave new world"))
+            }
+        }
+
+        assertThat(throwable).isExactlyInstanceOf(AssertionError::class.java).hasMessage("""
+            3 expectations failed.
+            Expected status code <400> but was <200>.
+
+            JSON path message doesn't match.
+            Expected: Another World
+              Actual: Hello World
+
+            JSON path message doesn't match.
+            Expected: Brave new world
+              Actual: Hello World
+            
+        """.trimIndent())
     }
 }

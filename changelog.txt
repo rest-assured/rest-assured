@@ -22,9 +22,16 @@ Changelog next version
         put("/the/path")
     } Then {
         statusCode(200)
+        body("message", equalTo("Another World"))
     } Extract {
         path("message")
     }
+
+  Besides a more pleasing API for Kotlin developers it also has a couple of major benefits to the Java API:
+  
+  1. All failed expectations are reported at the same time
+  2. Formatting the code in your IDE won't mess up indentation
+
   (issue 609)
 
 Changelog 4.0.0 (2019-05-10)

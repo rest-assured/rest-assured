@@ -19,10 +19,14 @@
 package io.restassured.module.kotlin.extensions
 
 import io.restassured.RestAssured.given
+import io.restassured.internal.ResponseSpecificationImpl
+import io.restassured.internal.ValidatableResponseImpl
 import io.restassured.response.ExtractableResponse
 import io.restassured.response.Response
 import io.restassured.response.ValidatableResponse
 import io.restassured.specification.RequestSpecification
+
+// Main wrappers
 
 /**
  * A wrapper around [given] that starts building the request part of the test.
@@ -40,7 +44,14 @@ infix fun RequestSpecification.When(block: RequestSpecification.() -> Response):
  * A wrapper around [then] that allow configuration of response expectations.
  * @see then
  */
-infix fun Response.Then(block: ValidatableResponse.() -> Unit): ValidatableResponse = then().apply(block)
+infix fun Response.Then(block: ValidatableResponse.() -> Unit): ValidatableResponse = then()
+        .also(doIfValidatableResponseImpl {
+            forceDisableEagerAssert()
+        })
+        .apply(block)
+        .also(doIfValidatableResponseImpl {
+            forceValidateResponse()
+        })
 
 /**
  * A wrapper around [ExtractableResponse] that allow for extract data out of the response
@@ -53,3 +64,11 @@ infix fun <T> Response.Extract(block: ExtractableResponse<Response>.() -> T): T 
  * @see ExtractableResponse
  */
 infix fun <T> ValidatableResponse.Extract(block: ExtractableResponse<Response>.() -> T): T = extract().run(block)
+
+// End main wrappers
+
+private fun Response.doIfValidatableResponseImpl(fn: ResponseSpecificationImpl.() -> Unit): (ValidatableResponse) -> Unit = { resp ->
+    if (resp is ValidatableResponseImpl) {
+        fn(resp.responseSpec)
+    }
+}

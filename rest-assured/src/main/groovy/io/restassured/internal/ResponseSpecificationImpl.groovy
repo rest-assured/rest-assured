@@ -60,6 +60,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   private Response response
   private Tuple2<Matcher<Long>, TimeUnit> expectedResponseTime;
   private LogDetail responseLogDetail
+  private boolean forceDisableEagerAssert = false
 
   private contentParser
   LogRepository logRepository
@@ -641,8 +642,23 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     }
   }
 
+  /**
+   * Forcefully disable eager assert. This is useful for certain language extensions to allow for validation of multiple expectations in one go.
+   */
+  def forceDisableEagerAssert() {
+    forceDisableEagerAssert = true
+    this
+  }
+
+  /**
+   * Forcefully validate response expectations. This is useful for certain language extensions to allow for validation of multiple expectations in one go.
+   */
+  def forceValidateResponse() {
+    assertionClosure.validate(response)
+  }
+
   private isEagerAssert() {
-    return response != null
+    return !forceDisableEagerAssert && response != null
   }
 
   private void validateResponseIfRequired(Closure closure) {
