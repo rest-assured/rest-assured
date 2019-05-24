@@ -58,9 +58,8 @@
 
     <profiles>
         <profile>
-            <id>jdk11</id>
-            <!-- We disable this plugin when running the jdk11 profile since
-            dokka doesn't work with JDK11. We the following error when using JDK11:
+            <id>release</id>
+            <!-- We disable this plugin during normal build since dokka doesn't work with JDK11. We get the following error when using JDK11:
 
             [ERROR] Failed to execute goal org.jetbrains.dokka:dokka-maven-plugin:0.9.18:dokka (default) on project kotlin-extensions: Execution default of goal org.jetbrains.dokka:dokka-maven-plugin:0.9.18:dokka failed: A required class was missing while executing org.jetbrains.dokka:dokka-maven-plugin:0.9.18:dokka: com/sun/tools/doclets/formats/html/HtmlDoclet
 
@@ -69,14 +68,31 @@
             <build>
                 <plugins>
                     <plugin>
+                        <!-- See https://github.com/Kotlin/dokka#using-the-maven-plugin for more examples-->
                         <groupId>org.jetbrains.dokka</groupId>
                         <artifactId>dokka-maven-plugin</artifactId>
                         <version>${dokka.version}</version>
                         <executions>
                             <execution>
-                                <phase>none</phase> <!-- this disables plugin -->
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>dokka</goal>
+                                    <goal>javadoc</goal>
+                                    <goal>javadocJar</goal>
+                                </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <outputFormat>javadoc</outputFormat>
+                            <outputDir>${project.build.directory}/javadoc</outputDir>
+                            <sourceLinks>
+                                <link>
+                                    <dir>${project.basedir}</dir>
+                                    <url>https://github.com/rest-assured/rest-assured/</url>
+                                    <urlSuffix>#L</urlSuffix>
+                                </link>
+                            </sourceLinks>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -112,33 +128,6 @@
                         <arg>-Xjsr305=strict</arg>
                     </args>
                     <jvmTarget>1.8</jvmTarget>
-                </configuration>
-            </plugin>
-            <plugin>
-                <!-- See https://github.com/Kotlin/dokka#using-the-maven-plugin for more examples-->
-                <groupId>org.jetbrains.dokka</groupId>
-                <artifactId>dokka-maven-plugin</artifactId>
-                <version>${dokka.version}</version>
-                <executions>
-                    <execution>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>dokka</goal>
-                            <goal>javadoc</goal>
-                            <goal>javadocJar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <outputFormat>javadoc</outputFormat>
-                    <outputDir>${project.build.directory}/javadoc</outputDir>
-                    <sourceLinks>
-                        <link>
-                            <dir>${project.basedir}</dir>
-                            <url>https://github.com/rest-assured/rest-assured/</url>
-                            <urlSuffix>#L</urlSuffix>
-                        </link>
-                    </sourceLinks>
                 </configuration>
             </plugin>
         </plugins>

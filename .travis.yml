@@ -9,7 +9,7 @@ matrix:
   include:
     - env: PROFILES='-P osgi-tests'
       jdk: oraclejdk8
-    - env: PROFILES='-P jdk11'
+    - env: PROFILES=''
       jdk: oraclejdk11
 
 script:
