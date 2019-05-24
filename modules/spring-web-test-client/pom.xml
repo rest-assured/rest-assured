@@ -33,7 +33,6 @@
         <spring.restdocs.version>2.0.2.RELEASE</spring.restdocs.version>
         <powermock-module-junit4.version>1.7.4</powermock-module-junit4.version>
         <commons-io.version>2.5</commons-io.version>
-        <assertj-core.version>3.12.1</assertj-core.version>
     </properties>
 
     <build>
@@ -105,7 +104,6 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>${assertj-core.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

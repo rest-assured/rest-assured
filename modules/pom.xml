@@ -31,5 +31,6 @@
         <module>scala-support</module>
         <module>spring-web-test-client</module>
         <module>spring-commons</module>
+        <module>kotlin-extensions</module>
     </modules>
 </project>
