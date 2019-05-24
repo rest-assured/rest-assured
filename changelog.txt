@@ -20,7 +20,7 @@ Changelog next version
         body("hello")
     } When {
         put("/the/path")
-     } Then {
+    } Then {
         statusCode(200)
     } Extract {
         path("message")
