@@ -67,7 +67,7 @@ infix fun <T> ValidatableResponse.Extract(block: ExtractableResponse<Response>.(
 
 // End main wrappers
 
-private fun Response.doIfValidatableResponseImpl(fn: ResponseSpecificationImpl.() -> Unit): (ValidatableResponse) -> Unit = { resp ->
+private fun doIfValidatableResponseImpl(fn: ResponseSpecificationImpl.() -> Unit): (ValidatableResponse) -> Unit = { resp ->
     if (resp is ValidatableResponseImpl) {
         fn(resp.responseSpec)
     }
