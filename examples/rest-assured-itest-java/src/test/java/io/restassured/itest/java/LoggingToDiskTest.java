@@ -97,11 +97,16 @@ public class LoggingToDiskTest extends WithJetty {
                 })
                 .collect(Collectors.toList());
 
+        FileAndContents example1Log = findByName(files, "example1.log");
+        FileAndContents example2Log = findByName(files, "example2.log");
+
         assertThat(files.toString(), files, hasSize(2));
-        assertThat(files.get(0).fileName, is("example1.log"));
-        assertThat(files.get(0).content.getLast(), is("{\"greeting\":\"Greetings John Doe\"}"));
-        assertThat(files.get(1).fileName, is("example2.log"));
-        assertThat(files.get(1).content.getLast(), is("{\"greeting\":\"Greetings Jane Doe\"}"));
+        assertThat(example1Log.content.getLast(), is("{\"greeting\":\"Greetings John Doe\"}"));
+        assertThat(example2Log.content.getLast(), is("{\"greeting\":\"Greetings Jane Doe\"}"));
+    }
+
+    private FileAndContents findByName(List<FileAndContents> files, String name) {
+        return files.stream().filter(f -> name.equals(f.fileName)).findFirst().orElse(null);
     }
 
     private static class FileAndContents {
