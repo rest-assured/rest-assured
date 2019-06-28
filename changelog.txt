@@ -33,6 +33,7 @@ Changelog next version
   2. Formatting the code in your IDE won't mess up indentation
 
   (issue 609)
+* No longer depending on hamcrest-core or hamcrest-library, instead the hamcrest module is used directly.
 
 Changelog 4.0.0 (2019-05-10)
 ----------------------------

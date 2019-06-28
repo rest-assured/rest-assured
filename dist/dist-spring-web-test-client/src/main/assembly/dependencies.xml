@@ -65,6 +65,7 @@
                 <exclude>org.scribe:scribe</exclude>
                 <exclude>org.hamcrest:hamcrest-core</exclude>
                 <exclude>org.hamcrest:hamcrest-library</exclude>
+                <exclude>org.hamcrest:hamcrest</exclude>
                 <exclude>org.ccil.cowan.tagsoup:tagsoup</exclude>
                 <exclude>junit:junit</exclude>
                 <exclude>org.ow2.asm</exclude>

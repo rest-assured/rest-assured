@@ -14,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <properties>
         <httpclient.version>4.5.3</httpclient.version>
@@ -48,19 +49,19 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
-                        	!io.restassured.path.xml.*,
+                            !io.restassured.path.xml.*,
                             !io.restassured.path.json.*,
                             !io.restassured.common.*,
                             !io.restassured.internal.path.xml.*,
                             !io.restassured.internal.path.json.*,
                             !io.restassured.internal.common.*,
-                        	io.restassured.*
+                            io.restassured.*
                         </Export-Package>
                         <Import-Package>
-							groovy.*;version="${groovy.range}",
+                            groovy.*;version="${groovy.range}",
                             org.codehaus.groovy.*;version="${groovy.range}",
                             *
-						</Import-Package>
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -99,11 +100,7 @@
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
+            <artifactId>hamcrest</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ccil.cowan.tagsoup</groupId>
@@ -176,6 +173,12 @@
             <artifactId>mockito-core</artifactId>
             <version>1.10.19</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>
