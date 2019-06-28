@@ -59,11 +59,11 @@ public class EncoderConfig implements Config {
      * </p>
      */
     public EncoderConfig() {
-        this(ISO_8859_1, UTF_8, true, new HashMap<String, ContentType>(), DEFAULT_CHARSET_FOR_CONTENT_TYPE, true);
+        this(ISO_8859_1, UTF_8, true, new HashMap<>(), DEFAULT_CHARSET_FOR_CONTENT_TYPE, true);
     }
 
     public EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset) {
-        this(defaultContentCharset, defaultQueryParameterCharset, true, new HashMap<String, ContentType>(), DEFAULT_CHARSET_FOR_CONTENT_TYPE, true);
+        this(defaultContentCharset, defaultQueryParameterCharset, true, new HashMap<>(), DEFAULT_CHARSET_FOR_CONTENT_TYPE, true);
     }
 
     private EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset,
@@ -72,7 +72,7 @@ public class EncoderConfig implements Config {
                           boolean isUserDefined) {
         Validate.notBlank(defaultContentCharset, "Default encoder content charset to cannot be blank. See \"appendDefaultContentCharsetToContentTypeIfMissing\" method if you like to disable automatically appending the charset to the content-type.");
         Validate.notBlank(defaultQueryParameterCharset, "Default protocol charset to cannot be blank.");
-        this.contentTypeToDefaultCharset = new HashMap<String, String>(contentTypeToDefaultCharset);
+        this.contentTypeToDefaultCharset = new HashMap<>(contentTypeToDefaultCharset);
         this.defaultContentCharset = defaultContentCharset;
         this.defaultQueryParameterCharset = defaultQueryParameterCharset;
         this.shouldAppendDefaultContentCharsetToContentTypeIfUndefined = shouldAppendDefaultContentCharsetToContentTypeIfUndefined;
@@ -135,7 +135,7 @@ public class EncoderConfig implements Config {
     public EncoderConfig defaultCharsetForContentType(String charset, String contentType) {
         notNull(charset, "Charset");
         notNull(contentType, "ContentType");
-        Map<String, String> map = new HashMap<String, String>(contentTypeToDefaultCharset);
+        Map<String, String> map = new HashMap<>(contentTypeToDefaultCharset);
         map.put(trim(contentType).toLowerCase(), trim(charset));
         return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, map, true);
     }
@@ -150,7 +150,7 @@ public class EncoderConfig implements Config {
     public EncoderConfig defaultCharsetForContentType(String charset, ContentType contentType) {
         notNull(charset, "Charset");
         notNull(contentType, ContentType.class);
-        Map<String, String> map = new HashMap<String, String>(contentTypeToDefaultCharset);
+        Map<String, String> map = new HashMap<>(contentTypeToDefaultCharset);
         for (String ct : contentType.getContentTypeStrings()) {
             map.put(ct.toLowerCase(), trim(charset));
         }
@@ -299,7 +299,7 @@ public class EncoderConfig implements Config {
     public EncoderConfig encodeContentTypeAs(String contentType, ContentType encoder) {
         notNull(contentType, "Content-Type to encode");
         notNull(encoder, ContentType.class);
-        Map<String, ContentType> newMap = new HashMap<String, ContentType>(contentEncoders);
+        Map<String, ContentType> newMap = new HashMap<>(contentEncoders);
         newMap.put(contentType, encoder);
         return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, newMap, contentTypeToDefaultCharset, true);
     }
