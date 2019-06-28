@@ -11,7 +11,7 @@ matrix:
       jdk: oraclejdk8
       dist: trusty # Otherwise oraclejdk8 is not found, see https://travis-ci.community/t/solved-oraclejdk8-installation-failing-still-again/3428
     - env: PROFILES=''
-      jdk: oraclejdk11
+      jdk: openjdk11
     - env: PROFILES=''
       jdk: openjdk12
 
