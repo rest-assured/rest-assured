@@ -17,7 +17,6 @@
 package io.restassured.internal;
 
 import io.restassured.internal.MapCreator.CollisionStrategy;
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.util.Map;
@@ -29,7 +28,7 @@ import static org.hamcrest.Matchers.equalTo;
 public class MapCreatorTest {
 
     @Test public void
-    _() {
+    can_merge_map_keys_with_parameters() {
         Map<String, Object> map = MapCreator.createMapFromObjects(CollisionStrategy.MERGE, "key1.%s", withArgs("hello1"), equalTo("value1"), "key2.%s", withArgs("hello2"), equalTo("value2"));
 
         assertThat(map).isNotEmpty();
