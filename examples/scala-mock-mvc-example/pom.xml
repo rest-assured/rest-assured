@@ -29,7 +29,7 @@
     <description>Scala example of using REST Assured with Spring MockMvc</description>
 
     <properties>
-        <scala.version>2.12.7</scala.version>
+        <scala.version>2.13.0</scala.version>
     </properties>
 
     <build>
