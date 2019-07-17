@@ -1,0 +1,83 @@
+<!--
+  ~ Copyright 2019 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+    <id>bin</id>
+    <formats>
+        <format>zip</format>
+    </formats>
+    <includeBaseDirectory>false</includeBaseDirectory>
+    <fileSets>
+        <fileSet>
+            <directory>${project.basedir}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>README*</include>
+                <include>LICENSE*</include>
+                <include>NOTICE*</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${project.build.directory}/site</directory>
+            <outputDirectory>docs</outputDirectory>
+        </fileSet>
+    </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <excludes>
+                <!-- Kotlin Extensions -->
+                <exclude>io.rest-assured:kotlin-extensions</exclude>
+                <!-- Kotlin -->
+                <exclude>org.jetbrains.kotlin:kotlin-stdlib-jdk8</exclude>
+                <!-- JsonPath -->
+                <exclude>io.rest-assured:json-path</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-annotations</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-core</exclude>
+                <exclude>org.codehaus.jackson:jackson-core-asl</exclude>
+                <exclude>org.codehaus.jackson:jackson-mapper-asl</exclude>
+                <exclude>com.google.code.gson:gson</exclude>
+                <exclude>com.googlecode.json-simple:json-simple</exclude>
+                <!-- XmlPath -->
+                <exclude>io.rest-assured:xml-path</exclude>
+                <!-- Rest Assured -->
+                <exclude>io.rest-assured:rest-assured</exclude>
+                <exclude>io.rest-assured:rest-assured-common</exclude>
+                <exclude>org.codehaus.groovy:groovy</exclude>
+                <exclude>org.codehaus.groovy:groovy-xml</exclude>
+                <exclude>org.codehaus.groovy:groovy-json</exclude>
+                <exclude>org.apache.httpcomponents</exclude>
+                <exclude>org.scribe:scribe</exclude>
+                <exclude>org.hamcrest:hamcrest-core</exclude>
+                <exclude>org.hamcrest:hamcrest-library</exclude>
+                <exclude>org.hamcrest:hamcrest</exclude>
+                <exclude>org.ccil.cowan.tagsoup:tagsoup</exclude>
+                <exclude>junit:junit</exclude>
+                <exclude>org.ow2.asm</exclude>
+                <exclude>antlr</exclude>
+                <exclude>commons-logging</exclude>
+                <exclude>commons-codec</exclude>
+                <exclude>commons-lang</exclude>
+                <exclude>org.apache.commons:commons-lang3</exclude>
+            </excludes>
+            <outputDirectory>/</outputDirectory>
+            <useProjectArtifact>true</useProjectArtifact>
+            <scope>runtime</scope>
+        </dependencySet>
+    </dependencySets>
+</assembly>

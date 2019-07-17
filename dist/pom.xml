@@ -32,6 +32,7 @@
         <module>dist-spring-mock-mvc</module>
         <module>dist-spring-web-test-client</module>
         <module>dist-scala-support</module>
+        <module>dist-kotlin-extensions</module>
     </modules>
     <artifactId>dist</artifactId>
 
