@@ -49,7 +49,7 @@ public class ContentTypeTest {
 				.get("/contentType")
 				.then()
 				.body("requestContentType", equalTo("application/json;charset="
-						+ RestAssuredWebTestClient.config().getEncoderConfig().defaultContentCharset()));
+						+ RestAssuredWebTestClient.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)));
 	}
 
 	@Test
