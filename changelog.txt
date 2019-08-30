@@ -35,6 +35,7 @@ Changelog next version
   (issue 609)
 * No longer depending on hamcrest-core or hamcrest-library, instead the hamcrest module is used directly.
 * The scala support module has been upgraded to use Scala 2.13.0 (previously 2.12.7 was used)
+* RequestSpecBuilder no longer sets 8080 port for non localhost uri (issue #1197) (thanks to dr29bart for pull request)
 
 Changelog 4.0.0 (2019-05-10)
 ----------------------------
