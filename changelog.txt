@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 4.1.0 (2019-09-01)
+----------------------------
 * Upgraded jackson2 from version 2.9.8 to 2.9.9 because of security issue in jackson-databind 2.9.8
 * The ResponseBuilder now sets a default RestAssuredConfig instance when building responses from scratch. This is needed for example if extracting path's from the response.
 * Added a Kotlin module that contains Kotlin extension functions that makes REST Assured nicer to work with from Kotlin. Depend on:
