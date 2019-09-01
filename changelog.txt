@@ -1,4 +1,4 @@
-Changelog 4.1.0 (2019-09-01)
+Changelog 4.1.0 (2019-09-02)
 ----------------------------
 * Upgraded jackson2 from version 2.9.8 to 2.9.9 because of security issue in jackson-databind 2.9.8
 * The ResponseBuilder now sets a default RestAssuredConfig instance when building responses from scratch. This is needed for example if extracting path's from the response.
