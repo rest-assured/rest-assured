@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 read -p "Enter the old version: " oldVersion
 read -p "Enter the new version: " newVersion
 tmpFolderRootName=/tmp/$RANDOM
@@ -18,7 +18,7 @@ for file in ${filesToUpdate}
     done
 }
 git clone https://github.com/rest-assured/rest-assured.wiki.git ${folderName} && cd ${folderName} &&
-filesToUpdate=$(find * ! -name "ReleaseNotes*.md" ! -name "OldNews.md" ! -name "How_to_release.md" -name "*.md" -type f -print) &&
+filesToUpdate=$(find * ! -name "ReleaseNotes*.md" ! -name "OldNews.md" ! -name "How_to_release.md" ! -name "Usage_Legacy.md" -name "*.md" -type f -print) &&
 updateFiles &&
 read -p "Would you like to commit the changes? [y/N]" -n 1 -r
 echo
