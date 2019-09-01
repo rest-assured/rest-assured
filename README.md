@@ -82,7 +82,7 @@ REST Assured supports any HTTP method but has explicit support for *POST*, *GET*
 * [Usage Guide](https://github.com/rest-assured/rest-assured/wiki/Usage) (click [here](https://github.com/rest-assured/rest-assured/wiki/Usage_Legacy) for legacy documentation)
 * [Javadoc](http://www.javadoc.io/doc/io.rest-assured/rest-assured/4.1.0)
 * [Rest Assured Javadoc](http://static.javadoc.io/io.rest-assured/rest-assured/4.1.0/io/restassured/RestAssured.html)
-* [Rest AssuredMockMvc Javadoc](http://static.javadoc.io/io.rest-assured/spring-mock-mvc/4.0.0/io/restassured/module/mockmvc/RestAssuredMockMvc.html)
+* [Rest AssuredMockMvc Javadoc](http://static.javadoc.io/io.rest-assured/spring-mock-mvc/4.1.0/io/restassured/module/mockmvc/RestAssuredMockMvc.html)
 * [XmlPath Javadoc](http://static.javadoc.io/io.rest-assured/xml-path/4.1.0/io/restassured/path/xml/XmlPath.html)
 * [JsonPath Javadoc](http://static.javadoc.io/io.rest-assured/json-path/4.1.0/io/restassured/path/json/JsonPath.html)
 * [Release Notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes)
