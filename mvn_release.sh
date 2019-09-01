@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 read -p "Enter the version to release: " releaseVersion
 echo "Starting to relase REST Assured $releaseVersion"
 
