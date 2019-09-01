@@ -11,9 +11,9 @@ languages into the Java domain.
 
 
 ## News 
+* 2019-09-02: REST Assured [4.1.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-4.1.0-dist.zip) is released. The main new feature is the [Kotlin Extensions Module](https://github.com/rest-assured/rest-assured/wiki/Usage#kotlin-extension-module) which provides some useful extensions functions when working with Kotlin. It improves IDE formatting and allows all failed expectations to be reported at the same time. It's highly recommended for Kotlin users. Please see [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2019-05-10: REST Assured [4.0.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-4.0.0-dist.zip) is released. This release fixes problems with duplicated classes introduced by the initial OSGi support. It also drops support for Java 6 in favor of Java 8 as well as support for [Apache Johnzon](https://johnzon.apache.org/) and various other fixes. Please see [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes40) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2019-03-13: [Bas Dijkstra](https://twitter.com/_basdijkstra) has made a really great introductory screencast to REST Assured. You can check it out [here](https://testautomationu.applitools.com/automating-your-api-tests-with-rest-assured/).
-* 2019-01-11: REST Assured [3.3.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-3.3.0-dist.zip) is released. This release introduces better support for [de-serializing with generics](https://github.com/rest-assured/rest-assured/wiki/Usage#deserialization-with-generics), [Java 9 split packages](https://github.com/rest-assured/rest-assured/wiki/GettingStarted#java-9), [ResponseValidationListeners](https://github.com/rest-assured/rest-assured/wiki/Usage#failure-config) as well as bug fixes and various improvements. Please see [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes33) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
@@ -80,11 +80,11 @@ REST Assured supports any HTTP method but has explicit support for *POST*, *GET*
 * [Getting started](https://github.com/rest-assured/rest-assured/wiki/GettingStarted)
 * [Downloads](https://github.com/rest-assured/rest-assured/wiki/Downloads)
 * [Usage Guide](https://github.com/rest-assured/rest-assured/wiki/Usage) (click [here](https://github.com/rest-assured/rest-assured/wiki/Usage_Legacy) for legacy documentation)
-* [Javadoc](http://www.javadoc.io/doc/io.rest-assured/rest-assured/4.0.0)
-* [Rest Assured Javadoc](http://static.javadoc.io/io.rest-assured/rest-assured/4.0.0/io/restassured/RestAssured.html)
+* [Javadoc](http://www.javadoc.io/doc/io.rest-assured/rest-assured/4.1.0)
+* [Rest Assured Javadoc](http://static.javadoc.io/io.rest-assured/rest-assured/4.1.0/io/restassured/RestAssured.html)
 * [Rest AssuredMockMvc Javadoc](http://static.javadoc.io/io.rest-assured/spring-mock-mvc/4.0.0/io/restassured/module/mockmvc/RestAssuredMockMvc.html)
-* [XmlPath Javadoc](http://static.javadoc.io/io.rest-assured/xml-path/4.0.0/io/restassured/path/xml/XmlPath.html)
-* [JsonPath Javadoc](http://static.javadoc.io/io.rest-assured/json-path/4.0.0/io/restassured/path/json/JsonPath.html)
+* [XmlPath Javadoc](http://static.javadoc.io/io.rest-assured/xml-path/4.1.0/io/restassured/path/xml/XmlPath.html)
+* [JsonPath Javadoc](http://static.javadoc.io/io.rest-assured/json-path/4.1.0/io/restassured/path/json/JsonPath.html)
 * [Release Notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes)
 * [FAQ](https://github.com/rest-assured/rest-assured/wiki/FAQ)
 
