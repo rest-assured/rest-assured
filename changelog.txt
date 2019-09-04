@@ -1,3 +1,8 @@
+Changelog next version
+----------------------
+* Upgraded jaxb-api from 2.2.12 to 2.3.1
+* Upgraded jaxb-osgi from 2.2.10 to 2.3.0.1
+
 Changelog 4.1.0 (2019-09-02)
 ----------------------------
 * Upgraded jackson2 from version 2.9.8 to 2.9.9 because of security issue in jackson-databind 2.9.8
