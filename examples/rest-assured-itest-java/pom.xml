@@ -19,7 +19,7 @@
     <parent>
         <groupId>io.rest-assured.examples</groupId>
         <artifactId>example-parent</artifactId>
-        <version>4.1.1-SNAPSHOT</version>
+        <version>4.1.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -50,23 +50,23 @@
         <dependency>
             <groupId>io.rest-assured.examples</groupId>
             <artifactId>scalatra-webapp</artifactId>
-            <version>4.1.1-SNAPSHOT</version>
+            <version>4.1.1</version>
             <type>war</type>
         </dependency>
         <dependency>
             <groupId>io.rest-assured.examples</groupId>
             <artifactId>scalatra-example</artifactId>
-            <version>4.1.1-SNAPSHOT</version>
+            <version>4.1.1</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>4.1.1-SNAPSHOT</version>
+            <version>4.1.1</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>4.1.1-SNAPSHOT</version>
+            <version>4.1.1</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
