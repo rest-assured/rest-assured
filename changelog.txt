@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* The properties in a JSON document now preserves the order in which they are received (thanks to contextshuffling for pull request).
+
 Changelog 4.1.1 (2019-09-06)
 ---------------------------
 * Upgraded jaxb-api from 2.2.12 to 2.3.1
