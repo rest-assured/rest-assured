@@ -654,6 +654,9 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
    * Forcefully validate response expectations. This is useful for certain language extensions to allow for validation of multiple expectations in one go.
    */
   def forceValidateResponse() {
+    // We parse the response as a string here because we need to enforce it otherwise we cannot use "extract" after validations are completed
+    response.asString()
+
     assertionClosure.validate(response)
   }
 

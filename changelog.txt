@@ -1,6 +1,11 @@
 Changelog next version
 ----------------------
 * The properties in a JSON document now preserves the order in which they are received (thanks to contextshuffling for pull request).
+* Added "When" method to Kotlin extensions API for consistency. This means that you can now call "When" directly without using "Given":
+    When {
+        get("/greeting")
+    }
+* Fixed so that it's possible to extract values after body validations in the Kotlin extensions API (issue 1212)
 
 Changelog 4.1.1 (2019-09-06)
 ---------------------------
