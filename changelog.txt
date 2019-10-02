@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 4.1.1 (2019-10-02)
+----------------------------
 * The properties in a JSON document now preserves the order in which they are received (thanks to contextshuffling for pull request).
 * Added "When" method to Kotlin extensions API for consistency. This means that you can now call "When" directly without using "Given":
     When {
