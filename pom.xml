@@ -16,8 +16,7 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.sonatype.oss</groupId>
@@ -27,14 +26,14 @@
     <groupId>io.rest-assured</groupId>
     <artifactId>rest-assured-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.1.2-SNAPSHOT</version>
+    <version>4.1.2</version>
     <url>http://code.google.com/p/rest-assured</url>
     <name>REST Assured Parent POM</name>
     <description>Java DSL for easy testing of REST services</description>
     <inceptionYear>2010</inceptionYear>
     <issueManagement>
         <system>GitHub Issue Tracking</system>
-        <url/>
+        <url />
     </issueManagement>
     <licenses>
         <license>
@@ -122,7 +121,7 @@
                     <version>${gmaven.version}</version>
                     <configuration>
                         <providerSelection>2.0</providerSelection>
-                        <source/>
+                        <source />
                     </configuration>
                     <dependencies>
                         <dependency>
