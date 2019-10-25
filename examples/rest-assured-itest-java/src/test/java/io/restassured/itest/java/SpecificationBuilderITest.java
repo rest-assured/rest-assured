@@ -399,7 +399,8 @@ public class SpecificationBuilderITest extends WithJetty {
                 "Form params:\t<none>%n" +
                 "Path params:\tfirstName=John%n" +
                 "\t\t\t\tlastName=Doe%n" +
-                "Headers:Cookies:\t\t<none>%n" +
+                "Headers:\t\tAccept=[ REDACTED ]%n" +
+                "Cookies:\t\t<none>%n" +
                 "Multiparts:\t\t<none>%n" +
                 "Body:\t\t\t<none>%n")));
     }
