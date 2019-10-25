@@ -22,6 +22,7 @@ import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SessionConfig;
 import io.restassured.filter.Filter;
+import io.restassured.filter.log.LogBlacklists;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.ContentType;
@@ -1037,6 +1038,22 @@ public class RequestSpecBuilder {
         boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
         boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
         spec.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri));
+        return this;
+    }
+
+    /**
+     * Blacklists certain components of an HTTP request.
+     *
+     * @param logBlacklists The blacklists to be used during logging.
+     * @return RequestSpecBuilder
+     */
+    public RequestSpecBuilder logBlacklists(final LogBlacklists logBlacklists) {
+        for (Filter filter : spec.getDefinedFilters()) {
+            if (filter instanceof RequestLoggingFilter) {
+                RequestLoggingFilter requestLoggingFilter = (RequestLoggingFilter) filter;
+                requestLoggingFilter.setLogBlacklists(logBlacklists);
+            }
+        }
         return this;
     }
 

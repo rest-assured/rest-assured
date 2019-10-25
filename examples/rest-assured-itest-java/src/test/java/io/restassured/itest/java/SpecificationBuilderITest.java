@@ -19,6 +19,7 @@ package io.restassured.itest.java;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.filter.log.LogBlacklists;
 import io.restassured.http.Cookies;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;
@@ -364,6 +365,41 @@ public class SpecificationBuilderITest extends WithJetty {
                 "\t\t\t\tlastName=Doe%n" +
                 "Headers:\t\tAccept=*/*%n" +
                 "Cookies:\t\t<none>%n" +
+                "Multiparts:\t\t<none>%n" +
+                "Body:\t\t\t<none>%n")));
+    }
+
+    @Test
+    public void supportsSettingLoggingWithBlacklistsWhenUsingRequestSpecBuilder() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final RequestSpecification spec = new RequestSpecBuilder()
+                .setConfig(newConfig()
+                        .logConfig(logConfig().defaultStream(captor)))
+                .and()
+                .log(ALL)
+                .logBlacklists(new LogBlacklists()
+                .blacklistHeader("Accept"))
+                .build();
+
+        given().
+                spec(spec).
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+                when().
+                get("/{firstName}/{lastName}").
+                then().
+                body("fullName", equalTo("John Doe"));
+
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                "Request URI:\thttp://localhost:8080/John/Doe%n" +
+                "Proxy:\t\t\t<none>%n" +
+                "Request params:\t<none>%n" +
+                "Query params:\t<none>%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\tfirstName=John%n" +
+                "\t\t\t\tlastName=Doe%n" +
+                "Headers:Cookies:\t\t<none>%n" +
                 "Multiparts:\t\t<none>%n" +
                 "Body:\t\t\t<none>%n")));
     }

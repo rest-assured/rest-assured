@@ -44,6 +44,7 @@ public class RequestLoggingFilter implements Filter {
     private final PrintStream stream;
     private final boolean shouldPrettyPrint;
     private final boolean showUrlEncodedUri;
+    private LogBlacklists logBlacklists;
 
     /**
      * Logs to System.out
@@ -108,6 +109,7 @@ public class RequestLoggingFilter implements Filter {
         }
         this.stream = stream;
         this.logDetail = logDetail;
+        this.logBlacklists = new LogBlacklists();
         this.shouldPrettyPrint = shouldPrettyPrint;
         this.showUrlEncodedUri = showUrlEncodedUri;
     }
@@ -118,8 +120,12 @@ public class RequestLoggingFilter implements Filter {
             uri = UrlDecoder.urlDecode(uri, Charset.forName(requestSpec.getConfig().getEncoderConfig().defaultQueryParameterCharset()), true);
         }
 
-        RequestPrinter.print(requestSpec, requestSpec.getMethod(), uri, logDetail, stream, shouldPrettyPrint);
+        RequestPrinter.print(requestSpec, requestSpec.getMethod(), uri, logDetail, logBlacklists, stream, shouldPrettyPrint);
         return ctx.next(requestSpec, responseSpec);
+    }
+
+    public void setLogBlacklists(final LogBlacklists logBlacklists) {
+        this.logBlacklists = logBlacklists;
     }
 
     /**
