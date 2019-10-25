@@ -47,6 +47,7 @@ public class RequestPrinter {
     private static final String TAB = "\t";
     private static final String EQUALS = "=";
     private static final String NONE = "<none>";
+    private static final String REDACTED = "[ REDACTED ]";
 
     public static String print(FilterableRequestSpecification requestSpec, String requestMethod, String completeRequestUri,
                                LogDetail logDetail, LogBlacklists logBlacklists,
@@ -141,14 +142,16 @@ public class RequestPrinter {
         } else {
             int i = 0;
             for (Header header : headers) {
-                if (!headersBlacklist.contains(header.getName())) {
-                    if (i++ == 0) {
-                        appendTwoTabs(builder);
-                    } else {
-                        appendFourTabs(builder);
-                    }
-                    builder.append(header).append(SystemUtils.LINE_SEPARATOR);
+                if (i++ == 0) {
+                    appendTwoTabs(builder);
+                } else {
+                    appendFourTabs(builder);
                 }
+                Header processedHeader = header;
+                if (headersBlacklist.contains(header.getName())) {
+                    processedHeader = new Header(header.getName(), REDACTED);
+                }
+                builder.append(processedHeader).append(SystemUtils.LINE_SEPARATOR);
             }
         }
     }
