@@ -16,6 +16,7 @@
 
 package io.restassured.internal.print;
 
+import io.restassured.filter.log.LogBlacklists;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
@@ -48,7 +49,8 @@ public class RequestPrinter {
     private static final String NONE = "<none>";
 
     public static String print(FilterableRequestSpecification requestSpec, String requestMethod, String completeRequestUri,
-                               LogDetail logDetail, PrintStream stream, boolean shouldPrettyPrint) {
+                               LogDetail logDetail, LogBlacklists logBlacklists,
+                               PrintStream stream, boolean shouldPrettyPrint) {
         final StringBuilder builder = new StringBuilder();
         if (logDetail == ALL || logDetail == METHOD) {
             addSingle(builder, "Request method:", requestMethod);
@@ -67,7 +69,7 @@ public class RequestPrinter {
         }
 
         if (logDetail == ALL || logDetail == HEADERS) {
-            addHeaders(requestSpec, builder);
+            addHeaders(requestSpec, logBlacklists.getHeadersBlacklist(), builder);
         }
         if (logDetail == ALL || logDetail == COOKIES) {
             addCookies(requestSpec, builder);
@@ -130,7 +132,8 @@ public class RequestPrinter {
         }
     }
 
-    private static void addHeaders(FilterableRequestSpecification requestSpec, StringBuilder builder) {
+    private static void addHeaders(FilterableRequestSpecification requestSpec, Set<String> headersBlacklist,
+            StringBuilder builder) {
         builder.append("Headers:");
         final Headers headers = requestSpec.getHeaders();
         if (!headers.exist()) {
@@ -138,12 +141,14 @@ public class RequestPrinter {
         } else {
             int i = 0;
             for (Header header : headers) {
-                if (i++ == 0) {
-                    appendTwoTabs(builder);
-                } else {
-                    appendFourTabs(builder);
+                if (!headersBlacklist.contains(header.getName())) {
+                    if (i++ == 0) {
+                        appendTwoTabs(builder);
+                    } else {
+                        appendFourTabs(builder);
+                    }
+                    builder.append(header).append(SystemUtils.LINE_SEPARATOR);
                 }
-                builder.append(header).append(SystemUtils.LINE_SEPARATOR);
             }
         }
     }
