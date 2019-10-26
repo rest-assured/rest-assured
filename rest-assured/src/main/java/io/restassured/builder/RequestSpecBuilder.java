@@ -1048,7 +1048,7 @@ public class RequestSpecBuilder {
      * @return RequestSpecBuilder
      */
     public RequestSpecBuilder logBlacklists(final LogBlacklists logBlacklists) {
-        for (Filter filter : spec.getDefinedFilters()) {
+        for (Object filter : spec.getDefinedFilters()) {
             if (filter instanceof RequestLoggingFilter) {
                 RequestLoggingFilter requestLoggingFilter = (RequestLoggingFilter) filter;
                 requestLoggingFilter.setLogBlacklists(logBlacklists);
