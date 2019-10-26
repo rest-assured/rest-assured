@@ -16,6 +16,7 @@
 
 package io.restassured.filter.log;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -42,9 +43,9 @@ public class LogBlacklists {
 
     /**
      * Returns the set of blacklisted headers
-     * @return set of bkaclisted headers
+     * @return set of blacklisted headers
      */
     public Set<String> getHeadersBlacklist() {
-        return headersBlacklist;
+        return Collections.unmodifiableSet(headersBlacklist);
     }
 }
