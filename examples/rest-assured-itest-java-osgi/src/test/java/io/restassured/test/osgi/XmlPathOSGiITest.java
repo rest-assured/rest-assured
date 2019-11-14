@@ -60,7 +60,7 @@ public class XmlPathOSGiITest {
                         mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy").versionAsInProject(),
 
                         wrappedBundle(mavenBundle().groupId("org.ccil.cowan.tagsoup").artifactId("tagsoup").versionAsInProject()),
-                        wrappedBundle(mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject()),
+                        wrappedBundle(mavenBundle("jakarta.xml.bind", "jakarta.xml.bind-api").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.activation", "activation").version("1.1.1")),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
