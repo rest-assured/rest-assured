@@ -64,11 +64,11 @@ Getting and parsing a response body:
 
 ```java
 // Example with JsonPath
-String json = get("/lotto").asString()
+String json = get("/lotto").asString();
 List<String> winnderIds = from(json).get("lotto.winners.winnerId");
     
 // Example with XmlPath
-String xml = post("/shopping").andReturn().body().asString()
+String xml = post("/shopping").andReturn().body().asString();
 Node category = from(xml).get("shopping.category[0]");
 ```
 
