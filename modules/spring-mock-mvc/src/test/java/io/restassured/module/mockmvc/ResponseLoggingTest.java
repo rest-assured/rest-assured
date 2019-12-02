@@ -16,6 +16,7 @@
 
 package io.restassured.module.mockmvc;
 
+import org.json.JSONException;
 import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
@@ -24,12 +25,14 @@ import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
 
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -49,6 +52,15 @@ public class ResponseLoggingTest {
         RestAssured.reset();
     }
 
+    public void
+    assertJsonEqualsNonStrict(String json1, String json2) {
+        try {
+            JSONAssert.assertEquals(json1, json2, false);
+        } catch (JSONException jse) {
+            throw new IllegalArgumentException(jse.getMessage());
+        }
+    }
+
     @Test public void
     logging_if_response_validation_fails_works() {
         try {
@@ -64,9 +76,12 @@ public class ResponseLoggingTest {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo(String.format("200%n" +
-                    "Content-Type: application/json;charset=UTF-8%n" +
-                    "%n{\n    \"id\": 1,\n    \"content\": \"Hello, Johan!\"\n}%n")));
+            String writerString = writer.toString();
+            String headerString = String.format("200%n" +
+                            "Content-Type: application/json;charset=UTF-8%n");
+            assertThat(writerString, startsWith(headerString));
+            assertJsonEqualsNonStrict(writerString.replace(headerString, "").trim(),
+                    "{\n    \"id\": 1,\n    \"content\": \"Hello, Johan!\"\n}");
         }
     }
 
