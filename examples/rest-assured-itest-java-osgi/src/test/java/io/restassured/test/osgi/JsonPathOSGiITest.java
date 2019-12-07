@@ -55,7 +55,7 @@ public class JsonPathOSGiITest {
                         mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-xml").versionAsInProject().noStart(),
                         mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy").versionAsInProject(),
 
-                        wrappedBundle(mavenBundle().groupId("javax.xml.bind").artifactId("jaxb-api").versionAsInProject()),
+                        wrappedBundle(mavenBundle("jakarta.xml.bind", "jakarta.xml.bind-api").versionAsInProject()),
                         wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpclient").versionAsInProject()),
                         wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpmime").versionAsInProject()),
                         wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpcore").versionAsInProject()),

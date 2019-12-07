@@ -26,19 +26,19 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>../../spring-mock-mvc/target</directory>
+            <directory>../../kotlin-extensions/target</directory>
             <outputDirectory>/docs</outputDirectory>
             <includes>
-                <include>spring-mock-mvc-${project.version}-javadoc.jar</include>
-                <include>spring-mock-mvc-${project.version}-sources.jar</include>
+                <include>kotlin-extensions-${project.version}-javadoc.jar</include>
+                <include>kotlin-extensions-${project.version}-sources.jar</include>
             </includes>
         </fileSet>        
         <fileSet>
             <directory>${project.build.directory}</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>spring-mock-mvc-${project.version}.jar</include>
-                <include>spring-mock-mvc-${project.version}-deps.zip</include>
+                <include>kotlin-extensions-${project.version}.jar</include>
+                <include>kotlin-extensions-${project.version}-deps.zip</include>
             </includes>
         </fileSet>
     </fileSets>

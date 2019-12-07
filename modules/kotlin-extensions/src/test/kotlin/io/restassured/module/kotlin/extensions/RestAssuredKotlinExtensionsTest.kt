@@ -22,7 +22,7 @@ import io.restassured.filter.Filter
 import io.restassured.http.ContentType.JSON
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
-import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.*
 import org.junit.Before
 import org.junit.Test
 
@@ -71,7 +71,7 @@ class RestAssuredKotlinExtensionsTest {
     }
 
     @Test
-    fun `extraction after then with rest assured kotlin extensions`() {
+    fun `extraction after 'then', when path is not used in 'Then',  with rest assured kotlin extensions`() {
         val message: String = Given {
             port(7000)
             header("Header", "Header")
@@ -83,6 +83,27 @@ class RestAssuredKotlinExtensionsTest {
             put("/the/path")
         } Then {
             statusCode(200)
+        } Extract {
+            path("message")
+        }
+
+        assertThat(message).isEqualTo("Hello World")
+    }
+
+    @Test
+    fun `extraction after 'then', when path is used in 'Then',  with rest assured kotlin extensions`() {
+        val message: String = Given {
+            port(7000)
+            header("Header", "Header")
+            body("hello")
+            filter { _, _, _ ->
+                ResponseBuilder().setStatusCode(200).setContentType(JSON).setBody("""{ "message" : "Hello World"}""").build()
+            }
+        } When {
+            put("/the/path")
+        } Then {
+            statusCode(200)
+            body("message", not(emptyOrNullString()))
         } Extract {
             path("message")
         }

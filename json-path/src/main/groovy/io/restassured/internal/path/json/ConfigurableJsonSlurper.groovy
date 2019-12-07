@@ -193,7 +193,7 @@ class ConfigurableJsonSlurper {
      * @return a Map representing a JSON object
      */
     private Map parseObject(JsonLexer lexer) {
-        Map content = new HashMap();
+        Map content = new LinkedHashMap();
 
         JsonToken previousToken = null;
         JsonToken currentToken = null;

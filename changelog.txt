@@ -1,5 +1,26 @@
 Changelog next version
 ----------------------
+* Jakarta EE API: switch from javax.xml.bind:jaxb-api to jakarta.xml.bind:jakarta.xml.bind-api (issue 1228) (thanks to Sanne Grinovero for pull request)
+
+Changelog 4.1.2 (2019-10-02)
+----------------------------
+* The properties in a JSON document now preserves the order in which they are received (thanks to contextshuffling for pull request).
+* Added "When" method to Kotlin extensions API for consistency. This means that you can now call "When" directly without using "Given":
+    When {
+        get("/greeting")
+    }
+* Fixed so that it's possible to extract values after body validations in the Kotlin extensions API (issue 1212)
+* Upgrading jackson2 from version 2.9.9 to 2.10.0
+* Upgraded Groovy from version 2.5.6 to 2.5.8
+* Support for Java 13 (enabled by groovy upgrade)
+
+Changelog 4.1.1 (2019-09-06)
+---------------------------
+* Upgraded jaxb-api from 2.2.12 to 2.3.1
+* Upgraded jaxb-osgi from 2.2.10 to 2.3.0.1
+
+Changelog 4.1.0 (2019-09-02)
+----------------------------
 * Upgraded jackson2 from version 2.9.8 to 2.9.9 because of security issue in jackson-databind 2.9.8
 * The ResponseBuilder now sets a default RestAssuredConfig instance when building responses from scratch. This is needed for example if extracting path's from the response.
 * Added a Kotlin module that contains Kotlin extension functions that makes REST Assured nicer to work with from Kotlin. Depend on:
@@ -35,6 +56,7 @@ Changelog next version
   (issue 609)
 * No longer depending on hamcrest-core or hamcrest-library, instead the hamcrest module is used directly.
 * The scala support module has been upgraded to use Scala 2.13.0 (previously 2.12.7 was used)
+* RequestSpecBuilder no longer sets 8080 port for non localhost uri (issue #1197) (thanks to dr29bart for pull request)
 
 Changelog 4.0.0 (2019-05-10)
 ----------------------------

@@ -1553,22 +1553,21 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private String getTargetUriFromUrl(URL url) {
-    def builder = new StringBuilder();
     def protocol = url.getProtocol()
     boolean useDefaultHttps = false
-    if (port == DEFAULT_HTTP_TEST_PORT && protocol.equalsIgnoreCase("https")) {
+    if (this.@port == RestAssured.UNDEFINED_PORT && protocol.equalsIgnoreCase("https")) {
       useDefaultHttps = true
     }
 
-    builder.append(protocol)
-    builder.append("://")
-    builder.append(url.getAuthority())
+    def builder = new StringBuilder(protocol)
+      .append("://")
+      .append(url.getAuthority())
 
-    def hasSpecifiedPortExplicitly = port != RestAssured.UNDEFINED_PORT
+    def hasSpecifiedPortExplicitly = this.@port != RestAssured.UNDEFINED_PORT
     if (!hasPortDefined(url) && !useDefaultHttps) {
       if (hasSpecifiedPortExplicitly) {
         builder.append(":")
-        builder.append(port)
+        builder.append(this.@port)
       } else if (!isFullyQualified(url.toString()) || hasAuthorityEqualToLocalhost(url)) {
         builder.append(":")
         builder.append(DEFAULT_HTTP_TEST_PORT)

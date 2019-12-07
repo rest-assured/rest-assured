@@ -1068,7 +1068,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
 
     /**
      * Returns the {@link ValidatableResponseLogSpec} that allows you to log different parts of the {@link Response}.
-     * This is mainly useful for debug purposes when writing your tests. I
+     * This is mainly useful for debug purposes when writing your tests.
      *
      * @return the validatable response log specification
      */

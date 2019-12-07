@@ -59,7 +59,7 @@ public class RestAssuredOSGiITest {
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
-                        wrappedBundle(mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject()),
+                        wrappedBundle(mavenBundle("jakarta.xml.bind", "jakarta.xml.bind-api").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.activation", "activation").version("1.1.1")),
 
                         /* Rest Assured dependencie needed in the Pax Exam container to be able to execute the test below */

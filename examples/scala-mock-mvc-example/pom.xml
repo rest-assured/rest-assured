@@ -19,7 +19,7 @@
     <parent>
         <groupId>io.rest-assured.examples</groupId>
         <artifactId>example-parent</artifactId>
-        <version>4.0.1-SNAPSHOT</version>
+        <version>4.1.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -76,13 +76,13 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>spring-mock-mvc</artifactId>
-            <version>4.0.1-SNAPSHOT</version>
+            <version>4.1.3-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>scala-support</artifactId>
-            <version>4.0.1-SNAPSHOT</version>
+            <version>4.1.3-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
