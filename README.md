@@ -91,7 +91,7 @@ REST Assured supports any HTTP method but has explicit support for *POST*, *GET*
 ## Support and discussion
 Join the mailing list at our [Google group](http://groups.google.com/group/rest-assured). 
 
-<a href="https://www.buymeacoffee.com/johanhaleby" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/arial-blue.png" alt="Buy Me A Coffee" style="height: 35px !important;width: 145px !important;" ></a>
+<a href="https://www.buymeacoffee.com/johanhaleby" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/arial-blue.png" alt="Buy Me A Coffee" style="height: 35px !important;width: 145px !important;" height="35px" width="145px"></a>
 
 ## Links
 * [Change log](https://github.com/rest-assured/rest-assured/raw/master/changelog.txt)
