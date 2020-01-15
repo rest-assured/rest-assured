@@ -1085,6 +1085,8 @@ public class JsonPath {
             cfg = cfg.defaultParserType(JsonParserType.JACKSON_2);
         } else if (cfg.hasCustomJohnzonObjectMapperFactory()) {
             cfg = cfg.defaultParserType(JsonParserType.JOHNZON);
+        } else if (cfg.hasCustomJsonbObjectMapperFactory()) {
+            cfg = cfg.defaultParserType(JsonParserType.JSONB);
         }
 
         //noinspection unchecked

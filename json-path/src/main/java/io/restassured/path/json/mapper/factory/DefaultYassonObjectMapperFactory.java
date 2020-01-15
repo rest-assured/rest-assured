@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.restassured.path.json.mapper.factory;
 
-package io.restassured.mapper;
+import java.lang.reflect.Type;
 
-/**
- * The predefined object mappers that can be used with REST Assured
- */
-public enum ObjectMapperType {
-    JACKSON_2, JACKSON_1, GSON, JAXB, JOHNZON, JSONB
+import javax.json.bind.Jsonb;
+
+import org.eclipse.yasson.JsonBindingProvider;
+
+public class DefaultYassonObjectMapperFactory implements JsonbObjectMapperFactory {
+    
+    private static Object cachedJsonb = null;
+    
+	@Override
+	public Jsonb create(Type cls, String charset) {
+	    if (cachedJsonb == null) {
+	        cachedJsonb = new JsonBindingProvider().create().build();
+	    }
+	    return (Jsonb) cachedJsonb;
+	}
 }
