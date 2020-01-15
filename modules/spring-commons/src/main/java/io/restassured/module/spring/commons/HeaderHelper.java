@@ -97,12 +97,13 @@ public class HeaderHelper {
         EncoderConfig encoderConfig = config.getEncoderConfig();
         if (requestContentType != null && encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !StringUtils.containsIgnoreCase(requestContentType, CHARSET)) {
             // Append default charset to request content type
-            requestContentType += "; charset=";
+            String requestContentTypePlusCharset = requestContentType + "; charset=";
             if (encoderConfig.hasDefaultCharsetForContentType(requestContentType)) {
-                requestContentType += encoderConfig.defaultCharsetForContentType(requestContentType);
+                requestContentTypePlusCharset += encoderConfig.defaultCharsetForContentType(requestContentType);
             } else {
-                requestContentType += encoderConfig.defaultContentCharset();
+                requestContentTypePlusCharset += encoderConfig.defaultContentCharset();
             }
+            requestContentType = requestContentTypePlusCharset;
         }
         return requestContentType;
     }

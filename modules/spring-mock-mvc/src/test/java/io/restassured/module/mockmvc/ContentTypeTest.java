@@ -41,13 +41,15 @@ public class ContentTypeTest {
                 standaloneSetup(new GreetingController()).
                 contentType(ContentType.JSON).
                 interceptor(requestBuilder -> contentType.set(extractContentType(requestBuilder))).
-        when().
+                when().
                 get("/greeting?name={name}", "Johan").
-        then().
-               statusCode(200);
+                then().
+                statusCode(200);
 
-        assertThat(contentType.get()).isEqualTo("application/json;charset=" + RestAssuredMockMvc.config().getEncoderConfig().defaultContentCharset());
+        assertThat(contentType.get())
+                .isEqualTo("application/json;charset=" + RestAssuredMockMvc.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON));
     }
+
 
     @Test public void
     adds_specific_charset_to_content_type_by_default() {
@@ -114,7 +116,7 @@ public class ContentTypeTest {
                 statusCode(200);
 
         assertThat(contentTypes.size()).isEqualTo(1);
-        assertThat(contentTypes.get(0)).isEqualTo("application/json;charset=ISO-8859-1");
+        assertThat(contentTypes.get(0)).isEqualTo("application/json;charset=UTF-8");
     }
 
     @Test public void
