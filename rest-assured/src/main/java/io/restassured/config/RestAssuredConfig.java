@@ -82,7 +82,7 @@ public class RestAssuredConfig implements Config {
         notNull(multiPartConfig, "Multipart config");
         notNull(paramConfig, "Param config");
         notNull(oAuthConfig, "OAuth config");
-        notNull(failureConfig, "Failre config");
+        notNull(failureConfig, "Failure config");
         configs.put(HttpClientConfig.class, httpClientConfig);
         configs.put(RedirectConfig.class, redirectConfig);
         configs.put(LogConfig.class, logConfig);
