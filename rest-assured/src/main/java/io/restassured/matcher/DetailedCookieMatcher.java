@@ -199,4 +199,22 @@ public class DetailedCookieMatcher extends CombinableMatcher<Cookie> {
     public DetailedCookieMatcher maxAge(Matcher<? super Integer> maxAgeMatcher) {
         return new DetailedCookieMatcher(and(Matchers.hasProperty("maxAge", maxAgeMatcher)));
     }
+
+    /**
+     * Verifies whether SameSite Attribute of cookie is equal to specified argument.
+     * @param expectedSameSiteAttribute expected SameSite Attribute of cookie
+     * @return A {@link DetailedCookieMatcher} instance with and-composed SameSite Attribute property assertion
+     */
+    public DetailedCookieMatcher sameSite(String expectedSameSiteAttribute) {
+        return sameSite(equalTo(expectedSameSiteAttribute));
+    }
+
+    /**
+     * Verifies whether SameSite Attribute of cookie satisfies specified matcher.
+     * @param sameSiteMatcher assertion for SameSite Attribute
+     * @return A {@link DetailedCookieMatcher} instance with and-composed sameSite property assertion
+     */
+    public DetailedCookieMatcher sameSite(Matcher<? super String> sameSiteMatcher) {
+        return new DetailedCookieMatcher(and(Matchers.hasProperty("sameSite", sameSiteMatcher)));
+    }
 }

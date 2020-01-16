@@ -662,6 +662,12 @@ class ScalatraRestExample extends ScalatraServlet {
     "OK"
   }
 
+  get("/sameSiteCookie") {
+    contentType = "text/plain"
+    response.setHeader("Set-Cookie", "name=value; Secure; SameSite=None")
+    "OK"
+  }
+
   get("/multiCookie") {
     contentType = "text/plain"
     val cookie1: Cookie = new Cookie("cookie1", "cookieValue1")

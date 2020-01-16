@@ -48,6 +48,7 @@ public class Cookie implements NameAndValue {
     public static final String HTTP_ONLY = "HttpOnly";
     public static final String EXPIRES = "Expires";
     public static final String VERSION = "Version";
+    public static final String SAME_SITE = "SameSite";
 
     private static final String COOKIE_ATTRIBUTE_SEPARATOR = ";";
     private static final String EQUALS = "=";
@@ -63,10 +64,11 @@ public class Cookie implements NameAndValue {
     private final boolean httpOnly;
     private final int version;
     private final int maxAge;
+    private final String sameSite;
 
     private Cookie(String name, String value, String comment, Date expiryDate,
                    String domain, String path, boolean secured, boolean httpOnly, int version,
-                   int maxAge) {
+                   int maxAge, String sameSite) {
         this.name = name;
         this.value = value;
         this.comment = comment;
@@ -77,6 +79,7 @@ public class Cookie implements NameAndValue {
         this.httpOnly = httpOnly;
         this.version = version < 0 ? UNDEFINED : version;
         this.maxAge = maxAge;
+        this.sameSite = sameSite;
     }
 
     /**
@@ -225,6 +228,23 @@ public class Cookie implements NameAndValue {
         return maxAge != UNDEFINED;
     }
 
+    /**
+     * Returns the SameSite attribute of the cookie. The SameSite cookie attribute restricts browser behavior. It may prevent the browser
+     * from sending the cookie's key-value pair based on the type of interaction that triggered the HTTP request.
+     *
+     * @return The value of the sameSite attribute.
+     */
+    public String getSameSite() {
+        return sameSite;
+    }
+
+    /**
+     * @return <code>true</code> if this cookie has a SameSite attribute defined, <code>false</code> otherwise.
+     */
+    public boolean hasSameSite() {
+        return sameSite != null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -242,6 +262,7 @@ public class Cookie implements NameAndValue {
         if (name != null ? !name.equals(cookie.name) : cookie.name != null) return false;
         if (path != null ? !path.equals(cookie.path) : cookie.path != null) return false;
         if (value != null ? !value.equals(cookie.value) : cookie.value != null) return false;
+        if (sameSite != null ? !sameSite.equals(cookie.sameSite) : cookie.sameSite != null) return false;
 
         return true;
     }
@@ -258,6 +279,7 @@ public class Cookie implements NameAndValue {
         result = 31 * result + (httpOnly ? 1 : 0);
         result = 31 * result + version;
         result = 31 * result + maxAge;
+        result = 31 * result + (sameSite != null ? sameSite.hashCode() : 0);
         return result;
     }
 
@@ -294,6 +316,9 @@ public class Cookie implements NameAndValue {
         if (hasVersion()) {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(VERSION).append(EQUALS).append(version);
         }
+        if (hasSameSite()) {
+            builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(SAME_SITE).append(EQUALS).append(sameSite);
+        }
         return builder.toString();
     }
 
@@ -308,6 +333,7 @@ public class Cookie implements NameAndValue {
         private boolean httpOnly = false;
         private int version = UNDEFINED;
         private int maxAge = UNDEFINED;
+        private String sameSite;
 
         /**
          * Create a cookie with no value
@@ -432,11 +458,23 @@ public class Cookie implements NameAndValue {
         }
 
         /**
+         * Set the SameSite attribute of the cookie. The SameSite cookie attribute restricts browser behavior. It may prevent the browser
+         * from sending the cookie's key-value pair based on the type of interaction that triggered the HTTP request.
+         * @param sameSite The SameSite attribute
+         * @return The builder
+         */
+        public Builder setSameSite(String sameSite) {
+            notNull(sameSite, "Cookie SameSite attribute");
+            this.sameSite = sameSite;
+            return this;
+        }
+
+        /**
          * Build a Cookie from the specified parameters.
          * @return The Cookie
          */
         public Cookie build() {
-            return new Cookie(name, value, comment, expiryDate, domain, path, secured, httpOnly, version, maxAge);
+            return new Cookie(name, value, comment, expiryDate, domain, path, secured, httpOnly, version, maxAge, sameSite);
         }
     }
 }
