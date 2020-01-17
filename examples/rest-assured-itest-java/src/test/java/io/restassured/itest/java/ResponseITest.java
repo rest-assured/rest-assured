@@ -32,7 +32,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 
 import static io.restassured.RestAssured.*;
@@ -47,27 +49,27 @@ public class ResponseITest extends WithJetty {
     public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void whenNoExpectationsDefinedThenGetCanReturnBodyAsString() throws Exception {
+    public void whenNoExpectationsDefinedThenGetCanReturnBodyAsString() {
         final String body = get("/hello").asString();
         assertEquals("{\"hello\":\"Hello Scalatra\"}", body);
     }
 
     @Test
-    public void whenNoExpectationsDefinedThenGetCanReturnAStringAsByteArray() throws Exception {
+    public void whenNoExpectationsDefinedThenGetCanReturnAStringAsByteArray() {
         final byte[] expected = "{\"hello\":\"Hello Scalatra\"}".getBytes();
         final byte[] actual = get("/hello").asByteArray();
         assertArrayEquals(expected, actual);
     }
 
     @Test
-    public void whenExpectationsDefinedThenAsStringReturnsCanReturnTheResponseBody() throws Exception {
+    public void whenExpectationsDefinedThenAsStringReturnsCanReturnTheResponseBody() {
         final String body = expect().body(equalTo("{\"hello\":\"Hello Scalatra\"}")).when().get("/hello").asString();
 
         assertThat(body, containsString("Hello"));
     }
 
     @Test
-    public void whenNoExpectationsDefinedThenPostCanReturnBodyAsString() throws Exception {
+    public void whenNoExpectationsDefinedThenPostCanReturnBodyAsString() {
         final String body = with().params("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().body().asString();
         assertEquals("<greeting><firstName>John</firstName>\n" +
                 "      <lastName>Doe</lastName>\n" +
@@ -75,32 +77,32 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void whenNoExpectationsDefinedThenPostWithBodyCanReturnBodyAsString() throws Exception {
+    public void whenNoExpectationsDefinedThenPostWithBodyCanReturnBodyAsString() {
         byte[] body = {23, 42, 127, 123};
         final String actual = given().body(body).when().post("/binaryBody").andReturn().asString();
         assertEquals("23, 42, 127, 123", actual);
     }
 
     @Test
-    public void whenNoExpectationsDefinedThenPutCanReturnBodyAsString() throws Exception {
+    public void whenNoExpectationsDefinedThenPutCanReturnBodyAsString() {
         final String actual = given().cookies("username", "John", "token", "1234").when().put("/cookie").asString();
         assertEquals("username, token", actual);
     }
 
     @Test
-    public void whenNoExpectationsDefinedThenPutWithBodyCanReturnBodyAsString() throws Exception {
+    public void whenNoExpectationsDefinedThenPutWithBodyCanReturnBodyAsString() {
         final String body = given().body("a body").when().put("/body").andReturn().body().asString();
         assertEquals("a body", body);
     }
 
     @Test
-    public void whenNoExpectationsDefinedThenDeleteWithBodyCanReturnBodyAsString() throws Exception {
+    public void whenNoExpectationsDefinedThenDeleteWithBodyCanReturnBodyAsString() {
         final String actual = given().params("firstName", "John", "lastName", "Doe").when().delete("/greet").thenReturn().asString();
         assertEquals("{\"greeting\":\"Greetings John Doe\"}", actual);
     }
 
     @Test
-    public void responseSupportsGettingCookies() throws Exception {
+    public void responseSupportsGettingCookies() {
         final Response response = get("/setCookies");
         assertEquals(3, response.getCookies().size());
         assertEquals(3, response.cookies().size());
@@ -109,7 +111,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void responseSupportsGettingHeaders() throws Exception {
+    public void responseSupportsGettingHeaders() {
         final Response response = get("/setCookies");
         assertEquals(7, response.getHeaders().size());
         assertEquals(7, response.headers().size());
@@ -119,7 +121,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void responseSupportsGettingStatusLine() throws Exception {
+    public void responseSupportsGettingStatusLine() {
         final Response response = get("/hello");
 
         assertThat(response.statusLine(), equalTo("HTTP/1.1 200 OK"));
@@ -127,7 +129,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void responseSupportsGettingStatusCode() throws Exception {
+    public void responseSupportsGettingStatusCode() {
         final Response response = get("/hello");
 
         assertThat(response.statusCode(), equalTo(200));
@@ -135,7 +137,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void whenNoExpectationsDefinedThenGetCanReturnBodyAsInputStream() throws Exception {
+    public void whenNoExpectationsDefinedThenGetCanReturnBodyAsInputStream() throws IOException {
         final InputStream inputStream = get("/hello").asInputStream();
         final String string = IOUtils.toString(inputStream);
 
@@ -143,7 +145,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void whenExpectationsDefinedThenGetCanReturnBodyAsInputStream() throws Exception {
+    public void whenExpectationsDefinedThenGetCanReturnBodyAsInputStream() throws IOException {
         final InputStream inputStream = expect().body("hello", equalTo("Hello Scalatra")).when().get("/hello").asInputStream();
         final String string = IOUtils.toString(inputStream);
 
@@ -151,7 +153,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void whenExpectationsDefinedAndLoggingThenGetCanReturnBodyAsInputStream() throws Exception {
+    public void whenExpectationsDefinedAndLoggingThenGetCanReturnBodyAsInputStream() throws IOException {
         final InputStream inputStream = expect().log().all().and().body("hello", equalTo("Hello Scalatra")).when().get("/hello").asInputStream();
         final String string = IOUtils.toString(inputStream);
 
@@ -159,7 +161,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void whenNoExpectationsDefinedButLoggingThenGetCanReturnBodyAsInputStream() throws Exception {
+    public void whenNoExpectationsDefinedButLoggingThenGetCanReturnBodyAsInputStream() throws IOException {
         final InputStream inputStream = expect().log().all().when().get("/hello").asInputStream();
         final String string = IOUtils.toString(inputStream);
 
@@ -167,21 +169,21 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void usingJsonPathViewFromTheResponse() throws Exception {
+    public void usingJsonPathViewFromTheResponse() {
         final String hello = get("/hello").andReturn().jsonPath().getString("hello");
 
         assertThat(hello, equalTo("Hello Scalatra"));
     }
 
     @Test
-    public void usingXmlPathViewFromTheResponse() throws Exception {
+    public void usingXmlPathViewFromTheResponse() {
         final String firstName = with().params("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().xmlPath().getString("greeting.firstName");
 
         assertThat(firstName, equalTo("John"));
     }
 
     @Test
-    public void usingXmlPathWithHtmlCompatibilityModeFromTheResponse() throws Exception {
+    public void usingXmlPathWithHtmlCompatibilityModeFromTheResponse() {
         // When
         final String title = get("/textHTML").xmlPath(HTML).getString("html.head.title");
 
@@ -190,7 +192,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void usingHtmlPathToParseHtmlFromTheResponse() throws Exception {
+    public void usingHtmlPathToParseHtmlFromTheResponse() {
         // When
         final String title = get("/textHTML").htmlPath().getString("html.head.title");
 
@@ -199,42 +201,42 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void usingPathWithContentTypeJsonFromTheResponse() throws Exception {
+    public void usingPathWithContentTypeJsonFromTheResponse() {
         final String hello = get("/hello").andReturn().path("hello");
 
         assertThat(hello, equalTo("Hello Scalatra"));
     }
 
     @Test
-    public void usingPathWithParameters() throws Exception {
+    public void usingPathWithParameters() {
         final String hello = get("/hello").andReturn().path("hel%s", "lo");
 
         assertThat(hello, equalTo("Hello Scalatra"));
     }
 
     @Test
-    public void usingPathWithContentTypeXmlFromTheResponse() throws Exception {
+    public void usingPathWithContentTypeXmlFromTheResponse() {
         final String firstName = with().params("firstName", "John", "lastName", "Doe").post("/greetXML").andReturn().path("greeting.firstName");
 
         assertThat(firstName, equalTo("John"));
     }
 
     @Test
-    public void usingACustomRegisteredParserAllowsUsingPath() throws Exception {
+    public void usingACustomRegisteredParserAllowsUsingPath() {
         final String message = expect().parser("application/vnd.uoml+something", Parser.JSON).when().get("/customMimeTypeJsonCompatible2").path("message");
 
         assertThat(message, equalTo("It works"));
     }
 
     @Test
-    public void usingADefaultParserAllowsUsingPath() throws Exception {
+    public void usingADefaultParserAllowsUsingPath() {
         final String message = expect().defaultParser(Parser.JSON).when().get("/customMimeTypeJsonCompatible2").path("message");
 
         assertThat(message, equalTo("It works"));
     }
 
     @Test
-    public void responseTakeCharsetIntoAccount() throws Exception {
+    public void responseTakeCharsetIntoAccount() throws UnsupportedEncodingException {
         ResponseBuilder b = new ResponseBuilder();
         b.setHeaders(new Headers());
         b.setBody(new ByteArrayInputStream("äöü".getBytes("UTF-8")));
@@ -245,7 +247,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void jsonPathReturnedByResponseUsesConfigurationFromRestAssured() throws Exception {
+    public void jsonPathReturnedByResponseUsesConfigurationFromRestAssured() {
         // When
         final JsonPath jsonPath =
                 given().
@@ -261,7 +263,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void jsonPathWithConfigReturnedByResponseOverridesConfigurationFromRestAssured() throws Exception {
+    public void jsonPathWithConfigReturnedByResponseOverridesConfigurationFromRestAssured() {
         // When
         final JsonPath jsonPath =
                 given().
@@ -278,7 +280,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void pathWorksForMultipleInvocationsWithJson() throws Exception {
+    public void pathWorksForMultipleInvocationsWithJson() {
         Response response = get("/jsonStore");
 
         float minPrice = response.path("store.book.price.min()");
@@ -289,7 +291,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void pathThrowsExceptionWhenTryingToUseXmlPathAfterHavingUsedJsonPath() throws Exception {
+    public void pathThrowsExceptionWhenTryingToUseXmlPathAfterHavingUsedJsonPath() {
         exception.expect(XmlPathException.class);
         exception.expectMessage("Failed to parse the XML document");
 
@@ -300,7 +302,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void pathWorksForMultipleInvocationsWithXml() throws Exception {
+    public void pathWorksForMultipleInvocationsWithXml() {
         Response response = get("/videos");
 
         String title = response.path("videos.music[0].title.toString().trim()");
@@ -311,7 +313,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void pathThrowsExceptionWhenTryingToUseJsonPathAfterHavingUsedXmlPath() throws Exception {
+    public void pathThrowsExceptionWhenTryingToUseJsonPathAfterHavingUsedXmlPath() {
         exception.expect(JsonPathException.class);
         exception.expectMessage("Failed to parse the JSON document");
 
@@ -322,7 +324,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void canParsePathAfterPrettyPrint() throws Exception {
+    public void canParsePathAfterPrettyPrint() {
         Response response = get("/videos");
 
         response.prettyPrint();
@@ -335,7 +337,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void canParsePathAfterPrint() throws Exception {
+    public void canParsePathAfterPrint() {
         Response response = get("/videos");
 
         response.print();
@@ -348,7 +350,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void canGetAsStringMultipleTimes() throws Exception {
+    public void canGetAsStringMultipleTimes() {
         // When
         Response response = get("/videos");
 
@@ -360,7 +362,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void canGetAsByteArrayMultipleTimes() throws Exception {
+    public void canGetAsByteArrayMultipleTimes() {
         // When
         Response response = get("/videos");
 
@@ -372,7 +374,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void canCombineAsByteArrayWithPrettyPrintAndAsString() throws Exception {
+    public void canCombineAsByteArrayWithPrettyPrintAndAsString() {
         // When
         Response response = get("/videos");
 
@@ -385,7 +387,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void canCombineAsStringWithPrettyPrintAndAsByteArray() throws Exception {
+    public void canCombineAsStringWithPrettyPrintAndAsByteArray() {
         // When
         Response response = get("/videos");
 
@@ -398,7 +400,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void canParsePathAfterPrettyPeek() throws Exception {
+    public void canParsePathAfterPrettyPeek() {
         Response response = get("/videos").prettyPeek();
 
         String title = response.path("videos.music[0].title.toString().trim()");
@@ -409,7 +411,7 @@ public class ResponseITest extends WithJetty {
     }
 
     @Test
-    public void canParsePathAfterPeek() throws Exception {
+    public void canParsePathAfterPeek() {
         Response response = get("/videos").peek();
 
         String title = response.path("videos.music[0].title.toString().trim()");
