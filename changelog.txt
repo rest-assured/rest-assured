@@ -4,6 +4,36 @@ Changelog next version
 * Ignore unsupported by scripbejava verbs (thanks to Corneliu Duplachi for pull request)
 * Add support for SameSite in Cookie (issue 1255) (thanks to Andreas Jonsson for pull request)
 * Upgrading jackson2 from version 2.10.0 to 2.10.2
+* Introduce the spring-mock-mvc-kotlin-extensions project which allows a nicer experience for Kotlin developers using the spring-mock-mvc module. This allows one to write tests like this:
+
+    class RestAssuredMockMvcKotlinExtensionsTest {
+
+        @Test
+        fun example() {
+            val mockMvc =
+                MockMvcBuilders.standaloneSetup(GreetingController())
+                    .build()
+
+            val id: Int =
+            Given {
+                mockMvc(mockMvc)
+                param("name", "Johan")
+            } When {
+                get("/greeting")
+            } Then {
+                body(
+                    "id", Matchers.equalTo(1),
+                    "content", Matchers.equalTo("Hello, Johan!")
+                )
+            } Extract {
+                path("id")
+            }
+
+            assertThat(id).isEqualTo(1)
+    }
+
+  (thanks to Myeonghyeon-Lee for pull request)
+
 
 Changelog 4.1.2 (2019-10-02)
 ----------------------------
