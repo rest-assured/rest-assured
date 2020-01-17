@@ -2,6 +2,8 @@ Changelog next version
 ----------------------
 * Jakarta EE API: switch from javax.xml.bind:jaxb-api to jakarta.xml.bind:jakarta.xml.bind-api (issue 1228) (thanks to Sanne Grinovero for pull request)
 * Ignore unsupported by scripbejava verbs (thanks to Corneliu Duplachi for pull request)
+* Add support for SameSite in Cookie (issue 1255) (thanks to Andreas Jonsson for pull request)
+* Upgrading jackson2 from version 2.10.0 to 2.10.2
 
 Changelog 4.1.2 (2019-10-02)
 ----------------------------
