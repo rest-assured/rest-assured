@@ -25,6 +25,7 @@ import io.restassured.response.ResponseOptions;
 import org.apache.commons.lang3.SystemUtils;
 
 import java.io.PrintStream;
+import java.util.Set;
 
 import static io.restassured.filter.log.LogDetail.*;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -34,6 +35,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  */
 public class ResponsePrinter {
 
+    private static final String BLACKLISTED = "[ BLACKLISTED ]";
     private static final String HEADER_NAME_AND_VALUE_SEPARATOR = ": ";
 
     /**
@@ -41,7 +43,7 @@ public class ResponsePrinter {
      *
      * @return A string of representing the response
      */
-    public static String print(ResponseOptions responseOptions, ResponseBody responseBody, PrintStream stream, LogDetail logDetail, boolean shouldPrettyPrint) {
+    public static String print(ResponseOptions responseOptions, ResponseBody responseBody, PrintStream stream, LogDetail logDetail, boolean shouldPrettyPrint, Set<String> blacklistedHeaders) {
         final StringBuilder builder = new StringBuilder();
         if (logDetail == ALL || logDetail == STATUS) {
             builder.append(responseOptions.statusLine());
@@ -49,7 +51,7 @@ public class ResponsePrinter {
         if (logDetail == ALL || logDetail == HEADERS) {
             final Headers headers = responseOptions.headers();
             if (headers.exist()) {
-                appendNewLineIfAll(logDetail, builder).append(toString(headers));
+                appendNewLineIfAll(logDetail, builder).append(toString(headers, blacklistedHeaders));
             }
         } else if (logDetail == COOKIES) {
             final Cookies cookies = responseOptions.detailedCookies();
@@ -75,16 +77,21 @@ public class ResponsePrinter {
         return response;
     }
 
-    private static String toString(Headers headers) {
+    private static String toString(Headers headers, Set<String> blacklistedHeaders) {
         if (!headers.exist()) {
             return "";
         }
 
         final StringBuilder builder = new StringBuilder();
         for (Header header : headers) {
-            builder.append(header.getName())
-                    .append(HEADER_NAME_AND_VALUE_SEPARATOR)
-                    .append(header.getValue())
+            StringBuilder headerStringBuilder = builder.append(header.getName())
+                    .append(HEADER_NAME_AND_VALUE_SEPARATOR);
+            if (blacklistedHeaders.contains(header.getName())) {
+                headerStringBuilder.append(BLACKLISTED);
+            } else {
+                headerStringBuilder.append(header.getValue());
+            }
+            headerStringBuilder
                     .append(SystemUtils.LINE_SEPARATOR);
         }
         builder.delete(builder.length() - SystemUtils.LINE_SEPARATOR.length(), builder.length());
@@ -97,6 +104,4 @@ public class ResponsePrinter {
         }
         return builder;
     }
-
-
 }

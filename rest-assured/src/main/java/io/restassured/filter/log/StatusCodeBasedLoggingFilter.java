@@ -28,6 +28,9 @@ import org.apache.commons.lang3.Validate;
 import org.hamcrest.Matcher;
 
 import java.io.PrintStream;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static io.restassured.RestAssured.config;
 
@@ -37,6 +40,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
     private final Matcher<?> matcher;
     private final LogDetail logDetail;
     private final boolean shouldPrettyPrint;
+    private final Set<String> blacklistedHeaders;
 
     /**
      * Log to system out
@@ -77,9 +81,23 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param matcher     The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<? super Integer> matcher) {
+        this(logDetail, prettyPrint, stream, matcher, Collections.emptySet());
+    }
+
+
+    /**
+     * Instantiate a logger using a specific print stream and a specific log detail  and the option to pretty printing
+     *
+     * @param logDetail   The log detail
+     * @param prettyPrint Enabled pretty printing if possible
+     * @param stream      The stream to log errors to.
+     * @param matcher     The matcher for the logging to take place
+     */
+    public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<? super Integer> matcher, Set<String> blacklistedHeaders) {
         Validate.notNull(logDetail, "Log details cannot be null");
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(matcher, "Matcher cannot be null");
+        Validate.notNull(blacklistedHeaders, "Blacklisted headers cannot be null");
         if (logDetail == LogDetail.PARAMS || logDetail == LogDetail.URI || logDetail == LogDetail.METHOD) {
             throw new IllegalArgumentException(String.format("%s is not a valid %s for a response.", logDetail, LogDetail.class.getSimpleName()));
         }
@@ -87,13 +105,14 @@ class StatusCodeBasedLoggingFilter implements Filter {
         this.logDetail = logDetail;
         this.stream = stream;
         this.matcher = matcher;
+        this.blacklistedHeaders = new HashSet<>(blacklistedHeaders);
     }
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
         Response response = ctx.next(requestSpec, responseSpec);
         final int statusCode = response.statusCode();
         if (matcher.matches(statusCode)) {
-            ResponsePrinter.print(response, response, stream, logDetail, shouldPrettyPrint);
+            ResponsePrinter.print(response, response, stream, logDetail, shouldPrettyPrint, blacklistedHeaders);
             final byte[] responseBody;
             if (logDetail == LogDetail.BODY || logDetail == LogDetail.ALL) {
                 responseBody = response.asByteArray();

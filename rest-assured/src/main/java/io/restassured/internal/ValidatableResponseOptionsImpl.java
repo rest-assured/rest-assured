@@ -397,7 +397,7 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
     }
 
     private T logResponse(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream printStream) {
-        ResponsePrinter.print(response, response, printStream, logDetail, shouldPrettyPrint);
+        ResponsePrinter.print(response, response, printStream, logDetail, shouldPrettyPrint, config.getLogConfig().blacklistedHeaders());
         return (T) this;
     }
 

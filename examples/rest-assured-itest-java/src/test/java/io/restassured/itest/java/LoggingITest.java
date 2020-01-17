@@ -1421,7 +1421,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test public void
-    its_possible_to_hide_headers_when_blacklist_is_defined_using_a_request_spec_builder() {
+    its_possible_to_hide_request_headers_when_blacklist_is_defined_using_a_request_spec_builder() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         final RequestSpecification spec = new RequestSpecBuilder()
@@ -1455,7 +1455,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test public void
-    its_possible_to_hide_headers_when_blacklist_is_defined_in_log_config_from_request_specification() {
+    its_possible_to_hide_request_headers_when_blacklist_is_defined_in_log_config_from_request_specification() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -1481,5 +1481,25 @@ public class LoggingITest extends WithJetty {
                 "Cookies:\t\t<none>%n" +
                 "Multiparts:\t\t<none>%n" +
                 "Body:\t\t\t<none>%n")));
+    }
+
+    @Test public void
+    its_possible_to_hide_response_headers_when_blacklist_is_defined_in_log_config_from_request_specification() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(logConfig().defaultStream(captor).blacklistHeader("MultiHeader"))).
+        when().
+                get("/multiValueHeader").
+        then().
+                log().all();
+
+        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
+                "Content-Type: text/plain;charset=utf-8%n" +
+                "MultiHeader: [ BLACKLISTED ]%n" +
+                "MultiHeader: [ BLACKLISTED ]%n" +
+                "Content-Length: 0%n" +
+                "Server: Jetty(9.3.2.v20150730)%n")));
     }
 }
