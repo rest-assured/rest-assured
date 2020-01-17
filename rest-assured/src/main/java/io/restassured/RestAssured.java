@@ -552,28 +552,6 @@ public class RestAssured {
     }
 
     /**
-     * Set a object mapper that'll be used when serializing and deserializing Java objects to and from it's
-     * document representation (XML, JSON etc).
-     *
-     * @param objectMapper The object mapper to use.
-     */
-    public static void objectMapper(ObjectMapper objectMapper) {
-        Validate.notNull(objectMapper, "Default object mapper cannot be null");
-        config = config().objectMapperConfig(ObjectMapperConfig.objectMapperConfig().defaultObjectMapper(objectMapper));
-    }
-    
-    /**
-     * Set a object mapper type that'll be used when serializing and deserializing Java objects to and from it's
-     * document representation (XML, JSON etc).
-     *
-     * @param objectMapperType The object mapper type to use.
-     */
-    public static void objectMapper(ObjectMapperType objectMapperType) {
-        Validate.notNull(objectMapperType, "Default object mapper type cannot be null");
-        config = config().objectMapperConfig(ObjectMapperConfig.objectMapperConfig().defaultObjectMapperType(objectMapperType));
-    }
-
-    /**
      * Start building the response part of the test io.restassured.specification. E.g.
      * <p/>
      * <pre>
