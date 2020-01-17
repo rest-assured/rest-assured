@@ -22,7 +22,6 @@ import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SessionConfig;
 import io.restassured.filter.Filter;
-import io.restassured.filter.log.LogBlacklists;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.ContentType;
@@ -45,6 +44,7 @@ import java.security.KeyStore;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
@@ -1037,23 +1037,9 @@ public class RequestSpecBuilder {
         PrintStream printStream = logConfig.defaultStream();
         boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
         boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
-        spec.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri));
-        return this;
-    }
+        Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();
 
-    /**
-     * Blacklists certain components of an HTTP request.
-     *
-     * @param logBlacklists The blacklists to be used during logging.
-     * @return RequestSpecBuilder
-     */
-    public RequestSpecBuilder logBlacklists(final LogBlacklists logBlacklists) {
-        for (Object filter : spec.getDefinedFilters()) {
-            if (filter instanceof RequestLoggingFilter) {
-                RequestLoggingFilter requestLoggingFilter = (RequestLoggingFilter) filter;
-                requestLoggingFilter.setLogBlacklists(logBlacklists);
-            }
-        }
+        spec.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blacklistedHeaders));
         return this;
     }
 

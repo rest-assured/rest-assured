@@ -16,7 +16,6 @@
 
 package io.restassured.internal.print;
 
-import io.restassured.filter.log.LogBlacklists;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
@@ -47,10 +46,10 @@ public class RequestPrinter {
     private static final String TAB = "\t";
     private static final String EQUALS = "=";
     private static final String NONE = "<none>";
-    private static final String REDACTED = "[ REDACTED ]";
+    private static final String HIDDEN = "[ HIDDEN ]";
 
     public static String print(FilterableRequestSpecification requestSpec, String requestMethod, String completeRequestUri,
-                               LogDetail logDetail, LogBlacklists logBlacklists,
+                               LogDetail logDetail, Set<String> blacklistedHeaders,
                                PrintStream stream, boolean shouldPrettyPrint) {
         final StringBuilder builder = new StringBuilder();
         if (logDetail == ALL || logDetail == METHOD) {
@@ -70,7 +69,7 @@ public class RequestPrinter {
         }
 
         if (logDetail == ALL || logDetail == HEADERS) {
-            addHeaders(requestSpec, logBlacklists.getHeadersBlacklist(), builder);
+            addHeaders(requestSpec, blacklistedHeaders, builder);
         }
         if (logDetail == ALL || logDetail == COOKIES) {
             addCookies(requestSpec, builder);
@@ -133,8 +132,8 @@ public class RequestPrinter {
         }
     }
 
-    private static void addHeaders(FilterableRequestSpecification requestSpec, Set<String> headersBlacklist,
-            StringBuilder builder) {
+    private static void addHeaders(FilterableRequestSpecification requestSpec, Set<String> blacklistedHeaders,
+                                   StringBuilder builder) {
         builder.append("Headers:");
         final Headers headers = requestSpec.getHeaders();
         if (!headers.exist()) {
@@ -148,8 +147,8 @@ public class RequestPrinter {
                     appendFourTabs(builder);
                 }
                 Header processedHeader = header;
-                if (headersBlacklist.contains(header.getName())) {
-                    processedHeader = new Header(header.getName(), REDACTED);
+                if (blacklistedHeaders.contains(header.getName())) {
+                    processedHeader = new Header(header.getName(), HIDDEN);
                 }
                 builder.append(processedHeader).append(SystemUtils.LINE_SEPARATOR);
             }

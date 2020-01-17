@@ -635,7 +635,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   RequestLogSpecification log() {
-    return new RequestLogSpecificationImpl(requestSpecification: this, logRepository: logRepository)
+    def blacklistedHeaders = restAssuredConfig().logConfig.blacklistedHeaders()
+    return new RequestLogSpecificationImpl(requestSpecification: this, logRepository: logRepository, blacklistedHeaders: blacklistedHeaders)
   }
 
   RequestSpecification and() {
@@ -1560,8 +1561,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
 
     def builder = new StringBuilder(protocol)
-      .append("://")
-      .append(url.getAuthority())
+            .append("://")
+            .append(url.getAuthority())
 
     def hasSpecifiedPortExplicitly = this.@port != RestAssured.UNDEFINED_PORT
     if (!hasPortDefined(url) && !useDefaultHttps) {

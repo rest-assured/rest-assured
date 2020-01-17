@@ -23,6 +23,10 @@ import io.restassured.specification.LogSpecification;
 import org.apache.commons.lang3.Validate;
 
 import java.io.PrintStream;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
 /**
  * Configure the logging for REST Assured. <p>Note that <i>only</i> things known to REST Assured (i.e. the request- and response specifications) will be logged. If you need to log what's <i>actually</i> sent on the wire
@@ -36,12 +40,13 @@ public class LogConfig implements Config {
     private final LogDetail logDetailIfValidationFails;
     private final boolean urlEncodeRequestUri;
     private final boolean isUserDefined;
+    private final Set<String> headerBlacklist;
 
     /**
      * Configure the default stream to use the System.out stream (default).
      */
     public LogConfig() {
-        this(System.out, true, null, true, false);
+        this(System.out, true, null, true, new HashSet<>(), false);
     }
 
     /**
@@ -61,7 +66,7 @@ public class LogConfig implements Config {
      * @param prettyPrintingEnabled Enable or disable pretty printing when logging. Pretty printing is only possible when content-type is XML, JSON or HTML.
      */
     public LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled) {
-        this(defaultPrintStream, prettyPrintingEnabled, null, true, true);
+        this(defaultPrintStream, prettyPrintingEnabled, null, true, new HashSet<>(), true);
     }
 
     /**
@@ -81,13 +86,15 @@ public class LogConfig implements Config {
      * @param prettyPrintingEnabled Enable or disable pretty printing when logging. Pretty printing is only possible when content-type is XML, JSON or HTML.
      */
     private LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled, LogDetail logDetailIfValidationFails,
-                      boolean urlEncodeRequestUri, boolean isUserDefined) {
+                      boolean urlEncodeRequestUri, Set<String> headerBlacklist, boolean isUserDefined) {
+        Validate.notNull(defaultPrintStream, "Stream to write logs to cannot be null");
         Validate.notNull(defaultPrintStream, "Stream to write logs to cannot be null");
         this.defaultPrintStream = defaultPrintStream;
         this.prettyPrintingEnabled = prettyPrintingEnabled;
         this.logDetailIfValidationFails = logDetailIfValidationFails;
         this.isUserDefined = isUserDefined;
         this.urlEncodeRequestUri = urlEncodeRequestUri;
+        this.headerBlacklist = headerBlacklist;
     }
 
     /**
@@ -98,13 +105,21 @@ public class LogConfig implements Config {
     }
 
     /**
+     * @return The blacklisted headers
+     * @see #blacklistHeader(String, String...)
+     */
+    public Set<String> blacklistedHeaders() {
+        return Collections.unmodifiableSet(headerBlacklist);
+    }
+
+    /**
      * Specify a new default stream to the print to.
      *
      * @param printStream The stream
      * @return A new LogConfig instance
      */
     public LogConfig defaultStream(PrintStream printStream) {
-        return new LogConfig(printStream, true, logDetailIfValidationFails, urlEncodeRequestUri, true);
+        return new LogConfig(printStream, true, logDetailIfValidationFails, urlEncodeRequestUri, headerBlacklist, true);
     }
 
     /**
@@ -135,7 +150,7 @@ public class LogConfig implements Config {
      * @return A new LogConfig instance
      */
     public LogConfig enablePrettyPrinting(boolean shouldEnable) {
-        return new LogConfig(defaultPrintStream, shouldEnable, logDetailIfValidationFails, urlEncodeRequestUri, true);
+        return new LogConfig(defaultPrintStream, shouldEnable, logDetailIfValidationFails, urlEncodeRequestUri, headerBlacklist, true);
     }
 
     /**
@@ -154,7 +169,7 @@ public class LogConfig implements Config {
      * @return A new LogConfig instance
      */
     public LogConfig enableLoggingOfRequestAndResponseIfValidationFails(LogDetail logDetail) {
-        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetail, urlEncodeRequestUri, true);
+        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetail, urlEncodeRequestUri, headerBlacklist, true);
     }
 
     /**
@@ -167,7 +182,39 @@ public class LogConfig implements Config {
      * @return A new LogConfig instance
      */
     public LogConfig urlEncodeRequestUri(boolean urlEncodeRequestUri) {
-        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, true);
+        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, headerBlacklist, true);
+    }
+
+    /**
+     * Blacklist one or more headers. If these headers show up during logging they will be replaced with 'HIDDEN'. The purpose of a blacklist is to prevent sensitive information
+     * to be included in the log.
+     *
+     * @param header The header to include in the blacklist
+     * @param otherHeaders Additional headers to include in the blacklist (optional)
+     * @return A new LogConfig instance
+     */
+    public LogConfig blacklistHeader(String header, String... otherHeaders) {
+        notNull(header, "header");
+        Set<String> newHeaderBlackList = new HashSet<>(headerBlacklist);
+        newHeaderBlackList.add(header);
+        if (otherHeaders != null && otherHeaders.length > 0) {
+            Collections.addAll(newHeaderBlackList, otherHeaders);
+        }
+
+        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, newHeaderBlackList, true);
+    }
+
+    /**
+     * Blacklist one or more headers. If these headers show up during logging they will be hidden. The purpose of a blacklist is to prevent sensitive information
+     * to be included in the log. Note that this method replaces the previously defined blacklist.
+     *
+     * @param headers The headers to include in the blacklist
+     * @return A new LogConfig instance
+     */
+    public LogConfig blacklistHeaders(Collection<String> headers) {
+        notNull(headers, "headers");
+        Set<String> newHeaderBlackList = headers.stream().filter(Objects::nonNull).collect(Collectors.toSet());
+        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, newHeaderBlackList, true);
     }
 
     /**

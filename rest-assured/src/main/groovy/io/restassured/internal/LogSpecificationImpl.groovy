@@ -26,7 +26,7 @@ import io.restassured.specification.RequestSpecification
  */
 class LogSpecificationImpl {
 
-  def PrintStream getPrintStream(RequestSpecification requestSpecification) {
+  PrintStream getPrintStream(RequestSpecification requestSpecification) {
     def stream = getLogConfig(requestSpecification)?.defaultStream()
     if (stream == null) {
       stream = System.out
@@ -34,11 +34,11 @@ class LogSpecificationImpl {
     stream
   }
 
-  def boolean shouldUrlEncodeRequestUri(RequestSpecification requestSpecification) {
+  boolean shouldUrlEncodeRequestUri(RequestSpecification requestSpecification) {
     getLogConfig(requestSpecification)?.shouldUrlEncodeRequestUri()
   }
 
-  def boolean shouldPrettyPrint(RequestSpecification requestSpecification) {
+  boolean shouldPrettyPrint(RequestSpecification requestSpecification) {
     def prettyPrintingEnabled = getLogConfig(requestSpecification)?.isPrettyPrintingEnabled()
     if (prettyPrintingEnabled == null) {
       return true
@@ -46,9 +46,9 @@ class LogSpecificationImpl {
     prettyPrintingEnabled
   }
 
-  private def LogConfig getLogConfig(RequestSpecification requestSpecification) {
+  private LogConfig getLogConfig(RequestSpecification requestSpecification) {
     if (!requestSpecification) {
-      throw new IllegalStateException("Cannot configure logging since request specification is not defined. You may be misusing the API.");
+      throw new IllegalStateException("Cannot configure logging since request specification is not defined. You may be misusing the API.")
     }
     RestAssuredConfig config = requestSpecification.restAssuredConfig
     config?.logConfig

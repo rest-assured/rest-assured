@@ -26,6 +26,9 @@ import org.apache.commons.lang3.Validate;
 
 import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static io.restassured.filter.log.LogDetail.ALL;
 import static io.restassured.filter.log.LogDetail.STATUS;
@@ -44,7 +47,7 @@ public class RequestLoggingFilter implements Filter {
     private final PrintStream stream;
     private final boolean shouldPrettyPrint;
     private final boolean showUrlEncodedUri;
-    private LogBlacklists logBlacklists;
+    private final Set<String> blacklistedHeaders;
 
     /**
      * Logs to System.out
@@ -102,14 +105,27 @@ public class RequestLoggingFilter implements Filter {
      * @param showUrlEncodedUri Whether or not to show the request URI as url encoded
      */
     public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream, boolean showUrlEncodedUri) {
+        this(logDetail, shouldPrettyPrint, stream, showUrlEncodedUri, Collections.emptySet());
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream and a specific log detail
+     *
+     * @param logDetail         The log detail
+     * @param shouldPrettyPrint <code>true</code> if pretty-printing of the body should occur.
+     * @param stream            The stream to log to.
+     * @param showUrlEncodedUri Whether or not to show the request URI as url encoded
+     */
+    public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream, boolean showUrlEncodedUri, Set<String> blacklistedHeaders) {
         Validate.notNull(stream, "Print stream cannot be null");
+        Validate.notNull(blacklistedHeaders, "Blacklisted headers cannot be null");
         Validate.notNull(logDetail, "Log details cannot be null");
         if (logDetail == STATUS) {
             throw new IllegalArgumentException(String.format("%s is not a valid %s for a request.", STATUS, LogDetail.class.getSimpleName()));
         }
         this.stream = stream;
         this.logDetail = logDetail;
-        this.logBlacklists = new LogBlacklists();
+        this.blacklistedHeaders = new HashSet<>(blacklistedHeaders);
         this.shouldPrettyPrint = shouldPrettyPrint;
         this.showUrlEncodedUri = showUrlEncodedUri;
     }
@@ -120,12 +136,8 @@ public class RequestLoggingFilter implements Filter {
             uri = UrlDecoder.urlDecode(uri, Charset.forName(requestSpec.getConfig().getEncoderConfig().defaultQueryParameterCharset()), true);
         }
 
-        RequestPrinter.print(requestSpec, requestSpec.getMethod(), uri, logDetail, logBlacklists, stream, shouldPrettyPrint);
+        RequestPrinter.print(requestSpec, requestSpec.getMethod(), uri, logDetail, blacklistedHeaders, stream, shouldPrettyPrint);
         return ctx.next(requestSpec, responseSpec);
-    }
-
-    public void setLogBlacklists(final LogBlacklists logBlacklists) {
-        this.logBlacklists = logBlacklists;
     }
 
     /**

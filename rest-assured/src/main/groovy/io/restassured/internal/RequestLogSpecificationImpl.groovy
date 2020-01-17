@@ -24,8 +24,9 @@ import io.restassured.specification.RequestLogSpecification
 import io.restassured.specification.RequestSpecification
 
 class RequestLogSpecificationImpl extends LogSpecificationImpl implements RequestLogSpecification {
-  def RequestSpecification requestSpecification
-  def LogRepository logRepository
+  RequestSpecification requestSpecification
+  LogRepository logRepository
+  Set<String> blacklistedHeaders
 
   RequestSpecification params() {
     logWith(LogDetail.PARAMS)
@@ -81,13 +82,13 @@ class RequestLogSpecificationImpl extends LogSpecificationImpl implements Reques
 
 
   RequestSpecification ifValidationFails(LogDetail logDetail) {
-    ifValidationFails(logDetail, shouldPrettyPrint(requestSpecification));
+    ifValidationFails(logDetail, shouldPrettyPrint(requestSpecification))
   }
 
   RequestSpecification ifValidationFails(LogDetail logDetail, boolean shouldPrettyPrint) {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    PrintStream ps = new PrintStream(baos);
-    logRepository.registerRequestLog(baos);
+    ByteArrayOutputStream baos = new ByteArrayOutputStream()
+    PrintStream ps = new PrintStream(baos)
+    logRepository.registerRequestLog(baos)
     logWith(logDetail, shouldPrettyPrint, ps)
   }
 
@@ -96,11 +97,11 @@ class RequestLogSpecificationImpl extends LogSpecificationImpl implements Reques
   }
 
   private def logWith(LogDetail logDetail, boolean prettyPrintingEnabled) {
-    return logWith(logDetail, prettyPrintingEnabled, getPrintStream(requestSpecification));
+    return logWith(logDetail, prettyPrintingEnabled, getPrintStream(requestSpecification))
   }
 
   private def logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
-    requestSpecification.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri(requestSpecification)))
+    requestSpecification.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri(requestSpecification), blacklistedHeaders))
     requestSpecification
   }
 }

@@ -17,6 +17,7 @@
 package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.config.LogConfig;
 import io.restassured.filter.Filter;
@@ -33,6 +34,7 @@ import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
+import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.commons.lang3.SystemUtils;
@@ -1416,5 +1418,68 @@ public class LoggingITest extends WithJetty {
                 statusCode(200);
 
         assertThat(writer.toString(), equalTo(String.format("200%nContent-Type: application/xml%n")));
+    }
+
+    @Test public void
+    its_possible_to_hide_headers_when_blacklist_is_defined_using_a_request_spec_builder() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final RequestSpecification spec = new RequestSpecBuilder()
+                .setConfig(newConfig()
+                        .logConfig(logConfig().defaultStream(captor).blacklistHeader("Accept")))
+                .and()
+                .log(ALL)
+                .build();
+
+        given().
+                spec(spec).
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+        when().
+                get("/{firstName}/{lastName}").
+        then().
+                body("fullName", equalTo("John Doe"));
+
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                "Request URI:\thttp://localhost:8080/John/Doe%n" +
+                "Proxy:\t\t\t<none>%n" +
+                "Request params:\t<none>%n" +
+                "Query params:\t<none>%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\tfirstName=John%n" +
+                "\t\t\t\tlastName=Doe%n" +
+                "Headers:\t\tAccept=[ HIDDEN ]%n" +
+                "Cookies:\t\t<none>%n" +
+                "Multiparts:\t\t<none>%n" +
+                "Body:\t\t\t<none>%n")));
+    }
+
+    @Test public void
+    its_possible_to_hide_headers_when_blacklist_is_defined_in_log_config_from_request_specification() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+        given().
+                config(config().logConfig(logConfig().defaultStream(captor).blacklistHeader("Accept"))).
+                log().all().
+                pathParam("firstName", "John").
+                pathParam("lastName", "Doe").
+        when().
+                get("/{firstName}/{lastName}").
+        then().
+                body("fullName", equalTo("John Doe"));
+
+        assertThat(writer.toString(), equalTo(String.format("Request method:\tGET%n" +
+                "Request URI:\thttp://localhost:8080/John/Doe%n" +
+                "Proxy:\t\t\t<none>%n" +
+                "Request params:\t<none>%n" +
+                "Query params:\t<none>%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\tfirstName=John%n" +
+                "\t\t\t\tlastName=Doe%n" +
+                "Headers:\t\tAccept=[ HIDDEN ]%n" +
+                "Cookies:\t\t<none>%n" +
+                "Multiparts:\t\t<none>%n" +
+                "Body:\t\t\t<none>%n")));
     }
 }
