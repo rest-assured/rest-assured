@@ -27,6 +27,7 @@ import io.restassured.internal.*;
 import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.mapper.ObjectMapper;
+import io.restassured.mapper.ObjectMapperType;
 import io.restassured.matcher.RestAssuredMatchers;
 import io.restassured.parsing.Parser;
 import io.restassured.path.json.JsonPath;
@@ -559,6 +560,17 @@ public class RestAssured {
     public static void objectMapper(ObjectMapper objectMapper) {
         Validate.notNull(objectMapper, "Default object mapper cannot be null");
         config = config().objectMapperConfig(ObjectMapperConfig.objectMapperConfig().defaultObjectMapper(objectMapper));
+    }
+    
+    /**
+     * Set a object mapper type that'll be used when serializing and deserializing Java objects to and from it's
+     * document representation (XML, JSON etc).
+     *
+     * @param objectMapperType The object mapper type to use.
+     */
+    public static void objectMapper(ObjectMapperType objectMapperType) {
+        Validate.notNull(objectMapperType, "Default object mapper type cannot be null");
+        config = config().objectMapperConfig(ObjectMapperConfig.objectMapperConfig().defaultObjectMapperType(objectMapperType));
     }
 
     /**

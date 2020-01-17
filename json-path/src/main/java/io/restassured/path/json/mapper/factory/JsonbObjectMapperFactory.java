@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper;
+package io.restassured.path.json.mapper.factory;
+
+import javax.json.bind.Jsonb;
+
+import io.restassured.common.mapper.factory.ObjectMapperFactory;
 
 /**
- * The predefined object mappers that can be used with REST Assured
+ * Interface for JSON-B object mappers. Implement this class and register it to the ObjectMapperConfig if you
+ * want to override default settings for the Jsonb object mapper.
  */
-public enum ObjectMapperType {
-    JACKSON_2, JACKSON_1, GSON, JAXB, JOHNZON, JSONB
+public interface JsonbObjectMapperFactory extends ObjectMapperFactory<Jsonb> {
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019, 2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ public class ObjectMapperResolver {
     private static final boolean isJaxbPresent = existInCP("javax.xml.bind.Binder");
     private static final boolean isGsonPresent = existInCP("com.google.gson.Gson");
     private static final boolean isJohnzonPresent = existInCP("org.apache.johnzon.mapper.Mapper");
+    private static final boolean isYassonPresent = existInCP("org.eclipse.yasson.JsonBindingProvider");
 
     public static boolean isJackson1InClassPath() {
         return isJackson1Present;
@@ -43,5 +44,9 @@ public class ObjectMapperResolver {
     
     public static boolean isJohnzonInClassPath() {
         return isJohnzonPresent;
+    }
+    
+    public static boolean isYassonInClassPath() {
+        return isYassonPresent;
     }
 }
