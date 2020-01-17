@@ -1448,7 +1448,7 @@ public class LoggingITest extends WithJetty {
                 "Form params:\t<none>%n" +
                 "Path params:\tfirstName=John%n" +
                 "\t\t\t\tlastName=Doe%n" +
-                "Headers:\t\tAccept=[ HIDDEN ]%n" +
+                "Headers:\t\tAccept=[ BLACKLISTED ]%n" +
                 "Cookies:\t\t<none>%n" +
                 "Multiparts:\t\t<none>%n" +
                 "Body:\t\t\t<none>%n")));
@@ -1477,7 +1477,7 @@ public class LoggingITest extends WithJetty {
                 "Form params:\t<none>%n" +
                 "Path params:\tfirstName=John%n" +
                 "\t\t\t\tlastName=Doe%n" +
-                "Headers:\t\tAccept=[ HIDDEN ]%n" +
+                "Headers:\t\tAccept=[ BLACKLISTED ]%n" +
                 "Cookies:\t\t<none>%n" +
                 "Multiparts:\t\t<none>%n" +
                 "Body:\t\t\t<none>%n")));

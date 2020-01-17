@@ -46,7 +46,7 @@ public class RequestPrinter {
     private static final String TAB = "\t";
     private static final String EQUALS = "=";
     private static final String NONE = "<none>";
-    private static final String HIDDEN = "[ HIDDEN ]";
+    private static final String BLACKLISTED = "[ BLACKLISTED ]";
 
     public static String print(FilterableRequestSpecification requestSpec, String requestMethod, String completeRequestUri,
                                LogDetail logDetail, Set<String> blacklistedHeaders,
@@ -148,7 +148,7 @@ public class RequestPrinter {
                 }
                 Header processedHeader = header;
                 if (blacklistedHeaders.contains(header.getName())) {
-                    processedHeader = new Header(header.getName(), HIDDEN);
+                    processedHeader = new Header(header.getName(), BLACKLISTED);
                 }
                 builder.append(processedHeader).append(SystemUtils.LINE_SEPARATOR);
             }
