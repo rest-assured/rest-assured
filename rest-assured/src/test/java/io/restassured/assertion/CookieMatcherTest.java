@@ -37,7 +37,7 @@ public class CookieMatcherTest {
     @Test
     public void testSetVersion() throws ParseException {
         String[] cookies = new String[]{
-                "DEVICE_ID=123; Domain=.test.com; Expires=Thu, 12-Oct-2023 09:34:31 GMT; Path=/; Secure; HttpOnly;",
+                "DEVICE_ID=123; Domain=.test.com; Expires=Thu, 12-Oct-2023 09:34:31 GMT; Path=/; Secure; HttpOnly; SameSite=Lax",
                 "SPRING_SECURITY_REMEMBER_ME_COOKIE=12345;Version=0;Domain=.test.com;Path=/;Max-Age=1209600",
                 "COOKIE_WITH_ZERO_MAX_AGE=1234;Version=0;Domain=.test.com;Path=/;Max-Age=0",
                 "COOKIE_WITH_NEGATIVE_MAX_AGE=123456;Version=0;Domain=.test.com;Path=/;Max-Age=-1"};
@@ -80,6 +80,7 @@ public class CookieMatcherTest {
         assertEquals(new SimpleDateFormat("EEE, d-MMM-yyyy HH:mm:ss Z", Locale.ENGLISH).parse("Thu, 12-Oct-2023 09:34:31 GMT"), deviceCookie.getExpiryDate());
         assertEquals(true, deviceCookie.isSecured());
         assertEquals(true, deviceCookie.isHttpOnly());
+        assertEquals("Lax", deviceCookie.getSameSite());
 
     }
 

@@ -304,4 +304,24 @@ public class CookieITest extends WithJetty {
         Cookie cookie = cookies.get("name");
         assertThat(cookie.getExpiryDate(), nullValue());
     }
+
+    @Test
+    public void canGetCookieSameSiteAttribute() {
+        Cookies cookies = when().get("/sameSiteCookie").then().extract().detailedCookies();
+
+        assertThat(cookies.asList(), hasSize(1));
+        final Cookie cookie = cookies.get("name");
+        assertThat(cookie.getValue(), equalTo("value"));
+        assertThat(cookie.isSecured(), is(true));
+        assertThat(cookie.getSameSite(), equalTo("None"));
+    }
+
+    @Test
+    public void detailedCookieMatcherSupportsSameSiteAttribute() {
+        given()
+                .get("/sameSiteCookie")
+                .then()
+                .cookie("name", detailedCookie().value(Matchers.notNullValue()).secured(true).sameSite("None"));
+    }
+
 }

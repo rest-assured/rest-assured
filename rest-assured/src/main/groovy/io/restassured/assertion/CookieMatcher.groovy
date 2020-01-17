@@ -150,6 +150,8 @@ class CookieMatcher {
               } else {
                 log.warn("Ignoring unparsable 'Expires' attribute value: " + value)
               }
+            } else if(equalsIgnoreCase(name, SAME_SITE)) {
+                builder.setSameSite(value)
             }
         }
     }
