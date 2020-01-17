@@ -11,9 +11,9 @@ languages into the Java domain.
 
 
 ## News 
+* 2020-01-17: REST Assured [4.2.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-4.2.0-dist.zip) is released. It adds a module bringing [Kotlin extension functions](https://github.com/rest-assured/rest-assured/wiki/Usage#kotlin-extension-module-for-spring-mockmvc) to [Spring Mock Mvc](https://github.com/rest-assured/rest-assured/wiki/Usage#spring-mock-mvc-module), support for Jakarta EE JSON Binding (JSON-B) specification using  Eclipse Yasson, as well as [blacklisting](https://github.com/rest-assured/rest-assured/wiki/Usage#blacklist-headers-from-logging) headers from being logged and other improvements. See [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes42) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2019-10-02: REST Assured [4.1.2](http://dl.bintray.com/johanhaleby/generic/rest-assured-4.1.2-dist.zip) is released. It adds support for Java 13 as well as fixing some issues with the [kotlin extension module](https://github.com/rest-assured/rest-assured/wiki/Usage#kotlin-extension-module). Please see [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for details.
 * 2019-09-06: Johan elaborates on some of the benefits of using the new [Kotlin API](https://github.com/rest-assured/rest-assured/wiki/Usage#kotlin-extension-module) in [this](http://code.haleby.se/2019/09/06/rest-assured-in-kotlin/) blog post. 
-* 2019-09-06: REST Assured [4.1.1](http://dl.bintray.com/johanhaleby/generic/rest-assured-4.1.1-dist.zip) is released. This is a very small release containing updates to jaxb-osgi and jaxb-apo dependencies which could lead to classpath inconsistencies if using newer versions of jaxb in Java 9+. Please see [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for details.
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
