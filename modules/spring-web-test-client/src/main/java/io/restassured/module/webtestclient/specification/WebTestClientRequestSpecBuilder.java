@@ -38,6 +38,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
@@ -647,7 +648,8 @@ public class WebTestClientRequestSpecBuilder {
 		PrintStream printStream = logConfig.defaultStream();
 		boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
 		boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
-		spec.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri));
+        Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();
+        spec.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blacklistedHeaders));
 		return this;
 	}
 
