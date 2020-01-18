@@ -45,7 +45,7 @@ public class AsyncTest {
     @Test public void
     can_supply_string_as_body_for_async_post_with_config_in_given() {
         RestAssuredMockMvc.given().
-                config(newConfig().asyncConfig(withTimeout(10, TimeUnit.MILLISECONDS))).
+                config(newConfig().asyncConfig(withTimeout(10, TimeUnit.SECONDS))).
                 body("a string").
         when().
                 async().post("/stringBody").
