@@ -62,15 +62,25 @@ import java.util.List;
  * </pre>
  */
 public class CookieFilter implements Filter {
+    private final boolean checkCookieNameStored;
+    private final CookieSpec cookieSpec;
+    private final BasicCookieStore cookieStore;
 
-    private CookieSpec cookieSpec = new DefaultCookieSpec();
-    private BasicCookieStore cookieStore = new BasicCookieStore();
+    public CookieFilter() {
+        this(true);
+    }
+
+    public CookieFilter(boolean checkCookieNameStored) {
+        this.checkCookieNameStored = checkCookieNameStored;
+        this.cookieSpec = new DefaultCookieSpec();
+        this.cookieStore = new BasicCookieStore();
+    }
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
 
         final CookieOrigin cookieOrigin = cookieOriginFromUri(requestSpec.getURI());
         for (Cookie cookie : cookieStore.getCookies()) {
-            if (cookieSpec.match(cookie, cookieOrigin) && !requestSpec.getCookies().hasCookieWithName(cookie.getName())) {
+            if (cookieSpec.match(cookie, cookieOrigin) && !cookieAlreadyStored(requestSpec, cookie)) {
                 requestSpec.cookie(cookie.getName(), cookie.getValue());
             }
         }
@@ -80,6 +90,10 @@ public class CookieFilter implements Filter {
         List<Cookie> responseCookies = extractResponseCookies(response, cookieOrigin);
         cookieStore.addCookies(responseCookies.toArray(new Cookie[0]));
         return response;
+    }
+
+    private boolean cookieAlreadyStored(FilterableRequestSpecification requestSpec, Cookie cookie) {
+        return checkCookieNameStored && requestSpec.getCookies().hasCookieWithName(cookie.getName());
     }
 
     private List<Cookie> extractResponseCookies(Response response, CookieOrigin cookieOrigin) {
