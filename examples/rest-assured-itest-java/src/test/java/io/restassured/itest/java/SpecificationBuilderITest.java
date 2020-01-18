@@ -386,10 +386,10 @@ public class SpecificationBuilderITest extends WithJetty {
                 "Content-Length: 59%n" +
                 "Server: Jetty(9.3.2.v20150730)%n" +
                 "%n" +
-                "{%n" +
-                "    \"firstName\": \"John\",%n" +
-                "    \"lastName\": \"Doe\",%n" +
-                "    \"fullName\": \"John Doe\"%n" +
+                "{\n" +
+                "    \"firstName\": \"John\",\n" +
+                "    \"lastName\": \"Doe\",\n" +
+                "    \"fullName\": \"John Doe\"\n" +
                 "}%n")));
     }
 
@@ -413,10 +413,10 @@ public class SpecificationBuilderITest extends WithJetty {
                 "Content-Length: 59%n" +
                 "Server: Jetty(9.3.2.v20150730)%n" +
                 "%n" +
-                "{%n" +
-                "    \"firstName\": \"John\",%n" +
-                "    \"lastName\": \"Doe\",%n" +
-                "    \"fullName\": \"John Doe\"%n" +
+                "{\n" +
+                "    \"firstName\": \"John\",\n" +
+                "    \"lastName\": \"Doe\",\n" +
+                "    \"fullName\": \"John Doe\"\n" +
                 "}%n")));
     }
 
