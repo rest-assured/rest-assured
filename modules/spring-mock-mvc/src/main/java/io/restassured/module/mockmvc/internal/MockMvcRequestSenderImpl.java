@@ -45,6 +45,7 @@ import io.restassured.specification.ResponseSpecification;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -289,10 +290,17 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         final MockHttpServletRequestBuilder request;
         if (multiParts.isEmpty()) {
             request = MockMvcRequestBuilders.request(method, uri, pathParams);
-        } else if (method != POST) {
-            throw new IllegalArgumentException("Currently multi-part file data uploading only works for " + POST);
-        } else {
+        } else if (method == POST || method == PUT) {
             request = MockMvcRequestBuilders.fileUpload(uri, pathParams);
+            request.with(new RequestPostProcessor() {
+                @Override
+                public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+                    request.setMethod(method.name());
+                    return request;
+                }
+            });
+        } else {
+            throw new IllegalArgumentException("Currently multi-part file data uploading only works for POST and PUT methods");
         }
 
         String requestContentType = HeaderHelper.findContentType(headers, (List<Object>) (List<?>) multiParts, config);

@@ -504,8 +504,8 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 
 	private void applyMultipartBody(HttpMethod method, WebTestClient.RequestBodySpec requestBodySpec) {
 		if (!multiParts.isEmpty()) {
-			if (method != POST) {
-				throw new IllegalArgumentException("Currently multi-part file data uploading only works for " + POST);
+			if (method != POST && method != PUT) {
+				throw new IllegalArgumentException("Currently multi-part file data uploading only works for POST and PUT method.");
 			}
 			requestBodySpec.syncBody(getMultipartBody());
 		}
