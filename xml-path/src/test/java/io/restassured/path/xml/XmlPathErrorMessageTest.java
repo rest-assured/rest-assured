@@ -17,11 +17,14 @@
 package io.restassured.path.xml;
 
 import io.restassured.path.xml.element.Node;
+import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static io.restassured.path.xml.XmlPath.with;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 
 public class XmlPathErrorMessageTest {
 
@@ -65,11 +68,11 @@ public class XmlPathErrorMessageTest {
     error_messages_on_invalid_subpath_looks_ok_when_received_node_is_not_root() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage(String.format("Invalid path:%n" +
-                "unexpected token: [ @ line 1, column 37.%n" +
+                "Unexpected input: 'item.price.[' @ line 1, column 37.%n" +
                 "   item.price.[0]%n" +
                 "              ^%n" +
                 "%n" +
-                "1 error"));
+                "1 error%n"));
 
         Node firstCategory = with(XML).get("shopping.category[0]");
         firstCategory.getPath("item.price.[0]", float.class);
@@ -77,27 +80,30 @@ public class XmlPathErrorMessageTest {
 
     @Test public void
     error_messages_on_invalid_subpath_with_root_name_less_than_six_characters_looks_ok() {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage(String.format("Invalid path:%n" +
-                "unexpected token: [ @ line 1, column 49.%n" +
-                "   category[0].item.price.[0]%n" +
-                "                          ^%n" +
-                "%n" +
-                "1 error"));
-
-        Node category = with(XML.replace("shopping", "some")).get("some");
-        category.getPath("category[0].item.price.[0]", float.class);
+        try {
+            Node category = with(XML.replace("shopping", "some")).get("some");
+            category.getPath("category[0].item.price.[0]", float.class);
+            fail("Should fail!");
+        } catch (Exception e) {
+            assertThat(e, Matchers.instanceOf(IllegalArgumentException.class));
+            assertThat(e.getMessage(), Matchers.equalTo(String.format("Invalid path:%n" +
+                    "Unexpected input: '[0].item.price.[' @ line 1, column 49.%n" +
+                    "   category[0].item.price.[0]%n" +
+                    "                          ^%n" +
+                    "%n" +
+                    "1 error%n")));
+        }
     }
 
     @Test public void
     error_messages_on_invalid_path_looks_ok() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage(String.format("Invalid path:%n" +
-                "unexpected token: [ @ line 1, column 26.%n" +
+                "Unexpected input: 'shopping.[' @ line 1, column 26.%n" +
                 "   shopping.[0]%n" +
                 "            ^%n" +
                 "%n" +
-                "1 error"));
+                "1 error%n"));
 
         with(XML).get("shopping.[0]");
     }

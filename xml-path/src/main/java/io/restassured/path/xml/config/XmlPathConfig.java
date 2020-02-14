@@ -100,7 +100,7 @@ public class XmlPathConfig {
     }
 
     /**
-     * @return A map containing features that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @return A map containing features that will be used by the underlying {@link groovy.xml.XmlSlurper}.
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */
     public Map<String, Boolean> features() {
@@ -110,7 +110,7 @@ public class XmlPathConfig {
     /**
      * Specify features that will be used when parsing XML.
      *
-     * @param features A map containing features that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @param features A map containing features that will be used by the underlying {@link groovy.xml.XmlSlurper}.
      * @return
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */
@@ -199,7 +199,7 @@ public class XmlPathConfig {
     }
 
     /**
-     * @return A map containing properties that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @return A map containing properties that will be used by the underlying {@link groovy.xml.XmlSlurper}.
      * @see org.xml.sax.XMLReader#setProperty(String, Object)
      */
     public Map<String, Object> properties() {
@@ -209,7 +209,7 @@ public class XmlPathConfig {
     /**
      * Specify properties that will be used when parsing XML.
      *
-     * @param properties A map containing properties that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @param properties A map containing properties that will be used by the underlying {@link groovy.xml.XmlSlurper}.
      * @return A new XmlPathConfig instance
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */
@@ -315,7 +315,7 @@ public class XmlPathConfig {
     }
 
     /**
-     * @return A map containing namespaces that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @return A map containing namespaces that will be used by the underlying {@link groovy.xml.XmlSlurper}.
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */
     public Map<String, String> declaredNamespaces() {
@@ -325,7 +325,7 @@ public class XmlPathConfig {
     /**
      * Specify declared namespaces that will be used when parsing XML.
      *
-     * @param namespacesToDeclare A map containing features that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @param namespacesToDeclare A map containing features that will be used by the underlying {@link groovy.xml.XmlSlurper}.
      * @return A new instance of XmlPathConfig
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */

@@ -25,12 +25,9 @@ public class RestAssuredPaxExamOptions {
      * https://groups.google.com/forum/#!topic/ops4j/zcow2vuOFJs
      */
     public static Option restAssuredJunitBundles() {
-        return new DefaultCompositeOption(new Option[]
-                {
-                        new JUnitBundlesOption(),
-                        systemProperty("pax.exam.invoker").value("junit"),
-                        mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
-                        bundle("link:classpath:META-INF/links/org.ops4j.pax.exam.invoker.junit.link")
-                });
+        return new DefaultCompositeOption(new JUnitBundlesOption(),
+                systemProperty("pax.exam.invoker").value("junit"),
+                mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.hamcrest", "1.3_1"),
+                bundle("link:classpath:META-INF/links/org.ops4j.pax.exam.invoker.junit.link"));
     }
 }

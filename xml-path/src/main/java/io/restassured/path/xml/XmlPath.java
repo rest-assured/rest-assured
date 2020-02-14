@@ -17,8 +17,8 @@
 package io.restassured.path.xml;
 
 import groovy.lang.GroovyRuntimeException;
-import groovy.util.XmlSlurper;
-import groovy.util.slurpersupport.GPathResult;
+import groovy.xml.XmlSlurper;
+import groovy.xml.slurpersupport.GPathResult;
 import groovy.xml.XmlUtil;
 import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.common.path.ObjectConverter;
@@ -402,8 +402,8 @@ public class XmlPath {
             } catch (GroovyRuntimeException e) {
                 throw new IllegalArgumentException("Failed to convert XML to Java Object. If you're trying convert to a list then use the getList method instead.", e);
             }
-        } else if (object instanceof groovy.util.slurpersupport.Node) {
-            object = GroovyNodeSerializer.toXML((groovy.util.slurpersupport.Node) object);
+        } else if (object instanceof groovy.xml.slurpersupport.Node) {
+            object = GroovyNodeSerializer.toXML((groovy.xml.slurpersupport.Node) object);
         }
 
         XmlPathConfig cfg = new XmlPathConfig(getXmlPathConfig());

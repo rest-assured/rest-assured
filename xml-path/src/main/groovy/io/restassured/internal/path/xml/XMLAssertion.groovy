@@ -17,7 +17,7 @@
 
 package io.restassured.internal.path.xml
 
-import groovy.util.slurpersupport.*
+import groovy.xml.slurpersupport.*
 import io.restassured.internal.common.assertion.Assertion
 import io.restassured.internal.path.xml.NodeChildrenImpl
 import io.restassured.internal.path.xml.NodeImpl
@@ -43,7 +43,7 @@ class XMLAssertion implements Assertion {
      * @param rootEvaluation True if we're evaluating from a root, false if start node is a child node.
      */
     def Object getResult(Object object, boolean shouldConvertToJavaObject, boolean rootEvaluation) {
-        def objectToUse = object instanceof groovy.util.slurpersupport.Node ? new NodeChild(object, null, null) : object
+        def objectToUse = object instanceof groovy.xml.slurpersupport.Node ? new NodeChild(object, null, null) : object
         if (rootEvaluation) {
             key = key?.startsWith(DOT) ? key.substring(1) : key
         }

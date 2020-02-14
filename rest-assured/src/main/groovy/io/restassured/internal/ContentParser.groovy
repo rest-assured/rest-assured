@@ -15,7 +15,8 @@
  */
 package io.restassured.internal
 
-import groovy.util.slurpersupport.GPathResult
+import groovy.xml.XmlSlurper
+import groovy.xml.slurpersupport.GPathResult
 import io.restassured.config.RestAssuredConfig
 import io.restassured.config.XmlConfig
 import io.restassured.internal.http.CharsetExtractor

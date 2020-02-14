@@ -61,7 +61,7 @@ public class XmlConfig implements Config {
     }
 
     /**
-     * @return A map containing features that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @return A map containing features that will be used by the underlying {@link groovy.xml.XmlSlurper}.
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */
     public Map<String, Boolean> features() {
@@ -69,7 +69,7 @@ public class XmlConfig implements Config {
     }
 
     /**
-     * @return A map containing properties that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @return A map containing properties that will be used by the underlying {@link groovy.xml.XmlSlurper}.
      * @see org.xml.sax.XMLReader#setProperty(String, Object)
      */
     public Map<String, Object> properties() {
@@ -79,7 +79,7 @@ public class XmlConfig implements Config {
     /**
      * Specify features that will be used when parsing XML.
      *
-     * @param features A map containing features that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @param features A map containing features that will be used by the underlying {@link groovy.xml.XmlSlurper}.
      * @return
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */
@@ -90,7 +90,7 @@ public class XmlConfig implements Config {
     /**
      * Specify properties that will be used when parsing XML.
      *
-     * @param properties A map containing properties that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @param properties A map containing properties that will be used by the underlying {@link groovy.xml.XmlSlurper}.
      * @return
      * @see org.xml.sax.XMLReader#setProperty(String, Object)
      */
@@ -129,7 +129,7 @@ public class XmlConfig implements Config {
     }
 
     /**
-     * @return A map containing namespaces that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @return A map containing namespaces that will be used by the underlying {@link groovy.xml.XmlSlurper}.
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */
     public Map<String, String> declaredNamespaces() {
@@ -141,7 +141,7 @@ public class XmlConfig implements Config {
      * <p>Note that you cannot use this to add namespaces for the {@link org.hamcrest.xml.HasXPath} matcher.
      * This has to be done by providing a {@link javax.xml.namespace.NamespaceContext} to the matcher instance.</p>
      *
-     * @param namespacesToDeclare A map containing features that will be used by the underlying {@link groovy.util.XmlSlurper}.
+     * @param namespacesToDeclare A map containing features that will be used by the underlying {@link groovy.xml.XmlSlurper}.
      * @return A new instance of XmlConfig
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */

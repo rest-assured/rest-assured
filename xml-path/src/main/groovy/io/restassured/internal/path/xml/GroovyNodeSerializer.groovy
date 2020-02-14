@@ -16,8 +16,8 @@
 
 package io.restassured.internal.path.xml
 
-import groovy.util.slurpersupport.Node
-import groovy.util.slurpersupport.NodeChild
+import groovy.xml.slurpersupport.Node
+import groovy.xml.slurpersupport.NodeChild
 import groovy.xml.XmlUtil
 
 class GroovyNodeSerializer {

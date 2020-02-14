@@ -83,7 +83,7 @@ public class XmlPathSubPathTest {
     error_messages_on_invalid_subpath_looks_ok() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage(String.format("Invalid path:%n" +
-                "unexpected token: [ @ line 1, column 49.%n" +
+                "Unexpected input: '[0].item.price.[' @ line 1, column 49.%n" +
                 "   category[0].item.price.[0]%n" +
                 "                          ^%n" +
                 "%n" +
@@ -94,5 +94,4 @@ public class XmlPathSubPathTest {
 
         assertThat(firstPrice, is(10f));
     }
-
 }

@@ -15,6 +15,7 @@
  */
 package io.restassured.internal.support
 
+import groovy.xml.XmlParser
 import io.restassured.internal.RestAssuredResponseOptionsImpl
 import io.restassured.internal.path.json.JsonPrettifier
 import io.restassured.internal.path.xml.XmlPrettifier
@@ -27,8 +28,8 @@ import static org.apache.commons.lang3.StringUtils.isBlank
 
 class Prettifier {
 
-  def String getPrettifiedBodyIfPossible(FilterableRequestSpecification request) {
-    def body = request.getBody();
+  String getPrettifiedBodyIfPossible(FilterableRequestSpecification request) {
+    def body = request.getBody()
     if (body == null) {
       return null
     } else if (!(body instanceof String)) {
@@ -38,21 +39,21 @@ class Prettifier {
     prettify(body as String, parser)
   }
 
-  def String getPrettifiedBodyIfPossible(ResponseOptions responseOptions, ResponseBody responseBody) {
+  String getPrettifiedBodyIfPossible(ResponseOptions responseOptions, ResponseBody responseBody) {
     def contentType = responseOptions.getContentType()
     def responseAsString = responseBody.asString()
     if (isBlank(contentType) || !responseOptions instanceof RestAssuredResponseOptionsImpl) {
       return responseAsString
     }
 
-    RestAssuredResponseOptionsImpl responseImpl = responseOptions as RestAssuredResponseOptionsImpl;
-    def rpr = responseImpl.getRpr();
+    RestAssuredResponseOptionsImpl responseImpl = responseOptions as RestAssuredResponseOptionsImpl
+    def rpr = responseImpl.getRpr()
     def parser = rpr.getParser(contentType)
-    prettify(responseAsString, parser);
+    prettify(responseAsString, parser)
   }
 
-  def String prettify(String body, Parser parser) {
-    def String prettifiedBody;
+  String prettify(String body, Parser parser) {
+    String prettifiedBody
     try {
       switch (parser) {
         case Parser.JSON:

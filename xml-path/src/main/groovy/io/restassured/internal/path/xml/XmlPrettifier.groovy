@@ -16,8 +16,10 @@
 
 package io.restassured.internal.path.xml
 
-import groovy.util.slurpersupport.GPathResult
+import groovy.xml.XmlNodePrinter
+import groovy.xml.XmlParser
 import groovy.xml.XmlUtil
+import groovy.xml.slurpersupport.GPathResult
 import org.apache.commons.lang3.StringUtils
 
 class XmlPrettifier {
@@ -36,7 +38,7 @@ class XmlPrettifier {
         }
     }
 
-    static def String prettify(GPathResult gPathResult) {
+    static String prettify(GPathResult gPathResult) {
         doPrettify { StringWriter stringWriter -> XmlUtil.serialize(gPathResult, stringWriter) }
     }
 
