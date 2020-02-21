@@ -24,7 +24,7 @@ import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 
 class JsonbMapper implements ObjectMapper {
 	private JsonbObjectMapperFactory factory;
-	
+
 	private JsonPathObjectDeserializer deserializer;
 
 	public JsonbMapper(JsonbObjectMapperFactory factory) {
@@ -39,10 +39,10 @@ class JsonbMapper implements ObjectMapper {
 	def Object serialize(ObjectMapperSerializationContext context) {
 		def object = context.getObjectToSerialize();
 		def mapper = factory.create(object.getClass(), context.getCharset())
-		
+
 		new StringWriter().withWriter { out ->
-			mapper.writeObject(context.getObjectToSerialize(), out)
-			out.toString();
+			out.write(mapper.toJson(object))
+			out.toString()
 		}
 	}
 
