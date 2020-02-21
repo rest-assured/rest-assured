@@ -4,6 +4,7 @@ Changelog next version
 * Upgrading Kotlin extension module to use Kotlin 1.3.61 (previously 1.3.50 was used)
 * Fixed so that DecoderConfig is properly set and used in the response in the Spring MockMvc module (thanks to dawiking for pull request)
 * Fix jsonb serialization method in JsonbMapper (issue 1274) (thanks to Matthias for pull request)
+* Fixed so that the predefined ResponseAwareMatchers "endsWithPath" and "startsWithPath" supports checking number properties
 
 Changelog 4.2.0 (2020-01-17)
 ----------------------------

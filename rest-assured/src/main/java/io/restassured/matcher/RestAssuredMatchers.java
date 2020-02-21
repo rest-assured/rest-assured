@@ -172,7 +172,7 @@ public class RestAssuredMatchers {
      * @return A {@link ResponseAwareMatcher}
      */
     public static ResponseAwareMatcher<Response> endsWithPath(final String path) {
-        return response -> endsWith(response.<String>path(path));
+        return response -> endsWith("" + response.<Object>path(path));
     }
 
     /**
@@ -194,7 +194,7 @@ public class RestAssuredMatchers {
      * @return A {@link ResponseAwareMatcher}
      */
     public static ResponseAwareMatcher<Response> startsWithPath(final String path) {
-        return response -> startsWith(response.<String>path(path));
+        return response -> startsWith("" + response.<Object>path(path));
     }
 
     /**
