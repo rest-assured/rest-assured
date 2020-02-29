@@ -21,6 +21,7 @@ import io.restassured.config.LogConfig;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
 import io.restassured.module.webtestclient.setup.PostController;
 import org.apache.commons.io.output.WriterOutputStream;
+import org.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import java.io.StringWriter;
 import static java.nio.charset.Charset.defaultCharset;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -55,7 +57,7 @@ public class ResponseLoggingTest {
 
 	@Test
 	public void
-	logging_if_response_validation_fails_works() {
+	logging_if_response_validation_fails_works() throws JSONException {
 		try {
 			RestAssuredWebTestClient.given()
 					.standaloneSetup(new PostController())
@@ -69,16 +71,19 @@ public class ResponseLoggingTest {
 
 			fail("Should throw AssertionError");
 		} catch (AssertionError e) {
-			assertThat(writer.toString(), equalTo(String.format("200%n" +
+			String writerString = writer.toString();
+			String headerString = String.format("200%n" +
 					"Content-Type: application/json;charset=UTF-8%n" +
 					"Content-Length: 34%n" +
-					"%n" +
+					"%n"
+			);
+			assertThat(writerString, startsWith(headerString));
+			LoggingIfValidationFailsTest.assertJSONEqual(writerString.replace(headerString, "").trim(),
 					"{" +
 					"\n    \"id\": 1,\n" +
 					"    \"content\": \"Hello, Johan!\"" +
 					"\n" +
-					"}%n"
-			)));
+					"}%n");
 		}
 	}
 
