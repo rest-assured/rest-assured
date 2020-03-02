@@ -16,6 +16,7 @@
 
 package io.restassured.module.mockmvc;
 
+import org.json.JSONException;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.LogConfig;
 import io.restassured.filter.log.LogDetail;
@@ -26,6 +27,7 @@ import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
@@ -34,6 +36,7 @@ import static io.restassured.filter.log.LogDetail.HEADERS;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig.config;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -53,6 +56,15 @@ public class LoggingIfValidationFailsTest {
         RestAssuredMockMvc.reset();
     }
 
+    public void
+    assertJsonEqualsNonStrict(String json1, String json2) {
+        try {
+            JSONAssert.assertEquals(json1, json2, false);
+        } catch (JSONException jse) {
+            throw new IllegalArgumentException(jse.getMessage());
+        }
+    }
+
     @Test public void
     logging_of_both_request_and_response_validation_works_when_test_fails() {
         RestAssuredMockMvc.config = new RestAssuredMockMvcConfig().logConfig(new LogConfig(captor, true).enableLoggingOfRequestAndResponseIfValidationFails());
@@ -69,23 +81,25 @@ public class LoggingIfValidationFailsTest {
 
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
-            assertThat(writer.toString(), equalTo(String.format("Request method:\tPOST%n" +
-                            "Request URI:\thttp://localhost:8080/greetingPost%n" +
-                            "Proxy:\t\t\t<none>%n" +
-                            "Request params:\tname=Johan%n" +
-                            "Query params:\t<none>%n" +
-                            "Form params:\t<none>%n" +
-                            "Path params:\t<none>%n" +
-                            "Headers:\t\tContent-Type=application/x-www-form-urlencoded;charset=%s%n" +
-                            "Cookies:\t\t<none>%n" +
-                            "Multiparts:\t\t<none>" +
-                            "%nBody:\t\t\t<none>%n" +
-                            "%n" +
-                            "200%n" +
-                            "Content-Type: application/json;charset=UTF-8%n" +
-                            "%n" +
-                            "{\n    \"id\": 1,\n    \"content\": \"Hello, Johan!\"\n}%n",
-                    RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset())));
+            String writerString = writer.toString();
+            String headerString = String.format("Request method:\tPOST%n" +
+                    "Request URI:\thttp://localhost:8080/greetingPost%n" +
+                    "Proxy:\t\t\t<none>%n" +
+                    "Request params:\tname=Johan%n" +
+                    "Query params:\t<none>%n" +
+                    "Form params:\t<none>%n" +
+                    "Path params:\t<none>%n" +
+                    "Headers:\t\tContent-Type=application/x-www-form-urlencoded;charset=%s%n" +
+                    "Cookies:\t\t<none>%n" +
+                    "Multiparts:\t\t<none>" +
+                    "%nBody:\t\t\t<none>%n" +
+                    "%n" +
+                    "200%n" +
+                    "Content-Type: application/json;charset=UTF-8%n",
+                    RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset());
+            assertThat(writerString, startsWith(headerString));
+            assertJsonEqualsNonStrict(writerString.replace(headerString, "").trim(),
+                    "{\n    \"id\": 1,\n    \"content\": \"Hello, Johan!\"\n}");
         }
     }
 
