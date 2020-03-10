@@ -33,7 +33,9 @@ class RestAssuredProxySelector extends ProxySelector {
     notNull(uri, URI.class);
     def proxies
     if (proxySpecification) {
-      proxies = [new Proxy(HTTP, new InetSocketAddress(proxySpecification.host, proxySpecification.port))]
+      // Don't remove import since there's (probably) a bug in Groovy 3.0.2 that chooses "groovy.util.Proxy" instead of "java.net.Proxy" if not explicitly qualified like this
+      //noinspection UnnecessaryQualifiedReference
+      proxies = [new java.net.Proxy(HTTP, new InetSocketAddress(proxySpecification.host, proxySpecification.port))]
     } else {
       proxies = delegatingProxySelector.select(uri)
     }
