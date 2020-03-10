@@ -58,7 +58,7 @@
     <properties>
         <scm.branch>master</scm.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <groovy.version>3.0.2-SNAPSHOT</groovy.version>
+        <groovy.version>3.0.2</groovy.version>
         <groovy.range>[3.0,3.1)</groovy.range>
         <gmaven.version>1.5</gmaven.version>
         <hamcrest.version>2.1</hamcrest.version>
@@ -430,11 +430,6 @@
             <id>maven-restlet</id>
             <name>Public online Restlet repository</name>
             <url>https://maven.restlet.org</url>
-        </repository>
-        <repository>
-            <id>groovy-snapshots</id>
-            <name>Groovy Snapshots at JFrog</name>
-            <url>https://oss.jfrog.org/artifactory/oss-snapshot-local</url>
         </repository>
     </repositories>
 </project>
