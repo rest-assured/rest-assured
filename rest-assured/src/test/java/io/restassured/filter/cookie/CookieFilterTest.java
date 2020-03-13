@@ -71,7 +71,7 @@ public class CookieFilterTest {
         FilterableRequestSpecification reqOriginDomainDuplicate = (FilterableRequestSpecification)
                 given().with().baseUri("https://foo.com/bar");
         DuplicateTestFilterContext duplicateTestFilterContext = new DuplicateTestFilterContext();
-        final CookieFilter cookieFilterDuplicate = new CookieFilter(false);
+        final CookieFilter cookieFilterDuplicate = new CookieFilter(true);
 
         cookieFilterDuplicate.filter(reqOriginDomainDuplicate, response, duplicateTestFilterContext);
         cookieFilterDuplicate.filter(reqOriginDomainDuplicate, response, duplicateTestFilterContext);
