@@ -15,6 +15,7 @@
  */
 package io.restassured.internal.print;
 
+import io.restassured.config.PrintableStream;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Cookies;
 import io.restassured.http.Header;
@@ -22,9 +23,9 @@ import io.restassured.http.Headers;
 import io.restassured.internal.support.Prettifier;
 import io.restassured.response.ResponseBody;
 import io.restassured.response.ResponseOptions;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
-import java.io.PrintStream;
 import java.util.Set;
 
 import static io.restassured.filter.log.LogDetail.*;
@@ -43,7 +44,7 @@ public class ResponsePrinter {
      *
      * @return A string of representing the response
      */
-    public static String print(ResponseOptions responseOptions, ResponseBody responseBody, PrintStream stream, LogDetail logDetail, boolean shouldPrettyPrint, Set<String> blacklistedHeaders) {
+    public static String print(ResponseOptions responseOptions, ResponseBody responseBody, PrintableStream stream, LogDetail logDetail, boolean shouldPrettyPrint, Set<String> blacklistedHeaders) {
         final StringBuilder builder = new StringBuilder();
         if (logDetail == ALL || logDetail == STATUS) {
             builder.append(responseOptions.statusLine());
@@ -79,7 +80,7 @@ public class ResponsePrinter {
 
     private static String toString(Headers headers, Set<String> blacklistedHeaders) {
         if (!headers.exist()) {
-            return "";
+            return StringUtils.EMPTY;
         }
 
         final StringBuilder builder = new StringBuilder();

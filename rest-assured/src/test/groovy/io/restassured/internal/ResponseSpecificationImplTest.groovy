@@ -18,6 +18,7 @@ package io.restassured.internal
 
 import io.restassured.config.FailureConfig
 import io.restassured.config.LogConfig
+import io.restassured.config.PrintableStream
 import io.restassured.config.RestAssuredConfig
 import io.restassured.internal.log.LogRepository
 import io.restassured.listener.ResponseValidationFailureListener
@@ -44,7 +45,7 @@ class ResponseSpecificationImplTest {
     @Test
     void "Should call default failure listener to print response if log repository has response and validation failed"() {
         //given
-        PrintStream printStreamMock = mock(PrintStream)
+        TestPrint printStreamMock = spy(new TestPrint())
         ResponseSpecificationImpl respSpecImpl = createRespSpec(UNEXPECTED_BODY, printStreamMock)
         Response unexpectedResponse = when(mock(Response).asString()).thenReturn(UNEXPECTED_BODY).getMock()
 
@@ -54,27 +55,27 @@ class ResponseSpecificationImplTest {
         } catch (AssertionError ignored) {}
 
         //then
-        verify(printStreamMock, times(1)).print(UNEXPECTED_BODY)
+        verify(printStreamMock, times(1)).println(UNEXPECTED_BODY)
     }
 
     @Test
     void "Should NOT call default failure listener to print response if validation passed"() {
         //given
-        PrintStream printStreamMock = mock(PrintStream)
+        PrintableStream printStreamMock = mock(PrintableStream.class)
         ResponseSpecificationImpl respSpecImpl = createRespSpec(EXPECTED_BODY, printStreamMock)
         Response expectedResponse = when(mock(Response).asString()).thenReturn(EXPECTED_BODY).getMock()
 
         //when
         respSpecImpl.validate(expectedResponse)
         //then
-        verify(printStreamMock, never()).print(EXPECTED_BODY)
+        verify(printStreamMock, never()).println(EXPECTED_BODY)
     }
 
     @Test
     void "Should call custom failure listener when validation fails"() {
         //given
-      ResponseValidationFailureListener customListener = mock(ResponseValidationFailureListener)
-        ResponseSpecificationImpl respSpecImpl = createRespSpec(UNEXPECTED_BODY, System.out, customListener)
+        ResponseValidationFailureListener customListener = mock(ResponseValidationFailureListener)
+        ResponseSpecificationImpl respSpecImpl = createRespSpec(UNEXPECTED_BODY, new TestPrint(), customListener)
         Response matchingResponse = when(mock(Response).asString()).thenReturn(UNEXPECTED_BODY).getMock()
         //when
         try {
@@ -88,7 +89,7 @@ class ResponseSpecificationImplTest {
     void "Should NOT call custom failure listener when validation passes"() {
         //given
         ResponseValidationFailureListener customListener = mock(ResponseValidationFailureListener)
-        ResponseSpecificationImpl respSpecImpl = createRespSpec(EXPECTED_BODY, System.out, customListener)
+        ResponseSpecificationImpl respSpecImpl = createRespSpec(EXPECTED_BODY, new TestPrint(), customListener)
         Response nonmatchingResponse = when(mock(Response).asString()).thenReturn(EXPECTED_BODY).getMock()
 
         //when
@@ -97,7 +98,7 @@ class ResponseSpecificationImplTest {
         verify(customListener, never()).onFailure(any(RequestSpecification.class), same(respSpecImpl), same(nonmatchingResponse))
     }
 
-    private static ResponseSpecificationImpl createRespSpec(String responseContentInLogRepository, PrintStream logOutputStream = System.out, ResponseValidationFailureListener failureListener = null) {
+    private static ResponseSpecificationImpl createRespSpec(String responseContentInLogRepository, PrintableStream logOutputStream, ResponseValidationFailureListener failureListener = null) {
         def customFailureListeners = failureListener == null ? [] : [failureListener]
         ByteArrayOutputStream baos = new ByteArrayOutputStream()
         baos.write(responseContentInLogRepository.getBytes(Charset.defaultCharset()))
@@ -113,5 +114,12 @@ class ResponseSpecificationImplTest {
         respSpecImpl.body(equalTo(EXPECTED_BODY))
 
         respSpecImpl
+    }
+
+    class TestPrint implements PrintableStream {
+
+        @Override
+        void println(String string) {}
+
     }
 }

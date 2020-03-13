@@ -18,6 +18,7 @@
 package io.restassured.internal
 
 import io.restassured.config.LogConfig
+import io.restassured.config.PrintableStream
 import io.restassured.config.RestAssuredConfig
 import io.restassured.specification.RequestSpecification
 
@@ -26,10 +27,10 @@ import io.restassured.specification.RequestSpecification
  */
 class LogSpecificationImpl {
 
-  PrintStream getPrintStream(RequestSpecification requestSpecification) {
+  PrintableStream getPrintStream(RequestSpecification requestSpecification) {
     def stream = getLogConfig(requestSpecification)?.defaultStream()
     if (stream == null) {
-      stream = System.out
+      stream = System.out.&println
     }
     stream
   }

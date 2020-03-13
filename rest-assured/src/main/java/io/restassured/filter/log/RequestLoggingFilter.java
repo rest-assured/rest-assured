@@ -16,6 +16,7 @@
 
 package io.restassured.filter.log;
 
+import io.restassured.config.PrintableStream;
 import io.restassured.filter.Filter;
 import io.restassured.filter.FilterContext;
 import io.restassured.internal.print.RequestPrinter;
@@ -44,7 +45,7 @@ public class RequestLoggingFilter implements Filter {
 
     private static final boolean SHOW_URL_ENCODED_URI = true;
     private final LogDetail logDetail;
-    private final PrintStream stream;
+    private final PrintableStream stream;
     private final boolean shouldPrettyPrint;
     private final boolean showUrlEncodedUri;
     private final Set<String> blacklistedHeaders;
@@ -53,7 +54,7 @@ public class RequestLoggingFilter implements Filter {
      * Logs to System.out
      */
     public RequestLoggingFilter() {
-        this(ALL, System.out);
+        this(ALL, System.out::println);
     }
 
     /**
@@ -62,16 +63,16 @@ public class RequestLoggingFilter implements Filter {
      * @param logDetail The log detail
      */
     public RequestLoggingFilter(LogDetail logDetail) {
-        this(logDetail, System.out);
+        this(logDetail, System.out::println);
     }
 
     /**
-     * Logs everyting to the specified printstream.
+     * Logs everything to the specified printstream.
      *
      * @param printStream The stream to log to.
      */
     public RequestLoggingFilter(PrintStream printStream) {
-        this(ALL, printStream);
+        this(ALL, printStream::println);
     }
 
     /**
@@ -80,7 +81,18 @@ public class RequestLoggingFilter implements Filter {
      * @param logDetail The log detail
      * @param stream    The stream to log to.
      */
+    @Deprecated
     public RequestLoggingFilter(LogDetail logDetail, PrintStream stream) {
+        this(logDetail, true, stream::println);
+    }
+
+    /**
+     * Instantiate a  logger using a specific print stream and a specific log detail. Pretty-printing will be enabled if possible.
+     *
+     * @param logDetail The log detail
+     * @param stream    The stream to log to.
+     */
+    public RequestLoggingFilter(LogDetail logDetail, PrintableStream stream) {
         this(logDetail, true, stream);
     }
 
@@ -92,7 +104,19 @@ public class RequestLoggingFilter implements Filter {
      * @param shouldPrettyPrint <code>true</code> if pretty-printing of the body should occur.
      * @param stream            The stream to log to.
      */
+    @Deprecated
     public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream) {
+        this(logDetail, shouldPrettyPrint, stream::println);
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream and a specific log detail
+     *
+     * @param logDetail         The log detail
+     * @param shouldPrettyPrint <code>true</code> if pretty-printing of the body should occur.
+     * @param stream            The stream to log to.
+     */
+    public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintableStream stream) {
         this(logDetail, shouldPrettyPrint, stream, SHOW_URL_ENCODED_URI);
     }
 
@@ -104,6 +128,7 @@ public class RequestLoggingFilter implements Filter {
      * @param stream            The stream to log to.
      * @param showUrlEncodedUri Whether or not to show the request URI as url encoded
      */
+    @Deprecated
     public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream, boolean showUrlEncodedUri) {
         this(logDetail, shouldPrettyPrint, stream, showUrlEncodedUri, Collections.emptySet());
     }
@@ -116,7 +141,32 @@ public class RequestLoggingFilter implements Filter {
      * @param stream            The stream to log to.
      * @param showUrlEncodedUri Whether or not to show the request URI as url encoded
      */
+    public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintableStream stream, boolean showUrlEncodedUri) {
+        this(logDetail, shouldPrettyPrint, stream, showUrlEncodedUri, Collections.emptySet());
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream and a specific log detail
+     *
+     * @param logDetail         The log detail
+     * @param shouldPrettyPrint <code>true</code> if pretty-printing of the body should occur.
+     * @param stream            The stream to log to.
+     * @param showUrlEncodedUri Whether or not to show the request URI as url encoded
+     */
+    @Deprecated
     public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream, boolean showUrlEncodedUri, Set<String> blacklistedHeaders) {
+        this(logDetail, shouldPrettyPrint, stream::println, showUrlEncodedUri, blacklistedHeaders);
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream and a specific log detail
+     *
+     * @param logDetail         The log detail
+     * @param shouldPrettyPrint <code>true</code> if pretty-printing of the body should occur.
+     * @param stream            The stream to log to.
+     * @param showUrlEncodedUri Whether or not to show the request URI as url encoded
+     */
+    public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintableStream stream, boolean showUrlEncodedUri, Set<String> blacklistedHeaders) {
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(blacklistedHeaders, "Blacklisted headers cannot be null");
         Validate.notNull(logDetail, "Log details cannot be null");

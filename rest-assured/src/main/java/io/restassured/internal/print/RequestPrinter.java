@@ -16,6 +16,7 @@
 
 package io.restassured.internal.print;
 
+import io.restassured.config.PrintableStream;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
@@ -28,10 +29,8 @@ import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.MultiPartSpecification;
 import io.restassured.specification.ProxySpecification;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,7 +49,7 @@ public class RequestPrinter {
 
     public static String print(FilterableRequestSpecification requestSpec, String requestMethod, String completeRequestUri,
                                LogDetail logDetail, Set<String> blacklistedHeaders,
-                               PrintStream stream, boolean shouldPrettyPrint) {
+                               PrintableStream stream, boolean shouldPrettyPrint) {
         final StringBuilder builder = new StringBuilder();
         if (logDetail == ALL || logDetail == METHOD) {
             addSingle(builder, "Request method:", requestMethod);
@@ -83,7 +82,7 @@ public class RequestPrinter {
             addBody(requestSpec, builder, shouldPrettyPrint);
         }
 
-        final String logString = StringUtils.removeEnd(builder.toString(), SystemUtils.LINE_SEPARATOR);
+        final String logString = StringUtils.chomp(builder.toString());
         stream.println(logString);
         return logString;
     }
@@ -97,21 +96,21 @@ public class RequestPrinter {
         } else {
             builder.append(proxySpec.toString());
         }
-        builder.append(SystemUtils.LINE_SEPARATOR);
+        builder.append(System.lineSeparator());
     }
 
     private static void addBody(FilterableRequestSpecification requestSpec, StringBuilder builder, boolean shouldPrettyPrint) {
         builder.append("Body:");
-        if (requestSpec.getBody() != null) {
+        if (requestSpec.getBody() == null) {
+            appendTab(appendTwoTabs(builder)).append(NONE);
+        } else {
             final String body;
             if (shouldPrettyPrint) {
                 body = new Prettifier().getPrettifiedBodyIfPossible(requestSpec);
             } else {
                 body = requestSpec.getBody();
             }
-            builder.append(SystemUtils.LINE_SEPARATOR).append(body);
-        } else {
-            appendTab(appendTwoTabs(builder)).append(NONE);
+            builder.append(System.lineSeparator()).append(body);
         }
     }
 
@@ -119,7 +118,7 @@ public class RequestPrinter {
         builder.append("Cookies:");
         final Cookies cookies = requestSpec.getCookies();
         if (!cookies.exist()) {
-            appendTwoTabs(builder).append(NONE).append(SystemUtils.LINE_SEPARATOR);
+            appendTwoTabs(builder).append(NONE).append(System.lineSeparator());
         }
         int i = 0;
         for (Cookie cookie : cookies) {
@@ -128,7 +127,7 @@ public class RequestPrinter {
             } else {
                 appendFourTabs(builder);
             }
-            builder.append(cookie).append(SystemUtils.LINE_SEPARATOR);
+            builder.append(cookie).append(System.lineSeparator());
         }
     }
 
@@ -137,7 +136,7 @@ public class RequestPrinter {
         builder.append("Headers:");
         final Headers headers = requestSpec.getHeaders();
         if (!headers.exist()) {
-            appendTwoTabs(builder).append(NONE).append(SystemUtils.LINE_SEPARATOR);
+            appendTwoTabs(builder).append(NONE).append(System.lineSeparator());
         } else {
             int i = 0;
             for (Header header : headers) {
@@ -150,7 +149,7 @@ public class RequestPrinter {
                 if (blacklistedHeaders.contains(header.getName())) {
                     processedHeader = new Header(header.getName(), BLACKLISTED);
                 }
-                builder.append(processedHeader).append(SystemUtils.LINE_SEPARATOR);
+                builder.append(processedHeader).append(System.lineSeparator());
             }
         }
     }
@@ -160,55 +159,55 @@ public class RequestPrinter {
         builder.append("Multiparts:");
         final List<MultiPartSpecification> multiParts = requestSpec.getMultiPartParams();
         if (multiParts.isEmpty()) {
-            appendTwoTabs(builder).append(NONE).append(SystemUtils.LINE_SEPARATOR);
+            appendTwoTabs(builder).append(NONE).append(System.lineSeparator());
         } else {
             for (int i = 0; i < multiParts.size(); i++) {
                 MultiPartSpecification multiPart = multiParts.get(i);
                 if (i == 0) {
                     appendTwoTabs(builder);
                 } else {
-                    appendFourTabs(builder.append(SystemUtils.LINE_SEPARATOR));
+                    appendFourTabs(builder.append(System.lineSeparator()));
                 }
 
                 builder.append("------------");
-                appendFourTabs(appendFourTabs(builder.append(SystemUtils.LINE_SEPARATOR))
+                appendFourTabs(appendFourTabs(builder.append(System.lineSeparator()))
                         .append("Content-Disposition: ")
                         .append(requestSpec.getContentType().replace("multipart/", ""))
                         .append("; name = ").append(multiPart.getControlName())
                         .append(multiPart.hasFileName() ? "; filename = " + multiPart.getFileName() : "")
-                        .append(SystemUtils.LINE_SEPARATOR))
+                        .append(System.lineSeparator()))
                         .append("Content-Type: ")
                         .append(multiPart.getMimeType());
                 final Map<String, String> headers = multiPart.getHeaders();
                 if (!headers.isEmpty()) {
                     final Set<Entry<String, String>> headerEntries = headers.entrySet();
                     for (Entry<String, String> headerEntry : headerEntries) {
-                        appendFourTabs(appendFourTabs(builder.append(SystemUtils.LINE_SEPARATOR))
+                        appendFourTabs(appendFourTabs(builder.append(System.lineSeparator()))
                                 .append(headerEntry.getKey()).append(": ").append(headerEntry.getValue()));
                     }
                 }
-                builder.append(SystemUtils.LINE_SEPARATOR); // There's a newline between headers and content in multi-parts
+                builder.append(System.lineSeparator()); // There's a newline between headers and content in multi-parts
                 if (multiPart.getContent() instanceof InputStream) {
-                    appendFourTabs(builder.append(SystemUtils.LINE_SEPARATOR)).append("<inputstream>");
+                    appendFourTabs(builder.append(System.lineSeparator())).append("<inputstream>");
                 } else {
                     Parser parser = Parser.fromContentType(multiPart.getMimeType());
                     String prettified = new Prettifier().prettify(multiPart.getContent().toString(), parser);
-                    String prettifiedIndented = StringUtils.replace(prettified, SystemUtils.LINE_SEPARATOR, SystemUtils.LINE_SEPARATOR + TAB + TAB + TAB + TAB);
-                    appendFourTabs(builder.append(SystemUtils.LINE_SEPARATOR)).append(prettifiedIndented);
+                    String prettifiedIndented = StringUtils.replace(prettified, System.lineSeparator(), System.lineSeparator() + TAB + TAB + TAB + TAB);
+                    appendFourTabs(builder.append(System.lineSeparator())).append(prettifiedIndented);
                 }
             }
-            builder.append(SystemUtils.LINE_SEPARATOR);
+            builder.append(System.lineSeparator());
         }
     }
 
     private static void addSingle(StringBuilder builder, String str, String requestPath) {
-        appendTab(builder.append(str)).append(requestPath).append(SystemUtils.LINE_SEPARATOR);
+        appendTab(builder.append(str)).append(requestPath).append(System.lineSeparator());
     }
 
     private static void addMapDetails(StringBuilder builder, String title, Map<String, ?> map) {
         appendTab(builder.append(title));
         if (map.isEmpty()) {
-            builder.append(NONE).append(SystemUtils.LINE_SEPARATOR);
+            builder.append(NONE).append(System.lineSeparator());
         } else {
             int i = 0;
             for (Entry<String, ?> entry : map.entrySet()) {
@@ -220,7 +219,7 @@ public class RequestPrinter {
                 if (!(value instanceof NoParameterValue)) {
                     builder.append(EQUALS).append(value);
                 }
-                builder.append(SystemUtils.LINE_SEPARATOR);
+                builder.append(System.lineSeparator());
             }
         }
     }

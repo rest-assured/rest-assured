@@ -17,6 +17,7 @@
 
 package io.restassured.internal
 
+import io.restassured.config.PrintableStream
 import io.restassured.filter.log.LogDetail
 import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.internal.log.LogRepository
@@ -89,7 +90,7 @@ class RequestLogSpecificationImpl extends LogSpecificationImpl implements Reques
     ByteArrayOutputStream baos = new ByteArrayOutputStream()
     PrintStream ps = new PrintStream(baos)
     logRepository.registerRequestLog(baos)
-    logWith(logDetail, shouldPrettyPrint, ps)
+    logWith(logDetail, shouldPrettyPrint, ps.&println)
   }
 
   private def logWith(LogDetail logDetail) {
@@ -100,7 +101,7 @@ class RequestLogSpecificationImpl extends LogSpecificationImpl implements Reques
     return logWith(logDetail, prettyPrintingEnabled, getPrintStream(requestSpecification))
   }
 
-  private def logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
+  private def logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintableStream printStream) {
     requestSpecification.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri(requestSpecification), blacklistedHeaders))
     requestSpecification
   }

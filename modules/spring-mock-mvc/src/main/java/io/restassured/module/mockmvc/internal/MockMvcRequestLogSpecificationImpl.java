@@ -17,6 +17,7 @@ package io.restassured.module.mockmvc.internal;
 
 import io.restassured.authentication.NoAuthScheme;
 import io.restassured.config.LogConfig;
+import io.restassured.config.PrintableStream;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -89,7 +90,7 @@ public class MockMvcRequestLogSpecificationImpl extends LogSpecificationImpl imp
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         requestSpecification.getLogRepository().registerRequestLog(baos);
-        return logWith(logDetail, shouldPrettyPrint, ps);
+        return logWith(logDetail, shouldPrettyPrint, ps::println);
     }
 
     private MockMvcRequestSpecification logWith(LogDetail logDetail) {
@@ -101,7 +102,7 @@ public class MockMvcRequestLogSpecificationImpl extends LogSpecificationImpl imp
         return logWith(logDetail, prettyPrintingEnabled, getPrintStream(toRequestSpecification()));
     }
 
-    private MockMvcRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
+    private MockMvcRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintableStream printStream) {
         LogConfig logConfig = requestSpecification.getRestAssuredMockMvcConfig().getLogConfig();
         boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
         Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();

@@ -19,6 +19,7 @@ package io.restassured.builder;
 import io.restassured.RestAssured;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.config.LogConfig;
+import io.restassured.config.PrintableStream;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SessionConfig;
 import io.restassured.filter.Filter;
@@ -38,7 +39,6 @@ import io.restassured.specification.RequestSpecification;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.net.URI;
 import java.security.KeyStore;
 import java.util.Collection;
@@ -1034,7 +1034,7 @@ public class RequestSpecBuilder {
         } else {
             logConfig = restAssuredConfig.getLogConfig();
         }
-        PrintStream printStream = logConfig.defaultStream();
+        PrintableStream printStream = logConfig.defaultStream();
         boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
         boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
         Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();

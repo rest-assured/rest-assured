@@ -169,12 +169,12 @@ class RestAssuredResponseOptionsGroovyImpl {
 
   def peek(ResponseOptions responseOptions, ResponseBody responseBody) {
     Set<String> blacklistedHeaders = getConfig()?.logConfig?.blacklistedHeaders() ?: Collections.<String> emptySet()
-    ResponsePrinter.print(responseOptions, responseBody, System.out, LogDetail.ALL, false, blacklistedHeaders)
+    ResponsePrinter.print(responseOptions, responseBody, System.out.&println, LogDetail.ALL, false, blacklistedHeaders)
   }
 
   def prettyPeek(ResponseOptions responseOptions, ResponseBody responseBody) {
     Set<String> blacklistedHeaders = getConfig()?.logConfig?.blacklistedHeaders() ?: Collections.<String> emptySet()
-    ResponsePrinter.print(responseOptions, responseBody, System.out, LogDetail.ALL, true, blacklistedHeaders)
+    ResponsePrinter.print(responseOptions, responseBody, System.out.&println, LogDetail.ALL, true, blacklistedHeaders)
   }
 
   String asString() {

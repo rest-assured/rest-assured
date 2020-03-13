@@ -16,6 +16,7 @@
 package io.restassured.module.webtestclient.specification;
 
 import io.restassured.config.LogConfig;
+import io.restassured.config.PrintableStream;
 import io.restassured.config.SessionConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -645,7 +646,7 @@ public class WebTestClientRequestSpecBuilder {
 	public WebTestClientRequestSpecBuilder log(LogDetail logDetail) {
 		notNull(logDetail, LogDetail.class);
 		LogConfig logConfig = spec.getRestAssuredWebTestClientConfig().getLogConfig();
-		PrintStream printStream = logConfig.defaultStream();
+		PrintableStream printStream = logConfig.defaultStream();
 		boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
 		boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
         Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();

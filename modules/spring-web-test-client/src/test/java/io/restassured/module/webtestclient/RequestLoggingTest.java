@@ -18,6 +18,7 @@ package io.restassured.module.webtestclient;
 
 import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
+import io.restassured.config.PrintableStream;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
 import io.restassured.module.webtestclient.setup.BasePathController;
 import io.restassured.module.webtestclient.setup.GreetingController;
@@ -44,7 +45,7 @@ public class RequestLoggingTest {
 	public void
 	given_config_is_stored_in_writer() {
 		writer = new StringWriter();
-		PrintStream captor = new PrintStream(new WriterOutputStream(writer, defaultCharset()), true);
+		PrintableStream captor = new PrintStream(new WriterOutputStream(writer, defaultCharset()), true)::println;
 		RestAssuredWebTestClient.config = new RestAssuredWebTestClientConfig()
 				.logConfig(new LogConfig(captor, true));
 	}

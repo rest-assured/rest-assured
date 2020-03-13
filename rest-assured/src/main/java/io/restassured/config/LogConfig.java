@@ -35,7 +35,7 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  */
 public class LogConfig implements Config {
 
-    private final PrintStream defaultPrintStream;
+    private final PrintableStream defaultPrintStream;
     private final boolean prettyPrintingEnabled;
     private final LogDetail logDetailIfValidationFails;
     private final boolean urlEncodeRequestUri;
@@ -46,7 +46,7 @@ public class LogConfig implements Config {
      * Configure the default stream to use the System.out stream (default).
      */
     public LogConfig() {
-        this(System.out, true, null, true, new HashSet<>(), false);
+        this(System.out::println, true, null, true, new HashSet<>(), false);
     }
 
     /**
@@ -65,7 +65,28 @@ public class LogConfig implements Config {
      * @param defaultPrintStream    The default print stream to use for the {@link LogSpecification}'s.
      * @param prettyPrintingEnabled Enable or disable pretty printing when logging. Pretty printing is only possible when content-type is XML, JSON or HTML.
      */
+    @Deprecated
     public LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled) {
+        this(defaultPrintStream::println, prettyPrintingEnabled);
+    }
+
+    /**
+     * Configure pretty printing and the default stream where logs should be written if <i>not</i> specified explicitly by a filter. I.e. this stream will be used in cases
+     * where the log specification DSL is used, e.g.
+     * <pre>
+     * given().log().all()...
+     * </pre>
+     * or
+     * <pre>
+     * expect().log.ifError(). ..
+     * </pre>
+     * <p/>
+     * It will not override explicit streams defined by using the {@link RequestLoggingFilter} or the {@link ResponseLoggingFilter}.
+     *
+     * @param defaultPrintStream    The default print stream to use for the {@link LogSpecification}'s.
+     * @param prettyPrintingEnabled Enable or disable pretty printing when logging. Pretty printing is only possible when content-type is XML, JSON or HTML.
+     */
+    public LogConfig(PrintableStream defaultPrintStream, boolean prettyPrintingEnabled) {
         this(defaultPrintStream, prettyPrintingEnabled, null, true, new HashSet<>(), true);
     }
 
@@ -85,7 +106,7 @@ public class LogConfig implements Config {
      * @param defaultPrintStream    The default print stream to use for the {@link LogSpecification}'s.
      * @param prettyPrintingEnabled Enable or disable pretty printing when logging. Pretty printing is only possible when content-type is XML, JSON or HTML.
      */
-    private LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled, LogDetail logDetailIfValidationFails,
+    private LogConfig(PrintableStream defaultPrintStream, boolean prettyPrintingEnabled, LogDetail logDetailIfValidationFails,
                       boolean urlEncodeRequestUri, Set<String> headerBlacklist, boolean isUserDefined) {
         Validate.notNull(defaultPrintStream, "Stream to write logs to cannot be null");
         Validate.notNull(defaultPrintStream, "Stream to write logs to cannot be null");
@@ -100,7 +121,7 @@ public class LogConfig implements Config {
     /**
      * @return The default stream to use
      */
-    public PrintStream defaultStream() {
+    public PrintableStream defaultStream() {
         return defaultPrintStream;
     }
 
@@ -118,7 +139,18 @@ public class LogConfig implements Config {
      * @param printStream The stream
      * @return A new LogConfig instance
      */
+    @Deprecated
     public LogConfig defaultStream(PrintStream printStream) {
+        return new LogConfig(printStream::println, true, logDetailIfValidationFails, urlEncodeRequestUri, headerBlacklist, true);
+    }
+
+    /**
+     * Specify a new default stream to the print to.
+     *
+     * @param printStream The stream
+     * @return A new LogConfig instance
+     */
+    public LogConfig defaultStream(PrintableStream printStream) {
         return new LogConfig(printStream, true, logDetailIfValidationFails, urlEncodeRequestUri, headerBlacklist, true);
     }
 

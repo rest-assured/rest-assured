@@ -17,6 +17,7 @@
 package io.restassured.filter.log;
 
 import io.restassured.builder.ResponseBuilder;
+import io.restassured.config.PrintableStream;
 import io.restassured.filter.Filter;
 import io.restassured.filter.FilterContext;
 import io.restassured.internal.RestAssuredResponseImpl;
@@ -36,7 +37,7 @@ import static io.restassured.RestAssured.config;
 
 class StatusCodeBasedLoggingFilter implements Filter {
 
-    private final PrintStream stream;
+    private final PrintableStream stream;
     private final Matcher<?> matcher;
     private final LogDetail logDetail;
     private final boolean shouldPrettyPrint;
@@ -48,7 +49,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param matcher The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(Matcher<? super Integer> matcher) {
-        this(System.out, matcher);
+        this(System.out::println, matcher);
     }
 
     /**
@@ -57,7 +58,18 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param stream  The stream to log errors to.
      * @param matcher The matcher for the logging to take place
      */
+    @Deprecated
     public StatusCodeBasedLoggingFilter(PrintStream stream, Matcher<? super Integer> matcher) {
+        this(LogDetail.ALL, stream::println, matcher);
+    }
+
+    /**
+     * Instantiate a error logger using a specific print stream
+     *
+     * @param stream  The stream to log errors to.
+     * @param matcher The matcher for the logging to take place
+     */
+    public StatusCodeBasedLoggingFilter(PrintableStream stream, Matcher<? super Integer> matcher) {
         this(LogDetail.ALL, stream, matcher);
     }
 
@@ -68,7 +80,19 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param stream    The stream to log errors to.
      * @param matcher   The matcher for the logging to take place
      */
+    @Deprecated
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, PrintStream stream, Matcher<? super Integer> matcher) {
+        this(logDetail, isPrettyPrintingEnabled(), stream::println, matcher);
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream and a specific log detail
+     *
+     * @param logDetail The log detail
+     * @param stream    The stream to log errors to.
+     * @param matcher   The matcher for the logging to take place
+     */
+    public StatusCodeBasedLoggingFilter(LogDetail logDetail, PrintableStream stream, Matcher<? super Integer> matcher) {
         this(logDetail, isPrettyPrintingEnabled(), stream, matcher);
     }
 
@@ -80,7 +104,20 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param stream      The stream to log errors to.
      * @param matcher     The matcher for the logging to take place
      */
+    @Deprecated
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<? super Integer> matcher) {
+        this(logDetail, prettyPrint, stream, matcher, Collections.emptySet());
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream and a specific log detail  and the option to pretty printing
+     *
+     * @param logDetail   The log detail
+     * @param prettyPrint Enabled pretty printing if possible
+     * @param stream      The stream to log errors to.
+     * @param matcher     The matcher for the logging to take place
+     */
+    public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintableStream stream, Matcher<? super Integer> matcher) {
         this(logDetail, prettyPrint, stream, matcher, Collections.emptySet());
     }
 
@@ -94,6 +131,18 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param matcher     The matcher for the logging to take place
      */
     public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<? super Integer> matcher, Set<String> blacklistedHeaders) {
+        this(logDetail, prettyPrint, stream::println, matcher, blacklistedHeaders);
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream and a specific log detail  and the option to pretty printing
+     *
+     * @param logDetail   The log detail
+     * @param prettyPrint Enabled pretty printing if possible
+     * @param stream      The stream to log errors to.
+     * @param matcher     The matcher for the logging to take place
+     */
+    public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintableStream stream, Matcher<? super Integer> matcher, Set<String> blacklistedHeaders) {
         Validate.notNull(logDetail, "Log details cannot be null");
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(matcher, "Matcher cannot be null");

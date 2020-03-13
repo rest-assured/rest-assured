@@ -21,7 +21,6 @@ import io.restassured.response.Response
 import io.restassured.specification.RequestSpecification
 import io.restassured.specification.ResponseSpecification
 import org.apache.commons.lang3.StringUtils
-import org.apache.commons.lang3.SystemUtils
 
 /**
  * Default listener fired when validation fails in ResponseSpecificationImpl.
@@ -47,13 +46,13 @@ class LogRequestAndResponseOnFailListener implements ResponseValidationFailureLi
             def responseLog = logRepository.responseLog
             def requestLogHasText = StringUtils.isNotEmpty(requestLog)
             if (requestLogHasText) {
-                stream.print(requestLog)
+                stream.println(StringUtils.chomp(requestLog))
             }
             if (StringUtils.isNotEmpty(responseLog)) {
                 if (requestLogHasText) {
-                    stream.print(SystemUtils.LINE_SEPARATOR);
+                    stream.println(StringUtils.EMPTY);
                 }
-                stream.print(responseLog)
+                stream.println(StringUtils.chomp(responseLog))
             }
         }
     }

@@ -18,6 +18,7 @@ package io.restassured.internal;
 
 import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
+import io.restassured.config.PrintableStream;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
@@ -385,7 +386,7 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
         responseSpec.getLogRepository().registerResponseLog(baos);
-        return logResponse(logDetail, shouldPrettyPrint, ps);
+        return logResponse(logDetail, shouldPrettyPrint, ps::println);
     }
 
     private T logResponse(LogDetail logDetail) {
@@ -396,7 +397,7 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         return logResponse(logDetail, shouldPrettyPrint, config.getLogConfig().defaultStream());
     }
 
-    private T logResponse(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream printStream) {
+    private T logResponse(LogDetail logDetail, boolean shouldPrettyPrint, PrintableStream printStream) {
         ResponsePrinter.print(response, response, printStream, logDetail, shouldPrettyPrint, config.getLogConfig().blacklistedHeaders());
         return (T) this;
     }

@@ -15,6 +15,7 @@
  */
 package io.restassured.filter.log;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -60,7 +61,7 @@ public class UrlDecoder {
 				bb.put((byte) c);
 			}
 		}
-		bb.flip();
+		((Buffer) bb).flip();;
 		return charset.decode(bb).toString();
 	}
 

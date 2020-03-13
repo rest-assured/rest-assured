@@ -16,6 +16,7 @@
 
 package io.restassured.filter.log;
 
+import io.restassured.config.PrintableStream;
 import io.restassured.filter.Filter;
 import org.hamcrest.Matcher;
 import org.hamcrest.Matchers;
@@ -34,7 +35,7 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * Log to system out for all status codes
      */
     public ResponseLoggingFilter() {
-        this(System.out);
+        this(System.out::println);
     }
 
     /**
@@ -43,7 +44,7 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * @param statusCode The status code
      */
     public ResponseLoggingFilter(int statusCode) {
-        this(System.out, equalTo(statusCode));
+        this(System.out::println, equalTo(statusCode));
     }
 
     /**
@@ -69,31 +70,64 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      *
      * @param stream The stream to log errors to.
      */
+    @Deprecated
     public ResponseLoggingFilter(PrintStream stream) {
-        this(stream,Matchers.any(Integer.class));
+        this(stream::println);
     }
 
     /**
      * Instantiate a logger using a specific print stream for all status codes
      *
-     *@param logDetail The log detail
      * @param stream The stream to log errors to.
      */
-    public ResponseLoggingFilter(LogDetail logDetail, PrintStream stream) {
-        this(logDetail, stream,Matchers.any(Integer.class));
+    public ResponseLoggingFilter(PrintableStream stream) {
+        this(stream, Matchers.any(Integer.class));
     }
 
     /**
      * Instantiate a logger using a specific print stream for all status codes
      *
-     *@param logDetail The log detail
+     * @param logDetail The log detail
+     * @param stream The stream to log errors to.
+     */
+    @Deprecated
+    public ResponseLoggingFilter(LogDetail logDetail, PrintStream stream) {
+        this(logDetail, stream::println);
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream for all status codes
+     *
+     * @param logDetail The log detail
+     * @param stream The stream to log errors to.
+     */
+    public ResponseLoggingFilter(LogDetail logDetail, PrintableStream stream) {
+        this(logDetail, stream, Matchers.any(Integer.class));
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream for all status codes
+     *
+     * @param logDetail The log detail
      * @param shouldPrettyPrint <code>true</code> of pretty-printing should be enabled.
      * @param stream The stream to log errors to.
      */
+    @Deprecated
     public ResponseLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream) {
-        this(logDetail, shouldPrettyPrint, stream, Matchers.any(Integer.class));
+        this(logDetail, shouldPrettyPrint, stream::println);
     }
 
+
+    /**
+     * Instantiate a logger using a specific print stream for all status codes
+     *
+     * @param logDetail The log detail
+     * @param shouldPrettyPrint <code>true</code> of pretty-printing should be enabled.
+     * @param stream The stream to log errors to.
+     */
+    public ResponseLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintableStream stream) {
+        this(logDetail, shouldPrettyPrint, stream, Matchers.any(Integer.class));
+    }
 
     /**
      * Instantiate a logger using a specific print stream for status codes matching the supplied status code.
@@ -102,6 +136,16 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * @param statusCode The status code that must be present in the response if the response body is to be printed.
      */
     public ResponseLoggingFilter(PrintStream stream, int statusCode) {
+        this(stream::println, statusCode);
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream for status codes matching the supplied status code.
+     *
+     * @param stream The stream to log errors to.
+     * @param statusCode The status code that must be present in the response if the response body is to be printed.
+     */
+    public ResponseLoggingFilter(PrintableStream stream, int statusCode) {
         this(stream, equalTo(statusCode));
     }
 
@@ -112,6 +156,16 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * @param matcher The matcher that must be fulfilled if the response body is to be printed.
      */
     public ResponseLoggingFilter(PrintStream stream, Matcher<Integer> matcher) {
+        this(ALL, stream::println, matcher);
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream for status codes matching the supplied status code.
+     *
+     * @param stream The stream to log errors to.
+     * @param matcher The matcher that must be fulfilled if the response body is to be printed.
+     */
+    public ResponseLoggingFilter(PrintableStream stream, Matcher<Integer> matcher) {
         this(ALL, stream, matcher);
     }
 
@@ -122,7 +176,19 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * @param stream The stream to log errors to.
      * @param statusCode The status code that must be present in the response if the response body is to be printed.
      */
+    @Deprecated
     public ResponseLoggingFilter(LogDetail logDetail, PrintStream stream, int statusCode) {
+        this(logDetail, stream::println, equalTo(statusCode));
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream for status codes matching the supplied status code.
+     *
+     * @param logDetail The log detail
+     * @param stream The stream to log errors to.
+     * @param statusCode The status code that must be present in the response if the response body is to be printed.
+     */
+    public ResponseLoggingFilter(LogDetail logDetail, PrintableStream stream, int statusCode) {
         this(logDetail, stream, equalTo(statusCode));
     }
 
@@ -133,7 +199,19 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * @param stream The stream to log errors to.
      * @param matcher The matcher that must be fulfilled if the response body is to be printed.
      */
+    @Deprecated
     public ResponseLoggingFilter(LogDetail logDetail, PrintStream stream, Matcher<Integer> matcher) {
+        super(logDetail, stream::println, matcher);
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream for status codes matching the supplied matcher.
+     *
+     * @param logDetail The log detail
+     * @param stream The stream to log errors to.
+     * @param matcher The matcher that must be fulfilled if the response body is to be printed.
+     */
+    public ResponseLoggingFilter(LogDetail logDetail, PrintableStream stream, Matcher<Integer> matcher) {
         super(logDetail, stream, matcher);
     }
 
@@ -145,8 +223,9 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * @param stream The stream to log errors to.
      * @param statusCode The status code that must be present in the response if the response body is to be printed.
      */
+    @Deprecated
     public ResponseLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, int statusCode) {
-        this(logDetail, prettyPrint, stream, equalTo(statusCode));
+        super(logDetail, prettyPrint, stream::println, equalTo(statusCode));
     }
 
     /**
@@ -157,7 +236,20 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * @param stream The stream to log errors to.
      * @param matcher The matcher that must be fulfilled if the response body is to be printed.
      */
+    @Deprecated
     public ResponseLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<Integer> matcher) {
+        super(logDetail, prettyPrint, stream::println, matcher);
+    }
+
+    /**
+     * Instantiate a logger using a specific print stream for status codes matching the supplied matcher.
+     *
+     * @param logDetail The log detail
+     * @param prettyPrint Enable or disable pretty printing of the body
+     * @param stream The stream to log errors to.
+     * @param matcher The matcher that must be fulfilled if the response body is to be printed.
+     */
+    public ResponseLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintableStream stream, Matcher<Integer> matcher) {
         super(logDetail, prettyPrint, stream, matcher);
     }
 
@@ -178,7 +270,19 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * @param stream The print stream to log to
      * @return a new instance of the filter
      */
+    @Deprecated
     public static Filter logResponseTo(PrintStream stream) {
+        return logResponseTo(stream::println);
+    }
+
+    /**
+     * Create a new logging filter without using the "new" operator.
+     * Will make the DSL look nicer.
+     *
+     * @param stream The print stream to log to
+     * @return a new instance of the filter
+     */
+    public static Filter logResponseTo(PrintableStream stream) {
         return new ResponseLoggingFilter(stream);
     }
 
@@ -192,6 +296,19 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * @return a new instance of the filter
      */
     public static Filter logResponseTo(PrintStream stream, LogDetail logDetail) {
+        return logResponseTo(stream::println, logDetail);
+    }
+
+    /**
+     * Create a new logging filter without using the "new" operator.
+     * Will make the DSL look nicer.
+     *
+     *
+     * @param stream The print stream to log to
+     * @param logDetail The log detail
+     * @return a new instance of the filter
+     */
+    public static Filter logResponseTo(PrintableStream stream, LogDetail logDetail) {
         return new ResponseLoggingFilter(logDetail, stream);
     }
 
@@ -225,7 +342,20 @@ public class ResponseLoggingFilter extends StatusCodeBasedLoggingFilter {
      * @param matcher The matcher that must be fulfilled in order for logging to occur
      * @return a new instance of the filter
      */
+    @Deprecated
     public static Filter logResponseToIfMatches(PrintStream stream, Matcher<Integer> matcher) {
+        return logResponseToIfMatches(stream::println, matcher);
+    }
+
+    /**
+     * Create a new logging filter without using the "new" operator.
+     * Will make the DSL look nicer.
+     *
+     * @param stream The print stream to log to
+     * @param matcher The matcher that must be fulfilled in order for logging to occur
+     * @return a new instance of the filter
+     */
+    public static Filter logResponseToIfMatches(PrintableStream stream, Matcher<Integer> matcher) {
         return new ResponseLoggingFilter(stream, matcher);
     }
 }

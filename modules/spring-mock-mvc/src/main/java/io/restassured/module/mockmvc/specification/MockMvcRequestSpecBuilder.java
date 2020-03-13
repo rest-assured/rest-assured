@@ -17,6 +17,7 @@
 package io.restassured.module.mockmvc.specification;
 
 import io.restassured.config.LogConfig;
+import io.restassured.config.PrintableStream;
 import io.restassured.config.SessionConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -39,7 +40,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
@@ -711,7 +711,7 @@ public class MockMvcRequestSpecBuilder {
     public MockMvcRequestSpecBuilder log(LogDetail logDetail) {
         notNull(logDetail, LogDetail.class);
         LogConfig logConfig = spec.getRestAssuredMockMvcConfig().getLogConfig();
-        PrintStream printStream = logConfig.defaultStream();
+        PrintableStream printStream = logConfig.defaultStream();
         boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
         boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
         Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();

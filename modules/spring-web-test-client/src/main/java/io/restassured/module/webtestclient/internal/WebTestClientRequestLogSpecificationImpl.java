@@ -17,6 +17,7 @@ package io.restassured.module.webtestclient.internal;
 
 import io.restassured.authentication.NoAuthScheme;
 import io.restassured.config.LogConfig;
+import io.restassured.config.PrintableStream;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
@@ -93,14 +94,14 @@ public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationIm
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(byteArrayOutputStream);
         requestSpecification.getLogRepository().registerRequestLog(byteArrayOutputStream);
-        return logWith(logDetail, shouldPrettyPrint, printStream);
+        return logWith(logDetail, shouldPrettyPrint, printStream::println);
     }
 
     public WebTestClientRequestSpecification params() {
         return logWith(LogDetail.PARAMS);
     }
 
-    private WebTestClientRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
+    private WebTestClientRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintableStream printStream) {
         LogConfig logConfig = requestSpecification.getRestAssuredWebTestClientConfig().getLogConfig();
         boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
         Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();
