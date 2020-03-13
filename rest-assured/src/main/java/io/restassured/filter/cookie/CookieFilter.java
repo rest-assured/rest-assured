@@ -87,6 +87,30 @@ public class CookieFilter implements Filter {
         this.cookieStore = new BasicCookieStore();
     }
 
+    /**
+     * Create an instance of {@link CookieFilter} that allows specifying a CookieSpec.
+     *
+     * @param cookieSpec Specify whether or not to allow found two cookies with same name eg. JSESSIONID with different paths.
+     */
+    public CookieFilter(CookieSpec cookieSpec) {
+        this.cookieSpec = cookieSpec;
+        this.allowMultipleCookiesWithTheSameName = false;
+        this.cookieStore = new BasicCookieStore();
+    }
+
+    /**
+     * Create an instance of {@link CookieFilter} that allows specifying whether or not it should accept (and thus send) multiple cookies with the same name.
+     * Also allows specifying a {@link CookieSpec}.
+     *
+     * @param cookieSpec Specify the {@link CookieSpec} to use.
+     * @param allowMultipleCookiesWithTheSameName Specify whether or not to allow found two cookies with same name eg. JSESSIONID with different paths.
+     */
+    public CookieFilter(CookieSpec cookieSpec, boolean allowMultipleCookiesWithTheSameName) {
+        this.allowMultipleCookiesWithTheSameName = allowMultipleCookiesWithTheSameName;
+        this.cookieSpec = cookieSpec;
+        this.cookieStore = new BasicCookieStore();
+    }
+
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
 
         final CookieOrigin cookieOrigin = cookieOriginFromUri(requestSpec.getURI());
