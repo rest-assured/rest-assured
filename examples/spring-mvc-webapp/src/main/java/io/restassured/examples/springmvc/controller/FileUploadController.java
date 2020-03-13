@@ -26,21 +26,22 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static org.springframework.http.MediaType.*;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
+import static org.springframework.web.bind.annotation.RequestMethod.PUT;
 
 @Controller
 public class FileUploadController {
 
-    @RequestMapping(value = "/fileUpload", method = POST, consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/fileUpload", method = { POST, PUT } , consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
     public @ResponseBody String fileUpload(@RequestParam MultipartFile file) {
         return "{ \"size\" : "+file.getSize()+", \"name\" : \""+file.getName()+"\" }";
     }
 
-    @RequestMapping(value = "/fileUpload2", method = POST, consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/fileUpload2", method = { POST, PUT }, consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
     public @ResponseBody String fileUpload2(@RequestParam(value = "controlName") MultipartFile file) {
         return "{ \"size\" : "+file.getSize()+", \"name\" : \""+file.getName()+"\", \"originalName\" : \""+file.getOriginalFilename()+"\", \"mimeType\" : \""+file.getContentType()+"\" }";
     }
 
-    @RequestMapping(value = "/multiFileUpload", method = POST, consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/multiFileUpload", method = { POST, PUT }, consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
     public @ResponseBody List<FileDescription> multiFileUpload(@RequestParam(value = "controlName1") MultipartFile file1, @RequestParam(value = "controlName2") MultipartFile file2) throws IOException {
         FileDescription fd1 = new FileDescription();
         fd1.setContent(new String(file1.getBytes()));
@@ -58,7 +59,7 @@ public class FileUploadController {
         return asList(fd1, fd2);
     }
 
-    @RequestMapping(value = "/fileUploadWithParam", method = POST, consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/fileUploadWithParam", method = { POST, PUT }, consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
     public @ResponseBody FileWithParam fileUploadWithParam(@RequestParam(value = "controlName") MultipartFile file, @RequestParam(value = "param", required = false) String param) throws IOException {
         FileDescription fd1 = new FileDescription();
         fd1.setContent(new String(file.getBytes()));
@@ -79,12 +80,12 @@ public class FileUploadController {
         return "{ \"size\" : " + is.length() + ", \"content\":\"" + is + "\" }";
     }
 
-    @RequestMapping(value = "/fileUploadWithControlNameEqualToSomething", method = POST, consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/fileUploadWithControlNameEqualToSomething", method = { POST, PUT }, consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
     public @ResponseBody String fileUploadWithControlNameEqualToSomething(@RequestParam(value = "something") MultipartFile file) {
         return "{ \"size\" : "+file.getSize()+", \"name\" : \""+file.getName()+"\", \"originalName\" : \""+file.getOriginalFilename() + "\", \"mimeType\" : \""+file.getContentType()+"\" }";
     }
 
-    @RequestMapping(value = "/textAndReturnHeader", method = POST, consumes = "multipart/mixed", produces = APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/textAndReturnHeader", method = { POST, PUT }, consumes = "multipart/mixed", produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<String> fileUploadWithControlNameEqualToSomething(
             @RequestHeader("Content-Type") String requestContentType,
             @RequestParam(value = "something") MultipartFile file) {
