@@ -5,6 +5,8 @@ Changelog next version
 * Fixed so that DecoderConfig is properly set and used in the response in the Spring MockMvc module (thanks to dawiking for pull request)
 * Fix jsonb serialization method in JsonbMapper (issue 1274) (thanks to Matthias for pull request)
 * Fixed so that the predefined ResponseAwareMatchers "endsWithPath" and "startsWithPath" supports checking number properties
+* Allow multipart uploads using PUT with Spring MockMvc (thanks to Ankit Tomar for pull request)
+* Allow configuring CookieFilter (by using a new overloaded constructor) whether or not it should be allowed to specify multiple cookies with the same name (thanks to Ivo Šmíd for pull request)
 
 Changelog 4.2.0 (2020-01-17)
 ----------------------------
