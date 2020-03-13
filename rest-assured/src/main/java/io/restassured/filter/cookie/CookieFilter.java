@@ -93,9 +93,7 @@ public class CookieFilter implements Filter {
      * @param cookieSpec Specify whether or not to allow found two cookies with same name eg. JSESSIONID with different paths.
      */
     public CookieFilter(CookieSpec cookieSpec) {
-        this.cookieSpec = cookieSpec;
-        this.allowMultipleCookiesWithTheSameName = false;
-        this.cookieStore = new BasicCookieStore();
+        this(cookieSpec, false);
     }
 
     /**
