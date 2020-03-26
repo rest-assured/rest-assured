@@ -16,6 +16,8 @@ matrix:
       jdk: openjdk12
     - env: PROFILES=''
       jdk: openjdk13
+    - env: PROFILES=''
+      jdk: openjdk14
 
 script:
   - echo JAVA_HOME = ${JAVA_HOME}
