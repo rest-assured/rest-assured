@@ -26,9 +26,9 @@ import java.util.List;
 public class StandaloneMockMvcFactory {
 
     /**
-     * Create a new {@link MockMvcFactory} with the supplied controllers or mock mvc configureres
+     * Create a new {@link MockMvcFactory} with the supplied controllers or mock mvc configurers
      *
-     * @param controllerOrMockMvcConfigurers Array of controllers or configurerrs
+     * @param controllerOrMockMvcConfigurers Array of controllers or configurers
      * @return A new {@link MockMvcFactory}
      */
     public static MockMvcFactory of(Object[] controllerOrMockMvcConfigurers) {
