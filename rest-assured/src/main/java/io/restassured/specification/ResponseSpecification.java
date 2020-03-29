@@ -94,7 +94,7 @@ public interface ResponseSpecification {
      *          ..
      * </pre>
      * <p/>
-     * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * The key and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * <p>
      * Note that <code>withArgs</code> can be statically imported from the <code>io.restassured.RestAssured</code> class.
      * </p>
@@ -469,13 +469,13 @@ public interface ResponseSpecification {
      * Set the root path with arguments of the response body so that you don't need to write the entire path for each expectation.
      *
      * @param rootPath  The root path to use.
-     * @param arguments The list of substitution arguments. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java..
+     * @param arguments The list of substitution arguments. The path and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java..
      */
     ResponseSpecification rootPath(String rootPath, List<Argument> arguments);
 
     /**
      * @param rootPath  The root path to use.
-     * @param arguments The list of substitution arguments. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java..
+     * @param arguments The list of substitution arguments. The path and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java..
      *
      * @see #rootPath(String, List)
      * @deprecated Use {@link #rootPath(String, List)} (String)} instead
@@ -619,7 +619,7 @@ public interface ResponseSpecification {
      *          get(..);
      * </pre>
      *
-     * @param pathToAppend The root path to use. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * @param pathToAppend The root path to use. The path and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      */
     ResponseSpecification appendRootPath(String pathToAppend, List<Argument> arguments);
 

@@ -190,7 +190,7 @@ public interface ResponseBodyExtractionOptions extends ResponseBodyData {
      * String z = get("/x").path("x.y.%s", "z");
      * </pre>
      *
-     * The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * The path and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * </p>
      *
      * @param path      The json- or xml path

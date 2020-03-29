@@ -389,7 +389,7 @@ public class ResponseSpecBuilder {
      *          get(..);
      * </pre>
      *
-     * @param pathToAppend The root path to use. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * @param pathToAppend The root path to use. The path and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      */
     public ResponseSpecBuilder appendRootPath(String pathToAppend, List<Argument> arguments) {
         spec.appendRootPath(pathToAppend, arguments);
@@ -549,7 +549,7 @@ public class ResponseSpecBuilder {
      *          ..
      * </pre>
      * <p/>
-     * The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * The path and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * <p>
      * Note that <code>withArgs</code> can be statically imported from the <code>io.restassured.RestAssured</code> class.
      * </p>

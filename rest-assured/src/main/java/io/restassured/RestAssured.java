@@ -603,7 +603,7 @@ public class RestAssured {
      *          ..
      * </pre>
      * <p/>
-     * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * The key and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      *
      * @return A list of arguments.
      */
