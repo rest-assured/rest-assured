@@ -227,6 +227,14 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
     R options(URI uri);
 
     /**
+     * Perform a GraphQL request to a <code>uri</code>.
+     *
+     * @param uri The uri to send the request to.
+     * @return The response of the request.
+     */
+    R graphql(URI uri);
+
+    /**
      * Perform a GET request to a <code>url</code>.
      *
      * @param url The url to send the request to.
@@ -283,6 +291,14 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
     R options(URL url);
 
     /**
+     * Perform a GraphQL request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request.
+     */
+    R graphql(URL url);
+
+    /**
      * Perform a GET request to the statically configured path (by default <code>http://localhost:8080</code>).
      *
      * @return The response of the GET request.
@@ -330,6 +346,13 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @return The response of the request.
      */
     R options();
+
+    /**
+     * Perform a GraphQL request to the statically configured path (by default <code>http://localhost:8080/graphql</code>).
+     *
+     * @return The response of the request.
+     */
+    R graphql();
 
     /**
      * Perform a request to the pre-configured path (by default <code>http://localhost:8080</code>).

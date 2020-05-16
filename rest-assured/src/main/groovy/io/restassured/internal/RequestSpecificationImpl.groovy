@@ -223,6 +223,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     options(notNull(uri, "URI").toString())
   }
 
+  Response graphql(URI uri) {
+    post(notNull(uri, "URI").toString())
+  }
+
   Response get(URL url) {
     get(notNull(url, "URL").toString())
   }
@@ -251,6 +255,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     options(notNull(url, "URL").toString())
   }
 
+  Response graphql(URL url) {
+    post(notNull(url, "URL").toString())
+  }
+
   Response get() {
     get("")
   }
@@ -277,6 +285,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   Response options() {
     options("")
+  }
+
+  Response graphql() {
+    return post("graphql")
   }
 
   Response request(Method method) {
@@ -722,6 +734,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     notNull(proxySpecification, ProxySpecification.class)
     this.proxySpecification = proxySpecification
     this
+  }
+
+  @Override
+  OperationSpecification operation() {
+    return new OperationSpecificationImpl();
   }
 
   RequestSpecification body(byte[] body) {
