@@ -727,7 +727,6 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return when().options();
     }
 
-    @Override
     public MockMvcResponse graphql() {
         return when().post("graphql");
     }
