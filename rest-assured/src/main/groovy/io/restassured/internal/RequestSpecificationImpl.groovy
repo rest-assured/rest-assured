@@ -736,9 +736,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this
   }
 
-  @Override
   OperationSpecification operation() {
-    return new OperationSpecificationImpl();
+    return new OperationSpecificationImpl(this);
   }
 
   RequestSpecification body(byte[] body) {
