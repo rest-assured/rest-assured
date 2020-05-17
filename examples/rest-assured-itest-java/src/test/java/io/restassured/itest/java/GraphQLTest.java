@@ -7,18 +7,20 @@ import org.junit.Test;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.*;
 
-public class GraphQLTest extends WithJetty {
+public class GraphQLTest {
 
     @Test public void
     simple_given_query_graphql_when_then_works() {
         given(). // RequestSpecification
                 operation(). // OperationSpecification
-                query("foo"). // QuerySpecification
+                query("allFilms"). // QuerySpecification
+                param("key", "value").
+                field("title").
+                fields("", "", "").
         when().
                 graphql(). // RequestSendOptions
         then().
-                statusCode(200).
-                body("greeting", equalTo("Greetings John Doe"));
+                statusCode(200);
     }
 
     @Test public void
@@ -30,8 +32,7 @@ public class GraphQLTest extends WithJetty {
         when().
                 graphql().
         then().
-                statusCode(200).
-                body("greeting", equalTo("Greetings John Doe"));
+                statusCode(200);
     }
 
 //

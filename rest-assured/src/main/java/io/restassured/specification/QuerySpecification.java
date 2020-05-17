@@ -7,5 +7,11 @@ public interface QuerySpecification {
 
     QuerySpecification name(String name);
 
+    QuerySpecification param(String key, String value);
+
+    QuerySpecification field(String field);
+
+    QuerySpecification fields(String... fields);
+
     RequestSpecification when();
 }
