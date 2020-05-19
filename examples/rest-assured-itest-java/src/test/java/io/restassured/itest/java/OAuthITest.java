@@ -72,11 +72,9 @@ public class OAuthITest {
 
         given().
                 auth().preemptive().oauth2(accessToken).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        assertThat(requestSpec.getHeaders().getValue("Authorization"), equalTo("Bearer "+accessToken));
-                        return new ResponseBuilder().setBody("ok").setStatusCode(200).build();
-                    }
+                filter((requestSpec, responseSpec, ctx) -> {
+                    assertThat(requestSpec.getHeaders().getValue("Authorization"), equalTo("Bearer "+accessToken));
+                    return new ResponseBuilder().setBody("ok").setStatusCode(200).build();
                 }).
         when().
                 get("/somewhere").
@@ -90,13 +88,11 @@ public class OAuthITest {
 
         given().
                 auth().oauth2(accessToken).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        AuthenticationScheme scheme = requestSpec.getAuthenticationScheme();
-                        assertThat(scheme, instanceOf(PreemptiveOAuth2HeaderScheme.class));
-                        assertThat(((PreemptiveOAuth2HeaderScheme) scheme).getAccessToken(), equalTo(accessToken));
-                        return new ResponseBuilder().setBody("ok").setStatusCode(200).build();
-                    }
+                filter((requestSpec, responseSpec, ctx) -> {
+                    AuthenticationScheme scheme = requestSpec.getAuthenticationScheme();
+                    assertThat(scheme, instanceOf(PreemptiveOAuth2HeaderScheme.class));
+                    assertThat(((PreemptiveOAuth2HeaderScheme) scheme).getAccessToken(), equalTo(accessToken));
+                    return new ResponseBuilder().setBody("ok").setStatusCode(200).build();
                 }).
         when().
                 get("/somewhere").
