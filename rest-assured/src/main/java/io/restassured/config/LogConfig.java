@@ -40,7 +40,7 @@ public class LogConfig implements Config {
     private final LogDetail logDetailIfValidationFails;
     private final boolean urlEncodeRequestUri;
     private final boolean isUserDefined;
-    private final Set<String> headerBlacklist;
+    private final Set<String> headerBlocklist;
 
     /**
      * Configure the default stream to use the System.out stream (default).
@@ -86,7 +86,7 @@ public class LogConfig implements Config {
      * @param prettyPrintingEnabled Enable or disable pretty printing when logging. Pretty printing is only possible when content-type is XML, JSON or HTML.
      */
     private LogConfig(PrintStream defaultPrintStream, boolean prettyPrintingEnabled, LogDetail logDetailIfValidationFails,
-                      boolean urlEncodeRequestUri, Set<String> headerBlacklist, boolean isUserDefined) {
+                      boolean urlEncodeRequestUri, Set<String> headerBlocklist, boolean isUserDefined) {
         Validate.notNull(defaultPrintStream, "Stream to write logs to cannot be null");
         Validate.notNull(defaultPrintStream, "Stream to write logs to cannot be null");
         this.defaultPrintStream = defaultPrintStream;
@@ -94,7 +94,7 @@ public class LogConfig implements Config {
         this.logDetailIfValidationFails = logDetailIfValidationFails;
         this.isUserDefined = isUserDefined;
         this.urlEncodeRequestUri = urlEncodeRequestUri;
-        this.headerBlacklist = headerBlacklist;
+        this.headerBlocklist = headerBlocklist;
     }
 
     /**
@@ -105,11 +105,11 @@ public class LogConfig implements Config {
     }
 
     /**
-     * @return The blacklisted headers
-     * @see #blacklistHeader(String, String...)
+     * @return The blocklisted headers
+     * @see #blocklistHeader(String, String...)
      */
-    public Set<String> blacklistedHeaders() {
-        return Collections.unmodifiableSet(headerBlacklist);
+    public Set<String> blocklistedHeaders() {
+        return Collections.unmodifiableSet(headerBlocklist);
     }
 
     /**
@@ -119,7 +119,7 @@ public class LogConfig implements Config {
      * @return A new LogConfig instance
      */
     public LogConfig defaultStream(PrintStream printStream) {
-        return new LogConfig(printStream, true, logDetailIfValidationFails, urlEncodeRequestUri, headerBlacklist, true);
+        return new LogConfig(printStream, true, logDetailIfValidationFails, urlEncodeRequestUri, headerBlocklist, true);
     }
 
     /**
@@ -150,7 +150,7 @@ public class LogConfig implements Config {
      * @return A new LogConfig instance
      */
     public LogConfig enablePrettyPrinting(boolean shouldEnable) {
-        return new LogConfig(defaultPrintStream, shouldEnable, logDetailIfValidationFails, urlEncodeRequestUri, headerBlacklist, true);
+        return new LogConfig(defaultPrintStream, shouldEnable, logDetailIfValidationFails, urlEncodeRequestUri, headerBlocklist, true);
     }
 
     /**
@@ -169,7 +169,7 @@ public class LogConfig implements Config {
      * @return A new LogConfig instance
      */
     public LogConfig enableLoggingOfRequestAndResponseIfValidationFails(LogDetail logDetail) {
-        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetail, urlEncodeRequestUri, headerBlacklist, true);
+        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetail, urlEncodeRequestUri, headerBlocklist, true);
     }
 
     /**
@@ -182,39 +182,39 @@ public class LogConfig implements Config {
      * @return A new LogConfig instance
      */
     public LogConfig urlEncodeRequestUri(boolean urlEncodeRequestUri) {
-        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, headerBlacklist, true);
+        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, headerBlocklist, true);
     }
 
     /**
-     * Blacklist one or more headers. If these headers show up during logging they will be replaced with 'HIDDEN'. The purpose of a blacklist is to prevent sensitive information
+     * Blocklist one or more headers. If these headers show up during logging they will be replaced with 'HIDDEN'. The purpose of a blocklist is to prevent sensitive information
      * to be included in the log.
      *
-     * @param header The header to include in the blacklist
-     * @param otherHeaders Additional headers to include in the blacklist (optional)
+     * @param header The header to include in the blocklist
+     * @param otherHeaders Additional headers to include in the blocklist (optional)
      * @return A new LogConfig instance
      */
-    public LogConfig blacklistHeader(String header, String... otherHeaders) {
+    public LogConfig blocklistHeader(String header, String... otherHeaders) {
         notNull(header, "header");
-        Set<String> newHeaderBlackList = new HashSet<>(headerBlacklist);
-        newHeaderBlackList.add(header);
+        Set<String> newHeaderBlockList = new HashSet<>(headerBlocklist);
+        newHeaderBlockList.add(header);
         if (otherHeaders != null && otherHeaders.length > 0) {
-            Collections.addAll(newHeaderBlackList, otherHeaders);
+            Collections.addAll(newHeaderBlockList, otherHeaders);
         }
 
-        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, newHeaderBlackList, true);
+        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, newHeaderBlockList, true);
     }
 
     /**
-     * Blacklist one or more headers. If these headers show up during logging they will be hidden. The purpose of a blacklist is to prevent sensitive information
-     * to be included in the log. Note that this method replaces the previously defined blacklist.
+     * Blocklist one or more headers. If these headers show up during logging they will be hidden. The purpose of a blocklist is to prevent sensitive information
+     * to be included in the log. Note that this method replaces the previously defined blocklist.
      *
-     * @param headers The headers to include in the blacklist
+     * @param headers The headers to include in the blocklist
      * @return A new LogConfig instance
      */
-    public LogConfig blacklistHeaders(Collection<String> headers) {
+    public LogConfig blocklistHeaders(Collection<String> headers) {
         notNull(headers, "headers");
-        Set<String> newHeaderBlackList = headers.stream().filter(Objects::nonNull).collect(Collectors.toSet());
-        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, newHeaderBlackList, true);
+        Set<String> newHeaderBlockList = headers.stream().filter(Objects::nonNull).collect(Collectors.toSet());
+        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, newHeaderBlockList, true);
     }
 
     /**

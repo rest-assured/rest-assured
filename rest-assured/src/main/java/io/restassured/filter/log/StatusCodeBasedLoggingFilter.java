@@ -40,7 +40,7 @@ class StatusCodeBasedLoggingFilter implements Filter {
     private final Matcher<?> matcher;
     private final LogDetail logDetail;
     private final boolean shouldPrettyPrint;
-    private final Set<String> blacklistedHeaders;
+    private final Set<String> blocklistedHeaders;
 
     /**
      * Log to system out
@@ -93,11 +93,11 @@ class StatusCodeBasedLoggingFilter implements Filter {
      * @param stream      The stream to log errors to.
      * @param matcher     The matcher for the logging to take place
      */
-    public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<? super Integer> matcher, Set<String> blacklistedHeaders) {
+    public StatusCodeBasedLoggingFilter(LogDetail logDetail, boolean prettyPrint, PrintStream stream, Matcher<? super Integer> matcher, Set<String> blocklistedHeaders) {
         Validate.notNull(logDetail, "Log details cannot be null");
         Validate.notNull(stream, "Print stream cannot be null");
         Validate.notNull(matcher, "Matcher cannot be null");
-        Validate.notNull(blacklistedHeaders, "Blacklisted headers cannot be null");
+        Validate.notNull(blocklistedHeaders, "Blocklisted headers cannot be null");
         if (logDetail == LogDetail.PARAMS || logDetail == LogDetail.URI || logDetail == LogDetail.METHOD) {
             throw new IllegalArgumentException(String.format("%s is not a valid %s for a response.", logDetail, LogDetail.class.getSimpleName()));
         }
@@ -105,14 +105,14 @@ class StatusCodeBasedLoggingFilter implements Filter {
         this.logDetail = logDetail;
         this.stream = stream;
         this.matcher = matcher;
-        this.blacklistedHeaders = new HashSet<>(blacklistedHeaders);
+        this.blocklistedHeaders = new HashSet<>(blocklistedHeaders);
     }
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
         Response response = ctx.next(requestSpec, responseSpec);
         final int statusCode = response.statusCode();
         if (matcher.matches(statusCode)) {
-            ResponsePrinter.print(response, response, stream, logDetail, shouldPrettyPrint, blacklistedHeaders);
+            ResponsePrinter.print(response, response, stream, logDetail, shouldPrettyPrint, blocklistedHeaders);
             final byte[] responseBody;
             if (logDetail == LogDetail.BODY || logDetail == LogDetail.ALL) {
                 responseBody = response.asByteArray();

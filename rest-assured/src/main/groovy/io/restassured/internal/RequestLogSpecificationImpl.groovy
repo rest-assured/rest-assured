@@ -26,7 +26,7 @@ import io.restassured.specification.RequestSpecification
 class RequestLogSpecificationImpl extends LogSpecificationImpl implements RequestLogSpecification {
   RequestSpecification requestSpecification
   LogRepository logRepository
-  Set<String> blacklistedHeaders
+  Set<String> blocklistedHeaders
 
   RequestSpecification params() {
     logWith(LogDetail.PARAMS)
@@ -101,7 +101,7 @@ class RequestLogSpecificationImpl extends LogSpecificationImpl implements Reques
   }
 
   private def logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
-    requestSpecification.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri(requestSpecification), blacklistedHeaders))
+    requestSpecification.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri(requestSpecification), blocklistedHeaders))
     requestSpecification
   }
 }

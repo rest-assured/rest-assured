@@ -104,8 +104,8 @@ public class MockMvcRequestLogSpecificationImpl extends LogSpecificationImpl imp
     private MockMvcRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
         LogConfig logConfig = requestSpecification.getRestAssuredMockMvcConfig().getLogConfig();
         boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
-        Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();
-        requestSpecification.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blacklistedHeaders));
+        Set<String> blocklistedHeaders = logConfig.blocklistedHeaders();
+        requestSpecification.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blocklistedHeaders));
         return requestSpecification;
     }
 

@@ -5,14 +5,14 @@
 [![Javadoc](https://javadoc-badge.appspot.com/io.rest-assured/rest-assured.svg)](http://www.javadoc.io/doc/io.rest-assured/rest-assured)
 
 
-Testing and validation of REST services in Java is harder than in dynamic languages 
-such as Ruby and Groovy. REST Assured brings the simplicity of using these 
+Testing and validation of REST services in Java is harder than in dynamic languages
+such as Ruby and Groovy. REST Assured brings the simplicity of using these
 languages into the Java domain.
 
 
-## News 
+## News
 * 2020-03-13: REST Assured [4.3.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-4.3.0-dist.zip) is released. Groovy is updated to version 3.0.2 as well as various improvements and bug fixes. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
-* 2020-01-17: REST Assured [4.2.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-4.2.0-dist.zip) is released. It adds a module bringing [Kotlin extension functions](https://github.com/rest-assured/rest-assured/wiki/Usage#kotlin-extension-module-for-spring-mockmvc) to [Spring Mock Mvc](https://github.com/rest-assured/rest-assured/wiki/Usage#spring-mock-mvc-module), support for Jakarta EE JSON Binding (JSON-B) specification using  Eclipse Yasson, as well as [blacklisting](https://github.com/rest-assured/rest-assured/wiki/Usage#blacklist-headers-from-logging) headers from being logged and other improvements. See [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes42) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
+* 2020-01-17: REST Assured [4.2.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-4.2.0-dist.zip) is released. It adds a module bringing [Kotlin extension functions](https://github.com/rest-assured/rest-assured/wiki/Usage#kotlin-extension-module-for-spring-mockmvc) to [Spring Mock Mvc](https://github.com/rest-assured/rest-assured/wiki/Usage#spring-mock-mvc-module), support for Jakarta EE JSON Binding (JSON-B) specification using  Eclipse Yasson, as well as [blocklisting](https://github.com/rest-assured/rest-assured/wiki/Usage#blocklist-headers-from-logging) headers from being logged and other improvements. See [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes42) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2019-10-02: REST Assured [4.1.2](http://dl.bintray.com/johanhaleby/generic/rest-assured-4.1.2-dist.zip) is released. It adds support for Java 13 as well as fixing some issues with the [kotlin extension module](https://github.com/rest-assured/rest-assured/wiki/Usage#kotlin-extension-module). Please see [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for details.
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
@@ -66,7 +66,7 @@ Getting and parsing a response body:
 // Example with JsonPath
 String json = get("/lotto").asString();
 List<String> winnderIds = from(json).get("lotto.winners.winnerId");
-    
+
 // Example with XmlPath
 String xml = post("/shopping").andReturn().body().asString();
 Node category = from(xml).get("shopping.category[0]");
@@ -89,7 +89,7 @@ REST Assured supports any HTTP method but has explicit support for *POST*, *GET*
 * [FAQ](https://github.com/rest-assured/rest-assured/wiki/FAQ)
 
 ## Support and discussion
-Join the mailing list at our [Google group](http://groups.google.com/group/rest-assured). 
+Join the mailing list at our [Google group](http://groups.google.com/group/rest-assured).
 
 ## Links
 * [Change log](https://github.com/rest-assured/rest-assured/raw/master/changelog.txt)

@@ -103,8 +103,8 @@ public class WebTestClientRequestLogSpecificationImpl extends LogSpecificationIm
     private WebTestClientRequestSpecification logWith(LogDetail logDetail, boolean prettyPrintingEnabled, PrintStream printStream) {
         LogConfig logConfig = requestSpecification.getRestAssuredWebTestClientConfig().getLogConfig();
         boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
-        Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();
-        requestSpecification.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blacklistedHeaders));
+        Set<String> blocklistedHeaders = logConfig.blocklistedHeaders();
+        requestSpecification.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blocklistedHeaders));
         return requestSpecification;
     }
 

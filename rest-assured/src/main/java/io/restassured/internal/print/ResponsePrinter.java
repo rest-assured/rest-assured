@@ -35,7 +35,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  */
 public class ResponsePrinter {
 
-    private static final String BLACKLISTED = "[ BLACKLISTED ]";
+    private static final String BLOCKLISTED = "[ BLOCKLISTED ]";
     private static final String HEADER_NAME_AND_VALUE_SEPARATOR = ": ";
 
     /**
@@ -43,7 +43,7 @@ public class ResponsePrinter {
      *
      * @return A string of representing the response
      */
-    public static String print(ResponseOptions responseOptions, ResponseBody responseBody, PrintStream stream, LogDetail logDetail, boolean shouldPrettyPrint, Set<String> blacklistedHeaders) {
+    public static String print(ResponseOptions responseOptions, ResponseBody responseBody, PrintStream stream, LogDetail logDetail, boolean shouldPrettyPrint, Set<String> blocklistedHeaders) {
         final StringBuilder builder = new StringBuilder();
         if (logDetail == ALL || logDetail == STATUS) {
             builder.append(responseOptions.statusLine());
@@ -51,7 +51,7 @@ public class ResponsePrinter {
         if (logDetail == ALL || logDetail == HEADERS) {
             final Headers headers = responseOptions.headers();
             if (headers.exist()) {
-                appendNewLineIfAll(logDetail, builder).append(toString(headers, blacklistedHeaders));
+                appendNewLineIfAll(logDetail, builder).append(toString(headers, blocklistedHeaders));
             }
         } else if (logDetail == COOKIES) {
             final Cookies cookies = responseOptions.detailedCookies();
@@ -77,7 +77,7 @@ public class ResponsePrinter {
         return response;
     }
 
-    private static String toString(Headers headers, Set<String> blacklistedHeaders) {
+    private static String toString(Headers headers, Set<String> blocklistedHeaders) {
         if (!headers.exist()) {
             return "";
         }
@@ -86,8 +86,8 @@ public class ResponsePrinter {
         for (Header header : headers) {
             StringBuilder headerStringBuilder = builder.append(header.getName())
                     .append(HEADER_NAME_AND_VALUE_SEPARATOR);
-            if (blacklistedHeaders.contains(header.getName())) {
-                headerStringBuilder.append(BLACKLISTED);
+            if (blocklistedHeaders.contains(header.getName())) {
+                headerStringBuilder.append(BLOCKLISTED);
             } else {
                 headerStringBuilder.append(header.getValue());
             }

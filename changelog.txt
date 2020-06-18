@@ -61,9 +61,9 @@ Changelog 4.2.0 (2020-01-17)
     RestAssured.config = RestAssured.config.objectMapperConfig(ObjectMapperConfig.objectMapperConfig().defaultObjectMapperType(ObjectMapperType.JSONB));
 
   (thanks to Andrew Guibert for pull request)
-* Added ability to blacklist headers so that they are not shown in the request or response log. Instead the header value will be replaced with "[ BLACKLISTED ]". You can enable this per header basis using the LogConfig:
+* Added ability to blocklist headers so that they are not shown in the request or response log. Instead the header value will be replaced with "[ BLOCKLISTED ]". You can enable this per header basis using the LogConfig:
 
-    given().config(config().logConfig(logConfig().blacklistHeader("Accept"))). ..
+    given().config(config().logConfig(logConfig().blocklistHeader("Accept"))). ..
 
   The response log will the print:
 
@@ -74,7 +74,7 @@ Changelog 4.2.0 (2020-01-17)
   Query params:   <none>
   Form params:    <none>
   Path params:    <none>
-  Headers:        Accept=[ BLACKLISTED ]
+  Headers:        Accept=[ BLOCKLISTED ]
   Cookies:        <none>
   Multiparts:     <none>
   Body:           <none>
@@ -128,7 +128,7 @@ Changelog 4.1.0 (2019-09-02)
     }
 
   Besides a more pleasing API for Kotlin developers it also has a couple of major benefits to the Java API:
-  
+
   1. All failed expectations are reported at the same time
   2. Formatting the code in your IDE won't mess up indentation
 

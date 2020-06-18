@@ -1421,12 +1421,12 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test public void
-    its_possible_to_hide_request_headers_when_blacklist_is_defined_using_a_request_spec_builder() {
+    its_possible_to_hide_request_headers_when_blocklist_is_defined_using_a_request_spec_builder() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         final RequestSpecification spec = new RequestSpecBuilder()
                 .setConfig(newConfig()
-                        .logConfig(logConfig().defaultStream(captor).blacklistHeader("Accept")))
+                        .logConfig(logConfig().defaultStream(captor).blocklistHeader("Accept")))
                 .and()
                 .log(ALL)
                 .build();
@@ -1448,19 +1448,19 @@ public class LoggingITest extends WithJetty {
                 "Form params:\t<none>%n" +
                 "Path params:\tfirstName=John%n" +
                 "\t\t\t\tlastName=Doe%n" +
-                "Headers:\t\tAccept=[ BLACKLISTED ]%n" +
+                "Headers:\t\tAccept=[ BLOCKLISTED ]%n" +
                 "Cookies:\t\t<none>%n" +
                 "Multiparts:\t\t<none>%n" +
                 "Body:\t\t\t<none>%n")));
     }
 
     @Test public void
-    its_possible_to_hide_request_headers_when_blacklist_is_defined_in_log_config_from_request_specification() {
+    its_possible_to_hide_request_headers_when_blocklist_is_defined_in_log_config_from_request_specification() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                config(config().logConfig(logConfig().defaultStream(captor).blacklistHeader("Accept"))).
+                config(config().logConfig(logConfig().defaultStream(captor).blocklistHeader("Accept"))).
                 log().all().
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
@@ -1477,19 +1477,19 @@ public class LoggingITest extends WithJetty {
                 "Form params:\t<none>%n" +
                 "Path params:\tfirstName=John%n" +
                 "\t\t\t\tlastName=Doe%n" +
-                "Headers:\t\tAccept=[ BLACKLISTED ]%n" +
+                "Headers:\t\tAccept=[ BLOCKLISTED ]%n" +
                 "Cookies:\t\t<none>%n" +
                 "Multiparts:\t\t<none>%n" +
                 "Body:\t\t\t<none>%n")));
     }
 
     @Test public void
-    its_possible_to_hide_response_headers_when_blacklist_is_defined_in_log_config_from_request_specification() {
+    its_possible_to_hide_response_headers_when_blocklist_is_defined_in_log_config_from_request_specification() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
         given().
-                config(config().logConfig(logConfig().defaultStream(captor).blacklistHeader("MultiHeader"))).
+                config(config().logConfig(logConfig().defaultStream(captor).blocklistHeader("MultiHeader"))).
         when().
                 get("/multiValueHeader").
         then().
@@ -1497,8 +1497,8 @@ public class LoggingITest extends WithJetty {
 
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
                 "Content-Type: text/plain;charset=utf-8%n" +
-                "MultiHeader: [ BLACKLISTED ]%n" +
-                "MultiHeader: [ BLACKLISTED ]%n" +
+                "MultiHeader: [ BLOCKLISTED ]%n" +
+                "MultiHeader: [ BLOCKLISTED ]%n" +
                 "Content-Length: 0%n" +
                 "Server: Jetty(9.3.2.v20150730)%n")));
     }

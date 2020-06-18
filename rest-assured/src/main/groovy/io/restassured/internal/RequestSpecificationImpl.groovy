@@ -635,8 +635,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   RequestLogSpecification log() {
-    def blacklistedHeaders = restAssuredConfig().logConfig.blacklistedHeaders()
-    return new RequestLogSpecificationImpl(requestSpecification: this, logRepository: logRepository, blacklistedHeaders: blacklistedHeaders)
+    def blocklistedHeaders = restAssuredConfig().logConfig.blocklistedHeaders()
+    return new RequestLogSpecificationImpl(requestSpecification: this, logRepository: logRepository, blocklistedHeaders: blocklistedHeaders)
   }
 
   RequestSpecification and() {
@@ -1394,7 +1394,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
 
     def multipartMode = httpClientConfig().httpMultipartMode()
-    // For "defaultCharset" to be taken into account we need to 
+    // For "defaultCharset" to be taken into account we need to
 
     http.encoders.putAt ct, { contentType, content ->
       RestAssuredMultiPartEntity entity = new RestAssuredMultiPartEntity(subType, charsetToUse, multipartMode, boundaryToUse);

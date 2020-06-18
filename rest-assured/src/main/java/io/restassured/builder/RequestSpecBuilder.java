@@ -1037,9 +1037,9 @@ public class RequestSpecBuilder {
         PrintStream printStream = logConfig.defaultStream();
         boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
         boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
-        Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();
+        Set<String> blocklistedHeaders = logConfig.blocklistedHeaders();
 
-        spec.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blacklistedHeaders));
+        spec.filter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blocklistedHeaders));
         return this;
     }
 

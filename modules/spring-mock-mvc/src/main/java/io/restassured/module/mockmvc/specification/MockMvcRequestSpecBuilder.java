@@ -714,8 +714,8 @@ public class MockMvcRequestSpecBuilder {
         PrintStream printStream = logConfig.defaultStream();
         boolean prettyPrintingEnabled = logConfig.isPrettyPrintingEnabled();
         boolean shouldUrlEncodeRequestUri = logConfig.shouldUrlEncodeRequestUri();
-        Set<String> blacklistedHeaders = logConfig.blacklistedHeaders();
-        spec.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blacklistedHeaders));
+        Set<String> blocklistedHeaders = logConfig.blocklistedHeaders();
+        spec.setRequestLoggingFilter(new RequestLoggingFilter(logDetail, prettyPrintingEnabled, printStream, shouldUrlEncodeRequestUri, blocklistedHeaders));
         return this;
     }
 

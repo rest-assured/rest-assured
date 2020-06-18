@@ -46,10 +46,10 @@ public class RequestPrinter {
     private static final String TAB = "\t";
     private static final String EQUALS = "=";
     private static final String NONE = "<none>";
-    private static final String BLACKLISTED = "[ BLACKLISTED ]";
+    private static final String BLOCKLISTED = "[ BLOCKLISTED ]";
 
     public static String print(FilterableRequestSpecification requestSpec, String requestMethod, String completeRequestUri,
-                               LogDetail logDetail, Set<String> blacklistedHeaders,
+                               LogDetail logDetail, Set<String> blocklistedHeaders,
                                PrintStream stream, boolean shouldPrettyPrint) {
         final StringBuilder builder = new StringBuilder();
         if (logDetail == ALL || logDetail == METHOD) {
@@ -69,7 +69,7 @@ public class RequestPrinter {
         }
 
         if (logDetail == ALL || logDetail == HEADERS) {
-            addHeaders(requestSpec, blacklistedHeaders, builder);
+            addHeaders(requestSpec, blocklistedHeaders, builder);
         }
         if (logDetail == ALL || logDetail == COOKIES) {
             addCookies(requestSpec, builder);
@@ -132,7 +132,7 @@ public class RequestPrinter {
         }
     }
 
-    private static void addHeaders(FilterableRequestSpecification requestSpec, Set<String> blacklistedHeaders,
+    private static void addHeaders(FilterableRequestSpecification requestSpec, Set<String> blocklistedHeaders,
                                    StringBuilder builder) {
         builder.append("Headers:");
         final Headers headers = requestSpec.getHeaders();
@@ -147,8 +147,8 @@ public class RequestPrinter {
                     appendFourTabs(builder);
                 }
                 Header processedHeader = header;
-                if (blacklistedHeaders.contains(header.getName())) {
-                    processedHeader = new Header(header.getName(), BLACKLISTED);
+                if (blocklistedHeaders.contains(header.getName())) {
+                    processedHeader = new Header(header.getName(), BLOCKLISTED);
                 }
                 builder.append(processedHeader).append(SystemUtils.LINE_SEPARATOR);
             }
