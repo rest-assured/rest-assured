@@ -204,7 +204,7 @@ public class URIBuilder implements Cloneable {
     /**
      * Get the query string as a map for convenience.  If any parameter contains
      * multiple values (e.g. <code>p1=one&p1=two</code>) both values will be
-     * inserted into a list for that paramter key (<code>[p1 : ['one','two']]
+     * inserted into a list for that parameter key (<code>[p1 : ['one','two']]
      * </code>).  Note that this is not a "live" map.  Therefore, you cannot
      * call
      * <pre> uri.query.a = 'BCD'</pre>

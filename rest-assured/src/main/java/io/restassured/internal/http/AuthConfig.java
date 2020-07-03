@@ -239,7 +239,7 @@ public class AuthConfig {
                            String accessToken, String secretToken, OAuthSignature signature, Boolean addEmptyTokenToBaseString) {
 
             this.oauthConfig = new OAuthConfig(consumerKey, consumerSecret,
-                    null, getOAuthSigntureType(signature), null, null, null, null, null, null, null);
+                    null, getOAuthSignatureType(signature), null, null, null, null, null, null, null);
             this.token = new OAuth1AccessToken(accessToken, secretToken);
             this.signature = signature;
             this.addEmptyTokenToBaseString = addEmptyTokenToBaseString;
@@ -334,7 +334,7 @@ public class AuthConfig {
             return service;
         }
 
-        private static SignatureType getOAuthSigntureType(OAuthSignature signature) {
+        private static SignatureType getOAuthSignatureType(OAuthSignature signature) {
             SignatureType signatureType;
             if (signature == OAuthSignature.HEADER)
                 signatureType = SignatureType.Header;
