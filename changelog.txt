@@ -3,6 +3,7 @@ Changelog next version
 * Upgrading Kotlin extension module to use Kotlin 1.3.72 (previously 1.3.70 was used)
 * Upgraded Groovy from 3.0.2 to 3.0.3
 * Upgraded spring-security-core from 4.2.13.RELEASE to 4.2.17.RELEASE
+* Fixed content type name before charset recognition (issue 1341) (thanks to jekanik for pull request)
 
 Changelog 4.3.0 (2020-03-13)
 ----------------------------
