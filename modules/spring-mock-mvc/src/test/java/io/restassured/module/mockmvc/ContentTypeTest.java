@@ -39,14 +39,14 @@ public class ContentTypeTest {
 
         RestAssuredMockMvc.given().
                 standaloneSetup(new GreetingController()).
-                contentType(ContentType.JSON).
+                contentType(ContentType.XML).
                 interceptor(requestBuilder -> contentType.set(extractContentType(requestBuilder))).
         when().
                 get("/greeting?name={name}", "Johan").
         then().
                statusCode(200);
 
-        assertThat(contentType.get()).isEqualTo("application/json;charset=" + RestAssuredMockMvc.config().getEncoderConfig().defaultContentCharset());
+        assertThat(contentType.get()).isEqualTo("application/xml;charset=" + RestAssuredMockMvc.config().getEncoderConfig().defaultContentCharset());
     }
 
     @Test public void
@@ -101,23 +101,6 @@ public class ContentTypeTest {
     }
 
     @Test public void
-    doesnt_duplication_of_content_type_with_default_charset() {
-        final List<String> contentTypes = new ArrayList<>();
-
-        RestAssuredMockMvc.given().
-                standaloneSetup(new GreetingController()).
-                contentType(ContentType.JSON).
-                interceptor(requestBuilder -> contentTypes.add(extractContentType(requestBuilder))).
-        when().
-                get("/greeting?name={name}", "Johan").
-        then().
-                statusCode(200);
-
-        assertThat(contentTypes.size()).isEqualTo(1);
-        assertThat(contentTypes.get(0)).isEqualTo("application/json;charset=ISO-8859-1");
-    }
-
-    @Test public void
     doesnt_duplication_of_content_type() {
         final List<String> contentTypes = new ArrayList<>();
 
@@ -133,6 +116,22 @@ public class ContentTypeTest {
 
         assertThat(contentTypes.size()).isEqualTo(1);
         assertThat(contentTypes.get(0)).isEqualTo("application/json");
+    }
+
+    @Test public void
+    adds_default_charset_to_content_type_if_specified_in_default_charsets() {
+        final AtomicReference<String> contentType = new AtomicReference<>();
+
+        RestAssuredMockMvc.given().
+                standaloneSetup(new GreetingController()).
+                contentType(ContentType.JSON).
+                interceptor(requestBuilder -> contentType.set(extractContentType(requestBuilder))).
+                when().
+                get("/greeting?name={name}", "Johan").
+                then().
+                statusCode(200);
+
+        assertThat(contentType.get()).isEqualTo("application/json;charset=UTF-8");
     }
 
     private String extractContentType(MockHttpServletRequestBuilder requestBuilder) {
