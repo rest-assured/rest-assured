@@ -59,7 +59,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      *          ..
      * </pre>
      * <p/>
-     * The key and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * The key and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * <p>
      * Note that <code>withArgs</code> can be statically imported from the <code>io.restassured.RestAssured</code> class.
      * </p>
@@ -515,7 +515,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * Note that this method is exactly the same as {@link #root(String, java.util.List)}.
      *
      * @param rootPath  The root path to use.
-     * @param arguments A list of arguments. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * @param arguments A list of arguments. The path and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      * @see #rootPath(String)
      */
     T rootPath(String rootPath, List<Argument> arguments);
@@ -526,7 +526,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      * Note that this method is exactly the same as {@link #rootPath(String, java.util.List)}.
      *
      * @param rootPath  The root path to use.
-     * @param arguments The list of substitution arguments. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java..
+     * @param arguments The list of substitution arguments. The path and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java..
      * @see #rootPath(String)
      * @deprecated Use {@link #rootPath(String, List)} instead
      */
@@ -672,7 +672,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      *          body("last", is(..)).
      * </pre>
      *
-     * @param pathToAppend The root path to append. The path and arguments follows the standard <a href="http://download.oracle.com/javase/1,5.0/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
+     * @param pathToAppend The root path to append. The path and arguments follows the standard <a href="https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html#syntax">formatting syntax</a> of Java.
      */
     T appendRootPath(String pathToAppend, List<Argument> arguments);
 
