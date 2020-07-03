@@ -44,11 +44,11 @@ public class ContentTypeTest {
 	public void
 	adds_default_charset_to_content_type_by_default() {
 		RestAssuredWebTestClient.given()
-				.contentType(ContentType.JSON)
+				.contentType(ContentType.XML)
 				.when()
 				.get("/contentType")
 				.then()
-				.body("requestContentType", equalTo("application/json;charset="
+				.body("requestContentType", equalTo("application/xml;charset="
 						+ RestAssuredWebTestClient.config().getEncoderConfig().defaultContentCharset()));
 	}
 
@@ -93,5 +93,15 @@ public class ContentTypeTest {
 				.then()
 				.statusCode(200)
 				.body("requestContentType", equalTo("application/json"));
+	}
+
+	@Test public void
+	adds_default_charset_to_content_type_if_specified_in_default_charsets() {
+		RestAssuredWebTestClient.given()
+				.contentType(ContentType.JSON)
+				.when()
+				.get("/contentType")
+				.then()
+				.body("requestContentType", equalTo("application/json;charset=UTF-8"));
 	}
 }
