@@ -5,6 +5,7 @@ Changelog next version
 * Upgraded spring-security-core from 4.2.13.RELEASE to 4.2.17.RELEASE
 * Fixed content type name before charset recognition (issue 1341) (thanks to jekanik for pull request)
 * Removes dependencies javax.activation, com.sun.activation and org.apache.sling.javax.activation in favor of jakarta.activation (thanks to Geoffrey De Smet for pull request)
+* Upgraded jackson-module-kotlin and jackson-core from 2.10.2 to 2.11.1
 
 Changelog 4.3.0 (2020-03-13)
 ----------------------------
