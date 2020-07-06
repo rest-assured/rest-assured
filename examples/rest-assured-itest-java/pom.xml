@@ -71,7 +71,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
-            <version>9.3.2.v20150730</version>
+            <version>9.4.30.v20200611</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
