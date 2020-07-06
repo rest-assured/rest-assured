@@ -29,7 +29,7 @@
 
     <properties>
         <animal.sniffer.skip>true</animal.sniffer.skip>
-        <pax-exam.version>4.12.0</pax-exam.version>
+        <pax-exam.version>4.13.1</pax-exam.version>
         <surefire.version>2.18</surefire.version>
     </properties>
 
