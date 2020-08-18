@@ -72,9 +72,9 @@
         <assertj-core.version>3.16.1</assertj-core.version>
     </properties>
     <scm>
-        <url>http://github.com/jayway/rest-assured/tree/${scm.branch}</url>
-        <connection>scm:git:git://github.com/jayway/rest-assured.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/jayway/rest-assured.git</developerConnection>
+        <url>http://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>
+        <connection>scm:git:git://github.com/rest-assured/rest-assured.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/rest-assured/rest-assured.git</developerConnection>
     </scm>
     <mailingLists>
         <mailingList>
