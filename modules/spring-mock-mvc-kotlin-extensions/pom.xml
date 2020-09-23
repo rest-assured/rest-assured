@@ -29,7 +29,7 @@
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dokka.version>0.9.18</dokka.version>
+        <dokka.version>1.4.10</dokka.version>
     </properties>
 
     <dependencies>
