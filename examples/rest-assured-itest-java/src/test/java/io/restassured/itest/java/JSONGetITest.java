@@ -53,6 +53,28 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
+    public void decimalNumberTypeMismatchIsRecognizable() {
+        exception.expect(AssertionError.class);
+        exception.expectMessage(equalTo("1 expectation failed.\n" +
+                "JSON path values.pi doesn't match.\n" +
+                "Expected: <3.14>\n" +
+                "  Actual: <3.14F>\n"));
+
+        expect().body("values.pi", equalTo(3.14)).when().get("/numbers");
+    }
+
+    @Test
+    public void integerNumberTypeMismatchIsRecognizable() {
+        exception.expect(AssertionError.class);
+        exception.expectMessage(equalTo("1 expectation failed.\n" +
+                "JSON path values.answer doesn't match.\n" +
+                "Expected: <42L>\n" +
+                "  Actual: <42>\n"));
+
+        expect().body("values.answer", equalTo(42L)).when().get("/numbers");
+    }
+
+    @Test
     public void parameterSupportWithStandardHashMap() {
         Map<String, String> parameters = new HashMap<>();
         parameters.put("firstName", "John");
@@ -256,7 +278,7 @@ public class JSONGetITest extends WithJetty {
         exception.expect(AssertionError.class);
         exception.expectMessage(containsString("JSON path lotto.winning-numbers doesn't match."));
         exception.expectMessage(containsString("Expected: a collection containing <43>"));
-        exception.expectMessage(containsString("  Actual: [2, 45, 34, 23, 7, 5, 3]"));
+        exception.expectMessage(containsString("  Actual: <[2, 45, 34, 23, 7, 5, 3]>"));
 
         expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItem(43)).when().get("/lotto");
     }
@@ -586,7 +608,7 @@ public class JSONGetITest extends WithJetty {
     throws_assertion_error_when_multiple_keys_are_the_same_in_a_multi_body_expectation_and_the_non_last_fails() {
         exception.expect(AssertionError.class);
         exception.expectMessage("Expected: <7>\n" +
-                "  Actual: 5");
+                "  Actual: <5>");
 
         when().
                 get("/lotto").

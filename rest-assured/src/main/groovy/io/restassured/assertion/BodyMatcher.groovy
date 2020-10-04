@@ -101,7 +101,11 @@ class BodyMatcher {
           if (result instanceof Object[]) {
             result = result.join(",")
           }
-          errorMessage = format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n", assertion.description(), key, removeQuotesIfString(matcher.toString()), result)
+          errorMessage = format("%s %s doesn't match.\nExpected: %s\n  Actual: %s\n",
+                  assertion.description(),
+                  key,
+                  removeQuotesIfString(matcher.toString()),
+                  removeQuotesIfString(new StringDescription().appendValue(result).toString()))
         } else {
           errorMessage = format("%s %s doesn't match.\n%s", assertion.description(), key, getDescription(matcher, result))
         }
