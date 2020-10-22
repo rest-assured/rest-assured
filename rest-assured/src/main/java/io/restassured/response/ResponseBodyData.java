@@ -27,6 +27,13 @@ public interface ResponseBodyData {
     String asString();
 
     /**
+     * Get the body as a pretty formatted string.
+     *
+     * @return The body as a string.
+     */
+    String asPrettyString();
+
+    /**
      * Get the body as a byte array.
      *
      * @return The body as a array.

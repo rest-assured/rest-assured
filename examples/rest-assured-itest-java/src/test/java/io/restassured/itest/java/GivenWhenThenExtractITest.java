@@ -39,6 +39,13 @@ public class GivenWhenThenExtractITest extends WithJetty {
     }
 
     @Test public void
+    extract_response_as_pretty_string_works() {
+        String body = get("/hello").then().assertThat().contentType(JSON).and().extract().body().asPrettyString();
+
+        assertThat(body, equalTo("{\n    \"hello\": \"Hello Scalatra\"\n}"));
+    }
+
+    @Test public void
     extract_single_path_works() {
         String hello = get("/hello").then().assertThat().contentType(JSON).and().extract().path("hello");
 
