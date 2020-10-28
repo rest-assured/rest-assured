@@ -2087,6 +2087,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
           HttpEntity entity = resp.getEntity();
           if (entity != null) EntityUtils.consumeQuietly(entity);
         }
+        if (reqMethod != null) {
+          reqMethod.releaseConnection();
+        }
         // Close idle connections to the server
         def connectionConfig = connectionConfig()
         if (connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
