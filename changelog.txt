@@ -1,8 +1,20 @@
 Changelog next version
 ----------------------
-* Upgrade json-schema-validator to 2.2.14 (#1397) (thanks to Guillaume Smet for PR)
+* Upgrade json-schema-validator to 2.2.14 (issue 1397) (thanks to Guillaume Smet for PR)
 * Upgrading apache commons lang3 from 3.4 to 3.11.
 * Added asPrettyString method to ResponseBody (issue 1395) (thanks to GithubMood for PR)
+* Describe non matching actual method with Hamcrest matcher format (issue 1387) (thanks for Ivo Šmíd for PR)
+  Before you could run into cryptic error messages such as:
+
+      JSON path values.pi doesn't match.
+      Expected: <3.14>
+      Actual: 3.14
+
+  Now, you see this instead:
+
+      JSON path values.pi doesn't match.
+      Expected: <3.14>
+      Actual: <3.14F>
 
 Changelog 4.3.1 (2020-07-03)
 ----------------------------
