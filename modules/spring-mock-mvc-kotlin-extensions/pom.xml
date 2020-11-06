@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>modules</artifactId>
@@ -71,12 +72,6 @@
     <profiles>
         <profile>
             <id>release</id>
-            <!-- We disable this plugin during normal build since dokka doesn't work with JDK11. We get the following error when using JDK11:
-
-            [ERROR] Failed to execute goal org.jetbrains.dokka:dokka-maven-plugin:0.9.18:dokka (default) on project kotlin-extensions: Execution default of goal org.jetbrains.dokka:dokka-maven-plugin:0.9.18:dokka failed: A required class was missing while executing org.jetbrains.dokka:dokka-maven-plugin:0.9.18:dokka: com/sun/tools/doclets/formats/html/HtmlDoclet
-
-            This is a know issue! See https://github.com/Kotlin/dokka/issues/294
-            -->
             <build>
                 <plugins>
                     <plugin>
@@ -95,7 +90,6 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <outputFormat>javadoc</outputFormat>
                             <outputDir>${project.build.directory}/javadoc</outputDir>
                             <sourceLinks>
                                 <link>
@@ -104,6 +98,13 @@
                                     <urlSuffix>#L</urlSuffix>
                                 </link>
                             </sourceLinks>
+                            <dokkaPlugins>
+                                <plugin>
+                                    <groupId>org.jetbrains.dokka</groupId>
+                                    <artifactId>kotlin-as-java-plugin</artifactId>
+                                    <version>${dokka.version}</version>
+                                </plugin>
+                            </dokkaPlugins>
                         </configuration>
                     </plugin>
                 </plugins>
