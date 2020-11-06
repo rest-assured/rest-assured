@@ -65,7 +65,7 @@ Getting and parsing a response body:
 ```java
 // Example with JsonPath
 String json = get("/lotto").asString();
-List<String> winnderIds = from(json).get("lotto.winners.winnerId");
+List<String> winnerIds = from(json).get("lotto.winners.winnerId");
     
 // Example with XmlPath
 String xml = post("/shopping").andReturn().body().asString();
