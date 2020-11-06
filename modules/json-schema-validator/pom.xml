@@ -35,7 +35,7 @@
         <dependency>
             <groupId>com.github.java-json-tools</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>2.2.10</version>
+            <version>2.2.14</version>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
