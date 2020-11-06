@@ -238,6 +238,10 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         return groovyResponse.asString(forcePlatformDefaultCharsetIfNoCharsetIsSpecifiedInResponse);
     }
 
+    public String asPrettyString(){
+        return groovyResponse.asPrettyString((ResponseOptions) this, (ResponseBody) this);
+    }
+
     public byte[] asByteArray() {
         return groovyResponse.asByteArray();
     }
