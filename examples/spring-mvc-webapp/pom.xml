@@ -32,7 +32,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>4.3.23.RELEASE</spring.version>
         <spring.security.version>4.1.0.RELEASE</spring.security.version>
-        <jetty.version>9.1.0.v20131115</jetty.version>
+        <jetty.version>9.4.34.v20201102</jetty.version>
     </properties>
 
     <build>
