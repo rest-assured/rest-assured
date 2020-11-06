@@ -304,6 +304,14 @@ class ScalatraRestExample extends ScalatraServlet {
     compact(render(json))
   }
 
+  get("/numbers") {
+    val json = ("values" ->
+      ("pi" -> 3.14) ~
+      ("answer" -> 42)
+    )
+    compact(render(json))
+  }
+
   get("/reflect") {
     reflect
   }

@@ -36,11 +36,11 @@ public class ErrorMessageITest extends WithJetty {
         exception.expectMessage("2 expectations failed.\n" +
                 "JSON path lotto.lottoId doesn't match.\n" +
                 "Expected: a value less than <2>\n" +
-                "  Actual: 5\n" +
+                "  Actual: <5>\n" +
                 "\n" +
                 "JSON path lotto.winning-numbers doesn't match.\n" +
                 "Expected: a collection containing <21>\n" +
-                "  Actual: [2, 45, 34, 23, 7, 5, 3]");
+                "  Actual: <[2, 45, 34, 23, 7, 5, 3]>");
 
         expect().
                 body("lotto.lottoId", lessThan(2)).
@@ -55,11 +55,11 @@ public class ErrorMessageITest extends WithJetty {
         exception.expectMessage("2 expectations failed.\n" +
                 "JSON path lotto.lottoId doesn't match.\n" +
                 "Expected: a value less than <2>\n" +
-                "  Actual: 5\n" +
+                "  Actual: <5>\n" +
                 "\n" +
                 "JSON path lotto.winning-numbers doesn't match.\n" +
                 "Expected: a collection containing <21>\n" +
-                "  Actual: [2, 45, 34, 23, 7, 5, 3]");
+                "  Actual: <[2, 45, 34, 23, 7, 5, 3]>");
 
         expect().
                 body("lotto.lottoId", greaterThan(4)).
@@ -77,11 +77,11 @@ public class ErrorMessageITest extends WithJetty {
                 "\n" +
                 "JSON path lotto.lottoId doesn't match.\n" +
                 "Expected: a value less than <2>\n" +
-                "  Actual: 5\n" +
+                "  Actual: <5>\n" +
                 "\n" +
                 "JSON path lotto.winning-numbers doesn't match.\n" +
                 "Expected: a collection containing <21>\n" +
-                "  Actual: [2, 45, 34, 23, 7, 5, 3]");
+                "  Actual: <[2, 45, 34, 23, 7, 5, 3]>");
 
         expect().
                 statusCode(201).
@@ -146,11 +146,11 @@ public class ErrorMessageITest extends WithJetty {
         exception.expectMessage("2 expectations failed.\n" +
                 "JSON path lotto.lottoId doesn't match.\n" +
                 "Expected: a value less than <2>\n" +
-                "  Actual: 5\n" +
+                "  Actual: <5>\n" +
                 "\n" +
                 "JSON path lotto.winning-numbers doesn't match.\n" +
                 "Expected: a collection containing <21>\n" +
-                "  Actual: [2, 45, 34, 23, 7, 5, 3]");
+                "  Actual: <[2, 45, 34, 23, 7, 5, 3]>");
 
         when().
                 get("/lotto").
