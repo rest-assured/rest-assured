@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
 
 public class OrderedFilterITest extends WithJetty {
 

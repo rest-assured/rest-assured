@@ -26,8 +26,8 @@ import java.util.Map;
 
 import static io.restassured.RestAssured.get;
 import static io.restassured.http.ContentType.JSON;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 
 public class GivenWhenThenExtractITest extends WithJetty {
 

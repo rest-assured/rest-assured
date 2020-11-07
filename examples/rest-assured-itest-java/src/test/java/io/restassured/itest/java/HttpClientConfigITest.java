@@ -39,8 +39,8 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.apache.http.client.params.ClientPNames.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 
 public class HttpClientConfigITest extends WithJetty {
 

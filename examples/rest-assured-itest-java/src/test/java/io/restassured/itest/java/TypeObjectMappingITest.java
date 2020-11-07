@@ -34,8 +34,8 @@ import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.mapper.ObjectMapperType.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 @RunWith(Parameterized.class)
 public class TypeObjectMappingITest extends WithJetty {

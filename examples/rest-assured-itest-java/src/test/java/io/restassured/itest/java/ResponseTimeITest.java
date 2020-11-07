@@ -26,8 +26,8 @@ import org.junit.Test;
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assume.assumeFalse;
 
 public class ResponseTimeITest extends WithJetty {

@@ -29,8 +29,8 @@ import java.io.StringWriter;
 
 import static io.restassured.http.ContentType.JSON;
 import static io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig.newConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 public class PutTest {

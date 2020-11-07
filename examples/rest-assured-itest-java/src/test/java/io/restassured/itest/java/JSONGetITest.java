@@ -32,8 +32,8 @@ import static io.restassured.parsing.Parser.JSON;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 
 public class JSONGetITest extends WithJetty {
 

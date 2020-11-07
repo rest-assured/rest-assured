@@ -16,7 +16,6 @@
 
 package io.restassured.module.mockmvc;
 
-import org.json.JSONException;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.LogConfig;
 import io.restassured.filter.log.LogDetail;
@@ -24,6 +23,7 @@ import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.http.PostController;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder;
 import org.apache.commons.io.output.WriterOutputStream;
+import org.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,9 +35,8 @@ import java.io.StringWriter;
 import static io.restassured.filter.log.LogDetail.HEADERS;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig.config;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 // @formatter:off

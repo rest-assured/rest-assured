@@ -25,8 +25,8 @@ import org.junit.Test;
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.XmlConfig.xmlConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 public class NamespaceResponseParsingITest extends WithJetty {
 

@@ -24,8 +24,8 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 
 import static io.restassured.test.osgi.options.RestAssuredPaxExamOptions.restAssuredJunitBundles;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.ops4j.pax.exam.Constants.EXAM_FAIL_ON_UNRESOLVED_KEY;
 import static org.ops4j.pax.exam.CoreOptions.*;
 

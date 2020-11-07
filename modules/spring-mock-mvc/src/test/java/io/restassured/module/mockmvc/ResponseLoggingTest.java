@@ -16,12 +16,12 @@
 
 package io.restassured.module.mockmvc;
 
-import org.json.JSONException;
 import io.restassured.RestAssured;
 import io.restassured.config.LogConfig;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.http.PostController;
 import org.apache.commons.io.output.WriterOutputStream;
+import org.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,10 +30,8 @@ import org.skyscreamer.jsonassert.JSONAssert;
 import java.io.PrintStream;
 import java.io.StringWriter;
 
-import static org.hamcrest.Matchers.emptyString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
 
 // @formatter:off

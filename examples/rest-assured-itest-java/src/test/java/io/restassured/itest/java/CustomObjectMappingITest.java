@@ -38,9 +38,9 @@ import static com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.ObjectMapperConfig.objectMapperConfig;
 import static io.restassured.mapper.ObjectMapperType.GSON;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class CustomObjectMappingITest extends WithJetty {
     public AtomicBoolean customSerializationUsed = new AtomicBoolean(false);

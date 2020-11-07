@@ -34,7 +34,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CookieFilterTest {
 

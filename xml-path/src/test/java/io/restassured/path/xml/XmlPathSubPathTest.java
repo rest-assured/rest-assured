@@ -23,9 +23,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static io.restassured.path.xml.XmlPath.with;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class XmlPathSubPathTest {
     @Rule

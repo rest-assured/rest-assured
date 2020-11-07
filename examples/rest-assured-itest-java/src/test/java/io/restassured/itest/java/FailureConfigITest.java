@@ -24,8 +24,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.FailureConfig.failureConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class FailureConfigITest extends WithJetty {

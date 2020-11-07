@@ -22,8 +22,8 @@ import io.restassured.path.xml.XmlPath;
 import org.junit.Test;
 
 import static io.restassured.RestAssured.get;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 public class SimplePathITest extends WithJetty {
 

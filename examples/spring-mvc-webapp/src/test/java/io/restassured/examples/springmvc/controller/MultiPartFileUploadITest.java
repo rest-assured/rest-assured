@@ -46,9 +46,9 @@ import static io.restassured.RestAssured.withArgs;
 import static io.restassured.config.MultiPartConfig.multiPartConfig;
 import static io.restassured.http.Method.POST;
 import static io.restassured.http.Method.PUT;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @RunWith(Parameterized.class)

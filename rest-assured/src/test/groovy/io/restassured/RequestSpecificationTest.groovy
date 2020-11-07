@@ -30,10 +30,10 @@ import org.junit.Test
 
 import static RestAssured.given
 import static java.util.Arrays.asList
+import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.equalTo
 import static org.hamcrest.Matchers.instanceOf
 import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertThat
 
 class RequestSpecificationTest {
     private static final def CONTENT_TYPE = "content-type"

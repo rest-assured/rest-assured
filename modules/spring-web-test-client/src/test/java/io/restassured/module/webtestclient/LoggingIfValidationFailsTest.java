@@ -38,9 +38,9 @@ import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given
 import static io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig.config;
 import static java.nio.charset.Charset.defaultCharset;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.StringContains.containsString;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class LoggingIfValidationFailsTest {

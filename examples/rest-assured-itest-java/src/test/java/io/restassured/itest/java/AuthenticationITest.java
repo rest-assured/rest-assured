@@ -34,8 +34,8 @@ import java.io.StringWriter;
 import static io.restassured.RestAssured.*;
 import static io.restassured.authentication.FormAuthConfig.formAuthConfig;
 import static io.restassured.config.SessionConfig.sessionConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 public class AuthenticationITest extends WithJetty {
 

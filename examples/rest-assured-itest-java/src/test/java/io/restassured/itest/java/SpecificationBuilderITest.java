@@ -37,8 +37,8 @@ import static io.restassured.config.RestAssuredConfig.newConfig;
 import static io.restassured.filter.log.LogDetail.ALL;
 import static java.util.Arrays.asList;
 import static org.apache.http.HttpStatus.SC_OK;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 
 public class SpecificationBuilderITest extends WithJetty {
 

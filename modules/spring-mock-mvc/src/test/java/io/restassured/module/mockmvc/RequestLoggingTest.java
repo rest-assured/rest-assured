@@ -30,9 +30,9 @@ import org.junit.Test;
 import java.io.PrintStream;
 import java.io.StringWriter;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 // @formatter:off

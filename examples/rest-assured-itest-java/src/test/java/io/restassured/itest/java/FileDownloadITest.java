@@ -30,8 +30,8 @@ import java.io.PrintStream;
 import java.io.StringWriter;
 
 import static io.restassured.RestAssured.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 
 // TODO Fix test!!
 @Ignore("Temporary ignored since the remote zip file (powermock) is no longer downloadable")

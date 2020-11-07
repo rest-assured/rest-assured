@@ -32,8 +32,8 @@ import static io.restassured.RestAssured.*;
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang3.ArrayUtils.toObject;
 import static org.apache.commons.lang3.StringUtils.join;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
 
 public class JSONPostITest extends WithJetty {
 

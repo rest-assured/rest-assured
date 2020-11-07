@@ -19,8 +19,6 @@ package io.restassured.module.webtestclient;
 import io.restassured.config.LogConfig;
 import io.restassured.module.webtestclient.setup.PutController;
 import io.restassured.module.webtestclient.setup.support.Greeting;
-import java.io.File;
-import java.io.IOException;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -28,13 +26,15 @@ import org.junit.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringWriter;
 
 import static io.restassured.http.ContentType.JSON;
 import static io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig.newConfig;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertThat;
 
 public class PutTest {
 

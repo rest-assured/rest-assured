@@ -24,10 +24,10 @@ import org.junit.Test;
 import static io.restassured.RestAssured.*;
 import static io.restassured.config.RestAssuredConfig.newConfig;
 import static io.restassured.config.SessionConfig.DEFAULT_SESSION_ID_NAME;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
 
 public class SessionIdITest extends WithJetty {
 
