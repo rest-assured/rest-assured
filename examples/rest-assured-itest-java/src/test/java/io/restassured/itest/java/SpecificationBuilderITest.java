@@ -384,7 +384,7 @@ public class SpecificationBuilderITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
                 "Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 59%n" +
-                "Server: Jetty(9.3.2.v20150730)%n" +
+                "Server: Jetty(9.4.34.v20201102)%n" +
                 "%n" +
                 "{\n" +
                 "    \"firstName\": \"John\",\n" +
@@ -411,7 +411,7 @@ public class SpecificationBuilderITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
                 "Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 59%n" +
-                "Server: Jetty(9.3.2.v20150730)%n" +
+                "Server: Jetty(9.4.34.v20201102)%n" +
                 "%n" +
                 "{\n" +
                 "    \"firstName\": \"John\",\n" +

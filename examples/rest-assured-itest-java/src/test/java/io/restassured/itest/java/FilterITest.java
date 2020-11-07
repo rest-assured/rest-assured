@@ -82,13 +82,13 @@ public class FilterITest extends WithJetty {
         assertThat(writer.toString(), is(String.format("HTTP/1.1 409 Conflict%n" +
                 "Content-Type: text/plain;charset=utf-8%n" +
                 "Content-Length: 5%n" +
-                "Server: Jetty(9.3.2.v20150730)%n" +
+                "Server: Jetty(9.4.34.v20201102)%n" +
                 "%n" +
                 "ERROR%n" +
                 "HTTP/1.1 409 Conflict%n" +
                 "Content-Type: text/plain;charset=utf-8%n" +
                 "Content-Length: 5%n" +
-                "Server: Jetty(9.3.2.v20150730)%n" +
+                "Server: Jetty(9.4.34.v20201102)%n" +
                 "%n" +
                 "ERROR%n")));
     }

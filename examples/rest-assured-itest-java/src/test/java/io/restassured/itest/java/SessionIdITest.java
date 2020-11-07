@@ -32,22 +32,22 @@ import static org.junit.Assert.assertThat;
 public class SessionIdITest extends WithJetty {
 
     @Test
-    public void settingSessionIdThroughTheDSLConfig() throws Exception {
+    public void settingSessionIdThroughTheDSLConfig() {
         given().config(newConfig().sessionConfig(new SessionConfig("1234"))).then().expect().that().body(is(equalTo("Success"))).when().get("/sessionId");
     }
 
     @Test
-    public void settingSessionIdThroughTheDSL() throws Exception {
+    public void settingSessionIdThroughTheDSL() {
         given().sessionId("1234").then().expect().that().body(is(equalTo("Success"))).when().get("/sessionId");
     }
 
     @Test
-    public void settingSessionIdThroughTheDSLHasPrecedenceOverTheConfig() throws Exception {
+    public void settingSessionIdThroughTheDSLHasPrecedenceOverTheConfig() {
         given().config(newConfig().sessionConfig(new SessionConfig("1235"))).and().sessionId("1234").then().expect().that().body(is(equalTo("Success"))).when().get("/sessionId");
     }
 
     @Test
-    public void settingSessionIdThroughTheDSLHasPrecedenceOverTheStaticConfig() throws Exception {
+    public void settingSessionIdThroughTheDSLHasPrecedenceOverTheStaticConfig() {
         RestAssured.config = newConfig().sessionConfig(new SessionConfig("1235"));
         try {
             given().sessionId("1234").then().expect().that().body(is(equalTo("Success"))).when().get("/sessionId");
@@ -57,7 +57,7 @@ public class SessionIdITest extends WithJetty {
     }
 
     @Test
-    public void settingSessionIdThroughStaticConfig() throws Exception {
+    public void settingSessionIdThroughStaticConfig() {
         RestAssured.config = newConfig().sessionConfig(new SessionConfig("1234"));
 
         try {
@@ -68,7 +68,7 @@ public class SessionIdITest extends WithJetty {
     }
 
     @Test
-    public void settingSessionIdNameThroughTheDSLOverridesTheSessionIdInTheDefaultSessionConfig() throws Exception {
+    public void settingSessionIdNameThroughTheDSLOverridesTheSessionIdInTheDefaultSessionConfig() {
         RestAssured.config = newConfig().sessionConfig(new SessionConfig("phpsessionid", "12345"));
 
         try {
@@ -79,12 +79,12 @@ public class SessionIdITest extends WithJetty {
     }
 
     @Test
-    public void settingSessionIdNameThroughTheDSLWorks() throws Exception {
+    public void settingSessionIdNameThroughTheDSLWorks() {
         given().sessionId("phpsessionid", "1234").then().expect().cookie(DEFAULT_SESSION_ID_NAME, "1234").when().get("/sessionId");
     }
 
     @Test
-    public void settingSessionIdStaticallyWorks() throws Exception {
+    public void settingSessionIdStaticallyWorks() {
         RestAssured.sessionId = "1234";
 
         try {
@@ -95,19 +95,19 @@ public class SessionIdITest extends WithJetty {
     }
 
     @Test
-    public void settingTheSessionIdTwiceOverwritesTheFirstOne() throws Exception {
-        given().sessionId("1234").sessionId("1235").expect().statusLine("HTTP/1.1 409 Invalid sessionid").when().get("/sessionId");
+    public void settingTheSessionIdTwiceOverwritesTheFirstOne() {
+        given().sessionId("1234").sessionId("1235").expect().statusLine("HTTP/1.1 409 Conflict").when().get("/sessionId");
     }
 
     @Test
-    public void restAssuredResponseSupportsGettingTheSessionId() throws Exception {
+    public void restAssuredResponseSupportsGettingTheSessionId() {
         final String sessionId = get("/sessionId").sessionId();
 
         assertThat(sessionId, equalTo("1234"));
     }
 
     @Test
-    public void sessionIdReturnsNullWhenNoCookiesAreDefined() throws Exception {
+    public void sessionIdReturnsNullWhenNoCookiesAreDefined() {
         final String sessionId = get("/shopping").sessionId();
 
         assertThat(sessionId, nullValue());

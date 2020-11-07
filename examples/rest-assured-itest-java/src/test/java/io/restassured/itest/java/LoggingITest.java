@@ -109,17 +109,18 @@ public class LoggingITest extends WithJetty {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor)).and().expect().body(equalTo("OK")).when().get("/multiCookie");
+        System.out.println(writer.toString());
         assertThat(writer.toString(), allOf(
-                startsWith(String.format("HTTP/1.1 200 OK%n" +
-                        "Content-Type: text/plain;charset=utf-8%n" +
-                        "Set-Cookie: cookie1=cookieValue1;Domain=localhost%n" +
-                        "Expires:")),
-                containsString("Set-Cookie: cookie1=cookieValue2;Version=1;Path=/;Domain=localhost;Expires="),
-                endsWith(String.format(";Max-Age=1234567;Secure;Comment=\"My Purpose\"%n" +
-                        "Content-Length: 2%n" +
-                        "Server: Jetty(9.3.2.v20150730)%n" +
-                        "%n" +
-                        "OK%n"))
+                startsWith("HTTP/1.1 200 OK\n" +
+                        "Content-Type: text/plain;charset=utf-8\n" +
+                        "Set-Cookie: cookie1=cookieValue1; Domain=localhost\n" +
+                        "Expires: "),
+                containsString("Set-Cookie: cookie1=cookieValue2; Path=/; Domain=localhost; Expires="),
+                endsWith("; Max-Age=1234567; Secure\n" +
+                        "Content-Length: 2\n" +
+                        "Server: Jetty(9.4.34.v20201102)\n" +
+                        "\n" +
+                        "OK\n")
         ));
     }
 
@@ -128,10 +129,7 @@ public class LoggingITest extends WithJetty {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         given().filter(logResponseTo(captor, COOKIES)).and().expect().body(equalTo("OK")).when().get("/multiCookie");
-        assertThat(writer.toString(), allOf(
-                startsWith("cookie1=cookieValue1;Domain=localhost\ncookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Expires="),
-                endsWith(String.format(";Version=1%n"))
-        ));
+        assertThat(writer.toString(), startsWith("cookie1=cookieValue1;Domain=localhost\ncookie1=cookieValue2;Path=/;Domain=localhost;Max-Age=1234567;Secure;Expires="));
     }
 
     @Test
@@ -360,7 +358,7 @@ public class LoggingITest extends WithJetty {
                         "{\"hello\":\"Hello world\"}%n" + "HTTP/1.1 200 OK%n" +
                         "Content-Type: text/plain;charset=iso-8859-1%n" +
                         "Content-Length: 23%n" +
-                        "Server: Jetty(9.3.2.v20150730)%n" +
+                        "Server: Jetty(9.4.34.v20201102)%n" +
                         "%n" +
                         "{\"hello\":\"Hello world\"}%n",
                 RestAssured.config().getEncoderConfig().defaultContentCharset())));
@@ -396,7 +394,7 @@ public class LoggingITest extends WithJetty {
                         "{\"hello\":\"Hello world\"}%n" + "HTTP/1.1 200 OK%n" +
                         "Content-Type: text/plain;charset=iso-8859-1%n" +
                         "Content-Length: 23%n" +
-                        "Server: Jetty(9.3.2.v20150730)%n" +
+                        "Server: Jetty(9.4.34.v20201102)%n" +
                         "%n" +
                         "{\"hello\":\"Hello world\"}%n",
                 RestAssured.config().getEncoderConfig().defaultContentCharset())));
@@ -420,7 +418,7 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
                 "Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 59%n" +
-                "Server: Jetty(9.3.2.v20150730)%n" +
+                "Server: Jetty(9.4.34.v20201102)%n" +
                 "%n" +
                 "{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}%n")));
     }
@@ -440,7 +438,7 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 409 Conflict%n" +
                 "Content-Type: text/plain;charset=utf-8%n" +
                 "Content-Length: 5%n" +
-                "Server: Jetty(9.3.2.v20150730)%n" +
+                "Server: Jetty(9.4.34.v20201102)%n" +
                 "%n" +
                 "ERROR%n")));
     }
@@ -475,7 +473,7 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 409 Conflict%n" +
                 "Content-Type: text/plain;charset=utf-8%n" +
                 "Content-Length: 5%n" +
-                "Server: Jetty(9.3.2.v20150730)%n" +
+                "Server: Jetty(9.4.34.v20201102)%n" +
                 "%n" +
                 "ERROR%n")));
     }
@@ -591,7 +589,7 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
                 "Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 59%n" +
-                "Server: Jetty(9.3.2.v20150730)%n" +
+                "Server: Jetty(9.4.34.v20201102)%n" +
                 "%n" +
                 "{\n" +
                 "    \"firstName\": \"John\",\n" +
@@ -619,7 +617,7 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
                 "Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 59%n" +
-                "Server: Jetty(9.3.2.v20150730)%n" +
+                "Server: Jetty(9.4.34.v20201102)%n" +
                 "%n" +
                 "{\n" +
                 "    \"firstName\": \"John\",\n" +
@@ -647,7 +645,7 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
                 "Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 59%n" +
-                "Server: Jetty(9.3.2.v20150730)%n" +
+                "Server: Jetty(9.4.34.v20201102)%n" +
                 "%n" +
                 "{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}%n")));
     }
@@ -731,7 +729,7 @@ public class LoggingITest extends WithJetty {
 
         assertThat(writer.toString(), equalTo(String.format("Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 59%n" +
-                "Server: Jetty(9.3.2.v20150730)%n")));
+                "Server: Jetty(9.4.34.v20201102)%n")));
     }
 
     @Test
@@ -751,7 +749,7 @@ public class LoggingITest extends WithJetty {
                 "MultiHeader: Value 1%n" +
                 "MultiHeader: Value 2%n" +
                 "Content-Length: 0%n" +
-                "Server: Jetty(9.3.2.v20150730)%n")));
+                "Server: Jetty(9.4.34.v20201102)%n")));
     }
 
     @Test
@@ -766,11 +764,8 @@ public class LoggingITest extends WithJetty {
         when().
                 get("/multiCookie");
 
-        assertThat(writer.toString(), allOf(
-                startsWith("cookie1=cookieValue1;Domain=localhost\n" +
-                        "cookie1=cookieValue2;Comment=\"My Purpose\";Path=/;Domain=localhost;Max-Age=1234567;Secure;Expires="),
-                endsWith(String.format(";Version=1%n"))
-        ));
+        assertThat(writer.toString(), startsWith("cookie1=cookieValue1;Domain=localhost\n" +
+                        "cookie1=cookieValue2;Path=/;Domain=localhost;Max-Age=1234567;Secure;Expires="));
     }
 
     @Test
@@ -789,7 +784,7 @@ public class LoggingITest extends WithJetty {
         assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
                 "Content-Type: application/json;charset=utf-8%n" +
                 "Content-Length: 33%n" +
-                "Server: Jetty(9.3.2.v20150730)%n" +
+                "Server: Jetty(9.4.34.v20201102)%n" +
                 "%n" +
                 "This is not a valid JSON document%n")));
     }
@@ -1191,7 +1186,7 @@ public class LoggingITest extends WithJetty {
                 startsWith(String.format("HTTP/1.1 200 OK%n" +
                         "Content-Type: text/plain;charset=utf-8%n" +
                         "Content-Length: ")),
-                endsWith(String.format("Server: Jetty(9.3.2.v20150730)%n" +
+                endsWith(String.format("Server: Jetty(9.4.34.v20201102)%n" +
                         "%n" +
                         "<!--\n" +
                         "  ~ Copyright 2019 the original author or authors.\n" +
@@ -1500,6 +1495,6 @@ public class LoggingITest extends WithJetty {
                 "MultiHeader: [ BLACKLISTED ]%n" +
                 "MultiHeader: [ BLACKLISTED ]%n" +
                 "Content-Length: 0%n" +
-                "Server: Jetty(9.3.2.v20150730)%n")));
+                "Server: Jetty(9.4.34.v20201102)%n")));
     }
 }

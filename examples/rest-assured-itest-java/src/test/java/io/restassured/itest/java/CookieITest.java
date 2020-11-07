@@ -186,7 +186,7 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void canGetCookieDetails() throws Exception {
+    public void canGetCookieDetails() {
         final List<Cookie> cookies = get("/multiCookie").detailedCookies().getList("cookie1");
 
         assertThat(cookies.size(), is(2));
@@ -201,7 +201,6 @@ public class CookieITest extends WithJetty {
         assertThat(secondCookie.getPath(), equalTo("/"));
         assertThat(secondCookie.getMaxAge(), is(1234567));
         assertThat(secondCookie.isSecured(), is(true));
-        assertThat(secondCookie.getVersion(), is(1));
     }
 
     @Test

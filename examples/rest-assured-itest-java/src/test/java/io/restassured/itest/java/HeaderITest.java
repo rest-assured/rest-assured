@@ -196,7 +196,7 @@ public class HeaderITest extends WithJetty {
                 "Expected header \"Not-Defined\" was not \"160\", was \"null\". Headers are:\n" +
                 "Content-Type=application/json;charset=utf-8\n" +
                 "Content-Length=160\n" +
-                "Server=Jetty(9.3.2.v20150730)\n"));
+                "Server=Jetty(9.4.34.v20201102)\n"));
 
         expect().response().header("Not-Defined", "160").when().get("/lotto");
     }

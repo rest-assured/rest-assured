@@ -195,7 +195,7 @@ public class AuthenticationITest extends WithJetty {
                         "Content-Type: text/plain;charset=utf-8%n" +
                         "Set-Cookie: jsessionid=1234%n" +
                         "Content-Length: 0%n" +
-                        "Server: Jetty(9.3.2.v20150730)%n",
+                        "Server: Jetty(9.4.34.v20201102)%n",
                 RestAssured.config().getEncoderConfig().defaultContentCharset())));
     }
 

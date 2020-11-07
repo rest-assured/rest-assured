@@ -274,7 +274,7 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "HTTP/1.1 200 OK%n" +
                             "Content-Type: application/json;charset=utf-8%n" +
                             "Content-Length: 33%n" +
-                            "Server: Jetty(9.3.2.v20150730)%n" +
+                            "Server: Jetty(9.4.34.v20201102)%n" +
                             "%n" +
                             "{\n" +
                             "    \"greeting\": \"Greetings John Doe\"\n" +
@@ -317,7 +317,7 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "HTTP/1.1 200 OK%n" +
                             "Content-Type: application/json;charset=utf-8%n" +
                             "Content-Length: 33%n" +
-                            "Server: Jetty(9.3.2.v20150730)%n" +
+                            "Server: Jetty(9.4.34.v20201102)%n" +
                             "%n" +
                             "{\n" +
                             "    \"greeting\": \"Greetings John Doe\"\n" +
@@ -349,7 +349,7 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "%n" +
                             "Content-Type: application/json;charset=utf-8%n" +
                             "Content-Length: 33%n" +
-                            "Server: Jetty(9.3.2.v20150730)%n",
+                            "Server: Jetty(9.4.34.v20201102)%n",
                     RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
         }
     }
@@ -388,7 +388,7 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "Body:\t\t\t<none>%n" +
                             "Content-Type: application/json;charset=utf-8%n" +
                             "Content-Length: 33%n" +
-                            "Server: Jetty(9.3.2.v20150730)%n",
+                            "Server: Jetty(9.4.34.v20201102)%n",
                     RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
         }
     }
@@ -423,7 +423,7 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "%n" +
                             "Content-Type: application/json;charset=utf-8%n" +
                             "Content-Length: 33%n" +
-                            "Server: Jetty(9.3.2.v20150730)%n",
+                            "Server: Jetty(9.4.34.v20201102)%n",
                     RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
         }
     }
@@ -486,7 +486,7 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "%n" +
                             "Content-Type: application/json;charset=utf-8%n" +
                             "Content-Length: 33%n" +
-                            "Server: Jetty(9.3.2.v20150730)%n",
+                            "Server: Jetty(9.4.34.v20201102)%n",
                     RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
         }
     }
