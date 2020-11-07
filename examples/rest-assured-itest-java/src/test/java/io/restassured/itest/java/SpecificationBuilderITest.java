@@ -19,6 +19,7 @@ package io.restassured.itest.java;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.config.HeaderConfig;
 import io.restassured.http.Cookies;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;
@@ -479,9 +480,9 @@ public class SpecificationBuilderITest extends WithJetty {
 
     @Test
     public void mergesStaticallyDefinedRequestSpecificationsCorrectly() {
-        RestAssured.requestSpecification = new RequestSpecBuilder().addCookie("Cookie1", "Value1").build();
         RequestSpecification reqSpec1 = new RequestSpecBuilder().addCookie("Cookie2", "Value2").build();
         RequestSpecification reqSpec2 = new RequestSpecBuilder().addCookie("Cookie3", "Value3").build();
+        RestAssured.requestSpecification = new RequestSpecBuilder().addCookie("Cookie1", "Value1").build();
 
         try {
             Cookies cookies =
