@@ -15,6 +15,7 @@ Changelog next version
       JSON path values.pi doesn't match.
       Expected: <3.14>
       Actual: <3.14F>
+* Upgraded groovy from 3.0.3 to 3.0.6
 
 Changelog 4.3.1 (2020-07-03)
 ----------------------------
