@@ -23,7 +23,6 @@ import org.eclipse.jetty.annotations.ClassInheritanceHandler;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebXmlConfiguration;
@@ -31,7 +30,9 @@ import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.springframework.web.WebApplicationInitializer;
 
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 @Ignore("To make Maven happy")
 public class WithJetty {
@@ -50,9 +51,9 @@ public class WithJetty {
                 new WebXmlConfiguration(),
                 new AnnotationConfiguration() {
                     @Override
-                    public void preConfigure(WebAppContext context) throws Exception {
-                        ConcurrentHashMap<String, ConcurrentHashSet<String>> map = new ConcurrentHashMap<String, ConcurrentHashSet<String>>();
-                        ConcurrentHashSet<String> set = new ConcurrentHashSet<String>();
+                    public void preConfigure(WebAppContext context) {
+                        ConcurrentHashMap<String, Set<String>> map = new ConcurrentHashMap<>();
+                        Set<String> set = new CopyOnWriteArraySet<>();
                         set.add(WebApp.class.getName());
                         map.put(WebApplicationInitializer.class.getName(), set);
                         context.setAttribute(CLASS_INHERITANCE_MAP, map);
