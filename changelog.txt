@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 4.3.2 (2020-11-08)
+----------------------------
 * Upgrade json-schema-validator to 2.2.14 (issue 1397) (thanks to Guillaume Smet for PR)
 * Upgrading apache commons lang3 from 3.4 to 3.11.
 * Added asPrettyString method to ResponseBody (issue 1395) (thanks to GithubMood for PR)
@@ -16,6 +16,7 @@ Changelog next version
       Expected: <3.14>
       Actual: <3.14F>
 * Upgraded groovy from 3.0.3 to 3.0.6
+* Upgrading Kotlin extension module to use Kotlin 1.4.10 (previously 1.3.72 was used)
 
 Changelog 4.3.1 (2020-07-03)
 ----------------------------
