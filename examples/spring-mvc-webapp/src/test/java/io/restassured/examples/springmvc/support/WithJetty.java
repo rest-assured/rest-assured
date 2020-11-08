@@ -52,7 +52,7 @@ public class WithJetty {
                 new AnnotationConfiguration() {
                     @Override
                     public void preConfigure(WebAppContext context) {
-                        ConcurrentHashMap<String, Set<String>> map = new ConcurrentHashMap<>();
+                        ConcurrentHashMap<String, Set<String>> map = new ClassInheritanceMap();
                         Set<String> set = new CopyOnWriteArraySet<>();
                         set.add(WebApp.class.getName());
                         map.put(WebApplicationInitializer.class.getName(), set);
