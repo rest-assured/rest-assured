@@ -83,14 +83,6 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <outputDir>${project.build.directory}/javadoc</outputDir>
-                            <sourceLinks>
-                                <link>
-                                    <dir>${project.basedir}</dir>
-                                    <url>https://github.com/rest-assured/rest-assured/</url>
-                                    <urlSuffix>#L</urlSuffix>
-                                </link>
-                            </sourceLinks>
                             <dokkaPlugins>
                                 <plugin>
                                     <groupId>org.jetbrains.dokka</groupId>
