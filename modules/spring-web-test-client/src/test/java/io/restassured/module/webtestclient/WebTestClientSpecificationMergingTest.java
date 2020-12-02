@@ -212,6 +212,7 @@ public class WebTestClientSpecificationMergingTest {
 	public void
 	web_test_client_factory_is_not_overwritten_when_not_defined_in_specification() {
 		// Given
+		RestAssuredWebTestClient.reset();
 		WebTestClient webTestClientInstance = WebTestClient.bindToController(new GreetingController()).build();
 		WebTestClientRequestSpecification specToMerge = new WebTestClientRequestSpecBuilder().addQueryParam("param1", "value1").build();
 
