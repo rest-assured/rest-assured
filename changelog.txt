@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 4.3.3 (2020-12-11)
+----------------------------
 * Upgrading kotlin extension module to use Kotlin 1.4.21 (previously 1.4.10 was used)
 * Upgraded groovy from 3.0.6 to 3.0.7
 * Ensure subclasses of ResponseOptions do not break Prettifier (#1425) (thanks to Sam Neirinck for PR)
