@@ -42,7 +42,7 @@ class Prettifier {
   String getPrettifiedBodyIfPossible(ResponseOptions responseOptions, ResponseBody responseBody) {
     def contentType = responseOptions.getContentType()
     def responseAsString = responseBody.asString()
-    if (isBlank(contentType) || !responseOptions instanceof RestAssuredResponseOptionsImpl) {
+    if (isBlank(contentType) || !(responseOptions instanceof RestAssuredResponseOptionsImpl)) {
       return responseAsString
     }
 
