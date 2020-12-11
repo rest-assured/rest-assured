@@ -1,6 +1,7 @@
 Changelog next version
 ----------------------
 * Upgrading kotlin extension module to use Kotlin 1.4.21 (previously 1.4.10 was used)
+* Upgraded groovy from 3.0.6 to 3.0.7
 
 Changelog 4.3.2 (2020-11-08)
 ----------------------------
