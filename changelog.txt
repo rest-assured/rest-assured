@@ -4,6 +4,10 @@ Changelog next version
 * Upgraded groovy from 3.0.6 to 3.0.7
 * Ensure subclasses of ResponseOptions do not break Prettifier (#1425) (thanks to Sam Neirinck for PR)
 
+Changelog 4.2.1 (2020-12-11)
+----------------------------
+* Backport of: Fix content type name before charset recognition (#1341)
+
 Changelog 4.3.2 (2020-11-08)
 ----------------------------
 * Upgrade json-schema-validator to 2.2.14 (issue 1397) (thanks to Guillaume Smet for PR)
