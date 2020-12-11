@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* Upgrading kotlin extension module to use Kotlin 1.4.21 (previously 1.4.10 was used)
+
 Changelog 4.3.2 (2020-11-08)
 ----------------------------
 * Upgrade json-schema-validator to 2.2.14 (issue 1397) (thanks to Guillaume Smet for PR)
