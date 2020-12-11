@@ -11,9 +11,9 @@ languages into the Java domain.
 
 
 ## News
+* 2020-12-11: REST Assured 4.2.1 is released in which we've back-ported a [fix](https://github.com/rest-assured/rest-assured/pull/1341) that is useful if you're stuck with an older version of Groovy. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2020-11-08: REST Assured [4.3.2](http://dl.bintray.com/johanhaleby/generic/rest-assured-4.3.2-dist.zip) is released with various improvements and bug fixes. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details. 
 * 2020-07-03: REST Assured [4.3.1](http://dl.bintray.com/johanhaleby/generic/rest-assured-4.3.1-dist.zip) is released with various improvements and bug fixes. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
-* 2020-03-13: REST Assured [4.3.0](http://dl.bintray.com/johanhaleby/generic/rest-assured-4.3.0-dist.zip) is released. Groovy is updated to version 3.0.2 as well as various improvements and bug fixes. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
