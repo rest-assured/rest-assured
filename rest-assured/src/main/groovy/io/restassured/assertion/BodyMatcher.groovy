@@ -73,12 +73,15 @@ class BodyMatcher {
             errorMessage = getDescription(matcher, contentParser)
           }
         }
-      } else if (!matcher.matches(response.asString())) {
-        success = false
-        if (config.matcherConfig.hasErrorDescriptionType(REST_ASSURED)) {
-          errorMessage = "Response body doesn't match expectation.\nExpected: $matcher\n  Actual: $contentParser\n"
-        } else {
-          errorMessage = format("Response body doesn't match expectation.\n%s", getDescription(matcher, response.asString()))
+      } else {
+        def responseString = response.asString()
+        if (!matcher.matches(responseString)) {
+          success = false
+          if (config.matcherConfig.hasErrorDescriptionType(REST_ASSURED)) {
+            errorMessage = "Response body doesn't match expectation.\nExpected: $matcher\n  Actual: $contentParser\n"
+          } else {
+            errorMessage = format("Response body doesn't match expectation.\n%s", getDescription(matcher, responseString))
+          }
         }
       }
     } else {
