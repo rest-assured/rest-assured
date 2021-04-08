@@ -35,11 +35,6 @@
         <system>GitHub Issue Tracking</system>
         <url />
     </issueManagement>
-    <properties>
-      <sonar.projectKey>javpermar4_AISS-2021-L8-G04-javpermar42</sonar.projectKey>
-      <sonar.organization>javpermar4</sonar.organization>
-      <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-    </properties>
     <licenses>
         <license>
             <name>Apache 2.0</name>
@@ -60,6 +55,9 @@
         </developer>
     </developers>
     <properties>
+        <sonar.projectKey>javpermar4_AISS-2021-L8-G04-javpermar42</sonar.projectKey>
+        <sonar.organization>javpermar4</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <scm.branch>master</scm.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <groovy.version>3.0.7</groovy.version>
