@@ -75,10 +75,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private final ResponseSpecification responseSpecification;
 
-    private final Map<String, Object> params = new LinkedHashMap<String, Object>();
-    private final Map<String, Object> queryParams = new LinkedHashMap<String, Object>();
-    private final Map<String, Object> formParams = new LinkedHashMap<String, Object>();
-    private final Map<String, Object> attributes = new LinkedHashMap<String, Object>();
+    private final Map<String, Object> params = new LinkedHashMap<>();
+    private final Map<String, Object> queryParams = new LinkedHashMap<>();
+    private final Map<String, Object> formParams = new LinkedHashMap<>();
+    private final Map<String, Object> attributes = new LinkedHashMap<>();
 
     private Object requestBody = null;
 
@@ -88,7 +88,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private Cookies cookies = new Cookies();
 
-    private List<MockMvcMultiPart> multiParts = new ArrayList<MockMvcMultiPart>();
+    private List<MockMvcMultiPart> multiParts = new ArrayList<>();
 
     private RequestLoggingFilter requestLoggingFilter;
 
@@ -99,9 +99,9 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         }
     });
 
-    private final List<ResultHandler> resultHandlers = new ArrayList<ResultHandler>();
+    private final List<ResultHandler> resultHandlers = new ArrayList<>();
 
-    private final List<RequestPostProcessor> requestPostProcessors = new ArrayList<RequestPostProcessor>();
+    private final List<RequestPostProcessor> requestPostProcessors = new ArrayList<>();
 
     private MockHttpServletRequestBuilderInterceptor interceptor;
 
@@ -109,7 +109,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     private AsyncConfig asyncConfig;
 
-    private final Map<String, Object> sessionAttributes = new LinkedHashMap<String, Object>();
+    private final Map<String, Object> sessionAttributes = new LinkedHashMap<>();
 
 
     public MockMvcRequestSpecificationImpl(MockMvcFactory mockMvcFactory, RestAssuredMockMvcConfig config, List<ResultHandler> resultHandlers,

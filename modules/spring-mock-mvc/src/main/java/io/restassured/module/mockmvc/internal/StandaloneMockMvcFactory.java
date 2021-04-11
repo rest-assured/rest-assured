@@ -32,8 +32,8 @@ public class StandaloneMockMvcFactory {
      * @return A new {@link MockMvcFactory}
      */
     public static MockMvcFactory of(Object[] controllerOrMockMvcConfigurers) {
-        List<Object> controllers = new ArrayList<Object>();
-        List<MockMvcConfigurer> configurers = new ArrayList<MockMvcConfigurer>();
+        List<Object> controllers = new ArrayList<>();
+        List<MockMvcConfigurer> configurers = new ArrayList<>();
         for (Object object : controllerOrMockMvcConfigurers) {
             if (object instanceof MockMvcConfigurer) {
                 configurers.add((MockMvcConfigurer) object);

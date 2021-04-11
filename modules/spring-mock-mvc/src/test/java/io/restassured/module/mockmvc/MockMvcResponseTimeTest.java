@@ -49,6 +49,6 @@ public class MockMvcResponseTimeTest {
         then().
                 extract().time();
 
-        assertThat(time).isGreaterThan(-1).isLessThan(3000L);
+        assertThat(time).isNotNegative().isLessThan(3000L);
     }
 }

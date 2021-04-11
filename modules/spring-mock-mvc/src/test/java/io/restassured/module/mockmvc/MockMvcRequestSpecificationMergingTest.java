@@ -357,7 +357,7 @@ public class MockMvcRequestSpecificationMergingTest {
                 body("content", equalTo("Hello, Johan!"));
 
         // Then
-        assertThat(writer.toString()).isEqualTo(String.format("Request method:\tGET%n" +
+        assertThat(writer.toString()).hasToString(String.format("Request method:\tGET%n" +
                 "Request URI:\thttp://localhost:8080/greeting?name=Johan%n" +
                 "Proxy:\t\t\t<none>%n" +
                 "Request params:\t<none>%n" +
@@ -390,7 +390,7 @@ public class MockMvcRequestSpecificationMergingTest {
                 body("content", equalTo("Hello, Johan!"));
 
         // Then
-        assertThat(writer.toString()).isEqualTo(String.format("Request params:\t<none>%n" +
+        assertThat(writer.toString()).hasToString(String.format("Request params:\t<none>%n" +
                 "Query params:\tname=Johan%n" +
                 "Form params:\t<none>%n" +
                 "Path params:\t<none>%n" +

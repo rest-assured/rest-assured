@@ -34,7 +34,7 @@ public abstract class ParamLogger {
             if (value instanceof Collection) {
                 values = (Collection<Object>) value;
             } else {
-                values = new ArrayList<Object>();
+                values = new ArrayList<>();
                 values.add(value);
             }
 
