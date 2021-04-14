@@ -109,7 +109,7 @@
         <dependency>
             <groupId>com.github.scribejava</groupId>
             <artifactId>scribejava-apis</artifactId>
-            <version>2.5.3</version>
+            <version>8.2.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
