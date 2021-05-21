@@ -15,16 +15,16 @@
  */
 package io.restassured.module.spring.commons;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.HeaderConfig;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.module.spring.commons.config.SpecificationConfig;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 
@@ -93,8 +93,10 @@ public class HeaderHelper {
         if (StringUtils.isBlank(baseContentType) && !multiParts.isEmpty()) {
             baseContentType = "multipart/" + config.getMultiPartConfig().defaultSubtype();
         }
-        if (StringUtils.equals(baseContentType, "application/json")
-                && !config.getEncoderConfig().hasDefaultCharsetForContentType("application/json")) {
+
+        EncoderConfig encoderConfig = config.getEncoderConfig();
+        if (StringUtils.equalsIgnoreCase(baseContentType, "application/json")
+                && !(encoderConfig.hasDefaultCharsetForContentType("application/json") && encoderConfig.isUserConfigured())) {
             return baseContentType;
         }
 
@@ -102,7 +104,7 @@ public class HeaderHelper {
             return baseContentType;
         }
 
-        return appendCharsetToContentType(baseContentType, config.getEncoderConfig());
+        return appendCharsetToContentType(baseContentType, encoderConfig);
     }
 
     public static String buildApplicationFormEncodedContentType(SpecificationConfig config, String baseContentType) {
