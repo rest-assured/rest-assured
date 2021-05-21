@@ -18,15 +18,21 @@ package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
 import io.restassured.config.DecoderConfig;
+import io.restassured.config.EncoderConfig;
+import io.restassured.config.LogConfig;
 import io.restassured.http.ContentType;
 import io.restassured.itest.java.support.WithJetty;
+import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
 
+import java.io.PrintStream;
+import java.io.StringWriter;
 import java.util.HashMap;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 public class UnicodeITest extends WithJetty {
 
@@ -58,6 +64,64 @@ public class UnicodeITest extends WithJetty {
                 get("/utf8-body-xml").
         then().
                 body("value", equalTo("啊 ☆"));
+    }
+
+    @Test public void
+    unicode_values_works_in_utf8_for_json_content_by_default() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
+
+        given().
+                config(RestAssured.config().logConfig(LogConfig.logConfig().defaultStream(captor))).
+                log().headers().
+                contentType(ContentType.JSON).
+                body(new HashMap<String, String>() {{put("title", "äöüß€’");}}).
+        when().
+                post("/reflect").
+        then().
+                statusCode(200).
+                body("title", equalTo("äöüß€’"));
+
+        assertThat(writer.toString(), not(containsStringIgnoringCase("charset=" + UTF_8)));
+    }
+
+    @Test public void
+    unicode_values_works_in_utf8_for_json_content_when_defined_in_encoder_config() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
+
+        given().
+                config(RestAssured.config().logConfig(LogConfig.logConfig().defaultStream(captor))
+                        .encoderConfig(EncoderConfig.encoderConfig().defaultCharsetForContentType("UTF-8", "application/json"))).
+                log().headers().
+                contentType(ContentType.JSON).
+                body(new HashMap<String, String>() {{put("title", "äöüß€’");}}).
+        when().
+                post("/reflect").
+        then().
+                statusCode(200).
+                body("title", equalTo("äöüß€’"));
+
+        assertThat(writer.toString(), containsStringIgnoringCase("Content-Type=application/json; charset=" + UTF_8));
+    }
+
+    @Test public void
+    unicode_values_works_in_utf8_for_json_content_when_defined_explicitly_in_dsl() {
+        final StringWriter writer = new StringWriter();
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
+
+        given().
+                config(RestAssured.config().logConfig(LogConfig.logConfig().defaultStream(captor))).
+                log().headers().
+                contentType(ContentType.JSON.withCharset(UTF_8)).
+                body(new HashMap<String, String>() {{put("title", "äöüß€’");}}).
+        when().
+                post("/reflect").
+        then().
+                statusCode(200).
+                body("title", equalTo("äöüß€’"));
+
+        assertThat(writer.toString(), containsStringIgnoringCase("Content-Type=application/json; charset=" + UTF_8));
     }
 
 }

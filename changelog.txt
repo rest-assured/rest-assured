@@ -4,6 +4,16 @@ Changelog next version
 * Upgrading commons-io from 2.4.0 to 2.8.0
 * Apache http client is upgraded from 4.5.3 to 4.5.13 (thanks to Daniel Reissenberger for pull request)
 * Improved oauth compatibility with new http client
+* Fixed a bug in EncoderConfig where user configured was accidentally set to true in default constructor
+* Non-backward compatible change: REST Assured will no longer add "charset=utf-8" by default to application/json content-type's since this is not recommended by RFC 7159.
+  REST Assured will still automatically encode content as UTF-8, it's just that the charset is not added. To revert to the old behavior do:
+
+    RestAssured.config(RestAssured.config().encoderConfig(EncoderConfig.encoderConfig().defaultCharsetForContentType("UTF-8", "application/json")))
+
+  or specify the charset explicitly in the request:
+
+    given().contentType(ContentType.JSON.withCharset(UTF_8)). ..
+ (thanks to Michal Domagala for initial pull request)
 
 Changelog 4.3.3 (2020-12-11)
 ----------------------------

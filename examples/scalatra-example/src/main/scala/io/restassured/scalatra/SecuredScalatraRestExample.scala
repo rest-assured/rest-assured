@@ -16,8 +16,8 @@
 package io.restassured.scalatra
 
 import net.liftweb.json.JsonAST
+import net.liftweb.json.JsonAST.RenderSettings
 import net.liftweb.json.JsonDSL._
-import net.liftweb.json.Printer._
 import org.scalatra.ScalatraServlet
 import org.scalatra.fileupload.FileUploadSupport
 
@@ -29,15 +29,15 @@ class SecuredScalatraRestExample extends ScalatraServlet with FileUploadSupport 
 
   post("/hello") {
     val json = "hello" -> "Hello Secured Scalatra"
-    compact(JsonAST.render(json))
+    JsonAST.render(json, RenderSettings.compact)
   }
 
   get("/hello") {
     val json = "hello" -> "Hello Secured Scalatra"
-    compact(JsonAST.render(json))
+    JsonAST.render(json, RenderSettings.compact)
   }
   post("/file") {
-    val fileItem = fileParams.get("file").get
+    val fileItem = fileParams("file")
     fileItem.getString
   }
 }

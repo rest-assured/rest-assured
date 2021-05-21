@@ -102,7 +102,7 @@ public class RestAssuredMockMvc {
      * The base path that's used by REST assured when making requests. The base path is prepended to the request path.
      * Default value is <code>/</code>.
      */
-    public static final String basePath = "/";
+    public static String basePath = "/";
 
     /**
      * Defines a global authentication scheme that'll be used for all requests (if not overridden). Usage example:

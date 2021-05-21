@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,17 +36,19 @@ public class EncoderConfig implements Config {
 
     private static final String UTF_8 = "UTF-8";
     private static final String ISO_8859_1 = "ISO-8859-1";
+    private static final Map<String, String> DEFAULT_CHARSET_FOR_CONTENT_TYPE = new HashMap<String, String>() {{
+        put("application/json", StandardCharsets.UTF_8.name());
+    }};
 
     private final String defaultContentCharset;
     private final String defaultQueryParameterCharset;
     private final boolean shouldAppendDefaultContentCharsetToContentTypeIfUndefined;
     private final Map<String, ContentType> contentEncoders;
-    private final Map<String, String> contentTypeToDefaultCharset;
+    final Map<String, String> contentTypeToDefaultCharset;
     private final boolean isUserDefined;
 
     /**
-     * Configure the encoder config to use {@value org.apache.http.protocol.HTTP#DEFAULT_CONTENT_CHARSET} for content encoding and <code>UTF-8</code>.
-     * for query parameter encoding.
+     * Configure the encoder config to use ISO-8859-1 for content encoding and <code>UTF-8</code> for query parameter encoding.
      * <p>
      * The reason for choosing UTF-8 as default for query parameters even though US-ASCII is standard according to the URI Syntax specification is
      * that it's nowadays <a href="http://www.w3.org/TR/html40/appendix/notes.html#non-ascii-chars">recommended</a> by w3 to use UTF-8. Different web servers
@@ -54,11 +57,11 @@ public class EncoderConfig implements Config {
      * </p>
      */
     public EncoderConfig() {
-        this(ISO_8859_1, UTF_8, true, new HashMap<>(), new HashMap<>(), true);
+        this(ISO_8859_1, UTF_8, true, new HashMap<>(), DEFAULT_CHARSET_FOR_CONTENT_TYPE, false);
     }
 
     public EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset) {
-        this(defaultContentCharset, defaultQueryParameterCharset, true, new HashMap<>(), new HashMap<>(), true);
+        this(defaultContentCharset, defaultQueryParameterCharset, true, new HashMap<>(), DEFAULT_CHARSET_FOR_CONTENT_TYPE, true);
     }
 
     private EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset,
@@ -82,7 +85,7 @@ public class EncoderConfig implements Config {
         if (StringUtils.isEmpty(contentType)) {
             return defaultContentCharset();
         }
-        String charset = contentTypeToDefaultCharset.get(trim(contentType).toLowerCase());
+        String charset = defaultCharsetForContentTypeOrNull(contentType);
         if (charset == null) {
             return defaultContentCharset();
         }
@@ -297,5 +300,9 @@ public class EncoderConfig implements Config {
         Map<String, ContentType> newMap = new HashMap<>(contentEncoders);
         newMap.put(contentType, encoder);
         return new EncoderConfig(defaultContentCharset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, newMap, contentTypeToDefaultCharset, true);
+    }
+
+    String defaultCharsetForContentTypeOrNull(String contentType) {
+        return contentTypeToDefaultCharset.get(trim(contentType).toLowerCase());
     }
 }

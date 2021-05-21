@@ -63,6 +63,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider
 import org.apache.http.message.BasicHeader
 import org.apache.http.util.EntityUtils
 
+import java.nio.charset.StandardCharsets
 import java.security.KeyStore
 import java.util.Map.Entry
 import java.util.regex.Matcher
@@ -91,6 +92,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   private static final String MULTIPART = "multipart"
   private static final String MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH = MULTIPART + "/"
   private static final String MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS = MULTIPART + "+"
+  private static final String APPLICATION_JSON = "application/json"
   private static final String TEMPLATE_START = "{"
   private static final String TEMPLATE_END = "}"
 
@@ -543,7 +545,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   FilterableRequestSpecification removeUnnamedPathParam(String parameterName) {
     notNull parameterName, "parameterName"
-    def indexOfParamName = unnamedPathParamsTuples.findIndexOf { it.first == parameterName }
+    def indexOfParamName = unnamedPathParamsTuples.findIndexOf { it.v1 == parameterName }
     if (indexOfParamName > -1) {
       removeUnnamedPathParamAtIndex(indexOfParamName)
     }
@@ -552,7 +554,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   FilterableRequestSpecification removeUnnamedPathParamByValue(String parameterValue) {
     notNull parameterValue, "parameterValue"
-    def indexOfParamValue = unnamedPathParamsTuples.findIndexOf { it.second == parameterValue }
+    def indexOfParamValue = unnamedPathParamsTuples.findIndexOf { it.v2 == parameterValue }
     if (indexOfParamValue > -1) {
       removeUnnamedPathParamAtIndex(indexOfParamValue)
     }
@@ -745,7 +747,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   RequestSpecification body(Object object) {
     notNull object, "object"
     if (!isSerializableCandidate(object)) {
-      return body(object.toString());
+      return body(object.toString())
     }
 
     this.requestBody = ObjectMapping.serialize(object, requestContentType, findEncoderCharsetOrReturnDefault(requestContentType), null, objectMappingConfig(), restAssuredConfig().getEncoderConfig());
@@ -1046,7 +1048,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   def newFilterContext(assertionClosure, filters, properties) {
     if (path?.endsWith("?")) {
-      throw new IllegalArgumentException("Request URI cannot end with ?");
+      throw new IllegalArgumentException("Request URI cannot end with ?")
     }
 
     // Set default accept header if undefined
@@ -1059,7 +1061,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       header(CONTENT_TYPE, tempContentType)
     }
 
-    def unnamedPathParamValues = unnamedPathParamsTuples.findAll { it.second != null }.collect { it.second }
+    def unnamedPathParamValues = unnamedPathParamsTuples.findAll { it.v2 != null }.collect { it.v2 }
     def uri = partiallyApplyPathParams(path, true, unnamedPathParamValues)
     String requestUriForLogging = generateRequestUriForLogging(uri, method)
 
@@ -1207,8 +1209,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     if (!getRedundantNamedPathParams().isEmpty() || !getRedundantUnnamedPathParamValues().isEmpty() || !getUndefinedPathParamPlaceholders().isEmpty()) {
       def pathParamPlaceholderSize = getPathParamPlaceholders().size()
       def namedPathParams = getNamedPathParams()
-      def pathParamSize = namedPathParams.size() + unnamedPathParamsTuples.findAll { it.second != null }.findAll {
-        !namedPathParams.containsKey(it.second)
+      def pathParamSize = namedPathParams.size() + unnamedPathParamsTuples.findAll { it.v2 != null }.findAll {
+        !namedPathParams.containsKey(it.v2)
       }.size()
 
       def redundantNamedPathParams = getRedundantNamedPathParams()
@@ -1533,7 +1535,21 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private boolean shouldAppendCharsetToContentType(contentType) {
-    contentType != null && !(startsWith(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH) || contains(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS)) && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && !containsIgnoreCase(contentType.toString(), CHARSET)
+    contentType != null
+            && !(startsWith(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH) || contains(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS))
+            && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()
+            && !(containsIgnoreCase(contentType.toString(), CHARSET) || !isApplicationJsonContentTypeWithDefaultCharsetDefined(contentType))
+  }
+
+  private boolean isApplicationJsonContentTypeWithDefaultCharsetDefined(contentType) {
+    if (!startsWith(contentType.toString().toLowerCase(), APPLICATION_JSON)) {
+      return false
+    }
+
+    def encoderConfig = getConfig().getEncoderConfig()
+    //noinspection GroovyAccessibility
+    def contentTypeOrNull = encoderConfig.defaultCharsetForContentTypeOrNull(contentType.toString())
+    contentTypeOrNull != null && (contentTypeOrNull != StandardCharsets.UTF_8.name() || encoderConfig.isUserConfigured())
   }
 
   private String getTargetURI(String path) {
@@ -1599,7 +1615,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     notNull trimToNull(method), "Method"
     notNull unnamedPathParams, "Path params"
     this.method = method.trim().toUpperCase();
-    this.path = path;
+    this.path = path
     if (unnamedPathParams != null) {
       def nullParamIndices = []
       for (int i = 0; i < unnamedPathParams.length; i++) {
@@ -1857,7 +1873,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   String getDerivedPath() {
-    def uri = partiallyApplyPathParams(path, true, unnamedPathParamsTuples.collect { it.second })
+    def uri = partiallyApplyPathParams(path, true, unnamedPathParamsTuples.collect { it.v2 })
     getDerivedPath(uri)
   }
 
@@ -1870,7 +1886,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   String getURI() {
-    def uri = partiallyApplyPathParams(path, true, unnamedPathParamsTuples.collect { it.second })
+    def uri = partiallyApplyPathParams(path, true, unnamedPathParamsTuples.collect { it.v2 })
     getURI(uri);
   }
 
@@ -1895,9 +1911,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   Map<String, String> getUnnamedPathParams() {
-    // If it.first = null means that it's a placeholder
-    def map = unnamedPathParamsTuples.findAll { it.first != null }.inject([:], { m, t ->
-      m.putAt(t.first, t.second)
+    // If it.v1 = null means that it's a placeholder
+    def map = unnamedPathParamsTuples.findAll { it.v1 != null }.inject([:], { m, t ->
+      m.putAt(t.v1, t.v2)
       m
     })
     return Collections.unmodifiableMap(map)
@@ -1905,9 +1921,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   List<String> getUnnamedPathParamValues() {
     return Collections.unmodifiableList(unnamedPathParamsTuples == null ? Collections.emptyList() : unnamedPathParamsTuples.findAll {
-      it.second != null
+      it.v2 != null
     }.collect {
-      it.second
+      it.v2
     })
   }
 
@@ -1961,7 +1977,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   List<String> getUndefinedPathParamPlaceholders() {
-    def uri = partiallyApplyPathParams(path, false, unnamedPathParamsTuples.collect { it.second })
+    def uri = partiallyApplyPathParams(path, false, unnamedPathParamsTuples.collect { it.v2 })
     getPlaceholders(uri)
   }
 
