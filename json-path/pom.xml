@@ -20,12 +20,12 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-parent</artifactId>
-        <version>4.4.0</version>
+        <version>4.4.1-SNAPSHOT</version>
     </parent>
     <groupId>io.rest-assured</groupId>
     <artifactId>json-path</artifactId>
     <packaging>bundle</packaging>
-    <version>4.4.0</version>
+    <version>4.4.1-SNAPSHOT</version>
     <name>json-path</name>
     <url>http://maven.apache.org</url>
     <properties>
@@ -116,7 +116,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured-common</artifactId>
-            <version>4.4.0</version>
+            <version>4.4.1-SNAPSHOT</version>
         </dependency>
 
         <!-- Test -->
