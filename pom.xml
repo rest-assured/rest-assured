@@ -70,6 +70,7 @@
         <surefire.version>2.22.0</surefire.version>
         <kotlin.version>1.5.0</kotlin.version>
         <assertj-core.version>3.16.1</assertj-core.version>
+        <scribe.version>2.5.3</scribe.version>
     </properties>
     <scm>
         <url>http://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>
