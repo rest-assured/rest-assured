@@ -93,6 +93,10 @@ public class HeaderHelper {
         if (StringUtils.isBlank(baseContentType) && !multiParts.isEmpty()) {
             baseContentType = "multipart/" + config.getMultiPartConfig().defaultSubtype();
         }
+        if (StringUtils.equals(baseContentType, "application/json")
+                && !config.getEncoderConfig().hasDefaultCharsetForContentType("application/json")) {
+            return baseContentType;
+        }
 
         if (StringUtils.containsIgnoreCase(baseContentType, CHARSET)) {
             return baseContentType;

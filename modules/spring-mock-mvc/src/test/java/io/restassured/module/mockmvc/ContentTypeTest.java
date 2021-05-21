@@ -50,6 +50,22 @@ public class ContentTypeTest {
     }
 
     @Test public void
+    doesnt_add_default_charset_to_application_json_by_default() {
+        final AtomicReference<String> contentType = new AtomicReference<>();
+
+        RestAssuredMockMvc.given().
+                standaloneSetup(new GreetingController()).
+                contentType(ContentType.JSON).
+                interceptor(requestBuilder -> contentType.set(extractContentType(requestBuilder))).
+                when().
+                get("/greeting?name={name}", "Johan").
+                then().
+                statusCode(200);
+
+        assertThat(contentType.get()).isEqualTo("application/json");
+    }
+
+    @Test public void
     adds_specific_charset_to_content_type_by_default() {
         final AtomicReference<String> contentType = new AtomicReference<>();
 
@@ -118,21 +134,6 @@ public class ContentTypeTest {
         assertThat(contentTypes.get(0)).isEqualTo("application/json");
     }
 
-    @Test public void
-    adds_default_charset_to_content_type_if_specified_in_default_charsets() {
-        final AtomicReference<String> contentType = new AtomicReference<>();
-
-        RestAssuredMockMvc.given().
-                standaloneSetup(new GreetingController()).
-                contentType(ContentType.JSON).
-                interceptor(requestBuilder -> contentType.set(extractContentType(requestBuilder))).
-                when().
-                get("/greeting?name={name}", "Johan").
-                then().
-                statusCode(200);
-
-        assertThat(contentType.get()).isEqualTo("application/json;charset=UTF-8");
-    }
 
     private String extractContentType(MockHttpServletRequestBuilder requestBuilder) {
         Object contentType = Whitebox.getInternalState(requestBuilder, "contentType");

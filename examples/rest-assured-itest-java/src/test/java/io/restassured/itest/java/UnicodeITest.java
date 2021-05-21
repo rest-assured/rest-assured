@@ -60,15 +60,4 @@ public class UnicodeITest extends WithJetty {
                 body("value", equalTo("啊 ☆"));
     }
 
-    @Test public void
-    unicode_values_works_in_json_content() {
-        given().
-                contentType(ContentType.JSON).
-                body(new HashMap<String, String>() {{put("title", "äöüß€’");}}).
-        when().
-                post("/reflect").
-        then().
-                statusCode(200).
-                body("title", equalTo("äöüß€’"));
-    }
 }
