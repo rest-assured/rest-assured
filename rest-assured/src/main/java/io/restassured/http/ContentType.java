@@ -86,7 +86,22 @@ public enum ContentType {
     /**
      * <code>application/octet-stream</code>
      */
-    BINARY("application/octet-stream");
+    BINARY("application/octet-stream"),
+    /**
+     * <ul>
+     * <li><code>multipart/form-data</code></li>
+     * <li><code>multipart/alternative</code></li>
+     * <li><code>multipart/byteranges</code></li>
+     * <li><code>multipart/digest</code></li>
+     * <li><code>multipart/mixed</code></li>
+     * <li><code>multipart/parallel</code></li>
+     * <li><code>multipart/related</code></li>
+     * <li><code>multipart/report</code></li>
+     * <li><code>multipart/signed</code></li>
+     * <li><code>multipart/encrypted</code></li>
+     * </ul>
+     */
+    MULTIPART("multipart/form-data", "multipart/alternative", "multipart/byteranges", "multipart/digest", "multipart/mixed", "multipart/parallel", "multipart/related", "multipart/report", "multipart/signed", "multipart/encrypted");
 
     private static final String PLUS_XML = "+xml";
     private static final String PLUS_JSON = "+json";
@@ -170,6 +185,8 @@ public enum ContentType {
             foundContentType = BINARY;
         } else if (contains(ANY.ctStrings, contentType)) {
             foundContentType = ANY;
+        } else if (contains(MULTIPART.ctStrings, contentType)) {
+            foundContentType = MULTIPART;
         } else {
             foundContentType = null;
         }
