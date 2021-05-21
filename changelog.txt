@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 4.4.0 (2021-05-21)
+----------------------------
 * Upgrading kotlin extension module to use Kotlin 1.5.0 (previously 1.4.21 was used)
 * Upgrading commons-io from 2.4.0 to 2.8.0
 * Apache http client is upgraded from 4.5.3 to 4.5.13 (thanks to Daniel Reissenberger for pull request)
