@@ -108,7 +108,7 @@ import java.util.Map.Entry;
  */
 public class JsonPath {
 
-    public static final JsonPathConfig config = null;
+    public static JsonPathConfig config = null;
 
     private final JsonParser jsonParser;
     private JsonPathConfig jsonPathConfig = null;
