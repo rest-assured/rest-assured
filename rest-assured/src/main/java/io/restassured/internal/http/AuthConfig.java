@@ -29,13 +29,13 @@ import org.apache.http.*;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
-import org.apache.http.impl.client.EntityEnclosingRequestWrapper;
 import org.apache.http.impl.client.RequestWrapper;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 
 import java.io.IOException;
 import java.net.URI;
@@ -101,8 +101,9 @@ public class AuthConfig {
     public void ntlm(String user, String pass, String workstation, String domain) {
         URI uri = ((URIBuilder) builder.getUri()).toURI();
         if (uri == null) throw new IllegalStateException("a default URI must be set");
-        this.ntlm(uri.getHost(), uri.getPort(), user, pass,workstation,domain);
+        this.ntlm(uri.getHost(), uri.getPort(), user, pass, workstation, domain);
     }
+
     /**
      * Set NTLM authentication credentials to be used for the given host and port.
      *
@@ -257,14 +258,14 @@ public class AuthConfig {
                 if (verb == null)
                     return;
 
-                HttpHost host = (HttpHost) ctx.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
+                HttpHost host = (HttpHost) ctx.getAttribute(HttpCoreContext.HTTP_TARGET_HOST);
                 final URI requestURI = new URI(host.toURI()).resolve(request.getRequestLine().getUri());
 
                 OAuthRequest oauthRequest = new OAuthRequest(verb, requestURI.toString(), null);
                 this.service = (OAuth10aService) getOauthService(isOAuth1, addEmptyTokenToBaseString);
 
-                if (request instanceof EntityEnclosingRequestWrapper) {
-                    HttpEntity entity = ((EntityEnclosingRequestWrapper) request).getEntity();
+                if (request instanceof HttpEntityEnclosingRequest) {
+                    HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
                     if (entity != null) {
                         List<NameValuePair> params = URLEncodedUtils.parse(entity);
                         for (NameValuePair param : params) {
@@ -282,9 +283,13 @@ public class AuthConfig {
                         request.setHeader(entry.getKey(), entry.getValue());
                     }
                 } else {
-                    //If signature is to be added as query param
+                    // If signature is to be added as query param
                     URI uri = new URI(oauthRequest.getCompleteUrl());
-                    ((RequestWrapper) request).setURI(uri);
+                    if (request instanceof RequestWrapper) {
+                        ((RequestWrapper) request).setURI(uri);
+                    } else if (request instanceof HttpRequestBase) {
+                        ((HttpRequestBase) request).setURI(uri);
+                    }
                 }
 
             } catch (URISyntaxException ex) {
@@ -342,7 +347,5 @@ public class AuthConfig {
                 signatureType = SignatureType.QueryString;
             return signatureType;
         }
-
-
     }
 }

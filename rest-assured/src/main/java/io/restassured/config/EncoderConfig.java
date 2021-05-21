@@ -36,11 +36,6 @@ public class EncoderConfig implements Config {
     private static final String UTF_8 = "UTF-8";
     private static final String ISO_8859_1 = "ISO-8859-1";
 
-    private static final Map<String, String> DEFAULT_CHARSET_FOR_CONTENT_TYPE = new HashMap<String, String>() {{
-        put(ContentType.JSON.toString(), UTF_8);
-        put("text/json", UTF_8);
-    }};
-
     private final String defaultContentCharset;
     private final String defaultQueryParameterCharset;
     private final boolean shouldAppendDefaultContentCharsetToContentTypeIfUndefined;
@@ -59,11 +54,11 @@ public class EncoderConfig implements Config {
      * </p>
      */
     public EncoderConfig() {
-        this(ISO_8859_1, UTF_8, true, new HashMap<>(), DEFAULT_CHARSET_FOR_CONTENT_TYPE, true);
+        this(ISO_8859_1, UTF_8, true, new HashMap<>(), new HashMap<>(), true);
     }
 
     public EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset) {
-        this(defaultContentCharset, defaultQueryParameterCharset, true, new HashMap<>(), DEFAULT_CHARSET_FOR_CONTENT_TYPE, true);
+        this(defaultContentCharset, defaultQueryParameterCharset, true, new HashMap<>(), new HashMap<>(), true);
     }
 
     private EncoderConfig(String defaultContentCharset, String defaultQueryParameterCharset,

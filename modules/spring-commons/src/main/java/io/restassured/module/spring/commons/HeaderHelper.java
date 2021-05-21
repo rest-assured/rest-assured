@@ -38,7 +38,7 @@ public class HeaderHelper {
 
     public static Headers headers(Headers requestHeaders, Map<String, ?> headers, SpecificationConfig config) {
         notNull(headers, "headers");
-        List<Header> headerList = new ArrayList<Header>();
+        List<Header> headerList = new ArrayList<>();
         if (requestHeaders.exist()) {
             for (Header requestHeader : requestHeaders) {
                 headerList.add(requestHeader);
@@ -72,7 +72,7 @@ public class HeaderHelper {
     public static Headers headers(Headers requestHeaders, Headers headersToAdd, HeaderConfig headerConfig) {
         notNull(headersToAdd, "Headers");
         if (headersToAdd.exist()) {
-            List<Header> headerList = new ArrayList<Header>();
+            List<Header> headerList = new ArrayList<>();
             if (requestHeaders.exist()) {
                 for (Header requestHeader : requestHeaders) {
                     headerList.add(requestHeader);
@@ -92,6 +92,10 @@ public class HeaderHelper {
         String baseContentType = headers.getValue(CONTENT_TYPE);
         if (StringUtils.isBlank(baseContentType) && !multiParts.isEmpty()) {
             baseContentType = "multipart/" + config.getMultiPartConfig().defaultSubtype();
+        }
+        if (StringUtils.equals(baseContentType, "application/json")
+                && !config.getEncoderConfig().hasDefaultCharsetForContentType("application/json")) {
+            return baseContentType;
         }
 
         if (StringUtils.containsIgnoreCase(baseContentType, CHARSET)) {
@@ -113,7 +117,7 @@ public class HeaderHelper {
     }
 
     private static List<Header> removeMergedHeadersIfNeeded(List<Header> headerList, HeaderConfig headerConfig) {
-        List<Header> filteredList = new ArrayList<Header>();
+        List<Header> filteredList = new ArrayList<>();
         for (Header header : headerList) {
             String headerName = header.getName();
             if (headerConfig.shouldOverwriteHeaderWithName(headerName)) {

@@ -31,7 +31,7 @@ public class CookieHelper {
 
     public static Cookies cookies(Cookies requestCookies, Map<String, ?> cookies, Headers requestHeaders,
                                   SpecificationConfig config) {
-        List<Cookie> cookieList = new ArrayList<Cookie>();
+        List<Cookie> cookieList = new ArrayList<>();
         if (requestCookies.exist()) {
             for (Cookie requestCookie : requestCookies) {
                 cookieList.add(requestCookie);
@@ -46,7 +46,7 @@ public class CookieHelper {
 
     public static Cookies cookies(Cookies requestCookies, Cookies cookies) {
         if (cookies.exist()) {
-            List<Cookie> cookieList = new ArrayList<Cookie>();
+            List<Cookie> cookieList = new ArrayList<>();
             if (requestCookies.exist()) {
                 for (Cookie cookie : requestCookies) {
                     cookieList.add(cookie);
@@ -76,7 +76,7 @@ public class CookieHelper {
     }
 
     public static Cookies sessionId(Cookies cookies, String sessionIdName, String sessionIdValue) {
-        List<Cookie> allOtherCookies = new ArrayList<Cookie>();
+        List<Cookie> allOtherCookies = new ArrayList<>();
         for (Cookie cookie : cookies) {
             if (!cookie.getName().equalsIgnoreCase(sessionIdName)) {
                 allOtherCookies.add(cookie);

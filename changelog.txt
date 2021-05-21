@@ -1,3 +1,10 @@
+Changelog next version
+----------------------
+* Upgrading kotlin extension module to use Kotlin 1.5.0 (previously 1.4.21 was used)
+* Upgrading commons-io from 2.4.0 to 2.8.0
+* Apache http client is upgraded from 4.5.3 to 4.5.13 (thanks to Daniel Reissenberger for pull request)
+* Improved oauth compatibility with new http client
+
 Changelog 4.3.3 (2020-12-11)
 ----------------------------
 * Upgrading kotlin extension module to use Kotlin 1.4.21 (previously 1.4.10 was used)

@@ -95,13 +95,4 @@ public class ContentTypeTest {
 				.body("requestContentType", equalTo("application/json"));
 	}
 
-	@Test public void
-	adds_default_charset_to_content_type_if_specified_in_default_charsets() {
-		RestAssuredWebTestClient.given()
-				.contentType(ContentType.JSON)
-				.when()
-				.get("/contentType")
-				.then()
-				.body("requestContentType", equalTo("application/json;charset=UTF-8"));
-	}
 }
