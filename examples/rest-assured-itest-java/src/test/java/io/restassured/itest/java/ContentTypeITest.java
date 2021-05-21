@@ -212,13 +212,13 @@ public class ContentTypeITest extends WithJetty {
     }
 
     @Test public void
-    header_with_content_type_enum_works() throws Exception {
+    header_with_content_type_enum_works() {
         given().
                 header("Content-Type", ContentType.JSON).
         when().
                 post("/returnContentTypeAsBody").
         then().
-                body(equalTo(ContentType.JSON.withCharset(config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+                body(equalTo(ContentType.JSON.toString()));
     }
 
     @Test public void
@@ -263,7 +263,7 @@ public class ContentTypeITest extends WithJetty {
         when().
                  get("/returnContentTypeAsBody").
         then().
-                 body(equalTo(ContentType.JSON.withCharset(config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+                 body(equalTo(ContentType.JSON.toString()));
     }
 
     /**

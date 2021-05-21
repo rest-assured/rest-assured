@@ -25,9 +25,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
-import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -73,10 +71,10 @@ public class RequestSpecMergingITest {
     public void mergesHeadersCorrectlyWhenUsingGivenRequestSpec() {
         given(jsonRequest).filter((requestSpec, responseSpec, ctx) -> {
             Headers headers = requestSpec.getHeaders();
-            assertThat(requestSpec.getContentType(), equalTo("application/json; charset=" + config().getEncoderConfig().defaultCharsetForContentType(JSON)));
+            assertThat(requestSpec.getContentType(), equalTo("application/json"));
             assertThat(headers.getValue("authorization"), equalTo("abracadabra"));
             assertThat(headers.getValue("accept"), equalTo("application/json+json"));
-            assertThat(headers.getValue("content-type"), equalTo("application/json; charset=" + config().getEncoderConfig().defaultCharsetForContentType(JSON)));
+            assertThat(headers.getValue("content-type"), equalTo("application/json"));
             assertThat(headers.size(), is(3));
             return new ResponseBuilder().setStatusCode(200).build();
         }).when().get();
@@ -86,10 +84,10 @@ public class RequestSpecMergingITest {
     public void mergesHeadersCorrectlyWhenUsingGivenSpecRequestSpec() {
         given().spec(jsonRequest).filter((requestSpec, responseSpec, ctx) -> {
             Headers headers = requestSpec.getHeaders();
-            assertThat(requestSpec.getContentType(), equalTo("application/json; charset=" + config().getEncoderConfig().defaultCharsetForContentType(JSON)));
+            assertThat(requestSpec.getContentType(), equalTo("application/json"));
             assertThat(headers.getValue("authorization"), equalTo("abracadabra"));
             assertThat(headers.getValue("accept"), equalTo("application/json+json"));
-            assertThat(headers.getValue("content-type"), equalTo("application/json; charset=" + config().getEncoderConfig().defaultCharsetForContentType(JSON)));
+            assertThat(headers.getValue("content-type"), equalTo("application/json"));
             assertThat(headers.size(), is(3));
             return new ResponseBuilder().setStatusCode(200).build();
         }).when().get();

@@ -22,7 +22,6 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.LogDetail;
-import io.restassured.http.ContentType;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.output.WriterOutputStream;
@@ -35,6 +34,7 @@ import org.junit.Test;
 import java.io.PrintStream;
 import java.io.StringWriter;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
@@ -54,7 +54,7 @@ public class LogIfValidationFailsITest extends WithJetty {
     @Test
     public void worksForRequestSpecificationsUsingGivenWhenThenSyntax() throws Exception {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         try {
             RestAssured.given().
@@ -79,18 +79,17 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "Form params:\t<none>%n" +
                             "Path params:\t<none>%n" +
                             "Headers:\t\tAccept=*/*%n" +
-                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "\t\t\t\tContent-Type=application/json%n" +
                             "Cookies:\t\t<none>%n" +
                             "Multiparts:\t\t<none>%n" +
-                            "Body:\t\t\t<none>%n",
-                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+                            "Body:\t\t\t<none>%n")));
         }
     }
 
     @Test
     public void worksForRequestSpecificationsUsingLegacySyntax() throws Exception {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         try {
             RestAssured.given().
@@ -115,18 +114,17 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "Form params:\t<none>%n" +
                             "Path params:\t<none>%n" +
                             "Headers:\t\tAccept=*/*%n" +
-                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "\t\t\t\tContent-Type=application/json%n" +
                             "Cookies:\t\t<none>%n" +
                             "Multiparts:\t\t<none>%n" +
-                            "Body:\t\t\t<none>%n",
-                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+                            "Body:\t\t\t<none>%n")));
         }
     }
 
     @Test
     public void doesntLogRequestSpecificationsUsingGivenWhenThenSyntaxWhenValidationSucceeds() throws Exception {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         RestAssured.given().
                 config(RestAssured.config().logConfig(LogConfig.logConfig().defaultStream(captor))).
@@ -145,7 +143,7 @@ public class LogIfValidationFailsITest extends WithJetty {
     @Test
     public void doesntLogRequestSpecificationsUsingLegacySyntaxWhenValidationSucceeds() throws Exception {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         RestAssured.given().
                 config(RestAssured.config().logConfig(LogConfig.logConfig().defaultStream(captor))).
@@ -164,7 +162,7 @@ public class LogIfValidationFailsITest extends WithJetty {
     @Test
     public void worksForResponseSpecificationsUsingGivenWhenThenSyntax() throws Exception {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         try {
             RestAssured.given().
@@ -186,7 +184,7 @@ public class LogIfValidationFailsITest extends WithJetty {
     @Test
     public void worksForResponseSpecificationsUsingLegacySyntax() throws Exception {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         try {
             RestAssured.given().
@@ -208,7 +206,7 @@ public class LogIfValidationFailsITest extends WithJetty {
     @Test
     public void doesntLogUsingGivenWhenThenSyntaxWhenValidationSucceeds() throws Exception {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         RestAssured.given().
                 config(RestAssuredConfig.config().logConfig(new LogConfig(captor, false))).
@@ -225,7 +223,7 @@ public class LogIfValidationFailsITest extends WithJetty {
     @Test
     public void doesntLogResponseSpecUsingLegacySyntaxWhenValidationSucceeds() throws Exception {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         RestAssured.given().
                 config(RestAssuredConfig.config().logConfig(new LogConfig(captor, false))).
@@ -243,7 +241,7 @@ public class LogIfValidationFailsITest extends WithJetty {
     @Test
     public void configuringLogConfigToEnableLoggingOfRequestAndResponseIfValidationFailsWorksAsExpected() throws Exception {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         try {
             RestAssured.given().
@@ -267,7 +265,7 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "Form params:\t<none>%n" +
                             "Path params:\t<none>%n" +
                             "Headers:\t\tAccept=*/*%n" +
-                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "\t\t\t\tContent-Type=application/json%n" +
                             "Cookies:\t\t<none>%n" +
                             "Multiparts:\t\t<none>%n" +
                             "Body:\t\t\t<none>%n%n" +
@@ -278,15 +276,14 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "%n" +
                             "{\n" +
                             "    \"greeting\": \"Greetings John Doe\"\n" +
-                            "}%n",
-                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+                            "}%n")));
         }
     }
 
     @Test
     public void configuringLogConfigToEnableLoggingOfRequestAndResponseIfValidationFailsWorksAsExpected2() throws Exception {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         try {
             RestAssured.given().
@@ -310,7 +307,7 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "Form params:\t<none>%n" +
                             "Path params:\t<none>%n" +
                             "Headers:\t\tAccept=*/*%n" +
-                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "\t\t\t\tContent-Type=application/json%n" +
                             "Cookies:\t\t<none>%n" +
                             "Multiparts:\t\t<none>%n" +
                             "Body:\t\t\t<none>%n%n" +
@@ -321,15 +318,14 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "%n" +
                             "{\n" +
                             "    \"greeting\": \"Greetings John Doe\"\n" +
-                            "}%n",
-                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+                            "}%n")));
         }
     }
 
     @Test
     public void configuringLogConfigToEnableLoggingOfRequestAndResponseIfValidationFailsWorksAsExpectedWhenSpecifyingLogDetail() throws Exception {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         try {
             RestAssured.given().
@@ -345,19 +341,18 @@ public class LogIfValidationFailsITest extends WithJetty {
             fail("Should throw AssertionError");
         } catch (AssertionError e) {
             assertThat(writer.toString(), equalTo(String.format("Headers:\t\tAccept=*/*%n" +
-                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "\t\t\t\tContent-Type=application/json%n" +
                             "%n" +
                             "Content-Type: application/json;charset=utf-8%n" +
                             "Content-Length: 33%n" +
-                            "Server: Jetty(9.4.34.v20201102)%n",
-                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+                            "Server: Jetty(9.4.34.v20201102)%n")));
         }
     }
 
     @Test
     public void configuredLoggingInGivenOverwritesTheLoggingSpecifiedInLogConfig() throws Exception {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         try {
             RestAssured.given().
@@ -382,21 +377,20 @@ public class LogIfValidationFailsITest extends WithJetty {
                             "Form params:\t<none>%n" +
                             "Path params:\t<none>%n" +
                             "Headers:\t\tAccept=*/*%n" +
-                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "\t\t\t\tContent-Type=application/json%n" +
                             "Cookies:\t\t<none>%n" +
                             "Multiparts:\t\t<none>%n" +
                             "Body:\t\t\t<none>%n" +
                             "Content-Type: application/json;charset=utf-8%n" +
                             "Content-Length: 33%n" +
-                            "Server: Jetty(9.4.34.v20201102)%n",
-                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+                            "Server: Jetty(9.4.34.v20201102)%n")));
         }
     }
 
     @Test public void
     logging_of_both_request_and_response_validation_works_when_test_fails_when_using_static_response_and_request_specs_declared_before_enable_logging() {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         RestAssured.responseSpecification = new ResponseSpecBuilder().expectStatusCode(200).build();
         RestAssured.requestSpecification = new RequestSpecBuilder().setConfig(RestAssuredConfig.config().logConfig(new LogConfig(captor, true))).
@@ -419,19 +413,18 @@ public class LogIfValidationFailsITest extends WithJetty {
             assertThat(writer.toString(), equalTo(String.format("Headers:\t\t" +
                             "Api-Key=1234%n" +
                             "\t\t\t\tAccept=*/*%n" +
-                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "\t\t\t\tContent-Type=application/json%n" +
                             "%n" +
                             "Content-Type: application/json;charset=utf-8%n" +
                             "Content-Length: 33%n" +
-                            "Server: Jetty(9.4.34.v20201102)%n",
-                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+                            "Server: Jetty(9.4.34.v20201102)%n")));
         }
     }
 
     @Test public void
     doesnt_log_request_or_response_when_test_fails_when_using_non_static_request_spec_declared_before_enable_logging_since_config_is_immutable_and_spec_config_has_precedence_over_global_config() {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         RequestSpecification specification = new RequestSpecBuilder().
                 setConfig(RestAssured.config().logConfig(RestAssured.config().getLogConfig().defaultStream(captor).and().enablePrettyPrinting(true))).
@@ -459,7 +452,7 @@ public class LogIfValidationFailsITest extends WithJetty {
     @Test public void
     logging_of_both_request_and_response_validation_works_when_test_fails_when_using_non_static_request_spec_declared_after_enable_logging() {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails(LogDetail.HEADERS);
 
@@ -482,19 +475,18 @@ public class LogIfValidationFailsITest extends WithJetty {
         } catch (AssertionError e) {
             assertThat(writer.toString(), equalTo(String.format("Headers:\t\tApi-Key=1234%n" +
                             "\t\t\t\tAccept=*/*%n" +
-                            "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                            "\t\t\t\tContent-Type=application/json%n" +
                             "%n" +
                             "Content-Type: application/json;charset=utf-8%n" +
                             "Content-Length: 33%n" +
-                            "Server: Jetty(9.4.34.v20201102)%n",
-                    RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+                            "Server: Jetty(9.4.34.v20201102)%n")));
         }
     }
 
     @Test public void
     logging_doesnt_change_original_content_by_pretty_printing() {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         RestAssured.given().
                 config(RestAssured.config().logConfig(LogConfig.logConfig().defaultStream(captor).and().enableLoggingOfRequestAndResponseIfValidationFails())).
@@ -508,7 +500,7 @@ public class LogIfValidationFailsITest extends WithJetty {
     @Test public void
     logging_is_applied_when_using_non_static_response_specifications() {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         try {
             RestAssured.given().
@@ -530,7 +522,7 @@ public class LogIfValidationFailsITest extends WithJetty {
     @Test public void
     logging_is_applied_when_thrown_assertion_errors_from_matcher_internal() {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, UTF_8), true);
 
         try {
             RestAssured.given().

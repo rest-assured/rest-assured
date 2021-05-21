@@ -33,12 +33,12 @@ public class PatchITest extends WithJetty {
     public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void requestSpecificationAllowsSpecifyingCookie() throws Exception {
+    public void requestSpecificationAllowsSpecifyingCookie() {
         given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().patch("/cookie");
     }
 
     @Test
-    public void bodyHamcrestMatcherWithoutKey() throws Exception {
+    public void bodyHamcrestMatcherWithoutKey() {
         given().params("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().patch("/greetPatch");
     }
 
@@ -49,17 +49,17 @@ public class PatchITest extends WithJetty {
     }
 
     @Test
-    public void patchSupportsStringBody() throws Exception {
+    public void patchSupportsStringBody() {
         given().body("a body").expect().body(equalTo("a body")).when().patch("/body");
     }
 
     @Test
-    public void patchWithFormParams() throws Exception {
+    public void patchWithFormParams() {
         given().formParams("firstName", "John", "lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().patch("/greetPatch");
     }
 
     @Test
-    public void patchWithFormParam() throws Exception {
+    public void patchWithFormParam() {
         given().
                 formParam("firstName", "John").
                 formParam("lastName", "Doe").
@@ -70,7 +70,7 @@ public class PatchITest extends WithJetty {
     }
 
     @Test
-    public void patchSupportsMultiValueFormParameters() throws Exception {
+    public void patchSupportsMultiValueFormParameters() {
         given().
                 formParam("list", "a", "b", "c").
         expect().
@@ -80,7 +80,7 @@ public class PatchITest extends WithJetty {
     }
 
     @Test
-    public void canUseMapAsBodyToPatch() throws Exception {
+    public void canUseMapAsBodyToPatch() {
         Map<String, String> greeting = new HashMap<>();
         greeting.put("firstName", "John");
         greeting.put("lastName", "Doe");

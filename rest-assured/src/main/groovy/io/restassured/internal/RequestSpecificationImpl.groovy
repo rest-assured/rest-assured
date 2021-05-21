@@ -1538,7 +1538,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     contentType != null
             && !(startsWith(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH) || contains(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS))
             && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()
-            && !(containsIgnoreCase(contentType.toString(), CHARSET) || !isApplicationJsonContentTypeWithDefaultCharsetDefined(contentType))
+            && (isApplicationJsonContentTypeWithDefaultCharsetDefined(contentType)
+                || !(containsIgnoreCase(contentType.toString(), CHARSET) || equalsIgnoreCase(contentType.toString(), APPLICATION_JSON)))
   }
 
   private boolean isApplicationJsonContentTypeWithDefaultCharsetDefined(contentType) {

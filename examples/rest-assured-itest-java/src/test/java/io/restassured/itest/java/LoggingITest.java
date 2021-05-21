@@ -268,11 +268,10 @@ public class LoggingITest extends WithJetty {
                         "Form params:\t<none>%n" +
                         "Path params:\t<none>%n" +
                         "Headers:\t\tAccept=*/*%n" +
-                        "\t\t\t\tContent-Type=application/json; charset=%s%n" +
+                        "\t\t\t\tContent-Type=application/json%n" +
                         "Cookies:\t\t<none>%n" +
                         "Multiparts:\t\t<none>%n" +
-                        "Body:\t\t\t<none>%n",
-                RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON))));
+                        "Body:\t\t\t<none>%n")));
     }
 
     @Test
@@ -1013,7 +1012,7 @@ public class LoggingITest extends WithJetty {
                 "Form params:\t<none>%n" +
                 "Path params:\t<none>%n" +
                 "Headers:\t\tAccept=*/*%n" +
-                "\t\t\t\tContent-Type=application/json; charset="+ RestAssured.config().getEncoderConfig().defaultCharsetForContentType(ContentType.JSON)+"%n" +
+                "\t\t\t\tContent-Type=application/json%n" +
                 "Cookies:\t\t<none>%n" +
                 "Multiparts:\t\t<none>%n" +
                 "Body:%n" +

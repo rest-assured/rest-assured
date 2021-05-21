@@ -48,12 +48,12 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   post("/hello") {
-    val json = ("hello" -> "Hello Scalatra")
+    val json = "hello" -> "Hello Scalatra"
     compactRender(json)
   }
 
   get("/hello") {
-    val json = ("hello" -> "Hello Scalatra")
+    val json = "hello" -> "Hello Scalatra"
     compactRender(json)
   }
 
@@ -284,7 +284,7 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/hello") {
-    val json = ("hello" -> "Hello Scalatra")
+    val json = "hello" -> "Hello Scalatra"
     compactRender(json)
   }
 
@@ -294,19 +294,19 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/lotto") {
-    val json = ("lotto" -> ("lottoId" -> lotto.id) ~
+    val json = "lotto" -> ("lottoId" -> lotto.id) ~
       ("winning-numbers" -> lotto.winningNumbers) ~
       ("drawDate" -> lotto.drawDate.map(_.toString)) ~
       ("winners" -> lotto.winners.map { w =>
-        (("winnerId" -> w.id) ~ ("numbers" -> w.numbers))}))
+        ("winnerId" -> w.id) ~ ("numbers" -> w.numbers)
+      })
     compactRender(json)
   }
 
   get("/numbers") {
-    val json = ("values" ->
+    val json = "values" ->
       ("pi" -> 3.14) ~
       ("answer" -> 42)
-    )
     compactRender(json)
   }
 
@@ -514,22 +514,22 @@ class ScalatraRestExample extends ScalatraServlet {
       } + " " + {
         findParamIn(content, "lastName")
       }
-      val json = ("greeting" -> name)
+      val json = "greeting" -> name
       compactRender(json)
     }
   }
 
   patch("/greetPatch") {
-    if(request.getParameterNames.exists { _ == "firstName" }) {
+    if (request.getParameterNames.contains("firstName")) {
       greetJson
     } else {
-      val content: String = IOUtils.toString(request.getInputStream)
+      val content: String = request.body
       val name = "Greetings " + {
         findParamIn(content, "firstName")
       } + " " + {
         findParamIn(content, "lastName")
       }
-      val json = ("greeting" -> name)
+      val json = "greeting" -> name
       compactRender(json)
     }
   }
@@ -1063,7 +1063,7 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/gzip-json") {
     response.addHeader("Content-Encoding", "gzip")
-    val jsonData = ("hello" -> "Hello Scalatra")
+    val jsonData = "hello" -> "Hello Scalatra"
     val jsonString = compactRender(jsonData)
     Gzip.compress(jsonString.getBytes("UTF-8"))
   }
@@ -1217,7 +1217,7 @@ class ScalatraRestExample extends ScalatraServlet {
     } + " " + {
       params("lastName")
     }
-    val json = ("greeting" -> name)
+    val json = "greeting" -> name
     compactRender(json)
   }
 
