@@ -143,7 +143,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     private Object assembleHeaders(MockHttpServletResponse response) {
         Collection<String> headerNames = response.getHeaderNames();
 
-        List<Header> headers = new ArrayList<Header>();
+        List<Header> headers = new ArrayList<>();
         for (String headerName : headerNames) {
             List<String> headerValues = response.getHeaders(headerName);
             for (String headerValue : headerValues) {
@@ -154,7 +154,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     }
 
     private Cookies convertCookies(javax.servlet.http.Cookie[] servletCookies) {
-        List<Cookie> cookies = new ArrayList<Cookie>();
+        List<Cookie> cookies = new ArrayList<>();
         for (javax.servlet.http.Cookie servletCookie : servletCookies) {
             Cookie.Builder cookieBuilder = new Cookie.Builder(servletCookie.getName(), servletCookie.getValue());
             if (servletCookie.getComment() != null) {
@@ -438,7 +438,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     private void setContentTypeToApplicationFormUrlEncoded(MockHttpServletRequestBuilder request) {
         MediaType mediaType = MediaType.parseMediaType(HeaderHelper.buildApplicationFormEncodedContentType(config, APPLICATION_FORM_URLENCODED_VALUE));
         request.contentType(mediaType);
-        List<Header> newHeaders = new ArrayList<Header>(headers.asList());
+        List<Header> newHeaders = new ArrayList<>(headers.asList());
         newHeaders.add(new Header(CONTENT_TYPE, mediaType.toString()));
         headers = new Headers(newHeaders);
     }
@@ -469,7 +469,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
         String uriPath = PathSupport.getPath(uri);
         String originalUriPath = PathSupport.getPath(originalPath);
-        requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(uri, originalUriPath, uriPath, uri, uri, new Object[0], method.toString(), null, Collections.<Filter>emptyList().iterator(), new HashMap<String, Object>()));
+        requestLoggingFilter.filter(reqSpec, null, new FilterContextImpl(uri, originalUriPath, uriPath, uri, uri, new Object[0], method.toString(), null, Collections.<Filter>emptyList().iterator(), new HashMap<>()));
     }
 
     public MockMvcResponse get(String path, Object... pathParams) {

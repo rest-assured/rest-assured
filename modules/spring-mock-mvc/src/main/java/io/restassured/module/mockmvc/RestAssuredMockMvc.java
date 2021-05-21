@@ -92,9 +92,9 @@ public class RestAssuredMockMvc {
      */
     public static ResponseSpecification responseSpecification = null;
 
-    private static List<ResultHandler> resultHandlers = new ArrayList<ResultHandler>();
+    private static List<ResultHandler> resultHandlers = new ArrayList<>();
 
-    private static List<RequestPostProcessor> requestPostProcessors = new ArrayList<RequestPostProcessor>();
+    private static List<RequestPostProcessor> requestPostProcessors = new ArrayList<>();
 
     private static MockMvcFactory mockMvcFactory = null;
 
@@ -102,7 +102,7 @@ public class RestAssuredMockMvc {
      * The base path that's used by REST assured when making requests. The base path is prepended to the request path.
      * Default value is <code>/</code>.
      */
-    public static String basePath = "/";
+    public static final String basePath = "/";
 
     /**
      * Defines a global authentication scheme that'll be used for all requests (if not overridden). Usage example:
@@ -896,7 +896,7 @@ public class RestAssuredMockMvc {
         config = config.logConfig(logConfig().enableLoggingOfRequestAndResponseIfValidationFails(logDetail));
         // Update request specification if already defined otherwise it'll override the configs.
         // Note that request spec also influence response spec when it comes to logging if validation fails due to the way filters work
-        if (requestSpecification != null && requestSpecification instanceof MockMvcRequestSpecificationImpl) {
+        if (requestSpecification instanceof MockMvcRequestSpecificationImpl) {
             RestAssuredMockMvcConfig restAssuredConfig = ((MockMvcRequestSpecificationImpl) requestSpecification).getRestAssuredMockMvcConfig();
             if (restAssuredConfig == null) {
                 restAssuredConfig = config;

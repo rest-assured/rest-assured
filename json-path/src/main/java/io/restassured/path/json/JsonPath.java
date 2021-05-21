@@ -108,7 +108,7 @@ import java.util.Map.Entry;
  */
 public class JsonPath {
 
-    public static JsonPathConfig config = null;
+    public static final JsonPathConfig config = null;
 
     private final JsonParser jsonParser;
     private JsonPathConfig jsonPathConfig = null;
@@ -168,7 +168,7 @@ public class JsonPath {
         this.jsonParser = jsonPath.jsonParser;
         this.rootPath = jsonPath.rootPath;
         if (jsonPath.params != null) {
-            this.params = new HashMap<String, Object>(jsonPath.params);
+            this.params = new HashMap<>(jsonPath.params);
         }
     }
 
@@ -389,7 +389,7 @@ public class JsonPath {
             throw new IllegalArgumentException("Generic type cannot be null");
         }
         final List<T> original = get(path);
-        final List<T> newList = new LinkedList<T>();
+        final List<T> newList = new LinkedList<>();
         if (original != null) {
             for (T t : original) {
                 T e;
@@ -433,7 +433,7 @@ public class JsonPath {
      */
     public <K, V> Map<K, V> getMap(String path, Class<K> keyType, Class<V> valueType) {
         final Map<K, V> originalMap = get(path);
-        final Map<K, V> newMap = new HashMap<K, V>();
+        final Map<K, V> newMap = new HashMap<>();
         for (Entry<K, V> entry : originalMap.entrySet()) {
             final K key = entry.getKey() == null ? null : ObjectConverter.convertObjectTo(entry.getKey(), keyType);
             final V value = entry.getValue() == null ? null : ObjectConverter.convertObjectTo(entry.getValue(), valueType);
@@ -629,7 +629,7 @@ public class JsonPath {
     public JsonPath param(String key, Object value) {
         JsonPath newP = new JsonPath(this, config);
         if (newP.params == null) {
-            newP.params = new HashMap<String, Object>();
+            newP.params = new HashMap<>();
         }
         newP.params.put(key, value);
         return newP;
