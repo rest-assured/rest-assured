@@ -14,6 +14,7 @@ Changelog next version
 
     given().contentType(ContentType.JSON.withCharset(UTF_8)). ..
  (thanks to Michal Domagala for initial pull request)
+* Added MULTIPART to as an option ContentType (thanks to Yusuf Tayman for pull request)
 
 Changelog 4.3.3 (2020-12-11)
 ----------------------------
