@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* Scribe is updated from 2.5.3 to 8.3.1
+
 Changelog 4.3.3 (2020-12-11)
 ----------------------------
 * Upgrading kotlin extension module to use Kotlin 1.4.21 (previously 1.4.10 was used)
