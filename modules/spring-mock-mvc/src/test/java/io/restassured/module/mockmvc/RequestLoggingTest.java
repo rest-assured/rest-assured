@@ -173,7 +173,7 @@ public class RequestLoggingTest {
                 "Cookies:\t\t<none>%n" +
                 "Multiparts:\t\t<none>%n" +
                 "Body:%n" +
-                "a string%n")));
+                "[B@")));
     }
 
     @Test public void
