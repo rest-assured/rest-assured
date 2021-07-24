@@ -137,7 +137,7 @@ class CookieMatcher {
             } else if(equalsIgnoreCase(name, DOMAIN)) {
                 builder.setDomain(value)
             } else if(equalsIgnoreCase(name, MAX_AGE)) {
-                builder.setMaxAge(Integer.parseInt(value))
+                builder.setMaxAge(Long.parseLong(value))
             } else if(equalsIgnoreCase(name, SECURE)) {
                 builder.setSecured(true)
             } else if(equalsIgnoreCase(name, HTTP_ONLY)) {

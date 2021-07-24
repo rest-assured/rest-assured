@@ -187,7 +187,7 @@ public class DetailedCookieMatcher extends CombinableMatcher<Cookie> {
      * @param expectedMaxAgeValue expected max age of cookie
      * @return A {@link DetailedCookieMatcher} instance with and-composed max age property assertion
      */
-    public DetailedCookieMatcher maxAge(int expectedMaxAgeValue) {
+    public DetailedCookieMatcher maxAge(long expectedMaxAgeValue) {
         return maxAge(equalTo(expectedMaxAgeValue));
     }
 

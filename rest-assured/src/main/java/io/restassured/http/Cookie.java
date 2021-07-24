@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+import static jdk.nashorn.internal.runtime.JSType.UNDEFINED_LONG;
 
 /**
  * Cookie class represents a token or short packet of state information
@@ -53,7 +54,7 @@ public class Cookie implements NameAndValue {
     private static final String COOKIE_ATTRIBUTE_SEPARATOR = ";";
     private static final String EQUALS = "=";
     private static final int UNDEFINED = -1;
-
+    private static final long UNDEFINED_LONG = -1;
     private final String name;
     private final String value;
     private final String comment;
@@ -63,12 +64,12 @@ public class Cookie implements NameAndValue {
     private final boolean secured;
     private final boolean httpOnly;
     private final int version;
-    private final int maxAge;
+    private final long maxAge;
     private final String sameSite;
 
     private Cookie(String name, String value, String comment, Date expiryDate,
                    String domain, String path, boolean secured, boolean httpOnly, int version,
-                   int maxAge, String sameSite) {
+                   long maxAge, String sameSite) {
         this.name = name;
         this.value = value;
         this.comment = comment;
@@ -217,7 +218,7 @@ public class Cookie implements NameAndValue {
      *				cookie in seconds; if negative, means
      *				the cookie persists until browser shutdown
      */
-    public int getMaxAge() {
+    public long getMaxAge() {
         return maxAge;
     }
 
@@ -278,7 +279,7 @@ public class Cookie implements NameAndValue {
         result = 31 * result + (secured ? 1 : 0);
         result = 31 * result + (httpOnly ? 1 : 0);
         result = 31 * result + version;
-        result = 31 * result + maxAge;
+        result = 31 * result + (int) maxAge;
         result = 31 * result + (sameSite != null ? sameSite.hashCode() : 0);
         return result;
     }
@@ -332,7 +333,7 @@ public class Cookie implements NameAndValue {
         private boolean secured = false;
         private boolean httpOnly = false;
         private int version = UNDEFINED;
-        private int maxAge = UNDEFINED;
+        private long maxAge = UNDEFINED_LONG;
         private String sameSite;
 
         /**
@@ -412,7 +413,7 @@ public class Cookie implements NameAndValue {
          *
          * @return an integer specifying the maximum age of the cookie in seconds; if negative, means the cookie persists until browser shutdown
          */
-        public Builder setMaxAge(int maxAge) {
+        public Builder setMaxAge(long maxAge) {
             this.maxAge = maxAge;
             return this;
         }

@@ -50,25 +50,25 @@ public class CookieMatcherTest {
         assertEquals("12345", sprintCookie.getValue());
         assertEquals(".test.com", sprintCookie.getDomain());
         assertEquals("/", sprintCookie.getPath());
-        assertEquals(1209600, sprintCookie.getMaxAge());
+        assertEquals(1209600L, sprintCookie.getMaxAge());
         assertEquals(false, sprintCookie.isSecured());
         assertEquals(false, sprintCookie.isHttpOnly());
 
         Cookie cookieWithZeroMaxAge = result.get("COOKIE_WITH_ZERO_MAX_AGE");
-        assertEquals(0, cookieWithZeroMaxAge.getVersion());
+        assertEquals(0L, cookieWithZeroMaxAge.getVersion());
         assertEquals("1234", cookieWithZeroMaxAge.getValue());
         assertEquals(".test.com", cookieWithZeroMaxAge.getDomain());
         assertEquals("/", cookieWithZeroMaxAge.getPath());
-        assertEquals(0, cookieWithZeroMaxAge.getMaxAge());
+        assertEquals(0L, cookieWithZeroMaxAge.getMaxAge());
         assertEquals(false, cookieWithZeroMaxAge.isSecured());
         assertEquals(false, cookieWithZeroMaxAge.isHttpOnly());
 
         Cookie cookieWithNegativeMaxAge = result.get("COOKIE_WITH_NEGATIVE_MAX_AGE");
-        assertEquals(0, cookieWithNegativeMaxAge.getVersion());
+        assertEquals(0L, cookieWithNegativeMaxAge.getVersion());
         assertEquals("123456", cookieWithNegativeMaxAge.getValue());
         assertEquals(".test.com", cookieWithNegativeMaxAge.getDomain());
         assertEquals("/", cookieWithNegativeMaxAge.getPath());
-        assertEquals(-1, cookieWithNegativeMaxAge.getMaxAge());
+        assertEquals(-1L, cookieWithNegativeMaxAge.getMaxAge());
         assertEquals(false, cookieWithNegativeMaxAge.isSecured());
         assertEquals(false, cookieWithNegativeMaxAge.isHttpOnly());
 
