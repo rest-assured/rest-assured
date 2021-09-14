@@ -1011,4 +1011,16 @@ public interface ResponseSpecification {
      * @param logDetail The log detail
      */
     ResponseSpecification logDetail(LogDetail logDetail);
+
+    /**
+     * Add user message to final mismatch description.
+     * <p/>
+     * This is useful when you need to associate a mismatch description with additional user information. For example, in parallel execution.
+     * <p/>
+     * Note, if you want to add a description for certain matching, not for all, you should use something like
+     * Hamcrest wrapper matcher - {@link org.hamcrest.CoreMatchers#describedAs}.
+     *
+     * @param message The user message
+     */
+    ResponseSpecification onFailMessage(String message);
 }
