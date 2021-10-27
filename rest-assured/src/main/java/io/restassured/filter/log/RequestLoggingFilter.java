@@ -26,7 +26,10 @@ import org.apache.commons.lang3.Validate;
 
 import java.io.PrintStream;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static io.restassured.filter.log.LogDetail.ALL;
 import static io.restassured.filter.log.LogDetail.STATUS;
@@ -46,8 +49,7 @@ public class RequestLoggingFilter implements Filter {
     private final boolean shouldPrettyPrint;
     private final boolean showUrlEncodedUri;
     private final Set<String> blacklistedHeaders;
-
-    private Set<LogDetail> logDetailSet = new TreeSet<>();
+    private final Set<LogDetail> logDetailSet = new HashSet<>();
 
     /**
      * Logs to System.out
