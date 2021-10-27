@@ -165,7 +165,7 @@ public class RequestLoggingFilter implements Filter {
         return new RequestLoggingFilter().addLog(logDetails);
     }
 
-    public RequestLoggingFilter addLog(LogDetail... logDetails) {
+    private RequestLoggingFilter addLog(LogDetail... logDetails) {
         logDetailSet.addAll(Arrays.asList(logDetails));
         return this;
     }
