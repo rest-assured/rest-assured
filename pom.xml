@@ -336,8 +336,8 @@
                 <version>2.3.3</version>
             </dependency>
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
                 <version>2.3.3</version>
                 <exclusions>
                     <exclusion>
