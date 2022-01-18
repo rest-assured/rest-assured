@@ -39,14 +39,14 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
-                        	io.restassured.path.xml.*,
-                        	io.restassured.internal.path.xml.*
+                            io.restassured.path.xml.*,
+                            io.restassured.internal.path.xml.*
                         </Export-Package>
                         <Import-Package>
-							groovy.*;version="${groovy.range}",
+                            groovy.*;version="${groovy.range}",
                             org.codehaus.groovy.*;version="${groovy.range}",
                             *
-						</Import-Package>
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
@@ -80,6 +80,18 @@
             <groupId>org.ccil.cowan.tagsoup</groupId>
             <artifactId>tagsoup</artifactId>
         </dependency>
+        <!-- Backward compatibility with JAXB (Jakarta EE 8?) -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <optional>true</optional>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.sun.xml.bind</groupId>-->
+<!--            <artifactId>jaxb-impl</artifactId>-->
+<!--            <optional>true</optional>-->
+<!--        </dependency>-->
+        <!-- Jakarta EE 9 -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
