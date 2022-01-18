@@ -91,7 +91,25 @@
             <artifactId>httpmime</artifactId>
             <version>${httpclient.version}</version>
         </dependency>
-        
+
+        <!-- Jakarta EE 8 -->
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <!-- Jakarta EE 9 -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <dependency>
             <groupId>com.github.scribejava</groupId>
             <artifactId>scribejava-apis</artifactId>
