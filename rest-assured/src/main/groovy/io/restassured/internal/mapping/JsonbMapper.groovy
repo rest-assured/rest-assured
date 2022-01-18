@@ -23,21 +23,21 @@ import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 
 class JsonbMapper implements ObjectMapper {
-	private JsonbObjectMapperFactory factory;
+	private JsonbObjectMapperFactory factory
 
-	private JsonPathObjectDeserializer deserializer;
+	private JsonPathObjectDeserializer deserializer
 
-	public JsonbMapper(JsonbObjectMapperFactory factory) {
-		this.factory = factory;
+	JsonbMapper(JsonbObjectMapperFactory factory) {
+		this.factory = factory
 		deserializer = new JsonPathJsonbObjectDeserializer(factory)
 	}
 
-	def Object deserialize(ObjectMapperDeserializationContext context) {
-		return deserializer.deserialize(context);
+	Object deserialize(ObjectMapperDeserializationContext context) {
+		return deserializer.deserialize(context)
 	}
 
-	def Object serialize(ObjectMapperSerializationContext context) {
-		def object = context.getObjectToSerialize();
+	Object serialize(ObjectMapperSerializationContext context) {
+		def object = context.getObjectToSerialize()
 		def mapper = factory.create(object.getClass(), context.getCharset())
 
 		new StringWriter().withWriter { out ->
