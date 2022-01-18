@@ -78,6 +78,10 @@
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+        </dependency>
         <!-- Jakarta EE 9 -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
