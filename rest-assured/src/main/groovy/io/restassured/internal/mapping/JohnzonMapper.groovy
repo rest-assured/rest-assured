@@ -23,26 +23,26 @@ import io.restassured.path.json.mapper.factory.JohnzonObjectMapperFactory
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 
 class JohnzonMapper implements ObjectMapper {
-	private JohnzonObjectMapperFactory factory;
+	private JohnzonObjectMapperFactory factory
 	
 	private JsonPathObjectDeserializer deserializer
 
-	public JohnzonMapper(JohnzonObjectMapperFactory factory) {
+	JohnzonMapper(JohnzonObjectMapperFactory factory) {
 		this.factory = factory
 		deserializer = new JsonPathJohnzonObjectDeserializer(factory)
 	}
 
-	def Object deserialize(ObjectMapperDeserializationContext context) {
-		return deserializer.deserialize(context);
+	Object deserialize(ObjectMapperDeserializationContext context) {
+		return deserializer.deserialize(context)
 	}
 
-	def Object serialize(ObjectMapperSerializationContext context) {
-		def object = context.getObjectToSerialize();
+	Object serialize(ObjectMapperSerializationContext context) {
+		def object = context.getObjectToSerialize()
 		def mapper = factory.create(object.getClass(), context.getCharset())
 		
 		new StringWriter().withWriter { out ->
 			mapper.writeObject(context.getObjectToSerialize(), out)
-			out.toString();
+			out.toString()
 		}
 	}
 

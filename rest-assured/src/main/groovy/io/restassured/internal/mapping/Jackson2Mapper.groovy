@@ -31,7 +31,7 @@ import io.restassured.path.json.mapping.JsonPathObjectDeserializer
  */
 class Jackson2Mapper implements ObjectMapper {
 
-  private final Jackson2ObjectMapperFactory factory;
+  private final Jackson2ObjectMapperFactory factory
 
   private JsonPathObjectDeserializer deserializer
 
@@ -44,7 +44,7 @@ class Jackson2Mapper implements ObjectMapper {
     return factory.create(cls, charset)
   }
 
-  def String serialize(ObjectMapperSerializationContext context) {
+  String serialize(ObjectMapperSerializationContext context) {
     def object = context.getObjectToSerialize()
     JsonEncoding jsonEncoding = getEncoding(context.getCharset())
     def mapper = createJackson2ObjectMapper(object.getClass(), context.getCharset())
@@ -54,8 +54,8 @@ class Jackson2Mapper implements ObjectMapper {
     stream.toString(jsonEncoding.getJavaName())
   }
 
-  def Object deserialize(ObjectMapperDeserializationContext context) {
-    return deserializer.deserialize(context);
+  Object deserialize(ObjectMapperDeserializationContext context) {
+    return deserializer.deserialize(context)
   }
 
   private JsonEncoding getEncoding(String charset) {

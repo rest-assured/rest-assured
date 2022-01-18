@@ -28,7 +28,7 @@ import org.codehaus.jackson.JsonGenerator
 
 class Jackson1Mapper implements ObjectMapper {
 
-    private final Jackson1ObjectMapperFactory factory;
+    private final Jackson1ObjectMapperFactory factory
 
     private JsonPathObjectDeserializer deserializer
 
@@ -41,7 +41,7 @@ class Jackson1Mapper implements ObjectMapper {
         return factory.create(cls, charset)
     }
 
-    def String serialize(ObjectMapperSerializationContext context) {
+    String serialize(ObjectMapperSerializationContext context) {
         def object = context.getObjectToSerialize()
         JsonEncoding jsonEncoding = getEncoding(context.getCharset())
         def mapper = createJacksonObjectMapper(object.getClass(), context.getCharset())
@@ -51,7 +51,7 @@ class Jackson1Mapper implements ObjectMapper {
         return stream.toString(jsonEncoding.getJavaName())
     }
 
-    def Object deserialize(ObjectMapperDeserializationContext context) {
+    Object deserialize(ObjectMapperDeserializationContext context) {
         return deserializer.deserialize(context)
     }
 

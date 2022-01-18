@@ -26,21 +26,21 @@ import io.restassured.path.json.mapping.JsonPathObjectDeserializer
 
 class GsonMapper implements ObjectMapper {
 
-    private GsonObjectMapperFactory factory;
+    private GsonObjectMapperFactory factory
 
     private JsonPathObjectDeserializer deserializer
 
-    public GsonMapper(GsonObjectMapperFactory factory) {
+    GsonMapper(GsonObjectMapperFactory factory) {
         this.factory = factory
         deserializer = new JsonPathGsonObjectDeserializer(factory)
     }
 
-    def Object deserialize(ObjectMapperDeserializationContext context) {
-        return deserializer.deserialize(context);
+    Object deserialize(ObjectMapperDeserializationContext context) {
+        return deserializer.deserialize(context)
     }
 
-    def Object serialize(ObjectMapperSerializationContext context) {
-        def object = context.getObjectToSerialize();
+    Object serialize(ObjectMapperSerializationContext context) {
+        def object = context.getObjectToSerialize()
         def gson = factory.create(object.getClass(), context.getCharset())
         return gson.toJson(object)
     }
