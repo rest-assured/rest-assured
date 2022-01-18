@@ -37,13 +37,14 @@ class JaxbMapper implements ObjectMapper {
         deserializer.deserialize(context)
     }
 
+    @SuppressWarnings('UnnecessaryQualifiedReference')
     Object serialize(ObjectMapperSerializationContext context) {
         def object = context.getObjectToSerialize()
         def charset = context.getCharset()
         javax.xml.bind.JAXBContext jaxbContext = factory.create(object.getClass(), charset)
         javax.xml.bind.Marshaller marshaller = jaxbContext.createMarshaller()
         if (charset != null) {
-            marshaller.setProperty(Marshaller.JAXB_ENCODING, charset)
+            marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, charset)
         }
         StringWriter sw = new StringWriter()
         marshaller.marshal(object, sw)
