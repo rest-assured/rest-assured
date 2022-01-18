@@ -16,6 +16,7 @@
 
 package io.restassured.config;
 
+import io.restassured.common.mapper.resolver.ObjectMapperResolver;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
 import io.restassured.path.json.mapper.factory.*;
@@ -50,7 +51,7 @@ public class ObjectMapperConfig implements Config {
         gsonObjectMapperFactory = new DefaultGsonObjectMapperFactory();
         jackson1ObjectMapperFactory = new DefaultJackson1ObjectMapperFactory();
         jackson2ObjectMapperFactory = new DefaultJackson2ObjectMapperFactory();
-        jaxbObjectMapperFactory = new DefaultJAXBObjectMapperFactory();
+        jaxbObjectMapperFactory = newJaxbObjectMapperFactoryOrNullIfNotInClasspath();
         johnzonObjectMapperFactory = new DefaultJohnzonObjectMapperFactory();
         jsonbObjectMapperFactory = new DefaultYassonObjectMapperFactory();
         isUserConfigured = false;
@@ -63,8 +64,8 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig(ObjectMapperType defaultObjectMapperType) {
         this(null, defaultObjectMapperType, new DefaultGsonObjectMapperFactory(), new DefaultJackson1ObjectMapperFactory(),
-                new DefaultJackson2ObjectMapperFactory(), new DefaultJAXBObjectMapperFactory(), 
-                    new DefaultJohnzonObjectMapperFactory(), new DefaultYassonObjectMapperFactory(), true);
+                new DefaultJackson2ObjectMapperFactory(), newJaxbObjectMapperFactoryOrNullIfNotInClasspath(),
+                new DefaultJohnzonObjectMapperFactory(), new DefaultYassonObjectMapperFactory(), true);
     }
 
     /**
@@ -74,14 +75,14 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig(ObjectMapper defaultObjectMapper) {
         this(defaultObjectMapper, null, new DefaultGsonObjectMapperFactory(), new DefaultJackson1ObjectMapperFactory(),
-                new DefaultJackson2ObjectMapperFactory(), new DefaultJAXBObjectMapperFactory(), 
-                    new DefaultJohnzonObjectMapperFactory(), new DefaultYassonObjectMapperFactory(), true);
+                new DefaultJackson2ObjectMapperFactory(), newJaxbObjectMapperFactoryOrNullIfNotInClasspath(),
+                new DefaultJohnzonObjectMapperFactory(), new DefaultYassonObjectMapperFactory(), true);
     }
 
     private ObjectMapperConfig(ObjectMapper defaultObjectMapper, ObjectMapperType defaultObjectMapperType,
                                GsonObjectMapperFactory gsonObjectMapperFactory, Jackson1ObjectMapperFactory jackson1ObjectMapperFactory,
                                Jackson2ObjectMapperFactory jackson2ObjectMapperFactory, JAXBObjectMapperFactory jaxbObjectMapperFactory,
-                               JohnzonObjectMapperFactory johnzonObjectMapperFactory, JsonbObjectMapperFactory jsonbObjectMapperFactory, 
+                               JohnzonObjectMapperFactory johnzonObjectMapperFactory, JsonbObjectMapperFactory jsonbObjectMapperFactory,
                                boolean isUserConfigured) {
         Validate.notNull(gsonObjectMapperFactory, GsonObjectMapperFactory.class.getSimpleName() + " cannot be null");
         Validate.notNull(jackson1ObjectMapperFactory, Jackson1ObjectMapperFactory.class.getSimpleName() + " cannot be null");
@@ -113,8 +114,8 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig defaultObjectMapperType(ObjectMapperType defaultObjectMapperType) {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory, 
-                    johnzonObjectMapperFactory, jsonbObjectMapperFactory, true);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, true);
     }
 
     public ObjectMapper defaultObjectMapper() {
@@ -145,8 +146,8 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig gsonObjectMapperFactory(GsonObjectMapperFactory gsonObjectMapperFactory) {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory, 
-                    johnzonObjectMapperFactory, jsonbObjectMapperFactory, true);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, true);
     }
 
     public Jackson1ObjectMapperFactory jackson1ObjectMapperFactory() {
@@ -160,8 +161,8 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig jackson1ObjectMapperFactory(Jackson1ObjectMapperFactory jackson1ObjectMapperFactory) {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory, 
-                    johnzonObjectMapperFactory, jsonbObjectMapperFactory, true);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, true);
     }
 
     public Jackson2ObjectMapperFactory jackson2ObjectMapperFactory() {
@@ -175,22 +176,22 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig jackson2ObjectMapperFactory(Jackson2ObjectMapperFactory jackson2ObjectMapperFactory) {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory, 
-                   johnzonObjectMapperFactory, jsonbObjectMapperFactory, true);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, true);
     }
 
     public JAXBObjectMapperFactory jaxbObjectMapperFactory() {
         return jaxbObjectMapperFactory;
     }
-    
+
     public JohnzonObjectMapperFactory johnzonObjectMapperFactory() {
         return johnzonObjectMapperFactory;
     }
-    
+
     public JsonbObjectMapperFactory jsonbObjectMapperFactory() {
         return jsonbObjectMapperFactory;
     }
-    
+
     /**
      * Specify a custom JSON-B object mapper factory.
      *
@@ -198,8 +199,8 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig jsonbObjectMapperFactory(JsonbObjectMapperFactory jsonbObjectMapperFactory) {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory, 
-                   johnzonObjectMapperFactory, jsonbObjectMapperFactory, true);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, true);
     }
 
     /**
@@ -209,8 +210,8 @@ public class ObjectMapperConfig implements Config {
      */
     public ObjectMapperConfig jaxbObjectMapperFactory(JAXBObjectMapperFactory jaxbObjectMapperFactory) {
         return new ObjectMapperConfig(defaultObjectMapper, defaultObjectMapperType, gsonObjectMapperFactory,
-                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory, 
-                    johnzonObjectMapperFactory, jsonbObjectMapperFactory, true);
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jaxbObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, true);
     }
 
     /**
@@ -231,5 +232,9 @@ public class ObjectMapperConfig implements Config {
 
     public boolean isUserConfigured() {
         return isUserConfigured;
+    }
+
+    private static JAXBObjectMapperFactory newJaxbObjectMapperFactoryOrNullIfNotInClasspath() {
+        return ObjectMapperResolver.isJAXBInClassPath() ? new DefaultJAXBObjectMapperFactory() : null;
     }
 }

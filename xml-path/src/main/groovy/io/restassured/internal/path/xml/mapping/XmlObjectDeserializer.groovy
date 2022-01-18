@@ -53,9 +53,9 @@ class XmlObjectDeserializer {
     }
 
     if (xmlPathConfig.hasDefaultDeserializer()) {
-      return xmlPathConfig.defaultDeserializer().deserialize(deserializationCtx) as T;
+      return xmlPathConfig.defaultDeserializer().deserialize(deserializationCtx) as T
     } else if (mapperType != null || xmlPathConfig.hasDefaultParserType()) {
-      XmlParserType mapperTypeToUse = mapperType == null ? xmlPathConfig.defaultParserType() : mapperType;
+      XmlParserType mapperTypeToUse = mapperType == null ? xmlPathConfig.defaultParserType() : mapperType
       return deserializeWithObjectMapper(deserializationCtx, mapperTypeToUse, xmlPathConfig)
     }
 

@@ -16,6 +16,7 @@
 
 package io.restassured.path.xml.config;
 
+import io.restassured.common.mapper.resolver.ObjectMapperResolver;
 import io.restassured.path.xml.XmlPath;
 import io.restassured.path.xml.mapper.factory.DefaultJAXBObjectMapperFactory;
 import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory;
@@ -55,7 +56,7 @@ public class XmlPathConfig {
      */
     public XmlPathConfig(XmlPathConfig config) {
         this(config.jaxbObjectMapperFactory(), config.defaultParserType(), config.defaultDeserializer(), config.charset(),
-                new HashMap<String, Boolean>(), new HashMap<String, String>(), new HashMap<String, Object>(), config.isValidating(),
+                new HashMap<>(), new HashMap<>(), new HashMap<>(), config.isValidating(),
                 config.isNamespaceAware(), config.isAllowDocTypeDeclaration());
     }
 
@@ -63,16 +64,15 @@ public class XmlPathConfig {
      * Creates a new XmlPathConfig that is configured to use the default JAXBObjectMapperFactory.
      */
     public XmlPathConfig() {
-        this(new DefaultJAXBObjectMapperFactory(), null, null, defaultCharset(), new HashMap<String, Boolean>(), new HashMap<String, String>(),
-                new HashMap<String, Object>(), DEFAULT_VALIDATING, DEFAULT_NAMESPACE_AWARE, DEFAULT_ALLOW_DOC_TYPE_DECLARATION);
+        this(newDefaultJaxbObjectMapperFactoryOrNull(), null, null, defaultCharset(), new HashMap<>(), new HashMap<>(),
+                new HashMap<>(), DEFAULT_VALIDATING, DEFAULT_NAMESPACE_AWARE, DEFAULT_ALLOW_DOC_TYPE_DECLARATION);
     }
-
 
     /**
      * Create a new XmlPathConfig that uses the <code>defaultCharset</code> when deserializing XML data.
      */
     public XmlPathConfig(String defaultCharset) {
-        this(new DefaultJAXBObjectMapperFactory(), null, null, defaultCharset, new HashMap<String, Boolean>(), new HashMap<String, String>(), new HashMap<String, Object>(),
+        this(newDefaultJaxbObjectMapperFactoryOrNull(), null, null, defaultCharset, new HashMap<>(), new HashMap<>(), new HashMap<>(),
                 DEFAULT_VALIDATING, DEFAULT_NAMESPACE_AWARE, DEFAULT_ALLOW_DOC_TYPE_DECLARATION);
 
     }
@@ -104,7 +104,7 @@ public class XmlPathConfig {
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */
     public Map<String, Boolean> features() {
-        return new HashMap<String, Boolean>(features);
+        return new HashMap<>(features);
     }
 
     /**
@@ -130,7 +130,7 @@ public class XmlPathConfig {
      */
     public XmlPathConfig feature(String uri, boolean enabled) {
         Validate.notEmpty(uri, "URI cannot be empty");
-        Map<String, Boolean> newFeatures = new HashMap<String, Boolean>(features);
+        Map<String, Boolean> newFeatures = new HashMap<>(features);
         newFeatures.put(uri, enabled);
         return new XmlPathConfig(jaxbObjectMapperFactory, defaultParserType, defaultDeserializer, charset, newFeatures, declaredNamespaces, properties, validating, namespaceAware, allowDocTypeDeclaration);
     }
@@ -203,7 +203,7 @@ public class XmlPathConfig {
      * @see org.xml.sax.XMLReader#setProperty(String, Object)
      */
     public Map<String, Object> properties() {
-        return new HashMap<String, Object>(properties);
+        return new HashMap<>(properties);
     }
 
     /**
@@ -229,7 +229,7 @@ public class XmlPathConfig {
      */
     public XmlPathConfig property(String name, Object value) {
         Validate.notEmpty(name, "Name cannot be empty");
-        Map<String, Object> newProperties = new HashMap<String, Object>(properties);
+        Map<String, Object> newProperties = new HashMap<>(properties);
         newProperties.put(name, value);
         return new XmlPathConfig(jaxbObjectMapperFactory, defaultParserType, defaultDeserializer, charset, features, declaredNamespaces,
                 newProperties, validating, namespaceAware, allowDocTypeDeclaration);
@@ -248,7 +248,7 @@ public class XmlPathConfig {
      * @see #feature(String, boolean)
      */
     public XmlPathConfig disableLoadingOfExternalDtd() {
-        Map<String, Boolean> newFeatures = new HashMap<String, Boolean>(features);
+        Map<String, Boolean> newFeatures = new HashMap<>(features);
         newFeatures.put("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
         newFeatures.put("http://apache.org/xml/features/disallow-doctype-decl", false);
         return new XmlPathConfig(jaxbObjectMapperFactory, defaultParserType, defaultDeserializer, charset, newFeatures, declaredNamespaces,
@@ -319,7 +319,7 @@ public class XmlPathConfig {
      * @see org.xml.sax.XMLReader#setFeature(java.lang.String, boolean)
      */
     public Map<String, String> declaredNamespaces() {
-        return new HashMap<String, String>(declaredNamespaces);
+        return new HashMap<>(declaredNamespaces);
     }
 
     /**
@@ -345,7 +345,7 @@ public class XmlPathConfig {
     public XmlPathConfig declaredNamespace(String prefix, String namespaceURI) {
         Validate.notEmpty(prefix, "Prefix cannot be empty");
         Validate.notEmpty(namespaceURI, "Namespace URI cannot be empty");
-        Map<String, String> updatedNamespaces = new HashMap<String, String>(declaredNamespaces);
+        Map<String, String> updatedNamespaces = new HashMap<>(declaredNamespaces);
         updatedNamespaces.put(prefix, namespaceURI);
         return new XmlPathConfig(jaxbObjectMapperFactory, defaultParserType, defaultDeserializer, charset, features, updatedNamespaces,
                 properties, validating, true, allowDocTypeDeclaration);
@@ -388,5 +388,13 @@ public class XmlPathConfig {
      */
     public static XmlPathConfig xmlPathConfig() {
         return new XmlPathConfig();
+    }
+
+    private static DefaultJAXBObjectMapperFactory newDefaultJaxbObjectMapperFactoryOrNull() {
+        if (ObjectMapperResolver.isJAXBInClassPath()) {
+            return new DefaultJAXBObjectMapperFactory();
+        } else {
+            return null;
+        }
     }
 }

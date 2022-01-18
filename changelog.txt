@@ -1,3 +1,8 @@
+Changelog next version
+----------------------
+* JAXB is now an optional dependency for XmlPath and is now longer required. Depend on 'jakarta.xml.bind:jakarta.xml.bind-api:2.3.3' and 'com.sun.xml.bind:jaxb-impl:2.3.3'   
+
+
 Changelog 4.4.0 (2021-05-21)
 ----------------------------
 * Upgrading kotlin extension module to use Kotlin 1.5.0 (previously 1.4.21 was used)

@@ -22,29 +22,26 @@ import io.restassured.mapper.ObjectMapperSerializationContext
 import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory
 import io.restassured.path.xml.mapping.XmlPathObjectDeserializer
 
-import javax.xml.bind.JAXBContext
-import javax.xml.bind.Marshaller
-
 class JaxbMapper implements ObjectMapper {
 
-    private final JAXBObjectMapperFactory factory;
+    private final JAXBObjectMapperFactory factory
 
     private XmlPathObjectDeserializer deserializer
 
-    public JaxbMapper(JAXBObjectMapperFactory factory) {
+    JaxbMapper(JAXBObjectMapperFactory factory) {
         this.factory = factory
         deserializer = new XmlPathJaxbObjectDeserializer(factory)
     }
 
-    def Object deserialize(ObjectMapperDeserializationContext context) {
+    Object deserialize(ObjectMapperDeserializationContext context) {
         deserializer.deserialize(context)
     }
 
-    def Object serialize(ObjectMapperSerializationContext context) {
-        def object = context.getObjectToSerialize();
+    Object serialize(ObjectMapperSerializationContext context) {
+        def object = context.getObjectToSerialize()
         def charset = context.getCharset()
-        JAXBContext jaxbContext = factory.create(object.getClass(), charset)
-        Marshaller marshaller = jaxbContext.createMarshaller()
+        javax.xml.bind.JAXBContext jaxbContext = factory.create(object.getClass(), charset)
+        javax.xml.bind.Marshaller marshaller = jaxbContext.createMarshaller()
         if (charset != null) {
             marshaller.setProperty(Marshaller.JAXB_ENCODING, charset)
         }
