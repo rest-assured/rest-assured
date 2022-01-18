@@ -173,11 +173,13 @@ public class SSLITest extends WithJetty {
         RestAssured.given().config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().relaxedHTTPSValidation())).when().get("https://localhost:8443/hello").then().spec(helloWorldSpec());
     }
 
+    @Ignore("Site is not working anymore")
     @Test public void
     relaxed_https_validation_works_using_instance_dsl() {
         RestAssured.given().relaxedHTTPSValidation().when().get("https://bunny.cloudamqp.com/api/").then().statusCode(200);
     }
 
+    @Ignore("Site is not working anymore")
     @Test public void
     relaxed_https_validation_works_when_defined_statically() {
         RestAssured.useRelaxedHTTPSValidation();
@@ -189,6 +191,7 @@ public class SSLITest extends WithJetty {
         }
     }
 
+    @Ignore("Site is not working anymore")
     @Test public void
     relaxed_https_validation_works_when_defined_statically_with_base_uri() {
         RestAssured.useRelaxedHTTPSValidation();
