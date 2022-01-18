@@ -188,6 +188,10 @@
                             <!-- Jigsaw project (Java 9) and later module-info classes. -->
                             <ignoredClassPattern>.*\.module-info$</ignoredClassPattern>
                             <ignoredClassPattern>javax\.activation.*</ignoredClassPattern>
+                            <!-- Some classes that are duplicated in the (optional) JAXB / Jakarta EE dependencies. -->
+                            <ignoredClassPattern>com\.sun\.istack.*</ignoredClassPattern>
+                            <ignoredClassPattern>com\.sun\.xml.*</ignoredClassPattern>
+                            <ignoredClassPattern>META-INF\.versions\.9\.com\.sun\.istack\.logging.*</ignoredClassPattern>
                             <!-- Spring AOP -->
                             <ignoredClassPattern>org\.aopalliance.*</ignoredClassPattern>
                             <!-- OSGi -->

@@ -86,11 +86,11 @@
             <artifactId>jaxb-api</artifactId>
             <optional>true</optional>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.sun.xml.bind</groupId>-->
-<!--            <artifactId>jaxb-impl</artifactId>-->
-<!--            <optional>true</optional>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-impl</artifactId>
+            <optional>true</optional>
+        </dependency>
         <!-- Jakarta EE 9 -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
