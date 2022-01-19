@@ -73,6 +73,15 @@
             <artifactId>jetty-webapp</artifactId>
             <version>9.4.34.v20201102</version>
         </dependency>
+        <!-- Jakarta EE 9 (important to put this before Jakarta EE 8 in classpath) -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
         <!-- Jakarta EE 8 -->
         <dependency>
             <groupId>javax.xml.bind</groupId>
@@ -81,15 +90,6 @@
         <dependency>
             <groupId>com.sun.xml.bind</groupId>
             <artifactId>jaxb-impl</artifactId>
-        </dependency>
-        <!-- Jakarta EE 9 -->
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
         </dependency>
 
         <dependency>

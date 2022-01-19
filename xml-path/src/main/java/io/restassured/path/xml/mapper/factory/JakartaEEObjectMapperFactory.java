@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper;
+package io.restassured.path.xml.mapper.factory;
+
+import io.restassured.common.mapper.factory.ObjectMapperFactory;
+
 
 /**
- * The predefined object mappers that can be used with REST Assured
+ * Interface for JAXB object mappers. Implement this class and register it to the ObjectMapperConfig if you
+ * want to override default settings for the JAXB object mapper.
  */
-public enum ObjectMapperType {
-    JACKSON_2, JACKSON_1, GSON, JAXB, JOHNZON, JSONB, JAKARTA_EE
+public interface JakartaEEObjectMapperFactory extends ObjectMapperFactory<jakarta.xml.bind.JAXBContext> {
 }

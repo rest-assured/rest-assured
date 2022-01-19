@@ -31,6 +31,7 @@ import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory
 import io.restassured.path.json.mapper.factory.JohnzonObjectMapperFactory
 import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory
 import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory
+import io.restassured.path.xml.mapper.factory.JakartaEEObjectMapperFactory
 import io.restassured.response.ResponseBodyData
 import org.apache.commons.lang3.Validate
 
@@ -68,7 +69,9 @@ class ObjectMapping {
       }
       throw new IllegalStateException("Cannot parse object because no JSON deserializer found in classpath. Please put either Jackson (Databind) or Gson in the classpath.")
     } else if (containsIgnoreCase(contentType, "xml")) {
-      if (isJAXBInClassPath()) {
+      if (isJakartaEEInClassPath()) {
+        return parseWithJakartaEE(deserializationCtx, objectMapperConfig.jakartaEEObjectMapperFactory()) as T
+      } else if  (isJAXBInClassPath()) {
         return parseWithJaxb(deserializationCtx, objectMapperConfig.jaxbObjectMapperFactory()) as T
       }
       throw new IllegalStateException("Cannot parse object because no XML deserializer found in classpath. Please put a JAXB compliant object mapper in classpath.")
@@ -86,7 +89,9 @@ class ObjectMapping {
 		  return parseWithJsonb(deserializationCtx, objectMapperConfig.jsonbObjectMapperFactory()) as T
         }
       } else if (containsIgnoreCase(defaultContentType, "xml")) {
-        if (isJAXBInClassPath()) {
+        if (isJakartaEEInClassPath()) {
+          return parseWithJakartaEE(deserializationCtx, objectMapperConfig.jakartaEEObjectMapperFactory()) as T
+        } else if (isJAXBInClassPath()) {
           return parseWithJaxb(deserializationCtx, objectMapperConfig.jaxbObjectMapperFactory()) as T
         }
       }
@@ -94,14 +99,15 @@ class ObjectMapping {
     throw new IllegalStateException(String.format("Cannot parse object because no supported Content-Type was specified in response. Content-Type was '%s'.", contentType))
   }
 
-  private
-  static <T> T deserializeWithObjectMapper(ObjectMapperDeserializationContext ctx, ObjectMapperType mapperType, ObjectMapperConfig config) {
+  private static <T> T deserializeWithObjectMapper(ObjectMapperDeserializationContext ctx, ObjectMapperType mapperType, ObjectMapperConfig config) {
     if (mapperType == ObjectMapperType.JACKSON_2 && isJackson2InClassPath()) {
       return parseWithJackson2(ctx, config.jackson2ObjectMapperFactory()) as T
     } else if (mapperType == ObjectMapperType.JACKSON_1 && isJackson1InClassPath()) {
       return parseWithJackson1(ctx, config.jackson1ObjectMapperFactory()) as T
     } else if (mapperType == ObjectMapperType.GSON && isGsonInClassPath()) {
       return parseWithGson(ctx, config.gsonObjectMapperFactory()) as T
+    } else if (mapperType == ObjectMapperType.JAKARTA_EE && isJakartaEEInClassPath()) {
+      return parseWithJakartaEE(ctx, config.jakartaEEObjectMapperFactory()) as T
     } else if (mapperType == ObjectMapperType.JAXB && isJAXBInClassPath()) {
       return parseWithJaxb(ctx, config.jaxbObjectMapperFactory()) as T
     } else if (mapperType == ObjectMapperType.JOHNZON && isJohnzonInClassPath()) {
@@ -114,7 +120,7 @@ class ObjectMapping {
     }
   }
 
-  public static String serialize(Object object, String contentType, String charset, ObjectMapperType mapperType, ObjectMapperConfig config,
+  static String serialize(Object object, String contentType, String charset, ObjectMapperType mapperType, ObjectMapperConfig config,
                                  EncoderConfig encoderConfig) {
     notNull(object, "String to serialize")
     notNull(config, "Object mapper configuration not found, cannot serialize object.")
@@ -135,6 +141,8 @@ class ObjectMapping {
         return serializeWithJackson1(serializationCtx, config.jackson1ObjectMapperFactory())
       } else if (isGsonInClassPath()) {
         return serializeWithGson(serializationCtx, config.gsonObjectMapperFactory())
+      } else if (isJakartaEEInClassPath()) {
+        return serializeWithJakartaEE(serializationCtx, config.jakartaEEObjectMapperFactory())
       } else if (isJAXBInClassPath()) {
         return serializeWithJaxb(serializationCtx, config.jaxbObjectMapperFactory())
       } else if (isJohnzonInClassPath()) {
@@ -159,10 +167,12 @@ class ObjectMapping {
         }
         throw new IllegalStateException("Cannot serialize object because no JSON serializer found in classpath. Please put Jackson (Databind), Gson, Johnzon, or Yasson in the classpath.")
       } else if (containsIgnoreCase(ct, "xml") || encoderConfig.contentEncoders().get(ContentTypeExtractor.getContentTypeWithoutCharset(ct)) == ContentType.XML) {
-        if (isJAXBInClassPath()) {
+        if (isJakartaEEInClassPath()) {
+          return serializeWithJakartaEE(serializationCtx, config.jakartaEEObjectMapperFactory())
+        } else if (isJAXBInClassPath()) {
           return serializeWithJaxb(serializationCtx, config.jaxbObjectMapperFactory())
         } else {
-          throw new IllegalStateException("Cannot serialize object because no XML serializer found in classpath. Please put a JAXB compliant object mapper in classpath.")
+          throw new IllegalStateException("Cannot serialize object because no XML serializer found in classpath. Please put a JAXB or JakartaEE compliant object mapper in classpath.")
         }
       } else {
         def errorMessage = "Cannot serialize because cannot determine how to serialize content-type $contentType"
@@ -185,6 +195,8 @@ class ObjectMapping {
       return serializeWithJackson1(ctx, config.jackson1ObjectMapperFactory())
     } else if (mapperType == ObjectMapperType.GSON && isGsonInClassPath()) {
       return serializeWithGson(ctx, config.gsonObjectMapperFactory())
+    } else if (mapperType == ObjectMapperType.JAKARTA_EE && isJakartaEEInClassPath()) {
+      return serializeWithJakartaEE(ctx, config.jakartaEEObjectMapperFactory())
     } else if (mapperType == ObjectMapperType.JAXB && isJAXBInClassPath()) {
       return serializeWithJaxb(ctx, config.jaxbObjectMapperFactory())
     } else if (mapperType == ObjectMapperType.JOHNZON && isJohnzonInClassPath()) {
@@ -214,6 +226,10 @@ class ObjectMapping {
     new JaxbMapper(factory).serialize(ctx)
   }
 
+  private static String serializeWithJakartaEE(ObjectMapperSerializationContext ctx, JakartaEEObjectMapperFactory factory) {
+    new JakartaEEMapper(factory).serialize(ctx)
+  }
+
   private static String serializeWithJohnzon(ObjectMapperSerializationContext ctx, JohnzonObjectMapperFactory factory) {
     new JohnzonMapper(factory).serialize(ctx)
   }
@@ -224,6 +240,10 @@ class ObjectMapping {
 	
   private static def parseWithJaxb(ObjectMapperDeserializationContext ctx, JAXBObjectMapperFactory factory) {
     new JaxbMapper(factory).deserialize(ctx)
+  }
+
+  private static def parseWithJakartaEE(ObjectMapperDeserializationContext ctx, JakartaEEObjectMapperFactory factory) {
+    new JakartaEEMapper(factory).deserialize(ctx)
   }
 
   private static def parseWithGson(ObjectMapperDeserializationContext ctx, GsonObjectMapperFactory factory) {

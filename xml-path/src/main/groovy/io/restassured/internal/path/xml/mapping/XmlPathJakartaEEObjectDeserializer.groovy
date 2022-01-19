@@ -18,14 +18,14 @@
 package io.restassured.internal.path.xml.mapping
 
 import io.restassured.common.mapper.ObjectDeserializationContext
-import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory
+import io.restassured.path.xml.mapper.factory.JakartaEEObjectMapperFactory
 import io.restassured.path.xml.mapping.XmlPathObjectDeserializer
 
-class XmlPathJaxbObjectDeserializer implements XmlPathObjectDeserializer {
+class XmlPathJakartaEEObjectDeserializer implements XmlPathObjectDeserializer {
 
-  private final JAXBObjectMapperFactory factory
+  private final JakartaEEObjectMapperFactory factory
 
-  XmlPathJaxbObjectDeserializer(JAXBObjectMapperFactory factory) {
+  XmlPathJakartaEEObjectDeserializer(JakartaEEObjectMapperFactory factory) {
     this.factory = factory
   }
 
@@ -34,14 +34,14 @@ class XmlPathJaxbObjectDeserializer implements XmlPathObjectDeserializer {
   def deserialize(ObjectDeserializationContext context) {
     def cls = context.getType()
     def object = context.getDataToDeserialize().asString()
-    javax.xml.bind.JAXBContext jaxbContext = factory.create(cls, context.getCharset())
+    jakarta.xml.bind.JAXBContext jaxbContext = factory.create(cls, context.getCharset())
 
-    javax.xml.bind.Unmarshaller unmarshaller = jaxbContext.createUnmarshaller()
+    jakarta.xml.bind.Unmarshaller unmarshaller = jaxbContext.createUnmarshaller()
     def reader = new StringReader(object)
-    if (cls.isAnnotationPresent(javax.xml.bind.annotation.XmlRootElement.class)) {
+    if (cls.isAnnotationPresent(jakarta.xml.bind.annotation.XmlRootElement.class)) {
       unmarshaller.unmarshal(reader)
     } else {
-      javax.xml.bind.JAXBElement jaxbElement = unmarshaller.unmarshal(new javax.xml.transform.stream.StreamSource(reader), cls)
+      jakarta.xml.bind.JAXBElement jaxbElement = unmarshaller.unmarshal(new javax.xml.transform.stream.StreamSource(reader), cls)
       jaxbElement.getValue()
     }
   }

@@ -1,7 +1,7 @@
 Changelog next version
 ----------------------
-* JAXB is now an optional dependency for XmlPath and is now longer required. Depend on 'jakarta.xml.bind:jakarta.xml.bind-api:2.3.3' and 'com.sun.xml.bind:jaxb-impl:2.3.3'   
-
+* JAXB is now an optional dependency for XmlPath and is now longer required. Depend on 'jakarta.xml.bind:jakarta.xml.bind-api:2.3.3' and 'com.sun.xml.bind:jaxb-impl:2.3.3'
+* Implemented support for serializing and deserializing with Jakarta EE 8 and 9.
 
 Changelog 4.4.0 (2021-05-21)
 ----------------------------
