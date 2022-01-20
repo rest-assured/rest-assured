@@ -2,6 +2,7 @@ Changelog next version
 ----------------------
 * JAXB is now an optional dependency for XmlPath and is now longer required. Depend on 'jakarta.xml.bind:jakarta.xml.bind-api:2.3.3' and 'com.sun.xml.bind:jaxb-impl:2.3.3'
 * Implemented support for serializing and deserializing with Jakarta EE 8 and 9. To use it you need to have Jakarta EE on the classpath, for example by depending on 'jakarta.xml.bind:jakarta.xml.bind-api:3.0.1' and 'org.glassfish.jaxb:jaxb-runtime:3.0.2'.
+* Upgraded groovy from 3.0.8 to 3.0.9 (thanks to sullis for pull request)
 
 Changelog 4.4.0 (2021-05-21)
 ----------------------------
