@@ -9,6 +9,13 @@ Changelog next version
 
   Thanks to lucasnguyen17 for pull request.
 * Fix default implementation of deprecated method detachRoot (#1503) (thanks to Guillaume Boucherie for pull request)
+* Add on fail message builder for response specification (#1502). This means that you can no do:
+  when().
+        get().
+  then().
+        onFailMessage("Some specific message").
+        statusCode(200);
+ The "onFailMessage" will be shown in the error. This is good if you want to e.g. distinguish more easily between tests if they fail. (thanks to Victor Borovlev for pull request)
 
 Changelog 4.4.0 (2021-05-21)
 ----------------------------
