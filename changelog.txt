@@ -8,6 +8,7 @@ Changelog next version
     given().filter(RequestLoggingFilter.with(LogDetail.METHOD, LogDetail.HEADERS, LogDetail.BODY)).when(). ..
 
   Thanks to lucasnguyen17 for pull request.
+* Fix default implementation of deprecated method detachRoot (#1503) (thanks to Guillaume Boucherie for pull request)
 
 Changelog 4.4.0 (2021-05-21)
 ----------------------------
