@@ -726,7 +726,7 @@ public interface ValidatableResponseOptions<T extends ValidatableResponseOptions
      */
     @Deprecated
     default T detachRoot(String pathToDetach) {
-        return appendRootPath(pathToDetach);
+        return detachRootPath(pathToDetach);
     }
 
     /**
