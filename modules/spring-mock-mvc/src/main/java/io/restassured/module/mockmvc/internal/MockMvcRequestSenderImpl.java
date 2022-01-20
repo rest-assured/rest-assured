@@ -370,7 +370,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
                     servletCookie.setDomain(cookie.getDomain());
                 }
                 if (cookie.hasMaxAge()) {
-                    servletCookie.setMaxAge(cookie.getMaxAge());
+                    servletCookie.setMaxAge((int) cookie.getMaxAge());
                 }
                 if (cookie.hasPath()) {
                     servletCookie.setPath(cookie.getPath());

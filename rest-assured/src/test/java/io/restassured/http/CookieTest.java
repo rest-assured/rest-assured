@@ -25,9 +25,9 @@ public class CookieTest {
     @Test public void
     can_use_negative_values_as_max_age() {
         // When
-        Cookie cookie = new Cookie.Builder("hello", "world").setMaxAge(-3600).build();
+        Cookie cookie = new Cookie.Builder("hello", "world").setMaxAge(-3600L).build();
 
         // Then
-        assertThat(cookie.getMaxAge()).isEqualTo(-3600);
+        assertThat(cookie.getMaxAge()).isEqualTo(-3600L);
     }
 }
