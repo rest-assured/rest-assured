@@ -88,6 +88,46 @@ public class RequestPrinter {
         return logString;
     }
 
+    public static String print(FilterableRequestSpecification requestSpec, String requestMethod,
+                               String completeRequestUri,
+                               Set<LogDetail> logDetails, Set<String> blacklistedHeaders,
+                               PrintStream stream, boolean shouldPrettyPrint) {
+        final StringBuilder builder = new StringBuilder();
+
+        if (logDetails.contains(ALL)) {
+            return print(requestSpec, requestMethod, completeRequestUri, ALL, blacklistedHeaders, stream, shouldPrettyPrint);
+        } else {
+            if (logDetails.contains(METHOD)) {
+                addSingle(builder, "Request method:", requestMethod);
+            }
+            if (logDetails.contains(URI)) {
+                addSingle(builder, "Request URI:", completeRequestUri);
+            }
+            if (logDetails.contains(PARAMS)) {
+                addMapDetails(builder, "Request params:", requestSpec.getRequestParams());
+                addMapDetails(builder, "Query params:", requestSpec.getQueryParams());
+                addMapDetails(builder, "Form params:", requestSpec.getFormParams());
+                addMapDetails(builder, "Path params:", requestSpec.getNamedPathParams());
+            }
+            if (logDetails.contains(HEADERS)) {
+                addHeaders(requestSpec, blacklistedHeaders, builder);
+            }
+            if (logDetails.contains(COOKIES)) {
+                addCookies(requestSpec, builder);
+            }
+            if (logDetails.contains(PARAMS)) {
+                addMultiParts(requestSpec, builder);
+            }
+            if (logDetails.contains(BODY)) {
+                addBody(requestSpec, builder, shouldPrettyPrint);
+            }
+        }
+
+        final String logString = StringUtils.removeEnd(builder.toString(), SystemUtils.LINE_SEPARATOR);
+        stream.println(logString);
+        return logString;
+    }
+
     private static void addProxy(FilterableRequestSpecification requestSpec, StringBuilder builder) {
         builder.append("Proxy:");
         ProxySpecification proxySpec = requestSpec.getProxySpecification();

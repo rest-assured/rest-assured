@@ -26,6 +26,7 @@ import org.apache.commons.lang3.Validate;
 
 import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -48,6 +49,7 @@ public class RequestLoggingFilter implements Filter {
     private final boolean shouldPrettyPrint;
     private final boolean showUrlEncodedUri;
     private final Set<String> blacklistedHeaders;
+    private final Set<LogDetail> logDetailSet = new HashSet<>();
 
     /**
      * Logs to System.out
@@ -136,7 +138,11 @@ public class RequestLoggingFilter implements Filter {
             uri = UrlDecoder.urlDecode(uri, Charset.forName(requestSpec.getConfig().getEncoderConfig().defaultQueryParameterCharset()), true);
         }
 
-        RequestPrinter.print(requestSpec, requestSpec.getMethod(), uri, logDetail, blacklistedHeaders, stream, shouldPrettyPrint);
+        if (logDetailSet.isEmpty()) {
+            RequestPrinter.print(requestSpec, requestSpec.getMethod(), uri, logDetail, blacklistedHeaders, stream, shouldPrettyPrint);
+        } else {
+            RequestPrinter.print(requestSpec, requestSpec.getMethod(), uri, logDetailSet, blacklistedHeaders, stream, shouldPrettyPrint);
+        }
         return ctx.next(requestSpec, responseSpec);
     }
 
@@ -150,4 +156,19 @@ public class RequestLoggingFilter implements Filter {
         return new RequestLoggingFilter(stream);
     }
 
+    /**
+     * Logs with specific details to System.out <br>
+     * E.g <code>RequestLoggingFilter.with(METHOD, HEADERS, BODY)</code>
+     *
+     * @param logDetails The varargs of logDetail
+     * @return A new instance of {@link RequestLoggingFilter}.
+     */
+    public static RequestLoggingFilter with(LogDetail... logDetails) {
+        return new RequestLoggingFilter().addLog(logDetails);
+    }
+
+    private RequestLoggingFilter addLog(LogDetail... logDetails) {
+        logDetailSet.addAll(Arrays.asList(logDetails));
+        return this;
+    }
 }
