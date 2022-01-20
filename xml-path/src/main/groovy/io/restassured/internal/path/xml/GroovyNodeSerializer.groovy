@@ -16,9 +16,9 @@
 
 package io.restassured.internal.path.xml
 
+import groovy.xml.XmlUtil
 import groovy.xml.slurpersupport.Node
 import groovy.xml.slurpersupport.NodeChild
-import groovy.xml.XmlUtil
 
 class GroovyNodeSerializer {
     static String toXML(Node node) {

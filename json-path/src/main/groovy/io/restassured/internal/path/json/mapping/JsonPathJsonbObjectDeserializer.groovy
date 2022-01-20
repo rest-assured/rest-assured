@@ -19,8 +19,8 @@ package io.restassured.internal.path.json.mapping
 import io.restassured.common.mapper.ObjectDeserializationContext
 import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer
-import javax.json.bind.Jsonb
 
+import javax.json.bind.Jsonb
 import java.lang.reflect.Type
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull

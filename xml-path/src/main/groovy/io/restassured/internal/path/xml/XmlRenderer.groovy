@@ -17,8 +17,8 @@
 
 package io.restassured.internal.path.xml
 
-import groovy.xml.slurpersupport.GPathResult
 import groovy.xml.StreamingMarkupBuilder
+import groovy.xml.slurpersupport.GPathResult
 
 class XmlRenderer {
 

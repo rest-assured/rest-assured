@@ -19,7 +19,6 @@ package io.restassured.itest.java;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseSpecBuilder;
-import io.restassured.config.HeaderConfig;
 import io.restassured.http.Cookies;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;

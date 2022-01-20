@@ -20,13 +20,14 @@ import io.restassured.config.EncoderConfig;
 import io.restassured.http.ContentType;
 import io.restassured.module.mockmvc.http.GreetingController;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.util.MultiValueMap;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

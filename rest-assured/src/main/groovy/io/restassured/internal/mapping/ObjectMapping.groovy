@@ -25,11 +25,7 @@ import io.restassured.internal.http.ContentTypeExtractor
 import io.restassured.mapper.ObjectMapperDeserializationContext
 import io.restassured.mapper.ObjectMapperSerializationContext
 import io.restassured.mapper.ObjectMapperType
-import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory
-import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory
-import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory
-import io.restassured.path.json.mapper.factory.JohnzonObjectMapperFactory
-import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory
+import io.restassured.path.json.mapper.factory.*
 import io.restassured.path.xml.mapper.factory.JAXBObjectMapperFactory
 import io.restassured.path.xml.mapper.factory.JakartaEEObjectMapperFactory
 import io.restassured.response.ResponseBodyData

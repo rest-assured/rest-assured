@@ -17,7 +17,6 @@
 package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
-import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.itest.java.objects.Greeting;

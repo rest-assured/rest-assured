@@ -15,11 +15,10 @@
  */
 package io.restassured.path.json.mapper.factory;
 
-import java.lang.reflect.Type;
+import org.eclipse.yasson.JsonBindingProvider;
 
 import javax.json.bind.Jsonb;
-
-import org.eclipse.yasson.JsonBindingProvider;
+import java.lang.reflect.Type;
 
 public class DefaultYassonObjectMapperFactory implements JsonbObjectMapperFactory {
     

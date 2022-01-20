@@ -18,8 +18,8 @@ package io.restassured.path.xml;
 
 import groovy.lang.GroovyRuntimeException;
 import groovy.xml.XmlSlurper;
-import groovy.xml.slurpersupport.GPathResult;
 import groovy.xml.XmlUtil;
+import groovy.xml.slurpersupport.GPathResult;
 import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.internal.common.path.ObjectConverter;
 import io.restassured.internal.path.xml.*;

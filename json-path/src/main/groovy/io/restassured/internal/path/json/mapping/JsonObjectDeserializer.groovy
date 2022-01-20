@@ -25,12 +25,7 @@ import io.restassured.common.mapper.resolver.ObjectMapperResolver
 import io.restassured.internal.common.mapper.ObjectDeserializationContextImpl
 import io.restassured.path.json.config.JsonParserType
 import io.restassured.path.json.config.JsonPathConfig
-import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory
-import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory
-import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory
-import io.restassured.path.json.mapper.factory.JohnzonObjectMapperFactory
-import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory
-
+import io.restassured.path.json.mapper.factory.*
 import org.apache.commons.lang3.Validate
 
 class JsonObjectDeserializer {

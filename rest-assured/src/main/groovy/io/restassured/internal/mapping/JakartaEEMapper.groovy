@@ -16,7 +16,6 @@
 package io.restassured.internal.mapping
 
 import io.restassured.internal.path.xml.mapping.XmlPathJakartaEEObjectDeserializer
-import io.restassured.internal.path.xml.mapping.XmlPathJaxbObjectDeserializer
 import io.restassured.mapper.ObjectMapper
 import io.restassured.mapper.ObjectMapperDeserializationContext
 import io.restassured.mapper.ObjectMapperSerializationContext
