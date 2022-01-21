@@ -19,6 +19,15 @@ Changelog next version
 * Allow parsing responses with cookies that has numbers out of signed decimal range (#1069). This is a backward incompatible change if you're using the maxAge on "DetailedCookie" which now takes a long instead of an int. (thanks to Michał Radomyski for pull request)
 * Upgraded the kotlin extension module to use Kotlin 1.6.10 instead of 1.5.0
 * Introduced a rest-assured bom project for maven. Depend on 'io.rest-assured:rest-assured-bom:4.5.0' to use it. The bom contains configuration details for the rest-assured project that imports the correct dependencies (and versions) and to build your project. (thanks to George Gastaldi for pull request)
+* Added "noContentType()" method to RequestSpecification which allows you to remove the content-type from the request if needed. For example:
+    given().
+        noContentType().
+    when().
+        post("/somewhere").
+    then().
+        statusCode(200);
+  (issue 1516)
+
 
 Changelog 4.4.0 (2021-05-21)
 ----------------------------

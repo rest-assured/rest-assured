@@ -920,6 +920,11 @@ public interface RequestSpecification extends RequestSender {
     RequestSpecification contentType(String contentType);
 
     /**
+     * Instructs rest assured to don't include a content-type in the request
+     */
+    RequestSpecification noContentType();
+
+    /**
      * Specify the accept header of the request. This just a shortcut for:
      * <pre>
      * header("Accept", contentType);

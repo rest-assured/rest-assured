@@ -1442,6 +1442,11 @@ class ScalatraRestExample extends ScalatraServlet {
       request.getContentType
   }
 
+  delete("/returnContentTypeAsBody") {
+      contentType = "text/plain"
+      request.getContentType
+  }
+
   post("/return204WithContentType") {
     contentType = "application/json"
     status = 204

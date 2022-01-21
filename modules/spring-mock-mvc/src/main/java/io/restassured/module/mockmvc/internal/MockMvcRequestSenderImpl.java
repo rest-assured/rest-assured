@@ -453,7 +453,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         }
 
         final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("http://localhost", RestAssured.UNDEFINED_PORT, "", new NoAuthScheme(), Collections.<Filter>emptyList(),
-                null, true, ConfigConverter.convertToRestAssuredConfig(config), logRepository, null);
+                null, true, ConfigConverter.convertToRestAssuredConfig(config), logRepository, null, true);
         logParamsAndHeaders(reqSpec, method.toString(), uri, unnamedPathParams, params, queryParams, formParams, headers, cookies);
         logRequestBody(reqSpec, requestBody, headers, (List<Object>) (List<?>) multiParts, config);
 

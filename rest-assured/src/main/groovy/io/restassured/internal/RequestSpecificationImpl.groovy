@@ -131,9 +131,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   // This field should be removed once http://jira.codehaus.org/browse/GROOVY-4647 is resolved, merge with sha 9619c3b when it's fixed.
   private AbstractHttpClient httpClient
 
-  public RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters,
-                                  RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
-                                  ProxySpecification proxySpecification) {
+  private boolean allowContentType
+
+  RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters,
+                           RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
+                           ProxySpecification proxySpecification, boolean allowContentType) {
     notNull(baseURI, "baseURI");
     notNull(basePath, "basePath");
     notNull(defaultAuthScheme, "defaultAuthScheme");
@@ -151,6 +153,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
     this.logRepository = logRepository
     this.proxySpecification = proxySpecification
+    this.allowContentType = allowContentType
   }
 
   RequestSpecification when() {
@@ -774,12 +777,19 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   RequestSpecification contentType(ContentType contentType) {
     notNull contentType, ContentType.class
+    allowContentType = true
     header(CONTENT_TYPE, contentType)
   }
 
   RequestSpecification contentType(String contentType) {
     notNull contentType, "Content-Type header cannot be null"
+    allowContentType = true
     header(CONTENT_TYPE, contentType)
+  }
+
+  RequestSpecification noContentType() {
+    allowContentType = false
+    removeHeader(CONTENT_TYPE)
   }
 
   RequestSpecification accept(ContentType contentType) {
@@ -809,7 +819,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
     headerList = removeMergedHeadersIfNeeded(headerList)
     this.requestHeaders = new Headers(headerList)
-    return this;
+    return this
   }
 
   RequestSpecification headers(Headers headers) {
@@ -1180,6 +1190,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       def bodyContent = createFormParamBodyContent(assembleBodyContent(method))
       if (POST.name().equalsIgnoreCase(method)) {
         http.post(path: targetPath, body: bodyContent,
+                allowContentType: allowContentType,
                 requestContentType: requestHeaders.getValue(CONTENT_TYPE),
                 contentType: acceptContentType) { response, content ->
           if (assertionClosure != null) {
@@ -1188,6 +1199,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         }
       } else if (PATCH.name().equalsIgnoreCase(method)) {
         http.patch(path: targetPath, body: bodyContent,
+                allowContentType: allowContentType,
                 requestContentType: requestHeaders.getValue(CONTENT_TYPE),
                 contentType: acceptContentType) { response, content ->
           if (assertionClosure != null) {
@@ -1453,7 +1465,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     http.request(method, responseContentType, hasBody) {
       uri.path = targetPath
 
-      setRequestContentType(defineRequestContentTypeAsString(method))
+      if (allowContentType) {
+        setRequestContentType(defineRequestContentTypeAsString(method))
+      }
 
       if (hasBody) {
         body = requestBody
@@ -1539,7 +1553,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
             && !(startsWith(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH) || contains(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS))
             && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()
             && (isApplicationJsonContentTypeWithDefaultCharsetDefined(contentType)
-                || !(containsIgnoreCase(contentType.toString(), CHARSET) || equalsIgnoreCase(contentType.toString(), APPLICATION_JSON)))
+            || !(containsIgnoreCase(contentType.toString(), CHARSET) || equalsIgnoreCase(contentType.toString(), APPLICATION_JSON)))
   }
 
   private boolean isApplicationJsonContentTypeWithDefaultCharsetDefined(contentType) {
@@ -2055,6 +2069,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         Object val = headers1.get(key);
         if (val == null) {
           reqMethod.removeHeaders(key.toString())
+        } else if (key.toString().equalsIgnoreCase(CONTENT_TYPE) && !allowContentType) {
+          reqMethod.removeHeaders(key.toString())
         } else if (!key.toString().equalsIgnoreCase(CONTENT_TYPE) || !val.toString().startsWith(MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH)) {
           // Don't overwrite multipart header because HTTP Client have added boundary
           def keyAsString = key.toString()
@@ -2119,7 +2135,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     private boolean shouldApplyContentTypeFromRestAssuredConfigDelegate(delegate, HttpRequestBase reqMethod) {
       def requestContentType = delegate.getRequestContentType()
-      requestContentType != null && requestContentType != ANY.toString() &&
+      allowContentType && requestContentType != null && requestContentType != ANY.toString() &&
               (!reqMethod.hasProperty("entity") || reqMethod.entity?.contentType == null) &&
               !reqMethod.getAllHeaders().any { it.getName().equalsIgnoreCase(CONTENT_TYPE) }
     }

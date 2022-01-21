@@ -77,7 +77,7 @@ public class RequestSpecBuilder {
 
     public RequestSpecBuilder() {
         this.spec = (RequestSpecificationImpl) new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters(),
-                requestSpecification, urlEncodingEnabled, config, new LogRepository(), proxy).config(RestAssured.config());
+                requestSpecification, urlEncodingEnabled, config, new LogRepository(), proxy, true).config(RestAssured.config());
     }
 
     /**
@@ -678,6 +678,14 @@ public class RequestSpecBuilder {
      */
     public RequestSpecBuilder setContentType(String contentType) {
         spec.contentType(contentType);
+        return this;
+    }
+
+    /**
+     * Don't append a content-type to the request
+     */
+    public RequestSpecBuilder noContentType() {
+        spec.noContentType();
         return this;
     }
 

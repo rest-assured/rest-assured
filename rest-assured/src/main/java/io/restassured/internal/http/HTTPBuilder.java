@@ -22,6 +22,7 @@ import io.restassured.config.EncoderConfig;
 import io.restassured.config.OAuthConfig;
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.http.HttpEntity;
@@ -408,8 +409,10 @@ public abstract class HTTPBuilder {
         /* by default assume the request body will be URLEncoded, but allow
              the 'requestContentType' named argument to override this if it is
              given */
-        delegate.setRequestContentType(ContentType.URLENC.toString());
-        delegate.setPropertiesFromMap(args);
+        if ((Boolean) args.get("allowContentType")) {
+            delegate.setRequestContentType(ContentType.URLENC.toString());
+            delegate.setPropertiesFromMap(args);
+        }
 
         if (responseClosure != null) {
             delegate.getResponse().put(Status.SUCCESS.toString(), responseClosure);
@@ -534,9 +537,9 @@ public abstract class HTTPBuilder {
                 responseContentType = HttpResponseContentTypeFinder.findContentType(resp);
         } catch (RuntimeException ex) {
             /* if for whatever reason we can't determine the content-type, but
-                * still want to attempt to parse the data, use the BINARY
-                * content-type so that the response will be buffered into a
-                * ByteArrayInputStream. */
+             * still want to attempt to parse the data, use the BINARY
+             * content-type so that the response will be buffered into a
+             * ByteArrayInputStream. */
             responseContentType = ContentType.BINARY.toString();
         }
 
@@ -827,6 +830,7 @@ public abstract class HTTPBuilder {
         private HttpRequestBase request;
         private Object contentType;
         private String requestContentType;
+        private boolean allowContentType;
         private Map<Object, Closure> responseHandlers = new StringHashMap<Closure>();
         private URIBuilder uri;
         private Map<Object, Object> headers = new StringHashMap<Object>();
@@ -971,6 +975,11 @@ public abstract class HTTPBuilder {
             this.requestContentType = ct;
         }
 
+
+        protected void setAllowContentType(boolean allowContentType) {
+            this.allowContentType = allowContentType;
+        }
+
         /**
          * Valid arguments:
          * <dl>
@@ -985,6 +994,7 @@ public abstract class HTTPBuilder {
          * If not supplied, the HTTPBuilder's default content-type is used.</dd>
          * <dt>requestContentType</dt><dd>content type for the request, if it
          * is different from the expected response content-type</dd>
+         * <dt>allowContentType</dt><dd>If a content-type should be used at all</dd>
          * <dt>body</dt><dd>Request body that will be encoded based on the given contentType</dd>
          * </dl>
          *
@@ -1015,11 +1025,16 @@ public abstract class HTTPBuilder {
             Object path = args.get("path");
             if (path != null) this.uri.setPath(path.toString());
 
-            Object contentType = args.get("contentType");
-            if (contentType != null) this.setContentType(contentType);
+            if ((Boolean) args.get("allowContentType")) {
+                Object contentType = args.get("contentType");
+                if (contentType != null) this.setContentType(contentType);
 
-            contentType = args.get("requestContentType");
-            if (contentType != null) this.setRequestContentType(contentType.toString());
+                contentType = args.get("requestContentType");
+                if (contentType != null) this.setRequestContentType(contentType.toString());
+            }  else {
+                this.setContentType(null);
+                this.setRequestContentType(null);
+            }
 
             Object body = args.get("body");
             if (body != null) this.setBody(this.getRequestContentType(), body);

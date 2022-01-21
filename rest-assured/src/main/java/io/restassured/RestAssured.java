@@ -1452,7 +1452,7 @@ public class RestAssured {
         RestAssuredConfig restAssuredConfig = config();
         return new TestSpecificationImpl(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters,
-                        requestSpecification, urlEncodingEnabled, restAssuredConfig, logRepository, proxy),
+                        requestSpecification, urlEncodingEnabled, restAssuredConfig, logRepository, proxy, true),
                 new ResponseSpecificationImpl(rootPath, responseSpecification, responseParserRegistrar, restAssuredConfig, logRepository)
         );
     }

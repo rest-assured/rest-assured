@@ -424,7 +424,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		}
 		final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("http://localhost",
 				RestAssured.UNDEFINED_PORT, "", new NoAuthScheme(), Collections.emptyList(),
-				null, true, ConfigConverter.convertToRestAssuredConfig(config), logRepository, null);
+				null, true, ConfigConverter.convertToRestAssuredConfig(config), logRepository, null, true);
 		logParamsAndHeaders(reqSpec, method.toString(), uri, unnamedPathParams, params, queryParams, formParams, headers, cookies);
 		logRequestBody(reqSpec, requestBody, headers, (List<Object>) (List<?>) multiParts, config);
 		ofNullable(multiParts).map(List::stream).orElseGet(Stream::empty)
@@ -609,7 +609,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		}
 		final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("http://localhost",
 				RestAssured.UNDEFINED_PORT, "", new NoAuthScheme(), Collections.emptyList(),
-				null, true, ConfigConverter.convertToRestAssuredConfig(config), logRepository, null);
+				null, true, ConfigConverter.convertToRestAssuredConfig(config), logRepository, null, true);
 		logParamsAndHeaders(reqSpec, method.toString(), "Request from uri function" + uriFunction.toString(),
 				null, params, queryParams, formParams,
 				headers, cookies);
