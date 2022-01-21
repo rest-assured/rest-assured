@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
-import static jdk.nashorn.internal.runtime.JSType.UNDEFINED_LONG;
 
 /**
  * Cookie class represents a token or short packet of state information

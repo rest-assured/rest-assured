@@ -27,6 +27,7 @@ Changelog next version
     then().
         statusCode(200);
   (issue 1516)
+* Removed accidental import of jdk.nashorn.internal.runtime.JSType.UNDEFINED_LONG from the Cookie class
 
 
 Changelog 4.4.0 (2021-05-21)
