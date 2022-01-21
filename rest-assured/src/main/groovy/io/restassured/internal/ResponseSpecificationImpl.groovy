@@ -45,20 +45,20 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   private static final String EMPTY = ""
   private static final String DOT = "."
-  private Matcher<Integer> expectedStatusCode;
-  private Matcher<String> expectedStatusLine;
+  private Matcher<Integer> expectedStatusCode
+  private Matcher<String> expectedStatusLine
   private BodyMatcherGroup bodyMatchers = new BodyMatcherGroup()
-  private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure();
+  private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure()
   private def headerAssertions = []
   private def cookieAssertions = []
-  private RequestSpecification requestSpecification;
-  private def contentType;
-  private Response restAssuredResponse;
-  private String bodyRootPath;
-  ResponseParserRegistrar rpr;
+  private RequestSpecification requestSpecification
+  private def contentType
+  private Response restAssuredResponse
+  private String bodyRootPath
+  ResponseParserRegistrar rpr
   RestAssuredConfig config
   private Response response
-  private Tuple2<Matcher<Long>, TimeUnit> expectedResponseTime;
+  private Tuple2<Matcher<Long>, TimeUnit> expectedResponseTime
   private LogDetail responseLogDetail
   private boolean forceDisableEagerAssert = false
   private String onFailMessage
@@ -75,7 +75,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                             RestAssuredConfig config, Response response, LogRepository logRepository) {
     Validate.notNull(config, "RestAssuredConfig cannot be null")
     this.config = config
-    this.response = response;
+    this.response = response
     rootPath(bodyRootPath)
     this.rpr = rpr
     if (defaultSpec != null) {
@@ -132,7 +132,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   ResponseSpecification statusCode(int expectedStatusCode) {
     notNull(expectedStatusCode, "expectedStatusCode")
-    return statusCode(equalTo(expectedStatusCode));
+    return statusCode(equalTo(expectedStatusCode))
   }
 
   ResponseSpecification statusLine(Matcher<? super String> expectedStatusLine) {
@@ -183,7 +183,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     validateResponseIfRequired {
       headerAssertions << new HeaderMatcher(headerName: headerName, matcher: expectedValueMatcher)
     }
-    this;
+    this
   }
 
   ResponseSpecification header(String headerName, String expectedValue) {
@@ -221,7 +221,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     validateResponseIfRequired {
       cookieAssertions << new CookieMatcher(cookieName: cookieName, matcher: expectedValueMatcher)
     }
-    this;
+    this
   }
 
   ResponseSpecification cookie(String cookieName, DetailedCookieMatcher detailedCookieMatcher) {
@@ -230,7 +230,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     validateResponseIfRequired {
       cookieAssertions << new DetailedCookieAssertion(cookieName: cookieName, matcher: detailedCookieMatcher)
     }
-    this;
+    this
   }
 
   ResponseSpecification cookie(String cookieName) {
@@ -243,7 +243,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   }
 
   ResponseSpecification spec(ResponseSpecification responseSpecificationToMerge) {
-    SpecificationMerger.merge(this, responseSpecificationToMerge);
+    SpecificationMerger.merge(this, responseSpecificationToMerge)
     return this
   }
 
@@ -322,23 +322,23 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   }
 
   RequestSender when() {
-    return requestSpecification;
+    return requestSpecification
   }
 
   ResponseSpecification response() {
-    return this;
+    return this
   }
 
   RequestSpecification given() {
-    return requestSpecification;
+    return requestSpecification
   }
 
   ResponseSpecification that() {
-    return this;
+    return this
   }
 
   RequestSpecification request() {
-    return requestSpecification;
+    return requestSpecification
   }
 
   ResponseSpecification parser(String contentType, Parser parser) {
@@ -347,19 +347,19 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   }
 
   ResponseSpecification and() {
-    return this;
+    return this
   }
 
   RequestSpecification with() {
-    return given();
+    return given()
   }
 
   ResponseSpecification then() {
-    return this;
+    return this
   }
 
   ResponseSpecification expect() {
-    return this;
+    return this
   }
 
   ResponseSpecification rootPath(String rootPath) {
@@ -384,13 +384,13 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   ResponseSpecification detachRootPath(String pathToDetach) {
     notNull pathToDetach, "Path to detach from root path"
     throwIllegalStateExceptionIfRootPathIsNotDefined("detach path")
-    pathToDetach = StringUtils.trim(pathToDetach);
+    pathToDetach = StringUtils.trim(pathToDetach)
     if (!bodyRootPath.endsWith(pathToDetach)) {
-      throw new IllegalStateException("Cannot detach path '$pathToDetach' since root path '$bodyRootPath' doesn't end with '$pathToDetach'.");
+      throw new IllegalStateException("Cannot detach path '$pathToDetach' since root path '$bodyRootPath' doesn't end with '$pathToDetach'.")
     }
-    bodyRootPath = StringUtils.substringBeforeLast(bodyRootPath, pathToDetach);
+    bodyRootPath = StringUtils.substringBeforeLast(bodyRootPath, pathToDetach)
     if (bodyRootPath.endsWith(".")) {
-      bodyRootPath = bodyRootPath.substring(0, bodyRootPath.length() - 1);
+      bodyRootPath = bodyRootPath.substring(0, bodyRootPath.length() - 1)
     }
     this
   }
@@ -457,7 +457,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     }
 
     def getResponseContentType() {
-      return contentType ?: ANY;
+      return contentType ?: ANY
     }
 
     private boolean requiresPathParsing() {
@@ -487,7 +487,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
           }
         } catch (Throwable e) {
           fireFailureListeners(response)
-          throw e;
+          throw e
         }
 
         def errors = validations.findAll { !it.success }
@@ -526,20 +526,20 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
           def normalizedExpectedContentType = normalizeContentType(contentType.toString())
           def normalizedActualContentType = normalizeContentType(actualContentType)
           if (!StringUtils.startsWithIgnoreCase(normalizedActualContentType, normalizedExpectedContentType)) {
-            errors << [success: false, errorMessage: String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", contentType, actualContentType)];
+            errors << [success: false, errorMessage: String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", contentType, actualContentType)]
           }
         } else {
           def name = contentType.name()
           def pattern = ~/(^[\w\d_\-]+\/[\w\d_\-]+)\s*(?:;)/
-          def matcher = pattern.matcher(actualContentType ?: "");
+          def matcher = pattern.matcher(actualContentType ?: "")
           def contentTypeToMatch
           if (matcher.find()) {
-            contentTypeToMatch = matcher.group(1);
+            contentTypeToMatch = matcher.group(1)
           } else {
             contentTypeToMatch = actualContentType
           }
           if (ContentType.fromContentType(contentTypeToMatch) != contentType) {
-            errors << [success: false, errorMessage: String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", name, actualContentType)];
+            errors << [success: false, errorMessage: String.format("Expected content-type \"%s\" doesn't match actual content-type \"%s\".\n", name, actualContentType)]
           }
         }
       }
@@ -559,7 +559,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
           def errorMessage = new MatcherErrorMessageBuilder<Integer, Matcher<Integer>>("status code")
                   .buildError(actualStatusCode, expectedStatusCode)
 
-          errors << [success: false, errorMessage: errorMessage];
+          errors << [success: false, errorMessage: errorMessage]
         }
       }
 
@@ -567,7 +567,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         def actualStatusLine = response.getStatusLine()
         if (!expectedStatusLine.matches(actualStatusLine)) {
           def errorMessage = String.format("Expected status line %s doesn't match actual status line \"%s\".\n", expectedStatusLine.toString(), actualStatusLine)
-          errors << [success: false, errorMessage: errorMessage];
+          errors << [success: false, errorMessage: errorMessage]
         }
       }
       errors
@@ -622,11 +622,11 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   private String applyArguments(String path, List<Argument> arguments) {
     if (arguments?.size() > 0) {
-      def numberArgsOfAfterMerge = StringUtils.countMatches(path, "%s");
+      def numberArgsOfAfterMerge = StringUtils.countMatches(path, "%s")
       if (numberArgsOfAfterMerge > arguments.size()) {
-        arguments = new ArrayList<>(arguments);
+        arguments = new ArrayList<>(arguments)
         for (int i = 0; i < (numberArgsOfAfterMerge - arguments.size()); i++) {
-          arguments.add(new Argument("%s"));
+          arguments.add(new Argument("%s"))
         }
       }
       path = String.format(path, arguments.collect { it.getArgument() }.toArray(new Object[arguments.size()]))
@@ -637,7 +637,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   private String mergeKeyWithRootPath(String key) {
     if (bodyRootPath != null && bodyRootPath != EMPTY) {
       if (bodyRootPath.endsWith(DOT) && key.startsWith(DOT)) {
-        return bodyRootPath + substringAfter(key, DOT);
+        return bodyRootPath + substringAfter(key, DOT)
       } else if (!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT) && !key.startsWith("[")) {
         return bodyRootPath + DOT + key
       }
