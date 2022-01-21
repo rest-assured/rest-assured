@@ -1465,7 +1465,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     http.request(method, responseContentType, hasBody) {
       uri.path = targetPath
 
-      if (allowContentType) {
+      if (this.allowContentType) {
         setRequestContentType(defineRequestContentTypeAsString(method))
       }
 
