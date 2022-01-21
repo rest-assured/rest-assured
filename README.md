@@ -11,9 +11,9 @@ languages into the Java domain.
 
 
 ## News
+* 2022-01-21: REST Assured 4.5.0 is released. It adds support for [Jakarta EE](https://github.com/rest-assured/rest-assured/wiki/Usage#jakarta-ee) for XML object mapping. It also makes [JAXB](https://github.com/rest-assured/rest-assured/wiki/Usage#jaxb) optional. See [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes45) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2021-05-21: REST Assured 4.4.0 is released with various improvements and bug fixes. There's one backward incompatible change, the charset is no longer automatically appended to application/json content-type by default. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2020-12-11: REST Assured [4.3.3](http://dl.bintray.com/johanhaleby/generic/rest-assured-4.3.3-dist.zip) is released with dependency updates and a [bug fix](https://github.com/rest-assured/rest-assured/pull/1425). See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
-* 2020-12-11: REST Assured 4.2.1 is released in which we've back-ported a [fix](https://github.com/rest-assured/rest-assured/pull/1341) that is useful if you're stuck with an older version of Groovy. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
