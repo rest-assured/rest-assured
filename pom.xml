@@ -26,14 +26,14 @@
     <groupId>io.rest-assured</groupId>
     <artifactId>rest-assured-parent</artifactId>
     <packaging>pom</packaging>
-    <version>4.4.1-SNAPSHOT</version>
+    <version>4.5.0</version>
     <url>http://code.google.com/p/rest-assured</url>
     <name>REST Assured Parent POM</name>
     <description>Java DSL for easy testing of REST services</description>
     <inceptionYear>2010</inceptionYear>
     <issueManagement>
         <system>GitHub Issue Tracking</system>
-        <url/>
+        <url />
     </issueManagement>
     <licenses>
         <license>
@@ -125,7 +125,7 @@
                     <version>${gmaven.version}</version>
                     <configuration>
                         <providerSelection>2.0</providerSelection>
-                        <source/>
+                        <source />
                     </configuration>
                     <dependencies>
                         <dependency>
