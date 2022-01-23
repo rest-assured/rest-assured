@@ -53,7 +53,7 @@ class JSONAssertion implements Assertion {
         if (e instanceof NullPointerException){
           def message = e.getMessage();
           if (message.equals("Cannot invoke method getAt() on null object") ||
-             (message.startsWith("Cannot get property") && e.getMessage().endsWith("on null object"))) {
+             (message.startsWith("Cannot get property") && message.endsWith("on null object"))) {
             return null
           }
         }
