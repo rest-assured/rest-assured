@@ -789,4 +789,18 @@ public class JsonPathTest {
         // Then
         assertThat(jsonPath.getString("some-list[0]"), equalTo("one"));
     }
+
+
+    /** Tests #1543 is fixed    */
+    @Test public void
+    does_not_fail_on_absent_lists() {
+        // Given
+        String json = "{ \"root\" : { }";
+
+        // When
+        JsonPath jsonPath = JsonPath.from(json);
+
+        // Then   no exception should be thrown
+        assertThat(jsonPath.getString("root.items[0]"), is(nullValue()));
+    }
 }
