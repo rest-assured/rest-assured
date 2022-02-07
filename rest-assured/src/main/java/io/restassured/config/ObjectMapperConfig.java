@@ -93,8 +93,6 @@ public class ObjectMapperConfig implements Config {
         Validate.notNull(gsonObjectMapperFactory, GsonObjectMapperFactory.class.getSimpleName() + " cannot be null");
         Validate.notNull(jackson1ObjectMapperFactory, Jackson1ObjectMapperFactory.class.getSimpleName() + " cannot be null");
         Validate.notNull(jackson2ObjectMapperFactory, Jackson2ObjectMapperFactory.class.getSimpleName() + " cannot be null");
-        Validate.notNull(jaxbObjectMapperFactory, JAXBObjectMapperFactory.class.getSimpleName() + " cannot be null");
-        Validate.notNull(jakartaEEObjectMapperFactory, JakartaEEObjectMapperFactory.class.getSimpleName() + " cannot be null");
         this.defaultObjectMapperType = defaultObjectMapperType;
         this.defaultObjectMapper = defaultObjectMapper;
         this.gsonObjectMapperFactory = gsonObjectMapperFactory;
