@@ -11,7 +11,7 @@ languages into the Java domain.
 
 
 ## News
-* 2022-02-11: REST Assured 4.5.1 is released which fixes a bug that required Jakarta EE _and_ JAXB to be in the classpath at the same time under certain conditions. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
+* 2022-02-11: REST Assured 4.5.1 is released! It fixes a bug that accidentally required both Jakarta EE _and_ JAXB to be in the classpath at the same time under certain conditions. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2022-01-21: REST Assured 4.5.0 is released. It adds support for [Jakarta EE](https://github.com/rest-assured/rest-assured/wiki/Usage#jakarta-ee) for XML object mapping. It also makes [JAXB](https://github.com/rest-assured/rest-assured/wiki/Usage#jaxb) optional. See [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes45) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2021-05-21: REST Assured 4.4.0 is released with various improvements and bug fixes. There's one backward incompatible change, the charset is no longer automatically appended to application/json content-type by default. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 
