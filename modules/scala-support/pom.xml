@@ -19,7 +19,7 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>4.5.1-SNAPSHOT</version>
+        <version>4.5.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -79,7 +79,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>4.5.1-SNAPSHOT</version>
+            <version>4.5.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
