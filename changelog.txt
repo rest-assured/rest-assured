@@ -1,7 +1,7 @@
-Changelog next version
-----------------------
+Changelog 4.5.1 (2022-02-11)
+----------------------------
 
-* Fixing a bug in ObjectMapper that required JAXB/JakartaEE when this was not intended (issue 1542)
+* Fixed a bug in ObjectMapper that required JAXB/JakartaEE when this was not intended (issue 1542)
 
 Changelog 4.5.0 (2022-01-21)
 ----------------------------
