@@ -556,6 +556,11 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return options(uri.toString());
     }
 
+    @Override
+    public MockMvcResponse graphql(URI uri) {
+        return post(uri);
+    }
+
     public MockMvcResponse get(URL url) {
         return get(url.toString());
     }
@@ -584,6 +589,11 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return options(url.toString());
     }
 
+    @Override
+    public MockMvcResponse graphql(URL url) {
+        return post(url);
+    }
+
     public MockMvcResponse get() {
         return get("");
     }
@@ -610,6 +620,11 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
     public MockMvcResponse options() {
         return options("");
+    }
+
+    @Override
+    public MockMvcResponse graphql() {
+        return post("graphql");
     }
 
     public MockMvcResponse request(Method method) {

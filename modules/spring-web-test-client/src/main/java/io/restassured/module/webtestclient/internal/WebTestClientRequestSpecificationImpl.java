@@ -768,6 +768,11 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	}
 
 	@Override
+	public WebTestClientResponse graphql(URI uri) {
+		return when().graphql(uri);
+	}
+
+	@Override
 	public WebTestClientResponse get(URL url) {
 		return when().get(url);
 	}
@@ -803,6 +808,11 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	}
 
 	@Override
+	public WebTestClientResponse graphql(URL url) {
+		return when().graphql(url);
+	}
+
+	@Override
 	public WebTestClientResponse get() {
 		return when().get();
 	}
@@ -835,6 +845,11 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 	@Override
 	public WebTestClientResponse options() {
 		return when().options();
+	}
+
+	@Override
+	public WebTestClientResponse graphql() {
+		return post("graphql");
 	}
 
 	@Override

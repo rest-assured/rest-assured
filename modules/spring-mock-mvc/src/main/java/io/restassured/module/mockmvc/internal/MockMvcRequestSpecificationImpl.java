@@ -662,6 +662,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return when().options(uri);
     }
 
+    public MockMvcResponse graphql(URI uri) {
+        return when().post(uri);
+    }
+
     public MockMvcResponse get(URL url) {
         return when().get(url);
     }
@@ -690,6 +694,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return when().options(url);
     }
 
+    @Override
+    public MockMvcResponse graphql(URL url) {
+        return when().post(url);
+    }
+
     public MockMvcResponse get() {
         return when().get();
     }
@@ -716,6 +725,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcResponse options() {
         return when().options();
+    }
+
+    public MockMvcResponse graphql() {
+        return when().post("graphql");
     }
 
     public MockMvcResponse request(Method method) {

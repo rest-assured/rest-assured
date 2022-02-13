@@ -1441,4 +1441,6 @@ public interface RequestSpecification extends RequestSender {
      * @return the request specification
      */
     RequestSpecification proxy(ProxySpecification proxySpecification);
+
+    OperationSpecification operation();
 }

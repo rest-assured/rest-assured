@@ -281,6 +281,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	}
 
 	@Override
+	public WebTestClientResponse graphql(URI uri) {
+		return post(uri);
+	}
+
+	@Override
 	public WebTestClientResponse get(URL url) {
 		return get(url.toString());
 	}
@@ -316,6 +321,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	}
 
 	@Override
+	public WebTestClientResponse graphql(URL url) {
+		return post(url);
+	}
+
+	@Override
 	public WebTestClientResponse get() {
 		return get("");
 	}
@@ -348,6 +358,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	@Override
 	public WebTestClientResponse options() {
 		return options("");
+	}
+
+	@Override
+	public WebTestClientResponse graphql() {
+		return post("graphql");
 	}
 
 	@Override

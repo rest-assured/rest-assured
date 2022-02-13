@@ -133,6 +133,10 @@ class TestSpecificationImpl implements RequestSender {
     options(notNull(uri, "URI").toString())
   }
 
+  Response graphql(URI uri) {
+    post(notNull(uri, "URI").toString())
+  }
+
   def Response get(URL url) {
     get(notNull(url, "URL").toString())
   }
@@ -161,6 +165,10 @@ class TestSpecificationImpl implements RequestSender {
     options(notNull(url, "URL").toString())
   }
 
+  def Response graphql(URL url) {
+    post(notNull(url, "URL").toString())
+  }
+
   def Response get() {
     get("")
   }
@@ -187,6 +195,10 @@ class TestSpecificationImpl implements RequestSender {
 
   def Response options() {
     options("")
+  }
+
+  def Response graphql() {
+    post("graphql")
   }
 
   Response request(Method method) {
