@@ -71,14 +71,14 @@ class MapCreator {
 
       if (map.containsKey(key) && collisionStrategy == CollisionStrategy.MERGE) {
         def currentValue = map.get(key)
-        def value = argumentsDefined ? new ArgsAndValue(args, val) : val
+        def value = argumentsDefined ? new ArgsAndValue(args: args, value: val) : val
         if (currentValue instanceof List) {
           currentValue << value
         } else {
           map.put(key, [currentValue, value])
         }
       } else if (argumentsDefined) {
-        map.put(key, new ArgsAndValue(args, val))
+        map.put(key, new ArgsAndValue(args: args, value: val))
       } else {
         map.put(key, val)
       }

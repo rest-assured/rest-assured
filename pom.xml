@@ -58,8 +58,8 @@
     <properties>
         <scm.branch>master</scm.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <groovy.version>3.0.9</groovy.version>
-        <groovy.range>[3.0,3.1)</groovy.range>
+        <groovy.version>4.0.1</groovy.version>
+        <groovy.range>[3.0,4.0)</groovy.range>
         <gmaven.version>1.5</gmaven.version>
         <hamcrest.version>2.1</hamcrest.version>
         <jackson1.version>1.9.11</jackson1.version>
@@ -134,13 +134,13 @@
                             <version>${gmaven.version}</version>
                             <exclusions>
                                 <exclusion>
-                                    <groupId>org.codehaus.groovy</groupId>
+                                    <groupId>org.apache.groovy</groupId>
                                     <artifactId>groovy-all</artifactId>
                                 </exclusion>
                             </exclusions>
                         </dependency>
                         <dependency>
-                            <groupId>org.codehaus.groovy</groupId>
+                            <groupId>org.apache.groovy</groupId>
                             <artifactId>groovy</artifactId>
                             <version>${groovy.version}</version>
                         </dependency>
@@ -401,7 +401,7 @@
                 <version>3.11</version>
             </dependency>
             <dependency>
-                <groupId>org.codehaus.groovy</groupId>
+                <groupId>org.apache.groovy</groupId>
                 <artifactId>groovy</artifactId>
                 <version>${groovy.version}</version>
             </dependency>

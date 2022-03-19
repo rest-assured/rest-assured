@@ -24,6 +24,7 @@ import io.restassured.http.ContentType
 import io.restassured.internal.MapCreator.CollisionStrategy
 import io.restassured.internal.log.LogRepository
 import io.restassured.internal.util.MatcherErrorMessageBuilder
+import io.restassured.listener.ResponseValidationFailureListener
 import io.restassured.matcher.DetailedCookieMatcher
 import io.restassured.parsing.Parser
 import io.restassured.response.Response
@@ -48,7 +49,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   private Matcher<Integer> expectedStatusCode
   private Matcher<String> expectedStatusLine
   private BodyMatcherGroup bodyMatchers = new BodyMatcherGroup()
-  private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure()
+  private HamcrestAssertionClosure assertionClosure = new HamcrestAssertionClosure(this)
   private def headerAssertions = []
   private def cookieAssertions = []
   private RequestSpecification requestSpecification
@@ -447,6 +448,11 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   }
 
   class HamcrestAssertionClosure {
+    private ResponseSpecification responseSpecification
+
+    HamcrestAssertionClosure(ResponseSpecification responseSpecification) {
+      this.responseSpecification = responseSpecification
+    }
 
     def call(response, content) {
       return getClosure().call(response, content)
@@ -506,11 +512,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     }
 
     private void fireFailureListeners(Response response) {
-      config.getFailureConfig().getFailureListeners().each {
-        it.onFailure(
-                ResponseSpecificationImpl.this.requestSpecification,
-                ResponseSpecificationImpl.this,
-                response)
+      config.getFailureConfig().getFailureListeners().each { ResponseValidationFailureListener listener ->
+        listener.onFailure(requestSpecification, responseSpecification, response)
       }
     }
 

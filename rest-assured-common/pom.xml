@@ -51,7 +51,7 @@
                         </Export-Package>
                         <Import-Package>
 							groovy.*;version="${groovy.range}",
-                            org.codehaus.groovy.*;version="${groovy.range}",
+                            org.apache.groovy.*;version="${groovy.range}",
                             *
 						</Import-Package>
                     </instructions>
@@ -66,7 +66,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
+            <groupId>org.apache.groovy</groupId>
             <artifactId>groovy</artifactId>
         </dependency>
         <dependency>

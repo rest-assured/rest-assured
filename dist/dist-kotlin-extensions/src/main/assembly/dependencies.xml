@@ -58,9 +58,9 @@
                 <!-- Rest Assured -->
                 <exclude>io.rest-assured:rest-assured</exclude>
                 <exclude>io.rest-assured:rest-assured-common</exclude>
-                <exclude>org.codehaus.groovy:groovy</exclude>
-                <exclude>org.codehaus.groovy:groovy-xml</exclude>
-                <exclude>org.codehaus.groovy:groovy-json</exclude>
+                <exclude>org.apache.groovy:groovy</exclude>
+                <exclude>org.apache.groovy:groovy-xml</exclude>
+                <exclude>org.apache.groovy:groovy-json</exclude>
                 <exclude>org.apache.httpcomponents</exclude>
                 <exclude>org.scribe:scribe</exclude>
                 <exclude>org.hamcrest:hamcrest-core</exclude>

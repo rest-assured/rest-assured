@@ -26,7 +26,7 @@ import java.nio.charset.Charset
 @Canonical
 class MultiPartInternal {
 
-	public static final String OCTET_STREAM = "application/octet-stream"
+  public static final String OCTET_STREAM = "application/octet-stream"
   private static final String TEXT_PLAIN = "text/plain"
 
   def content
@@ -35,6 +35,7 @@ class MultiPartInternal {
   def String mimeType
   def String charset
   def Map<String, String> headers = [:]
+
 
   def getContentBody() {
     if (content instanceof NoParameterValue) {

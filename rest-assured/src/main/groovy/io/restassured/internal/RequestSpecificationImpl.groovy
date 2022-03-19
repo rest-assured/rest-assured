@@ -1150,7 +1150,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       throw new IllegalStateException(format("Unfortunately Rest Assured only supports Http Client instances of type %s.", AbstractHttpClient.class.getName()))
     }
 
-    def http = new RestAssuredHttpBuilder(targetUri, assertionClosure, urlEncodingEnabled, config, requestSpecification.getHttpClient() as AbstractHttpClient)
+    def http = new RestAssuredHttpBuilder(responseSpecification as ResponseSpecificationImpl, requestHeaders, queryParameters, targetUri, assertionClosure, urlEncodingEnabled,
+            config, requestSpecification.getHttpClient() as AbstractHttpClient, allowContentType, responseSpecification.rpr.defaultParser)
     applyProxySettings(http)
     applyRestAssuredConfig(http)
     registerRestAssuredEncoders(http)
@@ -1549,11 +1550,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private boolean shouldAppendCharsetToContentType(contentType) {
-    contentType != null
-            && !(startsWith(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH) || contains(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS))
-            && restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined()
-            && (isApplicationJsonContentTypeWithDefaultCharsetDefined(contentType)
-            || !(containsIgnoreCase(contentType.toString(), CHARSET) || equalsIgnoreCase(contentType.toString(), APPLICATION_JSON)))
+    contentType != null &&
+            !(startsWith(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH) || contains(contentType.toString(), MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS)) &&
+            restAssuredConfig().encoderConfig.shouldAppendDefaultContentCharsetToContentTypeIfUndefined() && (
+            isApplicationJsonContentTypeWithDefaultCharsetDefined(contentType) || !(containsIgnoreCase(contentType.toString(), CHARSET) || equalsIgnoreCase(contentType.toString(), APPLICATION_JSON)))
   }
 
   private boolean isApplicationJsonContentTypeWithDefaultCharsetDefined(contentType) {
@@ -2021,154 +2021,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     notNull filterType, "Filter type"
     this.filters.removeAll { filterType.isAssignableFrom(it.getClass()) }
     this
-  }
-
-  private class RestAssuredHttpBuilder extends HTTPBuilder {
-    def assertionClosure
-
-    RestAssuredHttpBuilder(Object defaultURI, assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config, AbstractHttpClient client) throws URISyntaxException {
-      super(defaultURI, urlEncodingEnabled, config?.getEncoderConfig(), config?.getDecoderConfig(), config?.getOAuthConfig(), client)
-      this.assertionClosure = assertionClosure
-    }
-
-    /**
-     * A copy of HTTP builders doRequest method with two exceptions.
-     * <ol>
-     *  <li>The exception is that the entity's content is not closed if no body matchers are specified.</li>
-     *  <li>If headers contain a list of elements the headers are added and not overridden</li>
-     *  </ol>
-     */
-    protected Object doRequest(HTTPBuilder.RequestConfigDelegate delegate) {
-      if (delegate.getRequest() instanceof HttpPost) {
-        if (assertionClosure != null) {
-          delegate.getResponse().put(
-                  Status.FAILURE.toString(), { response, content ->
-            assertionClosure.call(response, content)
-          })
-        }
-        delegate.uri.query = queryParameters
-      }
-      final HttpRequestBase reqMethod = delegate.getRequest()
-      Object acceptContentType = delegate.getContentType()
-      if (!requestHeaders.hasHeaderWithName("Accept")) {
-        String acceptContentTypes = acceptContentType.toString()
-        if (acceptContentType instanceof ContentType)
-          acceptContentTypes = ((ContentType) acceptContentType).getAcceptHeader()
-        reqMethod.setHeader("Accept", acceptContentTypes)
-      }
-      reqMethod.setURI(delegate.getUri().toURI())
-      if (shouldApplyContentTypeFromRestAssuredConfigDelegate(delegate, reqMethod)) {
-        def contentTypeToUse = trim(delegate.getRequestContentType())
-        reqMethod.setHeader(CONTENT_TYPE, contentTypeToUse)
-      }
-      if (reqMethod.getURI() == null)
-        throw new IllegalStateException("Request URI cannot be null")
-      Map<?, ?> headers1 = delegate.getHeaders()
-      for (Object key : headers1.keySet()) {
-        if (key == null) continue
-        Object val = headers1.get(key)
-        if (val == null) {
-          reqMethod.removeHeaders(key.toString())
-        } else if (key.toString().equalsIgnoreCase(CONTENT_TYPE) && !allowContentType) {
-          reqMethod.removeHeaders(key.toString())
-        } else if (!key.toString().equalsIgnoreCase(CONTENT_TYPE) || !val.toString().startsWith(MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH)) {
-          // Don't overwrite multipart header because HTTP Client have added boundary
-          def keyAsString = key.toString()
-          if (val instanceof Collection) {
-            val = val.flatten().collect { it?.toString() }
-            val.each {
-              reqMethod.addHeader(keyAsString, it)
-            }
-          } else {
-            reqMethod.setHeader(keyAsString, val.toString())
-          }
-        }
-      }
-      final HttpResponseDecorator resp = new HttpResponseDecorator(
-              this.client.execute(reqMethod, delegate.getContext()),
-              delegate.getContext(), null)
-      try {
-        int status = resp.getStatusLine().getStatusCode()
-        Closure responseClosure = delegate.findResponseHandler(status)
-
-        Object returnVal
-        Object[] closureArgs = null
-        switch (responseClosure.getMaximumNumberOfParameters()) {
-          case 1:
-            returnVal = responseClosure.call(resp)
-            break
-          case 2: // parse the response entity if the response handler expects it:
-            HttpEntity entity = resp.getEntity()
-            try {
-              if (entity == null || entity.getContentLength() == 0) {
-                returnVal = responseClosure.call(resp, EMPTY)
-              } else {
-                returnVal = responseClosure.call(resp, this.parseResponse(resp, acceptContentType))
-              }
-            } catch (Exception ex) {
-              throw new ResponseParseException(resp, ex)
-            }
-            break
-          default:
-            throw new IllegalArgumentException(
-                    "Response closure must accept one or two parameters")
-        }
-        return returnVal
-      }
-      finally {
-        if (responseSpecification.hasBodyAssertionsDefined()) {
-          HttpEntity entity = resp.getEntity()
-          if (entity != null) EntityUtils.consumeQuietly(entity)
-        }
-        // Close idle connections to the server
-        def connectionConfig = connectionConfig()
-        if (connectionConfig.shouldCloseIdleConnectionsAfterEachResponse()) {
-          def closeConnectionConfig = connectionConfig.closeIdleConnectionConfig()
-          client.getConnectionManager().closeIdleConnections(closeConnectionConfig.getIdleTime(), closeConnectionConfig.getTimeUnit())
-        }
-      }
-    }
-
-    /*
-     * Is is for
-     */
-
-    private boolean shouldApplyContentTypeFromRestAssuredConfigDelegate(delegate, HttpRequestBase reqMethod) {
-      def requestContentType = delegate.getRequestContentType()
-      allowContentType && requestContentType != null && requestContentType != ANY.toString() &&
-              (!reqMethod.hasProperty("entity") || reqMethod.entity?.contentType == null) &&
-              !reqMethod.getAllHeaders().any { it.getName().equalsIgnoreCase(CONTENT_TYPE) }
-    }
-
-    /**
-     * We override this method because ParserRegistry.getContentType(..) called by
-     * the super method throws an exception if no content-type is available in the response
-     * and then HTTPBuilder for some reason uses the streaming octet parser instead of the
-     * defaultParser in the ParserRegistry to parse the response. To fix this we set the
-     * content-type of the defaultParser if registered to Rest Assured to the response if no
-     * content-type is defined.
-     */
-    protected Object parseResponse(HttpResponse resp, Object contentType) {
-      Parser definedDefaultParser = responseSpecification.rpr.defaultParser
-      if (definedDefaultParser != null && ANY.toString().equals(contentType.toString())) {
-        try {
-          HttpResponseContentTypeFinder.findContentType(resp)
-        } catch (IllegalArgumentException ignored) {
-          // This means that no content-type is defined the response
-          def entity = resp?.entity
-          if (entity != null) {
-            resp.entity = new HttpEntityWrapper(entity) {
-
-              org.apache.http.Header getContentType() {
-                // We don't use CONTENT_TYPE field because of issue 253 (no tests for this!)
-                return new BasicHeader("Content-Type", definedDefaultParser.getContentType())
-              }
-            }
-          }
-        }
-      }
-      return super.parseResponse(resp, contentType)
-    }
   }
 
   private def applyProxySettings(RestAssuredHttpBuilder http) {
