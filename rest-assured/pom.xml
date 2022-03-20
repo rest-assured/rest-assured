@@ -43,7 +43,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>3.5.1</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -59,6 +58,7 @@
                         <Import-Package>
                             groovy.*;version="${groovy.range}",
                             org.apache.groovy.*;version="${groovy.range}",
+                            org.codehaus.groovy.*;version="${groovy.range}",
                             *
                         </Import-Package>
                     </instructions>

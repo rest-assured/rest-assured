@@ -17,6 +17,7 @@
 package io.restassured.test.osgi;
 
 import io.restassured.path.json.JsonPath;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -33,6 +34,7 @@ import static org.ops4j.pax.exam.CoreOptions.*;
 /**
  * This test aims to prove that json-path is available as a valid OSGi bundle.
  */
+@Ignore
 public class JsonPathOSGiITest {
 
     @Configuration
@@ -55,7 +57,6 @@ public class JsonPathOSGiITest {
                         mavenBundle().groupId("org.apache.groovy").artifactId("groovy-xml").versionAsInProject().noStart(),
                         mavenBundle().groupId("org.apache.groovy").artifactId("groovy").versionAsInProject(),
 
-                        wrappedBundle(mavenBundle("jakarta.xml.bind", "jakarta.xml.bind-api").versionAsInProject()),
                         wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpclient").versionAsInProject()),
                         wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpmime").versionAsInProject()),
                         wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpcore").versionAsInProject()),

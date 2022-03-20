@@ -29,7 +29,7 @@
 
     <properties>
         <animal.sniffer.skip>true</animal.sniffer.skip>
-        <pax-exam.version>4.13.1</pax-exam.version>
+        <pax-exam.version>4.13.5</pax-exam.version>
         <surefire.version>2.18</surefire.version>
     </properties>
 
@@ -56,7 +56,7 @@
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-atinject_1.0_spec</artifactId>
-            <version>1.0</version>
+            <version>1.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -96,19 +96,19 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.framework</artifactId>
-            <version>6.0.1</version>
+            <version>7.0.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.swissbox</groupId>
             <artifactId>pax-swissbox-framework</artifactId>
-            <version>1.8.3</version>
+            <version>1.8.5</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-wrap</artifactId>
-            <version>2.5.4</version>
+            <version>2.6.11</version>
         </dependency>
 
     </dependencies>

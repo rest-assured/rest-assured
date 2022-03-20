@@ -51,6 +51,7 @@
                         <Import-Package>
 							groovy.*;version="${groovy.range}",
                             org.apache.groovy.*;version="${groovy.range}",
+                            org.codehaus.groovy.*;version="${groovy.range}",
                             *
 						</Import-Package>
                     </instructions>

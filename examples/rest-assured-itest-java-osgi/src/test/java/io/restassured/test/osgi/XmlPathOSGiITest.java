@@ -17,6 +17,7 @@
 package io.restassured.test.osgi;
 
 import org.hamcrest.Matchers;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -35,6 +36,7 @@ import static org.ops4j.pax.exam.CoreOptions.*;
  * This test aims to prove that xml-path is available as a valid OSGi bundle.
  */
 @RunWith(PaxExam.class)
+@Ignore
 public class XmlPathOSGiITest {
 
     @Configuration
@@ -58,7 +60,6 @@ public class XmlPathOSGiITest {
                         mavenBundle().groupId("org.apache.groovy").artifactId("groovy").versionAsInProject(),
 
                         wrappedBundle(mavenBundle().groupId("org.ccil.cowan.tagsoup").artifactId("tagsoup").versionAsInProject()),
-                        wrappedBundle(mavenBundle("jakarta.xml.bind", "jakarta.xml.bind-api").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.activation", "activation").version("1.1.1")),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),

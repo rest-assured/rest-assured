@@ -16,6 +16,7 @@
 
 package io.restassured.test.osgi;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -33,6 +34,7 @@ import static org.ops4j.pax.exam.CoreOptions.*;
 /**
  * This test aims to prove that Rest Assured is available as a valid OSGi bundle.
  */
+@Ignore
 public class RestAssuredOSGiITest {
 
     @Configuration
@@ -59,10 +61,10 @@ public class RestAssuredOSGiITest {
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
-                        wrappedBundle(mavenBundle("jakarta.xml.bind", "jakarta.xml.bind-api").versionAsInProject()),
+                        // wrappedBundle(mavenBundle("jakarta.xml.bind", "jakarta.xml.bind-api").versionAsInProject()),
                         wrappedBundle(mavenBundle("javax.activation", "activation").version("1.1.1")),
 
-                        /* Rest Assured dependencie needed in the Pax Exam container to be able to execute the test below */
+                        /* Rest Assured dependencies needed in the Pax Exam container to be able to execute the test below */
                         mavenBundle("io.rest-assured", "json-path").versionAsInProject(),
                         mavenBundle("io.rest-assured", "xml-path").versionAsInProject(),
                         mavenBundle("io.rest-assured", "rest-assured").versionAsInProject(),
