@@ -29,7 +29,7 @@
 
     <properties>
         <animal.sniffer.skip>true</animal.sniffer.skip>
-        <pax-exam.version>4.13.5</pax-exam.version>
+        <pax-exam.version>4.13.4</pax-exam.version>
         <surefire.version>2.18</surefire.version>
     </properties>
 
@@ -100,15 +100,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.ops4j.pax.swissbox</groupId>
-            <artifactId>pax-swissbox-framework</artifactId>
-            <version>1.8.5</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.ops4j.pax.url</groupId>
             <artifactId>pax-url-wrap</artifactId>
             <version>2.6.11</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>       
+            <scope>test</scope>      
         </dependency>
 
     </dependencies>
@@ -151,6 +150,9 @@
             <plugin>
                 <groupId>org.basepom.maven</groupId>
                 <artifactId>duplicate-finder-maven-plugin</artifactId>
+                <configuration>
+                  <skip>true</skip>
+                </configuration>
             </plugin>
         </plugins>
     </build>
