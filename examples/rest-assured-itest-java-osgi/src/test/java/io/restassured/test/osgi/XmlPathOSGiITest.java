@@ -36,7 +36,6 @@ import static org.ops4j.pax.exam.CoreOptions.*;
  * This test aims to prove that xml-path is available as a valid OSGi bundle.
  */
 @RunWith(PaxExam.class)
-@Ignore
 public class XmlPathOSGiITest {
 
     @Configuration
@@ -64,6 +63,7 @@ public class XmlPathOSGiITest {
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpclient").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpmime").versionAsInProject()),
                         wrappedBundle(mavenBundle("org.apache.httpcomponents", "httpcore").versionAsInProject()),
+                        mavenBundle("javax.xml.bind", "jaxb-api").versionAsInProject(),
 
                         /* Rest Assured dependencies needed in the Pax Exam container to be able to execute the tests below */
                         mavenBundle("io.rest-assured", "json-path").versionAsInProject(),
