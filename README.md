@@ -78,7 +78,6 @@ REST Assured supports any HTTP method but has explicit support for *POST*, *GET*
 ## Documentation
 
 * [Getting started](https://github.com/rest-assured/rest-assured/wiki/GettingStarted)
-* [Downloads](https://github.com/rest-assured/rest-assured/wiki/Downloads)
 * [Usage Guide](https://github.com/rest-assured/rest-assured/wiki/Usage) (click [here](https://github.com/rest-assured/rest-assured/wiki/Usage_Legacy) for legacy documentation)
 * [Javadoc](http://www.javadoc.io/doc/io.rest-assured/rest-assured/4.5.1)
 * [Rest Assured Javadoc](http://static.javadoc.io/io.rest-assured/rest-assured/4.5.1/io/restassured/RestAssured.html)
