@@ -1,6 +1,9 @@
+Changelog 5.0.0 (2022-03-25)
+----------------------------
+* Breaking change: REST Assured now builds on Groovy 4!
+
 Changelog 4.5.1 (2022-02-11)
 ----------------------------
-
 * Fixed a bug in ObjectMapper that required JAXB/JakartaEE when this was not intended (issue 1542)
 
 Changelog 4.5.0 (2022-01-21)
