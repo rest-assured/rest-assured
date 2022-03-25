@@ -286,6 +286,11 @@
                                         <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
                                         <sonar.skip>true</sonar.skip>
                                     </properties>
+                                    <modules>
+                                        <excludes>
+                                            <exclude>io.rest-assured.examples:*</exclude>
+                                        </excludes>
+                                    </modules>
                                 </bom>
                             </boms>
                         </configuration>

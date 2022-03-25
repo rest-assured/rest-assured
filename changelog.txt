@@ -1,6 +1,7 @@
 Changelog 5.0.0 (2022-03-25)
 ----------------------------
 * Breaking change: REST Assured now builds on Groovy 4!
+* Excluded example projects from rest assured bom file (issue 1546)
 
 Changelog 4.5.1 (2022-02-11)
 ----------------------------
