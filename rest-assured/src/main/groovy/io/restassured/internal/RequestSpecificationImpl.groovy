@@ -1150,7 +1150,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       throw new IllegalStateException(format("Unfortunately Rest Assured only supports Http Client instances of type %s.", AbstractHttpClient.class.getName()))
     }
 
-    def http = new RestAssuredHttpBuilder(responseSpecification as ResponseSpecificationImpl, requestHeaders, queryParameters, targetUri, assertionClosure, urlEncodingEnabled,
+    def http = new RestAssuredHttpBuilder(responseSpecification, requestHeaders, queryParameters, targetUri, assertionClosure, urlEncodingEnabled,
             config, requestSpecification.getHttpClient() as AbstractHttpClient, allowContentType, responseSpecification.rpr.defaultParser)
     applyProxySettings(http)
     applyRestAssuredConfig(http)

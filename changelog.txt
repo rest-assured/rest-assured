@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* Fixed so that with RestAssuredHttpBuilder no longer requires ResponseSpecificationImpl but rather a FilterableResponseSpecification
+
 Changelog 5.0.0 (2022-03-25)
 ----------------------------
 * Breaking change: REST Assured now builds on Groovy 4!

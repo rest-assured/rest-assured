@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.restassured.internal;
 
 import groovy.lang.Closure;
@@ -8,6 +24,7 @@ import io.restassured.http.Headers;
 import io.restassured.internal.http.*;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.parsing.Parser;
+import io.restassured.specification.FilterableResponseSpecification;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -41,10 +58,10 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
     private RestAssuredConfig config;
     private boolean allowContentType;
     private Parser parser;
-    ResponseSpecificationImpl responseSpecification;
+    FilterableResponseSpecification responseSpecification;
     Object assertionClosure;
 
-    RestAssuredHttpBuilder(ResponseSpecificationImpl responseSpecification, Headers requestHeaders, LinkedHashMap<String, String> queryParameters, Object defaultURI,
+    RestAssuredHttpBuilder(FilterableResponseSpecification responseSpecification, Headers requestHeaders, LinkedHashMap<String, String> queryParameters, Object defaultURI,
                            Object assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config, AbstractHttpClient client, boolean allowContentType,
                            Parser parser) {
         super(defaultURI, urlEncodingEnabled, orNull(config, RestAssuredConfig::getEncoderConfig), orNull(config, RestAssuredConfig::getDecoderConfig), orNull(config, RestAssuredConfig::getOAuthConfig), client);
@@ -128,7 +145,6 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
             Closure responseClosure = delegate.findResponseHandler(status);
 
             Object returnVal;
-            Object[] closureArgs = null;
             switch (responseClosure.getMaximumNumberOfParameters()) {
                 case 1:
                     returnVal = responseClosure.call(resp);
@@ -151,7 +167,7 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
             }
             return returnVal;
         } finally {
-            if (responseSpecification.hasBodyAssertionsDefined()) {
+            if (responseSpecification instanceof ResponseSpecificationImpl && ((ResponseSpecificationImpl) responseSpecification).hasBodyAssertionsDefined()) {
                 HttpEntity entity = resp.getEntity();
                 if (entity != null) EntityUtils.consumeQuietly(entity);
             }
