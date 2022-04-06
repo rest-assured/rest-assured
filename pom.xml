@@ -72,7 +72,7 @@
         <kotlin.version>1.6.10</kotlin.version>
         <assertj-core.version>3.16.1</assertj-core.version>
         <scribe.version>2.5.3</scribe.version>
-        <sundrio.version>0.80.1</sundrio.version>
+        <sundrio.version>0.90.4</sundrio.version>
     </properties>
     <scm>
         <url>http://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>
