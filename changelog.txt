@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 5.0.1 (2022-04-06)
+----------------------------
 * Fixed so that with RestAssuredHttpBuilder no longer requires ResponseSpecificationImpl but rather a FilterableResponseSpecification
 
 Changelog 5.0.0 (2022-03-25)
