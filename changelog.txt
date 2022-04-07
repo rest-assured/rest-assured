@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* Upgrading kotlin to 1.6.20
+
 Changelog 5.0.1 (2022-04-06)
 ----------------------------
 * Fixed so that with RestAssuredHttpBuilder no longer requires ResponseSpecificationImpl but rather a FilterableResponseSpecification
