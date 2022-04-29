@@ -23,6 +23,7 @@ import io.restassured.filter.log.LogDetail
 import io.restassured.http.ContentType
 import io.restassured.internal.MapCreator.CollisionStrategy
 import io.restassured.internal.assertion.BodyMatcher
+import io.restassured.internal.assertion.BodyMatcherGroup
 import io.restassured.internal.log.LogRepository
 import io.restassured.internal.util.MatcherErrorMessageBuilder
 import io.restassured.listener.ResponseValidationFailureListener
@@ -99,9 +100,9 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   ResponseSpecification body(Matcher matcher, Matcher... additionalMatchers) {
     notNull(matcher, "matcher")
     validateResponseIfRequired {
-      bodyMatchers << new BodyMatcher(key: null, matcher: matcher, rpr: rpr)
+      bodyMatchers.add(new BodyMatcher(key: null, matcher: matcher, rpr: rpr))
       additionalMatchers?.each { hamcrestMatcher ->
-        bodyMatchers << new BodyMatcher(key: null, matcher: hamcrestMatcher, rpr: rpr)
+        bodyMatchers.add(new BodyMatcher(key: null, matcher: hamcrestMatcher, rpr: rpr))
       }
     }
     return this
@@ -262,7 +263,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     notNull(matcher, "matcher")
 
     validateResponseIfRequired {
-      bodyMatchers << new BodyMatcher(key: applyArguments(mergeKeyWithRootPath(key), arguments), matcher: matcher, rpr: rpr)
+      bodyMatchers.add(new BodyMatcher(key: applyArguments(mergeKeyWithRootPath(key), arguments), matcher: matcher, rpr: rpr))
       if (additionalKeyMatcherPairs?.length > 0) {
         def pairs = MapCreator.createMapFromObjects(CollisionStrategy.MERGE, additionalKeyMatcherPairs)
         pairs.each { matchingKey, matchingValue ->
@@ -294,10 +295,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
                 keyToUse = keyWithRoot
                 matcherToUse = m
               }
-              bodyMatchers << new BodyMatcher(key: keyToUse, matcher: matcherToUse, rpr: rpr)
+              bodyMatchers.add(new BodyMatcher(key: keyToUse, matcher: matcherToUse, rpr: rpr))
             }
           } else {
-            bodyMatchers << new BodyMatcher(key: keyWithRoot, matcher: hamcrestMatcher, rpr: rpr)
+            bodyMatchers.add(new BodyMatcher(key: keyWithRoot, matcher: hamcrestMatcher, rpr: rpr))
           }
         }
       }

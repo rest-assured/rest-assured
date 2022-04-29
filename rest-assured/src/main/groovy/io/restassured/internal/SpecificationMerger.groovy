@@ -53,7 +53,7 @@ class SpecificationMerger {
     thisOne.contentType = with.contentType
     thisOne.rpr.defaultParser = with.rpr.defaultParser
     thisOne.rpr.additional.putAll(with.rpr.additional)
-    thisOne.bodyMatchers << with.bodyMatchers
+    thisOne.bodyMatchers.add(with.bodyMatchers)
     thisOne.bodyRootPath = with.bodyRootPath
     thisOne.cookieAssertions.addAll(with.cookieAssertions)
     thisOne.expectedStatusCode = with.expectedStatusCode
