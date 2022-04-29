@@ -22,6 +22,7 @@ import io.restassured.config.RestAssuredConfig
 import io.restassured.filter.log.LogDetail
 import io.restassured.http.ContentType
 import io.restassured.internal.MapCreator.CollisionStrategy
+import io.restassured.internal.assertion.BodyMatcher
 import io.restassured.internal.log.LogRepository
 import io.restassured.internal.util.MatcherErrorMessageBuilder
 import io.restassured.listener.ResponseValidationFailureListener

@@ -6,6 +6,7 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.internal.ContentParser;
 import io.restassured.internal.ResponseParserRegistrar;
+import io.restassured.internal.assertion.BodyMatcher;
 import io.restassured.response.Response;
 import org.hamcrest.core.IsEqual;
 import org.junit.Test;
@@ -81,7 +82,7 @@ public class BodyMatcherTest {
                 .setContentType(ContentType.JSON)
                 .build();
 
-        final Map<String, Object> result = (Map<String, Object>) bodyMatcher.validate(response,
+        final Map<String, Object> result = bodyMatcher.validate(response,
                 new ContentParser().parse(response, responseParserRegistrar, config, true),
                 config);
 

@@ -1,6 +1,7 @@
 Changelog next version
 ----------------------
 * Upgrading kotlin to 1.6.20
+* Moved package io.restassured.assertion to io.restassured.internal.assertion since the classes in this package should be internal.
 
 Changelog 5.0.1 (2022-04-06)
 ----------------------------
