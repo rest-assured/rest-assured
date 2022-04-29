@@ -47,13 +47,13 @@ public class CustomObjectMappingITest extends WithJetty {
     public AtomicBoolean customDeserializationUsed = new AtomicBoolean(false);
 
     @Before public void
-    setup() throws Exception {
+    setup() {
         customSerializationUsed.set(false);
         customDeserializationUsed.set(false);
     }
 
     @Test public void
-    using_explicit_custom_object_mapper() throws Exception {
+    using_explicit_custom_object_mapper() {
         final Message message = new Message();
         message.setMessage("A message");
         final ObjectMapper mapper = new ObjectMapper() {

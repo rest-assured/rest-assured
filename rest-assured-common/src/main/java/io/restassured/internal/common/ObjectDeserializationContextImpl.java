@@ -35,4 +35,16 @@ public class ObjectDeserializationContextImpl implements ObjectDeserializationCo
     public String getCharset() {
         return charset;
     }
+
+    public void setDataToDeserialize(DataToDeserialize dataToDeserialize) {
+        this.dataToDeserialize = dataToDeserialize;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public void setCharset(String charset) {
+        this.charset = charset;
+    }
 }
