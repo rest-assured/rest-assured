@@ -17,7 +17,7 @@
 
 package io.restassured.internal.mapping
 
-import io.restassured.internal.common.mapper.ObjectDeserializationContextImpl
+import io.restassured.internal.common.ObjectDeserializationContextImpl
 import io.restassured.mapper.ObjectMapperDeserializationContext
 
 class ObjectMapperDeserializationContextImpl extends ObjectDeserializationContextImpl implements ObjectMapperDeserializationContext {

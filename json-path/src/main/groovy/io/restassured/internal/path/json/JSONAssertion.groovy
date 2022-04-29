@@ -21,23 +21,23 @@ import io.restassured.internal.common.assertion.Assertion
 import static io.restassured.internal.common.assertion.AssertionSupport.*
 
 class JSONAssertion implements Assertion {
-  String key;
-  Map<String, Object> params;
+  String key
+  Map<String, Object> params
 
-  def Object getResult(object, config) {
+  Object getResult(object, config) {
     Object result = getAsJsonObject(object)
-    return result;
+    return result
   }
 
   def getAsJsonObject(object) {
-    key = escapePath(key, hyphen(), attributeGetter(), integer(), properties(), classKeyword());
-    def result;
+    key = escapePath(key, hyphen(), attributeGetter(), integer(), properties(), classKeyword())
+    def result
     if (key == "\$" || key == "") {
       result = object
     } else {
       def root = 'restAssuredJsonRootObject'
       try {
-        def expr;
+        def expr
         if (key =~ /^\[\d+\].*/) {
           expr = "$root$key"
         } else {
@@ -46,36 +46,36 @@ class JSONAssertion implements Assertion {
         result = eval(root, object, expr)
       } catch (MissingPropertyException e) {
         // This means that a param was used that was not defined
-        String error = String.format("The parameter \"%s\" was used but not defined. Define parameters using the JsonPath.params(...) function", e.property);
-        throw new IllegalArgumentException(error, e);
+        String error = String.format("The parameter \"%s\" was used but not defined. Define parameters using the JsonPath.params(...) function", e.property)
+        throw new IllegalArgumentException(error, e)
       } catch (Exception e) {
         // Check if exception is due to a missing property
         if (e instanceof NullPointerException && e.getMessage().startsWith("Cannot get property") && e.getMessage().endsWith("on null object")) {
           return null
         }
-        String error = e.getMessage().replace("startup failed:", "Invalid JSON expression:").replace("$root.", generateWhitespace(root.length()));
-        throw new IllegalArgumentException(error, e);
+        String error = e.getMessage().replace("startup failed:", "Invalid JSON expression:").replace("$root.", generateWhitespace(root.length()))
+        throw new IllegalArgumentException(error, e)
       }
     }
     return result
   }
 
-  def String description() {
+  String description() {
     return "JSON path"
   }
 
   private def eval(root, object, expr) {
-    Map<String, Object> newParams;
+    Map<String, Object> newParams
     // Create parameters from given ones
     if (params != null) {
-      newParams = new HashMap<>(params);
+      newParams = new HashMap<>(params)
     } else {
-      newParams = new HashMap<>();
+      newParams = new HashMap<>()
     }
     // Add object to evaluate
-    newParams.put(root, object);
+    newParams.put(root, object)
     // Create shell with variables set
-    GroovyShell sh = new GroovyShell(new Binding(newParams));
+    GroovyShell sh = new GroovyShell(new Binding(newParams))
     // Run
     def res = sh.evaluate(expr)
     sh.resetLoadedClasses()
