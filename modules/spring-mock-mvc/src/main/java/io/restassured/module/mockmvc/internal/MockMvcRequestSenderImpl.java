@@ -45,7 +45,6 @@ import io.restassured.specification.ResponseSpecification;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -57,9 +56,12 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.net.URL;
 import java.security.Principal;
@@ -67,6 +69,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
+import static io.restassured.internal.common.classpath.ClassPathResolver.existInCP;
 import static io.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash;
 import static io.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
 import static io.restassured.module.spring.commons.HeaderHelper.mapToArray;
@@ -81,7 +84,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAsyncConfigurer, MockMvcRequestAsyncSender {
     private static final String ATTRIBUTE_NAME_URL_TEMPLATE = "org.springframework.restdocs.urlTemplate";
     private static final String CONTENT_TYPE = "Content-Type";
-    private static final String CHARSET = "charset";
+    private static final boolean isSpring6OrLater = existInCP("org.springframework.core.annotation.CoreAnnotationsRuntimeHintsRegistrar");
 
     private final MockMvc mockMvc;
     private final Map<String, Object> params;
@@ -153,22 +156,32 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return new Headers(headers);
     }
 
-    private Cookies convertCookies(javax.servlet.http.Cookie[] servletCookies) {
+    private Cookies convertCookies(Object[] servletCookies) {
         List<Cookie> cookies = new ArrayList<>();
-        for (javax.servlet.http.Cookie servletCookie : servletCookies) {
-            Cookie.Builder cookieBuilder = new Cookie.Builder(servletCookie.getName(), servletCookie.getValue());
-            if (servletCookie.getComment() != null) {
-                cookieBuilder.setComment(servletCookie.getComment());
+        for (Object servletCookie : servletCookies) {
+            Cookie.Builder cookieBuilder = new Cookie.Builder(
+                    invokeMethod(servletCookie, "getName"),
+                    invokeMethod(servletCookie, "getValue")
+            );
+
+            String comment = invokeMethod(servletCookie, "getComment");
+            if (comment != null) {
+                cookieBuilder.setComment(comment);
             }
-            if (servletCookie.getDomain() != null) {
-                cookieBuilder.setDomain(servletCookie.getDomain());
+
+            String domain = invokeMethod(servletCookie, "getDomain");
+            if (domain != null) {
+                cookieBuilder.setDomain(domain);
             }
-            if (servletCookie.getPath() != null) {
-                cookieBuilder.setPath(servletCookie.getPath());
+
+            String path = invokeMethod(servletCookie, "getPath");
+            if (path != null) {
+                cookieBuilder.setPath(path);
             }
-            cookieBuilder.setMaxAge(servletCookie.getMaxAge());
-            cookieBuilder.setVersion(servletCookie.getVersion());
-            cookieBuilder.setSecured(servletCookie.getSecure());
+            int getMaxAge = invokeMethod(servletCookie, "getMaxAge");
+            cookieBuilder.setMaxAge(getMaxAge);
+            cookieBuilder.setVersion(invokeMethod(servletCookie, "getVersion"));
+            cookieBuilder.setSecured(invokeMethod(servletCookie, "getSecure"));
             cookies.add(cookieBuilder.build());
         }
         return new Cookies(cookies);
@@ -292,13 +305,14 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         if (multiParts.isEmpty()) {
             request = MockMvcRequestBuilders.request(method, uri, pathParams);
         } else if (method == POST || method == PUT) {
-            request = MockMvcRequestBuilders.fileUpload(uri, pathParams);
-            request.with(new RequestPostProcessor() {
-                @Override
-                public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-                    request.setMethod(method.name());
-                    return request;
-                }
+            if (isSpring6OrLater) {
+                request = invokeMethod(MockMvcRequestBuilders.class, "multipart", uri, pathParams);
+            } else {
+                request = invokeMethod(MockMvcRequestBuilders.class, "fileUpload", new Class[]{String.class, Object[].class}, uri, pathParams);
+            }
+            request.with(req -> {
+                req.setMethod(method.name());
+                return req;
             });
         } else {
             throw new IllegalArgumentException("Currently multi-part file data uploading only works for POST and PUT methods");
@@ -362,24 +376,31 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
         if (cookies.exist()) {
             for (Cookie cookie : cookies) {
-                javax.servlet.http.Cookie servletCookie = new javax.servlet.http.Cookie(cookie.getName(), cookie.getValue());
+                final String cookieClassName;
+                if (isSpring6OrLater) {
+                    cookieClassName = "jakarta.servlet.http.Cookie";
+                } else {
+                    cookieClassName = "javax.servlet.http.Cookie";
+                }
+                final Object servletCookie = invokeConstructor(cookieClassName, cookie.getName(), cookie.getValue());
+
                 if (cookie.hasComment()) {
-                    servletCookie.setComment(cookie.getComment());
+                    invokeMethod(servletCookie, "setComment", cookie.getComment());
                 }
                 if (cookie.hasDomain()) {
-                    servletCookie.setDomain(cookie.getDomain());
+                    invokeMethod(servletCookie, "setDomain", cookie.getDomain());
                 }
                 if (cookie.hasMaxAge()) {
-                    servletCookie.setMaxAge((int) cookie.getMaxAge());
+                    invokeMethod(servletCookie, "setMaxAge", (int) cookie.getMaxAge());
                 }
                 if (cookie.hasPath()) {
-                    servletCookie.setPath(cookie.getPath());
+                    invokeMethod(servletCookie, "setPath", cookie.getPath());
                 }
                 if (cookie.hasVersion()) {
-                    servletCookie.setVersion(cookie.getVersion());
+                    invokeMethod(servletCookie, "setVersion", cookie.getVersion());
                 }
-                servletCookie.setSecure(cookie.isSecured());
-                request.cookie(servletCookie);
+                invokeMethod(servletCookie, "setSecure", new Class[]{boolean.class}, cookie.isSecured());
+                invokeMethod(request, "cookie", new Class[]{arrayNameOf(cookieClassName)}, servletCookie);
             }
         }
 
@@ -433,6 +454,14 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         logRequestIfApplicable(method, baseUri, path, pathParams);
 
         return performRequest(request);
+    }
+
+    private Class<?> arrayNameOf(String cookieClassName) {
+        try {
+            return Class.forName("[L" + cookieClassName + ";");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void setContentTypeToApplicationFormUrlEncoded(MockHttpServletRequestBuilder request) {
@@ -680,5 +709,58 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             throw new IllegalArgumentException("HTTP method '" + method + "' is not supported by MockMvc");
         }
         return httpMethod;
+    }
+
+    private static <T> T invokeMethod(Object instance, String methodName, Object... arguments) {
+        Class<?>[] argumentTypes = getArgumentTypes(arguments);
+        return invokeMethod(instance, methodName, argumentTypes, arguments);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T invokeMethod(Object instance, String methodName, Class<?>[] argumentTypes, Object... arguments) {
+        java.lang.reflect.Method method = ReflectionUtils.findMethod(instance instanceof Class ? (Class<?>) instance : instance.getClass(), methodName, argumentTypes);
+        if (method == null) {
+            throw new IllegalArgumentException("Cannot find method '" + methodName + "' in " + instance.getClass() + " (arguments=" + Arrays.toString(arguments) + ")");
+        }
+        if (method.isVarArgs()) {
+            Class<?> argumentType = argumentTypes[argumentTypes.length - 1];
+            if (argumentType.isArray()) {
+                argumentType = argumentType.getComponentType();
+            }
+            int numberOfVarArgParameters = arguments.length - argumentTypes.length + 1;
+            Object varArgsArguments = Array.newInstance(argumentType, numberOfVarArgParameters);
+            for (int i = arguments.length - argumentTypes.length; i < numberOfVarArgParameters; i++) {
+                Array.set(varArgsArguments, i, arguments[i]);
+            }
+
+            Object[] objectArrayNeededForInvocation = new Object[argumentTypes.length];
+            if (arguments.length - 1 >= 0) {
+                System.arraycopy(arguments, 0, objectArrayNeededForInvocation, 0, arguments.length - 1);
+            }
+            objectArrayNeededForInvocation[argumentTypes.length - 1] = varArgsArguments;
+            return (T) ReflectionUtils.invokeMethod(method, instance, objectArrayNeededForInvocation);
+        } else {
+            return (T) ReflectionUtils.invokeMethod(method, instance, arguments);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T invokeConstructor(String className, Object... arguments) {
+        Class<?>[] argumentTypes = getArgumentTypes(arguments);
+        try {
+            Class<T> cls = (Class<T>) Class.forName(className);
+            Constructor<T> constructor = cls.getConstructor(argumentTypes);
+            return constructor.newInstance(arguments);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Class<?>[] getArgumentTypes(Object[] arguments) {
+        Class<?>[] argumentTypes = new Class[arguments.length];
+        for (int i = 0; i < arguments.length; i++) {
+            argumentTypes[i] = arguments[i].getClass();
+        }
+        return argumentTypes;
     }
 }
