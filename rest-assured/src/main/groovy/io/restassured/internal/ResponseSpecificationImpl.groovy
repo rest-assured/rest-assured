@@ -24,6 +24,7 @@ import io.restassured.http.ContentType
 import io.restassured.internal.MapCreator.CollisionStrategy
 import io.restassured.internal.assertion.BodyMatcher
 import io.restassured.internal.assertion.BodyMatcherGroup
+import io.restassured.internal.assertion.CookieMatcher
 import io.restassured.internal.log.LogRepository
 import io.restassured.internal.util.MatcherErrorMessageBuilder
 import io.restassured.listener.ResponseValidationFailureListener

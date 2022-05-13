@@ -18,7 +18,7 @@
 package io.restassured.internal
 
 import groovy.xml.StreamingMarkupBuilder
-import io.restassured.assertion.CookieMatcher
+import io.restassured.internal.assertion.CookieMatcher
 import io.restassured.common.mapper.DataToDeserialize
 import io.restassured.common.mapper.TypeRef
 import io.restassured.config.DecoderConfig

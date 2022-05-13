@@ -18,6 +18,7 @@ package io.restassured.assertion
 
 import io.restassured.http.Cookie
 import io.restassured.http.Cookies
+import io.restassured.internal.assertion.CookieMatcher
 import org.hamcrest.Matcher
 
 
