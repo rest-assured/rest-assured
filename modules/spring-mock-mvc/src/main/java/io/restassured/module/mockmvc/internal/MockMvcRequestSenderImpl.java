@@ -231,7 +231,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             restAssuredResponse.setFilterContextProperties(new HashMap() {{
                 put(TimingFilter.RESPONSE_TIME_MILLISECONDS, responseTime);
             }});
-            restAssuredResponse.setCookies(convertCookies(response.getCookies()));
+            restAssuredResponse.setCookies(convertCookies(invokeMethod(response, "getCookies")));
 
             if (responseSpecification != null) {
                 responseSpecification.validate(ResponseConverter.toStandardResponse(restAssuredResponse));
