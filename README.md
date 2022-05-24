@@ -11,9 +11,9 @@ languages into the Java domain.
 
 
 ## News
+* 2022-05-24: REST Assured 5.1.0 is released. The biggest change is that the [Spring MockMvc Module](https://github.com/rest-assured/rest-assured/wiki/Usage#spring-mock-mvc-module) now supports Spring Framework 6 and Jakarta API's. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2022-04-06: REST Assured 5.0.1 is released that fixes a bug introduced in the previous version. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2022-03-25: REST Assured 5.0.0 is released which adds support for Groovy 4. See [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes50) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
-* 2022-02-11: REST Assured 4.5.1 is released. It fixes a bug that accidentally required both Jakarta EE _and_ JAXB to be in the classpath at the same time under certain conditions. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
@@ -79,11 +79,11 @@ REST Assured supports any HTTP method but has explicit support for *POST*, *GET*
 
 * [Getting started](https://github.com/rest-assured/rest-assured/wiki/GettingStarted)
 * [Usage Guide](https://github.com/rest-assured/rest-assured/wiki/Usage) (click [here](https://github.com/rest-assured/rest-assured/wiki/Usage_Legacy) for legacy documentation)
-* [Javadoc](http://www.javadoc.io/doc/io.rest-assured/rest-assured/5.0.1)
-* [Rest Assured Javadoc](http://static.javadoc.io/io.rest-assured/rest-assured/5.0.1/io/restassured/RestAssured.html)
-* [Rest AssuredMockMvc Javadoc](http://static.javadoc.io/io.rest-assured/spring-mock-mvc/5.0.1/io/restassured/module/mockmvc/RestAssuredMockMvc.html)
-* [XmlPath Javadoc](http://static.javadoc.io/io.rest-assured/xml-path/5.0.1/io/restassured/path/xml/XmlPath.html)
-* [JsonPath Javadoc](http://static.javadoc.io/io.rest-assured/json-path/5.0.1/io/restassured/path/json/JsonPath.html)
+* [Javadoc](http://www.javadoc.io/doc/io.rest-assured/rest-assured/5.1.0)
+* [Rest Assured Javadoc](http://static.javadoc.io/io.rest-assured/rest-assured/5.1.0/io/restassured/RestAssured.html)
+* [Rest AssuredMockMvc Javadoc](http://static.javadoc.io/io.rest-assured/spring-mock-mvc/5.1.0/io/restassured/module/mockmvc/RestAssuredMockMvc.html)
+* [XmlPath Javadoc](http://static.javadoc.io/io.rest-assured/xml-path/5.1.0/io/restassured/path/xml/XmlPath.html)
+* [JsonPath Javadoc](http://static.javadoc.io/io.rest-assured/json-path/5.1.0/io/restassured/path/json/JsonPath.html)
 * [Release Notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes)
 * [FAQ](https://github.com/rest-assured/rest-assured/wiki/FAQ)
 
