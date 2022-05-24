@@ -26,7 +26,7 @@
     <groupId>io.rest-assured</groupId>
     <artifactId>rest-assured-parent</artifactId>
     <packaging>pom</packaging>
-    <version>5.1.0</version>
+    <version>5.1.1-SNAPSHOT</version>
     <url>http://code.google.com/p/rest-assured</url>
     <name>REST Assured Parent POM</name>
     <description>Java DSL for easy testing of REST services</description>
