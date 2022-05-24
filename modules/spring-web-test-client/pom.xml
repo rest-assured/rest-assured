@@ -20,10 +20,10 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>5.0.2-SNAPSHOT</version>
+        <version>5.1.0</version>
     </parent>
     <artifactId>spring-web-test-client</artifactId>
-    <version>5.0.2-SNAPSHOT</version>
+    <version>5.1.0</version>
     <name>spring-web-test-client</name>
     <url>http://maven.apache.org</url>
     <properties>
