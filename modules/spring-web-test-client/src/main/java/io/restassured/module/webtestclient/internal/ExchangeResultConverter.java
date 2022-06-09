@@ -55,17 +55,18 @@ class ExchangeResultConverter {
                 logRepository);
         restAssuredResponse.setConfig(ConfigConverter.convertToRestAssuredConfig(config));
         byte[] responseBodyContent = ofNullable(consumer).map(theConsumer ->
-                responseSpec.expectBody().consumeWith(theConsumer).returnResult().getResponseBodyContent())
+                        responseSpec.expectBody().consumeWith(theConsumer).returnResult().getResponseBodyContent())
                 .orElseGet(() -> responseSpec.expectBody().returnResult().getResponseBodyContent());
         restAssuredResponse.setContent(responseBodyContent);
         MediaType contentType = result.getResponseHeaders().getContentType();
         restAssuredResponse.setContentType(ofNullable(contentType).map(MimeType::toString).orElse(null));
         restAssuredResponse.setHasExpectations(false);
-        restAssuredResponse.setStatusCode(result.getStatus().value());
+        HttpStatus status = getHttpStatusByReflection(result);
+        restAssuredResponse.setStatusCode(status.value());
         List<Header> responseHeaders = assembleHeaders(result.getResponseHeaders());
         restAssuredResponse.setResponseHeaders(new Headers(responseHeaders));
         restAssuredResponse.setRpr(responseParserRegistrar);
-        restAssuredResponse.setStatusLine(buildResultString(result.getStatus()));
+        restAssuredResponse.setStatusLine(buildResultString(status));
         restAssuredResponse.setFilterContextProperties(new HashMap<Object, Object>() {{
             put(TimingFilter.RESPONSE_TIME_MILLISECONDS, responseTime);
         }});
@@ -96,6 +97,17 @@ class ExchangeResultConverter {
                 .collect(Collectors.toList())
         ).flatMap(Collection::stream).collect(Collectors.toList());
         return new Cookies(cookies);
+    }
+
+    // Due to incompatibilities between Spring 5 and 6
+    private static HttpStatus getHttpStatusByReflection(FluxExchangeResult<byte[]> result) {
+        final HttpStatus status;
+        try {
+            status = (HttpStatus) result.getClass().getMethod("getStatus").invoke(result);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return status;
     }
 
 }
