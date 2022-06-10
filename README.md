@@ -11,7 +11,7 @@ languages into the Java domain.
 
 
 ## News
-* 2022-06-10: REST Assured 5.1.1 is released. The [Spring WebTestClient Module](https://github.com/rest-assured/rest-assured/wiki/Usage#spring-mock-mvc-module](https://github.com/rest-assured/rest-assured/wiki/Usage#spring-web-test-client-module) now supports Spring Framework 6. There are also several fixes and various improvements. See [changelog](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
+* 2022-06-10: REST Assured 5.1.1 is released. The [Spring WebTestClient Module](https://github.com/rest-assured/rest-assured/wiki/Usage#spring-web-test-client-module) now supports Spring Framework 6. There are also several fixes and various improvements. See [changelog](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2022-05-24: REST Assured 5.1.0 is released. The biggest change is that the [Spring MockMvc Module](https://github.com/rest-assured/rest-assured/wiki/Usage#spring-mock-mvc-module) now supports Spring Framework 6 and Jakarta API's. See [changelog](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2022-04-06: REST Assured 5.0.1 is released that fixes a bug introduced in the previous version. See [changelog](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 
