@@ -33,6 +33,7 @@ import java.io.StringWriter;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.fail;
 
 // @formatter:off
@@ -148,6 +149,31 @@ public class RequestLoggingTest {
                 "Multiparts:\t\t<none>%n" +
                 "Body:%n" +
                 "a string%n")));
+    }
+
+    @Test public void
+    can_supply_byte_array_as_body_for_post() {
+        RestAssuredMockMvc.given().
+                standaloneSetup(new PostController()).
+                log().all(false).
+                body(new byte[] {'B', 'O', 'D', 'Y'}).
+                when().
+                post("/stringBody").
+                then().
+                body(equalTo("BODY"));
+
+        assertThat(writer.toString(), startsWith(String.format("Request method:\tPOST%n" +
+                "Request URI:\thttp://localhost:8080/stringBody%n" +
+                "Proxy:\t\t\t<none>%n" +
+                "Request params:\t<none>%n" +
+                "Query params:\t<none>%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\t<none>%n" +
+                "Headers:\t\t<none>%n" +
+                "Cookies:\t\t<none>%n" +
+                "Multiparts:\t\t<none>%n" +
+                "Body:%n" +
+                "[B@")));
     }
 
     @Test public void

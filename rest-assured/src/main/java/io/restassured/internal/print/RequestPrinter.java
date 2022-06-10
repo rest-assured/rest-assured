@@ -143,7 +143,8 @@ public class RequestPrinter {
     private static void addBody(FilterableRequestSpecification requestSpec, StringBuilder builder, boolean shouldPrettyPrint) {
         builder.append("Body:");
         if (requestSpec.getBody() != null) {
-            final String body;
+            // Note: requestSpec.getBody() below is generic and may not always return a String!
+            final Object body;
             if (shouldPrettyPrint) {
                 body = new Prettifier().getPrettifiedBodyIfPossible(requestSpec);
             } else {
