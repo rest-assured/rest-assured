@@ -27,7 +27,7 @@
     <artifactId>rest-assured-parent</artifactId>
     <packaging>pom</packaging>
     <version>5.1.1-SNAPSHOT</version>
-    <url>http://code.google.com/p/rest-assured</url>
+    <url>https://rest-assured.io/</url>
     <name>REST Assured Parent POM</name>
     <description>Java DSL for easy testing of REST services</description>
     <inceptionYear>2010</inceptionYear>
