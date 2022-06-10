@@ -50,8 +50,12 @@ class JSONAssertion implements Assertion {
         throw new IllegalArgumentException(error, e)
       } catch (Exception e) {
         // Check if exception is due to a missing property
-        if (e instanceof NullPointerException && e.getMessage().startsWith("Cannot get property") && e.getMessage().endsWith("on null object")) {
-          return null
+        if (e instanceof NullPointerException){
+          def message = e.getMessage();
+          if (message.equals("Cannot invoke method getAt() on null object") ||
+             (message.startsWith("Cannot get property") && message.endsWith("on null object"))) {
+            return null
+          }
         }
         String error = e.getMessage().replace("startup failed:", "Invalid JSON expression:").replace("$root.", generateWhitespace(root.length()))
         throw new IllegalArgumentException(error, e)
