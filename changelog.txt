@@ -5,6 +5,7 @@ Changelog next-version
 * Fix: rootPath does not allow chaining paths with leading operators (issue 1577) (thanks to Roman Mitasov for pull request)
 * Fix: body(InputStream) does not work (issue 1480) (thanks to fedinskiy for pull request)
 * Fix: jsonPath - return null if list(array) does not exists in input document (issue 1544) (thanks to Oleksandr Kulychok for pull request)
+* Fix: Re-added groovy package to package imports for OSGi support (issue 1567) (thanks to Steven Huypens for pull request)
 * Upgraded gson from 2.6.2 to 2.9.0
 
 Changelog 5.1.0 (2022-05-24)
