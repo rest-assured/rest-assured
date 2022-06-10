@@ -43,6 +43,7 @@
                             io.restassured.internal.path.xml.*
                         </Export-Package>
                         <Import-Package>
+                            groovy.*;version="${groovy.range}",
                             org.apache.groovy.*;version="${groovy.range}",
                             *
                         </Import-Package>
