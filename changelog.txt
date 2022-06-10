@@ -1,5 +1,5 @@
-Changelog next-version
-----------------------
+Changelog 5.1.1 (2022-06-10)
+----------------------------
 * Added support for Spring Framework 6.0 in Spring WebClientTest module
 * Overwrite responseLogDetail when merging ResponseSpecificationImpl (issue 1493) (thanks to petur for pull request)
 * Fix: rootPath does not allow chaining paths with leading operators (issue 1577) (thanks to Roman Mitasov for pull request)
