@@ -1531,7 +1531,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         contentType = URLENC
       } else if (requestBody == null) {
         contentType = mayHaveBody(method) ? URLENC : null
-      } else if (requestBody instanceof byte[]) {
+      } else if (requestBody instanceof byte[] || requestBody instanceof InputStream) {
         contentType = BINARY
       } else {
         contentType = TEXT
