@@ -49,6 +49,10 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   private static final String EMPTY = ""
   private static final String DOT = "."
+  private static final String SAFE_REF = "?."
+  private static final String SAFE_INDEX = "?["
+  private static final String SPREAD_REF = "*."
+
   private Matcher<Integer> expectedStatusCode
   private Matcher<String> expectedStatusLine
   private BodyMatcherGroup bodyMatchers = new BodyMatcherGroup()
@@ -644,7 +648,9 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     if (bodyRootPath != null && bodyRootPath != EMPTY) {
       if (bodyRootPath.endsWith(DOT) && key.startsWith(DOT)) {
         return bodyRootPath + substringAfter(key, DOT)
-      } else if (!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT) && !key.startsWith("[")) {
+      } else if (!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT)
+              && !key.startsWith(SAFE_REF) && !key.startsWith("[")
+              && !key.startsWith(SAFE_INDEX) && !key.startsWith(SPREAD_REF)) {
         return bodyRootPath + DOT + key
       }
       return bodyRootPath + key

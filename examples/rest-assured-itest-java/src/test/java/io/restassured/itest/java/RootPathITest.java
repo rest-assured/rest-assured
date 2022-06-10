@@ -71,11 +71,40 @@ public class RootPathITest extends WithJetty {
     }
 
     @Test
+    public void specifyingRootPathThatDoesntEndWithDotAndBodyThatStartsWithSafeRefWorks() {
+        expect().
+                rootPath("store.book").
+                body("?.category.size()", equalTo(4)).
+                body("?.author.size()", equalTo(4)).
+                when().
+                get("/jsonStore");
+    }
+
+    @Test
+    public void specifyingRootPathThatDoesntEndWithDotAndBodyThatStartsWithSpreadWorks() {
+        expect().
+                rootPath("store.book").
+                body("*.category.size()", equalTo(4)).
+                body("*.author.size()", equalTo(4)).
+                when().
+                get("/jsonStore");
+    }
+
+    @Test
     public void specifyingRootPathAndBodyThatStartsWithArrayIndexingWorks() {
         expect().
                 rootPath("store.book").
                  body("[0].category", either(equalTo("reference")).or(equalTo("fiction"))).
         when().
+                get("/jsonStore");
+    }
+
+    @Test
+    public void specifyingRootPathAndBodyThatStartsWithSafeArrayIndexingWorks() {
+        expect().
+                rootPath("store.book").
+                body("?[0].category", either(equalTo("reference")).or(equalTo("fiction"))).
+                when().
                 get("/jsonStore");
     }
 
