@@ -795,7 +795,7 @@ public class JsonPathTest {
     @Test public void
     does_not_fail_on_absent_lists() {
         // Given
-        String json = "{ \"root\" : { }";
+        String json = "{ \"root\" : { } }";
 
         // When
         JsonPath jsonPath = JsonPath.from(json);
