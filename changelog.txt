@@ -1,6 +1,7 @@
 Changelog next-version
 ----------------------
 * Added support for Spring Framework 6.0 in Spring WebClientTest module
+* Overwrite responseLogDetail when merging ResponseSpecificationImpl (issue 1493) (thanks to petur for pull request)
 
 Changelog 5.1.0 (2022-05-24)
 ----------------------------
