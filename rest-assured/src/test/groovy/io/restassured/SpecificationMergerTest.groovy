@@ -22,6 +22,7 @@ import io.restassured.builder.ResponseSpecBuilder
 import io.restassured.config.RestAssuredConfig
 import io.restassured.filter.Filter
 import io.restassured.filter.FilterContext
+import io.restassured.filter.log.LogDetail
 import io.restassured.http.ContentType
 import io.restassured.internal.SpecificationMerger
 import io.restassured.internal.filter.FormAuthFilter
@@ -174,6 +175,16 @@ class SpecificationMergerTest {
     SpecificationMerger.merge(merge, with)
 
     assertEquals Parser.JSON, merge.rpr.defaultParser
+  }
+
+  @Test
+  void overwritesLogDetail() throws Exception {
+    def merge = new ResponseSpecBuilder().log(LogDetail.COOKIES).build()
+    def with = new ResponseSpecBuilder().log(LogDetail.URI).build()
+
+    SpecificationMerger.merge(merge, with)
+
+    assertEquals LogDetail.URI, merge.getLogDetail()
   }
 
   @Test
