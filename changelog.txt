@@ -6,6 +6,7 @@ Changelog next-version
 * Fix: body(InputStream) does not work (issue 1480) (thanks to fedinskiy for pull request)
 * Fix: jsonPath - return null if list(array) does not exists in input document (issue 1544) (thanks to Oleksandr Kulychok for pull request)
 * Fix: Re-added groovy package to package imports for OSGi support (issue 1567) (thanks to Steven Huypens for pull request)
+* Fix: class cast exception in RequestPrinter with byte[] body (thanks to Andreas Grub for pull request)
 * Upgraded gson from 2.6.2 to 2.9.0
 
 Changelog 5.1.0 (2022-05-24)
