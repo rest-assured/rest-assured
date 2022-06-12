@@ -304,7 +304,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         final MockHttpServletRequestBuilder request;
         if (multiParts.isEmpty()) {
             request = MockMvcRequestBuilders.request(method, uri, pathParams);
-        } else if (method == POST || method == PUT) {
+        } else if (method == POST || method == PUT || method == PATCH) {
             if (isSpring6OrLater) {
                 request = invokeMethod(MockMvcRequestBuilders.class, "multipart", uri, pathParams);
             } else {
