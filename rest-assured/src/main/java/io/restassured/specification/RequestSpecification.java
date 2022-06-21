@@ -527,8 +527,8 @@ public interface RequestSpecification extends RequestSender {
      * you can write:
      * <pre>
      * given().
-     *         pathParameter("itemNumber", myItem.getItemNumber()).
-     *         pathParameter("amount", 2).
+     *         pathParam("itemNumber", myItem.getItemNumber()).
+     *         pathParam("amount", 2).
      * when().
      *        get("/item/{itemNumber}/buy/{amount}").
      * then().
