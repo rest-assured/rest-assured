@@ -269,7 +269,7 @@ import static io.restassured.specification.ProxySpecification.host;
  *            // or a bit more efficiently:
  *            JsonPath jsonPath = new JsonPath(json).setRootPath("lotto");
  *            int lottoId = jsonPath.getInt("lottoId");
- *            List<Integer> winnderIds = jsonPath.get("winnders.winnderId");
+ *            List<Integer> winnerIds = jsonPath.get("winners.winnerId");
  *        </pre>
  * </li>
  * </ol>
