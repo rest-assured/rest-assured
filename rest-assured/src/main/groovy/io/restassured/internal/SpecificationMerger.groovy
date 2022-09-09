@@ -108,6 +108,7 @@ class SpecificationMerger {
     mergeFilters(thisOne, with)
     thisOne.urlEncodingEnabled = with.urlEncodingEnabled
     thisOne.allowContentType = with.allowContentType
+    thisOne.addCsrfFilter = with.addCsrfFilter
     thisOne.proxySpecification = with.proxySpecification
     thisOne.method = with.method
     thisOne.unnamedPathParamsTuples = with.unnamedPathParamValues

@@ -314,6 +314,14 @@ class SpecificationMergerTest {
   }
 
   @Test
+  void mergeRequestSpecsOverrideAddCsrfFilter() throws Exception {
+    RequestSpecification merge = new RequestSpecBuilder().build()
+    RequestSpecification with = new RequestSpecBuilder().disableCsrf().build()
+    SpecificationMerger.merge(merge, with)
+    assertFalse merge.addCsrfFilter
+  }
+
+  @Test
   void mergeRequestSpecsOverrideContentTypeWhenDisallowContentTypeOnOriginal() throws Exception {
     RequestSpecification merge = new RequestSpecBuilder().noContentType().build()
     RequestSpecification with = new RequestSpecBuilder().setContentType("content-type").build()

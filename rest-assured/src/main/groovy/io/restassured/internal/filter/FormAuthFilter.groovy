@@ -43,8 +43,6 @@ class FormAuthFilter implements AuthFilter {
   private static final String FIND_INPUT_VALUE_OF_INPUT_TAG_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }"
   private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action"
 
-  static final String FORM_AUTH_COMPLETED_CONTEXT_KEY = "RestAssuredFormAuthCompleted"
-
   def userName
   def password
   FormAuthConfig formAuthConfig
@@ -67,7 +65,7 @@ class FormAuthFilter implements AuthFilter {
     if (formAuthConfig.requiresParsingOfLoginPage() || csrfConfig.isCsrfEnabled()) {
       def loginPageResponse
       if (csrfConfig.isCsrfEnabled()) {
-        loginPageResponse = given().auth().none().cookies(requestSpec.getCookies()).get(csrfConfig.getCsrfTokenPath())
+        loginPageResponse = given().auth().none().disableCsrf().cookies(requestSpec.getCookies()).get(csrfConfig.getCsrfTokenPath())
         cookiesFromLoginPage = loginPageResponse.cookies()
       } else {
         loginPageResponse = ctx.send(given().spec(requestSpec).auth().none())
@@ -93,7 +91,9 @@ class FormAuthFilter implements AuthFilter {
         html.getString(format(FIND_INPUT_TAG_WITH_TYPE, "password"))
       }
 
-      csrfInputField = CsrfInputFieldFinder.findInHtml(csrfConfig, loginPageResponse)
+      if (csrfConfig.isCsrfEnabled()) {
+        csrfInputField = CsrfInputFieldFinder.findInHtml(csrfConfig, loginPageResponse)
+      }
 
       if (formAuthConfig.hasAdditionalInputFieldNames()) {
         formAuthConfig.getAdditionalInputFieldNames().each { name ->
@@ -115,7 +115,7 @@ class FormAuthFilter implements AuthFilter {
 
     formAction = formAction?.startsWith("/") ? formAction : "/" + formAction
 
-    def loginRequestSpec = given().auth().none().and().formParams(userNameInputField, userName, passwordInputField, password)
+    def loginRequestSpec = given().auth().none().and().disableCsrf().and().formParams(userNameInputField, userName, passwordInputField, password)
 
     def uri = new URI(requestSpec.getURI())
     String loginUri = uri.getScheme() + "://" + uri.getHost() + (uri.getPort() == -1 ? "" : ":" + uri.getPort()) + formAction
@@ -152,7 +152,6 @@ class FormAuthFilter implements AuthFilter {
     final Response loggedInResponse = loginRequestSpec.post(loginUri)
     // Don't send the detailed cookies because they contain too many detail (such as Path which is a reserved token)
     requestSpec.cookies(loggedInResponse.cookies())
-    ctx.setValue(FORM_AUTH_COMPLETED_CONTEXT_KEY, true)
     return ctx.next(requestSpec, responseSpec)
   }
 

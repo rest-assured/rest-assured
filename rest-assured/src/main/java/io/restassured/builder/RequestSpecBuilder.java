@@ -77,7 +77,7 @@ public class RequestSpecBuilder {
 
     public RequestSpecBuilder() {
         this.spec = (RequestSpecificationImpl) new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters(),
-                requestSpecification, urlEncodingEnabled, config, new LogRepository(), proxy, true).config(RestAssured.config());
+                requestSpecification, urlEncodingEnabled, config, new LogRepository(), proxy, true, true).config(RestAssured.config());
     }
 
     /**
@@ -686,6 +686,14 @@ public class RequestSpecBuilder {
      */
     public RequestSpecBuilder noContentType() {
         spec.noContentType();
+        return this;
+    }
+
+    /**
+     * Disable CSRF
+     */
+    public RequestSpecBuilder disableCsrf() {
+        spec.disableCsrf();
         return this;
     }
 

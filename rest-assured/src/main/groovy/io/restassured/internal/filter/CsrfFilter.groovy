@@ -15,7 +15,6 @@
  */
 package io.restassured.internal.filter
 
-
 import io.restassured.config.CsrfConfig
 import io.restassured.filter.Filter
 import io.restassured.filter.FilterContext
@@ -28,7 +27,6 @@ import io.restassured.specification.FilterableRequestSpecification
 import io.restassured.specification.FilterableResponseSpecification
 
 import static io.restassured.RestAssured.given
-import static io.restassured.internal.filter.FormAuthFilter.FORM_AUTH_COMPLETED_CONTEXT_KEY
 
 class CsrfFilter implements Filter {
 
@@ -37,13 +35,9 @@ class CsrfFilter implements Filter {
   @Override
   Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
     if (csrfConfig.isCsrfEnabled()) {
-      def formAuthFilterPresent = requestSpec.definedFilters.any { it instanceof FormAuthFilter }
-      boolean formAuthFilterPresentAndIfSoIsItCompleted = !formAuthFilterPresent ? true : formAuthFilterPresent && ctx.hasValue(FORM_AUTH_COMPLETED_CONTEXT_KEY, true)
-
-      // We need to apply CSRF _after_ FormAuthFilter is completed (if it is used), otherwise the request will get the wrong cookie.
-      // Also, a CSRF token doesn't need to be sent on GET/HEAD requests.
-      if (formAuthFilterPresentAndIfSoIsItCompleted && !requestSpec.method.equalsIgnoreCase("GET") && !requestSpec.method.equalsIgnoreCase("HEAD")) {
-        def requestSpecification = given().auth().none().cookies(requestSpec.getCookies())
+      // CSRF token doesn't need to be sent for GET/HEAD requests.
+      if (!requestSpec.method.equalsIgnoreCase("GET") && !requestSpec.method.equalsIgnoreCase("HEAD")) {
+        def requestSpecification = given().auth().none().disableCsrf().cookies(requestSpec.getCookies())
         if (csrfConfig.isLoggingEnabled()) {
           def logConfig = csrfConfig.getLogConfig()
           def logDetail = csrfConfig.getLogDetail()
@@ -59,6 +53,13 @@ class CsrfFilter implements Filter {
 
         def pageThatContainsCsrfToken = requestSpecification.get(csrfConfig.getCsrfTokenPath())
         def csrfInputField = CsrfInputFieldFinder.findInHtml(csrfConfig, pageThatContainsCsrfToken)
+        if (!csrfInputField) {
+          def name = ""
+          if (csrfConfig.hasCsrfInputFieldName()) {
+            name = " with name ${csrfConfig.csrfInputFieldName}"
+          }
+          throw new IllegalArgumentException("Couldn't find the CSRF input field$name in response. Response was:\n${pageThatContainsCsrfToken.prettyPrint()}")
+        }
 
         if (csrfConfig.shouldSendCsrfTokenAsFormParam()) {
           requestSpec.formParam(csrfInputField.name, csrfInputField.value)

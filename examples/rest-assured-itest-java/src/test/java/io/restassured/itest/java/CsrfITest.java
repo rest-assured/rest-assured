@@ -60,7 +60,7 @@ public class CsrfITest extends WithJetty {
             fail("Expecting IllegalArgumentException");
         } catch (Exception e) {
             assertTrue(e instanceof IllegalArgumentException);
-            assertTrue(e.getMessage().contains("Couldn't find the CSRF input field with name [] in response. Response was:"));
+            assertTrue(e.getMessage().contains("Not found"));
         }
     }
 

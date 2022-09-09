@@ -142,7 +142,6 @@ public class AuthenticationITest extends WithJetty {
 
         try {
             given().
-                    config(config().csrfConfig(csrfConfig().with().csrfTokenPath("/formAuthCsrf").and().autoDetectCsrfInputFieldName())).
                     auth().form("John", "Doe", formAuthConfig()).
             when().
                     get("/formAuthCsrf").

@@ -1200,10 +1200,17 @@ public interface RequestSpecification extends RequestSender {
      *
      * @param csrfTokenPath The path (URI) to the HTML page containing the CSRF token to use in the subsequent request.
      * @param csrfFieldName The name of the input field that contains the CSRF token.
-     * @return The request specification
+     * @return The request specification instance
      * @see #csrf(String)
      */
     RequestSpecification csrf(String csrfTokenPath, String csrfFieldName);
+
+    /**
+     * Disable CSRF for this request
+     *
+     * @return The request specification instance
+     */
+    RequestSpecification disableCsrf();
 
     /**
      * Specify the port of the URI. E.g.

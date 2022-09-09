@@ -126,9 +126,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   private boolean allowContentType
 
+  private boolean addCsrfFilter
+
   RequestSpecificationImpl(String baseURI, int requestPort, String basePath, AuthenticationScheme defaultAuthScheme, List<Filter> filters,
                            RequestSpecification defaultSpec, boolean urlEncode, RestAssuredConfig restAssuredConfig, LogRepository logRepository,
-                           ProxySpecification proxySpecification, boolean allowContentType) {
+                           ProxySpecification proxySpecification, boolean allowContentType, boolean addCsrfFilter) {
     notNull(baseURI, "baseURI")
     notNull(basePath, "basePath")
     notNull(defaultAuthScheme, "defaultAuthScheme")
@@ -147,6 +149,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this.logRepository = logRepository
     this.proxySpecification = proxySpecification
     this.allowContentType = allowContentType
+    this.addCsrfFilter = addCsrfFilter
   }
 
   RequestSpecification when() {
@@ -671,6 +674,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   RequestSpecification csrf(String csrfTokenPath, String csrfInputFieldName) {
     this.restAssuredConfig = restAssuredConfig().csrfConfig(csrfConfig().csrfTokenPath(csrfTokenPath).csrfInputFieldName(csrfInputFieldName))
     return this
+  }
+
+  @Override
+  RequestSpecification disableCsrf() {
+    addCsrfFilter = false
+    return noFiltersOfType(CsrfFilter.class)
   }
 
   AuthenticationSpecification authentication() {
@@ -1662,7 +1671,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       filters.add(0, new FormAuthFilter(userName: formAuthScheme.userName, password: formAuthScheme.password, formAuthConfig: formAuthScheme.config, sessionConfig: sessionConfig(), csrfConfig: csrfConfig()))
     }
 
-    filters.add(new CsrfFilter(csrfConfig: restAssuredConfig().csrfConfig))
+    if (addCsrfFilter) {
+      filters.add(new CsrfFilter(csrfConfig: restAssuredConfig().csrfConfig))
+    }
     def logConfig = restAssuredConfig().getLogConfig()
     if (logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
       if (!filters.any { RequestLoggingFilter.class.isAssignableFrom(it.getClass()) }) {
