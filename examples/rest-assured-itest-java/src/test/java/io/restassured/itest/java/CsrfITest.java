@@ -21,6 +21,7 @@ import io.restassured.authentication.FormAuthConfig;
 import io.restassured.config.CsrfConfig;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.filter.log.LogDetail;
 import io.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
@@ -93,7 +94,7 @@ public class CsrfITest extends WithJetty {
     @Test
     public void csrfAutoCsrfDetectionDefinedInRequestConfig() {
         given().
-                config(config().csrfConfig(csrfConfig().with().csrfTokenPath("/loginPageWithCsrf").and().autoDetectCsrfInputFieldName())).
+                config(config().csrfConfig(csrfConfig().with().csrfTokenPath("/loginPageWithCsrf").and().autoDetectCsrfInputFieldName().loggingEnabled(LogDetail.BODY))).
         when().
                 post("/loginPageWithCsrf").
         then().
