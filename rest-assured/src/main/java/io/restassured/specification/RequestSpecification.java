@@ -1097,6 +1097,16 @@ public interface RequestSpecification extends RequestSender {
     AuthenticationSpecification auth();
 
     /**
+     * Specify authentication credentials when performing a request.
+     *
+     * @return The authentication specification
+     * @see AuthenticationSpecification
+     */
+    RequestSpecification csrf(String csrfTokenPath);
+
+    RequestSpecification csrf(String csrfTokenPath, String csrfFieldName);
+
+    /**
      * Specify the port of the URI. E.g.
      * <p>
      * <pre>

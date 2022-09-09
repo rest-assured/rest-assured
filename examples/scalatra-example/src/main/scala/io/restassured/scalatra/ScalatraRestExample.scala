@@ -756,7 +756,7 @@ class ScalatraRestExample extends ScalatraServlet {
       response.setHeader("Set-Cookie", sessionIdName + "=1234")
       if (!additionalChecks.apply()) {
         "NO"
-      } else if (!request.getCookies.filter(cookie => cookie.getName.equals(sessionIdName)).exists(cookie => cookie.getValue.equals("1234"))) {
+      } else if (request.getCookies == null || !request.getCookies.filter(cookie => cookie.getName.equals(sessionIdName)).exists(cookie => cookie.getValue.equals("1234"))) {
         "NO"
       }
     } else {

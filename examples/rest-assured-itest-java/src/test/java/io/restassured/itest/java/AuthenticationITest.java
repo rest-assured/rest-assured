@@ -30,9 +30,11 @@ import org.junit.Test;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.authentication.FormAuthConfig.formAuthConfig;
+import static io.restassured.config.CsrfConfig.csrfConfig;
 import static io.restassured.config.SessionConfig.sessionConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -40,12 +42,12 @@ import static org.hamcrest.Matchers.equalTo;
 public class AuthenticationITest extends WithJetty {
 
     @Test
-    public void basicAuthentication() throws Exception {
+    public void basicAuthentication() {
         given().auth().basic("jetty", "jetty").expect().statusCode(200).when().get("/secured/hello");
     }
 
     @Test
-    public void basicAuthenticationUsingDefault() throws Exception {
+    public void basicAuthenticationUsingDefault() {
         authentication = basic("jetty", "jetty");
         try {
             expect().statusCode(200).when().get("/secured/hello");
@@ -55,7 +57,7 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void explicitExcludeOfBasicAuthenticationWhenUsingDefault() throws Exception {
+    public void explicitExcludeOfBasicAuthenticationWhenUsingDefault() {
         authentication = basic("jetty", "jetty");
         try {
             given().auth().none().and().expect().statusCode(401).when().get("/secured/hello");
@@ -65,22 +67,22 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void supportsExpectingStatusCodeWhenAuthenticationError() throws Exception {
+    public void supportsExpectingStatusCodeWhenAuthenticationError() {
         given().auth().basic("abcd", "abCD1").expect().statusCode(401).when().get("/secured/hello");
     }
 
     @Test
-    public void supportsPreemptiveBasicAuthentication() throws Exception {
+    public void supportsPreemptiveBasicAuthentication() {
         given().auth().preemptive().basic("jetty", "jetty").expect().statusCode(200).when().get("/secured/hello");
     }
 
     @Test
-    public void supportsExpectingStatusCodeWhenPreemptiveBasicAuthenticationError() throws Exception {
+    public void supportsExpectingStatusCodeWhenPreemptiveBasicAuthenticationError() {
         given().auth().preemptive().basic("jetty", "bad password").expect().statusCode(401).when().get("/secured/hello");
     }
 
     @Test
-    public void preemptiveBasicAuthenticationUsingDefault() throws Exception {
+    public void preemptiveBasicAuthenticationUsingDefault() {
         authentication = preemptive().basic("jetty", "jetty");
         try {
             expect().statusCode(200).when().get("/secured/hello");
@@ -90,7 +92,7 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void explicitExcludeOfPreemptiveBasicAuthenticationWhenUsingDefault() throws Exception {
+    public void explicitExcludeOfPreemptiveBasicAuthenticationWhenUsingDefault() {
         authentication = preemptive().basic("jetty", "jetty");
         try {
             given().auth().none().and().expect().statusCode(401).when().get("/secured/hello");
@@ -100,7 +102,7 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void formAuthenticationUsingSpringAuthConf() throws Exception {
+    public void formAuthenticationUsingSpringAuthConf() {
         given().
                 auth().form("John", "Doe", FormAuthConfig.springSecurity()).
         expect().
@@ -111,9 +113,10 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void formAuthenticationWithAutoFormDetailsAndAutoCsrfDetection() throws Exception {
+    public void formAuthenticationWithAutoFormDetailsAndAutoCsrfDetectionDefinedInRequestConfig() {
         given().
-                auth().form("John", "Doe", formAuthConfig().withAutoDetectionOfCsrf()).
+                config(config().csrfConfig(csrfConfig().with().csrfTokenPath("/formAuthCsrf").and().autoDetectCsrfInputFieldName())).
+                auth().form("John", "Doe", formAuthConfig()).
         when().
                 get("/formAuthCsrf").
         then().
@@ -122,9 +125,10 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void formAuthenticationWithDefinedCsrfField() throws Exception {
+    public void formAuthenticationWithDefinedCsrfFieldDefinedInRequestConfig() {
         given().
-                auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf", "j_username", "j_password").withCsrfFieldName("_csrf")).
+                config(config().csrfConfig(csrfConfig().csrfTokenPath("/formAuthCsrf").csrfInputFieldName("_csrf"))).
+                auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf", "j_username", "j_password")).
         when().
                 get("/formAuthCsrf").
         then().
@@ -133,9 +137,69 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void formAuthenticationWithDefinedCsrfFieldAsHeader() throws Exception {
+    public void formAuthenticationWithAutoFormDetailsAndAutoCsrfDetectionDefinedInStaticRequestConfig() {
+        RestAssured.config = config().csrfConfig(csrfConfig().csrfTokenPath("/formAuthCsrf").autoDetectCsrfInputFieldName());
+
+        try {
+            given().
+                    config(config().csrfConfig(csrfConfig().with().csrfTokenPath("/formAuthCsrf").and().autoDetectCsrfInputFieldName())).
+                    auth().form("John", "Doe", formAuthConfig()).
+            when().
+                    get("/formAuthCsrf").
+            then().
+                    statusCode(200).
+                    body(equalTo("OK"));
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void formAuthenticationWithDefinedCsrfFieldDefinedInStaticRequestConfig() {
+        RestAssured.config = config().csrfConfig(csrfConfig().csrfTokenPath("/formAuthCsrf").csrfInputFieldName("_csrf"));
+
+        try {
+            given().
+                    auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf", "j_username", "j_password")).
+            when().
+                    get("/formAuthCsrf").
+            then().
+                    statusCode(200).
+                    body(equalTo("OK"));
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void formAuthenticationWithAutoFormDetailsAndAutoCsrfDetectionDefinedInDSL() {
         given().
-                auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf_header", "j_username", "j_password").withCsrfFieldName("_csrf").sendCsrfTokenAsHeader()).
+                csrf("/formAuthCsrf").
+                auth().form("John", "Doe", formAuthConfig()).
+        when().
+                get("/formAuthCsrf").
+        then().
+                statusCode(200).
+                body(equalTo("OK"));
+    }
+
+    @Test
+    public void formAuthenticationWithDefinedCsrfFieldDefinedDefinedInDSL() {
+        given().
+                csrf("/formAuthCsrf", "_csrf").
+                auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf", "j_username", "j_password")).
+        when().
+                get("/formAuthCsrf").
+        then().
+                statusCode(200).
+                body(equalTo("OK"));
+    }
+
+    @Test
+    public void formAuthenticationWithDefinedCsrfFieldAsHeader() {
+        given().
+                config(config().csrfConfig(csrfConfig().csrfTokenPath("/formAuthCsrf").csrfInputFieldName("_csrf").and().sendCsrfTokenAsHeader())).
+                auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf_header", "j_username", "j_password")).
         when().
                 get("/formAuthCsrfInHeader").
         then().
@@ -157,7 +221,8 @@ public class AuthenticationITest extends WithJetty {
     @Test
     public void formAuthenticationWithCsrfAutoDetectionButSpecifiedFormDetails() {
         given().
-                auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf", "j_username", "j_password").withAutoDetectionOfCsrf()).
+                config(config().csrfConfig(csrfConfig().autoDetectCsrfInputFieldName())).
+                auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf", "j_username", "j_password")).
         when().
                 get("/formAuthCsrf").
         then().
@@ -166,9 +231,9 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void formAuthenticationUsingLogging() throws Exception {
+    public void formAuthenticationUsingLogging() {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, StandardCharsets.UTF_8), true);
 
         given().
                 auth().form("John", "Doe", FormAuthConfig.springSecurity().withLoggingEnabled(new LogConfig(captor, true))).
@@ -194,13 +259,13 @@ public class AuthenticationITest extends WithJetty {
                         "HTTP/1.1 200 OK%n" +
                         "Content-Type: text/plain;charset=utf-8%n" +
                         "Set-Cookie: jsessionid=1234%n" +
-                        "Content-Length: 0%n" +
-                        "Server: Jetty(9.4.34.v20201102)%n",
+                        "Content-Length: 2%n" +
+                        "Server: Jetty(9.4.34.v20201102)%n%nNO%n",
                 RestAssured.config().getEncoderConfig().defaultContentCharset())));
     }
 
     @Test
-    public void formAuthenticationUsingLoggingWithLogDetailEqualToParams() throws Exception {
+    public void formAuthenticationUsingLoggingWithLogDetailEqualToParams() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -221,7 +286,7 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void formAuthenticationUsingLoggingWithLogDetailEqualToStatus() throws Exception {
+    public void formAuthenticationUsingLoggingWithLogDetailEqualToStatus() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -237,7 +302,7 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void formAuthenticationUsingSpringAuthConfDefinedInRequestSpec() throws Exception {
+    public void formAuthenticationUsingSpringAuthConfDefinedInRequestSpec() {
         final RequestSpecification specification = new RequestSpecBuilder().setAuth(form("John", "Doe", FormAuthConfig.springSecurity())).build();
 
         given().
@@ -250,7 +315,7 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void formAuthenticationWithLoginPageParsing() throws Exception {
+    public void formAuthenticationWithLoginPageParsing() {
         given().
                 auth().form("John", "Doe").
         expect().
@@ -261,7 +326,7 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void sessionFilterRecordsAndProvidesTheSessionId() throws Exception {
+    public void sessionFilterRecordsAndProvidesTheSessionId() {
         final SessionFilter sessionFilter = new SessionFilter();
 
         given().
@@ -277,7 +342,7 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void reusingSameSessionFilterInDifferentRequestsAppliesTheSessionIdToTheNewRequest() throws Exception {
+    public void reusingSameSessionFilterInDifferentRequestsAppliesTheSessionIdToTheNewRequest() {
         final SessionFilter sessionFilter = new SessionFilter();
 
         given().
@@ -299,7 +364,7 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void sessionFilterRecordsAndProvidesTheSessionIdWhenSessionNameIsNotDefault() throws Exception {
+    public void sessionFilterRecordsAndProvidesTheSessionIdWhenSessionNameIsNotDefault() {
         final SessionFilter sessionFilter = new SessionFilter();
 
         given().
@@ -316,7 +381,7 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void formAuthenticationUsingDefaultWithLoginPageParsing() throws Exception {
+    public void formAuthenticationUsingDefaultWithLoginPageParsing() {
         RestAssured.authentication = form("John", "Doe");
 
         try {
@@ -331,7 +396,7 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void formAuthenticationUsingDefaultWithSpringAuthConf() throws Exception {
+    public void formAuthenticationUsingDefaultWithSpringAuthConf() {
         RestAssured.authentication = form("John", "Doe", FormAuthConfig.springSecurity());
 
         try {
@@ -349,7 +414,7 @@ public class AuthenticationITest extends WithJetty {
      * Asserts that <a href="http://code.google.com/p/rest-assured/issues/detail?id=95">issue 95</a> is resolved.
      */
     @Test
-    public void canSpecifyPortWhenUsingFormAuth() throws Exception {
+    public void canSpecifyPortWhenUsingFormAuth() {
         RestAssured.port = 8091; // Specify an unused port
 
         try {
@@ -370,7 +435,7 @@ public class AuthenticationITest extends WithJetty {
      * Asserts that <a href="http://code.google.com/p/rest-assured/issues/detail?id=233">issue 233</a> is resolved.
      */
     @Test
-    public void canOverridePreemptiveBasicAuthFromStaticConfiguration() throws Exception {
+    public void canOverridePreemptiveBasicAuthFromStaticConfiguration() {
         RestAssured.authentication = preemptive().basic("invalid", "password");
 
         try {

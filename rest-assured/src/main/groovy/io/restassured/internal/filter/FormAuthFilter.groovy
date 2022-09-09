@@ -16,6 +16,7 @@
 package io.restassured.internal.filter
 
 import io.restassured.authentication.FormAuthConfig
+import io.restassured.config.CsrfConfig
 import io.restassured.config.RestAssuredConfig
 import io.restassured.config.SessionConfig
 import io.restassured.filter.FilterContext
@@ -35,18 +36,20 @@ import static io.restassured.path.xml.XmlPath.CompatibilityMode.HTML
 import static java.lang.String.format
 
 class FormAuthFilter implements AuthFilter {
-  private static
-  final String FIND_INPUT_TAG_WITH_TYPE = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }"
-  private static
-  final String FIND_INPUT_VALUE_OF_INPUT_TAG_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }"
-  private static
-  final String FIND_INPUT_FIELD_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }.get(0)"
+
+  private static final String FIND_INPUT_TAG_WITH_TYPE = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }"
+  private static final String FIND_INPUT_VALUE_OF_INPUT_TAG_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }"
+  private static final String FIND_INPUT_FIELD_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }.get(0)"
   private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action"
+
+  public static final String FORM_AUTH_COMPLETED_CONTEXT_KEY = "RestAssuredFormAuthCompleted"
 
   def userName
   def password
   FormAuthConfig formAuthConfig
   SessionConfig sessionConfig
+  CsrfConfig defaultCsrfConfig
+  CsrfConfig explicitlyDefinedCsrfConfigForThisRequest
 
   @Override
   Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
@@ -62,17 +65,21 @@ class FormAuthFilter implements AuthFilter {
       formAuthConfig = new FormAuthConfig()
     }
 
-    // TODO Add ability in config to add login explicitly so that we can prevent some round-trips on CSRF parsing
-
-    if (formAuthConfig.requiresParsingOfLoginPage()) {
-      def loginPageResponse = ctx.send(given().spec(requestSpec).auth().none())
-      cookiesFromLoginPage = loginPageResponse.cookies()
-      if (loginPageResponse.statusCode() == 302) {
-        // This means that Rest Assured has not done a redirect automatically.
-        // This may happen if status code is 302 and method is not GET (see https://blog.jayway.com/2012/10/17/what-you-may-not-know-about-http-redirects/).
-        // Thus we follow the Location header explicitly.
-        loginPageResponse = given().auth().none().cookies(cookiesFromLoginPage).get(loginPageResponse.getHeader("Location"))
+    if (formAuthConfig.requiresParsingOfLoginPage() || defaultCsrfConfig.isCsrfEnabled()) {
+      def loginPageResponse
+      if (defaultCsrfConfig.isCsrfEnabled()) {
+        loginPageResponse = given().auth().none().cookies(requestSpec.getCookies()).get(defaultCsrfConfig.getCsrfTokenPath())
+      } else {
+        loginPageResponse = ctx.send(given().spec(requestSpec).auth().none())
+        cookiesFromLoginPage = loginPageResponse.cookies()
+        if (loginPageResponse.statusCode() == 302) {
+          // This means that Rest Assured has not done a redirect automatically.
+          // This may happen if status code is 302 and method is not GET (see https://blog.jayway.com/2012/10/17/what-you-may-not-know-about-http-redirects/).
+          // Thus we follow the Location header explicitly.
+          loginPageResponse = given().auth().none().cookies(cookiesFromLoginPage).get(loginPageResponse.getHeader("Location"))
+        }
       }
+
       def html = new XmlPath(HTML, loginPageResponse.asString())
 
       formAction = formAuthConfig.hasFormAction() ? formAuthConfig.getFormAction() : {
@@ -86,8 +93,8 @@ class FormAuthFilter implements AuthFilter {
         html.getString(format(FIND_INPUT_TAG_WITH_TYPE, "password"))
       }
 
-      if (formAuthConfig.hasCsrfFieldName() || formAuthConfig.isAutoDetectCsrfFieldName()) {
-        csrfFieldName = formAuthConfig.hasCsrfFieldName() ? formAuthConfig.csrfFieldName : nullIfException {
+      if (defaultCsrfConfig.hasCsrfInputFieldName() || defaultCsrfConfig.isAutoDetectCsrfInputFieldName()) {
+        csrfFieldName = defaultCsrfConfig.hasCsrfInputFieldName() ? defaultCsrfConfig.csrfInputFieldName : nullIfException {
           html.getString(format(FIND_INPUT_TAG_WITH_TYPE, "hidden"))
         }
         csrfValue = nullIfException { html.getString(format(FIND_INPUT_FIELD_WITH_NAME, csrfFieldName)) }
@@ -126,7 +133,7 @@ class FormAuthFilter implements AuthFilter {
     }
 
     if (csrfValue && csrfFieldName) {
-      if (formAuthConfig.shouldSendCsrfTokenAsFormParam()) {
+      if (defaultCsrfConfig.shouldSendCsrfTokenAsFormParam()) {
         loginRequestSpec.formParam(csrfFieldName, csrfValue)
       } else {
         loginRequestSpec.header(csrfFieldName, csrfValue)
@@ -153,7 +160,7 @@ class FormAuthFilter implements AuthFilter {
     final Response loggedInResponse = loginRequestSpec.post(loginUri)
     // Don't send the detailed cookies because they contain too many detail (such as Path which is a reserved token)
     requestSpec.cookies(loggedInResponse.cookies())
-    ctx.setValue("RestAssuredLoggedInSuccessful", true)
+    ctx.setValue(FORM_AUTH_COMPLETED_CONTEXT_KEY, true)
     return ctx.next(requestSpec, responseSpec)
   }
 
