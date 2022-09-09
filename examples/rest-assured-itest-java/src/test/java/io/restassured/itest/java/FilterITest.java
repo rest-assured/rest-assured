@@ -17,8 +17,10 @@
 package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
+import io.restassured.authentication.FormAuthConfig;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseBuilder;
+import io.restassured.config.CsrfConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.FilterContext;
@@ -55,10 +57,12 @@ import static org.hamcrest.Matchers.*;
 public class FilterITest extends WithJetty {
 
     @Test
-    public void filterWorks() throws Exception {
+    public void filterWorks() {
         final FormAuthFilter filter = new FormAuthFilter();
         filter.setUserName("John");
         filter.setPassword("Doe");
+        filter.setCsrfConfig(new CsrfConfig());
+        filter.setFormAuthConfig(new FormAuthConfig());
 
         given().
                 filter(filter).
@@ -70,7 +74,7 @@ public class FilterITest extends WithJetty {
     }
 
     @Test
-    public void supportsSpecifyingDefaultFilters() throws Exception {
+    public void supportsSpecifyingDefaultFilters() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         RestAssured.filters(asList(ErrorLoggingFilter.logErrorsTo(captor), ResponseLoggingFilter.logResponseTo(captor)));
@@ -94,7 +98,7 @@ public class FilterITest extends WithJetty {
     }
 
     @Test
-    public void filtersCanAlterResponseBeforeValidation() throws Exception {
+    public void filtersCanAlterResponseBeforeValidation() {
        given().
                filter(new SpookyGreetJsonResponseFilter()).
                queryParam("firstName", "John").
@@ -406,7 +410,7 @@ public class FilterITest extends WithJetty {
     }
 
     @Test public void
-    can_remove_unnamed_path_parameter_by_value_from_filter() throws Exception {
+    can_remove_unnamed_path_parameter_by_value_from_filter() {
         given().
                 filter((requestSpec, responseSpec, ctx) -> {
                     assertThat(requestSpec.getUnnamedPathParamValues(), contains("John", "Doe", "Real Name"));
@@ -424,7 +428,7 @@ public class FilterITest extends WithJetty {
     }
 
     @Test public void
-    can_remove_unnamed_path_parameter_by_name_from_filter() throws Exception {
+    can_remove_unnamed_path_parameter_by_name_from_filter() {
         given().
                 filter((requestSpec, responseSpec, ctx) -> {
                     assertThat(requestSpec.getUnnamedPathParamValues(), contains("John", "Doe"));
@@ -443,7 +447,7 @@ public class FilterITest extends WithJetty {
     }
 
     @Test public void
-    can_remove_both_unnamed_and_named_path_parameter_from_filter_and_order_is_maintained() throws Exception {
+    can_remove_both_unnamed_and_named_path_parameter_from_filter_and_order_is_maintained() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Path parameters were not correctly defined. Redundant path parameters are: John3, Doe.");
 
