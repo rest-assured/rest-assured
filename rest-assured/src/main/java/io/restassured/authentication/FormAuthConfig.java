@@ -171,7 +171,6 @@ public class FormAuthConfig {
      *
      * @return A new FormAuthConfig instance.
      */
-
     public FormAuthConfig withLoggingEnabled() {
         return withLoggingEnabled(LogDetail.ALL);
     }

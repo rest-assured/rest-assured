@@ -15,9 +15,13 @@
  */
 package io.restassured.internal.filter
 
+
 import io.restassured.config.CsrfConfig
 import io.restassured.filter.Filter
 import io.restassured.filter.FilterContext
+import io.restassured.filter.log.LogDetail
+import io.restassured.filter.log.RequestLoggingFilter
+import io.restassured.filter.log.ResponseLoggingFilter
 import io.restassured.internal.csrf.CsrfInputFieldFinder
 import io.restassured.response.Response
 import io.restassured.specification.FilterableRequestSpecification
@@ -39,7 +43,21 @@ class CsrfFilter implements Filter {
       // We need to apply CSRF _after_ FormAuthFilter is completed (if it is used), otherwise the request will get the wrong cookie.
       // Also, a CSRF token doesn't need to be sent on GET/HEAD requests.
       if (formAuthFilterPresentAndIfSoIsItCompleted && !requestSpec.method.equalsIgnoreCase("GET") && !requestSpec.method.equalsIgnoreCase("HEAD")) {
-        def pageThatContainsCsrfToken = given().auth().none().cookies(requestSpec.getCookies()).get(csrfConfig.getCsrfTokenPath())
+        def requestSpecification = given().auth().none().cookies(requestSpec.getCookies())
+        if (csrfConfig.isLoggingEnabled()) {
+          def logConfig = csrfConfig.getLogConfig()
+          def logDetail = csrfConfig.getLogDetail()
+          if (logDetail != LogDetail.STATUS) {
+            requestSpecification.filter(new RequestLoggingFilter(logDetail, logConfig.isPrettyPrintingEnabled(), logConfig.defaultStream(), logConfig.shouldUrlEncodeRequestUri(), logConfig.blacklistedHeaders()))
+          }
+
+          if (logDetail != LogDetail.PARAMS) {
+            requestSpecification.filter(new ResponseLoggingFilter(logDetail, logConfig.isPrettyPrintingEnabled(), logConfig.defaultStream()))
+          }
+        }
+
+
+        def pageThatContainsCsrfToken = requestSpecification.get(csrfConfig.getCsrfTokenPath())
         def csrfInputField = CsrfInputFieldFinder.findInHtml(csrfConfig, pageThatContainsCsrfToken)
 
         if (csrfConfig.shouldSendCsrfTokenAsFormParam()) {

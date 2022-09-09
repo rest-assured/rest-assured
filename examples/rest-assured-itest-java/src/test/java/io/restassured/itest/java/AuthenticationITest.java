@@ -267,7 +267,7 @@ public class AuthenticationITest extends WithJetty {
     @Test
     public void formAuthenticationUsingLoggingWithLogDetailEqualToParams() {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, StandardCharsets.UTF_8), true);
 
         given().
                 auth().form("John", "Doe", FormAuthConfig.springSecurity().withLoggingEnabled(LogDetail.PARAMS, new LogConfig(captor, true))).

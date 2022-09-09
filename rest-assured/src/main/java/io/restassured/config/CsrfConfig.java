@@ -16,6 +16,7 @@
 
 package io.restassured.config;
 
+import io.restassured.filter.log.LogDetail;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
@@ -33,12 +34,14 @@ public class CsrfConfig implements Config {
     private final String csrfInputFieldName;
     private final boolean autoDetectCsrfInputFieldName;
     private final boolean sendCsrfTokenAsFormParam;
+    private final LogConfig logConfig;
+    private final LogDetail logDetail;
 
     /**
      * Create a default
      */
     public CsrfConfig() {
-        this(null, null, false, true, false);
+        this(null, null, true, true, null, null, false);
     }
 
     /*
@@ -46,7 +49,7 @@ public class CsrfConfig implements Config {
      * For example: "/login"
      */
     public CsrfConfig(String csrfTokenPath) {
-        this(notNull(StringUtils.trimToNull(csrfTokenPath), "csrfTokenPath"), null, true, true, true);
+        this(notNull(StringUtils.trimToNull(csrfTokenPath), "csrfTokenPath"), null, true, true, null, null, true);
     }
 
     /*
@@ -63,7 +66,7 @@ public class CsrfConfig implements Config {
         this(notNull(csrfTokenPath, "csrfTokenPath").toString());
     }
 
-    private CsrfConfig(String csrfTokenPath, String csrfInputFieldName, boolean autoDetectCsrfInputFieldName, boolean sendCsrfTokenAsFormParam, boolean isUserConfigured) {
+    private CsrfConfig(String csrfTokenPath, String csrfInputFieldName, boolean autoDetectCsrfInputFieldName, boolean sendCsrfTokenAsFormParam, LogConfig logConfig, LogDetail logDetail, boolean isUserConfigured) {
         this.csrfTokenPath = StringUtils.trimToNull(csrfTokenPath);
         if (StringUtils.isNotBlank(csrfInputFieldName) && autoDetectCsrfInputFieldName) {
             throw new IllegalArgumentException("You cannot provide an explicit csrf input field name and autoDetectCsrfFieldName=true at the same time.");
@@ -71,6 +74,8 @@ public class CsrfConfig implements Config {
         this.csrfInputFieldName = StringUtils.trimToNull(csrfInputFieldName);
         this.autoDetectCsrfInputFieldName = autoDetectCsrfInputFieldName;
         this.sendCsrfTokenAsFormParam = sendCsrfTokenAsFormParam;
+        this.logConfig = logConfig;
+        this.logDetail = logDetail;
         this.isUserConfigured = isUserConfigured;
     }
 
@@ -120,11 +125,11 @@ public class CsrfConfig implements Config {
      * <b>Important:</b> When enabling csrf support then REST Assured <b>must always</b> make an additional request to the server in order to
      * be able to include in the csrf value which will slow down the tests.
      *
-     * @return A new FormAuthConfig instance.
+     * @return A new CsrfConfig instance.
      * @see #csrfInputFieldName(String)
      */
     public CsrfConfig autoDetectCsrfInputFieldName() {
-        return new CsrfConfig(csrfTokenPath, null, true, sendCsrfTokenAsFormParam, true);
+        return new CsrfConfig(csrfTokenPath, null, true, sendCsrfTokenAsFormParam, logConfig, logDetail, true);
     }
 
     /**
@@ -161,12 +166,54 @@ public class CsrfConfig implements Config {
      * be able to include in the csrf value which will slow down the tests.
      *
      * @param inputFieldName The name of the input field containing the CSRF value
-     * @return A new FormAuthConfig instance.
+     * @return A new CsrfConfig instance.
      * @see #autoDetectCsrfInputFieldName()
      */
     public CsrfConfig csrfInputFieldName(String inputFieldName) {
         notNull(StringUtils.trimToNull(inputFieldName), "CSRF input field name");
-        return new CsrfConfig(csrfTokenPath, inputFieldName, false, sendCsrfTokenAsFormParam, true);
+        return new CsrfConfig(csrfTokenPath, inputFieldName, false, sendCsrfTokenAsFormParam, logConfig, logDetail, true);
+    }
+
+    /**
+     * Enables logging with log level {@link LogDetail#ALL} of the request made to {@link #csrfTokenPath(String)}.
+     * Both the request and the response are logged.
+     *
+     * @return A new CsrfConfig instance.
+     */
+    public CsrfConfig loggingEnabled() {
+        return loggingEnabled(LogDetail.ALL);
+    }
+
+    /**
+     * Enables logging with the supplied logDetail of the request made to {@link #csrfTokenPath(String)}.
+     * Both the request and the response are logged.
+     *
+     * @return A new CsrfConfig instance.
+     */
+    public CsrfConfig loggingEnabled(LogDetail logDetail) {
+        return loggingEnabled(logDetail, new LogConfig());
+    }
+
+    /**
+     * Enables logging with log level {@link LogDetail#ALL} of the request made to {@link #csrfTokenPath(String)}
+     * using the specified {@link LogConfig}. Both the request and the response are logged.
+     *
+     * @return A new CsrfConfig instance.
+     */
+    public CsrfConfig loggingEnabled(LogConfig logConfig) {
+        return loggingEnabled(LogDetail.ALL, logConfig);
+    }
+
+    /**
+     * Enables logging with the supplied log detail of the request made to {@link #csrfTokenPath(String)} using the
+     * specified {@link LogConfig}. Both the request and the response are logged.
+     *
+     * @return A new CsrfConfig instance.
+     */
+    public CsrfConfig loggingEnabled(LogDetail logDetail, LogConfig logConfig) {
+        notNull(logDetail, LogDetail.class);
+        notNull(logConfig, LogConfig.class);
+        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, autoDetectCsrfInputFieldName, sendCsrfTokenAsFormParam, logConfig, logDetail, true);
     }
 
     /**
@@ -193,7 +240,7 @@ public class CsrfConfig implements Config {
      * Specify a path that is used to get the CSRF token. This token will be used automatically by REST Assured for subsequent calls to the API.
      */
     public CsrfConfig csrfTokenPath(String csrfTokenPath) {
-        return new CsrfConfig(notNull(StringUtils.trimToNull(csrfTokenPath), "csrfTokenPath"), csrfInputFieldName, autoDetectCsrfInputFieldName, sendCsrfTokenAsFormParam, true);
+        return new CsrfConfig(notNull(StringUtils.trimToNull(csrfTokenPath), "csrfTokenPath"), csrfInputFieldName, autoDetectCsrfInputFieldName, sendCsrfTokenAsFormParam, logConfig, logDetail, true);
     }
 
     /*
@@ -214,14 +261,14 @@ public class CsrfConfig implements Config {
      * @return Configure form authentication to send the csrf token in a header.
      */
     public CsrfConfig sendCsrfTokenAsHeader() {
-        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, autoDetectCsrfInputFieldName, false, true);
+        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, autoDetectCsrfInputFieldName, false, logConfig, logDetail, true);
     }
 
     /**
      * @return Configure form authentication to send the csrf token as a form parameter (default setting).
      */
     public CsrfConfig sendCsrfTokenAsFormParam() {
-        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, autoDetectCsrfInputFieldName, true, true);
+        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, autoDetectCsrfInputFieldName, true, logConfig, logDetail, true);
     }
 
     /*
@@ -244,6 +291,28 @@ public class CsrfConfig implements Config {
     public boolean hasCsrfInputFieldName() {
         return StringUtils.isNotBlank(csrfInputFieldName);
     }
+
+    /**
+     * @return The logging configuration
+     */
+    public LogConfig getLogConfig() {
+        return logConfig;
+    }
+
+    /**
+     * @return <code>true</code> if logging is enabled or <code>false</code> otherwise.
+     */
+    public boolean isLoggingEnabled() {
+        return logConfig != null && logDetail != null;
+    }
+
+    /**
+     * @return The specified log detail or <code>null</code> if undefined
+     */
+    public LogDetail getLogDetail() {
+        return logDetail;
+    }
+
 
     /**
      * @return <code>true</code> if auto detection of csrf field name is enabled, <code>false</code> otherwise.

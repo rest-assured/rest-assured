@@ -767,6 +767,21 @@ class ScalatraRestExample extends ScalatraServlet {
   def securityCheck(sessionIdName: String, additionalChecks: () => Boolean) : Any =
     securityCheck(sessionIdName, "j_username", "j_password", additionalChecks)
 
+  get("/loginPageWithCsrf") {
+    loginPageWithCsrf
+  }
+
+  head("/loginPageWithCsrf") {
+    loginPageWithCsrf
+  }
+
+  post("/loginPageWithCsrf") {
+    val csrfToken = params.get("_csrf").getOrElse("missing")
+    if (csrfToken != "8adf2ea1-b246-40aa-8e13-a85fb7914341") {
+      response.setStatus(403)
+    }
+  }
+
   get("/formAuth") {
     formAuth(() => loginPage)
   }
