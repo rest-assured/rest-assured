@@ -57,6 +57,7 @@ Changelog next version
    The reason for this is that the server returns a new CSRF token per request. So after the login request (with will use the CSRF token from the login page),
    REST Assured needs to make an additional GET request to /users to get a new CSRF token. This token will then finally be supplied with the "POST" request
    to "/users".
+* Adds support for Multipart upload via http PATCH method (thanks to Madis Liias for pull request)
 
 Changelog 5.1.1 (2022-06-10)
 ----------------------------
