@@ -58,6 +58,7 @@ Changelog next version
    REST Assured needs to make an additional GET request to /users to get a new CSRF token. This token will then finally be supplied with the "POST" request
    to "/users".
 * Adds support for Multipart upload via http PATCH method (thanks to Madis Liias for pull request)
+* Upgraded kotlin module to using Kotlin 1.7.10 (previously 1.6.21 was used)
 
 Changelog 5.1.1 (2022-06-10)
 ----------------------------
