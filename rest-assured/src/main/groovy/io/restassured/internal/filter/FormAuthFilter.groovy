@@ -45,25 +45,35 @@ class FormAuthFilter implements AuthFilter {
 
   def userName
   def password
-  def FormAuthConfig formAuthConfig
-  def SessionConfig sessionConfig
+  FormAuthConfig formAuthConfig
+  SessionConfig sessionConfig
 
   @Override
   Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-    String formAction;
-    String userNameInputField;
-    String passwordInputField;
-    String csrfFieldName;
-    String csrfValue;
+    String formAction
+    String userNameInputField
+    String passwordInputField
+    String csrfFieldName
+    String csrfValue
+    Map<String, String> cookiesFromLoginPage
     List<Tuple2<String, String>> additionalInputFields = []
 
     if (formAuthConfig == null) {
-      formAuthConfig = new FormAuthConfig();
+      formAuthConfig = new FormAuthConfig()
     }
 
+    // TODO Add ability in config to add login explicitly so that we can prevent some round-trips on CSRF parsing
+
     if (formAuthConfig.requiresParsingOfLoginPage()) {
-      def response = ctx.send(given().spec(requestSpec).auth().none())
-      def html = new XmlPath(HTML, response.asString())
+      def loginPageResponse = ctx.send(given().spec(requestSpec).auth().none())
+      cookiesFromLoginPage = loginPageResponse.cookies()
+      if (loginPageResponse.statusCode() == 302) {
+        // This means that Rest Assured has not done a redirect automatically.
+        // This may happen if status code is 302 and method is not GET (see https://blog.jayway.com/2012/10/17/what-you-may-not-know-about-http-redirects/).
+        // Thus we follow the Location header explicitly.
+        loginPageResponse = given().auth().none().cookies(cookiesFromLoginPage).get(loginPageResponse.getHeader("Location"))
+      }
+      def html = new XmlPath(HTML, loginPageResponse.asString())
 
       formAction = formAuthConfig.hasFormAction() ? formAuthConfig.getFormAction() : {
         String tempFormAction = throwIfException { html.getString(FIND_FORM_ACTION) }
@@ -82,7 +92,7 @@ class FormAuthFilter implements AuthFilter {
         }
         csrfValue = nullIfException { html.getString(format(FIND_INPUT_FIELD_WITH_NAME, csrfFieldName)) }
         if (!csrfValue) {
-          throw new IllegalArgumentException("Couldn't find the CSRF input field with name $csrfFieldName in response. Response was:\n${response.prettyPrint()}")
+          throw new IllegalArgumentException("Couldn't find the CSRF input field with name $csrfFieldName in response. Response was:\n${loginPageResponse.prettyPrint()}")
         }
       }
 
@@ -111,6 +121,10 @@ class FormAuthFilter implements AuthFilter {
     def uri = new URI(requestSpec.getURI())
     String loginUri = uri.getScheme() + "://" + uri.getHost() + (uri.getPort() == -1 ? "" : ":" + uri.getPort()) + formAction
 
+    if (cookiesFromLoginPage != null) {
+      loginRequestSpec.cookies(cookiesFromLoginPage)
+    }
+
     if (csrfValue && csrfFieldName) {
       if (formAuthConfig.shouldSendCsrfTokenAsFormParam()) {
         loginRequestSpec.formParam(csrfFieldName, csrfValue)
@@ -123,33 +137,33 @@ class FormAuthFilter implements AuthFilter {
       def logConfig = formAuthConfig.getLogConfig()
       def logDetail = formAuthConfig.getLogDetail()
       if (logDetail != LogDetail.STATUS) {
-        loginRequestSpec.filter(new RequestLoggingFilter(logDetail, logConfig.isPrettyPrintingEnabled(), logConfig.defaultStream(), logConfig.shouldUrlEncodeRequestUri(), logConfig.blacklistedHeaders()));
+        loginRequestSpec.filter(new RequestLoggingFilter(logDetail, logConfig.isPrettyPrintingEnabled(), logConfig.defaultStream(), logConfig.shouldUrlEncodeRequestUri(), logConfig.blacklistedHeaders()))
       }
 
       if (logDetail != LogDetail.PARAMS) {
-        loginRequestSpec.filter(new ResponseLoggingFilter(logDetail, logConfig.isPrettyPrintingEnabled(), logConfig.defaultStream()));
+        loginRequestSpec.filter(new ResponseLoggingFilter(logDetail, logConfig.isPrettyPrintingEnabled(), logConfig.defaultStream()))
       }
     }
 
     additionalInputFields?.forEach { tuple ->
-      loginRequestSpec.formParam(tuple.first, tuple.second)
+      loginRequestSpec.formParam(tuple.getV1(), tuple.getV2())
     }
 
     applySessionFilterFromOriginalRequestIfDefined(requestSpec, loginRequestSpec)
-    final Response loginResponse = loginRequestSpec.post(loginUri)
+    final Response loggedInResponse = loginRequestSpec.post(loginUri)
     // Don't send the detailed cookies because they contain too many detail (such as Path which is a reserved token)
-    requestSpec.cookies(loginResponse.getCookies());
-    return ctx.next(requestSpec, responseSpec);
+    requestSpec.cookies(loggedInResponse.cookies())
+    ctx.setValue("RestAssuredLoggedInSuccessful", true)
+    return ctx.next(requestSpec, responseSpec)
   }
 
-  static
-  def void applySessionFilterFromOriginalRequestIfDefined(FilterableRequestSpecification requestSpec, RequestSpecification loginRequestSpec) {
+  static void applySessionFilterFromOriginalRequestIfDefined(FilterableRequestSpecification requestSpec, RequestSpecification loginRequestSpec) {
     def filters = requestSpec.getDefinedFilters()
     def sessionFilterInOriginalRequest = filters.find { it.class.isAssignableFrom(SessionFilter.class) }
     if (sessionFilterInOriginalRequest) {
       loginRequestSpec.noFiltersOfType(SessionFilter.class)
       loginRequestSpec.filter(sessionFilterInOriginalRequest)
-      def sessionIdName = requestSpec.getConfig().getSessionConfig().sessionIdName();
+      def sessionIdName = requestSpec.getConfig().getSessionConfig().sessionIdName()
       def cfg = loginRequestSpec.config ?: new RestAssuredConfig()
       loginRequestSpec.config(cfg.sessionConfig(SessionConfig.sessionConfig().sessionIdName(sessionIdName)))
     }

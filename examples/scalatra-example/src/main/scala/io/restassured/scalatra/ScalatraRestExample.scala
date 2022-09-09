@@ -753,10 +753,11 @@ class ScalatraRestExample extends ScalatraServlet {
     val userName = params.get(usernameParamName).get
     val password = params.get(passwordParamName).get
     if (userName == "John" && password == "Doe") {
+      response.setHeader("Set-Cookie", sessionIdName + "=1234")
       if (!additionalChecks.apply()) {
         "NO"
-      } else {
-        response.setHeader("Set-Cookie", sessionIdName + "=1234")
+      } else if (!request.getCookies.filter(cookie => cookie.getName.equals(sessionIdName)).exists(cookie => cookie.getValue.equals("1234"))) {
+        "NO"
       }
     } else {
       "NO"
@@ -1472,6 +1473,7 @@ class ScalatraRestExample extends ScalatraServlet {
 
   def formAuth(loginPage: () => String) = {
     contentType = "text/plain"
+    response.addCookie(new Cookie("jsessionid", "1234"))
     val cookies: Array[Cookie] = request.getCookies
     if(cookies == null) {
       loginPage.apply()

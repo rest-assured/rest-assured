@@ -155,7 +155,7 @@ public class AuthenticationITest extends WithJetty {
     }
 
     @Test
-    public void formAuthenticationWithCsrfAutoDetectionButSpecifiedFormDetails() throws Exception {
+    public void formAuthenticationWithCsrfAutoDetectionButSpecifiedFormDetails() {
         given().
                 auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf", "j_username", "j_password").withAutoDetectionOfCsrf()).
         when().
