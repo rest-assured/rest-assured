@@ -49,12 +49,12 @@ public class PathParamITest extends WithJetty {
     public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void supportsPassingPathParamsToRequestSpec() throws Exception {
+    public void supportsPassingPathParamsToRequestSpec() {
         expect().body("fullName", equalTo("John Doe")).when().get("/{firstName}/{lastName}", "John", "Doe");
     }
 
     @Test
-    public void possibleToGetOriginalRequestPathForUnnamedPathParamsFromRequestSpec() throws Exception {
+    public void possibleToGetOriginalRequestPathForUnnamedPathParamsFromRequestSpec() {
         given().
                 filter((requestSpec, responseSpec, ctx) -> {
                     assertThat(requestSpec.getUserDefinedPath(), equalTo("/{firstName}/{lastName}"));
@@ -69,7 +69,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void possibleToGetOriginalRequestPathForNamedPathParamsUsingRequestSpec() throws Exception {
+    public void possibleToGetOriginalRequestPathForNamedPathParamsUsingRequestSpec() {
         given().
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
@@ -86,7 +86,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void supportsPassingPathParamsAsMapToRequestSpec() throws Exception {
+    public void supportsPassingPathParamsAsMapToRequestSpec() {
         final Map<String, Object> params = new HashMap<>();
         params.put("firstName", "John");
         params.put("lastName", 42);
@@ -94,12 +94,12 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void supportsPassingIntPathParamsToRequestSpec() throws Exception {
+    public void supportsPassingIntPathParamsToRequestSpec() {
         expect().body("fullName", equalTo("John 42")).when().get("/{firstName}/{lastName}", "John", 42);
     }
 
     @Test
-    public void urlEncodesPathParams() throws Exception {
+    public void urlEncodesPathParams() {
         expect().body("fullName", equalTo("John:() Doe")).when().get("/{firstName}/{lastName}", "John:()", "Doe");
     }
 
@@ -115,7 +115,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void urlEncodesPathParamsInMap() throws Exception {
+    public void urlEncodesPathParamsInMap() {
         final Map<String, String> params = new HashMap<>();
         params.put("firstName", "John: å");
         params.put("lastName", "Doe");
@@ -124,7 +124,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void doesntUrlEncodePathParamsInMapWhenUrlEncodingIsDisabled() throws Exception {
+    public void doesntUrlEncodePathParamsInMapWhenUrlEncodingIsDisabled() {
         RestAssured.urlEncodingEnabled = false;
 
         try {
@@ -139,14 +139,14 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void supportsPassingPathParamsToGet() throws Exception {
+    public void supportsPassingPathParamsToGet() {
         final String response = get("/{firstName}/{lastName}", "John", "Doe").asString();
         final String fullName = JsonPath.from(response).getString("fullName");
         assertThat(fullName, equalTo("John Doe"));
     }
 
     @Test
-    public void supportsPassingPathParamsAsMapToGet() throws Exception {
+    public void supportsPassingPathParamsAsMapToGet() {
         final Map<String, String> params = new HashMap<>();
         params.put("firstName", "John=me");
         params.put("lastName", "Doe");
@@ -157,7 +157,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void throwsIAEWhenNumberOfSuppliedUnnamedPathParamsAreGreaterThanDefinedPathParams() throws Exception {
+    public void throwsIAEWhenNumberOfSuppliedUnnamedPathParamsAreGreaterThanDefinedPathParams() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Invalid number of path parameters. Expected 2, was 3. Redundant path parameters are: Real Doe");
 
@@ -165,7 +165,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void throwsIAEWhenNumberOfSuppliedNamedPathParamsAreEqualButDifferentToPlaceholders() throws Exception {
+    public void throwsIAEWhenNumberOfSuppliedNamedPathParamsAreEqualButDifferentToPlaceholders() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Path parameters were not correctly defined. Redundant path parameters are: x=first, y=second. Undefined path parameters are: firstName, lastName.");
 
@@ -173,7 +173,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void throwsIAEWhenNumberOfSuppliedNamedPathParamsAreDefinedButNoPlaceholdersAreDefined() throws Exception {
+    public void throwsIAEWhenNumberOfSuppliedNamedPathParamsAreDefinedButNoPlaceholdersAreDefined() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Invalid number of path parameters. Expected 0, was 2. Redundant path parameters are: x=first, y=second.");
 
@@ -181,7 +181,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void throwsIAEWhenNumberOfSuppliedNamedPathParamsIsGreaterThanDefinedPlaceholders() throws Exception {
+    public void throwsIAEWhenNumberOfSuppliedNamedPathParamsIsGreaterThanDefinedPlaceholders() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Invalid number of path parameters. Expected 2, was 3. Redundant path parameters are: x=first, y=second. Undefined path parameters are: firstName.");
 
@@ -189,7 +189,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void throwsIAEWhenNumberOfSuppliedNamedAndUnnamedPathParamsIsGreaterThanDefinedPlaceholders() throws Exception {
+    public void throwsIAEWhenNumberOfSuppliedNamedAndUnnamedPathParamsIsGreaterThanDefinedPlaceholders() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Invalid number of path parameters. Expected 2, was 6. Redundant path parameters are: x=first, y=second and Doe, Last.");
 
@@ -197,7 +197,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void throwsIAEWhenNumberOfSuppliedPathParamsAreLowerThanDefinedPathParams() throws Exception {
+    public void throwsIAEWhenNumberOfSuppliedPathParamsAreLowerThanDefinedPathParams() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Invalid number of path parameters. Expected 2, was 1. Undefined path parameters are: lastName");
 
@@ -205,7 +205,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void supportsPassingPathParamWithGiven() throws Exception {
+    public void supportsPassingPathParamWithGiven() {
         given().
                 pathParam("firstName", "John").
                 pathParam("lastName", "Doe").
@@ -216,7 +216,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void supportsPassingPathParamWithIntWithGiven() throws Exception {
+    public void supportsPassingPathParamWithIntWithGiven() {
         given().
                 pathParam("firstName", "John").
                 pathParam("lastName", 42).
@@ -227,7 +227,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void supportsPassingPathParamsWithGiven() throws Exception {
+    public void supportsPassingPathParamsWithGiven() {
         given().
                 pathParams("firstName", "John", "lastName", "Doe").
         expect().
@@ -237,7 +237,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void supportsPassingPathParamsWithIntWithGiven() throws Exception {
+    public void supportsPassingPathParamsWithIntWithGiven() {
         given().
                 pathParams("firstName", "John", "lastName", 42).
         expect().
@@ -247,7 +247,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void supportsPassingPathParamsWithMapWithGiven() throws Exception {
+    public void supportsPassingPathParamsWithMapWithGiven() {
         final Map<String, String> params = new HashMap<>();
         params.put("firstName", "John");
         params.put("lastName", "Doe");
@@ -261,7 +261,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void supportsPassingPathParamsWithIntWithMapWhenGiven() throws Exception {
+    public void supportsPassingPathParamsWithIntWithMapWhenGiven() {
         final Map<String, Object> params = new HashMap<>();
         params.put("firstName", "John");
         params.put("lastName", 42);
@@ -275,7 +275,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void mergesPathParamsMapWithNonMapWhenGiven() throws Exception {
+    public void mergesPathParamsMapWithNonMapWhenGiven() {
         final Map<String, Object> params = new HashMap<>();
         params.put("firstName", "John");
 
@@ -289,7 +289,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void passingInTwoManyPathParamsWithGivenThrowsIAE() throws Exception {
+    public void passingInTwoManyPathParamsWithGivenThrowsIAE() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Invalid number of path parameters. Expected 2, was 3.");
 
@@ -304,7 +304,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void passingInTooFewNamedPathParamsWithGivenThrowsIAE() throws Exception {
+    public void passingInTooFewNamedPathParamsWithGivenThrowsIAE() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Invalid number of path parameters. Expected 2, was 1. Undefined path parameters are: lastName");
 
@@ -317,7 +317,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void canUsePathParamsWithNonStandardChars() throws Exception {
+    public void canUsePathParamsWithNonStandardChars() {
         final String nonStandardChars = "\\$£@\"){¤$";
 
         expect().
@@ -328,7 +328,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void passingInSinglePathParamsThatHaveBeenDefinedMultipleTimesWorks() throws Exception {
+    public void passingInSinglePathParamsThatHaveBeenDefinedMultipleTimesWorks() {
         given().
                 pathParam("firstName", "John").
         expect().
@@ -338,12 +338,12 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void unnamedQueryParametersWorks() throws Exception {
-        expect().statusCode(200).when().get("http://www.google.se/search?q={query}&hl=en", "query");
+    public void unnamedQueryParametersWorks() {
+        expect().statusCode(200).when().get("https://www.google.se/search?q={query}&hl=en", "query");
     }
 
     @Test
-    public void throwsIllegalArgumentExceptionWhenTooManyPathParametersAreUsed() throws Exception {
+    public void throwsIllegalArgumentExceptionWhenTooManyPathParametersAreUsed() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Invalid number of path parameters. Expected 1, was 2. Redundant path parameters are: ikk.");
 
@@ -351,7 +351,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void throwsIllegalArgumentExceptionWhenTooFewPathParametersAreUsed() throws Exception {
+    public void throwsIllegalArgumentExceptionWhenTooFewPathParametersAreUsed() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Invalid number of path parameters. Expected 1, was 0.");
 
@@ -359,7 +359,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void mixingUnnamedPathParametersAndQueryParametersWorks() throws Exception {
+    public void mixingUnnamedPathParametersAndQueryParametersWorks() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -378,7 +378,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void urlEncodesUnnamedPathParametersThatContainsCurlyBracesAndEquals() throws Exception {
+    public void urlEncodesUnnamedPathParametersThatContainsCurlyBracesAndEquals() {
         // When
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -398,7 +398,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void urlEncodesNamedPathParametersThatContainsCurlyBracesAndEquals() throws Exception {
+    public void urlEncodesNamedPathParametersThatContainsCurlyBracesAndEquals() {
         // When
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -420,27 +420,27 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void unnamedPathParametersCanBeAppendedBeforeSubPath() throws Exception {
+    public void unnamedPathParametersCanBeAppendedBeforeSubPath() {
         get("/{path}.json", "something").then().assertThat().statusCode(is(200)).and().body("value", equalTo("something"));
     }
 
     @Test
-    public void namedPathParametersCanBeAppendedBeforeSubPath() throws Exception {
+    public void namedPathParametersCanBeAppendedBeforeSubPath() {
         given().pathParam("path", "something").when().get("/{path}.json").then().assertThat().statusCode(is(200)).and().body("value", equalTo("something"));
     }
 
     @Test
-    public void unnamedPathParametersCanBeAppendedAfterSubPath() throws Exception {
+    public void unnamedPathParametersCanBeAppendedAfterSubPath() {
         get("/something.{format}", "json").then().assertThat().statusCode(is(200)).and().body("value", equalTo("something"));
     }
 
     @Test
-    public void namedPathParametersCanBeAppendedAfterSubPath() throws Exception {
+    public void namedPathParametersCanBeAppendedAfterSubPath() {
         given().pathParam("format", "json").when().get("/something.{format}").then().assertThat().statusCode(is(200)).and().body("value", equalTo("something"));
     }
 
     @Test
-    public void namedPathParametersWorksWithUnicodeParameterValues() throws Exception {
+    public void namedPathParametersWorksWithUnicodeParameterValues() {
         given().
                 pathParam("param1Value", "Hello").
                 pathParam("param2Value", "Hello\u0085").
@@ -457,7 +457,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void unnamedPathParametersWorksWithUnicodeParameterValues() throws Exception {
+    public void unnamedPathParametersWorksWithUnicodeParameterValues() {
         given().
                 filter(new Filter() {
                     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
@@ -472,7 +472,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void unnamedPathParametersWorksWhenThereAreMultipleTemplatesBetweenEachSlash() throws Exception {
+    public void unnamedPathParametersWorksWhenThereAreMultipleTemplatesBetweenEachSlash() {
         String param1Value =  "Hello";
         String param2Value =  "Hello2";
 
@@ -485,7 +485,7 @@ public class PathParamITest extends WithJetty {
     }
 
     @Test
-    public void namedPathParametersWorksWhenThereAreMultipleTemplatesBetweenEachSlash() throws Exception {
+    public void namedPathParametersWorksWhenThereAreMultipleTemplatesBetweenEachSlash() {
         String param1Value =  "Hello";
         String param2Value =  "Hello2";
 
