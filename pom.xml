@@ -33,7 +33,7 @@
     <inceptionYear>2010</inceptionYear>
     <issueManagement>
         <system>GitHub Issue Tracking</system>
-        <url />
+        <url/>
     </issueManagement>
     <licenses>
         <license>
@@ -130,7 +130,7 @@
                     <version>${gmaven.version}</version>
                     <configuration>
                         <providerSelection>2.0</providerSelection>
-                        <source />
+                        <source/>
                     </configuration>
                     <dependencies>
                         <dependency>
@@ -267,37 +267,6 @@
                 <groupId>org.basepom.maven</groupId>
                 <artifactId>duplicate-finder-maven-plugin</artifactId>
             </plugin>
-            <plugin>
-                <groupId>io.sundr</groupId>
-                <artifactId>sundr-maven-plugin</artifactId>
-                <version>${sundrio.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate-bom</goal>
-                        </goals>
-                        <configuration>
-                            <boms>
-                                <bom>
-                                    <artifactId>rest-assured-bom</artifactId>
-                                    <name>REST Assured: BOM</name>
-                                    <description>Centralized dependencyManagement for the Rest Assured Project</description>
-                                    <properties>
-                                        <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
-                                        <sonar.skip>true</sonar.skip>
-                                    </properties>
-                                    <modules>
-                                        <excludes>
-                                            <exclude>io.rest-assured.examples:*</exclude>
-                                        </excludes>
-                                    </modules>
-                                </bom>
-                            </boms>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
         </plugins>
     </build>
 
@@ -345,6 +314,36 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>io.sundr</groupId>
+                        <artifactId>sundr-maven-plugin</artifactId>
+                        <version>${sundrio.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>generate-bom</goal>
+                                </goals>
+                                <configuration>
+                                    <boms>
+                                        <bom>
+                                            <artifactId>rest-assured-bom</artifactId>
+                                            <name>REST Assured: BOM</name>
+                                            <description>Centralized dependencyManagement for the Rest Assured Project</description>
+                                            <properties>
+                                                <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                                                <sonar.skip>true</sonar.skip>
+                                            </properties>
+                                            <modules>
+                                                <excludes>
+                                                    <exclude>io.rest-assured.examples:*</exclude>
+                                                </excludes>
+                                            </modules>
+                                        </bom>
+                                    </boms>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
