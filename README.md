@@ -13,7 +13,7 @@ languages into the Java domain.
 ## News
 * 2022-09-09: REST Assured 5.2.0 is released with, among other things, much improved [CRSF](https://github.com/rest-assured/rest-assured/wiki/Usage#csrf) support. See [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes52) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2022-06-10: REST Assured 5.1.1 is released. The [Spring WebTestClient Module](https://github.com/rest-assured/rest-assured/wiki/Spring#spring-web-test-client-module) now supports Spring Framework 6. There are also several fixes and various improvements. See [changelog](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
-* 2022-05-24: REST Assured 5.1.0 is released. The biggest change is that the [Spring MockMvc Module](https://github.com/rest-assured/rest-assured/wiki/Usage#spring-mock-mvc-module) now supports Spring Framework 6 and Jakarta API's. See [changelog](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
+* 2022-05-24: REST Assured 5.1.0 is released. The biggest change is that the [Spring MockMvc Module](https://github.com/rest-assured/rest-assured/wiki/Spring#spring-mock-mvc-module) now supports Spring Framework 6 and Jakarta API's. See [changelog](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 
 [Older News](https://github.com/rest-assured/rest-assured/wiki/OldNews)
 
