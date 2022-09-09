@@ -690,6 +690,121 @@ public class RequestSpecBuilder {
     }
 
     /**
+     * Enable Cross-site request forgery (csrf) support by specifying the path to the HTML page that contains the CSRF token.
+     * For example:
+     * <pre>
+     *     given().
+     *              csrf("/users").
+     *              formParm("firstName", "John")
+     *              formParm("lastName", "Doe")
+     *     when().
+     *              post("/users").
+     *     then().
+     *              statusCode(200);
+     * </pre>
+     * <p>
+     * This will first make a {@code GET} request to {@code /users} (due to {@code csrf("/users")}) to get an HTML page that contains the CSRF token.
+     * Rest Assured will then automatically try to find the input field that contains the CSRF token and include in the {@code POST} to {@code /users}.
+     * <p>
+     * Here's an example of what Rest Assured expects as a response for {@code GET} request to {@code /users}:
+     * <pre>
+     * &lt;html&gt;
+     * &lt;head&gt;
+     *     &lt;title&gt;Add User&lt;/title&gt;
+     * &lt;/head&gt;
+     * &lt;body&gt;
+     * &lt;form action=&quot;/users&quot; method=&quot;POST&quot;&gt;
+     *     &lt;table&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;First Name:&amp;nbsp;&lt;/td&gt;
+     *             &lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;firstName&quot;&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;Last Name:&lt;/td&gt;
+     *             &lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;lastName&quot;&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td colspan=&quot;2&quot;&gt;&lt;input name=&quot;submit&quot; type=&quot;submit&quot;/&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *     &lt;/table&gt;
+     *     &lt;input type=&quot;hidden&quot; name=&quot;_csrf&quot; value=&quot;8adf2ea1-b246-40aa-8e13-a85fb7914341&quot;/&gt;
+     * &lt;/form&gt;
+     * &lt;/body&gt;
+     * &lt;/html&gt;
+     * </pre>
+     * The csrf input field name is called <code>_csrf</code>, and it'll be automatically detected by REST Assured.
+     * <p/>
+     * <b>Important:</b> When enabling csrf support then REST Assured <b>must always</b> make an additional request to the server in order to
+     * be able to include in the csrf value which will slow down the tests.
+     *
+     * @param csrfTokenPath The path (URI) to the HTML page containing the CSRF token to use in the subsequent request.
+     * @return The request specification
+     * @see #csrf(String, String)
+     */
+    RequestSpecBuilder csrf(String csrfTokenPath) {
+        spec.csrf(csrfTokenPath);
+        return this;
+    }
+
+    /**
+     * Enable Cross-site request forgery (csrf) support by specifying the path to the HTML page that contains the CSRF token as well as the name of the input field that contains the CSRF token.
+     * For example:
+     * <pre>
+     *     given().
+     *              csrf("/users", "_csrf").
+     *              formParm("firstName", "John")
+     *              formParm("lastName", "Doe")
+     *     when().
+     *              post("/users").
+     *     then().
+     *              statusCode(200);
+     * </pre>
+     * <p>
+     * This will first make a {@code GET} request to {@code /users} (due to {@code csrf("/users")}) to get an HTML page that contains the CSRF token.
+     * Rest Assured will then find the input field named {@code _csrf} that contains the CSRF token and include in the {@code POST} to {@code /users}.
+     * <p>
+     * Here's an example of what Rest Assured expects as a response for {@code GET} request to {@code /users}:
+     * <pre>
+     * &lt;html&gt;
+     * &lt;head&gt;
+     *     &lt;title&gt;Add User&lt;/title&gt;
+     * &lt;/head&gt;
+     * &lt;body&gt;
+     * &lt;form action=&quot;/users&quot; method=&quot;POST&quot;&gt;
+     *     &lt;table&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;First Name:&amp;nbsp;&lt;/td&gt;
+     *             &lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;firstName&quot;&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td&gt;Last Name:&lt;/td&gt;
+     *             &lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;lastName&quot;&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *         &lt;tr&gt;
+     *             &lt;td colspan=&quot;2&quot;&gt;&lt;input name=&quot;submit&quot; type=&quot;submit&quot;/&gt;&lt;/td&gt;
+     *         &lt;/tr&gt;
+     *     &lt;/table&gt;
+     *     &lt;input type=&quot;hidden&quot; name=&quot;_csrf&quot; value=&quot;8adf2ea1-b246-40aa-8e13-a85fb7914341&quot;/&gt;
+     * &lt;/form&gt;
+     * &lt;/body&gt;
+     * &lt;/html&gt;
+     * </pre>
+     * REST Assured will include {@code 8adf2ea1-b246-40aa-8e13-a85fb7914341} as the CSRF token in the subsequent request.
+     * <p/>
+     * <b>Important:</b> When enabling csrf support then REST Assured <b>must always</b> make an additional request to the server in order to
+     * be able to include in the csrf value which will slow down the tests.
+     *
+     * @param csrfTokenPath The path (URI) to the HTML page containing the CSRF token to use in the subsequent request.
+     * @param csrfFieldName The name of the input field that contains the CSRF token.
+     * @return The request specification instance
+     * @see #csrf(String)
+     */
+    RequestSpecBuilder csrf(String csrfTokenPath, String csrfFieldName) {
+        spec.csrf(csrfTokenPath, csrfFieldName);
+        return this;
+    }
+
+    /**
      * Disable CSRF
      */
     public RequestSpecBuilder disableCsrf() {
