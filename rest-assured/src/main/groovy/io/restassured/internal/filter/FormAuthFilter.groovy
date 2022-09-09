@@ -24,6 +24,8 @@ import io.restassured.filter.log.LogDetail
 import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
 import io.restassured.filter.session.SessionFilter
+import io.restassured.internal.csrf.CsrfInputField
+import io.restassured.internal.csrf.CsrfInputFieldFinder
 import io.restassured.path.xml.XmlPath
 import io.restassured.response.Response
 import io.restassured.specification.FilterableRequestSpecification
@@ -39,25 +41,22 @@ class FormAuthFilter implements AuthFilter {
 
   private static final String FIND_INPUT_TAG_WITH_TYPE = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }"
   private static final String FIND_INPUT_VALUE_OF_INPUT_TAG_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }"
-  private static final String FIND_INPUT_FIELD_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }.get(0)"
   private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action"
 
-  public static final String FORM_AUTH_COMPLETED_CONTEXT_KEY = "RestAssuredFormAuthCompleted"
+  static final String FORM_AUTH_COMPLETED_CONTEXT_KEY = "RestAssuredFormAuthCompleted"
 
   def userName
   def password
   FormAuthConfig formAuthConfig
   SessionConfig sessionConfig
-  CsrfConfig defaultCsrfConfig
-  CsrfConfig explicitlyDefinedCsrfConfigForThisRequest
+  CsrfConfig csrfConfig
 
   @Override
   Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
     String formAction
     String userNameInputField
     String passwordInputField
-    String csrfFieldName
-    String csrfValue
+    CsrfInputField csrfInputField
     Map<String, String> cookiesFromLoginPage
     List<Tuple2<String, String>> additionalInputFields = []
 
@@ -65,10 +64,11 @@ class FormAuthFilter implements AuthFilter {
       formAuthConfig = new FormAuthConfig()
     }
 
-    if (formAuthConfig.requiresParsingOfLoginPage() || defaultCsrfConfig.isCsrfEnabled()) {
+    if (formAuthConfig.requiresParsingOfLoginPage() || csrfConfig.isCsrfEnabled()) {
       def loginPageResponse
-      if (defaultCsrfConfig.isCsrfEnabled()) {
-        loginPageResponse = given().auth().none().cookies(requestSpec.getCookies()).get(defaultCsrfConfig.getCsrfTokenPath())
+      if (csrfConfig.isCsrfEnabled()) {
+        loginPageResponse = given().auth().none().cookies(requestSpec.getCookies()).get(csrfConfig.getCsrfTokenPath())
+        cookiesFromLoginPage = loginPageResponse.cookies()
       } else {
         loginPageResponse = ctx.send(given().spec(requestSpec).auth().none())
         cookiesFromLoginPage = loginPageResponse.cookies()
@@ -93,15 +93,7 @@ class FormAuthFilter implements AuthFilter {
         html.getString(format(FIND_INPUT_TAG_WITH_TYPE, "password"))
       }
 
-      if (defaultCsrfConfig.hasCsrfInputFieldName() || defaultCsrfConfig.isAutoDetectCsrfInputFieldName()) {
-        csrfFieldName = defaultCsrfConfig.hasCsrfInputFieldName() ? defaultCsrfConfig.csrfInputFieldName : nullIfException {
-          html.getString(format(FIND_INPUT_TAG_WITH_TYPE, "hidden"))
-        }
-        csrfValue = nullIfException { html.getString(format(FIND_INPUT_FIELD_WITH_NAME, csrfFieldName)) }
-        if (!csrfValue) {
-          throw new IllegalArgumentException("Couldn't find the CSRF input field with name $csrfFieldName in response. Response was:\n${loginPageResponse.prettyPrint()}")
-        }
-      }
+      csrfInputField = CsrfInputFieldFinder.findInHtml(csrfConfig, loginPageResponse)
 
       if (formAuthConfig.hasAdditionalInputFieldNames()) {
         formAuthConfig.getAdditionalInputFieldNames().each { name ->
@@ -116,9 +108,9 @@ class FormAuthFilter implements AuthFilter {
       formAction = formAuthConfig.getFormAction()
       userNameInputField = formAuthConfig.getUserInputTagName()
       passwordInputField = formAuthConfig.getPasswordInputTagName()
-      csrfFieldName = null
-      csrfValue = null
       additionalInputFields = null
+      csrfInputField = null
+      cookiesFromLoginPage = null
     }
 
     formAction = formAction?.startsWith("/") ? formAction : "/" + formAction
@@ -132,11 +124,11 @@ class FormAuthFilter implements AuthFilter {
       loginRequestSpec.cookies(cookiesFromLoginPage)
     }
 
-    if (csrfValue && csrfFieldName) {
-      if (defaultCsrfConfig.shouldSendCsrfTokenAsFormParam()) {
-        loginRequestSpec.formParam(csrfFieldName, csrfValue)
+    if (csrfInputField != null) {
+      if (csrfConfig.shouldSendCsrfTokenAsFormParam()) {
+        loginRequestSpec.formParam(csrfInputField.name, csrfInputField.value)
       } else {
-        loginRequestSpec.header(csrfFieldName, csrfValue)
+        loginRequestSpec.header(csrfInputField.name, csrfInputField.value)
       }
     }
 
@@ -183,13 +175,4 @@ class FormAuthFilter implements AuthFilter {
       throw new IllegalArgumentException("Failed to parse login page. Check for errors on the login page or specify FormAuthConfig.", e)
     }
   }
-
-  static def nullIfException(Closure closure) {
-    try {
-      closure.call()
-    } catch (Exception e) {
-      null
-    }
-  }
-
 }

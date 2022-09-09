@@ -91,6 +91,11 @@ class FilterContextImpl implements FilterContext {
     return getValue(name) != null
   }
 
+  @Override
+  boolean hasValue(String name, Object value) {
+    return hasValue(name) && getValue(name) == value
+  }
+
   def getValue(String name) {
     return properties.get(name)
   }

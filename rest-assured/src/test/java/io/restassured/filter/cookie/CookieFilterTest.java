@@ -125,6 +125,11 @@ public class CookieFilterTest {
             return false;
         }
 
+        @Override
+        public boolean hasValue(String name, Object value) {
+            return false;
+        }
+
         public Response send(RequestSender requestSender) {
             return null;
         }
@@ -150,6 +155,11 @@ public class CookieFilterTest {
         }
 
         public boolean hasValue(String name) {
+            return false;
+        }
+
+        @Override
+        public boolean hasValue(String name, Object value) {
             return false;
         }
 

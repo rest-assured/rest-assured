@@ -28,6 +28,7 @@ import io.restassured.filter.log.ResponseLoggingFilter
 import io.restassured.filter.time.TimingFilter
 import io.restassured.http.*
 import io.restassured.internal.MapCreator.CollisionStrategy
+import io.restassured.internal.filter.CsrfFilter
 import io.restassured.internal.filter.FilterContextImpl
 import io.restassured.internal.filter.FormAuthFilter
 import io.restassured.internal.filter.SendRequestFilter
@@ -1658,8 +1659,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
       // Form auth scheme is handled a bit differently than other auth schemes since it's implemented by a filter.
       def formAuthScheme = authenticationScheme as FormAuthScheme
       filters.removeAll { AuthFilter.class.isAssignableFrom(it.getClass()) }
-      filters.add(0, new FormAuthFilter(userName: formAuthScheme.userName, password: formAuthScheme.password, formAuthConfig: formAuthScheme.config, sessionConfig: sessionConfig(), defaultCsrfConfig: csrfConfig()))
+      filters.add(0, new FormAuthFilter(userName: formAuthScheme.userName, password: formAuthScheme.password, formAuthConfig: formAuthScheme.config, sessionConfig: sessionConfig(), csrfConfig: csrfConfig()))
     }
+
+    filters.add(new CsrfFilter(csrfConfig: restAssuredConfig().csrfConfig))
     def logConfig = restAssuredConfig().getLogConfig()
     if (logConfig.isLoggingOfRequestAndResponseIfValidationFailsEnabled()) {
       if (!filters.any { RequestLoggingFilter.class.isAssignableFrom(it.getClass()) }) {
