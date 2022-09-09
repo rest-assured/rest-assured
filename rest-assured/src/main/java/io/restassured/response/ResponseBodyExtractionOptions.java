@@ -120,7 +120,7 @@ public interface ResponseBodyExtractionOptions extends ResponseBodyData {
      * </p>
      * You can the make the request and get the winner id's by using JsonPath:
      * <pre>
-     * List<Integer> winnerIds = get("/lotto").jsonPath().getList("lotto.winnders.winnerId");
+     * List<Integer> winnerIds = get("/lotto").jsonPath().getList("lotto.winners.winnerId");
      * </pre>
      */
     JsonPath jsonPath();
