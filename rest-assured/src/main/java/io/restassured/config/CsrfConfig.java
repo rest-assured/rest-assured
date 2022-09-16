@@ -29,11 +29,16 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  */
 public class CsrfConfig implements Config {
 
+    public static final String DEFAULT_CSRF_HEADER_NAME = "X-CSRF-TOKEN";
+    public static final String DEFAULT_CSRF_INPUT_FIELD_NAME = "_csrf";
+    public static final String DEFAULT_CSRF_META_TAG_NAME = "_csrf_header";
+
     private final boolean isUserConfigured;
     private final String csrfTokenPath;
     private final String csrfInputFieldName;
-    private final boolean autoDetectCsrfInputFieldName;
-    private final boolean sendCsrfTokenAsFormParam;
+    private final String csrfMetaTagName;
+    private final String csrfHeaderName;
+    private final CsrfPrioritization csrfPrioritization;
     private final LogConfig logConfig;
     private final LogDetail logDetail;
 
@@ -41,7 +46,7 @@ public class CsrfConfig implements Config {
      * Create a default
      */
     public CsrfConfig() {
-        this(null, null, true, true, null, null, false);
+        this(null, DEFAULT_CSRF_INPUT_FIELD_NAME, DEFAULT_CSRF_META_TAG_NAME, DEFAULT_CSRF_HEADER_NAME, CsrfPrioritization.HEADER, null, null, false);
     }
 
     /*
@@ -49,7 +54,7 @@ public class CsrfConfig implements Config {
      * For example: "/login"
      */
     public CsrfConfig(String csrfTokenPath) {
-        this(notNull(StringUtils.trimToNull(csrfTokenPath), "csrfTokenPath"), null, true, true, null, null, true);
+        this(notNull(StringUtils.trimToNull(csrfTokenPath), "csrfTokenPath"), DEFAULT_CSRF_INPUT_FIELD_NAME, DEFAULT_CSRF_META_TAG_NAME, DEFAULT_CSRF_HEADER_NAME, CsrfPrioritization.HEADER, null, null, true);
     }
 
     /*
@@ -66,14 +71,17 @@ public class CsrfConfig implements Config {
         this(notNull(csrfTokenPath, "csrfTokenPath").toString());
     }
 
-    private CsrfConfig(String csrfTokenPath, String csrfInputFieldName, boolean autoDetectCsrfInputFieldName, boolean sendCsrfTokenAsFormParam, LogConfig logConfig, LogDetail logDetail, boolean isUserConfigured) {
+    private CsrfConfig(String csrfTokenPath, String csrfInputFieldName, String csrfMetaTagName, String csrfHeaderName, CsrfPrioritization csrfPrioritization, LogConfig logConfig, LogDetail logDetail, boolean isUserConfigured) {
+        notNull(csrfPrioritization, CsrfPrioritization.class);
+        notNull(StringUtils.trimToNull(csrfInputFieldName), "csrfInputFieldName");
+        notNull(StringUtils.trimToNull(csrfMetaTagName), "csrfMetaTagName");
+        notNull(StringUtils.trimToNull(csrfHeaderName), "csrfHeaderName");
+
         this.csrfTokenPath = StringUtils.trimToNull(csrfTokenPath);
-        if (StringUtils.isNotBlank(csrfInputFieldName) && autoDetectCsrfInputFieldName) {
-            throw new IllegalArgumentException("You cannot provide an explicit csrf input field name and autoDetectCsrfFieldName=true at the same time.");
-        }
         this.csrfInputFieldName = StringUtils.trimToNull(csrfInputFieldName);
-        this.autoDetectCsrfInputFieldName = autoDetectCsrfInputFieldName;
-        this.sendCsrfTokenAsFormParam = sendCsrfTokenAsFormParam;
+        this.csrfMetaTagName = StringUtils.trimToNull(csrfMetaTagName);
+        this.csrfHeaderName = StringUtils.trimToNull(csrfHeaderName);
+        this.csrfPrioritization = csrfPrioritization;
         this.logConfig = logConfig;
         this.logDetail = logDetail;
         this.isUserConfigured = isUserConfigured;
@@ -84,7 +92,7 @@ public class CsrfConfig implements Config {
     }
 
     public boolean isCsrfEnabled() {
-        return csrfTokenPath != null && (StringUtils.isNotBlank(csrfInputFieldName) || autoDetectCsrfInputFieldName);
+        return csrfTokenPath != null;
     }
 
     public static CsrfConfig csrfConfig() {
@@ -92,44 +100,32 @@ public class CsrfConfig implements Config {
     }
 
     /**
-     * Enable Cross-site request forgery (csrf) support by automatically trying to find the name and value of the csrf input field.
+     * Enable Cross-site request forgery (csrf) support by including the csrf token specified in a meta tag as a header.
      * For example, if you've specified the {@link #csrfTokenPath} to {@code "/login"} and the login page looks like this:
      * <pre>
      * &lt;html&gt;
      * &lt;head&gt;
      *     &lt;title&gt;Login&lt;/title&gt;
+     *     &lt;meta name="_csrf_header" content="ab8722b1-1f23-4dcf-bf63-fb8b94be4107"/&gt;
      * &lt;/head&gt;
      * &lt;body&gt;
-     * &lt;form action=&quot;j_spring_security_check_with_csrf&quot; method=&quot;POST&quot;&gt;
-     *     &lt;table&gt;
-     *         &lt;tr&gt;
-     *             &lt;td&gt;User:&amp;nbsp;&lt;/td&gt;
-     *             &lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;j_username&quot;&gt;&lt;/td&gt;
-     *         &lt;/tr&gt;
-     *         &lt;tr&gt;
-     *             &lt;td&gt;Password:&lt;/td&gt;
-     *             &lt;td&gt;&lt;input type=&quot;password&quot; name=&quot;j_password&quot;&gt;&lt;/td&gt;
-     *         &lt;/tr&gt;
-     *         &lt;tr&gt;
-     *             &lt;td colspan=&quot;2&quot;&gt;&lt;input name=&quot;submit&quot; type=&quot;submit&quot;/&gt;&lt;/td&gt;
-     *         &lt;/tr&gt;
-     *     &lt;/table&gt;
-     *     &lt;input type=&quot;hidden&quot; name=&quot;_csrf&quot; value=&quot;8adf2ea1-b246-40aa-8e13-a85fb7914341&quot;/&gt;
-     * &lt;/form&gt;
+     *          ..
      * &lt;/body&gt;
      * &lt;/html&gt;
      * </pre>
-     * The csrf field name is called <code>_csrf</code> and REST Assured will autodetect its name since the field name is the only <code>hidden</code> field on this page.
-     * If auto-detection fails you can consider using {@link #csrfInputFieldName(String)}.
+     * The csrf meta tag name is called <code>_csrf_header</code> (which is the default meta tag name used by REST Assured). If the server returns a different name
+     * you can specify it with this method. REST Assured will then send the CSRF token as a header with name {@link #csrfHeaderName} (default {@value #DEFAULT_CSRF_HEADER_NAME}).
      * <p/>
      * <b>Important:</b> When enabling csrf support then REST Assured <b>must always</b> make an additional request to the server in order to
      * be able to include in the csrf value which will slow down the tests.
      *
+     * @param csrfMetaTagName The name of the meta tag containing the CSRF token
      * @return A new CsrfConfig instance.
-     * @see #csrfInputFieldName(String)
+     * @see #csrfHeaderName
      */
-    public CsrfConfig autoDetectCsrfInputFieldName() {
-        return new CsrfConfig(csrfTokenPath, null, true, sendCsrfTokenAsFormParam, logConfig, logDetail, true);
+    public CsrfConfig csrfMetaTagName(String csrfMetaTagName) {
+        notNull(StringUtils.trimToNull(csrfMetaTagName), "CSRF meta tag name");
+        return new CsrfConfig(csrfTokenPath, csrfMetaTagName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, true);
     }
 
     /**
@@ -160,18 +156,17 @@ public class CsrfConfig implements Config {
      * &lt;/body&gt;
      * &lt;/html&gt;
      * </pre>
-     * The csrf field name is called <code>_csrf</code>.
+     * The csrf field name is called <code>_csrf</code> (which is the default input field name used by REST Assured).
      * <p/>
      * <b>Important:</b> When enabling csrf support then REST Assured <b>must always</b> make an additional request to the server in order to
      * be able to include in the csrf value which will slow down the tests.
      *
-     * @param inputFieldName The name of the input field containing the CSRF value
+     * @param inputFieldName The name of the input field containing the CSRF token
      * @return A new CsrfConfig instance.
-     * @see #autoDetectCsrfInputFieldName()
      */
     public CsrfConfig csrfInputFieldName(String inputFieldName) {
         notNull(StringUtils.trimToNull(inputFieldName), "CSRF input field name");
-        return new CsrfConfig(csrfTokenPath, inputFieldName, false, sendCsrfTokenAsFormParam, logConfig, logDetail, true);
+        return new CsrfConfig(csrfTokenPath, inputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, true);
     }
 
     /**
@@ -213,7 +208,21 @@ public class CsrfConfig implements Config {
     public CsrfConfig loggingEnabled(LogDetail logDetail, LogConfig logConfig) {
         notNull(logDetail, LogDetail.class);
         notNull(logConfig, LogConfig.class);
-        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, autoDetectCsrfInputFieldName, sendCsrfTokenAsFormParam, logConfig, logDetail, true);
+        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, true);
+    }
+
+    /**
+     * Specify the name of the header that REST Assured will send the CSRF token <i>if</i> REST Assured detects that it should send the token in a header.
+     * REST Assured detects this by looking for a <code>&lt;meta&gt;</code> tag (in the <code>&lt;head&gt;</code>) with the name specified by {@link  #csrfMetaTagName} (default is {@value #DEFAULT_CSRF_META_TAG_NAME}).
+     * If this meta tag exist, REST Assured will send the CSRF token in the header.
+     *
+     * @param csrfHeaderName The name of the header that'll convey the CSRF token to the server, default is {@value #DEFAULT_CSRF_HEADER_NAME}.
+     * @return A new CsrfConfig instance.
+     * @see #csrfMetaTagName(String)
+     */
+    public CsrfConfig csrfHeaderName(String csrfHeaderName) {
+        notNull(StringUtils.trimToNull(csrfHeaderName), "CSRF header name");
+        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, true);
     }
 
     /**
@@ -235,12 +244,39 @@ public class CsrfConfig implements Config {
         return this;
     }
 
+    /**
+     * Get the configured {@link CsrfPrioritization} strategy
+     *
+     * @return A new CsrfConfig instance.
+     */
+    public CsrfPrioritization getCsrfPrioritization() {
+        return csrfPrioritization;
+    }
+
+    /**
+     * Check if the {@link CsrfPrioritization} is equal to the supplied <code>csrfPrioritization</code>.
+     *
+     * @return <code>true</code> if match, <code>false</code> otherwise.
+     */
+    public boolean isCsrfPrioritization(CsrfPrioritization csrfPrioritization) {
+        return this.csrfPrioritization == csrfPrioritization;
+    }
+
+    /**
+     * Defines how REST Assured should prioritize form vs header csrf tokens if both are present in the response page. Default is {@link CsrfPrioritization#HEADER}.
+     *
+     * @param csrfPrioritization The csrf prioritization
+     * @return A new CsrfConfig instance.
+     */
+    public CsrfConfig csrfPrioritization(CsrfPrioritization csrfPrioritization) {
+        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, true);
+    }
 
     /*
      * Specify a path that is used to get the CSRF token. This token will be used automatically by REST Assured for subsequent calls to the API.
      */
     public CsrfConfig csrfTokenPath(String csrfTokenPath) {
-        return new CsrfConfig(notNull(StringUtils.trimToNull(csrfTokenPath), "csrfTokenPath"), csrfInputFieldName, autoDetectCsrfInputFieldName, sendCsrfTokenAsFormParam, logConfig, logDetail, true);
+        return new CsrfConfig(notNull(StringUtils.trimToNull(csrfTokenPath), "csrfTokenPath"), csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, true);
     }
 
     /*
@@ -257,20 +293,6 @@ public class CsrfConfig implements Config {
         return csrfTokenPath(notNull(csrfTokenPath, "csrfTokenPath").toString());
     }
 
-    /**
-     * @return Configure form authentication to send the csrf token in a header.
-     */
-    public CsrfConfig sendCsrfTokenAsHeader() {
-        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, autoDetectCsrfInputFieldName, false, logConfig, logDetail, true);
-    }
-
-    /**
-     * @return Configure form authentication to send the csrf token as a form parameter (default setting).
-     */
-    public CsrfConfig sendCsrfTokenAsFormParam() {
-        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, autoDetectCsrfInputFieldName, true, logConfig, logDetail, true);
-    }
-
     /*
      * The path that is used to get the CSRF token. This token will be used automatically by REST Assured for subsequent calls to the API.
      */
@@ -278,18 +300,25 @@ public class CsrfConfig implements Config {
         return csrfTokenPath;
     }
 
+    /*
+     * @return The specified csrf meta field name or <code>null</code> if undefined
+     */
+    public String getCsrfMetaTagName() {
+        return csrfMetaTagName;
+    }
+
+    /*
+     * @return The name of the header in which REST Assured will send the CSRF token (if applicable).
+     */
+    public String getCsrfHeaderName() {
+        return csrfHeaderName;
+    }
+
     /**
      * @return The specified csrf input field name or <code>null</code> if undefined
      */
     public String getCsrfInputFieldName() {
         return csrfInputFieldName;
-    }
-
-    /**
-     * @return <code>true</code> if csrf input field name is defined or <code>false</code> otherwise.
-     */
-    public boolean hasCsrfInputFieldName() {
-        return StringUtils.isNotBlank(csrfInputFieldName);
     }
 
     /**
@@ -315,16 +344,9 @@ public class CsrfConfig implements Config {
 
 
     /**
-     * @return <code>true</code> if auto detection of csrf field name is enabled, <code>false</code> otherwise.
+     * Defines how REST Assured should prioritize form vs header csrf tokens if both are present in the response page.
      */
-    public boolean isAutoDetectCsrfInputFieldName() {
-        return autoDetectCsrfInputFieldName;
-    }
-
-    /**
-     * @return <code>true</code> if the csrf token should be sent as a form param or <code>false</code> if it's sent as a header.
-     */
-    public boolean shouldSendCsrfTokenAsFormParam() {
-        return sendCsrfTokenAsFormParam;
+    public enum CsrfPrioritization {
+        FORM, HEADER
     }
 }

@@ -24,8 +24,8 @@ import io.restassured.filter.log.LogDetail
 import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
 import io.restassured.filter.session.SessionFilter
-import io.restassured.internal.csrf.CsrfInputField
-import io.restassured.internal.csrf.CsrfInputFieldFinder
+import io.restassured.internal.csrf.CsrfData
+import io.restassured.internal.csrf.CsrfTokenFinder
 import io.restassured.path.xml.XmlPath
 import io.restassured.response.Response
 import io.restassured.specification.FilterableRequestSpecification
@@ -34,6 +34,7 @@ import io.restassured.specification.RequestSpecification
 import io.restassured.spi.AuthFilter
 
 import static io.restassured.RestAssured.given
+import static io.restassured.config.CsrfConfig.CsrfPrioritization.FORM
 import static io.restassured.path.xml.XmlPath.CompatibilityMode.HTML
 import static java.lang.String.format
 
@@ -54,7 +55,7 @@ class FormAuthFilter implements AuthFilter {
     String formAction
     String userNameInputField
     String passwordInputField
-    CsrfInputField csrfInputField
+    CsrfData csrfData
     Map<String, String> cookiesFromLoginPage
     List<Tuple2<String, String>> additionalInputFields = []
 
@@ -92,7 +93,7 @@ class FormAuthFilter implements AuthFilter {
       }
 
       if (csrfConfig.isCsrfEnabled()) {
-        csrfInputField = CsrfInputFieldFinder.findInHtml(csrfConfig, loginPageResponse)
+        csrfData = CsrfTokenFinder.findInHtml(csrfConfig, loginPageResponse)
       }
 
       if (formAuthConfig.hasAdditionalInputFieldNames()) {
@@ -109,7 +110,7 @@ class FormAuthFilter implements AuthFilter {
       userNameInputField = formAuthConfig.getUserInputTagName()
       passwordInputField = formAuthConfig.getPasswordInputTagName()
       additionalInputFields = null
-      csrfInputField = null
+      csrfData = null
       cookiesFromLoginPage = null
     }
 
@@ -124,11 +125,11 @@ class FormAuthFilter implements AuthFilter {
       loginRequestSpec.cookies(cookiesFromLoginPage)
     }
 
-    if (csrfInputField != null) {
-      if (csrfConfig.shouldSendCsrfTokenAsFormParam()) {
-        loginRequestSpec.formParam(csrfInputField.name, csrfInputField.value)
+    if (csrfData != null) {
+      if (csrfData.shouldSendTokenAs(FORM)) {
+        loginRequestSpec.formParam(csrfData.inputFieldOrHeaderName, csrfData.token)
       } else {
-        loginRequestSpec.header(csrfInputField.name, csrfInputField.value)
+        loginRequestSpec.header(csrfData.inputFieldOrHeaderName, csrfData.token)
       }
     }
 

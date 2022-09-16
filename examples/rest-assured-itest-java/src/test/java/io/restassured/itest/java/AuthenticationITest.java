@@ -115,7 +115,7 @@ public class AuthenticationITest extends WithJetty {
     @Test
     public void formAuthenticationWithAutoFormDetailsAndAutoCsrfDetectionDefinedInRequestConfig() {
         given().
-                config(config().csrfConfig(csrfConfig().with().csrfTokenPath("/formAuthCsrf").and().autoDetectCsrfInputFieldName())).
+                config(config().csrfConfig(csrfConfig().with().csrfTokenPath("/formAuthCsrf"))).
                 auth().form("John", "Doe", formAuthConfig()).
         when().
                 get("/formAuthCsrf").
@@ -138,7 +138,7 @@ public class AuthenticationITest extends WithJetty {
 
     @Test
     public void formAuthenticationWithAutoFormDetailsAndAutoCsrfDetectionDefinedInStaticRequestConfig() {
-        RestAssured.config = config().csrfConfig(csrfConfig().csrfTokenPath("/formAuthCsrf").autoDetectCsrfInputFieldName());
+        RestAssured.config = config().csrfConfig(csrfConfig().csrfTokenPath("/formAuthCsrf"));
 
         try {
             given().
@@ -197,7 +197,7 @@ public class AuthenticationITest extends WithJetty {
     @Test
     public void formAuthenticationWithDefinedCsrfFieldAsHeader() {
         given().
-                config(config().csrfConfig(csrfConfig().csrfTokenPath("/formAuthCsrf").csrfInputFieldName("_csrf").and().sendCsrfTokenAsHeader())).
+                config(config().csrfConfig(csrfConfig().csrfTokenPath("/formAuthCsrf").csrfInputFieldName("_csrf"))).
                 auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf_header", "j_username", "j_password")).
         when().
                 get("/formAuthCsrfInHeader").
@@ -220,7 +220,7 @@ public class AuthenticationITest extends WithJetty {
     @Test
     public void formAuthenticationWithCsrfAutoDetectionButSpecifiedFormDetails() {
         given().
-                config(config().csrfConfig(csrfConfig().autoDetectCsrfInputFieldName())).
+                config(config().csrfConfig(csrfConfig())).
                 auth().form("John", "Doe", new FormAuthConfig("j_spring_security_check_with_csrf", "j_username", "j_password")).
         when().
                 get("/formAuthCsrf").
@@ -287,7 +287,7 @@ public class AuthenticationITest extends WithJetty {
     @Test
     public void formAuthenticationUsingLoggingWithLogDetailEqualToStatus() {
         final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        final PrintStream captor = new PrintStream(new WriterOutputStream(writer, StandardCharsets.UTF_8), true);
 
         given().
                 auth().form("John", "Doe", FormAuthConfig.springSecurity().withLoggingEnabled(LogDetail.STATUS, new LogConfig(captor, true))).

@@ -767,16 +767,83 @@ class ScalatraRestExample extends ScalatraServlet {
   def securityCheck(sessionIdName: String, additionalChecks: () => Boolean) : Any =
     securityCheck(sessionIdName, "j_username", "j_password", additionalChecks)
 
+  get("/pageWithDefaultHeaderCsrf") {
+    pageWithHeaderCsrf("_csrf_header")
+  }
+
+  get("/pageWithCustomHeaderCsrf") {
+    pageWithHeaderCsrf("___csrf_header")
+  }
+
+  post("/pageThatRequireHeaderCsrf") {
+    contentType = "text/plain"
+    val headerName = params.get("headerName").getOrElse("X-CSRF-TOKEN")
+    val csrfToken = request.getHeader(headerName)
+    if (csrfToken != "ab8722b1-1f23-4dcf-bf63-fb8b94be4107") {
+      response.setStatus(403)
+      "Failed"
+    } else {
+      "OK"
+    }
+  }
+
+  get("/pageWithHeaderAndFormCsrf") {
+    contentType = "text/html"
+    s"""<html>
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="_csrf" content="_csrf"/>
+        <meta name="_csrf_header" content="ab8722b1-1f23-4dcf-bf63-fb8b94be4107"/>
+      </head>
+      <body>
+            <form action="j_spring_security_check_with_csrf" method="POST">
+              <table>
+                <tr><td>User:&nbsp;</td><td><input type='text' name='j_username'></td></tr>
+                <tr><td>Password:</td><td><input type='password' name='j_password'></td></tr>
+                  <tr><td colspan='2'><input name="submit" type="submit"/></td></tr>
+               </table>
+               <input type="hidden" name="_csrf" value="8adf2ea1-b246-40aa-8e13-a85fb7914341"/>
+            </form>
+      </body>
+     </html>"""
+  }
+
+  post("/pageThatRequireFormOrHeaderCsrf") {
+    contentType = "application/json"
+
+    val csrfType = params.get("expectedType").get
+    if (csrfType == "HEADER") {
+      val csrfToken = request.getHeader("X-CSRF-TOKEN")
+      if (csrfToken != "ab8722b1-1f23-4dcf-bf63-fb8b94be4107") {
+        response.setStatus(403)
+      }
+    } else if(csrfType == "FORM") {
+      val csrfToken = params.get("_csrf").get
+      if (csrfToken != "8adf2ea1-b246-40aa-8e13-a85fb7914341") {
+        response.setStatus(403)
+      }
+    } else {
+      response.setStatus(403)
+    }
+
+  }
+
   get("/loginPageWithCsrf") {
-    loginPageWithCsrf
+    loginPageWithCsrf("_csrf")
+  }
+
+  get("/loginPageWithCsrfUnderscore") {
+    loginPageWithCsrf("___csrf")
   }
 
   head("/loginPageWithCsrf") {
-    loginPageWithCsrf
+    loginPageWithCsrf("_csrf")
   }
 
   post("/loginPageWithCsrf") {
-    val csrfToken = params.get("_csrf").getOrElse("missing")
+    val expectedCsrfName = params.get("csrfInputFieldName").getOrElse("_csrf")
+    val csrfToken = params.get(expectedCsrfName).getOrElse("missing")
     if (csrfToken != "8adf2ea1-b246-40aa-8e13-a85fb7914341") {
       response.setStatus(403)
     }
@@ -787,7 +854,7 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/formAuthCsrf") {
-    formAuth(() => loginPageWithCsrf)
+    formAuth(() => loginPageWithCsrf("_csrf"))
   }
 
   get("/formAuthCsrfInHeader") {
@@ -1256,9 +1323,9 @@ class ScalatraRestExample extends ScalatraServlet {
      </html>"""
   }
 
-  def loginPageWithCsrf: String = {
+  def loginPageWithCsrf(csrfInputFieldName: String): String = {
     contentType = "text/html"
-    """<html>
+    s"""<html>
       <head>
         <title>Login</title>
       </head>
@@ -1270,7 +1337,7 @@ class ScalatraRestExample extends ScalatraServlet {
             <tr><td>Password:</td><td><input type='password' name='j_password'></td></tr>
               <tr><td colspan='2'><input name="submit" type="submit"/></td></tr>
            </table>
-            <input type="hidden" name="_csrf" value="8adf2ea1-b246-40aa-8e13-a85fb7914341"/>
+            <input type="hidden" name="$csrfInputFieldName" value="8adf2ea1-b246-40aa-8e13-a85fb7914341"/>
             </form>
           </body>
      </html>"""
@@ -1293,6 +1360,21 @@ class ScalatraRestExample extends ScalatraServlet {
             <input type="hidden" name="_csrf" value="8adf2ea1-b246-40aa-8e13-a85fb7914341"/>
             </form>
           </body>
+     </html>"""
+  }
+
+  private def pageWithHeaderCsrf(metaHeader: String) = {
+    contentType = "text/html"
+    s"""<html>
+      <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="_csrf" content="_csrf"/>
+        <meta name="$metaHeader" content="ab8722b1-1f23-4dcf-bf63-fb8b94be4107"/>
+      </head>
+      <body>
+        Hello
+      </body>
      </html>"""
   }
 
@@ -1495,7 +1577,7 @@ class ScalatraRestExample extends ScalatraServlet {
     } else {
       val cookie = cookies.find(sessionName => sessionName.getName.equalsIgnoreCase("jsessionid") || sessionName.getName.equalsIgnoreCase("phpsessionid")).get
       if(cookie == null) {
-        loginPageWithCsrf
+        loginPageWithCsrf("_csrf")
       } else if (cookie.getValue == "1234") {
         "OK"
       } else {

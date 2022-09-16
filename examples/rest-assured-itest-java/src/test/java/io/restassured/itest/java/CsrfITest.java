@@ -17,7 +17,6 @@
 package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
-import io.restassured.authentication.FormAuthConfig;
 import io.restassured.config.CsrfConfig;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
@@ -31,18 +30,21 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 import static io.restassured.RestAssured.*;
-import static io.restassured.authentication.FormAuthConfig.formAuthConfig;
+import static io.restassured.config.CsrfConfig.CsrfPrioritization.FORM;
+import static io.restassured.config.CsrfConfig.CsrfPrioritization.HEADER;
 import static io.restassured.config.CsrfConfig.csrfConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.Matchers.startsWith;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class CsrfITest extends WithJetty {
 
     @Test
     public void csrfConfigWithoutCsrfTokenPathDisablesCsrf() {
         given().
-                config(config().csrfConfig(csrfConfig().autoDetectCsrfInputFieldName())).
+                config(config().csrfConfig(csrfConfig())).
         when().
                 post("/loginPageWithCsrf").
         then().
@@ -77,7 +79,7 @@ public class CsrfITest extends WithJetty {
             fail("Expecting IllegalArgumentException");
         } catch (Exception e) {
             assertTrue(e instanceof IllegalArgumentException);
-            assertTrue(e.getMessage(), e.getMessage().contains("Couldn't find the CSRF input field with name _csrf in response. Response was:"));
+            assertTrue(e.getMessage(), e.getMessage().contains("Couldn't find a the CSRF token in response. Expecting either an input field with name \"_csrf\" or a meta tag with name \"_csrf_header\". Response was:"));
         }
     }
 
@@ -94,7 +96,7 @@ public class CsrfITest extends WithJetty {
     @Test
     public void csrfAutoCsrfDetectionDefinedInRequestConfig() {
         given().
-                config(config().csrfConfig(csrfConfig().with().csrfTokenPath("/loginPageWithCsrf").and().autoDetectCsrfInputFieldName().loggingEnabled(LogDetail.BODY))).
+                config(config().csrfConfig(csrfConfig().with().csrfTokenPath("/loginPageWithCsrf").loggingEnabled(LogDetail.BODY))).
         when().
                 post("/loginPageWithCsrf").
         then().
@@ -197,7 +199,7 @@ public class CsrfITest extends WithJetty {
 
     @Test
     public void csrfAutoCsrfDetectionDefinedInStatically() {
-        RestAssured.config = RestAssuredConfig.config().csrfConfig(csrfConfig().with().csrfTokenPath("/loginPageWithCsrf").and().autoDetectCsrfInputFieldName());
+        RestAssured.config = RestAssuredConfig.config().csrfConfig(csrfConfig().with().csrfTokenPath("/loginPageWithCsrf"));
 
         try {
             when().
@@ -211,7 +213,7 @@ public class CsrfITest extends WithJetty {
 
     @Test
     public void csrfRequestConfigIsOverridingStaticConfig() {
-        RestAssured.config = RestAssuredConfig.config().csrfConfig(csrfConfig().with().autoDetectCsrfInputFieldName());
+        RestAssured.config = RestAssuredConfig.config().csrfConfig(csrfConfig().with().csrfTokenPath("/loginPageWithCsrf2"));
 
         try {
             given().
@@ -227,7 +229,25 @@ public class CsrfITest extends WithJetty {
 
     @Test
     public void csrfDslIsMergedWithStaticConfigWhenSpecifyingDifferentThingInDslAndStaticConfig() {
-        RestAssured.config = RestAssuredConfig.config().csrfConfig(csrfConfig().with().autoDetectCsrfInputFieldName());
+        // TODO FIx test
+        RestAssured.config = RestAssuredConfig.config().csrfConfig(csrfConfig().with().csrfInputFieldName("___csrf"));
+
+        try {
+            given().
+                    queryParam("csrfInputFieldName", "___csrf").
+                    csrf("/loginPageWithCsrfUnderscore").
+            when().
+                    post("/loginPageWithCsrf").
+            then().
+                    statusCode(200);
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void csrfDslIsOverridingWithStaticConfigWhenSpecifyingSamePropertyInDslAndStaticConfig() {
+        RestAssured.config = RestAssuredConfig.config().csrfConfig(csrfConfig().with().csrfTokenPath("/error"));
 
         try {
             given().
@@ -242,18 +262,69 @@ public class CsrfITest extends WithJetty {
     }
 
     @Test
-    public void csrfDslIsOverridingWithStaticConfigWhenSpecifyingSamePropertyInDslAndStaticConfig() {
-        RestAssured.config = RestAssuredConfig.config().csrfConfig(csrfConfig().with().csrfTokenPath("/error").autoDetectCsrfInputFieldName());
+    public void csrfHeader() {
+        given().
+                csrf("/pageWithDefaultHeaderCsrf").
+        when().
+                post("/pageThatRequireHeaderCsrf").
+        then().
+                statusCode(200);
+    }
 
-        try {
-            given().
-                    csrf("/loginPageWithCsrf").
-            when().
-                    post("/loginPageWithCsrf").
-            then().
-                    statusCode(200);
-        } finally {
-            RestAssured.reset();
-        }
+    @Test
+    public void csrfHeaderDerivedFromSpecifiedMetaTag() {
+        given().
+                config(RestAssuredConfig.config().csrfConfig(csrfConfig().csrfMetaTagName("___csrf_header"))).
+                csrf("/pageWithCustomHeaderCsrf").
+        when().
+                post("/pageThatRequireHeaderCsrf").
+        then().
+                statusCode(200);
+    }
+
+    @Test
+    public void csrfHeaderWithCustomizedHeaderName() {
+        given().
+                config(RestAssuredConfig.config().csrfConfig(csrfConfig().csrfHeaderName("MyHeader"))).
+                csrf("/pageWithDefaultHeaderCsrf").
+                queryParam("headerName", "MyHeader").
+        when().
+                post("/pageThatRequireHeaderCsrf").
+        then().
+                statusCode(200);
+    }
+
+    @Test
+    public void prioritizeHeaderCsrfOverFormByDefaultWhenPageContainsBoth() {
+        given().
+                csrf("/pageWithHeaderAndFormCsrf").
+                queryParam("expectedType", "HEADER").
+        when().
+                post("/pageThatRequireFormOrHeaderCsrf").
+        then().
+                statusCode(200);
+    }
+
+    @Test
+    public void prioritizeHeaderCsrfOverFormWhenHeaderPrioritizationIsUsedWhenPageContainsBothCsrfHeaderAndInputField() {
+        given().
+                config(RestAssuredConfig.config().csrfConfig(csrfConfig().csrfPrioritization(HEADER))).
+                csrf("/pageWithHeaderAndFormCsrf").
+                queryParam("expectedType", "HEADER").
+        when().
+                post("/pageThatRequireFormOrHeaderCsrf").
+        then().
+                statusCode(200);
+    }
+    @Test
+    public void prioritizeFormCsrfOverHeaderWhenFormPrioritizationIsUsedWhenPageContainsBothCsrfHeaderAndInputField() {
+        given().
+                config(RestAssuredConfig.config().csrfConfig(csrfConfig().csrfPrioritization(FORM))).
+                csrf("/pageWithHeaderAndFormCsrf").
+                queryParam("expectedType", "FORM").
+        when().
+                post("/pageThatRequireFormOrHeaderCsrf").
+        then().
+                statusCode(200);
     }
 }

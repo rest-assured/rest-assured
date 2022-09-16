@@ -21,12 +21,13 @@ import io.restassured.filter.FilterContext
 import io.restassured.filter.log.LogDetail
 import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
-import io.restassured.internal.csrf.CsrfInputFieldFinder
+import io.restassured.internal.csrf.CsrfTokenFinder
 import io.restassured.response.Response
 import io.restassured.specification.FilterableRequestSpecification
 import io.restassured.specification.FilterableResponseSpecification
 
 import static io.restassured.RestAssured.given
+import static io.restassured.config.CsrfConfig.CsrfPrioritization.FORM
 
 class CsrfFilter implements Filter {
 
@@ -52,19 +53,16 @@ class CsrfFilter implements Filter {
 
 
         def pageThatContainsCsrfToken = requestSpecification.get(csrfConfig.getCsrfTokenPath())
-        def csrfInputField = CsrfInputFieldFinder.findInHtml(csrfConfig, pageThatContainsCsrfToken)
-        if (!csrfInputField) {
-          def name = ""
-          if (csrfConfig.hasCsrfInputFieldName()) {
-            name = " with name ${csrfConfig.csrfInputFieldName}"
-          }
-          throw new IllegalArgumentException("Couldn't find the CSRF input field$name in response. Response was:\n${pageThatContainsCsrfToken.prettyPrint()}")
+        def csrfData = CsrfTokenFinder.findInHtml(csrfConfig, pageThatContainsCsrfToken)
+        if (!csrfData) {
+          throw new IllegalArgumentException("Couldn't find a the CSRF token in response. Expecting either an input field with name \"${csrfConfig.csrfInputFieldName}\" or a meta tag with name \"${csrfConfig.csrfMetaTagName}\". " +
+                  "Response was:\n${pageThatContainsCsrfToken.prettyPrint()}")
         }
 
-        if (csrfConfig.shouldSendCsrfTokenAsFormParam()) {
-          requestSpec.formParam(csrfInputField.name, csrfInputField.value)
+        if (csrfData.shouldSendTokenAs(FORM)) {
+          requestSpec.formParam(csrfData.inputFieldOrHeaderName, csrfData.token)
         } else {
-          requestSpec.header(csrfInputField.name, csrfInputField.value)
+          requestSpec.header(csrfData.inputFieldOrHeaderName, csrfData.token)
         }
       }
     }

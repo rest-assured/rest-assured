@@ -1,3 +1,7 @@
+Changelog next-version
+----------------------
+* Added (much) improved support for CSRF tokens when sent it's sent as a header and not in a form
+
 Changelog 5.2.0 (2022-09-09)
 ----------------------------
 * Improved FilterContext used in Filters by adding the method FilterContext#hasValue(name, object). This makes it easier to check if a value exists _and_ is equal to the expect object.
