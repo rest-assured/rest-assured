@@ -119,6 +119,12 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
     }
 
     @Override
+    public WebTestClientRequestSpecification contentType(MediaType mediaType) {
+        notNull(mediaType, "mediaType");
+        return header(CONTENT_TYPE, mediaType.toString());
+    }
+
+    @Override
     public WebTestClientRequestSpecification contentType(String contentType) {
         notNull(contentType, "contentType");
         return header(CONTENT_TYPE, contentType);

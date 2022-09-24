@@ -60,6 +60,16 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
     /**
      * Specify the content type of the request.
      *
+     * @param mediaType The content type of the request
+     * @return The request specification
+     * @see ContentType
+     * @see MediaType
+     */
+    MockMvcRequestSpecification contentType(MediaType mediaType);
+
+    /**
+     * Specify the content type of the request.
+     *
      * @param contentType The content type of the request
      * @return The request specification
      * @see ContentType

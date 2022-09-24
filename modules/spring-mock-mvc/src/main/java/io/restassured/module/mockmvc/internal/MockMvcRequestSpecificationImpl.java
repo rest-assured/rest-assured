@@ -191,6 +191,11 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return header(CONTENT_TYPE, contentType.toString());
     }
 
+    public MockMvcRequestSpecification contentType(MediaType mediaType) {
+        notNull(mediaType, "mediaType");
+        return header(CONTENT_TYPE, mediaType.toString());
+    }
+
     public MockMvcRequestSpecification contentType(String contentType) {
         notNull(contentType, "contentType");
         return header(CONTENT_TYPE, contentType);
