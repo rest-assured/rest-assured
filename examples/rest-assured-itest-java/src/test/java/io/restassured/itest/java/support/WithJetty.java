@@ -23,7 +23,17 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.Request;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.SecuredRedirectHandler;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -33,7 +43,11 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 
 import static io.restassured.itest.java.support.WithJetty.JettyOption.RESET_REST_ASSURED_BEFORE_TEST;
@@ -61,6 +75,10 @@ public abstract class WithJetty {
 
     @BeforeClass
     public static void startJetty() throws Exception {
+        startJettyOneWaySSL();
+    }
+
+    protected static void startJettyOneWaySSL() throws Exception {
         server = new Server();
 
         HttpConfiguration httpConfig = new HttpConfiguration();
@@ -129,6 +147,46 @@ public abstract class WithJetty {
         server.start();
     }
 
+    protected static void startJettyTwoWaySSL() throws Exception {
+        server = new Server();
+        int httpsPort = 8443;
+
+        // Setup HTTP Connector
+        HttpConfiguration httpConf = new HttpConfiguration();
+        httpConf.setSecurePort(httpsPort);
+        httpConf.setSecureScheme("https");
+
+        // Setup SSL
+        String keystore = WithJetty.class.getClassLoader().getResource("keystore.p12").getFile();
+        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+        sslContextFactory.setKeyStorePath(keystore);
+        sslContextFactory.setKeyStorePassword("test1234");
+        sslContextFactory.setTrustAll(true);
+        sslContextFactory.setNeedClientAuth(true);
+
+        // Setup HTTPS Configuration
+        HttpConfiguration httpsConf = new HttpConfiguration();
+        httpsConf.setSecureScheme("https");
+        httpsConf.setSecurePort(httpsPort);
+        httpsConf.addCustomizer(new SecureRequestCustomizer());
+
+        // Establish the HTTPS ServerConnector
+        ServerConnector httpsConnector = new ServerConnector(server,
+                new SslConnectionFactory(sslContextFactory, HttpVersion.HTTP_1_1.asString()),
+                new HttpConnectionFactory(httpsConf));
+        httpsConnector.setPort(httpsPort);
+
+        server.addConnector(httpsConnector);
+
+        // Add a Handlers for requests
+        HandlerList handlers = new HandlerList();
+        handlers.addHandler(new SecuredRedirectHandler());
+        handlers.addHandler(new HelloHandler());
+        server.setHandler(handlers);
+
+        server.start();
+    }
+
     private static void dontSendDateHeader(Server server) {
         // Remove the sending of date header since it makes testing of logging much harder
         for (Connector y : server.getConnectors()) {
@@ -166,5 +224,16 @@ public abstract class WithJetty {
     public enum JettyOption {
         RESET_REST_ASSURED_BEFORE_TEST,
         DONT_RESET_REST_ASSURED_BEFORE_TEST
+    }
+
+    private static class HelloHandler extends AbstractHandler {
+
+        @Override
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+            response.setContentType("text/json;charset=utf-8");
+            response.setStatus(HttpServletResponse.SC_OK);
+            baseRequest.setHandled(true);
+            response.getWriter().println("{\"hello\": \"Hello Scalatra\"}");
+        }
     }
 }
