@@ -698,4 +698,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
       assertionClosure.validate(response)
     }
   }
+
+  def getValidations(){
+    return validations;
+  }
 }
