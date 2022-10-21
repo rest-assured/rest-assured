@@ -22,14 +22,23 @@ import org.apache.commons.lang3.Validate;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import static org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
@@ -246,8 +255,10 @@ public class SSLConfig implements Config {
     }
 
     /**
-     * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
-     * method you don't need to specify a keystore (see {@link #keyStore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
+     * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid.
+     * By using this method you don't need to specify a trust store (see {@link #trustStore(java.security.KeyStore)}.
+     * If you need to send an SSL certificate, then you can specify a key store (see {@link #keyStore(File, String)}
+     * and a key store type (see {@link #keystoreType(String)} before calling this method.
      * This method assumes that the protocol for the {@link SSLContext} instance is {@value #SSL}. If this is not the case use {@link #relaxedHTTPSValidation(String)}.
      *
      * @return A new SSLConfig instance.
@@ -257,8 +268,10 @@ public class SSLConfig implements Config {
     }
 
     /**
-     * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid. By using this
-     * method you don't need to specify a keystore (see {@link #keyStore(String, String)} or trust store (see {@link #trustStore(java.security.KeyStore)}.
+     * Use relaxed HTTP validation. This means that you'll trust all hosts regardless if the SSL certificate is invalid.
+     * By using this method you don't need to specify a trust store (see {@link #trustStore(java.security.KeyStore)}.
+     * If you need to send an SSL certificate, then you can specify a key store (see {@link #keyStore(File, String)}
+     * and a key store type (see {@link #keystoreType(String)} before calling this method
      *
      * @param protocol The standard name of the requested protocol. See the SSLContext section in the <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java Cryptography Architecture Standard Algorithm Name Documentation</a> for information about standard protocol names.
      * @return A new SSLConfig instance
@@ -272,9 +285,18 @@ public class SSLConfig implements Config {
             return SafeExceptionRethrower.safeRethrow(e);
         }
 
-        // Set up a TrustManager that trusts everything
         try {
-            sslContext.init(null, new TrustManager[]{new X509TrustManager() {
+            // Set up a KeyManager to use with relaxed HTTPS validation
+            KeyStore relaxedKeyStore = loadKeyStore();
+            KeyManager[] keyManagers = null;
+            if (relaxedKeyStore != null) {
+                KeyManagerFactory kmf =
+                        KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                kmf.init(relaxedKeyStore, keyStorePassword.toCharArray());
+                keyManagers = kmf.getKeyManagers();
+            }
+            // Set up a TrustManager that trusts everything
+            sslContext.init(keyManagers, new TrustManager[]{new X509TrustManager() {
                 public X509Certificate[] getAcceptedIssuers() {
                     return null;
                 }
@@ -285,7 +307,7 @@ public class SSLConfig implements Config {
                 public void checkServerTrusted(X509Certificate[] certs, String authType) {
                 }
             }}, new SecureRandom());
-        } catch (KeyManagementException e) {
+        } catch (KeyManagementException | UnrecoverableKeyException | KeyStoreException | NoSuchAlgorithmException e) {
             return SafeExceptionRethrower.safeRethrow(e);
         }
 
@@ -451,8 +473,49 @@ public class SSLConfig implements Config {
     /**
      * @return <code>true</code> if user has configured this SSL Configuration instance, <code>false</code> otherwise.
      */
+    @Override
     public boolean isUserConfigured() {
         return isUserConfigured;
     }
 
+    private KeyStore loadKeyStore() {
+        if (pathToKeyStore == null) {
+            return null;
+        }
+
+        InputStream resource;
+        try {
+            if (pathToKeyStore instanceof String) {
+                String keyStorePath = (String) pathToKeyStore;
+                if (keyStorePath.trim().isEmpty()) {
+                    return null;
+                }
+                resource = Thread.currentThread().getContextClassLoader().getResourceAsStream(keyStorePath);
+                if (resource == null) { // To allow for backward compatibility
+                    resource = getClass().getResourceAsStream(keyStorePath);
+                }
+                if (resource == null) { // Fallback to load path as file if not found in classpath
+                    resource = new FileInputStream(keyStorePath);
+                }
+            } else {
+                resource = new FileInputStream((File) pathToKeyStore);
+            }
+        } catch (FileNotFoundException e) {
+            return SafeExceptionRethrower.safeRethrow(e);
+        }
+
+        try {
+            KeyStore relaxedKeyStore = KeyStore.getInstance(keyStoreType);
+            relaxedKeyStore.load(resource, keyStorePassword.toCharArray());
+            return relaxedKeyStore;
+        } catch (IOException | KeyStoreException | CertificateException | NoSuchAlgorithmException e) {
+            return SafeExceptionRethrower.safeRethrow(e);
+        } finally {
+            try {
+                resource.close();
+            } catch (IOException e) {
+                // Nothing to do
+            }
+        }
+    }
 }
