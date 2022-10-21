@@ -1,6 +1,7 @@
 Changelog next-version
 ----------------------
 * Added (much) improved support for CSRF tokens when sent it's sent as a header and not in a form
+* Enable the use of relaxedHTTPSValidation with two-way ssl (issue #1631) (thanks to Mathieu Amblard for pull request)
 
 Changelog 5.2.0 (2022-09-09)
 ----------------------------
