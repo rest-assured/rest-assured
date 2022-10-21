@@ -5,6 +5,7 @@ import io.restassured.response.Response;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class BodyMatcherGroup {
@@ -26,7 +27,7 @@ public class BodyMatcherGroup {
         return bodyAssertions.size();
     }
 
-    public List<Object> validate(final Response response, final Object contentParser, final RestAssuredConfig config) {
+    public List<Map<String, Object>> validate(final Response response, final Object contentParser, final RestAssuredConfig config) {
         return bodyAssertions.stream().map(bodyMatcher -> bodyMatcher.validate(response, contentParser, config)).collect(Collectors.toList());
 
     }

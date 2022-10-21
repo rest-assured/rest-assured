@@ -74,6 +74,8 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
   private contentParser
   LogRepository logRepository
 
+  private def validations = []
+
   ResponseSpecificationImpl(String bodyRootPath, ResponseSpecification defaultSpec, ResponseParserRegistrar rpr,
                             RestAssuredConfig config, LogRepository logRepository) {
     this(bodyRootPath, defaultSpec, rpr, config, null, logRepository)
@@ -485,7 +487,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
     def validate(Response response) {
       if (hasAssertionsDefined()) {
-        def validations = []
+//        def validations = []
         try {
           validations.addAll(validateStatusCodeAndStatusLine(response))
           validations.addAll(validateHeadersAndCookies(response))
