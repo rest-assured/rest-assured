@@ -84,7 +84,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAsyncConfigurer, MockMvcRequestAsyncSender {
     private static final String ATTRIBUTE_NAME_URL_TEMPLATE = "org.springframework.restdocs.urlTemplate";
     private static final String CONTENT_TYPE = "Content-Type";
-    private static final boolean isSpring6OrLater = existInCP("org.springframework.core.annotation.CoreAnnotationsRuntimeHintsRegistrar");
+    private static final boolean isSpring6OrLater = existInCP("org.springframework.aot.AotDetector");
 
     private final MockMvc mockMvc;
     private final Map<String, Object> params;
