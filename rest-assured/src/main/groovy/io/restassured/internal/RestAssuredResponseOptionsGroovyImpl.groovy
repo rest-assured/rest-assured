@@ -181,9 +181,7 @@ class RestAssuredResponseOptionsGroovyImpl {
   }
 
   String asPrettyString(ResponseOptions responseOptions, ResponseBody responseBody) {
-    def body = new Prettifier().getPrettifiedBodyIfPossible(responseOptions, responseBody)
-    content = body
-    body
+    new Prettifier().getPrettifiedBodyIfPossible(responseOptions, responseBody)
   }
 
   String asString(boolean forcePlatformDefaultCharsetIfNoCharsetIsSpecifiedInResponse) {
