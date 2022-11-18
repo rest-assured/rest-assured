@@ -49,6 +49,16 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	/**
 	 * Specify the content type of the request.
 	 *
+	 * @param mediaType The content type of the request
+	 * @return The request specification
+	 *
+	 * @see ContentType
+	 */
+	WebTestClientRequestSpecification contentType(MediaType mediaType);
+
+	/**
+	 * Specify the content type of the request.
+	 *
 	 * @param contentType The content type of the request
 	 * @return The request specification
 	 *
