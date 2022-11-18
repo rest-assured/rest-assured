@@ -7,7 +7,7 @@ Changelog 5.3.0 (2022-11-18)
 * Allow contentType() to accept Spring MediaType in Spring MockMvc module (thanks to Hantsy Bai for pull request)
 * Upgraded kotlin from 1.7.10 to 1.7.20 in the kotlin module
 * Upgraded groovy from 4.0.1 to 4.0.6
-* Updated jackson from version 2.13.2 to 2.13.2.1
+* Updated jackson from version 2.13.2 to 2.13.4
 
 Changelog 5.2.0 (2022-09-09)
 ----------------------------
