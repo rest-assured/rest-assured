@@ -9,6 +9,10 @@ Changelog 5.3.0 (2022-11-18)
 * Upgraded groovy from 4.0.1 to 4.0.6
 * Updated jackson from version 2.13.2 to 2.13.4
 
+Changelog 5.2.1 (2022-11-18)
+----------------------------
+* Lastest Spring Framework 6 is now supported again (thanks to Marcin Grzejszczak for pull request)
+
 Changelog 5.2.0 (2022-09-09)
 ----------------------------
 * Improved FilterContext used in Filters by adding the method FilterContext#hasValue(name, object). This makes it easier to check if a value exists _and_ is equal to the expect object.
