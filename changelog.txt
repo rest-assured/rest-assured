@@ -1,5 +1,5 @@
-Changelog 5.2.0 (2022-09-09)
-----------------------
+Changelog 5.3.0 (2022-11-18)
+----------------------------
 * Added (much) improved support for CSRF tokens when sent as a header and not in a form
 * Enable the use of relaxedHTTPSValidation with two-way ssl (issue #1631) (thanks to Mathieu Amblard for pull request)
 * Lastest Spring Framework 6 is now supported again (thanks to Marcin Grzejszczak for pull request)
