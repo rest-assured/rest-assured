@@ -4,6 +4,7 @@ Changelog next-version
 * Enable the use of relaxedHTTPSValidation with two-way ssl (issue #1631) (thanks to Mathieu Amblard for pull request)
 * Lastest Spring Framework 6 is now supported again (thanks to Marcin Grzejszczak for pull request)
 * Removed content assignment from asPrettyString() (thanks to Bartłomiej Chabowski for pull request)
+* Allow contentType() to accept Spring MediaType in Spring MockMvc module (thanks to Hantsy Bai for pull request)
 * Upgraded kotlin from 1.7.10 to 1.7.20 in the kotlin module
 * Upgraded groovy from 4.0.1 to 4.0.6
 
