@@ -5,6 +5,7 @@ Changelog next-version
 * Lastest Spring Framework 6 is now supported again (thanks to Marcin Grzejszczak for pull request)
 * Removed content assignment from asPrettyString() (thanks to Bartłomiej Chabowski for pull request)
 * Upgraded kotlin from 1.7.10 to 1.7.20 in the kotlin module
+* Upgraded groovy from 4.0.1 to 4.0.6
 
 Changelog 5.2.0 (2022-09-09)
 ----------------------------
