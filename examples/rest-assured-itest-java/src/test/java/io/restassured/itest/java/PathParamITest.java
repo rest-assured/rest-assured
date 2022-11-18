@@ -338,7 +338,6 @@ public class PathParamITest extends WithJetty {
                 get("/{firstName}/{firstName}");
     }
 
-    @Ignore("temporary ignoring because of too many requests")
     @Test
     public void unnamedQueryParametersWorks() {
         expect().statusCode(200).when().get("https://www.google.se/search?q={query}&hl=en", "query");
