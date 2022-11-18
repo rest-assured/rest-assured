@@ -71,7 +71,7 @@
         <surefire.version>2.22.0</surefire.version>
         <kotlin.version>1.7.20</kotlin.version>
         <assertj-core.version>3.16.1</assertj-core.version>
-        <scribe.version>2.5.3</scribe.version>
+        <scribe.version>8.3.3</scribe.version>
         <sundrio.version>0.93.0</sundrio.version>
     </properties>
     <scm>
