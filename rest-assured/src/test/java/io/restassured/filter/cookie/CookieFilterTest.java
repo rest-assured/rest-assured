@@ -137,9 +137,9 @@ public class CookieFilterTest {
         public Response next(FilterableRequestSpecification request, FilterableResponseSpecification response) {
             RestAssuredResponseImpl restAssuredResponse = new RestAssuredResponseImpl();
             Header setCookieHeader1 =
-                    new Header("Set-Cookie", "cookieName1=cookieValue1; Domain=somedomain.com; Path=/somepath; Secure; HttpOnly");
+                    new Header("Set-Cookie", "cookieName1=cookieValue1; Domain=somedomain.com; Path=/somepath; Secure; HttpOnly; Expires=Wed, 21 Oct 3015 07:28:00 GMT");
             Header setCookieHeader2 =
-                    new Header("Set-Cookie", "cookieName2=cookieValue2; Domain=somedomain.com; Path=/somepath; Secure; HttpOnly");
+                    new Header("Set-Cookie", "cookieName2=cookieValue2; Domain=somedomain.com; Path=/somepath; Secure; HttpOnly; Expires=Wed, 21 Oct 3015 07:28:00 GMT");
             restAssuredResponse.setResponseHeaders(Headers.headers(setCookieHeader1, setCookieHeader2));
             return restAssuredResponse;
         }

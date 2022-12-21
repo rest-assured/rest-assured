@@ -23,12 +23,14 @@ import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
 import org.apache.http.Header;
+import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.cookie.CookieOrigin;
 import org.apache.http.cookie.CookieSpec;
 import org.apache.http.cookie.MalformedCookieException;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.cookie.DefaultCookieSpec;
+import org.apache.http.impl.cookie.RFC6265StrictSpec;
 import org.apache.http.message.BasicHeader;
 
 import java.net.MalformedURLException;
@@ -83,7 +85,7 @@ public class CookieFilter implements Filter {
      */
     public CookieFilter(boolean allowMultipleCookiesWithTheSameName) {
         this.allowMultipleCookiesWithTheSameName = allowMultipleCookiesWithTheSameName;
-        this.cookieSpec = new DefaultCookieSpec();
+        this.cookieSpec = new RFC6265StrictSpec();
         this.cookieStore = new BasicCookieStore();
     }
 
@@ -130,5 +132,9 @@ public class CookieFilter implements Filter {
         } catch (MalformedURLException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    public CookieStore getCookieStore() {
+        return cookieStore;
     }
 }
