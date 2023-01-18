@@ -26,6 +26,12 @@
     <artifactId>example-parent</artifactId>
     <packaging>pom</packaging>
     <name>REST Assured Examples</name>
+
+    <properties>
+        <scala.version>2.13.10</scala.version>
+        <scala.binary.version>2.13</scala.binary.version>
+    </properties>
+
     <modules>
         <module>scalatra-example</module>
         <module>scalatra-webapp</module>

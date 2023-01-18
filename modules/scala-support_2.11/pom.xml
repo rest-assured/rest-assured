@@ -23,13 +23,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>scala-support</artifactId>
+    <artifactId>scala-support_2.11</artifactId>
     <packaging>jar</packaging>
-    <name>Scala Support</name>
+    <name>Scala Support 2.11</name>
     <description>Scala support for REST Assured</description>
 
     <properties>
-        <scala.version>2.13.0</scala.version>
+        <scala.version>2.11.12</scala.version>
+        <scala.binary.version>2.12</scala.binary.version>
     </properties>
 
     <build>

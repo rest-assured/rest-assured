@@ -28,7 +28,9 @@
     <modules>
         <module>json-schema-validator</module>
         <module>spring-mock-mvc</module>
-        <module>scala-support</module>
+        <module>scala-support_2.11</module>
+        <module>scala-support_2.12</module>
+        <module>scala-support_2.13</module>
         <module>spring-web-test-client</module>
         <module>spring-commons</module>
         <module>kotlin-extensions</module>

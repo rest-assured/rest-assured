@@ -29,16 +29,16 @@
             <directory>../../scala-support/target</directory>
             <outputDirectory>/docs</outputDirectory>
             <includes>
-                <include>scala-support-${project.version}-javadoc.jar</include>
-                <include>scala-support-${project.version}-sources.jar</include>
+                <include>scala-support_${scala.binary.version}-${project.version}-javadoc.jar</include>
+                <include>scala-support_${scala.binary.version}-${project.version}-sources.jar</include>
             </includes>
         </fileSet>        
         <fileSet>
             <directory>${project.build.directory}</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>scala-support-${project.version}.jar</include>
-                <include>scala-support-${project.version}-deps.zip</include>
+                <include>scala-support_${scala.binary.version}-${project.version}.jar</include>
+                <include>scala-support_${scala.binary.version}-${project.version}-deps.zip</include>
             </includes>
         </fileSet>
     </fileSets>
