@@ -1,3 +1,7 @@
+Changelog next-version
+----------------------
+* Upgraded Guava library to 31.1-jre
+
 Changelog 5.3.0 (2022-11-18)
 ----------------------------
 * Added (much) improved support for CSRF tokens when sent as a header and not in a form
