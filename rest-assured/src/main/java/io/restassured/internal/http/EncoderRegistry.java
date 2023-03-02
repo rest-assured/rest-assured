@@ -297,6 +297,8 @@ public class EncoderRegistry {
     private HttpEntity createEntity(String ct, Object object) throws UnsupportedEncodingException {
         if (object instanceof byte[]) {
             return createEntity(ct, (byte[]) object);
+        } else if (object instanceof InputStream) {
+            return createEntity(ct, (InputStream) object);
         } else {
             return createEntity(ct, object.toString());
         }
@@ -306,6 +308,12 @@ public class EncoderRegistry {
         final ByteArrayEntity byteArrayEntity = new ByteArrayEntity(byteArray);
         byteArrayEntity.setContentType(ct);
         return byteArrayEntity;
+    }
+
+    protected HttpEntity createEntity(String ct, InputStream inputStream) {
+        final InputStreamEntity inputStreamEntity = new InputStreamEntity(inputStream);
+        inputStreamEntity.setContentType(ct);
+        return inputStreamEntity;
     }
 
     /**
