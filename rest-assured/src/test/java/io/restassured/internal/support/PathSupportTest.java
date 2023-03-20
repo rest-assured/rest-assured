@@ -119,4 +119,26 @@ public class PathSupportTest {
         // Then
         assertThat(path, is("/"));
     }
+    @Test public void
+    returns_path_when_param_has_scheme() {
+        // Given
+        String targetUri = "/path?uri=http://localhost";
+
+        // When
+        String path = PathSupport.getPath(targetUri);
+
+        // Then
+        assertThat(path, is("/path"));
+    }
+    @Test public void
+    returns_path_when_path_is_fully_qualified_uri_and_param_has_scheme() {
+        // Given
+        String targetUri = "http://localhost/path?uri=http://localhost";
+
+        // When
+        String path = PathSupport.getPath(targetUri);
+
+        // Then
+        assertThat(path, is("/path"));
+    }
 }
