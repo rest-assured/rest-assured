@@ -374,7 +374,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      *
      * @param method The HTTP method to use
      * @param uri    The uri to send the request to.
-     * @return The response of the GET request.
+     * @return The response of the request.
      */
     R request(Method method, URI uri);
 
@@ -383,7 +383,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      *
      * @param method The HTTP method to use
      * @param url    The url to send the request to.
-     * @return The response of the GET request.
+     * @return The response of the request.
      */
     R request(Method method, URL url);
 
@@ -392,7 +392,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      *
      * @param method The HTTP method to use
      * @param uri    The uri to send the request to.
-     * @return The response of the GET request.
+     * @return The response of the request.
      */
     R request(String method, URI uri);
 
@@ -401,7 +401,7 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      *
      * @param method The HTTP method to use
      * @param url    The url to send the request to.
-     * @return The response of the GET request.
+     * @return The response of the request.
      */
     R request(String method, URL url);
 }
