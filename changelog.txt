@@ -1,6 +1,10 @@
 Changelog next-version
 ----------------------
 * Upgraded Guava library to 31.1-jre
+* Fixed "Unexpected logic in PathSupport.getPath" (issue 1682) (thanks to fucct for pull request)
+* Fixed "Not able to POST xml file using Inpustream" (issue 1160) (thanks to Balasaravanan for pull request)
+* Fixed "MockMvcRequestSenderImpl convertCookies function is not copying the httpOnly, sameSite and expires from the servletCookies into the cookieBuilder" (issue 1462) (thanks to Justin Tay for pull request))
+* Fixed "Accept cookies that have an expiration date" (issue 1430) (thanks to Stéphane Épardaud for pull request)
 
 Changelog 5.3.0 (2022-11-18)
 ----------------------------
