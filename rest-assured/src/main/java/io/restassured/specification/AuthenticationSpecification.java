@@ -158,7 +158,7 @@ public interface AuthenticationSpecification {
     PreemptiveAuthSpec preemptive();
 
     /**
-     * Explicitly state that you don't which to use any authentication in this request. This is useful only in cases where you've
+     * Explicitly state that you don't wish to use any authentication in this request. This is useful only in cases where you've
      * specified a default authentication scheme and you wish to override it for a single request.
      *
      * @return The Request specification
