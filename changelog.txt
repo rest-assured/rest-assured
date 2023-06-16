@@ -5,6 +5,7 @@ Changelog next-version
 * Fixed "Not able to POST xml file using Inpustream" (issue 1160) (thanks to Balasaravanan for pull request)
 * Fixed "MockMvcRequestSenderImpl convertCookies function is not copying the httpOnly, sameSite and expires from the servletCookies into the cookieBuilder" (issue 1462) (thanks to Justin Tay for pull request))
 * Fixed "Accept cookies that have an expiration date" (issue 1430) (thanks to Stéphane Épardaud for pull request)
+* Upgraded the Kotlin extension module to use Kotlin 1.8.22
 
 Changelog 5.3.0 (2022-11-18)
 ----------------------------
