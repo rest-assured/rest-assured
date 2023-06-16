@@ -61,7 +61,7 @@
         <groovy.version>4.0.12</groovy.version>
         <groovy.range>[4.0,5.0)</groovy.range>
         <gmaven.version>1.5</gmaven.version>
-        <hamcrest.version>2.1</hamcrest.version>
+        <hamcrest.version>2.2</hamcrest.version>
         <jackson1.version>1.9.11</jackson1.version>
         <jackson2.version>2.14.3</jackson2.version>
         <johnzon.version>1.1.11</johnzon.version>

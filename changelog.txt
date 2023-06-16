@@ -8,6 +8,7 @@ Changelog next-version
 * Upgraded the Kotlin extension module to use Kotlin 1.8.22
 * Upgraded Groovy to 4.0.12
 * Upgraded faster jackson to 2.14.3
+* Upgraded Hamcrest to 2.2
 
 Changelog 5.3.0 (2022-11-18)
 ----------------------------
