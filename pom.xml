@@ -73,7 +73,7 @@
         <assertj-core.version>3.16.1</assertj-core.version>
         <scribe.version>2.5.3</scribe.version>
         <sundrio.version>0.93.0</sundrio.version>
-        <guava.version>31.1-jre</guava.version>
+        <guava.version>32.0.1-jre</guava.version>
     </properties>
     <scm>
         <url>http://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>
