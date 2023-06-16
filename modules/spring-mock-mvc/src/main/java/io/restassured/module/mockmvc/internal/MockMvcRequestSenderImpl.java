@@ -65,6 +65,7 @@ import java.lang.reflect.Constructor;
 import java.net.URI;
 import java.net.URL;
 import java.security.Principal;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -182,6 +183,27 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             cookieBuilder.setMaxAge(getMaxAge);
             cookieBuilder.setVersion(invokeMethod(servletCookie, "getVersion"));
             cookieBuilder.setSecured(invokeMethod(servletCookie, "getSecure"));
+            cookieBuilder.setHttpOnly(invokeMethod(servletCookie, "isHttpOnly"));
+
+            // Attempt to copy properties from org.springframework.mock.web.MockCookie
+            try {
+            	String sameSite = invokeMethod(servletCookie, "getSameSite");
+            	if(sameSite != null) {
+                    cookieBuilder.setSameSite(sameSite);
+            	}
+            } catch(IllegalArgumentException e) {
+            	// Do nothing as only found on MockCookie
+            }
+            
+            try {
+                ZonedDateTime expires = invokeMethod(servletCookie, "getExpires");
+                if(expires != null) {
+                    cookieBuilder.setExpiryDate(Date.from(expires.toInstant()));
+                }
+            } catch(IllegalArgumentException e) {
+            	// Do nothing as only found on MockCookie
+            }
+
             cookies.add(cookieBuilder.build());
         }
         return new Cookies(cookies);
