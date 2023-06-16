@@ -28,10 +28,6 @@
     <name>Scala Spring Mock MVC Example</name>
     <description>Scala example of using REST Assured with Spring MockMvc</description>
 
-    <properties>
-        <scala.version>2.13.0</scala.version>
-    </properties>
-
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
         <testSourceDirectory>src/test/scala</testSourceDirectory>
@@ -82,7 +78,7 @@
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
-            <artifactId>scala-support</artifactId>
+            <artifactId>scala-support_${scala.binary.version}</artifactId>
             <version>5.3.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>

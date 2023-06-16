@@ -24,11 +24,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <packaging>pom</packaging>
-    <artifactId>dist-scala-support</artifactId>
+    <artifactId>dist-scala-support_2.11</artifactId>
 
-    <name>Scala support distribution jar</name>
+    <properties>
+        <scala.binary.version>2.11</scala.binary.version>
+    </properties>
+
+    <name>Scala support 2.11 distribution jar</name>
     <build>
-        <finalName>scala-support-${project.version}</finalName>
+        <finalName>scala-support-${project.version}_${scala.binary.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -43,7 +47,7 @@
                         </goals>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
-                            <finalName>scala-support-${project.version}</finalName>
+                            <finalName>scala-support-${project.version}_${scala.binary.version}</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/scala-support-full-jar.xml</descriptor>
                             </descriptors>
@@ -57,7 +61,7 @@
                         </goals>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
-                            <finalName>scala-support-${project.version}-deps</finalName>
+                            <finalName>scala-support-${project.version}_${scala.binary.version}-deps</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/dependencies.xml</descriptor>
                             </descriptors>
@@ -71,7 +75,7 @@
                         </goals>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
-                            <finalName>scala-support-${project.version}-dist</finalName>
+                            <finalName>scala-support-${project.version}_${scala.binary.version}-dist</finalName>
                             <descriptors>
                                 <descriptor>src/main/assembly/scala-support-dist.xml</descriptor>
                             </descriptors>
@@ -84,7 +88,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>scala-support</artifactId>
+            <artifactId>scala-support_${scala.binary.version}</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
             <scope>compile</scope>

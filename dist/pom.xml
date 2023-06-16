@@ -31,7 +31,9 @@
         <module>dist-json-schema-validator</module>
         <module>dist-spring-mock-mvc</module>
         <module>dist-spring-web-test-client</module>
-        <module>dist-scala-support</module>
+        <module>dist-scala-support_2.11</module>
+        <module>dist-scala-support_2.12</module>
+        <module>dist-scala-support_2.13</module>
         <module>dist-kotlin-extensions</module>
     </modules>
     <artifactId>dist</artifactId>
