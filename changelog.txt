@@ -1,5 +1,5 @@
-Changelog next-version
-----------------------
+Changelog 5.3.1 (2023-06-16)
+----------------------------
 * Upgraded Guava library to 32.0.1-jre
 * Fixed "Unexpected logic in PathSupport.getPath" (issue 1682) (thanks to fucct for pull request)
 * Fixed "Not able to POST xml file using Inpustream" (issue 1160) (thanks to Balasaravanan for pull request)
