@@ -6,7 +6,7 @@ Changelog 5.3.1 (2023-06-16)
 * Fixed "MockMvcRequestSenderImpl convertCookies function is not copying the httpOnly, sameSite and expires from the servletCookies into the cookieBuilder" (issue 1462) (thanks to Justin Tay for pull request))
 * Fixed "Accept cookies that have an expiration date" (issue 1430) (thanks to Stéphane Épardaud for pull request)
 * Upgraded the Kotlin extension module to use Kotlin 1.8.22
-* Upgraded Groovy to 4.0.12
+* Upgraded Groovy to 4.0.11
 * Upgraded faster jackson to 2.14.3
 * Upgraded Hamcrest to 2.2
 
