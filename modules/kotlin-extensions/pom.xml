@@ -20,10 +20,10 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>5.3.1-SNAPSHOT</version>
+        <version>5.3.1</version>
     </parent>
     <artifactId>kotlin-extensions</artifactId>
-    <version>5.3.1-SNAPSHOT</version>
+    <version>5.3.1</version>
     <name>kotlin-extensions</name>
     <url>http://maven.apache.org</url>
     <properties>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>5.3.1-SNAPSHOT</version>
+            <version>5.3.1</version>
         </dependency>
 
         <!-- Test -->
