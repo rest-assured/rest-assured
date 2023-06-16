@@ -58,9 +58,9 @@ class PathSupport {
       return targetUri
     }
 
-    def indexOfScheme = targetUri.indexOf("://");
+    def path = StringUtils.substringBefore(targetUri, "?")
+    def indexOfScheme = path.indexOf("://");
     if (indexOfScheme == -1) {
-      def path = StringUtils.substringBefore(targetUri, "?")
       return StringUtils.startsWith(path, "/") ? path : "/" + path
     }
     def indexOfPath = StringUtils.indexOf(targetUri, "/", indexOfScheme + 3);
