@@ -7,6 +7,7 @@ Changelog next-version
 * Fixed "Accept cookies that have an expiration date" (issue 1430) (thanks to Stéphane Épardaud for pull request)
 * Upgraded the Kotlin extension module to use Kotlin 1.8.22
 * Upgraded Groovy to 4.0.12
+* Upgraded faster jackson to 2.14.3
 
 Changelog 5.3.0 (2022-11-18)
 ----------------------------
