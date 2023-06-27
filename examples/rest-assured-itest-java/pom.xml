@@ -71,7 +71,7 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
-            <version>9.4.34.v20201102</version>
+            <version>11.0.12</version>
         </dependency>
         <!-- Jakarta EE 9 (important to put this before Jakarta EE 8 in classpath) -->
         <dependency>
