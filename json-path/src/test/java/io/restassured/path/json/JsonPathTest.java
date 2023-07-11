@@ -803,4 +803,51 @@ public class JsonPathTest {
         // Then   no exception should be thrown
         assertThat(jsonPath.getString("root.items[0]"), is(nullValue()));
     }
+
+    @Test public void
+    does_not_fail_on_primitive_string() {
+        // When
+        String json = "\"foo\"";
+
+        // When
+        JsonPath jsonPath = JsonPath.from(json);
+
+        // Then
+        assertThat(jsonPath.get("$"), is("foo"));
+    }
+
+    @Test public void
+    does_not_fail_on_primitive_true() {
+        // When
+        String json = "true";
+
+        // When
+        JsonPath jsonPath = JsonPath.from(json);
+
+        // Then
+        assertThat(jsonPath.get("$"), is(true));
+    }
+
+    @Test public void
+    does_not_fail_on_primitive_false() {
+        // When
+        String json = "false";
+
+        // When
+        JsonPath jsonPath = JsonPath.from(json);
+
+        // Then
+        assertThat(jsonPath.get("$"), is(false));
+    }
+    @Test public void
+    does_not_fail_on_primitive_null() {
+        // When
+        String json = "null";
+
+        // When
+        JsonPath jsonPath = JsonPath.from(json);
+
+        // Then
+        assertThat(jsonPath.get("$"), nullValue());
+    }
 }
