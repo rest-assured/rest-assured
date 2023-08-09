@@ -22,7 +22,11 @@ import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.time.TimingFilter;
-import io.restassured.http.*;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
+import io.restassured.http.Method;
 import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ResponseSpecificationImpl;
@@ -56,29 +60,44 @@ import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequ
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.util.ReflectionUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.*;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.security.Principal;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
 import static io.restassured.internal.common.classpath.ClassPathResolver.existInCP;
 import static io.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash;
 import static io.restassured.module.mockmvc.internal.SpringSecurityClassPathChecker.isSpringSecurityInClasspath;
+import static io.restassured.module.mockmvc.util.ReflectionUtil.invokeConstructor;
+import static io.restassured.module.mockmvc.util.ReflectionUtil.invokeMethod;
 import static io.restassured.module.spring.commons.HeaderHelper.mapToArray;
 import static io.restassured.module.spring.commons.RequestLogger.logParamsAndHeaders;
 import static io.restassured.module.spring.commons.RequestLogger.logRequestBody;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
-import static org.springframework.http.HttpMethod.*;
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.HEAD;
+import static org.springframework.http.HttpMethod.OPTIONS;
+import static org.springframework.http.HttpMethod.PATCH;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 
@@ -731,58 +750,5 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             throw new IllegalArgumentException("HTTP method '" + method + "' is not supported by MockMvc");
         }
         return httpMethod;
-    }
-
-    private static <T> T invokeMethod(Object instance, String methodName, Object... arguments) {
-        Class<?>[] argumentTypes = getArgumentTypes(arguments);
-        return invokeMethod(instance, methodName, argumentTypes, arguments);
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T invokeMethod(Object instance, String methodName, Class<?>[] argumentTypes, Object... arguments) {
-        java.lang.reflect.Method method = ReflectionUtils.findMethod(instance instanceof Class ? (Class<?>) instance : instance.getClass(), methodName, argumentTypes);
-        if (method == null) {
-            throw new IllegalArgumentException("Cannot find method '" + methodName + "' in " + instance.getClass() + " (arguments=" + Arrays.toString(arguments) + ")");
-        }
-        if (method.isVarArgs()) {
-            Class<?> argumentType = argumentTypes[argumentTypes.length - 1];
-            if (argumentType.isArray()) {
-                argumentType = argumentType.getComponentType();
-            }
-            int numberOfVarArgParameters = arguments.length - argumentTypes.length + 1;
-            Object varArgsArguments = Array.newInstance(argumentType, numberOfVarArgParameters);
-            for (int i = arguments.length - argumentTypes.length; i < numberOfVarArgParameters; i++) {
-                Array.set(varArgsArguments, i, arguments[i]);
-            }
-
-            Object[] objectArrayNeededForInvocation = new Object[argumentTypes.length];
-            if (arguments.length - 1 >= 0) {
-                System.arraycopy(arguments, 0, objectArrayNeededForInvocation, 0, arguments.length - 1);
-            }
-            objectArrayNeededForInvocation[argumentTypes.length - 1] = varArgsArguments;
-            return (T) ReflectionUtils.invokeMethod(method, instance, objectArrayNeededForInvocation);
-        } else {
-            return (T) ReflectionUtils.invokeMethod(method, instance, arguments);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <T> T invokeConstructor(String className, Object... arguments) {
-        Class<?>[] argumentTypes = getArgumentTypes(arguments);
-        try {
-            Class<T> cls = (Class<T>) Class.forName(className);
-            Constructor<T> constructor = cls.getConstructor(argumentTypes);
-            return constructor.newInstance(arguments);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static Class<?>[] getArgumentTypes(Object[] arguments) {
-        Class<?>[] argumentTypes = new Class[arguments.length];
-        for (int i = 0; i < arguments.length; i++) {
-            argumentTypes[i] = arguments[i].getClass();
-        }
-        return argumentTypes;
     }
 }
