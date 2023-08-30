@@ -107,7 +107,15 @@ public class RequestLoggingFilter implements Filter {
      * @param showUrlEncodedUri Whether or not to show the request URI as url encoded
      */
     public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream, boolean showUrlEncodedUri) {
-        this(logDetail, shouldPrettyPrint, stream, showUrlEncodedUri, Collections.emptySet());
+        this(logDetail, shouldPrettyPrint, stream, showUrlEncodedUri, defaultBlacklistedHeaders());
+    }
+
+    private static Set<String> defaultBlacklistedHeaders() {
+        TreeSet<String> caseInsensitiveBlacklistedHeaders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        caseInsensitiveBlacklistedHeaders.add("Authorization");
+        caseInsensitiveBlacklistedHeaders.add("Proxy-Authorization");
+        caseInsensitiveBlacklistedHeaders.add("Cookie");
+        return caseInsensitiveBlacklistedHeaders;
     }
 
     /**
