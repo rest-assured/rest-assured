@@ -343,7 +343,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         applyAttributes(request);
 
         if (RestDocsClassPathChecker.isSpringRestDocsInClasspath() && config.getMockMvcConfig().shouldAutomaticallyApplySpringRestDocsMockMvcSupport()) {
-            request.requestAttr(ATTRIBUTE_NAME_URL_TEMPLATE, PathSupport.getPath(uri));
+            request.requestAttr(ATTRIBUTE_NAME_URL_TEMPLATE, PathSupport.getPath(baseUri));
         }
 
         applyHeaders(request);

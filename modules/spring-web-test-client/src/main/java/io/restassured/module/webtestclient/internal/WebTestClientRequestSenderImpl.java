@@ -423,8 +423,8 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	) {
 		notNull(path, "Path");
 		String baseUri = getBaseUri(path);
-		String uri = buildUri(method, requestContentType, baseUri, unnamedPathParams);
-		return webTestClient.method(method).uri(uri);
+		final UriContainer uriContainer = buildUri(method, requestContentType, baseUri, unnamedPathParams);
+		return webTestClient.method(method).uri(uriContainer.getUri(), uriContainer.getUriVariables());
 	}
 
 	private void addRequestElements(HttpMethod method, String requestContentType, WebTestClient.RequestBodySpec requestBodySpec) {
@@ -486,13 +486,21 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		return restAssuredResponse;
 	}
 
-	private String buildUri(HttpMethod method, String requestContentType, String baseUri, Object[] unnamedPathParams) {
+	private UriContainer buildUri(HttpMethod method, String requestContentType, String baseUri, Object[] unnamedPathParams) {
 		final UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(baseUri);
+		final UriContainer.Builder uriContainerBuilder = UriContainer.newBuilder(baseUri);
+
 		applyQueryParams(uriComponentsBuilder);
-		applyPathParams(uriComponentsBuilder, baseUri, unnamedPathParams);
+		applyPathParams(uriContainerBuilder, baseUri, unnamedPathParams);
 		applyParams(method, uriComponentsBuilder, requestContentType);
 		applyFormParams(method, uriComponentsBuilder, requestContentType);
-		return uriComponentsBuilder.build().toUriString();
+
+		final String uriWithoutPathParams = uriComponentsBuilder.cloneBuilder()
+				.uriVariables(Collections.emptyMap())
+				.build(false)
+				.toUriString();
+
+		return uriContainerBuilder.uri(uriWithoutPathParams).build();
 	}
 
 	private void validateUnnamedPathParams(final Object[] unnamedPathParams) {
@@ -569,7 +577,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	}
 
 	private void applyPathParams(
-			final UriComponentsBuilder uriComponentsBuilder,
+			final UriContainer.Builder uriContainerBuilder,
 			final String baseUri,
 			final Object[] unnamedPathParams
 	) {
@@ -606,7 +614,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 			);
 		} while (pathParamMatcher.find());
 
-		uriComponentsBuilder.uriVariables(uriVariables);
+		uriContainerBuilder.uriVariables(uriVariables);
 	}
 
 	private void applyParams(HttpMethod method, UriComponentsBuilder uriComponentsBuilder, String requestContentType) {

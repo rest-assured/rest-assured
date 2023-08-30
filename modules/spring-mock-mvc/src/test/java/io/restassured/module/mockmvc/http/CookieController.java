@@ -16,6 +16,8 @@
 
 package io.restassured.module.mockmvc.http;
 
+import org.springframework.mock.web.MockCookie;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,37 +32,8 @@ import javax.servlet.http.HttpServletResponse;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
+@Controller
 public class CookieController {
-	
-    /**
-      * Mimics org.springframework.mock.web.MockCookie
-      */
-    public static class MockCookie extends Cookie {
-        private static final long serialVersionUID = 1L;
-		
-        private String sameSite;
-        private ZonedDateTime expires;
-
-        public MockCookie(String name, String value) {
-            super(name, value);
-        }
-
-        public String getSameSite() {
-            return sameSite;
-        }
-
-        public void setSameSite(String sameSite) {
-            this.sameSite = sameSite;
-        }
-
-        public ZonedDateTime getExpires() {
-            return expires;
-        }
-
-        public void setExpires(ZonedDateTime expires) {
-            this.expires = expires;
-        }
-    }
 
     @RequestMapping(value = "/cookie", method = GET, produces = APPLICATION_JSON_VALUE)
     public @ResponseBody String cookie(@CookieValue("cookieName1") String cookieValue1, @CookieValue(value = "cookieName2", required = false) String cookieValue2) {
@@ -69,17 +42,17 @@ public class CookieController {
 
     @RequestMapping(value = "/setCookies", method = GET, produces = APPLICATION_JSON_VALUE)
     public @ResponseBody String setCookies(HttpServletResponse response,
-                     @RequestParam("cookieName1") String cookieName1, @RequestParam("cookieValue1") String cookieValue1,
-                     @RequestParam("cookieName2") String cookieName2, @RequestParam("cookieValue2") String cookieValue2) {
+                                           @RequestParam("cookieName1") String cookieName1, @RequestParam("cookieValue1") String cookieValue1,
+                                           @RequestParam("cookieName2") String cookieName2, @RequestParam("cookieValue2") String cookieValue2) {
         response.addCookie(new Cookie(cookieName1, cookieValue1));
         response.addCookie(new Cookie(cookieName2, cookieValue2));
         return "{}";
     }
-    
+
     @RequestMapping(value = "/setDetailedCookies", method = GET, produces = APPLICATION_JSON_VALUE)
     public @ResponseBody String setDetailedCookies(HttpServletResponse response,
-                     @RequestParam("cookieName1") String cookieName1, @RequestParam("cookieValue1") String cookieValue1,
-                     @RequestParam("cookieName2") String cookieName2, @RequestParam("cookieValue2") String cookieValue2) {
+                                                   @RequestParam("cookieName1") String cookieName1, @RequestParam("cookieValue1") String cookieValue1,
+                                                   @RequestParam("cookieName2") String cookieName2, @RequestParam("cookieValue2") String cookieValue2) {
         MockCookie cookie1 = new MockCookie(cookieName1, cookieValue1);
         cookie1.setHttpOnly(true);
         cookie1.setSameSite("None");

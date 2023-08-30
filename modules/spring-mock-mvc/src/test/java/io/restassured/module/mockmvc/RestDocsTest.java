@@ -21,7 +21,7 @@ import io.restassured.module.mockmvc.http.GreetingController;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.springframework.restdocs.RestDocumentation;
+import org.springframework.restdocs.JUnitRestDocumentation;
 
 import static io.restassured.module.mockmvc.config.MockMvcConfig.mockMvcConfig;
 import static org.hamcrest.Matchers.equalTo;
@@ -37,7 +37,7 @@ public class RestDocsTest {
     public ExpectedException exception = ExpectedException.none();
 
     @Rule
-    public final RestDocumentation restDocumentation = new RestDocumentation("target/generated-snippets");
+    public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation("target/generated-snippets");
 
     @Test
     public void path_parameters_are_automatically_supported() {
@@ -47,7 +47,7 @@ public class RestDocsTest {
         when().
                get("/{path}", "greeting").
         then().
-                apply(document("greeting").snippets(
+                apply(document("greeting",
                         pathParameters(
                                 parameterWithName("path").description("The path to greeting")),
                         responseFields(
@@ -61,7 +61,7 @@ public class RestDocsTest {
     @Test
     public void can_disable_automatic_spring_rest_docks_mvc_support() {
         exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("urlTemplate not found. Did you use RestDocumentationRequestBuilders to build the request?");
+        exception.expectMessage("urlTemplate not found. If you are using MockMvc did you use RestDocumentationRequestBuilders to build the request?");
 
         RestAssuredMockMvc.given().
                 config(RestAssuredMockMvcConfig.config().mockMvcConfig(mockMvcConfig().dontAutomaticallyApplySpringRestDocsMockMvcSupport())).
@@ -70,7 +70,7 @@ public class RestDocsTest {
         when().
                get("/{path}", "greeting").
         then().
-                apply(document("greeting").snippets(
+                apply(document("greeting",
                         pathParameters(
                                 parameterWithName("path").description("The path to greeting")),
                         responseFields(

@@ -59,7 +59,7 @@ public class PutTest {
                 log().all().
                 statusCode(415);
 
-        assertThat(writer.toString(), equalTo(String.format("415 Content type 'null' not supported%n" +
+        assertThat(writer.toString(), equalTo(String.format("415 Content type '' not supported%n" +
                 "Accept: application/x-www-form-urlencoded%n")));
     }
 
