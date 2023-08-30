@@ -27,9 +27,9 @@ import org.apache.commons.lang3.Validate;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static io.restassured.filter.log.LogDetail.ALL;
 import static io.restassured.filter.log.LogDetail.STATUS;
@@ -127,7 +127,9 @@ public class RequestLoggingFilter implements Filter {
         }
         this.stream = stream;
         this.logDetail = logDetail;
-        this.blacklistedHeaders = new HashSet<>(blacklistedHeaders);
+        TreeSet<String> caseInsensitiveBlacklistedHeaders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        caseInsensitiveBlacklistedHeaders.addAll(blacklistedHeaders);
+        this.blacklistedHeaders = caseInsensitiveBlacklistedHeaders;
         this.shouldPrettyPrint = shouldPrettyPrint;
         this.showUrlEncodedUri = showUrlEncodedUri;
     }
