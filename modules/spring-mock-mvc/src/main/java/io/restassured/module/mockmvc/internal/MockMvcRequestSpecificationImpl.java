@@ -76,6 +76,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     private final ResponseSpecification responseSpecification;
 
     private final Map<String, Object> params = new LinkedHashMap<>();
+    private final Map<String, Object> pathParams = new LinkedHashMap<>();
     private final Map<String, Object> queryParams = new LinkedHashMap<>();
     private final Map<String, Object> formParams = new LinkedHashMap<>();
     private final Map<String, Object> attributes = new LinkedHashMap<>();
@@ -298,6 +299,28 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return this;
     }
 
+    @Override
+    public MockMvcRequestSpecification pathParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+        notNull(firstParameterName, "firstParameterName");
+        notNull(firstParameterValue, "firstParameterValue");
+        return pathParams(MapCreator.createMapFromParams(CollisionStrategy.OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs));
+    }
+
+    @Override
+    public MockMvcRequestSpecification pathParams(Map<String, Object> parametersMap) {
+        notNull(parametersMap, "parametersMap");
+        parameterUpdater.updateParameters(convert(cfg.getParamConfig().pathParamsUpdateStrategy()), parametersMap, pathParams);
+        return this;
+    }
+
+    @Override
+    public MockMvcRequestSpecification pathParam(String parameterName, Object parameterValue) {
+        notNull(parameterName, "parameterName");
+        notNull(parameterValue, "parameterValue");
+        parameterUpdater.updateStandardParameter(convert(cfg.getParamConfig().pathParamsUpdateStrategy()), pathParams, parameterName, parameterValue);
+        return this;
+    }
+
     public MockMvcRequestSpecification formParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
         notNull(firstParameterName, "firstParameterName");
         notNull(firstParameterValue, "firstParameterValue");
@@ -508,6 +531,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
         this.formParams(that.getFormParams());
         this.queryParams(that.getQueryParams());
+        this.pathParams(that.getPathParams());
         this.params(that.getParams());
         this.attributes(that.getAttributes());
 
@@ -574,7 +598,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
             log().ifValidationFails(logConfig.logDetailOfRequestAndResponseIfValidationFails(), logConfig.isPrettyPrintingEnabled());
         }
         MockMvc mockMvc = mockMvcFactory.build(cfg.getMockMvcConfig());
-        return new MockMvcRequestSenderImpl(mockMvc, params, queryParams, formParams, attributes, cfg, requestBody,
+        return new MockMvcRequestSenderImpl(mockMvc, params, pathParams, queryParams, formParams, attributes, cfg, requestBody,
                 requestHeaders, cookies, sessionAttributes, multiParts, requestLoggingFilter, resultHandlers, requestPostProcessors, interceptor, basePath, responseSpecification, authentication,
                 logRepository);
     }
@@ -790,6 +814,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public Map<String, Object> getQueryParams() {
         return queryParams;
+    }
+
+    public Map<String, Object> getPathParams() {
+        return pathParams;
     }
 
     public Map<String, Object> getFormParams() {

@@ -16,7 +16,6 @@
 package io.restassured.module.webtestclient.specification;
 
 import io.restassured.config.LogConfig;
-import io.restassured.config.SessionConfig;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.ContentType;
@@ -242,6 +241,101 @@ public class WebTestClientRequestSpecBuilder {
 	 */
 	public WebTestClientRequestSpecBuilder addQueryParam(String parameterName, Object... parameterValues) {
 		spec.queryParam(parameterName, parameterValues);
+		return this;
+	}
+
+	/**
+	 * Specify a path parameter. Path parameters are used to improve readability of the request path. E.g. instead
+	 * of writing:
+	 * <pre>
+	 * expect().statusCode(200).when().get("/item/"+myItem.getItemNumber()+"/buy/"+2);
+	 * </pre>
+	 * you can write:
+	 * <pre>
+	 * given().
+	 *         pathParam("itemNumber", myItem.getItemNumber()).
+	 *         pathParam("amount", 2).
+	 * expect().
+	 *          statusCode(200).
+	 * when().
+	 *        get("/item/{itemNumber}/buy/{amount}");
+	 * </pre>
+	 * <p/>
+	 * which improves readability and allows the path to be reusable in many tests. Another alternative is to use:
+	 * <pre>
+	 * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
+	 * </pre>
+	 *
+	 * @param parameterName  The parameter key
+	 * @param parameterValue The parameter value
+	 * @return The request specification
+	 */
+	public WebTestClientRequestSpecBuilder addPathParam(String parameterName, Object parameterValue) {
+		spec.pathParam(parameterName, parameterValue);
+		return this;
+	}
+
+	/**
+	 * Specify multiple path parameter name-value pairs. Path parameters are used to improve readability of the request path. E.g. instead
+	 * of writing:
+	 * <pre>
+	 * expect().statusCode(200).when().get("/item/"+myItem.getItemNumber()+"/buy/"+2);
+	 * </pre>
+	 * you can write:
+	 * <pre>
+	 * given().
+	 *         pathParam("itemNumber", myItem.getItemNumber(), "amount", 2).
+	 * expect().
+	 *          statusCode(200).
+	 * when().
+	 *        get("/item/{itemNumber}/buy/{amount}");
+	 * </pre>
+	 * <p/>
+	 * which improves readability and allows the path to be reusable in many tests. Another alternative is to use:
+	 * <pre>
+	 * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
+	 * </pre>
+	 *
+	 * @param firstParameterName      The name of the first parameter
+	 * @param firstParameterValue     The value of the first parameter
+	 * @param parameterNameValuePairs Additional parameters in name-value pairs.
+	 * @return The request specification
+	 */
+	public WebTestClientRequestSpecBuilder addPathParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+		spec.pathParams(firstParameterName, firstParameterValue, parameterNameValuePairs);
+		return this;
+	}
+
+	/**
+	 * Specify multiple path parameter name-value pairs. Path parameters are used to improve readability of the request path. E.g. instead
+	 * of writing:
+	 * <pre>
+	 * expect().statusCode(200).when().get("/item/"+myItem.getItemNumber()+"/buy/"+2);
+	 * </pre>
+	 * you can write:
+	 * <pre>
+	 * Map&lt;String,Object&gt; pathParams = new HashMap&lt;String,Object&gt;();
+	 * pathParams.add("itemNumber",myItem.getItemNumber());
+	 * pathParams.add("amount",2);
+	 *
+	 * given().
+	 *         pathParameters(pathParams).
+	 * expect().
+	 *          statusCode(200).
+	 * when().
+	 *        get("/item/{itemNumber}/buy/{amount}");
+	 * </pre>
+	 * <p/>
+	 * which improves readability and allows the path to be reusable in many tests. Another alternative is to use:
+	 * <pre>
+	 * expect().statusCode(200).when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2);
+	 * </pre>
+	 *
+	 * @param parameterNameValuePairs A map containing the path parameters.
+	 * @return The request specification
+	 */
+	public WebTestClientRequestSpecBuilder addPathParams(Map<String, Object> parameterNameValuePairs) {
+		spec.pathParams(parameterNameValuePairs);
 		return this;
 	}
 

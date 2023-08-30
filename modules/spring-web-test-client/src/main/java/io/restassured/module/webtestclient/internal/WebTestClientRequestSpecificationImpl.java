@@ -18,10 +18,12 @@ package io.restassured.module.webtestclient.internal;
 import io.restassured.config.LogConfig;
 import io.restassured.config.MultiPartConfig;
 import io.restassured.config.ParamConfig;
+import io.restassured.config.ParamConfig.UpdateStrategy;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.http.*;
 import io.restassured.internal.MapCreator;
+import io.restassured.internal.MapCreator.CollisionStrategy;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.internal.mapping.ObjectMapping;
 import io.restassured.internal.multipart.MultiPartInternal;
@@ -70,6 +72,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String ACCEPT = "Accept";
     private final Map<String, Object> params = new LinkedHashMap<>();
+    private final Map<String, Object> namedPathParams = new LinkedHashMap<>();
     private final Map<String, Object> queryParams = new LinkedHashMap<>();
     private final Map<String, Object> formParams = new LinkedHashMap<>();
     private final Map<String, Object> attributes = new LinkedHashMap<>();
@@ -150,7 +153,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
 
     @Override
     public WebTestClientRequestSpecification headers(String firstHeaderName, Object firstHeaderValue, Object... headerNameValuePairs) {
-        return headers(MapCreator.createMapFromParams(MapCreator.CollisionStrategy.MERGE,
+        return headers(MapCreator.createMapFromParams(CollisionStrategy.MERGE,
                 firstHeaderName, firstHeaderValue, headerNameValuePairs));
     }
 
@@ -251,6 +254,28 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
         notNull(parameterValues, "parameterValues");
         parameterUpdater.updateCollectionParameter(convert(config.getParamConfig().queryParamsUpdateStrategy()),
                 queryParams, parameterName, (Collection<Object>) parameterValues);
+        return this;
+    }
+
+    @Override
+    public WebTestClientRequestSpecification pathParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
+        notNull(firstParameterName, "firstParameterName");
+        notNull(firstParameterValue, "firstParameterValue");
+        return pathParams(MapCreator.createMapFromParams(OVERWRITE, firstParameterName, firstParameterValue, parameterNameValuePairs));
+    }
+
+    @Override
+    public WebTestClientRequestSpecification pathParams(Map<String, Object> parametersMap) {
+        notNull(parametersMap, "parametersMap");
+        parameterUpdater.updateParameters(convert(config.getParamConfig().pathParamsUpdateStrategy()), parametersMap, namedPathParams);
+        return this;
+    }
+
+    @Override
+    public WebTestClientRequestSpecification pathParam(String parameterName, Object parameterValue) {
+        notNull(parameterName, "parameterName");
+        notNull(parameterValue, "parameterValue");
+        parameterUpdater.updateStandardParameter(convert(config.getParamConfig().pathParamsUpdateStrategy()), namedPathParams, parameterName, parameterValue);
         return this;
     }
 
@@ -570,6 +595,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
         headers(specificationToMerge.getRequestHeaders());
         mergeConfig(this, specificationToMerge);
         formParams(specificationToMerge.getFormParams());
+        pathParams(specificationToMerge.getPathParams());
         queryParams(specificationToMerge.getQueryParams());
         params(specificationToMerge.getParams());
         attributes(specificationToMerge.getAttributes());
@@ -610,7 +636,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
                     logConfig.isPrettyPrintingEnabled());
         }
         WebTestClient webTestClient = webTestClientFactory.build(config.getWebTestClientConfig());
-        return new WebTestClientRequestSenderImpl(webTestClient, params, queryParams, formParams, attributes, config, requestBody,
+        return new WebTestClientRequestSenderImpl(webTestClient, params, namedPathParams, queryParams, formParams, attributes, config, requestBody,
                 requestHeaders, cookies, multiParts, requestLoggingFilter, basePath,
                 responseSpecification, logRepository);
     }
@@ -967,6 +993,10 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
         return queryParams;
     }
 
+    public Map<String, Object> getPathParams() {
+        return namedPathParams;
+    }
+
     public Map<String, Object> getParams() {
         return params;
     }
@@ -1020,8 +1050,8 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
         return (WebTestClientParamConfig) paramConfig;
     }
 
-    private static ParamConfig.UpdateStrategy convert(WebTestClientParamConfig.UpdateStrategy updateStrategy) {
-        return ParamConfig.UpdateStrategy.valueOf(updateStrategy.name());
+    private static UpdateStrategy convert(UpdateStrategy updateStrategy) {
+        return UpdateStrategy.valueOf(updateStrategy.name());
     }
 
 }

@@ -21,7 +21,9 @@ import io.restassured.config.RestAssuredConfig;
 
 import java.lang.reflect.Field;
 
-public class ConfigConverter {
+public final class ConfigConverter {
+
+    private ConfigConverter() { }
 
     public static RestAssuredConfig convertToRestAssuredConfig(SpecificationConfig specificationConfig) {
         return new RestAssuredConfig().jsonConfig(specificationConfig.getJsonConfig()).xmlConfig(specificationConfig.getXmlConfig()).sessionConfig(specificationConfig.getSessionConfig()).
@@ -31,7 +33,7 @@ public class ConfigConverter {
     }
 
     private static ParamConfig toParamConfig(ParamConfig baseConfig) {
-        ParamConfig config = new ParamConfig(baseConfig.queryParamsUpdateStrategy(),
+        ParamConfig config = new ParamConfig(baseConfig.queryParamsUpdateStrategy(), baseConfig.pathParamsUpdateStrategy(),
                 baseConfig.formParamsUpdateStrategy(), baseConfig.requestParamsUpdateStrategy());
         // We need to set the user configured flag to false if needed
         if (!baseConfig.isUserConfigured()) {

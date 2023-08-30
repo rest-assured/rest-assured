@@ -17,6 +17,7 @@ package io.restassured.module.webtestclient.setup;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,14 +31,25 @@ import java.util.concurrent.atomic.AtomicLong;
 @RestController
 public class GreetingController {
 
-    private static final String template = "Hello, %s!";
+    private static final String TEMPLATE = "Hello, %s!";
+    private static final String TEMPLATE_WITH_DATE = TEMPLATE + " Today is %s";
     private final AtomicLong counter = new AtomicLong();
 
 	@GetMapping(produces = "application/json")
     public Mono<ResponseEntity> simpleGreeting() {
         ResponseEntity responseEntity = ResponseEntity.ok(new Greeting(counter.incrementAndGet(),
-                String.format(template, "World")));
+                String.format(TEMPLATE, "World")));
         return Mono.justOrEmpty(responseEntity);
+    }
+
+    @GetMapping(value = "/greeting/{name}", produces = "application/json")
+    public Mono<Greeting> greetingWithPathParam(@PathVariable(value="name") String name) {
+        return greeting(name);
+    }
+
+    @GetMapping(value = "/greeting/{name}/{date}", produces = "application/json")
+    public Mono<Greeting> greetingWithPathParam(@PathVariable(value="name") String name, @PathVariable(value="date") String date) {
+        return Mono.just(new Greeting(counter.incrementAndGet(), String.format(TEMPLATE_WITH_DATE, name, date)));
     }
 
 	@PostMapping(value = "/greeting", consumes = "application/json", produces = "application/json")
@@ -49,6 +61,6 @@ public class GreetingController {
 	@GetMapping(value = "/greeting")
 	public Mono<Greeting> greeting(
             @RequestParam(value="name", required=false, defaultValue="World") String name) {
-		return Mono.just(new Greeting(counter.incrementAndGet(), String.format(template, name)));
+		return Mono.just(new Greeting(counter.incrementAndGet(), String.format(TEMPLATE, name)));
     }
 }

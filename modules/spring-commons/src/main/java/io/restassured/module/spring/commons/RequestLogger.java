@@ -29,16 +29,25 @@ import java.io.FileNotFoundException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Scanner;
 
 import static org.apache.commons.lang3.SystemUtils.LINE_SEPARATOR;
 
-public class RequestLogger {
+public final class RequestLogger {
 
-    public static void logParamsAndHeaders(final RequestSpecificationImpl reqSpec, String method, String uri,
-                                           Object[] unnamedPathParams, Map<String, Object> params, Map<String,
-            Object> queryParams, Map<String, Object> formParams,
-                                           Headers headers, Cookies cookies) {
+    private RequestLogger() { }
+
+    public static void logParamsAndHeaders(
+            final RequestSpecificationImpl reqSpec,
+            final String method, String uri,
+            final Object[] unnamedPathParams,
+            final Map<String, Object> params,
+            final Map<String, Object> namedPathParams,
+            final Map<String, Object> queryParams,
+            final Map<String, Object> formParams,
+            final Headers headers, Cookies cookies
+    ) {
         reqSpec.setMethod(method);
         reqSpec.path(uri);
         reqSpec.buildUnnamedPathParameterTuples(unnamedPathParams);
@@ -54,6 +63,14 @@ public class RequestLogger {
             new ParamLogger(queryParams) {
                 protected void logParam(String paramName, Object paramValue) {
                     reqSpec.queryParam(paramName, paramValue);
+                }
+            }.logParams();
+        }
+
+        if (Objects.nonNull(namedPathParams)) {
+            new ParamLogger(namedPathParams) {
+                protected void logParam(String paramName, Object paramValue) {
+                    reqSpec.pathParams(paramName, paramValue);
                 }
             }.logParams();
         }

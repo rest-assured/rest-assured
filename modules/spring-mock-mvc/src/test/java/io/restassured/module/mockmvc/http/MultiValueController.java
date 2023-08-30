@@ -18,6 +18,7 @@ package io.restassured.module.mockmvc.http;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -35,12 +36,19 @@ public class MultiValueController {
         return "{ \"list\" : \"" + StringUtils.join(listValues, ",") + "\" }";
     }
 
-    @RequestMapping(value = "/threeMultiValueParam", method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/multiValueParam/{value}", method = {GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody String multiValueParam(@PathVariable("value") String value) {
+        return "{ \"value\" : \"" + value + "\" }";
+    }
+
+    @RequestMapping(value = { "/threeMultiValueParam", "/threeMultiValueParam/{value}" }, method = POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody String threeMultiValueParam(@RequestParam("list") List<String> list1Values,
                                                      @RequestParam("list2") List<String> list2Values,
-                                                     @RequestParam("list3") List<String> list3Values) {
+                                                     @RequestParam("list3") List<String> list3Values,
+                                                     @PathVariable(value = "value", required = false) String value) {
         return "{ \"list\" : \"" + StringUtils.join(list1Values, ",") + "\"," +
                 " \"list2\" : \"" + StringUtils.join(list2Values, ",") + "\", " +
-                " \"list3\" : \"" + StringUtils.join(list3Values, ",") + "\" }";
+                " \"list3\" : \"" + StringUtils.join(list3Values, ",") + "\" " +
+                (StringUtils.isBlank(value) ? " }" : ", \"value\" : \"" + value + "\" }");
     }
 }

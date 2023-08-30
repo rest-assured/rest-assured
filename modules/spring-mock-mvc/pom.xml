@@ -28,7 +28,7 @@
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>4.3.23.RELEASE</spring.version>
+        <spring.version>5.1.0.RELEASE</spring.version>
         <spring.security.version>4.2.17.RELEASE</spring.security.version>
     </properties>
 

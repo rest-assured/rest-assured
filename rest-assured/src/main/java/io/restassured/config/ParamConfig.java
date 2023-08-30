@@ -29,6 +29,7 @@ public class ParamConfig implements Config {
 
     private final boolean userConfigured;
     private final UpdateStrategy queryParamsUpdateStrategy;
+    private final UpdateStrategy pathParamsUpdateStrategy;
     private final UpdateStrategy formParamsUpdateStrategy;
     private final UpdateStrategy requestParameterUpdateStrategy;
 
@@ -36,28 +37,37 @@ public class ParamConfig implements Config {
      * Create a new instance where all parameters are merged
      */
     public ParamConfig() {
-        this(MERGE, MERGE, MERGE, false);
+        this(MERGE, REPLACE, MERGE, MERGE, false);
     }
 
     /**
      * Create a new instance and specify update strategies for all parameter types.
      *
      * @param queryParamsUpdateStrategy      The update strategy for query parameters
+     * @param pathParamsUpdateStrategy       The update strategy for path parameters
      * @param formParamsUpdateStrategy       The update strategy for form parameters
      * @param requestParameterUpdateStrategy The update strategy for request parameters
      */
     public ParamConfig(UpdateStrategy queryParamsUpdateStrategy,
+                       UpdateStrategy pathParamsUpdateStrategy,
                        UpdateStrategy formParamsUpdateStrategy,
                        UpdateStrategy requestParameterUpdateStrategy) {
-        this(queryParamsUpdateStrategy, formParamsUpdateStrategy, requestParameterUpdateStrategy, true);
+        this(queryParamsUpdateStrategy, pathParamsUpdateStrategy, formParamsUpdateStrategy, requestParameterUpdateStrategy, true);
     }
 
-    private ParamConfig(UpdateStrategy queryParamsUpdateStrategy, UpdateStrategy formParamsUpdateStrategy,
-                        UpdateStrategy requestParameterUpdateStrategy, boolean userConfigured) {
+    private ParamConfig(
+            UpdateStrategy queryParamsUpdateStrategy,
+            UpdateStrategy pathParamsUpdateStrategy,
+            UpdateStrategy formParamsUpdateStrategy,
+            UpdateStrategy requestParameterUpdateStrategy,
+            boolean userConfigured
+    ) {
         AssertParameter.notNull(queryParamsUpdateStrategy, "Query param update strategy");
+        AssertParameter.notNull(pathParamsUpdateStrategy, "Path param update strategy");
         AssertParameter.notNull(requestParameterUpdateStrategy, "Request param update strategy");
         AssertParameter.notNull(formParamsUpdateStrategy, "Form param update strategy");
         this.queryParamsUpdateStrategy = queryParamsUpdateStrategy;
+        this.pathParamsUpdateStrategy = pathParamsUpdateStrategy;
         this.formParamsUpdateStrategy = formParamsUpdateStrategy;
         this.requestParameterUpdateStrategy = requestParameterUpdateStrategy;
         this.userConfigured = userConfigured;
@@ -69,7 +79,7 @@ public class ParamConfig implements Config {
      * @return A new instance of {@link ParamConfig}
      */
     public ParamConfig mergeAllParameters() {
-        return new ParamConfig(MERGE, MERGE, MERGE, true);
+        return new ParamConfig(MERGE, REPLACE, MERGE, MERGE, true);
     }
 
     /**
@@ -78,7 +88,7 @@ public class ParamConfig implements Config {
      * @return A new instance of {@link ParamConfig}
      */
     public ParamConfig replaceAllParameters() {
-        return new ParamConfig(REPLACE, REPLACE, REPLACE, true);
+        return new ParamConfig(REPLACE, REPLACE, REPLACE, REPLACE, true);
     }
 
     /**
@@ -88,7 +98,7 @@ public class ParamConfig implements Config {
      * @return A new instance of {@link ParamConfig}
      */
     public ParamConfig formParamsUpdateStrategy(UpdateStrategy updateStrategy) {
-        return new ParamConfig(queryParamsUpdateStrategy, updateStrategy, requestParameterUpdateStrategy, true);
+        return new ParamConfig(queryParamsUpdateStrategy, pathParamsUpdateStrategy, updateStrategy, requestParameterUpdateStrategy, true);
     }
 
     /**
@@ -102,7 +112,7 @@ public class ParamConfig implements Config {
      * @return A new instance of {@link ParamConfig}
      */
     public ParamConfig requestParamsUpdateStrategy(UpdateStrategy updateStrategy) {
-        return new ParamConfig(queryParamsUpdateStrategy, formParamsUpdateStrategy, updateStrategy, true);
+        return new ParamConfig(queryParamsUpdateStrategy, pathParamsUpdateStrategy, formParamsUpdateStrategy, updateStrategy, true);
     }
 
     /**
@@ -112,7 +122,7 @@ public class ParamConfig implements Config {
      * @return A new instance of {@link ParamConfig}
      */
     public ParamConfig queryParamsUpdateStrategy(UpdateStrategy updateStrategy) {
-        return new ParamConfig(updateStrategy, formParamsUpdateStrategy, requestParameterUpdateStrategy, true);
+        return new ParamConfig(updateStrategy, pathParamsUpdateStrategy, formParamsUpdateStrategy, requestParameterUpdateStrategy, true);
     }
 
     /**
@@ -134,6 +144,13 @@ public class ParamConfig implements Config {
      */
     public UpdateStrategy queryParamsUpdateStrategy() {
         return queryParamsUpdateStrategy;
+    }
+
+    /**
+     * @return The update strategy for path parameters
+     */
+    public UpdateStrategy pathParamsUpdateStrategy() {
+        return pathParamsUpdateStrategy;
     }
 
     /**

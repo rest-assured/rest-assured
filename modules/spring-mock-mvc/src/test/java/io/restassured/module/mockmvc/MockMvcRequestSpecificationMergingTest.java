@@ -32,6 +32,7 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import io.restassured.path.json.config.JsonPathConfig;
 import org.apache.commons.io.output.WriterOutputStream;
+import org.apache.commons.lang3.SystemUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.powermock.reflect.Whitebox;
@@ -41,6 +42,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
+import java.util.Collections;
+import java.util.Map;
 
 import static io.restassured.config.JsonConfig.jsonConfig;
 import static io.restassured.config.SessionConfig.sessionConfig;
@@ -61,6 +64,18 @@ public class MockMvcRequestSpecificationMergingTest {
 
         // Then
         Assertions.assertThat(implOf(spec).getQueryParams()).containsOnly(entry("param1", "value1"), entry("param2", "value2"));
+    }
+
+    @Test public void
+    path_params_are_merged() {
+        // Given
+        MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().addPathParam("param1", "value1").build();
+
+        // When
+        MockMvcRequestSpecification spec = RestAssuredMockMvc.given().pathParam("param2", "value2").spec(specToMerge);
+
+        // Then
+        Assertions.assertThat(implOf(spec).getPathParams()).containsOnly(entry("param1", "value1"), entry("param2", "value2"));
     }
 
     @Test public void
@@ -275,6 +290,63 @@ public class MockMvcRequestSpecificationMergingTest {
         // Then
         Assertions.assertThat(implOf(spec).getRequestHeaders()).containsOnly(thisHeader);
         Assertions.assertThat(implOf(spec).getQueryParams()).containsOnly(entry("param1", "value1"));
+    }
+
+    @Test public void
+    path_params_are_merged_when_defined_in_specification() {
+        // Given
+        final Map<String, Object> firstPathParams = Collections.singletonMap("param1", "value1");
+        MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().addPathParams(firstPathParams).build();
+
+        // When
+        final Map<String, Object> secondPathParams = Collections.singletonMap("param2", "value2");
+        MockMvcRequestSpecification spec = RestAssuredMockMvc.given().pathParams(secondPathParams).spec(specToMerge);
+
+        // Then
+        Assertions.assertThat(implOf(spec).getPathParams()).containsOnly(entry("param1", "value1"), entry("param2", "value2"));
+    }
+
+    @Test public void
+    path_param_are_not_overwritten_when_not_defined_in_specification() {
+        // Given
+        final Map<String, Object> firstPathParams = Collections.singletonMap("param1", "value1");
+        MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder().addQueryParam("query01", "value01").build();
+
+        // When
+        MockMvcRequestSpecification spec = RestAssuredMockMvc.given().pathParams(firstPathParams).spec(specToMerge);
+
+        // Then
+        Assertions.assertThat(implOf(spec).getQueryParams()).containsOnly(entry("query01", "value01"));
+        Assertions.assertThat(implOf(spec).getPathParams()).containsOnly(entry("param1", "value1"));
+    }
+
+    @Test public void
+    path_param_are_logging() {
+        // Given
+        StringWriter writer = new StringWriter();
+        PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+        MockMvcRequestSpecification specToMerge = new MockMvcRequestSpecBuilder()
+                .setConfig(RestAssuredMockMvcConfig.newConfig().logConfig(LogConfig.logConfig().defaultStream(captor)))
+                .addPathParam("name", "Johan")
+                .addPathParam("date", "2023-08-30").build();
+
+        // When
+        RestAssuredMockMvc.given().
+                spec(specToMerge).
+                log().params().
+                standaloneSetup(new GreetingController()).
+            when().
+                get("/greeting/{name}/{date}").
+            then().
+                body("id", equalTo(1)).
+                body("content", equalTo("Hello, Johan! Today is 2023-08-30"));
+
+        // Then
+        assertThat(writer.toString()).hasToString(String.format("Request params:\t<none>%n" +
+                "Query params:\t<none>%n" +
+                "Form params:\t<none>%n" +
+                "Path params:\tname=Johan" + SystemUtils.LINE_SEPARATOR + "\t\t\t\tdate=2023-08-30%n" +
+                "Multiparts:\t\t<none>%n"));
     }
 
     @Test public void
