@@ -16,7 +16,6 @@
 
 package io.restassured.module.mockmvc.specification;
 
-import io.restassured.config.SessionConfig;
 import io.restassured.http.*;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
@@ -359,6 +358,55 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * @return The request specification
      */
     MockMvcRequestSpecification queryParam(String parameterName, Collection<?> parameterValues);
+
+    /**
+     * Specify the path parameters that'll be sent with the request.
+     *
+     * @param firstParameterName      The name of the first parameter
+     * @param firstParameterValue     The value of the first parameter
+     * @param parameterNameValuePairs The value of the first parameter followed by additional parameters in name-value pairs.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification pathParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs);
+
+    /**
+     * Specify the path parameters that'll be sent with the request.
+     *
+     * @param parametersMap The Map containing the parameter names and their values to send with the request.
+     * @return The request specification
+     */
+    MockMvcRequestSpecification pathParams(Map<String, Object> parametersMap);
+
+    /**
+     * Specify a path parameter. Path parameters are used to improve readability of the request path. E.g. instead
+     * of writing:
+     * <pre>
+     * when().
+     *        get("/item/"+myItem.getItemNumber()+"/buy/"+2).
+     * then().
+     *        statusCode(200);
+     * </pre>
+     * you can write:
+     * <pre>
+     * given().
+     *         pathParam("itemNumber", myItem.getItemNumber()).
+     *         pathParam("amount", 2).
+     * when().
+     *        get("/item/{itemNumber}/buy/{amount}").
+     * then().
+     *          statusCode(200);
+     * </pre>
+     * <p/>
+     * which improves readability and allows the path to be reusable in many tests. Another alternative is to use:
+     * <pre>
+     * when().get("/item/{itemNumber}/buy/{amount}", myItem.getItemNumber(), 2).then().statusCode(200).;
+     * </pre>
+     *
+     * @param parameterName  The parameter name
+     * @param parameterValue The parameter value
+     * @return The request specification
+     */
+    MockMvcRequestSpecification pathParam(String parameterName, Object parameterValue);
 
     /**
      * Specify the form parameters that'll be sent with the request. Note that this method is the same as {@link #params(String, Object, Object...)}

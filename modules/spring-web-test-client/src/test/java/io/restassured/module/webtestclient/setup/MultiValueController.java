@@ -15,7 +15,9 @@
  */
 package io.restassured.module.webtestclient.setup;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,12 +37,19 @@ public class MultiValueController {
         return Mono.just("{ \"list\" : \"" + String.join(",", listValues) + "\" }");
     }
 
-    @PostMapping(value = "/threeMultiValueParam", produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/multiValueParam/{value}", method = {GET}, produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<String> multiValueParam(@PathVariable("value") String value) {
+        return Mono.just("{ \"value\" : \"" + value + "\" }");
+    }
+
+    @PostMapping(value = { "/threeMultiValueParam", "/threeMultiValueParam/{value}" }, produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<String> threeMultiValueParam(@RequestParam("list") List<String> list1Values,
                                              @RequestParam("list2") List<String> list2Values,
-                                             @RequestParam("list3") List<String> list3Values) {
-        return Mono.just("{ \"list\" : \"" + String.join(",", list1Values) + "\"," +
-                " \"list2\" : \"" + String.join(",", list2Values) + "\", " +
-                " \"list3\" : \"" + String.join(",", list3Values) + "\" }");
+                                             @RequestParam("list3") List<String> list3Values,
+                                             @PathVariable(value = "value", required = false) String value) {
+        return Mono.just("{ \"list\" : \"" + StringUtils.join(list1Values, ",") + "\"," +
+                " \"list2\" : \"" + StringUtils.join(list2Values, ",") + "\", " +
+                " \"list3\" : \"" + StringUtils.join(list3Values, ",") + "\" " +
+                (StringUtils.isBlank(value) ? " }" : ", \"value\" : \"" + value + "\" }"));
     }
 }

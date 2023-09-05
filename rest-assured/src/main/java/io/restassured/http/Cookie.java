@@ -357,6 +357,25 @@ public class Cookie implements NameAndValue {
         }
 
         /**
+         * Create a cookie builder with cookie props
+         * @param cookie The cookie
+         */
+        public Builder(Cookie cookie) {
+            notNull(cookie, "Cookie");
+            this.name = cookie.name;
+            this.value = cookie.value;
+            this.comment = cookie.comment;
+            this.expiryDate = cookie.expiryDate;
+            this.domain = cookie.domain;
+            this.path = cookie.path;
+            this.secured = cookie.secured;
+            this.httpOnly = cookie.httpOnly;
+            this.version = cookie.version;
+            this.maxAge = cookie.maxAge;
+            this.sameSite = cookie.sameSite;
+        }
+
+        /**
          * Set the comment describing the purpose of this cookie.
          *
          * @param comment The comment

@@ -25,23 +25,31 @@ public class WebTestClientParamConfig extends ParamConfig {
 
 	private final boolean userConfigured;
 	private final UpdateStrategy queryParamsUpdateStrategy;
+	private final UpdateStrategy pathParamsUpdateStrategy;
 	private final UpdateStrategy formParamsUpdateStrategy;
 	private final UpdateStrategy requestParameterUpdateStrategy;
 	private final UpdateStrategy attributeUpdateStrategy;
 
 
 	public WebTestClientParamConfig() {
-		this(MERGE, MERGE, MERGE, MERGE, false);
+		this(MERGE, REPLACE, MERGE, MERGE, MERGE, false);
 	}
 
-	public WebTestClientParamConfig(UpdateStrategy queryParamsUpdateStrategy, UpdateStrategy formParamsUpdateStrategy,
-	                                UpdateStrategy requestParameterUpdateStrategy, UpdateStrategy attributeUpdateStrategy,
-	                                boolean userConfigured) {
+	public WebTestClientParamConfig(
+			UpdateStrategy queryParamsUpdateStrategy,
+			UpdateStrategy pathParamsUpdateStrategy,
+			UpdateStrategy formParamsUpdateStrategy,
+			UpdateStrategy requestParameterUpdateStrategy,
+			UpdateStrategy attributeUpdateStrategy,
+			boolean userConfigured
+	) {
 		notNull(queryParamsUpdateStrategy, "Query param update strategy");
+		notNull(pathParamsUpdateStrategy, "Path param update strategy");
 		notNull(requestParameterUpdateStrategy, "Request param update strategy");
 		notNull(formParamsUpdateStrategy, "Form param update strategy");
 		notNull(attributeUpdateStrategy, "Attribute update strategy");
 		this.queryParamsUpdateStrategy = queryParamsUpdateStrategy;
+		this.pathParamsUpdateStrategy = pathParamsUpdateStrategy;
 		this.formParamsUpdateStrategy = formParamsUpdateStrategy;
 		this.requestParameterUpdateStrategy = requestParameterUpdateStrategy;
 		this.attributeUpdateStrategy = attributeUpdateStrategy;
@@ -78,6 +86,13 @@ public class WebTestClientParamConfig extends ParamConfig {
 	}
 
 	/**
+	 * @return The update strategy for path parameters
+	 */
+	public UpdateStrategy pathParamsUpdateStrategy() {
+		return pathParamsUpdateStrategy;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public boolean isUserConfigured() {
@@ -98,7 +113,7 @@ public class WebTestClientParamConfig extends ParamConfig {
 	 * @return A new instance of {@link WebTestClientParamConfig}
 	 */
 	public WebTestClientParamConfig mergeAllParameters() {
-		return new WebTestClientParamConfig(MERGE, MERGE, MERGE, MERGE, true);
+		return new WebTestClientParamConfig(MERGE, REPLACE, MERGE, MERGE, MERGE, true);
 	}
 
 	/**
@@ -107,7 +122,7 @@ public class WebTestClientParamConfig extends ParamConfig {
 	 * @return A new instance of {@link WebTestClientParamConfig}
 	 */
 	public WebTestClientParamConfig replaceAllParameters() {
-		return new WebTestClientParamConfig(REPLACE, REPLACE, REPLACE, REPLACE, true);
+		return new WebTestClientParamConfig(REPLACE, REPLACE, REPLACE, REPLACE, REPLACE, true);
 	}
 
 	/**
@@ -117,7 +132,7 @@ public class WebTestClientParamConfig extends ParamConfig {
 	 * @return A new instance of {@link WebTestClientParamConfig}
 	 */
 	public WebTestClientParamConfig formParamsUpdateStrategy(UpdateStrategy updateStrategy) {
-		return new WebTestClientParamConfig(queryParamsUpdateStrategy, updateStrategy,
+		return new WebTestClientParamConfig(queryParamsUpdateStrategy, pathParamsUpdateStrategy, updateStrategy,
 				requestParameterUpdateStrategy, attributeUpdateStrategy, true);
 	}
 
@@ -132,7 +147,7 @@ public class WebTestClientParamConfig extends ParamConfig {
 	 * @return A new instance of {@link WebTestClientParamConfig}
 	 */
 	public WebTestClientParamConfig requestParamsUpdateStrategy(UpdateStrategy updateStrategy) {
-		return new WebTestClientParamConfig(queryParamsUpdateStrategy, formParamsUpdateStrategy,
+		return new WebTestClientParamConfig(queryParamsUpdateStrategy, pathParamsUpdateStrategy, formParamsUpdateStrategy,
 				updateStrategy, attributeUpdateStrategy, true);
 	}
 
@@ -144,7 +159,7 @@ public class WebTestClientParamConfig extends ParamConfig {
 	 * @return A new instance of {@link WebTestClientParamConfig}
 	 */
 	public WebTestClientParamConfig queryParamsUpdateStrategy(UpdateStrategy updateStrategy) {
-		return new WebTestClientParamConfig(updateStrategy, formParamsUpdateStrategy,
+		return new WebTestClientParamConfig(updateStrategy, pathParamsUpdateStrategy, formParamsUpdateStrategy,
 				requestParameterUpdateStrategy, attributeUpdateStrategy, true);
 	}
 
@@ -173,7 +188,7 @@ public class WebTestClientParamConfig extends ParamConfig {
 	 * @return A new instance of {@link WebTestClientParamConfig}
 	 */
 	public WebTestClientParamConfig attributeUpdateStrategy(UpdateStrategy updateStrategy) {
-		return new WebTestClientParamConfig(queryParamsUpdateStrategy, formParamsUpdateStrategy,
+		return new WebTestClientParamConfig(queryParamsUpdateStrategy, pathParamsUpdateStrategy, formParamsUpdateStrategy,
 				requestParameterUpdateStrategy, updateStrategy, true);
 	}
 

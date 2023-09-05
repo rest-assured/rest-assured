@@ -16,6 +16,7 @@
 package io.restassured.module.mockmvc.http;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -31,13 +32,24 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 @Controller
 public class GreetingController {
 
-    private static final String template = "Hello, %s!";
+    private static final String TEMPLATE = "Hello, %s!";
+    private static final String TEMPLATE_WITH_DATE = TEMPLATE + " Today is %s";
     private final AtomicLong counter = new AtomicLong();
 
     @RequestMapping(value = "/greeting", method = GET)
     public @ResponseBody Greeting greeting(
             @RequestParam(value="name", required=false, defaultValue="World") String name) {
-        return new Greeting(counter.incrementAndGet(), String.format(template, name));
+        return new Greeting(counter.incrementAndGet(), String.format(TEMPLATE, name));
+    }
+
+    @RequestMapping(value = "/greeting/{name}", method = GET, produces = "application/json")
+    public @ResponseBody Greeting greetingWithPathParam(@PathVariable(value="name") String name) {
+        return greeting(name);
+    }
+
+    @RequestMapping(value = "/greeting/{name}/{date}", method = GET, produces = "application/json")
+    public @ResponseBody Greeting greetingWithPathParam(@PathVariable(value="name") String name, @PathVariable(value="date") String date) {
+        return new Greeting(counter.incrementAndGet(), String.format(TEMPLATE_WITH_DATE, name, date));
     }
 
     @RequestMapping(value = "/greeting", method = POST, consumes = "application/json", produces = "application/json")

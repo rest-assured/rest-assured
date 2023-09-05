@@ -41,6 +41,7 @@ import io.restassured.module.webtestclient.specification.WebTestClientRequestSen
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
 import org.apache.commons.codec.Charsets;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -56,8 +57,11 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
@@ -75,9 +79,11 @@ import static org.springframework.http.MediaType.parseMediaType;
 public class WebTestClientRequestSenderImpl implements WebTestClientRequestSender {
 
 	private static final String CONTENT_TYPE = "Content-Type";
+	private static final Pattern PATH_PARAM_PATTERN = Pattern.compile("\\{([^/]+?)\\}");
 
 	private final WebTestClient webTestClient;
 	private final Map<String, Object> params;
+	private final Map<String, Object> namedPathParams;
 	private final Map<String, Object> queryParams;
 	private final Map<String, Object> formParams;
 	private final Map<String, Object> attributes;
@@ -151,15 +157,26 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		return sendRequest(GET, path, pathParams);
 	}
 
-	public WebTestClientRequestSenderImpl(WebTestClient webTestClient, Map<String, Object> params, Map<String,
-			Object> queryParams, Map<String, Object> formParams, Map<String, Object> attributes,
-										  RestAssuredWebTestClientConfig config, Object requestBody, Headers headers,
-										  Cookies cookies, List<MultiPartInternal> multiParts,
-										  RequestLoggingFilter requestLoggingFilter, String basePath,
-										  ResponseSpecification responseSpecification,
-										  LogRepository logRepository) {
+	public WebTestClientRequestSenderImpl(
+			WebTestClient webTestClient,
+			Map<String, Object> params,
+			Map<String,Object> namedPathParams,
+			Map<String,Object> queryParams,
+			Map<String, Object> formParams,
+			Map<String, Object> attributes,
+			RestAssuredWebTestClientConfig config,
+			Object requestBody,
+			Headers headers,
+			Cookies cookies,
+			List<MultiPartInternal> multiParts,
+			RequestLoggingFilter requestLoggingFilter,
+			String basePath,
+			ResponseSpecification responseSpecification,
+			LogRepository logRepository
+	) {
 		this.webTestClient = webTestClient;
 		this.params = params;
+		this.namedPathParams = namedPathParams;
 		this.queryParams = queryParams;
 		this.formParams = formParams;
 		this.attributes = attributes;
@@ -390,20 +407,24 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		return request(method, notNull(url, URL.class).toString());
 	}
 
-	private WebTestClientResponse sendRequest(HttpMethod method, String path, Object[] pathParams) {
+	private WebTestClientResponse sendRequest(HttpMethod method, String path, Object[] unnamedPathParams) {
 		String requestContentType = HeaderHelper.findContentType(headers, (List<Object>) (List<?>) multiParts, config);
-		WebTestClient.RequestBodySpec requestBodySpec = buildFromPath(method, requestContentType, path, pathParams);
+		WebTestClient.RequestBodySpec requestBodySpec = buildFromPath(method, requestContentType, path, unnamedPathParams);
 		addRequestElements(method, requestContentType, requestBodySpec);
-		logRequestIfApplicable(method, getBaseUri(path), path, pathParams);
+		logRequestIfApplicable(method, getBaseUri(path), path, unnamedPathParams);
 		return performRequest(requestBodySpec);
 	}
 
-	private WebTestClient.RequestBodySpec buildFromPath(HttpMethod method, String requestContentType, String path,
-														Object[] pathParams) {
+	private WebTestClient.RequestBodySpec buildFromPath(
+			HttpMethod method,
+			String requestContentType,
+			String path,
+			Object[] unnamedPathParams
+	) {
 		notNull(path, "Path");
 		String baseUri = getBaseUri(path);
-		String uri = buildUri(method, requestContentType, baseUri);
-		return webTestClient.method(method).uri(uri, resolvePathParams(pathParams));
+		final UriContainer uriContainer = buildUri(method, requestContentType, baseUri, unnamedPathParams);
+		return webTestClient.method(method).uri(uriContainer.getUri(), uriContainer.getUriVariables());
 	}
 
 	private void addRequestElements(HttpMethod method, String requestContentType, WebTestClient.RequestBodySpec requestBodySpec) {
@@ -425,7 +446,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		final RequestSpecificationImpl reqSpec = new RequestSpecificationImpl("http://localhost",
 				RestAssured.UNDEFINED_PORT, "", new NoAuthScheme(), Collections.emptyList(),
 				null, true, ConfigConverter.convertToRestAssuredConfig(config), logRepository, null, true, true);
-		logParamsAndHeaders(reqSpec, method.toString(), uri, unnamedPathParams, params, queryParams, formParams, headers, cookies);
+		logParamsAndHeaders(reqSpec, method.toString(), uri, unnamedPathParams, params, namedPathParams, queryParams, formParams, headers, cookies);
 		logRequestBody(reqSpec, requestBody, headers, (List<Object>) (List<?>) multiParts, config);
 		ofNullable(multiParts).map(List::stream).orElseGet(Stream::empty)
 				.forEach(multiPart -> addMultipartToReqSpec(reqSpec, multiPart));
@@ -465,21 +486,35 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		return restAssuredResponse;
 	}
 
-	private String buildUri(HttpMethod method, String requestContentType, String baseUri) {
+	private UriContainer buildUri(HttpMethod method, String requestContentType, String baseUri, Object[] unnamedPathParams) {
 		final UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(baseUri);
+		final UriContainer.Builder uriContainerBuilder = UriContainer.newBuilder(baseUri);
+
 		applyQueryParams(uriComponentsBuilder);
+		applyPathParams(uriContainerBuilder, baseUri, unnamedPathParams);
 		applyParams(method, uriComponentsBuilder, requestContentType);
 		applyFormParams(method, uriComponentsBuilder, requestContentType);
-		return uriComponentsBuilder.build().toUriString();
+
+		final String uriWithoutPathParams = uriComponentsBuilder.cloneBuilder()
+				.uriVariables(Collections.emptyMap())
+				.build(false)
+				.toUriString();
+
+		return uriContainerBuilder.uri(uriWithoutPathParams).build();
 	}
 
-	private Object[] resolvePathParams(Object[] pathParams) {
-		Arrays.stream(pathParams).filter(param -> !(param instanceof String))
+	private void validateUnnamedPathParams(final Object[] unnamedPathParams) {
+		Arrays.stream(unnamedPathParams).filter(param -> !(param instanceof String))
 				.findAny().ifPresent(param -> {
 			throw new IllegalArgumentException("Only Strings allowed in path parameters.");
 		});
-		return Arrays.stream(pathParams)
-				.map(param -> UriUtils.encode((String) param, Charsets.UTF_8)).toArray();
+	}
+
+	private void validateNamedPathParams(final Map<String, Object> namedPathParams) {
+		namedPathParams.entrySet().stream().filter(e -> !(e.getValue() instanceof String))
+				.findAny().ifPresent(param -> {
+					throw new IllegalArgumentException("Only Strings allowed in path parameters.");
+				});
 	}
 
 	private void verifyNoBodyAndMultipartTogether() {
@@ -539,6 +574,47 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 				}
 			}.applyParams();
 		}
+	}
+
+	private void applyPathParams(
+			final UriContainer.Builder uriContainerBuilder,
+			final String baseUri,
+			final Object[] unnamedPathParams
+	) {
+		validateUnnamedPathParams(unnamedPathParams);
+		validateNamedPathParams(namedPathParams);
+
+		final Matcher pathParamMatcher = PATH_PARAM_PATTERN.matcher(baseUri);
+		if (!pathParamMatcher.find()) {
+			return;
+		}
+
+		if (namedPathParams.isEmpty() && ArrayUtils.isEmpty(unnamedPathParams)) {
+			throw new IllegalArgumentException("No values were found for the request's pathParams.");
+		}
+
+		final AtomicInteger nextUnnamedPathParamIndex = new AtomicInteger(0);
+		final Function<String, Optional<Object>> getPathParamValueFunction = param -> {
+			if (namedPathParams.containsKey(param)) {
+				return Optional.of(namedPathParams.get(param));
+			}
+
+			if (unnamedPathParams.length > 0) {
+				return Optional.of(unnamedPathParams[nextUnnamedPathParamIndex.getAndIncrement()]);
+			}
+
+			return Optional.empty();
+		};
+
+		final Map<String, Object> uriVariables = new HashMap<>();
+		do {
+			final String paramName = pathParamMatcher.group(1);
+			getPathParamValueFunction.apply(paramName).ifPresent(paramValue ->
+					uriVariables.put(paramName, UriUtils.encode((String) paramValue, Charsets.UTF_8))
+			);
+		} while (pathParamMatcher.find());
+
+		uriContainerBuilder.uriVariables(uriVariables);
 	}
 
 	private void applyParams(HttpMethod method, UriComponentsBuilder uriComponentsBuilder, String requestContentType) {
@@ -611,7 +687,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 				RestAssured.UNDEFINED_PORT, "", new NoAuthScheme(), Collections.emptyList(),
 				null, true, ConfigConverter.convertToRestAssuredConfig(config), logRepository, null, true, true);
 		logParamsAndHeaders(reqSpec, method.toString(), "Request from uri function" + uriFunction.toString(),
-				null, params, queryParams, formParams,
+				null, params, namedPathParams, queryParams, formParams,
 				headers, cookies);
 		logRequestBody(reqSpec, requestBody, headers, (List<Object>) (List<?>) multiParts, config);
 		ofNullable(multiParts).map(List::stream).orElseGet(Stream::empty)

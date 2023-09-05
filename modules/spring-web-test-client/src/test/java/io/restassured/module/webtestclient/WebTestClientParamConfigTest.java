@@ -75,6 +75,17 @@ public class WebTestClientParamConfigTest {
 				.body("list", equalTo("value1,value2"));
 	}
 
+	@Test public void
+	replaces_path_params_by_default() {
+		RestAssuredWebTestClient.given().
+				pathParam("value", "value1").
+				pathParam("value", "value2").
+			when().
+				get("/multiValueParam/{value}").
+			then().
+				body("value", equalTo("value2"));
+	}
+
 	@Test
 	public void
 	replaces_request_params_when_configured_to_do_so() {
@@ -143,12 +154,15 @@ public class WebTestClientParamConfigTest {
 				.queryParam("list2", "value4")
 				.formParam("list3", "value5")
 				.formParam("list3", "value6")
+				.pathParam("value", "value7")
+				.pathParam("value", "value8")
 				.when()
-				.post("/threeMultiValueParam")
+				.post("/threeMultiValueParam/{value}")
 				.then()
 				.body("list", equalTo("value2"))
 				.body("list2", equalTo("value4"))
-				.body("list3", equalTo("value6"));
+				.body("list3", equalTo("value6"))
+				.body("value", equalTo("value8"));
 	}
 
 	@Test
