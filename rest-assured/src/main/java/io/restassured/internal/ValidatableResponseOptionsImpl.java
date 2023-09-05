@@ -410,6 +410,11 @@ public abstract class ValidatableResponseOptionsImpl<T extends ValidatableRespon
         return (T) this;
     }
 
+    public T onFailMessage(String message) {
+        responseSpec.onFailMessage(message);
+        return (T) this;
+    }
+
     public abstract R originalResponse();
 
     private Matcher<?> getMatcherFromResponseAwareMatcher(ResponseAwareMatcher<R> responseAwareMatcher) {
