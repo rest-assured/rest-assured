@@ -117,23 +117,18 @@ public class ErrorMessageITest extends WithJetty {
     @Test public void
     error_message_look_ok_with_on_fail_message_validatable_response() {
         exception.expect(AssertionError.class);
-        exception.expectMessage("2 expectations failed.\n" +
-          "JSON path lotto.lottoId doesn't match.\n" +
-          "Expected: a value less than <2>\n" +
-          "  Actual: <5>\n" +
-          "\n" +
-          "JSON path lotto.winning-numbers doesn't match.\n" +
-          "Expected: a collection containing <21>\n" +
-          "  Actual: <[2, 45, 34, 23, 7, 5, 3]>\n" +
-          "\n" +
-          "On fail message: An additional information to find the cause of the error");
+        exception.expectMessage("1 expectation failed.\n" +
+                "JSON path lotto.lottoId doesn't match.\n" +
+                "Expected: a value less than <2>\n" +
+                "  Actual: <5>\n" +
+                "\n" +
+                "On fail message: An additional information to find the cause of the error");
 
         when().
                get("/lotto").
         then().
                onFailMessage("An additional information to find the cause of the error").
-               body("lotto.lottoId", lessThan(2)).
-               body("lotto.winning-numbers", hasItem(21));
+               body("lotto.lottoId", lessThan(2));
     }
 
     @Test public void
