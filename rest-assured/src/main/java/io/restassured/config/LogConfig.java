@@ -46,7 +46,7 @@ public class LogConfig implements Config {
      * Configure the default stream to use the System.out stream (default).
      */
     public LogConfig() {
-        this(System.out, true, null, true, new HashSet<>(), false);
+        this(System.out, true, null, true, new TreeSet<>(String.CASE_INSENSITIVE_ORDER), false);
     }
 
     /**
@@ -94,7 +94,8 @@ public class LogConfig implements Config {
         this.logDetailIfValidationFails = logDetailIfValidationFails;
         this.isUserDefined = isUserDefined;
         this.urlEncodeRequestUri = urlEncodeRequestUri;
-        this.headerBlacklist = headerBlacklist;
+        this.headerBlacklist = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        this.headerBlacklist.addAll(headerBlacklist);
     }
 
     /**
@@ -189,18 +190,18 @@ public class LogConfig implements Config {
      * Blacklist one or more headers. If these headers show up during logging they will be replaced with 'HIDDEN'. The purpose of a blacklist is to prevent sensitive information
      * to be included in the log.
      *
-     * @param header The header to include in the blacklist
+     * @param header       The header to include in the blacklist
      * @param otherHeaders Additional headers to include in the blacklist (optional)
      * @return A new LogConfig instance
      */
     public LogConfig blacklistHeader(String header, String... otherHeaders) {
         notNull(header, "header");
-        Set<String> newHeaderBlackList = new HashSet<>(headerBlacklist);
+        Set<String> newHeaderBlackList = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        newHeaderBlackList.addAll(headerBlacklist);
         newHeaderBlackList.add(header);
         if (otherHeaders != null && otherHeaders.length > 0) {
             Collections.addAll(newHeaderBlackList, otherHeaders);
         }
-
         return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, newHeaderBlackList, true);
     }
 
@@ -215,6 +216,23 @@ public class LogConfig implements Config {
         notNull(headers, "headers");
         Set<String> newHeaderBlackList = headers.stream().filter(Objects::nonNull).collect(Collectors.toSet());
         return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, newHeaderBlackList, true);
+    }
+
+    /**
+     * Add the following sensitive headers to be excluded from the request log:
+     * <table>
+     *     <tr><td>Authorization</td></tr>
+     *     <tr><td>Cookie</td></tr>
+     *     <tr><td>Proxy-Authorization</td></tr>
+     * </table>
+     *
+     * @return A new LogConfig instance
+     */
+    public LogConfig blacklistDefaultSensitiveHeaders() {
+        headerBlacklist.add("Authorization");
+        headerBlacklist.add("Proxy-Authorization");
+        headerBlacklist.add("Cookie");
+        return new LogConfig(defaultPrintStream, prettyPrintingEnabled, logDetailIfValidationFails, urlEncodeRequestUri, headerBlacklist, true);
     }
 
     /**
