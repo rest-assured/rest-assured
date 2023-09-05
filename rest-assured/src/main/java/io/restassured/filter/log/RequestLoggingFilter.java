@@ -27,9 +27,9 @@ import org.apache.commons.lang3.Validate;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static io.restassured.filter.log.LogDetail.ALL;
 import static io.restassured.filter.log.LogDetail.STATUS;
@@ -107,7 +107,15 @@ public class RequestLoggingFilter implements Filter {
      * @param showUrlEncodedUri Whether or not to show the request URI as url encoded
      */
     public RequestLoggingFilter(LogDetail logDetail, boolean shouldPrettyPrint, PrintStream stream, boolean showUrlEncodedUri) {
-        this(logDetail, shouldPrettyPrint, stream, showUrlEncodedUri, Collections.emptySet());
+        this(logDetail, shouldPrettyPrint, stream, showUrlEncodedUri, defaultBlacklistedHeaders());
+    }
+
+    private static Set<String> defaultBlacklistedHeaders() {
+        TreeSet<String> caseInsensitiveBlacklistedHeaders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        caseInsensitiveBlacklistedHeaders.add("Authorization");
+        caseInsensitiveBlacklistedHeaders.add("Proxy-Authorization");
+        caseInsensitiveBlacklistedHeaders.add("Cookie");
+        return caseInsensitiveBlacklistedHeaders;
     }
 
     /**
@@ -127,7 +135,9 @@ public class RequestLoggingFilter implements Filter {
         }
         this.stream = stream;
         this.logDetail = logDetail;
-        this.blacklistedHeaders = new HashSet<>(blacklistedHeaders);
+        TreeSet<String> caseInsensitiveBlacklistedHeaders = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        caseInsensitiveBlacklistedHeaders.addAll(blacklistedHeaders);
+        this.blacklistedHeaders = caseInsensitiveBlacklistedHeaders;
         this.shouldPrettyPrint = shouldPrettyPrint;
         this.showUrlEncodedUri = showUrlEncodedUri;
     }
