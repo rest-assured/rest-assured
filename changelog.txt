@@ -4,6 +4,7 @@ Changelog next version
 * Added support for path parameters methods in RestAssuredMockMvc (#1723) (thanks to Jefersom Martins for pull request)
 * Make header blacklisting case-insensitive (#1722) (thanks to Bekh-Ivanov Aleksey for pull request)
 * Blacklisted headers added to LogConfig are now case-insensitive by default
+* Fixed so that testing multipart data request along with passing path parameters doesn't fail anymore in RestAssuredMockMvc (#1673) (thanks to Andrey Demin for pull request)
 * Upgraded kotlin from 1.8.22 to 1.9.10
 
 Changelog 5.3.1 (2023-06-16)
