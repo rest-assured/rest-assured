@@ -35,7 +35,7 @@ class DetailedCookieAssertion {
         Cookie cookie = cookiesInHeader.get(cookieName)
         if (cookie == null) {
             cookie = responseCookies.get(cookieName)
-        } else if (cookie.getExpiryDate() != null) {
+        } else if (cookie.getExpiryDate() == null && responseCookies.get(cookieName) != null) {
             Cookie cookieFromResponse = responseCookies.get(cookieName)
             cookie = new Cookie.Builder(cookie).setExpiryDate(cookieFromResponse.getExpiryDate()).build()
         }
