@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 5.3.2 (2023-09-08)
+----------------------------
 * Add onFailMessage into validatable response (#1724). This means that you can use `onFailMessage` after `then` like: `when().get("/somewhere").then().onFailMessage("My fail message").statusCode(200);` (thanks to Ilya Koshaleu for pull request)
 * Added support for path parameters methods in RestAssuredMockMvc (#1723) (thanks to Jefersom Martins for pull request)
 * Make header blacklisting case-insensitive (#1722) (thanks to Bekh-Ivanov Aleksey for pull request)
