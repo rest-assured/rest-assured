@@ -29,7 +29,7 @@
     <description>Scalatra service example that's used for integration testing rest-assured</description>
 
     <properties>
-        <scala.version>2.12.13</scala.version>
+        <scala.version>2.12.18</scala.version>
         <scalatra.scala.version>2.12</scalatra.scala.version>
         <scalatra.version>2.5.4</scalatra.version>
     </properties>
