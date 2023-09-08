@@ -38,21 +38,21 @@ import static org.hamcrest.Matchers.*;
 public class CookieITest extends WithJetty {
 
     @Test
-    public void cookiesReturnsAMapWhereTheLastValueOfAMultiValueCookieIsUsed() throws Exception {
+    public void cookiesReturnsAMapWhereTheLastValueOfAMultiValueCookieIsUsed() {
         final Map<String,String> cookies = get("/multiCookie").cookies();
 
         assertThat(cookies, hasEntry("cookie1", "cookieValue2"));
     }
 
     @Test
-    public void detailedCookiesAllowsToGetMultiValues() throws Exception {
+    public void detailedCookiesAllowsToGetMultiValues() {
         final Cookies cookies = get("/multiCookie").detailedCookies();
 
         assertThat(cookies.getValues("cookie1"), hasItems("cookieValue1", "cookieValue2"));
     }
 
     @Test
-    public void whenUsingTheDslAndExpectingAMultiValueCookieThenTheLastValueIsUsed() throws Exception {
+    public void whenUsingTheDslAndExpectingAMultiValueCookieThenTheLastValueIsUsed() {
         expect().cookie("cookie1", equalTo("cookieValue2")).when().get("/multiCookie");
     }
 
@@ -71,12 +71,12 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void supportsCookieStringMatchingUsingTheDsl() throws Exception {
+    public void supportsCookieStringMatchingUsingTheDsl() {
         expect().cookie("key1", "value1").when().get("/setCookies");
     }
 
     @Test
-    public void canSpecifyMultiValueCookiesUsingByPassingInSeveralValuesToTheCookieMethod() throws Exception {
+    public void canSpecifyMultiValueCookiesUsingByPassingInSeveralValuesToTheCookieMethod() {
         given().
                 cookie("key1", "value1", "value2").
         when().
@@ -87,27 +87,27 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void multipleCookieStatementsAreConcatenated() throws Exception {
+    public void multipleCookieStatementsAreConcatenated() {
         expect().response().cookie("key1", "value1").and().cookie("key2", "value2").when().get("/setCookies");
     }
 
     @Test
-    public void multipleCookiesShortVersionUsingPlainStrings() throws Exception {
+    public void multipleCookiesShortVersionUsingPlainStrings() {
         expect().response().cookies("key1", "value1", "key3", "value3").when().get("/setCookies");
     }
 
     @Test
-    public void multipleCookiesShortVersionUsingHamcrestMatching() throws Exception {
+    public void multipleCookiesShortVersionUsingHamcrestMatching() {
         expect().response().cookies("key2", containsString("2"), "key3", equalTo("value3")).when().get("/setCookies");
     }
 
     @Test
-    public void multipleCookiesShortVersionUsingMixOfHamcrestMatchingAndStringMatching() throws Exception {
+    public void multipleCookiesShortVersionUsingMixOfHamcrestMatchingAndStringMatching() {
         expect().response().cookies("key1", containsString("1"), "key2", "value2").when().get("/setCookies");
     }
 
     @Test
-    public void multipleCookiesUsingMap() throws Exception {
+    public void multipleCookiesUsingMap() {
         Map expectedCookies = new HashMap();
         expectedCookies.put("key1", "value1");
         expectedCookies.put("key2", "value2");
@@ -116,7 +116,7 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void multipleCookiesUsingMapWithHamcrestMatcher() throws Exception {
+    public void multipleCookiesUsingMapWithHamcrestMatcher() {
         Map expectedCookies = new HashMap();
         expectedCookies.put("key1", containsString("1"));
         expectedCookies.put("key3", equalTo("value3"));
@@ -125,7 +125,7 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void multipleCookiesUsingMapWithMixOfStringAndHamcrestMatcher() throws Exception {
+    public void multipleCookiesUsingMapWithMixOfStringAndHamcrestMatcher() {
         Map expectedCookies = new HashMap();
         expectedCookies.put("key1", containsString("1"));
         expectedCookies.put("key2", "value2");
@@ -134,7 +134,7 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void whenExpectedCookieDoesntMatchAnAssertionThenAssertionErrorIsThrown() throws Exception {
+    public void whenExpectedCookieDoesntMatchAnAssertionThenAssertionErrorIsThrown() {
         exception.expect(AssertionError.class);
         exception.expectMessage(equalTo("1 expectation failed.\n" +
                 "Expected cookie \"key1\" was not \"value2\", was \"value1\".\n"));
@@ -143,7 +143,7 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void whenExpectedCookieIsNotFoundThenAnAssertionErrorIsThrown() throws Exception {
+    public void whenExpectedCookieIsNotFoundThenAnAssertionErrorIsThrown() {
         exception.expect(AssertionError.class);
         exception.expectMessage(equalTo("1 expectation failed.\n" +
                 "Cookie \"Not-Defined\" was not defined in the response. Cookies are: \n" +
@@ -155,22 +155,22 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingCookieWithNoValue() throws Exception {
+    public void requestSpecificationAllowsSpecifyingCookieWithNoValue() {
         given().cookie("some_cookie").expect().body(equalTo("some_cookie")).when().get("/cookie_with_no_value");
     }
 
     @Test
-    public void responseSpecificationAllowsParsingCookieWithNoValue() throws Exception {
+    public void responseSpecificationAllowsParsingCookieWithNoValue() {
         expect().cookie("PLAY_FLASH").when().get("/response_cookie_with_no_value");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingCookies() throws Exception {
+    public void requestSpecificationAllowsSpecifyingCookies() {
         given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().get("/cookie");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingCookieUsingMap() throws Exception {
+    public void requestSpecificationAllowsSpecifyingCookieUsingMap() {
         Map<String, String> cookies = new HashMap<String, String>();
         cookies.put("username", "John");
         cookies.put("token", "1234");
@@ -178,7 +178,7 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingMultipleCookies() throws Exception {
+    public void requestSpecificationAllowsSpecifyingMultipleCookies() {
         Map<String, String> cookies = new HashMap<String, String>();
         cookies.put("username", "John");
         cookies.put("token", "1234");
@@ -204,7 +204,7 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void cookiesSupportEqualCharacterInCookieValue() throws Exception {
+    public void cookiesSupportEqualCharacterInCookieValue() {
         given().
                 cookie("jsessionid", "9HTaCatOIaiO7ccHojDzuxwVoIU=").
         expect().
@@ -214,7 +214,7 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void cookiesParsingSupportsNoValueCookies() throws Exception {
+    public void cookiesParsingSupportsNoValueCookies() {
         given().
                 cookie("no-value-cookie").
         expect().
@@ -224,7 +224,7 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void detailedCookieWorks() throws Exception {
+    public void detailedCookieWorks() {
         final Response response = get("/html_with_cookie");
         final Cookie detailedCookieJsessionId = response.detailedCookie("JSESSIONID");
 
@@ -234,7 +234,7 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void getDetailedCookieWorks() throws Exception {
+    public void getDetailedCookieWorks() {
         final Response response = get("/html_with_cookie");
         final Cookie detailedCookieJsessionId = response.getDetailedCookie("JSESSIONID");
 
@@ -243,7 +243,7 @@ public class CookieITest extends WithJetty {
         assertThat(detailedCookieJsessionId.getValue(), equalTo("B3134D534F40968A3805968207273EF5"));
     }
     @Test
-	public void multipleCookiesWithSameKey() throws Exception {
+	public void multipleCookiesWithSameKey() {
 		final Response response = get("/setCommonIdCookies");
 		Map<String, String> map = new HashMap<String, String>();
 		map = response.cookies();
@@ -251,7 +251,7 @@ public class CookieITest extends WithJetty {
 	}
 
     @Test
-    public void usesCookiesDefinedInAStaticRequestSpecification() throws Exception {
+    public void usesCookiesDefinedInAStaticRequestSpecification() {
         RestAssured.requestSpecification = new RequestSpecBuilder().addCookie("my-cookie", "1234").build();
 
         try {
@@ -266,7 +266,7 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void parsesValidExpiresDateCorrectly() throws Exception {
+    public void parsesValidExpiresDateCorrectly() {
         Cookies cookies =
         when().
                 get("/cookieWithValidExpiresDate").
@@ -279,7 +279,7 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void removesDoubleQuotesFromCookieWithExpiresDate() throws Exception {
+    public void removesDoubleQuotesFromCookieWithExpiresDate() {
         Cookies cookies =
         when().
                 get("/cookieWithDoubleQuoteExpiresDate").
@@ -292,7 +292,7 @@ public class CookieITest extends WithJetty {
     }
 
     @Test
-    public void setsExpiresPropertyToNullWhenCookieHasInvalidExpiresDate() throws Exception {
+    public void setsExpiresPropertyToNullWhenCookieHasInvalidExpiresDate() {
         Cookies cookies =
         when().
                 get("/cookieWithInvalidExpiresDate").
