@@ -24,6 +24,7 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -32,6 +33,8 @@ import org.springframework.web.util.NestedServletException;
 
 import javax.servlet.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -145,7 +148,7 @@ public class AutoSpringSecurityConfigurerITest {
 
         RestAssuredMockMvc.given().
                 webAppContextSetup(context, springSecurity(), springSecurity(new Filter() {
-                    public void init(FilterConfig filterConfig) throws ServletException {
+                    public void init(FilterConfig filterConfig) {
                     }
 
                     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -154,6 +157,14 @@ public class AutoSpringSecurityConfigurerITest {
                     }
 
                     public void destroy() {
+                    }
+
+                    // This method is required by Spring Security 5.1.x, unsure of why.
+                    @SuppressWarnings("unused")
+                    List<Filter> getFilters(MockHttpServletRequest req) {
+                        List<Filter> filters = new ArrayList<>();
+                        filters.add(this);
+                        return filters;
                     }
                 })).
                 postProcessors(httpBasic("username", "password")).

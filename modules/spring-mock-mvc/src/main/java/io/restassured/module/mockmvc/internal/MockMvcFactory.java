@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.AbstractMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurer;
+import org.springframework.test.web.servlet.setup.StandaloneMockMvcBuilder;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.lang.reflect.Field;
@@ -73,7 +74,7 @@ public class MockMvcFactory {
                 // End avoid duplicates
                 if (isOkToAdd) {
                     final MockMvcConfigurer configurer = org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity();
-                    builder.apply(new ConditionalSpringMockMvcConfigurer(configurer));
+                    builder.apply(new ConditionalSpringMockMvcConfigurer(builder instanceof StandaloneMockMvcBuilder, configurer));
                 }
             }
             mockMvcToReturn = builder.build();
@@ -111,14 +112,18 @@ public class MockMvcFactory {
      */
     private static class ConditionalSpringMockMvcConfigurer implements MockMvcConfigurer {
         private static final String SPRING_SECURITY_FILTER_CHAIN = "springSecurityFilterChain";
+        private final boolean isStandaloneSetup;
         private final MockMvcConfigurer configurer;
 
-        public ConditionalSpringMockMvcConfigurer(MockMvcConfigurer configurer) {
+        public ConditionalSpringMockMvcConfigurer(boolean isStandaloneSetup, MockMvcConfigurer configurer) {
+            this.isStandaloneSetup = isStandaloneSetup;
             this.configurer = configurer;
         }
 
         public void afterConfigurerAdded(ConfigurableMockMvcBuilder<?> builder) {
-            configurer.afterConfigurerAdded(builder);
+            if (!isStandaloneSetup) {
+                configurer.afterConfigurerAdded(builder);
+            }
         }
 
         public RequestPostProcessor beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder, WebApplicationContext context) {
