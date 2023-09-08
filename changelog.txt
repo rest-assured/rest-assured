@@ -5,6 +5,7 @@ Changelog next version
 * Make header blacklisting case-insensitive (#1722) (thanks to Bekh-Ivanov Aleksey for pull request)
 * Blacklisted headers added to LogConfig are now case-insensitive by default
 * Fixed so that testing multipart data request along with passing path parameters doesn't fail anymore in RestAssuredMockMvc (#1673) (thanks to Andrey Demin for pull request)
+* Improved compatibility issues with newer version of Spring Security
 * Upgraded kotlin from 1.8.22 to 1.9.10
 * Upgraded scala to 2.12.18
 
