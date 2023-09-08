@@ -47,13 +47,13 @@ public class SetCookiesTest {
 	public void
 	can_receive_cookies() {
 		RestAssuredWebTestClient.given()
-				.queryParam("name", "John Doe")
-				.queryParam("project", "rest assured")
+				.queryParam("name", "JohnDoe")
+				.queryParam("project", "rest-assured")
 				.when()
 				.get("/setCookies")
 				.then()
 				.statusCode(200)
-				.cookie("name", "John Doe")
-				.cookie("project", "rest assured");
+				.cookie("name", "JohnDoe")
+				.cookie("project", "rest-assured");
 	}
 }
