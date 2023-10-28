@@ -33,7 +33,7 @@ import io.restassured.specification.FilterableResponseSpecification
 import io.restassured.specification.RequestSpecification
 import org.junit.Test
 
-import static RestAssuredConfig.newConfig
+import static io.restassured.config.RestAssuredConfig.newConfig
 import static io.restassured.config.RedirectConfig.redirectConfig
 import static io.restassured.config.SessionConfig.DEFAULT_SESSION_ID_NAME
 import static io.restassured.config.SessionConfig.sessionConfig
@@ -92,7 +92,7 @@ class SpecificationMergerTest {
 
     SpecificationMerger.merge(merge, with)
 
-    assertEquals 1, merge.filters.size
+    assertEquals 1, merge.filters.size()
   }
 
   @Test
@@ -152,7 +152,7 @@ class SpecificationMergerTest {
 
     SpecificationMerger.merge(merge, with)
 
-    assertTrue merge.multiParts.size == 2
+    assertTrue merge.multiParts.size() == 2
   }
 
 

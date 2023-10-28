@@ -17,8 +17,7 @@
 package io.restassured.path.json.mapper.factory;
 
 import io.restassured.common.mapper.factory.ObjectMapperFactory;
-
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 
 /**
  * Interface for JSON-B object mappers. Implement this class and register it to the ObjectMapperConfig if you

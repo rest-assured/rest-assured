@@ -30,7 +30,7 @@ public interface ResponseValidationFailureListener {
      * Called when a failure occurs
      *
      * @param requestSpecification The request specification
-     * @param responseSpecification The reponse specification
+     * @param responseSpecification The response specification
      * @param response The actual response
      */
     void onFailure(RequestSpecification requestSpecification,

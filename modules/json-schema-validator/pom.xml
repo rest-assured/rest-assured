@@ -20,10 +20,10 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>5.3.3-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>json-schema-validator</artifactId>
-    <version>5.3.3-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
     <name>json-schema-validator</name>
     <url>http://maven.apache.org</url>
     <properties>

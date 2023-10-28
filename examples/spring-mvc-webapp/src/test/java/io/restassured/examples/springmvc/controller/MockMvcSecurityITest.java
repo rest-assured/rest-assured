@@ -54,29 +54,31 @@ public class MockMvcSecurityITest {
 
     private MockMvc mvc;
 
-     @Before
-     public void setup() {
-         mvc = MockMvcBuilders
-                 .webAppContextSetup(context)
-                 .apply(springSecurity())
-                 .build();
-     }
+    @Before
+    public void setup() {
+        mvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+    }
 
-    @Test public void
+    @Test
+    public void
     basic_auth_request_post_processor_works() throws Exception {
         RestAssuredMockMvc.given().
                 mockMvc(mvc).
                 auth().with(httpBasic("username", "password")).
                 param("name", "Johan").
-         when().
+                when().
                 get("/secured/greeting").
-         then().
+                then().
                 statusCode(200).
                 body("content", equalTo("Hello, Johan!")).
                 expect(authenticated().withUsername("username"));
-   }
+    }
 
-    @Test public void
+    @Test
+    public void
     can_specify_request_post_processor_statically_for_authentication() throws Exception {
         RestAssuredMockMvc.authentication = RestAssuredMockMvc.with(httpBasic("username", "password"));
 
@@ -84,9 +86,9 @@ public class MockMvcSecurityITest {
             RestAssuredMockMvc.given().
                     mockMvc(mvc).
                     param("name", "Johan").
-             when().
+                    when().
                     get("/secured/greeting").
-             then().
+                    then().
                     statusCode(200).
                     body("content", equalTo("Hello, Johan!")).
                     expect(authenticated().withUsername("username"));
@@ -95,7 +97,8 @@ public class MockMvcSecurityITest {
         }
     }
 
-    @Test public void
+    @Test
+    public void
     can_specify_authentication_request_post_processor_using_spec_builder() throws Exception {
         MockMvcRequestSpecification specification = new MockMvcRequestSpecBuilder().setAuth(RestAssuredMockMvc.with(httpBasic("username", "password"))).build();
 
@@ -103,71 +106,76 @@ public class MockMvcSecurityITest {
                 mockMvc(mvc).
                 spec(specification).
                 param("name", "Johan").
-         when().
+                when().
                 get("/secured/greeting").
-         then().
+                then().
                 statusCode(200).
                 body("content", equalTo("Hello, Johan!")).
                 expect(authenticated().withUsername("username"));
     }
 
-    @Test public void
+    @Test
+    public void
     basic_auth_request_post_processor_works_with_explicit_user() throws Exception {
         RestAssuredMockMvc.given().
                 mockMvc(mvc).
                 auth().with(httpBasic("username", "password"), user("username").password("password")).
                 param("name", "Johan").
-         when().
+                when().
                 get("/secured/greeting").
-         then().
+                then().
                 statusCode(200).
                 body("content", equalTo("Hello, Johan!")).
                 expect(authenticated().withUsername("username"));
     }
 
-    @Test public void
+    @Test
+    public void
     can_specify_user_for_controllers_not_protected_by_basic_auth() throws Exception {
         RestAssuredMockMvc.given().
                 mockMvc(mvc).
                 auth().with(user("authorized_user").password("password")).
                 param("name", "Johan").
-         when().
+                when().
                 get("/user/greeting").
-         then().
+                then().
                 statusCode(200).
                 body("content", equalTo("Hello, Johan!")).
                 expect(authenticated().withUsername("authorized_user"));
     }
 
     @WithMockUser(username = "authorized_user")
-    @Test public void
+    @Test
+    public void
     can_use_spring_security_mock_annotations() throws Exception {
         RestAssuredMockMvc.given().
                 mockMvc(mvc).
                 param("name", "Johan").
-         when().
+                when().
                 get("/user/greeting").
-         then().
+                then().
                 statusCode(200).
                 body("content", equalTo("Hello, Johan!")).
                 expect(authenticated().withUsername("authorized_user"));
-   }
+    }
 
-    @Test public void
+    @Test
+    public void
     can_authenticate_using_dsl_post_processors() throws Exception {
         RestAssuredMockMvc.given().
                 mockMvc(mvc).
                 postProcessors(httpBasic("username", "password")).
                 param("name", "Johan").
-        when().
+                when().
                 get("/secured/greeting").
-        then().
+                then().
                 statusCode(200).
                 body("content", equalTo("Hello, Johan!")).
                 expect(authenticated().withUsername("username"));
     }
 
-    @Test public void
+    @Test
+    public void
     can_authenticate_using_static_post_processors() throws Exception {
         RestAssuredMockMvc.postProcessors(httpBasic("username", "password"));
 
@@ -175,9 +183,9 @@ public class MockMvcSecurityITest {
             RestAssuredMockMvc.given().
                     mockMvc(mvc).
                     param("name", "Johan").
-            when().
+                    when().
                     get("/secured/greeting").
-            then().
+                    then().
                     statusCode(200).
                     body("content", equalTo("Hello, Johan!")).
                     expect(authenticated().withUsername("username"));
@@ -188,7 +196,8 @@ public class MockMvcSecurityITest {
         assertThat(RestAssuredMockMvc.postProcessors(), hasSize(0));
     }
 
-    @Test public void
+    @Test
+    public void
     can_authenticate_using_post_processors_in_spec() throws Exception {
         MockMvcRequestSpecification specification = new MockMvcRequestSpecBuilder().setPostProcessors(httpBasic("username", "password")).build();
 
@@ -196,9 +205,9 @@ public class MockMvcSecurityITest {
                 mockMvc(mvc).
                 spec(specification).
                 param("name", "Johan").
-        when().
+                when().
                 get("/secured/greeting").
-        then().
+                then().
                 statusCode(200).
                 body("content", equalTo("Hello, Johan!")).
                 expect(authenticated().withUsername("username"));

@@ -6,14 +6,12 @@ package io.restassured.internal.mapping
 
 import io.restassured.mapper.ObjectMapperSerializationContext
 import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory
+import jakarta.json.bind.JsonbBuilder
 import org.junit.Before
 import org.junit.Test
 
-import javax.json.bind.JsonbBuilder
-
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertNotNull
-import static org.mockito.Matchers.any
 import static org.mockito.Mockito.*
 
 class JsonbMapperTest {

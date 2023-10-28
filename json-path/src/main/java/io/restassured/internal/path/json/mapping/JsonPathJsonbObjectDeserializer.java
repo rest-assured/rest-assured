@@ -5,9 +5,9 @@ import io.restassured.common.mapper.ObjectDeserializationContext;
 import io.restassured.internal.common.assertion.AssertParameter;
 import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory;
 import io.restassured.path.json.mapping.JsonPathObjectDeserializer;
+import jakarta.json.bind.Jsonb;
 import org.codehaus.groovy.runtime.IOGroovyMethods;
 
-import javax.json.bind.Jsonb;
 import java.io.Reader;
 import java.lang.reflect.Type;
 
