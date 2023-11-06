@@ -20,12 +20,12 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-parent</artifactId>
-        <version>5.3.3-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </parent>
     <groupId>io.rest-assured</groupId>
     <artifactId>rest-assured-common</artifactId>
     <packaging>bundle</packaging>
-    <version>5.3.3-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
     <name>rest-assured-common</name>
     <url>http://maven.apache.org</url>
     <properties>
@@ -36,8 +36,22 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>addSources</goal>
+                            <goal>addTestSources</goal>
+                            <goal>generateStubs</goal>
+                            <goal>compile</goal>
+                            <goal>generateTestStubs</goal>
+                            <goal>compileTests</goal>
+                            <goal>removeStubs</goal>
+                            <goal>removeTestStubs</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>

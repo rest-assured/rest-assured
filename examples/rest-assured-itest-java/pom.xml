@@ -19,9 +19,13 @@
     <parent>
         <groupId>io.rest-assured.examples</groupId>
         <artifactId>example-parent</artifactId>
-        <version>5.3.3-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+
+    <properties>
+        <maven.compiler.release>11</maven.compiler.release>
+    </properties>
 
     <artifactId>rest-assured-itest-java</artifactId>
     <name>REST Assured Java integration tests</name>
@@ -34,8 +38,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
@@ -50,23 +52,23 @@
         <dependency>
             <groupId>io.rest-assured.examples</groupId>
             <artifactId>scalatra-webapp</artifactId>
-            <version>5.3.3-SNAPSHOT</version>
+            <version>6.0.0-SNAPSHOT</version>
             <type>war</type>
         </dependency>
         <dependency>
             <groupId>io.rest-assured.examples</groupId>
             <artifactId>scalatra-example</artifactId>
-            <version>5.3.3-SNAPSHOT</version>
+            <version>6.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>5.3.3-SNAPSHOT</version>
+            <version>6.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-schema-validator</artifactId>
-            <version>5.3.3-SNAPSHOT</version>
+            <version>6.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>

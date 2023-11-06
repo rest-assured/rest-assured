@@ -29,7 +29,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.util.NestedServletException;
 
 import javax.servlet.*;
 import java.io.IOException;
@@ -52,7 +51,8 @@ public class AutoSpringSecurityConfigurerITest {
     @Autowired
     private WebApplicationContext context;
 
-    @Test public void
+    @Test
+    public void
     spring_security_configurer_is_automatically_applied_when_spring_security_test_is_in_classpath_when_using_the_dsl() {
         RestAssuredMockMvc.given().
                 webAppContextSetup(context).
@@ -131,7 +131,7 @@ public class AutoSpringSecurityConfigurerITest {
         }
     }
 
-    @Test(expected = NestedServletException.class) public void
+    @Test(expected = ServletException.class) public void
     doesnt_add_spring_security_configurer_automatically_when_mock_mvc_config_is_configured_not_to() {
         RestAssuredMockMvc.given().
                 webAppContextSetup(context).
@@ -153,6 +153,7 @@ public class AutoSpringSecurityConfigurerITest {
 
                     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
                         filterUsed.set(true);
+                        System.out.println("Filters");
                         chain.doFilter(request, response);
                     }
 

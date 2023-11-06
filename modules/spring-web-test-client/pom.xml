@@ -20,20 +20,21 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>5.3.3-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>spring-web-test-client</artifactId>
-    <version>5.3.3-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
     <name>spring-web-test-client</name>
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>5.1.13.RELEASE</spring.version>
         <servlet-api.version>4.0.1</servlet-api.version>
-        <spring.restdocs.version>2.0.2.RELEASE</spring.restdocs.version>
-        <powermock-module-junit4.version>1.7.4</powermock-module-junit4.version>
-        <commons-io.version>2.8.0</commons-io.version>
-        <org.skyscreamer>1.5.0</org.skyscreamer>
+        <spring.restdocs.version>2.0.7.RELEASE</spring.restdocs.version>
+        <powermock-module-junit4.version>2.0.9</powermock-module-junit4.version>
+        <commons-io.version>2.15.0</commons-io.version>
+        <org.skyscreamer>1.5.1</org.skyscreamer>
+        <maven.compiler.release>11</maven.compiler.release>
     </properties>
 
     <build>
@@ -42,8 +43,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>

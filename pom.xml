@@ -16,7 +16,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.sonatype.oss</groupId>
@@ -26,14 +27,14 @@
     <groupId>io.rest-assured</groupId>
     <artifactId>rest-assured-parent</artifactId>
     <packaging>pom</packaging>
-    <version>5.3.3-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
     <url>https://rest-assured.io/</url>
     <name>REST Assured Parent POM</name>
     <description>Java DSL for easy testing of REST services</description>
     <inceptionYear>2010</inceptionYear>
     <issueManagement>
         <system>GitHub Issue Tracking</system>
-        <url />
+        <url/>
     </issueManagement>
     <licenses>
         <license>
@@ -58,22 +59,22 @@
     <properties>
         <scm.branch>master</scm.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <groovy.version>4.0.11</groovy.version>
+        <groovy.version>4.0.15</groovy.version>
         <groovy.range>[4.0,5.0)</groovy.range>
-        <gmaven.version>1.5</gmaven.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <jackson1.version>1.9.11</jackson1.version>
-        <jackson2.version>2.14.3</jackson2.version>
-        <johnzon.version>1.1.11</johnzon.version>
-        <yasson.version>1.0.6</yasson.version>
-        <jakarta.json.version>1.1.6</jakarta.json.version>
+        <jackson1.version>1.9.13</jackson1.version>
+        <jackson2.version>2.15.3</jackson2.version>
+        <johnzon.version>1.2.20</johnzon.version>
+        <yasson.version>3.0.3</yasson.version>
+        <jakarta.json.version>2.1.3</jakarta.json.version>
         <maven-javadoc.version>2.9.1</maven-javadoc.version>
-        <surefire.version>2.22.0</surefire.version>
+        <surefire.version>3.2.1</surefire.version>
         <kotlin.version>1.9.10</kotlin.version>
         <assertj-core.version>3.16.1</assertj-core.version>
         <scribe.version>2.5.3</scribe.version>
         <sundrio.version>0.93.0</sundrio.version>
         <guava.version>32.0.1-jre</guava.version>
+        <maven.compiler.release>11</maven.compiler.release>
     </properties>
     <scm>
         <url>http://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>
@@ -127,40 +128,8 @@
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.gmaven</groupId>
-                    <artifactId>gmaven-plugin</artifactId>
-                    <version>${gmaven.version}</version>
-                    <configuration>
-                        <providerSelection>2.0</providerSelection>
-                        <source />
-                    </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.codehaus.gmaven.runtime</groupId>
-                            <artifactId>gmaven-runtime-2.0</artifactId>
-                            <version>${gmaven.version}</version>
-                            <exclusions>
-                                <exclusion>
-                                    <groupId>org.apache.groovy</groupId>
-                                    <artifactId>groovy-all</artifactId>
-                                </exclusion>
-                            </exclusions>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.groovy</groupId>
-                            <artifactId>groovy</artifactId>
-                            <version>${groovy.version}</version>
-                        </dependency>
-                    </dependencies>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>generateStubs</goal>
-                                <goal>compile</goal>
-                                <goal>generateTestStubs</goal>
-                                <goal>testCompile</goal>
-                            </goals>
-                        </execution>
-                    </executions>
+                    <artifactId>gmavenplus-plugin</artifactId>
+                    <version>${gmavenplus.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.basepom.maven</groupId>
@@ -199,7 +168,8 @@
                             <!-- Some classes that are duplicated in the (optional) JAXB / Jakarta EE dependencies. -->
                             <ignoredClassPattern>com\.sun\.istack.*</ignoredClassPattern>
                             <ignoredClassPattern>com\.sun\.xml.*</ignoredClassPattern>
-                            <ignoredClassPattern>META-INF\.versions\.9\.com\.sun\.istack\.logging.*</ignoredClassPattern>
+                            <ignoredClassPattern>META-INF\.versions\.9\.com\.sun\.istack\.logging.*
+                            </ignoredClassPattern>
                             <!-- Spring AOP -->
                             <ignoredClassPattern>org\.aopalliance.*</ignoredClassPattern>
                             <!-- OSGi -->
@@ -212,12 +182,28 @@
         </pluginManagement>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>addSources</goal>
+                            <goal>addTestSources</goal>
+                            <goal>generateStubs</goal>
+                            <goal>compile</goal>
+                            <goal>generateTestStubs</goal>
+                            <goal>compileTests</goal>
+                            <goal>removeStubs</goal>
+                            <goal>removeTestStubs</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.11.0</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
@@ -332,7 +318,8 @@
                                         <bom>
                                             <artifactId>rest-assured-bom</artifactId>
                                             <name>REST Assured: BOM</name>
-                                            <description>Centralized dependencyManagement for the Rest Assured Project</description>
+                                            <description>Centralized dependencyManagement for the Rest Assured Project
+                                            </description>
                                             <properties>
                                                 <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
                                                 <sonar.skip>true</sonar.skip>
@@ -397,7 +384,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.13.1</version>
+                <version>4.13.2</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.hamcrest</groupId>
