@@ -34,7 +34,7 @@
     <inceptionYear>2010</inceptionYear>
     <issueManagement>
         <system>GitHub Issue Tracking</system>
-        <url/>
+        <url />
     </issueManagement>
     <licenses>
         <license>
@@ -59,16 +59,17 @@
     <properties>
         <scm.branch>master</scm.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <groovy.version>4.0.15</groovy.version>
+        <groovy.version>4.0.11</groovy.version>
         <groovy.range>[4.0,5.0)</groovy.range>
+        <gmavenplus.version>3.0.2</gmavenplus.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <jackson1.version>1.9.13</jackson1.version>
-        <jackson2.version>2.15.3</jackson2.version>
-        <johnzon.version>1.2.20</johnzon.version>
-        <yasson.version>3.0.3</yasson.version>
-        <jakarta.json.version>2.1.3</jakarta.json.version>
+        <jackson1.version>1.9.11</jackson1.version>
+        <jackson2.version>2.14.3</jackson2.version>
+        <johnzon.version>1.1.11</johnzon.version>
+        <yasson.version>1.0.6</yasson.version>
+        <jakarta.json.version>1.1.6</jakarta.json.version>
         <maven-javadoc.version>2.9.1</maven-javadoc.version>
-        <surefire.version>3.2.1</surefire.version>
+        <surefire.version>2.22.0</surefire.version>
         <kotlin.version>1.9.10</kotlin.version>
         <assertj-core.version>3.16.1</assertj-core.version>
         <scribe.version>2.5.3</scribe.version>
@@ -127,24 +128,9 @@
                     <version>5.1.4</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.gmavenplus</groupId>
+                    <groupId>org.codehaus.gmaven</groupId>
                     <artifactId>gmavenplus-plugin</artifactId>
-                    <version>3.0.2</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>execute</goal>
-                                <goal>addSources</goal>
-                                <goal>addTestSources</goal>
-                                <goal>generateStubs</goal>
-                                <goal>compile</goal>
-                                <goal>generateTestStubs</goal>
-                                <goal>compileTests</goal>
-                                <goal>removeStubs</goal>
-                                <goal>removeTestStubs</goal>
-                            </goals>
-                        </execution>
-                    </executions>
+                    <version>${gmavenplus.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.basepom.maven</groupId>
@@ -183,8 +169,7 @@
                             <!-- Some classes that are duplicated in the (optional) JAXB / Jakarta EE dependencies. -->
                             <ignoredClassPattern>com\.sun\.istack.*</ignoredClassPattern>
                             <ignoredClassPattern>com\.sun\.xml.*</ignoredClassPattern>
-                            <ignoredClassPattern>META-INF\.versions\.9\.com\.sun\.istack\.logging.*
-                            </ignoredClassPattern>
+                            <ignoredClassPattern>META-INF\.versions\.9\.com\.sun\.istack\.logging.*</ignoredClassPattern>
                             <!-- Spring AOP -->
                             <ignoredClassPattern>org\.aopalliance.*</ignoredClassPattern>
                             <!-- OSGi -->
@@ -196,6 +181,24 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>addSources</goal>
+                            <goal>addTestSources</goal>
+                            <goal>generateStubs</goal>
+                            <goal>compile</goal>
+                            <goal>generateTestStubs</goal>
+                            <goal>compileTests</goal>
+                            <goal>removeStubs</goal>
+                            <goal>removeTestStubs</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -315,8 +318,7 @@
                                         <bom>
                                             <artifactId>rest-assured-bom</artifactId>
                                             <name>REST Assured: BOM</name>
-                                            <description>Centralized dependencyManagement for the Rest Assured Project
-                                            </description>
+                                            <description>Centralized dependencyManagement for the Rest Assured Project</description>
                                             <properties>
                                                 <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
                                                 <sonar.skip>true</sonar.skip>

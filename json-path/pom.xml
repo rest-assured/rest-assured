@@ -15,8 +15,7 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.rest-assured</groupId>
@@ -38,6 +37,20 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>addSources</goal>
+                            <goal>addTestSources</goal>
+                            <goal>generateStubs</goal>
+                            <goal>compile</goal>
+                            <goal>generateTestStubs</goal>
+                            <goal>compileTests</goal>
+                            <goal>removeStubs</goal>
+                            <goal>removeTestStubs</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -46,14 +59,14 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
-                            io.restassured.path.json.*,
-                            io.restassured.internal.path.json.*
-                        </Export-Package>
+                        	io.restassured.path.json.*,
+                        	io.restassured.internal.path.json.*
+                       	</Export-Package>
                         <Import-Package>
                             groovy.*;version="${groovy.range}",
                             org.apache.groovy.*;version="${groovy.range}",
                             *
-                        </Import-Package>
+						</Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
