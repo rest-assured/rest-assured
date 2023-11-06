@@ -258,6 +258,18 @@ public class JsonPathTest {
     }
 
     @Test
+    public void getLastValueFromUnnamedRootObjectUsingBrackets() {
+        final Map<String, String> object = JsonPath.from(JSON2).get("[-1]");
+        assertThat(object.get("email"), equalTo("name3@mail.com"));
+    }
+
+    @Test
+    public void getLastSubValueFromUnnamedRootObjectUsingBrackets() {
+        final String object = JsonPath.from(JSON2).getString("[-1].email");
+        assertThat(object, equalTo("name3@mail.com"));
+    }
+
+    @Test
     public void getNumericalValues() {
         assertThat(JsonPath.with(JSON).getDouble("store.book[0].price"), equalTo(8.95D));
         assertThat(JsonPath.with(JSON).getFloat("store.book[0].price"), equalTo(8.95F));
