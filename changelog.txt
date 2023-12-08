@@ -18,6 +18,7 @@ Changelog next version
    } Extract {
        path("id")
    }
+* Fix 1746: JsonPath: wrong result and exception when jsonPath partly evaluates to string/boolean/number (#1747) (thanks to Oleksandr Kulychok for pull request)
 
 Changelog 5.3.2 (2023-09-08)
 ----------------------------
