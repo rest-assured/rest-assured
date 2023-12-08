@@ -45,9 +45,14 @@ class JSONAssertion implements Assertion {
         }
         result = eval(root, object, expr)
       } catch (MissingPropertyException e) {
-        // This means that a param was used that was not defined
-        String error = String.format("The parameter \"%s\" was used but not defined. Define parameters using the JsonPath.params(...) function", e.property)
-        throw new IllegalArgumentException(error, e)
+        def message = e.getMessage();
+        // detect missed property on script-level. This should be defined by user as param
+        if (message != null && (message.startsWith("No such property:") && message.endsWith("for class: Script1"))) {
+          String error = String.format("The parameter \"%s\" was used but not defined. Define parameters using the JsonPath.param(...) function", e.property)
+          throw new IllegalArgumentException(error, e)
+        }
+        // return null if exception occurred for property from json path, see #1746
+        return null
       } catch (Exception e) {
         // Check if exception is due to a missing property
         if (e instanceof NullPointerException){

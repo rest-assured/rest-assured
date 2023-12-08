@@ -30,6 +30,8 @@ import java.util.UUID;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
 
 public class JsonPathTest {
 
@@ -802,6 +804,80 @@ public class JsonPathTest {
 
         // Then   no exception should be thrown
         assertThat(jsonPath.getString("root.items[0]"), is(nullValue()));
+    }
+
+    /** Tests #1746 is fixed plus additional verifications to ensure we did not break existing behavior */
+    @Test public void
+    returns_null_for_absent_json_keys(){
+
+        // ------- Given
+        String json = "{\"root\": {" +
+                      "    \"nKey\": null," +
+                      "    \"iKey\": 1," +
+                      "    \"fKey\": 1.1," +
+                      "    \"sKey\": \"ss\"," +
+                      "    \"bKey\": true," +
+
+                      "    \"array\"  : [{" +
+                      "        \"nKey\": null," +
+                      "        \"iKey\": 1," +
+                      "        \"fKey\": 1.1," +
+                      "        \"sKey\": \"ss\"," +
+                      "        \"bKey\": true" +
+                      "        }]," +
+                      "    \"arrEmpty\"  : []" +
+                      "    }" +
+                      "}";
+        // ------ When
+        JsonPath jsonPath = JsonPath.from(json);
+
+        // ------ Then
+
+        // test pre-#1746 behavior for objects
+        assertThat(jsonPath.get("root.absentKey"), is(nullValue()));
+        assertThat(jsonPath.get("root.nKey.absentKey"), is(nullValue()));
+
+        // Test the #1746: change "IllegalArgumentException" to null when root.xKey has ifsb type in json
+        // ifsb == int/float/string/boolean
+        assertThat(jsonPath.get("root.iKey.absentKey"), is(nullValue()));
+        assertThat(jsonPath.get("root.fKey.absentKey"), is(nullValue()));
+        assertThat(jsonPath.get("root.sKey.absentKey"), is(nullValue()));
+        assertThat(jsonPath.get("root.bKey.absentKey"), is(nullValue()));
+
+        // Test the #1746, for items inside arrays:
+        // Note that we cannot return [] here because of library design to use Groovy for processing
+        // But 'null'  is better than pre-#1746 "IllegalArgumentException"
+        assertThat(jsonPath.get("root.array.iKey.absentKey"), is(nullValue()));
+        assertThat(jsonPath.get("root.array.fKey.absentKey"), is(nullValue()));
+        assertThat(jsonPath.get("root.array.sKey.absentKey"), is(nullValue()));
+        assertThat(jsonPath.get("root.array.bKey.absentKey"), is(nullValue()));
+
+        // test pre-#1746 behavior for arrays:
+        assertThat(jsonPath.get("root.array.absentKey"), allOf(hasSize(1), contains((Object)null)));  // [null]
+        assertThat(jsonPath.get("root.array.nKey.absentKey"), is(empty()));  // []
+        assertThat(jsonPath.get("root.arrEmpty.absentKey"), is(empty()));    // []
+
+    }
+
+
+    /** Test that fix #1746 did not break exception about parameters */
+    @Test public void
+    exception_should_be_thrown_for_undefined_script_parameters(){
+
+        // Given
+        JsonPath jsonPath = JsonPath.from("{}");
+
+        Exception actualException = null;
+        //When
+        try{
+            jsonPath/*.param("myParameter", "xx")*/.get("$==myParameter");
+        }catch (IllegalArgumentException e){actualException = e;}
+
+        //Then
+        assertThat(actualException, is(notNullValue()));
+        assertThat(actualException.getMessage(),
+                   equalTo("The parameter \"myParameter\" was used but not defined. Define parameters using the " +
+                           "JsonPath.param(...) function"));
     }
 
     @Test public void
