@@ -19,6 +19,7 @@ Changelog next version
        path("id")
    }
 * Fix 1746: JsonPath: wrong result and exception when jsonPath partly evaluates to string/boolean/number (#1747) (thanks to Oleksandr Kulychok for pull request)
+* Add support for negative indexes in JsonPath (thanks to Oleksandr Kulychok for pull request). This means that you can now do e.g. String object = JsonPath.from("<some json>").getString("[-1].email");
 
 Changelog 5.3.2 (2023-09-08)
 ----------------------------
