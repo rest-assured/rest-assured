@@ -1423,7 +1423,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
 
     def multipartMode = httpClientConfig().httpMultipartMode()
-    // For "defaultCharset" to be taken into account we need to 
+    // For "defaultCharset" to be taken into account we need to
 
     http.encoders.putAt ct, { contentType, content ->
       RestAssuredMultiPartEntity entity = new RestAssuredMultiPartEntity(subType, charsetToUse, multipartMode, boundaryToUse)
@@ -1754,7 +1754,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def pathParamFiller = { String separator, boolean performEncode, String acc, String subresource ->
       def indexOfStartBracket
       def indexOfEndBracket = 0
-      while ((indexOfStartBracket = subresource.indexOf(TEMPLATE_START, indexOfEndBracket)) >= 0) {
+      while ((indexOfStartBracket = subresource.indexOf(TEMPLATE_START, indexOfEndBracket)) >= 0
+              && indexOfEndBracket >= 0) {
         indexOfEndBracket = subresource.indexOf(TEMPLATE_END, indexOfStartBracket)
         // 3 means "{" and "}" and at least one character
         if (indexOfStartBracket >= 0 && indexOfEndBracket >= 0 && subresource.length() >= 3) {

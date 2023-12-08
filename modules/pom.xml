@@ -33,5 +33,6 @@
         <module>spring-commons</module>
         <module>kotlin-extensions</module>
         <module>spring-mock-mvc-kotlin-extensions</module>
+        <module>spring-web-test-client-kotlin-extensions</module>
     </modules>
 </project>

@@ -105,10 +105,12 @@ class ConfigurableJsonSlurper {
       content = parseObject(lexer)
     } else if (token.getType() == OPEN_BRACKET) {
       content = parseArray(lexer)
+    } else if (token.getType().ordinal() >= NULL.ordinal()) {
+      content = token.getValue()
     } else {
       throw new JsonException(
               "A JSON payload should start with " + OPEN_CURLY.getLabel() +
-                      " or " + OPEN_BRACKET.getLabel() + ".\n" +
+                      ", " + OPEN_BRACKET.getLabel() + " or a primitive value.\n" +
                       "Instead, '" + token.getText() + "' was found " +
                       "on line: " + token.getStartLine() + ", " +
                       "column: " + token.getStartColumn()

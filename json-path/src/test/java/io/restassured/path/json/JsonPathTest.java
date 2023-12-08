@@ -806,7 +806,6 @@ public class JsonPathTest {
         assertThat(jsonPath.getString("root.items[0]"), is(nullValue()));
     }
 
-
     /** Tests #1746 is fixed plus additional verifications to ensure we did not break existing behavior */
     @Test public void
     returns_null_for_absent_json_keys(){
@@ -881,4 +880,50 @@ public class JsonPathTest {
                            "JsonPath.param(...) function"));
     }
 
+    @Test public void
+    does_not_fail_on_primitive_string() {
+        // When
+        String json = "\"foo\"";
+
+        // When
+        JsonPath jsonPath = JsonPath.from(json);
+
+        // Then
+        assertThat(jsonPath.get("$"), is("foo"));
+    }
+
+    @Test public void
+    does_not_fail_on_primitive_true() {
+        // When
+        String json = "true";
+
+        // When
+        JsonPath jsonPath = JsonPath.from(json);
+
+        // Then
+        assertThat(jsonPath.get("$"), is(true));
+    }
+
+    @Test public void
+    does_not_fail_on_primitive_false() {
+        // When
+        String json = "false";
+
+        // When
+        JsonPath jsonPath = JsonPath.from(json);
+
+        // Then
+        assertThat(jsonPath.get("$"), is(false));
+    }
+    @Test public void
+    does_not_fail_on_primitive_null() {
+        // When
+        String json = "null";
+
+        // When
+        JsonPath jsonPath = JsonPath.from(json);
+
+        // Then
+        assertThat(jsonPath.get("$"), nullValue());
+    }
 }
