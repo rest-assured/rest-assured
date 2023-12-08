@@ -1,3 +1,8 @@
+Changelog next version
+----------------------
+* Properly parse primitive JSON values (thanks to Jörg Eichhorn for pull request)
+* Upgraded to Groovy 4.0.14
+
 Changelog 5.3.2 (2023-09-08)
 ----------------------------
 * Add onFailMessage into validatable response (#1724). This means that you can use `onFailMessage` after `then` like: `when().get("/somewhere").then().onFailMessage("My fail message").statusCode(200);` (thanks to Ilya Koshaleu for pull request)
