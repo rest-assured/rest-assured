@@ -18,10 +18,12 @@
 
 package io.restassured
 
+import io.restassured.authentication.AuthenticationScheme
 import io.restassured.filter.Filter
 import io.restassured.filter.FilterContext
 import io.restassured.http.Header
 import io.restassured.http.Headers
+import io.restassured.internal.http.HTTPBuilder
 import io.restassured.response.Response
 import io.restassured.specification.FilterableRequestSpecification
 import io.restassured.specification.FilterableResponseSpecification
@@ -88,6 +90,14 @@ class RequestSpecificationTest {
       assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.requestHeaders.get(CONTENT_TYPE).getValue())
   }
 
+  @Test
+  public void canUseCustomAuthenticationSchemeImplementation() {
+    def scheme = new MyCustomAuthScheme();
+    def spec = given().auth().scheme(scheme);
+
+    assertEquals(scheme, spec.authenticationScheme)
+  }
+
   @Ignore
   private class ExampleFilter1 implements Filter {
     @Override
@@ -109,6 +119,14 @@ class RequestSpecificationTest {
     @Override
     Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
       return null
+    }
+  }
+
+  @Ignore
+  private class MyCustomAuthScheme implements AuthenticationScheme {
+    @Override
+    void authenticate(HTTPBuilder httpBuilder) {
+      // Do nothing - only used for testing purposes.
     }
   }
 }
