@@ -11,7 +11,7 @@ languages into the Java domain.
 
 
 ## News
-* 2023-12-08: REST Assured 5.4.0 is released with several bug fixes and a [Kotlin Extension Module for Spring WebTest]([Kotlin#kotlin-extension-module-for-spring-webtest](https://github.com/rest-assured/rest-assured/wiki/Kotlin#kotlin-extension-module-for-spring-webtest)). See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
+* 2023-12-08: REST Assured 5.4.0 is released with several bug fixes and a [Kotlin Extension Module for Spring WebTest](https://github.com/rest-assured/rest-assured/wiki/Kotlin#kotlin-extension-module-for-spring-webtest). See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2023-09-08: REST Assured 5.3.2 is released with several bug fixes, better Spring MockMvc Support, better support for newer versions of Spring Security etc. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2023-06-16: REST Assured 5.3.1 is released with several bug fixes and dependency upgrades. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 
