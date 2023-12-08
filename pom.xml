@@ -58,7 +58,7 @@
     <properties>
         <scm.branch>master</scm.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <groovy.version>4.0.14</groovy.version>
+        <groovy.version>4.0.16</groovy.version>
         <groovy.range>[4.0,5.0)</groovy.range>
         <gmaven.version>1.5</gmaven.version>
         <hamcrest.version>2.2</hamcrest.version>
