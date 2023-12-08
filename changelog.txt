@@ -3,6 +3,21 @@ Changelog next version
 * Properly parse primitive JSON values (thanks to Jörg Eichhorn for pull request)
 * Upgraded to Groovy 4.0.14
 * Fix issue #1713 - endless loop in partiallyApplyPathParams (thanks to Oleksandr Kulychok for pull request)
+* Introduce spring-web-test-client-kotlin-extensions (#1731) (thanks for TheDevLuffy for pull request). This means that if you depend on: `org.restassured:spring-web-test-client-kotlin-extensions:<version>` you can write code like this for Spring WebTest client:
+   val id: Int =
+   Given {
+       webTestClient(webTestClient)
+       param("name", "Johan")
+   } When {
+       get("/greeting")
+   } Then {
+       body(
+               "id", Matchers.equalTo(1),
+               "content", Matchers.equalTo("Hello, Johan!")
+       )
+   } Extract {
+       path("id")
+   }
 
 Changelog 5.3.2 (2023-09-08)
 ----------------------------
