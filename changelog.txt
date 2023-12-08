@@ -1,7 +1,7 @@
 Changelog next version
 ----------------------
 * Properly parse primitive JSON values (thanks to Jörg Eichhorn for pull request)
-* Upgraded to Groovy 4.0.14
+* Upgraded Groovy from 4.0.10 to 4.0.14
 * Fix issue #1713 - endless loop in partiallyApplyPathParams (thanks to Oleksandr Kulychok for pull request)
 * Introduce spring-web-test-client-kotlin-extensions (#1731) (thanks for TheDevLuffy for pull request). This means that if you depend on: `org.restassured:spring-web-test-client-kotlin-extensions:<version>` you can write code like this for Spring WebTest client:
    val id: Int =
@@ -20,6 +20,7 @@ Changelog next version
    }
 * Fix 1746: JsonPath: wrong result and exception when jsonPath partly evaluates to string/boolean/number (#1747) (thanks to Oleksandr Kulychok for pull request)
 * Add support for negative indexes in JsonPath (thanks to Oleksandr Kulychok for pull request). This means that you can now do e.g. String object = JsonPath.from("<some json>").getString("[-1].email");
+* Upgraded Kotlin from 1.9.10 to 1.9.21
 
 Changelog 5.3.2 (2023-09-08)
 ----------------------------

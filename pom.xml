@@ -69,11 +69,12 @@
         <jakarta.json.version>1.1.6</jakarta.json.version>
         <maven-javadoc.version>2.9.1</maven-javadoc.version>
         <surefire.version>2.22.0</surefire.version>
-        <kotlin.version>1.9.10</kotlin.version>
+        <kotlin.version>1.9.21</kotlin.version>
         <assertj-core.version>3.16.1</assertj-core.version>
         <scribe.version>2.5.3</scribe.version>
         <sundrio.version>0.93.0</sundrio.version>
         <guava.version>32.0.1-jre</guava.version>
+        <dokka.version>1.9.10</dokka.version>
     </properties>
     <scm>
         <url>http://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>

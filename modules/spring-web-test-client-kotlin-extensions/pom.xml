@@ -28,7 +28,6 @@
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <dokka.version>1.4.10.2</dokka.version>
     </properties>
 
     <dependencies>
@@ -141,14 +140,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <pluginRepositories>
-        <!-- The Dokka plugin is in JCenter-->
-        <pluginRepository>
-            <id>jcenter</id>
-            <name>JCenter</name>
-            <url>https://jcenter.bintray.com/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
 </project>
