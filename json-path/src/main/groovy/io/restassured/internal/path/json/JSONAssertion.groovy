@@ -38,7 +38,7 @@ class JSONAssertion implements Assertion {
       def root = 'restAssuredJsonRootObject'
       try {
         def expr
-        if (key =~ /^\[\d+\].*/) {
+        if (key =~ /^\[-?\d+].*/) {
           expr = "$root$key"
         } else {
           expr = "$root.$key"

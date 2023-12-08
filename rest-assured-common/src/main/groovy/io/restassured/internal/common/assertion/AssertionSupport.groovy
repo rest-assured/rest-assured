@@ -54,7 +54,7 @@ class AssertionSupport {
     new HyphenQuoteFragmentEscaper() {
       @Override
       boolean shouldEscape(String pathFragment) {
-        !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('-') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment])
+        !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('-') && !pathFragment.contains('[-') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment])
       }
     }
   }
