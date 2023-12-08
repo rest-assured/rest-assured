@@ -17,6 +17,7 @@
 package io.restassured.path.json;
 
 import io.restassured.path.json.config.JsonPathConfig;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -105,6 +106,19 @@ public class JsonPathNumberTest {
 
         // Then
         assertThat(orderNumber, equalTo(new BigInteger(EXPECTED_LONG)));
+    }
+
+    @Test public void
+    json_path_returns_big_integer_for_primitive_number_when_configured_accordingly() {
+        // Given
+        final JsonPath jsonPath = new JsonPath(
+                "12345").using(new JsonPathConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_INTEGER));
+
+        // When
+        BigInteger number = jsonPath.get("$");
+
+        // Then
+        assertThat(number, equalTo(new BigInteger("12345")));
     }
 
 }
