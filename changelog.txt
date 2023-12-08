@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 5.4.0 (2023-12-08)
+----------------------------
 * Properly parse primitive JSON values (thanks to Jörg Eichhorn for pull request)
 * Upgraded Groovy from 4.0.10 to 4.0.16
 * Introduce spring-web-test-client-kotlin-extensions (#1731) (thanks for TheDevLuffy for pull request). This means that if you depend on: `org.restassured:spring-web-test-client-kotlin-extensions:<version>` you can write code like this for Spring WebTest client:
