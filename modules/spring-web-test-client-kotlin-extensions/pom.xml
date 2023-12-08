@@ -23,7 +23,7 @@
         <version>5.3.3-SNAPSHOT</version>
     </parent>
     <artifactId>spring-web-test-client-kotlin-extensions</artifactId>
-    <version>6.0.0-SNAPSHOT</version>
+    <version>5.3.3-SNAPSHOT</version>
     <name>spring-web-test-client-kotlin-extensions</name>
     <url>http://maven.apache.org</url>
     <properties>
@@ -38,7 +38,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>spring-web-test-client</artifactId>
-            <version>6.0.0-SNAPSHOT</version>
+            <version>5.3.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
