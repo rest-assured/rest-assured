@@ -155,7 +155,6 @@ class RestAssuredResponseOptionsGroovyImpl {
 
   String print() {
     def string = asString()
-    content = string
     println string
     string
   }
