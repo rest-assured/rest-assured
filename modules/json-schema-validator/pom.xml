@@ -25,7 +25,7 @@
     <artifactId>json-schema-validator</artifactId>
     <version>5.4.1-SNAPSHOT</version>
     <name>json-schema-validator</name>
-    <url>http://maven.apache.org</url>
+    <url>https://rest-assured.io/</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
