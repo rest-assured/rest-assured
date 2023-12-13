@@ -26,7 +26,7 @@
     <artifactId>spring-mock-mvc-kotlin-extensions</artifactId>
     <version>5.4.1-SNAPSHOT</version>
     <name>spring-mock-mvc-kotlin-extensions</name>
-    <url>http://maven.apache.org</url>
+    <url>https://rest-assured.io/</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

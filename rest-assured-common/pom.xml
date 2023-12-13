@@ -27,7 +27,7 @@
     <packaging>bundle</packaging>
     <version>5.4.1-SNAPSHOT</version>
     <name>rest-assured-common</name>
-    <url>http://maven.apache.org</url>
+    <url>https://rest-assured.io/</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

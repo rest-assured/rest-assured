@@ -32,7 +32,7 @@
 
     <name>REST Assured</name>
     <description>Java DSL for easy testing of REST services</description>
-    <url>http://code.google.com/p/rest-assured</url>
+    <url>https://rest-assured.io/</url>
 
     <build>
         <plugins>
