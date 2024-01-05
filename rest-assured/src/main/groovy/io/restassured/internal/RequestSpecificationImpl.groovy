@@ -1432,15 +1432,15 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         def body = it.contentBody
         def controlName = it.controlName
         def headers = it.headers
-        if (headers.isEmpty()) {
-          entity.addPart(controlName, body)
-        } else {
-          def builder = FormBodyPartBuilder.create(controlName, body)
-          headers.each { name, value ->
-            builder.addField(name, value)
-          }
-          entity.addPart(builder.build())
+        def builder = FormBodyPartBuilder.create(controlName, body)
+        headers.each { name, value ->
+          builder.addField(name, value)
         }
+        def part = builder.build()
+        // note: as of org.apache.httpcomponents:httpmime:4.5.13 FormBodyPartBuilder adds `Content-Transfer-Encoding` header to
+        // each part, causing issues for sides that follow https://datatracker.ietf.org/doc/html/rfc7578#section-4.7
+        part.getHeader().removeFields("Content-Transfer-Encoding")
+        entity.addPart(part)
       }
 
       entity
