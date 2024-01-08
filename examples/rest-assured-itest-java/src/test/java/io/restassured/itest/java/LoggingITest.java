@@ -1384,7 +1384,7 @@ public class LoggingITest extends WithJetty {
         then().
                 statusCode(200);
 
-        assertThat(writer.toString(), equalTo(String.format("Request URI:\thttp://localhost:8080/greet?firstName=John#€&lastName=Doe%n")));
+        assertThat(writer.toString(), equalTo(String.format("Request URI:\thttp://localhost:8080/greet?firstName=John#?&lastName=Doe%n")));
     }
 
     // This was previously a bug (https://github.com/rest-assured/rest-assured/issues/684)

@@ -145,7 +145,7 @@ public class LogConfig implements Config {
     }
 
     /**
-     * Specify a whether or not to enable pretty printing by default.
+     * Specify whether or not to enable pretty printing by default.
      *
      * @param shouldEnable <code>true</code> if pretty-printing should be enabled, <code>false</code> otherwise.
      * @return A new LogConfig instance
