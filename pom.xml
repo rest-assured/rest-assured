@@ -26,7 +26,7 @@
     <groupId>io.rest-assured</groupId>
     <artifactId>rest-assured-parent</artifactId>
     <packaging>pom</packaging>
-    <version>5.3.3-SNAPSHOT</version>
+    <version>5.4.1-SNAPSHOT</version>
     <url>https://rest-assured.io/</url>
     <name>REST Assured Parent POM</name>
     <description>Java DSL for easy testing of REST services</description>
@@ -58,7 +58,7 @@
     <properties>
         <scm.branch>master</scm.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <groovy.version>4.0.11</groovy.version>
+        <groovy.version>4.0.16</groovy.version>
         <groovy.range>[4.0,5.0)</groovy.range>
         <gmaven.version>1.5</gmaven.version>
         <hamcrest.version>2.2</hamcrest.version>
@@ -69,11 +69,12 @@
         <jakarta.json.version>1.1.6</jakarta.json.version>
         <maven-javadoc.version>2.9.1</maven-javadoc.version>
         <surefire.version>2.22.0</surefire.version>
-        <kotlin.version>1.9.10</kotlin.version>
+        <kotlin.version>1.9.21</kotlin.version>
         <assertj-core.version>3.16.1</assertj-core.version>
         <scribe.version>2.5.3</scribe.version>
         <sundrio.version>0.93.0</sundrio.version>
         <guava.version>32.0.1-jre</guava.version>
+        <dokka.version>1.9.10</dokka.version>
     </properties>
     <scm>
         <url>http://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>

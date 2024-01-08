@@ -1,3 +1,26 @@
+Changelog 5.4.0 (2023-12-08)
+----------------------------
+* Properly parse primitive JSON values (thanks to Jörg Eichhorn for pull request)
+* Upgraded Groovy from 4.0.10 to 4.0.16
+* Introduce spring-web-test-client-kotlin-extensions (#1731) (thanks for TheDevLuffy for pull request). This means that if you depend on: `org.restassured:spring-web-test-client-kotlin-extensions:<version>` you can write code like this for Spring WebTest client:
+   val id: Int =
+   Given {
+       webTestClient(webTestClient)
+       param("name", "Johan")
+   } When {
+       get("/greeting")
+   } Then {
+       body(
+               "id", Matchers.equalTo(1),
+               "content", Matchers.equalTo("Hello, Johan!")
+       )
+   } Extract {
+       path("id")
+   }
+* Fix 1746: JsonPath: wrong result and exception when jsonPath partly evaluates to string/boolean/number (#1747) (thanks to Oleksandr Kulychok for pull request)
+* Add support for negative indexes in JsonPath (thanks to Oleksandr Kulychok for pull request). This means that you can now do e.g. String object = JsonPath.from("<some json>").getString("[-1].email");
+* Upgraded Kotlin from 1.9.10 to 1.9.21
+
 Changelog 5.3.2 (2023-09-08)
 ----------------------------
 * Add onFailMessage into validatable response (#1724). This means that you can use `onFailMessage` after `then` like: `when().get("/somewhere").then().onFailMessage("My fail message").statusCode(200);` (thanks to Ilya Koshaleu for pull request)

@@ -842,7 +842,7 @@ public interface RequestSpecification extends RequestSender {
      * <pre>
      * Header first = new Header("headerName1", "headerValue1");
      * Header second = new Header("headerName2", "headerValue2");
-     * Headers headers = new Header(first, second);
+     * Headers headers = new Headers(first, second);
      * given().headers(headers).then().expect().body(equalTo("something")).when().get("/headers");
      * </pre>
      * <p/>
