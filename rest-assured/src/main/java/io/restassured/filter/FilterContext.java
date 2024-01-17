@@ -27,7 +27,7 @@ import io.restassured.specification.RequestSender;
 public interface FilterContext {
 
     /**
-     * Add a value that may be used be subsequent filters.
+     * Add a value that may be used by subsequent filters.
      *
      * @param name  The name of the value
      * @param value The value itself

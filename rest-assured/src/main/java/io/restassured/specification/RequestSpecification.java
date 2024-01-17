@@ -1102,8 +1102,8 @@ public interface RequestSpecification extends RequestSender {
      * <pre>
      *     given().
      *              csrf("/users").
-     *              formParm("firstName", "John")
-     *              formParm("lastName", "Doe")
+     *              formParm("firstName", "John").
+     *              formParm("lastName", "Doe").
      *     when().
      *              post("/users").
      *     then().

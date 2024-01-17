@@ -542,7 +542,7 @@ public interface ResponseSpecification {
      *          body("w.something2", is(..)).
      * </pre>
      * <p/>
-     * This is the same as calling <code>rootPath("")</code> but less verbose and the it communicates intent better.
+     * This is the same as calling <code>rootPath("")</code> but less verbose and it communicates intent better.
      *
      * @see #rootPath(String)
      */
@@ -658,7 +658,7 @@ public interface ResponseSpecification {
      *          body("lastName", is(..)).
      * </pre>
      * <p/>
-     * you can use a append root and do:
+     * you can use a detach root and do:
      * <pre>
      * when().
      *          get(..);
