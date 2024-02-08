@@ -21,7 +21,6 @@ import io.restassured.builder.ResponseBuilder
 import io.restassured.filter.Filter
 import io.restassured.http.ContentType.JSON
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.catchThrowable
 import org.hamcrest.Matchers.*
 import org.junit.Before
 import org.junit.Test
@@ -141,7 +140,15 @@ class RestAssuredScalaExtensionsTest:
         )
     } catch {
       case e: AssertionError =>
-        assertThat(e).hasMessage("""1 expectation failed.
+        assertThat(e).hasMessage("""3 expectations failed.
                                    |Expected status code <400> but was <200>.
+                                   |
+                                   |JSON path message doesn't match.
+                                   |Expected: Another World
+                                   |  Actual: Hello World
+                                   |
+                                   |JSON path message doesn't match.
+                                   |Expected: Brave new world
+                                   |  Actual: Hello World
                                    |""".stripMargin)
     }

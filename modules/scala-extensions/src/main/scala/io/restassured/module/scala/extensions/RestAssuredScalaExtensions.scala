@@ -3,9 +3,8 @@ package io.restassured.module.scala.extensions
 import scala.util.chaining.*
 import scala.reflect.ClassTag
 import io.restassured.RestAssured.`given`
-import io.restassured.RestAssured.`when`
 import io.restassured.response.{ExtractableResponse, Response, ValidatableResponse}
-import io.restassured.specification.{RequestSender, RequestSpecification}
+import io.restassured.specification.RequestSpecification
 import io.restassured.internal.{ValidatableResponseImpl, ResponseSpecificationImpl}
 
 // Main wrappers
@@ -74,25 +73,6 @@ def Given(): RequestSpecification =
 extension (spec: RequestSpecification)
   infix def When(block: RequestSpecification => Response): Response =
     spec.`when`().pipe(block)
-
-/**
- * A wrapper around [io.restassured.RestAssured.when] to start building the DSL
- * expression by sending a request without any parameters or headers etc. E.g.
- * {{{
- * Given()
- *   .When(_.get("/x"))
- *   .Then(_.body("x.y.z1", equalTo("Z1")))
- * }}}
- * Note that if you need to add parameters, headers, cookies or other request
- * properties use the [[Given()]] method.
- *
- * @see
- *   io.restassured.RestAssured.when
- * @return
- *   A request sender interface that let's you call resources on the server
- */
-def When(block: RequestSender => Response): Response =
-  `when`().pipe(block)
 
 /**
  * A wrapper around [then] that lets you validate the response. Usage example:
@@ -170,4 +150,7 @@ extension [T](resp: ValidatableResponse)
 // End main wrappers
 
 private def doIfValidatableResponseImpl(fn: ResponseSpecificationImpl => Unit): ValidatableResponse => Unit =
-  resp => if resp.isInstanceOf[ValidatableResponseImpl] then fn(resp.asInstanceOf[ValidatableResponseImpl].responseSpec)
+  resp =>
+    resp match
+      case resp: ValidatableResponseImpl => fn(resp.responseSpec)
+      case _                             => ()
