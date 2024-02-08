@@ -4,9 +4,9 @@ import scala.util.chaining.*
 import scala.reflect.ClassTag
 import io.restassured.RestAssured.`given`
 import io.restassured.RestAssured.`when`
-import io.restassured.internal.{ResponseSpecificationImpl, ValidatableResponseImpl}
 import io.restassured.response.{ExtractableResponse, Response, ValidatableResponse}
 import io.restassured.specification.{RequestSender, RequestSpecification}
+import io.restassured.internal.{ValidatableResponseImpl, ResponseSpecificationImpl}
 
 // Main wrappers
 
@@ -32,7 +32,7 @@ import io.restassured.specification.{RequestSender, RequestSpecification}
  *   io.restassured.RestAssured.given
  */
 def Given(block: RequestSpecification => RequestSpecification): RequestSpecification =
-    `given`().tap(block)
+  `given`().pipe(block)
 
 /**
  * A wrapper around [given] that starts building the request part of the test.
@@ -53,7 +53,7 @@ def Given(block: RequestSpecification => RequestSpecification): RequestSpecifica
  *   io.restassured.RestAssured.given
  */
 def Given(): RequestSpecification =
-    `given`()
+  `given`()
 
 /**
  * A wrapper around [io.restassured.RestAssured.when] to start building the DSL
@@ -72,8 +72,8 @@ def Given(): RequestSpecification =
  *   A request sender interface that let's you call resources on the server
  */
 extension (spec: RequestSpecification)
-    infix def When(block: RequestSpecification => Response): Response =
-        block(spec.`when`())
+  infix def When(block: RequestSpecification => Response): Response =
+    spec.`when`().pipe(block)
 
 /**
  * A wrapper around [io.restassured.RestAssured.when] to start building the DSL
@@ -92,12 +92,10 @@ extension (spec: RequestSpecification)
  *   A request sender interface that let's you call resources on the server
  */
 def When(block: RequestSender => Response): Response =
-    block(`when`())
-
+  `when`().pipe(block)
 
 /**
- * A wrapper around [then] that lets you validate the response.
- * Usage example:
+ * A wrapper around [then] that lets you validate the response. Usage example:
  * {{{
  * Given(_.params("firstName", "John")
  *  .When(_.post("/greetXML"))
@@ -108,9 +106,12 @@ def When(block: RequestSender => Response): Response =
  *   A validatable response
  */
 extension (resp: Response)
-    infix def Then(block: ValidatableResponse => Unit): ValidatableResponse =
-        resp.`then`()
-        .tap(block)
+  infix def Then(block: ValidatableResponse => ValidatableResponse): ValidatableResponse =
+    resp
+      .`then`()
+      .tap(doIfValidatableResponseImpl(resp => resp.forceDisableEagerAssert()))
+      .pipe(block)
+      .tap(doIfValidatableResponseImpl(resp => resp.forceValidateResponse()))
 
 /**
  * A wrapper around [ExtractableResponse] that lets you validate the response.
@@ -121,26 +122,23 @@ extension (resp: Response)
  *  .Then(_.body("greeting.firstName", equalTo("John")))
  *  .Extract(_.path("greeting.firstName"))
  * }}}
- * The above code will send a POST request to "/greetXML" with request parameters
- * `firstName=John` and `lastName=Doe` and expect that the response body
- * containing JSON or XML firstName equal to John.
- * The response is then validated and the firstName is extracted from the response.
- * The extracted firstName is then returned. The type of the extracted value is
- * needs to be specified as a type parameter.
+ * The above code will send a POST request to "/greetXML" with request
+ * parameters `firstName=John` and `lastName=Doe` and expect that the response
+ * body containing JSON or XML firstName equal to John. The response is then
+ * validated and the firstName is extracted from the response. The extracted
+ * firstName is then returned. The type of the extracted value is needs to be
+ * specified as a type parameter.
  *
  * @return
  *   The extracted value
  */
-extension [T]( resp: Response )
-    infix def Extract(
-        block: ExtractableResponse[Response] => T
-      )(
-        using ClassTag[T]
-      ): T =
-        val res = resp.`then`().extract().pipe(block)
-        summon[ClassTag[T]].runtimeClass match
-            case cls if cls.isAssignableFrom(res.getClass) => res.asInstanceOf[T]
-            case _                                         => throw new Exception("Unsupported type")
+extension [T](resp: Response)
+  infix def Extract(
+    block: ExtractableResponse[Response] => T
+  )(using
+    ClassTag[T]
+  ): T =
+    resp.`then`().extract().pipe(block)
 
 /**
  * A wrapper around [ValidatableResponse] that lets you validate the response.
@@ -151,29 +149,25 @@ extension [T]( resp: Response )
  *  .Then(_.body("greeting.firstName", equalTo("John")))
  *  .Extract(_.path("greeting.firstName"))
  * }}}
- * The above code will send a POST request to "/greetXML" with request parameters
- * `firstName=John` and `lastName=Doe` and expect that the response body
- * containing JSON or XML firstName equal to John.
- * The response is then validated and the firstName is extracted from the response.
- * The extracted firstName is then returned. The type of the extracted value is
- * needs to be specified as a type parameter.
+ * The above code will send a POST request to "/greetXML" with request
+ * parameters `firstName=John` and `lastName=Doe` and expect that the response
+ * body containing JSON or XML firstName equal to John. The response is then
+ * validated and the firstName is extracted from the response. The extracted
+ * firstName is then returned. The type of the extracted value is needs to be
+ * specified as a type parameter.
  *
  * @return
  *   The extracted value
  */
-extension [T]( resp: ValidatableResponse )
-    infix def Extract(
-        block: ExtractableResponse[Response] => T
-      )(
-        using ClassTag[T]
-      ): T =
-        val res = resp.extract().pipe(block)
-        summon[ClassTag[T]].runtimeClass match
-            case cls if cls.isAssignableFrom(res.getClass) => res.asInstanceOf[T]
-            case _                                         => throw new Exception("Unsupported type")
+extension [T](resp: ValidatableResponse)
+  infix def Extract(
+    block: ExtractableResponse[Response] => T
+  )(using
+    ClassTag[T]
+  ): T =
+    resp.extract().pipe(block)
 
 // End main wrappers
 
 private def doIfValidatableResponseImpl(fn: ResponseSpecificationImpl => Unit): ValidatableResponse => Unit =
-    resp =>
-        if resp.isInstanceOf[ValidatableResponseImpl] then fn(resp.asInstanceOf[ValidatableResponseImpl].responseSpec)
+  resp => if resp.isInstanceOf[ValidatableResponseImpl] then fn(resp.asInstanceOf[ValidatableResponseImpl].responseSpec)

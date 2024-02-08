@@ -28,111 +28,120 @@ import org.junit.Test
 
 class RestAssuredScalaExtensionsTest:
 
-    @Before
-    def `rest assured is configured`: Unit = {
-      RestAssured.filters((_, _, _) => {
-        new ResponseBuilder() .setStatusCode(200) .setContentType(JSON) .setBody("""{ "message" : "Hello World"}""").build()
-      })
+  @Before
+  def `rest assured is configured`: Unit =
+    RestAssured.filters { (_, _, _) =>
+      new ResponseBuilder()
+        .setStatusCode(200)
+        .setContentType(JSON)
+        .setBody("""{ "message" : "Hello World"}""")
+        .build()
     }
 
+  @Test
+  def `rest assured is reset after each test`: Unit =
+    RestAssured.reset()
 
-    @Test
-    def `rest assured is reset after each test`: Unit =
-        RestAssured.reset()
+  @Test
+  def `basic rest assured scala extensions are compilable`: Unit =
+    Given(req =>
+      req.port(7000)
+      req.header("Header", "Header")
+      req.body("hello")
+    )
+      .When(
+        _.put("/the/path")
+      )
+      .Then(res =>
+        res.statusCode(200)
+        res.body("message", equalTo("Hello World"))
+      )
 
-    @Test
-    def `basic rest assured scala extensions are compilable`: Unit =
-        Given(req =>
-            req.port(7000)
-            req.header("Header", "Header")
-            req.body("hello")
-        )
+  @Test
+  def `extraction with rest assured scala extensions`: Unit =
+    val message: String = Given(req =>
+      req.port(7000)
+      req.header("Header", "Header")
+      req.body("hello")
+    )
+      .When(
+        _.put("/the/path")
+      )
+      .Extract(
+        _.path("message")
+      )
+    assertThat(message).isEqualTo("Hello World")
+
+  @Test
+  def `extraction after 'then', when path is not used in 'Then',  with rest assured scala extensions`: Unit =
+    val message: String = Given(req =>
+      req.port(7000)
+      req.header("Header", "Header")
+      req.body("hello")
+      req.filter((_, _, _) =>
+        new ResponseBuilder()
+          .setStatusCode(200)
+          .setContentType(JSON)
+          .setBody("""{ "message" : "Hello World"}""")
+          .build()
+      )
+    )
+      .When(
+        _.put("/the/path")
+      )
+      .Then(
+        _.statusCode(200)
+      )
+      .Extract(
+        _.path("message")
+      )
+    assertThat(message).isEqualTo("Hello World")
+
+  @Test
+  def `extraction after 'then', when path is used in 'Then',  with rest assured scala extensions`: Unit =
+    val message: String = Given(req =>
+      req.port(7000)
+      req.header("Header", "Header")
+      req.body("hello")
+      req.filter((_, _, _) =>
+        new ResponseBuilder()
+          .setStatusCode(200)
+          .setContentType(JSON)
+          .setBody("""{ "message" : "Hello World"}""")
+          .build()
+      )
+    )
+      .When(
+        _.put("/the/path")
+      )
+      .Then(res =>
+        res.statusCode(200)
+        res.body("message", not(emptyOrNullString()))
+      )
+      .Extract(
+        _.path("message")
+      )
+    assertThat(message).isEqualTo("Hello World")
+
+  @Test
+  def `all expectations error messages are included in the error message`: Unit =
+    try {
+      Given(req =>
+        req.port(7000)
+        req.header("Header", "Header")
+        req.body("hello")
+      )
         .When(
-            _.put("/the/path")
+          _.put("/the/path")
         )
         .Then(res =>
-            res.statusCode(200)
-            res.body("message", equalTo("Hello World"))
+          res.statusCode(400)
+          res.body("message", equalTo("Another World"))
+          res.body("message", equalTo("Brave new world"))
         )
-
-    @Test
-    def `extraction with rest assured scala extensions`: Unit =
-        val message: String = Given(req =>
-            req.port(7000)
-            req.header("Header", "Header")
-            req.body("hello")
-        )
-        .When(
-            _.put("/the/path")
-        )
-        .Extract(
-            _.path("message")
-        )
-        assertThat(message).isEqualTo("Hello World")
-
-    @Test
-    def `extraction after 'then', when path is not used in 'Then',  with rest assured scala extensions`: Unit =
-        val message: String = Given(req =>
-            req.port(7000)
-            req.header("Header", "Header")
-            req.body("hello")
-            req.filter((_, _, _) =>
-                new ResponseBuilder().setStatusCode(200).setContentType(JSON).setBody("""{ "message" : "Hello World"}""").build()
-            )
-        )
-        .When(
-            _.put("/the/path")
-        )
-        .Then(
-            _.statusCode(200)
-        )
-        .Extract(
-            _.path("message")
-        )
-        assertThat(message).isEqualTo("Hello World")
-
-    @Test
-    def `extraction after 'then', when path is used in 'Then',  with rest assured scala extensions`: Unit =
-        val message: String = Given(req =>
-            req.port(7000)
-            req.header("Header", "Header")
-            req.body("hello")
-            req.filter((_, _, _) =>
-                new ResponseBuilder().setStatusCode(200).setContentType(JSON).setBody("""{ "message" : "Hello World"}""").build()
-            )
-        )
-        .When(
-            _.put("/the/path")
-        )
-        .Then(res =>
-            res.statusCode(200)
-            res.body("message", not(emptyOrNullString()))
-        )
-        .Extract(
-            _.path("message")
-        )
-        assertThat(message).isEqualTo("Hello World")
-
-    @Test
-    def `all expectations error messages are included in the error message`: Unit =
-        try {
-            Given(req =>
-                req.port(7000)
-                req.header("Header", "Header")
-                req.body("hello")
-            )
-            .When(
-                _.put("/the/path")
-            )
-            .Then(res =>
-                res.statusCode(400)
-                res.body("message", equalTo("Another World"))
-                res.body("message", equalTo("Brave new world"))
-            )
-        } catch {
-            case e: AssertionError =>
-                assertThat(e).hasMessage(
-                    """1 expectation failed.
-                      |Expected status code <400> but was <200>.
-                      |""".stripMargin)
-        }
+    } catch {
+      case e: AssertionError =>
+        assertThat(e).hasMessage("""1 expectation failed.
+                                   |Expected status code <400> but was <200>.
+                                   |""".stripMargin)
+    }
