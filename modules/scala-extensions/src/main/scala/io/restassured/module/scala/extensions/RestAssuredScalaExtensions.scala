@@ -1,11 +1,12 @@
 package io.restassured.module.scala.extensions
 
-import scala.util.chaining.*
 import scala.reflect.ClassTag
+import scala.util.chaining.*
+
 import io.restassured.RestAssured.`given`
+import io.restassured.internal.{ResponseSpecificationImpl, ValidatableResponseImpl}
 import io.restassured.response.{ExtractableResponse, Response, ValidatableResponse}
 import io.restassured.specification.RequestSpecification
-import io.restassured.internal.{ValidatableResponseImpl, ResponseSpecificationImpl}
 
 // Main wrappers
 
@@ -54,38 +55,42 @@ def Given(block: RequestSpecification => RequestSpecification): RequestSpecifica
 def Given(): RequestSpecification =
   `given`()
 
-/**
- * A wrapper around [io.restassured.RestAssured.when] to start building the DSL
- * expression by sending a request without any parameters or headers etc. E.g.
- * {{{
- * Given()
- *   .When(_.get("/x"))
- *   .Then(_.body("x.y.z1", equalTo("Z1")))
- * }}}
- * Note that if you need to add parameters, headers, cookies or other request
- * properties use the [[Given()]] method.
- *
- * @see
- *   io.restassured.RestAssured.when
- * @return
- *   A request sender interface that let's you call resources on the server
- */
 extension (spec: RequestSpecification)
+  /**
+   * A wrapper around [io.restassured.RestAssured.when] to start building the
+   * DSL expression by sending a request without any parameters or headers etc.
+   * E.g.
+   * {{{
+   * Given()
+   *   .When(_.get("/x"))
+   *   .Then(_.body("x.y.z1", equalTo("Z1")))
+   * }}}
+   * Note that if you need to add parameters, headers, cookies or other request
+   * properties use the [[Given()]] method.
+   *
+   * @see
+   *   io.restassured.RestAssured.when
+   * @return
+   *   A request sender interface that let's you call resources on the server
+   */
   infix def When(block: RequestSpecification => Response): Response =
     spec.`when`().pipe(block)
 
-/**
- * A wrapper around [then] that lets you validate the response. Usage example:
- * {{{
- * Given(_.params("firstName", "John")
- *  .When(_.post("/greetXML"))
- *  .Then(_.body("greeting.firstName", equalTo("John")))
- * }}}
- *
- * @return
- *   A validatable response
- */
 extension (resp: Response)
+  /**
+   * A wrapper around [then] that lets you validate the response. This method
+   * returns a [[ValidatableResponse]] that lets you chain validation methods or
+   * extract values from the response with the [[Extract]] method. Usage
+   * example:
+   * {{{
+   * Given(_.params("firstName", "John")
+   *  .When(_.post("/greetXML"))
+   *  .Then(_.body("greeting.firstName", equalTo("John")))
+   * }}}
+   *
+   * @return
+   *   A validatable response
+   */
   infix def Then(block: ValidatableResponse => ValidatableResponse): ValidatableResponse =
     resp
       .`then`()
@@ -93,26 +98,44 @@ extension (resp: Response)
       .pipe(block)
       .tap(doIfValidatableResponseImpl(resp => resp.forceValidateResponse()))
 
-/**
- * A wrapper around [ExtractableResponse] that lets you validate the response.
- * Usage example:
- * {{{
- * val firstName: String = Given(_.params("firstName", "John")
- *  .When(_.post("/greetXML"))
- *  .Then(_.body("greeting.firstName", equalTo("John")))
- *  .Extract(_.path("greeting.firstName"))
- * }}}
- * The above code will send a POST request to "/greetXML" with request
- * parameters `firstName=John` and `lastName=Doe` and expect that the response
- * body containing JSON or XML firstName equal to John. The response is then
- * validated and the firstName is extracted from the response. The extracted
- * firstName is then returned. The type of the extracted value is needs to be
- * specified as a type parameter.
- *
- * @return
- *   The extracted value
- */
+  /**
+   * A wrapper around [then] that lets you validate the response. This method is
+   * an overloaded version of [Then] that returns Unit so it's automatically
+   * picked-up by test frameworks like JUnit which expect tests to return Unit.
+   * Usage example:
+   * {{{
+   * Given(_.params("firstName", "John")
+   *  .When(_.post("/greetXML"))
+   *  .ThenAssert(_.body("greeting.firstName", equalTo("John")))
+   * }}}
+   *
+   * @return
+   *   A validatable response
+   */
+  infix def ThenAssert(block: ValidatableResponse => ValidatableResponse): Unit =
+    resp.Then(block)
+end extension
+
 extension [T](resp: Response)
+  /**
+   * A wrapper around [ExtractableResponse] that lets you validate the response.
+   * Usage example:
+   * {{{
+   * val firstName: String = Given(_.params("firstName", "John")
+   *  .When(_.post("/greetXML"))
+   *  .Then(_.body("greeting.firstName", equalTo("John")))
+   *  .Extract(_.path("greeting.firstName"))
+   * }}}
+   * The above code will send a POST request to "/greetXML" with request
+   * parameters `firstName=John` and `lastName=Doe` and expect that the response
+   * body containing JSON or XML firstName equal to John. The response is then
+   * validated and the firstName is extracted from the response. The extracted
+   * firstName is then returned. The type of the extracted value is needs to be
+   * specified as a type parameter.
+   *
+   * @return
+   *   The extracted value
+   */
   infix def Extract(
     block: ExtractableResponse[Response] => T
   )(using
@@ -120,26 +143,26 @@ extension [T](resp: Response)
   ): T =
     resp.`then`().extract().pipe(block)
 
-/**
- * A wrapper around [ValidatableResponse] that lets you validate the response.
- * Usage example:
- * {{{
- * val firstName: String = Given(_.params("firstName", "John")
- *  .When(_.post("/greetXML"))
- *  .Then(_.body("greeting.firstName", equalTo("John")))
- *  .Extract(_.path("greeting.firstName"))
- * }}}
- * The above code will send a POST request to "/greetXML" with request
- * parameters `firstName=John` and `lastName=Doe` and expect that the response
- * body containing JSON or XML firstName equal to John. The response is then
- * validated and the firstName is extracted from the response. The extracted
- * firstName is then returned. The type of the extracted value is needs to be
- * specified as a type parameter.
- *
- * @return
- *   The extracted value
- */
 extension [T](resp: ValidatableResponse)
+  /**
+   * A wrapper around [ValidatableResponse] that lets you validate the response.
+   * Usage example:
+   * {{{
+   * val firstName: String = Given(_.params("firstName", "John")
+   *  .When(_.post("/greetXML"))
+   *  .Then(_.body("greeting.firstName", equalTo("John")))
+   *  .Extract(_.path("greeting.firstName"))
+   * }}}
+   * The above code will send a POST request to "/greetXML" with request
+   * parameters `firstName=John` and `lastName=Doe` and expect that the response
+   * body containing JSON or XML firstName equal to John. The response is then
+   * validated and the firstName is extracted from the response. The extracted
+   * firstName is then returned. The type of the extracted value is needs to be
+   * specified as a type parameter.
+   *
+   * @return
+   *   The extracted value
+   */
   infix def Extract(
     block: ExtractableResponse[Response] => T
   )(using

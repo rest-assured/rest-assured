@@ -72,6 +72,22 @@ class RestAssuredScalaExtensionsTest:
     assertThat(message).isEqualTo("Hello World")
 
   @Test
+  def `validation with rest assured scala extensions using ThenAssert returning Unit`: Unit =
+    val result = Given(req =>
+      req.port(7000)
+      req.header("Header", "Header")
+      req.body("hello")
+    )
+      .When(
+        _.put("/the/path")
+      )
+      .ThenAssert(res =>
+        res.statusCode(200)
+        res.body("message", equalTo("Hello World"))
+      )
+    assertThat(result).isEqualTo(())
+
+  @Test
   def `extraction after 'then', when path is not used in 'Then',  with rest assured scala extensions`: Unit =
     val message: String = Given(req =>
       req.port(7000)
