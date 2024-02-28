@@ -210,10 +210,6 @@ public class ResponseBuilder {
     public Response build() {
         final int statusCode = restAssuredResponse.statusCode();
 
-        if (statusCode < 100 || statusCode >= 600) {
-            throw new IllegalArgumentException(format("Status code must be greater than 100 and less than 600, was %d.", statusCode));
-        }
-
         if (StringUtils.isBlank(restAssuredResponse.statusLine())) {
             restAssuredResponse.setStatusLine(restAssuredResponse.statusCode());
         }
