@@ -16,6 +16,7 @@
 
 package io.restassured.module.mockmvc.specification;
 
+import io.restassured.config.SessionConfig;
 import io.restassured.http.*;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
@@ -358,6 +359,16 @@ public interface MockMvcRequestSpecification extends MockMvcRequestSender {
      * @return The request specification
      */
     MockMvcRequestSpecification queryParam(String parameterName, Collection<?> parameterValues);
+
+    /**
+     * Adds an optional query parameter to the request if the parameter value is not {@code null}.
+     * The parameter name must not be null and must pass the {@code notNull} validation.
+     *
+     * @param parameterName   The parameter name
+     * @param parameterValue The value of the query parameter as an object. If this value is {@code null}, no query parameter is added.
+     *                       If not null, the query parameter is added with the given parameter name and value.
+     */
+    MockMvcRequestSpecification optionalQueryParam(String parameterName, Object parameterValue);
 
     /**
      * Specify the path parameters that'll be sent with the request.
