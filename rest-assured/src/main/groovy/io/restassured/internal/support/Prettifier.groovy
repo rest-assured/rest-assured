@@ -52,7 +52,19 @@ class Prettifier {
     prettify(responseAsString, parser)
   }
 
-  String prettify(String body, Parser parser) {
+  String prettify(Object content, Parser parser) {
+    if (content == null) {
+      return "";
+    }
+
+    if (content instanceof File) {
+      return prettifyBy(new String(content.readBytes()), parser)
+    }
+
+    return prettifyBy(content.toString(), parser);
+  }
+
+  private String prettifyBy(String body, Parser parser) {
     String prettifiedBody
     try {
       switch (parser) {
