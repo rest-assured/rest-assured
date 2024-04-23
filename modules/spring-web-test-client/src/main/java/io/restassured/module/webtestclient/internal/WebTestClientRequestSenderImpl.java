@@ -503,20 +503,6 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		return uriContainerBuilder.uri(uriWithoutPathParams).build();
 	}
 
-	private void validateUnnamedPathParams(final Object[] unnamedPathParams) {
-		Arrays.stream(unnamedPathParams).filter(param -> !(param instanceof String))
-				.findAny().ifPresent(param -> {
-			throw new IllegalArgumentException("Only Strings allowed in path parameters.");
-		});
-	}
-
-	private void validateNamedPathParams(final Map<String, Object> namedPathParams) {
-		namedPathParams.entrySet().stream().filter(e -> !(e.getValue() instanceof String))
-				.findAny().ifPresent(param -> {
-					throw new IllegalArgumentException("Only Strings allowed in path parameters.");
-				});
-	}
-
 	private void verifyNoBodyAndMultipartTogether() {
 		if (requestBody != null && !multiParts.isEmpty()) {
 			throw new IllegalStateException("You cannot specify a request body and a multi-part body in the same request." +
@@ -581,9 +567,6 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 			final String baseUri,
 			final Object[] unnamedPathParams
 	) {
-		validateUnnamedPathParams(unnamedPathParams);
-		validateNamedPathParams(namedPathParams);
-
 		final Matcher pathParamMatcher = PATH_PARAM_PATTERN.matcher(baseUri);
 		if (!pathParamMatcher.find()) {
 			return;
