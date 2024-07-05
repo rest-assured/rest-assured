@@ -39,7 +39,7 @@
     <licenses>
         <license>
             <name>Apache 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -48,7 +48,7 @@
             <name>Johan Haleby</name>
             <id>johan.haleby</id>
             <organization>Jayway</organization>
-            <organizationUrl>http://www.jayway.com</organizationUrl>
+            <organizationUrl>https://www.jayway.com</organizationUrl>
             <email>johan.haleby at gmail.com</email>
             <timezone>+1</timezone>
             <roles>
@@ -79,14 +79,14 @@
         <dokka.version>1.9.10</dokka.version>
     </properties>
     <scm>
-        <url>http://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>
+        <url>https://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>
         <connection>scm:git:git://github.com/rest-assured/rest-assured.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/rest-assured/rest-assured.git</developerConnection>
     </scm>
     <mailingLists>
         <mailingList>
             <name>rest-assured mailing-list</name>
-            <archive>http://groups.google.com/group/rest-assured/topics</archive>
+            <archive>https://groups.google.com/group/rest-assured/topics</archive>
         </mailingList>
     </mailingLists>
     <modules>
