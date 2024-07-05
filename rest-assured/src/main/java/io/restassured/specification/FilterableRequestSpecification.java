@@ -60,7 +60,7 @@ public interface FilterableRequestSpecification extends QueryableRequestSpecific
     FilterableRequestSpecification removePathParam(String parameterName);
 
     /**
-     * Remove a named path parameter from the request. It will remove both named and unnamed path parameters.
+     * Remove a named path parameter from the request.
      *
      * @param parameterName The parameter key
      * @return The {@link FilterableRequestSpecification} without the parameter
@@ -124,7 +124,7 @@ public interface FilterableRequestSpecification extends QueryableRequestSpecific
     FilterableRequestSpecification removeCookie(Cookie cookie);
 
     /**
-     * Replace a header with the new value. If the headerName doesn't exist the will be added.
+     * Replace a header with the new value. If the headerName doesn't exist it will be added.
      *
      * @param headerName The header name to replace
      * @return The {@link FilterableRequestSpecification} with the replaced header
