@@ -217,7 +217,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             } catch(IllegalArgumentException e) {
             	// Do nothing as only found on MockCookie
             }
-            
+
             try {
                 ZonedDateTime expires = invokeMethod(servletCookie, "getExpires");
                 if(expires != null) {
@@ -322,20 +322,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return builder.toString();
     }
 
-    private void validateUnnamedPathParams(final Object[] unnamedPathParams) {
-        Arrays.stream(unnamedPathParams).filter(param -> !(param instanceof String))
-                .findAny().ifPresent(param -> {
-                    throw new IllegalArgumentException("Only Strings allowed in path parameters.");
-                });
-    }
-
-    private void validateNamedPathParams(final Map<String, Object> namedPathParams) {
-        namedPathParams.entrySet().stream().filter(e -> !(e.getValue() instanceof String))
-                .findAny().ifPresent(param -> {
-                    throw new IllegalArgumentException("Only Strings allowed in path parameters.");
-                });
-    }
-
     private MockMvcResponse sendRequest(HttpMethod method, String path, Object[] unnamedPathParams) {
         notNull(path, "Path");
         verifyNoBodyAndMultipartTogether();
@@ -413,9 +399,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             final String baseUri,
             final Object[] unnamedPathParams
     ) {
-        validateUnnamedPathParams(unnamedPathParams);
-        validateNamedPathParams(namedPathParams);
-
         final Matcher pathParamMatcher = PATH_PARAM_PATTERN.matcher(baseUri);
         if (!pathParamMatcher.find()) {
             return;
