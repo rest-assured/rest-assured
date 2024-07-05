@@ -3,6 +3,7 @@ Changelog next version
 * Removing custom validation of pathParams in the mock-mvc module and instead rely on the Spring implementation(issue 1782) (thanks to taeyeon-Kim for pull request)
 * Fixing "Error java.lang.NoSuchMethodError for HttpMethod.resolve()" in mock-mvc module (issue 1760) (thanks to d0vi for pull request)
 * Fix #1707: SVG file upload - fatal error :1:1: content is not allowed in prolog (#1777) (thanks to Byounghee kim for pull request)
+* Fix #1773: Remove check for response HTTP status code. (thanks to macmon for pull request)
 
 Changelog 5.4.0 (2023-12-08)
 ----------------------------
