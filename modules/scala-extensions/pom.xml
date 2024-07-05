@@ -30,7 +30,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scala-maven-plugin.version>4.9.2</scala-maven-plugin.version>
-        <scala.version>3.3.3</scala.version>
+        <scala.version>3.4.2</scala.version>
     </properties>
 
     <dependencies>
@@ -91,6 +91,22 @@
                                 <goals>
                                     <goal>doc-jar</goal>
                                 </goals>
+                                <!-- Workaround for bug in scala-maven-plugin, see https://github.com/davidB/scala-maven-plugin/issues/604 -->
+                                <configuration>
+                                    <scaladocClassName>dotty.tools.scaladoc.Main</scaladocClassName>
+                                    <sourceDir>${project.build.outputDirectory}</sourceDir>
+                                    <args>-nobootcp</args>
+                                    <includes>
+                                        <include>**/*.tasty</include>
+                                    </includes>
+                                    <dependencies>
+                                        <dependency>
+                                            <groupId>org.scala-lang</groupId>
+                                            <artifactId>scaladoc_3</artifactId>
+                                            <version>${scala.version}</version>
+                                        </dependency>
+                                    </dependencies>
+                                </configuration>
                             </execution>
                         </executions>
                         <configuration>
