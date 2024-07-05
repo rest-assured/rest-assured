@@ -1,6 +1,7 @@
 Changelog next version
 ----------------------
-* Removing custom validation of pathParams in the mock-mvc module and instead rely on the Spring implementation(issue 1782) (Thanks to taeyeon-Kim for pull request)
+* Removing custom validation of pathParams in the mock-mvc module and instead rely on the Spring implementation(issue 1782) (thanks to taeyeon-Kim for pull request)
+* Fixing "Error java.lang.NoSuchMethodError for HttpMethod.resolve()" in mock-mvc module (issue 1760) (thanks to d0vi for pull request)
 
 Changelog 5.4.0 (2023-12-08)
 ----------------------------
