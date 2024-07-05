@@ -92,7 +92,7 @@ class SpecificationMergerTest {
 
     SpecificationMerger.merge(merge, with)
 
-    assertEquals 1, merge.filters.size()
+    assertEquals 1, merge.filters.size
   }
 
   @Test
@@ -152,7 +152,7 @@ class SpecificationMergerTest {
 
     SpecificationMerger.merge(merge, with)
 
-    assertTrue merge.multiParts.size() == 2
+    assertTrue merge.multiParts.size == 2
   }
 
 
