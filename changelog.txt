@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* Removing custom validation of pathParams in the mock-mvc module and instead rely on the Spring implementation(issue 1782) (Thanks to taeyeon-Kim for pull request)
+
 Changelog 5.4.0 (2023-12-08)
 ----------------------------
 * Properly parse primitive JSON values (thanks to Jörg Eichhorn for pull request)
