@@ -22,6 +22,7 @@ Changelog next version
     assertThat(message).isEqualTo("Hello World")
   (thanks to Carlos Eduardo for pull request)
 * Remove deprecated Content-Transfer-Encoding from multipart post headers (#1762) (thanks to Michal Trna for pull request)
+* Fixed pathParams double encoding in mock-mvd module (#1756) (thanks to Dmitry Kaukov for pull request)
 
 Changelog 5.4.0 (2023-12-08)
 ----------------------------
