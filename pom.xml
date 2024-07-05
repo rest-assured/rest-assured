@@ -76,7 +76,7 @@
         <scribe.version>2.5.3</scribe.version>
         <sundrio.version>0.93.0</sundrio.version>
         <guava.version>32.0.1-jre</guava.version>
-        <dokka.version>1.9.10</dokka.version>
+        <dokka.version>1.9.20</dokka.version>
     </properties>
     <scm>
         <url>https://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>
