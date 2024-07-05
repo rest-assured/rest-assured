@@ -835,10 +835,6 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
     private HttpMethod toValidHttpMethod(String method) {
         String httpMethodAsString = notNull(trimToNull(method), "HTTP Method");
-        HttpMethod httpMethod = HttpMethod.resolve(httpMethodAsString.toUpperCase());
-        if (httpMethod == null) {
-            throw new IllegalArgumentException("HTTP method '" + method + "' is not supported by MockMvc");
-        }
-        return httpMethod;
+        return HttpMethod.valueOf(httpMethodAsString.toUpperCase());
     }
 }
