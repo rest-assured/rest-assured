@@ -145,7 +145,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 
 	private HttpMethod toValidHttpMethod(String method) {
 		String httpMethodAsString = notNull(trimToNull(method), "HTTP Method");
-		return HttpMethod.valueOf(httpMethodAsString.toUpperCase());
+		try {
+			return HttpMethod.valueOf(httpMethodAsString.toUpperCase());
+		} catch (IllegalArgumentException e) {
+			throw new IllegalArgumentException(String.format("HTTP method '%s' is not supported by WebTestClient", method));
+		}
 	}
 
 	@Override
