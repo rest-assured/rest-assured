@@ -20,10 +20,10 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>5.4.1-SNAPSHOT</version>
+        <version>5.5.0</version>
     </parent>
     <artifactId>spring-web-test-client-kotlin-extensions</artifactId>
-    <version>5.4.1-SNAPSHOT</version>
+    <version>5.5.0</version>
     <name>spring-web-test-client-kotlin-extensions</name>
     <url>https://rest-assured.io/</url>
     <properties>
@@ -39,7 +39,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>spring-web-test-client</artifactId>
-            <version>5.4.1-SNAPSHOT</version>
+            <version>5.5.0</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
