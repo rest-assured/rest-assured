@@ -18,6 +18,10 @@ package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.MultipartController;
 import org.junit.Test;
+import org.springframework.http.MediaType;
+import org.springframework.util.ResourceUtils;
+
+import java.io.File;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.hamcrest.Matchers.equalTo;
@@ -31,6 +35,45 @@ public class MockMvcMultipartTest {
         RestAssuredMockMvc.given()
                 .standaloneSetup(new MultipartController())
                 .multiPart("file", "Test")
+                .when()
+                .post("/files/{type}", (Object[]) "type".split("\\|"))
+                .then()
+                .log().all()
+                .time(lessThan(3L), SECONDS)
+                .expect(status().is2xxSuccessful())
+                .body("type", equalTo("type"))
+                .body("name", equalTo("file"));
+    }
+
+
+    @Test
+    public void can_use_multipart_with_jsonFile() throws Exception{
+        File xml = ResourceUtils.getFile("classpath:multipart.xml");
+
+        RestAssuredMockMvc.given()
+                .standaloneSetup(new MultipartController())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .multiPart("file", xml, MediaType.APPLICATION_XML_VALUE)
+                .log().all()
+                .when()
+                .post("/files/{type}", (Object[]) "type".split("\\|"))
+                .then()
+                .log().all()
+                .time(lessThan(3L), SECONDS)
+                .expect(status().is2xxSuccessful())
+                .body("type", equalTo("type"))
+                .body("name", equalTo("file"));
+    }
+
+    @Test
+    public void can_use_multipart_with_xmlJson() throws Exception{
+        File json = ResourceUtils.getFile("classpath:multipart.json");
+
+        RestAssuredMockMvc.given()
+                .standaloneSetup(new MultipartController())
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .multiPart("file", json, MediaType.APPLICATION_JSON_VALUE)
+                .log().all()
                 .when()
                 .post("/files/{type}", (Object[]) "type".split("\\|"))
                 .then()

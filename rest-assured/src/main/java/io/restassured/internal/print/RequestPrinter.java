@@ -233,7 +233,7 @@ public class RequestPrinter {
                     appendFourTabs(builder.append(SystemUtils.LINE_SEPARATOR)).append("<inputstream>");
                 } else {
                     Parser parser = Parser.fromContentType(multiPart.getMimeType());
-                    String prettified = new Prettifier().prettify(multiPart.getContent().toString(), parser);
+                    String prettified = new Prettifier().prettify(multiPart.getContent(), parser);
                     String prettifiedIndented = StringUtils.replace(prettified, SystemUtils.LINE_SEPARATOR, SystemUtils.LINE_SEPARATOR + TAB + TAB + TAB + TAB);
                     appendFourTabs(builder.append(SystemUtils.LINE_SEPARATOR)).append(prettifiedIndented);
                 }
