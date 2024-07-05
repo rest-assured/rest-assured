@@ -74,7 +74,7 @@
         <scala.version>3.3.1</scala.version>
         <assertj-core.version>3.16.1</assertj-core.version>
         <scribe.version>2.5.3</scribe.version>
-        <sundrio.version>0.93.0</sundrio.version>
+        <sundrio.version>0.200.0</sundrio.version>
         <guava.version>33.2.1-jre</guava.version>
         <dokka.version>1.9.20</dokka.version>
     </properties>
