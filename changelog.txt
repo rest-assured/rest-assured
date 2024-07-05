@@ -4,6 +4,23 @@ Changelog next version
 * Fixing "Error java.lang.NoSuchMethodError for HttpMethod.resolve()" in mock-mvc module (issue 1760) (thanks to d0vi for pull request)
 * Fix #1707: SVG file upload - fatal error :1:1: content is not allowed in prolog (#1777) (thanks to Byounghee kim for pull request)
 * Fix #1773: Remove check for response HTTP status code. (thanks to macmon for pull request)
+* Introducing the "scala-extensions" module for Scala 3 (#1770). This means that you can write tests like this in Scala 3:
+
+    @Test
+    def `extraction with rest assured scala extensions`: Unit =
+        val message: String = Given(req =>
+            req.port(7000)
+            req.header("Header", "Header")
+            req.body("hello")
+        )
+        .When(
+            _.put("/the/path")
+        )
+        .Extract(
+            _.path("message")
+        )
+    assertThat(message).isEqualTo("Hello World")
+  (thanks to Carlos Eduardo for pull request)
 
 Changelog 5.4.0 (2023-12-08)
 ----------------------------
