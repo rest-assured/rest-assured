@@ -26,6 +26,7 @@ Changelog next version
 * Upgraded Groovy from version 4.0.16 to 4.0.22
 * Upgraded Jackson from version 2.14.3 to 2.17.3
 * Upgraded kotlin extension module to use Kotlin 2.0.0 (previously 1.9.20 was used)
+* Upgraded Guava library from 32.0.1-jre to 33.2.1-jre
 
 Changelog 5.4.0 (2023-12-08)
 ----------------------------
