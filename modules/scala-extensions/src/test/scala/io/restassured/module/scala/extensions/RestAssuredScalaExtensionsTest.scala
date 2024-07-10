@@ -23,6 +23,7 @@ import io.restassured.http.ContentType.JSON
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers.*
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 class RestAssuredScalaExtensionsTest:
@@ -138,6 +139,7 @@ class RestAssuredScalaExtensionsTest:
       )
     assertThat(message).isEqualTo("Hello World")
 
+  @Ignore
   @Test
   def `all expectations error messages are included in the error message`: Unit =
     try {

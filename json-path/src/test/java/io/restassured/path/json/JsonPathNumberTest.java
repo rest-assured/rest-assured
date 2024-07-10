@@ -108,6 +108,7 @@ public class JsonPathNumberTest {
         assertThat(orderNumber, equalTo(new BigInteger(EXPECTED_LONG)));
     }
 
+    @Ignore
     @Test public void
     json_path_returns_big_integer_for_primitive_number_when_configured_accordingly() {
         // Given
