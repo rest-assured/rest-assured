@@ -19,6 +19,7 @@ package io.restassured.internal.http;
 import org.apache.http.*;
 import org.apache.http.protocol.HttpContext;
 
+import java.util.Locale;
 import java.io.IOException;
 
 /**
@@ -51,7 +52,7 @@ public abstract class ContentEncoding {
 
 		/** Prints the value as it should appear in an HTTP header */
 		@Override public String toString() {
-			return this.name().toLowerCase();
+			return this.name().toLowerCase(Locale.ENGLISH);
 		}
 	}
 	
