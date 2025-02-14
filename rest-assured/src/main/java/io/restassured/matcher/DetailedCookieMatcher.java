@@ -196,7 +196,7 @@ public class DetailedCookieMatcher extends CombinableMatcher<Cookie> {
      * @param maxAgeMatcher assertion for max age property
      * @return A {@link DetailedCookieMatcher} instance with and-composed max age property assertion
      */
-    public DetailedCookieMatcher maxAge(Matcher<? super Integer> maxAgeMatcher) {
+    public DetailedCookieMatcher maxAge(Matcher<? super Long> maxAgeMatcher) {
         return new DetailedCookieMatcher(and(Matchers.hasProperty("maxAge", maxAgeMatcher)));
     }
 

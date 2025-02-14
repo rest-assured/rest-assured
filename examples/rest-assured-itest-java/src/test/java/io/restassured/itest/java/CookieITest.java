@@ -67,7 +67,10 @@ public class CookieITest extends WithJetty {
         given()
                 .get("/multiCookie")
                 .then()
-                .cookie("cookie1", detailedCookie().maxAge(1234567L).path(Matchers.notNullValue()));
+                .cookie("cookie1", detailedCookie().maxAge(1234567).path(notNullValue()))
+                .cookie("cookie1", detailedCookie().maxAge(1234567L))
+                .cookie("cookie1", detailedCookie().maxAge(is(1234567L)))
+                .cookie("cookie1", detailedCookie().maxAge(is(greaterThan(1234566L))));
     }
 
     @Test
