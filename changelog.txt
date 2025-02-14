@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 5.5.1 (2025-02-14)
+----------------------------
 * Use Long in maxAge(Matcher<? super Integer> maxAgeMatcher) (thanks to julianladisch for PR)
 * Fix so that GZIP doesn't become gzıp for Turkish environments (thanks to rdmrtn for PR)
 * Upgraded jakarta.jakartaee-web-api to version 10.0.0 (#1800)
