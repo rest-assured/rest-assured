@@ -33,7 +33,7 @@
     <inceptionYear>2010</inceptionYear>
     <issueManagement>
         <system>GitHub Issue Tracking</system>
-        <url />
+        <url/>
     </issueManagement>
     <licenses>
         <license>
@@ -133,7 +133,7 @@
                     <version>${gmaven.version}</version>
                     <configuration>
                         <providerSelection>2.0</providerSelection>
-                        <source />
+                        <source/>
                     </configuration>
                     <dependencies>
                         <dependency>
@@ -175,6 +175,22 @@
                             <goals>
                                 <goal>check</goal>
                             </goals>
+                            <configuration>
+                                <ignoredDependencies>
+                                    <ignoredDependency>
+                                        <groupId>jakarta.platform</groupId>
+                                        <artifactId>jakarta.jakartaee-web-api</artifactId>
+                                    </ignoredDependency>
+                                    <ignoredDependency>
+                                        <groupId>jakarta.authentication</groupId>
+                                        <artifactId>jakarta.authentication-api</artifactId>
+                                    </ignoredDependency>
+                                    <ignoredDependency>
+                                        <groupId>jakarta.enterprise</groupId>
+                                        <artifactId>jakarta.enterprise.cdi-api</artifactId>
+                                    </ignoredDependency>
+                                </ignoredDependencies>
+                            </configuration>
                         </execution>
                     </executions>
                     <configuration>
