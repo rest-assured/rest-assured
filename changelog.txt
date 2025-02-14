@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* Use Long in maxAge(Matcher<? super Integer> maxAgeMatcher) (thanks to julianladisch for PR)
+
 Changelog 5.5.0 (2024-07-05)
 ----------------------------
 * Removing custom validation of pathParams in the mock-mvc module and instead rely on the Spring implementation(issue 1782) (thanks to taeyeon-Kim for pull request)
