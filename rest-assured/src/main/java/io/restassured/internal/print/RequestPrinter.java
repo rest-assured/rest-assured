@@ -203,7 +203,8 @@ public class RequestPrinter {
         if (multiParts.isEmpty()) {
             appendTwoTabs(builder).append(NONE).append(SystemUtils.LINE_SEPARATOR);
         } else {
-            for (int i = 0; i < multiParts.size(); i++) {
+            int multiPartsSize = multiParts.size();
+            for (int i = 0; i < multiPartsSize; i++) {
                 MultiPartSpecification multiPart = multiParts.get(i);
                 if (i == 0) {
                     appendTwoTabs(builder);

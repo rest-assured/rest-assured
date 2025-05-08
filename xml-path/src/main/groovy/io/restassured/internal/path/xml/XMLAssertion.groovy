@@ -153,10 +153,11 @@ class XMLAssertion implements Assertion {
   }
 
   private def handleList(List result) {
-    if (result.size() == 1 && fragments[-1] != EXPLICIT_LIST_CONVERSION) {
+    def resultSize = result.size()
+    if (resultSize == 1 && fragments[-1] != EXPLICIT_LIST_CONVERSION) {
       return convertToJavaObject(result.get(0))
     } else {
-      for (int i = 0; i < result.size(); i++) {
+      for (int i = 0; i < resultSize; i++) {
         result.set(i, convertToJavaObject(result.get(i)))
       }
     }
