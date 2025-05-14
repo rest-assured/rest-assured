@@ -18,7 +18,6 @@
 package io.restassured.internal
 
 import groovy.xml.StreamingMarkupBuilder
-import io.restassured.internal.assertion.CookieMatcher
 import io.restassured.common.mapper.DataToDeserialize
 import io.restassured.common.mapper.TypeRef
 import io.restassured.config.DecoderConfig
@@ -29,7 +28,9 @@ import io.restassured.http.Cookie
 import io.restassured.http.Cookies
 import io.restassured.http.Header
 import io.restassured.http.Headers
+import io.restassured.internal.assertion.CookieMatcher
 import io.restassured.internal.http.CharsetExtractor
+import io.restassured.internal.http.HttpResponseDecorator
 import io.restassured.internal.mapping.ObjectMapperDeserializationContextImpl
 import io.restassured.internal.mapping.ObjectMapping
 import io.restassured.internal.print.ResponsePrinter
@@ -47,6 +48,7 @@ import io.restassured.response.ResponseBody
 import io.restassured.response.ResponseBodyData
 import io.restassured.response.ResponseOptions
 import org.apache.commons.lang3.StringUtils
+import org.apache.http.protocol.HttpContext
 
 import java.lang.reflect.Type
 import java.nio.charset.Charset
@@ -72,6 +74,7 @@ class RestAssuredResponseOptionsGroovyImpl {
   def sessionIdName
   Map filterContextProperties
   def connectionManager
+  HttpContext apacheHttpContext
 
   String defaultContentType
   ResponseParserRegistrar rpr
@@ -82,7 +85,7 @@ class RestAssuredResponseOptionsGroovyImpl {
 
   RestAssuredConfig config
 
-  void parseResponse(httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
+  void parseResponse(HttpResponseDecorator httpResponse, content, hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
     parseHeaders(httpResponse)
     parseContentType(httpResponse)
     parseCookies()
@@ -95,6 +98,7 @@ class RestAssuredResponseOptionsGroovyImpl {
     hasExpectations = hasBodyAssertions
     this.rpr = responseParserRegistrar
     this.defaultContentType = responseParserRegistrar.defaultParser?.getContentType()
+    apacheHttpContext = httpResponse.context.delegate
   }
 
   def parseStatus(httpResponse) {
@@ -117,7 +121,7 @@ class RestAssuredResponseOptionsGroovyImpl {
     }
   }
 
-  def parseHeaders(httpResponse) {
+  def parseHeaders(HttpResponseDecorator httpResponse) {
     def headerList = []
     httpResponse.headers.each {
       def name = it.getName()

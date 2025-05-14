@@ -80,4 +80,8 @@ public class HttpContextDecorator implements HttpContext {
 	public void setAttribute(String name, Object val) {
 		this.delegate.setAttribute(name, val);
 	}
+
+	public HttpContext getDelegate() {
+		return delegate;
+	}
 }

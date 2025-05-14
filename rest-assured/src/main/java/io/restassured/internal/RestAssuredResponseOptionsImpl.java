@@ -32,6 +32,7 @@ import io.restassured.path.xml.config.XmlPathConfig;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.ResponseBody;
 import io.restassured.response.ResponseOptions;
+import org.apache.http.protocol.HttpContext;
 
 import java.io.InputStream;
 import java.lang.reflect.Type;
@@ -78,6 +79,10 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public void setFilterContextProperties(Map filterContextProperties) {
         this.groovyResponse.setFilterContextProperties(filterContextProperties);
+    }
+
+    public void setApacheHttpContext(HttpContext context) {
+        this.groovyResponse.setApacheHttpContext(context);
     }
 
     public void setConnectionManager(Object connectionManager) {
@@ -370,6 +375,10 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
 
     public Map getFilterContextProperties() {
         return this.groovyResponse.getFilterContextProperties();
+    }
+
+    public HttpContext getApacheHttpContext() {
+        return this.groovyResponse.getApacheHttpContext();
     }
 
     public void setGroovyResponse(RestAssuredResponseOptionsGroovyImpl groovyResponse) {

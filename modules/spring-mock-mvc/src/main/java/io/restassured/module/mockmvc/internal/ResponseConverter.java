@@ -42,6 +42,7 @@ class ResponseConverter {
         std.setRpr(mvc.getRpr());
         std.setFilterContextProperties(mvc.getFilterContextProperties());
         std.setLogRepository(mvc.getLogRepository());
+        std.setApacheHttpContext(mvc.getApacheHttpContext());
         return std;
     }
 }

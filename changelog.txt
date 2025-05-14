@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* CookieFilter now supports setting cookies correctly when Apache HTTP Client does internal redirects (when redirects().follow(true) is set).
+
 Changelog 5.5.1 (2025-02-14)
 ----------------------------
 * Use Long in maxAge(Matcher<? super Integer> maxAgeMatcher) (thanks to julianladisch for PR)

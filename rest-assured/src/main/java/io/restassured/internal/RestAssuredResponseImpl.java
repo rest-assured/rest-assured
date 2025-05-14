@@ -15,12 +15,13 @@
  */
 package io.restassured.internal;
 
+import io.restassured.internal.http.HttpResponseDecorator;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 
 public class RestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<Response> implements Response {
 
-    public void parseResponse(Object httpResponse, Object content, boolean hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
+    public void parseResponse(HttpResponseDecorator httpResponse, Object content, boolean hasBodyAssertions, ResponseParserRegistrar responseParserRegistrar) {
         groovyResponse.parseResponse(httpResponse, content, hasBodyAssertions, responseParserRegistrar);
     }
 

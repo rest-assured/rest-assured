@@ -19,10 +19,12 @@ package io.restassured.filter.cookie;
 import io.restassured.filter.Filter;
 import io.restassured.filter.FilterContext;
 import io.restassured.filter.session.SessionFilter;
+import io.restassured.internal.RestAssuredResponseImpl;
 import io.restassured.response.Response;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
 import org.apache.http.Header;
+import org.apache.http.HttpHost;
 import org.apache.http.client.CookieStore;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.cookie.CookieOrigin;
@@ -32,8 +34,11 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.cookie.DefaultCookieSpec;
 import org.apache.http.impl.cookie.RFC6265StrictSpec;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HttpContext;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -91,7 +96,7 @@ public class CookieFilter implements Filter {
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
 
-        final CookieOrigin cookieOrigin = cookieOriginFromUri(requestSpec.getURI());
+        CookieOrigin cookieOrigin = cookieOriginFromUri(requestSpec.getURI());
         for (Cookie cookie : cookieStore.getCookies()) {
             if (cookieSpec.match(cookie, cookieOrigin) && allowMultipleCookiesWithTheSameNameOrCookieNotPreviouslyDefined(requestSpec, cookie)) {
                 requestSpec.cookie(cookie.getName(), cookie.getValue());
@@ -99,6 +104,24 @@ public class CookieFilter implements Filter {
         }
 
         final Response response = ctx.next(requestSpec, responseSpec);
+
+        // When the server responds with a redirect (e.g., 302), Apache HttpClient follows it internally
+        // and issues a new request. However, RestAssured's request URI (requestSpec.getURI()) still reflects
+        // the original URI, not the final one that set the cookies. Since cookies are path- and domain-scoped,
+        // we must extract the *effective* URI of the final response (after redirects) from Apache's HttpContext
+        // to construct the correct CookieOrigin. Otherwise, valid Set-Cookie headers might be rejected due to
+        //  a mismatched domain or path.
+        if (response instanceof RestAssuredResponseImpl) {
+            HttpContext context = ((RestAssuredResponseImpl) response).getApacheHttpContext();
+            if (context != null) {
+                try {
+                    URI effectiveUri = extractEffectiveUriFromContext(context);
+                    cookieOrigin = cookieOriginFromUri(effectiveUri.toString());
+                } catch (Exception e) {
+                    // Fallback: continue with the original request URI
+                }
+            }
+        }
 
         List<Cookie> responseCookies = extractResponseCookies(response, cookieOrigin);
         cookieStore.addCookies(responseCookies.toArray(new Cookie[0]));
@@ -111,7 +134,7 @@ public class CookieFilter implements Filter {
 
     private List<Cookie> extractResponseCookies(Response response, CookieOrigin cookieOrigin) {
 
-        List<Cookie> cookies = new ArrayList<Cookie>();
+        List<Cookie> cookies = new ArrayList<>();
         for (String cookieValue : response.getHeaders().getValues("Set-Cookie")) {
             Header setCookieHeader = new BasicHeader("Set-Cookie", cookieValue);
             try {
@@ -136,5 +159,27 @@ public class CookieFilter implements Filter {
 
     public CookieStore getCookieStore() {
         return cookieStore;
+    }
+
+    public static URI extractEffectiveUriFromContext(HttpContext context) {
+        HttpHost targetHost = (HttpHost) context.getAttribute("http.target_host");
+        CookieOrigin cookieOrigin = (CookieOrigin) context.getAttribute("http.cookie-origin");
+
+        if (targetHost == null || cookieOrigin == null) {
+            throw new IllegalStateException("Missing target_host or cookie-origin in context");
+        }
+
+        String scheme = targetHost.getSchemeName();
+        String host = targetHost.getHostName();
+        int port = targetHost.getPort();
+
+        // From cookie-origin
+        String path = cookieOrigin.getPath();
+
+        try {
+            return new URI(scheme, null, host, port, path, null, null);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Failed to build effective URI", e);
+        }
     }
 }
