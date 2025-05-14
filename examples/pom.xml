@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>rest-assured-parent</artifactId>
         <groupId>io.rest-assured</groupId>
@@ -34,6 +35,7 @@
         <module>scala-example</module>
         <module>scala-mock-mvc-example</module>
         <module>kotlin-example</module>
+        <module>scala3-example</module>
     </modules>
 
     <profiles>
