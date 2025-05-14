@@ -2,6 +2,7 @@ Changelog next version
 ----------------------
 * CookieFilter now supports setting cookies correctly when Apache HTTP Client does internal redirects (when redirects().follow(true) is set).
 * Upgrading kotlin module to use Kotlin 2.2.1
+* Downgrading scale module to version 3.3.3 (LTS version) (thanks for Carlos Eduardo for PR)
 
 Changelog 5.5.1 (2025-02-14)
 ----------------------------
