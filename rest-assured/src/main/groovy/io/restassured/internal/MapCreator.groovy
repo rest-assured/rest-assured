@@ -37,16 +37,17 @@ class MapCreator {
   }
 
   static Map<String, Object> createMapFromObjects(CollisionStrategy collisionStrategy, ... parameters) {
-    if (parameters == null || parameters.length < 2) {
+    def parametersLength = parameters.length
+    if (parameters == null || parametersLength < 2) {
       throw new IllegalArgumentException("You must supply at least one key and one value.")
-    } else if (parameters.length % 2 != 0 && parameters.length % 3 != 0) {
+    } else if (parametersLength % 2 != 0 && parametersLength % 3 != 0) {
       throw new IllegalArgumentException("You must supply the same number of keys as values.")
     }
 
     int step
-    if (parameters.length >= 3 && isRestAssuredArguments(parameters[1]) && parameters[2] instanceof Matcher) {
+    if (parametersLength >= 3 && isRestAssuredArguments(parameters[1]) && parameters[2] instanceof Matcher) {
       step = 3
-    } else if (parameters.length % 2 != 0) {
+    } else if (parametersLength % 2 != 0) {
       throw new IllegalArgumentException("You must supply the same number of keys as values.")
     } else {
       step = 2
@@ -54,7 +55,7 @@ class MapCreator {
 
     boolean argumentsDefined = step == 3
     Map<String, Object> map = new LinkedHashMap<String, Object>()
-    for (int i = 0; i < parameters.length; i += step) {
+    for (int i = 0; i < parametersLength; i += step) {
       def key = parameters[i]
       def args
       def val
