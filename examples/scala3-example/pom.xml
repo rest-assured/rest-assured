@@ -100,13 +100,13 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>5.5.1-SNAPSHOT</version>
+            <version>5.5.2-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>scala-extensions</artifactId>
-            <version>5.5.1-SNAPSHOT</version>
+            <version>5.5.2-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
