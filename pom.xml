@@ -21,7 +21,7 @@
     <groupId>io.rest-assured</groupId>
     <artifactId>rest-assured-parent</artifactId>
     <packaging>pom</packaging>
-    <version>5.5.5</version>
+    <version>5.5.6-SNAPSHOT</version>
     <url>https://rest-assured.io/</url>
     <name>REST Assured Parent POM</name>
     <description>Java DSL for easy testing of REST services</description>
@@ -75,7 +75,7 @@
         <url>https://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>
         <connection>scm:git:git://github.com/rest-assured/rest-assured.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/rest-assured/rest-assured.git</developerConnection>
-      <tag>rest-assured-5.5.5</tag>
+      <tag>HEAD</tag>
   </scm>
     <mailingLists>
         <mailingList>
