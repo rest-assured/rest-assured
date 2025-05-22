@@ -20,12 +20,12 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-parent</artifactId>
-        <version>5.5.5-SNAPSHOT</version>
+        <version>5.5.5</version>
     </parent>
     <groupId>io.rest-assured</groupId>
     <artifactId>rest-assured-common</artifactId>
     <packaging>bundle</packaging>
-    <version>5.5.5-SNAPSHOT</version>
+    <version>5.5.5</version>
     <name>rest-assured-common</name>
     <url>https://rest-assured.io/</url>
     <properties>
