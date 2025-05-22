@@ -289,6 +289,28 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>central</publishingServerId>
+                    <excludeArtifacts>
+                         <!-- Examples -->
+                        <excludeArtifact>example-parent</excludeArtifact>
+                        <excludeArtifact>scalatra-example</excludeArtifact>
+                        <excludeArtifact>scalatra-webapp</excludeArtifact>
+                        <excludeArtifact>rest-assured-itest-java</excludeArtifact>
+                        <excludeArtifact>spring-mvc-webapp</excludeArtifact>
+                        <excludeArtifact>scala-example</excludeArtifact>
+                        <excludeArtifact>scala-mock-mvc-example</excludeArtifact>
+                        <excludeArtifact>kotlin-example</excludeArtifact>
+                        <excludeArtifact>scala3-example</excludeArtifact>
+                        <!-- Dist -->
+                        <excludeArtifact>dist</excludeArtifact>
+                        <excludeArtifact>dist-rest-assured</excludeArtifact>
+                        <excludeArtifact>dist-json-path</excludeArtifact>
+                        <excludeArtifact>dist-xml-path</excludeArtifact>
+                        <excludeArtifact>dist-json-schema-validator</excludeArtifact>
+                        <excludeArtifact>dist-spring-mock-mvc</excludeArtifact>
+                        <excludeArtifact>dist-spring-web-test-client</excludeArtifact>
+                        <excludeArtifact>dist-scala-support</excludeArtifact>
+                        <excludeArtifact>dist-kotlin-extensions</excludeArtifact>
+                    </excludeArtifacts>
                 </configuration>
             </plugin>
             <plugin>
