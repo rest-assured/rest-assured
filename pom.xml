@@ -68,7 +68,6 @@
         <scala.version>3.3.1</scala.version>
         <assertj-core.version>3.16.1</assertj-core.version>
         <scribe.version>2.5.3</scribe.version>
-        <sundrio.version>0.103.1</sundrio.version>
         <guava.version>33.2.1-jre</guava.version>
         <dokka.version>1.9.20</dokka.version>
     </properties>
@@ -92,6 +91,7 @@
         <module>json-path</module>
         <module>rest-assured-common</module>
         <module>xml-path</module>
+        <module>rest-assured-bom</module>
     </modules>
 
     <build>
@@ -373,36 +373,6 @@
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>io.sundr</groupId>
-                        <artifactId>sundr-maven-plugin</artifactId>
-                        <version>${sundrio.version}</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>generate-bom</goal>
-                                </goals>
-                                <configuration>
-                                    <boms>
-                                        <bom>
-                                            <artifactId>rest-assured-bom</artifactId>
-                                            <name>REST Assured: BOM</name>
-                                            <description>Centralized dependencyManagement for the Rest Assured Project</description>
-                                            <properties>
-                                                <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
-                                                <sonar.skip>true</sonar.skip>
-                                            </properties>
-                                            <modules>
-                                                <excludes>
-                                                    <exclude>io.rest-assured.examples:*</exclude>
-                                                </excludes>
-                                            </modules>
-                                        </bom>
-                                    </boms>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
