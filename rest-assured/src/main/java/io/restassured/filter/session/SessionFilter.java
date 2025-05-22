@@ -58,6 +58,11 @@ public class SessionFilter implements Filter {
         }
 
         final Response response = ctx.next(requestSpec, responseSpec);
+        storeSessionIdFromResponse(response);
+        return response;
+    }
+
+    public Response storeSessionIdFromResponse(Response response) {
         final String sessionIdInResponse = response.sessionId();
 
         if (isNotBlank(sessionIdInResponse)) {

@@ -33,6 +33,7 @@ public class CsrfConfig implements Config {
     public static final String DEFAULT_CSRF_INPUT_FIELD_NAME = "_csrf";
     public static final String DEFAULT_CSRF_META_TAG_NAME = "_csrf_header";
 
+    private final boolean automaticallyApplyCookies;
     private final boolean isUserConfigured;
     private final String csrfTokenPath;
     private final String csrfInputFieldName;
@@ -46,7 +47,7 @@ public class CsrfConfig implements Config {
      * Create a default
      */
     public CsrfConfig() {
-        this(null, DEFAULT_CSRF_INPUT_FIELD_NAME, DEFAULT_CSRF_META_TAG_NAME, DEFAULT_CSRF_HEADER_NAME, CsrfPrioritization.HEADER, null, null, false);
+        this(null, DEFAULT_CSRF_INPUT_FIELD_NAME, DEFAULT_CSRF_META_TAG_NAME, DEFAULT_CSRF_HEADER_NAME, CsrfPrioritization.HEADER, null, null, true, false);
     }
 
     /*
@@ -54,7 +55,7 @@ public class CsrfConfig implements Config {
      * For example: "/login"
      */
     public CsrfConfig(String csrfTokenPath) {
-        this(notNull(StringUtils.trimToNull(csrfTokenPath), "csrfTokenPath"), DEFAULT_CSRF_INPUT_FIELD_NAME, DEFAULT_CSRF_META_TAG_NAME, DEFAULT_CSRF_HEADER_NAME, CsrfPrioritization.HEADER, null, null, true);
+        this(notNull(StringUtils.trimToNull(csrfTokenPath), "csrfTokenPath"), DEFAULT_CSRF_INPUT_FIELD_NAME, DEFAULT_CSRF_META_TAG_NAME, DEFAULT_CSRF_HEADER_NAME, CsrfPrioritization.HEADER, null, null, true, true);
     }
 
     /*
@@ -71,7 +72,7 @@ public class CsrfConfig implements Config {
         this(notNull(csrfTokenPath, "csrfTokenPath").toString());
     }
 
-    private CsrfConfig(String csrfTokenPath, String csrfInputFieldName, String csrfMetaTagName, String csrfHeaderName, CsrfPrioritization csrfPrioritization, LogConfig logConfig, LogDetail logDetail, boolean isUserConfigured) {
+    private CsrfConfig(String csrfTokenPath, String csrfInputFieldName, String csrfMetaTagName, String csrfHeaderName, CsrfPrioritization csrfPrioritization, LogConfig logConfig, LogDetail logDetail, boolean automaticallyApplyCookies, boolean isUserConfigured) {
         notNull(csrfPrioritization, CsrfPrioritization.class);
         notNull(StringUtils.trimToNull(csrfInputFieldName), "csrfInputFieldName");
         notNull(StringUtils.trimToNull(csrfMetaTagName), "csrfMetaTagName");
@@ -85,6 +86,7 @@ public class CsrfConfig implements Config {
         this.logConfig = logConfig;
         this.logDetail = logDetail;
         this.isUserConfigured = isUserConfigured;
+        this.automaticallyApplyCookies = automaticallyApplyCookies;
     }
 
     public boolean isUserConfigured() {
@@ -125,7 +127,7 @@ public class CsrfConfig implements Config {
      */
     public CsrfConfig csrfMetaTagName(String csrfMetaTagName) {
         notNull(StringUtils.trimToNull(csrfMetaTagName), "CSRF meta tag name");
-        return new CsrfConfig(csrfTokenPath, csrfMetaTagName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, true);
+        return new CsrfConfig(csrfTokenPath, csrfMetaTagName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, automaticallyApplyCookies, true);
     }
 
     /**
@@ -166,7 +168,7 @@ public class CsrfConfig implements Config {
      */
     public CsrfConfig csrfInputFieldName(String inputFieldName) {
         notNull(StringUtils.trimToNull(inputFieldName), "CSRF input field name");
-        return new CsrfConfig(csrfTokenPath, inputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, true);
+        return new CsrfConfig(csrfTokenPath, inputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, automaticallyApplyCookies, true);
     }
 
     /**
@@ -208,7 +210,7 @@ public class CsrfConfig implements Config {
     public CsrfConfig loggingEnabled(LogDetail logDetail, LogConfig logConfig) {
         notNull(logDetail, LogDetail.class);
         notNull(logConfig, LogConfig.class);
-        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, true);
+        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, automaticallyApplyCookies, true);
     }
 
     /**
@@ -222,7 +224,7 @@ public class CsrfConfig implements Config {
      */
     public CsrfConfig csrfHeaderName(String csrfHeaderName) {
         notNull(StringUtils.trimToNull(csrfHeaderName), "CSRF header name");
-        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, true);
+        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, automaticallyApplyCookies, true);
     }
 
     /**
@@ -263,20 +265,40 @@ public class CsrfConfig implements Config {
     }
 
     /**
+     * Check if the cookies returned in the GET response from the page/header containing the CSRF token should be automatically applied to the subsequent request.
+     *
+     * @return <code>true</code> if cookies are applied, <code>false</code> otherwise.
+     */
+    public boolean isAutomaticallyApplyCookies() {
+        return this.automaticallyApplyCookies;
+    }
+
+    /*
+     * Configure if the cookies returned in the GET response from the page/header containing the CSRF token should be automatically applied to the subsequent request.
+     *
+     * @param automaticallyApplyCookies The setting
+     * @return A new CsrfConfig instance.
+     */
+    public CsrfConfig automaticallyApplyCookies(boolean automaticallyApplyCookies) {
+        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, automaticallyApplyCookies, true);
+    }
+
+
+    /**
      * Defines how REST Assured should prioritize form vs header csrf tokens if both are present in the response page. Default is {@link CsrfPrioritization#HEADER}.
      *
      * @param csrfPrioritization The csrf prioritization
      * @return A new CsrfConfig instance.
      */
     public CsrfConfig csrfPrioritization(CsrfPrioritization csrfPrioritization) {
-        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, true);
+        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, automaticallyApplyCookies, true);
     }
 
     /*
      * Specify a path that is used to get the CSRF token. This token will be used automatically by REST Assured for subsequent calls to the API.
      */
     public CsrfConfig csrfTokenPath(String csrfTokenPath) {
-        return new CsrfConfig(notNull(StringUtils.trimToNull(csrfTokenPath), "csrfTokenPath"), csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, true);
+        return new CsrfConfig(notNull(StringUtils.trimToNull(csrfTokenPath), "csrfTokenPath"), csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, automaticallyApplyCookies, true);
     }
 
     /*

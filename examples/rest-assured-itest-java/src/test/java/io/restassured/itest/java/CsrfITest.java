@@ -20,7 +20,9 @@ import io.restassured.RestAssured;
 import io.restassured.config.CsrfConfig;
 import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.filter.cookie.CookieFilter;
 import io.restassured.filter.log.LogDetail;
+import io.restassured.filter.session.SessionFilter;
 import io.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.junit.Test;
@@ -324,6 +326,69 @@ public class CsrfITest extends WithJetty {
                 queryParam("expectedType", "FORM").
         when().
                 post("/pageThatRequireFormOrHeaderCsrf").
+        then().
+                statusCode(200);
+    }
+
+    @Test
+    public void usesCookiesDefinedInCsrfRequestWhenPostingToOtherResourceByDefault() {
+        given().
+                csrf("/loginPageWithCsrfAndSession").
+        when().
+                post("/loginPageWithCsrfAndSession").
+        then().
+                statusCode(200);
+    }
+
+    @Test
+    public void doesNotUseCookiesDefinedInCsrfRequestWhenPostingToOtherResourceWhenConfiguredNotTo() {
+        given().
+                config(config().csrfConfig(csrfConfig().automaticallyApplyCookies(false))).
+                csrf("/loginPageWithCsrfAndSession").
+        when().
+                post("/loginPageWithCsrfAndSession").
+        then().
+                statusCode(403);
+    }
+
+    @Test
+    public void whenCsrfIsConfiguredToAutomaticallyApplyCookiesThenTheCookiesArePropagatedToCookieFilter() {
+        CookieFilter filter = new CookieFilter();
+
+        given().
+               filter(filter).
+               csrf("/loginPageWithCsrfAndSession").
+        when().
+               post("/loginPageWithCsrfAndSession").
+        then().
+               statusCode(200);
+
+        // Subsequent request
+        given().
+                filter(filter).
+        when().
+               get("/session-required").
+        then().
+                statusCode(200);
+    }
+
+    @Test
+    public void whenCsrfIsConfiguredToAutomaticallyApplyCookiesThenTheCookiesArePropagatedToSessionFilter() {
+        SessionFilter filter = new SessionFilter();
+
+        given().
+               filter(filter).
+               csrf("/loginPageWithCsrfAndSession").
+        when().
+               post("/loginPageWithCsrfAndSession").
+        then().
+               statusCode(200);
+
+        // Subsequent request
+        given().
+                filter(filter).
+        when().
+               get("/session-required").
         then().
                 statusCode(200);
     }

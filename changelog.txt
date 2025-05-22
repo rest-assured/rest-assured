@@ -1,3 +1,30 @@
+Changelog next version
+----------------------
+* Greatly improved csrf support. When applying csrf, it'll automatically forward the cookies to returns from the GET request to the csrf token and apply it to the actual request. These cookies will also be applied to the CookieFilter automatically (if configured) and SessionFilter (if configured). For example:
+        given().
+            csrf("/login").
+            formParam("name", "My New Name").
+        when().
+            post("/users/123").
+        then().
+            statusCode(200);
+
+    Now the cookies returned from the GET request to login will be automatically applied to the POST to "/users/123".
+
+    If you have a CookieFilter defined for multiple requests, the cookies returned by GET to /login will be automatically stored in the CookieFilter and used in the second request.
+
+        var cookieFilter = new CookieFilter()
+        given().filter(cookieFilter).csrf("/login").formParam("name", "My New Name").when().post("/users/123").then().statusCode(200);
+        given().filter(cookieFilter).when().get("/users/123").then().statusCode(200);
+
+    You can disable this behavior by setting automaticallyApplyCookies to false the csrf config:
+        given().
+                config(config().csrfConfig(csrfConfig().automaticallyApplyCookies(false))).
+                csrf("/login").
+        when().
+                ...
+
+
 Changelog 5.5.2 (2025-05-14)
 ----------------------------
 * CookieFilter now supports setting cookies correctly when Apache HTTP Client does internal redirects (when redirects().follow(true) is set).

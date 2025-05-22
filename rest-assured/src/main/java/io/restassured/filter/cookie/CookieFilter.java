@@ -95,7 +95,6 @@ public class CookieFilter implements Filter {
     }
 
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-
         CookieOrigin cookieOrigin = cookieOriginFromUri(requestSpec.getURI());
         for (Cookie cookie : cookieStore.getCookies()) {
             if (cookieSpec.match(cookie, cookieOrigin) && allowMultipleCookiesWithTheSameNameOrCookieNotPreviouslyDefined(requestSpec, cookie)) {
@@ -104,7 +103,18 @@ public class CookieFilter implements Filter {
         }
 
         final Response response = ctx.next(requestSpec, responseSpec);
+        storeCookiesFromResponseIfApplicable(cookieOrigin, response);
+        return response;
+    }
 
+    public CookieFilter storeCookiesFromResponseIfApplicable(String requestUri, Response response) {
+        CookieOrigin cookieOrigin = cookieOriginFromUri(requestUri);
+        storeCookiesFromResponseIfApplicable(cookieOrigin, response);
+        return this;
+    }
+
+
+    private void storeCookiesFromResponseIfApplicable(CookieOrigin cookieOrigin, Response response) {
         // When the server responds with a redirect (e.g., 302), Apache HttpClient follows it internally
         // and issues a new request. However, RestAssured's request URI (requestSpec.getURI()) still reflects
         // the original URI, not the final one that set the cookies. Since cookies are path- and domain-scoped,
@@ -125,7 +135,6 @@ public class CookieFilter implements Filter {
 
         List<Cookie> responseCookies = extractResponseCookies(response, cookieOrigin);
         cookieStore.addCookies(responseCookies.toArray(new Cookie[0]));
-        return response;
     }
 
     private boolean allowMultipleCookiesWithTheSameNameOrCookieNotPreviouslyDefined(FilterableRequestSpecification requestSpec, Cookie cookie) {

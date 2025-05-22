@@ -18,9 +18,11 @@ package io.restassured.internal.filter
 import io.restassured.config.CsrfConfig
 import io.restassured.filter.Filter
 import io.restassured.filter.FilterContext
+import io.restassured.filter.cookie.CookieFilter
 import io.restassured.filter.log.LogDetail
 import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
+import io.restassured.filter.session.SessionFilter
 import io.restassured.internal.csrf.CsrfTokenFinder
 import io.restassured.response.Response
 import io.restassured.specification.FilterableRequestSpecification
@@ -57,6 +59,23 @@ class CsrfFilter implements Filter {
         if (!csrfData) {
           throw new IllegalArgumentException("Couldn't find a the CSRF token in response. Expecting either an input field with name \"${csrfConfig.csrfInputFieldName}\" or a meta tag with name \"${csrfConfig.csrfMetaTagName}\". " +
                   "Response was:\n${pageThatContainsCsrfToken.prettyPrint()}")
+        }
+
+        if (csrfConfig.isAutomaticallyApplyCookies()) {
+          // Add cookies returned from the GET request to the next request
+          requestSpec.cookies(pageThatContainsCsrfToken.cookies())
+
+          // Store cookies in cookie filter if applicable
+          def cookieFilter = requestSpec.definedFilters.find { it instanceof CookieFilter } as CookieFilter
+          if (cookieFilter != null) {
+            cookieFilter.storeCookiesFromResponseIfApplicable(requestSpec.getURI(), pageThatContainsCsrfToken)
+          }
+
+          // Store session in session filter if applicable
+          def sessionFilter = requestSpec.definedFilters.find { it instanceof SessionFilter } as SessionFilter
+          if (sessionFilter != null) {
+            sessionFilter.storeSessionIdFromResponse(pageThatContainsCsrfToken)
+          }
         }
 
         if (csrfData.shouldSendTokenAs(FORM)) {

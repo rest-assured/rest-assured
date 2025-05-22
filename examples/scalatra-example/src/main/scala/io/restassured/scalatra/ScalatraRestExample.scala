@@ -78,28 +78,36 @@ class ScalatraRestExample extends ScalatraServlet {
   get("/xmlWithContentTypeTextXml") {
     contentType = "text/xml; charset=iso-8859-1"
     <greeting>
-      <firstName>{params("firstName")}</firstName>
-      <lastName>{params("lastName")}</lastName>
+      <firstName>
+        {params("firstName")}
+      </firstName>
+      <lastName>
+        {params("lastName")}
+      </lastName>
     </greeting>
   }
 
   get("/xmlWithCustomXmlContentType") {
     contentType = "application/something+xml; charset=iso-8859-1"
     <greeting>
-      <firstName>{params("firstName")}</firstName>
-      <lastName>{params("lastName")}</lastName>
+      <firstName>
+        {params("firstName")}
+      </firstName>
+      <lastName>
+        {params("lastName")}
+      </lastName>
     </greeting>
   }
 
   get("/greetXMLAttribute") {
     contentType = "application/xml"
     <greeting>
-      <name firstName={params("firstName")} lastName={params("lastName")} />
+      <name firstName={params("firstName")} lastName={params("lastName")}/>
     </greeting>
   }
 
   get("/i18n") {
-     """{ "ön" : "Är ån"}"""
+    """{ "ön" : "Är ån"}"""
   }
 
   get("/something.json") {
@@ -117,36 +125,36 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/jsonStore") {
     "{ \"store\": {\n" +
-      "    \"book\": [ \n" +
-      "      { \"category\": \"reference\",\n" +
-      "        \"author\": \"Nigel Rees\",\n" +
-      "        \"title\": \"Sayings of the Century\",\n" +
-      "        \"price\": 8.95\n" +
-      "      },\n" +
-      "      { \"category\": \"fiction\",\n" +
-      "        \"author\": \"Evelyn Waugh\",\n" +
-      "        \"title\": \"Sword of Honour\",\n" +
-      "        \"price\": 12.99\n" +
-      "      },\n" +
-      "      { \"category\": \"fiction\",\n" +
-      "        \"author\": \"Herman Melville\",\n" +
-      "        \"title\": \"Moby Dick\",\n" +
-      "        \"isbn\": \"0-553-21311-3\",\n" +
-      "        \"price\": 8.99\n" +
-      "      },\n" +
-      "      { \"category\": \"fiction\",\n" +
-      "        \"author\": \"J. R. R. Tolkien\",\n" +
-      "        \"title\": \"The Lord of the Rings\",\n" +
-      "        \"isbn\": \"0-395-19395-8\",\n" +
-      "        \"price\": 22.99\n" +
-      "      }\n" +
-      "    ],\n" +
-      "    \"bicycle\": {\n" +
-      "      \"color\": \"red\",\n" +
-      "      \"price\": 19.95" +
-      "    }\n" +
-      "  }\n" +
-      "}"
+            "    \"book\": [ \n" +
+            "      { \"category\": \"reference\",\n" +
+            "        \"author\": \"Nigel Rees\",\n" +
+            "        \"title\": \"Sayings of the Century\",\n" +
+            "        \"price\": 8.95\n" +
+            "      },\n" +
+            "      { \"category\": \"fiction\",\n" +
+            "        \"author\": \"Evelyn Waugh\",\n" +
+            "        \"title\": \"Sword of Honour\",\n" +
+            "        \"price\": 12.99\n" +
+            "      },\n" +
+            "      { \"category\": \"fiction\",\n" +
+            "        \"author\": \"Herman Melville\",\n" +
+            "        \"title\": \"Moby Dick\",\n" +
+            "        \"isbn\": \"0-553-21311-3\",\n" +
+            "        \"price\": 8.99\n" +
+            "      },\n" +
+            "      { \"category\": \"fiction\",\n" +
+            "        \"author\": \"J. R. R. Tolkien\",\n" +
+            "        \"title\": \"The Lord of the Rings\",\n" +
+            "        \"isbn\": \"0-395-19395-8\",\n" +
+            "        \"price\": 22.99\n" +
+            "      }\n" +
+            "    ],\n" +
+            "    \"bicycle\": {\n" +
+            "      \"color\": \"red\",\n" +
+            "      \"price\": 19.95" +
+            "    }\n" +
+            "  }\n" +
+            "}"
   }
 
   get("/requestUrl") {
@@ -219,10 +227,10 @@ class ScalatraRestExample extends ScalatraServlet {
     contentType = "application/xml"
     <videos>
       <music>
-        <title>Video Title 1 </title>
+        <title>Video Title 1</title>
         <artist>Artist 1</artist>
       </music>
-      <music >
+      <music>
         <title>Video Title 2</title>
         <artist>Artist 2</artist>
         <artist>Artist 3</artist>
@@ -232,15 +240,25 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/videos-not-formatted") {
     contentType = "application/xml"
-    <videos><music><title>Video Title 1</title><artist>Artist 1</artist></music><music ><title>Video Title 2</title><artist>Artist 2</artist><artist>Artist 3</artist></music></videos>
+    <videos>
+      <music>
+        <title>Video Title 1</title> <artist>Artist 1</artist>
+      </music> <music>
+      <title>Video Title 2</title> <artist>Artist 2</artist> <artist>Artist 3</artist>
+    </music>
+    </videos>
   }
 
   get("/greetJSON") {
     "{ \"greeting\" : { \n" +
-      "                \"firstName\" : \""+{params("firstName")}+"\", \n" +
-      "                \"lastName\" : \""+{params("lastName")}+"\" \n" +
-      "               }\n" +
-      "}"
+            "                \"firstName\" : \"" + {
+      params("firstName")
+    } + "\", \n" +
+            "                \"lastName\" : \"" + {
+      params("lastName")
+    } + "\" \n" +
+            "               }\n" +
+            "}"
   }
 
   post("/greetXML") {
@@ -256,31 +274,31 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   post("/threeMultiValueParam") {
-    "{ \"list\" : \""+multiParams("list").mkString(",") +"\", " +
+    "{ \"list\" : \"" + multiParams("list").mkString(",") + "\", " +
             "\"list2\" : \"" + multiParams("list2").mkString(",") + "\", " +
             "\"list3\" : \"" + multiParams("list3").mkString(",") + "\"}"
   }
 
   get("/multiValueParam") {
-    "{ \"list\" : \""+multiParams("list").mkString(",") +"\" }"
+    "{ \"list\" : \"" + multiParams("list").mkString(",") + "\" }"
   }
 
   put("/multiValueParam") {
-    "{ \"list\" : \""+multiParams("list").mkString(",") +"\" }"
+    "{ \"list\" : \"" + multiParams("list").mkString(",") + "\" }"
   }
 
   post("/multiValueParam") {
-    "{ \"list\" : \""+multiParams("list").mkString(",") +"\" }"
+    "{ \"list\" : \"" + multiParams("list").mkString(",") + "\" }"
   }
 
   patch("/multiValueParam") {
-    "{ \"list\" : \""+findMultiParamIn(request.body, "list").mkString(",") +"\" }"
+    "{ \"list\" : \"" + findMultiParamIn(request.body, "list").mkString(",") + "\" }"
   }
 
   patch("/jsonGreet") {
-      contentType = "application/json"
-      val json = JsonParser.parse(request.body)
-      "{ \"fullName\" : \"" + (json \ "firstName").extract[String] + " "+ (json \ "lastName").extract[String] + "\" }"
+    contentType = "application/json"
+    val json = JsonParser.parse(request.body)
+    "{ \"fullName\" : \"" + (json \ "firstName").extract[String] + " " + (json \ "lastName").extract[String] + "\" }"
   }
 
   get("/hello") {
@@ -295,18 +313,18 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/lotto") {
     val json = "lotto" -> ("lottoId" -> lotto.id) ~
-      ("winning-numbers" -> lotto.winningNumbers) ~
-      ("drawDate" -> lotto.drawDate.map(_.toString)) ~
-      ("winners" -> lotto.winners.map { w =>
-        ("winnerId" -> w.id) ~ ("numbers" -> w.numbers)
-      })
+            ("winning-numbers" -> lotto.winningNumbers) ~
+            ("drawDate" -> lotto.drawDate.map(_.toString)) ~
+            ("winners" -> lotto.winners.map { w =>
+              ("winnerId" -> w.id) ~ ("numbers" -> w.numbers)
+            })
     compactRender(json)
   }
 
   get("/numbers") {
     val json = "values" ->
-      ("pi" -> 3.14) ~
-      ("answer" -> 42)
+            ("pi" -> 3.14) ~
+                    ("answer" -> 42)
     compactRender(json)
   }
 
@@ -335,9 +353,15 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   post("/:pathParam/manyParams") {
-    val queryParam = {params("queryParam")}
-    val pathParam = {params("pathParam")}
-    val formParam = {params("formParam")}
+    val queryParam = {
+      params("queryParam")
+    }
+    val pathParam = {
+      params("pathParam")
+    }
+    val formParam = {
+      params("formParam")
+    }
 
     queryParam + " " + pathParam + " " + formParam
   }
@@ -348,14 +372,22 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   put("/serializedJsonParameter") {
-    val something = {params("something")}
-    val serialized = {params("serialized")}
+    val something = {
+      params("something")
+    }
+    val serialized = {
+      params("serialized")
+    }
     serialized
   }
 
   patch("/serializedJsonParameter") {
-    val something = {params("something")}
-    val serialized = {params("serialized")}
+    val something = {
+      params("something")
+    }
+    val serialized = {
+      params("serialized")
+    }
     serialized
   }
 
@@ -388,8 +420,12 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/:firstName/:lastName") {
-    val firstName = {params("firstName")}
-    val lastName = {params("lastName")}
+    val firstName = {
+      params("firstName")
+    }
+    val lastName = {
+      params("lastName")
+    }
     val fullName: String = firstName + " " + lastName
     val json = ("firstName" -> firstName) ~ ("lastName" -> lastName) ~ ("fullName" -> fullName)
     compactRender(json)
@@ -397,9 +433,15 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/:firstName/:middleName/:lastName") {
-    val firstName = {params("firstName")}
-    val middleName = {params("middleName")}
-    val lastName = {params("lastName")}
+    val firstName = {
+      params("firstName")
+    }
+    val middleName = {
+      params("middleName")
+    }
+    val lastName = {
+      params("lastName")
+    }
     val json = ("firstName" -> firstName) ~ ("lastName" -> lastName) ~ ("middleName" -> middleName)
     compactRender(json)
 
@@ -435,7 +477,7 @@ class ScalatraRestExample extends ScalatraServlet {
   get("/namespace-example") {
     contentType = "application/xml"
     <foo xmlns:ns="http://localhost/">
-      <bar>sudo </bar>
+      <bar>sudo</bar>
       <ns:bar>make me a sandwich!</ns:bar>
     </foo>
   }
@@ -505,7 +547,9 @@ class ScalatraRestExample extends ScalatraServlet {
 
   put("/greetPut") {
     // For some reason Scalatra doesn't seem to handle form parameters in PUT requests
-    if(request.getParameterNames.exists { _ == "firstName" }) {
+    if (request.getParameterNames.exists {
+      _ == "firstName"
+    }) {
       greetJson
     } else {
       val content: String = IOUtils.toString(request.getInputStream)
@@ -544,22 +588,37 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/xmlWithMinusInRoot") {
     contentType = "application/xml"
-    <a-greeting><firstName>{params("firstName")}</firstName>
-      <lastName>{params("lastName")}</lastName>
+    <a-greeting>
+      <firstName>
+        {params("firstName")}
+      </firstName>
+      <lastName>
+        {params("lastName")}
+      </lastName>
     </a-greeting>
   }
 
   get("/xmlWithMinusInChild") {
     contentType = "application/xml"
-    <greeting><your-firstName>{params("firstName")}</your-firstName>
-      <your-lastName>{params("lastName")}</your-lastName>
+    <greeting>
+      <your-firstName>
+        {params("firstName")}
+      </your-firstName>
+      <your-lastName>
+        {params("lastName")}
+      </your-lastName>
     </greeting>
   }
 
   get("/xmlWithUnderscoreInChild") {
     contentType = "application/xml"
-    <greeting><your_firstName>{params("firstName")}</your_firstName>
-      <your_lastName>{params("lastName")}</your_lastName>
+    <greeting>
+      <your_firstName>
+        {params("firstName")}
+      </your_firstName>
+      <your_lastName>
+        {params("lastName")}
+      </your_lastName>
     </greeting>
   }
 
@@ -572,7 +631,9 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/mimeTypeWithPlusXml") {
     contentType = "application/something+xml"
-    <body><message>Custom mime-type ending with +xml</message></body>
+    <body>
+      <message>Custom mime-type ending with +xml</message>
+    </body>
   }
 
   get("/mimeTypeWithPlusJson") {
@@ -581,7 +642,7 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/mimeTypeWithPlusHtml") {
-    contentType ="application/something+html"
+    contentType = "application/something+html"
     <html>
       <head>
         <title>my title</title>
@@ -594,12 +655,12 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/noValueParam") {
-    "Params: "+params.foldLeft(new StringBuilder)( (b,t) => b.append(t._1+"="+t._2)).toString()
+    "Params: " + params.foldLeft(new StringBuilder)((b, t) => b.append(t._1 + "=" + t._2)).toString()
   }
 
   put("/noValueParam") {
     val content: String = IOUtils.toString(request.getInputStream)
-    if(content.contains("=")) {
+    if (content.contains("=")) {
       throw new IllegalArgumentException("One of the parameters had a value")
     }
     "OK"
@@ -607,14 +668,14 @@ class ScalatraRestExample extends ScalatraServlet {
 
   patch("/noValueParam") {
     val content: String = IOUtils.toString(request.getInputStream)
-    if(content.contains("=")) {
+    if (content.contains("=")) {
       throw new IllegalArgumentException("One of the parameters had a value")
     }
     "OK"
   }
 
   post("/noValueParam") {
-    "Params: "+params.foldLeft(new StringBuilder)( (b,t) => b.append(t._1+"="+t._2)).toString()
+    "Params: " + params.foldLeft(new StringBuilder)((b, t) => b.append(t._1 + "=" + t._2)).toString()
   }
 
   post("/redirect") {
@@ -624,12 +685,16 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   get("/redirect") {
-    val url: String = {params("url")}
+    val url: String = {
+      params("url")
+    }
     redirect(url)
   }
 
   get("/redirect-and-set-cookie") {
-    val url: String = {params("url")}
+    val url: String = {
+      params("url")
+    }
     val cookie: Cookie = new Cookie("cookieName", "cookieValue")
     response.addCookie(cookie)
     redirect(url)
@@ -714,8 +779,9 @@ class ScalatraRestExample extends ScalatraServlet {
     val cookies = request.getCookies
             .map(cookie => Map(cookie.getName -> cookie.getValue))
             .foldLeft(mutable.ListBuffer[Map[String, String]]())((list, cookie) => {
-      list.add(cookie); list
-    })
+              list.add(cookie);
+              list
+            })
     compactRender(cookies)
   }
 
@@ -725,13 +791,13 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   post("/j_spring_security_check_with_csrf") {
-      contentType = "text/plain"
-      securityCheck("jsessionid", () => params.get("_csrf").get == "8adf2ea1-b246-40aa-8e13-a85fb7914341")
+    contentType = "text/plain"
+    securityCheck("jsessionid", () => params.get("_csrf").get == "8adf2ea1-b246-40aa-8e13-a85fb7914341")
   }
 
   post("/j_spring_security_check_with_csrf_header") {
-      contentType = "text/plain"
-      securityCheck("jsessionid", () => request.getHeader("_csrf") == "8adf2ea1-b246-40aa-8e13-a85fb7914341")
+    contentType = "text/plain"
+    securityCheck("jsessionid", () => request.getHeader("_csrf") == "8adf2ea1-b246-40aa-8e13-a85fb7914341")
   }
 
   post("/j_spring_security_check_with_additional_fields") {
@@ -749,7 +815,7 @@ class ScalatraRestExample extends ScalatraServlet {
     securityCheck("phpsessionid", () => true)
   }
 
-  def securityCheck(sessionIdName: String, usernameParamName : String, passwordParamName :String, additionalChecks: () => Boolean) : Any = {
+  def securityCheck(sessionIdName: String, usernameParamName: String, passwordParamName: String, additionalChecks: () => Boolean): Any = {
     val userName = params.get(usernameParamName).get
     val password = params.get(passwordParamName).get
     if (userName == "John" && password == "Doe") {
@@ -764,8 +830,15 @@ class ScalatraRestExample extends ScalatraServlet {
     }
   }
 
-  def securityCheck(sessionIdName: String, additionalChecks: () => Boolean) : Any =
+  def securityCheck(sessionIdName: String, additionalChecks: () => Boolean): Any =
     securityCheck(sessionIdName, "j_username", "j_password", additionalChecks)
+
+  get("/session-required") {
+    val session = request.getSession(false)
+    if (session == null) {
+      response.setStatus(403)
+    }
+  }
 
   get("/pageWithDefaultHeaderCsrf") {
     pageWithHeaderCsrf("_csrf_header")
@@ -818,7 +891,7 @@ class ScalatraRestExample extends ScalatraServlet {
       if (csrfToken != "ab8722b1-1f23-4dcf-bf63-fb8b94be4107") {
         response.setStatus(403)
       }
-    } else if(csrfType == "FORM") {
+    } else if (csrfType == "FORM") {
       val csrfToken = params.get("_csrf").get
       if (csrfToken != "8adf2ea1-b246-40aa-8e13-a85fb7914341") {
         response.setStatus(403)
@@ -827,6 +900,20 @@ class ScalatraRestExample extends ScalatraServlet {
       response.setStatus(403)
     }
 
+  }
+
+  get("/loginPageWithCsrfAndSession") {
+    request.getSession(true) // create a new session
+    loginPageWithCsrf("_csrf")
+  }
+
+  post("/loginPageWithCsrfAndSession") {
+    val expectedCsrfName = params.get("csrfInputFieldName").getOrElse("_csrf")
+    val csrfToken = params.get(expectedCsrfName).getOrElse("missing")
+    val session = request.getSession(false)
+    if (csrfToken != "8adf2ea1-b246-40aa-8e13-a85fb7914341" || session == null) {
+      response.setStatus(403)
+    }
   }
 
   get("/loginPageWithCsrf") {
@@ -936,7 +1023,7 @@ class ScalatraRestExample extends ScalatraServlet {
     setCookies
   }
 
-   get("/setCommonIdCookies") {
+  get("/setCommonIdCookies") {
     setCommonIdCookies
   }
 
@@ -953,7 +1040,8 @@ class ScalatraRestExample extends ScalatraServlet {
     val nameValueMap = StringUtils.split(matrixParams, "&")
             .map(nameValue => {
               val nameAndValue = StringUtils.split(nameValue, "=")
-              (nameAndValue(0), nameAndValue(1))})
+              (nameAndValue(0), nameAndValue(1))
+            })
             .foldLeft(mutable.HashMap[String, String]())((map, nameAndValue) => {
               map.put(nameAndValue._1, nameAndValue._2)
               map
@@ -1120,7 +1208,13 @@ class ScalatraRestExample extends ScalatraServlet {
 
   get("/textHTML-not-formatted") {
     contentType = "text/html"
-    <html><head><title>my title</title></head><body><p>paragraph 1</p><p>paragraph 2</p></body></html>
+    <html>
+      <head>
+        <title>my title</title>
+      </head> <body>
+      <p>paragraph 1</p> <p>paragraph 2</p>
+    </body>
+    </html>
   }
 
   get("/statusCode500") {
@@ -1193,7 +1287,7 @@ class ScalatraRestExample extends ScalatraServlet {
           <title>A title</title>
           <link>http://www.something.com/link/1</link>
           <description>Description 1</description>
-          <enclosure url="http://www.someone.com/somejpg.jpg" length="2721" type="image/jpg" />
+          <enclosure url="http://www.someone.com/somejpg.jpg" length="2721" type="image/jpg"/>
           <pubDate>Mon, 10 Jan 2011 19:31:46 GMT</pubDate>
           <guid isPermaLink="false">http://www.something.com/link/1</guid>
           <dc:date>2011-01-10T19:31:46Z</dc:date>
@@ -1202,7 +1296,7 @@ class ScalatraRestExample extends ScalatraServlet {
           <title>Title 2</title>
           <link>http://www.something.com/link/2</link>
           <description>Description 2</description>
-          <enclosure url="http://www.someone.com/someotherjpg.jpg" length="2721" type="image/jpg" />
+          <enclosure url="http://www.someone.com/someotherjpg.jpg" length="2721" type="image/jpg"/>
           <pubDate>Mon, 10 Jan 2011 19:41:46 GMT</pubDate>
           <guid isPermaLink="false">http://www.something.com/link/2</guid>
           <dc:date>2011-01-10T19:42:46Z</dc:date>
@@ -1378,7 +1472,7 @@ class ScalatraRestExample extends ScalatraServlet {
      </html>"""
   }
 
-  def loginPageWithAdditionalInputFields : String = {
+  def loginPageWithAdditionalInputFields: String = {
     contentType = "text/html"
     """
       |<!-- SiteMinder Encoding=ISO-8859-1; -->
@@ -1457,8 +1551,13 @@ class ScalatraRestExample extends ScalatraServlet {
 
   def greetXML: Elem = {
     contentType = "application/xml"
-    <greeting><firstName>{params("firstName")}</firstName>
-      <lastName>{params("lastName")}</lastName>
+    <greeting>
+      <firstName>
+        {params("firstName")}
+      </firstName>
+      <lastName>
+        {params("lastName")}
+      </lastName>
     </greeting>
   }
 
@@ -1466,8 +1565,12 @@ class ScalatraRestExample extends ScalatraServlet {
     contentType = "application/xml"
     <greeting>
       <name>
-        <firstName>{params("firstName")}</firstName>
-        <lastName>{params("lastName")}</lastName>
+        <firstName>
+          {params("firstName")}
+        </firstName>
+        <lastName>
+          {params("lastName")}
+        </lastName>
       </name>
     </greeting>
   }
@@ -1490,7 +1593,7 @@ class ScalatraRestExample extends ScalatraServlet {
     val firstName = firstAndLastName(0)
     val lastName = firstAndLastName(1)
 
-    "{ \"firstName\" : \""+firstName+"\",\"lastName\" : \""+lastName+"\", \"responseType\" : \"simple\" }"
+    "{ \"firstName\" : \"" + firstName + "\",\"lastName\" : \"" + lastName + "\", \"responseType\" : \"simple\" }"
   }
 
   get("/contentTypeJsonButContentIsNotJson") {
@@ -1521,28 +1624,28 @@ class ScalatraRestExample extends ScalatraServlet {
   }
 
   head("/returnContentTypeAsBody") {
-        contentType = "text/plain"
-        request.getContentType
+    contentType = "text/plain"
+    request.getContentType
   }
 
   options("/returnBodyAsBody") {
-        contentType = "text/plain"
-        request.body
+    contentType = "text/plain"
+    request.body
   }
 
   post("/returnContentTypeAsBody") {
-      contentType = "text/plain"
-      request.getContentType
+    contentType = "text/plain"
+    request.getContentType
   }
 
   get("/returnContentTypeAsBody") {
-      contentType = "text/plain"
-      request.getContentType
+    contentType = "text/plain"
+    request.getContentType
   }
 
   delete("/returnContentTypeAsBody") {
-      contentType = "text/plain"
-      request.getContentType
+    contentType = "text/plain"
+    request.getContentType
   }
 
   post("/return204WithContentType") {
@@ -1572,11 +1675,11 @@ class ScalatraRestExample extends ScalatraServlet {
     contentType = "text/plain"
     response.addCookie(new Cookie("jsessionid", "1234"))
     val cookies: Array[Cookie] = request.getCookies
-    if(cookies == null) {
+    if (cookies == null) {
       loginPage.apply()
     } else {
       val cookie = cookies.find(sessionName => sessionName.getName.equalsIgnoreCase("jsessionid") || sessionName.getName.equalsIgnoreCase("phpsessionid")).get
-      if(cookie == null) {
+      if (cookie == null) {
         loginPageWithCsrf("_csrf")
       } else if (cookie.getValue == "1234") {
         "OK"
@@ -1629,7 +1732,7 @@ class ScalatraRestExample extends ScalatraServlet {
 
   def cookiesWithValues: String = {
     contentType = "application/json"
-    if(request.getCookies == null || request.getCookies.isEmpty) {
+    if (request.getCookies == null || request.getCookies.isEmpty) {
       return "[]"
     }
 
