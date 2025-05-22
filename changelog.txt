@@ -1,3 +1,7 @@
+Changelog 5.5.4 (2025-05-22)
+---------------------------
+* The rest-assured-bom project is back
+
 Changelog 5.5.3 (2025-05-22)
 ---------------------------
 * Greatly improved csrf support. When applying csrf, it'll automatically forward the cookies to returns from the GET request to the csrf token and apply it to the actual request. These cookies will also be applied to the CookieFilter automatically (if configured) and SessionFilter (if configured). For example:
