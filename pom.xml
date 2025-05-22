@@ -241,6 +241,7 @@
                 <configuration>
                     <failOnError>false</failOnError>
                     <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
+                    <additionalJOption>-Xdoclint:none</additionalJOption>
                 </configuration>
             </plugin>
             <plugin>
@@ -321,6 +322,7 @@
                         <configuration>
                             <failOnError>false</failOnError>
                             <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
+                            <additionalJOption>-Xdoclint:none</additionalJOption>
                         </configuration>
                     </plugin>
                     <plugin>
