@@ -31,7 +31,6 @@
         <animal.sniffer.skip>true</animal.sniffer.skip>
         <pax-exam.version>4.13.4</pax-exam.version>
         <surefire.version>2.18</surefire.version>
-        <central.skip>true</central.skip>
     </properties>
 
     <dependencies>

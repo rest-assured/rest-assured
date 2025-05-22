@@ -27,11 +27,6 @@
     <artifactId>dist-kotlin-extensions</artifactId>
 
     <name>Kotlin Extensions distribution jar</name>
-
-    <properties>
-        <central.skip>true</central.skip>
-    </properties>
-    
     <build>
         <finalName>kotlin-extensions-${project.version}</finalName>
         <plugins>

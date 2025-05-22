@@ -25,11 +25,8 @@
 
     <artifactId>rest-assured-itest-java</artifactId>
     <name>REST Assured Java integration tests</name>
-    <description>REST Assured Java integration tests. Here you'll find various examples of how to use rest-assured.</description>
-
-    <properties>
-        <central.skip>true</central.skip>
-    </properties>
+    <description>REST Assured Java integration tests. Here you'll find various examples of how to use rest-assured.
+    </description>
 
     <build>
         <plugins>

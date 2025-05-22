@@ -27,11 +27,6 @@
     <artifactId>dist-spring-web-test-client</artifactId>
 
     <name>Spring Web Test Client distribution jar</name>
-
-    <properties>
-        <central.skip>true</central.skip>
-    </properties>
-    
     <build>
         <finalName>spring-web-test-client-${project.version}</finalName>
         <plugins>

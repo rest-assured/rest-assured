@@ -32,7 +32,6 @@
     <properties>
         <scala.version>2.10.7</scala.version>
         <scalatra.version>2.0.1</scalatra.version>
-        <central.skip>true</central.skip>
     </properties>
 
     <dependencies>

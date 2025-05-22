@@ -27,11 +27,6 @@
     <artifactId>dist-xml-path</artifactId>
 
     <name>XmlPath distribution jar</name>
-
-    <properties>
-        <central.skip>true</central.skip>
-    </properties>
-    
     <build>
         <finalName>xml-path-${project.version}</finalName>
         <plugins>

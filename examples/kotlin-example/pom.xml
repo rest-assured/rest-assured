@@ -103,8 +103,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <properties>
-        <central.skip>true</central.skip>
-    </properties>
 </project>

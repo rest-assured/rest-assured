@@ -27,11 +27,6 @@
     <artifactId>dist-rest-assured</artifactId>
 
     <name>Rest Assured distribution jar</name>
-
-    <properties>
-        <central.skip>true</central.skip>
-    </properties>
-    
     <build>
         <plugins>
             <plugin>
