@@ -13,6 +13,8 @@ echo "Starting to release REST Assured $releaseVersion (skipTests=${skipTests})"
 mavenArguments="-DskipTests=${skipTests}"
 mvn release:prepare -Prelease,osgi-tests -DautoVersionSubmodules=true -Dtag=rest-assured-${releaseVersion} -DreleaseVersion=${releaseVersion} -Darguments="${mavenArguments}" &&
 mvn release:perform -Prelease,osgi-tests -Darguments="-DskipTests=true" &&
-mvn deploy -Prelease,osgi-tests -DskipTests=true
+git checkout rest-assured-${releaseVersion} &&
+mvn deploy -Prelease -DskipTests=true
 
+git checkout master
 echo "Maven release of REST Assured $releaseVersion completed"
