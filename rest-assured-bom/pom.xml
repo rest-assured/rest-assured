@@ -6,7 +6,47 @@
     <packaging>pom</packaging>
     <name>REST Assured BOM</name>
     <description>Centralized dependencyManagement for the REST Assured project</description>
-    <url>https://github.com/rest-assured/rest-assured</url>
+    <url>https://rest-assured.io/</url>
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:git://github.com/rest-assured/rest-assured.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/rest-assured/rest-assured.git</developerConnection>
+        <url>https://github.com/rest-assured/rest-assured/tree/master</url>
+        <tag>HEAD</tag>
+    </scm>
+    <distributionManagement>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Nexus Release Repository</name>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <layout>default</layout>
+        </repository>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Nexus Snapshots</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <layout>default</layout>
+        </snapshotRepository>
+    </distributionManagement>
+    <developers>
+        <developer>
+            <name>Johan Haleby</name>
+            <id>johan.haleby</id>
+            <organization>Parkster</organization>
+            <organizationUrl>https://www.parkster.com</organizationUrl>
+            <email>johan.haleby at gmail.com</email>
+            <timezone>+1</timezone>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
 
     <dependencyManagement>
         <dependencies>
