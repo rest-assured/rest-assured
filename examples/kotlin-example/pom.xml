@@ -19,7 +19,7 @@
     <parent>
         <groupId>io.rest-assured.examples</groupId>
         <artifactId>example-parent</artifactId>
-        <version>5.5.3</version>
+        <version>5.5.4-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -78,13 +78,13 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>5.5.3</version>
+            <version>5.5.4-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>kotlin-extensions</artifactId>
-            <version>5.5.3</version>
+            <version>5.5.4-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
