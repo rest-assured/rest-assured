@@ -76,7 +76,8 @@ public class CookieMatcher {
         headerWithCookieList.forEach(it -> {
             String[] cookieStrings = StringUtils.split(it, ";");
             Cookie.Builder cookieBuilder = null;
-            for (int i = 0; i < cookieStrings.length; i++) {
+            int cookieStringsLength = cookieStrings.length;
+            for (int i = 0; i < cookieStringsLength; i++) {
                 String part = cookieStrings[i];
                 if (i == 0) {
                     if (part.contains("=")) {
