@@ -30,6 +30,7 @@
 
     <properties>
         <scala.version>2.13.0</scala.version>
+        <central.skip>true</central.skip>
     </properties>
 
     <build>

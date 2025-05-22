@@ -27,6 +27,11 @@
     <artifactId>dist-scala-support</artifactId>
 
     <name>Scala support distribution jar</name>
+
+    <properties>
+        <central.skip>true</central.skip>
+    </properties>
+    
     <build>
         <finalName>scala-support-${project.version}</finalName>
         <plugins>

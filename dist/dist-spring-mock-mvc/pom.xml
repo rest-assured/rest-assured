@@ -27,6 +27,11 @@
     <artifactId>dist-spring-mock-mvc</artifactId>
 
     <name>Spring Mock MVC distribution jar</name>
+
+    <properties>
+        <central.skip>true</central.skip>
+    </properties>
+    
     <build>
         <finalName>spring-mock-mvc-${project.version}</finalName>
         <plugins>

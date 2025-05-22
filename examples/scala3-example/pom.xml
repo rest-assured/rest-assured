@@ -32,6 +32,7 @@
         <scala.version>3.3.3</scala.version>
         <compiler-plugin.version>3.13.0</compiler-plugin.version>
         <scala-maven-plugin.version>4.9.2</scala-maven-plugin.version>
+        <central.skip>true</central.skip>
     </properties>
 
     <build>

@@ -27,6 +27,11 @@
     <artifactId>dist-json-schema-validator</artifactId>
 
     <name>Json Schema Validator distribution jar</name>
+
+    <properties>
+        <central.skip>true</central.skip>
+    </properties>
+
     <build>
         <finalName>json-schema-validator-${project.version}</finalName>
         <plugins>

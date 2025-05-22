@@ -33,6 +33,7 @@
         <spring.version>5.1.13.RELEASE</spring.version>
         <spring.security.version>5.1.13.RELEASE</spring.security.version>
         <jetty.version>9.4.34.v20201102</jetty.version>
+        <central.skip>true</central.skip>
     </properties>
 
     <build>

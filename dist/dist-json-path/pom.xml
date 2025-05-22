@@ -26,6 +26,10 @@
     <packaging>pom</packaging>
     <artifactId>dist-json-path</artifactId>
 
+    <properties>
+        <central.skip>true</central.skip>
+    </properties>
+
     <name>JsonPath distribution jar</name>
     <build>
         <finalName>json-path-${project.version}</finalName>
