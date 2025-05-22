@@ -2,7 +2,11 @@
 
 # Default to false if SKIP_TESTS is not set
 skipTests=${SKIP_TESTS:-false}
-echo "To skip tests, run the script like this: SKIP_TESTS=true $(basename "$0")"
+
+if [ "$skipTests" != "true" ]; then
+  echo "To skip tests, run the script like this: SKIP_TESTS=true $(basename "$0")"
+fi
+
 read -p "Enter the version to release: " releaseVersion
 echo "Starting to release REST Assured $releaseVersion (skipTests=${skipTests})"
 
@@ -11,5 +15,4 @@ mvn release:prepare -Prelease,osgi-tests -DautoVersionSubmodules=true -Dtag=rest
 mvn release:perform -Prelease,osgi-tests -Darguments="-DskipTests=true" &&
 mvn deploy -Prelease,osgi-tests -DskipTests=true
 
-echo "Maven release of REST Assured $releaseVersion completed successfully"
-
+echo "Maven release of REST Assured $releaseVersion completed"
