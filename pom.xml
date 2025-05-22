@@ -290,6 +290,14 @@
                     <publishingServerId>sonatype-release</publishingServerId>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <goals>clean verify</goals> <!-- Avoids triggering 'deploy' -->
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -509,4 +517,11 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>sonatype-release</id>
+            <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
 </project>
