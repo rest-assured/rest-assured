@@ -291,7 +291,6 @@
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>central</publishingServerId>
-                    <autoPublish>true</autoPublish>
                     <excludeArtifacts>
                          <!-- Examples -->
                         <excludeArtifact>example-parent</excludeArtifact>
