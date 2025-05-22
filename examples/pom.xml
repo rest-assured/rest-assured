@@ -37,6 +37,10 @@
         <module>scala3-example</module>
     </modules>
 
+    <properties>
+        <central.skip>true</central.skip>
+    </properties>
+
     <profiles>
         <profile>
             <id>osgi-tests</id>

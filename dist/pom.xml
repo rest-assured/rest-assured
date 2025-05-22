@@ -36,5 +36,8 @@
     </modules>
     <artifactId>dist</artifactId>
 
+    <properties>
+        <central.skip>true</central.skip>
+    </properties>
 
 </project>
