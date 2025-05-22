@@ -20,12 +20,12 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-parent</artifactId>
-        <version>5.5.4</version>
+        <version>5.5.5-SNAPSHOT</version>
     </parent>
     <groupId>io.rest-assured</groupId>
     <artifactId>json-path</artifactId>
     <packaging>bundle</packaging>
-    <version>5.5.4</version>
+    <version>5.5.5-SNAPSHOT</version>
     <name>json-path</name>
     <url>https://rest-assured.io/</url>
     <properties>
@@ -116,7 +116,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured-common</artifactId>
-            <version>5.5.4</version>
+            <version>5.5.5-SNAPSHOT</version>
         </dependency>
 
         <!-- Test -->
