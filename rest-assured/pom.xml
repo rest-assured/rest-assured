@@ -22,12 +22,12 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>rest-assured-parent</artifactId>
-        <version>5.5.3-SNAPSHOT</version>
+        <version>5.5.3</version>
     </parent>
 
     <groupId>io.rest-assured</groupId>
     <artifactId>rest-assured</artifactId>
-    <version>5.5.3-SNAPSHOT</version>
+    <version>5.5.3</version>
     <packaging>bundle</packaging>
 
     <name>REST Assured</name>
@@ -126,12 +126,12 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>json-path</artifactId>
-            <version>5.5.3-SNAPSHOT</version>
+            <version>5.5.3</version>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>xml-path</artifactId>
-            <version>5.5.3-SNAPSHOT</version>
+            <version>5.5.3</version>
         </dependency>
         <!-- Optional dependencies -->
         <dependency>
