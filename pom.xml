@@ -523,7 +523,7 @@
 
     <distributionManagement>
         <repository>
-            <id>sonatype-release</id>
+            <id>central</id>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
