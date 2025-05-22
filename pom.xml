@@ -62,7 +62,7 @@
         <johnzon.version>1.1.11</johnzon.version>
         <yasson.version>1.0.6</yasson.version>
         <jakarta.json.version>1.1.6</jakarta.json.version>
-        <maven-javadoc.version>3.4.1</maven-javadoc.version>
+        <maven-javadoc.version>3.5.0</maven-javadoc.version>
         <surefire.version>2.22.0</surefire.version>
         <kotlin.version>2.1.21</kotlin.version>
         <scala.version>3.3.1</scala.version>
@@ -240,7 +240,7 @@
                 <version>${maven-javadoc.version}</version>
                 <configuration>
                     <failOnError>false</failOnError>
-                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+                    <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
                 </configuration>
             </plugin>
             <plugin>
@@ -320,7 +320,7 @@
                         </executions>
                         <configuration>
                             <failOnError>false</failOnError>
-                            <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+                            <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
                         </configuration>
                     </plugin>
                     <plugin>
