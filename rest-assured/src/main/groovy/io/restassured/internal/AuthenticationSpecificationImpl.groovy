@@ -35,6 +35,13 @@ class AuthenticationSpecificationImpl implements AuthenticationSpecification {
     this.requestSpecification = requestSpecification
   }
 
+  def RequestSpecification scheme(AuthenticationScheme scheme) {
+    notNull scheme, "scheme"
+
+    requestSpecification.authenticationScheme = scheme;
+    return requestSpecification
+  }
+
   /**
    * Use http basic authentication.
    *
