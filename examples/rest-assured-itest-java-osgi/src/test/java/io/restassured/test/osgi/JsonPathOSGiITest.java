@@ -52,9 +52,9 @@ public class JsonPathOSGiITest {
                         mavenBundle().groupId("org.apache.aries.spifly").artifactId("org.apache.aries.spifly.dynamic.bundle").version("1.2.1"),
                         mavenBundle().groupId("org.hamcrest").artifactId("hamcrest").versionAsInProject(),
                         mavenBundle().groupId("org.apache.commons").artifactId("commons-lang3").versionAsInProject(),
-                        mavenBundle().groupId("org.apache.groovy").artifactId("groovy-json").versionAsInProject().noStart(),
-                        mavenBundle().groupId("org.apache.groovy").artifactId("groovy-xml").versionAsInProject().noStart(),
-                        mavenBundle().groupId("org.apache.groovy").artifactId("groovy").versionAsInProject(),
+                        mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-json").versionAsInProject().noStart(),
+                        mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy-xml").versionAsInProject().noStart(),
+                        mavenBundle().groupId("org.codehaus.groovy").artifactId("groovy").versionAsInProject(),
 
                         wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpclient").versionAsInProject()),
                         wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents").artifactId("httpmime").versionAsInProject()),
