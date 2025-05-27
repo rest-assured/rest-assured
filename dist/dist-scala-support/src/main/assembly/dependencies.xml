@@ -56,9 +56,9 @@
                 <!-- XmlPath -->
                 <exclude>io.rest-assured:xml-path</exclude>
                 <!-- Groovy -->
-                <exclude>org.apache.groovy:groovy</exclude>
-                <exclude>org.apache.groovy:groovy-json</exclude>
-                <exclude>org.apache.groovy:groovy-xml</exclude>
+                <exclude>org.codehaus.groovy:groovy</exclude>
+                <exclude>org.codehaus.groovy:groovy-json</exclude>
+                <exclude>org.codehaus.groovy:groovy-xml</exclude>
                 <!-- Apache -->
                 <exclude>commons-codec:commons-codec</exclude>
                 <exclude>org.apache.commons:commons-lang3</exclude>
