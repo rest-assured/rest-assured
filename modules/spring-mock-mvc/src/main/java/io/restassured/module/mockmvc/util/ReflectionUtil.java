@@ -51,22 +51,25 @@ public class ReflectionUtil {
     }
 
     public static Class<?>[] getArgumentTypes(Object[] arguments) {
-        Class<?>[] argumentTypes = new Class[arguments.length];
-        for (int i = 0; i < arguments.length; i++) {
+        int argumentsLength = arguments.length;
+        Class<?>[] argumentTypes = new Class[argumentsLength];
+        for (int i = 0; i < argumentsLength; i++) {
             argumentTypes[i] = arguments[i].getClass();
         }
         return argumentTypes;
     }
 
     private static Object getVarArgsArguments(Class<?>[] argumentTypes, Object[] arguments) {
-        Class<?> argumentType = argumentTypes[argumentTypes.length - 1];
+        int argumentTypesLength = argumentTypes.length;
+        Class<?> argumentType = argumentTypes[argumentTypesLength - 1];
         if (argumentType.isArray()) {
             argumentType = argumentType.getComponentType();
         }
 
-        int numberOfVarArgParameters = arguments.length - argumentTypes.length + 1;
+        int argumentsLength = arguments.length;
+        int numberOfVarArgParameters = argumentsLength - argumentTypesLength + 1;
         Object varArgsArguments = Array.newInstance(argumentType, numberOfVarArgParameters);
-        for (int j = 0, i = argumentTypes.length - 1; i < arguments.length; i++, j++) {
+        for (int j = 0, i = argumentTypesLength - 1; i < argumentsLength; i++, j++) {
             Array.set(varArgsArguments, j, arguments[i]);
         }
         return varArgsArguments;
