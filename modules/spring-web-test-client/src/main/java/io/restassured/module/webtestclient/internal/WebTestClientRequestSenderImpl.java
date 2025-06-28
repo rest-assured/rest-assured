@@ -593,7 +593,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		do {
 			final String paramName = pathParamMatcher.group(1);
 			getPathParamValueFunction.apply(paramName).ifPresent(paramValue ->
-					uriVariables.put(paramName, UriUtils.encode((String) paramValue, Charsets.UTF_8))
+					uriVariables.put(paramName, paramValue)
 			);
 		} while (pathParamMatcher.find());
 
