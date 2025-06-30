@@ -17,7 +17,7 @@ package io.restassured.path.json.mapper.factory;
 
 import org.eclipse.yasson.JsonBindingProvider;
 
-import javax.json.bind.Jsonb;
+import jakarta.json.bind.Jsonb;
 import java.lang.reflect.Type;
 
 public class DefaultYassonObjectMapperFactory implements JsonbObjectMapperFactory {
