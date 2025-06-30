@@ -55,13 +55,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <groovy.version>4.0.22</groovy.version>
         <groovy.range>[4.0,5.0)</groovy.range>
-        <gmaven.version>1.5</gmaven.version>
+        <gmavenplus.version>4.2.0</gmavenplus.version>
         <hamcrest.version>2.2</hamcrest.version>
         <jackson1.version>1.9.11</jackson1.version>
         <jackson2.version>2.17.1</jackson2.version>
         <johnzon.version>1.1.11</johnzon.version>
-        <yasson.version>1.0.6</yasson.version>
-        <jakarta.json.version>1.1.6</jakarta.json.version>
+        <yasson.version>3.0.3</yasson.version>
+        <jakarta.json.version>2.1.3</jakarta.json.version>
+        <javax.json.version>1.1.4</javax.json.version>
         <maven-javadoc.version>3.5.0</maven-javadoc.version>
         <surefire.version>2.22.0</surefire.version>
         <kotlin.version>2.1.21</kotlin.version>
@@ -124,25 +125,10 @@
                     <version>5.1.4</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.gmaven</groupId>
-                    <artifactId>gmaven-plugin</artifactId>
-                    <version>${gmaven.version}</version>
-                    <configuration>
-                        <providerSelection>2.0</providerSelection>
-                        <source />
-                    </configuration>
+                    <groupId>org.codehaus.gmavenplus</groupId>
+                    <artifactId>gmavenplus-plugin</artifactId>
+                    <version>${gmavenplus.version}</version>
                     <dependencies>
-                        <dependency>
-                            <groupId>org.codehaus.gmaven.runtime</groupId>
-                            <artifactId>gmaven-runtime-2.0</artifactId>
-                            <version>${gmaven.version}</version>
-                            <exclusions>
-                                <exclusion>
-                                    <groupId>org.apache.groovy</groupId>
-                                    <artifactId>groovy-all</artifactId>
-                                </exclusion>
-                            </exclusions>
-                        </dependency>
                         <dependency>
                             <groupId>org.apache.groovy</groupId>
                             <artifactId>groovy</artifactId>
@@ -155,7 +141,7 @@
                                 <goal>generateStubs</goal>
                                 <goal>compile</goal>
                                 <goal>generateTestStubs</goal>
-                                <goal>testCompile</goal>
+                                <goal>compileTests</goal>
                             </goals>
                         </execution>
                     </executions>
@@ -472,6 +458,11 @@
                 <groupId>jakarta.json</groupId>
                 <artifactId>jakarta.json-api</artifactId>
                 <version>${jakarta.json.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.json</groupId>
+                <artifactId>javax.json-api</artifactId>
+		<version>${javax.json.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>
