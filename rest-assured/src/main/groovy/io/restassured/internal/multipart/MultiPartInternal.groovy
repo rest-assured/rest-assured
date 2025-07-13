@@ -17,11 +17,10 @@ package io.restassured.internal.multipart
 
 import groovy.transform.Canonical
 import io.restassured.internal.NoParameterValue
+import org.apache.http.entity.ContentType
 import org.apache.http.entity.mime.content.FileBody
 import org.apache.http.entity.mime.content.InputStreamBody
 import org.apache.http.entity.mime.content.StringBody
-
-import java.nio.charset.Charset
 
 @Canonical
 class MultiPartInternal {
@@ -39,15 +38,15 @@ class MultiPartInternal {
 
   def getContentBody() {
     if (content instanceof NoParameterValue) {
-      content = "";
+      content = ""
     }
 
     if (content instanceof File) {
-      new FileBody(content, fileName, mimeType ?: OCTET_STREAM, charset)
+      new FileBody((File) content, ContentType.parse(mimeType ?: OCTET_STREAM), fileName)
     } else if (content instanceof InputStream) {
       returnInputStreamBody()
     } else if (content instanceof byte[]) {
-      content = new ByteArrayInputStream(content)
+      content = new ByteArrayInputStream((byte[]) content)
       returnInputStreamBody()
     } else if (content instanceof String) {
       returnStringBody(content)
@@ -75,10 +74,12 @@ class MultiPartInternal {
   }
 
   private def returnStringBody(String content) {
-    new StringBody(content, mimeType ?: TEXT_PLAIN, charset == null ? null : Charset.forName(charset))
+    ContentType baseContentType = ContentType.parse(mimeType ?: TEXT_PLAIN)
+    ContentType finalContentType = charset ? baseContentType.withCharset(charset) : baseContentType
+    new StringBody(content, finalContentType)
   }
 
   private def returnInputStreamBody() {
-    new InputStreamBody(content, mimeType ?: OCTET_STREAM, fileName)
+    new InputStreamBody((InputStream) content, ContentType.parse(mimeType ?: OCTET_STREAM), fileName)
   }
 }
