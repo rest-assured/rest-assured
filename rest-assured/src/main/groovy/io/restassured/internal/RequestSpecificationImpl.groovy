@@ -1694,7 +1694,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     filters = filters.toSorted { f1, f2 -> getFilterOrder(f1) <=> getFilterOrder(f2) }
 
     // Add timing filter if it has not been added manually
-    if (!filters*.getClass().any { TimingFilter.class.isAssignableFrom(it) }) {
+    if (!filters.any { TimingFilter.class.isAssignableFrom(it.getClass()) }) {
       filters << new TimingFilter()
     }
 
