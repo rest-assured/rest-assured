@@ -29,16 +29,13 @@ class AssertionSupport {
 
   def static escapePath(key, PathFragmentEscaper... pathFragmentEscapers) {
     def pathFragments = key.split("(?<=\\')")
-    def pathFragmentsSize = pathFragments.size()
-    for (int i = 0; i < pathFragmentsSize; i++) {
+    for (int i = 0; i < pathFragments.size(); i++) {
       String pathFragment = pathFragments[i]
       if (!pathFragment?.endsWith("'") || pathFragment?.contains("**")) {
         def dotFragments = pathFragment.split("\\.")
-        def dotFragmentsSize = dotFragments.size()
-        for (int k = 0; k < dotFragmentsSize; k++) {
+        for (int k = 0; k < dotFragments.size(); k++) {
           String dotFragment = dotFragments[k]
-          def pathFragmentEscapersLength = pathFragmentEscapers.length
-          for (int j = 0; j < pathFragmentEscapersLength; j++) {
+          for (int j = 0; j < pathFragmentEscapers.length; j++) {
             def escaper = pathFragmentEscapers[j]
             if (escaper.shouldEscape(dotFragment)) {
               dotFragments[k] = escaper.escape(dotFragments[k].trim())
@@ -138,14 +135,12 @@ class AssertionSupport {
    * Copied from Apache commons lang (String utils)
    */
   private static boolean containsAny(String str, searchChars) {
-    def strLength = str.length()
-    if (str == null || strLength == 0 || searchChars == null || searchChars.isEmpty()) {
+    if (str == null || str.length() == 0 || searchChars == null || searchChars.isEmpty()) {
       return false;
     }
-    for (int i = 0; i < strLength; i++) {
+    for (int i = 0; i < str.length(); i++) {
       char ch = str.charAt(i);
-      def searchCharsSize = searchChars.size()
-      for (int j = 0; j < searchCharsSize; j++) {
+      for (int j = 0; j < searchChars.size(); j++) {
         if (searchChars[j] == ch) {
           return true;
         }

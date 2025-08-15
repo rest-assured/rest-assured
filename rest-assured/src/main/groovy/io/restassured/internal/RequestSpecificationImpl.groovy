@@ -1647,8 +1647,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this.path = path
     if (unnamedPathParams != null) {
       def nullParamIndices = []
-      def unnamedPathParamsLength = unnamedPathParams.length
-      for (int i = 0; i < unnamedPathParamsLength; i++) {
+      for (int i = 0; i < unnamedPathParams.length; i++) {
         if (unnamedPathParams[i] == null) {
           nullParamIndices << i
         }
@@ -1712,14 +1711,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   void buildUnnamedPathParameterTuples(Object[] unnamedPathParameterValues) {
-    def unnamedPathParameterValuesLength = unnamedPathParameterValues.length
-    if (unnamedPathParameterValues == null || unnamedPathParameterValuesLength == 0) {
+    if (unnamedPathParameterValues == null || unnamedPathParameterValues.length == 0) {
       this.unnamedPathParamsTuples = new ArrayList<Tuple2<String, String>>()
     } else {
       // Undefined placeholders since named path params have precedence over unnamed
       def keys = getUndefinedPathParamPlaceholders()
       List<Tuple2<String, String>> list = new ArrayList<>()
-      for (int i = 0; i < unnamedPathParameterValuesLength; i++) {
+      for (int i = 0; i < unnamedPathParameterValues.length; i++) {
         def val = serializeIfNeeded(unnamedPathParameterValues[i])
         def key = i < keys.size() ? keys.get(i) : null
         list.add(new Tuple2<String, String>(key, val))

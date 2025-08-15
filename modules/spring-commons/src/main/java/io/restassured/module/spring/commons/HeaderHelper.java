@@ -124,8 +124,7 @@ public class HeaderHelper {
             String headerName = header.getName();
             if (headerConfig.shouldOverwriteHeaderWithName(headerName)) {
                 int index = -1;
-                int filteredListSize = filteredList.size();
-                for (int i = 0; i < filteredListSize; i++) {
+                for (int i = 0; i < filteredList.size(); i++) {
                     Header filteredHeader = filteredList.get(i);
                     if (filteredHeader.hasSameNameAs(header)) {
                         index = i;
