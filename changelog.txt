@@ -1,6 +1,7 @@
 Changelog next version
 ----------------------
 * Remove deprecated constructors in multipart handling (#1827) (thanks to Tobias Unger for PR)
+* Fix NPE in RequestSpecificationImpl #1830 (thanks to Boyarshinov Alexander for PR
 
 Changelog 5.5.5 (2025-05-22)
 ---------------------------
