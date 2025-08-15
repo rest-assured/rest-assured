@@ -9,7 +9,7 @@ import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory
 import org.junit.Before
 import org.junit.Test
 
-import javax.json.bind.JsonbBuilder
+import jakarta.json.bind.JsonbBuilder
 
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertNotNull
