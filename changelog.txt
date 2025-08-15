@@ -3,6 +3,7 @@ Changelog next version
 * Remove deprecated constructors in multipart handling (#1827) (thanks to Tobias Unger for PR)
 * Fix NPE in RequestSpecificationImpl #1830 (thanks to Boyarshinov Alexander for PR)
 * Bump commons-lang3 from 3.16.0 to 3.18.0 (thanks to Ash Skelton for PR)
+* Caching the length/size in a variable to avoid repeated calls in loops, which can slightly improve performance and readability. (#1820) (thanks to Luis Serna for PR)
 
 Changelog 5.5.5 (2025-05-22)
 ---------------------------
