@@ -24,6 +24,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>rest-assured-all</artifactId>
+    <name>rest-assured-all</name>
     <packaging>jar</packaging>
 
     <build>
