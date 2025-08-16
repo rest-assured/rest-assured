@@ -16,6 +16,7 @@
 
 package io.restassured.specification;
 
+import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.CertificateAuthSettings;
 import io.restassured.authentication.FormAuthConfig;
 import io.restassured.authentication.OAuthSignature;
@@ -24,6 +25,15 @@ import io.restassured.authentication.OAuthSignature;
  * Specify an authentication scheme to use when sending a request.
  */
 public interface AuthenticationSpecification {
+    /**
+     * Allows the user to provide their own {@link AuthenticationScheme} implementation for custom authentication
+     * mechanisms.
+     *
+     * @param scheme The authentication scheme implementation to use.
+     * @return The request specification.
+     */
+    RequestSpecification scheme(AuthenticationScheme scheme);
+
     /**
      * Use http basic authentication.
      *
