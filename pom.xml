@@ -21,7 +21,7 @@
     <groupId>io.rest-assured</groupId>
     <artifactId>rest-assured-parent</artifactId>
     <packaging>pom</packaging>
-    <version>5.5.6-SNAPSHOT</version>
+    <version>5.5.7-SNAPSHOT</version>
     <url>https://rest-assured.io/</url>
     <name>REST Assured Parent POM</name>
     <description>Java DSL for easy testing of REST services</description>
@@ -436,7 +436,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.16.0</version>
+                <version>3.18.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.groovy</groupId>

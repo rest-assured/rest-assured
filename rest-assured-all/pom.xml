@@ -19,11 +19,12 @@
     <parent>
         <artifactId>rest-assured-parent</artifactId>
         <groupId>io.rest-assured</groupId>
-        <version>5.5.6-SNAPSHOT</version>
+        <version>5.5.7-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>rest-assured-all</artifactId>
+    <name>rest-assured-all</name>
     <packaging>jar</packaging>
 
     <build>

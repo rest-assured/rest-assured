@@ -19,11 +19,12 @@
     <parent>
         <artifactId>rest-assured-parent</artifactId>
         <groupId>io.rest-assured</groupId>
-        <version>5.5.6-SNAPSHOT</version>
+        <version>5.5.7-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>xml-path</artifactId>
+    <name>xml-path</name>
     <packaging>bundle</packaging>
 
     <build>
@@ -70,7 +71,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured-common</artifactId>
-            <version>5.5.6-SNAPSHOT</version>
+            <version>5.5.7-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
