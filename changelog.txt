@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* MockMvc multipart uploading works with Spring 7.x
+
 Changelog 5.5.6 (2025-08-15)
 ----------------------------
 * Remove deprecated constructors in multipart handling (#1827) (thanks to Tobias Unger for PR)
