@@ -22,11 +22,7 @@ import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.filter.Filter;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.time.TimingFilter;
-import io.restassured.http.Cookie;
-import io.restassured.http.Cookies;
-import io.restassured.http.Header;
-import io.restassured.http.Headers;
-import io.restassured.http.Method;
+import io.restassured.http.*;
 import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ResponseSpecificationImpl;
@@ -46,7 +42,6 @@ import io.restassured.module.spring.commons.ParamApplier;
 import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.spring.commons.config.ConfigConverter;
 import io.restassured.specification.ResponseSpecification;
-import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
@@ -63,11 +58,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -92,13 +85,7 @@ import static io.restassured.module.spring.commons.RequestLogger.logParamsAndHea
 import static io.restassured.module.spring.commons.RequestLogger.logRequestBody;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.trimToNull;
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.HEAD;
-import static org.springframework.http.HttpMethod.OPTIONS;
-import static org.springframework.http.HttpMethod.PATCH;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.http.HttpMethod.*;
 import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 
@@ -443,7 +430,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
         if (method == POST || method == PUT || method == PATCH) {
             final MockHttpServletRequestBuilder request = isSpring6OrLater
-                    ? invokeMethod(MockMvcRequestBuilders.class, "multipart", uri, unnamedPathParams)
+                    ? invokeMethod(MockMvcRequestBuilders.class, "multipart", new Class[]{String.class, Object[].class}, uri, unnamedPathParams)
                     : invokeMethod(MockMvcRequestBuilders.class, "fileUpload", new Class[]{String.class, Object[].class}, uri, unnamedPathParams);
 
             return request.with(req -> {
