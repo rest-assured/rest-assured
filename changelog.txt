@@ -3,6 +3,7 @@ Changelog next version
 * spring-mock-mvc module now supports Spring 7.x
 * spring-web-test-client now supports Spring 7.x
 * Upgraded commons-lang3 from 3.18.0 to 3.19.0
+* The spring modules now required Spring 5.3+ (previously 5.1 was required)
 
 Changelog 5.5.6 (2025-08-15)
 ----------------------------
