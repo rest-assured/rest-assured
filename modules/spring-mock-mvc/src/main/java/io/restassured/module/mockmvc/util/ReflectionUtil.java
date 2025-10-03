@@ -24,7 +24,7 @@ public class ReflectionUtil {
     public static <T> T invokeMethod(Object instance, String methodName, Class<?>[] argumentTypes, Object... arguments) {
         final Class<?> targetClass = (instance instanceof Class) ? (Class<?>) instance : instance.getClass();
 
-        // 1) Find method (try exact; if not found and caller likely meant varargs, retry with array)
+        // Find method (try exact; if not found and caller likely meant varargs, retry with array)
         Method method = ReflectionUtils.findMethod(targetClass, methodName, argumentTypes);
         if (method == null && argumentTypes != null && argumentTypes.length == 1 && !argumentTypes[0].isArray()) {
             Class<?> arrayParam = Array.newInstance(argumentTypes[0], 0).getClass();
@@ -37,7 +37,7 @@ public class ReflectionUtil {
             );
         }
 
-        // 2) Resolve bridge -> real method (Java 8 friendly)
+        //  Resolve bridge -> real method
         Method resolved = BridgeMethodResolver.findBridgedMethod(method);
         if (resolved.isBridge() || resolved.isSynthetic()) {
             final String name = methodName;                      // capture for lambda
@@ -58,7 +58,7 @@ public class ReflectionUtil {
             method = resolved;
         }
 
-        // 3) Uniform handling for methods whose last parameter is an array
+        // Uniform handling for methods whose last parameter is an array
         final Class<?>[] params = method.getParameterTypes();
         final boolean lastIsArray = params.length > 0 && params[params.length - 1].isArray();
 
@@ -85,7 +85,6 @@ public class ReflectionUtil {
                                     + " but got " + last.getClass().getName()
                     );
                 }
-                // else: fall through to repack tail into correct array
             } else if (arguments.length < fixed) {
                 throw new IllegalArgumentException(
                         "Too few arguments: expected at least " + fixed + " for " + method);
@@ -112,7 +111,6 @@ public class ReflectionUtil {
             return (T) invoke(method, instance, invocationArgs);
         }
 
-        // 4) Non-array signature: invoke directly
         return (T) invoke(method, instance, arguments);
     }
 
