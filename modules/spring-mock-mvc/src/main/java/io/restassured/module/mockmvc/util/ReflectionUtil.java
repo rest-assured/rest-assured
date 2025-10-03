@@ -1,11 +1,13 @@
 package io.restassured.module.mockmvc.util;
 
+import org.springframework.core.BridgeMethodResolver;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Objects;
 
 public class ReflectionUtil {
     private ReflectionUtil() {
@@ -19,25 +21,102 @@ public class ReflectionUtil {
 
     @SuppressWarnings("unchecked")
     public static <T> T invokeMethod(Object instance, String methodName, Class<?>[] argumentTypes, Object... arguments) {
-        java.lang.reflect.Method method = ReflectionUtils.findMethod(instance instanceof Class ? (Class<?>) instance : instance.getClass(), methodName, argumentTypes);
+        final Class<?> targetClass = (instance instanceof Class<?> c) ? c : instance.getClass();
+
+        Method method = ReflectionUtils.findMethod(targetClass, methodName, argumentTypes);
         if (method == null) {
-            throw new IllegalArgumentException("Cannot find method '" + methodName + "' in " + instance.getClass() + " (arguments=" + Arrays.toString(arguments) + ")");
+            // Fallback: common mistake—asked for T but method takes T[]
+            if (argumentTypes != null && argumentTypes.length == 1 && !argumentTypes[0].isArray()) {
+                Class<?> arrayParam = java.lang.reflect.Array.newInstance(argumentTypes[0], 0).getClass();
+                method = ReflectionUtils.findMethod(targetClass, methodName, arrayParam);
+            }
         }
-        if (!method.isVarArgs() || argumentTypes.length == 0
-                || (argumentTypes.length == arguments.length
-                && Objects.equals(argumentTypes[argumentTypes.length - 1], arguments[arguments.length - 1].getClass()))) {
-            return (T) ReflectionUtils.invokeMethod(method, instance, arguments);
+        if (method == null) {
+            throw new IllegalArgumentException("Cannot find method '" + methodName + "' in "
+                    + targetClass.getName() + " (arguments=" + Arrays.toString(arguments) + ")");
         }
-        //Try to pack arguments to vararg
 
-        Object[] objectArrayNeededForInvocation = new Object[argumentTypes.length];
-        Object varArgsArguments = getVarArgsArguments(argumentTypes, arguments);
+        // Prefer the bridged (real) method over the synthetic bridge
+        // Prefer the bridged (real) method over the synthetic bridge
+        Method resolved = BridgeMethodResolver.findBridgedMethod(method);
 
-        System.arraycopy(arguments, 0, objectArrayNeededForInvocation, 0, argumentTypes.length - 1);
-        objectArrayNeededForInvocation[objectArrayNeededForInvocation.length - 1] = varArgsArguments;
-        return (T) ReflectionUtils.invokeMethod(method, instance, objectArrayNeededForInvocation);
+        // If we still ended up on a bridge/synthetic, try to pick the concrete sibling
+        if (resolved.isBridge() || resolved.isSynthetic()) {
+            final String name = methodName;                // capture for lambda
+            final Class<?>[] paramTypes = resolved.getParameterTypes(); // capture for lambda
+            method = Arrays.stream(targetClass.getMethods())
+                    .filter(m -> m.getName().equals(name))
+                    .filter(m -> Arrays.equals(m.getParameterTypes(), paramTypes))
+                    .filter(m -> !m.isBridge() && !m.isSynthetic())
+                    .findFirst()
+                    .orElse(resolved);
+        } else {
+            method = resolved;
+        }
+        // --- Unified array/varargs handling (works even if isVarArgs() is false due to bridge) ---
+        Class<?>[] params = method.getParameterTypes();
+        boolean lastIsArray = params.length > 0 && params[params.length - 1].isArray();
+
+        if (lastIsArray) {
+            int fixed = params.length - 1;
+            Class<?> arrayType = params[params.length - 1];
+            Class<?> componentType = arrayType.getComponentType();
+
+            if (arguments.length == params.length) {
+                Object last = arguments[arguments.length - 1];
+                if (last == null) {
+                    Object empty = java.lang.reflect.Array.newInstance(componentType, 0);
+                    Object[] invocationArgs = Arrays.copyOf(arguments, arguments.length);
+                    invocationArgs[invocationArgs.length - 1] = empty;
+                    return (T) invoke(method, instance, invocationArgs);
+                }
+                if (arrayType.isInstance(last)) {
+                    return (T) invoke(method, instance, arguments);
+                }
+                if (last.getClass().isArray()) {
+                    throw new IllegalArgumentException("Array parameter type mismatch: expected "
+                            + arrayType.getName() + " but got " + last.getClass().getName());
+                }
+                // else fall through to repack
+            } else if (arguments.length < fixed) {
+                throw new IllegalArgumentException("Too few arguments: expected at least " + fixed);
+            }
+
+            Object[] invocationArgs = new Object[params.length];
+            if (fixed > 0) System.arraycopy(arguments, 0, invocationArgs, 0, fixed);
+
+            int varCount = Math.max(0, arguments.length - fixed);
+            Object varArray = java.lang.reflect.Array.newInstance(componentType, varCount);
+            for (int i = 0; i < varCount; i++) {
+                Object v = arguments[fixed + i];
+                if (v != null && !componentType.isInstance(v)) {
+                    throw new IllegalArgumentException("Vararg element not assignable: expected "
+                            + componentType.getName() + " but got " + v.getClass().getName());
+                }
+                java.lang.reflect.Array.set(varArray, i, v);
+            }
+            invocationArgs[invocationArgs.length - 1] = varArray;
+            return (T) invoke(method, instance, invocationArgs);
+        }
+
+        // Non-array signature
+        return (T) invoke(method, instance, arguments);
     }
 
+    @SuppressWarnings("unchecked")
+    private static <T> T invoke(Method method, Object instance, Object[] args) {
+        if (!method.canAccess(instance instanceof Class ? null : instance)) method.setAccessible(true);
+        try {
+            return (T) method.invoke(instance, args);
+        } catch (InvocationTargetException e) {
+            Throwable c = e.getCause();
+            if (c instanceof RuntimeException re) throw re;
+            if (c instanceof Error err) throw err;
+            throw new RuntimeException(c);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
     @SuppressWarnings("unchecked")
     public static <T> T invokeConstructor(String className, Object... arguments) {
         Class<?>[] argumentTypes = getArgumentTypes(arguments);
