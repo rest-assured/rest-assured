@@ -15,7 +15,7 @@ public class MultipartController {
     @PostMapping(value = "/files/{type}", consumes = {"multipart/form-data"}, produces = APPLICATION_JSON_VALUE)
     @ResponseBody
     public String saveFile(
-            @PathVariable String type,
+            @PathVariable("type") String type,
             @RequestPart("file") MultipartFile file) {
         return String.format("{\"type\": \"%s\", \"name\": \"%s\"}", type, file.getName());
     }
