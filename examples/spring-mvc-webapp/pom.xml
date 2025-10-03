@@ -31,7 +31,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring.version>5.3.39</spring.version>
-        <spring.security.version>5.3.13.RELEASE</spring.security.version>
+        <spring.security.version>5.8.16</spring.security.version>
         <jetty.version>9.4.34.v20201102</jetty.version>
     </properties>
 
