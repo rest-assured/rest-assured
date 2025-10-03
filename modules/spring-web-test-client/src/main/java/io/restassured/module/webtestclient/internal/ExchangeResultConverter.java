@@ -34,6 +34,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.MimeType;
 import org.springframework.util.MultiValueMap;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -75,10 +76,9 @@ class ExchangeResultConverter {
     }
 
     private List<Header> assembleHeaders(HttpHeaders headers) {
-        return headers.keySet().stream()
-                .map(headerName -> headers.get(headerName).stream()
-                        .map(headerValue -> new Header(headerName, headerValue))
-                        .collect(Collectors.toList())).flatMap(Collection::stream).collect(Collectors.toList());
+        List<Header>  responseHeaders = new ArrayList<>();
+        headers.forEach((headerName, headerValues) -> responseHeaders.add(new Header(headerName, headerValues.get(0))));
+        return responseHeaders;
     }
 
     private String buildResultString(HttpStatus status) {

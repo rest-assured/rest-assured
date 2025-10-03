@@ -94,7 +94,7 @@ public class LoggingIfValidationFailsTest {
                     "%nBody:\t\t\t<none>%n" +
                     "%n" +
                     "200%n" +
-                    "Content-Type: application/json;charset=UTF-8%n",
+                    "Content-Type: application/json%n",
                     RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset());
             assertThat(writerString, startsWith(headerString));
             assertJsonEqualsNonStrict(writerString.replace(headerString, "").trim(),
@@ -120,7 +120,7 @@ public class LoggingIfValidationFailsTest {
         } catch (AssertionError e) {
             assertThat(writer.toString(), equalTo(String.format("Headers:\t\tContent-Type=application/x-www-form-urlencoded;charset=%s%n" +
                             "%n" +
-                            "Content-Type: application/json;charset=UTF-8%n",
+                            "Content-Type: application/json%n",
                     RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset())));
         }
     }
@@ -151,7 +151,7 @@ public class LoggingIfValidationFailsTest {
             assertThat(writer.toString(), equalTo(String.format("Headers:\t\tApi-Key=1234%n" +
                             "\t\t\t\tContent-Type=application/x-www-form-urlencoded;charset=%s%n" +
                             "%n" +
-                            "Content-Type: application/json;charset=UTF-8%n",
+                            "Content-Type: application/json%n",
                     RestAssuredMockMvcConfig.config().getEncoderConfig().defaultContentCharset())));
         }
     }

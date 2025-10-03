@@ -95,7 +95,7 @@ public class LoggingIfValidationFailsTest {
 							"Body:\t\t\t<none>%n" +
 							"%n" +
 							"200%n" +
-							"Content-Type: application/json;charset=UTF-8%n" +
+							"Content-Type: application/json%n" +
 							"Content-Length: 34%n" +
 							"%n",
 					config().getEncoderConfig().defaultContentCharset());
@@ -140,7 +140,7 @@ public class LoggingIfValidationFailsTest {
 					"Body:\t\t\t<none>%n" +
 					"%n" +
 					"200%n" +
-					"Content-Type: application/json;charset=UTF-8%n" +
+					"Content-Type: application/json%n" +
 					"Content-Length: 34%n" +
 					"%n"
 			);
@@ -174,7 +174,7 @@ public class LoggingIfValidationFailsTest {
 			assertThat(writer.toString(), equalTo(String.format("" +
 							"Headers:\t\tContent-Type=application/x-www-form-urlencoded;charset=%s%n" +
 							"%n" +
-							"Content-Type: application/json;charset=UTF-8%n" +
+							"Content-Type: application/json%n" +
 							"Content-Length: 34%n",
 					config().getEncoderConfig().defaultContentCharset())));
 		}
@@ -208,7 +208,7 @@ public class LoggingIfValidationFailsTest {
 			assertThat(writer.toString(), equalTo(String.format("Headers:\t\tApi-Key=1234%n" +
 							"\t\t\t\tContent-Type=application/x-www-form-urlencoded;charset=%s%n" +
 							"%n" +
-							"Content-Type: application/json;charset=UTF-8%n" +
+							"Content-Type: application/json%n" +
 							"Content-Length: 34%n",
 					RestAssuredWebTestClientConfig.config().getEncoderConfig().defaultContentCharset())
 			));

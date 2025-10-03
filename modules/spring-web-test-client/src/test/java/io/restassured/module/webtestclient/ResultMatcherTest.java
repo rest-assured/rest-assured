@@ -24,7 +24,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 
 public class ResultMatcherTest {
 
@@ -46,7 +47,7 @@ public class ResultMatcherTest {
 				.when()
 				.get("/greeting?name={name}", "Johan")
 				.then()
-				.header("Content-Type", APPLICATION_JSON_UTF8_VALUE)
+				.header("Content-Type", APPLICATION_JSON_VALUE)
 				.statusCode(HttpStatus.OK.value())
 				.body("id", Matchers.equalTo(1))
 				.body("content", Matchers.equalTo("Hello, Johan!"));

@@ -20,13 +20,13 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-import static org.springframework.web.reactive.function.BodyInserters.fromObject;
+import static org.springframework.web.reactive.function.BodyInserters.fromValue;
 
 public class ContentTypeProcessor {
 
 	public Mono<ServerResponse> processContentType(ServerRequest request) {
 		return ServerResponse.ok()
-				.body(fromObject(new RequestContentTypeWrapper(request.headers().contentType().orElse(MediaType.ALL)
+				.body(fromValue(new RequestContentTypeWrapper(request.headers().contentType().orElse(MediaType.ALL)
 						.toString())));
 	}
 }

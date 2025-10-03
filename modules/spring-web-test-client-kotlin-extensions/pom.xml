@@ -28,7 +28,7 @@
     <url>https://rest-assured.io/</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>5.1.13.RELEASE</spring.version>
+        <spring.version>5.3.39</spring.version>
     </properties>
 
     <dependencies>

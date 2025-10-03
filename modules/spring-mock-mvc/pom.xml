@@ -28,8 +28,9 @@
     <url>https://rest-assured.io/</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>5.1.13.RELEASE</spring.version>
-        <spring.security.version>5.1.13.RELEASE</spring.security.version>
+        <spring.version>5.3.39</spring.version>
+        <spring.security.version>5.3.13.RELEASE</spring.security.version>
+        <java.version>1.8</java.version>
     </properties>
 
     <dependencies>
@@ -72,19 +73,15 @@
             <version>${spring.security.version}</version>
             <optional>true</optional>
         </dependency>
+
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.platform</groupId>
-            <artifactId>jakarta.jakartaee-web-api</artifactId>
-            <version>10.0.0</version>
-            <scope>provided</scope>
+          <groupId>javax.servlet</groupId>
+          <artifactId>javax.servlet-api</artifactId>
+          <version>4.0.1</version>
+          <scope>provided</scope>
         </dependency>
 
+        
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>

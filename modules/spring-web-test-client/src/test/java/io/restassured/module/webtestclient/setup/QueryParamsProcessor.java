@@ -27,7 +27,7 @@ public class QueryParamsProcessor {
 	public Mono<ServerResponse> processQueryParams(ServerRequest serverRequest) {
 		return ServerResponse.ok().contentType(MediaType.APPLICATION_JSON)
 				.header("test", "test")
-				.syncBody("{ \"name\" : \"" + String.format(template,
+				.bodyValue("{ \"name\" : \"" + String.format(template,
 						serverRequest.queryParams().getFirst("name")) + "\"," +
 						" \"message\" : \"" + serverRequest.queryParams().getFirst("message") + "\", " +
 						" \"_link\" : \"" + serverRequest.uri() + "\" }");

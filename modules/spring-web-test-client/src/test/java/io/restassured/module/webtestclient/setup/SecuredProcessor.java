@@ -23,7 +23,7 @@ public class SecuredProcessor {
 
 	public Mono<ServerResponse> processSecuredRequest(ServerRequest serverRequest) {
 		String auth = serverRequest.headers().header("Authorization").get(0);
-		return ServerResponse.ok().syncBody(new AuthWrapper(auth));
+		return ServerResponse.ok().bodyValue(new AuthWrapper(auth));
 	}
 }
 

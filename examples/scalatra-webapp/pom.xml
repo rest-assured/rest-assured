@@ -58,7 +58,7 @@
                         <artifactId>maven-jetty-plugin</artifactId>
                         <configuration>
                             <stopKey>foo</stopKey>
-                            <stopPort>8079</stopPort>
+                            <stopPort>1.8079</stopPort>
                             <contextPath>/</contextPath>
                         </configuration>
                     </plugin>

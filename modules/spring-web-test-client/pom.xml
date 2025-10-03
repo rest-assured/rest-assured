@@ -28,7 +28,7 @@
     <url>https://rest-assured.io/</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>5.1.13.RELEASE</spring.version>
+        <spring.version>5.3.39</spring.version>
         <servlet-api.version>4.0.1</servlet-api.version>
         <spring.restdocs.version>2.0.2.RELEASE</spring.restdocs.version>
         <powermock-module-junit4.version>1.7.4</powermock-module-junit4.version>
@@ -85,7 +85,7 @@
             <version>${spring.version}</version>
             <optional>true</optional>
         </dependency>
-        
+
         <dependency>
             <groupId>org.synchronoss.cloud</groupId>
             <artifactId>nio-multipart-parser</artifactId>

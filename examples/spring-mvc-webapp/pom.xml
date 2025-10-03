@@ -30,8 +30,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>5.1.13.RELEASE</spring.version>
-        <spring.security.version>5.1.13.RELEASE</spring.security.version>
+        <spring.version>5.3.39</spring.version>
+        <spring.security.version>5.3.13.RELEASE</spring.security.version>
         <jetty.version>9.4.34.v20201102</jetty.version>
     </properties>
 
@@ -173,7 +173,7 @@
                         <artifactId>jetty-maven-plugin</artifactId>
                         <configuration>
                             <stopKey>foo</stopKey>
-                            <stopPort>8079</stopPort>
+                            <stopPort>1.8079</stopPort>
                         </configuration>
                     </plugin>
                 </plugins>

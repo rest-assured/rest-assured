@@ -81,6 +81,8 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	private static final String CONTENT_TYPE = "Content-Type";
 	private static final Pattern PATH_PARAM_PATTERN = Pattern.compile("\\{([^/]+?)\\}");
 
+    private static boolean isWebflux7OrAbove = Arrays.stream(WebTestClient.RequestBodySpec.class.getMethods()).anyMatch(method -> method.getName().equals(""));
+
 	private final WebTestClient webTestClient;
 	private final Map<String, Object> params;
 	private final Map<String, Object> namedPathParams;
@@ -513,12 +515,12 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	private void applyRequestBody(WebTestClient.RequestBodySpec requestBodySpec) {
 		if (requestBody != null) {
 			if (requestBody instanceof byte[]) {
-				requestBodySpec.syncBody(requestBody);
+				requestBodySpec.bodyValue(requestBody);
 			} else if (requestBody instanceof File) {
 				byte[] bytes = toByteArray((File) requestBody);
-				requestBodySpec.syncBody(bytes);
+				requestBodySpec.bodyValue(bytes);
 			} else {
-				requestBodySpec.syncBody(requestBody.toString());
+				requestBodySpec.bodyValue(requestBody.toString());
 			}
 		}
 	}
@@ -528,7 +530,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 			if (method != POST && method != PUT && method != PATCH) {
 				throw new IllegalArgumentException("Currently multi-part file data uploading only works for POST, PUT and PATCH method.");
 			}
-			requestBodySpec.syncBody(getMultipartBody());
+			requestBodySpec.bodyValue(getMultipartBody());
 		}
 	}
 

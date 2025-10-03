@@ -76,7 +76,7 @@ public class ResponseLoggingTest {
         } catch (AssertionError e) {
             String writerString = writer.toString();
             String headerString = String.format("200%n" +
-                            "Content-Type: application/json;charset=UTF-8%n");
+                            "Content-Type: application/json%n");
             assertThat(writerString, startsWith(headerString));
             assertJsonEqualsNonStrict(writerString.replace(headerString, "").trim(),
                     "{\n    \"id\": 1,\n    \"content\": \"Hello, Johan!\"\n}");

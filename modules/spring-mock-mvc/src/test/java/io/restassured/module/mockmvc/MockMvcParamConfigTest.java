@@ -16,22 +16,10 @@
 
 package io.restassured.module.mockmvc;
 
-import io.restassured.module.mockmvc.config.MockMvcConfig;
 import io.restassured.module.mockmvc.http.MultiValueController;
-import io.restassured.module.mockmvc.internal.MockMvcFactory;
-import io.restassured.module.mockmvc.internal.StandaloneMockMvcFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-
-import javax.servlet.ServletContext;
 
 import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE;
 import static io.restassured.module.mockmvc.config.MockMvcParamConfig.paramConfig;

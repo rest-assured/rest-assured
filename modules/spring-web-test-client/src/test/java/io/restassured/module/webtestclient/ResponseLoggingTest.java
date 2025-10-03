@@ -71,7 +71,7 @@ public class ResponseLoggingTest {
 		} catch (AssertionError e) {
 			String writerString = writer.toString();
 			String headerString = String.format("200%n" +
-					"Content-Type: application/json;charset=UTF-8%n" +
+					"Content-Type: application/json%n" +
 					"Content-Length: 34%n" +
 					"%n"
 			);
