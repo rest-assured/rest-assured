@@ -517,9 +517,10 @@
     </dependencyManagement>
 
     <distributionManagement>
-        <repository>
-            <id>central</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
+      <snapshotRepository>
+        <id>central-portal-snapshots</id>
+        <name>Central Portal Snapshots</name>
+        <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+      </snapshotRepository>
     </distributionManagement>
 </project>
