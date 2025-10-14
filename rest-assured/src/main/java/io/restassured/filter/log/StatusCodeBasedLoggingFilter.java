@@ -131,7 +131,10 @@ class StatusCodeBasedLoggingFilter implements Filter {
      */
     private Response cloneResponseIfNeeded(Response response, byte[] responseAsString) {
         if (responseAsString != null && response instanceof RestAssuredResponseImpl && !((RestAssuredResponseImpl) response).getHasExpectations()) {
-            final Response build = new ResponseBuilder().clone(response).setBody(responseAsString).build();
+            final Response build = new ResponseBuilder()
+                .clone(response)
+                .setBody(responseAsString)
+                .build();
             ((RestAssuredResponseImpl) build).setHasExpectations(true);
             return build;
         }
