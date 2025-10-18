@@ -20,6 +20,8 @@ import io.restassured.internal.common.assertion.Assertion
 
 import static io.restassured.internal.common.assertion.AssertionSupport.*
 
+import org.codehaus.groovy.runtime.InvokerHelper
+
 class JSONAssertion implements Assertion {
 
   static {
@@ -78,9 +80,11 @@ class JSONAssertion implements Assertion {
   private def eval(root, object, expr) {
     Map<String, Object> newParams = (params != null) ? new HashMap<>(params) : new HashMap<>()
     newParams.put(root, object)
-    GroovyShell sh = new GroovyShell(new Binding(newParams))
-    def res = sh.evaluate(expr)
-    sh.resetLoadedClasses()
-    return res
+    // Run the expression as a script, making sure to close the associated class loader
+    return new GroovyClassLoader().withCloseable { loader -> 
+      Class scriptClass = loader.parseClass(expr, "Script1.groovy")
+      Script script = InvokerHelper.createScript(scriptClass, new Binding(newParams))
+      return script.run()
+    }
   }
 }
