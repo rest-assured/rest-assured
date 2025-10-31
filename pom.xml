@@ -57,7 +57,7 @@
         <tests.jvmArgs>-Dfile.encoding=${project.build.sourceEncoding} --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</tests.jvmArgs>
         <groovy.version>4.0.22</groovy.version>
         <groovy.range>[4.0,5.0)</groovy.range>
-        <gmaven.version>1.5</gmaven.version>
+        <gmavenplus.version>3.0.2</gmavenplus.version>
         <hamcrest.version>2.2</hamcrest.version>
         <jackson1.version>1.9.11</jackson1.version>
         <jackson2.version>2.17.1</jackson2.version>
@@ -126,38 +126,21 @@
                     <version>5.1.4</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.gmaven</groupId>
-                    <artifactId>gmaven-plugin</artifactId>
-                    <version>${gmaven.version}</version>
+                    <groupId>org.codehaus.gmavenplus</groupId>
+                    <artifactId>gmavenplus-plugin</artifactId>
+                    <version>${gmavenplus.version}</version>
                     <configuration>
-                        <providerSelection>2.0</providerSelection>
-                        <source />
+                        <targetBytecode>${java.version}</targetBytecode>
                     </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.codehaus.gmaven.runtime</groupId>
-                            <artifactId>gmaven-runtime-2.0</artifactId>
-                            <version>${gmaven.version}</version>
-                            <exclusions>
-                                <exclusion>
-                                    <groupId>org.apache.groovy</groupId>
-                                    <artifactId>groovy-all</artifactId>
-                                </exclusion>
-                            </exclusions>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.groovy</groupId>
-                            <artifactId>groovy</artifactId>
-                            <version>${groovy.version}</version>
-                        </dependency>
-                    </dependencies>
                     <executions>
                         <execution>
                             <goals>
+                                <goal>addSources</goal>
+                                <goal>addTestSources</goal>
                                 <goal>generateStubs</goal>
                                 <goal>compile</goal>
                                 <goal>generateTestStubs</goal>
-                                <goal>testCompile</goal>
+                                <goal>compileTests</goal>
                             </goals>
                         </execution>
                     </executions>
