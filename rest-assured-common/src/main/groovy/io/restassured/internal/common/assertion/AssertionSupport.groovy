@@ -60,11 +60,16 @@ class AssertionSupport {
   }
 
   def static properties() {
-    new GetAtPathFragmentEscaper() {
+    new PathFragmentEscaper() {
       @Override
       boolean shouldEscape(String pathFragment) {
         !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('properties') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, space, listIndexEndFragment])
       }
+      @Override
+      String escape(String pathFragment) {
+          // To be interpreted
+          "with { io.restassured.internal.common.assertion.AssertionSupport.collectionAwareGetAt(it, '${pathFragment}') }"
+        }
     }
   }
 
@@ -147,5 +152,53 @@ class AssertionSupport {
       }
     }
     return false;
+  }
+
+  static Object collectionAwareGetAt(Object target, String pathFragment) {
+    if (target == null) {
+      return null
+    }
+
+    if (!pathFragment) {
+      return null
+    }
+
+    // If it is a collection, we call recursively the function :
+    //   list.name → [element1.name, element2.name, ...]
+    //
+    // Example :
+    // def data = [[name:'Alice'], [name:'Bob']]
+    // collectionAwareGetAt(data, 'name')  →  ['Alice', 'Bob']
+    if (target instanceof Collection) {
+      return target.collect { element ->
+        collectionAwareGetAt(element, pathFragment)
+      }
+    }
+
+    // If it is a map, we are doing a get() on the key
+    //
+    // Example :
+    // def map = [name: 'Charlie', age: 33]
+    // collectionAwareGetAt(map, 'name')  →  'Charlie'
+    if (target instanceof Map) {
+      return ((Map) target).get(pathFragment)
+    }
+
+    // If target is an object, we call the getter
+    def metaClass = target.metaClass
+
+    // -> construct getter name (ex: "name" → "getName")
+    String getterName = "get" + pathFragment.capitalize()
+
+    // --> If object has the getter, we call it
+    if (metaClass.respondsTo(target, getterName)) {
+      return target."${getterName}"()
+    }
+
+    // -->If objet has a 'getAt' method, we call it
+    if (metaClass.respondsTo(target, 'getAt', pathFragment)) {
+      return target.getAt(pathFragment)
+    }
+    return null
   }
 }
