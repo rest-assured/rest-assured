@@ -29,7 +29,7 @@
     <description>Scala support for REST Assured</description>
 
     <properties>
-        <scala.version>2.13.0</scala.version>
+        <scala.version>2.13.13</scala.version>
     </properties>
 
     <build>
@@ -48,7 +48,7 @@
             <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
-                <version>3.2.2</version>
+                <version>4.9.2</version>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>

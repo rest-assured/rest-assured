@@ -41,6 +41,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${compiler-plugin.version}</version>
                 <configuration>
+                    <release>${java.version}</release>
                     <compilerArgs>
                         <arg>-parameters</arg>
                     </compilerArgs>
