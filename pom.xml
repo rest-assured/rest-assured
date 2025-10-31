@@ -57,7 +57,7 @@
         <tests.jvmArgs>-Dfile.encoding=${project.build.sourceEncoding} --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</tests.jvmArgs>
         <groovy.version>4.0.22</groovy.version>
         <groovy.range>[4.0,5.0)</groovy.range>
-        <gmavenplus.version>3.0.2</gmavenplus.version>
+        <gmavenplus.version>4.2.1</gmavenplus.version>
         <hamcrest.version>2.2</hamcrest.version>
         <jackson1.version>1.9.11</jackson1.version>
         <jackson2.version>2.17.1</jackson2.version>
@@ -102,7 +102,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>animal-sniffer-maven-plugin</artifactId>
-                    <version>1.24</version>
+                    <version>1.26</version>
                     <configuration>
                         <signature>
                             <groupId>org.codehaus.mojo.signature</groupId>
@@ -213,7 +213,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
+                <version>3.14.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
