@@ -15,7 +15,18 @@
  */
 package io.restassured.internal
 
-import io.restassured.authentication.*
+import io.restassured.authentication.BasicAuthScheme
+import io.restassured.authentication.CertAuthScheme
+import io.restassured.authentication.CertificateAuthSettings
+import io.restassured.authentication.ExplicitNoAuthScheme
+import io.restassured.authentication.FormAuthConfig
+import io.restassured.authentication.FormAuthScheme
+import io.restassured.authentication.NoAuthScheme
+import io.restassured.authentication.NTLMAuthScheme
+import io.restassured.authentication.OAuth2Scheme
+import io.restassured.authentication.OAuthScheme
+import io.restassured.authentication.OAuthSignature
+import io.restassured.authentication.PreemptiveOAuth2HeaderScheme
 import io.restassured.specification.AuthenticationSpecification
 import io.restassured.specification.PreemptiveAuthSpec
 import io.restassured.specification.RequestSpecification

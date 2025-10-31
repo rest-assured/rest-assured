@@ -55,8 +55,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
         <tests.jvmArgs>-Dfile.encoding=${project.build.sourceEncoding} --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</tests.jvmArgs>
-        <groovy.version>4.0.22</groovy.version>
-        <groovy.range>[4.0,5.0)</groovy.range>
+        <groovy.version>5.0.2</groovy.version>
+        <groovy.range>[5.0,6.0)</groovy.range>
         <gmavenplus.version>4.2.1</gmavenplus.version>
         <hamcrest.version>2.2</hamcrest.version>
         <jackson1.version>1.9.11</jackson1.version>
