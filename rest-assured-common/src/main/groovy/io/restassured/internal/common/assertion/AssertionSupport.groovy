@@ -65,10 +65,6 @@ class AssertionSupport {
       boolean shouldEscape(String pathFragment) {
         !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('properties') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, space, listIndexEndFragment])
       }
-      @Override
-      String escape(String pathFragment) {
-        return "get('" + pathFragment + "')"
-      }
     }
   }
 
