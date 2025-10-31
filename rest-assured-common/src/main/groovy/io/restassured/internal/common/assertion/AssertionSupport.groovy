@@ -163,10 +163,10 @@ class AssertionSupport {
       return null
     }
 
-    // If it is a collection, we call recursively the function :
+    // If it is a collection, we call recursively the function:
     //   list.name → [element1.name, element2.name, ...]
     //
-    // Example :
+    // Example:
     // def data = [[name:'Alice'], [name:'Bob']]
     // collectionAwareGetAt(data, 'name')  →  ['Alice', 'Bob']
     if (target instanceof Collection) {
@@ -177,7 +177,7 @@ class AssertionSupport {
 
     // If it is a map, we are doing a get() on the key
     //
-    // Example :
+    // Example:
     // def map = [name: 'Charlie', age: 33]
     // collectionAwareGetAt(map, 'name')  →  'Charlie'
     if (target instanceof Map) {
