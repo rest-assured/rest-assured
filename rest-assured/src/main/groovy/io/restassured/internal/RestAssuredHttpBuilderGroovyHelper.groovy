@@ -15,11 +15,7 @@ class RestAssuredHttpBuilderGroovyHelper {
       try {
         assertionClosure.call(response, content)
       } catch (InvokerInvocationException e) {
-        def cause = e.getCause()
-        if (cause != null) {
-          throw cause
-        }
-        throw e
+       InvokerInvocationHelper.rethrowInvokerInvocationException(e)
       }
     }
   }

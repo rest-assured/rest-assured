@@ -185,12 +185,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     try {
       return metaClass.invokeMethod(this, name, args)
     } catch (InvokerInvocationException e) {
-      // In case of double encapsulation, get cause and throw it
-      def cause = e.getCause()
-      if (cause != null) {
-        throw cause
-      }
-      throw e
+      InvokerInvocationHelper.rethrowInvokerInvocationException(e);
     }
   }
 
@@ -1747,11 +1742,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     try {
       responseSpecification.assertionClosure.validate(response)
     } catch (InvokerInvocationException e) {
-      def cause = e.getCause()
-      if (cause != null) {
-        throw cause
-      }
-      throw e
+     InvokerInvocationHelper.rethrowInvokerInvocationException(e)
     }
     return response
   }
@@ -1760,11 +1751,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     try {
       applyPathParamsAndSendRequest(notNull(method, Method.class).name(), path, unnamedPathParams)
     } catch (InvokerInvocationException e) {
-      def cause = e.getCause()
-      if (cause != null) {
-        throw cause
-      }
-      throw e
+      InvokerInvocationHelper.rethrowInvokerInvocationException(e)
     }
   }
 
@@ -1772,11 +1759,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     try {
       return action.call()
     } catch (InvokerInvocationException e) {
-      def cause = e.getCause()
-      if (cause != null) {
-        throw cause
-      }
-      throw e
+      InvokerInvocationHelper.rethrowInvokerInvocationException(e)
     }
   }
 
