@@ -76,6 +76,7 @@ import io.restassured.specification.RequestLogSpecification
 import io.restassured.specification.RequestSpecification
 import io.restassured.specification.ResponseSpecification
 import io.restassured.spi.AuthFilter
+import org.codehaus.groovy.runtime.InvokerInvocationException
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.client.CredentialsProvider
@@ -180,6 +181,19 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this.addCsrfFilter = addCsrfFilter
   }
 
+  def invokeMethod(String name, args) {
+    try {
+      return metaClass.invokeMethod(this, name, args)
+    } catch (InvokerInvocationException e) {
+      // In case of double encapsulation, get cause and throw it
+      def cause = e.getCause()
+      if (cause != null) {
+        throw cause
+      }
+      throw e
+    }
+  }
+
   RequestSpecification when() {
     return this
   }
@@ -197,31 +211,31 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   Response get(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(GET, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(GET, path, pathParams) }
   }
 
   Response post(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(POST, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(POST, path, pathParams) }
   }
 
   Response put(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(PUT, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(PUT, path, pathParams) }
   }
 
   Response delete(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(DELETE, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(DELETE, path, pathParams) }
   }
 
   Response head(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(HEAD, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(HEAD, path, pathParams) }
   }
 
   Response patch(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(PATCH, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(PATCH, path, pathParams) }
   }
 
   Response options(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(OPTIONS, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(OPTIONS, path, pathParams) }
   }
 
   Response get(URI uri) {
@@ -317,11 +331,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   Response request(Method method, String path, Object... pathParams) {
-    return request(notNull(method, Method.class).name(), path, pathParams)
+    return invokeAndUnwrap { request(notNull(method, Method.class).name(), path, pathParams) }
   }
 
   Response request(String method, String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(method, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(method, path, pathParams) }
   }
 
   Response request(Method method, URI uri) {
@@ -342,37 +356,37 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   Response get(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(GET, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(GET, path) }
   }
 
   Response post(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(POST, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(POST, path) }
   }
 
   Response put(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(PUT, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(PUT, path) }
   }
 
   Response delete(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(DELETE, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(DELETE, path) }
   }
 
   Response head(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(HEAD, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(HEAD, path) }
   }
 
   Response patch(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(PATCH, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(PATCH, path) }
   }
 
   Response options(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(OPTIONS, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(OPTIONS, path) }
   }
 
   RequestSpecification params(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
@@ -1730,12 +1744,40 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def ctx = newFilterContext(responseSpecification.assertionClosure, filters.iterator(), [:])
     httpClient = httpClientConfig().httpClientInstance()
     def response = ctx.next(this, responseSpecification)
-    responseSpecification.assertionClosure.validate(response)
+    try {
+      responseSpecification.assertionClosure.validate(response)
+    } catch (InvokerInvocationException e) {
+      def cause = e.getCause()
+      if (cause != null) {
+        throw cause
+      }
+      throw e
+    }
     return response
   }
 
   private def applyPathParamsAndSendRequest(Method method, String path, Object... unnamedPathParams) {
-    applyPathParamsAndSendRequest(notNull(method, Method.class).name(), path, unnamedPathParams)
+    try {
+      applyPathParamsAndSendRequest(notNull(method, Method.class).name(), path, unnamedPathParams)
+    } catch (InvokerInvocationException e) {
+      def cause = e.getCause()
+      if (cause != null) {
+        throw cause
+      }
+      throw e
+    }
+  }
+
+  private def invokeAndUnwrap(Closure action) {
+    try {
+      return action.call()
+    } catch (InvokerInvocationException e) {
+      def cause = e.getCause()
+      if (cause != null) {
+        throw cause
+      }
+      throw e
+    }
   }
 
   void buildUnnamedPathParameterTuples(Object[] unnamedPathParameterValues) {
