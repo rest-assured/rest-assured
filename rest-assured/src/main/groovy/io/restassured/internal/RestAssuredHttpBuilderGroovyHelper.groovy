@@ -1,5 +1,7 @@
 package io.restassured.internal
 
+import org.codehaus.groovy.runtime.InvokerInvocationException
+
 class RestAssuredHttpBuilderGroovyHelper {
 
   static Collection<String> flattenToString(Collection collection) {
@@ -10,7 +12,11 @@ class RestAssuredHttpBuilderGroovyHelper {
 
   static Closure createClosureThatCalls(assertionClosure) {
     return { response, content ->
-      assertionClosure.call(response, content)
+      try {
+        assertionClosure.call(response, content)
+      } catch (InvokerInvocationException e) {
+       InvokerInvocationHelper.rethrowInvokerInvocationException(e)
+      }
     }
   }
 }

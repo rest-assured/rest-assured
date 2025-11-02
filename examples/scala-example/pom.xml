@@ -29,7 +29,7 @@
     <description>Scala example of using REST Assured</description>
 
     <properties>
-        <scala.version>2.13.0</scala.version>
+        <scala.version>2.13.13</scala.version>
     </properties>
 
     <build>
@@ -39,8 +39,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>

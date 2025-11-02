@@ -20,19 +20,39 @@ import io.restassured.authentication.AuthenticationScheme
 import io.restassured.authentication.CertAuthScheme
 import io.restassured.authentication.FormAuthScheme
 import io.restassured.authentication.NoAuthScheme
-import io.restassured.config.*
+import io.restassured.config.ConnectionConfig
+import io.restassured.config.CsrfConfig
+import io.restassured.config.DecoderConfig
+import io.restassured.config.EncoderConfig
+import io.restassured.config.HttpClientConfig
+import io.restassured.config.MultiPartConfig
+import io.restassured.config.ParamConfig
+import io.restassured.config.RedirectConfig
+import io.restassured.config.RestAssuredConfig
+import io.restassured.config.SessionConfig
+import io.restassured.config.ObjectMapperConfig
 import io.restassured.filter.Filter
 import io.restassured.filter.OrderedFilter
 import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
 import io.restassured.filter.time.TimingFilter
-import io.restassured.http.*
+import io.restassured.http.Cookie
+import io.restassured.http.Cookies
+import io.restassured.http.Header
+import io.restassured.http.Headers
+import io.restassured.http.ContentType
+import io.restassured.http.Method
 import io.restassured.internal.MapCreator.CollisionStrategy
 import io.restassured.internal.filter.CsrfFilter
 import io.restassured.internal.filter.FilterContextImpl
 import io.restassured.internal.filter.FormAuthFilter
 import io.restassured.internal.filter.SendRequestFilter
-import io.restassured.internal.http.*
+import io.restassured.internal.http.BoundaryExtractor
+import io.restassured.internal.http.CharsetExtractor
+import io.restassured.internal.http.ContentTypeExtractor
+import io.restassured.internal.http.HTTPBuilder
+import io.restassured.internal.http.URIBuilder
+import io.restassured.internal.http.ContentEncoding
 import io.restassured.internal.log.LogRepository
 import io.restassured.internal.mapping.ObjectMapperSerializationContextImpl
 import io.restassured.internal.mapping.ObjectMapping
@@ -46,8 +66,17 @@ import io.restassured.internal.support.PathSupport
 import io.restassured.mapper.ObjectMapper
 import io.restassured.mapper.ObjectMapperType
 import io.restassured.response.Response
-import io.restassured.specification.*
+import io.restassured.specification.AuthenticationSpecification
+import io.restassured.specification.FilterableRequestSpecification
+import io.restassured.specification.FilterableResponseSpecification
+import io.restassured.specification.MultiPartSpecification
+import io.restassured.specification.ProxySpecification
+import io.restassured.specification.RedirectSpecification
+import io.restassured.specification.RequestLogSpecification
+import io.restassured.specification.RequestSpecification
+import io.restassured.specification.ResponseSpecification
 import io.restassured.spi.AuthFilter
+import org.codehaus.groovy.runtime.InvokerInvocationException
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
 import org.apache.http.client.CredentialsProvider
@@ -152,6 +181,14 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     this.addCsrfFilter = addCsrfFilter
   }
 
+  def invokeMethod(String name, args) {
+    try {
+      return metaClass.invokeMethod(this, name, args)
+    } catch (InvokerInvocationException e) {
+      InvokerInvocationHelper.rethrowInvokerInvocationException(e);
+    }
+  }
+
   RequestSpecification when() {
     return this
   }
@@ -169,31 +206,31 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   Response get(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(GET, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(GET, path, pathParams) }
   }
 
   Response post(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(POST, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(POST, path, pathParams) }
   }
 
   Response put(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(PUT, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(PUT, path, pathParams) }
   }
 
   Response delete(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(DELETE, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(DELETE, path, pathParams) }
   }
 
   Response head(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(HEAD, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(HEAD, path, pathParams) }
   }
 
   Response patch(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(PATCH, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(PATCH, path, pathParams) }
   }
 
   Response options(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(OPTIONS, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(OPTIONS, path, pathParams) }
   }
 
   Response get(URI uri) {
@@ -289,11 +326,11 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   Response request(Method method, String path, Object... pathParams) {
-    return request(notNull(method, Method.class).name(), path, pathParams)
+    return invokeAndUnwrap { request(notNull(method, Method.class).name(), path, pathParams) }
   }
 
   Response request(String method, String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(method, path, pathParams)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(method, path, pathParams) }
   }
 
   Response request(Method method, URI uri) {
@@ -314,37 +351,37 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
   Response get(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(GET, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(GET, path) }
   }
 
   Response post(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(POST, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(POST, path) }
   }
 
   Response put(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(PUT, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(PUT, path) }
   }
 
   Response delete(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(DELETE, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(DELETE, path) }
   }
 
   Response head(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(HEAD, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(HEAD, path) }
   }
 
   Response patch(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(PATCH, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(PATCH, path) }
   }
 
   Response options(String path, Map pathParamsMap) {
     pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(OPTIONS, path)
+    return invokeAndUnwrap { applyPathParamsAndSendRequest(OPTIONS, path) }
   }
 
   RequestSpecification params(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
@@ -1702,12 +1739,28 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def ctx = newFilterContext(responseSpecification.assertionClosure, filters.iterator(), [:])
     httpClient = httpClientConfig().httpClientInstance()
     def response = ctx.next(this, responseSpecification)
-    responseSpecification.assertionClosure.validate(response)
+    try {
+      responseSpecification.assertionClosure.validate(response)
+    } catch (InvokerInvocationException e) {
+     InvokerInvocationHelper.rethrowInvokerInvocationException(e)
+    }
     return response
   }
 
   private def applyPathParamsAndSendRequest(Method method, String path, Object... unnamedPathParams) {
-    applyPathParamsAndSendRequest(notNull(method, Method.class).name(), path, unnamedPathParams)
+    try {
+      applyPathParamsAndSendRequest(notNull(method, Method.class).name(), path, unnamedPathParams)
+    } catch (InvokerInvocationException e) {
+      InvokerInvocationHelper.rethrowInvokerInvocationException(e)
+    }
+  }
+
+  private def invokeAndUnwrap(Closure action) {
+    try {
+      return action.call()
+    } catch (InvokerInvocationException e) {
+      InvokerInvocationHelper.rethrowInvokerInvocationException(e)
+    }
   }
 
   void buildUnnamedPathParameterTuples(Object[] unnamedPathParameterValues) {

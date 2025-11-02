@@ -53,9 +53,11 @@
     <properties>
         <scm.branch>master</scm.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <groovy.version>4.0.22</groovy.version>
-        <groovy.range>[4.0,5.0)</groovy.range>
-        <gmaven.version>1.5</gmaven.version>
+        <java.version>17</java.version>
+        <tests.jvmArgs>-Dfile.encoding=${project.build.sourceEncoding} --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED</tests.jvmArgs>
+        <groovy.version>5.0.2</groovy.version>
+        <groovy.range>[5.0,6.0)</groovy.range>
+        <gmavenplus.version>4.2.1</gmavenplus.version>
         <hamcrest.version>2.2</hamcrest.version>
         <jackson1.version>1.9.11</jackson1.version>
         <jackson2.version>2.17.1</jackson2.version>
@@ -100,11 +102,11 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>animal-sniffer-maven-plugin</artifactId>
-                    <version>1.15</version>
+                    <version>1.26</version>
                     <configuration>
                         <signature>
                             <groupId>org.codehaus.mojo.signature</groupId>
-                            <artifactId>java16</artifactId>
+                            <artifactId>java17</artifactId>
                             <version>1.0</version>
                         </signature>
                     </configuration>
@@ -124,38 +126,21 @@
                     <version>5.1.4</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.codehaus.gmaven</groupId>
-                    <artifactId>gmaven-plugin</artifactId>
-                    <version>${gmaven.version}</version>
+                    <groupId>org.codehaus.gmavenplus</groupId>
+                    <artifactId>gmavenplus-plugin</artifactId>
+                    <version>${gmavenplus.version}</version>
                     <configuration>
-                        <providerSelection>2.0</providerSelection>
-                        <source />
+                        <targetBytecode>${java.version}</targetBytecode>
                     </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.codehaus.gmaven.runtime</groupId>
-                            <artifactId>gmaven-runtime-2.0</artifactId>
-                            <version>${gmaven.version}</version>
-                            <exclusions>
-                                <exclusion>
-                                    <groupId>org.apache.groovy</groupId>
-                                    <artifactId>groovy-all</artifactId>
-                                </exclusion>
-                            </exclusions>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.groovy</groupId>
-                            <artifactId>groovy</artifactId>
-                            <version>${groovy.version}</version>
-                        </dependency>
-                    </dependencies>
                     <executions>
                         <execution>
                             <goals>
+                                <goal>addSources</goal>
+                                <goal>addTestSources</goal>
                                 <goal>generateStubs</goal>
                                 <goal>compile</goal>
                                 <goal>generateTestStubs</goal>
-                                <goal>testCompile</goal>
+                                <goal>compileTests</goal>
                             </goals>
                         </execution>
                     </executions>
@@ -228,10 +213,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.14.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
@@ -249,7 +234,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${surefire.version}</version>
                 <configuration>
-                    <argLine>-Dfile.encoding=${project.build.sourceEncoding}</argLine>
+                    <argLine>${tests.jvmArgs}</argLine>
                     <excludes>
                         <exclude>**/itest/**</exclude>
                     </excludes>
@@ -268,8 +253,8 @@
                             <includes>
                                 <include>**/itest/**</include>
                             </includes>
+                            <argLine>${tests.jvmArgs}</argLine>
                             <argLine>-Xmx1024m</argLine>
-                            <argLine>-Dfile.encoding=UTF-8</argLine>
                             <argLine>-Duser.language=en</argLine>
                         </configuration>
                     </execution>
