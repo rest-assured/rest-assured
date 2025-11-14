@@ -19,7 +19,8 @@ package io.restassured.scala
 import io.restassured.module.mockmvc.RestAssuredMockMvc.given
 import io.restassured.module.scala.RestAssuredSupport.AddThenToResponse
 import org.hamcrest.Matchers.equalTo
-import org.junit.Test
+import org.junit.jupiter.api.Test;
+
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers._
 
 class ScalaMockMvcTest {

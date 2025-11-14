@@ -19,21 +19,22 @@ package io.restassured.module.webtestclient;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.module.webtestclient.setup.ParserController;
 import io.restassured.parsing.Parser;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.equalTo;
 
 public class ParserTest {
 
-	@Before
+	@BeforeEach
 	public void
 	given_controller_is_assigned_to_rest_assured() {
 		RestAssuredWebTestClient.standaloneSetup(new ParserController());
 	}
 
-	@After
+	@AfterEach
 	public void
 	rest_assured_is_reset() {
 		RestAssuredWebTestClient.reset();

@@ -18,9 +18,10 @@ package io.restassured.module.webtestclient;
 
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.setup.HeaderController;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
@@ -28,13 +29,13 @@ import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given
 import static org.hamcrest.Matchers.equalTo;
 
 public class AcceptTest {
-    @Before
+    @BeforeEach
     public void
     given_rest_assured_is_initialized_with_controller() {
         RestAssuredWebTestClient.standaloneSetup(new HeaderController());
     }
 
-    @After
+    @AfterEach
     public void
     rest_assured_is_reset_after_each_test() {
         RestAssuredWebTestClient.reset();

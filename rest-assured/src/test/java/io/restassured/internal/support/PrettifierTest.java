@@ -1,8 +1,9 @@
 package io.restassured.internal.support;
 
 import io.restassured.parsing.Parser;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class PrettifierTest {
             "</catalog>";
 
 
-    @Before
+    @BeforeEach
     public void
     setup() throws IOException {
         jsonFile = getFile("multipart.json");

@@ -25,7 +25,7 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.listener.ResponseValidationFailureListener;
 import io.restassured.path.json.config.JsonPathConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,7 +35,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.config.FailureConfig.failureConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ConfigITest extends WithJetty {
 

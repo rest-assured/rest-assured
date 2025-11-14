@@ -1,13 +1,14 @@
 package io.restassured.module.mockmvc.util;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ReflectionUtilTest extends TestCase {
+public class ReflectionUtilTest {
 
+    @Test
     public void testInvokeMethod() {
         Object result = ReflectionUtil.invokeMethod(
                 new TestClass(),
@@ -17,6 +18,7 @@ public class ReflectionUtilTest extends TestCase {
         assertThat(result).isEqualTo("/path/param");
     }
 
+    @Test
     public void testInvokeMethodWithTyped() {
         Object result = ReflectionUtil.invokeMethod(
                 new TestClass(),
@@ -26,6 +28,7 @@ public class ReflectionUtilTest extends TestCase {
         assertThat(result).isEqualTo("/path/[param]");
     }
 
+    @Test
     public void testInvokeMethodWithTypedArray() {
         Object result = ReflectionUtil.invokeMethod(
                 new TestClass(),
@@ -36,7 +39,7 @@ public class ReflectionUtilTest extends TestCase {
         assertThat(result).isEqualTo("/path/[param]");
     }
 
-
+    @Test
     public void testInvokeMethodWithType() {
         Object result = ReflectionUtil.invokeMethod(
                 new TestClass(),
@@ -47,6 +50,7 @@ public class ReflectionUtilTest extends TestCase {
         assertThat(result).isEqualTo("/path/param");
     }
 
+    @Test
     public void testInvokeMethodWithoutParam() {
         Object result = ReflectionUtil.invokeMethod(
                 new TestClass(),
@@ -57,6 +61,7 @@ public class ReflectionUtilTest extends TestCase {
         assertThat(result).isEqualTo("/path/%s");
     }
 
+    @Test
     public void testGetArgumentTypes() {
         Class<?>[] result = ReflectionUtil.getArgumentTypes(new Object[]{"", new Object[]{"1"}});
         assertThat(result).contains(String.class, Object[].class);

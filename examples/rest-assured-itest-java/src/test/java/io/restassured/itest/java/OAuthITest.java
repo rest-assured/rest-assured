@@ -20,8 +20,8 @@ import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.OAuthSignature;
 import io.restassured.authentication.PreemptiveOAuth2HeaderScheme;
 import io.restassured.builder.ResponseBuilder;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,7 +30,7 @@ import static org.hamcrest.Matchers.instanceOf;
 
 public class OAuthITest {
 
-    @Ignore("Server is down atm") @Test public void
+    @Disabled("Server is down atm") @Test public void
     oauth1_url_encoded() {
         given().
                 auth().oauth("key", "secret", "accesskey", "accesssecret").
@@ -41,7 +41,7 @@ public class OAuthITest {
                 body("html.body", equalTo("works=true"));
     }
 
-    @Ignore("Server is down atm") @Test public void
+    @Disabled("Server is down atm") @Test public void
     oauth1_works_with_header_signing() {
         given().
                 auth().oauth("key", "secret", "accesskey", "accesssecret").
@@ -51,7 +51,7 @@ public class OAuthITest {
                 body("html.body", equalTo("works=true"));
     }
 
-    @Ignore("Server is down atm") @Test public void
+    @Disabled("Server is down atm") @Test public void
     oauth1_works_with_query_signing() {
         given().
                 auth().oauth("key", "secret", "accesskey", "accesssecret", OAuthSignature.QUERY_STRING).

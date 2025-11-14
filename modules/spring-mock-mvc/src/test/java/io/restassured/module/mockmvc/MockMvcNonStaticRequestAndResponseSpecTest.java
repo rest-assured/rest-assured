@@ -19,16 +19,11 @@ package io.restassured.module.mockmvc;
 import io.restassured.http.ContentType;
 import io.restassured.module.mockmvc.http.GreetingController;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.equalTo;
 
 public class MockMvcNonStaticRequestAndResponseSpecTest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     @Test public void
     request_and_response_spec_can_be_defined_statically() {
         RestAssuredMockMvc.given().

@@ -23,25 +23,17 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.eclipse.jetty.server.handler.SecuredRedirectHandler;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInstance;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -52,6 +44,7 @@ import java.util.Collections;
 
 import static io.restassured.itest.java.support.WithJetty.JettyOption.RESET_REST_ASSURED_BEFORE_TEST;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class WithJetty {
     public static final String itestPath;
 
@@ -70,11 +63,8 @@ public abstract class WithJetty {
         this.jettyOption = jettyOption;
     }
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
-    @BeforeClass
-    public static void startJetty() throws Exception {
+    @BeforeAll
+    public void startJetty() throws Exception {
         startJettyOneWaySSL();
     }
 
@@ -198,7 +188,7 @@ public abstract class WithJetty {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUpBeforeTest() {
         if (jettyOption == RESET_REST_ASSURED_BEFORE_TEST) {
             RestAssured.reset();
@@ -213,8 +203,8 @@ public abstract class WithJetty {
         return canonicalPath.contains(itestPath);
     }
 
-    @AfterClass
-    public static void stopJetty() throws Exception {
+    @AfterAll
+    public void stopJetty() throws Exception {
         server.stop();
         server.join();
     }
@@ -229,7 +219,7 @@ public abstract class WithJetty {
     private static class HelloHandler extends AbstractHandler {
 
         @Override
-        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
             response.setContentType("text/json;charset=utf-8");
             response.setStatus(HttpServletResponse.SC_OK);
             baseRequest.setHandled(true);

@@ -19,9 +19,9 @@ package io.restassured.module.webtestclient;
 import io.restassured.module.webtestclient.setup.GreetingController;
 import io.restassured.module.webtestclient.setup.HeaderController;
 import org.hamcrest.Matchers;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -29,12 +29,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class ResultMatcherTest {
 
-	@BeforeClass
+	@BeforeAll
 	public static void configureWebTestClientInstance() {
 		RestAssuredWebTestClient.standaloneSetup(new HeaderController());
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void restRestAssured() {
 		RestAssuredWebTestClient.reset();
 	}

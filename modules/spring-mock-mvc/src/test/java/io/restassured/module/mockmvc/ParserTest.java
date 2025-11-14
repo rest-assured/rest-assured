@@ -19,20 +19,21 @@ package io.restassured.module.mockmvc;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.module.mockmvc.http.ParserController;
 import io.restassured.parsing.Parser;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.equalTo;
 
 public class ParserTest {
 
-    @Before public  void
+    @BeforeEach public  void
     given_controller_is_assigned_to_rest_assured() {
         RestAssuredMockMvc.standaloneSetup(new ParserController());
     }
 
-    @After public void
+    @AfterEach public void
     rest_assured_is_reset() throws Exception {
         RestAssuredMockMvc.reset();
     }

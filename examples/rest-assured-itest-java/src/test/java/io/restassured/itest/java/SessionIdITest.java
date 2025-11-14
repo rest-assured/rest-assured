@@ -19,7 +19,7 @@ package io.restassured.itest.java;
 import io.restassured.RestAssured;
 import io.restassured.config.SessionConfig;
 import io.restassured.itest.java.support.WithJetty;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.*;
 import static io.restassured.config.RestAssuredConfig.newConfig;

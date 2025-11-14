@@ -19,21 +19,21 @@ package io.restassured.module.webtestclient;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.setup.PostController;
 import io.restassured.module.webtestclient.setup.support.Greeting;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.hamcrest.Matchers.equalTo;
 
 public class PostTest {
 
-	@BeforeClass
+	@BeforeAll
 	public static void configureWebTestClientInstance() {
 		RestAssuredWebTestClient.webTestClient(WebTestClient.bindToController(new PostController()).build());
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void restRestAssured() {
 		RestAssuredWebTestClient.reset();
 	}

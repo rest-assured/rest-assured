@@ -16,9 +16,9 @@
 
 package io.restassured.itest.java.objects;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
-@Ignore
+@Disabled
 @javax.xml.bind.annotation.XmlRootElement
 @jakarta.xml.bind.annotation.XmlRootElement
 public class Greeting {

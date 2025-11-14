@@ -16,7 +16,7 @@
 
 package io.restassured.path.xml;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.path.xml.XmlPath.CompatibilityMode.HTML;
 import static org.hamcrest.MatcherAssert.assertThat;

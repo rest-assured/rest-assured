@@ -17,8 +17,8 @@
 package io.restassured.path.json;
 
 import io.restassured.path.json.config.JsonPathConfig;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

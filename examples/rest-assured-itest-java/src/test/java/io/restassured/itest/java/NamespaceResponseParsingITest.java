@@ -20,7 +20,7 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.path.xml.XmlPath;
 import io.restassured.path.xml.config.XmlPathConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;

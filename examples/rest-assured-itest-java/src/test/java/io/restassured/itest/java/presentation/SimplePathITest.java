@@ -19,7 +19,7 @@ package io.restassured.itest.java.presentation;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.path.json.JsonPath;
 import io.restassured.path.xml.XmlPath;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.get;
 import static org.hamcrest.MatcherAssert.assertThat;

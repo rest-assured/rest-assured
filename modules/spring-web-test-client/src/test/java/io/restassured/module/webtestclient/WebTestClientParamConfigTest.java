@@ -17,9 +17,10 @@
 package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.MultiValueController;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE;
 import static io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig.config;
@@ -28,12 +29,12 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class WebTestClientParamConfigTest {
 
-	@Before
+	@BeforeEach
 	public void configureWebTestClientInstance() {
 		RestAssuredWebTestClient.standaloneSetup(new MultiValueController());
 	}
 
-	@After
+	@AfterEach
 	public void restRestAssured() {
 		RestAssuredWebTestClient.reset();
 	}

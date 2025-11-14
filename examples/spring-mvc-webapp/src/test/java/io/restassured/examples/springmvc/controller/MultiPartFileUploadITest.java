@@ -23,24 +23,18 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.path.json.JsonPath;
 import org.apache.commons.io.IOUtils;
-import org.junit.*;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.rules.SpringClassRule;
-import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static io.restassured.RestAssured.withArgs;
 import static io.restassured.config.MultiPartConfig.multiPartConfig;
@@ -51,49 +45,32 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-@RunWith(Parameterized.class)
 @ContextConfiguration(classes = MainConfiguration.class)
 @WebAppConfiguration
 public class MultiPartFileUploadITest {
-
-    @ClassRule
-    public static final SpringClassRule SPRING_CLASS_RULE = new SpringClassRule();
-
-    @Rule
-    public final SpringMethodRule springMethodRule = new SpringMethodRule();
-
-    private final Method method;
-
     @Autowired
     protected WebApplicationContext wac;
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
-    @Parameters
-    public static Collection<Method> data() {
-        return Arrays.asList(POST, PUT);
+    public static java.util.stream.Stream<Method> data() {
+        return java.util.stream.Stream.of(POST, PUT);
     }
 
-    public MultiPartFileUploadITest(Method method) {
-        this.method = method;
-    }
-
-    @Before
+    @BeforeEach
     public void configureMockMvcInstance() {
         RestAssuredMockMvc.webAppContextSetup(wac);
         RestAssuredMockMvc.postProcessors(csrf().asHeader());
     }
 
-    @After
+    @AfterEach
     public void restRestAssured() {
         RestAssuredMockMvc.reset();
     }
 
-    // @formatter:off
-    @Test public void
-    file_uploading_works() throws IOException {
-        File file = folder.newFile("something");
+    @ParameterizedTest
+    @MethodSource("data")
+    public void file_uploading_works(Method method) throws Exception {
+        Path tempFile = Files.createTempFile("something", null);
+        File file = tempFile.toFile();
         IOUtils.write("Something21", new FileOutputStream(file));
 
         RestAssuredMockMvc.given().
@@ -105,9 +82,11 @@ public class MultiPartFileUploadITest {
                 body("name", equalTo("file"));
     }
 
-    @Test public void
-    input_stream_uploading_works() throws IOException {
-        File file = folder.newFile("something");
+    @ParameterizedTest
+    @MethodSource("data")
+    public void input_stream_uploading_works(Method method) throws Exception {
+        Path tempFile = Files.createTempFile("something", null);
+        File file = tempFile.toFile();
         IOUtils.write("Something21", new FileOutputStream(file));
 
         RestAssuredMockMvc.given().
@@ -119,12 +98,12 @@ public class MultiPartFileUploadITest {
                 body("name", equalTo("controlName")).
                 body("originalName", equalTo("original")).
                 body("mimeType", equalTo("application/octet-stream"));
-
     }
 
-    @Test public void
-    byte_array_uploading_works() throws IOException {
-    	RestAssuredMockMvc.given().
+    @ParameterizedTest
+    @MethodSource("data")
+    public void byte_array_uploading_works(Method method) {
+        RestAssuredMockMvc.given().
                 multiPart("controlName", "original", "something32".getBytes()).
         when().
                 request(method, "/fileUpload2").
@@ -135,9 +114,10 @@ public class MultiPartFileUploadITest {
                 body("mimeType", equalTo("application/octet-stream"));
     }
 
-    @Test public void
-    byte_array_uploading_works_with_mime_type() throws IOException {
-    	RestAssuredMockMvc.given().
+    @ParameterizedTest
+    @MethodSource("data")
+    public void byte_array_uploading_works_with_mime_type(Method method) {
+        RestAssuredMockMvc.given().
                 multiPart("controlName", "original", "something32".getBytes(), "mime-type").
         when().
                 request(method, "/fileUpload2").
@@ -148,9 +128,11 @@ public class MultiPartFileUploadITest {
                 body("mimeType", equalTo("mime-type"));
     }
 
-    @Test public void
-    multiple_uploads_works() throws IOException {
-        File file = folder.newFile("something");
+    @ParameterizedTest
+    @MethodSource("data")
+    public void multiple_uploads_works(Method method) throws Exception {
+        Path tempFile = Files.createTempFile("something", null);
+        File file = tempFile.toFile();
         IOUtils.write("Something3210", new FileOutputStream(file));
 
         RestAssuredMockMvc.given().
@@ -159,7 +141,7 @@ public class MultiPartFileUploadITest {
         when().
                 request(method, "/multiFileUpload").
         then().
-        		rootPath("[%d]").
+                rootPath("[%d]").
                 body("size", withArgs(0), is(12)).
                 body("name", withArgs(0), equalTo("controlName1")).
                 body("originalName", withArgs(0), equalTo("original1")).
@@ -172,9 +154,11 @@ public class MultiPartFileUploadITest {
                 body("content", withArgs(1), equalTo("Something3210"));
     }
 
-    @Test public void
-    object_serialization_works() throws IOException {
-        File file = folder.newFile("something");
+    @ParameterizedTest
+    @MethodSource("data")
+    public void object_serialization_works(Method method) throws Exception {
+        Path tempFile = Files.createTempFile("something", null);
+        File file = tempFile.toFile();
         IOUtils.write("Something3210", new FileOutputStream(file));
 
         Greeting greeting = new Greeting();
@@ -188,7 +172,7 @@ public class MultiPartFileUploadITest {
         when().
                 request(method, "/multiFileUpload").
         then().
-        		rootPath("[%d]").
+                rootPath("[%d]").
                 body("size", withArgs(0), is(13)).
                 body("name", withArgs(0), equalTo("controlName1")).
                 body("originalName", withArgs(0), equalTo("something")).
@@ -208,15 +192,16 @@ public class MultiPartFileUploadITest {
         assertThat(jsonPath.getString("lastName"), equalTo("Doe"));
     }
 
-    @Test public void
-    file_upload_and_param_mixing_works() {
-    	RestAssuredMockMvc.given().
+    @ParameterizedTest
+    @MethodSource("data")
+    public void file_upload_and_param_mixing_works(Method method) {
+        RestAssuredMockMvc.given().
                 multiPart("controlName", "original", "something32".getBytes(), "mime-type").
                 param("param", "paramValue").
         when().
                 request(method, "/fileUploadWithParam").
         then().
-        		rootPath("file").
+                rootPath("file").
                 body("size", greaterThan(10)).
                 body("name", equalTo("controlName")).
                 body("originalName", equalTo("original")).
@@ -225,9 +210,11 @@ public class MultiPartFileUploadITest {
                 body("param", equalTo("paramValue"));
     }
 
-    @Test public void
-    allows_settings_default_control_name_using_instance_configuration() throws IOException {
-        File file = folder.newFile("filename.txt");
+    @ParameterizedTest
+    @MethodSource("data")
+    public void allows_settings_default_control_name_using_instance_configuration(Method method) throws Exception {
+        Path tempFile = Files.createTempFile("filename", ".txt");
+        File file = tempFile.toFile();
         IOUtils.write("Something21", new FileOutputStream(file));
 
         RestAssuredMockMvc.given().
@@ -241,9 +228,11 @@ public class MultiPartFileUploadITest {
                 body("originalName", equalTo("filename.txt"));
     }
 
-    @Test public void
-    allows_settings_default_control_name_using_static_configuration() throws IOException {
-        File file = folder.newFile("filename.txt");
+    @ParameterizedTest
+    @MethodSource("data")
+    public void allows_settings_default_control_name_using_static_configuration(Method method) throws Exception {
+        Path tempFile = Files.createTempFile("filename", ".txt");
+        File file = tempFile.toFile();
         IOUtils.write("Something21", new FileOutputStream(file));
 
         RestAssuredMockMvc.config = RestAssuredMockMvcConfig.config().multiPartConfig(multiPartConfig().with().defaultControlName("something"));
@@ -258,11 +247,10 @@ public class MultiPartFileUploadITest {
                 body("originalName", equalTo("filename.txt"));
     }
 
-    @Test public void
-    allows_settings_default_file_name_using_instance_configuration() throws IOException {
-        
-    	// File upload with Http Method POST
-    	RestAssuredMockMvc.given().
+    @ParameterizedTest
+    @MethodSource("data")
+    public void allows_settings_default_file_name_using_instance_configuration(Method method) {
+        RestAssuredMockMvc.given().
                 config(RestAssuredMockMvcConfig.config().multiPartConfig(multiPartConfig().with().defaultFileName("filename.txt"))).
                 multiPart("controlName", "something32".getBytes()).
         when().
@@ -273,8 +261,9 @@ public class MultiPartFileUploadITest {
                 body("originalName", equalTo("filename.txt"));
     }
 
-    @Test public void
-    allows_settings_default_file_name_using_static_configuration() throws IOException {
+    @ParameterizedTest
+    @MethodSource("data")
+    public void allows_settings_default_file_name_using_static_configuration(Method method) {
         RestAssuredMockMvc.config = RestAssuredMockMvcConfig.config().multiPartConfig(multiPartConfig().with().defaultFileName("filename.txt"));
 
         RestAssuredMockMvc.given().
@@ -287,9 +276,10 @@ public class MultiPartFileUploadITest {
                 body("originalName", equalTo("filename.txt"));
     }
 
-    @Test public void
-    allows_sending_multipart_without_a_filename_when_default_file_name_is_empty() throws IOException {
-    	RestAssuredMockMvc.given().
+    @ParameterizedTest
+    @MethodSource("data")
+    public void allows_sending_multipart_without_a_filename_when_default_file_name_is_empty(Method method) {
+        RestAssuredMockMvc.given().
                 config(RestAssuredMockMvcConfig.config().multiPartConfig(multiPartConfig().with().emptyDefaultFileName())).
                 multiPart("controlName", "something32".getBytes()).
         when().
@@ -298,12 +288,12 @@ public class MultiPartFileUploadITest {
                 body("size", greaterThan(10)).
                 body("name", equalTo("controlName")).
                 body("originalName", equalTo(""));
-
     }
 
-    @Test public void
-    allows_sending_multipart_without_a_filename_when_default_file_name_is_set() throws IOException {
-    	RestAssuredMockMvc.given().
+    @ParameterizedTest
+    @MethodSource("data")
+    public void allows_sending_multipart_without_a_filename_when_default_file_name_is_set(Method method) {
+        RestAssuredMockMvc.given().
                 config(RestAssuredMockMvcConfig.config().multiPartConfig(multiPartConfig().with().defaultFileName("custom"))).
                 multiPart("controlName", null, "something32".getBytes()).
         when().
@@ -314,16 +304,16 @@ public class MultiPartFileUploadITest {
                 body("originalName", equalTo(""));
     }
 
-    @Test public void
-    multi_part_uploading_supports_specifying_default_subtype() throws Exception {
-       
-    	// File upload with Http Method POST
-        File file = folder.newFile("filename.txt");
+    @ParameterizedTest
+    @MethodSource("data")
+    public void multi_part_uploading_supports_specifying_default_subtype(Method method) throws Exception {
+        Path tempFile = Files.createTempFile("filename", ".txt");
+        File file = tempFile.toFile();
         IOUtils.write("Something21", new FileOutputStream(file));
 
         RestAssuredMockMvc.given().
-               	config(RestAssuredMockMvcConfig.config().multiPartConfig(multiPartConfig().defaultSubtype("mixed"))).
-               	multiPart("something", file).
+                config(RestAssuredMockMvcConfig.config().multiPartConfig(multiPartConfig().defaultSubtype("mixed"))).
+                multiPart("something", file).
         when().
                 request(method, "/textAndReturnHeader").
         then().
@@ -334,9 +324,11 @@ public class MultiPartFileUploadITest {
                 header("X-Request-Header", startsWith("multipart/mixed"));
     }
 
-    @Test public void
-    explicit_multi_part_content_type_has_precedence_over_default_subtype() throws Exception {
-        File file = folder.newFile("filename.txt");
+    @ParameterizedTest
+    @MethodSource("data")
+    public void explicit_multi_part_content_type_has_precedence_over_default_subtype(Method method) throws Exception {
+        Path tempFile = Files.createTempFile("filename", ".txt");
+        File file = tempFile.toFile();
         IOUtils.write("Something21", new FileOutputStream(file));
 
        RestAssuredMockMvc.given().
@@ -353,4 +345,3 @@ public class MultiPartFileUploadITest {
                header("X-Request-Header", startsWith("multipart/mixed"));
     }
 }
-// @formatter:on

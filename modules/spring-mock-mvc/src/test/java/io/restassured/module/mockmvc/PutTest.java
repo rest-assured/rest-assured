@@ -20,9 +20,9 @@ import io.restassured.config.LogConfig;
 import io.restassured.module.mockmvc.http.PutController;
 import io.restassured.module.mockmvc.support.Greeting;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
@@ -35,12 +35,12 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 public class PutTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void configureMockMvcInstance() {
         RestAssuredMockMvc.mockMvc(standaloneSetup(new PutController()).build());
     }
 
-    @AfterClass
+    @AfterAll
     public static void restRestAssured() {
         RestAssuredMockMvc.reset();
     }

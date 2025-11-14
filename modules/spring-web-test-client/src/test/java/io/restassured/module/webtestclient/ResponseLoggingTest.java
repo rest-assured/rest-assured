@@ -22,9 +22,10 @@ import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig
 import io.restassured.module.webtestclient.setup.PostController;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.json.JSONException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
@@ -32,13 +33,13 @@ import java.io.StringWriter;
 import static java.nio.charset.Charset.defaultCharset;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class ResponseLoggingTest {
 
 	private StringWriter writer;
 
-	@Before
+	@BeforeEach
 	public void
 	given_config_is_stored_in_writer() {
 		writer = new StringWriter();
@@ -47,7 +48,7 @@ public class ResponseLoggingTest {
 				.logConfig(new LogConfig(captor, true));
 	}
 
-	@After
+	@AfterEach
 	public void
 	reset_rest_assured() {
 		RestAssured.reset();

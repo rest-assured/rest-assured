@@ -18,7 +18,7 @@ package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
 import io.restassured.itest.java.support.WithJetty;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.when;
 import static io.restassured.matcher.ResponseAwareMatcherComposer.and;

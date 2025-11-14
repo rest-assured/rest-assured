@@ -19,35 +19,31 @@ package io.restassured.itest.java;
 import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.ResponseSpecification;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
 
 public class GivenWhenThenResponseSpecITest extends WithJetty {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
-    @Test public void
-    simple_given_when_then_works() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("2 expectations failed.\n" +
-                "Expected status code <201> but was <200>.\n" +
-                "\n" +
-                "JSON path greeting doesn't match.\n" +
-                "Expected: Greetings John Doo\n" +
-                "  Actual: Greetings John Doe");
-
+    @Test
+    void simple_given_when_then_works() {
         ResponseSpecification specification = new ResponseSpecBuilder().expectStatusCode(201).expectBody("greeting", equalTo("Greetings John Doo")).build();
 
-        given().
+        assertThatThrownBy(() ->
+            given().
                 param("firstName", "John").
                 param("lastName", "Doe").
-        when().
+            when().
                 get("/greet").
-        then().
-                spec(specification);
+            then().
+                spec(specification)
+        )
+        .isInstanceOf(AssertionError.class)
+        .hasMessageContaining("2 expectations failed.")
+        .hasMessageContaining("Expected status code <201> but was <200>.")
+        .hasMessageContaining("JSON path greeting doesn't match.")
+        .hasMessageContaining("Expected: Greetings John Doo")
+        .hasMessageContaining("Actual: Greetings John Doe");
     }
 }

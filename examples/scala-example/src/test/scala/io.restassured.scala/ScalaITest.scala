@@ -20,19 +20,20 @@ import io.restassured.RestAssured.given
 import io.restassured.module.scala.RestAssuredSupport.AddThenToResponse
 import okhttp3.mockwebserver.{MockResponse, MockWebServer}
 import org.hamcrest.Matchers.equalTo
-import org.junit.{After, Before, Test}
+import org.junit.Test
+import org.junit.jupiter.api.{AfterEach, BeforeEach}
 
 class ScalaITest {
 
   var webServer: MockWebServer = _
 
-  @Before
+  @BeforeEach
   def `Mock web server is initialized`() {
     webServer = new MockWebServer()
     webServer.start()
   }
 
-  @After
+  @AfterEach
   def `Mock web server is shutdown`() {
     webServer.shutdown()
   }

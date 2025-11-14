@@ -18,7 +18,7 @@ package io.restassured.specification;
 import io.restassured.builder.RequestSpecBuilder;
 import org.assertj.core.api.JUnitSoftAssertions;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SpecificationQuerierTest {
     @Rule

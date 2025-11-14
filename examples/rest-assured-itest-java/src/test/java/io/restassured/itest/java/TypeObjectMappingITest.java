@@ -23,13 +23,10 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.itest.java.objects.Message;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.mapper.ObjectMapperType;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
 
 import static io.restassured.RestAssured.given;
@@ -37,24 +34,15 @@ import static io.restassured.mapper.ObjectMapperType.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-@RunWith(Parameterized.class)
 public class TypeObjectMappingITest extends WithJetty {
 
-    @Parameterized.Parameter
-    public ObjectMapperType mapperType;
-
-    @SuppressWarnings("unchecked")
-    @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> getParameters() {
-        return Arrays.asList(new Object[][]{
-                {GSON},
-                {JACKSON_1},
-                {JACKSON_2}
-        });
+    static java.util.stream.Stream<ObjectMapperType> getParameters() {
+        return java.util.stream.Stream.of(GSON, JACKSON_1, JACKSON_2);
     }
 
-    @Test
-    public void shouldUseMapTypeWithObjectMappers() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("getParameters")
+    void shouldUseMapTypeWithObjectMappers(ObjectMapperType mapperType) {
         String expected = "A message";
         final Message message = new Message();
         message.setMessage(expected);

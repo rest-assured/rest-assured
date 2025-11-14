@@ -18,7 +18,7 @@ package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.GreetingController;
 import io.restassured.module.mockmvc.http.QueryParamController;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.equalTo;
 

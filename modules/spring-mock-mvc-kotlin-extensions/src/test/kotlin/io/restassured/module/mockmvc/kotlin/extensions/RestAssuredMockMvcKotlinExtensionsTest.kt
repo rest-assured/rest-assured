@@ -3,7 +3,8 @@ package io.restassured.module.mockmvc.kotlin.extensions
 import io.restassured.module.mockmvc.RestAssuredMockMvc
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers
-import org.junit.Test
+import org.junit.jupiter.api.Test;
+
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
 /*

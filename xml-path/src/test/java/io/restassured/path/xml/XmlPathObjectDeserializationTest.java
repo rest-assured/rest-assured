@@ -23,21 +23,18 @@ import io.restassured.path.xml.support.CoolGreeting;
 import io.restassured.path.xml.support.Greeting;
 import io.restassured.path.xml.support.Greetings;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static io.restassured.path.xml.XmlPath.from;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 public class XmlPathObjectDeserializationTest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     private static final String COOL_GREETING = "<cool><greeting><firstName>John</firstName>\n" +
             "      <lastName>Doe</lastName>\n" +
@@ -100,14 +97,10 @@ public class XmlPathObjectDeserializationTest {
 
     @Test public void
     cannot_deserialize_list_when_using_getObject() {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Failed to convert XML to Java Object. If you're trying convert to a list then use the getList method instead.");
-
-        // When
-        final List<Greeting>  greetings = from(GREETINGS).getObject("greetings.greeting", List.class);
-
-        // Then
-        assertThat(greetings.size(), is(3));
+        // When / Then
+        assertThatThrownBy(() -> from(GREETINGS).getObject("greetings.greeting", List.class))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Failed to convert XML to Java Object. If you're trying convert to a list then use the getList method instead.");
     }
 
     @Test public void

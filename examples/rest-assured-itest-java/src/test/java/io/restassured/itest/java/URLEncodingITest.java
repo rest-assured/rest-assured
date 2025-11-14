@@ -28,8 +28,8 @@ import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
@@ -44,7 +44,7 @@ import static org.hamcrest.Matchers.*;
 
 public class URLEncodingITest extends WithJetty {
 
-    @Ignore("Temporary ignored")
+    @Disabled("Temporary ignored")
     @Test
     public void urlEncodingDisabledStatically() {
         try {
@@ -62,14 +62,14 @@ public class URLEncodingITest extends WithJetty {
     }
 
     @Test
-    @Ignore("2.0.alpha1 no longer working")
+    @Disabled("2.0.alpha1 no longer working")
     public void urlEncodingDisabledUsingGiven() {
         final String body = given().urlEncodingEnabled(false).get("https://jira.atlassian.com:443/rest/api/2.0.alpha1/search?jql=project%20=%20BAM%20AND%20issuetype%20=%20Bug").asString();
         assertThat(body, containsString("issues"));
     }
 
     @Test
-    @Ignore("2.0.alpha1 no longer working")
+    @Disabled("2.0.alpha1 no longer working")
     public void urlEncodingDisabledUsingRequestSpecBuilder() {
         final RequestSpecification specification = new RequestSpecBuilder().setUrlEncodingEnabled(false).build();
 
@@ -78,7 +78,7 @@ public class URLEncodingITest extends WithJetty {
     }
 
     @Test
-    @Ignore("2.0.alpha1 no longer working")
+    @Disabled("2.0.alpha1 no longer working")
     public void doubleUrlEncodingShouldFailRequest() {
         final String body = given().urlEncodingEnabled(true).get("https://jira.atlassian.com:443/rest/api/2.0.alpha1/search?jql=project%20=%20BAM%20AND%20issuetype%20=%20Bug").asString();
 

@@ -18,8 +18,8 @@ package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
 import io.restassured.itest.java.support.WithJetty;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.equalTo;
 
@@ -31,7 +31,7 @@ public class BomITest extends WithJetty {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void xmlWithHeaderAndFooter() throws Exception {
         RestAssured.expect().log().body().body("some", equalTo("thing")).when().get("/xmlWithHeaderAndFooter");
     }

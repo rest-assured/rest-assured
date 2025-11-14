@@ -18,10 +18,10 @@ package io.restassured.itest.java;
 
 import io.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.littleshoot.proxy.HttpProxyServer;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
@@ -37,14 +37,14 @@ public class ProxyAuthITest extends WithJetty {
 
     static HttpProxyServer proxyServer;
 
-    @BeforeClass public static void
+    @BeforeAll public static void
     create_proxy_server() {
         proxyServer = DefaultHttpProxyServer.bootstrap().withPort(8888).withAllowLocalOnly(true).
                 withProxyAuthenticator((userName, password) -> "admin".equals(userName) && "pass".equals(password)).start();
     }
 
-    @AfterClass public static void
-    stop_proxy_server() {
+    @AfterAll
+    static void stop_proxy_server() {
         proxyServer.stop();
         proxyServer = null;
         FileUtils.deleteQuietly(new File("littleproxy_cert"));
@@ -88,7 +88,8 @@ public class ProxyAuthITest extends WithJetty {
     }
 
     // This tests makes sure that issue 693 is resolved
-    @Test @Ignore  public void
+    @Test @Disabled
+    public void
     can_use_external_proxy() {
         given().
                 proxy(host("pxy.int.ws.streamshield.net").withPort(3128).withAuth("user_384364539@wtqt.com", "Password1")).

@@ -23,13 +23,14 @@ import io.restassured.internal.log.LogRepository
 import io.restassured.listener.ResponseValidationFailureListener
 import io.restassured.response.Response
 import io.restassured.specification.RequestSpecification
-import org.junit.Test
+import org.junit.jupiter.api.Test;
+
 
 import java.nio.charset.Charset
 
 import static org.hamcrest.CoreMatchers.equalTo
-import static org.mockito.Matchers.any
-import static org.mockito.Matchers.same
+import static org.mockito.ArgumentMatchers.any
+import static org.mockito.ArgumentMatchers.same
 import static org.mockito.Mockito.*
 
 /**

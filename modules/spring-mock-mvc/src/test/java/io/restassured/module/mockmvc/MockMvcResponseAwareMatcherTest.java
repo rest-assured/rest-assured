@@ -22,7 +22,7 @@ import io.restassured.module.mockmvc.matcher.RestAssuredMockMvcMatchers;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.path.json.JsonPath;
 import org.hamcrest.Matcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;

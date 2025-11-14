@@ -18,17 +18,16 @@ package io.restassured.module.scala.extensions
 
 import io.restassured.RestAssured
 import io.restassured.builder.ResponseBuilder
-import io.restassured.filter.Filter
 import io.restassured.http.ContentType.JSON
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers.*
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class RestAssuredScalaExtensionsTest:
 
-  @Before
-  def `rest assured is configured`: Unit =
+  @BeforeEach
+  def `rest assured is configured`(): Unit =
     RestAssured.filters { (_, _, _) =>
       new ResponseBuilder()
         .setStatusCode(200)
@@ -38,11 +37,11 @@ class RestAssuredScalaExtensionsTest:
     }
 
   @Test
-  def `rest assured is reset after each test`: Unit =
+  def `rest assured is reset after each test`(): Unit =
     RestAssured.reset()
 
   @Test
-  def `basic rest assured scala extensions are compilable`: Unit =
+  def `basic rest assured scala extensions are compilable`(): Unit =
     Given(req =>
       req.port(7000)
       req.header("Header", "Header")
@@ -57,7 +56,7 @@ class RestAssuredScalaExtensionsTest:
       )
 
   @Test
-  def `extraction with rest assured scala extensions`: Unit =
+  def `extraction with rest assured scala extensions`(): Unit =
     val message: String = Given(req =>
       req.port(7000)
       req.header("Header", "Header")
@@ -72,8 +71,8 @@ class RestAssuredScalaExtensionsTest:
     assertThat(message).isEqualTo("Hello World")
 
   @Test
-  def `validation with rest assured scala extensions using ThenAssert returning Unit`: Unit =
-    val result = Given(req =>
+  def `validation with rest assured scala extensions using ThenAssert returning Unit`(): Unit =
+    val result: Unit = Given(req =>
       req.port(7000)
       req.header("Header", "Header")
       req.body("hello")
@@ -88,7 +87,7 @@ class RestAssuredScalaExtensionsTest:
     assertThat(result).isEqualTo(())
 
   @Test
-  def `extraction after 'then', when path is not used in 'Then',  with rest assured scala extensions`: Unit =
+  def `extraction after 'then', when path is not used in 'Then',  with rest assured scala extensions`(): Unit =
     val message: String = Given(req =>
       req.port(7000)
       req.header("Header", "Header")
@@ -113,7 +112,7 @@ class RestAssuredScalaExtensionsTest:
     assertThat(message).isEqualTo("Hello World")
 
   @Test
-  def `extraction after 'then', when path is used in 'Then',  with rest assured scala extensions`: Unit =
+  def `extraction after 'then', when path is used in 'Then',  with rest assured scala extensions`(): Unit =
     val message: String = Given(req =>
       req.port(7000)
       req.header("Header", "Header")
@@ -139,7 +138,7 @@ class RestAssuredScalaExtensionsTest:
     assertThat(message).isEqualTo("Hello World")
 
   @Test
-  def `all expectations error messages are included in the error message`: Unit =
+  def `all expectations error messages are included in the error message`(): Unit =
     try {
       Given(req =>
         req.port(7000)

@@ -20,14 +20,16 @@ import io.restassured.common.mapper.TypeRef;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.json.exception.JsonPathException;
 import io.restassured.path.json.support.Book;
+import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -352,9 +354,11 @@ public class JsonPathTest {
         assertThat(priceAsString, is("8.95"));
     }
 
-    @Test(expected = JsonPathException.class)
+    @Test
     public void malformedJson() {
-        JsonPath.from(MALFORMED_JSON).get("a");
+        Throwable throwable = catchThrowable(() -> JsonPath.from(MALFORMED_JSON).get("a"));
+
+        Assertions.assertThat(throwable).isInstanceOf(JsonPathException.class);
     }
 
     @Test
@@ -633,46 +637,47 @@ public class JsonPathTest {
     @Test public void
     automatically_escapes_json_attributes_whose_name_equals_properties() {
         // Given
-        String json = "{\n" +
-                "   \"features\":[\n" +
-                "      {\n" +
-                "         \"type\":\"Feature\",\n" +
-                "         \"geometry\":{\n" +
-                "            \"type\":\"GeometryCollection\",\n" +
-                "            \"geometries\":[\n" +
-                "               {\n" +
-                "                  \"type\":\"Point\",\n" +
-                "                  \"coordinates\":[\n" +
-                "                     19.883992823270653,\n" +
-                "                     50.02026203045478\n" +
-                "                  ]\n" +
-                "               }\n" +
-                "            ]\n" +
-                "         },\n" +
-                "         \"properties\":{\n" +
-                "            \"gridId\":6\n" +
-                "         }\n" +
-                "      },\n" +
-                "      {\n" +
-                "         \"type\":\"Feature\",\n" +
-                "         \"geometry\":{\n" +
-                "            \"type\":\"GeometryCollection\",\n" +
-                "            \"geometries\":[\n" +
-                "               {\n" +
-                "                  \"type\":\"Point\",\n" +
-                "                  \"coordinates\":[\n" +
-                "                     19.901266347582094,\n" +
-                "                     50.07074684071764\n" +
-                "                  ]\n" +
-                "               }\n" +
-                "            ]\n" +
-                "         },\n" +
-                "         \"properties\":{\n" +
-                "            \"gridId\":7\n" +
-                "         }\n" +
-                "      }\n" +
-                "   ]\n" +
-                "}";
+        String json = """
+                {
+                   "features":[
+                      {
+                         "type":"Feature",
+                         "geometry":{
+                            "type":"GeometryCollection",
+                            "geometries":[
+                               {
+                                  "type":"Point",
+                                  "coordinates":[
+                                     19.883992823270653,
+                                     50.02026203045478
+                                  ]
+                               }
+                            ]
+                         },
+                         "properties":{
+                            "gridId":6
+                         }
+                      },
+                      {
+                         "type":"Feature",
+                         "geometry":{
+                            "type":"GeometryCollection",
+                            "geometries":[
+                               {
+                                  "type":"Point",
+                                  "coordinates":[
+                                     19.901266347582094,
+                                     50.07074684071764
+                                  ]
+                               }
+                            ]
+                         },
+                         "properties":{
+                            "gridId":7
+                         }
+                      }
+                   ]
+                }""";
         // When
         JsonPath jsonPath = new JsonPath(json);
 

@@ -17,11 +17,11 @@ package io.restassured.itest.java;
 
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.itest.java.support.WriteLogsToDisk;
-import org.junit.FixMethodOrder;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +36,7 @@ import static io.restassured.itest.java.support.WithJetty.JettyOption.DONT_RESET
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class LoggingToDiskTest extends WithJetty {
 
     public LoggingToDiskTest() {
@@ -53,14 +53,12 @@ public class LoggingToDiskTest extends WithJetty {
         }
     }
 
-    @Rule
-    public TestName testName = new TestName();
-
-    @Rule
-    public WriteLogsToDisk writeLogsToDisk = new WriteLogsToDisk(directory);
+    @RegisterExtension
+    static WriteLogsToDisk writeLogsToDisk = new WriteLogsToDisk(directory);
 
     @Test
-    public void example1() {
+    @Order(1)
+    void example1() {
         given().
                 queryParam("firstName", "John").
                 queryParam("lastName", "Doe").
@@ -72,7 +70,8 @@ public class LoggingToDiskTest extends WithJetty {
     }
 
     @Test
-    public void example2() {
+    @Order(2)
+    void example2() {
         given().
                 queryParam("firstName", "Jane").
                 queryParam("lastName", "Doe").
@@ -83,11 +82,12 @@ public class LoggingToDiskTest extends WithJetty {
                 body("greeting", equalTo("Greetings Jane Doe"));
     }
 
-    // This test needs to be executed last, thus @FixMethodOrder
+    // This test needs to be executed last
     @Test
-    public void make_sure_logging_to_disk_works() throws Exception {
+    @Order(3)
+    void make_sure_logging_to_disk_works() throws Exception {
         List<FileAndContents> files = Files.list(directory.toPath())
-                .filter(file -> !file.endsWith(testName.getMethodName() + ".log"))
+                .filter(file -> !file.endsWith("make_sure_logging_to_disk_works.log"))
                 .map(file -> {
                     try {
                         return FileAndContents.of(file.getFileName().toString(), Files.readAllLines(file));

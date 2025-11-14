@@ -19,8 +19,8 @@ package io.restassured.module.webtestclient;
 import io.restassured.config.EncoderConfig;
 import io.restassured.http.ContentType;
 import io.restassured.module.webtestclient.setup.ContentTypeProcessor;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
@@ -33,7 +33,7 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 
 public class ContentTypeTest {
 
-	@BeforeClass
+	@BeforeAll
 	public static void configureWebTestClientInstance() {
 		RouterFunction<ServerResponse> setAttributesRoute = route(path("/contentType")
 				.and(method(GET)), new ContentTypeProcessor()::processContentType);

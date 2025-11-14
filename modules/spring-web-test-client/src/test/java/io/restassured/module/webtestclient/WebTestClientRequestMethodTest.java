@@ -19,7 +19,7 @@ package io.restassured.module.webtestclient;
 import io.restassured.module.webtestclient.setup.GreetingController;
 import io.restassured.module.webtestclient.setup.PostController;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import static io.restassured.http.Method.GET;

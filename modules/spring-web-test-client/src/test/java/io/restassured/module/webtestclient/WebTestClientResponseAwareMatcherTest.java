@@ -18,7 +18,7 @@ package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.matcher.RestAssuredWebTestClientMatchers;
 import io.restassured.module.webtestclient.setup.ResponseAwareMatcherController;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.equalTo;
 

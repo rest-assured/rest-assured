@@ -23,17 +23,17 @@ import io.restassured.module.kotlin.extensions.When
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.hamcrest.Matchers.*
-import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.Assertions.assertEquals
 
 
 class KotlinITest {
 
     lateinit var webServer: MockWebServer
 
-    @Before
+    @BeforeEach
     fun `mock web server is started`() {
         webServer = MockWebServer()
         webServer.start()
@@ -41,7 +41,7 @@ class KotlinITest {
         RestAssured.port = webServer.port
     }
 
-    @After
+    @AfterEach
     fun `shutdown webserver after each test`() {
         webServer.shutdown()
         RestAssured.reset()

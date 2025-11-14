@@ -18,18 +18,15 @@ package io.restassured.path.xml;
 
 import io.restassured.path.xml.element.Node;
 import io.restassured.path.xml.element.NodeChildren;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.path.xml.XmlPath.with;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 
 public class XmlPathSubPathTest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     private static final String XML = "<shopping>\n" +
             "      <category type=\"groceries\">\n" +
@@ -81,17 +78,15 @@ public class XmlPathSubPathTest {
 
     @Test public void
     error_messages_on_invalid_subpath_looks_ok() {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage(String.format("Invalid path:%n" +
-                "Unexpected input: '[0].item.price.[' @ line 1, column 49.%n" +
-                "   category[0].item.price.[0]%n" +
-                "                          ^%n" +
-                "%n" +
-                "1 error"));
-
         Node category = with(XML).get("shopping");
-        final float firstPrice = category.getPath("category[0].item.price.[0]", float.class);
 
-        assertThat(firstPrice, is(10f));
+        assertThatThrownBy(() -> category.getPath("category[0].item.price.[0]", float.class))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage(String.format("Invalid path:%n" +
+                        "Unexpected input: '[0].item.price.[' @ line 1, column 49.%n" +
+                        "   category[0].item.price.[0]%n" +
+                        "                          ^%n" +
+                        "%n" +
+                        "1 error"));
     }
 }

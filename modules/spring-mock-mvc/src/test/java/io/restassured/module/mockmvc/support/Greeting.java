@@ -16,9 +16,9 @@
 
 package io.restassured.module.mockmvc.support;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
-@Ignore
+@Disabled
 public class Greeting {
     private String firstName;
     private String lastName;

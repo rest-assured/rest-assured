@@ -18,18 +18,13 @@ package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
 import io.restassured.itest.java.support.WithJetty;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class RootPathITest extends WithJetty {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     @Test
     public void specifyingRootPathInExpectationAddsTheRootPathForEachSubsequentBodyExpectation() {
         expect().
@@ -262,18 +257,22 @@ public class RootPathITest extends WithJetty {
 
     @Test
     public void cannotUseBodyExpectationWithNoPathWhenRootPathIsEmpty() {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Cannot specify arguments when root path is empty");
-
-        expect().body(withArgs("author", "size()"), equalTo("Something"));
+        Throwable thrown = org.assertj.core.api.Assertions.catchThrowable(() ->
+            expect().body(withArgs("author", "size()"), equalTo("Something"))
+        );
+        org.assertj.core.api.Assertions.assertThat(thrown)
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Cannot specify arguments when root path is empty");
     }
 
     @Test
     public void cannotDetachRootPathToFromRootPath() {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Cannot detach path when root path is empty");
-
-        expect().detachRootPath("path");
+        Throwable thrown = org.assertj.core.api.Assertions.catchThrowable(() ->
+            expect().detachRootPath("path")
+        );
+        org.assertj.core.api.Assertions.assertThat(thrown)
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Cannot detach path when root path is empty");
     }
 
     @Test
@@ -311,16 +310,16 @@ public class RootPathITest extends WithJetty {
 
     @Test
     public void detachingRootPathThrowsISERootPathDoesntEndWithPathToDetach() {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Cannot detach path 'another' since root path 'store.book' doesn't end with 'another'.");
-
-        when().
-                get("/jsonStore").
-        then().
-                rootPath("store.%s", withArgs("book")).
-                body("category.size()", equalTo(4)).
-                detachRootPath("another").
-                body("size()", equalTo(2));
+        Throwable thrown = org.assertj.core.api.Assertions.catchThrowable(() ->
+            when().get("/jsonStore").then()
+                .rootPath("store.%s", withArgs("book"))
+                .body("category.size()", equalTo(4))
+                .detachRootPath("another")
+                .body("size()", equalTo(2))
+        );
+        org.assertj.core.api.Assertions.assertThat(thrown)
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Cannot detach path 'another' since root path 'store.book' doesn't end with 'another'.");
     }
 
     @Test

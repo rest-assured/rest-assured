@@ -6,14 +6,15 @@ package io.restassured.internal.mapping
 
 import io.restassured.mapper.ObjectMapperSerializationContext
 import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.BeforeEach
 
 import javax.json.bind.JsonbBuilder
 
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertNotNull
-import static org.mockito.Matchers.any
+import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
 
 class JsonbMapperTest {
@@ -23,17 +24,17 @@ class JsonbMapperTest {
 
     private JsonbMapper underTest
 
-    @Before
-    def void setUp() {
+    @BeforeEach
+    void setUp() {
         when(mockFactory.create(any(), any())).thenReturn(JsonbBuilder.create())
-        underTest = new JsonbMapper(mockFactory);
+        underTest = new JsonbMapper(mockFactory)
     }
 
     @Test
-    def void shouldSerializeStringIntoJson() {
-        when(mockContext.getObjectToSerialize()).thenReturn("hello world");
+    void shouldSerializeStringIntoJson() {
+        when(mockContext.getObjectToSerialize()).thenReturn("hello world")
 
-        final Object result = underTest.serialize(mockContext);
+        final Object result = underTest.serialize(mockContext)
 
         verifyMocks()
 
@@ -44,7 +45,7 @@ class JsonbMapperTest {
     }
 
     @Test
-    def void shouldSerializeNullIntoJson() {
+    void shouldSerializeNullIntoJson() {
         when(mockContext.getObjectToSerialize()).thenReturn(null)
 
         final Object result = underTest.serialize(mockContext)
@@ -58,7 +59,7 @@ class JsonbMapperTest {
     }
 
     @Test
-    def void shouldSerializeObjectIntoJson() {
+    void shouldSerializeObjectIntoJson() {
         def obj = new Object()
         when(mockContext.getObjectToSerialize()).thenReturn(obj)
 
@@ -73,7 +74,7 @@ class JsonbMapperTest {
     }
 
     @Test
-    def void shouldSerializeCollectionIntoJson() {
+    void shouldSerializeCollectionIntoJson() {
         def list = ["a", "b", "c"]
         when(mockContext.getObjectToSerialize()).thenReturn(list)
 
@@ -88,7 +89,7 @@ class JsonbMapperTest {
     }
 
     @Test
-    def void shouldSerializeMapToJson() {
+    void shouldSerializeMapToJson() {
         def map = [:]
         when(mockContext.getObjectToSerialize()).thenReturn(map)
 

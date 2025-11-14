@@ -18,14 +18,14 @@ package io.restassured.examples.springmvc.controller;
 
 import io.restassured.examples.springmvc.support.WithJetty;
 import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
@@ -33,12 +33,10 @@ import static org.hamcrest.Matchers.greaterThan;
 
 public class FileUploadUsingStandardRestAssuredITest extends WithJetty {
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
     @Test public void
     file_uploading_works_using_standard_rest_assured() throws IOException {
-        File something = folder.newFile("something");
+        Path tempFile = Files.createTempFile("something", null);
+        File something = tempFile.toFile();
         IOUtils.write("Something21", new FileOutputStream(something));
 
         given().

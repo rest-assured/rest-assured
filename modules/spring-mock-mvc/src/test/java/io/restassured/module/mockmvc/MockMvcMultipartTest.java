@@ -17,7 +17,7 @@
 package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.MultipartController;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.util.ResourceUtils;
 

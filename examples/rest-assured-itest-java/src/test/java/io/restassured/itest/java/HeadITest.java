@@ -17,19 +17,12 @@
 package io.restassured.itest.java;
 
 import io.restassured.itest.java.support.WithJetty;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.emptyOrNullString;
 
 public class HeadITest extends WithJetty {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
-    @Test
-    public void headSupportsStringBody() throws Exception {
+    void headSupportsStringBody() {
         // Scalatra doesn't return body but it is indeed sent
         given().body("a body").expect().body(emptyOrNullString()).when().head("/returnContentTypeAsBody");
     }

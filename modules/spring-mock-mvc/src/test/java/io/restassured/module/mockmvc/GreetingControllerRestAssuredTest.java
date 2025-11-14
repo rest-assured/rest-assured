@@ -17,7 +17,7 @@
 package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.GreetingController;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.equalTo;

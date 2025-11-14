@@ -18,26 +18,26 @@ package io.restassured.module.webtestclient;
 
 import io.restassured.http.Method;
 import io.restassured.module.webtestclient.setup.GreetingController;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
 
 public class WebTestClientPathParamTest {
 
-	@Before
+	@BeforeEach
 	public void configureMockMvcInstance() {
 		RestAssuredWebTestClient.standaloneSetup(new GreetingController());
 	}
 
-	@After
+	@AfterEach
 	public void restRestAssured() {
 		RestAssuredWebTestClient.reset();
 	}
@@ -136,8 +136,9 @@ public class WebTestClientPathParamTest {
 			return null;
 		};
 
-		final Exception ex = Assert.assertThrows(IllegalArgumentException.class, restAssuredExecutionSupplier::get);
-		Assert.assertEquals("No values were found for the request's pathParams.", ex.getMessage());
+		assertThatThrownBy(restAssuredExecutionSupplier::get)
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("No values were found for the request's pathParams.");
 	}
 
 	@Test
@@ -232,7 +233,8 @@ public class WebTestClientPathParamTest {
 			return null;
 		};
 
-		final Exception ex = Assert.assertThrows(IllegalArgumentException.class, restAssuredExecutionSupplier::get);
-		Assert.assertEquals("No values were found for the request's pathParams.", ex.getMessage());
+		assertThatThrownBy(restAssuredExecutionSupplier::get)
+			.isInstanceOf(IllegalArgumentException.class)
+			.hasMessage("No values were found for the request's pathParams.");
 	}
 }

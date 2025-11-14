@@ -18,7 +18,7 @@ package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.response.WebTestClientResponse;
 import io.restassured.module.webtestclient.setup.GreetingController;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;

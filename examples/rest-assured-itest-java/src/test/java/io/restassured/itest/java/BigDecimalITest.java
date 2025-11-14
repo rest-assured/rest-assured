@@ -20,9 +20,10 @@ import io.restassured.RestAssured;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.path.json.config.JsonPathConfig;
 import org.apache.http.HttpStatus;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
@@ -34,12 +35,12 @@ import static org.hamcrest.Matchers.hasItems;
 
 public class BigDecimalITest extends WithJetty {
 
-    @After public void
+    @AfterEach public void
     rest_assured_is_reset_after_each_test() {
         RestAssured.reset();
     }
 
-    @Before public void
+    @BeforeEach public void
     given_rest_assured_is_configured_with_big_decimal_as_return_type() {
         RestAssured.config = RestAssured.config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL));
     }

@@ -41,7 +41,8 @@ import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.assertj.core.api.Assertions;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
@@ -448,9 +449,7 @@ public class FilterITest extends WithJetty {
 
     @Test public void
     can_remove_both_unnamed_and_named_path_parameter_from_filter_and_order_is_maintained() {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Path parameters were not correctly defined. Redundant path parameters are: John3, Doe.");
-
+        Throwable thrown = Assertions.catchThrowable(() ->
         given().
                 pathParam("firstName", "John2").
                 filter((requestSpec, responseSpec, ctx) -> {
@@ -462,7 +461,11 @@ public class FilterITest extends WithJetty {
                     return ctx.next(requestSpec, responseSpec);
                 }).
         when().
-                get("/{firstName}/{lastName}", "John", "John3", "Doe");
+                get("/{firstName}/{lastName}", "John", "John3", "Doe"));
+
+        Assertions.assertThat(thrown)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Path parameters were not correctly defined. Redundant path parameters are: John3, Doe.");
     }
 
     @Test public void

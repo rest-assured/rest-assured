@@ -27,9 +27,11 @@ import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
@@ -37,16 +39,16 @@ import java.io.StringWriter;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class LogIfValidationFailsITest extends WithJetty {
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         RestAssured.config = RestAssuredConfig.config().logConfig(LogConfig.logConfig().enablePrettyPrinting(false));
     }
 
-    @After
+    @AfterEach
     public void teardown() throws Exception {
         RestAssured.reset();
     }

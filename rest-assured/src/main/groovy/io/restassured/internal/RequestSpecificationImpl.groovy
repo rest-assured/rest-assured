@@ -28,6 +28,7 @@ import io.restassured.filter.log.ResponseLoggingFilter
 import io.restassured.filter.time.TimingFilter
 import io.restassured.http.*
 import io.restassured.internal.MapCreator.CollisionStrategy
+import io.restassured.internal.assertbridge.GroovyAssertBridge
 import io.restassured.internal.filter.CsrfFilter
 import io.restassured.internal.filter.FilterContextImpl
 import io.restassured.internal.filter.FormAuthFilter
@@ -169,182 +170,268 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   Response get(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(GET, path, pathParams)
+    return GroovyAssertBridge.runWithUnwrap {
+      applyPathParamsAndSendRequest(GET, path, pathParams)
+    }
   }
 
   Response post(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(POST, path, pathParams)
+    return GroovyAssertBridge.runWithUnwrap {
+      applyPathParamsAndSendRequest(POST, path, pathParams)
+    }
   }
 
   Response put(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(PUT, path, pathParams)
+    return GroovyAssertBridge.runWithUnwrap {
+      applyPathParamsAndSendRequest(PUT, path, pathParams)
+    }
   }
 
   Response delete(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(DELETE, path, pathParams)
+    return GroovyAssertBridge.runWithUnwrap {
+      applyPathParamsAndSendRequest(DELETE, path, pathParams)
+    }
   }
 
   Response head(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(HEAD, path, pathParams)
+    return GroovyAssertBridge.runWithUnwrap {
+      applyPathParamsAndSendRequest(HEAD, path, pathParams)
+    }
   }
 
   Response patch(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(PATCH, path, pathParams)
+    return GroovyAssertBridge.runWithUnwrap {
+      applyPathParamsAndSendRequest(PATCH, path, pathParams)
+    }
   }
 
   Response options(String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(OPTIONS, path, pathParams)
+    return GroovyAssertBridge.runWithUnwrap {
+      applyPathParamsAndSendRequest(OPTIONS, path, pathParams)
+    }
   }
 
   Response get(URI uri) {
-    get(notNull(uri, "URI").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      get(notNull(uri, "URI").toString())
+    }
   }
 
   Response post(URI uri) {
-    post(notNull(uri, "URI").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      post(notNull(uri, "URI").toString())
+    }
   }
 
   Response put(URI uri) {
-    put(notNull(uri, "URI").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      put(notNull(uri, "URI").toString())
+    }
   }
 
   Response delete(URI uri) {
-    delete(notNull(uri, "URI").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      delete(notNull(uri, "URI").toString())
+    }
   }
 
   Response head(URI uri) {
-    head(notNull(uri, "URI").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      head(notNull(uri, "URI").toString())
+    }
   }
 
   Response patch(URI uri) {
-    patch(notNull(uri, "URI").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      patch(notNull(uri, "URI").toString())
+    }
   }
 
   Response options(URI uri) {
-    options(notNull(uri, "URI").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      options(notNull(uri, "URI").toString())
+    }
   }
 
   Response get(URL url) {
-    get(notNull(url, "URL").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      get(notNull(url, "URL").toString())
+    }
   }
 
   Response post(URL url) {
-    post(notNull(url, "URL").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      post(notNull(url, "URL").toString())
+    }
   }
 
   Response put(URL url) {
-    put(notNull(url, "URL").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      put(notNull(url, "URL").toString())
+    }
   }
 
   Response delete(URL url) {
-    delete(notNull(url, "URL").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      delete(notNull(url, "URL").toString())
+    }
   }
 
   Response head(URL url) {
-    head(notNull(url, "URL").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      head(notNull(url, "URL").toString())
+    }
   }
 
   Response patch(URL url) {
-    patch(notNull(url, "URL").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      patch(notNull(url, "URL").toString())
+    }
   }
 
   Response options(URL url) {
-    options(notNull(url, "URL").toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      options(notNull(url, "URL").toString())
+    }
   }
 
   Response get() {
-    get("")
+    return GroovyAssertBridge.runWithUnwrap {
+      get("")
+    }
   }
 
   Response post() {
-    post("")
+    return GroovyAssertBridge.runWithUnwrap {
+      post("")
+    }
   }
 
   Response put() {
-    put("")
+    return GroovyAssertBridge.runWithUnwrap {
+      put("")
+    }
   }
 
   Response delete() {
-    delete("")
+    return GroovyAssertBridge.runWithUnwrap {
+      delete("")
+    }
   }
 
   Response head() {
-    head("")
+    return GroovyAssertBridge.runWithUnwrap {
+      head("")
+    }
   }
 
   Response patch() {
-    patch("")
+    return GroovyAssertBridge.runWithUnwrap {
+      patch("")
+    }
   }
 
   Response options() {
-    options("")
+    return GroovyAssertBridge.runWithUnwrap {
+      options("")
+    }
   }
 
   Response request(Method method) {
-    request(notNull(method, Method.class).name())
+    return GroovyAssertBridge.runWithUnwrap {
+      request(notNull(method, Method.class).name())
+    }
   }
 
   Response request(String method) {
-    request(method, "")
+    return GroovyAssertBridge.runWithUnwrap {
+      request(method, "")
+    }
   }
 
   Response request(Method method, String path, Object... pathParams) {
-    return request(notNull(method, Method.class).name(), path, pathParams)
+    return GroovyAssertBridge.runWithUnwrap {
+      return request(notNull(method, Method.class).name(), path, pathParams)
+    }
   }
 
   Response request(String method, String path, Object... pathParams) {
-    applyPathParamsAndSendRequest(method, path, pathParams)
+    return GroovyAssertBridge.runWithUnwrap {
+      applyPathParamsAndSendRequest(method, path, pathParams)
+    }
   }
 
   Response request(Method method, URI uri) {
-    request(method, notNull(uri, URI.class).toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      request(method, notNull(uri, URI.class).toString())
+    }
   }
 
   Response request(Method method, URL url) {
-    request(method, notNull(url, URL.class).toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      request(method, notNull(url, URL.class).toString())
+    }
   }
 
   Response request(String method, URI uri) {
-    request(method, notNull(uri, URI.class).toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      request(method, notNull(uri, URI.class).toString())
+    }
   }
 
   Response request(String method, URL url) {
-    request(method, notNull(url, URL.class).toString())
+    return GroovyAssertBridge.runWithUnwrap {
+      request(method, notNull(url, URL.class).toString())
+    }
   }
 
   Response get(String path, Map pathParamsMap) {
-    pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(GET, path)
+    return GroovyAssertBridge.runWithUnwrap {
+      pathParams(pathParamsMap)
+      applyPathParamsAndSendRequest(GET, path)
+    }
   }
 
   Response post(String path, Map pathParamsMap) {
-    pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(POST, path)
+    return GroovyAssertBridge.runWithUnwrap {
+      pathParams(pathParamsMap)
+      applyPathParamsAndSendRequest(POST, path)
+    }
   }
 
   Response put(String path, Map pathParamsMap) {
-    pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(PUT, path)
+    return GroovyAssertBridge.runWithUnwrap {
+      pathParams(pathParamsMap)
+      applyPathParamsAndSendRequest(PUT, path)
+    }
   }
 
   Response delete(String path, Map pathParamsMap) {
-    pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(DELETE, path)
+    return GroovyAssertBridge.runWithUnwrap {
+      pathParams(pathParamsMap)
+      applyPathParamsAndSendRequest(DELETE, path)
+    }
   }
 
   Response head(String path, Map pathParamsMap) {
-    pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(HEAD, path)
+    return GroovyAssertBridge.runWithUnwrap {
+      pathParams(pathParamsMap)
+      applyPathParamsAndSendRequest(HEAD, path)
+    }
   }
 
   Response patch(String path, Map pathParamsMap) {
-    pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(PATCH, path)
+    return GroovyAssertBridge.runWithUnwrap {
+      pathParams(pathParamsMap)
+      applyPathParamsAndSendRequest(PATCH, path)
+    }
   }
 
   Response options(String path, Map pathParamsMap) {
-    pathParams(pathParamsMap)
-    applyPathParamsAndSendRequest(OPTIONS, path)
+    return GroovyAssertBridge.runWithUnwrap {
+      pathParams(pathParamsMap)
+      applyPathParamsAndSendRequest(OPTIONS, path)
+    }
   }
 
   RequestSpecification params(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {

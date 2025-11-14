@@ -17,9 +17,9 @@
 package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.AttributeController;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,12 +28,12 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class AttributeTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void configureMockMvcInstance() {
         RestAssuredMockMvc.standaloneSetup(new AttributeController());
     }
 
-    @AfterClass
+    @AfterAll
     public static void restRestAssured() {
         RestAssuredMockMvc.reset();
     }

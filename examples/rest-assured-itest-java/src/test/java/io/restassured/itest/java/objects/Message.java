@@ -16,9 +16,9 @@
 
 package io.restassured.itest.java.objects;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
-@Ignore
+@Disabled
 public class Message {
     private String message;
 

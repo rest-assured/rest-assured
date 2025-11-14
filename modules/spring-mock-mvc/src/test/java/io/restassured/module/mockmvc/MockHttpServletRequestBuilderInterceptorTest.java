@@ -18,7 +18,7 @@ package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.GreetingController;
 import io.restassured.module.mockmvc.intercept.MockHttpServletRequestBuilderInterceptor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.hamcrest.Matchers.equalTo;

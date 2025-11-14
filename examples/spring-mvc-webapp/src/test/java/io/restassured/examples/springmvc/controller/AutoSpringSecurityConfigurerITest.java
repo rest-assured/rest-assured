@@ -21,12 +21,12 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.config.MockMvcConfig;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.NestedServletException;
@@ -44,7 +44,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = MainConfiguration.class)
 @WebAppConfiguration
 public class AutoSpringSecurityConfigurerITest {
@@ -131,15 +131,17 @@ public class AutoSpringSecurityConfigurerITest {
         }
     }
 
-    @Test(expected = NestedServletException.class) public void
-    doesnt_add_spring_security_configurer_automatically_when_mock_mvc_config_is_configured_not_to() {
-        RestAssuredMockMvc.given().
-                webAppContextSetup(context).
-                config(RestAssuredMockMvc.config().mockMvcConfig(MockMvcConfig.mockMvcConfig().dontAutomaticallyApplySpringSecurityMockMvcConfigurer())).
-                postProcessors(httpBasic("username", "password")).
-                param("name", "Johan").
-        when().
-                get("/secured/greeting");
+    @Test
+    public void doesnt_add_spring_security_configurer_automatically_when_mock_mvc_config_is_configured_not_to() {
+        org.junit.jupiter.api.Assertions.assertThrows(NestedServletException.class, () -> {
+            RestAssuredMockMvc.given().
+                    webAppContextSetup(context).
+                    config(RestAssuredMockMvc.config().mockMvcConfig(MockMvcConfig.mockMvcConfig().dontAutomaticallyApplySpringSecurityMockMvcConfigurer())).
+                    postProcessors(httpBasic("username", "password")).
+                    param("name", "Johan").
+            when().
+                    get("/secured/greeting");
+        });
     }
 
     @Test public void

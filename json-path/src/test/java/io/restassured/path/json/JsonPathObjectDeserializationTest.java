@@ -22,7 +22,7 @@ import io.restassured.path.json.mapping.JsonPathObjectDeserializer;
 import io.restassured.path.json.support.Greeting;
 import io.restassured.path.json.support.Winner;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;

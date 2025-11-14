@@ -23,7 +23,7 @@ import io.restassured.http.ContentType.JSON
 import io.restassured.module.scala.RestAssuredSupport._
 import io.restassured.specification.{FilterableRequestSpecification, FilterableResponseSpecification}
 import org.hamcrest.Matchers.equalTo
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class RestAssuredSupportTest {
 

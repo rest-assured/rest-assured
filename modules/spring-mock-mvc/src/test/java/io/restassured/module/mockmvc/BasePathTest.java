@@ -17,20 +17,21 @@
 package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.BasePathController;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static org.hamcrest.Matchers.equalTo;
 
 public class BasePathTest {
-    @Before public void
+    @BeforeEach public void
     given_rest_assured_is_initialized_with_controller() {
         RestAssuredMockMvc.standaloneSetup(new BasePathController());
     }
 
-    @After public void
+    @AfterEach public void
     rest_assured_is_reset_after_each_test() {
         RestAssuredMockMvc.reset();
     }

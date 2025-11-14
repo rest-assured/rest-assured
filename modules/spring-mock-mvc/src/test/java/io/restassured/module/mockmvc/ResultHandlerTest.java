@@ -19,9 +19,9 @@ package io.restassured.module.mockmvc;
 import io.restassured.http.Header;
 import io.restassured.module.mockmvc.http.HeaderController;
 import org.apache.commons.lang3.mutable.MutableObject;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultHandler;
 
@@ -33,12 +33,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 // @formatter:off
 public class ResultHandlerTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void configureMockMvcInstance() {
         RestAssuredMockMvc.standaloneSetup(new HeaderController());
     }
 
-    @AfterClass
+    @AfterAll
     public static void restRestAssured() {
         RestAssuredMockMvc.reset();
     }

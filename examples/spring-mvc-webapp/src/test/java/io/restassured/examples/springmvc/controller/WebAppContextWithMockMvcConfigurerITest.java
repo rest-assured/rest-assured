@@ -18,13 +18,11 @@ package io.restassured.examples.springmvc.controller;
 
 import io.restassured.examples.springmvc.config.MainConfiguration;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -33,13 +31,10 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = MainConfiguration.class)
 @WebAppConfiguration
 public class WebAppContextWithMockMvcConfigurerITest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     @Autowired
     private WebApplicationContext context;
 

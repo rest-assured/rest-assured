@@ -23,10 +23,10 @@ import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.littleshoot.proxy.HttpProxyServer;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
@@ -41,17 +41,18 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.specification.ProxySpecification.host;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ProxyITest extends WithJetty {
 
     static HttpProxyServer proxyServer;
 
-    @BeforeClass public static void
+    @BeforeAll public static void
     create_proxy_server() {
         proxyServer = DefaultHttpProxyServer.bootstrap().withPort(8888).withAllowLocalOnly(true).start();
     }
 
-    @AfterClass public static void
+    @AfterAll public static void
     stop_proxy_server() {
         proxyServer.stop();
         proxyServer = null;
@@ -96,7 +97,7 @@ public class ProxyITest extends WithJetty {
                 header("Via", not(emptyOrNullString()));
     }
 
-    @Ignore("Doesnt work with Proxy?")
+    @Disabled("Doesnt work with Proxy?")
     @Test public void
     using_proxy_with_https_scheme() {
         given().
@@ -185,18 +186,19 @@ public class ProxyITest extends WithJetty {
 
     @Test public void
     using_statically_configured_proxy_defined_using_string_uri_without_port() {
-        exception.expect(ConnectException.class); // Because it will try to connect to port 80
-
+        // Because it will try to connect to port 80
         RestAssured.proxy("http://127.0.0.1");
 
         try {
-            given().
-                    param("firstName", "John").
-                    param("lastName", "Doe").
-            when().
-                    get("/greetJSON").
-            then().
-                    header("Via", not(emptyOrNullString()));
+            assertThrows(ConnectException.class, () -> {
+                given().
+                        param("firstName", "John").
+                        param("lastName", "Doe").
+                when().
+                        get("/greetJSON").
+                then().
+                        header("Via", not(emptyOrNullString()));
+            });
         } finally {
             RestAssured.reset();
         }

@@ -17,9 +17,9 @@
 package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.PostAsyncController;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
@@ -32,12 +32,12 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 
 public class AsyncTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void configureMockMvcInstance() {
         RestAssuredMockMvc.mockMvc(standaloneSetup(new PostAsyncController()).build());
     }
 
-    @AfterClass
+    @AfterAll
     public static void restRestAssured() {
         RestAssuredMockMvc.reset();
     }

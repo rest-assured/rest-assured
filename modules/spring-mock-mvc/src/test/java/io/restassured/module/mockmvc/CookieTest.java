@@ -20,9 +20,9 @@ package io.restassured.module.mockmvc;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
 import io.restassured.module.mockmvc.http.CookieController;
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;import io.restassured.response.ResponseOptions;import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;import io.restassured.response.ResponseOptions;import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -35,12 +35,12 @@ import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;import stat
 
 public class CookieTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void configureMockMvcInstance() {
         RestAssuredMockMvc.standaloneSetup(new CookieController());
     }
 
-    @AfterClass
+    @AfterAll
     public static void restRestAssured() {
         RestAssuredMockMvc.reset();
     }

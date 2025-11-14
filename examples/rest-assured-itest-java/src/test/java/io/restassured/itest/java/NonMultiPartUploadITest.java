@@ -20,9 +20,7 @@ import io.restassured.http.ContentType;
 import io.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.InputStream;
@@ -33,11 +31,8 @@ import static org.hamcrest.Matchers.is;
 
 public class NonMultiPartUploadITest extends WithJetty {
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     @Test
-    public void uploadingWorksForByteArraysWithPost() throws Exception {
+    void uploadingWorksForByteArraysWithPost() throws Exception {
         // Given
         final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
 
@@ -53,7 +48,7 @@ public class NonMultiPartUploadITest extends WithJetty {
     }
 
     @Test
-    public void uploadingWorksForByteArraysWithPut() throws Exception {
+    void uploadingWorksForByteArraysWithPut() throws Exception {
         // Given
         final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
 
@@ -68,7 +63,7 @@ public class NonMultiPartUploadITest extends WithJetty {
     }
 
     @Test
-    public void uploadingWorksForByteArraysWithoutExplicitContentType() throws Exception {
+    void uploadingWorksForByteArraysWithoutExplicitContentType() throws Exception {
         // Given
         final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));
 
@@ -83,7 +78,7 @@ public class NonMultiPartUploadITest extends WithJetty {
     }
 
     @Test
-    public void uploadingWorksForFileWithPost() throws Exception {
+    void uploadingWorksForFileWithPost() throws Exception {
         // Given
         final File file = new File(getClass().getResource("/car-records.xsd").toURI());
 
@@ -99,7 +94,7 @@ public class NonMultiPartUploadITest extends WithJetty {
     }
 
     @Test
-    public void uploadingWorksForFileWithPut() throws Exception {
+    void uploadingWorksForFileWithPut() throws Exception {
         // Given
         final File file = new File(getClass().getResource("/car-records.xsd").toURI());
 
@@ -115,7 +110,7 @@ public class NonMultiPartUploadITest extends WithJetty {
     }
 
     @Test
-    public void uploadingWorksForInputStreamWithPost() throws Exception {
+    void uploadingWorksForInputStreamWithPost() throws Exception {
         // Given
         InputStream inputStream = getClass().getResourceAsStream("/car-records.xsd");
 
@@ -131,7 +126,7 @@ public class NonMultiPartUploadITest extends WithJetty {
     }
 
     @Test
-    public void uploadingWorksForInputStreamWithPut() throws Exception {
+    void uploadingWorksForInputStreamWithPut() throws Exception {
         // Given
         InputStream inputStream = getClass().getResourceAsStream("/car-records.xsd");
 
@@ -147,7 +142,7 @@ public class NonMultiPartUploadITest extends WithJetty {
     }
 
     @Test
-    public void uploadingWorksForFileWithPostAndBody() throws Exception {
+    void uploadingWorksForFileWithPostAndBody() throws Exception {
         // Given
         final File file = new File(getClass().getResource("/car-records.xsd").toURI());
 

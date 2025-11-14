@@ -17,19 +17,15 @@
 package io.restassured.itest.java;
 
 import io.restassured.itest.java.support.WithJetty;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
 public class OptionsITest extends WithJetty {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void optionsSupportsStringBody() throws Exception {
+    void optionsSupportsStringBody() {
         given().body("a body").expect().body(equalTo("a body")).when().options("/returnBodyAsBody");
     }
 }

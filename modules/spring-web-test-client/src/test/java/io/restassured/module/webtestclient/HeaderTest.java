@@ -20,10 +20,10 @@ import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.module.webtestclient.setup.HeaderController;
 import io.restassured.module.webtestclient.setup.RedirectController;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.HashMap;
@@ -37,12 +37,12 @@ public class HeaderTest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    @BeforeClass
+    @BeforeAll
     public static void configureWebTestClientInstance() {
         RestAssuredWebTestClient.standaloneSetup(new HeaderController());
     }
 
-    @AfterClass
+    @AfterAll
     public static void restRestAssured() {
         RestAssuredWebTestClient.reset();
     }

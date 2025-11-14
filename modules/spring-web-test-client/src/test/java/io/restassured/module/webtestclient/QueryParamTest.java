@@ -18,7 +18,7 @@ package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.GreetingController;
 import io.restassured.module.webtestclient.setup.QueryParamsProcessor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;

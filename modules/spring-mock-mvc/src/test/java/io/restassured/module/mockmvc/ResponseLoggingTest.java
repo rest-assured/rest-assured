@@ -22,9 +22,11 @@ import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.http.PostController;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.json.JSONException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
 import java.io.PrintStream;
@@ -32,20 +34,20 @@ import java.io.StringWriter;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 // @formatter:off
 public class ResponseLoggingTest {
     private StringWriter writer;
 
-    @Before public void
+    @BeforeEach public void
     given_config_is_stored_in_writer() {
         writer = new StringWriter();
         PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
         RestAssuredMockMvc.config = new RestAssuredMockMvcConfig().logConfig(new LogConfig(captor, true));
     }
 
-    @After public void
+    @AfterEach public void
     reset_rest_assured() throws Exception {
         RestAssured.reset();
     }

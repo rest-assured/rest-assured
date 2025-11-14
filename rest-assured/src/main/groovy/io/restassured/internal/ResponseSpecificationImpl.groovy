@@ -17,7 +17,10 @@
 
 package io.restassured.internal
 
-import io.restassured.assertion.*
+
+import io.restassured.assertion.DetailedCookieAssertion
+import io.restassured.assertion.HeaderMatcher
+import io.restassured.assertion.ResponseTimeMatcher
 import io.restassured.config.RestAssuredConfig
 import io.restassured.filter.log.LogDetail
 import io.restassured.http.ContentType
@@ -34,6 +37,7 @@ import io.restassured.response.Response
 import io.restassured.specification.*
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.Validate
+import org.codehaus.groovy.runtime.InvokerInvocationException
 import org.hamcrest.Matcher
 import org.hamcrest.Matchers
 
@@ -513,6 +517,20 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
         }
       }
     }
+
+    // Pseudo-code example at some higher-level Groovy entry point
+    private def validateResponseIfRequired(Response response) {
+      try {
+        validate(response)   // dynamic call
+      } catch (InvokerInvocationException e) {
+        def cause = e.cause
+        if (cause instanceof AssertionError) {
+          throw cause        // rethrow AssertionError as top-level
+        }
+        throw e
+      }
+    }
+
 
     private String getFormattedOnFailMessage() {
       onFailMessage ? "\nOn fail message: $onFailMessage" : ""

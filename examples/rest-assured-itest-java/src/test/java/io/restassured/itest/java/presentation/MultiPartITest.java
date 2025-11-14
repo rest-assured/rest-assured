@@ -20,8 +20,8 @@ import io.restassured.builder.MultiPartSpecBuilder;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.IOUtils;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.InputStream;
@@ -33,7 +33,7 @@ import static org.hamcrest.Matchers.*;
 public class MultiPartITest extends WithJetty {
 
     @Test
-    @Ignore("Only used for presentation purposes")
+    @Disabled("Only used for presentation purposes")
     public void simpleFileUploading() throws Exception {
         // When
         given().
@@ -253,7 +253,7 @@ public class MultiPartITest extends WithJetty {
                 statusCode(200);
     }
 
-    @Test @Ignore("For some reason this tests fails occasionally at Travis")
+    @Test @Disabled("For some reason this tests fails occasionally at Travis")
     public void returnsErrorWhenMultipartPatchReturnsFailureStatusCode() throws Exception {
         // Given
         final byte[] bytes = IOUtils.toByteArray(getClass().getResourceAsStream("/car-records.xsd"));

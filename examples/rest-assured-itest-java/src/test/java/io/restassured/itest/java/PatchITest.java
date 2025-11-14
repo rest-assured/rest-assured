@@ -17,21 +17,17 @@
 package io.restassured.itest.java;
 
 import io.restassured.itest.java.support.WithJetty;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.equalTo;
 
 public class PatchITest extends WithJetty {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     @Test
     public void requestSpecificationAllowsSpecifyingCookie() {
         given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().patch("/cookie");
@@ -43,8 +39,8 @@ public class PatchITest extends WithJetty {
     }
 
     @Test
-    public void patchSupportsBinaryBody() throws Exception {
-        final byte[] body = "a body".getBytes("UTF-8");
+    public void patchSupportsBinaryBody() {
+        final byte[] body = "a body".getBytes(java.nio.charset.StandardCharsets.UTF_8);
         given().body(body).expect().body(equalTo("97, 32, 98, 111, 100, 121")).when().patch("/binaryBody");
     }
 

@@ -23,7 +23,7 @@ import io.restassured.config.LogConfig;
 import io.restassured.http.ContentType;
 import io.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.PrintStream;
 import java.io.StringWriter;

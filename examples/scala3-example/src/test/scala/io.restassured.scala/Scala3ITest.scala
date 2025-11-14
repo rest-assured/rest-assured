@@ -19,23 +19,23 @@ package io.restassured.scala
 import io.restassured.module.scala.extensions.*
 import okhttp3.mockwebserver.{MockResponse, MockWebServer}
 import org.hamcrest.CoreMatchers.containsString
-import org.junit.{After, Before, Test}
+import org.junit.jupiter.api.{AfterEach, BeforeEach, Test}
 
 class Scala3ITest:
 
   var webServer: MockWebServer = _
 
-  @Before
-  def `Mock web server is initialized`() =
+  @BeforeEach
+  def `Mock web server is initialized`(): Unit =
     webServer = new MockWebServer()
     webServer.start()
 
-  @After
-  def `Mock web server is shutdown`() =
+  @AfterEach
+  def `Mock web server is shutdown`(): Unit =
     webServer.shutdown()
 
   @Test
-  def `trying out rest assured in scala`() =
+  def `trying out rest assured in scala`(): Unit =
     val response = new MockResponse
     response.setBody(""" { "key" : "value" } """)
     response.setHeader("content-type", "application/json")
@@ -43,13 +43,13 @@ class Scala3ITest:
 
     Given(_.port(webServer.getPort))
       .When(req => req.get("/greetJSON"))
-      .ThenAssert(res => // Use ThenAssert as the last method in the chain for a test with validation
+      .ThenAssert(res =>
         res.statusCode(200)
         res.body("key", containsString("value"))
       )
 
   @Test
-  def `validating a value and extrating it from the response`() =
+  def `validating a value and extrating it from the response`(): Unit =
     val response = new MockResponse
     response.setBody(""" { "key" : "value" } """)
     response.setHeader("content-type", "application/json")
@@ -57,7 +57,7 @@ class Scala3ITest:
 
     val value: String = Given(_.port(webServer.getPort))
       .When(req => req.get("/greetJSON"))
-      .Then(res => // Use Then when you want to chain an Extract method after the validation
+      .Then(res =>
         res.statusCode(200)
         res.body("key", containsString("value"))
       )
@@ -66,7 +66,7 @@ class Scala3ITest:
     assert(value == "value")
 
   @Test
-  def `extracting a value from a response`() =
+  def `extracting a value from a response`(): Unit =
     val response = new MockResponse
     response.setBody(""" { "key" : "value" } """)
     response.setHeader("content-type", "application/json")

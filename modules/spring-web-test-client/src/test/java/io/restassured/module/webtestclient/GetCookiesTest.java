@@ -19,9 +19,9 @@ package io.restassured.module.webtestclient;
 import io.restassured.http.Cookie;
 import io.restassured.http.Cookies;
 import io.restassured.module.webtestclient.setup.CookieController;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,12 +30,12 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class GetCookiesTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void configureWebTestClientInstance() {
         RestAssuredWebTestClient.standaloneSetup(new CookieController());
     }
 
-    @AfterClass
+    @AfterAll
     public static void restRestAssured() {
         RestAssuredWebTestClient.reset();
     }

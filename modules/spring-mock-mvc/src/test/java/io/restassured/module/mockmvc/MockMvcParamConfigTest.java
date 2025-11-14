@@ -17,9 +17,11 @@
 package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.MultiValueController;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.BeforeEach;
+
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE;
 import static io.restassured.module.mockmvc.config.MockMvcParamConfig.paramConfig;
@@ -28,12 +30,12 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class MockMvcParamConfigTest {
 
-    @Before
+    @BeforeEach
     public void configureMockMvcInstance() {
         RestAssuredMockMvc.standaloneSetup(new MultiValueController());
     }
 
-    @After
+    @AfterEach
     public void restRestAssured() {
         RestAssuredMockMvc.reset();
     }

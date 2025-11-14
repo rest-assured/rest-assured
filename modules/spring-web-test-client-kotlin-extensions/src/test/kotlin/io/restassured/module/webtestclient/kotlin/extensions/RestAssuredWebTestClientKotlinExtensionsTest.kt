@@ -4,7 +4,8 @@ package io.restassured.module.webtestclient.kotlin.extensions
 import io.restassured.module.webtestclient.RestAssuredWebTestClient
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers
-import org.junit.Test
+import org.junit.jupiter.api.Test;
+
 import org.springframework.test.web.reactive.server.WebTestClient
 
 /*

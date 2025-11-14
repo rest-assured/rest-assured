@@ -16,13 +16,13 @@
 
 package io.restassured.itest.java.stress;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.restlet.Request;
 import org.restlet.Response;
 import org.restlet.Restlet;
 import org.restlet.data.MediaType;
 
-@Ignore("Not a test")
+@Disabled("Not a test")
 public class StressRestlet extends Restlet {
 
   @Override

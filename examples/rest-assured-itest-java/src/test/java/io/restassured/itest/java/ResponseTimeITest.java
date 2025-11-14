@@ -20,29 +20,29 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.ResponseSpecification;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static java.util.concurrent.TimeUnit.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class ResponseTimeITest extends WithJetty {
 
-    @Before
-    public void
-    disable_tests_on_windows() {
+    @BeforeEach
+    void disable_tests_on_windows() {
         // These tests are flaky (fail every now and then) on Windows due to System#currentTimeMillis() precision.
         // See JavaDoc on System#currentTimeMillis() and TimingFilter.
         // Be sure to warm up the JVM and execute the tests multiple times to see the failures on Windows
-        assumeFalse("High precision dependent tests are disabled on Windows", SystemUtils.IS_OS_WINDOWS);
+        assumeFalse(SystemUtils.IS_OS_WINDOWS, "High precision dependent tests are disabled on Windows");
     }
 
-    @Test public void
-    response_time_can_be_extracted() {
+    @Test
+    void response_time_can_be_extracted() {
         long time =
         given().
                 param("firstName", "John").
@@ -55,8 +55,8 @@ public class ResponseTimeITest extends WithJetty {
         assertThat(time, greaterThan(0L));
     }
 
-    @Test public void
-    response_time_can_be_be_converted() {
+    @Test
+    void response_time_can_be_be_converted() {
         long timeNanos = get("/lotto").timeIn(NANOSECONDS);
         long timeMillis = get("/lotto").timeIn(MILLISECONDS);
         assertThat(timeNanos, greaterThan(0L));
@@ -64,8 +64,8 @@ public class ResponseTimeITest extends WithJetty {
         assertThat(timeNanos, greaterThan(timeMillis));
     }
 
-    @Test public void
-    response_time_can_be_validated_with_implicit_time_unit() {
+    @Test
+    void response_time_can_be_validated_with_implicit_time_unit() {
         given().
                 param("firstName", "John").
                 param("lastName", "Doe").
@@ -75,8 +75,8 @@ public class ResponseTimeITest extends WithJetty {
                 time(allOf(greaterThan(0L), lessThan(2000L)));
     }
 
-    @Test public void
-    response_time_can_be_validated_with_explicit_time_unit() {
+    @Test
+    void response_time_can_be_validated_with_explicit_time_unit() {
         given().
                 param("firstName", "John").
                 param("lastName", "Doe").
@@ -86,23 +86,24 @@ public class ResponseTimeITest extends WithJetty {
                 time(lessThan(2L), SECONDS);
     }
 
-    @Test public void
-    response_time_validation_can_fail() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(allOf(containsString("Expected response time was not a value greater than <2L> days, was "),
-                endsWith(" milliseconds (0 days).")));
-
-        given().
+    @Test
+    void response_time_validation_can_fail() {
+        assertThatThrownBy(() ->
+            given().
                 param("firstName", "John").
                 param("lastName", "Doe").
-        when().
+            when().
                 get("/greet").
-        then().
-                time(greaterThan(2L), DAYS);
+            then().
+                time(greaterThan(2L), DAYS)
+        )
+        .isInstanceOf(AssertionError.class)
+        .hasMessageContaining("Expected response time was not a value greater than <2L> days, was ")
+        .hasMessageContaining("milliseconds (0 days).");
     }
 
-    @Test public void
-    response_time_validation_can_be_specified_in_specification() {
+    @Test
+    void response_time_validation_can_be_specified_in_specification() {
         ResponseSpecification spec = new ResponseSpecBuilder().expectResponseTime(lessThanOrEqualTo(3000L)).build();
 
         given().
@@ -114,8 +115,8 @@ public class ResponseTimeITest extends WithJetty {
                 spec(spec);
     }
 
-    @Test public void
-    response_time_validation_can_be_specified_in_specification_using_time_unit() {
+    @Test
+    void response_time_validation_can_be_specified_in_specification_using_time_unit() {
         ResponseSpecification spec = new ResponseSpecBuilder().expectResponseTime(lessThanOrEqualTo(3L), SECONDS).build();
 
         given().
@@ -127,24 +128,24 @@ public class ResponseTimeITest extends WithJetty {
                 spec(spec);
     }
 
-    @Test public void
-    response_time_validation_can_fail_when_specified_in_specification() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Expected response time was not a value less than or equal to <3L> nanoseconds, was");
-
+    @Test
+    void response_time_validation_can_fail_when_specified_in_specification() {
         ResponseSpecification spec = new ResponseSpecBuilder().expectResponseTime(lessThanOrEqualTo(3L), NANOSECONDS).build();
-
-        given().
+        assertThatThrownBy(() ->
+            given().
                 param("firstName", "John").
                 param("lastName", "Doe").
-        when().
+            when().
                 get("/greet").
-        then().
-                spec(spec);
+            then().
+                spec(spec)
+        )
+        .isInstanceOf(AssertionError.class)
+        .hasMessageContaining("Expected response time was not a value less than or equal to <3L> nanoseconds, was");
     }
 
-    @Test public void
-    can_use_response_time_validation_in_legacy_syntax() {
+    @Test
+    void can_use_response_time_validation_in_legacy_syntax() {
         given().
                 param("firstName", "John").
                 param("lastName", "Doe").

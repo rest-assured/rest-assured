@@ -17,8 +17,8 @@
 package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,8 +27,8 @@ import static io.restassured.RestAssured.expect;
 import static io.restassured.http.ContentType.HTML;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class URLEncodingParamITest {
 
@@ -65,8 +65,8 @@ public class URLEncodingParamITest {
     }
 
     @Test
-    @Ignore("Site is down atm")
-    public void testUrlEncodingOnHeise() {
+    @Disabled("Site is down atm")
+    void testUrlEncodingOnHeise() {
         assertEquals("foo", searchHeise("q=foo"));
         assertThat(searchHeise("q=%3F"), equalTo("%3F"));
         assertThat(searchHeise("q={token}", "%3F"), equalTo("%3F"));
@@ -81,9 +81,9 @@ public class URLEncodingParamITest {
         }
     }
 
-    @Ignore("Server is down atm")
     @Test
-    public void testUrlEncodingOnApache() {
+    @Disabled("Server is down atm")
+    void testUrlEncodingOnApache() {
         assertEquals("%3F", searchApache());
 
         RestAssured.urlEncodingEnabled = false;

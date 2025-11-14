@@ -22,37 +22,34 @@ import io.restassured.config.EncoderConfig;
 import io.restassured.http.ContentType;
 import io.restassured.itest.java.support.WithJetty;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import static io.restassured.RestAssured.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.*;
 
 public class ContentTypeITest extends WithJetty {
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     @Test
-    public void canValidateResponseContentType() throws Exception {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Expected content-type \"something\" doesn't match actual content-type \"application/json;charset=utf-8\".");
-
-        expect().contentType("something").when().get("/hello");
+    void canValidateResponseContentType() {
+        assertThatThrownBy(() ->
+            expect().contentType("something").when().get("/hello")
+        )
+        .isInstanceOf(AssertionError.class)
+        .hasMessageContaining("Expected content-type \"something\" doesn't match actual content-type \"application/json;charset=utf-8\".");
     }
 
     @Test
-    public void canValidateResponseContentTypeWithHamcrestMatcher() throws Exception {
+    void canValidateResponseContentTypeWithHamcrestMatcher() {
         expect().contentType(is("application/json;charset=utf-8")).when().get("/hello");
     }
 
     @Test
-    public void doesntAppendCharsetToContentTypeWhenContentTypeIsNotExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+    void doesntAppendCharsetToContentTypeWhenContentTypeIsNotExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() {
         given().
                 config(RestAssured.config().encoderConfig(EncoderConfig.encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
                 body(new byte[]{42}).
@@ -63,7 +60,7 @@ public class ContentTypeITest extends WithJetty {
     }
 
     @Test
-    public void doesntAppendCharsetToContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+    void doesntAppendCharsetToContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() {
         given().
                 config(RestAssured.config().encoderConfig(EncoderConfig.encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
                 contentType("application/zip").
@@ -75,7 +72,7 @@ public class ContentTypeITest extends WithJetty {
     }
 
     @Test
-    public void appendsCharsetToContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+    void appendsCharsetToContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() {
         given().
                 config(RestAssured.config().encoderConfig(EncoderConfig.encoderConfig().defaultContentCharset("UTF-8").appendDefaultContentCharsetToContentTypeIfUndefined(true))).
                 contentType("application/zip").
@@ -87,9 +84,9 @@ public class ContentTypeITest extends WithJetty {
     }
 
     @Test
-    public void appendsJavaNioCharsetToContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+    void appendsJavaNioCharsetToContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() {
         given().
-                config(RestAssured.config().encoderConfig(EncoderConfig.encoderConfig().defaultContentCharset(Charset.forName("UTF-8")).appendDefaultContentCharsetToContentTypeIfUndefined(true))).
+                config(RestAssured.config().encoderConfig(EncoderConfig.encoderConfig().defaultContentCharset(StandardCharsets.UTF_8).appendDefaultContentCharsetToContentTypeIfUndefined(true))).
                 contentType("application/zip").
                 body(new byte[] {42}).
         when().
@@ -99,7 +96,7 @@ public class ContentTypeITest extends WithJetty {
     }
 
     @Test
-    public void appendCharsetToContentTypeWhenContentTypeIsNotExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+    void appendCharsetToContentTypeWhenContentTypeIsNotExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() {
         given().
                 config(RestAssured.config().encoderConfig(EncoderConfig.encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(true))).
                 body(new byte[] {42}).
@@ -110,7 +107,7 @@ public class ContentTypeITest extends WithJetty {
     }
 
     @Test
-    public void doesntAppendCharsetToNonStreamingContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+    void doesntAppendCharsetToNonStreamingContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() {
         given().
                 config(RestAssured.config().encoderConfig(EncoderConfig.encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(false))).
                 contentType("application/vnd.com.example-v1+json").
@@ -122,7 +119,7 @@ public class ContentTypeITest extends WithJetty {
     }
 
     @Test
-    public void appendsCharsetToNonStreamingContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+    void appendsCharsetToNonStreamingContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() {
         given().
                 config(RestAssured.config().encoderConfig(EncoderConfig.encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(true))).
                 contentType("application/vnd.com.example-v1+xml").
@@ -134,7 +131,7 @@ public class ContentTypeITest extends WithJetty {
     }
 
     @Test
-    public void doesntOverrideDefinedCharsetForNonStreamingContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() throws Exception {
+    void doesntOverrideDefinedCharsetForNonStreamingContentTypeWhenContentTypeIsExplicitlyDefinedAndEncoderConfigIsConfiguredAccordingly() {
         given().
                 config(RestAssured.config().encoderConfig(EncoderConfig.encoderConfig().appendDefaultContentCharsetToContentTypeIfUndefined(true))).
                 contentType("application/vnd.com.example-v1+json; charSet=UTF-16").
@@ -329,16 +326,17 @@ public class ContentTypeITest extends WithJetty {
 
     @Test public void
     shows_a_nice_error_message_when_failed_to_encode_content() {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Don't know how to encode encode as a byte stream.\n\n" +
-                "Please use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\n" +
-                "For example: \"given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs(\"my-text\", ContentType.TEXT))). ..");
-
-        given().
+        assertThatThrownBy(() ->
+            given().
                 contentType("my-text").
                 body("encode").
-        when().
-                post("/textUriList");
+            when().
+                post("/textUriList")
+        )
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Don't know how to encode encode as a byte stream.")
+        .hasMessageContaining("Please use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.")
+        .hasMessageContaining("given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs(\"my-text\", ContentType.TEXT))). ..");
     }
 
     @Test public void

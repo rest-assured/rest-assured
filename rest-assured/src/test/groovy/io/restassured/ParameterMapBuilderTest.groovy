@@ -21,8 +21,9 @@ package io.restassured
 import io.restassured.authentication.NoAuthScheme
 import io.restassured.internal.RequestSpecificationImpl
 import io.restassured.internal.log.LogRepository
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.BeforeEach
 
 import static io.restassured.RestAssured.withArgs
 import static org.assertj.core.api.Assertions.assertThat
@@ -33,7 +34,7 @@ import static org.junit.Assert.assertEquals
 class ParameterMapBuilderTest {
   private RequestSpecificationImpl requestBuilder;
 
-  @Before
+  @BeforeEach
   void setup() throws Exception {
     requestBuilder = new RequestSpecificationImpl("baseURI", 20, "", new NoAuthScheme(), [], null, true, null, new LogRepository(), null, true, true);
   }

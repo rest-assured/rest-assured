@@ -17,7 +17,7 @@
 package io.restassured.builder;
 
 import io.restassured.internal.ResponseSpecificationImpl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.withArgs;
 import static org.junit.Assert.assertEquals;

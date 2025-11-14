@@ -17,90 +17,100 @@
 package io.restassured.itest.java;
 
 import io.restassured.itest.java.support.WithJetty;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.XML;
 import static org.hamcrest.Matchers.equalTo;
+import org.assertj.core.api.Assertions;
 
 public class GivenWhenThenErrorITest extends WithJetty {
 
     @Test public void
     throws_assertion_error_when_a_body_assertion_is_incorrect() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("JSON path greeting doesn't match.\n" +
-                "Expected: Greetings John Doe!\n" +
-                "  Actual: Greetings John Doe");
-
-
-        given().
+        Throwable thrown = Assertions.catchThrowable(() ->
+            given().
                 param("firstName", "John").
                 param("lastName", "Doe").
-        when().
+            when().
                 get("/greet").
-        then().
+            then().
                 statusCode(200).
-                body("greeting", equalTo("Greetings John Doe!"));
+                body("greeting", equalTo("Greetings John Doe!"))
+        );
+        Assertions.assertThat(thrown)
+            .isInstanceOf(AssertionError.class)
+            .hasMessageContaining("JSON path greeting doesn't match.")
+            .hasMessageContaining("Expected: Greetings John Doe!")
+            .hasMessageContaining("Actual: Greetings John Doe");
     }
 
     @Test public void
     throws_assertion_error_when_a_status_assertion_is_incorrect() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Expected status code <202> but was <200>.");
-
-        given().
+        Throwable thrown = Assertions.catchThrowable(() ->
+            given().
                 param("firstName", "John").
                 param("lastName", "Doe").
-        when().
+            when().
                 get("/greet").
-        then().
+            then().
                 statusCode(202).
-                body("greeting", equalTo("Greetings John Doe"));
+                body("greeting", equalTo("Greetings John Doe"))
+        );
+        Assertions.assertThat(thrown)
+            .isInstanceOf(AssertionError.class)
+            .hasMessageContaining("Expected status code <202> but was <200>.");
     }
 
     @Test public void
     throws_assertion_error_when_content_type_assertion_is_incorrect() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Expected content-type \"XML\" doesn't match actual content-type \"application/json;charset=utf-8\".");
-
-        given().
+        Throwable thrown = Assertions.catchThrowable(() ->
+            given().
                 param("firstName", "John").
                 param("lastName", "Doe").
-        when().
+            when().
                 get("/greet").
-        then().
+            then().
                 statusCode(200).
                 contentType(XML).
-                body("greeting", equalTo("Greetings John Doe"));
+                body("greeting", equalTo("Greetings John Doe"))
+        );
+        Assertions.assertThat(thrown)
+            .isInstanceOf(AssertionError.class)
+            .hasMessageContaining("Expected content-type \"XML\" doesn't match actual content-type");
     }
 
     @Test public void
     throws_assertion_error_when_header_assertion_is_incorrect() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Expected header \"Ikk\" was not \"jux\", was \"null\". Headers are:\n" +
-                "Content-Type=application/json;charset=utf-8\n" +
-                "Content-Length=33");
-
-        given().
+        Throwable thrown = Assertions.catchThrowable(() ->
+            given().
                 param("firstName", "John").
                 param("lastName", "Doe").
-        when().
+            when().
                 get("/greet").
-        then().
-                header("Ikk", equalTo("jux"));
+            then().
+                header("Ikk", equalTo("jux"))
+        );
+        Assertions.assertThat(thrown)
+            .isInstanceOf(AssertionError.class)
+            .hasMessageContaining("Expected header \"Ikk\" was not \"jux\", was \"null\". Headers are:")
+            .hasMessageContaining("Content-Type=application/json;charset=utf-8")
+            .hasMessageContaining("Content-Length=33");
     }
 
     @Test public void
     throws_assertion_error_when_cookie_assertion_is_incorrect_due_to_no_cookies_in_the_response() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("No cookies defined in the response");
-
-        given().
+        Throwable thrown = Assertions.catchThrowable(() ->
+            given().
                 param("firstName", "John").
                 param("lastName", "Doe").
-        when().
+            when().
                 get("/greet").
-        then().
-                cookie("mycookie", equalTo("jux"));
+            then().
+                cookie("mycookie", equalTo("jux"))
+        );
+        Assertions.assertThat(thrown)
+            .isInstanceOf(AssertionError.class)
+            .hasMessageContaining("No cookies defined in the response");
     }
 }

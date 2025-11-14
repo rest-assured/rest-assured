@@ -18,20 +18,16 @@ package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.GreetingController;
 import io.restassured.module.mockmvc.http.PostController;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.http.Method.GET;
 import static io.restassured.http.Method.POST;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
 import static io.restassured.module.mockmvc.RestAssuredMockMvc.request;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
 
 public class MockMvcRequestMethodTest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     @Test public void
     request_method_accepts_enum_verb() {
         given().
@@ -104,9 +100,10 @@ public class MockMvcRequestMethodTest {
 
     @Test public void
     throws_iae_when_http_verb_is_not_supported_by_mock_mvc() {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("HTTP method 'connect' is not supported by MockMvc");
-
-        given().standaloneSetup(new GreetingController()).request("connect", "/greeting");
+        assertThatThrownBy(() ->
+            given().standaloneSetup(new GreetingController()).request("connect", "/greeting")
+        )
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessage("HTTP method 'connect' is not supported by MockMvc");
     }
 }

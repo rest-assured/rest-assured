@@ -1,9 +1,9 @@
 package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.PatchController;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -11,12 +11,12 @@ import java.io.File;
 import java.io.IOException;
 
 public class PatchTest {
-    @BeforeClass
+    @BeforeAll
     public static void configureWebTestClientInstance() {
         RestAssuredWebTestClient.webTestClient(WebTestClient.bindToController(new PatchController()).build());
     }
 
-    @AfterClass
+    @AfterAll
     public static void restRestAssured() {
         RestAssuredWebTestClient.reset();
     }

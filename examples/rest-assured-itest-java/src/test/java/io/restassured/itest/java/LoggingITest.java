@@ -38,9 +38,9 @@ import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -60,18 +60,19 @@ import static io.restassured.filter.log.RequestLoggingFilter.logRequestTo;
 import static io.restassured.filter.log.ResponseLoggingFilter.logResponseTo;
 import static io.restassured.filter.log.ResponseLoggingFilter.logResponseToIfMatches;
 import static io.restassured.parsing.Parser.JSON;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class LoggingITest extends WithJetty {
 
-    @Before
+    @BeforeEach
     public void setup() {
         RestAssured.config = config().logConfig(LogConfig.logConfig().enablePrettyPrinting(false));
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         RestAssured.reset();
     }
@@ -240,9 +241,9 @@ public class LoggingITest extends WithJetty {
                 RestAssured.config().getEncoderConfig().defaultContentCharset())));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void loggingRequestFilterDoesntAcceptStatusAsLogDetail() {
-        new RequestLoggingFilter(LogDetail.STATUS);
+        assertThatIllegalArgumentException().isThrownBy(() -> new RequestLoggingFilter(LogDetail.STATUS));
     }
 
     @Test
@@ -598,7 +599,7 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
-    public void logAllWithPrettyPrintingUsingDSLWhenJson() {
+    public void logAllWithNoPrettyPrintingUsingDSLWhenJson() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
 
@@ -613,40 +614,17 @@ public class LoggingITest extends WithJetty {
                 get("/{firstName}/{lastName}");
 
 
-        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
-                "Content-Type: application/json;charset=utf-8%n" +
-                "Content-Length: 59%n" +
-                "Server: Jetty(9.4.34.v20201102)%n" +
-                "%n" +
-                "{\n" +
-                "    \"firstName\": \"John\",\n" +
-                "    \"lastName\": \"Doe\",\n" +
-                "    \"fullName\": \"John Doe\"\n" +
-                "}%n")));
-    }
-
-    @Test
-    public void logAllWithNoPrettyPrintingUsingDSLWhenJson() {
-        final StringWriter writer = new StringWriter();
-        final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
-
-        given().
-                config(config().logConfig(new LogConfig(captor, true))).
-                pathParam("firstName", "John").
-                pathParam("lastName", "Doe").
-        expect().
-                log().all(false).
-                body("fullName", equalTo("John Doe")).
-        when().
-                get("/{firstName}/{lastName}");
-
-
-        assertThat(writer.toString(), equalTo(String.format("HTTP/1.1 200 OK%n" +
-                "Content-Type: application/json;charset=utf-8%n" +
-                "Content-Length: 59%n" +
-                "Server: Jetty(9.4.34.v20201102)%n" +
-                "%n" +
-                "{\"firstName\":\"John\",\"lastName\":\"Doe\",\"fullName\":\"John Doe\"}%n")));
+        assertThat(writer.toString(), equalTo(String.format("""
+                HTTP/1.1 200 OK%n\
+                Content-Type: application/json;charset=utf-8%n\
+                Content-Length: 59%n\
+                Server: Jetty(9.4.34.v20201102)%n\
+                %n\
+                {
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "fullName": "John Doe"
+                }%n""")));
     }
 
     @Test

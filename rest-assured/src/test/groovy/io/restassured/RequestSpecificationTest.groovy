@@ -25,8 +25,9 @@ import io.restassured.http.Headers
 import io.restassured.response.Response
 import io.restassured.specification.FilterableRequestSpecification
 import io.restassured.specification.FilterableResponseSpecification
-import org.junit.Ignore
-import org.junit.Test
+import org.junit.jupiter.api.Disabled
+import org.junit.jupiter.api.Test;
+
 
 import static RestAssured.given
 import static java.util.Arrays.asList
@@ -88,7 +89,7 @@ class RequestSpecificationTest {
       assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.requestHeaders.get(CONTENT_TYPE).getValue())
   }
 
-  @Ignore
+  @Disabled
   private class ExampleFilter1 implements Filter {
     @Override
     Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
@@ -96,7 +97,7 @@ class RequestSpecificationTest {
     }
   }
 
-  @Ignore
+  @Disabled
   private class ExampleFilter2 implements Filter {
     @Override
     Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
@@ -104,7 +105,7 @@ class RequestSpecificationTest {
     }
   }
 
-  @Ignore
+  @Disabled
   private class ExampleFilter3 extends ExampleFilter1 {
     @Override
     Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {

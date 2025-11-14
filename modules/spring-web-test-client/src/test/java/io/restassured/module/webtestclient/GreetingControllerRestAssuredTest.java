@@ -17,7 +17,7 @@
 package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.GreetingController;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import static org.hamcrest.Matchers.equalTo;

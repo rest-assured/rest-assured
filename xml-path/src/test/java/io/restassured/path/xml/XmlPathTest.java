@@ -19,7 +19,7 @@ package io.restassured.path.xml;
 import io.restassured.path.xml.config.XmlPathConfig;
 import io.restassured.path.xml.element.Node;
 import io.restassured.path.xml.element.NodeChildren;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.List;

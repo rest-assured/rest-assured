@@ -32,7 +32,7 @@ import io.restassured.path.json.config.JsonPathConfig;
 import org.apache.commons.io.output.WriterOutputStream;
 import org.apache.commons.lang3.SystemUtils;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
 import org.springframework.test.web.reactive.server.WebTestClient;
 

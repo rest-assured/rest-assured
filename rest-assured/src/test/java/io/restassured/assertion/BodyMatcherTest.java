@@ -9,7 +9,7 @@ import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.assertion.BodyMatcher;
 import io.restassured.response.Response;
 import org.hamcrest.core.IsEqual;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 

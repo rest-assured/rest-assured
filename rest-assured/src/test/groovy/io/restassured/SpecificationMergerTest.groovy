@@ -31,7 +31,8 @@ import io.restassured.response.Response
 import io.restassured.specification.FilterableRequestSpecification
 import io.restassured.specification.FilterableResponseSpecification
 import io.restassured.specification.RequestSpecification
-import org.junit.Test
+import org.junit.jupiter.api.Test;
+
 
 import static RestAssuredConfig.newConfig
 import static io.restassured.config.RedirectConfig.redirectConfig

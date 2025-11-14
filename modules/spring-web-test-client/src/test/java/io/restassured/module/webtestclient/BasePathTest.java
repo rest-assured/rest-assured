@@ -17,22 +17,23 @@
 package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.BasePathController;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given;
 import static org.hamcrest.Matchers.equalTo;
 
 public class BasePathTest {
 
-	@Before
+	@BeforeEach
 	public void
 	given_rest_assured_is_initialized_with_controller() {
 		RestAssuredWebTestClient.standaloneSetup(new BasePathController());
 	}
 
-	@After
+	@AfterEach
 	public void
 	rest_assured_is_reset_after_each_test() {
 		RestAssuredWebTestClient.reset();

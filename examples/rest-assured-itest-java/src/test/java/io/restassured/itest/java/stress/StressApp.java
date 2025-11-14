@@ -16,12 +16,12 @@
 
 package io.restassured.itest.java.stress;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.routing.Router;
 
-@Ignore("Not a test")
+@Disabled("Not a test")
 public class StressApp extends Application {
 
   @Override

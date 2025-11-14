@@ -17,29 +17,25 @@
 package io.restassured.itest.java;
 
 import io.restassured.itest.java.support.WithJetty;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
 public class DeleteITest extends WithJetty {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     @Test
-    public void requestSpecificationAllowsSpecifyingCookie() throws Exception {
+    public void requestSpecificationAllowsSpecifyingCookie() {
         given().cookies("username", "John", "token", "1234").then().expect().body(equalTo("username, token")).when().delete("/cookie");
     }
 
     @Test
-    public void bodyHamcrestMatcherWithoutKey() throws Exception {
-        given().params("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}")).when().delete("/greet");
+    public void bodyHamcrestMatcherWithoutKey() {
+        given().params("firstName", "John", "lastName", "Doe").expect().body(equalTo("{\"greeting\":\"Greetings John Doe\"}"))
+            .when().delete("/greet");
     }
 
     @Test
-    public void deleteSupportsStringBody() throws Exception {
+    public void deleteSupportsStringBody() {
         given().body("a body").expect().body(equalTo("a body")).when().delete("/body");
     }
 }

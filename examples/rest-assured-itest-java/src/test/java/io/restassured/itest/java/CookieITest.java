@@ -24,7 +24,7 @@ import io.restassured.itest.java.support.WithJetty;
 import io.restassured.response.Response;
 import org.apache.http.client.utils.DateUtils;
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +34,7 @@ import static io.restassured.RestAssured.*;
 import static io.restassured.matcher.RestAssuredMatchers.detailedCookie;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import org.assertj.core.api.Assertions;
 
 public class CookieITest extends WithJetty {
 
@@ -111,50 +112,51 @@ public class CookieITest extends WithJetty {
 
     @Test
     public void multipleCookiesUsingMap() {
-        Map expectedCookies = new HashMap();
+        Map<String, Object> expectedCookies = new HashMap<>();
         expectedCookies.put("key1", "value1");
         expectedCookies.put("key2", "value2");
-
         expect().response().cookies(expectedCookies).when().get("/setCookies");
     }
 
     @Test
     public void multipleCookiesUsingMapWithHamcrestMatcher() {
-        Map expectedCookies = new HashMap();
+        Map<String, Object> expectedCookies = new HashMap<>();
         expectedCookies.put("key1", containsString("1"));
         expectedCookies.put("key3", equalTo("value3"));
-
         expect().response().cookies(expectedCookies).when().get("/setCookies");
     }
 
     @Test
     public void multipleCookiesUsingMapWithMixOfStringAndHamcrestMatcher() {
-        Map expectedCookies = new HashMap();
+        Map<String, Object> expectedCookies = new HashMap<>();
         expectedCookies.put("key1", containsString("1"));
         expectedCookies.put("key2", "value2");
-
         expect().response().cookies(expectedCookies).when().get("/setCookies");
     }
 
     @Test
     public void whenExpectedCookieDoesntMatchAnAssertionThenAssertionErrorIsThrown() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("1 expectation failed.\n" +
-                "Expected cookie \"key1\" was not \"value2\", was \"value1\".\n"));
-
-        expect().response().cookie("key1", "value2").when().get("/setCookies");
+        Throwable thrown = Assertions.catchThrowable(() ->
+            expect().response().cookie("key1", "value2").when().get("/setCookies")
+        );
+        Assertions.assertThat(thrown)
+            .isInstanceOf(AssertionError.class)
+            .hasMessage("1 expectation failed.\n" +
+                "Expected cookie \"key1\" was not \"value2\", was \"value1\".\n");
     }
 
     @Test
     public void whenExpectedCookieIsNotFoundThenAnAssertionErrorIsThrown() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("1 expectation failed.\n" +
+        Throwable thrown = Assertions.catchThrowable(() ->
+            expect().response().cookie("Not-Defined", "something").when().get("/setCookies")
+        );
+        Assertions.assertThat(thrown)
+            .isInstanceOf(AssertionError.class)
+            .hasMessage("1 expectation failed.\n" +
                 "Cookie \"Not-Defined\" was not defined in the response. Cookies are: \n" +
                 "key1=value1\n" +
                 "key2=value2\n" +
-                "key3=value3\n"));
-
-        expect().response().cookie("Not-Defined", "something").when().get("/setCookies");
+                "key3=value3\n");
     }
 
     @Test
@@ -174,7 +176,7 @@ public class CookieITest extends WithJetty {
 
     @Test
     public void requestSpecificationAllowsSpecifyingCookieUsingMap() {
-        Map<String, String> cookies = new HashMap<String, String>();
+        Map<String, String> cookies = new HashMap<>();
         cookies.put("username", "John");
         cookies.put("token", "1234");
         given().cookies(cookies).then().expect().body(equalTo("username, token")).when().get("/cookie");
@@ -182,7 +184,7 @@ public class CookieITest extends WithJetty {
 
     @Test
     public void requestSpecificationAllowsSpecifyingMultipleCookies() {
-        Map<String, String> cookies = new HashMap<String, String>();
+        Map<String, String> cookies = new HashMap<>();
         cookies.put("username", "John");
         cookies.put("token", "1234");
         given().cookies(cookies).and().cookies("key1", "value1").then().expect().body(equalTo("username, token, key1")).when().get("/cookie");
@@ -248,8 +250,7 @@ public class CookieITest extends WithJetty {
     @Test
 	public void multipleCookiesWithSameKey() {
 		final Response response = get("/setCommonIdCookies");
-		Map<String, String> map = new HashMap<String, String>();
-		map = response.cookies();
+		Map<String, String> map = response.cookies();
 		assertThat(map.get("key1"), equalTo("value3"));
 	}
 

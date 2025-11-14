@@ -16,15 +16,14 @@
 
 package io.restassured.http;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -86,35 +85,23 @@ public class ContentTypeTest {
         assertThat(matches, is(false));
     }
 
-    @RunWith(Parameterized.class)
-    public static class ContentTypeFromStringTest {
-        @Parameters(name = "string=''{0}'', expected=''{1}''")
-        public static Collection<Object[]> data() {
-            ArrayList<Object[]> data = new ArrayList<Object[]>();
-
-            for (ContentType ct : ContentType.values()) {
-                for (String cts : ct.getContentTypeStrings()) {
-                    data.add(new Object[]{ct, cts});
-                }
+    static Stream<Arguments> contentTypeFromStringProvider() {
+        ArrayList<Arguments> data = new ArrayList<>();
+        for (ContentType ct : ContentType.values()) {
+            for (String cts : ct.getContentTypeStrings()) {
+                data.add(Arguments.of(ct, cts));
             }
-
-            return data;
         }
-
-        @Parameter(0)
-        public ContentType expected;
-
-        @Parameter(1)
-        public String contentTypeString;
-
-        @Test public void
-        should_find_content_type_from_string() {
-            // When
-            ContentType content = ContentType.fromContentType(contentTypeString);
-
-            // Then
-            assertThat(content, is(expected));
-        }
+        return data.stream();
     }
 
+    @ParameterizedTest(name = "string=''{1}'', expected=''{0}''")
+    @MethodSource("contentTypeFromStringProvider")
+    void should_find_content_type_from_string(ContentType expected, String contentTypeString) {
+        // When
+        ContentType content = ContentType.fromContentType(contentTypeString);
+
+        // Then
+        assertThat(content, is(expected));
+    }
 }

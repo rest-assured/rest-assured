@@ -19,9 +19,9 @@ package io.restassured.itest.java;
 import io.restassured.http.ContentType;
 import io.restassured.itest.java.support.WithJetty;
 import org.apache.commons.io.FileUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,14 +31,12 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class FileUploadingITest extends WithJetty {
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
     @Test public void
     can_upload_json_from_file() throws IOException {
         // Given
-        File file = folder.newFile("my.json");
-        FileUtils.writeStringToFile(file, "{ \"message\" : \"hello world\"}");
+        Path tempFile = Files.createTempFile("my", ".json");
+        File file = tempFile.toFile();
+        FileUtils.writeStringToFile(file, "{ \"message\" : \"hello world\"}", (String) null);
 
         // When
         given().
@@ -53,8 +51,9 @@ public class FileUploadingITest extends WithJetty {
     @Test public void
     can_upload_xml_from_file() throws IOException {
         // Given
-        File file = folder.newFile("my.xml");
-        FileUtils.writeStringToFile(file, "<tag attr='value'>");
+        Path tempFile = Files.createTempFile("my", ".xml");
+        File file = tempFile.toFile();
+        FileUtils.writeStringToFile(file, "<tag attr='value'>", (String) null);
 
         // When
         given().
@@ -71,8 +70,9 @@ public class FileUploadingITest extends WithJetty {
     @Test public void
     can_upload_text_from_file() throws IOException {
         // Given
-        File file = folder.newFile("my.txt");
-        FileUtils.writeStringToFile(file, "Hello World");
+        Path tempFile = Files.createTempFile("my", ".txt");
+        File file = tempFile.toFile();
+        FileUtils.writeStringToFile(file, "Hello World", (String) null);
 
         // When
         given().
@@ -88,8 +88,9 @@ public class FileUploadingITest extends WithJetty {
     @Test public void
     can_upload_binary_from_file() throws IOException {
         // Given
-        File file = folder.newFile("my.txt");
-        FileUtils.writeStringToFile(file, "Hello World");
+        Path tempFile = Files.createTempFile("my", ".txt");
+        File file = tempFile.toFile();
+        FileUtils.writeStringToFile(file, "Hello World", (String) null);
 
         // When
         given().
@@ -105,8 +106,9 @@ public class FileUploadingITest extends WithJetty {
     @Test public void
     can_upload_file_with_custom_content_type() throws IOException {
         // Given
-        File file = folder.newFile("my.txt");
-        FileUtils.writeStringToFile(file, "Hello World");
+        Path tempFile = Files.createTempFile("my", ".txt");
+        File file = tempFile.toFile();
+        FileUtils.writeStringToFile(file, "Hello World", (String) null);
 
         // When
         given().

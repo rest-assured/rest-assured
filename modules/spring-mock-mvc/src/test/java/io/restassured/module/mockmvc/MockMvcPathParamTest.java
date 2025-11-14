@@ -18,32 +18,32 @@ package io.restassured.module.mockmvc;
 
 import io.restassured.http.Method;
 import io.restassured.module.mockmvc.http.GreetingController;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.equalTo;
 
 public class MockMvcPathParamTest {
-    @Before
+    @BeforeEach
     public void configureMockMvcInstance() {
         RestAssuredMockMvc.standaloneSetup(new GreetingController());
     }
 
-    @After
+    @AfterEach
     public void restRestAssured() {
         RestAssuredMockMvc.reset();
     }
 // @formatter:off
 
     @Test
-    public void unnamed_path_param_works() throws Exception {
+    public void unnamed_path_param_works() {
         RestAssuredMockMvc.given().
                 queryParam("name", "John").
         when().
@@ -137,8 +137,9 @@ public class MockMvcPathParamTest {
             return null;
         };
 
-        final Exception ex = Assert.assertThrows(IllegalArgumentException.class, restAssuredExecutionSupplier::get);
-        Assert.assertEquals("No values were found for the request's pathParams.", ex.getMessage());
+        assertThatThrownBy(restAssuredExecutionSupplier::get)
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("No values were found for the request's pathParams.");
     }
 
     @Test
@@ -233,7 +234,8 @@ public class MockMvcPathParamTest {
             return null;
         };
 
-        final Exception ex = Assert.assertThrows(IllegalArgumentException.class, restAssuredExecutionSupplier::get);
-        Assert.assertEquals("No values were found for the request's pathParams.", ex.getMessage());
+        assertThatThrownBy(restAssuredExecutionSupplier::get)
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("No values were found for the request's pathParams.");
     }
 }

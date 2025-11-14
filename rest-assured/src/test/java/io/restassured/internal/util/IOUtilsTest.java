@@ -16,7 +16,7 @@
 
 package io.restassured.internal.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;

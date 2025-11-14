@@ -20,15 +20,13 @@ import io.restassured.examples.springmvc.config.MainConfiguration;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -42,28 +40,25 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = MainConfiguration.class)
 @WebAppConfiguration
 public class MockMvcSecurityITest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     @Autowired
     private WebApplicationContext context;
 
     private MockMvc mvc;
 
-     @Before
-     public void setup() {
-         mvc = MockMvcBuilders
-                 .webAppContextSetup(context)
-                 .apply(springSecurity())
-                 .build();
-     }
+    @BeforeEach
+    public void setup() {
+        mvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+    }
 
     @Test public void
-    basic_auth_request_post_processor_works() throws Exception {
+    basic_auth_request_post_processor_works() {
         RestAssuredMockMvc.given().
                 mockMvc(mvc).
                 auth().with(httpBasic("username", "password")).
@@ -77,7 +72,7 @@ public class MockMvcSecurityITest {
    }
 
     @Test public void
-    can_specify_request_post_processor_statically_for_authentication() throws Exception {
+    can_specify_request_post_processor_statically_for_authentication() {
         RestAssuredMockMvc.authentication = RestAssuredMockMvc.with(httpBasic("username", "password"));
 
         try {
@@ -96,7 +91,7 @@ public class MockMvcSecurityITest {
     }
 
     @Test public void
-    can_specify_authentication_request_post_processor_using_spec_builder() throws Exception {
+    can_specify_authentication_request_post_processor_using_spec_builder() {
         MockMvcRequestSpecification specification = new MockMvcRequestSpecBuilder().setAuth(RestAssuredMockMvc.with(httpBasic("username", "password"))).build();
 
         RestAssuredMockMvc.given().
@@ -112,7 +107,7 @@ public class MockMvcSecurityITest {
     }
 
     @Test public void
-    basic_auth_request_post_processor_works_with_explicit_user() throws Exception {
+    basic_auth_request_post_processor_works_with_explicit_user() {
         RestAssuredMockMvc.given().
                 mockMvc(mvc).
                 auth().with(httpBasic("username", "password"), user("username").password("password")).
@@ -126,7 +121,7 @@ public class MockMvcSecurityITest {
     }
 
     @Test public void
-    can_specify_user_for_controllers_not_protected_by_basic_auth() throws Exception {
+    can_specify_user_for_controllers_not_protected_by_basic_auth() {
         RestAssuredMockMvc.given().
                 mockMvc(mvc).
                 auth().with(user("authorized_user").password("password")).
@@ -141,7 +136,7 @@ public class MockMvcSecurityITest {
 
     @WithMockUser(username = "authorized_user")
     @Test public void
-    can_use_spring_security_mock_annotations() throws Exception {
+    can_use_spring_security_mock_annotations() {
         RestAssuredMockMvc.given().
                 mockMvc(mvc).
                 param("name", "Johan").
@@ -154,7 +149,7 @@ public class MockMvcSecurityITest {
    }
 
     @Test public void
-    can_authenticate_using_dsl_post_processors() throws Exception {
+    can_authenticate_using_dsl_post_processors() {
         RestAssuredMockMvc.given().
                 mockMvc(mvc).
                 postProcessors(httpBasic("username", "password")).
@@ -168,7 +163,7 @@ public class MockMvcSecurityITest {
     }
 
     @Test public void
-    can_authenticate_using_static_post_processors() throws Exception {
+    can_authenticate_using_static_post_processors() {
         RestAssuredMockMvc.postProcessors(httpBasic("username", "password"));
 
         try {
@@ -189,7 +184,7 @@ public class MockMvcSecurityITest {
     }
 
     @Test public void
-    can_authenticate_using_post_processors_in_spec() throws Exception {
+    can_authenticate_using_post_processors_in_spec() {
         MockMvcRequestSpecification specification = new MockMvcRequestSpecBuilder().setPostProcessors(httpBasic("username", "password")).build();
 
         RestAssuredMockMvc.given().

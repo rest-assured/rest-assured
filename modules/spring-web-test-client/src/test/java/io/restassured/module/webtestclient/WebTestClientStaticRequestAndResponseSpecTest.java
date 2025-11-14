@@ -20,7 +20,7 @@ import io.restassured.builder.ResponseSpecBuilder;
 import io.restassured.module.webtestclient.setup.GreetingController;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.Matchers.equalTo;

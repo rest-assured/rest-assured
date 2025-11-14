@@ -20,27 +20,24 @@ import io.restassured.examples.springmvc.config.MainConfiguration;
 import io.restassured.http.ContentType;
 import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import org.apache.commons.io.IOUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MainConfiguration.class)
 @WebAppConfiguration
 // @formatter:off
@@ -49,23 +46,21 @@ public class NonMultiPartFileUploadITest {
     @Autowired
     protected WebApplicationContext wac;
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
-    @Before
+    @BeforeEach
     public void configureMockMvcInstance() {
         RestAssuredMockMvc.postProcessors(csrf().asHeader());
         RestAssuredMockMvc.webAppContextSetup(wac);
     }
 
-    @After
+    @AfterEach
     public void restRestAssured() {
         RestAssuredMockMvc.reset();
     }
 
     @Test public void
     file_uploading_works() throws IOException {
-        File file = folder.newFile("something");
+        Path tempFile = Files.createTempFile("something", null);
+        File file = tempFile.toFile();
         IOUtils.write("Something21", new FileOutputStream(file));
 
         RestAssuredMockMvc.given().

@@ -25,16 +25,12 @@ import io.restassured.config.SSLConfig;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -42,7 +38,6 @@ import java.security.KeyStore;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
-@RunWith(Enclosed.class)
 public class SSLITest {
 
     public static ResponseSpecification helloWorldSpec() {
@@ -51,18 +46,17 @@ public class SSLITest {
                 expectStatusCode(200).build();
     }
 
-    public static class OneWaySSLTest extends WithJetty {
+    @Nested
+    public class OneWaySSLTest extends WithJetty {
 
-        @Rule
-        public ExpectedException exception = ExpectedException.none();
-
-        @Test(expected = SSLException.class)
-        public void throwsSSLExceptionWhenHostnameInCertDoesntMatch() throws Exception {
-            RestAssured.get("https://localhost:8443/hello");
+        @Test
+        public void throwsSSLExceptionWhenHostnameInCertDoesntMatch() {
+            assertThatThrownBy(() -> RestAssured.get("https://localhost:8443/hello"))
+                .isInstanceOf(javax.net.ssl.SSLException.class);
         }
 
         @Test
-        public void givenTrustStoreDefinedStaticallyWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
+        public void givenTrustStoreDefinedStaticallyWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() {
             RestAssured.trustStore("jetty_localhost_client.jks", "test1234");
             try {
                 RestAssured.expect().spec(helloWorldSpec()).when().get("https://localhost:8443/hello");
@@ -71,18 +65,19 @@ public class SSLITest {
             }
         }
 
-        @Test(expected = SSLHandshakeException.class)
-        public void whenEnablingAllowAllHostNamesVerifierWithoutActivatingAKeyStore() throws Exception {
+        @Test
+        public void whenEnablingAllowAllHostNamesVerifierWithoutActivatingAKeyStore() {
             RestAssured.config = RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().allowAllHostnames());
             try {
-                RestAssured.get("https://localhost:8443/hello").then().spec(helloWorldSpec());
+                assertThatThrownBy(() -> RestAssured.get("https://localhost:8443/hello").then().spec(helloWorldSpec()))
+                    .isExactlyInstanceOf(javax.net.ssl.SSLHandshakeException.class);
             } finally {
                 RestAssured.reset();
             }
         }
 
         @Test
-        public void usingStaticallyConfiguredCertificateAuthenticationWorks() throws Exception {
+        public void usingStaticallyConfiguredCertificateAuthenticationWorks() {
             RestAssured.authentication = RestAssured.certificate("jetty_localhost_client.jks", "test1234", CertificateAuthSettings.certAuthSettings().allowAllHostnames());
             try {
                 RestAssured.get("https://localhost:8443/hello").then().spec(helloWorldSpec());
@@ -91,18 +86,19 @@ public class SSLITest {
             }
         }
 
-        @Test(expected = SSLException.class)
-        public void usingStaticallyConfiguredCertificateAuthenticationWithIllegalHostNameInCertDoesntWork() throws Exception {
+        @Test
+        public void usingStaticallyConfiguredCertificateAuthenticationWithIllegalHostNameInCertDoesntWork() {
             RestAssured.authentication = RestAssured.certificate("truststore_mjvmobile.jks", "test4321");
             try {
-                RestAssured.get("https://localhost:8443/hello").then().body(containsString("eurosport"));
+                assertThatThrownBy(() -> RestAssured.get("https://localhost:8443/hello").then().body(containsString("eurosport")))
+                    .isInstanceOf(javax.net.ssl.SSLException.class);
             } finally {
                 RestAssured.reset();
             }
         }
 
         @Test
-        public void usingStaticallyConfiguredCertificateAuthenticationWithIllegalHostNameInCertWorksWhenSSLConfigIsConfiguredToAllowAllHostNames() throws Exception {
+        public void usingStaticallyConfiguredCertificateAuthenticationWithIllegalHostNameInCertWorksWhenSSLConfigIsConfiguredToAllowAllHostNames() {
             RestAssured.config = RestAssuredConfig.newConfig().sslConfig(SSLConfig.sslConfig().allowAllHostnames());
             RestAssured.authentication = RestAssured.certificate("jetty_localhost_client.jks", "test1234");
             try {
@@ -113,25 +109,26 @@ public class SSLITest {
         }
 
         @Test
-        public void givenKeystoreDefinedUsingGivenWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() throws Exception {
+        public void givenKeystoreDefinedUsingGivenWhenSpecifyingJksKeyStoreFileWithCorrectPasswordAllowsToUseSSL() {
             RestAssured.given().trustStore("/jetty_localhost_client.jks", "test1234").then().expect().spec(helloWorldSpec()).when().get("https://localhost:8443/hello");
         }
 
         @Test
-        public void throwsIOExceptionWhenPasswordIsIncorrect() throws Exception {
-            exception.expect(IOException.class);
-            exception.expectMessage("Keystore was tampered with, or password was incorrect");
-
-            RestAssured.given().
-                    auth().certificate("jetty_localhost_client.jks", "test4333").
-                    when().
-                    get("https://localhost:8443/hello").
-                    then().
-                    body(containsString("eurosport"));
+        public void throwsIOExceptionWhenPasswordIsIncorrect() {
+            assertThatThrownBy(() ->
+                RestAssured.given().
+                        auth().certificate("jetty_localhost_client.jks", "test4333").
+                        when().
+                        get("https://localhost:8443/hello").
+                        then().
+                        body(containsString("eurosport"))
+            )
+            .isInstanceOf(IOException.class)
+            .hasMessageContaining("Keystore was tampered with, or password was incorrect");
         }
 
         @Test
-        public void certificateAuthenticationWorks() throws Exception {
+        public void certificateAuthenticationWorks() {
             RestAssured.given().
                     auth().certificate("jetty_localhost_client.jks", "test1234", CertificateAuthSettings.certAuthSettings().allowAllHostnames()).
                     when().
@@ -150,7 +147,7 @@ public class SSLITest {
             RestAssured.given().config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().allowAllHostnames())).trustStore(keyStore).when().get("https://localhost:8443/hello").then().statusCode(200);
         }
 
-        @Ignore("Temporary ignored but I think this ought to work. Perhaps some issues with config merging?")
+        @Disabled("Temporary ignored but I think this ought to work. Perhaps some issues with config merging?")
         @Test
         public void
         allows_specifying_trust_store_statically() throws Exception {
@@ -183,14 +180,14 @@ public class SSLITest {
             RestAssured.given().config(RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().relaxedHTTPSValidation())).when().get("https://localhost:8443/hello").then().spec(helloWorldSpec());
         }
 
-        @Ignore("Site is not working anymore")
+        @Disabled("Site is not working anymore")
         @Test
         public void
         relaxed_https_validation_works_using_instance_dsl() {
             RestAssured.given().relaxedHTTPSValidation().when().get("https://bunny.cloudamqp.com/api/").then().statusCode(200);
         }
 
-        @Ignore("Site is not working anymore")
+        @Disabled("Site is not working anymore")
         @Test
         public void
         relaxed_https_validation_works_when_defined_statically() {
@@ -203,7 +200,7 @@ public class SSLITest {
             }
         }
 
-        @Ignore("Site is not working anymore")
+        @Disabled("Site is not working anymore")
         @Test
         public void
         relaxed_https_validation_works_when_defined_statically_with_base_uri() {
@@ -229,10 +226,9 @@ public class SSLITest {
             }
         }
 
-        @Ignore("Temporary ignored since site has changed")
+        @Disabled("Temporary ignored since site has changed")
         @Test
-        public void
-        truststrore_works_with_static_base_uri() throws Exception {
+        public void truststrore_works_with_static_base_uri() throws Exception {
             RestAssured.baseURI = "https://bunny.cloudamqp.com/";
 
             InputStream keyStoreStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("truststore_cloudamqp.jks");
@@ -283,17 +279,18 @@ public class SSLITest {
         }
     }
 
-    public static class TwoWaySSLTest extends WithJetty {
-
-        @BeforeClass
-        public static void startJetty() throws Exception {
+    @Nested
+    public class TwoWaySSLTest extends WithJetty {
+        @BeforeAll
+        public void startJetty() throws Exception {
             startJettyTwoWaySSL();
         }
 
-        @Test(expected = SSLException.class)
+        @Test
         public void relaxed_https_validation_throws_exception_without_keystore() {
             RestAssuredConfig sslConfig = RestAssuredConfig.config().sslConfig(SSLConfig.sslConfig().relaxedHTTPSValidation());
-            RestAssured.given().config(sslConfig).when().get("https://localhost:8443/hello").then().spec(helloWorldSpec());
+            assertThatThrownBy(() -> RestAssured.given().config(sslConfig).when().get("https://localhost:8443/hello").then().spec(helloWorldSpec()))
+                .isInstanceOf(javax.net.ssl.SSLException.class);
         }
 
         @Test

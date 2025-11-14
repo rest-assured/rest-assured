@@ -21,9 +21,9 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.http.Headers;
 import io.restassured.specification.RequestSpecification;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -41,7 +41,7 @@ public class RequestSpecMergingITest {
             .setContentType("application/xml")
             .build();
 
-    @BeforeClass
+    @BeforeAll
     public static void setupRA() {
         RestAssured.baseURI = "http://example.com";
         RestAssured.port = 80;
@@ -50,7 +50,7 @@ public class RequestSpecMergingITest {
                 .build();
     }
 
-    @AfterClass
+    @AfterAll
     public static void teardown() throws Exception {
         RestAssured.reset();
     }

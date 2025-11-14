@@ -20,12 +20,14 @@ import io.restassured.config.LogConfig;
 import io.restassured.config.RestAssuredConfig;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
+
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.AfterEachCallback;
 
 import java.io.*;
 
-public class WriteLogsToDisk extends TestWatcher {
+public class WriteLogsToDisk implements BeforeEachCallback, AfterEachCallback {
 
     private final File logFolder;
     private PrintStream printStream;
@@ -42,11 +44,11 @@ public class WriteLogsToDisk extends TestWatcher {
     }
 
     @Override
-    protected void starting(Description description) {
+    public void beforeEach(ExtensionContext context) {
         originalLogConfig = RestAssured.config().getLogConfig();
         FileWriter fileWriter;
         try {
-            String logFileName = description.getMethodName() + ".log";
+            String logFileName = context.getRequiredTestMethod().getName() + ".log";
             File logFile = new File(logFolder, logFileName);
             logFile.deleteOnExit();
             fileWriter = new FileWriter(logFile);
@@ -57,9 +59,8 @@ public class WriteLogsToDisk extends TestWatcher {
         RestAssured.config = RestAssured.config().logConfig(LogConfig.logConfig().defaultStream(printStream).enablePrettyPrinting(false));
     }
 
-
     @Override
-    protected void finished(Description description) {
+    public void afterEach(ExtensionContext context) {
         if (printStream != null) {
             printStream.close();
         }

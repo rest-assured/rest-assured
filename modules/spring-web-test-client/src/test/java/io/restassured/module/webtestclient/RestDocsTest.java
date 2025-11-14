@@ -18,7 +18,7 @@ package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.GreetingController;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.restdocs.snippet.SnippetException;

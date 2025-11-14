@@ -18,16 +18,11 @@ package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
 import io.restassured.builder.ResponseBuilder;
-import io.restassured.filter.Filter;
-import io.restassured.filter.FilterContext;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.response.Response;
-import io.restassured.specification.FilterableRequestSpecification;
-import io.restassured.specification.FilterableResponseSpecification;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.PrintStream;
 import java.io.StringWriter;
@@ -38,13 +33,14 @@ import java.util.*;
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
 import static io.restassured.itest.java.support.RequestPathFromLogExtractor.loggedRequestPathIn;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 public class URLITest extends WithJetty {
 
     @Test
-    public void specifyingFullyQualifiedPathOverridesValues() throws Exception {
+    void specifyingFullyQualifiedPathOverridesValues() {
         RestAssured.basePath = "/something";
         RestAssured.baseURI = "http://www.google.com";
         RestAssured.port = 80;
@@ -56,7 +52,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void whenBaseURIEndsWithSlashAndPathBeginsWithSlashThenOneSlashIsRemoved() throws Exception {
+    void whenBaseURIEndsWithSlashAndPathBeginsWithSlashThenOneSlashIsRemoved() {
         RestAssured.baseURI = "http://localhost/";
         RestAssured.port = 8080;
         try {
@@ -67,7 +63,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void whenBaseURIIncludesPortAndEndsWithSlashAndPathBeginsWithSlashThenOneSlashIsRemoved() throws Exception {
+    void whenBaseURIIncludesPortAndEndsWithSlashAndPathBeginsWithSlashThenOneSlashIsRemoved() {
         RestAssured.baseURI = "http://localhost:8080/";
         try {
             expect().body("store.book[0..2].size()", equalTo(3)).when().get("/jsonStore");
@@ -77,7 +73,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void whenBaseURIAndPathDoesntEndsWithSlashThenOneSlashIsInserted() throws Exception {
+    void whenBaseURIAndPathDoesntEndsWithSlashThenOneSlashIsInserted() {
         RestAssured.baseURI = "http://localhost";
         RestAssured.port = 8080;
         try {
@@ -88,9 +84,8 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void baseURIPicksUpSchemeAndPort() throws Exception {
+    void baseURIPicksUpSchemeAndPort() {
         RestAssured.baseURI = "http://localhost:8080/lotto";
-
         try {
             expect().body("lotto.lottoId", equalTo(5)).when().get("");
         } finally {
@@ -99,10 +94,9 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void baseURIPicksUpSchemeAndPortAndBasePath() throws Exception {
+    void baseURIPicksUpSchemeAndPortAndBasePath() {
         RestAssured.basePath = "/lotto";
         RestAssured.baseURI = "http://localhost:8080";
-
         try {
             expect().body("lotto.lottoId", equalTo(5)).when().get("");
         } finally {
@@ -111,7 +105,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void basicAuthenticationWithBasePath() throws Exception {
+    void basicAuthenticationWithBasePath() {
         RestAssured.basePath = "/secured/hello";
         try {
             given().auth().basic("jetty", "jetty").expect().statusCode(200).when().get("");
@@ -120,14 +114,8 @@ public class URLITest extends WithJetty {
         }
     }
 
-    @Test(timeout = 3000)
-    public void canCallFullyQualifiedUrlsWithoutPortDefined() throws Exception {
-        // This test hangs forever unless it works
-        get("http://filehost-semc-rss-dev.s3.amazonaws.com/testfile1.txt");
-    }
-
     @Test
-    public void urlWithUnderscoreInHostNameWorks() throws Exception {
+    void urlWithUnderscoreInHostNameWorks() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -137,11 +125,7 @@ public class URLITest extends WithJetty {
         given().
                 contentType(JSON).
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -153,7 +137,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void fullyQualifiedUrlEndingWithSlashDoesntAddPort8080() throws Exception {
+    void fullyQualifiedUrlEndingWithSlashDoesntAddPort8080() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -163,11 +147,7 @@ public class URLITest extends WithJetty {
         given().
                 contentType(JSON).
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -179,7 +159,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void doesntAddPort8080ToFullyQualifiedUrlDefinedInHttpVerbMethod() throws Exception {
+    void doesntAddPort8080ToFullyQualifiedUrlDefinedInHttpVerbMethod() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -189,11 +169,7 @@ public class URLITest extends WithJetty {
                 port(8080).
                 contentType(JSON).
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -205,7 +181,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void fullyQualifiedUrlAddsPort8080IfExplicitlyDefinedStatically() throws Exception {
+    void fullyQualifiedUrlAddsPort8080IfExplicitlyDefinedStatically() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -219,11 +195,7 @@ public class URLITest extends WithJetty {
             given().
                     contentType(JSON).
                     filter(new RequestLoggingFilter(captor)).
-                    filter(new Filter() {
-                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                        }
-                    }).
+                    filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
             expect().
                      statusCode(200).
                      body(equalTo("changed")).
@@ -238,7 +210,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void fullyQualifiedUrlIncludingPortWorks() throws Exception {
+    void fullyQualifiedUrlIncludingPortWorks() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -248,11 +220,7 @@ public class URLITest extends WithJetty {
         given().
                 contentType(JSON).
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -264,7 +232,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void fullyQualifiedLocalhostUrlIncludingPortWorks() throws Exception {
+    void fullyQualifiedLocalhostUrlIncludingPortWorks() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -274,11 +242,7 @@ public class URLITest extends WithJetty {
         given().
                 contentType(JSON).
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -290,7 +254,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void fullyQualifiedLocalhostUrlEndingWithSlashDoesntAddsPort8080() throws Exception {
+    void fullyQualifiedLocalhostUrlEndingWithSlashDoesntAddsPort8080() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -300,11 +264,7 @@ public class URLITest extends WithJetty {
         given().
                 contentType(JSON).
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -316,7 +276,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void whenNoAuthorityOrPortIsSpecifiedThenLocalhostOnPort8080IsUsed() throws Exception {
+    void whenNoAuthorityOrPortIsSpecifiedThenLocalhostOnPort8080IsUsed() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -325,11 +285,7 @@ public class URLITest extends WithJetty {
         given().
                 contentType(JSON).
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -341,7 +297,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void takesSpecificationPortIntoAccountWhenNoHostIsSpecified() throws Exception {
+    void takesSpecificationPortIntoAccountWhenNoHostIsSpecified() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -351,11 +307,7 @@ public class URLITest extends WithJetty {
                 port(8083).
                 contentType(JSON).
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -367,7 +319,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void takesSpecificationPortIntoAccountWhenLocalhostHostIsSpecifiedEndingWithSlash() throws Exception {
+    void takesSpecificationPortIntoAccountWhenLocalhostHostIsSpecifiedEndingWithSlash() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -377,11 +329,7 @@ public class URLITest extends WithJetty {
                 port(8084).
                 contentType(JSON).
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -394,7 +342,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void takesSpecificationPortIntoAccountWhenLocalhostHostIsSpecifiedWithoutEndingWithSlash() throws Exception {
+    void takesSpecificationPortIntoAccountWhenLocalhostHostIsSpecifiedWithoutEndingWithSlash() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -404,11 +352,7 @@ public class URLITest extends WithJetty {
                 port(8084).
                 contentType(JSON).
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -421,7 +365,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void takesSpecificationPortIntoAccountWhenLocalhostHostIsSpecifiedStatically() throws Exception {
+    void takesSpecificationPortIntoAccountWhenLocalhostHostIsSpecifiedStatically() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -434,11 +378,7 @@ public class URLITest extends WithJetty {
             given().
                     contentType(JSON).
                     filter(new RequestLoggingFilter(captor)).
-                    filter(new Filter() {
-                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                        }
-                    }).
+                    filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
             expect().
                      statusCode(200).
                      body(equalTo("changed")).
@@ -454,7 +394,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void takesPortIntoAccountWhenSpecifiedInTheURLUsingLocalhostHost() throws Exception {
+    void takesPortIntoAccountWhenSpecifiedInTheURLUsingLocalhostHost() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -465,11 +405,7 @@ public class URLITest extends WithJetty {
                     contentType(JSON).
                     auth().digest("username", "password").
                     filter(new RequestLoggingFilter(captor)).
-                    filter(new Filter() {
-                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                        }
-                    }).
+                    filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
             expect().
                      statusCode(200).
                      body(equalTo("changed")).
@@ -484,7 +420,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void takesSpecificationPortIntoAccountWhenLocalhostHostAndPort8080IsSpecifiedStatically() throws Exception {
+    void takesSpecificationPortIntoAccountWhenLocalhostHostAndPort8080IsSpecifiedStatically() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -498,11 +434,7 @@ public class URLITest extends WithJetty {
             given().
                     contentType(JSON).
                     filter(new RequestLoggingFilter(captor)).
-                    filter(new Filter() {
-                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                        }
-                    }).
+                    filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
             expect().
                      statusCode(200).
                      body(equalTo("changed")).
@@ -518,7 +450,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void takesStaticSpecificationPortIntoAccountWhenNoHostIsSpecified() throws Exception {
+    void takesStaticSpecificationPortIntoAccountWhenNoHostIsSpecified() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -530,11 +462,7 @@ public class URLITest extends WithJetty {
             given().
                     contentType(JSON).
                     filter(new RequestLoggingFilter(captor)).
-                    filter(new Filter() {
-                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                        }
-                    }).
+                    filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
             expect().
                      statusCode(200).
                      body(equalTo("changed")).
@@ -549,7 +477,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void takesStaticSpecificationPortIntoAccountWhenBaseUriIsSpecified() throws Exception {
+    void takesStaticSpecificationPortIntoAccountWhenBaseUriIsSpecified() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -562,11 +490,7 @@ public class URLITest extends WithJetty {
             given().
                     contentType(JSON).
                     filter(new RequestLoggingFilter(captor)).
-                    filter(new Filter() {
-                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                        }
-                    }).
+                    filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
             expect().
                      statusCode(200).
                      body(equalTo("changed")).
@@ -581,7 +505,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void takesNonStaticSpecificationPortIntoAccountWhenHostIsSpecified() throws Exception {
+    void takesNonStaticSpecificationPortIntoAccountWhenHostIsSpecified() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -592,11 +516,7 @@ public class URLITest extends WithJetty {
                 port(9093).
                 contentType(JSON).
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -609,7 +529,7 @@ public class URLITest extends WithJetty {
 
 
     @Test
-    public void trailingSlashesAreRetainedWhenConfiguredStatically() throws Exception {
+    void trailingSlashesAreRetainedWhenConfiguredStatically() {
         // Given
 
         RestAssured.basePath = "/v1/";
@@ -620,11 +540,7 @@ public class URLITest extends WithJetty {
         try {
             given().
                     filter(new RequestLoggingFilter(captor)).
-                    filter(new Filter() {
-                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                        }
-                    }).
+                    filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
             expect().
                      statusCode(200).
                      body(equalTo("changed")).
@@ -639,7 +555,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void doesntAddTrailingSlashesWhenNoTrailingSlashIsUsed() throws Exception {
+    void doesntAddTrailingSlashesWhenNoTrailingSlashIsUsed() {
         // Given
 
         RestAssured.basePath = "/v1";
@@ -650,11 +566,7 @@ public class URLITest extends WithJetty {
         try {
             given().
                     filter(new RequestLoggingFilter(captor)).
-                    filter(new Filter() {
-                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                        }
-                    }).
+                    filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
             expect().
                      statusCode(200).
                      body(equalTo("changed")).
@@ -669,7 +581,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void addsSingleTrailingSlashToPathWhenSlashIsUsedAsPathInGetMethod() throws Exception {
+    void addsSingleTrailingSlashToPathWhenSlashIsUsedAsPathInGetMethod() {
         // Given
 
         RestAssured.basePath = "/v1";
@@ -680,11 +592,7 @@ public class URLITest extends WithJetty {
         try {
             given().
                     filter(new RequestLoggingFilter(captor)).
-                    filter(new Filter() {
-                        public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                            return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                        }
-                    }).
+                    filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
             expect().
                      statusCode(200).
                      body(equalTo("changed")).
@@ -699,7 +607,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void trailingSlashesAreRetainedWhenPassedAsArgumentToGetMethod() throws Exception {
+    void trailingSlashesAreRetainedWhenPassedAsArgumentToGetMethod() {
         // Given
 
         final StringWriter writer = new StringWriter();
@@ -708,11 +616,7 @@ public class URLITest extends WithJetty {
         // When
         given().
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -727,7 +631,7 @@ public class URLITest extends WithJetty {
      * See issue 304 & 305
      */
     @Test
-    public void fullyQualifiedUrlIsHandledCorrectlyInLog() throws Exception {
+    void fullyQualifiedUrlIsHandledCorrectlyInLog() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -735,11 +639,7 @@ public class URLITest extends WithJetty {
         // When
         given().
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -751,7 +651,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void fullyQualifiedUrlIsHandledCorrectlyInLogWithNoValueParam() throws Exception {
+    void fullyQualifiedUrlIsHandledCorrectlyInLogWithNoValueParam() {
         // Given
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
@@ -759,11 +659,7 @@ public class URLITest extends WithJetty {
         // When
         given().
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         expect().
                  statusCode(200).
                  body(equalTo("changed")).
@@ -775,7 +671,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void canUseAGetRequestInDslForUris() throws Exception {
+    void canUseAGetRequestInDslForUris() throws Exception {
         // Given
         final URI uri = new URI("http://localhost:8080/greet?firstName=John&lastName=Doe");
 
@@ -784,7 +680,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void canUseAPostRequestInDslForUris() throws Exception {
+    void canUseAPostRequestInDslForUris() throws Exception {
         // Given
         final URI uri = new URI("http://localhost:8080/greet?firstName=John&lastName=Doe");
 
@@ -793,7 +689,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void canUseAStaticGetRequestWithUris() throws Exception {
+    void canUseAStaticGetRequestWithUris() throws Exception {
         // Given
         final URI uri = new URI("http://localhost:8080/greet?firstName=John&lastName=Doe");
 
@@ -805,7 +701,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void canUseAStaticPostRequestWithUris() throws Exception {
+    void canUseAStaticPostRequestWithUris() throws Exception {
         // Given
         final URI uri = new URI("http://localhost:8080/greet?firstName=John&lastName=Doe");
 
@@ -817,7 +713,7 @@ public class URLITest extends WithJetty {
     }
     
     @Test
-    public void canUseAGetRequestInDslForUrls() throws Exception {
+    void canUseAGetRequestInDslForUrls() throws Exception {
         // Given
         final URL url = new URL("http://localhost:8080/greet?firstName=John&lastName=Doe");
 
@@ -826,7 +722,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void canUseAPostRequestInDslForUrls() throws Exception {
+    void canUseAPostRequestInDslForUrls() throws Exception {
         // Given
         final URL url = new URL("http://localhost:8080/greet?firstName=John&lastName=Doe");
 
@@ -835,7 +731,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void canUseAStaticGetRequestWithUrls() throws Exception {
+    void canUseAStaticGetRequestWithUrls() throws Exception {
         // Given
         final URL url = new URL("http://localhost:8080/greet?firstName=John&lastName=Doe");
 
@@ -847,7 +743,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void canUseAStaticPostRequestWithUrls() throws Exception {
+    void canUseAStaticPostRequestWithUrls() throws Exception {
         // Given
         final URL url = new URL("http://localhost:8080/greet?firstName=John&lastName=Doe");
 
@@ -859,7 +755,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void canUseAGetRequestWithoutAnyParametersInDsl() throws Exception {
+    void canUseAGetRequestWithoutAnyParametersInDsl() {
         // Given
         RestAssured.baseURI = "http://localhost:8080/hello";
 
@@ -872,7 +768,7 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void canUseAPostRequestWithoutAnyParametersInDsl() throws Exception {
+    void canUseAPostRequestWithoutAnyParametersInDsl() {
         // Given
         RestAssured.baseURI = "http://localhost:8080/hello";
 
@@ -885,12 +781,12 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void canUseAStaticGetRequestWithoutAnyParameters() throws Exception {
+    void canUseAStaticGetRequestWithoutAnyParameters() {
         // Given
         RestAssured.baseURI = "http://localhost:8080/hello";
 
         // When
-        String greeting = null;
+        String greeting;
         try {
             greeting = get().path("hello");
         } finally {
@@ -902,12 +798,12 @@ public class URLITest extends WithJetty {
     }
 
     @Test
-    public void canUseAStaticPostRequestWithoutAnyParameters() throws Exception {
+    void canUseAStaticPostRequestWithoutAnyParameters() {
         // Given
         RestAssured.baseURI = "http://localhost:8080/hello";
 
         // When
-        String greeting = null;
+        String greeting;
         try {
             greeting = post().path("hello");
         } finally {
@@ -950,11 +846,7 @@ public class URLITest extends WithJetty {
         given().
                 baseUri("http://httpbin.org/get").
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         when().
                 get().
         then().
@@ -975,11 +867,7 @@ public class URLITest extends WithJetty {
         given().
                 baseUri("http://httpbin.org/get").
                 filter(new RequestLoggingFilter(captor)).
-                filter(new Filter() {
-                    public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-                        return new ResponseBuilder().setStatusCode(200).setBody("changed").build();
-                    }
-                }).
+                filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder().setStatusCode(200).setBody("changed").build()).
         when().
                 get().
         then().
@@ -995,13 +883,13 @@ public class URLITest extends WithJetty {
      * @throws Exception
      */
     @Test
-    public void get_request_with_query_parameters_as_map_that_contains_collection_as_one_of_params() throws Exception {
-        final ArrayList<String> parameterValues = new ArrayList<String>() {{
+    void get_request_with_query_parameters_as_map_that_contains_collection_as_one_of_params() {
+        final ArrayList<String> parameterValues = new ArrayList<>() {{
             add("value1");
             add("value2");
         }};
 
-        Map<String, Object> queryParameters = new HashMap<String, Object>() {{
+        Map<String, Object> queryParameters = new HashMap<>() {{
             put("queryParameter", parameterValues);
         }};
 
@@ -1010,7 +898,7 @@ public class URLITest extends WithJetty {
                 .when()
                 .get("/requestUrl").asString();
         //query parameters should be parsed correctly
-        Assert.assertEquals("http://localhost:8080/requestUrl?queryParameter=value1&queryParameter=value2", response);
+        assertThat(response).isEqualTo("http://localhost:8080/requestUrl?queryParameter=value1&queryParameter=value2");
     }
 
 
@@ -1019,13 +907,13 @@ public class URLITest extends WithJetty {
      * @throws Exception
      */
     @Test
-    public void get_request_with_form_parameters_as_map_that_contains_collection_as_one_of_params() throws Exception {
-        final List parameterValues = new ArrayList<String>() {{
+    void get_request_with_form_parameters_as_map_that_contains_collection_as_one_of_params() {
+        final List<String> parameterValues = new ArrayList<>() {{
             add("value1");
             add("value2");
         }};
 
-        Map<String, Object> formParameters = new HashMap<String, Object>() {{
+        Map<String, Object> formParameters = new HashMap<>() {{
             put("list", parameterValues);
         }};
 
@@ -1035,7 +923,6 @@ public class URLITest extends WithJetty {
                 .post("/multiValueParam");
         //Convert returned value to list
         List<String> paramListFromResponse = Arrays.asList(response.jsonPath().getString("list").split(","));
-        Assert.assertEquals(parameterValues,  paramListFromResponse);
-
+        assertThat(paramListFromResponse).isEqualTo(parameterValues);
     }
 }

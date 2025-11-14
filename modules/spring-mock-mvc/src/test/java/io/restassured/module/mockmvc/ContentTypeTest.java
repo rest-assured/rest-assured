@@ -19,7 +19,7 @@ package io.restassured.module.mockmvc;
 import io.restassured.config.EncoderConfig;
 import io.restassured.http.ContentType;
 import io.restassured.module.mockmvc.http.GreetingController;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 

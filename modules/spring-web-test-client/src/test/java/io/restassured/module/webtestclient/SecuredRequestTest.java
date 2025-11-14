@@ -18,7 +18,7 @@ package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.SecuredProcessor;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;

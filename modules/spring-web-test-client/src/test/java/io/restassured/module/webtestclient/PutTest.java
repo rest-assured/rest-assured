@@ -20,9 +20,9 @@ import io.restassured.config.LogConfig;
 import io.restassured.module.webtestclient.setup.PutController;
 import io.restassured.module.webtestclient.setup.support.Greeting;
 import org.apache.commons.io.output.WriterOutputStream;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -38,12 +38,12 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class PutTest {
 
-  @BeforeClass
+  @BeforeAll
 	public static void configureWebTestClientInstance() {
 		RestAssuredWebTestClient.webTestClient(WebTestClient.bindToController(new PutController()).build());
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void restRestAssured() {
 		RestAssuredWebTestClient.reset();
 	}

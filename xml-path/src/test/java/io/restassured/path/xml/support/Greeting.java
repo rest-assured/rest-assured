@@ -16,11 +16,11 @@
 
 package io.restassured.path.xml.support;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-@Ignore
+@Disabled
 @XmlRootElement
 public class Greeting {
     private String firstName;

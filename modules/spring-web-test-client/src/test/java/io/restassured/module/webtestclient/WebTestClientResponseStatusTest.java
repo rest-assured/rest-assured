@@ -17,7 +17,7 @@
 package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.ResponseAwareMatcherController;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
 import static org.hamcrest.Matchers.is;

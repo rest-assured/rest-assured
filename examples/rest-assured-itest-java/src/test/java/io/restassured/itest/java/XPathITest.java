@@ -19,7 +19,7 @@ package io.restassured.itest.java;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.itest.java.support.WithJetty;
 import org.hamcrest.Matcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.namespace.NamespaceContext;
 import java.util.Arrays;
@@ -28,6 +28,7 @@ import java.util.Iterator;
 import static io.restassured.RestAssured.expect;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.XmlConfig.xmlConfig;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.Matchers.*;
 
 public class XPathITest extends WithJetty {
@@ -41,16 +42,16 @@ public class XPathITest extends WithJetty {
                 get("/user-favorite-xml");
     }
 
-    @Test public void
-    has_xpath_works_when_wrapped_in_not_matcher() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("not an XML document with XPath //userFavorite[@application-id='1']");
-
-        // When
-        expect().
+    @Test
+    void has_xpath_works_when_wrapped_in_not_matcher() {
+        assertThatThrownBy(() ->
+            expect().
                 body(not(hasXPath("//userFavorite[@application-id='1']"))).
-        when().
-                get("/user-favorite-xml");
+            when().
+                get("/user-favorite-xml")
+        )
+        .isInstanceOf(AssertionError.class)
+        .hasMessageContaining("not an XML document with XPath //userFavorite[@application-id='1']");
     }
 
     @Test public void
@@ -71,13 +72,15 @@ public class XPathITest extends WithJetty {
                 get("/user-favorite-xml");
     }
 
-    @Test(expected = AssertionError.class) public void
-    cant_mix_has_xpath_and_equal_to_matchers() {
-        // When
-        expect().
+    @Test
+    void cant_mix_has_xpath_and_equal_to_matchers() {
+        assertThatThrownBy(() ->
+            expect().
                 body(allOf((Matcher) hasXPath("//userFavorite[@application-id='1']"), equalTo("//userFavorite[@application-id='1']"))).
-        when().
-                get("/user-favorite-xml");
+            when().
+                get("/user-favorite-xml")
+        )
+        .isInstanceOf(AssertionError.class);
     }
 
     @Test public void

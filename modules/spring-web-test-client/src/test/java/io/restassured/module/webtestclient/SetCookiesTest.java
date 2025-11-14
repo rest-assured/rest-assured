@@ -17,9 +17,9 @@
 package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.CookieProcessor;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
@@ -30,7 +30,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 
 public class SetCookiesTest {
 
-	@BeforeClass
+	@BeforeAll
 	public static void configureWebTestClientInstance() {
 		RouterFunction<ServerResponse> setAttributesRoute = RouterFunctions
 				.route(path("/setCookies").and(method(HttpMethod.GET)),
@@ -38,7 +38,7 @@ public class SetCookiesTest {
 		RestAssuredWebTestClient.standaloneSetup(setAttributesRoute);
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void restRestAssured() {
 		RestAssuredWebTestClient.reset();
 	}

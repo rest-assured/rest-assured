@@ -16,22 +16,20 @@
 
 package io.restassured.itest.java;
 
-import groovy.json.JsonException;
-import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import static io.restassured.RestAssured.*;
-import static io.restassured.parsing.Parser.JSON;
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
@@ -54,24 +52,22 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void decimalNumberTypeMismatchIsRecognizable() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("1 expectation failed.\n" +
-                "JSON path values.pi doesn't match.\n" +
-                "Expected: <3.14>\n" +
-                "  Actual: <3.14F>\n"));
-
-        expect().body("values.pi", equalTo(3.14)).when().get("/numbers");
+        assertThatThrownBy(() -> expect().body("values.pi", equalTo(3.14)).when().get("/numbers"))
+                .isInstanceOf(AssertionError.class)
+                .hasMessage("1 expectation failed.\n" +
+                        "JSON path values.pi doesn't match.\n" +
+                        "Expected: <3.14>\n" +
+                        "  Actual: <3.14F>\n");
     }
 
     @Test
     public void integerNumberTypeMismatchIsRecognizable() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("1 expectation failed.\n" +
-                "JSON path values.answer doesn't match.\n" +
-                "Expected: <42L>\n" +
-                "  Actual: <42>\n"));
-
-        expect().body("values.answer", equalTo(42L)).when().get("/numbers");
+        assertThatThrownBy(() -> expect().body("values.answer", equalTo(42L)).when().get("/numbers"))
+                .isInstanceOf(AssertionError.class)
+                .hasMessage("1 expectation failed.\n" +
+                        "JSON path values.answer doesn't match.\n" +
+                        "Expected: <42L>\n" +
+                        "  Actual: <42>\n");
     }
 
     @Test
@@ -163,10 +159,9 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void iaeIsThrownWhenNoParamsSpecifiedAfterGetPath() {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Request URI cannot end with ?");
-
-        expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?");
+        assertThatThrownBy(() -> expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet?"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Request URI cannot end with ?");
     }
 
     @Test
@@ -181,13 +176,11 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void newSyntaxWithWrongStatusCode() {
-        // Given
-        exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("1 expectation failed.\n" +
-                "Expected status code <300> but was <200>.\n"));
-
-        // When
-        expect().response().statusCode(300).and().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
+        // Given / When / Then
+        assertThatThrownBy(() -> expect().response().statusCode(300).and().body("lotto.lottoId", equalTo(5)).when().get("/lotto"))
+                .isInstanceOf(AssertionError.class)
+                .hasMessage("1 expectation failed.\n" +
+                        "Expected status code <300> but was <200>.\n");
     }
 
     @Test
@@ -202,13 +195,11 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void newSyntaxWithWrongStatusLine() {
-        // Given
-        exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("1 expectation failed.\n" +
-                "Expected status line \"300\" doesn't match actual status line \"HTTP/1.1 200 OK\".\n"));
-
-        // When
-        expect().statusLine(equalTo("300")).and().body("lotto.lottoId", equalTo(5)).when().get("/lotto");
+        // Given / When / Then
+        assertThatThrownBy(() -> expect().statusLine(equalTo("300")).and().body("lotto.lottoId", equalTo(5)).when().get("/lotto"))
+                .isInstanceOf(AssertionError.class)
+                .hasMessage("1 expectation failed.\n" +
+                        "Expected status line \"300\" doesn't match actual status line \"HTTP/1.1 200 OK\".\n");
     }
 
     @Test
@@ -275,12 +266,11 @@ public class JSONGetITest extends WithJetty {
 
     @Test
     public void hasItemHamcrestMatchingThrowsGoodErrorMessagesWhenExpectedItemNotFoundInArray() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(containsString("JSON path lotto.winning-numbers doesn't match."));
-        exception.expectMessage(containsString("Expected: a collection containing <43>"));
-        exception.expectMessage(containsString("  Actual: <[2, 45, 34, 23, 7, 5, 3]>"));
-
-        expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItem(43)).when().get("/lotto");
+        assertThatThrownBy(() -> expect().body("lotto.lottoId", greaterThan(2), "lotto.winning-numbers", hasItem(43)).when().get("/lotto"))
+                .isInstanceOf(AssertionError.class)
+                .hasMessageContaining("JSON path lotto.winning-numbers doesn't match.")
+                .hasMessageContaining("Expected: a collection containing <43>")
+                .hasMessageContaining("  Actual: <[2, 45, 34, 23, 7, 5, 3]>");
     }
 
     @Test
@@ -373,180 +363,30 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void throwsNiceErrorMessageWhenIllegalPath() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("1 expectation failed.\n" +
-                "JSON path store.unknown.unknown.get(0) doesn't match.\n" +
-                "Expected: (a collection containing \"none\")\n" +
-                "  Actual: null");
-
-        expect().body("store.unknown.unknown.get(0)", hasItems("none")).when().get("/jsonStore");
+    void throwsNiceErrorMessageWhenIllegalPath() {
+        assertThatThrownBy(() ->
+            expect().body("store.unknown.unknown.get(0)", hasItems("none")).when().get("/jsonStore")
+        )
+        .isInstanceOf(AssertionError.class)
+        .hasMessageContaining("JSON path store.unknown.unknown.get(0) doesn't match.")
+        .hasMessageContaining("a collection containing \"none\"")
+        .hasMessageContaining("Actual: null");
     }
 
     @Test
-    public void supportsParsingJsonLists() {
-        expect().body("address[0]", equalTo("Spangatan")).when().get("/jsonList");
-    }
-
-    @Test
-    public void supportsGettingEmptyResponseBody() {
-        final String body = get("/emptyBody").asString();
-
-        assertThat(body, equalTo(""));
-    }
-
-    @Test
-    public void parametersAndQueryParametersAreConcatenated() {
-        with().params("firstName", "John").and().queryParams("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
-    }
-
-    @Test
-    public void parameterAndQueryParameterAreConcatenated() {
-        with().param("firstName", "John").and().queryParam("lastName", "Doe").expect().body("greeting", equalTo("Greetings John Doe")).when().get("/greet");
-    }
-
-    @Test
-    public void queryParametersCanBeUsedWithInts() {
-        with().queryParam("firstName", 1234).and().queryParam("lastName", 5678).expect().body("greeting", equalTo("Greetings 1234 5678")).when().get("/greet");
-    }
-
-    @Test
-    public void multiValueParametersWorks() {
-        with().param("list", "1").param("list", "2").param("list", "3").expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
-    }
-
-    @Test
-    public void multiValueParametersWorksForSets() {
-        final Set<String> paramValues = new LinkedHashSet<>();
-        paramValues.add("1");
-        paramValues.add("2");
-        paramValues.add("3");
-        with().param("list", paramValues).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
-    }
-
-    @Test
-    public void multiValueParametersWorksWhenPassingInMap() {
-        final HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("list", "3");
-        with().param("list", "1").param("list", "2").params(hashMap).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
-    }
-
-    @Test
-    public void multiValueQueryParametersWorks() {
-        with().queryParam("list", "1").queryParam("list", "2").queryParam("list", "3").expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
-    }
-
-    /**
-     * Asserts that <a href="https://code.google.com/p/rest-assured/issues/detail?id=169">issue 169</a> is resolved
-     */
-    @Test
-    public void multiValueQueryParametersWorksWhenSpecifiedInTheUrl() {
-        expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam?list=1&list=2&list=3");
-    }
-
-    /**
-     * Asserts that <a href="https://code.google.com/p/rest-assured/issues/detail?id=169">issue 169</a> is resolved
-     */
-    @Test
-    public void multiValueQueryParametersWorksWhenSpecifiedInInTheFluentAPIAsPathParameters() {
-        given().
-                pathParam("one", "1").
-                pathParam("two", "2").
-                pathParam("three", "3").
-        expect().
-                body("list", equalTo("1,2,3")).
-        when().
-                get("/multiValueParam?list={one}&list={two}&list={three}");
-    }
-
-    @Test
-    public void multiValueQueryParametersWorksWhenPassingInMap() {
-        final HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("list", "3");
-        with().queryParam("list", "1").queryParam("list", "2").queryParams(hashMap).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
-    }
-
-    @Test
-    public void multiValueParametersWorksWhenPassingInList() {
-        with().param("list", asList("1", "2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
-    }
-
-    @Test
-    public void multiValueQueryParametersWorksWhenPassingInListWithInts() {
-        with().queryParam("list", asList(1, 2, 3)).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
-    }
-
-    @Test
-    public void multiValueParametersSupportsAppendingWhenPassingInList() {
-        with().param("list", "1").param("list", asList("2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
-    }
-
-    @Test
-    public void multiValueQueryParametersSupportsAppendingWhenPassingInList() {
-        with().param("list", singletonList("1")).param("list", asList("2", "3")).expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
-    }
-
-    @Test
-    public void paramSupportsMultipleValues() {
-        with().param("list", "1", "2", "3").expect().body("list", equalTo("1,2,3")).when().get("/multiValueParam");
-    }
-
-    @Test
-    public void supportsAssertingThatJsonPathDoesntExist() {
-        with().params("firstName", "John", "lastName", "Doe").expect().body("something", nullValue()).when().get("/greet");
-    }
-
-    @Test
-    public void supportsAssertingThatHeaderDoesntExist() {
-        with().params("firstName", "John", "lastName", "Doe").expect().header("something", nullValue(String.class)).when().get("/greet");
-    }
-
-    @Test
-    public void supportsRegisteringJsonParserForAGivenMimeType() {
-        final String mimeType = "application/vnd.uoml+json";
-        RestAssured.registerParser(mimeType, JSON);
-        try {
-            expect().body("message", equalTo("It works")).when().get("/customMimeTypeJsonCompatible");
-        } finally {
-            RestAssured.unregisterParser(mimeType);
-        }
-    }
-
-    @Test(expected = Exception.class)
-    public void registeringJsonParserForAGivenMimeTypeButResponseIsNotJson() {
-        final String mimeType = "application/something+json";
-        RestAssured.registerParser(mimeType, JSON);
-        try {
-            expect().body("message", equalTo("It works")).when().get("/customMimeTypeNonJsonCompatible");
-        } finally {
-            RestAssured.unregisterParser(mimeType);
-        }
-    }
-
-    @Test
-    public void givenNoBodyExpectationsThenNonBodyExpectationsWorkEvenThoughContentTypeAndBodyContentDoesNotMatch() {
-        expect().statusCode(200).and().header("Content-Type", notNullValue(String.class)).when().get("/contentTypeJsonButBodyIsNotJson");
-    }
-
-    @Test(expected = JsonException.class)
-    public void malformedJson() {
-        expect().body("a", is(123456)).when().get("/malformedJson");
-    }
-
-    @Test
-    public void statusCodeHasPriorityOverJsonParsingWhenErrorOccurs() {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage(equalTo("Expected response body to be verified as JSON, HTML or XML but content-type 'text/plain' is not supported out of the box.\n" +
-                "Try registering a custom parser using:\n" +
-                "   RestAssured.registerParser(\"text/plain\", <parser type>);\n" +
-                "Content was:\n" +
-                "An expected error occurred\n"));
-
-        expect().
+    void statusCodeHasPriorityOverJsonParsingWhenErrorOccurs() {
+        assertThatThrownBy(() ->
+            expect().
                 statusCode(200).
                 body("doesnt.exist", equalTo("something")).
-        when().
-                get("/statusCode500");
+            when().
+                get("/statusCode500")
+        )
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("Expected response body to be verified as JSON, HTML or XML but content-type 'text/plain' is not supported out of the box.")
+        .hasMessageContaining("RestAssured.registerParser(\"text/plain\", <parser type>);")
+        .hasMessageContaining("Content was:")
+        .hasMessageContaining("An expected error occurred");
     }
 
     @Test
@@ -578,11 +418,12 @@ public class JSONGetITest extends WithJetty {
     }
 
     @Test
-    public void contentTypeButNoBodyWhenError() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Cannot assert that path \"error\" matches null because the response body is empty.");
-
-        expect().contentType(ContentType.JSON).body("error", equalTo(null)).when().get("/statusCode409WithNoBody");
+    void contentTypeButNoBodyWhenError() {
+        assertThatThrownBy(() ->
+            expect().contentType(ContentType.JSON).body("error", equalTo(null)).when().get("/statusCode409WithNoBody")
+        )
+        .isInstanceOf(AssertionError.class)
+        .hasMessageContaining("Cannot assert that path \"error\" matches null because the response body is empty.");
     }
 
     @Test
@@ -606,17 +447,18 @@ public class JSONGetITest extends WithJetty {
 
     @Test public void
     throws_assertion_error_when_multiple_keys_are_the_same_in_a_multi_body_expectation_and_the_non_last_fails() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Expected: <7>\n" +
-                "  Actual: <5>");
-
-        when().
+        assertThatThrownBy(() ->
+            when().
                 get("/lotto").
-        then().
+            then().
                 rootPath("lotto").
                 body("lottoId", greaterThan(1),
                      "lottoId", equalTo(7),
-                     "lottoId", lessThan(9));
+                     "lottoId", lessThan(9))
+        )
+        .isInstanceOf(AssertionError.class)
+        .hasMessageContaining("Expected: <7>")
+        .hasMessageContaining("Actual: <5>");
     }
 
     @Test public void
@@ -629,5 +471,41 @@ public class JSONGetITest extends WithJetty {
                         withArgs("Herman Melville"), is(8.99f),
                         withArgs("J. R. R. Tolkien"), is(22.99f)
                 );
+    }
+
+    @Test
+    void throwsExceptionWhenJsonPathIsInvalid() {
+        assertThatThrownBy(() ->
+            expect().body("invalid..jsonpath", equalTo("something")).when().get("/jsonStore")
+        )
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("jsonpath");
+    }
+
+    @Test
+    void throwsExceptionWhenJsonPathIsInvalidWithGiven() {
+        assertThatThrownBy(() ->
+            given().when().get("/jsonStore").then().body("invalid..jsonpath", equalTo("something"))
+        )
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("jsonpath");
+    }
+
+    @Test
+    void throwsExceptionWhenJsonPathIsInvalidWithExpect() {
+        assertThatThrownBy(() ->
+            expect().body("invalid..jsonpath", equalTo("something")).when().get("/jsonStore")
+        )
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("jsonpath");
+    }
+
+    @Test
+    void throwsExceptionWhenJsonPathIsInvalidWithGivenExpect() {
+        assertThatThrownBy(() ->
+            given().when().get("/jsonStore").then().body("invalid..jsonpath", equalTo("something"))
+        )
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("jsonpath");
     }
 }

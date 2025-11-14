@@ -19,7 +19,7 @@ package io.restassured.itest.java;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.itest.java.support.WithJetty;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,16 +28,17 @@ import java.util.Map;
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class HeaderITest extends WithJetty {
 
     @Test
-    public void requestSpecificationAllowsSpecifyingHeader() throws Exception {
+    public void requestSpecificationAllowsSpecifyingHeader() {
         given().header("MyHeader", "Something").and().expect().body(containsString("MyHeader")).when().get("/header");
     }
 
     @Test
-    public void allowsSupplyingMappingFunction() throws Exception {
+    public void allowsSupplyingMappingFunction() {
         when().
                 get("/hello").
         then().
@@ -45,24 +46,23 @@ public class HeaderITest extends WithJetty {
     }
 
     @Test
-    public void headerExceptionCanFailWhenUsingMappingFunction() throws Exception {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(containsString("Expected header \"Content-Length\" was not a value greater than <200>, was \"26\". Headers are:"));
-        when().
-                get("/hello").
-        then().
-                header("Content-Length", Integer::parseInt, greaterThan(200));
+    public void headerExceptionCanFailWhenUsingMappingFunction() {
+        assertThatThrownBy(() ->
+            when().get("/hello").then().header("Content-Length", Integer::parseInt, greaterThan(200))
+        )
+        .isInstanceOf(AssertionError.class)
+        .hasMessageContaining("Expected header \"Content-Length\" was not a value greater than <200>, was \"26\". Headers are:");
     }
 
     @Test
-    public void allowsParsingMultiValueHeaders() throws Exception {
+    public void allowsParsingMultiValueHeaders() {
         final List<String> headers = given().header("MyHeader", "Something", "Something else").when().get("/multiValueHeader").headers().getValues("MultiHeader");
 
         assertThat(headers, hasItems("Value 1", "Value 2"));
     }
 
     @Test
-    public void orderIsMaintainedForMultiValueHeaders() throws Exception {
+    public void orderIsMaintainedForMultiValueHeaders() {
         Headers headers = when().get("/multiValueHeader").headers();
 
         final List<String> headerListString = headers.getValues("MultiHeader");
@@ -75,7 +75,7 @@ public class HeaderITest extends WithJetty {
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingMultiValueHeaders() throws Exception {
+    public void requestSpecificationAllowsSpecifyingMultiValueHeaders() {
         final List<String> myHeaderValues = given().header("MyHeader", "Something", "Something else").when().get("/multiHeaderReflect").headers().getValues("MyHeader");
 
         assertThat(myHeaderValues.size(), is(2));
@@ -83,7 +83,7 @@ public class HeaderITest extends WithJetty {
     }
 
     @Test
-    public void responseSpecificationAllowsParsingMultiValueHeadersWithValuesIncludingEqualCharacter() throws Exception {
+    public void responseSpecificationAllowsParsingMultiValueHeadersWithValuesIncludingEqualCharacter() {
         final List<String> myHeaderValues = given().header("MyHeader", "Some=thing", "Something=else=").when().get("/multiHeaderReflect").headers().getValues("MyHeader");
 
         assertThat(myHeaderValues.size(), is(2));
@@ -91,7 +91,7 @@ public class HeaderITest extends WithJetty {
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingHeadersObject() throws Exception {
+    public void requestSpecificationAllowsSpecifyingHeadersObject() {
         final Header header1 = new Header("MyHeader", "Something");
         final Header header2 = new Header("MyHeader", "Something else");
         final Headers headers = new Headers(header1, header2);
@@ -103,7 +103,7 @@ public class HeaderITest extends WithJetty {
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingMultipleHeadersInSequenceWhichGetsTreatedAsMultiHeaders() throws Exception {
+    public void requestSpecificationAllowsSpecifyingMultipleHeadersInSequenceWhichGetsTreatedAsMultiHeaders() {
         final List<String> myHeaderValues =
                 given().
                         header("MyHeader", "Something").
@@ -118,45 +118,45 @@ public class HeaderITest extends WithJetty {
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingHeaders() throws Exception {
+    public void requestSpecificationAllowsSpecifyingHeaders() {
         given().headers("MyHeader", "Something").and().expect().body(containsString("MyHeader")).when().get("/header");
     }
 
     @Test
-    public void requestSpecificationAllowsSpecifyingMultipleHeaders() throws Exception {
+    public void requestSpecificationAllowsSpecifyingMultipleHeaders() {
         given().header("MyHeader", "Something").and().headers("MyHeader2", "Something else", "MyHeader3", "H").and().
                 expect().body(containsString("MyHeader"), containsString("MyHeader2"), containsString("MyHeader3")).when()
                 .get("/header");
     }
 
     @Test
-    public void supportsHeaderStringMatching() throws Exception {
+    public void supportsHeaderStringMatching() {
         expect().response().header("Content-Type", "application/json;charset=utf-8").when().get("/lotto");
     }
 
     @Test
-    public void multipleHeaderStatementsAreConcatenated() throws Exception {
+    public void multipleHeaderStatementsAreConcatenated() {
         expect().response().header("Content-Type", "application/json;charset=utf-8").and().header("Content-Length", "160").when().get("/lotto");
     }
 
     @Test
-    public void multipleHeadersShortVersionUsingPlainStrings() throws Exception {
+    public void multipleHeadersShortVersionUsingPlainStrings() {
         expect().response().headers("Content-Type", "application/json;charset=utf-8", "Content-Length", "160").when().get("/lotto");
     }
 
     @Test
-    public void multipleHeadersShortVersionUsingHamcrestMatching() throws Exception {
+    public void multipleHeadersShortVersionUsingHamcrestMatching() {
         expect().response().headers("Content-Type", containsString("application/json"), "Content-Length", equalTo("160")).when().get("/lotto");
     }
 
     @Test
-    public void multipleHeadersShortVersionUsingMixOfHamcrestMatchingAndStringMatching() throws Exception {
+    public void multipleHeadersShortVersionUsingMixOfHamcrestMatchingAndStringMatching() {
         expect().response().headers("Content-Type", containsString("application/json"), "Content-Length", "160").when().get("/lotto");
     }
 
     @Test
-    public void multipleHeadersUsingMap() throws Exception {
-        Map expectedHeaders = new HashMap();
+    public void multipleHeadersUsingMap() {
+        Map<String, Object> expectedHeaders = new HashMap<>();
         expectedHeaders.put("Content-Type", "application/json;charset=utf-8");
         expectedHeaders.put("Content-Length", "160");
 
@@ -164,8 +164,8 @@ public class HeaderITest extends WithJetty {
     }
 
     @Test
-    public void multipleHeadersUsingMapWithHamcrestMatcher() throws Exception {
-        Map expectedHeaders = new HashMap();
+    public void multipleHeadersUsingMapWithHamcrestMatcher() {
+        Map<String, Object> expectedHeaders = new HashMap<>();
         expectedHeaders.put("Content-Type", containsString("application/json;charset=utf-8"));
         expectedHeaders.put("Content-Length", equalTo("160"));
 
@@ -173,8 +173,8 @@ public class HeaderITest extends WithJetty {
     }
 
     @Test
-    public void multipleHeadersUsingMapWithMixOfStringAndHamcrestMatcher() throws Exception {
-        Map expectedHeaders = new HashMap();
+    public void multipleHeadersUsingMapWithMixOfStringAndHamcrestMatcher() {
+        Map<String, Object> expectedHeaders = new HashMap<>();
         expectedHeaders.put("Content-Type", containsString("application/json;charset=utf-8"));
         expectedHeaders.put("Content-Length", "160");
 
@@ -182,27 +182,31 @@ public class HeaderITest extends WithJetty {
     }
 
     @Test
-    public void whenExpectedHeaderDoesntMatchAnAssertionThenAssertionErrorIsThrown() throws Exception {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(containsString("Expected header \"Content-Length\" was not \"161\", was \"160\". Headers are:"));
-
-        expect().response().header("Content-Length", "161").when().get("/lotto");
+    public void whenExpectedHeaderDoesntMatchAnAssertionThenAssertionErrorIsThrown() {
+        assertThatThrownBy(() ->
+            expect().response().header("Content-Length", "161").when().get("/lotto")
+        )
+        .isInstanceOf(AssertionError.class)
+        .hasMessageContaining("Expected header \"Content-Length\" was not \"161\", was \"160\". Headers are:");
     }
 
     @Test
-    public void whenExpectedHeaderIsNotFoundThenAnAssertionErrorIsThrown() throws Exception {
-        exception.expect(AssertionError.class);
-        exception.expectMessage(equalTo("1 expectation failed.\n" +
-                "Expected header \"Not-Defined\" was not \"160\", was \"null\". Headers are:\n" +
-                "Content-Type=application/json;charset=utf-8\n" +
-                "Content-Length=160\n" +
-                "Server=Jetty(9.4.34.v20201102)\n"));
-
-        expect().response().header("Not-Defined", "160").when().get("/lotto");
+    public void whenExpectedHeaderIsNotFoundThenAnAssertionErrorIsThrown() {
+        assertThatThrownBy(() ->
+                expect().response().header("Not-Defined", "160").when().get("/lotto")
+        )
+                .isInstanceOf(AssertionError.class)
+                .hasMessage("""
+                        1 expectation failed.
+                        Expected header "Not-Defined" was not "160", was "null". Headers are:
+                        Content-Type=application/json;charset=utf-8
+                        Content-Length=160
+                        Server=Jetty(9.4.34.v20201102)
+                        """);
     }
 
     @Test
-    public void whenMultiValueHeadersArePresentedInTheResponseThenTheLastValueHasPrecedence() throws Exception {
+    public void whenMultiValueHeadersArePresentedInTheResponseThenTheLastValueHasPrecedence() {
         when().
                 get("/multiValueHeader").
         then().
@@ -210,7 +214,7 @@ public class HeaderITest extends WithJetty {
     }
 
     @Test
-    public void canUseResponseAwareMatchersForHeaderValidation() throws Exception {
+    public void canUseResponseAwareMatchersForHeaderValidation() {
         given().
                 redirects().follow(false).
         when().

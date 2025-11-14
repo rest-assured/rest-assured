@@ -22,55 +22,51 @@ import io.restassured.http.ContentType;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.parsing.Parser;
 import io.restassured.specification.ResponseSpecification;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class XMLGetITest extends WithJetty {
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
     @Test
-    public void xmlParameterSupport() throws Exception {
+    void xmlParameterSupport() {
         RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName", equalTo("John")).when().get("/greetXML");
     }
 
     @Test
-    public void xmlHasItems() throws Exception {
+    void xmlHasItems() {
         RestAssured.expect().body("greeting", hasItems("John", "Doe")).when().get("/greetXML?firstName=John&lastName=Doe");
     }
 
     @Test
-    public void xmlParameterSupportWithAnotherAssertion() throws Exception {
+    void xmlParameterSupportWithAnotherAssertion() {
         RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.lastName", equalTo("Doe")).when().get("/greetXML");
     }
 
     @Test
-    public void childrenElements() throws Exception {
+    void childrenElements() {
         RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.name.children()", hasItems("John", "Doe")).when().get("/anotherGreetXML");
     }
 
     @Test
-    public void childrenElementsSize() throws Exception {
+    void childrenElementsSize() {
         RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.name.children().size()", equalTo(2)).when().get("/anotherGreetXML");
     }
 
     @Test
-    public void childrenElementsIsEmpty() throws Exception {
+    void childrenElementsIsEmpty() {
         RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.name.notDefined.children().isEmpty()", equalTo(true)).when().get("/anotherGreetXML");
     }
 
     @Test
-    public void xmlNestedElements2() throws Exception {
+    void xmlNestedElements2() {
         RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.name.firstName", equalTo("John")).when().get("/anotherGreetXML");
     }
 
     @Test
-    public void xmlWithContentAssertion() throws Exception {
+    void xmlWithContentAssertion() {
         String expectedBody = "<greeting>\n" +
                 "      <name>\n" +
                 "        <firstName>John</firstName>\n" +
@@ -81,72 +77,72 @@ public class XMLGetITest extends WithJetty {
     }
 
     @Test
-    public void newSyntaxWithXPath() throws Exception {
+    void newSyntaxWithXPath() {
         RestAssured.expect().body(hasXPath("/greeting/name/firstName[text()='John']")).then().with().params("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
     }
 
     @Test
-    public void newSyntaxWithXPathWithContainsMatcher() throws Exception {
+    void newSyntaxWithXPathWithContainsMatcher() {
         RestAssured.expect().body(hasXPath("/greeting/name/firstName", containsString("Jo"))).given().params("firstName", "John", "lastName", "Doe").get("/anotherGreetXML");
     }
 
     @Test
-    public void xmlWithContentTypeTextXML() throws Exception {
+    void xmlWithContentTypeTextXML() {
         RestAssured.expect().body("xml", equalTo("something")).when().get("/textXML");
     }
 
     @Test
-    public void xmlWithContentTypeHTML() throws Exception {
+    void xmlWithContentTypeHTML() {
         RestAssured.expect().body("html.head.title", equalTo("my title")).when().get("/textHTML");
     }
 
     @Test
-    public void htmlVerification() throws Exception {
+    void htmlVerification() {
         RestAssured.expect().body("html.body.children()", hasItems("paragraph 1", "paragraph 2")).when().get("/textHTML");
     }
 
     @Test
-    public void htmlValueVerification() throws Exception {
+    void htmlValueVerification() {
         RestAssured.expect().body("html.body.p.list()", hasItems("paragraph 1", "paragraph 2")).when().get("/textHTML");
     }
 
     @Test
-    public void htmlChildElementSize() throws Exception {
+    void htmlChildElementSize() {
         RestAssured.expect().body("html.body.children().size()", equalTo(2)).when().get("/textHTML");
     }
 
     @Test
-    public void htmlBodySize() throws Exception {
+    void htmlBodySize() {
         RestAssured.expect().body("html.body.size()", equalTo(1)).when().get("/textHTML");
     }
 
     @Test
-    public void supportsParsingHtmlWhenContentTypeEndsWithPlusHtml() throws Exception {
+    void supportsParsingHtmlWhenContentTypeEndsWithPlusHtml() {
         RestAssured.expect().body("html.head.title", equalTo("my title")).when().get("/mimeTypeWithPlusHtml");
     }
 
     @Test
-    public void canGetSpecificEntityFromListHtmlDocument() throws Exception {
+    void canGetSpecificEntityFromListHtmlDocument() {
         RestAssured.expect().body("html.body.p[0]", equalTo("paragraph 1")).when().get("/textHTML");
     }
 
     @Test
-    public void canGetSpecificEntityFromListHtmlDocumentUsingGetAt() throws Exception {
+    void canGetSpecificEntityFromListHtmlDocumentUsingGetAt() {
         RestAssured.expect().body("html.body.p.getAt(0)", equalTo("paragraph 1")).when().get("/textHTML");
     }
 
     @Test
-    public void rssVerification() throws Exception {
+    void rssVerification() {
         RestAssured.expect().body("rss.item.title", equalTo("rss title")).when().get("/rss");
     }
 
     @Test
-    public void nestedListsAreConvertedToJavaLists() throws Exception {
+    void nestedListsAreConvertedToJavaLists() {
         RestAssured.expect().body("rss.channel.item.size()", equalTo(2)).when().get("/bigRss");
     }
 
     @Test
-    public void supportsParsingXmlAttributes() throws Exception {
+    void supportsParsingXmlAttributes() {
         RestAssured.expect().
                 body("greeting.name.@firstName", equalTo("John")).
                 body("greeting.name.@lastName", equalTo("Doe")).
@@ -154,60 +150,61 @@ public class XMLGetITest extends WithJetty {
     }
 
     @Test
-    public void throwsIAEOnIllegalXmlExpression() throws Exception {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("greeting.€4324'21");
-
-        RestAssured.expect().body("greeting.€4324'21", equalTo("rss title")).when().get("/rss");
+    void throwsIAEOnIllegalXmlExpression() {
+        assertThatThrownBy(() ->
+            RestAssured.expect().body("greeting.€4324'21", equalTo("rss title")).when().get("/rss")
+        )
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("greeting.€4324'21");
     }
 
     @Test
-    public void supportsGettingAllAttributesFromAList() throws Exception {
+    void supportsGettingAllAttributesFromAList() {
         RestAssured.expect().body("shopping.category.@type", hasItems("groceries", "supplies", "present")).when().get("/shopping");
     }
 
     @Test
-    public void whenReturningANonCollectionAndNonArrayThenSizeIsOne() throws Exception {
+    void whenReturningANonCollectionAndNonArrayThenSizeIsOne() {
         RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.firstName.size()", equalTo(1)).when().get("/greetXML");
     }
 
     @Test
-    public void supportBodyExpectationsWithMinusInRootObject() throws Exception {
+    void supportBodyExpectationsWithMinusInRootObject() {
         RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("a-greeting.firstName", equalTo("John")).when().get("/xmlWithMinusInRoot");
     }
 
     @Test
-    public void supportBodyExpectationsWithMinusInChildObject() throws Exception {
+    void supportBodyExpectationsWithMinusInChildObject() {
         RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.your-firstName", equalTo("John")).when().get("/xmlWithMinusInChild");
     }
 
     @Test
-    public void supportBodyExpectationsWithUnderscoreInChildObject() throws Exception {
+    void supportBodyExpectationsWithUnderscoreInChildObject() {
         RestAssured.with().params("firstName", "John", "lastName", "Doe").expect().body("greeting.your_firstName", equalTo("John")).when().get("/xmlWithUnderscoreInChild");
     }
 
     @Test
-    public void xmlChildListSize() throws Exception {
+    void xmlChildListSize() {
         RestAssured.expect().body("shopping.category.item.size()", equalTo(5)).when().get("/shopping");
     }
 
     @Test
-    public void supportsGettingSpecificItemFromAListArrayStyle() throws Exception {
+    void supportsGettingSpecificItemFromAListArrayStyle() {
         RestAssured.expect().body("shopping.category[0].@type", equalTo("groceries")).when().get("/shopping");
     }
 
     @Test
-    public void supportsGettingSpecificItemFromAListNonArrayStyle() throws Exception {
+    void supportsGettingSpecificItemFromAListNonArrayStyle() {
         RestAssured.expect().body("shopping.category.getAt(0).@type", equalTo("groceries")).when().get("/shopping");
     }
 
     @Test
-    public void supportsFindingElements() throws Exception {
+    void supportsFindingElements() {
         RestAssured.expect().body("shopping.category.findAll { it.@type == 'groceries' }.size()", equalTo(1)).when().get("/shopping");
     }
 
     @Test
-    public void supportsRegisteringCustomParserForAGivenMimeType() throws Exception {
+    void supportsRegisteringCustomParserForAGivenMimeType() {
         final String mimeType = "application/something-custom";
         RestAssured.registerParser(mimeType, Parser.XML);
         try {
@@ -218,40 +215,41 @@ public class XMLGetITest extends WithJetty {
     }
 
     @Test
-    public void supportsRegisteringCustomParserForAGivenMimeTypePerResponse() throws Exception {
+    void supportsRegisteringCustomParserForAGivenMimeTypePerResponse() {
         final String mimeType = "application/something-custom";
         RestAssured.expect().parser(mimeType, Parser.XML).and().body("body.message", equalTo("Custom mime-type")).when().get("/customMimeType");
     }
 
     @Test
-    public void supportsRegisteringCustomParserForAGivenMimeTypeUsingResponseSpec() throws Exception {
+    void supportsRegisteringCustomParserForAGivenMimeTypeUsingResponseSpec() {
         final String mimeType = "application/something-custom";
         final ResponseSpecification specification = new ResponseSpecBuilder().registerParser(mimeType, Parser.XML).build();
         RestAssured.expect().spec(specification).and().body("body.message", equalTo("Custom mime-type")).when().get("/customMimeType");
     }
 
     @Test
-    public void supportsParsingXmlWhenContentTypeEndsWithPlusXml() throws Exception {
+    void supportsParsingXmlWhenContentTypeEndsWithPlusXml() {
         RestAssured.expect().body("body.message", equalTo("Custom mime-type ending with +xml")).when().get("/mimeTypeWithPlusXml");
     }
 
     @Test
-    public void throwsNiceErrorMessageWhenIllegalPath() throws Exception {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Path shopping.unknown.get(0) is invalid.");
-
-        RestAssured.expect().body("shopping.unknown.get(0)", hasItems("none")).when().get("/shopping");
+    void throwsNiceErrorMessageWhenIllegalPath() {
+        assertThatThrownBy(() ->
+            RestAssured.expect().body("shopping.unknown.get(0)", hasItems("none")).when().get("/shopping")
+        )
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("Path shopping.unknown.get(0) is invalid.");
     }
 
     @Test
-    public void supportsGettingResponseBodyAsStringWhenUsingBodyExpectationsOnRoot() throws Exception {
+    void supportsGettingResponseBodyAsStringWhenUsingBodyExpectationsOnRoot() {
         final String body = RestAssured.expect().body("shopping", anything()).when().get("/shopping").asString();
 
         assertThat(body, containsString("<shopping>"));
     }
 
     @Test
-    public void whenExpectingContentTypeXMLThenTextXmlIsAllowedAsContentType() throws Exception {
+    void whenExpectingContentTypeXMLThenTextXmlIsAllowedAsContentType() {
         RestAssured.given().
                 param("firstName", "John").
                 param("lastName", "Doe").
@@ -262,7 +260,7 @@ public class XMLGetITest extends WithJetty {
     }
 
     @Test
-    public void whenExpectingContentTypeXMLThenCustomXmlIsAllowedAsContentType() throws Exception {
+    void whenExpectingContentTypeXMLThenCustomXmlIsAllowedAsContentType() {
         RestAssured.given().
                 param("firstName", "John").
                 param("lastName", "Doe").
@@ -275,16 +273,18 @@ public class XMLGetITest extends WithJetty {
     }
 
     @Test
-    public void whenExpectingContentTypeXMLThenExceptionIsThrownIfContentTypeIsJson() throws Exception {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Expected content-type \"XML\" doesn't match actual content-type \"application/json;charset=utf-8\".");
-
-        RestAssured.given().
+    void whenExpectingContentTypeXMLThenExceptionIsThrownIfContentTypeIsJson() {
+        assertThatThrownBy(() ->
+            RestAssured.given().
                 param("firstName", "John").
                 param("lastName", "Doe").
-        expect().
+            expect().
                 contentType(ContentType.XML).
-        when().
-                get("/greetJSON");
+            when().
+                get("/greetJSON")
+        )
+        .isInstanceOf(AssertionError.class)
+        .hasMessageContaining("Expected content-type \"XML\" doesn't match actual content-type \"application/json;charset=utf-8\".");
     }
 }
+

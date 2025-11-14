@@ -17,7 +17,7 @@
 package io.restassured.path.json;
 
 import io.restassured.path.json.config.JsonPathConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -17,7 +17,7 @@
 package io.restassured.internal;
 
 import io.restassured.internal.MapCreator.CollisionStrategy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 

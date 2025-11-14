@@ -22,7 +22,7 @@ import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.Header;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.specification.RequestSpecification;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 

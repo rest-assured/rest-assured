@@ -17,7 +17,7 @@
 package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.PostController;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;

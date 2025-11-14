@@ -17,19 +17,12 @@
 package io.restassured.path.xml;
 
 import io.restassured.path.xml.element.Node;
-import org.hamcrest.Matchers;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import static io.restassured.path.xml.XmlPath.with;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class XmlPathErrorMessageTest {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     private static final String XML = "<shopping>\n" +
             "      <category type=\"groceries\">\n" +
@@ -64,47 +57,48 @@ public class XmlPathErrorMessageTest {
             "</shopping>";
 
 
-    @Test public void
+    @Test
+    public void
     error_messages_on_invalid_subpath_looks_ok_when_received_node_is_not_root() {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage(String.format("Invalid path:%n" +
-                "Unexpected input: 'item.price.[' @ line 1, column 37.%n" +
-                "   item.price.[0]%n" +
-                "              ^%n" +
-                "%n" +
-                "1 error%n"));
-
-        Node firstCategory = with(XML).get("shopping.category[0]");
-        firstCategory.getPath("item.price.[0]", float.class);
+        assertThatThrownBy(() -> {
+            Node firstCategory = with(XML).get("shopping.category[0]");
+            firstCategory.getPath("item.price.[0]", float.class);
+        }).isExactlyInstanceOf(IllegalArgumentException.class)
+                .hasMessage(String.format("Invalid path:%n" +
+                        "Unexpected input: 'item.price.[' @ line 1, column 37.%n" +
+                        "   item.price.[0]%n" +
+                        "              ^%n" +
+                        "%n" +
+                        "1 error%n"));
     }
 
-    @Test public void
+    @Test
+    public void
     error_messages_on_invalid_subpath_with_root_name_less_than_six_characters_looks_ok() {
-        try {
+        assertThatThrownBy(() -> {
             Node category = with(XML.replace("shopping", "some")).get("some");
             category.getPath("category[0].item.price.[0]", float.class);
-            fail("Should fail!");
-        } catch (Exception e) {
-            assertThat(e, Matchers.instanceOf(IllegalArgumentException.class));
-            assertThat(e.getMessage(), Matchers.equalTo(String.format("Invalid path:%n" +
-                    "Unexpected input: '[0].item.price.[' @ line 1, column 49.%n" +
-                    "   category[0].item.price.[0]%n" +
-                    "                          ^%n" +
-                    "%n" +
-                    "1 error%n")));
-        }
+        }).isExactlyInstanceOf(IllegalArgumentException.class)
+                .hasMessage(String.format("Invalid path:%n" +
+                        "Unexpected input: '[0].item.price.[' @ line 1, column 49.%n" +
+                        "   category[0].item.price.[0]%n" +
+                        "                          ^%n" +
+                        "%n" +
+                        "1 error%n"));
+
     }
 
-    @Test public void
+    @Test
+    public void
     error_messages_on_invalid_path_looks_ok() {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage(String.format("Invalid path:%n" +
-                "Unexpected input: 'shopping.[' @ line 1, column 26.%n" +
-                "   shopping.[0]%n" +
-                "            ^%n" +
-                "%n" +
-                "1 error%n"));
-
-        with(XML).get("shopping.[0]");
+        assertThatThrownBy(() -> {
+            with(XML).get("shopping.[0]");
+        }).isExactlyInstanceOf(IllegalArgumentException.class)
+                .hasMessage(String.format("Invalid path:%n" +
+                        "Unexpected input: 'shopping.[' @ line 1, column 26.%n" +
+                        "   shopping.[0]%n" +
+                        "            ^%n" +
+                        "%n" +
+                        "1 error%n"));
     }
 }

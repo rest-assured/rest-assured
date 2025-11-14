@@ -21,11 +21,10 @@ import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.http.HeaderController;
 import io.restassured.module.mockmvc.http.RedirectController;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -35,15 +34,12 @@ import static org.hamcrest.Matchers.*;
 
 public class HeaderTest {
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
-    @BeforeClass
+    @BeforeAll
     public static void configureMockMvcInstance() {
         RestAssuredMockMvc.standaloneSetup(new HeaderController());
     }
 
-    @AfterClass
+    @AfterAll
     public static void restRestAssured() {
         RestAssuredMockMvc.reset();
     }
@@ -71,15 +67,16 @@ public class HeaderTest {
 
     @Test public void
     validate_may_fail_when_using_mapping_function_when_validating_header_value() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Expected header \"Content-Length\" was not a value greater than <1000>, was \"45\". Headers are:");
-
-        given().
+        assertThatThrownBy(() ->
+            given().
                 header(new Header("headerName", "200")).
-        when().
+            when().
                 get("/header").
-        then().
-                header("Content-Length", Integer::parseInt, greaterThan(1000));
+            then().
+                header("Content-Length", Integer::parseInt, greaterThan(1000))
+        )
+        .isInstanceOf(AssertionError.class)
+        .hasMessageContaining("Expected header \"Content-Length\" was not a value greater than <1000>, was \"45\". Headers are:");
     }
 
     @Test public void

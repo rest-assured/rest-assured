@@ -18,7 +18,7 @@ package io.restassured.itest.java;
 import io.restassured.RestAssured;
 import io.restassured.itest.java.support.WithJetty;
 import io.restassured.listener.ResponseValidationFailureListener;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -26,7 +26,7 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.config.FailureConfig.failureConfig;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class FailureConfigITest extends WithJetty {
 

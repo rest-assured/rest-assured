@@ -28,8 +28,8 @@ import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.FilterableResponseSpecification;
 import io.restassured.specification.RequestSender;
 import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -43,7 +43,7 @@ public class CookieFilterTest {
     private TestFilterContext testFilterContext;
     private CookieFilter cookieFilter;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         reqOriginDomain = (FilterableRequestSpecification) given().with().baseUri("https://somedomain.com/somepath");
         response = new ResponseSpecificationImpl("test", null, null, RestAssuredConfig.newConfig(), null);
