@@ -68,7 +68,7 @@ public class RequestLoggingFilter implements Filter {
     }
 
     /**
-     * Logs everyting to the specified printstream.
+     * Logs everything to the specified printstream.
      *
      * @param printStream The stream to log to.
      */
