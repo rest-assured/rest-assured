@@ -18,105 +18,94 @@ package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.GreetingController;
 import io.restassured.module.webtestclient.setup.PostController;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import static io.restassured.http.Method.GET;
 import static io.restassured.http.Method.POST;
 import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given;
 import static io.restassured.module.webtestclient.RestAssuredWebTestClient.request;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.Matchers.equalTo;
 
 public class WebTestClientRequestMethodTest {
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
+    @Test
+    public void request_method_accepts_enum_verb() {
+        given()
+                .standaloneSetup(new PostController())
+                .param("name", "Johan")
+                .when()
+                .request(POST, "/greetingPost")
+                .then()
+                .body("id", equalTo(1))
+                .body("content", equalTo("Hello, Johan!"));
+    }
 
-	@Test
-	public void
-	request_method_accepts_enum_verb() {
-		given()
-				.standaloneSetup(new PostController())
-				.param("name", "Johan")
-				.when()
-				.request(POST, "/greetingPost")
-				.then()
-				.body("id", equalTo(1))
-				.body("content", equalTo("Hello, Johan!"));
-	}
+    @Test
+    public void request_method_accepts_enum_verb_and_unnamed_path_params() {
+        given()
+                .standaloneSetup(new GreetingController())
+                .queryParam("name", "John")
+                .when()
+                .request(GET, "/{x}", "greeting")
+                .then()
+                .body("id", equalTo(1))
+                .body("content", equalTo("Hello, John!"));
+    }
 
-	@Test
-	public void
-	request_method_accepts_enum_verb_and_unnamed_path_params() {
-		given()
-				.standaloneSetup(new GreetingController())
-				.queryParam("name", "John")
-				.when()
-				.request(GET, "/{x}", "greeting")
-				.then()
-				.body("id", equalTo(1))
-				.body("content", equalTo("Hello, John!"));
-	}
+    @Test
+    public void request_method_accepts_string_verb() {
+        given()
+                .standaloneSetup(new PostController())
+                .param("name", "Johan")
+                .when()
+                .request("post", "/greetingPost")
+                .then()
+                .body("id", equalTo(1))
+                .body("content", equalTo("Hello, Johan!"));
+    }
 
-	@Test
-	public void
-	request_method_accepts_string_verb() {
-		given()
-				.standaloneSetup(new PostController())
-				.param("name", "Johan")
-				.when()
-				.request("post", "/greetingPost")
-				.then()
-				.body("id", equalTo(1))
-				.body("content", equalTo("Hello, Johan!"));
-	}
+    @Test
+    public void request_method_accepts_string_verb_and_unnamed_path_params() {
+        given()
+                .standaloneSetup(new GreetingController())
+                .queryParam("name", "John")
+                .when()
+                .request("GEt", "/{x}", "greeting")
+                .then()
+                .body("id", equalTo(1))
+                .body("content", equalTo("Hello, John!"));
+    }
 
-	@Test
-	public void
-	request_method_accepts_string_verb_and_unnamed_path_params() {
-		given()
-				.standaloneSetup(new GreetingController())
-				.queryParam("name", "John")
-				.when()
-				.request("GEt", "/{x}", "greeting")
-				.then()
-				.body("id", equalTo(1))
-				.body("content", equalTo("Hello, John!"));
-	}
+    @Test
+    public void static_request_method_accepts_string_verb() {
+        RestAssuredWebTestClient.standaloneSetup(new GreetingController());
+        try {
+            request("  gEt ", "/greeting").then().body("id", equalTo(1))
+                    .body("content", equalTo("Hello, World!"));
+        } finally {
+            RestAssuredWebTestClient.reset();
+        }
+    }
 
-	@Test
-	public void
-	static_request_method_accepts_string_verb() {
-		RestAssuredWebTestClient.standaloneSetup(new GreetingController());
+    @Test
+    public void static_request_method_accepts_enum_verb_and_path_params() {
+        RestAssuredWebTestClient.standaloneSetup(new GreetingController());
+        try {
+            request(GET, "/{greeting}", "greeting").then().body("id", equalTo(1))
+                    .body("content", equalTo("Hello, World!"));
+        } finally {
+            RestAssuredWebTestClient.reset();
+        }
+    }
 
-		try {
-			request("  gEt ", "/greeting").then().body("id", equalTo(1))
-					.body("content", equalTo("Hello, World!"));
-		} finally {
-			RestAssuredWebTestClient.reset();
-		}
-	}
-
-	@Test
-	public void
-	static_request_method_accepts_enum_verb_and_path_params() {
-		RestAssuredWebTestClient.standaloneSetup(new GreetingController());
-
-		try {
-			request(GET, "/{greeting}", "greeting").then().body("id", equalTo(1))
-					.body("content", equalTo("Hello, World!"));
-		} finally {
-			RestAssuredWebTestClient.reset();
-		}
-	}
-
-	@Test
-	public void
-	throws_iae_when_http_verb_is_not_supported_by_web_test_client() {
-		exception.expect(IllegalArgumentException.class);
-		exception.expectMessage("HTTP method 'connect' is not supported by WebTestClient");
-
-		given().standaloneSetup(new GreetingController()).request("connect", "/greeting");
-	}
+    @Test
+    public void throws_iae_when_http_verb_is_not_supported_by_web_test_client() {
+        Throwable thrown = catchThrowable(() ->
+            given().standaloneSetup(new GreetingController()).request("connect", "/greeting")
+        );
+        assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("HTTP method 'connect' is not supported by WebTestClient");
+    }
 }

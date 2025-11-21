@@ -2,7 +2,6 @@ package io.restassured.internal.support;
 
 import io.restassured.parsing.Parser;
 import org.junit.jupiter.api.BeforeEach;
-
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -10,12 +9,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PrettifierTest {
 
     private File jsonFile;
     private File xmlFile;
+    @SuppressWarnings("TextBlockMigration")
     private final String resultJson = "{\n" +
             "    \"catalog\": {\n" +
             "        \"book\": [\n" +
@@ -31,6 +31,7 @@ public class PrettifierTest {
             "    }\n" +
             "}";
 
+    @SuppressWarnings("TextBlockMigration")
     private final String resultXml = "<catalog>\n" +
             "  <book id=\"bk101\">\n" +
             "    <author>Gambardella, Matthew</author>\n" +
@@ -43,65 +44,60 @@ public class PrettifierTest {
 
 
     @BeforeEach
-    public void
-    setup() throws IOException {
+    public void setup() throws IOException {
         jsonFile = getFile("multipart.json");
         xmlFile = getFile("multipart.xml");
     }
 
     @Test
-    public void
-    jsonPrettify() {
+    public void jsonPrettify() {
         String prettify = new Prettifier().prettify(jsonFile, Parser.JSON);
 
-        assertEquals(prettify, resultJson);
+        assertThat(prettify).isEqualTo(resultJson);
     }
 
     @Test
-    public void
-    xml_prettify() {
+    public void xml_prettify() {
         String prettify = new Prettifier().prettify(xmlFile, Parser.XML);
 
-        assertEquals(prettify, resultXml);
+        assertThat(prettify).isEqualTo(resultXml);
     }
 
     @Test
-    public void
-    json_prettify() {
+    public void json_prettify() {
         String prettify = new Prettifier().prettify(jsonFile, Parser.JSON);
 
-        assertEquals(prettify, resultJson);
+        assertThat(prettify).isEqualTo(resultJson);
     }
 
     @Test
-    public void
-    empty_data() {
+    public void empty_data() {
         String prettify = new Prettifier().prettify("", Parser.XML);
 
-        assertEquals(prettify, "");
+        assertThat(prettify).isEqualTo("");
     }
 
     @Test
-    public void
-    json_string_data() throws IOException {
+    public void json_string_data() throws IOException {
         String jsonData = new String(Files.readAllBytes(Paths.get(jsonFile.getPath())));
 
         String prettify = new Prettifier().prettify(jsonData, Parser.JSON);
 
-        assertEquals(prettify, resultJson);
+        assertThat(prettify).isEqualTo(resultJson);
     }
 
     @Test
-    public void
-    xml_string_data() throws IOException {
+    public void xml_string_data() throws IOException {
         String xmlData = new String(Files.readAllBytes(Paths.get(xmlFile.getPath())));
 
         String prettify = new Prettifier().prettify(xmlData, Parser.XML);
 
-        assertEquals(prettify, resultXml);
+        assertThat(prettify).isEqualTo(resultXml);
     }
 
-    private File getFile(String path) throws IOException {
-        return new File(getClass().getClassLoader().getResource(path).getFile());
+    private File getFile(String path) {
+        var resource = getClass().getClassLoader().getResource(path);
+        if (resource == null) throw new IllegalArgumentException("Resource not found: " + path);
+        return new File(resource.getFile());
     }
 }

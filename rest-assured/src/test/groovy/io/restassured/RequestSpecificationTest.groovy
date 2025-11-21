@@ -26,67 +26,63 @@ import io.restassured.response.Response
 import io.restassured.specification.FilterableRequestSpecification
 import io.restassured.specification.FilterableResponseSpecification
 import org.junit.jupiter.api.Disabled
-import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.Test
 
 import static RestAssured.given
 import static java.util.Arrays.asList
-import static org.hamcrest.MatcherAssert.assertThat
-import static org.hamcrest.Matchers.equalTo
-import static org.hamcrest.Matchers.instanceOf
-import static org.junit.Assert.assertEquals
+import static org.assertj.core.api.Assertions.assertThat
 
 class RequestSpecificationTest {
     private static final def CONTENT_TYPE = "content-type"
     private static final def CONTENT_TYPE_TEST_VALUE = "something"
 
   @Test
-  public void allowsRemovingAllFilters() throws Exception {
-    def requestSpec = given().filter(new ExampleFilter1()).filter(new ExampleFilter2()).noFilters();
+  void allowsRemovingAllFilters() {
+    def requestSpec = given().filter(new ExampleFilter1()).filter(new ExampleFilter2()).noFilters()
 
-    assertThat(requestSpec.filters.isEmpty(), equalTo(true))
+    assertThat(requestSpec.filters).isEmpty()
   }
 
   @Test
-  public void allowsRemovingFiltersOfASpecificType() throws Exception {
-    def requestSpec = given().filters(asList(new ExampleFilter1(), new ExampleFilter2(), new ExampleFilter3())).noFiltersOfType(ExampleFilter1.class);
+  void allowsRemovingFiltersOfASpecificType() {
+    def requestSpec = given().filters(asList(new ExampleFilter1(), new ExampleFilter2(), new ExampleFilter3())).noFiltersOfType(ExampleFilter1.class)
 
-    assertThat(requestSpec.filters[0], instanceOf(ExampleFilter2.class))
-    assertThat(requestSpec.filters.size(), equalTo(1))
+    assertThat(requestSpec.filters).hasSize(1)
+    assertThat(requestSpec.filters.get(0)).isInstanceOf(ExampleFilter2.class)
   }
 
   @Test
-  public void contentTypeAsHeaderParameter() {
+  void contentTypeAsHeaderParameter() {
     def requestSpec = given().header(CONTENT_TYPE, CONTENT_TYPE_TEST_VALUE)
 
-    assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.requestHeaders.get(CONTENT_TYPE).getValue())
+    assertThat(requestSpec.requestHeaders.get(CONTENT_TYPE).getValue()).isEqualTo(CONTENT_TYPE_TEST_VALUE)
   }
 
   @Test
-  public void contentTypeAsHeaderObject() {
+  void contentTypeAsHeaderObject() {
     def header = new Header(CONTENT_TYPE, CONTENT_TYPE_TEST_VALUE)
-    def requestSpec = given().header(header);
+    def requestSpec = given().header(header)
 
-    assertEquals(header.value, requestSpec.requestHeaders.get(CONTENT_TYPE).getValue())
+    assertThat(requestSpec.requestHeaders.get(CONTENT_TYPE).getValue()).isEqualTo(header.value)
   }
 
   @Test
-  public void contentTypeInHeaderObject() {
+  void contentTypeInHeaderObject() {
     def header = new Headers(new Header(CONTENT_TYPE, CONTENT_TYPE_TEST_VALUE))
 
     def requestSpec = given().headers(header)
 
-    assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.requestHeaders.get(CONTENT_TYPE).getValue())
+    assertThat(requestSpec.requestHeaders.get(CONTENT_TYPE).getValue()).isEqualTo(CONTENT_TYPE_TEST_VALUE)
   }
 
   @Test
-  public void contentTypeInHeaderMap() {
+  void contentTypeInHeaderMap() {
       def headerMap = new TreeMap<String, String>()
       headerMap.put(CONTENT_TYPE, CONTENT_TYPE_TEST_VALUE)
 
       def requestSpec = given().headers(headerMap)
 
-      assertEquals(CONTENT_TYPE_TEST_VALUE, requestSpec.requestHeaders.get(CONTENT_TYPE).getValue())
+      assertThat(requestSpec.requestHeaders.get(CONTENT_TYPE).getValue()).isEqualTo(CONTENT_TYPE_TEST_VALUE)
   }
 
   @Disabled

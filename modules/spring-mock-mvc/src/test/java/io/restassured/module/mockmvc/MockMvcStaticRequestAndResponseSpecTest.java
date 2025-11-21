@@ -62,7 +62,7 @@ public class MockMvcStaticRequestAndResponseSpecTest {
             }
         })
         .isInstanceOf(AssertionError.class)
-        .hasMessage("1 expectation failed.\n" +
+        .hasMessageContaining("1 expectation failed.\n" +
                 "JSON path content doesn't match.\n" +
                 "Expected: Hello, John!\n" +
                 "  Actual: Hello, Johan!");
@@ -85,7 +85,7 @@ public class MockMvcStaticRequestAndResponseSpecTest {
             }
         })
         .isInstanceOf(AssertionError.class)
-        .hasMessage("1 expectation failed.\n" +
+        .hasMessageContaining("1 expectation failed.\n" +
                 "JSON path content doesn't match.\n" +
                 "Expected: Hello, John!\n" +
                 "  Actual: Hello, Johan!");

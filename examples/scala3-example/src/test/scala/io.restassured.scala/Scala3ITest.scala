@@ -17,28 +17,22 @@
 package io.restassured.scala
 
 import io.restassured.module.scala.extensions.*
-import okhttp3.mockwebserver.{MockResponse, MockWebServer}
+import mockwebserver3.junit5.StartStop
+import mockwebserver3.{MockResponse, MockWebServer}
 import org.hamcrest.CoreMatchers.containsString
-import org.junit.jupiter.api.{AfterEach, BeforeEach, Test}
+import org.junit.jupiter.api.Test
 
 class Scala3ITest:
 
-  var webServer: MockWebServer = _
-
-  @BeforeEach
-  def `Mock web server is initialized`(): Unit =
-    webServer = new MockWebServer()
-    webServer.start()
-
-  @AfterEach
-  def `Mock web server is shutdown`(): Unit =
-    webServer.shutdown()
+  @StartStop
+  val webServer: MockWebServer = new MockWebServer()
 
   @Test
   def `trying out rest assured in scala`(): Unit =
-    val response = new MockResponse
-    response.setBody(""" { "key" : "value" } """)
-    response.setHeader("content-type", "application/json")
+    val response = new MockResponse.Builder()
+      .body("""{ "key" : "value" }""")
+      .addHeader("content-type", "application/json")
+      .build()
     webServer.enqueue(response)
 
     Given(_.port(webServer.getPort))
@@ -50,9 +44,10 @@ class Scala3ITest:
 
   @Test
   def `validating a value and extrating it from the response`(): Unit =
-    val response = new MockResponse
-    response.setBody(""" { "key" : "value" } """)
-    response.setHeader("content-type", "application/json")
+    val response = new MockResponse.Builder()
+            .body("""{ "key" : "value" }""")
+            .addHeader("content-type", "application/json")
+            .build()
     webServer.enqueue(response)
 
     val value: String = Given(_.port(webServer.getPort))
@@ -67,9 +62,10 @@ class Scala3ITest:
 
   @Test
   def `extracting a value from a response`(): Unit =
-    val response = new MockResponse
-    response.setBody(""" { "key" : "value" } """)
-    response.setHeader("content-type", "application/json")
+    val response = new MockResponse.Builder()
+            .body(""" { "key" : "value" } """)
+            .addHeader("content-type", "application/json")
+            .build()
     webServer.enqueue(response)
 
     val value: String = Given(_.port(webServer.getPort))

@@ -17,9 +17,7 @@
 package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.SecuredProcessor;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
@@ -33,21 +31,18 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 
 public class SecuredRequestTest {
 
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
-
-	@Test
-	public void
-	basic_authentication_filter_is_applied() {
-		RouterFunction<ServerResponse> routerFunction = RouterFunctions
-				.route(path("/securedGreeting").and(method(HttpMethod.GET)),
-						new SecuredProcessor()::processSecuredRequest);
-		RestAssuredWebTestClient.standaloneSetup(routerFunction, basicAuthentication("test", "pass"));
-		given()
-				.when()
-				.get("/securedGreeting")
-				.then()
-				.statusCode(200)
-				.body("auth", equalTo("Basic dGVzdDpwYXNz"));
-	}
+    @Test
+    public void
+    basic_authentication_filter_is_applied() {
+        RouterFunction<ServerResponse> routerFunction = RouterFunctions
+                .route(path("/securedGreeting").and(method(HttpMethod.GET)),
+                        new SecuredProcessor()::processSecuredRequest);
+        RestAssuredWebTestClient.standaloneSetup(routerFunction, basicAuthentication("test", "pass"));
+        given()
+                .when()
+                .get("/securedGreeting")
+                .then()
+                .statusCode(200)
+                .body("auth", equalTo("Basic dGVzdDpwYXNz"));
+    }
 }

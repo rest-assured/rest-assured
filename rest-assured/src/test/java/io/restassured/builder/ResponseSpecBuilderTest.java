@@ -20,29 +20,28 @@ import io.restassured.internal.ResponseSpecificationImpl;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
 import io.restassured.specification.ResponseSpecification;
-import org.junit.Rule;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ResponseSpecBuilderTest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
-    @Test public void
-    response_spec_doesnt_throw_NPE_when_logging_all_after_creation() {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("Cannot configure logging since request specification is not defined. You may be misusing the API.");
-
-        new ResponseSpecBuilder().build().log().all(true);
+    @Test
+    @DisplayName("response_spec_doesnt_throw_NPE_when_logging_all_after_creation")
+    void response_spec_doesnt_throw_NPE_when_logging_all_after_creation() {
+        assertThatThrownBy(() -> new ResponseSpecBuilder().build().log().all(true))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessageContaining("Cannot configure logging since request specification is not defined. You may be misusing the API.");
     }
 
     @Test
-    public void responseSpecShouldContainMergedExpectations() {
+    @DisplayName("responseSpecShouldContainMergedExpectations")
+    void responseSpecShouldContainMergedExpectations() {
         ResponseSpecification originalSpec = new ResponseSpecBuilder()
                 .expectBody(equalTo("goodTestBody"))
                 .build();
@@ -56,28 +55,30 @@ public class ResponseSpecBuilderTest {
         Response badResponse = mock(Response.class);
         when(badResponse.asString()).thenReturn("badTestBody");
 
+        // Should not throw for good response
         mergedSpec.validate(goodResponse);
-        exception.expect(AssertionError.class);
-        mergedSpec.validate(badResponse);
+        // Should throw AssertionError for bad response
+        assertThatThrownBy(() -> mergedSpec.validate(badResponse))
+            .isInstanceOf(AssertionError.class);
     }
 
     @Test
-    public void responseParserShouldHandleConfiguredContentType() {
+    @DisplayName("responseParserShouldHandleConfiguredContentType")
+    void responseParserShouldHandleConfiguredContentType() {
         ResponseSpecificationImpl responseSpec = (ResponseSpecificationImpl) new ResponseSpecBuilder()
                 .registerParser("dummyContentType", Parser.HTML)
                 .build();
 
-        assertEquals(Parser.HTML,
-                responseSpec.getRpr().getParser("dummyContentType"));
+        assertThat(responseSpec.getRpr().getParser("dummyContentType")).isEqualTo(Parser.HTML);
     }
 
     @Test
-    public void defaultResponseParserShouldBeConfiguredToHandleUnrecognizedContentTypes() {
+    @DisplayName("defaultResponseParserShouldBeConfiguredToHandleUnrecognizedContentTypes")
+    void defaultResponseParserShouldBeConfiguredToHandleUnrecognizedContentTypes() {
         ResponseSpecificationImpl responseSpec = (ResponseSpecificationImpl) new ResponseSpecBuilder()
                 .setDefaultParser(Parser.HTML)
                 .build();
 
-        assertEquals(Parser.HTML,
-                responseSpec.getRpr().getParser("nonExistentContentType"));
+        assertThat(responseSpec.getRpr().getParser("nonExistentContentType")).isEqualTo(Parser.HTML);
     }
 }

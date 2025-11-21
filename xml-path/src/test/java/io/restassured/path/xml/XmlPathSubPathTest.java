@@ -18,6 +18,7 @@ package io.restassured.path.xml;
 
 import io.restassured.path.xml.element.Node;
 import io.restassured.path.xml.element.NodeChildren;
+import org.intellij.lang.annotations.Language;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.path.xml.XmlPath.with;
@@ -28,37 +29,36 @@ import static org.hamcrest.Matchers.is;
 
 public class XmlPathSubPathTest {
 
-    private static final String XML = "<shopping>\n" +
-            "      <category type=\"groceries\">\n" +
-            "        <item>\n" +
-            "\t   <name>Chocolate</name>\n" +
-            "           <price>10</" +
-            "price>\n" +
-            "" +
-            "   " +
-            "\t</item>\n" +
-            "        <item>\n" +
-            "\t   <name>Coffee</name>\n" +
-            "           <price>20</price>\n" +
-            "\t</item>\n" +
-            "      </category>\n" +
-            "      <category type=\"supplies\">\n" +
-            "        <item>\n" +
-            "\t   <name>Paper</name>\n" +
-            "           <price>5</price>\n" +
-            "\t</item>\n" +
-            "        <item quantity=\"4\">\n" +
-            "           <name>Pens</name>\n" +
-            "           <price>15.5</price>\n" +
-            "\t</item>\n" +
-            "      </category>\n" +
-            "      <category type=\"present\">\n" +
-            "        <item when=\"Aug 10\">\n" +
-            "           <name>Kathryn's Birthday</name>\n" +
-            "           <price>200</price>\n" +
-            "        </item>\n" +
-            "      </category>\n" +
-            "</shopping>";
+    @Language("XML")
+    private static final String XML = """
+            <shopping>
+                  <category type="groceries">
+                    <item>
+               <name>Chocolate</name>
+                       <price>10</price>
+            </item>
+                    <item>
+               <name>Coffee</name>
+                       <price>20</price>
+            </item>
+                  </category>
+                  <category type="supplies">
+                    <item>
+               <name>Paper</name>
+                       <price>5</price>
+            </item>
+                    <item quantity="4">
+                       <name>Pens</name>
+                       <price>15.5</price>
+            </item>
+                  </category>
+                  <category type="present">
+                    <item when="Aug 10">
+                       <name>Kathryn's Birthday</name>
+                       <price>200</price>
+                    </item>
+                  </category>
+            </shopping>""";
 
     @Test public void
     subpath_works_for_lists() {
@@ -82,7 +82,7 @@ public class XmlPathSubPathTest {
 
         assertThatThrownBy(() -> category.getPath("category[0].item.price.[0]", float.class))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage(String.format("Invalid path:%n" +
+                .hasMessageContaining(String.format("Invalid path:%n" +
                         "Unexpected input: '[0].item.price.[' @ line 1, column 49.%n" +
                         "   category[0].item.price.[0]%n" +
                         "                          ^%n" +

@@ -25,7 +25,6 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("unchecked")
 public class HttpClientConfigTest {
@@ -53,8 +52,7 @@ public class HttpClientConfigTest {
                         entry(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS),
                         entry(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
                 );
-        assertTrue(httpClientConfig.isConfiguredToReuseTheSameHttpClientInstance());
-
+        assertThat(httpClientConfig.isConfiguredToReuseTheSameHttpClientInstance()).isTrue();
     }
 
     @Test
@@ -87,8 +85,7 @@ public class HttpClientConfigTest {
                         entry(ClientPNames.MAX_REDIRECTS, CUSTOM_MAX_REDIRECTS),
                         entry(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY)
                 );
-        assertTrue(httpClientConfig.isConfiguredToReuseTheSameHttpClientInstance());
-
+        assertThat(httpClientConfig.isConfiguredToReuseTheSameHttpClientInstance()).isTrue();
     }
 
     @Test

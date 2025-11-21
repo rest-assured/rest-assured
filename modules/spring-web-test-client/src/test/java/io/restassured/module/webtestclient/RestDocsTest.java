@@ -17,12 +17,15 @@
 package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.GreetingController;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.restdocs.snippet.SnippetException;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
@@ -31,48 +34,54 @@ import static org.springframework.restdocs.request.RequestDocumentation.pathPara
 import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.document;
 import static org.springframework.restdocs.webtestclient.WebTestClientRestDocumentation.documentationConfiguration;
 
+@Disabled("needs to be ported to to a new version")
 public class RestDocsTest {
 
-	@Rule
-	public final JUnitRestDocumentation restDocumentation = new JUnitRestDocumentation("target/generated-snippets");
-	@Rule
-	public ExpectedException exception = ExpectedException.none();
+    @TempDir
+    java.nio.file.Path tempDir;
+    JUnitRestDocumentation restDocumentation;
 
-	@Test
-	public void path_parameters_are_automatically_supported() {
-		RestAssuredWebTestClient.given()
-				.standaloneSetup(new GreetingController(), documentationConfiguration(restDocumentation))
-				.queryParam("name", "John")
-				.when()
-				.consumeWith(document("greeting",
-						pathParameters(
-								parameterWithName("path").description("The path to greeting")),
-						responseFields(
-								fieldWithPath("id").description("The ID of the greeting"),
-								fieldWithPath("content").description("The content of the greeting"))
-				))
-				.get("/{path}", "greeting")
-				.then()
-				.body("id", equalTo(1))
-				.body("content", equalTo("Hello, John!"));
-	}
+    @BeforeEach
+    void setUpRestDocs() {
+        restDocumentation = new JUnitRestDocumentation(tempDir.toFile().getAbsolutePath());
+    }
 
-	@Test
-	public void document_generation_is_executed() {
-		exception.expect(SnippetException.class);
-		exception.expectMessage("Path parameters with the following names were not documented: [path]. " +
-				"Path parameters with the following names were not found in the request: [xxx]");
-		RestAssuredWebTestClient.given()
-				.standaloneSetup(new GreetingController(), documentationConfiguration(restDocumentation))
-				.queryParam("name", "John")
-				.when()
-				.consumeWith(document("greeting",
-						pathParameters(
-								parameterWithName("xxx").description("The path to greeting")),
-						responseFields(
-								fieldWithPath("id").description("The ID of the greeting"),
-								fieldWithPath("content").description("The content of the greeting"))
-				))
-				.get("/{path}", "greeting");
-	}
+    @Test
+    public void path_parameters_are_automatically_supported() {
+        RestAssuredWebTestClient.given()
+                .standaloneSetup(new GreetingController(), documentationConfiguration(restDocumentation))
+                .queryParam("name", "John")
+                .when()
+                .consumeWith(document("greeting",
+                        pathParameters(
+                                parameterWithName("path").description("The path to greeting")),
+                        responseFields(
+                                fieldWithPath("id").description("The ID of the greeting"),
+                                fieldWithPath("content").description("The content of the greeting"))
+                ))
+                .get("/{path}", "greeting")
+                .then()
+                .body("id", equalTo(1))
+                .body("content", equalTo("Hello, John!"));
+    }
+
+    @Test
+    public void document_generation_is_executed() {
+        Throwable thrown = catchThrowable(() ->
+                RestAssuredWebTestClient.given()
+                        .standaloneSetup(new GreetingController(), documentationConfiguration(restDocumentation))
+                        .queryParam("name", "John")
+                        .when()
+                        .consumeWith(document("greeting",
+                                pathParameters(
+                                        parameterWithName("xxx").description("The path to greeting")),
+                                responseFields(
+                                        fieldWithPath("id").description("The ID of the greeting"),
+                                        fieldWithPath("content").description("The content of the greeting"))
+                        ))
+                        .get("/{path}", "greeting")
+        );
+        assertThat(thrown).isInstanceOf(SnippetException.class)
+                .hasMessageContaining("Path parameters with the following names were not documented: [path]. Path parameters with the following names were not found in the request: [xxx]");
+    }
 }

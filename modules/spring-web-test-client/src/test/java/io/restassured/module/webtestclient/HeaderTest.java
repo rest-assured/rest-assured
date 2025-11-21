@@ -22,20 +22,17 @@ import io.restassured.module.webtestclient.setup.HeaderController;
 import io.restassured.module.webtestclient.setup.RedirectController;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static io.restassured.module.webtestclient.RestAssuredWebTestClient.given;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.Matchers.*;
 
 public class HeaderTest {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
 
     @BeforeAll
     public static void configureWebTestClientInstance() {
@@ -70,16 +67,16 @@ public class HeaderTest {
 
     @Test public void
     validate_may_fail_when_using_mapping_function_when_validating_header_value() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Expected header \"Content-Length\" was not a value greater than <1000>, " +
-                "was \"45\". Headers are:");
-
-        given()
+        Throwable thrown = catchThrowable(() ->
+            given()
                 .header(new Header("headerName", "200"))
                 .when()
                 .get("/header")
                 .then()
-                .header("Content-Length", Integer::parseInt, greaterThan(1000));
+                .header("Content-Length", Integer::parseInt, greaterThan(1000))
+        );
+        assertThat(thrown).isInstanceOf(AssertionError.class)
+            .hasMessageContaining("Expected header \"Content-Length\" was not a value greater than <1000>, was \"45\". Headers are:");
     }
 
     @Test public void
@@ -108,7 +105,7 @@ public class HeaderTest {
 
     @Test public void
     can_send_headers_using_map() {
-        Map<String, Object> headers = new HashMap<String, Object>();
+        Map<String, Object> headers = new HashMap<>();
         headers.put("headerName", "John Doe");
         headers.put("user-agent", "rest assured");
 
@@ -146,4 +143,3 @@ public class HeaderTest {
                 .header("Location", response -> endsWith("/redirect/" + response.path("id")));
     }
 }
-

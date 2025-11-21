@@ -19,46 +19,35 @@ package io.restassured.path.json;
 import io.restassured.path.json.config.JsonParserType;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.json.support.Greeting;
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-@RunWith(Parameterized.class)
 public class JsonPathBuiltinObjectDeserializationTest {
-    private static final String GREETING = "{ \"greeting\" : { \n" +
-            "                \"firstName\" : \"John\", \n" +
-            "                \"lastName\" : \"Doe\" \n" +
-            "               }\n" +
-            "}";
+    private static final String GREETING = """
+        { "greeting" : {
+                "firstName" : "John",
+                "lastName" : "Doe"
+               }
+        }""";
 
-    private static final String GREETINGS = "{ \"greeting\" : [{ \n" +
-            "                \"firstName\" : \"John\", \n" +
-            "                \"lastName\" : \"Doe\" \n" +
-            "                }, { \n" +
-            "                \"firstName\" : \"Tom\", \n" +
-            "                \"lastName\" : \"Smith\" \n" +
-            "               }]\n" +
-            "}";
+    private static final String GREETINGS = """
+        { "greeting" : [{
+                "firstName" : "John",
+                "lastName" : "Doe"
+                }, {
+                "firstName" : "Tom",
+                "lastName" : "Smith"
+               }]
+        }""";
 
-    private final JsonParserType parserType;
-    
-    public JsonPathBuiltinObjectDeserializationTest(JsonParserType parserType) {
-    	this.parserType = parserType;
-    }
-
-    @Parameters
-    public static JsonParserType[] data() {
-        return JsonParserType.values();
-    }
-
-    @Test public void
-    json_path_supports_buitin_deserializers() {
+    @ParameterizedTest
+    @EnumSource(JsonParserType.class)
+    public void json_path_supports_builtin_deserializers(JsonParserType parserType) {
         final JsonPath jsonPath = new JsonPath(GREETING)
-        	.using(new JsonPathConfig().defaultParserType(parserType));
+            .using(new JsonPathConfig().defaultParserType(parserType));
 
         // When
         final Greeting greeting = jsonPath.getObject("greeting", Greeting.class);
@@ -67,11 +56,12 @@ public class JsonPathBuiltinObjectDeserializationTest {
         assertThat(greeting.getFirstName(), equalTo("John"));
         assertThat(greeting.getLastName(), equalTo("Doe"));
     }
-    
-    @Test public void
-    json_path_supports_buitin_deserializers_with_arrays() {
+
+    @ParameterizedTest
+    @EnumSource(JsonParserType.class)
+    public void json_path_supports_builtin_deserializers_with_arrays(JsonParserType parserType) {
         final JsonPath jsonPath = new JsonPath(GREETINGS)
-        	.using(new JsonPathConfig().defaultParserType(parserType));
+            .using(new JsonPathConfig().defaultParserType(parserType));
 
         // When
         final Greeting[] greeting = jsonPath.getObject("greeting", Greeting[].class);
@@ -83,5 +73,4 @@ public class JsonPathBuiltinObjectDeserializationTest {
         assertThat(greeting[1].getFirstName(), equalTo("Tom"));
         assertThat(greeting[1].getLastName(), equalTo("Smith"));
     }
-
 }

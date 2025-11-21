@@ -16,18 +16,25 @@
 package io.restassured.specification;
 
 import io.restassured.builder.RequestSpecBuilder;
-import org.assertj.core.api.JUnitSoftAssertions;
-import org.junit.Rule;
+import org.assertj.core.api.SoftAssertions;
+import org.assertj.core.api.junit.jupiter.InjectSoftAssertions;
+import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
+@ExtendWith(SoftAssertionsExtension.class)
 public class SpecificationQuerierTest {
-    @Rule
-    public JUnitSoftAssertions softly = new JUnitSoftAssertions();
-
-    @Test public void
-    specification_querier_allows_querying_request_specifications() {
+    @InjectSoftAssertions
+    private SoftAssertions softly;
+    
+    @Test
+    public void specification_querier_allows_querying_request_specifications() {
         // Given
-        RequestSpecification spec = new RequestSpecBuilder().addHeader("header", "value").addCookie("cookie", "cookieValue").addParam("someparam", "somevalue").build();
+        RequestSpecification spec = new RequestSpecBuilder()
+            .addHeader("header", "value")
+            .addCookie("cookie", "cookieValue")
+            .addParam("someparam", "somevalue")
+            .build();
 
         // When
         QueryableRequestSpecification queryable = SpecificationQuerier.query(spec);
@@ -36,5 +43,6 @@ public class SpecificationQuerierTest {
         softly.assertThat(queryable.getHeaders().getValue("header")).isEqualTo("value");
         softly.assertThat(queryable.getCookies().getValue("cookie")).isEqualTo("cookieValue");
         softly.assertThat(queryable.getRequestParams().get("someparam")).isEqualTo("somevalue");
+        softly.assertAll();
     }
 }

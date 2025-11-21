@@ -17,35 +17,37 @@
 package io.restassured;
 
 import io.restassured.authentication.FormAuthConfig;
-import org.junit.Rule;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class RestAssuredTest {
 
-  @Rule public ExpectedException thrown = ExpectedException.none();
-
   @Test
+  @DisplayName("formInputNotNullNullNullOutputIllegalArgumentException")
   public void formInputNotNullNullNullOutputIllegalArgumentException() {
     // Arrange
     final String userName = "    ";
     final String password = null;
     final FormAuthConfig config = null;
     // Act
-    thrown.expect(IllegalArgumentException.class);
-    RestAssured.form(userName, password, config);
-    // Method is not expected to return due to exception thrown
+    Throwable thrown = catchThrowable(() -> RestAssured.form(userName, password, config));
+    // Assert
+    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
+  @DisplayName("formInputNullNotNullNullOutputIllegalArgumentException")
   public void formInputNullNotNullNullOutputIllegalArgumentException() {
     // Arrange
     final String userName = null;
     final String password = "";
     final FormAuthConfig config = null;
     // Act
-    thrown.expect(IllegalArgumentException.class);
-    RestAssured.form(userName, password, config);
-    // Method is not expected to return due to exception thrown
+    Throwable thrown = catchThrowable(() -> RestAssured.form(userName, password, config));
+    // Assert
+    assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
   }
 }

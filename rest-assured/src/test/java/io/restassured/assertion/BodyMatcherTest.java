@@ -9,9 +9,9 @@ import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.assertion.BodyMatcher;
 import io.restassured.response.Response;
 import org.hamcrest.core.IsEqual;
-import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,9 +20,8 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-@RunWith(Parameterized.class)
 public class BodyMatcherTest {
-    @Parameterized.Parameters
+    // Replace @Parameterized.Parameters with @MethodSource
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 {MatcherConfig.ErrorDescriptionType.REST_ASSURED, 123, "123", true, ""},
@@ -44,29 +43,16 @@ public class BodyMatcherTest {
         });
     }
 
-    private final ResponseParserRegistrar responseParserRegistrar;
+    private final ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar();
 
-    private final MatcherConfig.ErrorDescriptionType errorDescriptionType;
-    private final Object isEqualValue;
-    private final Object jsonValue;
-    private final boolean expectedSuccess;
-    private final String expectedMessage;
-
-    public BodyMatcherTest(MatcherConfig.ErrorDescriptionType errorDescriptionType,
-                           Object isEqualValue,
-                           Object jsonValue,
-                           boolean expectedSuccess,
-                           String expectedMessage) {
-        this.responseParserRegistrar = new ResponseParserRegistrar();
-        this.errorDescriptionType = errorDescriptionType;
-        this.isEqualValue = isEqualValue;
-        this.jsonValue = jsonValue;
-        this.expectedSuccess = expectedSuccess;
-        this.expectedMessage = expectedMessage;
-    }
-
-    @Test
-    public void expectedMessageFormatWithTypeDetails() {
+    @DisplayName("expectedMessageFormatWithTypeDetails")
+    @ParameterizedTest(name = "{index}: errorType={0}, isEqualValue={1}, jsonValue={2}, expectedSuccess={3}, expectedMessage={4}")
+    @MethodSource("data")
+    void expectedMessageFormatWithTypeDetails(MatcherConfig.ErrorDescriptionType errorDescriptionType,
+                                              Object isEqualValue,
+                                              Object jsonValue,
+                                              boolean expectedSuccess,
+                                              String expectedMessage) {
         final RestAssuredConfig config = RestAssuredConfig.newConfig()
                 .matcherConfig(MatcherConfig.matcherConfig()
                         .errorDescriptionType(errorDescriptionType));

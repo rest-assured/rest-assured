@@ -31,303 +31,254 @@ import io.restassured.response.Response
 import io.restassured.specification.FilterableRequestSpecification
 import io.restassured.specification.FilterableResponseSpecification
 import io.restassured.specification.RequestSpecification
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test
 
-
-import static RestAssuredConfig.newConfig
 import static io.restassured.config.RedirectConfig.redirectConfig
+import static io.restassured.config.RestAssuredConfig.newConfig
 import static io.restassured.config.SessionConfig.DEFAULT_SESSION_ID_NAME
 import static io.restassured.config.SessionConfig.sessionConfig
 import static java.util.Arrays.asList
+import static org.assertj.core.api.Assertions.assertThat
 import static org.hamcrest.Matchers.equalTo
-import static org.junit.Assert.*
 
 class SpecificationMergerTest {
 
   @Test
-  void mergesCookies() throws Exception {
+  void mergesCookies() {
     def merge = new ResponseSpecBuilder().expectCookie("first", "value1").build()
     def with = new ResponseSpecBuilder().expectCookie("second", "value2").build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals merge.cookieAssertions.size(), 2
+    assertThat(merge.cookieAssertions.size()).isEqualTo(2)
   }
 
   @Test
-  void mergesHeaders() throws Exception {
+  void mergesHeaders() {
     def merge = new ResponseSpecBuilder().expectHeader("first", "value1").build()
     def with = new ResponseSpecBuilder().expectHeader("second", "value2").build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals merge.headerAssertions.size(), 2
+    assertThat(merge.headerAssertions.size()).isEqualTo(2)
   }
 
   @Test
-  void mergesBodyMatchers() throws Exception {
+  void mergesBodyMatchers() {
     def merge = new ResponseSpecBuilder().expectBody("first", equalTo("value1")).build()
     def with = new ResponseSpecBuilder().expectBody("second", equalTo("value2")).build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals merge.bodyMatchers.size(), 2
+    assertThat(merge.bodyMatchers.size()).isEqualTo(2)
   }
 
   @Test
-  void mergesFilters() throws Exception {
+  void mergesFilters() {
     def merge = new RequestSpecBuilder().addFilter(newFilter()).addFilter(newFilter()).build()
     def with = new RequestSpecBuilder().addFilter(newFilter()).addFilters(asList(newFilter(), newFilter())).build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals merge.filters.size(), 5
+    assertThat(merge.filters.size()).isEqualTo(5)
   }
 
-
   @Test
-  void sameFilterNotAddedTwice() throws Exception {
+  void sameFilterNotAddedTwice() {
     Filter filter = newFilter()
     def merge = new RequestSpecBuilder().addFilter(filter).build()
     def with = new RequestSpecBuilder().addFilter(filter).build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals 1, merge.filters.size
+    assertThat(merge.getDefinedFilters().size()).isEqualTo(1)
   }
 
   @Test
-  void overwritesContentType() throws Exception {
+  void overwritesContentType() {
     def merge = new ResponseSpecBuilder().expectContentType(ContentType.ANY).build()
     def with = new ResponseSpecBuilder().expectContentType(ContentType.BINARY).build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals merge.contentType, ContentType.BINARY
+    assertThat(merge.contentType).isEqualTo(ContentType.BINARY)
   }
 
   @Test
-  void overwritesRootPath() throws Exception {
+  void overwritesRootPath() {
     def merge = new ResponseSpecBuilder().rootPath("rootPath").build()
     def with = new ResponseSpecBuilder().rootPath("new.").build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals merge.bodyRootPath, "new."
+    assertThat(merge.bodyRootPath).isEqualTo("new.")
   }
 
   @Test
-  void overwritesStatusCode() throws Exception {
+  void overwritesStatusCode() {
     def merge = new ResponseSpecBuilder().expectStatusCode(200).build()
     def with = new ResponseSpecBuilder().expectStatusCode(400).build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertTrue merge.expectedStatusCode.matches(400)
+    assertThat(merge.expectedStatusCode.matches(400)).isTrue()
   }
 
   @Test
-  void overwritesStatusLine() throws Exception {
+  void overwritesStatusLine() {
     def merge = new ResponseSpecBuilder().expectStatusLine("something").build()
     def with = new ResponseSpecBuilder().expectStatusLine("something else").build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertTrue merge.expectedStatusLine.matches("something else")
+    assertThat(merge.expectedStatusLine.matches("something else")).isTrue()
   }
 
   @Test
-  void overwritesUrlEncodingStatus() throws Exception {
+  void overwritesUrlEncodingStatus() {
     def merge = new RequestSpecBuilder().setUrlEncodingEnabled(true).build()
     def with = new RequestSpecBuilder().setUrlEncodingEnabled(false).build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertFalse merge.urlEncodingEnabled
+    assertThat(merge.urlEncodingEnabled).isFalse()
   }
 
   @Test
-  void mergesMultiPartParams() throws Exception {
+  void mergesMultiPartParams() {
     def merge = new RequestSpecBuilder().addMultiPart("controlName1", "fileName1", new byte[0]).build()
     def with = new RequestSpecBuilder().addMultiPart("controlName2", "fileName2", new byte[0]).build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertTrue merge.multiParts.size == 2
+    assertThat(merge.multiParts.size()).isEqualTo(2)
   }
 
-
   @Test
-  void mergesResponseParsers() throws Exception {
+  void mergesResponseParsers() {
     def merge = new ResponseSpecBuilder().registerParser("some/xml", Parser.XML).build()
     def with = new ResponseSpecBuilder().registerParser("some/json", Parser.JSON).build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertTrue merge.rpr.hasCustomParser("some/xml")
-    assertTrue merge.rpr.hasCustomParser("some/json")
+    assertThat(merge.rpr.hasCustomParser("some/xml")).isTrue()
+    assertThat(merge.rpr.hasCustomParser("some/json")).isTrue()
   }
 
   @Test
-  void overwritesDefaultParser() throws Exception {
+  void overwritesDefaultParser() {
     def merge = new ResponseSpecBuilder().setDefaultParser(Parser.XML).build()
     def with = new ResponseSpecBuilder().setDefaultParser(Parser.JSON).build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals Parser.JSON, merge.rpr.defaultParser
+    assertThat(merge.rpr.defaultParser).isEqualTo(Parser.JSON)
   }
 
   @Test
-  void overwritesLogDetail() throws Exception {
+  void overwritesLogDetail() {
     def merge = new ResponseSpecBuilder().log(LogDetail.COOKIES).build()
     def with = new ResponseSpecBuilder().log(LogDetail.URI).build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals LogDetail.URI, merge.getLogDetail()
+    assertThat(merge.getLogDetail()).isEqualTo(LogDetail.URI)
   }
 
   @Test
-  void authFiltersAreOverwritten() throws Exception {
+  void authFiltersAreOverwritten() {
     def merge = new RequestSpecBuilder().addFilter(new FormAuthFilter()).build()
     def with = new RequestSpecBuilder().addFilter(new FormAuthFilter()).build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals 1, merge.filters.size()
+    assertThat(merge.filters.size()).isEqualTo(1)
   }
 
   @Test
-  void authFiltersAreRemovedIfMergedSpecContainsExplicitNoAuth() throws Exception {
+  void authFiltersAreRemovedIfMergedSpecContainsExplicitNoAuth() {
     def merge = new RequestSpecBuilder().addFilter(new FormAuthFilter()).build()
     def with = new RequestSpecBuilder().setAuth(new ExplicitNoAuthScheme()).build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals 0, merge.filters.size()
+    assertThat(merge.filters.size()).isEqualTo(0)
   }
 
   @Test
-  void restAssuredConfigurationIsOverwritten() throws Exception {
+  void restAssuredConfigurationIsOverwritten() {
     def merge = new RequestSpecBuilder().setConfig(new RestAssuredConfig()).build()
     def with = new RequestSpecBuilder().setConfig(newConfig().redirect(redirectConfig().allowCircularRedirects(false))).build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertFalse merge.restAssuredConfig.getRedirectConfig().allowsCircularRedirects()
+    assertThat(merge.restAssuredConfig.getRedirectConfig().allowsCircularRedirects()).isFalse()
   }
 
   @Test
-  void mergesRequestCookies() throws Exception {
+  void mergesRequestCookies() {
     def merge = new RequestSpecBuilder().addCookie("first", "value1").build()
     def with = new RequestSpecBuilder().addCookie("second", "value2").build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals merge.cookies.size(), 2
+    assertThat(merge.cookies.size()).isEqualTo(2)
   }
 
   @Test
-  void overwritesSessionId() throws Exception {
+  void overwritesSessionId() {
     def merge = new RequestSpecBuilder().setSessionId("value1").build()
     def with = new RequestSpecBuilder().setSessionId("value2").build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals merge.cookies.get(DEFAULT_SESSION_ID_NAME).getValue(), "value2"
+    assertThat(merge.cookies.get(DEFAULT_SESSION_ID_NAME).getValue()).isEqualTo("value2")
   }
 
   @Test
-  void overwritesSessionIdWhenMergingMultipleTimes() throws Exception {
+  void overwritesSessionIdWhenMergingMultipleTimes() {
     def merge = new RequestSpecBuilder().setSessionId("value1").build()
     def with1 = new RequestSpecBuilder().setSessionId("value2").build()
     def with2 = new RequestSpecBuilder().setSessionId("value3").build()
-
     SpecificationMerger.merge(merge, with1)
-    assertEquals merge.cookies.get(DEFAULT_SESSION_ID_NAME).getValue(), "value2"
-
+    assertThat(merge.cookies.get(DEFAULT_SESSION_ID_NAME).getValue()).isEqualTo("value2")
     SpecificationMerger.merge(merge, with2)
-    assertEquals merge.cookies.get(DEFAULT_SESSION_ID_NAME).getValue(), "value3"
+    assertThat(merge.cookies.get(DEFAULT_SESSION_ID_NAME).getValue()).isEqualTo("value3")
   }
 
   @Test
-  void overwritesSessionIdWhenDefinedInConfig() throws Exception {
+  void overwritesSessionIdWhenDefinedInConfig() {
     def merge = new RequestSpecBuilder().setConfig(newConfig().sessionConfig(sessionConfig().sessionIdName("ikk"))).setSessionId("ikk", "value1").build()
     def with = new RequestSpecBuilder().setConfig(newConfig().sessionConfig(sessionConfig().sessionIdName("ikk2"))).setSessionId("ikk2", "value2").build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals merge.cookies.hasCookieWithName("ikk"), false
-    assertEquals merge.cookies.get("ikk2").getValue(), "value2"
+    assertThat(merge.cookies.hasCookieWithName("ikk")).isFalse()
+    assertThat(merge.cookies.get("ikk2").getValue()).isEqualTo("value2")
   }
 
   @Test
-  void copiesSessionIdWhenFirstRequestSpecBuilderDoesntHaveASessionIdSpecified() throws Exception {
+  void copiesSessionIdWhenFirstRequestSpecBuilderDoesntHaveASessionIdSpecified() {
     def merge = new RequestSpecBuilder().build()
     def with = new RequestSpecBuilder().setConfig(newConfig().sessionConfig(sessionConfig().sessionIdName("ikk2"))).setSessionId("ikk2", "value2").build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals merge.cookies.get("ikk2").getValue(), "value2"
+    assertThat(merge.cookies.get("ikk2").getValue()).isEqualTo("value2")
   }
 
   @Test
-  void doesntOverwriteSessionIdFromMergingSpecWhenItDoesntHaveASessionIdSpecified() throws Exception {
+  void doesntOverwriteSessionIdFromMergingSpecWhenItDoesntHaveASessionIdSpecified() {
     def merge = new RequestSpecBuilder().setConfig(newConfig().sessionConfig(sessionConfig().sessionIdName("ikk2"))).setSessionId("ikk2", "value2").build()
     def with = new RequestSpecBuilder().build()
-
     SpecificationMerger.merge(merge, with)
-
-    assertEquals merge.cookies.get("ikk2").getValue(), "value2"
+    assertThat(merge.cookies.get("ikk2").getValue()).isEqualTo("value2")
   }
 
   @Test
-  void mergeRequestSpecsOverrideBaseUri() throws Exception {
+  void mergeRequestSpecsOverrideBaseUri() {
     RequestSpecification merge = new RequestSpecBuilder().setBaseUri("http://www.exampleSpec.com").build()
     RequestSpecification with = new RequestSpecBuilder().setBaseUri("http://www.exampleSpec2.com").build()
     SpecificationMerger.merge(merge, with)
-    assertEquals "http://www.exampleSpec2.com", merge.getProperties().get("baseUri")
+    assertThat(merge.getProperties().get("baseUri")).isEqualTo("http://www.exampleSpec2.com")
   }
 
   @Test
-  void mergeRequestSpecsOverrideBasePath() throws Exception {
+  void mergeRequestSpecsOverrideBasePath() {
     RequestSpecification merge = new RequestSpecBuilder().setBasePath("http://www.exampleSpec.com").build()
     RequestSpecification with = new RequestSpecBuilder().setBasePath("http://www.exampleSpec2.com").build()
     SpecificationMerger.merge(merge, with)
-    assertEquals "http://www.exampleSpec2.com", merge.getProperties().get("basePath")
+    assertThat(merge.getProperties().get("basePath")).isEqualTo("http://www.exampleSpec2.com")
   }
 
   @Test
-  void mergeRequestSpecsOverrideProxySpecification() throws Exception {
+  void mergeRequestSpecsOverrideProxySpecification() {
     RequestSpecification merge = new RequestSpecBuilder().setProxy("127.0.0.1").build()
     RequestSpecification with = new RequestSpecBuilder().setProxy("localhost").build()
     SpecificationMerger.merge(merge, with)
-    assertEquals "localhost", merge.proxySpecification.host
+    assertThat(merge.proxySpecification.host).isEqualTo("localhost")
   }
 
   @Test
-  void mergeRequestSpecsOverrideAllowContentType() throws Exception {
+  void mergeRequestSpecsOverrideAllowContentType() {
     RequestSpecification merge = new RequestSpecBuilder().setContentType("content-type").build()
     RequestSpecification with = new RequestSpecBuilder().noContentType().build()
     SpecificationMerger.merge(merge, with)
-    assertFalse merge.allowContentType
+    assertThat(merge.allowContentType).isFalse()
   }
 
   @Test
-  void mergeRequestSpecsOverrideAddCsrfFilter() throws Exception {
+  void mergeRequestSpecsOverrideAddCsrfFilter() {
     RequestSpecification merge = new RequestSpecBuilder().build()
     RequestSpecification with = new RequestSpecBuilder().disableCsrf().build()
     SpecificationMerger.merge(merge, with)
-    assertFalse merge.addCsrfFilter
+    assertThat(merge.addCsrfFilter).isFalse()
   }
 
   @Test
-  void mergeRequestSpecsOverrideContentTypeWhenDisallowContentTypeOnOriginal() throws Exception {
+  void mergeRequestSpecsOverrideContentTypeWhenDisallowContentTypeOnOriginal() {
     RequestSpecification merge = new RequestSpecBuilder().noContentType().build()
     RequestSpecification with = new RequestSpecBuilder().setContentType("content-type").build()
     SpecificationMerger.merge(merge, with)
-    assertTrue merge.allowContentType
+    assertThat(merge.allowContentType).isTrue()
   }
 
   private Filter newFilter() {

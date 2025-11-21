@@ -26,6 +26,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -202,7 +203,7 @@ public class ResponseSpecBuilderExpectationsTest {
         when(response.getContentType()).thenReturn("application/json");
         when(response.contentType()).thenReturn("application/json");
         when(response.asString()).thenReturn(body);
-        when(response.asInputStream()).thenReturn(IOUtils.toInputStream(body));
+        when(response.asInputStream()).thenReturn(IOUtils.toInputStream(body, StandardCharsets.UTF_8));
         return response;
     }
 

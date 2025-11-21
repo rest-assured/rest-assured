@@ -16,7 +16,8 @@
 
 package io.restassured.specification;
 
-import org.junit.Assert;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.jupiter.api.Test;
 
 public class ArgumentTest {
@@ -29,6 +30,6 @@ public class ArgumentTest {
     // Act
     final boolean retval = objectUnderTest.equals(o);
     // Assert result
-    Assert.assertEquals(false, retval);
+    assertThat(retval).isFalse();
   }
 }

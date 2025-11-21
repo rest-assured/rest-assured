@@ -75,14 +75,15 @@ class ResponseSpecificationImplTest {
     void "Should call custom failure listener when validation fails"() {
         //given
       ResponseValidationFailureListener customListener = mock(ResponseValidationFailureListener)
-        ResponseSpecificationImpl respSpecImpl = createRespSpec(UNEXPECTED_BODY, System.out, customListener)
-        Response matchingResponse = when(mock(Response).asString()).thenReturn(UNEXPECTED_BODY).getMock()
-        //when
-        try {
-            respSpecImpl.validate(matchingResponse)
-        } catch (AssertionError ignored) {}
-        //then
-        verify(customListener, times(1)).onFailure(any(RequestSpecification.class), same(respSpecImpl), same(matchingResponse))
+      ResponseSpecificationImpl respSpecImpl = createRespSpec(UNEXPECTED_BODY, System.out, customListener)
+      Response matchingResponse = when(mock(Response).asString()).thenReturn(UNEXPECTED_BODY).getMock()
+      //when
+      try {
+        respSpecImpl.validate(matchingResponse)
+        fail("Expected assertion error")
+      } catch (AssertionError ignored) {}
+      //then
+      verify(customListener, times(1)).onFailure(nullable(RequestSpecification.class), same(respSpecImpl), same(matchingResponse))
     }
 
     @Test

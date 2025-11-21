@@ -1,19 +1,18 @@
 /*
- * Copyright (c) [j]karef GmbH year .
+ * Copyright (c) [j]karef GmbA year .
  */
 
 package io.restassured.internal.mapping
 
 import io.restassured.mapper.ObjectMapperSerializationContext
 import io.restassured.path.json.mapper.factory.JsonbObjectMapperFactory
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.BeforeEach
 
 import javax.json.bind.JsonbBuilder
 
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertNotNull
+import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
 
@@ -38,8 +37,8 @@ class JsonbMapperTest {
 
         verifyMocks()
 
-        assertNotNull(result)
-        assertEquals("\"hello world\"", result)
+        assertThat(result).isNotNull()
+        assertThat(result).isEqualTo('"hello world"')
 
         resetMocks()
     }
@@ -52,8 +51,8 @@ class JsonbMapperTest {
 
         verifyMocks()
 
-        assertNotNull(result)
-        assertEquals("null", result)
+        assertThat(result).isNotNull()
+        assertThat(result).isEqualTo('null')
 
         resetMocks()
     }
@@ -67,8 +66,8 @@ class JsonbMapperTest {
 
         verifyMocks()
 
-        assertNotNull(result)
-        assertEquals("{}", result)
+        assertThat(result).isNotNull()
+        assertThat(result).isEqualTo('{}')
 
         resetMocks()
     }
@@ -82,8 +81,8 @@ class JsonbMapperTest {
 
         verifyMocks()
 
-        assertNotNull(result)
-        assertEquals("[\"a\",\"b\",\"c\"]", result)
+        assertThat(result).isNotNull()
+        assertThat(result).isEqualTo('["a","b","c"]')
 
         resetMocks()
     }
@@ -97,8 +96,8 @@ class JsonbMapperTest {
 
         verifyMocks()
 
-        assertNotNull(result)
-        assertEquals("{}", result)
+        assertThat(result).isNotNull()
+        assertThat(result).isEqualTo('{}')
 
         resetMocks()
     }

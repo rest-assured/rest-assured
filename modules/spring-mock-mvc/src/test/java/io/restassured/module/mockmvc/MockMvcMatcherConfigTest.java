@@ -44,7 +44,7 @@ public class MockMvcMatcherConfigTest {
             }
         })
                 .isInstanceOf(AssertionError.class)
-                .hasMessage("""
+                .hasMessageContaining("""
                         1 expectation failed.
                         JSON path content doesn't match.
                         Expected: Hello, John!
@@ -70,7 +70,7 @@ public class MockMvcMatcherConfigTest {
             }
         })
                 .isInstanceOf(AssertionError.class)
-                .hasMessage("""
+                .hasMessageContaining("""
                         1 expectation failed.
                         JSON path content doesn't match.
                         

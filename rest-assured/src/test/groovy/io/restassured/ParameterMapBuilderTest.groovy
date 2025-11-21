@@ -21,7 +21,7 @@ package io.restassured
 import io.restassured.authentication.NoAuthScheme
 import io.restassured.internal.RequestSpecificationImpl
 import io.restassured.internal.log.LogRepository
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.BeforeEach
 
@@ -29,14 +29,13 @@ import static io.restassured.RestAssured.withArgs
 import static org.assertj.core.api.Assertions.assertThat
 import static org.assertj.core.api.Assertions.catchThrowable
 import static org.hamcrest.Matchers.equalTo
-import static org.junit.Assert.assertEquals
 
 class ParameterMapBuilderTest {
-  private RequestSpecificationImpl requestBuilder;
+  private RequestSpecificationImpl requestBuilder
 
   @BeforeEach
   void setup() throws Exception {
-    requestBuilder = new RequestSpecificationImpl("baseURI", 20, "", new NoAuthScheme(), [], null, true, null, new LogRepository(), null, true, true);
+    requestBuilder = new RequestSpecificationImpl("baseURI", 20, "", new NoAuthScheme(), [], null, true, null, new LogRepository(), null, true, true)
   }
 
   @Test
@@ -60,42 +59,41 @@ class ParameterMapBuilderTest {
 
   @Test
   void mapBuildsAMapBasedOnTheSuppliedKeysAndValues() throws Exception {
-    def map = requestBuilder.params("key1", "value1", "key2", "value2").requestParameters;
-
-    assertEquals 2, map.size()
-    assertEquals "value1", map.get("key1")
-    assertEquals "value2", map.get("key2")
+    def map = requestBuilder.params("key1", "value1", "key2", "value2").requestParameters
+    assertThat(map).hasSize(2)
+    assertThat(map['key1']).isEqualTo("value1")
+    assertThat(map['key2']).isEqualTo("value2")
   }
 
   @Test
   void removesParamOnRemoveParamMethod() throws Exception {
-    requestBuilder.params("key1", "value1");
+    requestBuilder.params("key1", "value1")
     def map = requestBuilder.removeParam("key1").requestParameters
 
-    assertEquals 0, map.size()
+    assertThat(map).hasSize(0)
   }
 
   @Test
   void removesQueryParamOnRemoveQueryParamMethod() throws Exception {
-    requestBuilder.queryParams("key1", "value1");
+    requestBuilder.queryParams("key1", "value1")
     def map = requestBuilder.removeQueryParam("key1").queryParameters
 
-    assertEquals 0, map.size()
+    assertThat(map).hasSize(0)
   }
 
   @Test
   void removesFormParamOnRemoveFormParamMethod() throws Exception {
-    requestBuilder.queryParams("key1", "value1");
+    requestBuilder.queryParams("key1", "value1")
     def map = requestBuilder.removeFormParam("key1").formParameters
 
-    assertEquals 0, map.size()
+    assertThat(map).hasSize(0)
   }
 
   @Test
   void removesPathParamOnRemoveFormPathMethod() throws Exception {
-    requestBuilder.pathParams("key1", "value1");
+    requestBuilder.pathParams("key1", "value1")
     def map = requestBuilder.removePathParam("key1").namedPathParameters
 
-    assertEquals 0, map.size()
+    assertThat(map).hasSize(0)
   }
 }

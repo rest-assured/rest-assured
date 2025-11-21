@@ -20,62 +20,55 @@ import io.restassured.internal.ResponseSpecificationImpl;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.withArgs;
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResponseSpecBuilderPathTest {
     @Test
     public void rootPathShouldBeSet() {
-        assertEquals("lotto", (
-                (ResponseSpecificationImpl) new ResponseSpecBuilder()
+        assertThat(((ResponseSpecificationImpl) new ResponseSpecBuilder()
                 .rootPath("lotto")
-                .build()).getRootPath());
+                .build()).getRootPath()).isEqualTo("lotto");
     }
 
     @Test
     public void rootPathShouldOverwritePreviousRootPath() {
-        assertEquals("lotto", (
-                (ResponseSpecificationImpl) new ResponseSpecBuilder()
+        assertThat(((ResponseSpecificationImpl) new ResponseSpecBuilder()
                 .rootPath("nonExistentPath").rootPath("lotto")
-                .build()).getRootPath());
+                .build()).getRootPath()).isEqualTo("lotto");
     }
 
     @Test
     public void rootPathWithArgumentsShouldBeEvaluatedAndSet() {
-        assertEquals("lotto.winners[1]", (
-                (ResponseSpecificationImpl) new ResponseSpecBuilder()
+        assertThat(((ResponseSpecificationImpl) new ResponseSpecBuilder()
                 .rootPath("lotto.winners[%d]", withArgs(1))
-                .build()).getRootPath());
+                .build()).getRootPath()).isEqualTo("lotto.winners[1]");
     }
 
     @Test
     public void rootPathToAppendShouldBeAppendedToPreviousRootPath() {
-        assertEquals("lotto.winners[1]", (
-                (ResponseSpecificationImpl) new ResponseSpecBuilder()
+        assertThat(((ResponseSpecificationImpl) new ResponseSpecBuilder()
                 .rootPath("lotto").appendRootPath("winners[1]")
-                .build()).getRootPath());
+                .build()).getRootPath()).isEqualTo("lotto.winners[1]");
     }
 
     @Test
     public void rootPathWithArgumentsToAppendShouldBeAppendedToPreviousRootPath() {
-        assertEquals("lotto.winners[1]", (
-                (ResponseSpecificationImpl) new ResponseSpecBuilder()
+        assertThat(((ResponseSpecificationImpl) new ResponseSpecBuilder()
                 .rootPath("lotto").appendRootPath("winners[%d]", withArgs(1))
-                .build()).getRootPath());
+                .build()).getRootPath()).isEqualTo("lotto.winners[1]");
     }
 
     @Test
     public void rootPathShouldBeReset() {
-        assertEquals("", (
-                (ResponseSpecificationImpl) new ResponseSpecBuilder()
+        assertThat(((ResponseSpecificationImpl) new ResponseSpecBuilder()
                 .rootPath("lotto.winners[1]").noRootPath()
-                .build()).getRootPath());
+                .build()).getRootPath()).isEqualTo("");
     }
 
     @Test
     public void rootPathShouldBeDetached() {
-        assertEquals("lotto", (
-                (ResponseSpecificationImpl) new ResponseSpecBuilder()
+        assertThat(((ResponseSpecificationImpl) new ResponseSpecBuilder()
                 .rootPath("lotto.winners[1]").detachRootPath("winners[1]")
-                .build()).getRootPath());
+                .build()).getRootPath()).isEqualTo("lotto");
     }
 }

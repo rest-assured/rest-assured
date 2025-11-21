@@ -19,19 +19,11 @@ package io.restassured.builder;
 import io.restassured.RestAssured;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.internal.RequestSpecificationImpl;
-import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RequestSpecBuilderTest {
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
-
-
     @Test public void
     request_spec_doesnt_throw_NPE_when_logging_after_creation() {
         new RequestSpecBuilder().build().log().all(true);
@@ -43,7 +35,7 @@ public class RequestSpecBuilderTest {
         try {
             RequestSpecBuilder builder = new RequestSpecBuilder();
             RequestSpecificationImpl spec = (RequestSpecificationImpl) builder.build();
-            Assert.assertThat(spec.getDefinedFilters(), hasSize(1));
+            assertThat(spec.getDefinedFilters()).hasSize(1);
         } finally {
             RestAssured.reset();
         }
@@ -57,7 +49,7 @@ public class RequestSpecBuilderTest {
         try {
             RequestSpecBuilder builder = new RequestSpecBuilder();
             RequestSpecificationImpl spec = (RequestSpecificationImpl) builder.build();
-            Assert.assertThat(spec.getHeaders().getValue("hello"), equalTo("world"));
+            assertThat(spec.getHeaders().getValue("hello")).isEqualTo("world");
         } finally {
             RestAssured.reset();
         }

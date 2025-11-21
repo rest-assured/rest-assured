@@ -23,13 +23,17 @@ import io.restassured.module.mockmvc.RestAssuredMockMvc;
 import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.path.json.JsonPath;
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -40,11 +44,13 @@ import static io.restassured.RestAssured.withArgs;
 import static io.restassured.config.MultiPartConfig.multiPartConfig;
 import static io.restassured.http.Method.POST;
 import static io.restassured.http.Method.PUT;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = MainConfiguration.class)
 @WebAppConfiguration
 public class MultiPartFileUploadITest {
@@ -71,7 +77,7 @@ public class MultiPartFileUploadITest {
     public void file_uploading_works(Method method) throws Exception {
         Path tempFile = Files.createTempFile("something", null);
         File file = tempFile.toFile();
-        IOUtils.write("Something21", new FileOutputStream(file));
+        IOUtils.write("Something21", new FileOutputStream(file), UTF_8);
 
         RestAssuredMockMvc.given().
                 multiPart(file).
@@ -87,7 +93,7 @@ public class MultiPartFileUploadITest {
     public void input_stream_uploading_works(Method method) throws Exception {
         Path tempFile = Files.createTempFile("something", null);
         File file = tempFile.toFile();
-        IOUtils.write("Something21", new FileOutputStream(file));
+        IOUtils.write("Something21", new FileOutputStream(file), UTF_8);
 
         RestAssuredMockMvc.given().
                 multiPart("controlName", "original", new FileInputStream(file)).
@@ -133,7 +139,7 @@ public class MultiPartFileUploadITest {
     public void multiple_uploads_works(Method method) throws Exception {
         Path tempFile = Files.createTempFile("something", null);
         File file = tempFile.toFile();
-        IOUtils.write("Something3210", new FileOutputStream(file));
+        IOUtils.write("Something3210", new FileOutputStream(file), UTF_8);
 
         RestAssuredMockMvc.given().
                 multiPart("controlName1", "original1", "something123".getBytes(), "mime-type1").
@@ -159,7 +165,7 @@ public class MultiPartFileUploadITest {
     public void object_serialization_works(Method method) throws Exception {
         Path tempFile = Files.createTempFile("something", null);
         File file = tempFile.toFile();
-        IOUtils.write("Something3210", new FileOutputStream(file));
+        IOUtils.write("Something3210", new FileOutputStream(file), UTF_8);
 
         Greeting greeting = new Greeting();
         greeting.setFirstName("John");
@@ -175,7 +181,7 @@ public class MultiPartFileUploadITest {
                 rootPath("[%d]").
                 body("size", withArgs(0), is(13)).
                 body("name", withArgs(0), equalTo("controlName1")).
-                body("originalName", withArgs(0), equalTo("something")).
+                body("originalName", withArgs(0), equalTo(tempFile.getFileName().toString())).
                 body("mimeType", withArgs(0), equalTo("mime-type1")).
                 body("content", withArgs(0), equalTo("Something3210")).
                 body("size", withArgs(1), greaterThan(10)).
@@ -225,7 +231,7 @@ public class MultiPartFileUploadITest {
         then().
                 body("size", greaterThan(10)).
                 body("name", equalTo("something")).
-                body("originalName", equalTo("filename.txt"));
+                body("originalName", equalTo(tempFile.getFileName().toString()));
     }
 
     @ParameterizedTest
@@ -244,7 +250,7 @@ public class MultiPartFileUploadITest {
         then().
                 body("size", greaterThan(10)).
                 body("name", equalTo("something")).
-                body("originalName", equalTo("filename.txt"));
+                body("originalName", equalTo(tempFile.getFileName().toString()));
     }
 
     @ParameterizedTest
@@ -320,7 +326,7 @@ public class MultiPartFileUploadITest {
                 statusCode(200).
                 body("size", greaterThan(10),
                      "name", equalTo("something"),
-                     "originalName", equalTo("filename.txt")).
+                     "originalName", equalTo(tempFile.getFileName().toString())).
                 header("X-Request-Header", startsWith("multipart/mixed"));
     }
 
@@ -329,7 +335,7 @@ public class MultiPartFileUploadITest {
     public void explicit_multi_part_content_type_has_precedence_over_default_subtype(Method method) throws Exception {
         Path tempFile = Files.createTempFile("filename", ".txt");
         File file = tempFile.toFile();
-        IOUtils.write("Something21", new FileOutputStream(file));
+        IOUtils.write("Something21", new FileOutputStream(file), UTF_8);
 
        RestAssuredMockMvc.given().
                config(RestAssuredMockMvcConfig.config().multiPartConfig(multiPartConfig().defaultSubtype("form-data"))).
@@ -341,7 +347,7 @@ public class MultiPartFileUploadITest {
                statusCode(200).
                body("size", greaterThan(10),
                     "name", equalTo("something"),
-                    "originalName", equalTo("filename.txt")).
+                    "originalName", equalTo(tempFile.getFileName().toString())).
                header("X-Request-Header", startsWith("multipart/mixed"));
     }
 }

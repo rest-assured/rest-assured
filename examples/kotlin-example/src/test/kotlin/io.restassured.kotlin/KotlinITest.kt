@@ -20,30 +20,26 @@ import io.restassured.RestAssured
 import io.restassured.module.kotlin.extensions.Extract
 import io.restassured.module.kotlin.extensions.Then
 import io.restassured.module.kotlin.extensions.When
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
+import mockwebserver3.MockResponse
+import mockwebserver3.MockWebServer
+import mockwebserver3.junit5.StartStop
 import org.hamcrest.Matchers.*
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
-
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
 class KotlinITest {
-
-    lateinit var webServer: MockWebServer
+    @StartStop
+    var webServer: MockWebServer = MockWebServer()
 
     @BeforeEach
-    fun `mock web server is started`() {
-        webServer = MockWebServer()
-        webServer.start()
-
+    fun `configure rest assured`() {
         RestAssured.port = webServer.port
     }
 
     @AfterEach
-    fun `shutdown webserver after each test`() {
-        webServer.shutdown()
+    fun `reset rest assured`() {
         RestAssured.reset()
     }
 
@@ -112,9 +108,7 @@ class KotlinITest {
     }
 
     private fun givenServerWillReturnJson(jsonString: String) {
-        val response = MockResponse()
-        response.setBody(jsonString)
-        response.setHeader("content-type", "application/json")
+        val response = MockResponse.Builder().body(jsonString).setHeader("content-type", "application/json").build()
         webServer.enqueue(response)
     }
 }
