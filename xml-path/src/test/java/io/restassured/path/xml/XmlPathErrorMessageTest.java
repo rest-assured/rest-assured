@@ -62,7 +62,7 @@ public class XmlPathErrorMessageTest {
     error_messages_on_invalid_subpath_looks_ok_when_received_node_is_not_root() {
         assertThatThrownBy(() -> {
             Node firstCategory = with(XML).get("shopping.category[0]");
-            firstCategory.getPath("item.price.[0]", float.class);
+            firstCategory.getPath("item.price..[0]", float.class);
         }).isExactlyInstanceOf(IllegalArgumentException.class)
                 .hasMessage(String.format("Invalid path:%n" +
                         "Unexpected input: 'item.price.[' @ line 1, column 37.%n" +
@@ -77,7 +77,7 @@ public class XmlPathErrorMessageTest {
     error_messages_on_invalid_subpath_with_root_name_less_than_six_characters_looks_ok() {
         assertThatThrownBy(() -> {
             Node category = with(XML.replace("shopping", "some")).get("some");
-            category.getPath("category[0].item.price.[0]", float.class);
+            category.getPath("category[0].item.price..[0]", float.class);
         }).isExactlyInstanceOf(IllegalArgumentException.class)
                 .hasMessage(String.format("Invalid path:%n" +
                         "Unexpected input: '[0].item.price.[' @ line 1, column 49.%n" +
@@ -91,9 +91,8 @@ public class XmlPathErrorMessageTest {
     @Test
     public void
     error_messages_on_invalid_path_looks_ok() {
-        assertThatThrownBy(() -> {
-            with(XML).get("shopping.[0]");
-        }).isExactlyInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> with(XML).get("shopping..[0]"))
+                .isExactlyInstanceOf(IllegalArgumentException.class)
                 .hasMessage(String.format("Invalid path:%n" +
                         "Unexpected input: 'shopping.[' @ line 1, column 26.%n" +
                         "   shopping.[0]%n" +

@@ -55,7 +55,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <scm.branch>master</scm.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <groovy.version>4.0.29</groovy.version>
+        <groovy.version>5.0.2</groovy.version>
         <groovy.range>[4.0,6.0)</groovy.range>
         <gmavenplus.version>4.2.1</gmavenplus.version>
         <hamcrest.version>2.2</hamcrest.version>
@@ -148,7 +148,7 @@
                                 <goal>generateTestStubs</goal>
                                 <goal>compileTests</goal>
 
-                                <!-- optional but recommended so stubs don't end up in your final artifact -->
+                                <!-- optional but recommended so stubs don't end up in the final artifact -->
                                 <goal>removeStubs</goal>
                                 <goal>removeTestStubs</goal>
                             </goals>

@@ -39,17 +39,36 @@ class AssertionSupport {
             def escaper = pathFragmentEscapers[j]
             if (escaper.shouldEscape(dotFragment)) {
               dotFragments[k] = escaper.escape(dotFragments[k].trim())
-              break;
+              break
             }
           }
-
         }
-        pathFragments[i] = dotFragments.join(".")
+        // Use the new joiner
+        pathFragments[i] = joinDotFragments(dotFragments)
       }
     }
     pathFragments.join("")
   }
 
+  
+  private static String joinDotFragments(String[] fragments) {
+    if (!fragments || fragments.length == 0) {
+      return ""
+    }
+    def sb = new StringBuilder(fragments[0])
+    for (int i = 1; i < fragments.size(); i++) {
+      def frag = fragments[i]
+      // If the fragment starts with '[' it's already an index expression
+      // like ['properties']; do NOT prefix it with a dot.
+      if (frag.startsWith("[")) {
+        sb.append(frag)
+      } else {
+        sb.append('.').append(frag)
+      }
+    }
+    sb.toString()
+  }
+  
   def static hyphen() {
     new HyphenQuoteFragmentEscaper() {
       @Override
@@ -60,14 +79,14 @@ class AssertionSupport {
   }
 
   def static properties() {
-    new GetAtPathFragmentEscaper() {
+    new ListFragmentEscaper() {
       @Override
       boolean shouldEscape(String pathFragment) {
         !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('properties') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, space, listIndexEndFragment])
       }
     }
   }
-
+  
   def static classKeyword() {
     new GetAtPathFragmentEscaper() {
       @Override
