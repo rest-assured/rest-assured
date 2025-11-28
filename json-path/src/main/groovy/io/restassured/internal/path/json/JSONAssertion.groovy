@@ -21,6 +21,11 @@ import io.restassured.internal.common.assertion.Assertion
 import static io.restassured.internal.common.assertion.AssertionSupport.*
 
 class JSONAssertion implements Assertion {
+
+  static {
+    Groovy5JsonSlurperWorkarounds.initialize()
+  }
+
   String key
   Map<String, Object> params
 
@@ -30,7 +35,7 @@ class JSONAssertion implements Assertion {
   }
 
   def getAsJsonObject(object) {
-    key = escapePath(key, hyphen(), attributeGetter(), integer(), properties(), classKeyword())
+    key = escapePath(key, hyphen(), attributeGetter(), integer(), classKeyword())
     def result
     if (key == "\$" || key == "") {
       result = object
@@ -45,20 +50,17 @@ class JSONAssertion implements Assertion {
         }
         result = eval(root, object, expr)
       } catch (MissingPropertyException e) {
-        def message = e.getMessage();
-        // detect missed property on script-level. This should be defined by user as param
+        def message = e.getMessage()
         if (message != null && (message.startsWith("No such property:") && message.endsWith("for class: Script1"))) {
           String error = String.format("The parameter \"%s\" was used but not defined. Define parameters using the JsonPath.param(...) function", e.property)
           throw new IllegalArgumentException(error, e)
         }
-        // return null if exception occurred for property from json path, see #1746
         return null
       } catch (Exception e) {
-        // Check if exception is due to a missing property
-        if (e instanceof NullPointerException){
+        if (e instanceof NullPointerException) {
           def message = e.getMessage();
           if (message.equals("Cannot invoke method getAt() on null object") ||
-             (message.startsWith("Cannot get property") && message.endsWith("on null object"))) {
+                  (message.startsWith("Cannot get property") && message.endsWith("on null object"))) {
             return null
           }
         }
@@ -74,18 +76,9 @@ class JSONAssertion implements Assertion {
   }
 
   private def eval(root, object, expr) {
-    Map<String, Object> newParams
-    // Create parameters from given ones
-    if (params != null) {
-      newParams = new HashMap<>(params)
-    } else {
-      newParams = new HashMap<>()
-    }
-    // Add object to evaluate
+    Map<String, Object> newParams = (params != null) ? new HashMap<>(params) : new HashMap<>()
     newParams.put(root, object)
-    // Create shell with variables set
     GroovyShell sh = new GroovyShell(new Binding(newParams))
-    // Run
     def res = sh.evaluate(expr)
     sh.resetLoadedClasses()
     return res

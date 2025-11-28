@@ -79,7 +79,7 @@ class AssertionSupport {
   }
 
   def static properties() {
-    new ListFragmentEscaper() {
+    new EndToEndQuoteFragmentEscaper() {
       @Override
       boolean shouldEscape(String pathFragment) {
         !pathFragment.startsWith("'") && !pathFragment.endsWith("'") && pathFragment.contains('properties') && !containsAny(pathFragment, [closureStartFragment, closureEndFragment, listGetterFragment, listIndexStartFragment, space, listIndexEndFragment])

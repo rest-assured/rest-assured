@@ -55,7 +55,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <scm.branch>master</scm.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <groovy.version>5.0.2</groovy.version>
+        <groovy.version>4.0.23</groovy.version>
         <groovy.range>[4.0,6.0)</groovy.range>
         <gmavenplus.version>4.2.1</gmavenplus.version>
         <hamcrest.version>2.2</hamcrest.version>

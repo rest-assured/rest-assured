@@ -23,6 +23,8 @@ import io.restassured.path.json.support.Book;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayNameGeneration;
+import org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -36,6 +38,7 @@ import static org.hamcrest.Matchers.*;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 
+@DisplayNameGeneration(ReplaceUnderscores.class)
 public class JsonPathTest {
 
     private final String JSON = "{ \"store\": {\n" +
@@ -549,7 +552,6 @@ public class JsonPathTest {
                 "}"));
     }
 
-    @Disabled
     @Test
     public void
     parses_json_document_with_attribute_name_equal_to_properties() {
@@ -561,6 +563,103 @@ public class JsonPathTest {
 
         // Then
         assertThat(value, equalTo("test"));
+    }
+
+    @Test
+    void parses_immediate_properties_in_map_structure_not_wrapped_in_list() {
+        // Given
+        final String jsonWithPropertyAttribute = """
+                {
+                  "name": "John",
+                  "age": 30,
+                  "properties": {
+                    "height": 175,
+                    "weight": 70
+                  },
+                  "city": "New York",
+                  "skills": [
+                    "Java",
+                    "Groovy",
+                    "Kotlin"
+                  ],
+                  "address": {
+                    "street": "5th Avenue",
+                    "number": 10
+                  }
+                }
+                """; // properties is a reserved word in Groovy
+
+        // When
+        final int value = new JsonPath(jsonWithPropertyAttribute).getInt("properties.height");
+
+        // Then
+        assertThat(value, equalTo(175));
+    }
+
+    @Test
+    void parses_nested_properties_in_map_structure_not_wrapped_in_list() {
+        // Given
+        final String jsonWithPropertyAttribute = """
+                {
+                     "person": {
+                       "name": "John",
+                       "age": 30,
+                       "properties": {
+                         "height": 175,
+                         "weight": 70
+                       },
+                       "city": "New York",
+                       "skills": [
+                         "Java",
+                         "Groovy",
+                         "Kotlin"
+                       ],
+                       "address": {
+                         "street": "5th Avenue",
+                         "number": 10
+                       }
+                     }
+                   }
+                """; // properties is a reserved word in Groovy
+
+        // When
+        final int value = new JsonPath(jsonWithPropertyAttribute).getInt("person.properties.height");
+
+        // Then
+        assertThat(value, equalTo(175));
+    }
+
+    @Test
+    void parses_immediate_and_nested_properties_in_map_structure_not_wrapped_in_list() {
+        // Given
+        final String jsonWithPropertyAttribute = """
+                {
+                  "name": "John",
+                  "age": 30,
+                  "properties": {
+                    "properties": {
+                        "height": 175,
+                        "weight": 70
+                    }
+                  },
+                  "city": "New York",
+                  "skills": [
+                    "Java",
+                    "Groovy",
+                    "Kotlin"
+                  ],
+                  "address": {
+                    "street": "5th Avenue",
+                    "number": 10
+                  }
+                }
+                """; // properties is a reserved word in Groovy
+
+        // When
+        final int value = new JsonPath(jsonWithPropertyAttribute).getInt("properties.properties.height");
+
+        // Then
+        assertThat(value, equalTo(175));
     }
 
     @Test
@@ -636,7 +735,6 @@ public class JsonPathTest {
         assertThat(jsonPath.getString("6269f15a0bb9b1b7d86ae718e84cddcd.attr1"), equalTo("val1"));
     }
 
-    @Disabled
     @Test public void
     automatically_escapes_json_attributes_whose_name_equals_properties() {
         // Given
@@ -685,7 +783,7 @@ public class JsonPathTest {
         JsonPath jsonPath = new JsonPath(json);
 
         // Then
-        assertThat(jsonPath.getList("features.collect { it['properties'] }.gridId", Integer.class), hasItems(7));
+        assertThat(jsonPath.getList("features.properties.gridId", Integer.class), hasItems(7));
     }
 
     @Test public void
