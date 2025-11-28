@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper;
+package io.restassured.itest.java.objects;
 
-/**
- * The predefined object mappers that can be used with REST Assured
- */
-public enum ObjectMapperType {
-    JACKSON_3, JACKSON_2, JACKSON_1, GSON, JAXB, JOHNZON, JSONB, JAKARTA_EE
+public record Message(String message) {
 }

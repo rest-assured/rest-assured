@@ -1,0 +1,98 @@
+{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-03/schema",
+	"id": "http://jsonschema.net",
+	"required":false,
+	"properties":{
+		"store": {
+			"type":"object",
+			"id": "http://jsonschema.net/store",
+			"required":false,
+			"properties":{
+				"bicycle": {
+					"type":"object",
+					"id": "http://jsonschema.net/store/bicycle",
+					"required":false,
+					"properties":{
+						"color": {
+							"type":"string",
+							"id": "http://jsonschema.net/store/bicycle/color",
+							"required":false
+						},
+						"price": {
+							"type":"number",
+							"id": "http://jsonschema.net/store/bicycle/price",
+							"required":false
+						}
+					}
+				},
+				"book": {
+					"type":"array",
+					"id": "http://jsonschema.net/store/book",
+					"required":false,
+					"items":[
+						{
+							"type":"object",
+							"id": "http://jsonschema.net/store/book/0",
+							"required":false,
+							"properties":{
+								"author": {
+									"type":"string",
+									"id": "http://jsonschema.net/store/book/0/author",
+									"required":false
+								},
+								"category": {
+									"type":"string",
+									"id": "http://jsonschema.net/store/book/0/category",
+									"required":false
+								},
+								"price": {
+									"type":"number",
+									"id": "http://jsonschema.net/store/book/0/price",
+									"required":false
+								},
+								"title": {
+									"type":"string",
+									"id": "http://jsonschema.net/store/book/0/title",
+									"required":false
+								}
+							}
+						},
+						{
+							"type":"object",
+							"id": "http://jsonschema.net/store/book/1",
+							"required":false,
+							"properties":{
+								"author": {
+									"type":"string",
+									"id": "http://jsonschema.net/store/book/1/author",
+									"required":false
+								},
+								"category": {
+									"type":"string",
+									"id": "http://jsonschema.net/store/book/1/category",
+									"required":false
+								},
+								"isbn": {
+									"type":"string",
+									"id": "http://jsonschema.net/store/book/1/isbn",
+									"required":true
+								},
+								"price": {
+									"type":"number",
+									"id": "http://jsonschema.net/store/book/1/price",
+									"required":false
+								},
+								"title": {
+									"type":"string",
+									"id": "http://jsonschema.net/store/book/1/title",
+									"required":false
+								}
+							}
+						}
+					]
+				}
+			}
+		}
+	}
+}

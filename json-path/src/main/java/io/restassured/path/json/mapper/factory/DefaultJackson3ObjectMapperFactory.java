@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-package io.restassured.mapper;
+package io.restassured.path.json.mapper.factory;
+
+
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.lang.reflect.Type;
 
 /**
- * The predefined object mappers that can be used with REST Assured
+ * Creates a new Jackson 3.0 ObjectMapper (using the JsonMapper builder). It also registers all available modules.
  */
-public enum ObjectMapperType {
-    JACKSON_3, JACKSON_2, JACKSON_1, GSON, JAXB, JOHNZON, JSONB, JAKARTA_EE
+public class DefaultJackson3ObjectMapperFactory implements Jackson3ObjectMapperFactory {
+    public ObjectMapper create(Type cls, String charset) {
+        return JsonMapper.builder().findAndAddModules().build();
+    }
 }

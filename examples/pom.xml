@@ -35,6 +35,7 @@
         <module>scala-mock-mvc-example</module>
         <module>kotlin-example</module>
         <module>scala3-example</module>
+        <module>jackson3-example</module>
     </modules>
 
     <profiles>
