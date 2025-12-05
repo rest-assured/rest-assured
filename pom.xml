@@ -73,7 +73,9 @@
         <scribe.version>2.5.3</scribe.version>
         <guava.version>33.2.1-jre</guava.version>
         <dokka.version>1.9.20</dokka.version>
-    </properties>
+
+		<duplicate-finder-mavwen-plugin.phase>package</duplicate-finder-mavwen-plugin.phase>
+	</properties>
     <scm>
         <url>https://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>
         <connection>scm:git:git://github.com/rest-assured/rest-assured.git</connection>
@@ -162,7 +164,7 @@
                     <executions>
                         <execution>
                             <id>duplicate-check</id>
-                            <phase>package</phase>
+                            <phase>${duplicate-finder-maven-plugin.phase}</phase>
                             <goals>
                                 <goal>check</goal>
                             </goals>
