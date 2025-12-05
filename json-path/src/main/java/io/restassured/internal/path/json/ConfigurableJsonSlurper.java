@@ -57,14 +57,13 @@ public class ConfigurableJsonSlurper {
   private Object getValue(JsonToken token) {
     Object result = token.getValue();
 
-    if (numberReturnType.isFloatOrDouble() && result instanceof BigDecimal) {
-      BigDecimal decimalResult = (BigDecimal) result; 
+    if (numberReturnType.isFloatOrDouble() && result instanceof BigDecimal decimal) {
       // Convert big decimal to float or double
-      if (numberReturnType == NumberReturnType.DOUBLE 
-    		  || decimalResult.compareTo(BigDecimal.valueOf(Float.MAX_VALUE)) > 0) {
-        result = decimalResult.doubleValue();
+      if (numberReturnType == NumberReturnType.DOUBLE
+              || decimal.compareTo(BigDecimal.valueOf(Float.MAX_VALUE)) > 0) {
+        result = decimal.doubleValue();
       } else {
-        result = decimalResult.floatValue();
+        result = decimal.floatValue();
       }
     } else if (NumberReturnType.BIG_INTEGER.equals(numberReturnType)
             && (result instanceof Integer || result instanceof Long)) {
@@ -84,7 +83,7 @@ public class ConfigurableJsonSlurper {
    * @return a data structure of lists and maps
    */
   public Object parseText(String text) {
-    if (text == null || text.length() == 0) {
+    if (text == null || text.isEmpty()) {
       throw new IllegalArgumentException("The JSON input text should neither be null nor empty.");
     }
 

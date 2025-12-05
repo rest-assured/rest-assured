@@ -22,7 +22,6 @@ import static io.restassured.internal.common.assertion.AssertionSupport.escapePa
 import static io.restassured.internal.common.assertion.AssertionSupport.generateWhitespace;
 import static io.restassured.internal.common.assertion.AssertionSupport.hyphen;
 import static io.restassured.internal.common.assertion.AssertionSupport.integer;
-import static io.restassured.internal.common.assertion.AssertionSupport.properties;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -44,7 +43,11 @@ public class JSONAssertion implements Assertion {
   private static final String ROOT = "restAssuredJsonRootObject";
   private static final String SCRIPT_NAME = "Script1";
   private static final Pattern KEY_PATTERN = Pattern.compile("^\\[-?\\d+].*");
-	
+
+  static {
+    Groovy5JsonSlurperWorkarounds.initialize();
+  }
+
   String key;
   Map<String, Object> params;
 
@@ -72,7 +75,6 @@ public class JSONAssertion implements Assertion {
         (PathFragmentEscaper) hyphen(),
         (PathFragmentEscaper) attributeGetter(),
         (PathFragmentEscaper) integer(),
-        (PathFragmentEscaper) properties(),
         (PathFragmentEscaper) classKeyword()
     );
     Object result;
@@ -90,7 +92,6 @@ public class JSONAssertion implements Assertion {
         result = eval(ROOT, object, expr);
       } catch (MissingPropertyException e) {
         String message = e.getMessage();
-        // detect missed property on script-level. This should be defined by user as param
         if (message != null && (message.startsWith("No such property:") && message.endsWith("for class: " + SCRIPT_NAME))) {
           String error = String.format("The parameter \"%s\" was used but not defined. Define parameters using the JsonPath.param(...) function", e.getProperty());
           throw new IllegalArgumentException(error, e);
@@ -114,22 +115,15 @@ public class JSONAssertion implements Assertion {
   }
 
   private Object eval(String root, Object object, String expr) {
-    Map<String, Object> newParams;
-    // Create parameters from given ones
-    if (params != null) {
-      newParams = new HashMap<>(params);
-    } else {
-      newParams = new HashMap<>(1);
-    }
-    // Add object to evaluate
+    Map<String, Object> newParams = (params != null) ? new HashMap<>(params) : new HashMap<>(1);
     newParams.put(root, object);
-    
-	try (GroovyClassLoader loader = new GroovyClassLoader()) {
-		Class<?> scriptClass = loader.parseClass(expr, SCRIPT_NAME + ".groovy");
-		Script script = InvokerHelper.createScript(scriptClass, new Binding(newParams));
-		return script.run();
-	} catch (IOException e) {
-		throw new UncheckedIOException(e);
-	}
+
+    try (GroovyClassLoader loader = new GroovyClassLoader()) {
+      Class<?> scriptClass = loader.parseClass(expr, SCRIPT_NAME + ".groovy");
+      Script script = InvokerHelper.createScript(scriptClass, new Binding(newParams));
+      return script.run();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 }
