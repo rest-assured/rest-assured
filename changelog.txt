@@ -1,5 +1,5 @@
-Changelog 6.0.0 (2025-12-05)
-----------------------------
+Changelog next version
+----------------------
 * spring-mock-mvc module now supports Spring 7.x
 * spring-web-test-client now supports Spring 7.x
 * Upgraded commons-lang3 from 3.18.0 to 3.19.0
