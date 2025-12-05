@@ -7,6 +7,7 @@ Changelog 6.0.0 (2025-12-05)
 * New minimum Java baseline is now 17
 * New minimum Groovy base is now 5.x
 * Support for Jackson 3 object mapping
+* Provide a method to reset the ThreadLocal in ConfigurableJsonSlurper (#1853) (thanks to Guillaume Smet for PR)
 
 Changelog 5.5.6 (2025-08-15)
 ----------------------------
