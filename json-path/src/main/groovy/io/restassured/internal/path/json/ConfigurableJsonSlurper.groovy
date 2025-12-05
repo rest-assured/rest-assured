@@ -189,6 +189,15 @@ class ConfigurableJsonSlurper {
   }
 
   /**
+   * Allows to reset the thread local, which might cause memory leaks in environments with dynamic class loaders.
+   * <p>
+   * Do not use except if you know exactly what you are doing.
+   */
+  static void cleanNumberReturnTypeThreadLocal() {
+    numberReturnType.remove();
+  }
+
+  /**
    * Parses an object from the lexer
    *
    * @param lexer the lexer
