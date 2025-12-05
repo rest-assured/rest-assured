@@ -23,13 +23,13 @@ import groovy.json.JsonToken;
 import io.restassured.path.json.config.JsonPathConfig.NumberReturnType;
 
 import static groovy.json.JsonTokenType.*;
+import static io.restassured.internal.path.json.Groovy5JsonSlurperWorkarounds.newList;
+import static io.restassured.internal.path.json.Groovy5JsonSlurperWorkarounds.newMap;
 
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -134,7 +134,7 @@ public class ConfigurableJsonSlurper {
    * @return a list of JSON values
    */
   private List<Object> parseArray(JsonLexer lexer) {
-    List<Object> content = new ArrayList<>();
+    List<Object> content = newList();
 
     JsonToken currentToken;
 
@@ -202,7 +202,7 @@ public class ConfigurableJsonSlurper {
    * @return a Map representing a JSON object
    */
   private Map<String, Object> parseObject(JsonLexer lexer) {
-    Map<String, Object> content = new LinkedHashMap<>();
+    Map<String, Object> content =  newMap();
 
     JsonToken previousToken = null;
     JsonToken currentToken = null;
