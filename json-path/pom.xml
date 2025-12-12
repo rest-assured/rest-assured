@@ -41,14 +41,14 @@
                 <configuration>
                     <instructions>
                         <Export-Package>
-                        	io.restassured.path.json.*,
-                        	io.restassured.internal.path.json.*
-                       	</Export-Package>
+                            io.restassured.path.json.*,
+                            io.restassured.internal.path.json.*
+                        </Export-Package>
                         <Import-Package>
                             groovy.*;version="${groovy.range}",
                             org.apache.groovy.*;version="${groovy.range}",
                             *
-						</Import-Package>
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
