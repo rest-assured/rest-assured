@@ -11,8 +11,7 @@ read -p "Enter the version to release: " releaseVersion
 echo "Starting to release REST Assured $releaseVersion (skipTests=${skipTests})"
 
 mavenArguments="-DskipTests=${skipTests}"
-mvn release:prepare -Prelease,osgi-tests -DautoVersionSubmodules=true -Dtag=rest-assured-${releaseVersion} -DreleaseVersion=${releaseVersion} -Darguments="${mavenArguments}" &&
-mvn release:perform -Prelease,osgi-tests -Darguments="-DskipTests=true" &&
+mvn release:prepare release:perform -Prelease,osgi-tests -DautoVersionSubmodules=true -Dtag=rest-assured-${releaseVersion} -DreleaseVersion=${releaseVersion} -Darguments="${mavenArguments}" &&
 git checkout rest-assured-${releaseVersion} &&
 mvn deploy -Prelease -DskipTests=true
 
