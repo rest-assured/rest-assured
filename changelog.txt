@@ -13,6 +13,7 @@ Changelog 6.0.0 (2025-12-12)
     - This fixed some nasty memory leaks when using JsonPath heavily in long running processes
 * Stop resetting ResponseParserRegistrar during build (#1759, #1505, #1207 & #978) (thanks to Marc Easen for PR)
 * Skip Null filters in FilterContextImpl (#1834) (thanks to Boyarshinov Alexander for PR)
+* Upgraded Kotlin extension module to use Kotlin 2.2.21
 
 Changelog 5.5.6 (2025-08-15)
 ----------------------------

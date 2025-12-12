@@ -67,7 +67,7 @@
         <jakarta.json.version>2.1.3</jakarta.json.version>
         <maven-javadoc.version>3.5.0</maven-javadoc.version>
         <surefire.version>3.5.4</surefire.version>
-        <kotlin.version>2.2.20</kotlin.version>
+        <kotlin.version>2.2.21</kotlin.version>
         <scala.version>3.3.1</scala.version>
         <assertj-core.version>3.27.4</assertj-core.version>
         <scribe.version>2.5.3</scribe.version>
