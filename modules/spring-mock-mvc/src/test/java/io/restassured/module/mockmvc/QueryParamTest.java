@@ -51,5 +51,31 @@ public class QueryParamTest {
                 body("_link", equalTo("http://localhost/queryParam?name=John&message=Good!"));
     }
 
+    @Test
+    public void optional_query_param() throws Exception {
+        RestAssuredMockMvc.given().
+                standaloneSetup(new QueryParamController()).
+                optionalQueryParam("name", "John").
+                optionalQueryParam("message", "Good!").
+        when().
+                get("/queryParam").
+        then().log().all().
+                body("name", equalTo("Hello, John!")).
+                body("message", equalTo("Good!")).
+                body("_link", equalTo("http://localhost/queryParam?name=John&message=Good!"));
+    }
+
+    @Test
+    public void optional_query_param_message_is_null() throws Exception {
+        RestAssuredMockMvc.given().
+                standaloneSetup(new QueryParamController()).
+                optionalQueryParam("name", "John").
+                optionalQueryParam("message", null).
+        when().
+                get("/queryParam").
+        then().log().all().
+                statusCode(400);
+    }
+
 // @formatter:on
 }
