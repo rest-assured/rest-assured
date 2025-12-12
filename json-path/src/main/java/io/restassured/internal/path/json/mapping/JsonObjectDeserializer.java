@@ -65,7 +65,9 @@ public class JsonObjectDeserializer {
 
     @SuppressWarnings("unchecked")
     private static <T> T deserializeWithObjectMapper(ObjectDeserializationContext ctx, JsonParserType mapperType, JsonPathConfig config) {
-        if (mapperType == JsonParserType.JACKSON_2 && ObjectMapperResolver.isJackson2InClassPath()) {
+        if (mapperType == JsonParserType.JACKSON_3 && ObjectMapperResolver.isJackson3InClassPath()) {
+            return (T) deserializeWithJackson3(ctx, config.jackson3ObjectMapperFactory());
+        } else if (mapperType == JsonParserType.JACKSON_2 && ObjectMapperResolver.isJackson2InClassPath()) {
             return (T) deserializeWithJackson2(ctx, config.jackson2ObjectMapperFactory());
         } else if (mapperType == JsonParserType.JACKSON_1 && ObjectMapperResolver.isJackson1InClassPath()) {
             return (T) deserializeWithJackson1(ctx, config.jackson1ObjectMapperFactory());
@@ -91,6 +93,10 @@ public class JsonObjectDeserializer {
 
     static Object deserializeWithJackson2(ObjectDeserializationContext ctx, Jackson2ObjectMapperFactory factory) {
         return new JsonPathJackson2ObjectDeserializer(factory).deserialize(ctx);
+    }
+
+    static Object deserializeWithJackson3(ObjectDeserializationContext ctx, Jackson3ObjectMapperFactory factory) {
+        return new JsonPathJackson3ObjectDeserializer(factory).deserialize(ctx);
     }
 
     static Object deserializeWithJohnzon(ObjectDeserializationContext ctx, JohnzonObjectMapperFactory factory) {

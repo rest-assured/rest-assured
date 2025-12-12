@@ -605,9 +605,9 @@ public class JsonPath {
      * <p/>
      * maps the second book to a Book instance.
      *
-     * @param path       The path to the object to map
-     * @param typeRef    The class type of the expected object
-     * @param <T>        The type of the expected object
+     * @param path    The path to the object to map
+     * @param typeRef The class type of the expected object
+     * @param <T>     The type of the expected object
      * @return The object
      */
     public <T> T getObject(String path, TypeRef<T> typeRef) {
@@ -901,6 +901,7 @@ public class JsonPath {
     public JsonPath setRoot(String rootPath) {
         return setRootPath(rootPath);
     }
+
     /**
      * Set the root path of the document so that you don't need to write the entire path. E.g.
      * <pre>
@@ -1077,7 +1078,9 @@ public class JsonPath {
 
     private Object jsonStringToObject(String object, Class objectType) {
         JsonPathConfig cfg = new JsonPathConfig(getJsonPathConfig());
-        if (cfg.hasCustomJackson10ObjectMapperFactory()) {
+        if (cfg.hasCustomJackson30ObjectMapperFactory()) {
+            cfg = cfg.defaultParserType(JsonParserType.JACKSON_3);
+        } else if (cfg.hasCustomJackson10ObjectMapperFactory()) {
             cfg = cfg.defaultParserType(JsonParserType.JACKSON_1);
         } else if (cfg.hasCustomGsonObjectMapperFactory()) {
             cfg = cfg.defaultParserType(JsonParserType.GSON);
