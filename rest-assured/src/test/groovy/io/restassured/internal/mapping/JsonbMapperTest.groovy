@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.BeforeEach
 
-import javax.json.bind.JsonbBuilder
+import jakarta.json.bind.JsonbBuilder
 
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.ArgumentMatchers.any
