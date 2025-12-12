@@ -43,7 +43,7 @@
                 <!-- Kotlin Extensions -->
                 <exclude>io.rest-assured:kotlin-extensions</exclude>
                 <!-- Kotlin -->
-                <exclude>org.jetbrains.kotlin:kotlin-stdlib-jdk8</exclude>
+                <exclude>org.jetbrains.kotlin:kotlin-stdlib</exclude>
                 <!-- JsonPath -->
                 <exclude>io.rest-assured:json-path</exclude>
                 <exclude>com.fasterxml.jackson.core:jackson-databind</exclude>

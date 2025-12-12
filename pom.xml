@@ -72,7 +72,7 @@
         <assertj-core.version>3.27.4</assertj-core.version>
         <scribe.version>2.5.3</scribe.version>
         <guava.version>33.2.1-jre</guava.version>
-        <dokka.version>1.9.20</dokka.version>
+        <dokka.version>2.1.0</dokka.version>
 
 		<duplicate-finder-mavwen-plugin.phase>package</duplicate-finder-mavwen-plugin.phase>
 	</properties>
@@ -490,7 +490,7 @@
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-stdlib-jdk8</artifactId>
+                <artifactId>kotlin-stdlib</artifactId>
                 <version>${kotlin.version}</version>
             </dependency>
             <dependency>
