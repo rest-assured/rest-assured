@@ -20,10 +20,10 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>6.0.0</version>
+        <version>6.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>spring-mock-mvc</artifactId>
-    <version>6.0.0</version>
+    <version>6.0.1-SNAPSHOT</version>
     <name>spring-mock-mvc</name>
     <url>https://rest-assured.io/</url>
     <properties>
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>6.0.0</version>
+            <version>6.0.1-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <!-- Spring provides its own JCL implementation -->
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>spring-commons</artifactId>
-            <version>6.0.0</version>
+            <version>6.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>

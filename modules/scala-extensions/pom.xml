@@ -20,10 +20,10 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>6.0.0</version>
+        <version>6.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>scala-extensions</artifactId>
-    <version>6.0.0</version>
+    <version>6.0.1-SNAPSHOT</version>
     <name>scala-extensions</name>
     <url>http://maven.apache.org</url>
     <properties>
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>6.0.0</version>
+            <version>6.0.1-SNAPSHOT</version>
         </dependency>
 
         <!-- Test -->
