@@ -7,7 +7,6 @@ Changelog next version
 * New minimum Java baseline is now 17
 * New minimum Groovy base is now 5.x
 * Support for Jackson 3 object mapping
-* Provide a method to reset the ThreadLocal in ConfigurableJsonSlurper (#1853) (thanks to Guillaume Smet for PR)
 *  Migrate json-path fully to Java, bypass GroovyShell for evaluation (#1844) (thanks to Michael Edgar for PR)
     - This fixed some nasty memory leaks when using JsonPath heavily in long running processes
 * Stop resetting ResponseParserRegistrar during build (#1759, #1505, #1207 & #978) (thanks to Marc Easen for PR)
