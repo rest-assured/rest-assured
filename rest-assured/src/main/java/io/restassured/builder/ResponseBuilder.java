@@ -218,7 +218,10 @@ public class ResponseBuilder {
         if (restAssuredResponse.getConfig() == null) {
             restAssuredResponse.setConfig(RestAssuredConfig.config());
         }
-        restAssuredResponse.setRpr(new ResponseParserRegistrar());
+
+        if (restAssuredResponse.getRpr() == null) {
+            restAssuredResponse.setRpr(new ResponseParserRegistrar());
+        }
         return restAssuredResponse;
     }
 

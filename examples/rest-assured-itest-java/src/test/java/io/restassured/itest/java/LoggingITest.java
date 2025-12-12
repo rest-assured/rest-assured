@@ -401,6 +401,47 @@ public class LoggingITest extends WithJetty {
     }
 
     @Test
+    public void ensureResponseLoggerUsesRegisteredCustomParserWhenValidatingBody() {
+        RestAssured.registerParser("application/x-custom-content-type", JSON);
+        try {
+            final StringWriter writer = new StringWriter();
+            final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
+
+            final ScalatraObject object = new ScalatraObject();
+            object.setHello("Hello world");
+            given()
+                .filters(new ResponseLoggingFilter(captor))
+                .config(RestAssured.config()
+                    .encoderConfig(encoderConfig().encodeContentTypeAs(
+                        "application/x-custom-content-type",
+                        ContentType.JSON
+                    )))
+                .contentType("application/x-custom-content-type")
+                .body(object)
+            .expect()
+                .defaultParser(JSON)
+            .when()
+                .post("/reflect")
+            .then()
+                .body("hello", equalTo("Hello world"));
+
+            assertThat(
+                writer.toString(), equalTo(String.format(
+                    "HTTP/1.1 200 OK\n" +
+                    "Content-Type: application/x-custom-content-type; charset=%s\n" +
+                    "Content-Length: 23\n" +
+                    "Server: Jetty(9.4.34.v20201102)\n" +
+                    "\n" +
+                    "{\"hello\":\"Hello world\"}\n",
+                    RestAssured.config().getEncoderConfig().defaultContentCharset()
+                ))
+            );
+        } finally {
+            RestAssured.unregisterParser("application/x-custom-content-type");
+        }
+    }
+
+    @Test
     public void logEverythingResponseUsingLogSpec() {
         final StringWriter writer = new StringWriter();
         final PrintStream captor = new PrintStream(new WriterOutputStream(writer), true);
