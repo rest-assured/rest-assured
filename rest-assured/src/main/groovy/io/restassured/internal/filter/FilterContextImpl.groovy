@@ -66,10 +66,12 @@ class FilterContextImpl implements FilterContext {
   }
 
   Response next(FilterableRequestSpecification request, FilterableResponseSpecification response) {
-    if (filters.hasNext()) {
-      def next = filters.next();
-      def filterContext = (request as RequestSpecificationImpl).newFilterContext(assertionClosure, filters, properties)
-      return next.filter(request, response, filterContext)
+    while (filters.hasNext()) {
+      def nextFilter = filters.next()
+      if (nextFilter != null) {
+        def filterContext = (request as RequestSpecificationImpl).newFilterContext(assertionClosure, filters, properties)
+        return nextFilter.filter(request, response, filterContext)
+      }
     }
   }
 
