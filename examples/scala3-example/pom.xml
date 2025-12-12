@@ -19,7 +19,7 @@
     <parent>
         <groupId>io.rest-assured.examples</groupId>
         <artifactId>example-parent</artifactId>
-        <version>6.0.1-SNAPSHOT</version>
+        <version>6.0.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -99,13 +99,13 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>6.0.1-SNAPSHOT</version>
+            <version>6.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>scala-extensions</artifactId>
-            <version>6.0.1-SNAPSHOT</version>
+            <version>6.0.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -19,10 +19,10 @@
     <parent>
         <groupId>io.rest-assured</groupId>
         <artifactId>modules</artifactId>
-        <version>6.0.1-SNAPSHOT</version>
+        <version>6.0.0</version>
     </parent>
     <artifactId>spring-commons</artifactId>
-    <version>6.0.1-SNAPSHOT</version>
+    <version>6.0.0</version>
     <name>spring-commons</name>
     <url>https://rest-assured.io/</url>
     <properties>
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>6.0.1-SNAPSHOT</version>
+            <version>6.0.0</version>
         </dependency>
     </dependencies>
 </project>
