@@ -11,7 +11,7 @@ languages into the Java domain.
 
 
 ## News
-* 2025-12-12: REST Assured 6.0.0 is released. It raises the baseline to Java 17+, upgrades to Groovy 5, adds Spring 7 + Jackson 3 support (and bumps minimum versions for Spring/Yasson/Johnzon). See [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes60) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details
+* 2025-12-12: REST Assured 6.0.0 is released. It raises the baseline to Java 17+, upgrades to Groovy 5, adds Spring 7 + Jackson 3 support (and bumps minimum versions for Spring/Yasson/Johnzon). See [release notes](https://github.com/rest-assured/rest-assured/wiki/ReleaseNotes60) and [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2025-08-15: REST Assured 5.5.6 is released with bug fixes and minor improvements. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 * 2025-05-22: REST Assured 5.5.5 is released that fixes problems with `rest-assured-bom` file after moving to new deployment method. See [change log](https://raw.githubusercontent.com/rest-assured/rest-assured/master/changelog.txt) for more details.
 
