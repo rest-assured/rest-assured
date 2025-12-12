@@ -31,6 +31,7 @@
         <module>scalatra-webapp</module>
         <module>rest-assured-itest-java</module>
         <module>spring-mvc-webapp</module>
+        <module>spring7-mvc-webapp</module>
         <module>scala-example</module>
         <module>scala-mock-mvc-example</module>
         <module>kotlin-example</module>
@@ -43,12 +44,6 @@
             <id>osgi-tests</id>
             <modules>
                 <module>rest-assured-itest-java-osgi</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>spring7</id>
-            <modules>
-                <module>spring7-mvc-webapp</module>
             </modules>
         </profile>
     </profiles>
