@@ -2102,7 +2102,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   List<String> getPathParamPlaceholders() {
-    def uri = getTargetPath(contains(path, "://") ? substringAfter(path, "://") : path)
+    def uri = getTargetPath(path)
     getPlaceholders(uri)
   }
 
