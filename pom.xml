@@ -299,6 +299,8 @@
                         <excludeArtifact>scala-mock-mvc-example</excludeArtifact>
                         <excludeArtifact>kotlin-example</excludeArtifact>
                         <excludeArtifact>scala3-example</excludeArtifact>
+                        <excludeArtifact>jackson3-example</excludeArtifact>
+                        <excludeArtifact>spring7-mvc-webapp</excludeArtifact>
                         <!-- Dist -->
                         <excludeArtifact>dist</excludeArtifact>
                         <excludeArtifact>dist-rest-assured</excludeArtifact>
