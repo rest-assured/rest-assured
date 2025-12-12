@@ -238,7 +238,6 @@
                 <version>${maven-javadoc.version}</version>
                 <configuration>
                     <failOnError>false</failOnError>
-                    <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
                     <additionalJOption>-Xdoclint:none</additionalJOption>
                 </configuration>
             </plugin>
@@ -343,7 +342,6 @@
                         </executions>
                         <configuration>
                             <failOnError>false</failOnError>
-                            <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
                             <additionalJOption>-Xdoclint:none</additionalJOption>
                         </configuration>
                     </plugin>
