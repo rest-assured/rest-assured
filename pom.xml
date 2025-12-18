@@ -70,7 +70,7 @@
         <scribe.version>2.5.3</scribe.version>
         <guava.version>33.2.1-jre</guava.version>
         <dokka.version>1.9.20</dokka.version>
-    </properties>
+	</properties>
     <scm>
         <url>https://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>
         <connection>scm:git:git://github.com/rest-assured/rest-assured.git</connection>
