@@ -228,10 +228,6 @@ public class JsonPathConfig {
         return jackson1ObjectMapperFactory;
     }
 
-    public Jackson3ObjectMapperFactory jackson3ObjectMapperFactory() {
-        return jackson3ObjectMapperFactory;
-    }
-
     /**
      * Specify a custom Jackson 1.0 object mapper factory.
      *
@@ -252,7 +248,7 @@ public class JsonPathConfig {
     }
 
     /**
-     * Specify a custom Jackson 1.0 object mapper factory.
+     * Specify a custom Jackson 2.0 object mapper factory.
      *
      * @param jackson2ObjectMapperFactory The object mapper factory
      */
@@ -260,6 +256,21 @@ public class JsonPathConfig {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
                 jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
                 johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+    }
+
+    public Jackson3ObjectMapperFactory jackson3ObjectMapperFactory() {
+        return jackson3ObjectMapperFactory;
+    }
+
+    /**
+     * Specify a custom Jackson 3.0 object mapper factory.
+     *
+     * @param jackson3ObjectMapperFactory The object mapper factory
+     */
+    public JsonPathConfig jackson3ObjectMapperFactory(Jackson3ObjectMapperFactory jackson3ObjectMapperFactory) {
+        return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
+            jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+            johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
     }
 
     public JsonbObjectMapperFactory jsonbObjectMapperFactory() {
