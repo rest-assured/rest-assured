@@ -1,6 +1,6 @@
 Changelog 5.5.7 (2026-01-16)
 ----------------------------
-* Spring7 MockMvc module now supports Spring Framework 7.0 (thanks to Marcin Grzejszczak for PR)
+* Spring MockMvc module now supports Spring Framework 7.0 (thanks to Marcin Grzejszczak for PR)
 
 Changelog 6.0.0 (2025-12-12)
 ----------------------------
