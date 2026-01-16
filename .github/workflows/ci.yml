@@ -28,4 +28,4 @@ jobs:
           java-version: ${{ matrix.java }}
           distribution: 'zulu'
       - name: Verify with Maven
-        run: mvn verify -B
+        run: mvn verify -B -Pspring7

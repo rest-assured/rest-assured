@@ -23,6 +23,8 @@ public class ReflectionUtil {
         if (method == null) {
             throw new IllegalArgumentException("Cannot find method '" + methodName + "' in " + instance.getClass() + " (arguments=" + Arrays.toString(arguments) + ")");
         }
+		// Line below is needed to access e.g. methods of anonymous objects (check AcceptTest)
+        ReflectionUtils.makeAccessible(method);
         if (!method.isVarArgs() || argumentTypes.length == 0
                 || (argumentTypes.length == arguments.length
                 && Objects.equals(argumentTypes[argumentTypes.length - 1], arguments[arguments.length - 1].getClass()))) {
