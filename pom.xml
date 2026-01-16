@@ -51,7 +51,7 @@
         </developer>
     </developers>
     <properties>
-        <scm.branch>master</scm.branch>
+        <scm.branch>5.5.x</scm.branch>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <groovy.version>4.0.22</groovy.version>
         <groovy.range>[4.0,5.0)</groovy.range>
