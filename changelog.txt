@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* Use custom Jackson 3 object mapper in JsonPath (#1858) (thanks to gkiel for PR)
+
 Changelog 5.5.7 (2026-01-16)
 ----------------------------
 * Spring MockMvc module now supports Spring Framework 7.0 (thanks to Marcin Grzejszczak for PR)
