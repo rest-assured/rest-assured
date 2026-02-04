@@ -373,6 +373,7 @@ or you can specify an explicit ObjectMapper using as($cls, <ObjectMapper>);""")
     jsonPath(jsonPathConfig().charset(findCharset()).
             jackson1ObjectMapperFactory(config.getObjectMapperConfig().jackson1ObjectMapperFactory()).
             jackson2ObjectMapperFactory(config.getObjectMapperConfig().jackson2ObjectMapperFactory()).
+            jackson3ObjectMapperFactory(config.getObjectMapperConfig().jackson3ObjectMapperFactory()).
             gsonObjectMapperFactory(config.getObjectMapperConfig().gsonObjectMapperFactory()).
             numberReturnType(config.getJsonConfig().numberReturnType()))
   }
