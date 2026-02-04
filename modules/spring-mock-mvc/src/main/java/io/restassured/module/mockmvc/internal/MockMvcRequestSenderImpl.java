@@ -522,12 +522,7 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     private void applyCookies(final Object request) {
         if (cookies.exist()) {
             for (Cookie cookie : cookies) {
-                final String cookieClassName;
-                if (isSpring6OrLater) {
-                    cookieClassName = "jakarta.servlet.http.Cookie";
-                } else {
-                    cookieClassName = "javax.servlet.http.Cookie";
-                }
+                final String cookieClassName = resolveServletCookieClassName(request);
                 final Object servletCookie = invokeConstructor(cookieClassName, cookie.getName(), cookie.getValue());
 
                 if (cookie.hasComment()) {
@@ -548,6 +543,48 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
                 invokeMethod(servletCookie, "setSecure", new Class[]{boolean.class}, cookie.isSecured());
                 invokeMethod(request, "cookie", new Class[]{arrayNameOf(cookieClassName)}, servletCookie);
             }
+        }
+    }
+
+    private String resolveServletCookieClassName(Object request) {
+        final String jakartaCookieClassName = "jakarta.servlet.http.Cookie";
+        final String javaxCookieClassName = "javax.servlet.http.Cookie";
+
+        Class<?> jakartaCookieClass = loadClassIfPresent(jakartaCookieClassName);
+        if (jakartaCookieClass != null && hasCookieMethod(request, jakartaCookieClass)) {
+            return jakartaCookieClassName;
+        }
+
+        Class<?> javaxCookieClass = loadClassIfPresent(javaxCookieClassName);
+        if (javaxCookieClass != null && hasCookieMethod(request, javaxCookieClass)) {
+            return javaxCookieClassName;
+        }
+
+        if (jakartaCookieClass != null) {
+            return jakartaCookieClassName;
+        }
+        if (javaxCookieClass != null) {
+            return javaxCookieClassName;
+        }
+
+        throw new IllegalStateException("Neither jakarta.servlet.http.Cookie nor javax.servlet.http.Cookie was found in the classpath.");
+    }
+
+    private static Class<?> loadClassIfPresent(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException ignored) {
+            return null;
+        }
+    }
+
+    private static boolean hasCookieMethod(Object request, Class<?> cookieClass) {
+        try {
+            Class<?> arrayClass = java.lang.reflect.Array.newInstance(cookieClass, 0).getClass();
+            request.getClass().getMethod("cookie", arrayClass);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
         }
     }
 

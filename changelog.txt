@@ -1,6 +1,7 @@
 Changelog next version
 ----------------------
 * Use custom Jackson 3 object mapper in JsonPath (#1858) (thanks to gkiel for PR)
+* Fix Spring MockMvc cookie handling with Jakarta-only servlet APIs (fixes #1853)
 
 Changelog 5.5.7 (2026-01-16)
 ----------------------------
