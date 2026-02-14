@@ -20,6 +20,14 @@ languages into the Java domain.
 
 ## Examples
 Here's an example of how to make a GET request and validate the JSON or XML response:
+### Important
+
+Before using REST Assured methods like get(), given(), then(), etc.,
+make sure to add the required static imports:
+
+import static io.restassured.RestAssured.*;
+import static org.hamcrest.Matchers.*;
+
 
 ```java
 get("/lotto").then().assertThat().body("lotto.lottoId", equalTo(5));
