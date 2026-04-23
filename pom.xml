@@ -73,8 +73,8 @@
         <scribe.version>2.5.3</scribe.version>
         <guava.version>33.2.1-jre</guava.version>
         <dokka.version>2.1.0</dokka.version>
-
-		<duplicate-finder-mavwen-plugin.phase>package</duplicate-finder-mavwen-plugin.phase>
+		
+		<duplicate-finder-maven-plugin.phase>package</duplicate-finder-maven-plugin.phase>
 	</properties>
     <scm>
         <url>https://github.com/rest-assured/rest-assured/tree/${scm.branch}</url>
