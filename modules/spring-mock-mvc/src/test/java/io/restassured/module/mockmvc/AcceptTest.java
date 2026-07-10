@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.powermock.reflect.Whitebox;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.util.MultiValueMap;
+import org.springframework.http.HttpHeaders;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +44,8 @@ public class AcceptTest {
                 accept(ContentType.JSON).
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        MultiValueMap<String, Object> headers = Whitebox.getInternalState(requestBuilder, "headers");
-                        for (Object header : headers.get("Accept")) {
+                        HttpHeaders headers = Whitebox.getInternalState(requestBuilder, "headers");
+                        for (String header : headers.get("Accept")) {
                             accept.add(String.valueOf(header));
                         }
                     }
@@ -69,8 +69,8 @@ public class AcceptTest {
                 accept("application/json, application/javascript").
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        MultiValueMap<String, Object> headers = Whitebox.getInternalState(requestBuilder, "headers");
-                        for (Object header : headers.get("Accept")) {
+                        HttpHeaders headers = Whitebox.getInternalState(requestBuilder, "headers");
+                        for (String header : headers.get("Accept")) {
                             accept.add(String.valueOf(header));
                         }
                     }
@@ -94,8 +94,8 @@ public class AcceptTest {
                 accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_FORM_URLENCODED).
                 interceptor(new MockHttpServletRequestBuilderInterceptor() {
                     public void intercept(MockHttpServletRequestBuilder requestBuilder) {
-                        MultiValueMap<String, Object> headers = Whitebox.getInternalState(requestBuilder, "headers");
-                        for (Object header : headers.get("Accept")) {
+                        HttpHeaders headers = Whitebox.getInternalState(requestBuilder, "headers");
+                        for (String header : headers.get("Accept")) {
                             accept.add(String.valueOf(header));
                         }
                     }

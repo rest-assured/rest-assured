@@ -28,8 +28,8 @@
     <url>https://rest-assured.io/</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>5.3.39</spring.version>
-        <spring.security.version>5.8.16</spring.security.version>
+        <spring.version>7.0.1</spring.version>
+        <spring.security.version>6.5.7</spring.security.version>
         <java.version>17</java.version>
     </properties>
 
@@ -55,11 +55,13 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
             <version>${spring.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -75,9 +77,9 @@
         </dependency>
 
         <dependency>
-          <groupId>javax.servlet</groupId>
-          <artifactId>javax.servlet-api</artifactId>
-          <version>4.0.1</version>
+          <groupId>jakarta.servlet</groupId>
+          <artifactId>jakarta.servlet-api</artifactId>
+          <version>6.1.0</version>
           <scope>provided</scope>
         </dependency>
 
@@ -123,7 +125,7 @@
         <dependency>
             <groupId>org.springframework.restdocs</groupId>
             <artifactId>spring-restdocs-mockmvc</artifactId>
-            <version>2.0.2.RELEASE</version>
+            <version>4.0.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -229,7 +229,7 @@ public class RestAssuredMockMvc {
      * The {@link org.springframework.web.servlet.DispatcherServlet}
      * will use the context to discover Spring MVC infrastructure and
      * application controllers in it. The context must have been configured with
-     * a {@link javax.servlet.ServletContext}.
+     * a {@link jakarta.servlet.ServletContext}.
      *
      * @param context            The web application context to use
      * @param mockMvcConfigurers {@link MockMvcConfigurer}'s to be applied when creating a {@link MockMvc} instance of this WebApplicationContext (optional)

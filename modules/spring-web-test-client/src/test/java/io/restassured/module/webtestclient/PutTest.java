@@ -63,7 +63,8 @@ public class PutTest {
 				.log().all()
 				.statusCode(415);
 
-		assertThat(writer.toString(), equalTo(String.format("415: Unsupported Media Type%n")));
+		assertThat(writer.toString(), equalTo(String.format("415: Unsupported Media Type%n" +
+				"Accept: application/x-www-form-urlencoded%n")));
 	}
 
 	@Test

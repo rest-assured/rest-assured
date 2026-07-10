@@ -7,6 +7,7 @@ Changelog next version
 * Add JsonPath.using(Jackson3ObjectMapperFactory) overload (#1861) (thanks to Anusha-7254 for PR)
 * Fix typo in duplicate-finder-maven-plugin phase property (#1866) (thanks to metacosm for PR)
 * Fix incorrect serialization of enum constants declared with a body when used as query/path parameters (#1799)
+* The spring-mock-mvc and spring-web-test-client modules now target Spring Framework 7 and no longer expose their own Spring version as a transitive dependency (the Spring dependencies are declared optional), so they no longer drag Spring 5 onto a Spring Boot 4 / Spring Framework 7 classpath. This removes the need for manual Spring exclusions on Spring Boot 4 (fixes #1853, #1868). Thanks to spencerarq for the detailed investigation.
 
 Changelog 5.5.7 (2026-01-16)
 ----------------------------

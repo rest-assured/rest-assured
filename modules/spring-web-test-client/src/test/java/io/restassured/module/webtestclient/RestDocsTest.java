@@ -17,11 +17,13 @@
 package io.restassured.module.webtestclient;
 
 import io.restassured.module.webtestclient.setup.GreetingController;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.io.TempDir;
-import org.springframework.restdocs.JUnitRestDocumentation;
+import org.springframework.restdocs.ManualRestDocumentation;
 import org.springframework.restdocs.snippet.SnippetException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,11 +41,17 @@ public class RestDocsTest {
 
     @TempDir
     java.nio.file.Path tempDir;
-    JUnitRestDocumentation restDocumentation;
+    ManualRestDocumentation restDocumentation;
 
     @BeforeEach
-    void setUpRestDocs() {
-        restDocumentation = new JUnitRestDocumentation(tempDir.toFile().getAbsolutePath());
+    void setUpRestDocs(TestInfo testInfo) {
+        restDocumentation = new ManualRestDocumentation(tempDir.toFile().getAbsolutePath());
+        restDocumentation.beforeTest(getClass(), testInfo.getTestMethod().map(m -> m.getName()).orElse("test"));
+    }
+
+    @AfterEach
+    void tearDownRestDocs() {
+        restDocumentation.afterTest();
     }
 
     @Test

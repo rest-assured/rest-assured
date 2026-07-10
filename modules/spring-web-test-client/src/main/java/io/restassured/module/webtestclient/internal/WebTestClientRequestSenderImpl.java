@@ -148,6 +148,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	private HttpMethod toValidHttpMethod(String method) {
 		String httpMethodAsString = notNull(trimToNull(method), "HTTP Method");
 		try {
+			// As of Spring Framework 7, HttpMethod.valueOf no longer restricts its input to the set of
+			// known HTTP methods (it accepts and creates a custom HttpMethod for any string). WebTestClient
+			// only supports the methods defined by org.springframework.web.bind.annotation.RequestMethod, so
+			// validate against that enum to preserve the original "unsupported HTTP verb" behavior.
+			org.springframework.web.bind.annotation.RequestMethod.valueOf(httpMethodAsString.toUpperCase());
 			return HttpMethod.valueOf(httpMethodAsString.toUpperCase());
 		} catch (IllegalArgumentException e) {
 			throw new IllegalArgumentException(String.format("HTTP method '%s' is not supported by WebTestClient", method));

@@ -15,7 +15,7 @@ class GreetingRouter {
             router {
                 GET("/greeting") {
                     ServerResponse.ok()
-                            .body(BodyInserters.fromObject(Greeting(
+                            .body(BodyInserters.fromValue(Greeting(
                                     counter.incrementAndGet(),
                                     String.format(template, it.queryParam("name").get())
                             )))
