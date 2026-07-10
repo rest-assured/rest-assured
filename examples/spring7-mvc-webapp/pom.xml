@@ -36,7 +36,7 @@
 		<spring.security.version>6.5.7</spring.security.version>
 		<jetty.version>11.0.26</jetty.version>
 
-		<duplicate-finder-mavwen-plugin.phase>none</duplicate-finder-mavwen-plugin.phase>
+		<duplicate-finder-maven-plugin.phase>none</duplicate-finder-maven-plugin.phase>
 	</properties>
 
 	<dependencyManagement>
