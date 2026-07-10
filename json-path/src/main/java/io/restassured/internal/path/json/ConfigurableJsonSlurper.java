@@ -20,6 +20,7 @@ import groovy.io.LineColumnReader;
 import groovy.json.JsonException;
 import groovy.json.JsonLexer;
 import groovy.json.JsonToken;
+import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.json.config.JsonPathConfig.NumberReturnType;
 
 import static groovy.json.JsonTokenType.*;
@@ -61,7 +62,7 @@ public class ConfigurableJsonSlurper {
       if (text.length() > numberLengthLimit) {
         throw new JsonException("JSON number length (" + text.length()
                 + " chars) exceeds the maximum allowed length of " + numberLengthLimit
-                + " chars. Raise or disable it via JsonPathConfig/JsonConfig.numberLengthLimit(int).");
+                + " chars. Raise or disable it via JsonPathConfig.numberLengthLimit(int).");
       }
     }
 
@@ -80,6 +81,10 @@ public class ConfigurableJsonSlurper {
       result = new BigInteger(result.toString());
     }
     return result;
+  }
+
+  public ConfigurableJsonSlurper(NumberReturnType numberReturnType) {
+    this(numberReturnType, JsonPathConfig.DEFAULT_NUMBER_LENGTH_LIMIT);
   }
 
   public ConfigurableJsonSlurper(NumberReturnType numberReturnType, int numberLengthLimit) {
