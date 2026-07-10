@@ -1,5 +1,5 @@
-Changelog next version
-----------------------
+Changelog 6.0.0 (2026-07-10)
+----------------------------
 * Fix a JsonPath denial-of-service where oversized numeric literals in untrusted JSON were parsed into arbitrarily large BigIntegers, an O(n^2) CPU and heap cost. JSON number tokens are now capped at 1000 characters by default, configurable via JsonPathConfig.numberLengthLimit and JsonConfig.numberLengthLimit (a negative value disables the check). Thanks to Brian Lee (PhD security researcher, Georgia Tech SSLab) for the private report.
 * Use custom Jackson 3 object mapper in JsonPath (#1858) (thanks to gkiel for PR)
 * Fix Spring MockMvc cookie handling with Jakarta-only servlet APIs (fixes #1853)
