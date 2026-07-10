@@ -31,6 +31,7 @@ import io.restassured.path.json.exception.JsonPathException;
 import io.restassured.path.json.mapper.factory.GsonObjectMapperFactory;
 import io.restassured.path.json.mapper.factory.Jackson1ObjectMapperFactory;
 import io.restassured.path.json.mapper.factory.Jackson2ObjectMapperFactory;
+import io.restassured.path.json.mapper.factory.Jackson3ObjectMapperFactory;
 
 import java.io.*;
 import java.net.URL;
@@ -730,6 +731,16 @@ public class JsonPath {
      */
     public JsonPath using(Jackson2ObjectMapperFactory factory) {
         return new JsonPath(this, getJsonPathConfig().jackson2ObjectMapperFactory(factory));
+    }
+
+    /**
+     * Configure JsonPath to use a specific Jackson 3 object mapper factory
+     *
+     * @param factory The Jackson 3 object mapper factory instance
+     * @return a new JsonPath instance
+     */
+    public JsonPath using(Jackson3ObjectMapperFactory factory) {
+        return new JsonPath(this, getJsonPathConfig().jackson3ObjectMapperFactory(factory));
     }
 
     /**
