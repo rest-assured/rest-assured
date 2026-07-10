@@ -6,6 +6,7 @@ Changelog next version
 * Use Jackson 3 mapper in JsonPath deserialization when Jackson 3 is the only Jackson on the classpath (#1865) (thanks to dickerpulli for PR)
 * Add JsonPath.using(Jackson3ObjectMapperFactory) overload (#1861) (thanks to Anusha-7254 for PR)
 * Fix typo in duplicate-finder-maven-plugin phase property (#1866) (thanks to metacosm for PR)
+* Fix incorrect serialization of enum constants declared with a body when used as query/path parameters (#1799)
 
 Changelog 5.5.7 (2026-01-16)
 ----------------------------

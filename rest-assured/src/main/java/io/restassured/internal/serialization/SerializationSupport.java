@@ -30,7 +30,7 @@ public class SerializationSupport {
         Class clazz = object.getClass();
         return !(Number.class.isAssignableFrom(clazz) || String.class.isAssignableFrom(clazz)
                 || GString.class.isAssignableFrom(clazz) || Boolean.class.isAssignableFrom(clazz)
-                || Character.class.isAssignableFrom(clazz) || clazz.isEnum() ||
+                || Character.class.isAssignableFrom(clazz) || object instanceof Enum ||
                 Locale.class.isAssignableFrom(clazz) || Class.class.isAssignableFrom(clazz) || UUID.class.isAssignableFrom(clazz));
     }
 }

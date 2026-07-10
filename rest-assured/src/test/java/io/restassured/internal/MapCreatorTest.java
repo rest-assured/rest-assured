@@ -34,4 +34,13 @@ public class MapCreatorTest {
         assertThat(map).isNotEmpty();
     }
 
+    // Regression guard for #1867: Integer values used to trigger a Groovy operator-dispatch
+    // failure on the `parameters.length % 2` check under Groovy 4.0.29.
+    @Test public void
+    can_create_map_from_integer_values() {
+        Map<String, Object> map = MapCreator.createMapFromObjects(CollisionStrategy.MERGE, "a", 1, "b", 2);
+
+        assertThat(map).containsEntry("a", 1).containsEntry("b", 2);
+    }
+
 }
