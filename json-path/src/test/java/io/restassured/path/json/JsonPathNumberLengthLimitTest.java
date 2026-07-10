@@ -52,8 +52,9 @@ public class JsonPathNumberLengthLimitTest {
         final String json = "{\"n\":" + "9".repeat(50_000) + ".5}";
         final JsonPath jsonPath = new JsonPath(json);
 
-        // When / Then
-        assertThrows(JsonPathException.class, () -> jsonPath.get("n"));
+        // When / Then it is rejected quickly, before any expensive BigDecimal construction runs
+        assertTimeoutPreemptively(Duration.ofSeconds(2),
+                () -> assertThrows(JsonPathException.class, () -> jsonPath.get("n")));
     }
 
     @Test public void

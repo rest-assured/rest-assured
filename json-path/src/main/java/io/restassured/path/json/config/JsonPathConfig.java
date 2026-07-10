@@ -167,10 +167,10 @@ public class JsonPathConfig {
     /**
      * Specifies the maximum allowed length (in characters) of a JSON number token. Number tokens longer than this
      * are rejected before being converted to a number, guarding against CPU/heap exhaustion when constructing
-     * arbitrarily large numbers (such as {@link java.math.BigInteger}) from untrusted JSON. A negative value
-     * disables the check. Defaults to {@link #DEFAULT_NUMBER_LENGTH_LIMIT}.
+     * arbitrarily large numbers (such as {@link java.math.BigInteger}) from untrusted JSON. A value of {@code 0}
+     * rejects every number, and a negative value disables the check. Defaults to {@link #DEFAULT_NUMBER_LENGTH_LIMIT}.
      *
-     * @param numberLengthLimit The maximum number token length, or a negative value to disable the check.
+     * @param numberLengthLimit The maximum number token length, {@code 0} to reject all numbers, or a negative value to disable the check.
      * @return A new instance of JsonPathConfig with the given configuration
      */
     public JsonPathConfig numberLengthLimit(int numberLengthLimit) {
