@@ -51,6 +51,8 @@ public class JsonObjectDeserializer {
 
         if (ObjectMapperResolver.isJackson2InClassPath()) {
             return (T) deserializeWithJackson2(deserializationCtx, jsonPathConfig.jackson2ObjectMapperFactory());
+        } else if (ObjectMapperResolver.isJackson3InClassPath()) {
+            return (T) deserializeWithJackson3(deserializationCtx, jsonPathConfig.jackson3ObjectMapperFactory());
         } else if (ObjectMapperResolver.isJackson1InClassPath()) {
             return (T) deserializeWithJackson1(deserializationCtx, jsonPathConfig.jackson1ObjectMapperFactory());
         } else if (ObjectMapperResolver.isGsonInClassPath()) {
