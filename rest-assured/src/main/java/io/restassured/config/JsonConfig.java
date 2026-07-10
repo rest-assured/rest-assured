@@ -28,7 +28,7 @@ public class JsonConfig implements Config {
     private final boolean isUserDefined;
 
     /**
-     * Create a new instance of XmlConfig without any features and that is namespace unaware.
+     * Create a new instance of JsonConfig with the default settings.
      */
     public JsonConfig() {
         this(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE, JsonPathConfig.DEFAULT_NUMBER_LENGTH_LIMIT, false);
