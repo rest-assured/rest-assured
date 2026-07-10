@@ -34,7 +34,16 @@ import static io.restassured.path.json.config.JsonPathConfig.NumberReturnType.FL
  */
 public class JsonPathConfig {
 
+    /**
+     * The default maximum length (in characters) of a JSON number token. Tokens longer than this
+     * are rejected before being converted to a number. This guards against CPU/heap exhaustion when
+     * constructing arbitrarily large numbers (e.g. {@link java.math.BigInteger}) from untrusted input.
+     * The value matches Jackson's {@code StreamReadConstraints} default.
+     */
+    public static final int DEFAULT_NUMBER_LENGTH_LIMIT = 1000;
+
     private final NumberReturnType numberReturnType;
+    private final int numberLengthLimit;
     private final JsonPathObjectDeserializer defaultDeserializer;
     private final JsonParserType defaultParserType;
     private final GsonObjectMapperFactory gsonObjectMapperFactory;
@@ -54,7 +63,7 @@ public class JsonPathConfig {
     public JsonPathConfig(JsonPathConfig config) {
         this(config.numberReturnType(), config.defaultParserType(), config.gsonObjectMapperFactory(), config.jackson1ObjectMapperFactory(),
                 config.jackson2ObjectMapperFactory(), config.jackson3ObjectMapperFactory(), config.johnzonObjectMapperFactory(), config.jsonbObjectMapperFactory(),
-                config.defaultDeserializer(), config.charset());
+                config.defaultDeserializer(), config.charset(), config.numberLengthLimit());
     }
 
     /**
@@ -63,7 +72,7 @@ public class JsonPathConfig {
     public JsonPathConfig() {
         this(FLOAT_AND_DOUBLE, null, newGsonObjectMapperFactoryOrNullIfNotInClasspath(), newJackson1ObjectMapperFactoryOrNullIfNotInClasspath(),
                 newJackson2ObjectMapperFactoryOrNullIfNotInClasspath(), newJackson3ObjectMapperFactoryOrNullIfNotInClasspath(),
-                newJohnzonObjectMapperFactoryOrNullIfNotInClasspath(), newYassinObjectMapperFactoryOrNullIfNotInClasspath(), null, defaultCharset());
+                newJohnzonObjectMapperFactoryOrNullIfNotInClasspath(), newYassinObjectMapperFactoryOrNullIfNotInClasspath(), null, defaultCharset(), DEFAULT_NUMBER_LENGTH_LIMIT);
     }
 
 
@@ -73,7 +82,7 @@ public class JsonPathConfig {
     public JsonPathConfig(NumberReturnType numberReturnType) {
         this(numberReturnType, null, newGsonObjectMapperFactoryOrNullIfNotInClasspath(), newJackson1ObjectMapperFactoryOrNullIfNotInClasspath(),
                 newJackson2ObjectMapperFactoryOrNullIfNotInClasspath(), newJackson3ObjectMapperFactoryOrNullIfNotInClasspath(),
-                newJohnzonObjectMapperFactoryOrNullIfNotInClasspath(), newYassinObjectMapperFactoryOrNullIfNotInClasspath(), null, defaultCharset());
+                newJohnzonObjectMapperFactoryOrNullIfNotInClasspath(), newYassinObjectMapperFactoryOrNullIfNotInClasspath(), null, defaultCharset(), DEFAULT_NUMBER_LENGTH_LIMIT);
 
     }
 
@@ -83,19 +92,20 @@ public class JsonPathConfig {
     public JsonPathConfig(String defaultCharset) {
         this(FLOAT_AND_DOUBLE, null, newGsonObjectMapperFactoryOrNullIfNotInClasspath(), newJackson1ObjectMapperFactoryOrNullIfNotInClasspath(),
                 newJackson2ObjectMapperFactoryOrNullIfNotInClasspath(), newJackson3ObjectMapperFactoryOrNullIfNotInClasspath(),
-                newJohnzonObjectMapperFactoryOrNullIfNotInClasspath(), newYassinObjectMapperFactoryOrNullIfNotInClasspath(), null, defaultCharset);
+                newJohnzonObjectMapperFactoryOrNullIfNotInClasspath(), newYassinObjectMapperFactoryOrNullIfNotInClasspath(), null, defaultCharset, DEFAULT_NUMBER_LENGTH_LIMIT);
 
     }
 
     private JsonPathConfig(NumberReturnType numberReturnType, JsonParserType parserType, GsonObjectMapperFactory gsonObjectMapperFactory,
                            Jackson1ObjectMapperFactory jackson1ObjectMapperFactory, Jackson2ObjectMapperFactory jackson2ObjectMapperFactory,
                            Jackson3ObjectMapperFactory jackson3ObjectMapperFactory, JohnzonObjectMapperFactory johnzonObjectMapperFactory,
-                           JsonbObjectMapperFactory jsonbObjectMapperFactory, JsonPathObjectDeserializer defaultDeserializer, String charset) {
+                           JsonbObjectMapperFactory jsonbObjectMapperFactory, JsonPathObjectDeserializer defaultDeserializer, String charset, int numberLengthLimit) {
         if (numberReturnType == null) throw new IllegalArgumentException("numberReturnType cannot be null");
         charset = StringUtils.trimToNull(charset);
         if (charset == null) throw new IllegalArgumentException("Charset cannot be empty");
         this.charset = charset;
         this.numberReturnType = numberReturnType;
+        this.numberLengthLimit = numberLengthLimit;
         this.defaultDeserializer = defaultDeserializer;
         this.defaultParserType = parserType;
         this.gsonObjectMapperFactory = gsonObjectMapperFactory;
@@ -123,7 +133,7 @@ public class JsonPathConfig {
     public JsonPathConfig charset(String charset) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
                 jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
-                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset, numberLengthLimit);
     }
 
 
@@ -140,11 +150,33 @@ public class JsonPathConfig {
     public JsonPathConfig numberReturnType(NumberReturnType numberReturnType) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
                 jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
-                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset, numberLengthLimit);
     }
 
     public boolean shouldRepresentJsonNumbersAsBigDecimal() {
         return numberReturnType() == BIG_DECIMAL;
+    }
+
+    /**
+     * @return The maximum allowed length (in characters) of a JSON number token, or a negative value if unlimited.
+     */
+    public int numberLengthLimit() {
+        return numberLengthLimit;
+    }
+
+    /**
+     * Specifies the maximum allowed length (in characters) of a JSON number token. Number tokens longer than this
+     * are rejected before being converted to a number, guarding against CPU/heap exhaustion when constructing
+     * arbitrarily large numbers (such as {@link java.math.BigInteger}) from untrusted JSON. A negative value
+     * disables the check. Defaults to {@link #DEFAULT_NUMBER_LENGTH_LIMIT}.
+     *
+     * @param numberLengthLimit The maximum number token length, or a negative value to disable the check.
+     * @return A new instance of JsonPathConfig with the given configuration
+     */
+    public JsonPathConfig numberLengthLimit(int numberLengthLimit) {
+        return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
+                jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset, numberLengthLimit);
     }
 
     public JsonParserType defaultParserType() {
@@ -187,7 +219,7 @@ public class JsonPathConfig {
     public JsonPathConfig defaultParserType(JsonParserType defaultParserType) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
                 jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
-                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset, numberLengthLimit);
     }
 
     public JsonPathObjectDeserializer defaultDeserializer() {
@@ -206,7 +238,7 @@ public class JsonPathConfig {
     public JsonPathConfig defaultObjectDeserializer(JsonPathObjectDeserializer defaultObjectDeserializer) {
         return new JsonPathConfig(numberReturnType, null, gsonObjectMapperFactory, jackson1ObjectMapperFactory,
                 jackson2ObjectMapperFactory, jackson3ObjectMapperFactory, johnzonObjectMapperFactory,
-                jsonbObjectMapperFactory, defaultObjectDeserializer, charset);
+                jsonbObjectMapperFactory, defaultObjectDeserializer, charset, numberLengthLimit);
     }
 
     public GsonObjectMapperFactory gsonObjectMapperFactory() {
@@ -221,7 +253,7 @@ public class JsonPathConfig {
     public JsonPathConfig gsonObjectMapperFactory(GsonObjectMapperFactory gsonObjectMapperFactory) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
                 jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
-                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset, numberLengthLimit);
     }
 
     public Jackson1ObjectMapperFactory jackson1ObjectMapperFactory() {
@@ -236,7 +268,7 @@ public class JsonPathConfig {
     public JsonPathConfig jackson1ObjectMapperFactory(Jackson1ObjectMapperFactory jackson1ObjectMapperFactory) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
                 jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
-                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset, numberLengthLimit);
     }
 
     public Jackson2ObjectMapperFactory jackson2ObjectMapperFactory() {
@@ -255,7 +287,7 @@ public class JsonPathConfig {
     public JsonPathConfig jackson2ObjectMapperFactory(Jackson2ObjectMapperFactory jackson2ObjectMapperFactory) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
                 jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
-                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset, numberLengthLimit);
     }
 
     public Jackson3ObjectMapperFactory jackson3ObjectMapperFactory() {
@@ -270,7 +302,7 @@ public class JsonPathConfig {
     public JsonPathConfig jackson3ObjectMapperFactory(Jackson3ObjectMapperFactory jackson3ObjectMapperFactory) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
             jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
-            johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+            johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset, numberLengthLimit);
     }
 
     public JsonbObjectMapperFactory jsonbObjectMapperFactory() {
@@ -285,7 +317,7 @@ public class JsonPathConfig {
     public JsonPathConfig jsonbObjectMapperFactory(JsonbObjectMapperFactory jsonbObjectMapperFactory) {
         return new JsonPathConfig(numberReturnType, defaultParserType, gsonObjectMapperFactory,
                 jackson1ObjectMapperFactory, jackson2ObjectMapperFactory, jackson3ObjectMapperFactory,
-                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset);
+                johnzonObjectMapperFactory, jsonbObjectMapperFactory, defaultDeserializer, charset, numberLengthLimit);
     }
 
     /**

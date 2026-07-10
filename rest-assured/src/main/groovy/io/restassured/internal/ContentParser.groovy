@@ -37,7 +37,7 @@ class ContentParser {
     } else {
       switch (parser) {
         case JSON:
-          def slurper = new ConfigurableJsonSlurper(config.getJsonConfig().numberReturnType())
+          def slurper = new ConfigurableJsonSlurper(config.getJsonConfig().numberReturnType(), config.getJsonConfig().numberLengthLimit())
           if (parseAsString) {
             content = slurper.parseText(response.asString())
           } else {

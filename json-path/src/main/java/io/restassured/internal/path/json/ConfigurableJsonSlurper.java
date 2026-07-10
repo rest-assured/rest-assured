@@ -53,8 +53,18 @@ import java.util.Map;
  */
 public class ConfigurableJsonSlurper {
   private final NumberReturnType numberReturnType;
+  private final int numberLengthLimit;
 
   private Object getValue(JsonToken token) {
+    if (numberLengthLimit >= 0 && token.getType() == NUMBER) {
+      String text = token.getText();
+      if (text.length() > numberLengthLimit) {
+        throw new JsonException("JSON number length (" + text.length()
+                + " chars) exceeds the maximum allowed length of " + numberLengthLimit
+                + " chars. Raise or disable it via JsonPathConfig/JsonConfig.numberLengthLimit(int).");
+      }
+    }
+
     Object result = token.getValue();
 
     if (numberReturnType.isFloatOrDouble() && result instanceof BigDecimal decimal) {
@@ -72,8 +82,9 @@ public class ConfigurableJsonSlurper {
     return result;
   }
 
-  public ConfigurableJsonSlurper(NumberReturnType numberReturnType) {
+  public ConfigurableJsonSlurper(NumberReturnType numberReturnType, int numberLengthLimit) {
     this.numberReturnType = numberReturnType;
+    this.numberLengthLimit = numberLengthLimit;
   }
 
   /**
