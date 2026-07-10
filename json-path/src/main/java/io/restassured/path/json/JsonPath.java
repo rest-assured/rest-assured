@@ -1025,7 +1025,7 @@ public class JsonPath {
 
     private ConfigurableJsonSlurper createConfigurableJsonSlurper() {
         JsonPathConfig cfg = getJsonPathConfig();
-        return new ConfigurableJsonSlurper(cfg.numberReturnType());
+        return new ConfigurableJsonSlurper(cfg.numberReturnType(), cfg.numberLengthLimit());
     }
 
     private JsonPathConfig getJsonPathConfig() {
