@@ -60,7 +60,24 @@ public class CrossHostSensitiveHeaderStripper implements HttpRequestInterceptor 
 
     private static boolean isCrossOrigin(HttpHost origin, HttpHost current) {
         return !origin.getHostName().equalsIgnoreCase(current.getHostName())
-                || origin.getPort() != current.getPort()
-                || !origin.getSchemeName().equalsIgnoreCase(current.getSchemeName());
+                || !origin.getSchemeName().equalsIgnoreCase(current.getSchemeName())
+                || effectivePort(origin) != effectivePort(current);
+    }
+
+    // HttpHost.getPort() is -1 when the URL omits the port; resolve it to the scheme default so that,
+    // for example, http://example.com and http://example.com:80 are treated as the same origin.
+    private static int effectivePort(HttpHost host) {
+        int port = host.getPort();
+        if (port != -1) {
+            return port;
+        }
+        String scheme = host.getSchemeName();
+        if ("https".equalsIgnoreCase(scheme)) {
+            return 443;
+        }
+        if ("http".equalsIgnoreCase(scheme)) {
+            return 80;
+        }
+        return -1;
     }
 }

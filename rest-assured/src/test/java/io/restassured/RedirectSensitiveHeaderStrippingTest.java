@@ -49,7 +49,7 @@ class RedirectSensitiveHeaderStrippingTest {
                     header("Authorization", "Bearer secret").
                     header("Cookie", "session=cookie").
             when().
-                    get("http://localhost:" + origin.getAddress().getPort() + "/start").
+                    get("http://127.0.0.1:" + origin.getAddress().getPort() + "/start").
             then().
                     statusCode(200);
 
@@ -103,7 +103,7 @@ class RedirectSensitiveHeaderStrippingTest {
                     header("Authorization", "Bearer secret").
                     header("Cookie", "session=cookie").
             when().
-                    get("http://localhost:" + origin.getAddress().getPort() + "/start").
+                    get("http://127.0.0.1:" + origin.getAddress().getPort() + "/start").
             then().
                     statusCode(200);
 
