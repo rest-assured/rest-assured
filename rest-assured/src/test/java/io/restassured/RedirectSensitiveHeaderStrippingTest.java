@@ -48,6 +48,7 @@ class RedirectSensitiveHeaderStrippingTest {
             given().
                     header("Authorization", "Bearer secret").
                     header("Cookie", "session=cookie").
+                    header("Proxy-Authorization", "Basic proxy").
             when().
                     get("http://127.0.0.1:" + origin.getAddress().getPort() + "/start").
             then().
@@ -55,6 +56,7 @@ class RedirectSensitiveHeaderStrippingTest {
 
             assertThat(leaked.authorization.get()).isNull();
             assertThat(leaked.cookie.get()).isNull();
+            assertThat(leaked.proxyAuthorization.get()).isNull();
         } finally {
             origin.stop(0);
             sink.stop(0);
@@ -73,6 +75,7 @@ class RedirectSensitiveHeaderStrippingTest {
         server.createContext("/target", exchange -> {
             received.authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
             received.cookie.set(exchange.getRequestHeaders().getFirst("Cookie"));
+            received.proxyAuthorization.set(exchange.getRequestHeaders().getFirst("Proxy-Authorization"));
             send(exchange, "ok");
         });
         server.start();
@@ -80,6 +83,7 @@ class RedirectSensitiveHeaderStrippingTest {
             given().
                     header("Authorization", "Bearer secret").
                     header("Cookie", "session=cookie").
+                    header("Proxy-Authorization", "Basic proxy").
             when().
                     get("http://127.0.0.1:" + server.getAddress().getPort() + "/start").
             then().
@@ -87,6 +91,7 @@ class RedirectSensitiveHeaderStrippingTest {
 
             assertThat(received.authorization.get()).isEqualTo("Bearer secret");
             assertThat(received.cookie.get()).isEqualTo("session=cookie");
+            assertThat(received.proxyAuthorization.get()).isEqualTo("Basic proxy");
         } finally {
             server.stop(0);
         }
@@ -102,6 +107,7 @@ class RedirectSensitiveHeaderStrippingTest {
                     config(config().redirect(redirectConfig().stripSensitiveHeadersOnCrossHostRedirect(false))).
                     header("Authorization", "Bearer secret").
                     header("Cookie", "session=cookie").
+                    header("Proxy-Authorization", "Basic proxy").
             when().
                     get("http://127.0.0.1:" + origin.getAddress().getPort() + "/start").
             then().
@@ -109,6 +115,7 @@ class RedirectSensitiveHeaderStrippingTest {
 
             assertThat(leaked.authorization.get()).isEqualTo("Bearer secret");
             assertThat(leaked.cookie.get()).isEqualTo("session=cookie");
+            assertThat(leaked.proxyAuthorization.get()).isEqualTo("Basic proxy");
         } finally {
             origin.stop(0);
             sink.stop(0);
@@ -120,6 +127,7 @@ class RedirectSensitiveHeaderStrippingTest {
         sink.createContext("/leak", exchange -> {
             captured.authorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
             captured.cookie.set(exchange.getRequestHeaders().getFirst("Cookie"));
+            captured.proxyAuthorization.set(exchange.getRequestHeaders().getFirst("Proxy-Authorization"));
             send(exchange, "ok");
         });
         sink.start();
@@ -148,5 +156,6 @@ class RedirectSensitiveHeaderStrippingTest {
     private static final class Headers {
         final AtomicReference<String> authorization = new AtomicReference<>();
         final AtomicReference<String> cookie = new AtomicReference<>();
+        final AtomicReference<String> proxyAuthorization = new AtomicReference<>();
     }
 }
