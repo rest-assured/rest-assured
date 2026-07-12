@@ -28,6 +28,7 @@ public class RedirectConfig implements Config {
     private final boolean allowCircularRedirects;
     private final boolean rejectRelativeRedirect;
     private final int maxRedirects;
+    private final boolean stripSensitiveHeadersOnCrossHostRedirect;
     private final boolean isUserConfigured;
 
     /**
@@ -37,10 +38,11 @@ public class RedirectConfig implements Config {
      * <li>allowCircularRedirects = false</li>
      * <li>rejectRelativeRedirect = false</li>
      * <li>maxRedirects = 100 </li>
+     * <li>stripSensitiveHeadersOnCrossHostRedirect = true </li>
      * </ol>
      */
     public RedirectConfig() {
-        this(true, false, false, 100, false);
+        this(true, false, false, 100, true, false);
     }
 
     /**
@@ -53,15 +55,17 @@ public class RedirectConfig implements Config {
      */
     public RedirectConfig(boolean followRedirects, boolean allowCircularRedirects,
                           boolean rejectRelativeRedirect, int maxRedirects) {
-        this(followRedirects, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, true);
+        this(followRedirects, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, true, true);
     }
 
     private RedirectConfig(boolean followRedirects, boolean allowCircularRedirects,
-                           boolean rejectRelativeRedirect, int maxRedirects, boolean isUserConfigured) {
+                           boolean rejectRelativeRedirect, int maxRedirects,
+                           boolean stripSensitiveHeadersOnCrossHostRedirect, boolean isUserConfigured) {
         this.followRedirects = followRedirects;
         this.allowCircularRedirects = allowCircularRedirects;
         this.rejectRelativeRedirect = rejectRelativeRedirect;
         this.maxRedirects = maxRedirects;
+        this.stripSensitiveHeadersOnCrossHostRedirect = stripSensitiveHeadersOnCrossHostRedirect;
         this.isUserConfigured = isUserConfigured;
     }
 
@@ -72,7 +76,7 @@ public class RedirectConfig implements Config {
      * @return An updated RedirectConfig
      */
     public RedirectConfig followRedirects(boolean value) {
-        return new RedirectConfig(value, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, true);
+        return new RedirectConfig(value, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, stripSensitiveHeadersOnCrossHostRedirect, true);
     }
 
     /**
@@ -82,7 +86,7 @@ public class RedirectConfig implements Config {
      * @return An updated RedirectConfig
      */
     public RedirectConfig allowCircularRedirects(boolean value) {
-        return new RedirectConfig(followRedirects, value, rejectRelativeRedirect, maxRedirects, true);
+        return new RedirectConfig(followRedirects, value, rejectRelativeRedirect, maxRedirects, stripSensitiveHeadersOnCrossHostRedirect, true);
     }
 
     /**
@@ -92,7 +96,7 @@ public class RedirectConfig implements Config {
      * @return An updated RedirectConfig
      */
     public RedirectConfig rejectRelativeRedirect(boolean value) {
-        return new RedirectConfig(followRedirects, allowCircularRedirects, value, maxRedirects, true);
+        return new RedirectConfig(followRedirects, allowCircularRedirects, value, maxRedirects, stripSensitiveHeadersOnCrossHostRedirect, true);
     }
 
     /**
@@ -102,7 +106,21 @@ public class RedirectConfig implements Config {
      * @return An updated RedirectConfig
      */
     public RedirectConfig maxRedirects(int value) {
-        return new RedirectConfig(followRedirects, allowCircularRedirects, rejectRelativeRedirect, value, true);
+        return new RedirectConfig(followRedirects, allowCircularRedirects, rejectRelativeRedirect, value, stripSensitiveHeadersOnCrossHostRedirect, true);
+    }
+
+    /**
+     * Configure whether REST Assured should strip sensitive headers (<code>Authorization</code> and <code>Cookie</code>)
+     * when a redirect crosses to a different host, so that a credential or session is not leaked to the redirect target.
+     * The target is considered a different host when its scheme, host or port differs from the first (original) request
+     * in the redirect chain. <code>Proxy-Authorization</code> is not stripped, since it authenticates to the proxy rather
+     * than the target host. Enabled by default.
+     *
+     * @param value <code>true</code> if sensitive headers should be stripped on a cross-host redirect, <code>false</code> to forward them as before.
+     * @return An updated RedirectConfig
+     */
+    public RedirectConfig stripSensitiveHeadersOnCrossHostRedirect(boolean value) {
+        return new RedirectConfig(followRedirects, allowCircularRedirects, rejectRelativeRedirect, maxRedirects, value, true);
     }
 
     /**
@@ -138,6 +156,13 @@ public class RedirectConfig implements Config {
      */
     public int maxRedirects() {
         return maxRedirects;
+    }
+
+    /**
+     * @return <code>true</code> if configured to strip sensitive headers on a cross-host redirect
+     */
+    public boolean stripsSensitiveHeadersOnCrossHostRedirect() {
+        return stripSensitiveHeadersOnCrossHostRedirect;
     }
 
     /**
