@@ -56,7 +56,8 @@ class RedirectSensitiveHeaderStrippingTest {
 
             assertThat(leaked.authorization.get()).isNull();
             assertThat(leaked.cookie.get()).isNull();
-            assertThat(leaked.proxyAuthorization.get()).isNull();
+            // Proxy-Authorization authenticates to the proxy, which does not change on a redirect, so it is preserved.
+            assertThat(leaked.proxyAuthorization.get()).isEqualTo("Basic proxy");
         } finally {
             origin.stop(0);
             sink.stop(0);

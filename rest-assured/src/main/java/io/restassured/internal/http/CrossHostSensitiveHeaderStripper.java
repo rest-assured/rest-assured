@@ -23,9 +23,13 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 
 /**
- * Strips credential-bearing headers (<code>Authorization</code>, <code>Cookie</code>, <code>Proxy-Authorization</code>)
- * from a request whose target host differs from the host of the original request in the same execution. This prevents a
- * redirect that crosses to a different origin from leaking the caller's token or session to that origin.
+ * Strips origin-scoped credential headers (<code>Authorization</code> and <code>Cookie</code>) from a request whose
+ * target host differs from the host of the original request in the same execution. This prevents a redirect that crosses
+ * to a different origin from leaking the caller's token or session to that origin.
+ * <p>
+ * <code>Proxy-Authorization</code> is deliberately not stripped: it authenticates to the proxy, which does not change
+ * when a redirect crosses to a different target host, and HttpClient re-adds it per request from the configured
+ * credentials, so stripping it would break authenticated-proxy setups without preventing any origin leak.
  * <p>
  * Apache HttpClient 4.5's request director copies the original request headers onto the redirected request after the
  * {@link org.apache.http.client.RedirectStrategy} runs, so the stripping has to happen on the outgoing request itself.
@@ -35,7 +39,7 @@ import org.apache.http.protocol.HttpCoreContext;
 public class CrossHostSensitiveHeaderStripper implements HttpRequestInterceptor {
 
     private static final String ORIGIN_HOST_ATTRIBUTE = "rest-assured.origin-host";
-    private static final String[] SENSITIVE_HEADERS = {"Authorization", "Cookie", "Proxy-Authorization"};
+    private static final String[] SENSITIVE_HEADERS = {"Authorization", "Cookie"};
 
     @Override
     public void process(HttpRequest request, HttpContext context) {
