@@ -1388,6 +1388,20 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         p.setParameter(key, value)
       }
     }
+
+    applyCrossHostRedirectHeaderStripping(http, (restAssuredConfig?.getRedirectConfig() ?: new RedirectConfig()))
+  }
+
+  private def applyCrossHostRedirectHeaderStripping(HTTPBuilder http, RedirectConfig redirectConfig) {
+    if (!(http.client instanceof AbstractHttpClient)) {
+      return
+    }
+    def client = http.client as AbstractHttpClient
+    // Remove first so repeated configuration (e.g. a reused HttpClient instance) never stacks duplicates.
+    client.removeRequestInterceptorByClass(CrossHostSensitiveHeaderStripper)
+    if (redirectConfig.stripsSensitiveHeadersOnCrossHostRedirect()) {
+      client.addRequestInterceptor(new CrossHostSensitiveHeaderStripper())
+    }
   }
 
   private def applyContentDecoders(HTTPBuilder httpBuilder, List<DecoderConfig.ContentDecoder> contentDecoders) {

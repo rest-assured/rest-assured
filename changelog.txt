@@ -1,3 +1,7 @@
+Changelog next version
+----------------------
+* Strip sensitive headers (Authorization, Cookie, Proxy-Authorization) when a redirect crosses to a different host, so a token or session isn't leaked to the redirect target. This is on by default and can be turned off with RedirectConfig.stripSensitiveHeadersOnCrossHostRedirect(false). Thanks to the University of Sydney security research team for the report.
+
 Changelog 6.0.1 (2026-07-10)
 ----------------------------
 * Fix a JsonPath denial-of-service where oversized numeric literals in untrusted JSON were parsed into arbitrarily large BigIntegers, an O(n^2) CPU and heap cost. JSON number tokens are now capped at 1000 characters by default, configurable via JsonPathConfig.numberLengthLimit and JsonConfig.numberLengthLimit (a negative value disables the check). Thanks to Brian Lee (PhD security researcher, Georgia Tech SSLab) for the private report.
