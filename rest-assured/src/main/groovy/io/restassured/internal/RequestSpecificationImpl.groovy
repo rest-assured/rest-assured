@@ -1285,6 +1285,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
     authenticationScheme.authenticate(http)
 
+    // Register the cross-host header stripper after authentication so it runs last in the interceptor chain.
+    applyCrossHostRedirectHeaderStripping(http, (restAssuredConfig?.getRedirectConfig() ?: new RedirectConfig()))
+
     if (mayHaveBody(method)) {
       if (hasFormParams() && requestBody != null) {
         throw new IllegalStateException("You can either send form parameters OR body content in $method, not both!")
@@ -1388,8 +1391,6 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
         p.setParameter(key, value)
       }
     }
-
-    applyCrossHostRedirectHeaderStripping(http, (restAssuredConfig?.getRedirectConfig() ?: new RedirectConfig()))
   }
 
   private def applyCrossHostRedirectHeaderStripping(HTTPBuilder http, RedirectConfig redirectConfig) {
@@ -1398,6 +1399,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
     def client = http.client as AbstractHttpClient
     // Remove first so repeated configuration (e.g. a reused HttpClient instance) never stacks duplicates.
+    // Register last (after authentication schemes have added their interceptors) so that an auth interceptor
+    // such as the OAuth/OAuth2 signer cannot re-add Authorization after we have stripped it on a redirect.
     client.removeRequestInterceptorByClass(CrossHostSensitiveHeaderStripper)
     if (redirectConfig.stripsSensitiveHeadersOnCrossHostRedirect()) {
       client.addRequestInterceptor(new CrossHostSensitiveHeaderStripper())

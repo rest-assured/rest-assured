@@ -64,6 +64,28 @@ class RedirectSensitiveHeaderStrippingTest {
     }
 
     @Test
+    void stripsAuthInterceptorInjectedHeaderOnCrossHostRedirect() throws Exception {
+        // OAuth signs the request through an OAuthSigner request interceptor that sets Authorization. The stripper
+        // must run after it, otherwise the signer re-adds the header on the redirected request.
+        Headers leaked = new Headers();
+        HttpServer sink = sinkServer(leaked);
+        HttpServer origin = redirectingServer("http://127.0.0.1:" + sink.getAddress().getPort() + "/leak");
+        try {
+            given().
+                    auth().oauth("consumerKey", "consumerSecret", "accessToken", "secretToken").
+            when().
+                    get("http://127.0.0.1:" + origin.getAddress().getPort() + "/start").
+            then().
+                    statusCode(200);
+
+            assertThat(leaked.authorization.get()).isNull();
+        } finally {
+            origin.stop(0);
+            sink.stop(0);
+        }
+    }
+
+    @Test
     void keepsSensitiveHeadersOnSameHostRedirect() throws Exception {
         Headers received = new Headers();
         HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);

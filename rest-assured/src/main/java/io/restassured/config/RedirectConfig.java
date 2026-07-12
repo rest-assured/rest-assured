@@ -113,7 +113,7 @@ public class RedirectConfig implements Config {
      * Configure whether REST Assured should strip sensitive headers (<code>Authorization</code>, <code>Cookie</code> and
      * <code>Proxy-Authorization</code>) when a redirect crosses to a different host, so that a credential or session is not
      * leaked to the redirect target. The target is considered a different host when its scheme, host or port differs from
-     * the request being redirected. Enabled by default.
+     * the first (original) request in the redirect chain. Enabled by default.
      *
      * @param value <code>true</code> if sensitive headers should be stripped on a cross-host redirect, <code>false</code> to forward them as before.
      * @return An updated RedirectConfig
