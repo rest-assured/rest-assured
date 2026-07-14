@@ -224,4 +224,11 @@ public interface ResponseOptions<T extends ResponseOptions<T>> {
      * @see #time()
      */
     long getTimeIn(TimeUnit timeUnit);
+
+    /**
+     * Pretty-print the response body if possible and return it as string. Mainly useful for debug purposes when writing tests.
+     *
+     * @return The headers as a string.
+     */
+    String prettyPrintHeaders();
 }

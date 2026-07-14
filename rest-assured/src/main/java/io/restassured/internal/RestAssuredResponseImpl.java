@@ -15,9 +15,12 @@
  */
 package io.restassured.internal;
 
+import io.restassured.http.Header;
 import io.restassured.internal.http.HttpResponseDecorator;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
+
+import java.util.List;
 
 public class RestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<Response> implements Response {
 
@@ -28,5 +31,23 @@ public class RestAssuredResponseImpl extends RestAssuredResponseOptionsImpl<Resp
     @Override
     public ValidatableResponse then() {
         return new ValidatableResponseImpl(getContentType(), getRpr(), getConfig(), this, this, getLogRepository());
+    }
+
+    public String prettyPrintHeaders() {
+        List<Header> headers = headers().asList();
+        StringBuilder headersStringBuilder = new StringBuilder("Headers:\t\t");
+
+        for (int i = 0; i < headers.size(); i++) {
+            if (i != 0) {
+                headersStringBuilder.append("\t\t\t\t");
+            }
+
+            Header currentHeader = headers.get(i);
+            headersStringBuilder.append(String.format("%s=%s\n", currentHeader.getName(), currentHeader.getValue()));
+        }
+
+        System.out.println(headersStringBuilder);
+
+        return headersStringBuilder.toString();
     }
 }
