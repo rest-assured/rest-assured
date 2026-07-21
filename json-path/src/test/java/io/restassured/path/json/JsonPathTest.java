@@ -787,6 +787,50 @@ public class JsonPathTest {
     }
 
     @Test public void
+    spreads_properties_over_list_of_objects_even_when_the_first_element_lacks_the_properties_key() {
+        // Given a GeoJSON-style FeatureCollection whose FIRST feature has no "properties".
+        // GeoJSON permits an absent "properties" and does not guarantee feature order, so a leading
+        // feature without "properties" must not wipe the whole spread (issue #1875).
+        String json = """
+                {
+                   "features":[
+                      {
+                         "type":"Feature",
+                         "geometry":{
+                            "type":"Point",
+                            "coordinates":[19.883992823270653, 50.02026203045478]
+                         }
+                      },
+                      {
+                         "type":"Feature",
+                         "geometry":{
+                            "type":"Point",
+                            "coordinates":[19.901266347582094, 50.07074684071764]
+                         },
+                         "properties":{
+                            "gridId":6
+                         }
+                      },
+                      {
+                         "type":"Feature",
+                         "geometry":{
+                            "type":"Point",
+                            "coordinates":[19.912345678901234, 50.11223344556677]
+                         },
+                         "properties":{
+                            "gridId":7
+                         }
+                      }
+                   ]
+                }""";
+        // When
+        JsonPath jsonPath = new JsonPath(json);
+
+        // Then the spread yields the values of the features that do carry "properties" instead of null
+        assertThat(jsonPath.getList("features.properties.gridId", Integer.class), hasItems(6, 7));
+    }
+
+    @Test public void
     can_manually_escape_class_property() {
         // Given
         String json = "{\n" +
