@@ -1,5 +1,6 @@
 Changelog next version
 ----------------------
+* Fix JsonPath returning -Infinity for finite negative JSON numbers whose magnitude exceeds Float.MAX_VALUE under the default FLOAT_AND_DOUBLE number configuration. The float/double selection compared the signed value against Float.MAX_VALUE, so any such negative number fell into the float branch and overflowed; it now compares the magnitude and promotes to double regardless of sign (fixes #1874). Thanks to haskiindahouse for the report.
 * Strip sensitive headers (Authorization and Cookie) when a redirect crosses to a different host, so a token or session isn't leaked to the redirect target. This is on by default and can be turned off with RedirectConfig.stripSensitiveHeadersOnCrossHostRedirect(false) (#1873). Thanks to the University of Sydney security research team (Liyi Zhou, Ziyue Wang, Strick, Maurice, and Chenchen Yu) for the report.
 
 Changelog 6.0.1 (2026-07-10)
