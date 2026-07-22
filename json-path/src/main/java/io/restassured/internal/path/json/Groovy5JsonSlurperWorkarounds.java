@@ -61,13 +61,17 @@ class Groovy5JsonSlurperWorkarounds {
         // meta-property access. Gating on element [0] alone dropped the whole spread when the first
         // element happened to lack "properties" (e.g. a GeoJSON feature with only a geometry), even
         // though feature order is not guaranteed and later elements did carry it.
-        return stream().map(elem -> {
+        // Collect into a ProxyArray (not a plain List) so that a further "properties" hop on the
+        // spread result keeps navigating the JSON field instead of leaking Groovy meta-data.
+        ProxyArray spread = new ProxyArray();
+        for (Object elem : this) {
           if (elem instanceof Map<?, ?> map && map.containsKey(PROPERTIES)) {
-            return map.get(PROPERTIES);
+            spread.add(map.get(PROPERTIES));
           } else {
-            return null;
+            spread.add(null);
           }
-        }).toList();
+        }
+        return spread;
       }
       return null;
     }
