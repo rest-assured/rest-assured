@@ -1,6 +1,6 @@
 Changelog next version
 ----------------------
-* Strip sensitive headers (Authorization and Cookie) when a redirect crosses to a different host, so a token or session isn't leaked to the redirect target. This is on by default and can be turned off with RedirectConfig.stripSensitiveHeadersOnCrossHostRedirect(false) (#1873). Thanks to the University of Sydney security research team for the report.
+* Strip sensitive headers (Authorization and Cookie) when a redirect crosses to a different host, so a token or session isn't leaked to the redirect target. This is on by default and can be turned off with RedirectConfig.stripSensitiveHeadersOnCrossHostRedirect(false) (#1873). Thanks to the University of Sydney security research team (Liyi Zhou, Ziyue Wang, Strick, Maurice, and Chenchen Yu) for the report.
 
 Changelog 6.0.1 (2026-07-10)
 ----------------------------
