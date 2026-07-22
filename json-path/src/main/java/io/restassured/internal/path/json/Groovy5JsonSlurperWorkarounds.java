@@ -57,13 +57,17 @@ class Groovy5JsonSlurperWorkarounds {
       if (!isEmpty() && get(0) instanceof Map<?, ?> entry0 && entry0.containsKey(PROPERTIES)) {
         // Groovy 4–style JSON behaviour:
         // [map, map].properties -> [map['properties'], ...]
-        return stream().map(elem -> {
+        // Collect into a ProxyArray (not a plain List) so that a further "properties" hop on the
+        // spread result keeps navigating the JSON field instead of leaking Groovy meta-data.
+        ProxyArray spread = new ProxyArray();
+        for (Object elem : this) {
           if (elem instanceof Map<?, ?> map && map.containsKey(PROPERTIES)) {
-            return map.get(PROPERTIES);
+            spread.add(map.get(PROPERTIES));
           } else {
-            return null;
+            spread.add(null);
           }
-        }).toList();
+        }
+        return spread;
       }
       return null;
     }

@@ -787,6 +787,22 @@ public class JsonPathTest {
     }
 
     @Test public void
+    spreads_nested_properties_over_a_list_of_objects() {
+        // items.properties.x (single spread) and properties.properties.x (nested map) both work;
+        // the nested list form must too. The list "properties" spread result must stay a proxy list
+        // so the second "properties" hop navigates the JSON field, not Groovy meta-data (issue #1879).
+        String json = """
+                {
+                   "items":[
+                      { "properties": { "properties": { "gridId": 6 } } },
+                      { "properties": { "properties": { "gridId": 7 } } }
+                   ]
+                }""";
+        JsonPath jsonPath = new JsonPath(json);
+        assertThat(jsonPath.getList("items.properties.properties.gridId", Integer.class), contains(6, 7));
+    }
+
+    @Test public void
     can_manually_escape_class_property() {
         // Given
         String json = "{\n" +
