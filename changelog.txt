@@ -1,5 +1,6 @@
 Changelog next version
 ----------------------
+* Fix JsonPath returning null or Groovy meta-data for a nested "properties" navigation over a list of objects (e.g. items.properties.properties.x) on Groovy 5, because the list spread result was a plain list instead of the proxy list that carries the "properties" workaround forward (fixes #1879)
 * Strip sensitive headers (Authorization and Cookie) when a redirect crosses to a different host, so a token or session isn't leaked to the redirect target. This is on by default and can be turned off with RedirectConfig.stripSensitiveHeadersOnCrossHostRedirect(false) (#1873). Thanks to the University of Sydney security research team (Liyi Zhou, Ziyue Wang, Strick, Maurice, and Chenchen Yu) for the report.
 
 Changelog 6.0.1 (2026-07-10)
