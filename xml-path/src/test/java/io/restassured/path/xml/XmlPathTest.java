@@ -638,6 +638,19 @@ public class XmlPathTest {
         assertThat(xmlPath.getString("root.some-list[0]"), equalTo("one"));
     }
 
+    @Test
+    public void escapesListsWithHyphenWhenUsingNegativeIndex() throws Exception {
+        // Given
+        String xml = "<root><some-list>one</some-list><some-list>two</some-list><some-list>three</some-list></root>";
+
+        // When
+        XmlPath xmlPath = from(xml);
+
+        // Then
+        assertThat(xmlPath.getString("root.some-list[-1]"), equalTo("three"));
+        assertThat(xmlPath.getString("root.some-list[-2]"), equalTo("two"));
+    }
+
     @Test public void
     trying_to_get_an_attribute_that_doesnt_exists_returns_null() {
         // Given
