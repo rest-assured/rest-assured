@@ -828,6 +828,16 @@ public class JsonPathTest {
 
         // Then the spread yields the values of the features that do carry "properties" instead of null
         assertThat(jsonPath.getList("features.properties.gridId", Integer.class), hasItems(6, 7));
+
+        // hasItems above only proves the surviving values are present; it cannot distinguish
+        // [null, 6, 7] from [6, 7]. Assert features.properties directly so the positional-null
+        // contract is pinned: the properties-less first feature must keep its slot as a leading
+        // null rather than being dropped, leaving a 3-element list of [null, {gridId=6}, {gridId=7}].
+        List<Map<String, Object>> propertiesByFeature = jsonPath.getList("features.properties");
+        assertThat(propertiesByFeature, hasSize(3));
+        assertThat(propertiesByFeature.get(0), is(nullValue()));
+        assertThat(propertiesByFeature.get(1), hasEntry("gridId", (Object) 6));
+        assertThat(propertiesByFeature.get(2), hasEntry("gridId", (Object) 7));
     }
 
     @Test public void
