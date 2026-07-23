@@ -300,6 +300,15 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     }
 
     @Override
+    public MockMvcRequestSpecification optionalQueryParam(String parameterName, Object parameterValue) {
+        notNull(parameterName, "parameterName");
+        if (parameterValue != null) {
+            return queryParam(parameterName, parameterValue);
+        }
+        return this;
+    }
+
+    @Override
     public MockMvcRequestSpecification pathParams(String firstParameterName, Object firstParameterValue, Object... parameterNameValuePairs) {
         notNull(firstParameterName, "firstParameterName");
         notNull(firstParameterValue, "firstParameterValue");
