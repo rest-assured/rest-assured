@@ -141,4 +141,26 @@ public class PathSupportTest {
         // Then
         assertThat(path, is("/path"));
     }
+
+    @Test public void
+    returns_slash_when_fully_qualified_uri_has_no_path_and_query_param_has_url() {
+        // Given
+        String targetUri = "https://example.com?redirect=https://example.com/callback";
+
+        // When
+        String path = PathSupport.getPath(targetUri);
+
+        // Then
+        assertThat(path, is("/"));
+    }
+
+    @Test public void
+    correctly_identifies_fully_qualified_uri_when_no_path_and_query_param_has_url() {
+        assertThat(PathSupport.isFullyQualified("https://example.com?redirect=https://example.com/callback"), is(true));
+    }
+
+    @Test public void
+    correctly_identifies_non_fully_qualified_uri_when_query_param_has_url() {
+        assertThat(PathSupport.isFullyQualified("example.com?redirect=https://example.com/callback"), is(false));
+    }
 }

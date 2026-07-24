@@ -44,8 +44,9 @@ class PathSupport {
       return false
     }
 
-    def indexOfFirstSlash = targetUri.indexOf("/");
-    def indexOfScheme = targetUri.indexOf("://");
+    def path = StringUtils.substringBefore(targetUri, "?")
+    def indexOfFirstSlash = path.indexOf("/")
+    def indexOfScheme = path.indexOf("://")
     if (indexOfScheme == -1) {
       // If we didn't find a single :// in the path then we know that the targetUri is not fully-qualified
       return false
@@ -59,14 +60,14 @@ class PathSupport {
     }
 
     def path = StringUtils.substringBefore(targetUri, "?")
-    def indexOfScheme = path.indexOf("://");
+    def indexOfScheme = path.indexOf("://")
     if (indexOfScheme == -1) {
       return StringUtils.startsWith(path, "/") ? path : "/" + path
     }
-    def indexOfPath = StringUtils.indexOf(targetUri, "/", indexOfScheme + 3);
+    def indexOfPath = StringUtils.indexOf(path, "/", indexOfScheme + 3)
     if (indexOfPath == -1) {
       return "/"
     }
-    StringUtils.substringBefore(targetUri.substring(indexOfPath), "?")
+    path.substring(indexOfPath)
   }
 }
