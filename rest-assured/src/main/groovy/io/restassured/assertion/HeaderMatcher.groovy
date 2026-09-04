@@ -16,6 +16,8 @@
 
 package io.restassured.assertion
 
+import io.restassured.internal.util.SafeExceptionRethrower
+import io.restassured.matcher.ResponseAwareMatcher
 import org.hamcrest.Matcher
 
 class HeaderMatcher {
@@ -23,18 +25,28 @@ class HeaderMatcher {
   def headerName
   def mappingFunction
   Matcher matcher
+  ResponseAwareMatcher responseAwareMatcher
 
-  def validateHeader(headers) {
+  def validateHeader(response) {
+    def headers = response.getHeaders()
     def success = true
     def message = ""
     def value = headers.getValue(headerName)
+    def effectiveMatcher = matcher
+    if (responseAwareMatcher != null) {
+      try {
+        effectiveMatcher = responseAwareMatcher.matcher(response)
+      } catch (Exception e) {
+        return SafeExceptionRethrower.safeRethrow(e)
+      }
+    }
     if (mappingFunction != null) {
       value = mappingFunction.apply(value)
     }
-    if (!matcher.matches(value)) {
+    if (!effectiveMatcher.matches(value)) {
       def headersString = headers.toString()
       success = false
-      message = "Expected header \"$headerName\" was not $matcher, was \"$value\". Headers are:\n$headersString\n"
+      message = "Expected header \"$headerName\" was not $effectiveMatcher, was \"$value\". Headers are:\n$headersString\n"
     }
     [success: success, errorMessage: message]
   }
