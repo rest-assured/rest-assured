@@ -259,8 +259,7 @@ public class MultiPartSpecBuilder {
      */
     public MultiPartSpecBuilder charset(Charset charset) {
         Validate.notNull(charset, "Charset cannot be null");
-        this.charset = charset.toString();
-        return this;
+        return charset(charset.toString());
     }
 
     /**
