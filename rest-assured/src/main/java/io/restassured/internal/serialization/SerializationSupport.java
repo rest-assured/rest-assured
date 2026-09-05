@@ -18,6 +18,7 @@ package io.restassured.internal.serialization;
 
 import groovy.lang.GString;
 
+import java.time.LocalDate;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -31,6 +32,7 @@ public class SerializationSupport {
         return !(Number.class.isAssignableFrom(clazz) || String.class.isAssignableFrom(clazz)
                 || GString.class.isAssignableFrom(clazz) || Boolean.class.isAssignableFrom(clazz)
                 || Character.class.isAssignableFrom(clazz) || object instanceof Enum ||
-                Locale.class.isAssignableFrom(clazz) || Class.class.isAssignableFrom(clazz) || UUID.class.isAssignableFrom(clazz));
+                Locale.class.isAssignableFrom(clazz) || Class.class.isAssignableFrom(clazz) || UUID.class.isAssignableFrom(clazz)
+                || LocalDate.class.isAssignableFrom(clazz));
     }
 }

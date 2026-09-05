@@ -19,6 +19,8 @@ package io.restassured.internal.serialization;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.LocalDate;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SerializationSupportTest {
@@ -55,6 +57,15 @@ public class SerializationSupportTest {
     public void enumConstantWithBodyIsNotASerializationCandidate() {
         // Act
         boolean candidate = SerializationSupport.isSerializableCandidate(EnumWithBody.VALUE);
+        // Assert
+        assertThat(candidate).isFalse();
+    }
+
+    @Test
+    @DisplayName("LocalDate is not a serialization candidate")
+    public void localDateIsNotASerializationCandidate() {
+        // Act
+        boolean candidate = SerializationSupport.isSerializableCandidate(LocalDate.of(2024, 4, 10));
         // Assert
         assertThat(candidate).isFalse();
     }
