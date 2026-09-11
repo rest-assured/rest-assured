@@ -42,6 +42,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.KeyStore;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -261,7 +262,7 @@ public class AuthConfig {
 
         public void process(HttpRequest request, HttpContext ctx) throws HttpException, IOException {
             try {
-                Verb verb = EnumUtils.getEnum(Verb.class, request.getRequestLine().getMethod().toUpperCase());
+                Verb verb = EnumUtils.getEnum(Verb.class, request.getRequestLine().getMethod().toUpperCase(Locale.ROOT));
                 if (verb == null)
                     return;
 

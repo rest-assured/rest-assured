@@ -117,7 +117,7 @@ class ObjectMapping {
     } else if (mapperType == ObjectMapperType.JSONB && isYassonInClassPath()) {
       return parseWithJsonb(ctx, config.jsonbObjectMapperFactory()) as T
     } else {
-      def lowerCase = mapperType.toString().toLowerCase()
+      def lowerCase = mapperType.toString().toLowerCase(Locale.ROOT)
       throw new IllegalArgumentException("Cannot map response body with mapper $mapperType because $lowerCase doesn't exist in the classpath.")
     }
   }
@@ -156,7 +156,7 @@ class ObjectMapping {
       }
       throw new IllegalArgumentException("Cannot serialize because no JSON or XML serializer found in classpath.")
     } else {
-      def ct = contentType.toLowerCase()
+      def ct = contentType.toLowerCase(Locale.ROOT)
       if (containsIgnoreCase(ct, "json") || encoderConfig.contentEncoders().get(ContentTypeExtractor.getContentTypeWithoutCharset(ct)) == ContentType.JSON) {
         if (isJackson3InClassPath()) {
           return serializeWithJackson3(serializationCtx, config.jackson3ObjectMapperFactory())
@@ -212,7 +212,7 @@ class ObjectMapping {
     } else if (mapperType == ObjectMapperType.JSONB && isYassonInClassPath()) {
       return serializeWithJsonb(ctx, config.jsonbObjectMapperFactory())
     } else {
-      def lowerCase = mapperType.toString().toLowerCase()
+      def lowerCase = mapperType.toString().toLowerCase(Locale.ROOT)
       throw new IllegalArgumentException("Cannot serialize object with mapper $mapperType because $lowerCase doesn't exist in the classpath.")
     }
   }
