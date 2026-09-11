@@ -82,7 +82,7 @@ class FilterContextImpl implements FilterContext {
   }
 
   Response send(RequestSender requestSender) {
-    ReflectionMethodInvoker.invoke(requestSender, method.toString().toLowerCase(), internalRequestUri)
+    ReflectionMethodInvoker.invoke(requestSender, method.toString().toLowerCase(Locale.ROOT), internalRequestUri)
   }
 
   void setValue(String name, Object value) {

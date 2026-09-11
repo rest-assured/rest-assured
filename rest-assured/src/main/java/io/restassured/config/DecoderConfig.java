@@ -101,7 +101,7 @@ public class DecoderConfig implements Config {
         notNull(charset, "Charset");
         notNull(contentType, "ContentType");
         Map<String, String> map = new HashMap<String, String>(contentTypeToDefaultCharset);
-        map.put(trim(contentType).toLowerCase(), trim(charset));
+        map.put(trim(contentType).toLowerCase(Locale.ROOT), trim(charset));
         return new DecoderConfig(charset, useNoWrapForInflateDecoding, true, contentDecoders, map);
     }
 
@@ -141,7 +141,7 @@ public class DecoderConfig implements Config {
         notNull(contentType, ContentType.class);
         Map<String, String> map = new HashMap<String, String>(contentTypeToDefaultCharset);
         for (String ct : contentType.getContentTypeStrings()) {
-            map.put(ct.toLowerCase(), trim(charset));
+            map.put(ct.toLowerCase(Locale.ROOT), trim(charset));
         }
         return new DecoderConfig(charset, useNoWrapForInflateDecoding, true, contentDecoders, map);
     }
@@ -153,7 +153,7 @@ public class DecoderConfig implements Config {
         if (StringUtils.isEmpty(contentType)) {
             return defaultContentCharset();
         }
-        String charset = contentTypeToDefaultCharset.get(trim(contentType).toLowerCase());
+        String charset = contentTypeToDefaultCharset.get(trim(contentType).toLowerCase(Locale.ROOT));
         if (charset == null) {
             return defaultContentCharset();
         }
@@ -174,7 +174,7 @@ public class DecoderConfig implements Config {
      * @return A map that contains default charset for a specific content-type. It will have precedence over {@link #defaultContentCharset()}.
      */
     public boolean hasDefaultCharsetForContentType(String contentType) {
-        return !StringUtils.isBlank(contentType) && contentTypeToDefaultCharset.containsKey(trim(contentType).toLowerCase());
+        return !StringUtils.isBlank(contentType) && contentTypeToDefaultCharset.containsKey(trim(contentType).toLowerCase(Locale.ROOT));
     }
 
     /**

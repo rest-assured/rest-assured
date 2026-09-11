@@ -17,6 +17,7 @@
 package io.restassured.config;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
@@ -80,7 +81,7 @@ public class HeaderConfig implements Config {
         Map<String, Boolean> map = newHashMapReturningFalseByDefault(headerName);
         if (additionalHeaderNames != null && additionalHeaderNames.length > 0) {
             for (String additionalHeaderName : additionalHeaderNames) {
-                map.put(additionalHeaderName.toUpperCase(), true);
+                map.put(additionalHeaderName.toUpperCase(Locale.ROOT), true);
             }
         }
         return new HeaderConfig(map, true);
@@ -102,7 +103,7 @@ public class HeaderConfig implements Config {
         map.put(headerName, false);
         if (additionalHeaderNames != null && additionalHeaderNames.length > 0) {
             for (String additionalHeaderName : additionalHeaderNames) {
-                map.put(additionalHeaderName.toUpperCase(), false);
+                map.put(additionalHeaderName.toUpperCase(Locale.ROOT), false);
             }
         }
         return new HeaderConfig(map, true);
@@ -116,7 +117,7 @@ public class HeaderConfig implements Config {
      */
     public boolean shouldOverwriteHeaderWithName(String headerName) {
         notNull(headerName, "Header name");
-        return headersToOverwrite.get(headerName.toUpperCase());
+        return headersToOverwrite.get(headerName.toUpperCase(Locale.ROOT));
     }
 
     /**
@@ -132,7 +133,7 @@ public class HeaderConfig implements Config {
         return new HashMap<String, Boolean>() {
             {
                 for (String headerName : headerNamesToOverwrite) {
-                    put(headerName.toUpperCase(), true);
+                    put(headerName.toUpperCase(Locale.ROOT), true);
                 }
             }
 

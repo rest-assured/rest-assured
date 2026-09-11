@@ -24,6 +24,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
@@ -106,7 +107,7 @@ public class EncoderConfig implements Config {
      * @return A map that contains default charset for a specific content-type. It will have precedence over {@link #defaultContentCharset()}.
      */
     public boolean hasDefaultCharsetForContentType(String contentType) {
-        return !StringUtils.isBlank(contentType) && contentTypeToDefaultCharset.containsKey(trim(contentType).toLowerCase());
+        return !StringUtils.isBlank(contentType) && contentTypeToDefaultCharset.containsKey(trim(contentType).toLowerCase(Locale.ROOT));
     }
 
     /**
@@ -134,7 +135,7 @@ public class EncoderConfig implements Config {
         notNull(charset, "Charset");
         notNull(contentType, "ContentType");
         Map<String, String> map = new HashMap<>(contentTypeToDefaultCharset);
-        map.put(trim(contentType).toLowerCase(), trim(charset));
+        map.put(trim(contentType).toLowerCase(Locale.ROOT), trim(charset));
         return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, map, true);
     }
 
@@ -150,7 +151,7 @@ public class EncoderConfig implements Config {
         notNull(contentType, ContentType.class);
         Map<String, String> map = new HashMap<>(contentTypeToDefaultCharset);
         for (String ct : contentType.getContentTypeStrings()) {
-            map.put(ct.toLowerCase(), trim(charset));
+            map.put(ct.toLowerCase(Locale.ROOT), trim(charset));
         }
         return new EncoderConfig(charset, defaultQueryParameterCharset, shouldAppendDefaultContentCharsetToContentTypeIfUndefined, contentEncoders, map, true);
     }
@@ -303,6 +304,6 @@ public class EncoderConfig implements Config {
     }
 
     String defaultCharsetForContentTypeOrNull(String contentType) {
-        return contentTypeToDefaultCharset.get(trim(contentType).toLowerCase());
+        return contentTypeToDefaultCharset.get(trim(contentType).toLowerCase(Locale.ROOT));
     }
 }

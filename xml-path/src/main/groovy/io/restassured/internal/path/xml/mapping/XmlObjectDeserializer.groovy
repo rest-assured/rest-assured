@@ -70,7 +70,7 @@ class XmlObjectDeserializer {
     if (mapperType == XmlParserType.JAXB && isJAXBInClassPath()) {
       return deserializeWithJaxb(ctx, config.jaxbObjectMapperFactory()) as T
     } else {
-      def lowerCase = mapperType.toString().toLowerCase()
+      def lowerCase = mapperType.toString().toLowerCase(Locale.ROOT)
       throw new IllegalArgumentException("Cannot deserialize object using $mapperType because $lowerCase doesn't exist in the classpath.")
     }
   }

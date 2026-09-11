@@ -20,6 +20,7 @@ import io.restassured.internal.NameAndValue;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import static io.restassured.internal.common.assertion.AssertParameter.notNull;
@@ -309,7 +310,7 @@ public class Cookie implements NameAndValue {
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(HTTP_ONLY);
         }
         if (hasExpiryDate()) {
-            final SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
+            final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
             simpleDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             builder.append(COOKIE_ATTRIBUTE_SEPARATOR).append(EXPIRES).append(EQUALS).append(simpleDateFormat.format(expiryDate));
         }

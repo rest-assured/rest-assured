@@ -37,7 +37,7 @@ class ResponseTimeMatcher {
     } else if (!matcher.matches(time)) {
       def timeMillis = response.getTime()
       success = false
-      errorMessage = "Expected response time was not $matcher ${timeUnit.toString().toLowerCase()}, was $timeMillis milliseconds ($time ${timeUnit.toString().toLowerCase()})."
+      errorMessage = "Expected response time was not $matcher ${timeUnit.toString().toLowerCase(Locale.ROOT)}, was $timeMillis milliseconds ($time ${timeUnit.toString().toLowerCase(Locale.ROOT)})."
     }
 
     return [success: success, errorMessage: errorMessage]
