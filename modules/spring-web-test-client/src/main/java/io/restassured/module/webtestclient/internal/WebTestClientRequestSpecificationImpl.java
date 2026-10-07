@@ -820,13 +820,13 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
     }
 
     @Override
-    public WebTestClientResponse query(String path, Object... pathParams) {
-        return when().query(path, pathParams);
+    public WebTestClientResponse options(String path, Map<String, ?> pathParams) {
+        return when().options(path, pathParams);
     }
 
     @Override
-    public WebTestClientResponse options(String path, Map<String, ?> pathParams) {
-        return when().options(path, pathParams);
+    public WebTestClientResponse query(String path, Object... pathParams) {
+        return when().query(path, pathParams);
     }
 
     @Override

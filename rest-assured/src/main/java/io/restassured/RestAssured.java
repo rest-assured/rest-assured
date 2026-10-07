@@ -157,7 +157,7 @@ import static io.restassured.specification.ProxySpecification.host;
  * <li>
  * Body:
  * <pre>
- * given().request().body("some body"). .. // Works for POST and PUT requests
+ * given().request().body("some body"). .. // E.g. for POST, PUT, PATCH and QUERY requests
  * given().request().body(new byte[]{42}). .. // Works for POST
  * </pre>
  * </li>
@@ -854,18 +854,6 @@ public class RestAssured {
     }
 
     /**
-     * Perform a QUERY request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
-     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
-     *
-     * @param path       The path to send the request to.
-     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>query("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
-     * @return The response of the request.
-     */
-    public static Response query(String path, Object... pathParams) {
-        return given().query(path, pathParams);
-    }
-
-    /**
      * Perform a OPTIONS request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
      * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
      *
@@ -875,6 +863,18 @@ public class RestAssured {
      */
     public static Response options(String path, Map<String, ?> pathParams) {
         return given().options(path, pathParams);
+    }
+
+    /**
+     * Perform a QUERY request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path       The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>query("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
+     * @return The response of the request.
+     */
+    public static Response query(String path, Object... pathParams) {
+        return given().query(path, pathParams);
     }
 
     /**

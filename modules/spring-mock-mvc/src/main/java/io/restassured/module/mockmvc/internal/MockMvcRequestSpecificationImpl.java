@@ -659,12 +659,12 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return when().options(path, pathParams);
     }
 
-    public MockMvcResponse query(String path, Object... pathParams) {
-        return when().query(path, pathParams);
-    }
-
     public MockMvcResponse options(String path, Map<String, ?> pathParams) {
         return when().options(path, pathParams);
+    }
+
+    public MockMvcResponse query(String path, Object... pathParams) {
+        return when().query(path, pathParams);
     }
 
     public MockMvcResponse query(String path, Map<String, ?> pathParams) {

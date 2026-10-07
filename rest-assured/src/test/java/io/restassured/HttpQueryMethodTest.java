@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,18 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import io.restassured.http.ContentType;
 import io.restassured.http.Method;
+import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -34,6 +40,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
@@ -57,7 +64,15 @@ class HttpQueryMethodTest {
             receivedBody.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
             send(exchange, "{\"method\":\"" + exchange.getRequestMethod() + "\"}");
         });
+        server.createContext("/redirect/", exchange -> {
+            int status = Integer.parseInt(exchange.getRequestURI().getPath().substring("/redirect/".length()));
+            exchange.getRequestBody().readAllBytes();
+            exchange.getResponseHeaders().set("Location", "/target");
+            exchange.sendResponseHeaders(status, -1);
+            exchange.close();
+        });
         server.start();
+        RestAssured.baseURI = "http://127.0.0.1";
         RestAssured.port = server.getAddress().getPort();
     }
 
@@ -201,6 +216,62 @@ class HttpQueryMethodTest {
 
         assertThat(receivedMethod.get()).isEqualTo("QUERY");
         assertThat(receivedBody.get()).isEqualTo("expect");
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {301, 302, 307, 308})
+    void query_is_not_automatically_redirected_like_post(int status) {
+        given().
+                body("body").
+        when().
+                query("/redirect/" + status).
+        then().
+                statusCode(status).
+                header("Location", endsWith("/target"));
+
+        assertThat(receivedMethod.get()).isNull();
+    }
+
+    @Test
+    void query_follows_303_see_other_as_get_without_body() {
+        given().body("body").when().query("/redirect/303").then().statusCode(200).body("method", equalTo("GET"));
+
+        assertThat(receivedMethod.get()).isEqualTo("GET");
+        assertThat(receivedUri.get()).isEqualTo("/target");
+        assertThat(receivedBody.get()).isEmpty();
+    }
+
+    @Test
+    void default_query_methods_delegate_to_request_for_third_party_implementations() throws Exception {
+        decorate(given().body("decorated")).query("/{collection}/search", "books").then().statusCode(200);
+        assertThat(receivedMethod.get()).isEqualTo("QUERY");
+        assertThat(receivedUri.get()).isEqualTo("/books/search");
+        assertThat(receivedBody.get()).isEqualTo("decorated");
+
+        decorate(given().body("decorated")).query("/{collection}/search", Collections.singletonMap("collection", "movies")).then().statusCode(200);
+        assertThat(receivedMethod.get()).isEqualTo("QUERY");
+        assertThat(receivedUri.get()).isEqualTo("/movies/search");
+
+        decorate(given().body("decorated")).query(new URI("http://127.0.0.1:" + server.getAddress().getPort() + "/uri")).then().statusCode(200);
+        assertThat(receivedMethod.get()).isEqualTo("QUERY");
+        assertThat(receivedUri.get()).isEqualTo("/uri");
+        assertThat(receivedBody.get()).isEqualTo("decorated");
+    }
+
+    // A decorator that only forwards the abstract methods, so the query(..) default methods of
+    // RequestSenderOptions/RequestSpecification are exercised.
+    private static RequestSpecification decorate(RequestSpecification delegate) {
+        return (RequestSpecification) Proxy.newProxyInstance(HttpQueryMethodTest.class.getClassLoader(), new Class<?>[]{RequestSpecification.class},
+                (proxy, method, args) -> {
+                    if (method.isDefault()) {
+                        return InvocationHandler.invokeDefault(proxy, method, args);
+                    }
+                    try {
+                        return method.invoke(delegate, args);
+                    } catch (InvocationTargetException e) {
+                        throw e.getCause();
+                    }
+                });
     }
 
     private static void send(HttpExchange exchange, String body) throws IOException {

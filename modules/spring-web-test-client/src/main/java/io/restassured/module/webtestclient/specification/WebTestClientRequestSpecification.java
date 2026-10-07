@@ -375,6 +375,20 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	WebTestClientRequestSpecification pathParams(Map<String, Object> parametersMap);
 
 	/**
+	 * Perform a QUERY request to a <code>path</code> using named path parameters. This default implementation applies the
+	 * path parameters with {@link #pathParams(Map)} and then sends the request using {@link #request(io.restassured.http.Method, String, Object...)}.
+	 * See {@link #query(String, Object...)} for details on the QUERY method.
+	 *
+	 * @param path       The path to send the request to.
+	 * @param pathParams The path parameters.
+	 * @return The response of the request.
+	 */
+	@Override
+	default io.restassured.module.webtestclient.response.WebTestClientResponse query(String path, Map<String, ?> pathParams) {
+		return pathParams(new java.util.LinkedHashMap<String, Object>(pathParams)).request(io.restassured.http.Method.QUERY, path);
+	}
+
+	/**
 	 * Specify a path parameter. Path parameters are used to improve readability of the request path. E.g. instead
 	 * of writing:
 	 * <pre>
@@ -477,8 +491,8 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	WebTestClientRequestSpecification attributes(Map<String, ?> attributesMap);
 
 	/**
-	 * Specify a String request body (such as e.g. JSON or XML) that'll be sent with the request. This works for the
-	 * POST and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+	 * Specify a String request body (such as e.g. JSON or XML) that'll be sent with the request. It is typically used with the
+	 * POST, PUT, PATCH and QUERY methods.
 	 * <p>
 	 * Example of use:
 	 * <pre>
@@ -494,8 +508,8 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	WebTestClientRequestSpecification body(String body);
 
 	/**
-	 * Specify a byte array request body that'll be sent with the request. This only works for the
-	 * POST http method. Trying to do this for the other http methods will cause an exception to be thrown.
+	 * Specify a byte array request body that'll be sent with the request. It is typically used with the
+	 * POST, PUT, PATCH and QUERY methods.
 	 * <p>
 	 * Example of use:
 	 * <pre>
@@ -512,8 +526,8 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	WebTestClientRequestSpecification body(byte[] body);
 
 	/**
-	 * Specify file content that'll be sent with the request. This only works for the
-	 * POST, PATCH and PUT http method. Trying to do this for the other http methods will cause an exception to be thrown.
+	 * Specify file content that'll be sent with the request. It is typically used with the
+	 * POST, PUT, PATCH and QUERY methods.
 	 * <p>
 	 * Example of use:
 	 * <pre>
@@ -532,8 +546,7 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 	/**
 	 * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request.
 	 * If the object is a primitive or <a href="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html">Number</a> the object will
-	 * be converted to a String and put in the request body. This works for the POST and PUT methods only.
-	 * Trying to do this for the other http methods will cause an exception to be thrown.
+	 * be converted to a String and put in the request body. It is typically used with the POST, PUT, PATCH and QUERY methods.
 	 * <p>
 	 * Example of use:
 	 * <pre>
@@ -570,7 +583,7 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 
 	/**
 	 * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
-	 * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+	 * It is typically used with the POST, PUT, PATCH and QUERY methods.
 	 * <p/>
 	 * Example of use:
 	 * <pre>
@@ -593,7 +606,7 @@ public interface WebTestClientRequestSpecification extends WebTestClientRequestS
 
 	/**
 	 * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper type.
-	 * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+	 * It is typically used with the POST, PUT, PATCH and QUERY methods.
 	 * <p/>
 	 * Example of use:
 	 * <pre>

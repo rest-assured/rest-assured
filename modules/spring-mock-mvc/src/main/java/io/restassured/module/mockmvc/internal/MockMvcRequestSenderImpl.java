@@ -732,12 +732,12 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return sendRequest(OPTIONS, path, pathParams);
     }
 
-    public MockMvcResponse query(String path, Object... pathParams) {
-        return sendRequest(QUERY, path, pathParams);
-    }
-
     public MockMvcResponse options(String path, Map<String, ?> pathParams) {
         return options(path, mapToArray(pathParams));
+    }
+
+    public MockMvcResponse query(String path, Object... pathParams) {
+        return sendRequest(QUERY, path, pathParams);
     }
 
     public MockMvcResponse query(String path, Map<String, ?> pathParams) {

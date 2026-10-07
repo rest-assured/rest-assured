@@ -275,13 +275,13 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	}
 
 	@Override
-	public WebTestClientResponse query(String path, Object... pathParams) {
-		return sendRequest(QUERY, path, pathParams);
+	public WebTestClientResponse options(String path, Map<String, ?> pathParams) {
+		return options(path, mapToArray(pathParams));
 	}
 
 	@Override
-	public WebTestClientResponse options(String path, Map<String, ?> pathParams) {
-		return options(path, mapToArray(pathParams));
+	public WebTestClientResponse query(String path, Object... pathParams) {
+		return sendRequest(QUERY, path, pathParams);
 	}
 
 	@Override
