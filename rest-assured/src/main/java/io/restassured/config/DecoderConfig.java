@@ -153,7 +153,7 @@ public class DecoderConfig implements Config {
         if (StringUtils.isEmpty(contentType)) {
             return defaultContentCharset();
         }
-        String charset = contentTypeToDefaultCharset.get(trim(contentType).toLowerCase());
+        String charset = findDefaultCharsetForContentType(contentType);
         if (charset == null) {
             return defaultContentCharset();
         }
@@ -174,7 +174,23 @@ public class DecoderConfig implements Config {
      * @return A map that contains default charset for a specific content-type. It will have precedence over {@link #defaultContentCharset()}.
      */
     public boolean hasDefaultCharsetForContentType(String contentType) {
-        return !StringUtils.isBlank(contentType) && contentTypeToDefaultCharset.containsKey(trim(contentType).toLowerCase());
+        return !StringUtils.isBlank(contentType) && findDefaultCharsetForContentType(contentType) != null;
+    }
+
+    // Looks up the content-type as given, then without parameters (e.g. "application/json; version=1"), and finally
+    // falls back to UTF-8 for structured syntax "+json" types (e.g. "application/problem+json"), since JSON is UTF-8 (RFC 8259).
+    private String findDefaultCharsetForContentType(String contentType) {
+        String normalizedContentType = trim(contentType).toLowerCase(Locale.ROOT);
+        String charset = contentTypeToDefaultCharset.get(normalizedContentType);
+        if (charset != null) {
+            return charset;
+        }
+        String mediaType = trim(StringUtils.substringBefore(normalizedContentType, ";"));
+        charset = contentTypeToDefaultCharset.get(mediaType);
+        if (charset == null && mediaType.endsWith("+json")) {
+            charset = UTF_8;
+        }
+        return charset;
     }
 
     /**
