@@ -97,6 +97,15 @@ public interface WebTestClientRequestSender extends RequestSenderOptions<WebTest
 	WebTestClientResponse options(Function<UriBuilder, URI> uriFunction);
 
 	/**
+	 * * Perform a QUERY request to a uri obtained from a {@link Function<>} that uses {@link UriBuilder}
+	 * 	 to generate {@link URI}.
+	 *
+	 * @param uriFunction The function that will be used for evaluating the URI.
+	 * @return The response of the request.
+	 */
+	WebTestClientResponse query(Function<UriBuilder, URI> uriFunction);
+
+	/**
 	 * * Perform a request to a uri obtained from a {@link Function<>} that uses {@link UriBuilder}
 	 * 	 to generate {@link URI}.
 	 *

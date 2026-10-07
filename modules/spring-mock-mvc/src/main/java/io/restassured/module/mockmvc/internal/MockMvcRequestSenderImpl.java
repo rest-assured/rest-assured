@@ -94,6 +94,8 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 
 class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAsyncConfigurer, MockMvcRequestAsyncSender {
+    // Spring Framework 7.0 has no HttpMethod.QUERY constant, but HttpMethod.valueOf accepts any method name.
+    private static final HttpMethod QUERY = HttpMethod.valueOf(io.restassured.http.Method.QUERY.name());
     private static final String ATTRIBUTE_NAME_URL_TEMPLATE = "org.springframework.restdocs.urlTemplate";
     private static final String CONTENT_TYPE = "Content-Type";
     private static final boolean isSpring6OrLater = existInCP("org.springframework.aot.AotDetector");
@@ -730,8 +732,16 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return sendRequest(OPTIONS, path, pathParams);
     }
 
+    public MockMvcResponse query(String path, Object... pathParams) {
+        return sendRequest(QUERY, path, pathParams);
+    }
+
     public MockMvcResponse options(String path, Map<String, ?> pathParams) {
         return options(path, mapToArray(pathParams));
+    }
+
+    public MockMvcResponse query(String path, Map<String, ?> pathParams) {
+        return query(path, mapToArray(pathParams));
     }
 
     public MockMvcResponse get(URI uri) {
@@ -762,6 +772,10 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return options(uri.toString());
     }
 
+    public MockMvcResponse query(URI uri) {
+        return query(uri.toString());
+    }
+
     public MockMvcResponse get(URL url) {
         return get(url.toString());
     }
@@ -790,6 +804,10 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         return options(url.toString());
     }
 
+    public MockMvcResponse query(URL url) {
+        return query(url.toString());
+    }
+
     public MockMvcResponse get() {
         return get("");
     }
@@ -816,6 +834,10 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
 
     public MockMvcResponse options() {
         return options("");
+    }
+
+    public MockMvcResponse query() {
+        return query("");
     }
 
     public MockMvcResponse request(Method method) {
@@ -884,8 +906,11 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         try {
             // As of Spring Framework 7, HttpMethod.valueOf no longer restricts its input to the set of
             // known HTTP methods (it accepts and creates a custom HttpMethod for any string). MockMvc still
-            // only supports the methods defined by org.springframework.web.bind.annotation.RequestMethod, so
+            // only supports the methods defined by org.springframework.web.bind.annotation.RequestMethod (and QUERY), so
             // validate against that enum to preserve the original "unsupported HTTP verb" behavior.
+            if (QUERY.name().equalsIgnoreCase(httpMethodAsString)) {
+                return QUERY;
+            }
             org.springframework.web.bind.annotation.RequestMethod.valueOf(httpMethodAsString.toUpperCase());
             return HttpMethod.valueOf(httpMethodAsString.toUpperCase());
         } catch (IllegalArgumentException e) {

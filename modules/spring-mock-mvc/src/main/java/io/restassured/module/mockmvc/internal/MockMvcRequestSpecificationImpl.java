@@ -659,8 +659,16 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return when().options(path, pathParams);
     }
 
+    public MockMvcResponse query(String path, Object... pathParams) {
+        return when().query(path, pathParams);
+    }
+
     public MockMvcResponse options(String path, Map<String, ?> pathParams) {
         return when().options(path, pathParams);
+    }
+
+    public MockMvcResponse query(String path, Map<String, ?> pathParams) {
+        return when().query(path, pathParams);
     }
 
     public MockMvcResponse get(URI uri) {
@@ -691,6 +699,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return when().options(uri);
     }
 
+    public MockMvcResponse query(URI uri) {
+        return when().query(uri);
+    }
+
     public MockMvcResponse get(URL url) {
         return when().get(url);
     }
@@ -719,6 +731,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
         return when().options(url);
     }
 
+    public MockMvcResponse query(URL url) {
+        return when().query(url);
+    }
+
     public MockMvcResponse get() {
         return when().get();
     }
@@ -745,6 +761,10 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
 
     public MockMvcResponse options() {
         return when().options();
+    }
+
+    public MockMvcResponse query() {
+        return when().query();
     }
 
     public MockMvcResponse request(Method method) {

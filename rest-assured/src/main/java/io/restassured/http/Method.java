@@ -30,5 +30,10 @@ public enum Method {
     HEAD,
     TRACE,
     OPTIONS,
-    PATCH
+    PATCH,
+    /**
+     * The HTTP QUERY method, a safe and idempotent method that, unlike GET, carries a request body
+     * (see <a href="https://datatracker.ietf.org/doc/draft-ietf-httpbis-safe-method-w-body/">The HTTP QUERY Method</a>).
+     */
+    QUERY
 }

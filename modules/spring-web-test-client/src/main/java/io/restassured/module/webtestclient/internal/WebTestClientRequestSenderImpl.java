@@ -77,6 +77,8 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
 import static org.springframework.http.MediaType.parseMediaType;
 
 public class WebTestClientRequestSenderImpl implements WebTestClientRequestSender {
+	// Spring Framework 7.0 has no HttpMethod.QUERY constant, but HttpMethod.valueOf accepts any method name.
+	private static final HttpMethod QUERY = HttpMethod.valueOf(io.restassured.http.Method.QUERY.name());
 
 	private static final String CONTENT_TYPE = "Content-Type";
 	private static final Pattern PATH_PARAM_PATTERN = Pattern.compile("\\{([^/]+?)\\}");
@@ -136,6 +138,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	}
 
 	@Override
+	public WebTestClientResponse query(Function<UriBuilder, URI> uriFunction) {
+		return sendRequest(QUERY, uriFunction);
+	}
+
+	@Override
 	public WebTestClientResponse request(Method method, Function<UriBuilder, URI> uriFunction) {
 		return request(notNull(method, Method.class).name(), uriFunction);
 	}
@@ -150,8 +157,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		try {
 			// As of Spring Framework 7, HttpMethod.valueOf no longer restricts its input to the set of
 			// known HTTP methods (it accepts and creates a custom HttpMethod for any string). WebTestClient
-			// only supports the methods defined by org.springframework.web.bind.annotation.RequestMethod, so
+			// only supports the methods defined by org.springframework.web.bind.annotation.RequestMethod (and QUERY), so
 			// validate against that enum to preserve the original "unsupported HTTP verb" behavior.
+			if (QUERY.name().equalsIgnoreCase(httpMethodAsString)) {
+				return QUERY;
+			}
 			org.springframework.web.bind.annotation.RequestMethod.valueOf(httpMethodAsString.toUpperCase());
 			return HttpMethod.valueOf(httpMethodAsString.toUpperCase());
 		} catch (IllegalArgumentException e) {
@@ -265,8 +275,18 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	}
 
 	@Override
+	public WebTestClientResponse query(String path, Object... pathParams) {
+		return sendRequest(QUERY, path, pathParams);
+	}
+
+	@Override
 	public WebTestClientResponse options(String path, Map<String, ?> pathParams) {
 		return options(path, mapToArray(pathParams));
+	}
+
+	@Override
+	public WebTestClientResponse query(String path, Map<String, ?> pathParams) {
+		return query(path, mapToArray(pathParams));
 	}
 
 	@Override
@@ -305,6 +325,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	}
 
 	@Override
+	public WebTestClientResponse query(URI uri) {
+		return query(uri.toString());
+	}
+
+	@Override
 	public WebTestClientResponse get(URL url) {
 		return get(url.toString());
 	}
@@ -340,6 +365,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	}
 
 	@Override
+	public WebTestClientResponse query(URL url) {
+		return query(url.toString());
+	}
+
+	@Override
 	public WebTestClientResponse get() {
 		return get("");
 	}
@@ -372,6 +402,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	@Override
 	public WebTestClientResponse options() {
 		return options("");
+	}
+
+	@Override
+	public WebTestClientResponse query() {
+		return query("");
 	}
 
 	@Override

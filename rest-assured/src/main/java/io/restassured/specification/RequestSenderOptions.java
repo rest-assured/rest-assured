@@ -171,6 +171,30 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
     R options(String path, Map<String, ?> pathParams);
 
     /**
+     * Perform a QUERY request to a <code>path</code>. The QUERY method is a safe and idempotent method that carries a request
+     * body (for example the query to perform), use {@link io.restassured.specification.RequestSpecification#body(Object)} to specify it.
+     * Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path       The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>query("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
+     * @return The response of the request.
+     */
+    R query(String path, Object... pathParams);
+
+    /**
+     * Perform a QUERY request to a <code>path</code>. The QUERY method is a safe and idempotent method that carries a request
+     * body (for example the query to perform), use {@link io.restassured.specification.RequestSpecification#body(Object)} to specify it.
+     * Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path       The path to send the request to.
+     * @param pathParams The path parameters.
+     * @return The response of the request.
+     */
+    R query(String path, Map<String, ?> pathParams);
+
+    /**
      * Perform a GET request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
@@ -225,6 +249,14 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @return The response of the request.
      */
     R options(URI uri);
+
+    /**
+     * Perform a QUERY request to a <code>uri</code>.
+     *
+     * @param uri The uri to send the request to.
+     * @return The response of the request.
+     */
+    R query(URI uri);
 
     /**
      * Perform a GET request to a <code>url</code>.
@@ -283,6 +315,14 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
     R options(URL url);
 
     /**
+     * Perform a QUERY request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request.
+     */
+    R query(URL url);
+
+    /**
      * Perform a GET request to the statically configured path (by default <code>http://localhost:8080</code>).
      *
      * @return The response of the GET request.
@@ -330,6 +370,13 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @return The response of the request.
      */
     R options();
+
+    /**
+     * Perform a QUERY request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    R query();
 
     /**
      * Perform a request to the pre-configured path (by default <code>http://localhost:8080</code>).
