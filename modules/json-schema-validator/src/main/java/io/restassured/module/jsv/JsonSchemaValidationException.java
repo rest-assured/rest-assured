@@ -24,4 +24,8 @@ public class JsonSchemaValidationException extends RuntimeException {
     public JsonSchemaValidationException(Throwable cause) {
         super(cause);
     }
+
+    public JsonSchemaValidationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

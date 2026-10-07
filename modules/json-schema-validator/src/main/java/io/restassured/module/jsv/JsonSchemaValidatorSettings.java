@@ -25,14 +25,16 @@ public class JsonSchemaValidatorSettings {
     private JsonSchemaFactory jsonSchemaFactory;
     private boolean checkedValidation;
     private boolean parseUriAndUrlsAsJsonNode;
+    private JsonSchemaVersion schemaVersion;
 
-    private JsonSchemaValidatorSettings(JsonSchemaFactory jsonSchemaFactory, boolean checkedValidation, boolean parseUriAndUrlsAsJsonNode) {
+    private JsonSchemaValidatorSettings(JsonSchemaFactory jsonSchemaFactory, boolean checkedValidation, boolean parseUriAndUrlsAsJsonNode, JsonSchemaVersion schemaVersion) {
         if (jsonSchemaFactory == null) {
             throw new IllegalArgumentException(JsonSchemaFactory.class.getSimpleName() + " cannot be null");
         }
         this.jsonSchemaFactory = jsonSchemaFactory;
         this.checkedValidation = checkedValidation;
         this.parseUriAndUrlsAsJsonNode = parseUriAndUrlsAsJsonNode;
+        this.schemaVersion = schemaVersion;
     }
 
     /**
@@ -40,7 +42,7 @@ public class JsonSchemaValidatorSettings {
      * It will also use checked validation and treating uri's and url's as Strings. To change the latter refer to {@link #parseUriAndUrlsAsJsonNode(boolean)}.
      */
     public JsonSchemaValidatorSettings(JsonSchemaFactory jsonSchemaFactory, boolean checkedValidation) {
-        this(jsonSchemaFactory, checkedValidation, false);
+        this(jsonSchemaFactory, checkedValidation, false, null);
     }
 
     /**
@@ -71,13 +73,42 @@ public class JsonSchemaValidatorSettings {
     }
 
     /**
+     * @return The explicitly configured {@link JsonSchemaVersion}, or <code>null</code> if the version is detected from the <code>$schema</code> keyword of the schema (default).
+     */
+    public JsonSchemaVersion schemaVersion() {
+        return schemaVersion;
+    }
+
+    /**
+     * Instruct the JsonSchemaValidator which JSON Schema version (draft) to validate against.
+     * <p>
+     * By default (<code>null</code>) the version is detected from the <code>$schema</code> keyword of the schema. Schemas declaring
+     * draft-06, draft-07, 2019-09 or 2020-12 are then validated by the networknt json-schema-validator, and all other schemas
+     * (draft-03, draft-04, no or unknown <code>$schema</code>) by the java-json-tools validator configured by {@link #jsonSchemaFactory(JsonSchemaFactory)}.
+     * </p>
+     * <ul>
+     * <li>{@link JsonSchemaVersion#DRAFT_4} always uses the java-json-tools validator, i.e. the behavior of REST Assured versions before
+     * draft-06+ support was added, regardless of <code>$schema</code>.</li>
+     * <li>Any other version uses the networknt json-schema-validator, and that version is applied to schemas that don't declare <code>$schema</code>.
+     * A <code>$schema</code> declared by the schema itself takes precedence, as required by the JSON Schema specification.
+     * The {@link JsonSchemaFactory} and the {@link #checkedValidation(boolean) checked validation} settings don't apply to this validator.</li>
+     * </ul>
+     *
+     * @param schemaVersion The JSON Schema version to use, or <code>null</code> to detect it from <code>$schema</code>.
+     * @return A new instance of JsonSchemaValidatorSettings
+     */
+    public JsonSchemaValidatorSettings schemaVersion(JsonSchemaVersion schemaVersion) {
+        return new JsonSchemaValidatorSettings(jsonSchemaFactory, checkedValidation, parseUriAndUrlsAsJsonNode, schemaVersion);
+    }
+
+    /**
      * Instruct the JsonSchemaValidator to use checked validation or not.
      *
      * @param shouldUseCheckedValidation <code>true</code> to use checked validation, <code>false</code> otherwise.
      * @return A new instance of JsonSchemaValidatorSettings
      */
     public JsonSchemaValidatorSettings checkedValidation(boolean shouldUseCheckedValidation) {
-        return new JsonSchemaValidatorSettings(jsonSchemaFactory, shouldUseCheckedValidation, parseUriAndUrlsAsJsonNode);
+        return new JsonSchemaValidatorSettings(jsonSchemaFactory, shouldUseCheckedValidation, parseUriAndUrlsAsJsonNode, schemaVersion);
     }
 
     /**
@@ -100,7 +131,7 @@ public class JsonSchemaValidatorSettings {
      * @return A new instance of JsonSchemaValidatorSettings
      */
     public JsonSchemaValidatorSettings parseUriAndUrlsAsJsonNode(boolean parseUriAndUrlsAsJsonNode) {
-        return new JsonSchemaValidatorSettings(jsonSchemaFactory, checkedValidation, parseUriAndUrlsAsJsonNode);
+        return new JsonSchemaValidatorSettings(jsonSchemaFactory, checkedValidation, parseUriAndUrlsAsJsonNode, schemaVersion);
     }
 
     /**
@@ -110,7 +141,7 @@ public class JsonSchemaValidatorSettings {
      * @return A new instance of JsonSchemaValidatorSettings
      */
     public JsonSchemaValidatorSettings jsonSchemaFactory(JsonSchemaFactory jsonSchemaFactory) {
-        return new JsonSchemaValidatorSettings(jsonSchemaFactory, checkedValidation, parseUriAndUrlsAsJsonNode);
+        return new JsonSchemaValidatorSettings(jsonSchemaFactory, checkedValidation, parseUriAndUrlsAsJsonNode, schemaVersion);
     }
 
     /**

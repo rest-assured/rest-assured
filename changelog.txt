@@ -1,5 +1,6 @@
 Changelog next version
 ----------------------
+* json-schema-validator now supports JSON Schema draft-06, draft-07, 2019-09 and 2020-12 (e.g. const, if/then/else, propertyNames, prefixItems, $defs) using the networknt json-schema-validator (com.networknt:json-schema-validator 2.0.8, which is now a dependency of the module). The draft is detected from the "$schema" keyword of the schema, so draft-03/draft-04 schemas and schemas without "$schema" are validated exactly as before. The version can also be set explicitly, e.g. matchesJsonSchemaInClasspath("schema.json").using(JsonSchemaVersion.DRAFT_2020_12) or JsonSchemaValidatorSettings.schemaVersion(..). Note that schemas that already declared a draft-06+ "$schema" were previously validated with draft-04 semantics and are now validated according to their declared draft (fixes #1823)
 * Strip sensitive headers (Authorization and Cookie) when a redirect crosses to a different host, so a token or session isn't leaked to the redirect target. This is on by default and can be turned off with RedirectConfig.stripSensitiveHeadersOnCrossHostRedirect(false) (#1873). Thanks to the University of Sydney security research team (Liyi Zhou, Ziyue Wang, Strick, Maurice, and Chenchen Yu) for the report.
 
 Changelog 6.0.1 (2026-07-10)
