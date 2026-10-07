@@ -91,8 +91,8 @@ public class MockMvcRequestSpecBuilder {
     }
 
     /**
-     * Specify a String request body (such as e.g. JSON or XML) to be sent with the request. This works for the
-     * POST, PUT and PATCH methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+     * Specify a String request body (such as e.g. JSON or XML) to be sent with the request. It is typically used with the
+     * POST, PUT, PATCH and QUERY methods.
      * <p/>
      *
      * @param body The body to send.
@@ -104,8 +104,8 @@ public class MockMvcRequestSpecBuilder {
     }
 
     /**
-     * Specify a byte array request body to be sent with the request. This only works for the
-     * POST http method. Trying to do this for the other http methods will cause an exception to be thrown.
+     * Specify a byte array request body to be sent with the request. It is typically used with the
+     * POST, PUT, PATCH and QUERY methods.
      *
      * @param body The body to send.
      * @return The request specification builder
@@ -118,8 +118,7 @@ public class MockMvcRequestSpecBuilder {
     /**
      * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request.
      * If the object is a primitive or <a href="http://download.oracle.com/javase/6/docs/api/java/lang/Number.html">Number</a> the object will
-     * be converted to a String and put in the request body. This works for the POST, PUT and PATCH methods only.
-     * Trying to do this for the other http methods will cause an exception to be thrown.
+     * be converted to a String and put in the request body. It is typically used with the POST, PUT, PATCH and QUERY methods.
      * <p/>
      *
      * @param object The object to serialize and send with the request
@@ -132,7 +131,7 @@ public class MockMvcRequestSpecBuilder {
 
     /**
      * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper.
-     * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+     * It is typically used with the POST, PUT, PATCH and QUERY methods.
      * <p>
      * Note that {@link #setBody(Object, ObjectMapper)}
      * are the same except for the syntactic difference.
@@ -149,7 +148,7 @@ public class MockMvcRequestSpecBuilder {
 
     /**
      * Specify an Object request content that will automatically be serialized to JSON or XML and sent with the request using a specific object mapper type.
-     * This works for the POST, PATCH and PUT methods only. Trying to do this for the other http methods will cause an exception to be thrown.
+     * It is typically used with the POST, PUT, PATCH and QUERY methods.
      * <p>
      * Example of use:
      * <pre>

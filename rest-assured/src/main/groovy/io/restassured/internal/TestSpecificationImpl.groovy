@@ -98,6 +98,10 @@ class TestSpecificationImpl implements RequestSender {
     requestSpecification.options path, pathParams
   }
 
+  Response query(String path, Object... pathParams) {
+    requestSpecification.query path, pathParams
+  }
+
 
   Response get(URI uri) {
     get(notNull(uri, "URI").toString())
@@ -133,6 +137,10 @@ class TestSpecificationImpl implements RequestSender {
     options(notNull(uri, "URI").toString())
   }
 
+  Response query(URI uri) {
+    query(notNull(uri, "URI").toString())
+  }
+
   def Response get(URL url) {
     get(notNull(url, "URL").toString())
   }
@@ -161,6 +169,10 @@ class TestSpecificationImpl implements RequestSender {
     options(notNull(url, "URL").toString())
   }
 
+  def Response query(URL url) {
+    query(notNull(url, "URL").toString())
+  }
+
   def Response get() {
     get("")
   }
@@ -187,6 +199,10 @@ class TestSpecificationImpl implements RequestSender {
 
   def Response options() {
     options("")
+  }
+
+  def Response query() {
+    query("")
   }
 
   Response request(Method method) {
@@ -247,6 +263,10 @@ class TestSpecificationImpl implements RequestSender {
 
   Response options(String path, Map pathParams) {
     requestSpecification.options path, pathParams
+  }
+
+  Response query(String path, Map pathParams) {
+    requestSpecification.query path, pathParams
   }
 
   def RequestSpecification getRequestSpecification() {

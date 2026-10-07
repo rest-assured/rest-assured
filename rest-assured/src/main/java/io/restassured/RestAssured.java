@@ -53,7 +53,7 @@ import static io.restassured.specification.ProxySpecification.host;
 /**
  * REST Assured is a Java DSL for simplifying testing of REST based services built on top of
  * <a href="https://github.com/jgritman/httpbuilder">HTTP Builder</a>.
- * It supports POST, GET, PUT, DELETE, HEAD, PATCH  and OPTIONS
+ * It supports POST, GET, PUT, DELETE, HEAD, PATCH, OPTIONS and QUERY
  * requests and to verify the response of these requests. Usage examples:
  * <ol>
  * <li>
@@ -157,7 +157,7 @@ import static io.restassured.specification.ProxySpecification.host;
  * <li>
  * Body:
  * <pre>
- * given().request().body("some body"). .. // Works for POST and PUT requests
+ * given().request().body("some body"). .. // E.g. for POST, PUT, PATCH and QUERY requests
  * given().request().body(new byte[]{42}). .. // Works for POST
  * </pre>
  * </li>
@@ -866,6 +866,30 @@ public class RestAssured {
     }
 
     /**
+     * Perform a QUERY request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path       The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>query("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
+     * @return The response of the request.
+     */
+    public static Response query(String path, Object... pathParams) {
+        return given().query(path, pathParams);
+    }
+
+    /**
+     * Perform a QUERY request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path       The path to send the request to.
+     * @param pathParams The path parameters.
+     * @return The response of the request.
+     */
+    public static Response query(String path, Map<String, ?> pathParams) {
+        return given().query(path, pathParams);
+    }
+
+    /**
      * Perform a GET request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
@@ -933,6 +957,16 @@ public class RestAssured {
      */
     public static Response options(URI uri) {
         return given().options(uri);
+    }
+
+    /**
+     * Perform a QUERY request to a <code>uri</code>.
+     *
+     * @param uri The uri to send the request to.
+     * @return The response of the request.
+     */
+    public static Response query(URI uri) {
+        return given().query(uri);
     }
 
     /**
@@ -1006,6 +1040,16 @@ public class RestAssured {
     }
 
     /**
+     * Perform a QUERY request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request.
+     */
+    public static Response query(URL url) {
+        return given().query(url);
+    }
+
+    /**
      * Perform a GET request to the statically configured path (by default <code>http://localhost:8080</code>).
      *
      * @return The response of the GET request.
@@ -1066,6 +1110,15 @@ public class RestAssured {
      */
     public static Response options() {
         return given().options();
+    }
+
+    /**
+     * Perform a QUERY request to the statically configured path (by default <code>http://localhost:8080</code>).
+     *
+     * @return The response of the request.
+     */
+    public static Response query() {
+        return given().query();
     }
 
     /**

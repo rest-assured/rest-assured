@@ -712,6 +712,30 @@ public class RestAssuredWebTestClient {
     }
 
     /**
+     * Perform a QUERY request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path       The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>query("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
+     * @return The response of the request.
+     */
+    public static WebTestClientResponse query(String path, Object... pathParams) {
+        return given().query(path, pathParams);
+    }
+
+    /**
+     * Perform a QUERY request to a <code>path</code>. Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     *
+     * @param path       The path to send the request to.
+     * @param pathParams The path parameters.
+     * @return The response of the request.
+     */
+    public static WebTestClientResponse query(String path, Map<String, ?> pathParams) {
+        return given().query(path, pathParams);
+    }
+
+    /**
      * Perform a OPTIONS request to a path generated from the provided {@link Function} <code>uriFunction</code>.
      *
      * @param uriFunction       The {@code Function<UriBuilder, URI>} used to generate the path to send the request to.
@@ -719,6 +743,16 @@ public class RestAssuredWebTestClient {
      */
     public static WebTestClientResponse options(Function<UriBuilder, URI> uriFunction) {
         return given().options(uriFunction);
+    }
+
+    /**
+     * Perform a QUERY request to a path generated from the provided {@link Function} <code>uriFunction</code>.
+     *
+     * @param uriFunction       The {@code Function<UriBuilder, URI>} used to generate the path to send the request to.
+     * @return The response of the QUERY request.
+     */
+    public static WebTestClientResponse query(Function<UriBuilder, URI> uriFunction) {
+        return given().query(uriFunction);
     }
 
     /**
@@ -732,6 +766,16 @@ public class RestAssuredWebTestClient {
     }
 
     /**
+     * Perform a QUERY request to a <code>uri</code>.
+     *
+     * @param uri The uri to send the request to.
+     * @return The response of the request.
+     */
+    public static WebTestClientResponse query(URI uri) {
+        return given().query(uri);
+    }
+
+    /**
      * Perform a OPTIONS request to a <code>url</code>.
      *
      * @param url The url to send the request to.
@@ -742,12 +786,31 @@ public class RestAssuredWebTestClient {
     }
 
     /**
+     * Perform a QUERY request to a <code>url</code>.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request.
+     */
+    public static WebTestClientResponse query(URL url) {
+        return given().query(url);
+    }
+
+    /**
      * Perform a OPTIONS request to the statically configured base path.
      *
      * @return The response of the request.
      */
     public static WebTestClientResponse options() {
         return given().options();
+    }
+
+    /**
+     * Perform a QUERY request to the statically configured base path.
+     *
+     * @return The response of the request.
+     */
+    public static WebTestClientResponse query() {
+        return given().query();
     }
 
     /**

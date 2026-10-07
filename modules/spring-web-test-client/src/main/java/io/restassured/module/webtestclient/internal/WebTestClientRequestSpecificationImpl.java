@@ -735,6 +735,11 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
     }
 
     @Override
+    public WebTestClientResponse query(Function<UriBuilder, URI> uriFunction) {
+        return when().query(uriFunction);
+    }
+
+    @Override
     public WebTestClientResponse request(Method method, Function<UriBuilder, URI> uriFunction) {
         return when().request(method, uriFunction);
     }
@@ -820,6 +825,16 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
     }
 
     @Override
+    public WebTestClientResponse query(String path, Object... pathParams) {
+        return when().query(path, pathParams);
+    }
+
+    @Override
+    public WebTestClientResponse query(String path, Map<String, ?> pathParams) {
+        return when().query(path, pathParams);
+    }
+
+    @Override
     public WebTestClientResponse get(URI uri) {
         return when().get(uri);
     }
@@ -852,6 +867,11 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
     @Override
     public WebTestClientResponse options(URI uri) {
         return when().options(uri);
+    }
+
+    @Override
+    public WebTestClientResponse query(URI uri) {
+        return when().query(uri);
     }
 
     @Override
@@ -890,6 +910,11 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
     }
 
     @Override
+    public WebTestClientResponse query(URL url) {
+        return when().query(url);
+    }
+
+    @Override
     public WebTestClientResponse get() {
         return when().get();
     }
@@ -922,6 +947,11 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
     @Override
     public WebTestClientResponse options() {
         return when().options();
+    }
+
+    @Override
+    public WebTestClientResponse query() {
+        return when().query();
     }
 
     @Override

@@ -171,6 +171,51 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
     R options(String path, Map<String, ?> pathParams);
 
     /**
+     * Perform a QUERY request to a <code>path</code>. The QUERY method is a safe and idempotent method that carries a request
+     * body (for example the query to perform), use {@link io.restassured.specification.RequestSpecification#body(Object)} to specify it.
+     * <p>
+     * Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     * </p>
+     * <p>
+     * Note on redirects: with REST Assured's default (HttpClient based) implementation, QUERY is treated like POST by the
+     * default redirect strategy, i.e. a 301, 302, 307 or 308 response is <i>not</i> followed automatically (the redirect
+     * response is returned), whereas a 303 (See Other) response is followed with a GET request without the body.
+     * </p>
+     *
+     * @param path       The path to send the request to.
+     * @param pathParams The path parameters. E.g. if path is "/book/{hotelId}/{roomNumber}" you can do <code>query("/book/{hotelName}/{roomNumber}", "Hotels R Us", 22);</code>.
+     * @return The response of the request.
+     */
+    default R query(String path, Object... pathParams) {
+        return request(Method.QUERY, path, pathParams);
+    }
+
+    /**
+     * Perform a QUERY request to a <code>path</code>. The QUERY method is a safe and idempotent method that carries a request
+     * body (for example the query to perform), use {@link io.restassured.specification.RequestSpecification#body(Object)} to specify it.
+     * <p>
+     * Normally the path doesn't have to be fully-qualified e.g. you don't need to
+     * specify the path as <tt>http://localhost:8080/path</tt>. In this case it's enough to use <tt>/path</tt>.
+     * </p>
+     * <p>
+     * Note on redirects: with REST Assured's default (HttpClient based) implementation, QUERY is treated like POST by the
+     * default redirect strategy, i.e. a 301, 302, 307 or 308 response is <i>not</i> followed automatically (the redirect
+     * response is returned), whereas a 303 (See Other) response is followed with a GET request without the body.
+     * </p>
+     *
+     * @param path       The path to send the request to.
+     * <p>
+     * Request specifications (such as {@link RequestSpecification}) provide a default implementation that applies the
+     * path parameters as named path parameters and delegates to {@link #request(Method, String, Object...)}.
+     * </p>
+     *
+     * @param pathParams The path parameters.
+     * @return The response of the request.
+     */
+    R query(String path, Map<String, ?> pathParams);
+
+    /**
      * Perform a GET request to a <code>uri</code>.
      *
      * @param uri The uri to send the request to.
@@ -225,6 +270,16 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @return The response of the request.
      */
     R options(URI uri);
+
+    /**
+     * Perform a QUERY request to a <code>uri</code>. See {@link #query(String, Object...)} for details.
+     *
+     * @param uri The uri to send the request to.
+     * @return The response of the request.
+     */
+    default R query(URI uri) {
+        return request(Method.QUERY, uri);
+    }
 
     /**
      * Perform a GET request to a <code>url</code>.
@@ -283,6 +338,16 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
     R options(URL url);
 
     /**
+     * Perform a QUERY request to a <code>url</code>. See {@link #query(String, Object...)} for details.
+     *
+     * @param url The url to send the request to.
+     * @return The response of the request.
+     */
+    default R query(URL url) {
+        return request(Method.QUERY, url);
+    }
+
+    /**
      * Perform a GET request to the statically configured path (by default <code>http://localhost:8080</code>).
      *
      * @return The response of the GET request.
@@ -330,6 +395,16 @@ public interface RequestSenderOptions<R extends ResponseOptions<R>> {
      * @return The response of the request.
      */
     R options();
+
+    /**
+     * Perform a QUERY request to the statically configured path (by default <code>http://localhost:8080</code>).
+     * See {@link #query(String, Object...)} for details.
+     *
+     * @return The response of the request.
+     */
+    default R query() {
+        return request(Method.QUERY);
+    }
 
     /**
      * Perform a request to the pre-configured path (by default <code>http://localhost:8080</code>).

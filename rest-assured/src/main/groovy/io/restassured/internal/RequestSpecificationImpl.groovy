@@ -213,6 +213,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
   }
 
+  Response query(String path, Object... pathParams) {
+    return GroovyAssertBridge.runWithUnwrap {
+      applyPathParamsAndSendRequest(QUERY, path, pathParams)
+    }
+  }
+
   Response get(URI uri) {
     return GroovyAssertBridge.runWithUnwrap {
       get(notNull(uri, "URI").toString())
@@ -252,6 +258,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   Response options(URI uri) {
     return GroovyAssertBridge.runWithUnwrap {
       options(notNull(uri, "URI").toString())
+    }
+  }
+
+  Response query(URI uri) {
+    return GroovyAssertBridge.runWithUnwrap {
+      query(notNull(uri, "URI").toString())
     }
   }
 
@@ -297,6 +309,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     }
   }
 
+  Response query(URL url) {
+    return GroovyAssertBridge.runWithUnwrap {
+      query(notNull(url, "URL").toString())
+    }
+  }
+
   Response get() {
     return GroovyAssertBridge.runWithUnwrap {
       get("")
@@ -336,6 +354,12 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   Response options() {
     return GroovyAssertBridge.runWithUnwrap {
       options("")
+    }
+  }
+
+  Response query() {
+    return GroovyAssertBridge.runWithUnwrap {
+      query("")
     }
   }
 
@@ -433,6 +457,13 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     return GroovyAssertBridge.runWithUnwrap {
       pathParams(pathParamsMap)
       applyPathParamsAndSendRequest(OPTIONS, path)
+    }
+  }
+
+  Response query(String path, Map pathParamsMap) {
+    return GroovyAssertBridge.runWithUnwrap {
+      pathParams(pathParamsMap)
+      applyPathParamsAndSendRequest(QUERY, path)
     }
   }
 

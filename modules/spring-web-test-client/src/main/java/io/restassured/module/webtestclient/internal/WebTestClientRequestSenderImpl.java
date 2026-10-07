@@ -136,6 +136,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	}
 
 	@Override
+	public WebTestClientResponse query(Function<UriBuilder, URI> uriFunction) {
+		return sendRequest(queryHttpMethod(), uriFunction);
+	}
+
+	@Override
 	public WebTestClientResponse request(Method method, Function<UriBuilder, URI> uriFunction) {
 		return request(notNull(method, Method.class).name(), uriFunction);
 	}
@@ -150,8 +155,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		try {
 			// As of Spring Framework 7, HttpMethod.valueOf no longer restricts its input to the set of
 			// known HTTP methods (it accepts and creates a custom HttpMethod for any string). WebTestClient
-			// only supports the methods defined by org.springframework.web.bind.annotation.RequestMethod, so
+			// only supports the methods defined by org.springframework.web.bind.annotation.RequestMethod (and QUERY), so
 			// validate against that enum to preserve the original "unsupported HTTP verb" behavior.
+			if (io.restassured.http.Method.QUERY.name().equalsIgnoreCase(httpMethodAsString)) {
+				return queryHttpMethod();
+			}
 			org.springframework.web.bind.annotation.RequestMethod.valueOf(httpMethodAsString.toUpperCase());
 			return HttpMethod.valueOf(httpMethodAsString.toUpperCase());
 		} catch (IllegalArgumentException e) {
@@ -270,6 +278,16 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	}
 
 	@Override
+	public WebTestClientResponse query(String path, Object... pathParams) {
+		return sendRequest(queryHttpMethod(), path, pathParams);
+	}
+
+	@Override
+	public WebTestClientResponse query(String path, Map<String, ?> pathParams) {
+		return query(path, mapToArray(pathParams));
+	}
+
+	@Override
 	public WebTestClientResponse get(URI uri) {
 		return get(uri.toString());
 	}
@@ -302,6 +320,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	@Override
 	public WebTestClientResponse options(URI uri) {
 		return options(uri.toString());
+	}
+
+	@Override
+	public WebTestClientResponse query(URI uri) {
+		return query(uri.toString());
 	}
 
 	@Override
@@ -340,6 +363,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	}
 
 	@Override
+	public WebTestClientResponse query(URL url) {
+		return query(url.toString());
+	}
+
+	@Override
 	public WebTestClientResponse get() {
 		return get("");
 	}
@@ -372,6 +400,11 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	@Override
 	public WebTestClientResponse options() {
 		return options("");
+	}
+
+	@Override
+	public WebTestClientResponse query() {
+		return query("");
 	}
 
 	@Override
@@ -693,5 +726,15 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 			return ((ResponseSpecificationImpl) responseSpecification).getRpr();
 		}
 		return new ResponseParserRegistrar();
+	}
+
+	// Spring Framework 6 and 7 have no HttpMethod.QUERY constant, but HttpMethod.valueOf accepts any method name.
+	// In Spring 5 HttpMethod is an enum without QUERY, so resolve it lazily to keep the other methods working there.
+	private static HttpMethod queryHttpMethod() {
+		try {
+			return HttpMethod.valueOf(io.restassured.http.Method.QUERY.name());
+		} catch (IllegalArgumentException e) {
+			throw new UnsupportedOperationException("The HTTP QUERY method requires Spring Framework 6 or later", e);
+		}
 	}
 }
