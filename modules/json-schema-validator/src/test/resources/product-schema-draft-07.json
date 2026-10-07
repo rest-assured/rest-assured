@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["kind", "currency"],
+  "properties": {
+    "kind": { "const": "product" },
+    "currency": { "type": "string" },
+    "country": { "$ref": "definitions-draft-07.json#/definitions/countryCode" }
+  },
+  "if": { "properties": { "currency": { "const": "EUR" } } },
+  "then": { "required": ["country"] },
+  "else": { "not": { "required": ["country"] } }
+}

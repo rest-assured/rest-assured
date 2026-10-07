@@ -67,7 +67,9 @@ import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE
 import static io.restassured.http.ContentType.*
 import static io.restassured.http.Method.*
 import static io.restassured.internal.common.assertion.AssertParameter.notNull
+import static io.restassured.internal.serialization.SerializationSupport.isParameterSerializableCandidate
 import static io.restassured.internal.serialization.SerializationSupport.isSerializableCandidate
+import static io.restassured.internal.serialization.SerializationSupport.unwrapJsonStringLiteral
 import static io.restassured.internal.support.PathSupport.isFullyQualified
 import static io.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash
 import static java.lang.String.format
@@ -1304,50 +1306,71 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     responseSpecification.restAssuredResponse = restAssuredResponse
     def acceptContentType = assertionClosure.getResponseContentType()
 
-    if (shouldApplySSLConfig(http, cfg)) {
-      def sslConfig = cfg.getSSLConfig()
-      new CertAuthScheme(pathToKeyStore: sslConfig.getPathToKeyStore(), keyStorePassword: sslConfig.getKeyStorePassword(),
-              keystoreType: sslConfig.getKeyStoreType(), keyStore: sslConfig.getKeyStore(),
-              pathToTrustStore: sslConfig.getPathToTrustStore(), trustStorePassword: sslConfig.getTrustStorePassword(),
-              trustStoreType: sslConfig.getTrustStoreType(), trustStore: sslConfig.getTrustStore(),
-              port: sslConfig.getPort(), sslSocketFactory: sslConfig.getSSLSocketFactory(), x509HostnameVerifier: sslConfig.getX509HostnameVerifier())
-              .authenticate(http)
-    }
-
-    authenticationScheme.authenticate(http)
-
-    // Register the cross-host header stripper after authentication so it runs last in the interceptor chain.
-    applyCrossHostRedirectHeaderStripping(http, (restAssuredConfig?.getRedirectConfig() ?: new RedirectConfig()))
-
-    if (mayHaveBody(method)) {
-      if (hasFormParams() && requestBody != null) {
-        throw new IllegalStateException("You can either send form parameters OR body content in $method, not both!")
+    // Applying the SSL config or certificate authentication replaces the https scheme of the http client's scheme registry.
+    // Restore the original scheme once the request has been sent, and don't keep https connections established with the
+    // request specific scheme alive, so that the SSL settings of this request don't leak into later requests if the http
+    // client instance (or its connection manager) is reused.
+    def client = http.client as AbstractHttpClient
+    def schemeRegistry = client.connectionManager.schemeRegistry
+    def originalHttpsScheme = schemeRegistry.get("https")
+    def originalReuseStrategy = client.getConnectionReuseStrategy()
+    try {
+      if (shouldApplySSLConfig(http, cfg)) {
+        def sslConfig = cfg.getSSLConfig()
+        new CertAuthScheme(pathToKeyStore: sslConfig.getPathToKeyStore(), keyStorePassword: sslConfig.getKeyStorePassword(),
+                keystoreType: sslConfig.getKeyStoreType(), keyStore: sslConfig.getKeyStore(),
+                pathToTrustStore: sslConfig.getPathToTrustStore(), trustStorePassword: sslConfig.getTrustStorePassword(),
+                trustStoreType: sslConfig.getTrustStoreType(), trustStore: sslConfig.getTrustStore(),
+                port: sslConfig.getPort(), sslSocketFactory: sslConfig.getSSLSocketFactory(), x509HostnameVerifier: sslConfig.getX509HostnameVerifier())
+                .authenticate(http)
       }
-      def bodyContent = createFormParamBodyContent(assembleBodyContent(method))
-      if (POST.name().equalsIgnoreCase(method)) {
-        http.post(path: targetPath, body: bodyContent,
-                allowContentType: allowContentType,
-                requestContentType: requestHeaders.getValue(CONTENT_TYPE),
-                contentType: acceptContentType) { response, content ->
-          if (assertionClosure != null) {
-            assertionClosure.call(response, content)
-          }
+
+      authenticationScheme.authenticate(http)
+
+      if (!schemeRegistry.get("https").is(originalHttpsScheme)) {
+        client.setReuseStrategy(new NoSecureConnectionReuseStrategy(originalReuseStrategy))
+      }
+
+      // Register the cross-host header stripper after authentication so it runs last in the interceptor chain.
+      applyCrossHostRedirectHeaderStripping(http, (restAssuredConfig?.getRedirectConfig() ?: new RedirectConfig()))
+
+      if (mayHaveBody(method)) {
+        if (hasFormParams() && requestBody != null) {
+          throw new IllegalStateException("You can either send form parameters OR body content in $method, not both!")
         }
-      } else if (PATCH.name().equalsIgnoreCase(method)) {
-        http.patch(path: targetPath, body: bodyContent,
-                allowContentType: allowContentType,
-                requestContentType: requestHeaders.getValue(CONTENT_TYPE),
-                contentType: acceptContentType) { response, content ->
-          if (assertionClosure != null) {
-            assertionClosure.call(response, content)
+        def bodyContent = createFormParamBodyContent(assembleBodyContent(method))
+        if (POST.name().equalsIgnoreCase(method)) {
+          http.post(path: targetPath, body: bodyContent,
+                  allowContentType: allowContentType,
+                  requestContentType: requestHeaders.getValue(CONTENT_TYPE),
+                  contentType: acceptContentType) { response, content ->
+            if (assertionClosure != null) {
+              assertionClosure.call(response, content)
+            }
           }
+        } else if (PATCH.name().equalsIgnoreCase(method)) {
+          http.patch(path: targetPath, body: bodyContent,
+                  allowContentType: allowContentType,
+                  requestContentType: requestHeaders.getValue(CONTENT_TYPE),
+                  contentType: acceptContentType) { response, content ->
+            if (assertionClosure != null) {
+              assertionClosure.call(response, content)
+            }
+          }
+        } else {
+          requestBody = bodyContent
+          sendHttpRequest(http, method, acceptContentType, targetPath, assertionClosure)
         }
       } else {
-        requestBody = bodyContent
         sendHttpRequest(http, method, acceptContentType, targetPath, assertionClosure)
       }
-    } else {
-      sendHttpRequest(http, method, acceptContentType, targetPath, assertionClosure)
+    } finally {
+      if (originalHttpsScheme == null) {
+        schemeRegistry.unregister("https")
+      } else {
+        schemeRegistry.register(originalHttpsScheme)
+      }
+      client.setReuseStrategy(originalReuseStrategy)
     }
     return restAssuredResponse
   }
@@ -1402,7 +1425,17 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   boolean shouldApplySSLConfig(http, RestAssuredConfig cfg) {
     URI uri = ((URIBuilder) http.getUri()).toURI()
     if (uri == null) throw new IllegalStateException("a default URI must be set")
-    uri.getScheme()?.toLowerCase() == "https" && cfg.getSSLConfig().isUserConfigured() && !(authenticationScheme instanceof CertAuthScheme)
+    if (!cfg.getSSLConfig().isUserConfigured() || authenticationScheme instanceof CertAuthScheme) {
+      return false
+    }
+    if (uri.getScheme()?.toLowerCase() == "https") {
+      return true
+    }
+    // A non-https request may be redirected to https (see issue #790) so the SSL config is applied to it as well (the SSL
+    // socket factory is then created lazily, see AuthConfig#certificate). This is only done for http clients created by
+    // REST Assured's default http client factory since a custom factory may have registered its own https scheme that
+    // must not be replaced for requests that don't start out as https.
+    cfg.getHttpClientConfig().usesDefaultHttpClientFactory()
   }
 
   def applyRestAssuredConfig(HTTPBuilder http) {
@@ -1766,8 +1799,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
 
+  // Used for parameters, headers and cookies, where java.time values are sent as ISO-8601 and a value object serialized to
+  // a quoted JSON string literal is sent unquoted. Only serialized values are unwrapped, so a quoted String such as an ETag is sent as is.
   private def serializeIfNeeded(Object object) {
-    serializeIfNeeded(object, requestContentType)
+    isParameterSerializableCandidate(object) ? unwrapJsonStringLiteral(serializeIfNeeded(object, requestContentType)) : object.toString()
   }
 
   private def serializeIfNeeded(Object object, contentType) {

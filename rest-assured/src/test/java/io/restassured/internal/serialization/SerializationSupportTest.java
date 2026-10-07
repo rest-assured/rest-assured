@@ -19,6 +19,12 @@ package io.restassured.internal.serialization;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SerializationSupportTest {
@@ -60,6 +66,15 @@ public class SerializationSupportTest {
     }
 
     @Test
+    @DisplayName("LocalDate is not a parameter serialization candidate")
+    public void localDateIsNotASerializationCandidate() {
+        // Act
+        boolean candidate = SerializationSupport.isParameterSerializableCandidate(LocalDate.of(2024, 4, 10));
+        // Assert
+        assertThat(candidate).isFalse();
+    }
+
+    @Test
     @DisplayName("plain object is a serialization candidate")
     public void plainObjectIsASerializationCandidate() {
         // Act
@@ -75,5 +90,43 @@ public class SerializationSupportTest {
         boolean candidate = SerializationSupport.isSerializableCandidate(null);
         // Assert
         assertThat(candidate).isFalse();
+    }
+
+    @Test
+    @DisplayName("java.time values are not parameter serialization candidates")
+    public void javaTimeValuesAreNotParameterSerializationCandidates() {
+        assertThat(SerializationSupport.isParameterSerializableCandidate(Instant.parse("2024-04-10T10:15:30Z"))).isFalse();
+        assertThat(SerializationSupport.isParameterSerializableCandidate(OffsetDateTime.parse("2024-04-10T10:15:30+02:00"))).isFalse();
+        assertThat(SerializationSupport.isParameterSerializableCandidate(Duration.ofMinutes(5))).isFalse();
+        assertThat(SerializationSupport.isParameterSerializableCandidate(ZoneId.of("Europe/Stockholm"))).isFalse();
+    }
+
+    @Test
+    @DisplayName("java.time values are still serialization candidates for bodies and multipart content")
+    public void javaTimeValuesAreStillSerializationCandidatesForBodies() {
+        assertThat(SerializationSupport.isSerializableCandidate(LocalDate.of(2024, 4, 10))).isTrue();
+    }
+
+    @Test
+    @DisplayName("a serialized JSON string literal is unwrapped and unescaped")
+    public void jsonStringLiteralIsUnwrapped() {
+        assertThat(SerializationSupport.unwrapJsonStringLiteral("\"c2a5a7c4-587a-4f13-94f9-084ebfac5302\""))
+                .isEqualTo("c2a5a7c4-587a-4f13-94f9-084ebfac5302");
+        assertThat(SerializationSupport.unwrapJsonStringLiteral("\"a \\\"quoted\\\" \\\\ value\\u00e9\""))
+                .isEqualTo("a \"quoted\" \\ value\u00e9");
+        assertThat(SerializationSupport.unwrapJsonStringLiteral("\"\"")).isEmpty();
+    }
+
+    @Test
+    @DisplayName("serialized values that are not a single JSON string literal are left as is")
+    public void nonStringLiteralsAreLeftAsIs() {
+        assertThat(SerializationSupport.unwrapJsonStringLiteral("{\"name\":\"value\"}")).isEqualTo("{\"name\":\"value\"}");
+        assertThat(SerializationSupport.unwrapJsonStringLiteral("[\"a\",\"b\"]")).isEqualTo("[\"a\",\"b\"]");
+        assertThat(SerializationSupport.unwrapJsonStringLiteral("\"a\",\"b\"")).isEqualTo("\"a\",\"b\"");
+        assertThat(SerializationSupport.unwrapJsonStringLiteral("\"")).isEqualTo("\"");
+        assertThat(SerializationSupport.unwrapJsonStringLiteral("42")).isEqualTo("42");
+        assertThat(SerializationSupport.unwrapJsonStringLiteral("\"\\u+041\"")).isEqualTo("\"\\u+041\"");
+        assertThat(SerializationSupport.unwrapJsonStringLiteral("\"\\u004\"")).isEqualTo("\"\\u004\"");
+        assertThat(SerializationSupport.unwrapJsonStringLiteral(null)).isNull();
     }
 }

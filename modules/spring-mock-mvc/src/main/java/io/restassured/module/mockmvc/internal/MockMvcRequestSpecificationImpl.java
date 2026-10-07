@@ -96,7 +96,7 @@ public class MockMvcRequestSpecificationImpl implements MockMvcRequestSpecificat
     private final ParameterUpdater
             parameterUpdater = new ParameterUpdater(new ParameterUpdater.Serializer() {
         public String serializeIfNeeded(Object value) {
-            return MockMvcRequestSpecificationImpl.this.serializeIfNeeded(value);
+            return Serializer.serializeParameterIfNeeded(value, getRequestContentType(), cfg);
         }
     });
 

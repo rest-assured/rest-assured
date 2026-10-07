@@ -28,8 +28,8 @@ import static io.restassured.path.json.config.JsonPathConfig.NumberReturnType.FL
 
 /**
  * Allows you to configure how JsonPath will handle JSON numbers and object mappers. By default JsonPath and body expectations
- * in REST Assured will return floats for numbers that are less than or equal to {@link Float#MAX_VALUE} or doubles
- * for larger numbers. In Groovy 1.8.5 they changed so that all numbers are now BigDecimals. If you prefer that
+ * in REST Assured will return floats for numbers whose magnitude is less than or equal to {@link Float#MAX_VALUE} or doubles
+ * for larger magnitudes. In Groovy 1.8.5 they changed so that all numbers are now BigDecimals. If you prefer that
  * you can configure the {@link NumberReturnType} to be {@link NumberReturnType#BIG_DECIMAL}.
  */
 public class JsonPathConfig {

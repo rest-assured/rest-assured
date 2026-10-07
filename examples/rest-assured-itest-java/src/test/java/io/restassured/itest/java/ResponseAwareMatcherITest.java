@@ -17,9 +17,12 @@
 package io.restassured.itest.java;
 
 import io.restassured.RestAssured;
+import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.specification.ResponseSpecification;
 import io.restassured.itest.java.support.WithJetty;
 import org.junit.jupiter.api.Test;
 
+import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static io.restassured.matcher.ResponseAwareMatcherComposer.and;
 import static io.restassured.matcher.ResponseAwareMatcherComposer.or;
@@ -130,5 +133,20 @@ public class ResponseAwareMatcherITest extends WithJetty {
                 statusCode(200).
                 body("_links.self.href", endsWithPath("id")).
                 body("status", equalTo("ongoing"));
+    }
+
+    @Test public void
+    can_use_response_aware_matcher_for_headers_in_response_spec_builder() {
+        ResponseSpecification responseSpec = new ResponseSpecBuilder()
+                .expectStatusCode(301)
+                .expectHeader("Location", response -> endsWith("/redirect/" + response.path("id")))
+                .build();
+
+        given().
+                redirects().follow(false).
+        when().
+                post("/redirect").
+        then().
+                spec(responseSpec);
     }
 }

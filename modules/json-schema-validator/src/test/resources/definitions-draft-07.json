@@ -1,0 +1,6 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "countryCode": { "type": "string", "pattern": "^[A-Z]{2}$" }
+  }
+}

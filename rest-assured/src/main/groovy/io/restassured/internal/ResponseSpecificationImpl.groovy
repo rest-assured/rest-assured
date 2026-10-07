@@ -32,6 +32,7 @@ import io.restassured.internal.log.LogRepository
 import io.restassured.internal.util.MatcherErrorMessageBuilder
 import io.restassured.listener.ResponseValidationFailureListener
 import io.restassured.matcher.DetailedCookieMatcher
+import io.restassured.matcher.ResponseAwareMatcher
 import io.restassured.parsing.Parser
 import io.restassured.response.Response
 import io.restassured.specification.*
@@ -200,6 +201,16 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
 
   ResponseSpecification header(String headerName, String expectedValue) {
     return header(headerName, equalTo(expectedValue))
+  }
+
+  ResponseSpecification header(String headerName, ResponseAwareMatcher responseAwareMatcher) {
+    notNull headerName, "headerName"
+    notNull responseAwareMatcher, "responseAwareMatcher"
+
+    validateResponseIfRequired {
+      headerAssertions << new HeaderMatcher(headerName: headerName, responseAwareMatcher: responseAwareMatcher)
+    }
+    this
   }
 
   ResponseSpecification cookies(Map expectedCookies) {
@@ -612,7 +623,7 @@ class ResponseSpecificationImpl implements FilterableResponseSpecification {
     private def validateHeadersAndCookies(Response response) {
       def validations = []
       validations.addAll(headerAssertions.collect { matcher ->
-        matcher.validateHeader(response.getHeaders())
+        matcher.validateHeader(response)
       })
 
       validations.addAll(cookieAssertions.collect { matcher ->
