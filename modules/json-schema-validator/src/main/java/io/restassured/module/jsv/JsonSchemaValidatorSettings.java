@@ -73,28 +73,23 @@ public class JsonSchemaValidatorSettings {
     }
 
     /**
-     * @return The explicitly configured {@link JsonSchemaVersion}, or <code>null</code> if the version is detected from the <code>$schema</code> keyword of the schema (default).
+     * @return The {@link JsonSchemaVersion} used for schemas without <code>$schema</code>, or <code>null</code> if not configured (draft-04 is then used).
      */
     public JsonSchemaVersion schemaVersion() {
         return schemaVersion;
     }
 
     /**
-     * Instruct the JsonSchemaValidator which JSON Schema version (draft) to validate against.
+     * Instruct the JsonSchemaValidator which JSON Schema version (draft) to use for schemas that don't declare <code>$schema</code>
+     * (or declare an unknown <code>$schema</code>). A <code>$schema</code> declared by the schema always takes precedence.
      * <p>
-     * By default (<code>null</code>) the version is detected from the <code>$schema</code> keyword of the schema. Schemas declaring
-     * draft-06, draft-07, 2019-09 or 2020-12 are then validated by the networknt json-schema-validator, and all other schemas
-     * (draft-03, draft-04, no or unknown <code>$schema</code>) by the java-json-tools validator configured by {@link #jsonSchemaFactory(JsonSchemaFactory)}.
+     * By default (<code>null</code>) such schemas are validated as draft-04 by the java-json-tools validator configured by
+     * {@link #jsonSchemaFactory(JsonSchemaFactory)}, as in previous versions. Draft-06, draft-07, 2019-09 and 2020-12 are validated by
+     * the networknt json-schema-validator, to which the {@link JsonSchemaFactory} and {@link #checkedValidation(boolean) checked validation}
+     * settings don't apply. See {@link JsonSchemaVersion} for details.
      * </p>
-     * <ul>
-     * <li>{@link JsonSchemaVersion#DRAFT_4} always uses the java-json-tools validator, i.e. the behavior of REST Assured versions before
-     * draft-06+ support was added, regardless of <code>$schema</code>.</li>
-     * <li>Any other version uses the networknt json-schema-validator, and that version is applied to schemas that don't declare <code>$schema</code>.
-     * A <code>$schema</code> declared by the schema itself takes precedence, as required by the JSON Schema specification.
-     * The {@link JsonSchemaFactory} and the {@link #checkedValidation(boolean) checked validation} settings don't apply to this validator.</li>
-     * </ul>
      *
-     * @param schemaVersion The JSON Schema version to use, or <code>null</code> to detect it from <code>$schema</code>.
+     * @param schemaVersion The JSON Schema version to use for schemas without <code>$schema</code>, or <code>null</code> for the default (draft-04).
      * @return A new instance of JsonSchemaValidatorSettings
      */
     public JsonSchemaValidatorSettings schemaVersion(JsonSchemaVersion schemaVersion) {

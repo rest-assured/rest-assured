@@ -32,6 +32,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * A Hamcrest matcher that can be used to validate that a JSON document matches a given <a href="http://json-schema.org/">JSON schema</a>.
@@ -54,7 +55,7 @@ import java.util.List;
  * where "settings" is found in {@link JsonSchemaValidatorSettings#settings()}.
  * <p>
  * JSON Schema draft-03, draft-04, draft-06, draft-07, 2019-09 and 2020-12 are supported. The version is detected from the <code>$schema</code>
- * keyword of the schema (schemas without <code>$schema</code> are validated as draft-04, as before), but it can also be specified explicitly:
+ * keyword of the schema. Schemas without <code>$schema</code> are validated as draft-04, as before, unless another version is specified:
  * <pre>
  * get("/products").then().assertThat().body(matchesJsonSchemaInClasspath("products-schema.json").using(JsonSchemaVersion.DRAFT_2020_12));
  * </pre>
@@ -88,16 +89,21 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     public static JsonSchemaValidatorSettings settings;
 
     private final Object schema;
+    /**
+     * The location of a schema that has been loaded into a JsonNode (e.g. a File), used to resolve relative $ref's. May be null.
+     */
+    private final String schemaLocation;
     private final JsonSchemaValidatorSettings instanceSettings;
 
     private ProcessingReport report;
     private List<String> validationErrors;
 
-    private JsonSchemaValidator(Object schema, JsonSchemaValidatorSettings jsonSchemaValidatorSettings) {
+    private JsonSchemaValidator(Object schema, String schemaLocation, JsonSchemaValidatorSettings jsonSchemaValidatorSettings) {
         if (jsonSchemaValidatorSettings == null) {
             throw new IllegalArgumentException(JsonSchemaValidatorSettings.class.getSimpleName() + " cannot be null.");
         }
         this.schema = schema;
+        this.schemaLocation = schemaLocation;
         this.instanceSettings = jsonSchemaValidatorSettings;
     }
 
@@ -163,6 +169,11 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
             JsonNode createSchemaInstance(File input) throws IOException {
                 return JsonLoader.fromFile(input);
             }
+
+            @Override
+            String schemaLocation(File input) {
+                return input.getAbsoluteFile().toURI().toString();
+            }
         }.create(file);
     }
 
@@ -195,12 +206,12 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
      * @return A Hamcrest matcher
      */
     public Matcher<?> using(JsonSchemaFactory jsonSchemaFactory) {
-        return new JsonSchemaValidator(schema, instanceSettings.jsonSchemaFactory(jsonSchemaFactory));
+        return new JsonSchemaValidator(schema, schemaLocation, instanceSettings.jsonSchemaFactory(jsonSchemaFactory));
     }
 
     /**
-     * Validate the JSON document against the supplied JSON Schema version (draft) instead of detecting it from the <code>$schema</code> keyword.
-     * For example:
+     * Validate the JSON document against the supplied JSON Schema version (draft) if the schema doesn't declare <code>$schema</code>.
+     * A <code>$schema</code> declared by the schema always takes precedence. For example:
      * <pre>
      * get("/products").then().body(matchesJsonSchemaInClasspath("products-schema.json").using(JsonSchemaVersion.DRAFT_7));
      * </pre>
@@ -210,7 +221,7 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
      * @return A Hamcrest matcher
      */
     public Matcher<?> using(JsonSchemaVersion schemaVersion) {
-        return new JsonSchemaValidator(schema, instanceSettings.schemaVersion(schemaVersion));
+        return new JsonSchemaValidator(schema, schemaLocation, instanceSettings.schemaVersion(schemaVersion));
     }
 
     /**
@@ -220,7 +231,7 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
      * @return A Hamcrest matcher
      */
     public Matcher<?> using(JsonSchemaValidatorSettings jsonSchemaValidatorSettings) {
-        return new JsonSchemaValidator(schema, jsonSchemaValidatorSettings);
+        return new JsonSchemaValidator(schema, schemaLocation, jsonSchemaValidatorSettings);
     }
 
     private static URL toURL(URI uri) {
@@ -238,22 +249,30 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
         validationErrors = null;
         try {
             JsonNode contentAsJsonNode = JsonLoader.fromString(content);
+            JsonSchemaVersion configuredVersion = instanceSettings.schemaVersion();
+            boolean configuredVersionRequiresNetworknt = configuredVersion != null && !configuredVersion.isLegacy();
+
+            final JsonNode schemaNode;
             JsonNode parsedUrlSchema = null;
-            JsonSchemaVersion schemaVersion = instanceSettings.schemaVersion();
-            if (schemaVersion == null) {
-                // Auto-detect the version from the $schema keyword
-                final JsonNode schemaNode;
-                if (schema instanceof URL) {
-                    // Don't fetch remote schemas an extra time just to detect the version. They're only inspected if they're parsed anyway.
-                    URL url = (URL) schema;
-                    if (instanceSettings.shouldParseUriAndUrlsAsJsonNode() || isLocal(url)) {
-                        parsedUrlSchema = parseUrlSchemaQuietly(url);
-                    }
-                    schemaNode = parsedUrlSchema;
-                } else {
-                    schemaNode = schema instanceof JsonNode ? (JsonNode) schema : null;
+            if (schema instanceof URL) {
+                // Don't fetch remote schemas an extra time just to detect the version. They're only inspected if they're parsed anyway.
+                URL url = (URL) schema;
+                if (instanceSettings.shouldParseUriAndUrlsAsJsonNode() || configuredVersionRequiresNetworknt || isLocal(url)) {
+                    parsedUrlSchema = parseUrlSchemaQuietly(url);
                 }
-                schemaVersion = detectSchemaVersion(schemaNode);
+                schemaNode = parsedUrlSchema;
+            } else {
+                schemaNode = schema instanceof JsonNode ? (JsonNode) schema : null;
+            }
+
+            // A $schema declared by the schema always wins, the configured version only applies to schemas without (a known) $schema
+            String declaredSchema = declaredSchema(schemaNode);
+            final JsonSchemaVersion schemaVersion;
+            if (JsonSchemaVersion.isLegacyMetaSchemaUri(declaredSchema)) {
+                schemaVersion = null;
+            } else {
+                JsonSchemaVersion declaredVersion = JsonSchemaVersion.fromMetaSchemaUri(declaredSchema);
+                schemaVersion = declaredVersion == null ? configuredVersion : declaredVersion;
             }
 
             if (schemaVersion == null || schemaVersion.isLegacy()) {
@@ -290,39 +309,37 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
 
     private boolean matchesUsingNetworknt(JsonSchemaVersion schemaVersion, JsonNode contentAsJsonNode, JsonNode parsedUrlSchema) throws IOException {
         final JsonNode schemaNode;
-        final URL schemaLocation;
+        final String location;
         if (schema instanceof URL) {
-            schemaLocation = (URL) schema;
-            schemaNode = parsedUrlSchema == null ? JsonLoader.fromURL(schemaLocation) : parsedUrlSchema;
+            location = schema.toString();
+            schemaNode = parsedUrlSchema == null ? JsonLoader.fromURL((URL) schema) : parsedUrlSchema;
         } else if (schema instanceof JsonNode) {
-            schemaLocation = null;
+            location = schemaLocation;
             schemaNode = (JsonNode) schema;
         } else {
             throw new RuntimeException("Internal error when loading schema: Input was instance of " + schema.getClass().getName());
         }
 
         try {
-            validationErrors = NetworkntSchemaValidation.validate(schemaVersion, schemaNode, schemaLocation, contentAsJsonNode);
+            validationErrors = NetworkntSchemaValidation.validate(schemaVersion, schemaNode, location, contentAsJsonNode);
         } catch (NoClassDefFoundError e) {
             throw new JsonSchemaValidationException("Validating JSON Schema " + schemaVersion + " requires com.networknt:json-schema-validator to be available in the classpath.", e);
         }
         return validationErrors.isEmpty();
     }
 
-    private static JsonSchemaVersion detectSchemaVersion(JsonNode schemaNode) {
+    private static String declaredSchema(JsonNode schemaNode) {
         if (schemaNode == null || !schemaNode.isObject()) {
             return null;
         }
         JsonNode schemaKeyword = schemaNode.get("$schema");
-        if (schemaKeyword == null || !schemaKeyword.isTextual()) {
-            return null;
-        }
-        return JsonSchemaVersion.fromMetaSchemaUri(schemaKeyword.textValue());
+        return schemaKeyword != null && schemaKeyword.isTextual() ? schemaKeyword.textValue() : null;
     }
 
     private static boolean isLocal(URL url) {
-        String protocol = url.getProtocol();
-        return "file".equalsIgnoreCase(protocol) || "jar".equalsIgnoreCase(protocol);
+        // Treat everything except network protocols as local, e.g. file:, jar:, wsjar:, vfs: and bundleresource:
+        String protocol = url.getProtocol().toLowerCase(Locale.ROOT);
+        return !(protocol.equals("http") || protocol.equals("https") || protocol.equals("ftp"));
     }
 
     private static JsonNode parseUrlSchemaQuietly(URL url) {
@@ -391,10 +408,14 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
                 throw new JsonSchemaValidationException(e);
             }
 
-            return new JsonSchemaValidator(loadedSchema, createSettings());
+            return new JsonSchemaValidator(loadedSchema, schemaLocation(schema), createSettings());
         }
 
         abstract Object createSchemaInstance(T input) throws IOException;
+
+        String schemaLocation(T input) {
+            return null;
+        }
     }
 
     private static class Schema {

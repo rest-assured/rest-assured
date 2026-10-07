@@ -46,7 +46,20 @@
         <dependency>
             <groupId>com.networknt</groupId>
             <artifactId>json-schema-validator</artifactId>
+            <!-- 2.0.x is the Jackson 2 line (3.x requires Jackson 3) -->
             <version>2.0.8</version>
+            <exclusions>
+                <!-- Only needed for YAML schemas. It's built against a newer jackson-core than the rest of the project and
+                     would otherwise end up on users' classpaths (where e.g. Spring enables YAML message converters if present). -->
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-yaml</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>snakeyaml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>

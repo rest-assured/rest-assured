@@ -23,9 +23,12 @@ import org.junit.jupiter.api.io.TempDir;
 
 import com.sun.net.httpserver.HttpServer;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.io.OutputStream;
 import java.net.URL;
@@ -129,7 +132,8 @@ public class JsonSchemaVersionsTest {
         AssertionError error = assertThrows(AssertionError.class, () ->
                 assertThat("{ \"id\": \"o\", \"line\": [\"apple\", 0, \"extra\"], \"discount\": 10 }", matchesJsonSchemaInClasspath("order-schema-2020-12.json")));
 
-        assertThat(error.getMessage(), allOf(containsString("/id: must be at least 3 characters long"), containsString("/line/1: must have a minimum value of 1"), containsString("coupon"), containsString("/line: index '2'")));
+        assertThat(error.getMessage(), allOf(containsString("$.id: must be at least 3 characters long"), containsString("$.line[1]: must have a minimum value of 1"), containsString("$.line: index '2'"),
+                containsString("$: has a missing property 'coupon'")));
     }
 
     // Draft-04 / draft-03 behavior is unchanged
@@ -181,11 +185,93 @@ public class JsonSchemaVersionsTest {
     }
 
     @Test
-    void explicit_draft_04_uses_java_json_tools_even_if_schema_declares_draft_07() {
+    void configured_version_never_overrides_a_declared_draft_07_schema() {
         Matcher<?> matcher = matchesJsonSchemaInClasspath("product-schema-draft-07.json").using(JsonSchemaVersion.DRAFT_4);
 
-        // "const" is unknown to draft-04 and therefore ignored
-        assertThat("{ \"kind\": \"service\", \"currency\": \"USD\" }", (Matcher<? super String>) matcher);
+        assertThat("{ \"kind\": \"service\", \"currency\": \"USD\" }", not((Matcher<? super String>) matcher));
+    }
+
+    @Test
+    void configured_version_never_overrides_a_declared_draft_03_schema() {
+        JsonSchemaValidator.settings = settings().with().schemaVersion(JsonSchemaVersion.DRAFT_7);
+
+        assertThat("{ \"greeting\": { \"firstName\": \"John\", \"lastName\": \"Doe\" } }", matchesJsonSchemaInClasspath("greeting-schema.json"));
+        AssertionError error = assertThrows(AssertionError.class, () ->
+                assertThat("{ \"greeting\": { \"firstName\": \"John\" } }", matchesJsonSchemaInClasspath("greeting-schema.json")));
+        // Message format of the java-json-tools validator
+        assertThat(error.getMessage(), containsString("object has missing required properties ([\"lastName\"])"));
+    }
+
+    @Test
+    void configured_version_never_overrides_a_declared_draft_04_schema() {
+        String schema = "{ \"$schema\": \"http://json-schema.org/draft-04/schema#\", \"type\": \"object\", \"required\": [\"name\"] }";
+
+        AssertionError error = assertThrows(AssertionError.class, () -> assertThat("{ }", (Matcher<? super String>) matchesJsonSchema(schema).using(JsonSchemaVersion.DRAFT_2020_12)));
+
+        assertThat(error.getMessage(), containsString("object has missing required properties ([\"name\"])"));
+    }
+
+    // Relative $ref's
+
+    @Test
+    void relative_refs_are_resolved_against_the_location_of_a_schema_file() throws Exception {
+        File schemaFile = new File(Thread.currentThread().getContextClassLoader().getResource("product-schema-draft-07.json").toURI());
+
+        assertThat("{ \"kind\": \"product\", \"currency\": \"EUR\", \"country\": \"SE\" }", matchesJsonSchema(schemaFile));
+        assertThat("{ \"kind\": \"product\", \"currency\": \"EUR\", \"country\": \"Sweden\" }", not(matchesJsonSchema(schemaFile)));
+    }
+
+    @Test
+    void relative_ref_in_schema_without_location_gives_a_helpful_error() throws Exception {
+        String schema = new String(Thread.currentThread().getContextClassLoader().getResourceAsStream("product-schema-draft-07.json").readAllBytes(), StandardCharsets.UTF_8);
+
+        JsonSchemaValidationException exception = assertThrows(JsonSchemaValidationException.class, () ->
+                matchesJsonSchema(schema).matches("{ \"kind\": \"product\", \"currency\": \"EUR\", \"country\": \"SE\" }"));
+
+        assertThat(exception.getMessage(), containsString("Use matchesJsonSchemaInClasspath, or matchesJsonSchema with a File, URL or URI"));
+    }
+
+    @Test
+    void remote_refs_are_only_fetched_once_for_several_assertions() throws Exception {
+        String definitions = "{ \"definitions\": { \"kind\": { \"const\": \"product\" } } }";
+        Map<String, AtomicInteger> requests = new ConcurrentHashMap<>();
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/defs.json", exchange -> {
+            requests.computeIfAbsent("defs", k -> new AtomicInteger()).incrementAndGet();
+            byte[] body = definitions.getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(200, body.length);
+            try (OutputStream out = exchange.getResponseBody()) {
+                out.write(body);
+            }
+        });
+        server.start();
+        try {
+            String schema = "{ \"$schema\": \"http://json-schema.org/draft-07/schema#\", \"properties\": { \"kind\": { \"$ref\": \"http://127.0.0.1:" + server.getAddress().getPort() + "/defs.json#/definitions/kind\" } } }";
+
+            assertThat("{ \"kind\": \"product\" }", matchesJsonSchema(schema));
+            assertThat("{ \"kind\": \"service\" }", not(matchesJsonSchema(schema)));
+            assertThat("{ \"kind\": \"product\" }", matchesJsonSchema(schema));
+
+            assertThat(requests.get("defs").get(), is(1));
+        } finally {
+            server.stop(0);
+        }
+    }
+
+    @Test
+    void different_schemas_without_location_do_not_interfere_with_each_other() {
+        String schema1 = "{ \"$schema\": \"http://json-schema.org/draft-07/schema#\", \"properties\": { \"kind\": { \"const\": \"a\" } } }";
+        String schema2 = "{ \"$schema\": \"http://json-schema.org/draft-07/schema#\", \"properties\": { \"kind\": { \"const\": \"b\" } } }";
+
+        assertThat("{ \"kind\": \"a\" }", matchesJsonSchema(schema1));
+        assertThat("{ \"kind\": \"b\" }", matchesJsonSchema(schema2));
+        assertThat("{ \"kind\": \"b\" }", not(matchesJsonSchema(schema1)));
+        assertThat("{ \"kind\": \"a\" }", not(matchesJsonSchema(schema2)));
+    }
+
+    @Test
+    void yaml_support_of_networknt_is_not_on_the_classpath() {
+        assertThrows(ClassNotFoundException.class, () -> Class.forName("com.fasterxml.jackson.dataformat.yaml.YAMLFactory"));
     }
 
     // Remote schemas are downloaded once

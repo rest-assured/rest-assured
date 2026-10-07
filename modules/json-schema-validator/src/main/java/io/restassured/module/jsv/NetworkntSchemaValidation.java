@@ -21,11 +21,15 @@ import com.networknt.schema.Error;
 import com.networknt.schema.Schema;
 import com.networknt.schema.SchemaLocation;
 import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SchemaRegistryConfig;
 import com.networknt.schema.SpecificationVersion;
+import com.networknt.schema.path.PathType;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Validates JSON documents against draft-06, draft-07, 2019-09 and 2020-12 schemas using the networknt json-schema-validator.
@@ -35,6 +39,11 @@ import java.util.List;
  * </p>
  */
 class NetworkntSchemaValidation {
+
+    /**
+     * One registry per version. The registries cache schemas loaded through <code>$ref</code> so that they're not re-fetched for every assertion.
+     */
+    private static final Map<JsonSchemaVersion, SchemaRegistry> SCHEMA_REGISTRIES = new ConcurrentHashMap<>();
 
     private NetworkntSchemaValidation() {
     }
@@ -46,16 +55,45 @@ class NetworkntSchemaValidation {
      * @param content        The JSON document to validate
      * @return The validation error messages, empty if the document is valid.
      */
-    static List<String> validate(JsonSchemaVersion version, JsonNode schemaNode, URL schemaLocation, JsonNode content) {
-        // Allow $ref's to be resolved from file:, jar: and http(s): locations, like the java-json-tools validator does
-        SchemaRegistry schemaRegistry = SchemaRegistry.withDefaultDialect(SpecificationVersion.valueOf(version.name()),
-                builder -> builder.schemaLoader(schemaLoader -> schemaLoader.fetchRemoteResources()));
-        Schema schema = schemaLocation == null ? schemaRegistry.getSchema(schemaNode) : schemaRegistry.getSchema(SchemaLocation.of(schemaLocation.toString()), schemaNode);
-        List<Error> errors = schema.validate(content);
+    static List<String> validate(JsonSchemaVersion version, JsonNode schemaNode, String schemaLocation, JsonNode content) {
+        SchemaRegistry schemaRegistry = SCHEMA_REGISTRIES.computeIfAbsent(version, NetworkntSchemaValidation::createSchemaRegistry);
+        final List<Error> errors;
+        try {
+            Schema schema = schemaLocation == null ? schemaRegistry.getSchema(schemaNode) : schemaRegistry.getSchema(SchemaLocation.of(schemaLocation), schemaNode);
+            errors = schema.validate(content);
+        } catch (RuntimeException e) {
+            if (schemaLocation == null && hasCause(e, "URI is not absolute")) {
+                throw new JsonSchemaValidationException("Couldn't resolve a relative $ref since the schema wasn't loaded from a location. " +
+                        "Use matchesJsonSchemaInClasspath, or matchesJsonSchema with a File, URL or URI, so that relative $ref's can be resolved against the location of the schema.", e);
+            }
+            throw e;
+        }
         List<String> messages = new ArrayList<>(errors.size());
         for (Error error : errors) {
             messages.add(error.toString());
         }
         return messages;
+    }
+
+    private static SchemaRegistry createSchemaRegistry(JsonSchemaVersion version) {
+        SchemaRegistryConfig config = SchemaRegistryConfig.builder()
+                // JSONPath style locations ("$", "$.name", "$.items[1]") so that errors on the root of the document are readable
+                .pathType(PathType.JSON_PATH)
+                // Same language as the rest of REST Assured (and the java-json-tools validator) regardless of the default locale
+                .locale(Locale.ENGLISH)
+                .build();
+        return SchemaRegistry.withDefaultDialect(SpecificationVersion.valueOf(version.name()), builder -> builder
+                .schemaRegistryConfig(config)
+                // Allow $ref's to be resolved from file:, jar: and http(s): locations, like the java-json-tools validator does
+                .schemaLoader(schemaLoader -> schemaLoader.fetchRemoteResources()));
+    }
+
+    private static boolean hasCause(Throwable throwable, String messagePart) {
+        for (Throwable t = throwable; t != null; t = t.getCause() == t ? null : t.getCause()) {
+            if (t.getMessage() != null && t.getMessage().contains(messagePart)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
