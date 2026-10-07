@@ -20,7 +20,9 @@ import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.mapping.ObjectMapping;
 import io.restassured.module.spring.commons.config.SpecificationConfig;
 
+import static io.restassured.internal.serialization.SerializationSupport.isParameterSerializableCandidate;
 import static io.restassured.internal.serialization.SerializationSupport.isSerializableCandidate;
+import static io.restassured.internal.serialization.SerializationSupport.unwrapJsonStringLiteral;
 
 public class Serializer {
 
@@ -31,6 +33,14 @@ public class Serializer {
         return isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType,
                 findEncoderCharsetOrReturnDefault(contentType, config), null, config.getObjectMapperConfig(),
                 config.getEncoderConfig()) : object.toString();
+    }
+
+    /**
+     * Like {@link #serializeIfNeeded(Object, String, SpecificationConfig)} but for parameters, headers and cookies, where
+     * java.time values are sent as ISO-8601 and a value object serialized to a quoted JSON string literal is sent unquoted.
+     */
+    public static String serializeParameterIfNeeded(Object object, String contentType, SpecificationConfig config) {
+        return isParameterSerializableCandidate(object) ? unwrapJsonStringLiteral(serializeIfNeeded(object, contentType, config)) : object.toString();
     }
 
     public static String findEncoderCharsetOrReturnDefault(String contentType, SpecificationConfig config) {

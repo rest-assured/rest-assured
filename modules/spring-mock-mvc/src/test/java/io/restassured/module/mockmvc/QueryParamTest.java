@@ -18,12 +18,23 @@ package io.restassured.module.mockmvc;
 
 import io.restassured.module.mockmvc.http.GreetingController;
 import io.restassured.module.mockmvc.http.QueryParamController;
+import com.fasterxml.jackson.annotation.JsonValue;
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
 
 import static org.hamcrest.Matchers.equalTo;
 
 public class QueryParamTest {
 // @formatter:off
+
+    record Name(String value) {
+        @JsonValue
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
 
     @Test
     public void param_with_int() throws Exception {
@@ -49,6 +60,19 @@ public class QueryParamTest {
                 body("name", equalTo("Hello, John!")).
                 body("message", equalTo("Good!")).
                 body("_link", equalTo("http://localhost/queryParam?name=John&message=Good!"));
+    }
+
+    @Test
+    public void java_time_and_string_valued_value_objects_are_sent_without_quotes() {
+        RestAssuredMockMvc.given().
+                standaloneSetup(new QueryParamController()).
+                queryParam("name", new Name("John")).
+                queryParam("message", LocalDate.of(2024, 4, 10)).
+        when().
+                get("/queryParam").
+        then().
+                body("name", equalTo("Hello, John!")).
+                body("message", equalTo("2024-04-10"));
     }
 
 // @formatter:on

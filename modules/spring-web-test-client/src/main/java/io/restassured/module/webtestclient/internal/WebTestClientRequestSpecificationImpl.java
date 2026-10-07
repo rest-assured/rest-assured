@@ -82,7 +82,7 @@ public class WebTestClientRequestSpecificationImpl implements WebTestClientReque
     private LogRepository logRepository;
     private WebTestClientFactory webTestClientFactory;
     private final ParameterUpdater
-            parameterUpdater = new ParameterUpdater(WebTestClientRequestSpecificationImpl.this::serializeIfNeeded);
+            parameterUpdater = new ParameterUpdater(value -> Serializer.serializeParameterIfNeeded(value, getRequestContentType(), this.config));
     private Headers requestHeaders = new Headers();
     private String basePath;
     private RequestLoggingFilter requestLoggingFilter;

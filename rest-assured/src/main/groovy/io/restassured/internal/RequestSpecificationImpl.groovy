@@ -67,7 +67,9 @@ import static io.restassured.config.ParamConfig.UpdateStrategy.REPLACE
 import static io.restassured.http.ContentType.*
 import static io.restassured.http.Method.*
 import static io.restassured.internal.common.assertion.AssertParameter.notNull
+import static io.restassured.internal.serialization.SerializationSupport.isParameterSerializableCandidate
 import static io.restassured.internal.serialization.SerializationSupport.isSerializableCandidate
+import static io.restassured.internal.serialization.SerializationSupport.unwrapJsonStringLiteral
 import static io.restassured.internal.support.PathSupport.isFullyQualified
 import static io.restassured.internal.support.PathSupport.mergeAndRemoveDoubleSlash
 import static java.lang.String.format
@@ -1766,8 +1768,10 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
 
+  // Used for parameters, headers and cookies, where java.time values are sent as ISO-8601 and a value object serialized to
+  // a quoted JSON string literal is sent unquoted. Only serialized values are unwrapped, so a quoted String such as an ETag is sent as is.
   private def serializeIfNeeded(Object object) {
-    serializeIfNeeded(object, requestContentType)
+    isParameterSerializableCandidate(object) ? unwrapJsonStringLiteral(serializeIfNeeded(object, requestContentType)) : object.toString()
   }
 
   private def serializeIfNeeded(Object object, contentType) {
