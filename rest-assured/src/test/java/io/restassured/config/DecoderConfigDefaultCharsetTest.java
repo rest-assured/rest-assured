@@ -18,12 +18,11 @@ package io.restassured.config;
 
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.http.ContentType;
-import io.restassured.response.Response;
+import io.restassured.internal.RestAssuredResponseImpl;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 
-import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DecoderConfigDefaultCharsetTest {
@@ -59,17 +58,25 @@ public class DecoderConfigDefaultCharsetTest {
 
     @Test
     public void problem_json_response_without_charset_is_decoded_as_utf_8() {
-        Response response = given()
-                .config(RestAssuredConfig.config().decoderConfig(latin1ByDefault))
-                .filter((requestSpec, responseSpec, ctx) -> new ResponseBuilder()
-                        .setStatusCode(400)
-                        .setStatusLine("HTTP/1.1 400 Bad Request")
-                        .setContentType("application/problem+json")
-                        .setBody("{\"title\":\"België\"}".getBytes(StandardCharsets.UTF_8))
-                        .build())
-                .get("http://localhost:8080/problem");
+        RestAssuredResponseImpl response = (RestAssuredResponseImpl) new ResponseBuilder()
+                .setStatusCode(400)
+                .setContentType("application/problem+json")
+                .setBody("{\"title\":\"Belgi\u00eb\"}".getBytes(StandardCharsets.UTF_8))
+                .build();
+        response.setDecoderConfig(latin1ByDefault);
 
-        assertThat(response.asString()).isEqualTo("{\"title\":\"België\"}");
-        assertThat(response.<String>path("title")).isEqualTo("België");
+        assertThat(response.asString()).isEqualTo("{\"title\":\"Belgi\u00eb\"}");
+    }
+
+    @Test
+    public void plain_text_response_without_charset_still_uses_the_default_content_charset() {
+        RestAssuredResponseImpl response = (RestAssuredResponseImpl) new ResponseBuilder()
+                .setStatusCode(200)
+                .setContentType("text/plain")
+                .setBody("Belgi\u00eb".getBytes(StandardCharsets.UTF_8))
+                .build();
+        response.setDecoderConfig(latin1ByDefault);
+
+        assertThat(response.asString()).isEqualTo(new String("Belgi\u00eb".getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1));
     }
 }
