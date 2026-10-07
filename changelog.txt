@@ -1,5 +1,7 @@
 Changelog next version
 ----------------------
+* java.time values (LocalDate, Instant, OffsetDateTime, Duration, ZoneId and so on) used as path, query, form or header values are now sent as their ISO-8601 toString() instead of being run through the object mapper, which quoted them or failed without the JSR-310 module (fixes #1781) (thanks to seethinajayadileep for PR #1888)
+* A value object used as a parameter, header or cookie value that the object mapper serializes to a plain JSON string (for example a record with a @JsonValue accessor) is now sent without the surrounding JSON quotes (fixes #1818)
 * Strip sensitive headers (Authorization and Cookie) when a redirect crosses to a different host, so a token or session isn't leaked to the redirect target. This is on by default and can be turned off with RedirectConfig.stripSensitiveHeadersOnCrossHostRedirect(false) (#1873). Thanks to the University of Sydney security research team (Liyi Zhou, Ziyue Wang, Strick, Maurice, and Chenchen Yu) for the report.
 
 Changelog 6.0.1 (2026-07-10)

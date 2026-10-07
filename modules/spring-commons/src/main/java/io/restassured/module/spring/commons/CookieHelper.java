@@ -38,7 +38,7 @@ public class CookieHelper {
             }
         }
         for (Map.Entry<String, ?> stringEntry : cookies.entrySet()) {
-            cookieList.add(new Cookie.Builder(stringEntry.getKey(), Serializer.serializeIfNeeded(stringEntry.getValue(),
+            cookieList.add(new Cookie.Builder(stringEntry.getKey(), Serializer.serializeParameterIfNeeded(stringEntry.getValue(),
                     HeaderHelper.getRequestContentType(requestHeaders), config)).build());
         }
         return new Cookies(cookieList);
@@ -64,12 +64,12 @@ public class CookieHelper {
                                  final SpecificationConfig config, Object... additionalValues) {
         final String contentType = HeaderHelper.getRequestContentType(requestHeaders);
         List<Cookie> cookieList = new ArrayList<Cookie>() {{
-            add(new Cookie.Builder(cookieName, Serializer.serializeIfNeeded(cookieValue, contentType, config)).build());
+            add(new Cookie.Builder(cookieName, Serializer.serializeParameterIfNeeded(cookieValue, contentType, config)).build());
         }};
         if (additionalValues != null) {
             for (Object additionalCookieValue : additionalValues) {
                 cookieList.add(new Cookie.Builder(cookieName,
-                        Serializer.serializeIfNeeded(additionalCookieValue, contentType, config)).build());
+                        Serializer.serializeParameterIfNeeded(additionalCookieValue, contentType, config)).build());
             }
         }
         return new Cookies(cookieList);

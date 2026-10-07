@@ -50,11 +50,11 @@ public class HeaderHelper {
             if (value instanceof List) {
                 List<?> values = (List<?>) value;
                 for (Object headerValue : values) {
-                    headerList.add(new Header(stringEntry.getKey(), Serializer.serializeIfNeeded(headerValue,
+                    headerList.add(new Header(stringEntry.getKey(), Serializer.serializeParameterIfNeeded(headerValue,
                             getRequestContentType(requestHeaders), config)));
                 }
             } else {
-                headerList.add(new Header(stringEntry.getKey(), Serializer.serializeIfNeeded(value,
+                headerList.add(new Header(stringEntry.getKey(), Serializer.serializeParameterIfNeeded(value,
                         getRequestContentType(requestHeaders), config)));
             }
         }
@@ -149,13 +149,13 @@ public class HeaderHelper {
         notNull(headerValue, "Header value");
 
         List<Header> headerList = new ArrayList<Header>() {{
-            add(new Header(headerName, Serializer.serializeIfNeeded(headerValue,
+            add(new Header(headerName, Serializer.serializeParameterIfNeeded(headerValue,
                     getRequestContentType(requestHeaders), config)));
         }};
 
         if (additionalHeaderValues != null) {
             for (Object additionalHeaderValue : additionalHeaderValues) {
-                headerList.add(new Header(headerName, Serializer.serializeIfNeeded(additionalHeaderValue,
+                headerList.add(new Header(headerName, Serializer.serializeParameterIfNeeded(additionalHeaderValue,
                         getRequestContentType(requestHeaders), config)));
             }
         }
