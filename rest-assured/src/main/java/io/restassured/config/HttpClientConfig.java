@@ -61,6 +61,11 @@ import static java.util.Arrays.asList;
 
     private static final boolean SHOULD_REUSE_HTTP_CLIENT_INSTANCE_BY_DEFAULT = false;
     private static final HttpClient NO_HTTP_CLIENT = null;
+    private static final HttpClientFactory DEFAULT_HTTP_CLIENT_FACTORY = new HttpClientFactory() {
+        public HttpClient createHttpClient() {
+            return new DefaultHttpClient();
+        }
+    };
 
     private final boolean shouldReuseHttpClientInstance;
     private final Map<String, ?> httpClientParams;
@@ -261,11 +266,15 @@ import static java.util.Arrays.asList;
     }
 
     private static HttpClientFactory defaultHttpClientFactory() {
-        return new HttpClientFactory() {
-            public HttpClient createHttpClient() {
-                return new DefaultHttpClient();
-            }
-        };
+        return DEFAULT_HTTP_CLIENT_FACTORY;
+    }
+
+    /**
+     * @return <code>true</code> if the http clients are created by REST Assured's default http client factory, <code>false</code>
+     * if a custom factory has been configured using {@link #httpClientFactory(HttpClientFactory)}.
+     */
+    public boolean usesDefaultHttpClientFactory() {
+        return httpClientFactory == DEFAULT_HTTP_CLIENT_FACTORY;
     }
 
     public boolean isUserConfigured() {

@@ -71,7 +71,7 @@ public class ConfigurableJsonSlurper {
     if (numberReturnType.isFloatOrDouble() && result instanceof BigDecimal decimal) {
       // Convert big decimal to float or double
       if (numberReturnType == NumberReturnType.DOUBLE
-              || decimal.compareTo(BigDecimal.valueOf(Float.MAX_VALUE)) > 0) {
+              || decimal.abs().compareTo(BigDecimal.valueOf(Float.MAX_VALUE)) > 0) {
         result = decimal.doubleValue();
       } else {
         result = decimal.floatValue();

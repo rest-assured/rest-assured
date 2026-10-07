@@ -54,16 +54,22 @@ class Groovy5JsonSlurperWorkarounds {
     private static final long serialVersionUID = 1L;
 
     public Object getProperties() {
-      if (!isEmpty() && get(0) instanceof Map<?, ?> entry0 && entry0.containsKey(PROPERTIES)) {
+      if (stream().anyMatch(elem -> elem instanceof Map)) {
         // Groovy 4–style JSON behaviour:
         // [map, map].properties -> [map['properties'], ...]
-        return stream().map(elem -> {
-          if (elem instanceof Map<?, ?> map && map.containsKey(PROPERTIES)) {
-            return map.get(PROPERTIES);
-          } else {
-            return null;
+        // A list holding JSON objects is a JSON-field spread rather than a meta-property access, whether
+        // or not the first (or any) object carries "properties" (e.g. a GeoJSON feature with only a
+        // geometry). Objects without the key yield null, and null elements are skipped, like a regular
+        // GPath spread.
+        // Collect into a ProxyArray (not a plain List) so that a further "properties" hop on the
+        // spread result keeps navigating the JSON field instead of leaking Groovy meta-data.
+        ProxyArray spread = new ProxyArray();
+        for (Object elem : this) {
+          if (elem instanceof Map<?, ?> map) {
+            spread.add(map.get(PROPERTIES));
           }
-        }).toList();
+        }
+        return spread;
       }
       return null;
     }
