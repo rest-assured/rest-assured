@@ -857,6 +857,22 @@ public class JsonPathTest {
     }
 
     @Test public void
+    spreads_properties_over_a_list_of_objects_where_no_object_has_the_properties_key() {
+        String json = """
+                { "items": [ { "id": 1 }, { "id": 2 } ] }""";
+        JsonPath jsonPath = new JsonPath(json);
+        assertThat(jsonPath.getList("items.properties"), contains(nullValue(), nullValue()));
+    }
+
+    @Test public void
+    skips_null_elements_when_spreading_properties_over_a_list() {
+        String json = """
+                { "items": [ null, { "properties": { "properties": { "gridId": 6 } } } ] }""";
+        JsonPath jsonPath = new JsonPath(json);
+        assertThat(jsonPath.getList("items.properties.properties.gridId", Integer.class), contains(6));
+    }
+
+    @Test public void
     can_manually_escape_class_property() {
         // Given
         String json = "{\n" +
