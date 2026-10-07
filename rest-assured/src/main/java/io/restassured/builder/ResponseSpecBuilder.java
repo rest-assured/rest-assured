@@ -26,7 +26,9 @@ import io.restassured.internal.ResponseSpecificationImpl;
 import io.restassured.internal.SpecificationMerger;
 import io.restassured.internal.log.LogRepository;
 import io.restassured.matcher.DetailedCookieMatcher;
+import io.restassured.matcher.ResponseAwareMatcher;
 import io.restassured.parsing.Parser;
+import io.restassured.response.Response;
 import io.restassured.specification.Argument;
 import io.restassured.specification.ResponseSpecification;
 import org.hamcrest.Matcher;
@@ -160,6 +162,28 @@ public class ResponseSpecBuilder {
      */
     public ResponseSpecBuilder expectHeader(String headerName, String expectedValue) {
         spec.header(headerName, expectedValue);
+        return this;
+    }
+
+    /**
+     * Expect that a response header matches the supplied header name and {@link ResponseAwareMatcher}.
+     * <p>
+     * E.g. expect that the response of the POST request to "/redirect" contains a Location header that ends with
+     * the id returned in the response body:
+     * <pre>
+     * ResponseSpecification responseSpec = new ResponseSpecBuilder()
+     *     .expectHeader("Location", response -> endsWith("/redirect/" + response.path("id")))
+     *     .build();
+     * </pre>
+     * </p>
+     *
+     * @param headerName           The name of the expected header
+     * @param expectedValueMatcher The {@link ResponseAwareMatcher} that creates the Hamcrest matcher based on the response
+     * @return The builder
+     * @see ResponseSpecification#header(String, ResponseAwareMatcher)
+     */
+    public ResponseSpecBuilder expectHeader(String headerName, ResponseAwareMatcher<Response> expectedValueMatcher) {
+        spec.header(headerName, expectedValueMatcher);
         return this;
     }
 

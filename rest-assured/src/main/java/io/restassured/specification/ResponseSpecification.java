@@ -19,6 +19,7 @@ package io.restassured.specification;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.matcher.DetailedCookieMatcher;
+import io.restassured.matcher.ResponseAwareMatcher;
 import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
@@ -317,6 +318,25 @@ public interface ResponseSpecification {
      * @return the response specification
      */
     ResponseSpecification header(String headerName, String expectedValue);
+
+    /**
+     * Expect that a response header matches the supplied header name and {@link ResponseAwareMatcher}.
+     * <p>
+     * E.g. expect that the response of the POST request to "/redirect" contains a Location header that ends with
+     * the id returned in the response body:
+     * <pre>
+     * expect().header("Location", response -> endsWith("/redirect/" + response.path("id"))).when().post("/redirect");
+     * </pre>
+     * </p>
+     * <p>
+     * This is useful when you want to reuse the expectation in a {@link io.restassured.builder.ResponseSpecBuilder}.
+     * </p>
+     *
+     * @param headerName           The name of the expected header
+     * @param expectedValueMatcher The {@link ResponseAwareMatcher} that creates the Hamcrest matcher based on the response
+     * @return the response specification
+     */
+    ResponseSpecification header(String headerName, ResponseAwareMatcher<Response> expectedValueMatcher);
 
     /**
      * Expect that response cookies matches those specified in a Map.
