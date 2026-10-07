@@ -1,7 +1,8 @@
 Changelog next version
 ----------------------
 * Strip sensitive headers (Authorization and Cookie) when a redirect crosses to a different host, so a token or session isn't leaked to the redirect target. This is on by default and can be turned off with RedirectConfig.stripSensitiveHeadersOnCrossHostRedirect(false) (#1873). Thanks to the University of Sydney security research team (Liyi Zhou, Ziyue Wang, Strick, Maurice, and Chenchen Yu) for the report.
-* Apply user-configured SSL settings (such as relaxed HTTPS validation, trust/key stores and certificate authentication) when an http request is redirected to https. Previously they were only applied if the original request used https, so the redirected request failed with "PKIX path building failed" (fixes #790)
+* Apply user-configured SSL settings (such as relaxed HTTPS validation, trust/key stores and certificate authentication) when an http request is redirected to https. Previously they were only applied if the original request used https, so the redirected request failed with "PKIX path building failed". For a request that starts as http the SSL settings are only applied when REST Assured's default http client factory is used, so an https scheme registered by a custom HttpClientConfig.httpClientFactory is kept (fixes #790)
+* Don't let request specific SSL settings (SSLConfig such as relaxed HTTPS validation, or certificate authentication) leak into later requests when the http client instance is reused (HttpClientConfig.reuseHttpClientInstance()). The client's original https scheme is restored after each request and https connections established with request specific SSL settings are no longer kept alive for reuse.
 
 Changelog 6.0.1 (2026-07-10)
 ----------------------------

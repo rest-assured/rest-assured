@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,11 @@ import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.conn.scheme.SchemeLayeredSocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSocket;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -45,13 +49,23 @@ public class LazySSLSocketFactory implements SchemeLayeredSocketFactory {
         this.factorySupplier = factorySupplier;
     }
 
-    private SSLSocketFactory delegate() {
+    private SSLSocketFactory delegate() throws SSLException {
         SSLSocketFactory result = delegate;
         if (result == null) {
             synchronized (this) {
                 result = delegate;
                 if (result == null) {
-                    result = factorySupplier.get();
+                    try {
+                        result = factorySupplier.get();
+                    } catch (Exception e) {
+                        // Wrap in an SSLException since HttpClient doesn't retry requests that fail with an SSLException,
+                        // and to make it clear that the failure originates from the SSL configuration.
+                        throw new SSLException("Failed to create the SSL socket factory from the configured SSL settings " +
+                                "(SSLConfig or certificate authentication): " + e.getMessage(), e);
+                    }
+                    if (result == null) {
+                        throw new SSLException("The configured SSL settings (SSLConfig or certificate authentication) didn't produce an SSL socket factory");
+                    }
                     delegate = result;
                 }
             }
@@ -77,6 +91,10 @@ public class LazySSLSocketFactory implements SchemeLayeredSocketFactory {
 
     @Override
     public boolean isSecure(Socket sock) throws IllegalArgumentException {
-        return delegate().isSecure(sock);
+        // Same check as SSLSocketFactory#isSecure, but without having to create the underlying factory (which may fail)
+        Args.notNull(sock, "Socket");
+        Asserts.check(sock instanceof SSLSocket, "Socket not created by this factory");
+        Asserts.check(!sock.isClosed(), "Socket is closed");
+        return true;
     }
 }
