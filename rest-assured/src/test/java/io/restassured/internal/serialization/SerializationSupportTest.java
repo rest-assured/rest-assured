@@ -66,10 +66,10 @@ public class SerializationSupportTest {
     }
 
     @Test
-    @DisplayName("LocalDate is not a serialization candidate")
+    @DisplayName("LocalDate is not a parameter serialization candidate")
     public void localDateIsNotASerializationCandidate() {
         // Act
-        boolean candidate = SerializationSupport.isSerializableCandidate(LocalDate.of(2024, 4, 10));
+        boolean candidate = SerializationSupport.isParameterSerializableCandidate(LocalDate.of(2024, 4, 10));
         // Assert
         assertThat(candidate).isFalse();
     }
@@ -93,12 +93,18 @@ public class SerializationSupportTest {
     }
 
     @Test
-    @DisplayName("java.time values are not serialization candidates")
-    public void javaTimeValuesAreNotSerializationCandidates() {
-        assertThat(SerializationSupport.isSerializableCandidate(Instant.parse("2024-04-10T10:15:30Z"))).isFalse();
-        assertThat(SerializationSupport.isSerializableCandidate(OffsetDateTime.parse("2024-04-10T10:15:30+02:00"))).isFalse();
-        assertThat(SerializationSupport.isSerializableCandidate(Duration.ofMinutes(5))).isFalse();
-        assertThat(SerializationSupport.isSerializableCandidate(ZoneId.of("Europe/Stockholm"))).isFalse();
+    @DisplayName("java.time values are not parameter serialization candidates")
+    public void javaTimeValuesAreNotParameterSerializationCandidates() {
+        assertThat(SerializationSupport.isParameterSerializableCandidate(Instant.parse("2024-04-10T10:15:30Z"))).isFalse();
+        assertThat(SerializationSupport.isParameterSerializableCandidate(OffsetDateTime.parse("2024-04-10T10:15:30+02:00"))).isFalse();
+        assertThat(SerializationSupport.isParameterSerializableCandidate(Duration.ofMinutes(5))).isFalse();
+        assertThat(SerializationSupport.isParameterSerializableCandidate(ZoneId.of("Europe/Stockholm"))).isFalse();
+    }
+
+    @Test
+    @DisplayName("java.time values are still serialization candidates for bodies and multipart content")
+    public void javaTimeValuesAreStillSerializationCandidatesForBodies() {
+        assertThat(SerializationSupport.isSerializableCandidate(LocalDate.of(2024, 4, 10))).isTrue();
     }
 
     @Test
@@ -119,6 +125,8 @@ public class SerializationSupportTest {
         assertThat(SerializationSupport.unwrapJsonStringLiteral("\"a\",\"b\"")).isEqualTo("\"a\",\"b\"");
         assertThat(SerializationSupport.unwrapJsonStringLiteral("\"")).isEqualTo("\"");
         assertThat(SerializationSupport.unwrapJsonStringLiteral("42")).isEqualTo("42");
+        assertThat(SerializationSupport.unwrapJsonStringLiteral("\"\\u+041\"")).isEqualTo("\"\\u+041\"");
+        assertThat(SerializationSupport.unwrapJsonStringLiteral("\"\\u004\"")).isEqualTo("\"\\u004\"");
         assertThat(SerializationSupport.unwrapJsonStringLiteral(null)).isNull();
     }
 }

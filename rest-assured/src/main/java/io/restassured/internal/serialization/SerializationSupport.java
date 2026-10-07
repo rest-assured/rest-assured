@@ -34,8 +34,17 @@ public class SerializationSupport {
         return !(Number.class.isAssignableFrom(clazz) || String.class.isAssignableFrom(clazz)
                 || GString.class.isAssignableFrom(clazz) || Boolean.class.isAssignableFrom(clazz)
                 || Character.class.isAssignableFrom(clazz) || object instanceof Enum ||
-                Locale.class.isAssignableFrom(clazz) || Class.class.isAssignableFrom(clazz) || UUID.class.isAssignableFrom(clazz)
-                || isJavaTimeValue(object));
+                Locale.class.isAssignableFrom(clazz) || Class.class.isAssignableFrom(clazz) || UUID.class.isAssignableFrom(clazz));
+    }
+
+    /**
+     * Like {@link #isSerializableCandidate(Object)} but for parameter, header and cookie values. These are always sent
+     * as text, so java.time values (LocalDate, Instant, Duration, ZoneId, ...) use their ISO-8601 {@code toString()},
+     * which is what a server expects in a URL. An object mapper would quote them or, without the JSR-310 module, fail
+     * or serialize their internal fields. A request body or multipart content still goes through the object mapper.
+     */
+    public static boolean isParameterSerializableCandidate(Object object) {
+        return isSerializableCandidate(object) && !isJavaTimeValue(object);
     }
 
     /**
@@ -72,11 +81,15 @@ public class SerializationSupport {
                         if (i + 4 >= end) {
                             return serialized;
                         }
-                        try {
-                            unescaped.append((char) Integer.parseInt(serialized.substring(i + 1, i + 5), 16));
-                        } catch (NumberFormatException e) {
-                            return serialized;
+                        int codeUnit = 0;
+                        for (int j = i + 1; j <= i + 4; j++) {
+                            int digit = Character.digit(serialized.charAt(j), 16);
+                            if (digit < 0) {
+                                return serialized;
+                            }
+                            codeUnit = codeUnit * 16 + digit;
                         }
+                        unescaped.append((char) codeUnit);
                         i += 4;
                     }
                     default -> {
@@ -88,9 +101,6 @@ public class SerializationSupport {
         return unescaped.toString();
     }
 
-    // java.time values (LocalDate, Instant, Duration, ZoneId, ...) have an ISO-8601 toString(), which is what a server
-    // expects in a path or query parameter, whereas an object mapper would quote them or, without the JSR-310 module,
-    // fail or serialize their internal fields.
     private static boolean isJavaTimeValue(Object object) {
         return object instanceof TemporalAccessor || object instanceof TemporalAmount || object instanceof ZoneId;
     }
