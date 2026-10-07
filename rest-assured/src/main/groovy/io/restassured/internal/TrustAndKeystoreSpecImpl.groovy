@@ -16,6 +16,7 @@
 package io.restassured.internal
 
 import io.restassured.internal.http.HTTPBuilder
+import io.restassured.internal.http.LazySSLSocketFactory
 import org.apache.commons.lang3.Validate
 import org.apache.http.conn.scheme.Scheme
 import org.apache.http.conn.ssl.SSLContexts
@@ -23,6 +24,7 @@ import org.apache.http.conn.ssl.SSLSocketFactory
 import org.apache.http.conn.ssl.X509HostnameVerifier
 
 import java.security.KeyStore
+import java.util.function.Supplier
 
 import static org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER
 import static org.apache.http.conn.ssl.SSLSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER
@@ -44,15 +46,32 @@ class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
   X509HostnameVerifier x509HostnameVerifier;
 
   def void apply(HTTPBuilder builder, int port) {
+    apply(builder, port, false)
+  }
+
+  /**
+   * Register the https scheme on the builder's client.
+   *
+   * @param builder The http builder
+   * @param port The default port of the https scheme (used when an https URI doesn't specify a port)
+   * @param lazy <code>true</code> to defer creating the SSL socket factory (and loading key/trust stores) until an https
+   *             connection is actually opened, for example when a plain http request is redirected to https.
+   */
+  def void apply(HTTPBuilder builder, int port, boolean lazy) {
+    int portToUse = this.port == -1 ? port : this.port
+    def schemeSocketFactory = lazy ? new LazySSLSocketFactory({ -> getOrCreateSSLSocketFactory() } as Supplier<SSLSocketFactory>) : getOrCreateSSLSocketFactory()
+    builder.client.connectionManager.schemeRegistry.register(new Scheme("https", portToUse, schemeSocketFactory))
+  }
+
+  private SSLSocketFactory getOrCreateSSLSocketFactory() {
     if (factory == null) {
       def keyStore = keyStore ?: createStore(keyStoreType, keyStorePath, keyStorePassword)
       def trustStore = trustStore ?: createStore(trustStoreType, trustStorePath, trustStorePassword)
-      factory = createSSLSocketFactory(trustStore, keyStore, keyStorePassword)
-      factory.setHostnameVerifier(x509HostnameVerifier ?: ALLOW_ALL_HOSTNAME_VERIFIER)
+      def newFactory = createSSLSocketFactory(trustStore, keyStore, keyStorePassword)
+      newFactory.setHostnameVerifier(x509HostnameVerifier ?: ALLOW_ALL_HOSTNAME_VERIFIER)
+      factory = newFactory
     }
-    int portToUse = this.port == -1 ? port : this.port
-    builder.client.connectionManager.schemeRegistry.register(new Scheme("https", portToUse, factory)
-    )
+    factory
   }
 
   private static def createSSLSocketFactory(KeyStore truststore, KeyStore keyStore, String keyPassword) {

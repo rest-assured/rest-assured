@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["id", "line"],
+  "propertyNames": { "pattern": "^[a-z]+$" },
+  "properties": {
+    "id": { "$ref": "#/$defs/orderId" },
+    "line": {
+      "type": "array",
+      "prefixItems": [ { "type": "string" }, { "type": "integer", "minimum": 1 } ],
+      "items": false
+    }
+  },
+  "dependentRequired": { "discount": ["coupon"] },
+  "$defs": {
+    "orderId": { "type": "string", "minLength": 3 }
+  }
+}
