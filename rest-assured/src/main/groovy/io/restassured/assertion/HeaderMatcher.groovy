@@ -39,6 +39,9 @@ class HeaderMatcher {
       } catch (Exception e) {
         return SafeExceptionRethrower.safeRethrow(e)
       }
+      if (effectiveMatcher == null) {
+        throw new IllegalArgumentException("The ResponseAwareMatcher for header \"$headerName\" returned null instead of a Hamcrest matcher")
+      }
     }
     if (mappingFunction != null) {
       value = mappingFunction.apply(value)

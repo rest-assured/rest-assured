@@ -54,4 +54,13 @@ public class ResponseSpecBuilderHeaderResponseAwareMatcherTest {
                 .isInstanceOf(AssertionError.class)
                 .hasMessageContaining("Expected header \"Location\" was not a string ending with \"/accounts/42\", was \"http://localhost:8080/users/42\"");
     }
+
+    @Test
+    public void expect_header_with_response_aware_matcher_returning_null_fails_with_a_clear_message() {
+        ResponseSpecification spec = new ResponseSpecBuilder().expectHeader("Location", response -> null).build();
+
+        assertThatThrownBy(() -> given().filter(CREATED_RESPONSE).post("http://localhost:8080/users").then().spec(spec))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The ResponseAwareMatcher for header \"Location\" returned null instead of a Hamcrest matcher");
+    }
 }
