@@ -111,8 +111,7 @@ public class JsonPathNumberTest {
     @Test public void
     json_path_returns_finite_double_for_large_negative_number_with_default_config() {
         // Given
-        final JsonPath jsonPath = new JsonPath("{\"pos\": 1e40, \"neg\": -1e40}")
-                .using(new JsonPathConfig().numberReturnType(JsonPathConfig.NumberReturnType.FLOAT_AND_DOUBLE));
+        final JsonPath jsonPath = new JsonPath("{\"pos\": 1e40, \"neg\": -1e40, \"negFloat\": -3.4e38}");
 
         // When
         Object pos = jsonPath.get("pos");
@@ -123,6 +122,7 @@ public class JsonPathNumberTest {
         // finite value survives instead of overflowing to +/-Infinity in the float branch.
         assertThat(pos, equalTo(1.0E40));
         assertThat(neg, equalTo(-1.0E40));
+        assertThat(jsonPath.get("negFloat"), equalTo(-3.4e38f));
     }
 
     @Test public void
