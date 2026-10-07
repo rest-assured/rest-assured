@@ -155,8 +155,15 @@ public class AuthConfig {
         spec.setX509HostnameVerifier(hostnameVerifier);
         spec.setFactory(sslConnectionSocketFactory);
 
-        int portSpecifiedInUri = uri.getPort();
-        spec.apply(builder, portSpecifiedInUri == UNDEFINED_PORT ? DEFAULT_HTTPS_PORT : portSpecifiedInUri);
+        if ("https".equalsIgnoreCase(uri.getScheme())) {
+            int portSpecifiedInUri = uri.getPort();
+            spec.apply(builder, portSpecifiedInUri == UNDEFINED_PORT ? DEFAULT_HTTPS_PORT : portSpecifiedInUri, false);
+        } else {
+            // The request doesn't start as https but may be redirected to https, so register the https scheme with the
+            // default https port (not the port of the original, non-https, URI) and only build the SSL socket factory
+            // once an https connection is actually opened.
+            spec.apply(builder, DEFAULT_HTTPS_PORT, true);
+        }
     }
 
     /**
