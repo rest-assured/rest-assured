@@ -1371,7 +1371,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   boolean shouldApplySSLConfig(http, RestAssuredConfig cfg) {
     URI uri = ((URIBuilder) http.getUri()).toURI()
     if (uri == null) throw new IllegalStateException("a default URI must be set")
-    uri.getScheme()?.toLowerCase() == "https" && cfg.getSSLConfig().isUserConfigured() && !(authenticationScheme instanceof CertAuthScheme)
+    // Apply the SSL config regardless of the scheme of the original request since a http request may be redirected to
+    // https (see issue #790). For non-https requests the SSL socket factory is created lazily (see AuthConfig#certificate).
+    cfg.getSSLConfig().isUserConfigured() && !(authenticationScheme instanceof CertAuthScheme)
   }
 
   def applyRestAssuredConfig(HTTPBuilder http) {
