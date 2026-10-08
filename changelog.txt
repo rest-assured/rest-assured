@@ -14,6 +14,7 @@ Changelog next version
 * A value object used as a parameter, header or cookie value that the object mapper serializes to a plain JSON string (for example a record with a @JsonValue accessor) is now sent without the surrounding JSON quotes (fixes #1818)
 * Add support for the HTTP QUERY method (a safe, idempotent method that carries a request body), e.g. given().body(..).when().query("/search"). Method.QUERY and query(..) overloads are added to RestAssured, RequestSender/RequestSpecification, RestAssuredMockMvc and RestAssuredWebTestClient (fixes #1872)
 * MultiPartSpecBuilder.charset(Charset) now rejects byte[] and InputStream content with an IllegalArgumentException, like charset(String) already did, instead of silently ignoring the charset (fixes #1691) (thanks to seethinajayadileep for PR #1886)
+* Fix XmlPath and JsonPath not handling a hyphenated element or key name combined with a negative (from-the-end) list index, e.g. "root.some-list[-1]". XmlPath threw "The parameter ... was used but not defined" and JsonPath returned null (fixes #1876) (thanks to kdelay for PR #1882)
 
 Changelog 6.0.1 (2026-07-10)
 ----------------------------
