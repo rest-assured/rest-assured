@@ -34,13 +34,13 @@ import io.restassured.internal.support.PathSupport;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.module.spring.commons.HeaderHelper;
 import io.restassured.module.spring.commons.ParamApplier;
+import io.restassured.module.spring.commons.Serializer;
 import io.restassured.module.spring.commons.config.ConfigConverter;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
 import io.restassured.module.webtestclient.response.WebTestClientResponse;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSender;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
-import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -51,7 +51,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
 
 import java.io.File;
 import java.net.URI;
@@ -531,7 +530,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		final UriContainer.Builder uriContainerBuilder = UriContainer.newBuilder(baseUri);
 
 		applyQueryParams(uriComponentsBuilder);
-		applyPathParams(uriContainerBuilder, baseUri, unnamedPathParams);
+		applyPathParams(uriContainerBuilder, baseUri, unnamedPathParams, requestContentType);
 		applyParams(method, uriComponentsBuilder, requestContentType);
 		applyFormParams(method, uriComponentsBuilder, requestContentType);
 
@@ -605,7 +604,8 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	private void applyPathParams(
 			final UriContainer.Builder uriContainerBuilder,
 			final String baseUri,
-			final Object[] unnamedPathParams
+			final Object[] unnamedPathParams,
+			final String requestContentType
 	) {
 		final Matcher pathParamMatcher = PATH_PARAM_PATTERN.matcher(baseUri);
 		if (!pathParamMatcher.find()) {
@@ -623,7 +623,8 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 			}
 
 			if (unnamedPathParams.length > 0) {
-				return Optional.of(unnamedPathParams[nextUnnamedPathParamIndex.getAndIncrement()]);
+				Object unnamedPathParam = unnamedPathParams[nextUnnamedPathParamIndex.getAndIncrement()];
+				return Optional.of(Serializer.serializeParameterIfNeeded(unnamedPathParam, requestContentType, config));
 			}
 
 			return Optional.empty();
@@ -633,7 +634,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		do {
 			final String paramName = pathParamMatcher.group(1);
 			getPathParamValueFunction.apply(paramName).ifPresent(paramValue ->
-					uriVariables.put(paramName, UriUtils.encode((String) paramValue, Charsets.UTF_8))
+					uriVariables.put(paramName, paramValue)
 			);
 		} while (pathParamMatcher.find());
 

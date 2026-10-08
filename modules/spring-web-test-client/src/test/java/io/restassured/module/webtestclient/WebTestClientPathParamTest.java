@@ -16,6 +16,7 @@
 
 package io.restassured.module.webtestclient;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import io.restassured.http.Method;
 import io.restassured.module.webtestclient.setup.GreetingController;
 import org.junit.jupiter.api.AfterEach;
@@ -236,5 +237,64 @@ public class WebTestClientPathParamTest {
 		assertThatThrownBy(restAssuredExecutionSupplier::get)
 			.isInstanceOf(IllegalArgumentException.class)
 			.hasMessage("No values were found for the request's pathParams.");
+	}
+
+	@Test
+	public void unnamed_path_param_that_is_not_a_string_is_sent_as_its_string_value() {
+		RestAssuredWebTestClient.given()
+			.when()
+				.get("/greeting/{name}", 42L)
+			.then()
+				.body("content", equalTo("Hello, 42!"));
+	}
+
+	@Test
+	public void named_path_param_that_is_not_a_string_is_sent_as_its_string_value() {
+		RestAssuredWebTestClient.given()
+				.pathParam("name", 42L)
+			.when()
+				.get("/greeting/{name}")
+			.then()
+				.body("content", equalTo("Hello, 42!"));
+	}
+
+	@Test
+	public void path_param_values_are_encoded_only_once() {
+		RestAssuredWebTestClient.given()
+				.pathParam("date", "100%")
+			.when()
+				.get("/greeting/{name}/{date}", "John Doe")
+			.then()
+				.body("content", equalTo("Hello, John Doe! Today is 100%"));
+	}
+
+	@Test
+	public void path_param_values_with_slash_and_non_ascii_characters_are_encoded_only_once() {
+		RestAssuredWebTestClient.given()
+			.when()
+				.get("/greeting/{name}/{date}", "Belgi\u00eb", "a/b")
+			.then()
+				.body("content", equalTo("Hello, Belgi\u00eb! Today is a/b"));
+	}
+
+	@Test
+	public void unnamed_path_param_value_object_is_serialized_like_a_named_path_param() {
+		RestAssuredWebTestClient.given()
+			.when()
+				.get("/greeting/{name}/{date}", new Name("John"), "today")
+			.then()
+				.body("content", equalTo("Hello, John! Today is today"));
+	}
+
+	public record Name(String value) {
+		@JsonValue
+		public String value() {
+			return value;
+		}
+
+		@Override
+		public String toString() {
+			return "Name[" + value + "]";
+		}
 	}
 }
