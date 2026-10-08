@@ -40,7 +40,6 @@ import io.restassured.module.webtestclient.response.WebTestClientResponse;
 import io.restassured.module.webtestclient.specification.WebTestClientRequestSender;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.specification.ResponseSpecification;
-import org.apache.commons.codec.Charsets;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -51,7 +50,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
 
 import java.io.File;
 import java.net.URI;
