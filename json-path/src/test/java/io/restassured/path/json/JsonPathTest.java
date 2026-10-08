@@ -1138,4 +1138,33 @@ public class JsonPathTest {
         assertThat(jsonPath.getString("some-list[-1].x"), equalTo("c"));
         assertThat(jsonPath.getString("some-list[-2].x"), equalTo("b"));
     }
+
+    @Test
+    public void escapesListsWithHyphenWhenUsingRangeFollowedByMorePath() {
+        JsonPath jsonPath = new JsonPath("{\"some-list\":[{\"x\":\"a\"},{\"x\":\"b\"},{\"x\":\"c\"}],\"list\":[{\"x\":\"a\"},{\"x\":\"b\"},{\"x\":\"c\"}]}");
+
+        assertThat(jsonPath.getList("some-list[-2..-1].x"), contains("b", "c"));
+        assertThat(jsonPath.getList("some-list[0..-1].x"), contains("a", "b", "c"));
+        assertThat(jsonPath.getList("some-list[0..1].x"), contains("a", "b"));
+        assertThat(jsonPath.getList("list[-2..-1].x"), contains("b", "c"));
+        assertThat(jsonPath.getList("list[0..-1].x"), contains("a", "b", "c"));
+        assertThat(jsonPath.getList("list[0..1].x"), contains("a", "b"));
+    }
+
+    @Test
+    public void supportsRangeOnRootArrayFollowedByMorePath() {
+        JsonPath jsonPath = new JsonPath("[{\"x\":\"a\",\"some-key\":1},{\"x\":\"b\",\"some-key\":2},{\"x\":\"c\",\"some-key\":3}]");
+
+        assertThat(jsonPath.getList("[0..1].x"), contains("a", "b"));
+        assertThat(jsonPath.getList("[-2..-1].x"), contains("b", "c"));
+        assertThat(jsonPath.getList("[0..<2].some-key"), contains(1, 2));
+    }
+
+    @Test
+    public void escapesListsWithHyphenWhenUsingChainedIndexes() {
+        JsonPath jsonPath = new JsonPath("{\"some-list\":[[{\"x\":\"a\"},{\"x\":\"b\"}],[{\"x\":\"c\"}]]}");
+
+        assertThat(jsonPath.getString("some-list[0][1].x"), equalTo("b"));
+        assertThat(jsonPath.getList("some-list[0..-1][0].x"), contains("a", "b"));
+    }
 }
