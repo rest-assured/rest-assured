@@ -59,8 +59,13 @@ public class TurkishLocaleITest extends WithJetty {
     }
 
     @Test
-    public void canSendOptionsRequestInTurkishLocale() {
-        given().body("a body").expect().body(equalTo("a body")).when().options("/returnBodyAsBody");
+    public void canSendOptionsRequestFromFilterInTurkishLocale() {
+        given().
+                filter((requestSpec, responseSpec, ctx) -> ctx.send(given().body("a body"))).
+        expect().
+                body(equalTo("a body")).
+        when().
+                options("/returnBodyAsBody");
     }
 
     @Test
