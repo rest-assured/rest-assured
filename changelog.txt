@@ -1,6 +1,5 @@
 Changelog next version
 ----------------------
-* Fix XmlPath throwing "The parameter ... was used but not defined" for a hyphenated element name combined with a negative (from-the-end) list index, e.g. getString("root.some-list[-1]"). The hyphen auto-escaper skipped any fragment containing "[-", so the unescaped name reached the GPath evaluator and was parsed as a subtraction. The escaper now only skips when the negative index is a bare leading index (JsonPath's [-1]) and still escapes hyphenated names such as 'some-list'[-1] (fixes #1876).
 * Strip sensitive headers (Authorization and Cookie) when a redirect crosses to a different host, so a token or session isn't leaked to the redirect target. This is on by default and can be turned off with RedirectConfig.stripSensitiveHeadersOnCrossHostRedirect(false) (#1873). Thanks to the University of Sydney security research team (Liyi Zhou, Ziyue Wang, Strick, Maurice, and Chenchen Yu) for the report.
 * Fix JsonPath "properties" spread over a list of objects returning null when the first element lacks a "properties" key (e.g. a GeoJSON feature carrying only a geometry), a regression from the Groovy 5 migration (fixes #1875) (thanks to HDPark95 for PR #1878). Thanks to haskiindahouse for the report.
 * Fix JsonPath returning null or Groovy meta-data for a nested "properties" navigation over a list of objects (e.g. items.properties.properties.x) on Groovy 5, because the list spread result was a plain list instead of the proxy list that carries the "properties" workaround forward (fixes #1879) (thanks to kdelay for PR #1880)
@@ -14,6 +13,7 @@ Changelog next version
 * java.time values (LocalDate, Instant, OffsetDateTime, Duration, ZoneId and so on) used as path, query or form parameters, headers or cookies are now sent as their ISO-8601 toString() instead of being run through the object mapper, which quoted them or failed without the JSR-310 module (fixes #1781) (thanks to seethinajayadileep for PR #1888)
 * A value object used as a parameter, header or cookie value that the object mapper serializes to a plain JSON string (for example a record with a @JsonValue accessor) is now sent without the surrounding JSON quotes (fixes #1818)
 * Add support for the HTTP QUERY method (a safe, idempotent method that carries a request body), e.g. given().body(..).when().query("/search"). Method.QUERY and query(..) overloads are added to RestAssured, RequestSender/RequestSpecification, RestAssuredMockMvc and RestAssuredWebTestClient (fixes #1872)
+* Fix XmlPath throwing "The parameter ... was used but not defined" for a hyphenated element name combined with a negative (from-the-end) list index, e.g. getString("root.some-list[-1]") (fixes #1876) (thanks to kdelay for PR #1882)
 
 Changelog 6.0.1 (2026-07-10)
 ----------------------------
