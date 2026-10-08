@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,14 @@
 
 package io.restassured.builder;
 
+import io.restassured.specification.MultiPartSpecification;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class MultiPartSpecBuilderTest {
@@ -47,5 +50,19 @@ public class MultiPartSpecBuilderTest {
                 new MultiPartSpecBuilder(new byte[]{1}).charset("UTF-8")
         ).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("charset");
+    }
+
+    @Test
+    public void charset_Charset_is_applied_to_string_content() {
+        MultiPartSpecification spec = new MultiPartSpecBuilder("x").charset(StandardCharsets.ISO_8859_1).build();
+
+        assertThat(spec.getCharset()).isEqualTo("ISO-8859-1");
+    }
+
+    @Test
+    public void charset_Charset_rejects_null() {
+        assertThatThrownBy(() ->
+                new MultiPartSpecBuilder("x").charset((Charset) null)
+        ).isInstanceOf(NullPointerException.class);
     }
 }

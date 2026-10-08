@@ -227,7 +227,7 @@ public class MultiPartSpecBuilder {
     public MultiPartSpecBuilder charset(String charset) {
         Validate.notEmpty(charset, "Charset cannot be empty");
         if (content instanceof byte[] || content instanceof InputStream) {
-            throw new IllegalArgumentException("Cannot specify charset input streams or byte arrays.");
+            throw new IllegalArgumentException("Cannot specify charset for input streams or byte arrays.");
         }
         this.charset = charset;
         return this;
