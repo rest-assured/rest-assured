@@ -34,6 +34,7 @@ import io.restassured.internal.support.PathSupport;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.module.spring.commons.HeaderHelper;
 import io.restassured.module.spring.commons.ParamApplier;
+import io.restassured.module.spring.commons.Serializer;
 import io.restassured.module.spring.commons.config.ConfigConverter;
 import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
 import io.restassured.module.webtestclient.response.WebTestClientResponse;
@@ -529,7 +530,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		final UriContainer.Builder uriContainerBuilder = UriContainer.newBuilder(baseUri);
 
 		applyQueryParams(uriComponentsBuilder);
-		applyPathParams(uriContainerBuilder, baseUri, unnamedPathParams);
+		applyPathParams(uriContainerBuilder, baseUri, unnamedPathParams, requestContentType);
 		applyParams(method, uriComponentsBuilder, requestContentType);
 		applyFormParams(method, uriComponentsBuilder, requestContentType);
 
@@ -603,7 +604,8 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 	private void applyPathParams(
 			final UriContainer.Builder uriContainerBuilder,
 			final String baseUri,
-			final Object[] unnamedPathParams
+			final Object[] unnamedPathParams,
+			final String requestContentType
 	) {
 		final Matcher pathParamMatcher = PATH_PARAM_PATTERN.matcher(baseUri);
 		if (!pathParamMatcher.find()) {
@@ -621,7 +623,8 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 			}
 
 			if (unnamedPathParams.length > 0) {
-				return Optional.of(unnamedPathParams[nextUnnamedPathParamIndex.getAndIncrement()]);
+				Object unnamedPathParam = unnamedPathParams[nextUnnamedPathParamIndex.getAndIncrement()];
+				return Optional.of(Serializer.serializeParameterIfNeeded(unnamedPathParam, requestContentType, config));
 			}
 
 			return Optional.empty();

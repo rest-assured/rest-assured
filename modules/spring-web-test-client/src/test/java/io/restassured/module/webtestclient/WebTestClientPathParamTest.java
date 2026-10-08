@@ -16,6 +16,7 @@
 
 package io.restassured.module.webtestclient;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import io.restassured.http.Method;
 import io.restassured.module.webtestclient.setup.GreetingController;
 import org.junit.jupiter.api.AfterEach;
@@ -274,5 +275,26 @@ public class WebTestClientPathParamTest {
 				.get("/greeting/{name}/{date}", "Belgi\u00eb", "a/b")
 			.then()
 				.body("content", equalTo("Hello, Belgi\u00eb! Today is a/b"));
+	}
+
+	@Test
+	public void unnamed_path_param_value_object_is_serialized_like_a_named_path_param() {
+		RestAssuredWebTestClient.given()
+			.when()
+				.get("/greeting/{name}/{date}", new Name("John"), "today")
+			.then()
+				.body("content", equalTo("Hello, John! Today is today"));
+	}
+
+	public record Name(String value) {
+		@JsonValue
+		public String value() {
+			return value;
+		}
+
+		@Override
+		public String toString() {
+			return "Name[" + value + "]";
+		}
 	}
 }
