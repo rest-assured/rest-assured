@@ -1428,7 +1428,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     if (!cfg.getSSLConfig().isUserConfigured() || authenticationScheme instanceof CertAuthScheme) {
       return false
     }
-    if (uri.getScheme()?.toLowerCase() == "https") {
+    if (uri.getScheme()?.toLowerCase(Locale.ROOT) == "https") {
       return true
     }
     // A non-https request may be redirected to https (see issue #790) so the SSL config is applied to it as well (the SSL
@@ -1572,9 +1572,9 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def contentTypeAsString = headers.getValue(CONTENT_TYPE)
     def ct = ContentTypeExtractor.getContentTypeWithoutCharset(contentTypeAsString)
     def subType
-    if (ct?.toLowerCase()?.startsWith(MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH)) {
+    if (ct?.toLowerCase(Locale.ROOT)?.startsWith(MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH)) {
       subType = substringAfter(ct, MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH)
-    } else if (ct?.toLowerCase()?.contains(MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS)) {
+    } else if (ct?.toLowerCase(Locale.ROOT)?.contains(MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS)) {
       subType = substringBefore(substringAfter(ct, MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS), "+")
     } else {
       throw new IllegalArgumentException("Content-Type $ct is not valid when using multiparts, it must start with \"$MULTIPART_CONTENT_TYPE_PREFIX_WITH_SLASH\" or contain \"$MULTIPART_CONTENT_TYPE_PREFIX_WITH_PLUS\".")
@@ -1739,7 +1739,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   private boolean isApplicationJsonContentTypeWithDefaultCharsetDefined(contentType) {
-    if (!startsWith(contentType.toString().toLowerCase(), APPLICATION_JSON)) {
+    if (!startsWith(contentType.toString().toLowerCase(Locale.ROOT), APPLICATION_JSON)) {
       return false
     }
 
@@ -1813,7 +1813,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     notNull path, "path"
     notNull trimToNull(method), "Method"
     notNull unnamedPathParams, "Path params"
-    this.method = method.trim().toUpperCase()
+    this.method = method.trim().toUpperCase(Locale.ROOT)
     this.path = path
     if (unnamedPathParams != null) {
       def nullParamIndices = []
@@ -2332,7 +2332,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
   }
 
   void setMethod(String method) {
-    this.method = method == null ? null : method.toUpperCase()
+    this.method = method == null ? null : method.toUpperCase(Locale.ROOT)
   }
 
   private static int getFilterOrder(Filter filter) {

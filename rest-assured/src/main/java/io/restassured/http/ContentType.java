@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.Charset;
 import java.util.Iterator;
+import java.util.Locale;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
@@ -169,7 +170,7 @@ public enum ContentType {
         if (contentType == null) {
             return null;
         }
-        contentType = ContentTypeExtractor.getContentTypeWithoutCharset(contentType.toLowerCase());
+        contentType = ContentTypeExtractor.getContentTypeWithoutCharset(contentType.toLowerCase(Locale.ROOT));
         final ContentType foundContentType;
         if (contains(XML.ctStrings, contentType) || endsWithIgnoreCase(contentType, PLUS_XML)) {
             foundContentType = XML;

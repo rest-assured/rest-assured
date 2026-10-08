@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
 import java.net.URI;
+import java.util.Locale;
 
 public class CustomHttpMethod extends HttpEntityEnclosingRequestBase {
     private final String methodName;
@@ -31,7 +32,7 @@ public class CustomHttpMethod extends HttpEntityEnclosingRequestBase {
 
     public CustomHttpMethod(String methodName, final URI uri) {
         AssertParameter.notNull(methodName, "Method");
-        this.methodName = StringUtils.trim(methodName).toUpperCase();
+        this.methodName = StringUtils.trim(methodName).toUpperCase(Locale.ROOT);
         setURI(uri);
     }
 

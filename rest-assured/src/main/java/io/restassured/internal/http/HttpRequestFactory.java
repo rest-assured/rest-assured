@@ -22,6 +22,7 @@ import org.apache.http.client.methods.*;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static io.restassured.http.Method.*;
@@ -54,7 +55,7 @@ public class HttpRequestFactory {
      * @return a non-abstract class that implements {@link HttpRequest}
      */
     static HttpRequestBase createHttpRequest(URI uri, String httpMethod, boolean hasBody) {
-        String method = notNull(upperCase(trimToNull(httpMethod)), "Http method");
+        String method = notNull(upperCase(trimToNull(httpMethod), Locale.ROOT), "Http method");
         Class<? extends HttpRequestBase> type = HTTP_METHOD_TO_HTTP_REQUEST_TYPE.get(method);
         final HttpRequestBase httpRequest;
         // If we are sending HTTP method that does not allow body (like GET) then HTTP library prevents

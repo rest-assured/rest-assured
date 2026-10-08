@@ -16,6 +16,8 @@
 
 package io.restassured.internal.http;
 
+import java.util.Locale;
+
 /**
  * Mapping of HTTP response codes to a constant 'success' or 'failure' value.
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
@@ -29,7 +31,7 @@ public enum Status {
 	private final int min, max;
 	
 	@Override public String toString() {
-		return super.toString().toLowerCase();
+		return super.toString().toLowerCase(Locale.ROOT);
 	}
 	
 	/**
