@@ -27,6 +27,10 @@ class ScalatraMultiPartExample extends ScalatraServlet with FileUploadSupport {
     getFileContent(controlName)
   }
 
+  post("/fileContentType") {
+    fileParams.get("file").get.getContentType
+  }
+
   post("/file-utf8") {
     getFileContent("Cédrìc")
   }

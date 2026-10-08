@@ -17,6 +17,7 @@ Changelog next version
 * Fix failures when the default locale is Turkish (tr-TR), such as an exception for every response with status code 400 or above and OPTIONS requests sent from a filter or HTTP methods given in lower case, e.g. request("options", ..), not working, by using Locale.ROOT for internal upper and lower case conversions. Cookie.toString() now also formats the Expires attribute as "EEE, dd MMM yyyy HH:mm:ss zzz" in English instead of using the default locale's short date format (thanks to rdmrtn for PR #1889)
 * MultiPartSpecBuilder.charset(Charset) now rejects byte[] and InputStream content with an IllegalArgumentException, like charset(String) already did, instead of silently ignoring the charset (fixes #1691) (thanks to seethinajayadileep for PR #1886)
 * Fix XmlPath and JsonPath not handling a hyphenated element or key name combined with a negative (from-the-end) list index, e.g. "root.some-list[-1]". XmlPath threw "The parameter ... was used but not defined" and JsonPath returned null (fixes #1876) (thanks to kdelay for PR #1882)
+* The charset given to MultiPartSpecBuilder.charset(..) is now sent in the Content-Type of a File multi-part (e.g. "text/plain; charset=UTF-8"). Previously it was silently ignored for File content and only applied to String content. Other parameters of the part mime-type (e.g. "application/xml; version=2") are now also kept when a charset is specified, instead of being dropped (fixes #1903)
 
 Changelog 6.0.1 (2026-07-10)
 ----------------------------
