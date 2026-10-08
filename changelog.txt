@@ -13,6 +13,7 @@ Changelog next version
 * java.time values (LocalDate, Instant, OffsetDateTime, Duration, ZoneId and so on) used as path, query or form parameters, headers or cookies are now sent as their ISO-8601 toString() instead of being run through the object mapper, which quoted them or failed without the JSR-310 module (fixes #1781) (thanks to seethinajayadileep for PR #1888)
 * A value object used as a parameter, header or cookie value that the object mapper serializes to a plain JSON string (for example a record with a @JsonValue accessor) is now sent without the surrounding JSON quotes (fixes #1818)
 * Add support for the HTTP QUERY method (a safe, idempotent method that carries a request body), e.g. given().body(..).when().query("/search"). Method.QUERY and query(..) overloads are added to RestAssured, RequestSender/RequestSpecification, RestAssuredMockMvc and RestAssuredWebTestClient (fixes #1872)
+* Fix failures when the default locale is Turkish (tr-TR), such as an exception for every response with status code 400 or above and OPTIONS requests not working, by using Locale.ROOT for internal upper and lower case conversions. Cookie.toString() now also formats the Expires attribute as "EEE, dd MMM yyyy HH:mm:ss zzz" in English instead of using the default locale's short date format (thanks to rdmrtn for PR #1889)
 
 Changelog 6.0.1 (2026-07-10)
 ----------------------------
