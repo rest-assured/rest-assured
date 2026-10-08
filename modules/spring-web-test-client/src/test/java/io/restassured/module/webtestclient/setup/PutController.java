@@ -49,4 +49,9 @@ public class PutController {
     public Mono<String> multipartFileUpload(@RequestPart("file") Mono<FilePart> file) {
         return Mono.just(file.toString());
     }
+
+    @PutMapping(value = "/multipartFileUpload/{type}", consumes = MULTIPART_FORM_DATA_VALUE)
+    public Mono<String> multipartFileUploadWithType(@PathVariable("type") String type) {
+        return Mono.just(type);
+    }
 }

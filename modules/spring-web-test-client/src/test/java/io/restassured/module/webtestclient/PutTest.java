@@ -16,6 +16,7 @@
 
 package io.restassured.module.webtestclient;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import io.restassured.config.LogConfig;
 import io.restassured.module.webtestclient.setup.PutController;
 import io.restassured.module.webtestclient.setup.support.Greeting;
@@ -121,5 +122,20 @@ public class PutTest {
 				.statusCode(200)
 				.log().all();
 		file.delete();
+	}
+
+	@Test
+	public void
+	can_use_multipart_with_unnamed_value_object_path_param() {
+		RestAssuredWebTestClient.given()
+				.multiPart("file", "file.txt", "Test".getBytes())
+				.when()
+				.put("/multipartFileUpload/{type}", new Type("text"))
+				.then()
+				.statusCode(200)
+				.body(equalTo("text"));
+	}
+
+	public record Type(@JsonValue String value) {
 	}
 }

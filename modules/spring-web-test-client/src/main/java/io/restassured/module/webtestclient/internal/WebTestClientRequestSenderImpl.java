@@ -530,7 +530,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		final UriContainer.Builder uriContainerBuilder = UriContainer.newBuilder(baseUri);
 
 		applyQueryParams(uriComponentsBuilder);
-		applyPathParams(uriContainerBuilder, baseUri, unnamedPathParams, requestContentType);
+		applyPathParams(uriContainerBuilder, baseUri, unnamedPathParams, headers.getValue(CONTENT_TYPE));
 		applyParams(method, uriComponentsBuilder, requestContentType);
 		applyFormParams(method, uriComponentsBuilder, requestContentType);
 
@@ -605,7 +605,8 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 			final UriContainer.Builder uriContainerBuilder,
 			final String baseUri,
 			final Object[] unnamedPathParams,
-			final String requestContentType
+			// The explicitly set content type (like named path params), read before applyParams/applyFormParams can change it
+			final String pathParamContentType
 	) {
 		final Matcher pathParamMatcher = PATH_PARAM_PATTERN.matcher(baseUri);
 		if (!pathParamMatcher.find()) {
@@ -624,7 +625,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 
 			if (unnamedPathParams.length > 0) {
 				Object unnamedPathParam = unnamedPathParams[nextUnnamedPathParamIndex.getAndIncrement()];
-				return Optional.of(Serializer.serializeParameterIfNeeded(unnamedPathParam, requestContentType, config));
+				return Optional.of(Serializer.serializeParameterIfNeeded(unnamedPathParam, pathParamContentType, config));
 			}
 
 			return Optional.empty();
