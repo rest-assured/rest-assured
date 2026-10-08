@@ -18,6 +18,8 @@ package io.restassured.parsing;
 
 import io.restassured.internal.http.ContentTypeExtractor;
 
+import java.util.Locale;
+
 import static org.apache.commons.lang3.ArrayUtils.contains;
 import static org.apache.commons.lang3.StringUtils.endsWithIgnoreCase;
 
@@ -46,7 +48,7 @@ public enum Parser {
         if(contentType == null) {
             return null;
         }
-        contentType = ContentTypeExtractor.getContentTypeWithoutCharset(contentType.toLowerCase());
+        contentType = ContentTypeExtractor.getContentTypeWithoutCharset(contentType.toLowerCase(Locale.ROOT));
         final Parser foundParser;
         if(contains(XML.contentTypes, contentType) || endsWithIgnoreCase(contentType, PLUS_XML)) {
             foundParser = XML;

@@ -909,8 +909,8 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             if (io.restassured.http.Method.QUERY.name().equalsIgnoreCase(httpMethodAsString)) {
                 return queryHttpMethod();
             }
-            org.springframework.web.bind.annotation.RequestMethod.valueOf(httpMethodAsString.toUpperCase());
-            return HttpMethod.valueOf(httpMethodAsString.toUpperCase());
+            org.springframework.web.bind.annotation.RequestMethod.valueOf(httpMethodAsString.toUpperCase(Locale.ROOT));
+            return HttpMethod.valueOf(httpMethodAsString.toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("HTTP method '" + method + "' is not supported by MockMvc");
         }

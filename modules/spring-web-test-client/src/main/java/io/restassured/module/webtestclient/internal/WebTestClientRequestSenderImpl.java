@@ -159,8 +159,8 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 			if (io.restassured.http.Method.QUERY.name().equalsIgnoreCase(httpMethodAsString)) {
 				return queryHttpMethod();
 			}
-			org.springframework.web.bind.annotation.RequestMethod.valueOf(httpMethodAsString.toUpperCase());
-			return HttpMethod.valueOf(httpMethodAsString.toUpperCase());
+			org.springframework.web.bind.annotation.RequestMethod.valueOf(httpMethodAsString.toUpperCase(Locale.ROOT));
+			return HttpMethod.valueOf(httpMethodAsString.toUpperCase(Locale.ROOT));
 		} catch (IllegalArgumentException e) {
 			throw new IllegalArgumentException(String.format("HTTP method '%s' is not supported by WebTestClient", method));
 		}

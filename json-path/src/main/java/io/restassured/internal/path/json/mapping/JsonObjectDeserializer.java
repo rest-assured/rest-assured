@@ -12,6 +12,7 @@ import org.apache.commons.lang3.Validate;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 public class JsonObjectDeserializer {
 
@@ -80,7 +81,7 @@ public class JsonObjectDeserializer {
         } else if (mapperType == JsonParserType.JSONB && ObjectMapperResolver.isYassonInClassPath()) {
             return (T) deserializeWithJsonb(ctx, config.jsonbObjectMapperFactory());
         } else {
-            String lowerCase = mapperType.toString().toLowerCase();
+            String lowerCase = mapperType.toString().toLowerCase(Locale.ROOT);
             throw new IllegalArgumentException(String.format("Cannot deserialize object using %s because %s doesn't exist in the classpath.", mapperType, lowerCase));
         }
     }
