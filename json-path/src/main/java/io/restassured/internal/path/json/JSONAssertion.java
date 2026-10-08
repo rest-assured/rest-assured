@@ -42,7 +42,7 @@ public class JSONAssertion implements Assertion {
 
   private static final String ROOT = "restAssuredJsonRootObject";
   private static final String SCRIPT_NAME = "Script1";
-  private static final Pattern KEY_PATTERN = Pattern.compile("^\\[-?\\d+].*");
+  private static final Pattern KEY_PATTERN = Pattern.compile("^\\[-?\\d+(\\.\\.<?-?\\d+)?].*");
 
   String key;
   Map<String, Object> params;

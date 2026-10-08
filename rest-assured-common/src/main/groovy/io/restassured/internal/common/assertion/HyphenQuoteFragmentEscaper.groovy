@@ -16,8 +16,6 @@
 
 package io.restassured.internal.common.assertion
 
-import org.apache.commons.lang3.StringUtils
-
 /**
  * A {@link PathFragmentEscaper} that is is specific to path fragments that consists of one or more hyphens
  */
@@ -35,8 +33,9 @@ abstract class HyphenQuoteFragmentEscaper implements PathFragmentEscaper {
             && (indexOfStart = pathFragment.indexOf(indexStartChar)) > 1
             && pathFragment.indexOf(indexEndChar) > indexOfStart) {
 
-      def toEscape = StringUtils.substringBeforeLast(pathFragment, indexStartChar);
-      def indexLookup = indexStartChar + StringUtils.substringAfterLast(pathFragment, indexStartChar);
+      // Split at the first index so that chained lookups, such as some-list[0][1] or some-list[0..-1][0], stay outside the quotes
+      def toEscape = pathFragment.substring(0, indexOfStart)
+      def indexLookup = pathFragment.substring(indexOfStart)
       doEscape(toEscape) + indexLookup
     } else {
       doEscape(pathFragment)

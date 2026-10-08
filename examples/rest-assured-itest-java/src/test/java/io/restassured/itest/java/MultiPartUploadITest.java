@@ -33,6 +33,9 @@ import io.restassured.specification.RequestSpecification;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+
 import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.MultiPartConfig.multiPartConfig;
@@ -538,5 +541,50 @@ public class MultiPartUploadITest extends WithJetty {
         then().
                 statusCode(200).
                 body(is(new String(bytes)));
+    }
+
+    @Test
+    void multiPartFileUploadingSendsCharsetInPartContentTypeWhenCharsetIsSpecified() throws Exception {
+        // Given
+        final File file = new File(getClass().getResource("/car-records.xsd").toURI());
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(file).controlName("file").mimeType("text/plain").charset(StandardCharsets.UTF_8).build()).
+        when().
+                post("/multipart/fileContentType").
+        then().
+                statusCode(200).
+                body(is("text/plain; charset=UTF-8"));
+    }
+
+    @Test
+    void multiPartFileUploadingKeepsMimeTypeParametersWhenCharsetIsSpecified() throws Exception {
+        // Given
+        final File file = new File(getClass().getResource("/car-records.xsd").toURI());
+
+        // When
+        given().
+                multiPart(new MultiPartSpecBuilder(file).controlName("file").mimeType("text/plain; format=flowed").charset(StandardCharsets.UTF_8).build()).
+        when().
+                post("/multipart/fileContentType").
+        then().
+                statusCode(200).
+                body(is("text/plain; format=flowed; charset=UTF-8"));
+    }
+
+    @Test
+    void multiPartFileUploadingSendsOnlyMimeTypeInPartContentTypeWhenNoCharsetIsSpecified() throws Exception {
+        // Given
+        final File file = new File(getClass().getResource("/car-records.xsd").toURI());
+
+        // When
+        given().
+                multiPart("file", file, "text/plain").
+        when().
+                post("/multipart/fileContentType").
+        then().
+                statusCode(200).
+                body(is("text/plain"));
     }
 }
