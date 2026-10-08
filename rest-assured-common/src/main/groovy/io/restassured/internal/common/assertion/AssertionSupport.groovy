@@ -18,6 +18,8 @@ package io.restassured.internal.common.assertion
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.math.NumberUtils
 
+import java.util.regex.Pattern
+
 class AssertionSupport {
 
   private static def closureStartFragment = '{'
@@ -26,13 +28,15 @@ class AssertionSupport {
   private static def listIndexStartFragment = '['
   private static def listIndexEndFragment = ']'
   private static def space = ' '
+  // A dot that isn't inside a list index, such as the range in some-list[0..-1]
+  private static final Pattern pathSeparator = Pattern.compile("\\.(?![^\\[\\]]*\\])")
 
   def static escapePath(key, PathFragmentEscaper... pathFragmentEscapers) {
     def pathFragments = key.split("(?<=\\')")
     for (int i = 0; i < pathFragments.size(); i++) {
       String pathFragment = pathFragments[i]
       if (!pathFragment?.endsWith("'") || pathFragment?.contains("**")) {
-        def dotFragments = pathFragment.split("\\.")
+        def dotFragments = pathSeparator.split(pathFragment)
         for (int k = 0; k < dotFragments.size(); k++) {
           String dotFragment = dotFragments[k]
           for (int j = 0; j < pathFragmentEscapers.length; j++) {
