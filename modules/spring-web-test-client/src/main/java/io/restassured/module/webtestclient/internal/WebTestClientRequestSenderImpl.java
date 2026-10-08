@@ -24,6 +24,7 @@ import io.restassured.http.Cookies;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.http.Method;
+import io.restassured.internal.NoParameterValue;
 import io.restassured.internal.RequestSpecificationImpl;
 import io.restassured.internal.ResponseParserRegistrar;
 import io.restassured.internal.ResponseSpecificationImpl;
@@ -79,6 +80,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 
 	private static final String CONTENT_TYPE = "Content-Type";
 	private static final Pattern PATH_PARAM_PATTERN = Pattern.compile("\\{([^/]+?)\\}");
+	private static final String QUERY_PARAM_URI_VARIABLE_PREFIX = "restAssuredQueryParam";
 
     private static boolean isWebflux7OrAbove = Arrays.stream(WebTestClient.RequestBodySpec.class.getMethods()).anyMatch(method -> method.getName().equals(""));
 
@@ -527,19 +529,47 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 
 	private UriContainer buildUri(HttpMethod method, String requestContentType, String baseUri, Object[] unnamedPathParams) {
 		final UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(baseUri);
-		final UriContainer.Builder uriContainerBuilder = UriContainer.newBuilder(baseUri);
+		final Map<String, Object> uriVariables = new HashMap<>();
 
-		applyQueryParams(uriComponentsBuilder);
-		applyPathParams(uriContainerBuilder, baseUri, unnamedPathParams, requestContentType);
-		applyParams(method, uriComponentsBuilder, requestContentType);
-		applyFormParams(method, uriComponentsBuilder, requestContentType);
+		// Path params are resolved first so that the generated query parameter variable names never clash with them
+		applyPathParams(uriVariables, baseUri, unnamedPathParams, requestContentType);
+		addQueryParamsAsUriVariables(queryParams, uriComponentsBuilder, uriVariables);
+		applyParams(method, uriComponentsBuilder, uriVariables, requestContentType);
+		applyFormParams(method, uriComponentsBuilder, uriVariables, requestContentType);
 
-		final String uriWithoutPathParams = uriComponentsBuilder.cloneBuilder()
-				.uriVariables(Collections.emptyMap())
-				.build(false)
-				.toUriString();
+		final String uriTemplate = uriComponentsBuilder.build(false).toUriString();
 
-		return uriContainerBuilder.uri(uriWithoutPathParams).build();
+		return UriContainer.newBuilder(uriTemplate).uriVariables(uriVariables).build();
+	}
+
+	/**
+	 * Adds the parameters to the query of the URI template as URI variables, so that WebTestClient strictly encodes
+	 * their names and values (template encoding would leave reserved characters such as "+", "&" and "=" as-is
+	 * and treat "{...}" as a URI variable).
+	 */
+	private static void addQueryParamsAsUriVariables(Map<String, Object> parameters, UriComponentsBuilder uriComponentsBuilder,
+													 Map<String, Object> uriVariables) {
+		parameters.forEach((name, value) -> {
+			final String nameVariable = addUriVariable(uriVariables, name);
+			final Collection<?> values = value instanceof Collection ? (Collection<?>) value : Collections.singletonList(value);
+			for (Object paramValue : values) {
+				if (paramValue == null || paramValue instanceof NoParameterValue) {
+					uriComponentsBuilder.queryParam(nameVariable);
+				} else {
+					uriComponentsBuilder.queryParam(nameVariable, addUriVariable(uriVariables, paramValue.toString()));
+				}
+			}
+		});
+	}
+
+	private static String addUriVariable(Map<String, Object> uriVariables, String value) {
+		int index = uriVariables.size();
+		String variableName;
+		do {
+			variableName = QUERY_PARAM_URI_VARIABLE_PREFIX + index++;
+		} while (uriVariables.containsKey(variableName));
+		uriVariables.put(variableName, value);
+		return "{" + variableName + "}";
 	}
 
 	private void verifyNoBodyAndMultipartTogether() {
@@ -590,19 +620,8 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 						build());
 	}
 
-	private void applyQueryParams(UriComponentsBuilder uriComponentsBuilder) {
-		if (!queryParams.isEmpty()) {
-			new ParamApplier(queryParams) {
-				@Override
-				protected void applyParam(String paramName, String[] paramValues) {
-					uriComponentsBuilder.queryParam(paramName, paramValues);
-				}
-			}.applyParams();
-		}
-	}
-
 	private void applyPathParams(
-			final UriContainer.Builder uriContainerBuilder,
+			final Map<String, Object> uriVariables,
 			final String baseUri,
 			final Object[] unnamedPathParams,
 			final String requestContentType
@@ -630,25 +649,18 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 			return Optional.empty();
 		};
 
-		final Map<String, Object> uriVariables = new HashMap<>();
 		do {
 			final String paramName = pathParamMatcher.group(1);
 			getPathParamValueFunction.apply(paramName).ifPresent(paramValue ->
 					uriVariables.put(paramName, paramValue)
 			);
 		} while (pathParamMatcher.find());
-
-		uriContainerBuilder.uriVariables(uriVariables);
 	}
 
-	private void applyParams(HttpMethod method, UriComponentsBuilder uriComponentsBuilder, String requestContentType) {
+	private void applyParams(HttpMethod method, UriComponentsBuilder uriComponentsBuilder, Map<String, Object> uriVariables,
+							 String requestContentType) {
 		if (!params.isEmpty()) {
-			new ParamApplier(params) {
-				@Override
-				protected void applyParam(String paramName, String[] paramValues) {
-					uriComponentsBuilder.queryParam(paramName, paramValues);
-				}
-			}.applyParams();
+			addQueryParamsAsUriVariables(params, uriComponentsBuilder, uriVariables);
 
 			if (isBlank(requestContentType) && method == POST && !isMultipartRequest()) {
 				setContentTypeToApplicationFormUrlEncoded();
@@ -656,17 +668,13 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		}
 	}
 
-	private void applyFormParams(HttpMethod method, UriComponentsBuilder uriComponentsBuilder, String requestContentType) {
+	private void applyFormParams(HttpMethod method, UriComponentsBuilder uriComponentsBuilder, Map<String, Object> uriVariables,
+								 String requestContentType) {
 		if (!formParams.isEmpty()) {
 			if (method == GET) {
 				throw new IllegalArgumentException("Cannot use form parameters in a GET request");
 			}
-			new ParamApplier(formParams) {
-				@Override
-				protected void applyParam(String paramName, String[] paramValues) {
-					uriComponentsBuilder.queryParam(paramName, paramValues);
-				}
-			}.applyParams();
+			addQueryParamsAsUriVariables(formParams, uriComponentsBuilder, uriVariables);
 			if (isBlank(requestContentType) && !isMultipartRequest()) {
 				setContentTypeToApplicationFormUrlEncoded();
 			}
