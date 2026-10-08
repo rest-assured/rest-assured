@@ -664,6 +664,24 @@ public class XmlPathTest {
         assertThat(xmlPath.getString("root.some-list[-1].@my-attr"), equalTo("2"));
     }
 
+    @Test
+    public void escapesListsWithHyphenWhenUsingRangeFollowedByMorePath() {
+        // Given
+        String xml = "<root><some-list><sub-el>one</sub-el></some-list><some-list><sub-el>two</sub-el></some-list><some-list><sub-el>three</sub-el></some-list>" +
+                "<list><sub>one</sub></list><list><sub>two</sub></list><list><sub>three</sub></list></root>";
+
+        // When
+        XmlPath xmlPath = from(xml);
+
+        // Then
+        assertThat(xmlPath.getList("root.some-list[0..-1].sub-el"), contains("one", "two", "three"));
+        assertThat(xmlPath.getList("root.some-list[-2..-1].sub-el"), contains("two", "three"));
+        assertThat(xmlPath.getList("root.some-list[0..1].sub-el"), contains("one", "two"));
+        assertThat(xmlPath.getList("root.list[0..-1].sub"), contains("one", "two", "three"));
+        assertThat(xmlPath.getList("root.list[-2..-1].sub"), contains("two", "three"));
+        assertThat(xmlPath.getList("root.list[0..1].sub"), contains("one", "two"));
+    }
+
     @Test public void
     trying_to_get_an_attribute_that_doesnt_exists_returns_null() {
         // Given
