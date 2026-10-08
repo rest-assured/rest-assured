@@ -16,6 +16,7 @@
 
 package io.restassured.module.mockmvc;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import io.restassured.http.Method;
 import io.restassured.module.mockmvc.http.GreetingController;
 import org.junit.jupiter.api.AfterEach;
@@ -237,5 +238,26 @@ public class MockMvcPathParamTest {
         assertThatThrownBy(restAssuredExecutionSupplier::get)
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("No values were found for the request's pathParams.");
+    }
+
+    @Test
+    public void unnamed_path_param_value_object_is_serialized_like_a_named_path_param() {
+        RestAssuredMockMvc.given()
+            .when()
+                .get("/greeting/{name}/{date}", new Name("John"), "today")
+            .then()
+                .body("content", equalTo("Hello, John! Today is today"));
+    }
+
+    public record Name(String value) {
+        @JsonValue
+        public String value() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return "Name[" + value + "]";
+        }
     }
 }
