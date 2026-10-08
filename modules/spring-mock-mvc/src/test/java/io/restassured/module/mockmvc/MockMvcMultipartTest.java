@@ -16,6 +16,7 @@
 
 package io.restassured.module.mockmvc;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import io.restassured.module.mockmvc.http.MultipartController;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -84,4 +85,19 @@ public class MockMvcMultipartTest {
                 .body("name", equalTo("file"));
     }
 
+    @Test
+    public void can_use_multipart_with_unnamed_value_object_path_param() {
+        RestAssuredMockMvc.given()
+                .standaloneSetup(new MultipartController())
+                .multiPart("file", "Test")
+                .when()
+                .post("/files/{type}", new Type("type"))
+                .then()
+                .expect(status().is2xxSuccessful())
+                .body("type", equalTo("type"))
+                .body("name", equalTo("file"));
+    }
+
+    public record Type(@JsonValue String value) {
+    }
 }

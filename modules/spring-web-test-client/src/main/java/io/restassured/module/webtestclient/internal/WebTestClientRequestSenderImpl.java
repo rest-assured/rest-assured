@@ -532,7 +532,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 		final Map<String, Object> uriVariables = new HashMap<>();
 
 		// Path params are resolved first so that the generated query parameter variable names never clash with them
-		applyPathParams(uriVariables, baseUri, unnamedPathParams, requestContentType);
+		applyPathParams(uriVariables, baseUri, unnamedPathParams, headers.getValue(CONTENT_TYPE));
 		addQueryParamsAsUriVariables(queryParams, uriComponentsBuilder, uriVariables);
 		applyParams(method, uriComponentsBuilder, uriVariables, requestContentType);
 		applyFormParams(method, uriComponentsBuilder, uriVariables, requestContentType);
@@ -624,7 +624,8 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 			final Map<String, Object> uriVariables,
 			final String baseUri,
 			final Object[] unnamedPathParams,
-			final String requestContentType
+			// The explicitly set content type (like named path params), read before applyParams/applyFormParams can change it
+			final String pathParamContentType
 	) {
 		final Matcher pathParamMatcher = PATH_PARAM_PATTERN.matcher(baseUri);
 		if (!pathParamMatcher.find()) {
@@ -643,7 +644,7 @@ public class WebTestClientRequestSenderImpl implements WebTestClientRequestSende
 
 			if (unnamedPathParams.length > 0) {
 				Object unnamedPathParam = unnamedPathParams[nextUnnamedPathParamIndex.getAndIncrement()];
-				return Optional.of(Serializer.serializeParameterIfNeeded(unnamedPathParam, requestContentType, config));
+				return Optional.of(Serializer.serializeParameterIfNeeded(unnamedPathParam, pathParamContentType, config));
 			}
 
 			return Optional.empty();

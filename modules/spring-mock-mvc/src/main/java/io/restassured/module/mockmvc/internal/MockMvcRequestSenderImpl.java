@@ -40,6 +40,7 @@ import io.restassured.module.mockmvc.util.ReflectionUtil;
 import io.restassured.module.spring.commons.BodyHelper;
 import io.restassured.module.spring.commons.HeaderHelper;
 import io.restassured.module.spring.commons.ParamApplier;
+import io.restassured.module.spring.commons.Serializer;
 import io.restassured.module.spring.commons.config.AsyncConfig;
 import io.restassured.module.spring.commons.config.ConfigConverter;
 import io.restassured.specification.ResponseSpecification;
@@ -323,7 +324,8 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
         final UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(baseUri);
 
         applyQueryParams(uriComponentsBuilder);
-        applyPathParams(uriComponentsBuilder, baseUri, unnamedPathParams);
+        // Use the explicitly set content type, like named path params, not a derived one such as "multipart/form-data"
+        applyPathParams(uriComponentsBuilder, baseUri, unnamedPathParams, headers.getValue(CONTENT_TYPE));
 
         final String uri = uriComponentsBuilder.build().toUriString();
         final Object request =  applyMultiPartsAndGetRequest(method, uri, unnamedPathParams);
@@ -392,7 +394,8 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
     private void applyPathParams(
             final UriComponentsBuilder uriComponentsBuilder,
             final String baseUri,
-            final Object[] unnamedPathParams
+            final Object[] unnamedPathParams,
+            final String pathParamContentType
     ) {
         final Matcher pathParamMatcher = PATH_PARAM_PATTERN.matcher(baseUri);
         if (!pathParamMatcher.find()) {
@@ -410,7 +413,8 @@ class MockMvcRequestSenderImpl implements MockMvcRequestSender, MockMvcRequestAs
             }
 
             if (unnamedPathParams.length > 0) {
-                return Optional.of(unnamedPathParams[nextUnnamedPathParamIndex.getAndIncrement()]);
+                Object unnamedPathParam = unnamedPathParams[nextUnnamedPathParamIndex.getAndIncrement()];
+                return Optional.of(Serializer.serializeParameterIfNeeded(unnamedPathParam, pathParamContentType, config));
             }
 
             return Optional.empty();
