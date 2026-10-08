@@ -21,6 +21,9 @@ import org.apache.http.entity.ContentType
 import org.apache.http.entity.mime.content.FileBody
 import org.apache.http.entity.mime.content.InputStreamBody
 import org.apache.http.entity.mime.content.StringBody
+import org.apache.http.message.BasicNameValuePair
+
+import java.nio.charset.Charset
 
 @Canonical
 class MultiPartInternal {
@@ -42,7 +45,7 @@ class MultiPartInternal {
     }
 
     if (content instanceof File) {
-      new FileBody((File) content, ContentType.parse(mimeType ?: OCTET_STREAM), fileName)
+      new FileBody((File) content, contentTypeWithCharset(mimeType ?: OCTET_STREAM), fileName)
     } else if (content instanceof InputStream) {
       returnInputStreamBody()
     } else if (content instanceof byte[]) {
@@ -74,9 +77,13 @@ class MultiPartInternal {
   }
 
   private def returnStringBody(String content) {
-    ContentType baseContentType = ContentType.parse(mimeType ?: TEXT_PLAIN)
-    ContentType finalContentType = charset ? baseContentType.withCharset(charset) : baseContentType
-    new StringBody(content, finalContentType)
+    new StringBody(content, contentTypeWithCharset(mimeType ?: TEXT_PLAIN))
+  }
+
+  private ContentType contentTypeWithCharset(String baseMimeType) {
+    ContentType baseContentType = ContentType.parse(baseMimeType)
+    // withParameters (unlike withCharset) keeps any other parameters of the mime-type, e.g. "application/xml; version=2"
+    charset ? baseContentType.withParameters(new BasicNameValuePair("charset", Charset.forName(charset).name())) : baseContentType
   }
 
   private def returnInputStreamBody() {
