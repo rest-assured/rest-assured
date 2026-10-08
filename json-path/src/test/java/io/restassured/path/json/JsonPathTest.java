@@ -1130,4 +1130,12 @@ public class JsonPathTest {
         // Then
         assertThat(jsonPath.get("$"), nullValue());
     }
+
+    @Test
+    public void escapesListsWithHyphenWhenUsingNegativeIndex() {
+        JsonPath jsonPath = new JsonPath("{\"some-list\":[{\"x\":\"a\"},{\"x\":\"b\"},{\"x\":\"c\"}]}");
+
+        assertThat(jsonPath.getString("some-list[-1].x"), equalTo("c"));
+        assertThat(jsonPath.getString("some-list[-2].x"), equalTo("b"));
+    }
 }
