@@ -46,6 +46,31 @@ class GroovyStyleToStringTest {
 
     @Test
     void renders_like_groovy_dynamic_to_string() throws Exception {
+        List<String> differences = new ArrayList<>();
+        for (Object value : values()) {
+            String actual = GroovyStyleToString.toString(value);
+            Object expected = InvokerHelper.invokeMethod(value, "toString", null);
+            if (!actual.equals(expected)) {
+                differences.add(value.getClass().getName() + ": expected <" + expected + "> but was <" + actual + ">");
+            }
+        }
+        assertThat(differences).isEmpty();
+    }
+
+    @Test
+    void cast_to_string_renders_like_groovy_cast_to_string() throws Exception {
+        List<String> differences = new ArrayList<>();
+        for (Object value : values()) {
+            String actual = GroovyStringConversion.castToString(value);
+            String expected = InvokerHelper.toString(value);
+            if (!actual.equals(expected)) {
+                differences.add(value.getClass().getName() + ": expected <" + expected + "> but was <" + actual + ">");
+            }
+        }
+        assertThat(differences).isEmpty();
+    }
+
+    private static List<Object> values() throws Exception {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("a", 1);
         map.put("b", Arrays.asList("x", null));
@@ -76,16 +101,7 @@ class GroovyStyleToStringTest {
                 },
                 new OwnToString(),
                 DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument().createElement("a"));
-
-        List<String> differences = new ArrayList<>();
-        for (Object value : values) {
-            String actual = GroovyStyleToString.toString(value);
-            Object expected = InvokerHelper.invokeMethod(value, "toString", null);
-            if (!actual.equals(expected)) {
-                differences.add(value.getClass().getName() + ": expected <" + expected + "> but was <" + actual + ">");
-            }
-        }
-        assertThat(differences).isEmpty();
+        return values;
     }
 
     public static class PublicOwnToStringList extends ArrayList<String> {

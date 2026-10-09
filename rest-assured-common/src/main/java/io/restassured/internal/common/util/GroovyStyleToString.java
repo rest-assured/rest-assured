@@ -123,8 +123,15 @@ public class GroovyStyleToString {
         }
     }
 
-    // Port of Groovy's InvokerHelper.format(Object, verbose = false)
-    private static String format(Object value) {
+    /**
+     * Port of Groovy's {@code InvokerHelper.format(Object, verbose = false)}, which is what Groovy uses when it casts a
+     * value to String or interpolates it in a GString. Unlike {@link #toString(Object)} it formats every map and
+     * collection, even one whose class has its own {@code toString()}.
+     *
+     * @param value The value
+     * @return {@code value} formatted like Groovy's {@code InvokerHelper.format(value, false)}.
+     */
+    public static String format(Object value) {
         if (value == null) {
             return "null";
         } else if (value instanceof char[]) {
@@ -161,7 +168,8 @@ public class GroovyStyleToString {
             if (i > 0) {
                 builder.append(", ");
             }
-            builder.append(format(Array.get(array, i)));
+            Object item = Array.get(array, i);
+            builder.append(item == array ? "(this array)" : format(item));
         }
         return builder.append(']').toString();
     }
