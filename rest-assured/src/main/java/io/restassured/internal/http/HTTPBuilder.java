@@ -759,6 +759,10 @@ public abstract class HTTPBuilder {
                     "Default URI is null, and no 'uri' parameter was given");
             this.uri = new URIBuilder(URIBuilder.convertToURI(uri), urlEncodingEnabled, encoderConfig);
 
+            // Set the path before the query since URIBuilder.setPath re-parses an existing query from its decoded form
+            Object path = args.get("path");
+            if (path != null) this.uri.setPath(path.toString());
+
             Map query = (Map) args.get("params");
             if (query != null) {
                 log.debug("'params' argument is deprecated; use 'query' instead.");
@@ -768,9 +772,6 @@ public abstract class HTTPBuilder {
             if (query != null) this.uri.setQuery(query);
             Map headers = (Map) args.get("headers");
             if (headers != null) this.getHeaders().putAll(headers);
-
-            Object path = args.get("path");
-            if (path != null) this.uri.setPath(path.toString());
 
             boolean allowContentType = (Boolean) args.get("allowContentType");
             if (allowContentType) {
