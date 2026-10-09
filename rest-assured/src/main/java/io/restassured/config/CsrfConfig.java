@@ -127,7 +127,7 @@ public class CsrfConfig implements Config {
      */
     public CsrfConfig csrfMetaTagName(String csrfMetaTagName) {
         notNull(StringUtils.trimToNull(csrfMetaTagName), "CSRF meta tag name");
-        return new CsrfConfig(csrfTokenPath, csrfMetaTagName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, automaticallyApplyCookies, true);
+        return new CsrfConfig(csrfTokenPath, csrfInputFieldName, csrfMetaTagName, csrfHeaderName, csrfPrioritization, logConfig, logDetail, automaticallyApplyCookies, true);
     }
 
     /**
