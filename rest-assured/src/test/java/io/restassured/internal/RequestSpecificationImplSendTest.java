@@ -221,6 +221,28 @@ class RequestSpecificationImplSendTest {
     }
 
     @Test
+    void put_patch_and_delete_send_query_params_request_params_and_query_params_in_the_path_in_the_uri_when_form_params_are_sent_in_the_body() {
+        for (String method : List.of("PUT", "PATCH", "DELETE")) {
+            given().param("p", "1").formParam("f", "2").queryParam("q", "a&b c").request(method, "/x?z=3").then().statusCode(200);
+
+            assertThat(last().method()).isEqualTo(method);
+            assertThat(last().query()).isEqualTo("p=1&q=a%26b%20c&z=3");
+            assertThat(last().body()).isEqualTo("f=2");
+        }
+    }
+
+    @Test
+    void patch_sends_query_params_in_the_uri_for_multipart_requests_and_bodies() {
+        given().multiPart("part", "content").queryParam("q", "1").patch("/x?z=2").then().statusCode(200);
+        assertThat(last().query()).isEqualTo("q=1&z=2");
+        assertThat(last().header("Content-Type")).startsWith("multipart/form-data");
+
+        given().contentType(ContentType.JSON).body("{}").queryParam("q", "1").patch("/x?z=2").then().statusCode(200);
+        assertThat(last().query()).isEqualTo("q=1&z=2");
+        assertThat(last().body()).isEqualTo("{}");
+    }
+
+    @Test
     void head_and_options_have_no_body() {
         Response head = given().head("/x");
         given().options("/x");

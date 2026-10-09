@@ -1542,7 +1542,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
         ResponseSpecificationImpl responseSpecification = (ResponseSpecificationImpl) this.responseSpecification;
         ResponseSpecificationImpl.HamcrestAssertionClosure hamcrestAssertionClosure = (ResponseSpecificationImpl.HamcrestAssertionClosure) assertionClosure;
-        RestAssuredHttpBuilder http = new RestAssuredHttpBuilder(responseSpecification, requestHeaders, queryParameters, targetUri, hamcrestAssertionClosure, urlEncodingEnabled,
+        RestAssuredHttpBuilder http = new RestAssuredHttpBuilder(responseSpecification, requestHeaders, targetUri, hamcrestAssertionClosure, urlEncodingEnabled,
                 getConfig(), (AbstractHttpClient) requestSpecification.getHttpClient(), allowContentType, responseSpecification.getRpr().getDefaultParser());
         applyProxySettings(http);
         applyRestAssuredConfig(http);
@@ -1608,9 +1608,9 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
                 }
                 Object bodyContent = createFormParamBodyContent(assembleBodyContent(method));
                 if (POST.name().equalsIgnoreCase(method)) {
-                    http.post(formRequestArguments(targetPath, bodyContent, acceptContentType), responseHandler(hamcrestAssertionClosure));
+                    http.post(formRequestArguments(targetPath, queryParameters, bodyContent, acceptContentType), responseHandler(hamcrestAssertionClosure));
                 } else if (PATCH.name().equalsIgnoreCase(method)) {
-                    http.patch(formRequestArguments(targetPath, bodyContent, acceptContentType), responseHandler(hamcrestAssertionClosure));
+                    http.patch(formRequestArguments(targetPath, mergeMapsAndRetainOrder(requestParameters, queryParameters), bodyContent, acceptContentType), responseHandler(hamcrestAssertionClosure));
                 } else {
                     requestBody = bodyContent;
                     sendHttpRequest(http, method, acceptContentType, targetPath, hamcrestAssertionClosure);
@@ -1629,9 +1629,10 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         return restAssuredResponse;
     }
 
-    private Map<String, Object> formRequestArguments(String targetPath, Object bodyContent, Object acceptContentType) {
+    private Map<String, Object> formRequestArguments(String targetPath, Map<String, Object> query, Object bodyContent, Object acceptContentType) {
         Map<String, Object> arguments = new LinkedHashMap<>();
         arguments.put("path", targetPath);
+        arguments.put("query", query);
         arguments.put("body", bodyContent);
         arguments.put("allowContentType", allowContentType);
         arguments.put("requestContentType", requestHeaders.getValue(CONTENT_TYPE));
