@@ -60,7 +60,7 @@
         <gmavenplus.version>4.2.1</gmavenplus.version>
         <hamcrest.version>2.2</hamcrest.version>
         <jackson1.version>1.9.11</jackson1.version>
-        <jackson2.version>2.17.1</jackson2.version>
+        <jackson2.version>2.18.11</jackson2.version>
         <jackson3.version>3.0.2</jackson3.version>
         <johnzon.version>2.0.2</johnzon.version>
         <yasson.version>3.0.4</yasson.version>
