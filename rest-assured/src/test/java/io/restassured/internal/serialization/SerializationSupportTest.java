@@ -16,6 +16,8 @@
 
 package io.restassured.internal.serialization;
 
+import groovy.lang.GString;
+import org.codehaus.groovy.runtime.GStringImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -90,6 +92,38 @@ public class SerializationSupportTest {
         boolean candidate = SerializationSupport.isSerializableCandidate(null);
         // Assert
         assertThat(candidate).isFalse();
+    }
+
+    @Test
+    @DisplayName("strings and groovy strings are not serialization candidates")
+    public void stringsAndGroovyStringsAreNotSerializationCandidates() {
+        GString gString = new GStringImpl(new Object[]{"b"}, new String[]{"a", "c"});
+        GString gStringSubclass = new GStringImpl(new Object[]{"b"}, new String[]{"a", "c"}) {
+        };
+
+        assertThat(SerializationSupport.isSerializableCandidate("abc")).isFalse();
+        assertThat(SerializationSupport.isSerializableCandidate(gString)).isFalse();
+        assertThat(SerializationSupport.isSerializableCandidate(gStringSubclass)).isFalse();
+        assertThat(SerializationSupport.isParameterSerializableCandidate(gString)).isFalse();
+    }
+
+    @Test
+    @DisplayName("other char sequences are serialization candidates")
+    public void otherCharSequencesAreSerializationCandidates() {
+        assertThat(SerializationSupport.isSerializableCandidate(new StringBuilder("abc"))).isTrue();
+        assertThat(SerializationSupport.isSerializableCandidate(new StringBuffer("abc"))).isTrue();
+    }
+
+    @Test
+    @DisplayName("numbers, booleans, characters, locales, classes and uuids are not serialization candidates")
+    public void simpleValuesAreNotSerializationCandidates() {
+        assertThat(SerializationSupport.isSerializableCandidate(1)).isFalse();
+        assertThat(SerializationSupport.isSerializableCandidate(1.5d)).isFalse();
+        assertThat(SerializationSupport.isSerializableCandidate(true)).isFalse();
+        assertThat(SerializationSupport.isSerializableCandidate('c')).isFalse();
+        assertThat(SerializationSupport.isSerializableCandidate(java.util.Locale.ENGLISH)).isFalse();
+        assertThat(SerializationSupport.isSerializableCandidate(String.class)).isFalse();
+        assertThat(SerializationSupport.isSerializableCandidate(java.util.UUID.randomUUID())).isFalse();
     }
 
     @Test
