@@ -23,6 +23,7 @@ import io.restassured.config.JsonConfig;
 import io.restassured.config.LogConfig;
 import io.restassured.config.ObjectMapperConfig;
 import io.restassured.config.RestAssuredConfig;
+import io.restassured.config.SessionConfig;
 import io.restassured.config.XmlConfig;
 import io.restassured.filter.time.TimingFilter;
 import io.restassured.http.Cookie;
@@ -39,7 +40,6 @@ import io.restassured.mapper.ObjectMapperType;
 import io.restassured.parsing.Parser;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.json.config.JsonPathConfig.NumberReturnType;
-import io.restassured.path.xml.XmlPath;
 import io.restassured.path.xml.XmlPath.CompatibilityMode;
 import io.restassured.path.xml.config.XmlPathConfig;
 import io.restassured.response.Response;
@@ -173,8 +173,11 @@ class RestAssuredResponseOptionsImplTest {
     }
 
     @Test
-    void header_throws_null_pointer_exception_when_no_headers_are_set() {
-        assertThatThrownBy(() -> new RestAssuredResponseImpl().header("a")).isInstanceOf(NullPointerException.class);
+    void header_returns_null_when_no_headers_are_set() {
+        RestAssuredResponseImpl response = new RestAssuredResponseImpl();
+
+        assertThat(response.header("a")).isNull();
+        assertThat(response.getHeader("a")).isNull();
     }
 
     @Test
@@ -230,9 +233,22 @@ class RestAssuredResponseOptionsImplTest {
     }
 
     @Test
-    void session_id_throws_when_no_session_id_name_is_set() {
-        assertThatThrownBy(() -> new RestAssuredResponseImpl().sessionId()).isExactlyInstanceOf(IllegalArgumentException.class)
-                .hasMessage("name cannot be null");
+    void session_id_uses_the_default_session_id_name_when_no_session_id_name_or_config_is_set() {
+        RestAssuredResponseImpl response = new RestAssuredResponseImpl();
+        assertThat(response.sessionId()).isNull();
+
+        response.setCookies(new Cookies(new Cookie.Builder("JSESSIONID", "abc").build()));
+        assertThat(response.sessionId()).isEqualTo("abc");
+        assertThat(response.getSessionId()).isEqualTo("abc");
+    }
+
+    @Test
+    void session_id_uses_the_session_id_name_of_the_config_when_no_session_id_name_is_set() {
+        RestAssuredResponseImpl response = new RestAssuredResponseImpl();
+        response.setCookies(new Cookies(new Cookie.Builder("JSESSIONID", "abc").build(), new Cookie.Builder("PHPSESSID", "def").build()));
+        response.setConfig(RestAssuredConfig.config().sessionConfig(new SessionConfig("PHPSESSID", null)));
+
+        assertThat(response.sessionId()).isEqualTo("def");
     }
 
     @Test
@@ -684,13 +700,11 @@ class RestAssuredResponseOptionsImplTest {
     }
 
     @Test
-    void path_returns_the_xml_path_itself_for_html_content_type() {
-        RestAssuredResponseImpl response = response("<html><body><p>x</p></body></html>", "text/html");
+    void path_uses_html_path_for_html_content_type() {
+        RestAssuredResponseImpl response = response("<html><body><p>x</p><br></body></html>", "text/html");
 
-        Object result = response.path("html.body.p");
-
-        assertThat(result).isInstanceOf(XmlPath.class);
-        assertThat(((XmlPath) result).getString("html.body.p")).isEqualTo("x");
+        assertThat(response.<String>path("html.body.p")).isEqualTo("x");
+        assertThat(response.<String>path("html.%s.p", "body")).isEqualTo("x");
     }
 
     @Test

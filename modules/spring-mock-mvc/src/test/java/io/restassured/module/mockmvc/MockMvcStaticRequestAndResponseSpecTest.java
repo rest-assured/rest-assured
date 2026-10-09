@@ -22,6 +22,7 @@ import io.restassured.module.mockmvc.specification.MockMvcRequestSpecBuilder;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 
 public class MockMvcStaticRequestAndResponseSpecTest {
@@ -38,6 +39,25 @@ public class MockMvcStaticRequestAndResponseSpecTest {
                     get("/greeting").
             then().
                     body("id", equalTo(1));
+        } finally {
+            RestAssuredMockMvc.reset();
+        }
+    }
+
+    @Test public void
+    response_aware_matcher_in_static_response_spec_can_use_the_response_path() {
+        RestAssuredMockMvc.requestSpecification = new MockMvcRequestSpecBuilder().addQueryParam("name", "Johan").build();
+        // The matcher reads the body with path(..), which needs the config of the response
+        RestAssuredMockMvc.responseSpecification = new ResponseSpecBuilder().expectHeader("Content-Type", response ->
+                containsString(response.<String>path("content").equals("Hello, Johan!") ? "json" : "path(..) gave the wrong content")).build();
+
+        try {
+            RestAssuredMockMvc.given().
+                    standaloneSetup(new GreetingController()).
+            when().
+                    get("/greeting").
+            then().
+                    statusCode(200);
         } finally {
             RestAssuredMockMvc.reset();
         }

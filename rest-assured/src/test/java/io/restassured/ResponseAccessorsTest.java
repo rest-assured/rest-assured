@@ -20,8 +20,9 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.filter.time.TimingFilter;
+import io.restassured.http.Cookie;
+import io.restassured.http.Cookies;
 import io.restassured.internal.RestAssuredResponseImpl;
-import io.restassured.path.xml.XmlPath;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,11 +101,13 @@ class ResponseAccessorsTest {
     }
 
     @Test
-    void html_path_returns_xml_path() {
+    void path_evaluates_the_path_for_an_html_response() {
         Response response = given().get("/html");
 
-        assertThat((Object) response.path("html.body.p")).isInstanceOf(XmlPath.class);
+        assertThat(response.<String>path("html.body.p")).isEqualTo("x");
         assertThat(response.htmlPath().getString("html.body.p")).isEqualTo("x");
+        String extracted = given().get("/html").then().extract().path("html.body.p");
+        assertThat(extracted).isEqualTo("x");
     }
 
     @Test
@@ -128,6 +131,24 @@ class ResponseAccessorsTest {
 
         assertThat(clone.asByteArray()).isEqualTo(newBody);
         assertThat(clone.asString()).isEqualTo("{\"s\":\"x\"}");
+    }
+
+    @Test
+    void built_response_without_headers_or_cookies_returns_null_for_header_and_session_id() {
+        Response response = new ResponseBuilder().setStatusCode(200).setBody("x").build();
+
+        assertThat(response.header("a")).isNull();
+        assertThat(response.getHeader("a")).isNull();
+        assertThat(response.sessionId()).isNull();
+        assertThat(response.getSessionId()).isNull();
+    }
+
+    @Test
+    void built_response_gets_the_session_id_from_the_default_session_id_cookie() {
+        Response response = new ResponseBuilder().setStatusCode(200).setBody("x")
+                .setCookies(new Cookies(new Cookie.Builder("JSESSIONID", "abc").build())).build();
+
+        assertThat(response.sessionId()).isEqualTo("abc");
     }
 
     private static void send(HttpExchange exchange, String contentType, String body) throws IOException {

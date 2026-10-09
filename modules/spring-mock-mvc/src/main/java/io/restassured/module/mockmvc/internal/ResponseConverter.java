@@ -28,6 +28,7 @@ class ResponseConverter {
         MockMvcRestAssuredResponseImpl mvc = (MockMvcRestAssuredResponseImpl) response;
 
         RestAssuredResponseImpl std = new RestAssuredResponseImpl();
+        std.setConfig(mvc.getConfig());
         std.setConnectionManager(mvc.getConnectionManager());
         std.setContent(mvc.getContent());
         std.setContentType(mvc.getContentType());

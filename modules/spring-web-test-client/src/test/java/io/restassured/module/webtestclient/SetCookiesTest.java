@@ -16,6 +16,9 @@
 
 package io.restassured.module.webtestclient;
 
+import io.restassured.config.SessionConfig;
+import io.restassured.module.webtestclient.config.RestAssuredWebTestClientConfig;
+import io.restassured.module.webtestclient.response.WebTestClientResponse;
 import io.restassured.module.webtestclient.setup.CookieProcessor;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -25,6 +28,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.reactive.function.server.RequestPredicates.method;
 import static org.springframework.web.reactive.function.server.RequestPredicates.path;
 
@@ -55,5 +59,33 @@ public class SetCookiesTest {
 				.statusCode(200)
 				.cookie("name", "JohnDoe")
 				.cookie("project", "rest-assured");
+	}
+
+	@Test
+	public void
+	session_id_is_the_value_of_the_jsessionid_cookie_by_default() {
+		WebTestClientResponse response = RestAssuredWebTestClient.given()
+				.queryParam("JSESSIONID", "abc")
+				.queryParam("project", "rest-assured")
+				.when()
+				.get("/setCookies");
+
+		assertThat(response.sessionId()).isEqualTo("abc");
+		assertThat(response.getSessionId()).isEqualTo("abc");
+	}
+
+	@Test
+	public void
+	session_id_is_the_value_of_the_cookie_named_by_the_session_config() {
+		String sessionId = RestAssuredWebTestClient.given()
+				.config(RestAssuredWebTestClientConfig.config().sessionConfig(new SessionConfig("PHPSESSID", null)))
+				.queryParam("JSESSIONID", "abc")
+				.queryParam("PHPSESSID", "def")
+				.when()
+				.get("/setCookies")
+				.then()
+				.extract().sessionId();
+
+		assertThat(sessionId).isEqualTo("def");
 	}
 }
