@@ -114,15 +114,32 @@ public class JSONAssertion implements Assertion {
     Map<String, Object> newParams = (params != null) ? new HashMap<>(params) : new HashMap<>(1);
     newParams.put(root, object);
 
-    // The compiled script extends groovy.lang.Script and calls into the Groovy runtime, so its class loader must see
-    // Groovy. Use Groovy's own class loader as parent (like GroovyShell does) instead of the thread context class
-    // loader, which may not see Groovy, for example in an OSGi container where Groovy is a bundle of its own (#1933).
-    try (GroovyClassLoader loader = new GroovyClassLoader(Script.class.getClassLoader())) {
+    try (GroovyClassLoader loader = new GroovyClassLoader(scriptParentClassLoader())) {
       Class<?> scriptClass = loader.parseClass(expr, SCRIPT_NAME + ".groovy");
       Script script = InvokerHelper.createScript(scriptClass, new Binding(newParams));
       return script.run();
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
+  }
+
+  /**
+   * The compiled script extends groovy.lang.Script, so its class loader must see the same Groovy as this class. The
+   * thread context class loader is preferred because it also sees the user's classes, which a path can refer to, but
+   * it may not see Groovy, for example in an OSGi container where Groovy is a bundle of its own (#1933). Then Groovy's
+   * own class loader is used, like GroovyShell does.
+   */
+  private static ClassLoader scriptParentClassLoader() {
+    ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+    if (contextClassLoader != null) {
+      try {
+        if (Class.forName(Script.class.getName(), false, contextClassLoader) == Script.class) {
+          return contextClassLoader;
+        }
+      } catch (ClassNotFoundException | LinkageError e) {
+        // The context class loader can't see Groovy
+      }
+    }
+    return Script.class.getClassLoader();
   }
 }

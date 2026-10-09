@@ -16,6 +16,7 @@
 
 package io.restassured.path.json;
 
+import groovy.lang.GroovyClassLoader;
 import org.junit.jupiter.api.Test;
 
 import java.net.URL;
@@ -29,7 +30,8 @@ import static org.hamcrest.Matchers.equalTo;
 
 /**
  * JsonPath must evaluate paths even when the thread context class loader can't see Groovy, which is the normal case
- * in an OSGi container where Groovy is its own bundle (#1933).
+ * in an OSGi container where Groovy is its own bundle (#1933), and still resolve classes that only the thread context
+ * class loader can see.
  */
 public class JsonPathContextClassLoaderTest {
 
@@ -48,6 +50,22 @@ public class JsonPathContextClassLoaderTest {
                 new JsonPath(JSON).param("number", 45).getList("lotto.winners.findAll { it.numbers.contains(number) }.winnerId", Integer.class));
 
         assertThat(winnerIds, contains(23));
+    }
+
+    @Test public void
+    resolves_classes_in_path_that_only_the_thread_context_class_loader_can_see() throws Exception {
+        Thread thread = Thread.currentThread();
+        ClassLoader original = thread.getContextClassLoader();
+        try (GroovyClassLoader contextClassLoader = new GroovyClassLoader(original)) {
+            contextClassLoader.parseClass("class OnlyInContextClassLoader { static int MIN = 40 }");
+            thread.setContextClassLoader(contextClassLoader);
+
+            List<Integer> values = new JsonPath(JSON).getList("lotto.winners.collect { OnlyInContextClassLoader.MIN }", Integer.class);
+
+            assertThat(values, contains(40, 40));
+        } finally {
+            thread.setContextClassLoader(original);
+        }
     }
 
     private static <T> T withContextClassLoaderThatCannotSeeGroovy(Callable<T> callable) throws Exception {
