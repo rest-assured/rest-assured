@@ -22,6 +22,7 @@ import io.restassured.internal.util.GroovyTypes;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeSocketFactory;
+import org.apache.http.conn.ssl.SSLContextBuilder;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.conn.ssl.X509HostnameVerifier;
@@ -31,7 +32,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
@@ -70,19 +70,10 @@ public class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
      */
     public void apply(HTTPBuilder builder, int port, boolean lazy) {
         int portToUse = this.port == -1 ? port : this.port;
-        SchemeSocketFactory schemeSocketFactory = lazy ? new LazySSLSocketFactory(this::getOrCreateSSLSocketFactoryLazily) : getOrCreateSSLSocketFactory();
+        // A checked exception from loading a key or trust store passes through the supplier unwrapped, so that
+        // LazySSLSocketFactory reports its message
+        SchemeSocketFactory schemeSocketFactory = lazy ? new LazySSLSocketFactory(this::getOrCreateSSLSocketFactory) : getOrCreateSSLSocketFactory();
         builder.getClient().getConnectionManager().getSchemeRegistry().register(new Scheme("https", portToUse, schemeSocketFactory));
-    }
-
-    private SSLSocketFactory getOrCreateSSLSocketFactoryLazily() {
-        try {
-            return getOrCreateSSLSocketFactory();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            // A checked exception is wrapped like it was when this supplier was a Groovy closure coerced to a Supplier
-            throw new UndeclaredThrowableException(e);
-        }
     }
 
     private SSLSocketFactory getOrCreateSSLSocketFactory() {
@@ -97,14 +88,17 @@ public class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
     }
 
     private static SSLSocketFactory createSSLSocketFactory(KeyStore truststore, KeyStore keyStore, String keyPassword) {
-        if (truststore == null) {
+        if (truststore == null && keyStore == null) {
             return SSLSocketFactory.getSocketFactory();
         }
         try {
-            return new SSLSocketFactory(SSLContexts.custom()
-                    .loadKeyMaterial(keyStore, keyPassword != null ? keyPassword.toCharArray() : null)
-                    .loadTrustMaterial(truststore)
-                    .build(), BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+            SSLContextBuilder sslContextBuilder = SSLContexts.custom()
+                    .loadKeyMaterial(keyStore, keyPassword != null ? keyPassword.toCharArray() : null);
+            // Without a trust store the JVM's default trust is used
+            if (truststore != null) {
+                sslContextBuilder.loadTrustMaterial(truststore);
+            }
+            return new SSLSocketFactory(sslContextBuilder.build(), BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
         } catch (GeneralSecurityException e) {
             return SafeExceptionRethrower.safeRethrow(e);
         }

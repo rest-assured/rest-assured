@@ -19,21 +19,37 @@ package io.restassured.internal;
 import io.restassured.internal.http.HTTPBuilder;
 import io.restassured.internal.http.LazySSLSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.codehaus.groovy.runtime.GStringImpl;
 import org.junit.jupiter.api.Test;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.cert.Certificate;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
 import static org.apache.http.conn.ssl.SSLSocketFactory.STRICT_HOSTNAME_VERIFIER;
@@ -108,7 +124,7 @@ class TrustAndKeystoreSpecImplTest {
     }
 
     @Test
-    void lazy_apply_wraps_failures_to_create_the_factory_in_an_ssl_exception() {
+    void lazy_apply_wraps_failures_to_create_the_factory_in_an_ssl_exception_with_the_message_of_the_cause() {
         TrustAndKeystoreSpecImpl spec = spec(-1);
         spec.setTrustStorePath("does-not-exist.p12");
         spec.setTrustStorePassword(PASSWORD);
@@ -116,12 +132,10 @@ class TrustAndKeystoreSpecImplTest {
         spec.apply(builder, 443, true);
 
         Throwable thrown = catchThrowable(() -> httpsScheme().getSchemeSocketFactory().createSocket(new BasicHttpParams()));
-        // The checked exception thrown when creating the factory is wrapped in an UndeclaredThrowableException (without
-        // message) since it's thrown through a Supplier
         assertThat(thrown).isExactlyInstanceOf(SSLException.class).
-                hasMessage("Failed to create the SSL socket factory from the configured SSL settings (SSLConfig or certificate authentication): null").
-                hasCauseExactlyInstanceOf(UndeclaredThrowableException.class).
-                hasRootCauseExactlyInstanceOf(FileNotFoundException.class);
+                hasMessageStartingWith("Failed to create the SSL socket factory from the configured SSL settings (SSLConfig or certificate authentication): ").
+                hasMessageContaining("does-not-exist.p12").
+                hasCauseExactlyInstanceOf(FileNotFoundException.class);
     }
 
     @Test
@@ -173,15 +187,35 @@ class TrustAndKeystoreSpecImplTest {
     }
 
     @Test
-    void loads_but_ignores_the_key_store_without_trust_store() {
+    void uses_the_key_store_for_the_client_certificate_without_trust_store() throws Exception {
         TrustAndKeystoreSpecImpl spec = spec(-1);
         spec.setKeyStorePath(KEYSTORE);
         spec.setKeyStorePassword(PASSWORD);
 
-        spec.apply(builder, 443);
+        Certificate clientCertificate = applyAndGetClientCertificateSentByFactory(spec);
 
-        assertThat(spec.getFactory()).isNotNull();
+        assertThat(clientCertificate).isEqualTo(certificateIn(KEYSTORE));
         assertThat(spec.getFactory().getHostnameVerifier()).isSameAs(ALLOW_ALL_HOSTNAME_VERIFIER);
+    }
+
+    @Test
+    void uses_the_given_key_store_for_the_client_certificate_without_trust_store() throws Exception {
+        TrustAndKeystoreSpecImpl spec = spec(-1);
+        spec.setKeyStore(load(KEYSTORE));
+        spec.setKeyStorePassword(PASSWORD);
+
+        Certificate clientCertificate = applyAndGetClientCertificateSentByFactory(spec);
+
+        assertThat(clientCertificate).isEqualTo(certificateIn(KEYSTORE));
+    }
+
+    @Test
+    void sends_no_client_certificate_without_key_store_and_trust_store() throws Exception {
+        TrustAndKeystoreSpecImpl spec = spec(-1);
+
+        Certificate clientCertificate = applyAndGetClientCertificateSentByFactory(spec);
+
+        assertThat(clientCertificate).isNull();
     }
 
     @Test
@@ -321,6 +355,69 @@ class TrustAndKeystoreSpecImplTest {
         Throwable thrown = catchThrowable(() -> new TrustAndKeystoreSpecImpl().createStore("PKCS12", KEYSTORE, "wrong password"));
 
         assertThat(thrown).isExactlyInstanceOf(IOException.class);
+    }
+
+    /**
+     * Applies the spec, then performs a TLS handshake with the created factory against a local server that asks for (but
+     * doesn't require) a client certificate, and returns the client certificate that the server received, or
+     * <code>null</code> if none was sent. Without a trust store the factory uses the JVM's default trust, so the server's
+     * self-signed certificate is made trusted with the javax.net.ssl.trustStore system properties while the factory is
+     * created and used.
+     */
+    private Certificate applyAndGetClientCertificateSentByFactory(TrustAndKeystoreSpecImpl spec) throws Exception {
+        KeyStore keyStore = load(KEYSTORE);
+        SSLContext serverContext = SSLContexts.custom().loadKeyMaterial(keyStore, PASSWORD.toCharArray()).loadTrustMaterial(keyStore).build();
+        Map<String, String> trustStoreProperties = new HashMap<>();
+        trustStoreProperties.put("javax.net.ssl.trustStore", new File(TrustAndKeystoreSpecImplTest.class.getClassLoader().getResource(KEYSTORE).toURI()).getAbsolutePath());
+        trustStoreProperties.put("javax.net.ssl.trustStorePassword", PASSWORD);
+        trustStoreProperties.put("javax.net.ssl.trustStoreType", "PKCS12");
+        Map<String, String> previousProperties = new HashMap<>();
+        trustStoreProperties.forEach((name, value) -> previousProperties.put(name, System.setProperty(name, value)));
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try (SSLServerSocket serverSocket = (SSLServerSocket) serverContext.getServerSocketFactory().createServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
+            spec.apply(builder, 443);
+            SSLSocketFactory factory = spec.getFactory();
+            serverSocket.setWantClientAuth(true);
+            serverSocket.setSoTimeout(10_000);
+            Future<Certificate> receivedClientCertificate = executor.submit(() -> {
+                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
+                    socket.setSoTimeout(10_000);
+                    socket.startHandshake();
+                    Certificate clientCertificate;
+                    try {
+                        clientCertificate = socket.getSession().getPeerCertificates()[0];
+                    } catch (SSLPeerUnverifiedException e) {
+                        clientCertificate = null;
+                    }
+                    socket.getOutputStream().write(1);
+                    socket.getOutputStream().flush();
+                    return clientCertificate;
+                }
+            });
+            HttpParams params = new BasicHttpParams();
+            HttpConnectionParams.setConnectionTimeout(params, 10_000);
+            HttpConnectionParams.setSoTimeout(params, 10_000);
+            // Connects and performs the handshake
+            try (Socket socket = factory.connectSocket(factory.createSocket(params), new InetSocketAddress(InetAddress.getLoopbackAddress(), serverSocket.getLocalPort()), null, params)) {
+                // Wait for the server to have completed the handshake
+                assertThat(socket.getInputStream().read()).isEqualTo(1);
+            }
+            return receivedClientCertificate.get(10, TimeUnit.SECONDS);
+        } finally {
+            executor.shutdownNow();
+            previousProperties.forEach((name, value) -> {
+                if (value == null) {
+                    System.clearProperty(name);
+                } else {
+                    System.setProperty(name, value);
+                }
+            });
+        }
+    }
+
+    private static Certificate certificateIn(String keyStorePath) throws Exception {
+        KeyStore keyStore = load(keyStorePath);
+        return keyStore.getCertificate(keyStore.aliases().nextElement());
     }
 
     private static TrustAndKeystoreSpecImpl spec(int port) {
