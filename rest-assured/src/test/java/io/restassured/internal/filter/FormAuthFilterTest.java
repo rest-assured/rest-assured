@@ -34,11 +34,13 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static io.restassured.RestAssured.given;
+import static io.restassured.config.RedirectConfig.redirectConfig;
 import static io.restassured.config.RestAssuredConfig.config;
 import static io.restassured.config.SessionConfig.sessionConfig;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -59,6 +61,9 @@ class FormAuthFilterTest {
             "%s" +
             "<input type=\"submit\" value=\"Login\"/>" +
             "</form></body></html>";
+
+    private static final String NO_ACTION_LOGIN_PAGE = "<html><body><form method=\"POST\">" +
+            "<input type=\"text\" name=\"user\"/><input type=\"password\" name=\"pass\"/></form></body></html>";
 
     private RecordingServer server;
 
@@ -263,6 +268,144 @@ class FormAuthFilterTest {
     }
 
     @Test
+    void posts_to_login_page_url_after_redirects_of_a_get_request_when_form_has_no_action() {
+        server.route("GET /secured", securedOr(r -> Reply.redirect("/a/b").withCookie("FIRST=1")));
+        server.route("GET /a/b", r -> new Reply(301, null, null, Map.of("Location", List.of("login-page?from=x"))).withCookie("SECOND=2"));
+        server.route("GET /a/login-page", r -> Reply.html(NO_ACTION_LOGIN_PAGE));
+        server.route("POST /a/login-page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe").cookie("mine", "m1").when().get("/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /secured", "GET /a/b", "GET /a/login-page", "POST /a/login-page", "GET /secured");
+        assertThat(server.lastRequestTo("GET /a/login-page").cookies()).isEqualTo("mine=m1; FIRST=1; SECOND=2");
+        Request login = server.lastRequestTo("POST /a/login-page");
+        assertThat(login.query()).isEqualTo("from=x");
+        assertThat(login.cookies()).isEqualTo("FIRST=1; SECOND=2");
+        assertThat(login.body()).isEqualTo("user=John&pass=Doe");
+    }
+
+    @Test
+    void posts_to_login_page_url_after_redirects_of_a_post_request_when_form_has_no_action() {
+        server.route("POST /secured-post", r -> hasSession(r) ? Reply.text("OK posted") : Reply.redirect("/a"));
+        server.route("GET /a", r -> Reply.redirect("http://127.0.0.1:" + server.port() + "/login-page"));
+        server.route("GET /login-page", r -> Reply.html(NO_ACTION_LOGIN_PAGE));
+        server.route("POST /login-page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe").when().post("/secured-post").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("POST /secured-post", "GET /a", "GET /login-page", "POST /login-page", "POST /secured-post");
+    }
+
+    @Test
+    void sends_cookies_only_to_their_origin_when_login_page_is_redirected_to_another_origin() throws IOException {
+        try (RecordingServer otherServer = new RecordingServer()) {
+            otherServer.route("GET /login-page", r -> Reply.html(NO_ACTION_LOGIN_PAGE).withCookie("OTHER=o"));
+            otherServer.route("POST /login-page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+            server.route("GET /secured", securedOr(r -> Reply.redirect("http://127.0.0.1:" + otherServer.port() + "/login-page").withCookie("FIRST=1")));
+
+            given().auth().form("John", "Doe").cookie("mine", "m1").when().get("/secured").then().statusCode(200);
+
+            assertThat(server.requestLines()).containsExactly("GET /secured", "GET /secured");
+            assertThat(otherServer.requestLines()).containsExactly("GET /login-page", "POST /login-page");
+            assertThat(otherServer.lastRequestTo("GET /login-page").cookies()).isNull();
+            assertThat(otherServer.lastRequestTo("POST /login-page").cookies()).isEqualTo("OTHER=o");
+        }
+    }
+
+    @Test
+    void fails_when_login_page_is_redirected_more_times_than_the_maximum_number_of_redirects() {
+        server.route("GET /secured", r -> Reply.redirect("/secured"));
+
+        assertThatThrownBy(() -> given().config(config().redirect(redirectConfig().maxRedirects(3))).auth().form("John", "Doe").when().get("/secured"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The request for the login page was redirected more than 3 times (the maximum number of redirects in RedirectConfig).");
+        assertThat(server.requestLines()).hasSize(4);
+    }
+
+    @Test
+    void resolves_relative_form_action_against_login_page_url() {
+        server.route("GET /app/secured", securedOr(r -> Reply.html(loginPage("login?r=a+b", ""))));
+        server.route("POST /app/login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe").when().get("/app/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /app/secured", "POST /app/login", "GET /app/secured");
+        // Like a browser, "+" in the query of a form action is a space
+        assertThat(URLDecoder.decode(server.lastRequestTo("POST /app/login").query(), UTF_8)).isEqualTo("r=a b");
+    }
+
+    @Test
+    void posts_to_absolute_form_action() throws IOException {
+        try (RecordingServer otherServer = new RecordingServer()) {
+            otherServer.route("POST /auth/login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+            server.route("GET /secured", securedOr(r -> Reply.html(loginPage("http://127.0.0.1:" + otherServer.port() + "/auth/login", ""))));
+
+            given().auth().form("John", "Doe").when().get("/secured");
+
+            assertThat(server.requestLines()).containsExactly("GET /secured", "GET /secured");
+            assertThat(otherServer.requestLines()).containsExactly("POST /auth/login");
+            assertThat(otherServer.lastRequestTo("POST /auth/login").body()).isEqualTo("user=John&pass=Doe");
+        }
+    }
+
+    @Test
+    void leaves_out_fragment_of_form_action() {
+        server.route("GET /secured", securedOr(r -> Reply.html(loginPage("/login?a=b#frag", ""))));
+
+        given().auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+        assertThat(server.lastRequestTo("POST /login").query()).isEqualTo("a=b");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"/%7Bx%7D", "/a%2Fb", "/a%3Fb"})
+    void keeps_path_of_form_action_url_encoded_when_decoding_it_would_change_it(String formAction) {
+        String decodedPathOfDoubleEncodedPath = URLDecoder.decode(formAction.replace("%", "%25"), UTF_8);
+        server.route("GET /secured", securedOr(r -> Reply.html(loginPage(formAction, ""))));
+        server.route("POST " + decodedPathOfDoubleEncodedPath, r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /secured", "POST " + decodedPathOfDoubleEncodedPath, "GET /secured");
+    }
+
+    @Test
+    void uses_form_action_from_form_auth_config_as_it_is() {
+        server.route("POST /login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe", new FormAuthConfig("/login?email=john+test@x.com&r=%2Fhome", "user", "pass")).when().get("/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("POST /login", "GET /secured");
+        assertThat(server.lastRequestTo("POST /login").query().split("&")).extracting(it -> URLDecoder.decode(it, UTF_8))
+                .containsExactly("email=john+test@x.com", "r=%2Fhome");
+    }
+
+    @Test
+    void uses_form_action_from_form_auth_config_as_it_is_when_login_page_is_parsed() {
+        server.route("POST /login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe", new FormAuthConfig("/login?email=john+test@x.com&r=%2Fhome", null, null)).when().get("/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /secured", "POST /login", "GET /secured");
+        assertThat(server.lastRequestTo("POST /login").query().split("&")).extracting(it -> URLDecoder.decode(it, UTF_8))
+                .containsExactly("email=john+test@x.com", "r=%2Fhome");
+    }
+
+    @Test
+    void posts_to_csrf_page_url_with_base_path_when_form_has_no_action() {
+        RestAssured.basePath = "/api";
+        String page = "<html><body><form method=\"POST\"><input type=\"text\" name=\"user\"/><input type=\"password\" name=\"pass\"/>" +
+                "<input type=\"hidden\" name=\"_csrf\" value=\"tok\"/></form></body></html>";
+        server.route("GET /api/csrf-page", r -> Reply.html(page));
+        server.route("POST /api/csrf-page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+        server.route("GET /api/secured", securedOr(r -> Reply.text("denied")));
+
+        given().csrf("/csrf-page").auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /api/csrf-page", "POST /api/csrf-page", "GET /api/secured");
+    }
+
+    @Test
     void posts_to_csrf_page_url_when_form_has_no_action() {
         String page = "<html><body><form method=\"POST\"><input type=\"text\" name=\"user\"/><input type=\"password\" name=\"pass\"/>" +
                 "<input type=\"hidden\" name=\"_csrf\" value=\"tok\"/></form></body></html>";
@@ -277,7 +420,7 @@ class FormAuthFilterTest {
 
     @Test
     void fetches_login_page_for_a_request_with_unnamed_path_parameters() {
-        server.route("GET /secured/1", securedOr(r -> Reply.html(loginPage("login", "")).withCookie("PAGE=p1")));
+        server.route("GET /secured/1", securedOr(r -> Reply.html(loginPage("/login", "")).withCookie("PAGE=p1")));
 
         String body = given().auth().form("John", "Doe").when().get("/secured/{id}", 1).then().statusCode(200).extract().asString();
 
@@ -287,7 +430,7 @@ class FormAuthFilterTest {
 
     @Test
     void fetches_login_page_for_a_request_with_named_path_parameters() {
-        server.route("GET /secured/1", securedOr(r -> Reply.html(loginPage("login", "")).withCookie("PAGE=p1")));
+        server.route("GET /secured/1", securedOr(r -> Reply.html(loginPage("/login", "")).withCookie("PAGE=p1")));
 
         String body = given().auth().form("John", "Doe").pathParam("id", 1).when().get("/secured/{id}").then().statusCode(200).extract().asString();
 
