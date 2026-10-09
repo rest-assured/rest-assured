@@ -234,6 +234,23 @@ class RequestSpecificationImplSendTest {
     }
 
     @Test
+    void multipart_request_keeps_a_quoted_boundary_containing_an_equals_sign() {
+        given().contentType("multipart/form-data; boundary=\"a=b\"").multiPart("f", "hello").put("/x").then().statusCode(200);
+
+        assertThat(last().header("Content-Type")).isEqualTo("multipart/form-data; boundary=\"a=b\"");
+        assertThat(last().body().replace("\r\n", "\n")).isEqualTo(
+                "--a=b\nContent-Disposition: form-data; name=\"f\"\nContent-Type: text/plain\n\nhello\n--a=b--\n");
+    }
+
+    @Test
+    void multipart_request_keeps_an_unquoted_java_mail_style_boundary() {
+        given().contentType("multipart/mixed; boundary=----=_Part_0_123").multiPart("f", "hello").put("/x").then().statusCode(200);
+
+        assertThat(last().header("Content-Type")).isEqualTo("multipart/mixed; boundary=\"----=_Part_0_123\"");
+        assertThat(last().body()).startsWith("------=_Part_0_123\r\n");
+    }
+
+    @Test
     void multipart_request_with_a_custom_specification_without_headers() {
         io.restassured.specification.MultiPartSpecification custom = new io.restassured.specification.MultiPartSpecification() {
             public Object getContent() {
