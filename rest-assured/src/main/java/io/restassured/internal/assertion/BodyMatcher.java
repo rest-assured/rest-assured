@@ -96,7 +96,7 @@ public class BodyMatcher {
                 if (contentParser instanceof String) {
                     // This happens for example when expecting JSON/XML assertion but response content is empty
                     boolean isEmpty = ((String) contentParser).isEmpty();
-                    errorMessage = format("Cannot assert that path \"%s\" matches %s because the response body %s.", key, matcher, isEmpty ? "is empty" : "equal to \"$contentParser\"");
+                    errorMessage = format("Cannot assert that path \"%s\" matches %s because the response body %s.", key, matcher, isEmpty ? "is empty" : "equal to \"" + contentParser + "\"");
                     success = false;
                 } else {
                     result = assertion.getResult(contentParser, config);
