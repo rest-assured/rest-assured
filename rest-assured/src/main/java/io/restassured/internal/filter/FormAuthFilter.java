@@ -81,7 +81,12 @@ public class FormAuthFilter implements AuthFilter {
                 loginPageResponse = given().auth().none().disableCsrf().cookies(requestSpec.getCookies()).get(csrfConfig.getCsrfTokenPath());
                 cookiesFromLoginPage = loginPageResponse.cookies();
             } else {
-                loginPageResponse = ctx.send(given().spec(requestSpec).auth().none());
+                FilterableRequestSpecification loginPageRequestSpec = (FilterableRequestSpecification) given().spec(requestSpec).auth().none();
+                // ctx.send(..) sends to the request URI, where the path parameters are already applied
+                for (String pathParamName : loginPageRequestSpec.getPathParams().keySet()) {
+                    loginPageRequestSpec.removePathParam(pathParamName);
+                }
+                loginPageResponse = ctx.send(loginPageRequestSpec);
                 cookiesFromLoginPage = loginPageResponse.cookies();
                 if (loginPageResponse.statusCode() == 302) {
                     // This means that Rest Assured has not done a redirect automatically.

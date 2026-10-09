@@ -162,6 +162,26 @@ class FormAuthFilterTest {
     }
 
     @Test
+    void fetches_login_page_for_a_request_with_unnamed_path_parameters() {
+        server.route("GET /secured/1", securedOr(r -> Reply.html(loginPage("login", "")).withCookie("PAGE=p1")));
+
+        String body = given().auth().form("John", "Doe").when().get("/secured/{id}", 1).then().statusCode(200).extract().asString();
+
+        assertThat(body).isEqualTo("OK");
+        assertThat(server.requestLines()).containsExactly("GET /secured/1", "POST /login", "GET /secured/1");
+    }
+
+    @Test
+    void fetches_login_page_for_a_request_with_named_path_parameters() {
+        server.route("GET /secured/1", securedOr(r -> Reply.html(loginPage("login", "")).withCookie("PAGE=p1")));
+
+        String body = given().auth().form("John", "Doe").pathParam("id", 1).when().get("/secured/{id}").then().statusCode(200).extract().asString();
+
+        assertThat(body).isEqualTo("OK");
+        assertThat(server.requestLines()).containsExactly("GET /secured/1", "POST /login", "GET /secured/1");
+    }
+
+    @Test
     void fetches_csrf_page_instead_of_requested_page_and_sends_form_token() {
         String csrfInput = "<input type=\"hidden\" name=\"_csrf\" value=\"tok\"/>";
         server.route("GET /csrf-page", r -> Reply.html(loginPage("login", csrfInput)).withCookie("CSRFPAGE=c1"));
