@@ -35,35 +35,35 @@ import java.util.stream.Collectors;
 /**
  * A tiny HTTP server for filter tests: routes are keyed by {@code "METHOD /path"} and every request is recorded.
  */
-final class RecordingServer implements AutoCloseable {
+public final class RecordingServer implements AutoCloseable {
 
-    record Request(String method, String path, String query, Map<String, List<String>> headers, String body) {
-        String header(String name) {
+    public record Request(String method, String path, String query, Map<String, List<String>> headers, String body, String rawPath) {
+        public String header(String name) {
             return headers.entrySet().stream()
                     .filter(e -> e.getKey().equalsIgnoreCase(name))
                     .map(e -> String.join(",", e.getValue()))
                     .findFirst().orElse(null);
         }
 
-        String cookies() {
+        public String cookies() {
             return header("Cookie");
         }
     }
 
-    record Reply(int status, String contentType, String body, Map<String, List<String>> headers) {
-        static Reply html(String body) {
+    public record Reply(int status, String contentType, String body, Map<String, List<String>> headers) {
+        public static Reply html(String body) {
             return new Reply(200, "text/html; charset=utf-8", body, Map.of());
         }
 
-        static Reply text(String body) {
+        public static Reply text(String body) {
             return new Reply(200, "text/plain; charset=utf-8", body, Map.of());
         }
 
-        static Reply redirect(String location) {
+        public static Reply redirect(String location) {
             return new Reply(302, null, null, Map.of("Location", List.of(location)));
         }
 
-        Reply withCookie(String cookie) {
+        public Reply withCookie(String cookie) {
             Map<String, List<String>> copy = new LinkedHashMap<>(headers);
             List<String> cookies = new ArrayList<>(copy.getOrDefault("Set-Cookie", List.of()));
             cookies.add(cookie);
@@ -74,28 +74,28 @@ final class RecordingServer implements AutoCloseable {
 
     private final HttpServer server;
     private final Map<String, Function<Request, Reply>> routes = new ConcurrentHashMap<>();
-    final List<Request> requests = new CopyOnWriteArrayList<>();
+    public final List<Request> requests = new CopyOnWriteArrayList<>();
 
-    RecordingServer() throws IOException {
+    public RecordingServer() throws IOException {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/", this::handle);
         server.start();
     }
 
-    int port() {
+    public int port() {
         return server.getAddress().getPort();
     }
 
-    RecordingServer route(String methodAndPath, Function<Request, Reply> handler) {
+    public RecordingServer route(String methodAndPath, Function<Request, Reply> handler) {
         routes.put(methodAndPath, handler);
         return this;
     }
 
-    List<String> requestLines() {
+    public List<String> requestLines() {
         return requests.stream().map(r -> r.method() + " " + r.path()).collect(Collectors.toList());
     }
 
-    Request lastRequestTo(String methodAndPath) {
+    public Request lastRequestTo(String methodAndPath) {
         Request found = null;
         for (Request request : requests) {
             if ((request.method() + " " + request.path()).equals(methodAndPath)) {
@@ -108,7 +108,8 @@ final class RecordingServer implements AutoCloseable {
     private void handle(HttpExchange exchange) throws IOException {
         String body = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
         Request request = new Request(exchange.getRequestMethod(), exchange.getRequestURI().getPath(),
-                exchange.getRequestURI().getRawQuery(), new LinkedHashMap<>(exchange.getRequestHeaders()), body);
+                exchange.getRequestURI().getRawQuery(), new LinkedHashMap<>(exchange.getRequestHeaders()), body,
+                exchange.getRequestURI().getRawPath());
         requests.add(request);
         Function<Request, Reply> handler = routes.get(request.method() + " " + request.path());
         Reply reply = handler == null ? new Reply(404, "text/plain", "not found", Map.of()) : handler.apply(request);
