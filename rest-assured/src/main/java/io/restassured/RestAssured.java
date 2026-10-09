@@ -1573,7 +1573,7 @@ public class RestAssured {
             responseParserRegistrar.registerDefaultParser(defaultParserToUse);
         }
         LogRepository logRepository = new LogRepository();
-        RestAssuredConfig restAssuredConfig = withSessionIdIfApplicable(config());
+        RestAssuredConfig restAssuredConfig = config();
         return new TestSpecificationImpl(
                 new RequestSpecificationImpl(baseURI, port, basePath, authentication, filters,
                         requestSpecification, urlEncodingEnabled, restAssuredConfig, logRepository, proxy, true, true),
@@ -1616,7 +1616,7 @@ public class RestAssured {
      * @param protocol The standard name of the requested protocol. See the SSLContext section in the <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java Cryptography Architecture Standard Algorithm Name Documentation</a> for information about standard protocol names.
      */
     public static void useRelaxedHTTPSValidation(String protocol) {
-        config = RestAssured.config().sslConfig(SSLConfig.sslConfig().relaxedHTTPSValidation(protocol));
+        config = configWithoutSessionId().sslConfig(SSLConfig.sslConfig().relaxedHTTPSValidation(protocol));
     }
 
     /**
@@ -1647,7 +1647,7 @@ public class RestAssured {
      */
     public static void enableLoggingOfRequestAndResponseIfValidationFails(LogDetail logDetail) {
         LogConfig logConfig = LogConfig.logConfig().enableLoggingOfRequestAndResponseIfValidationFails(logDetail);
-        config = RestAssured.config().logConfig(logConfig);
+        config = configWithoutSessionId().logConfig(logConfig);
 
         // Update request specification if already defined otherwise it'll override the configs.
         // Note that request spec also influence response spec when it comes to logging if validation fails due to the way filters work
@@ -1762,7 +1762,7 @@ public class RestAssured {
      */
     public static void trustStore(KeyStore truststore) {
         Validate.notNull(truststore, "Truststore cannot be null");
-        config = config().sslConfig(SSLConfig.sslConfig().trustStore(truststore));
+        config = configWithoutSessionId().sslConfig(SSLConfig.sslConfig().trustStore(truststore));
     }
 
     /**
@@ -1888,31 +1888,39 @@ public class RestAssured {
     }
 
     private static void applyKeyStore(Object pathToJks, String password) {
-        RestAssuredConfig restAssuredConfig = config();
+        RestAssuredConfig restAssuredConfig = configWithoutSessionId();
         final SSLConfig updatedSSLConfig;
         if (pathToJks instanceof File) {
             updatedSSLConfig = restAssuredConfig.getSSLConfig().keyStore((File) pathToJks, password);
         } else {
             updatedSSLConfig = restAssuredConfig.getSSLConfig().keyStore((String) pathToJks, password);
         }
-        config = config().sslConfig(updatedSSLConfig.allowAllHostnames()); // Allow all host names to be backward-compatible
+        config = restAssuredConfig.sslConfig(updatedSSLConfig.allowAllHostnames()); // Allow all host names to be backward-compatible
     }
 
     private static void applyTrustStore(Object pathToJks, String password) {
-        RestAssuredConfig restAssuredConfig = config();
+        RestAssuredConfig restAssuredConfig = configWithoutSessionId();
         final SSLConfig updatedSSLConfig;
         if (pathToJks instanceof File) {
             updatedSSLConfig = restAssuredConfig.getSSLConfig().trustStore((File) pathToJks, password);
         } else {
             updatedSSLConfig = restAssuredConfig.getSSLConfig().trustStore((String) pathToJks, password);
         }
-        config = config().sslConfig(updatedSSLConfig.allowAllHostnames()); // Allow all host names to be backward-compatible
+        config = restAssuredConfig.sslConfig(updatedSSLConfig.allowAllHostnames()); // Allow all host names to be backward-compatible
     }
 
     /**
-     * @return The assigned config or a new config is no config is assigned
+     * @return The assigned config or a new config is no config is assigned. If {@link #sessionId} is set, the returned
+     * config uses it as session id value (see {@link SessionConfig#sessionIdValue(String)}), but {@link #config} itself
+     * isn't changed.
      */
     public static RestAssuredConfig config() {
+        return withSessionIdIfApplicable(configWithoutSessionId());
+    }
+
+    // The static config as assigned, for methods that assign a changed copy of it to RestAssured.config, so that the
+    // session id is never stored in RestAssured.config
+    private static RestAssuredConfig configWithoutSessionId() {
         RestAssuredConfig currentConfig = config;
         return currentConfig == null ? new RestAssuredConfig() : currentConfig;
     }

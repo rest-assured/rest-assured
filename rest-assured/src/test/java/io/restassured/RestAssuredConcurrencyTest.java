@@ -17,6 +17,7 @@
 package io.restassured;
 
 import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.config.RedirectConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.filter.Filter;
 import io.restassured.filter.FilterContext;
@@ -122,6 +123,37 @@ class RestAssuredConcurrencyTest {
         assertThat(RestAssured.config).isSameAs(config);
         assertThat(config.getSessionConfig().isSessionIdValueDefined()).isFalse();
         assertThat(requestSpecification.getConfig().getSessionConfig().sessionIdValue()).isEqualTo("1234");
+    }
+
+    @Test
+    void config_method_applies_the_session_id_without_changing_the_static_config() {
+        RestAssuredConfig config = RestAssuredConfig.config();
+        RestAssured.config = config;
+        RestAssured.sessionId = "1234";
+
+        RequestSpecificationImpl requestSpecification = (RequestSpecificationImpl)
+                given().config(RestAssured.config().redirect(RedirectConfig.redirectConfig().followRedirects(false)));
+
+        assertThat(RestAssured.config().getSessionConfig().sessionIdValue()).isEqualTo("1234");
+        assertThat(requestSpecification.getConfig().getSessionConfig().sessionIdValue()).isEqualTo("1234");
+        assertThat(requestSpecification.getConfig().getRedirectConfig().followsRedirects()).isFalse();
+        assertThat(RestAssured.config).isSameAs(config);
+
+        RestAssured.sessionId = null;
+
+        assertThat(RestAssured.config().getSessionConfig().isSessionIdValueDefined()).isFalse();
+    }
+
+    @Test
+    void static_config_setters_do_not_store_the_session_id_in_the_static_config() {
+        RestAssured.sessionId = "1234";
+
+        RestAssured.useRelaxedHTTPSValidation();
+        RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
+
+        assertThat(RestAssured.config.getSSLConfig().isUserConfigured()).isTrue();
+        assertThat(RestAssured.config.getLogConfig().isLoggingOfRequestAndResponseIfValidationFailsEnabled()).isTrue();
+        assertThat(RestAssured.config.getSessionConfig().isSessionIdValueDefined()).isFalse();
     }
 
     @Test

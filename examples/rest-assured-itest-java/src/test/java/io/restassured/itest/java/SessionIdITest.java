@@ -22,6 +22,7 @@ import io.restassured.itest.java.support.WithJetty;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.*;
+import static io.restassured.config.RedirectConfig.redirectConfig;
 import static io.restassured.config.RestAssuredConfig.newConfig;
 import static io.restassured.config.SessionConfig.DEFAULT_SESSION_ID_NAME;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -89,6 +90,17 @@ public class SessionIdITest extends WithJetty {
 
         try {
             expect().that().body(is(equalTo("Success"))).when().get("/sessionId");
+        } finally {
+            RestAssured.reset();
+        }
+    }
+
+    @Test
+    public void sessionIdSetStaticallyIsUsedByAConfigDerivedFromTheStaticConfigInTheDSL() {
+        RestAssured.sessionId = "1234";
+
+        try {
+            given().config(RestAssured.config().redirect(redirectConfig().followRedirects(false))).expect().body(is(equalTo("Success"))).when().get("/sessionId");
         } finally {
             RestAssured.reset();
         }
