@@ -23,6 +23,7 @@ public class GroovyTypes {
 
     private static final String GSTRING_CLASS_NAME = "groovy.lang.GString";
     private static final String CLOSURE_CLASS_NAME = "groovy.lang.Closure";
+    private static final String GROOVY_RUNTIME_EXCEPTION_CLASS_NAME = "groovy.lang.GroovyRuntimeException";
 
     private GroovyTypes() {
     }
@@ -39,6 +40,13 @@ public class GroovyTypes {
      */
     public static boolean isClosure(Object object) {
         return isInstanceOfClassNamed(object, CLOSURE_CLASS_NAME);
+    }
+
+    /**
+     * @return {@code true} if {@code object} is a {@code groovy.lang.GroovyRuntimeException} (or a subclass of it)
+     */
+    public static boolean isGroovyRuntimeException(Object object) {
+        return isInstanceOfClassNamed(object, GROOVY_RUNTIME_EXCEPTION_CLASS_NAME);
     }
 
     private static boolean isInstanceOfClassNamed(Object object, String className) {

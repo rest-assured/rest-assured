@@ -43,7 +43,6 @@ import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.http.Method;
 import io.restassured.internal.MapCreator.CollisionStrategy;
-import io.restassured.internal.assertbridge.GroovyAssertBridge;
 import io.restassured.internal.common.util.GroovyStyleToString;
 import io.restassured.internal.filter.CsrfFilter;
 import io.restassured.internal.filter.FilterContextImpl;
@@ -70,6 +69,7 @@ import io.restassured.internal.proxy.RestAssuredProxySelector;
 import io.restassured.internal.proxy.RestAssuredProxySelectorRoutePlanner;
 import io.restassured.internal.support.ParameterUpdater;
 import io.restassured.internal.support.PathSupport;
+import io.restassured.internal.util.ExceptionUnwrapper;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperType;
@@ -171,12 +171,8 @@ import static org.apache.http.client.params.ClientPNames.REJECT_RELATIVE_REDIREC
 
 /**
  * The request specification used by REST Assured (and, for logging, by the Spring modules).
- * <p>
- * The Groovy classes {@code SpecificationMerger}, {@code AuthenticationSpecificationImpl}, {@code TestSpecificationImpl},
- * {@code LogSpecificationImpl} and {@code SendRequestFilter} read and write the private fields of this class and call
- * {@link #sendRequest(String, Object, FilterableRequestSpecification, Map)}, so their names must not change.
  */
-@SuppressWarnings({"unused", "FieldMayBeFinal"})
+@SuppressWarnings("FieldMayBeFinal")
 public class RequestSpecificationImpl implements FilterableRequestSpecification {
     private static final int DEFAULT_HTTP_TEST_PORT = 8080;
     private static final String CONTENT_TYPE = "Content-Type";
@@ -275,42 +271,42 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public Response get(String path, Object... pathParams) {
-        return GroovyAssertBridge.runWithUnwrap(() -> applyPathParamsAndSendRequest(GET, path, pathParams));
+        return ExceptionUnwrapper.runWithUnwrap(() -> applyPathParamsAndSendRequest(GET, path, pathParams));
     }
 
     @Override
     public Response post(String path, Object... pathParams) {
-        return GroovyAssertBridge.runWithUnwrap(() -> applyPathParamsAndSendRequest(POST, path, pathParams));
+        return ExceptionUnwrapper.runWithUnwrap(() -> applyPathParamsAndSendRequest(POST, path, pathParams));
     }
 
     @Override
     public Response put(String path, Object... pathParams) {
-        return GroovyAssertBridge.runWithUnwrap(() -> applyPathParamsAndSendRequest(PUT, path, pathParams));
+        return ExceptionUnwrapper.runWithUnwrap(() -> applyPathParamsAndSendRequest(PUT, path, pathParams));
     }
 
     @Override
     public Response delete(String path, Object... pathParams) {
-        return GroovyAssertBridge.runWithUnwrap(() -> applyPathParamsAndSendRequest(DELETE, path, pathParams));
+        return ExceptionUnwrapper.runWithUnwrap(() -> applyPathParamsAndSendRequest(DELETE, path, pathParams));
     }
 
     @Override
     public Response head(String path, Object... pathParams) {
-        return GroovyAssertBridge.runWithUnwrap(() -> applyPathParamsAndSendRequest(HEAD, path, pathParams));
+        return ExceptionUnwrapper.runWithUnwrap(() -> applyPathParamsAndSendRequest(HEAD, path, pathParams));
     }
 
     @Override
     public Response patch(String path, Object... pathParams) {
-        return GroovyAssertBridge.runWithUnwrap(() -> applyPathParamsAndSendRequest(PATCH, path, pathParams));
+        return ExceptionUnwrapper.runWithUnwrap(() -> applyPathParamsAndSendRequest(PATCH, path, pathParams));
     }
 
     @Override
     public Response options(String path, Object... pathParams) {
-        return GroovyAssertBridge.runWithUnwrap(() -> applyPathParamsAndSendRequest(OPTIONS, path, pathParams));
+        return ExceptionUnwrapper.runWithUnwrap(() -> applyPathParamsAndSendRequest(OPTIONS, path, pathParams));
     }
 
     @Override
     public Response query(String path, Object... pathParams) {
-        return GroovyAssertBridge.runWithUnwrap(() -> applyPathParamsAndSendRequest(QUERY, path, pathParams));
+        return ExceptionUnwrapper.runWithUnwrap(() -> applyPathParamsAndSendRequest(QUERY, path, pathParams));
     }
 
     @Override
@@ -450,7 +446,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public Response request(String method, String path, Object... pathParams) {
-        return GroovyAssertBridge.runWithUnwrap(() -> applyPathParamsAndSendRequest(method, path, pathParams));
+        return ExceptionUnwrapper.runWithUnwrap(() -> applyPathParamsAndSendRequest(method, path, pathParams));
     }
 
     // Quirk kept from the Groovy implementation: "URI.class" resolved to getURI().class there, so a null URI is reported
@@ -477,7 +473,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public Response get(String path, Map<String, ?> pathParamsMap) {
-        return GroovyAssertBridge.runWithUnwrap(() -> {
+        return ExceptionUnwrapper.runWithUnwrap(() -> {
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(GET, path);
         });
@@ -485,7 +481,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public Response post(String path, Map<String, ?> pathParamsMap) {
-        return GroovyAssertBridge.runWithUnwrap(() -> {
+        return ExceptionUnwrapper.runWithUnwrap(() -> {
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(POST, path);
         });
@@ -493,7 +489,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public Response put(String path, Map<String, ?> pathParamsMap) {
-        return GroovyAssertBridge.runWithUnwrap(() -> {
+        return ExceptionUnwrapper.runWithUnwrap(() -> {
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(PUT, path);
         });
@@ -501,7 +497,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public Response delete(String path, Map<String, ?> pathParamsMap) {
-        return GroovyAssertBridge.runWithUnwrap(() -> {
+        return ExceptionUnwrapper.runWithUnwrap(() -> {
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(DELETE, path);
         });
@@ -509,7 +505,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public Response head(String path, Map<String, ?> pathParamsMap) {
-        return GroovyAssertBridge.runWithUnwrap(() -> {
+        return ExceptionUnwrapper.runWithUnwrap(() -> {
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(HEAD, path);
         });
@@ -517,7 +513,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public Response patch(String path, Map<String, ?> pathParamsMap) {
-        return GroovyAssertBridge.runWithUnwrap(() -> {
+        return ExceptionUnwrapper.runWithUnwrap(() -> {
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(PATCH, path);
         });
@@ -525,7 +521,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public Response options(String path, Map<String, ?> pathParamsMap) {
-        return GroovyAssertBridge.runWithUnwrap(() -> {
+        return ExceptionUnwrapper.runWithUnwrap(() -> {
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(OPTIONS, path);
         });
@@ -533,7 +529,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public Response query(String path, Map<String, ?> pathParamsMap) {
-        return GroovyAssertBridge.runWithUnwrap(() -> {
+        return ExceptionUnwrapper.runWithUnwrap(() -> {
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(QUERY, path);
         });
@@ -1521,7 +1517,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     }
 
     // Called by SendRequestFilter
-    private Response sendRequest(String path, Object assertionClosure, FilterableRequestSpecification requestSpecification, Map<String, Object> filterContextProperties)
+    public Response sendRequest(String path, Object assertionClosure, FilterableRequestSpecification requestSpecification, Map<String, Object> filterContextProperties)
             throws IOException, URISyntaxException {
         notNull(path, "Path");
         path = extractRequestParamsIfNeeded(path);
@@ -2762,6 +2758,101 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     public void setAuthenticationScheme(AuthenticationScheme authenticationScheme) {
         this.authenticationScheme = authenticationScheme;
+    }
+
+    // Accessors for SpecificationMerger and AuthenticationSpecificationImpl. The collections are the live ones.
+
+    int getRequestPort() {
+        return port;
+    }
+
+    void setRequestPort(int port) {
+        this.port = port;
+    }
+
+    void setBaseUri(String baseUri) {
+        this.baseUri = baseUri;
+    }
+
+    void setBasePath(String basePath) {
+        this.basePath = basePath;
+    }
+
+    String getPath() {
+        return path;
+    }
+
+    void setPath(String path) {
+        this.path = path;
+    }
+
+    Map<String, Object> getRequestParameters() {
+        return requestParameters;
+    }
+
+    Map<String, Object> getQueryParameters() {
+        return queryParameters;
+    }
+
+    Map<String, Object> getFormParameters() {
+        return formParameters;
+    }
+
+    Map<String, Object> getNamedPathParameters() {
+        return namedPathParameters;
+    }
+
+    List<Entry<String, String>> getUnnamedPathParamsTuples() {
+        return unnamedPathParamsTuples;
+    }
+
+    void setUnnamedPathParamsTuples(List<Entry<String, String>> unnamedPathParamsTuples) {
+        this.unnamedPathParamsTuples = unnamedPathParamsTuples;
+    }
+
+    List<MultiPartInternal> getMultiParts() {
+        return multiParts;
+    }
+
+    void setCookies(Cookies cookies) {
+        this.cookies = cookies;
+    }
+
+    void setRequestBody(Object requestBody) {
+        this.requestBody = requestBody;
+    }
+
+    List<Filter> getFilters() {
+        return filters;
+    }
+
+    boolean isUrlEncodingEnabled() {
+        return urlEncodingEnabled;
+    }
+
+    boolean isAllowContentType() {
+        return allowContentType;
+    }
+
+    void setAllowContentType(boolean allowContentType) {
+        this.allowContentType = allowContentType;
+    }
+
+    boolean isAddCsrfFilter() {
+        return addCsrfFilter;
+    }
+
+    void setAddCsrfFilter(boolean addCsrfFilter) {
+        this.addCsrfFilter = addCsrfFilter;
+    }
+
+    void setProxySpecification(ProxySpecification proxySpecification) {
+        this.proxySpecification = proxySpecification;
+    }
+
+    // Unlike config(..), this doesn't change the config of the response specification
+    void setRestAssuredConfig(RestAssuredConfig restAssuredConfig) {
+        this.restAssuredConfig = restAssuredConfig;
     }
 
     private static int getFilterOrder(Filter filter) {

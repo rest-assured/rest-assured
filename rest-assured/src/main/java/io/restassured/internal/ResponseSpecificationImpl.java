@@ -76,7 +76,6 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
     private static final String SPREAD_REF = "*.";
     private static final Pattern CONTENT_TYPE_WITHOUT_PARAMETERS = Pattern.compile("(^[\\w\\d_\\-]+/[\\w\\d_\\-]+)\\s*(?:;)");
 
-    // The Groovy classes SpecificationMerger, RequestSpecificationImpl and TestSpecificationImpl read and write these private fields
     private Matcher<Integer> expectedStatusCode;
     private Matcher<String> expectedStatusLine;
     private BodyMatcherGroup bodyMatchers = new BodyMatcherGroup();
@@ -730,6 +729,56 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
 
     public void setLogRepository(LogRepository logRepository) {
         this.logRepository = logRepository;
+    }
+
+    // Accessors for SpecificationMerger and TestSpecificationImpl. The collections are the live ones.
+
+    Object getExpectedContentType() {
+        return contentType;
+    }
+
+    void setExpectedContentType(Object contentType) {
+        this.contentType = contentType;
+    }
+
+    void setResponseLogDetail(LogDetail responseLogDetail) {
+        this.responseLogDetail = responseLogDetail;
+    }
+
+    BodyMatcherGroup getBodyMatchers() {
+        return bodyMatchers;
+    }
+
+    void setBodyRootPath(String bodyRootPath) {
+        this.bodyRootPath = bodyRootPath;
+    }
+
+    List<Object> getCookieAssertions() {
+        return cookieAssertions;
+    }
+
+    List<HeaderMatcher> getHeaderAssertions() {
+        return headerAssertions;
+    }
+
+    void setExpectedStatusCode(Matcher<Integer> expectedStatusCode) {
+        this.expectedStatusCode = expectedStatusCode;
+    }
+
+    void setExpectedStatusLine(Matcher<String> expectedStatusLine) {
+        this.expectedStatusLine = expectedStatusLine;
+    }
+
+    SimpleEntry<Matcher<Long>, TimeUnit> getExpectedResponseTime() {
+        return expectedResponseTime;
+    }
+
+    void setExpectedResponseTime(SimpleEntry<Matcher<Long>, TimeUnit> expectedResponseTime) {
+        this.expectedResponseTime = expectedResponseTime;
+    }
+
+    void setRequestSpecification(RequestSpecification requestSpecification) {
+        this.requestSpecification = requestSpecification;
     }
 
     private BodyMatcher newBodyMatcher(Object key, Matcher<?> matcher) {
