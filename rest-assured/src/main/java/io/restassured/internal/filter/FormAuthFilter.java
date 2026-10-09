@@ -18,6 +18,7 @@ package io.restassured.internal.filter;
 import io.restassured.authentication.FormAuthConfig;
 import io.restassured.config.CsrfConfig;
 import io.restassured.config.LogConfig;
+import io.restassured.config.RedirectConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.config.SessionConfig;
 import io.restassured.filter.Filter;
@@ -27,8 +28,11 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.filter.session.SessionFilter;
 import io.restassured.internal.RequestSpecificationImpl;
+import io.restassured.http.Header;
+import io.restassured.http.Headers;
 import io.restassured.internal.csrf.CsrfData;
 import io.restassured.internal.csrf.CsrfTokenFinder;
+import io.restassured.internal.http.CrossHostSensitiveHeaderStripper;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.path.xml.XmlPath;
 import io.restassured.response.Response;
@@ -38,6 +42,7 @@ import io.restassured.specification.QueryableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.spi.AuthFilter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHost;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -253,16 +258,19 @@ public class FormAuthFilter implements AuthFilter {
     }
 
     /**
-     * Fetches the login page (the page of the request, or the CSRF token page) and follows its redirects by hand, like a browser,
-     * to know the URL of the login page.
+     * Fetches the login page (the page of the request, or the CSRF token page) and follows its redirects by hand, like the HTTP client
+     * would, to know the URL of the login page.
      */
     private LoginPage fetchLoginPage(FilterableRequestSpecification requestSpec, FilterContext ctx) {
         Response response;
         URI uri;
+        // The headers that the HTTP client would have sent again on a redirect
+        Headers headersToForward;
         if (csrfConfig.isCsrfEnabled()) {
             RequestSpecification csrfPageRequestSpec = given().auth().none().disableCsrf().redirects().follow(false).cookies(requestSpec.getCookies());
             response = csrfPageRequestSpec.get(csrfConfig.getCsrfTokenPath());
             uri = toURI(((FilterableRequestSpecification) csrfPageRequestSpec).getURI());
+            headersToForward = new Headers();
         } else {
             RequestSpecification loginPageRequestSpec = given().spec(requestSpec).auth().none().redirects().follow(false);
             if (requestSpec instanceof RequestSpecificationImpl) {
@@ -273,14 +281,16 @@ public class FormAuthFilter implements AuthFilter {
                 response = ctx.send(loginPageRequestSpec);
             }
             uri = toURI(requestSpec.getURI());
+            headersToForward = requestSpec.getHeaders();
         }
 
-        // Like a browser, only send cookies to the origin that set them, and the cookies of the request only to its own origin
-        String requestOrigin = originOf(toURI(requestSpec.getURI()));
+        URI firstUri = uri;
+        // Only send the cookies set by a response to the origin that set it
         Map<String, Map<String, String>> cookiesByOrigin = new HashMap<>();
         cookiesByOrigin.computeIfAbsent(originOf(uri), origin -> new LinkedHashMap<>()).putAll(response.cookies());
         RestAssuredConfig config = requestSpec.getConfig() == null ? new RestAssuredConfig() : requestSpec.getConfig();
-        int maxRedirects = config.getRedirectConfig().maxRedirects();
+        RedirectConfig redirectConfig = config.getRedirectConfig();
+        int maxRedirects = redirectConfig.maxRedirects();
         int numberOfRedirects = 0;
         while (REDIRECT_STATUS_CODES.contains(response.statusCode())) {
             String location = response.getHeader("Location");
@@ -295,7 +305,18 @@ public class FormAuthFilter implements AuthFilter {
             String origin = originOf(uri);
             // The URI is already URL encoded
             RequestSpecification redirectRequestSpec = given().auth().none().disableCsrf().redirects().follow(false).urlEncodingEnabled(false);
-            if (origin.equals(requestOrigin)) {
+            // Like the HTTP client, send the headers and cookies of the request again, without the sensitive ones on a redirect to another origin
+            boolean stripSensitiveHeaders = redirectConfig.stripsSensitiveHeadersOnCrossHostRedirect() &&
+                    CrossHostSensitiveHeaderStripper.isCrossOrigin(toHttpHost(firstUri), toHttpHost(uri));
+            for (Header header : headersToForward) {
+                // The request for a redirect has no body
+                boolean isContentHeader = StringUtils.equalsAnyIgnoreCase(header.getName(), "Content-Type", "Content-Length");
+                if (!isContentHeader && !(stripSensitiveHeaders && CrossHostSensitiveHeaderStripper.isSensitiveHeader(header.getName()))) {
+                    redirectRequestSpec.header(header);
+                }
+            }
+            // The cookies of the request are sent in the Cookie header, which is a sensitive header
+            if (!stripSensitiveHeaders) {
                 redirectRequestSpec.cookies(requestSpec.getCookies());
             }
             Map<String, String> cookiesOfOrigin = cookiesByOrigin.computeIfAbsent(origin, it -> new LinkedHashMap<>());
@@ -378,6 +399,10 @@ public class FormAuthFilter implements AuthFilter {
         } catch (IllegalArgumentException e) {
             return value;
         }
+    }
+
+    private static HttpHost toHttpHost(URI uri) {
+        return new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
     }
 
     private static String originOf(URI uri) {

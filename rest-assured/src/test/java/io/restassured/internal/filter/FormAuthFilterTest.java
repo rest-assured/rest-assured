@@ -313,6 +313,46 @@ class FormAuthFilterTest {
     }
 
     @Test
+    void forwards_headers_of_request_on_login_page_redirects_without_sensitive_ones_to_another_origin() throws IOException {
+        try (RecordingServer otherServer = new RecordingServer()) {
+            otherServer.route("GET /login-page", r -> Reply.html(NO_ACTION_LOGIN_PAGE));
+            otherServer.route("POST /login-page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+            server.route("POST /secured-post", r -> hasSession(r) ? Reply.text("OK posted") : Reply.redirect("/a"));
+            server.route("GET /a", r -> Reply.redirect("http://127.0.0.1:" + otherServer.port() + "/login-page"));
+
+            given().auth().form("John", "Doe").header("X-Api-Key", "k1").header("Authorization", "Bearer secret").cookie("mine", "m1").
+                    when().post("/secured-post").then().statusCode(200);
+
+            assertThat(server.requestLines()).containsExactly("POST /secured-post", "GET /a", "POST /secured-post");
+            Request sameOriginRedirect = server.lastRequestTo("GET /a");
+            assertThat(sameOriginRedirect.header("X-Api-Key")).isEqualTo("k1");
+            assertThat(sameOriginRedirect.header("Authorization")).isEqualTo("Bearer secret");
+            assertThat(sameOriginRedirect.cookies()).isEqualTo("mine=m1");
+            Request otherOriginRedirect = otherServer.lastRequestTo("GET /login-page");
+            assertThat(otherOriginRedirect.header("X-Api-Key")).isEqualTo("k1");
+            assertThat(otherOriginRedirect.header("Authorization")).isNull();
+            assertThat(otherOriginRedirect.cookies()).isNull();
+        }
+    }
+
+    @Test
+    void forwards_sensitive_headers_to_another_origin_on_login_page_redirects_when_stripping_is_disabled() throws IOException {
+        try (RecordingServer otherServer = new RecordingServer()) {
+            otherServer.route("GET /login-page", r -> Reply.html(NO_ACTION_LOGIN_PAGE));
+            otherServer.route("POST /login-page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+            server.route("GET /secured", securedOr(r -> Reply.redirect("http://127.0.0.1:" + otherServer.port() + "/login-page")));
+
+            given().config(config().redirect(redirectConfig().stripSensitiveHeadersOnCrossHostRedirect(false))).
+                    auth().form("John", "Doe").header("Authorization", "Bearer secret").cookie("mine", "m1").
+                    when().get("/secured").then().statusCode(200);
+
+            Request otherOriginRedirect = otherServer.lastRequestTo("GET /login-page");
+            assertThat(otherOriginRedirect.header("Authorization")).isEqualTo("Bearer secret");
+            assertThat(otherOriginRedirect.cookies()).isEqualTo("mine=m1");
+        }
+    }
+
+    @Test
     void fails_when_login_page_is_redirected_more_times_than_the_maximum_number_of_redirects() {
         server.route("GET /secured", r -> Reply.redirect("/secured"));
 
