@@ -41,6 +41,7 @@ import io.restassured.spi.AuthFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.client.utils.URIUtils;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 
@@ -99,14 +100,9 @@ public class FormAuthFilter implements AuthFilter {
                 loginPageUri = urlOf(loginPageResponse, ((FilterableRequestSpecification) csrfPageRequestSpec).getURI());
                 cookiesFromLoginPage = loginPageResponse.cookies();
             } else {
-                RequestSpecification loginPageRequestSpec = given().spec(requestSpec).auth().none();
-                if (requestSpec instanceof RequestSpecificationImpl) {
-                    // Send to the path of the request, with its path parameters, and not to the request URI (as ctx.send(..) does),
-                    // which already has the path parameters applied and is URL encoded
-                    loginPageResponse = loginPageRequestSpec.request(requestSpec.getMethod(), ((RequestSpecificationImpl) requestSpec).getPath());
-                } else {
-                    loginPageResponse = ctx.send(loginPageRequestSpec);
-                }
+                // Send to the path of the request, with its path parameters, and not to the request URI (as ctx.send(..) does),
+                // which already has the path parameters applied and is URL encoded
+                loginPageResponse = given().spec(requestSpec).auth().none().request(requestSpec.getMethod(), ((RequestSpecificationImpl) requestSpec).getPath());
                 loginPageUri = urlOf(loginPageResponse, requestSpec.getURI());
                 cookiesFromLoginPage = loginPageResponse.cookies();
                 if (loginPageResponse.statusCode() == 302) {
@@ -171,11 +167,7 @@ public class FormAuthFilter implements AuthFilter {
         String origin = uri.getScheme() + "://" + uri.getHost() + (uri.getPort() == -1 ? "" : ":" + uri.getPort());
         String loginUri;
         if (formActionUri != null) {
-            if (!originOf(formActionUri).equals(originOf(uri))) {
-                throw new IllegalArgumentException(format("The login form on the login page posts to another origin (%s) than the one of the request (%s). " +
-                        "Form authentication only posts the login form to the origin of the request. Use FormAuthConfig to set the form action explicitly.",
-                        originOf(formActionUri), originOf(uri)));
-            }
+            // The login form is always posted to the origin of the request, also when the form action is on another origin
             loginUri = origin + toPathAndQueryParams(formActionUri, loginRequestSpec);
         } else {
             formAction = formAction != null && formAction.startsWith("/") ? formAction : "/" + formAction;
@@ -296,8 +288,8 @@ public class FormAuthFilter implements AuthFilter {
                     && context.getAttribute(ExecutionContext.HTTP_REQUEST) instanceof HttpRequest request) {
                 try {
                     // The request line has the path and query of the URL, or the whole URL when sent through a proxy
-                    return toURI(targetHost.toURI()).resolve(request.getRequestLine().getUri());
-                } catch (IllegalArgumentException e) {
+                    return URIUtils.resolve(toURI(targetHost.toURI()), request.getRequestLine().getUri());
+                } catch (Exception e) {
                     // Fall back to the request URI
                 }
             }
@@ -324,30 +316,16 @@ public class FormAuthFilter implements AuthFilter {
         URI baseUri = loginPageUri;
         if (baseHref != null) {
             try {
-                baseUri = resolve(loginPageUri, baseHref.trim());
+                baseUri = URIUtils.resolve(loginPageUri, baseHref.trim());
             } catch (IllegalArgumentException e) {
                 // An invalid base URL is ignored
             }
         }
         try {
-            return resolve(baseUri, formAction.trim());
+            return URIUtils.resolve(baseUri, formAction.trim());
         } catch (IllegalArgumentException e) {
             return null;
         }
-    }
-
-    private static URI resolve(URI base, String reference) {
-        if (StringUtils.isEmpty(base.getRawPath())) {
-            // URI.resolve(..) doesn't add a slash between the authority and a relative path
-            base = toURI(base.getScheme() + "://" + base.getRawAuthority() + "/");
-        }
-        return base.resolve(reference);
-    }
-
-    private static String originOf(URI uri) {
-        String scheme = StringUtils.lowerCase(uri.getScheme());
-        int port = uri.getPort() != -1 ? uri.getPort() : "https".equals(scheme) ? 443 : 80;
-        return scheme + "://" + StringUtils.lowerCase(uri.getHost()) + ":" + port;
     }
 
     /**

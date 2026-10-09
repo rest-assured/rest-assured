@@ -331,31 +331,51 @@ class FormAuthFilterTest {
     }
 
     @Test
-    void fails_when_login_form_posts_to_another_origin() throws IOException {
+    void posts_form_action_on_another_origin_to_the_origin_of_the_request() throws IOException {
         try (RecordingServer otherServer = new RecordingServer()) {
-            server.route("GET /secured", securedOr(r -> Reply.html(loginPage("http://127.0.0.1:" + otherServer.port() + "/auth/login", ""))));
+            server.route("GET /secured", securedOr(r -> Reply.html(loginPage("http://127.0.0.1:" + otherServer.port() + "/auth/login?r=a%20b", ""))));
+            server.route("POST /auth/login", r -> Reply.text("logged in").withCookie("SESSION=s1"));
 
-            assertThatThrownBy(() -> given().auth().form("John", "Doe").when().get("/secured"))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("The login form on the login page posts to another origin (http://127.0.0.1:" + otherServer.port() + ") than the one of the request " +
-                            "(http://127.0.0.1:" + server.port() + "). Form authentication only posts the login form to the origin of the request. " +
-                            "Use FormAuthConfig to set the form action explicitly.");
-            assertThat(server.requestLines()).containsExactly("GET /secured");
+            given().auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+            assertThat(server.requestLines()).containsExactly("GET /secured", "POST /auth/login", "GET /secured");
+            assertThat(server.lastRequestTo("POST /auth/login").query()).isEqualTo("r=a%20b");
             assertThat(otherServer.requestLines()).isEmpty();
         }
     }
 
     @Test
-    void fails_when_login_page_without_form_action_is_on_another_origin() throws IOException {
+    void posts_form_action_of_login_page_on_another_origin_to_the_origin_of_the_request() throws IOException {
         try (RecordingServer otherServer = new RecordingServer()) {
-            otherServer.route("GET /login-page", r -> Reply.html(NO_ACTION_LOGIN_PAGE));
+            otherServer.route("GET /login-page", r -> Reply.html(loginPage("/login", "")).withCookie("PAGE=p1"));
             server.route("GET /secured", securedOr(r -> Reply.redirect("http://127.0.0.1:" + otherServer.port() + "/login-page")));
 
-            assertThatThrownBy(() -> given().auth().form("John", "Doe").when().get("/secured"))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageStartingWith("The login form on the login page posts to another origin (http://127.0.0.1:" + otherServer.port() + ")");
+            given().auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
             assertThat(otherServer.requestLines()).containsExactly("GET /login-page");
+            assertThat(server.requestLines()).containsExactly("GET /secured", "POST /login", "GET /secured");
+            assertThat(server.lastRequestTo("POST /login").cookies()).isEqualTo("PAGE=p1");
         }
+    }
+
+    @Test
+    void resolves_query_only_form_action_against_login_page_url() {
+        server.route("GET /app/page", securedOr(r -> Reply.html(loginPage("?a=1", ""))));
+        server.route("POST /app/page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe").when().get("/app/page").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /app/page", "POST /app/page", "GET /app/page");
+        assertThat(server.lastRequestTo("POST /app/page").query()).isEqualTo("a=1");
+    }
+
+    @Test
+    void resolves_dot_segments_of_form_action_against_login_page_url() {
+        server.route("GET /app/sub/page", securedOr(r -> Reply.html(loginPage("../../x/../login", ""))));
+
+        given().auth().form("John", "Doe").when().get("/app/sub/page").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /app/sub/page", "POST /login", "GET /app/sub/page");
     }
 
     @Test
