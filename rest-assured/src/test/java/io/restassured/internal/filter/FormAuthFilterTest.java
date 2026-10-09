@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.function.Function;
 
 import static io.restassured.RestAssured.given;
@@ -36,6 +37,7 @@ import static io.restassured.config.RestAssuredConfig.config;
 import static io.restassured.config.SessionConfig.sessionConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.hamcrest.Matchers.equalTo;
 
 /**
  * Pins the behavior of {@link FormAuthFilter} (including the named-argument construction in
@@ -117,12 +119,22 @@ class FormAuthFilterTest {
         String extra = "<input type=\"hidden\" name=\"hidden1\" value=\"v1\"/><input type=\"hidden\" name=\"hidden2\" value=\"\"/>";
         server.route("GET /secured", securedOr(r -> Reply.html(loginPage("login", extra))));
 
-        given().auth().form("John", "Doe", new FormAuthConfig("/login", "user", "pass").withAdditionalFields("hidden1", "hidden2", "missing")).
+        given().auth().form("John", "Doe", new FormAuthConfig("/login", "user", "pass").withAdditionalFields("hidden1", "hidden2")).
                 when().get("/secured").then().statusCode(200);
 
         assertThat(server.requestLines()).containsExactly("GET /secured", "POST /login", "GET /secured");
-        // A field missing from the login page is sent with the value "[]" (XmlPath.getString of an empty list)
-        assertThat(server.lastRequestTo("POST /login").body()).isEqualTo("user=John&pass=Doe&hidden1=v1&hidden2=&missing=%5B%5D");
+        assertThat(server.lastRequestTo("POST /login").body()).isEqualTo("user=John&pass=Doe&hidden1=v1&hidden2=");
+    }
+
+    @Test
+    void fails_with_the_name_of_an_additional_input_field_that_is_missing_from_login_page() {
+        server.route("GET /secured", securedOr(r -> Reply.html(loginPage("login", "<input type=\"hidden\" name=\"hidden1\" value=\"v1\"/>"))));
+
+        assertThatThrownBy(() -> given().auth().form("John", "Doe", new FormAuthConfig("/login", "user", "pass").withAdditionalFields("hidden1", "missing")).
+                when().get("/secured"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Couldn't find the additional input field \"missing\" on the login page. Check the additional fields specified in FormAuthConfig.");
+        assertThat(server.requestLines()).containsExactly("GET /secured");
     }
 
     @Test
@@ -159,6 +171,65 @@ class FormAuthFilterTest {
         assertThat(server.requestLines()).containsExactly("POST /secured-post", "GET /login-page", "POST /login", "POST /secured-post");
         assertThat(server.lastRequestTo("GET /login-page").cookies()).isEqualTo("PAGE=p1");
         assertThat(server.lastRequestTo("POST /login").cookies()).isEqualTo("PAGE=p1");
+    }
+
+    @Test
+    void fails_with_a_clear_message_when_login_page_is_redirected_without_location_header() {
+        server.route("POST /secured-post", r -> new Reply(302, null, null, Map.of()));
+
+        assertThatThrownBy(() -> given().auth().form("John", "Doe").when().post("/secured-post"))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The request for the login page was redirected (302) without a Location header, so REST Assured can't follow it. Specify the complete FormAuthConfig to skip the login page.");
+        assertThat(server.requestLines()).containsExactly("POST /secured-post");
+    }
+
+    @Test
+    void posts_to_login_page_url_when_form_has_no_action() {
+        String page = "<html><body><form method=\"POST\"><input type=\"text\" name=\"user\"/><input type=\"password\" name=\"pass\"/></form></body></html>";
+        server.route("GET /secured", securedOr(r -> Reply.html(page)));
+        server.route("POST /secured", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /secured", "POST /secured", "GET /secured");
+        assertThat(server.lastRequestTo("POST /secured").body()).isEqualTo("user=John&pass=Doe");
+    }
+
+    @Test
+    void posts_to_login_page_url_when_form_action_is_empty() {
+        server.route("GET /secured", securedOr(r -> Reply.html(loginPage("", ""))));
+        server.route("POST /secured", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe").queryParam("q", "1").when().get("/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /secured", "POST /secured", "GET /secured");
+        assertThat(server.lastRequestTo("POST /secured").query()).isEqualTo("q=1");
+    }
+
+    @Test
+    void posts_to_redirected_login_page_url_when_form_has_no_action() {
+        String page = "<html><body><form method=\"POST\"><input type=\"text\" name=\"user\"/><input type=\"password\" name=\"pass\"/></form></body></html>";
+        server.route("POST /secured-post", r -> hasSession(r) ? Reply.text("OK posted") : Reply.redirect("/login-page?from=x"));
+        server.route("GET /login-page", r -> Reply.html(page));
+        server.route("POST /login-page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().auth().form("John", "Doe").when().post("/secured-post").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("POST /secured-post", "GET /login-page", "POST /login-page", "POST /secured-post");
+        assertThat(server.lastRequestTo("POST /login-page").query()).isEqualTo("from=x");
+    }
+
+    @Test
+    void posts_to_csrf_page_url_when_form_has_no_action() {
+        String page = "<html><body><form method=\"POST\"><input type=\"text\" name=\"user\"/><input type=\"password\" name=\"pass\"/>" +
+                "<input type=\"hidden\" name=\"_csrf\" value=\"tok\"/></form></body></html>";
+        server.route("GET /csrf-page", r -> Reply.html(page));
+        server.route("POST /csrf-page", r -> Reply.text("logged in").withCookie("SESSION=s1"));
+
+        given().csrf("/csrf-page").auth().form("John", "Doe").when().get("/secured").then().statusCode(200);
+
+        assertThat(server.requestLines()).containsExactly("GET /csrf-page", "POST /csrf-page", "GET /secured");
+        assertThat(server.lastRequestTo("POST /csrf-page").body()).isEqualTo("user=John&pass=Doe&_csrf=tok");
     }
 
     @Test
@@ -223,6 +294,23 @@ class FormAuthFilterTest {
                 get("/secured").then().extract().asString();
 
         assertThat(body).isEqualTo("OK");
+        assertThat(sessionFilter.getSessionId()).isEqualTo("abc");
+    }
+
+    @Test
+    void applies_session_filter_subclass_of_original_request_to_login_request() {
+        server.route("POST /login", r -> Reply.text("logged in").withCookie("MYSESSION=abc"));
+        server.route("GET /secured", r -> r.cookies() != null && r.cookies().contains("MYSESSION=abc") ? Reply.text("OK") : Reply.text("denied"));
+        SessionFilter sessionFilter = new SessionFilter() {
+        };
+
+        given().
+                config(config().sessionConfig(sessionConfig().sessionIdName("MYSESSION"))).
+                filter(sessionFilter).
+                auth().form("John", "Doe", new FormAuthConfig("/login", "user", "pass")).
+        when().
+                get("/secured").then().body(equalTo("OK"));
+
         assertThat(sessionFilter.getSessionId()).isEqualTo("abc");
     }
 

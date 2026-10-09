@@ -28,6 +28,10 @@ Changelog next version
 * A header or cookie name given to headers(..) or cookies(..) (as a map key or in the name/value varargs) that isn't a String (for example an Integer) is now used in its string form instead of failing with a groovy.lang.GroovyRuntimeException.
 * Fix merging a request specification that has unnamed path parameters, for example the request specification that a filter receives for get("/users/{id}", 1), with spec(..) or RequestSpecBuilder.addRequestSpecification(..). The resulting specification failed with a groovy.lang.MissingPropertyException when it was sent with unnamed path parameters, merged again, or asked for its URI or unnamed path parameters (for example getURI() or getUnnamedPathParamValues()). It now gets the unnamed path parameters of the specification it was merged with.
 * Fix form authentication failing with "IllegalArgumentException: Invalid number of path parameters" when the login page is fetched for a request with path parameters, for example given().auth().form("John", "Doe").get("/secured/{id}", 1) (issue #1940)
+* Non-backward compatible change: form authentication now fails with an IllegalArgumentException that names the field when an additional input field given to FormAuthConfig.withAdditionalField(s)(..) isn't on the login page. Such a field used to be sent with the value "[]" (issue #1941)
+* Fix form authentication not passing the session filter of the request on to the login request when the filter is a subclass of SessionFilter (for example new SessionFilter() {}), so the subclass didn't get the session id (issue #1941)
+* Form authentication now posts a login form without an action attribute to the URL of the login page, like a browser does, instead of failing with a NullPointerException. The same goes for a form with an empty action, which used to be posted to "/" (issue #1941)
+* Form authentication now fails with a message saying that the Location header is missing when the request for the login page is redirected (302) without a Location header, instead of "IllegalArgumentException: path cannot be null" (issue #1941)
 
 Changelog 6.1.0 (2026-10-09)
 ----------------------------

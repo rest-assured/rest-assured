@@ -36,6 +36,7 @@ import io.restassured.specification.FilterableResponseSpecification;
 import io.restassured.specification.QueryableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.spi.AuthFilter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -43,6 +44,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import static io.restassured.RestAssured.given;
@@ -54,6 +56,7 @@ public class FormAuthFilter implements AuthFilter {
 
     private static final String FIND_INPUT_TAG_WITH_TYPE = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }";
     private static final String FIND_INPUT_VALUE_OF_INPUT_TAG_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }";
+    private static final String COUNT_INPUT_TAGS_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.size()";
     private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action";
 
     private Object userName;
@@ -77,8 +80,11 @@ public class FormAuthFilter implements AuthFilter {
 
         if (formAuthConfig.requiresParsingOfLoginPage() || csrfConfig.isCsrfEnabled()) {
             Response loginPageResponse;
+            // The URL of the login page, which a form without action is posted to
+            String loginPageUrl;
             if (csrfConfig.isCsrfEnabled()) {
-                loginPageResponse = given().auth().none().disableCsrf().cookies(requestSpec.getCookies()).get(csrfConfig.getCsrfTokenPath());
+                loginPageUrl = csrfConfig.getCsrfTokenPath();
+                loginPageResponse = given().auth().none().disableCsrf().cookies(requestSpec.getCookies()).get(loginPageUrl);
                 cookiesFromLoginPage = loginPageResponse.cookies();
             } else {
                 FilterableRequestSpecification loginPageRequestSpec = (FilterableRequestSpecification) given().spec(requestSpec).auth().none();
@@ -86,13 +92,19 @@ public class FormAuthFilter implements AuthFilter {
                 for (String pathParamName : loginPageRequestSpec.getPathParams().keySet()) {
                     loginPageRequestSpec.removePathParam(pathParamName);
                 }
+                loginPageUrl = requestSpec.getURI();
                 loginPageResponse = ctx.send(loginPageRequestSpec);
                 cookiesFromLoginPage = loginPageResponse.cookies();
                 if (loginPageResponse.statusCode() == 302) {
                     // This means that Rest Assured has not done a redirect automatically.
                     // This may happen if status code is 302 and method is not GET (see https://blog.jayway.com/2012/10/17/what-you-may-not-know-about-http-redirects/).
                     // Thus we follow the Location header explicitly.
-                    loginPageResponse = given().auth().none().cookies(cookiesFromLoginPage).get(loginPageResponse.getHeader("Location"));
+                    loginPageUrl = loginPageResponse.getHeader("Location");
+                    if (loginPageUrl == null) {
+                        throw new IllegalArgumentException("The request for the login page was redirected (302) without a Location header, so REST Assured can't follow it. " +
+                                "Specify the complete FormAuthConfig to skip the login page.");
+                    }
+                    loginPageResponse = given().auth().none().cookies(cookiesFromLoginPage).get(loginPageUrl);
                 }
             }
 
@@ -102,7 +114,8 @@ public class FormAuthFilter implements AuthFilter {
                 formAction = formAuthConfig.getFormAction();
             } else {
                 String tempFormAction = throwIfException(() -> html.getString(FIND_FORM_ACTION));
-                formAction = tempFormAction.startsWith("/") ? tempFormAction : "/" + tempFormAction;
+                // Like a browser, post a form without action to the URL of the login page
+                formAction = StringUtils.isBlank(tempFormAction) ? pathAndQueryOf(loginPageUrl) : tempFormAction;
             }
             userNameInputField = formAuthConfig.hasUserInputTagName() ? formAuthConfig.getUserInputTagName() : throwIfException(() ->
                     html.getString(format(FIND_INPUT_TAG_WITH_TYPE, "text")));
@@ -115,6 +128,11 @@ public class FormAuthFilter implements AuthFilter {
 
             if (formAuthConfig.hasAdditionalInputFieldNames()) {
                 for (String name : formAuthConfig.getAdditionalInputFieldNames()) {
+                    int numberOfInputFields = throwIfException(() -> html.getInt(format(COUNT_INPUT_TAGS_WITH_NAME, name)));
+                    if (numberOfInputFields == 0) {
+                        throw new IllegalArgumentException(format("Couldn't find the additional input field \"%s\" on the login page. " +
+                                "Check the additional fields specified in FormAuthConfig.", name));
+                    }
                     String value = throwIfException(() ->
                             html.getString(format(FIND_INPUT_VALUE_OF_INPUT_TAG_WITH_NAME, name)));
                     additionalInputFields.add(new SimpleEntry<>(name, value));
@@ -176,7 +194,7 @@ public class FormAuthFilter implements AuthFilter {
     public static void applySessionFilterFromOriginalRequestIfDefined(FilterableRequestSpecification requestSpec, RequestSpecification loginRequestSpec) {
         Filter sessionFilterInOriginalRequest = null;
         for (Filter filter : requestSpec.getDefinedFilters()) {
-            if (filter != null && filter.getClass().isAssignableFrom(SessionFilter.class)) {
+            if (filter instanceof SessionFilter) {
                 sessionFilterInOriginalRequest = filter;
                 break;
             }
@@ -237,6 +255,12 @@ public class FormAuthFilter implements AuthFilter {
         } catch (URISyntaxException e) {
             return SafeExceptionRethrower.safeRethrow(e);
         }
+    }
+
+    private static String pathAndQueryOf(String url) {
+        URI uri = toURI(url);
+        String path = Objects.toString(uri.getRawPath(), "");
+        return uri.getRawQuery() == null ? path : path + "?" + uri.getRawQuery();
     }
 
     private static <T> T throwIfException(Supplier<T> supplier) {
