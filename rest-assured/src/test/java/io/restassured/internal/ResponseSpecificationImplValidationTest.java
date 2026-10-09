@@ -371,8 +371,8 @@ class ResponseSpecificationImplValidationTest {
 
         assertThatThrownBy(() -> then().rootPath("a.%s.%s", withArgs("d")).body(withArgs("e"), equalTo("y"), withArgs("e"), equalTo("z")))
                 .hasMessage("2 expectations failed.\n"
-                        + "JSON path a.d.e. doesn't match.\nExpected: y\n  Actual: x\n\n"
-                        + "JSON path a.d.e. doesn't match.\nExpected: z\n  Actual: x\n");
+                        + "JSON path a.d.e doesn't match.\nExpected: y\n  Actual: x\n\n"
+                        + "JSON path a.d.e doesn't match.\nExpected: z\n  Actual: x\n");
         assertThatThrownBy(() -> then().body(withArgs("e"), equalTo("y")))
                 .isExactlyInstanceOf(IllegalStateException.class)
                 .hasMessage("Cannot specify arguments when root path is empty");
@@ -420,14 +420,22 @@ class ResponseSpecificationImplValidationTest {
     }
 
     @Test
-    void missing_arguments_are_padded_with_only_one_placeholder() {
-        // Only the first missing argument is replaced by "%s", since the loop compares with the growing argument list
+    void all_missing_arguments_are_kept_as_placeholders() {
         ResponseSpecificationImpl spec = spec();
         spec.rootPath("a.%s.%s", withArgs("x"));
         assertThat(spec.getRootPath()).isEqualTo("a.x.%s");
-        assertThatThrownBy(() -> spec().rootPath("a.%s.%s.%s", withArgs("x")))
+        spec.rootPath("a.%s.%s.%s", withArgs("x"));
+        assertThat(spec.getRootPath()).isEqualTo("a.x.%s.%s");
+        spec.rootPath("a.%s[%d].%-3s.%%.%n", withArgs("x"));
+        assertThat(spec.getRootPath()).isEqualTo("a.x[%d].%-3s.%." + System.lineSeparator());
+        // A placeholder with an explicit index is not padded
+        assertThatThrownBy(() -> spec().rootPath("a.%s.%2$s", withArgs("x")))
                 .isExactlyInstanceOf(MissingFormatArgumentException.class)
-                .hasMessage("Format specifier '%s'");
+                .hasMessage("Format specifier '%2$s'");
+
+        then().rootPath("%s.%s.%s", withArgs("a")).body(withArgs("d", "e"), equalTo("x"))
+                .rootPath("a.%s[%d]", withArgs("c")).body(withArgs(1), equalTo(2))
+                .rootPath("%s.%s", withArgs("a")).body("%s", withArgs("d", "e"), equalTo("x"));
     }
 
     @Test
