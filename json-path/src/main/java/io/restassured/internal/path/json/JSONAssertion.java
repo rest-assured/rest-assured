@@ -114,7 +114,10 @@ public class JSONAssertion implements Assertion {
     Map<String, Object> newParams = (params != null) ? new HashMap<>(params) : new HashMap<>(1);
     newParams.put(root, object);
 
-    try (GroovyClassLoader loader = new GroovyClassLoader()) {
+    // The compiled script extends groovy.lang.Script and calls into the Groovy runtime, so its class loader must see
+    // Groovy. Use Groovy's own class loader as parent (like GroovyShell does) instead of the thread context class
+    // loader, which may not see Groovy, for example in an OSGi container where Groovy is a bundle of its own (#1933).
+    try (GroovyClassLoader loader = new GroovyClassLoader(Script.class.getClassLoader())) {
       Class<?> scriptClass = loader.parseClass(expr, SCRIPT_NAME + ".groovy");
       Script script = InvokerHelper.createScript(scriptClass, new Binding(newParams));
       return script.run();
