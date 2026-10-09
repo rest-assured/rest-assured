@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
+package io.restassured.authentication;
 
+import io.restassured.internal.http.HTTPBuilder;
 
-package io.restassured.authentication
+public interface AuthenticationScheme {
 
-import io.restassured.internal.http.HTTPBuilder
+    void authenticate(HTTPBuilder httpBuilder);
 
-/**
- * Used for basic and digest authentication
- */
-class BasicAuthScheme implements AuthenticationScheme {
-  def String userName
-  def String password
-
-  @Override void authenticate(HTTPBuilder httpBuilder) {
-     httpBuilder.auth.basic(userName, password)
-  }
 }
