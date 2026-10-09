@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocket;
@@ -43,6 +44,7 @@ import java.net.Socket;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.util.HashMap;
 import java.util.Map;
@@ -210,6 +212,48 @@ class TrustAndKeystoreSpecImplTest {
     }
 
     @Test
+    void validates_the_server_certificate_with_the_jvm_default_trust_and_not_the_key_store_without_trust_store() throws Exception {
+        TrustAndKeystoreSpecImpl spec = spec(-1);
+        // The key store holds the server's self-signed certificate, but it must not be used to trust the server
+        spec.setKeyStorePath(KEYSTORE);
+        spec.setKeyStorePassword(PASSWORD);
+
+        Throwable thrown = catchThrowable(() -> applyAndGetClientCertificateSentByFactory(spec, false));
+
+        assertThat(thrown).isInstanceOf(SSLHandshakeException.class).hasMessageContaining("PKIX path building failed");
+    }
+
+    @Test
+    void fails_with_a_clear_message_when_the_private_key_of_the_given_key_store_needs_a_password_that_is_not_set() throws Exception {
+        TrustAndKeystoreSpecImpl spec = spec(-1);
+        spec.setKeyStore(load(KEYSTORE));
+
+        Throwable thrown = catchThrowable(() -> spec.apply(builder, 443));
+
+        assertThat(thrown).isExactlyInstanceOf(IllegalArgumentException.class).
+                hasMessage("The private key in the key store can't be read without a password. Set the key store password with " +
+                        "SSLConfig.keyStore(String), for example config(sslConfig().keyStore(keyStore).keyStore(\"password\")), or, " +
+                        "for certificate authentication, with the key store password given to RestAssured.certificate(..).").
+                hasCauseExactlyInstanceOf(UnrecoverableKeyException.class);
+    }
+
+    @Test
+    void fails_when_the_private_key_can_not_be_read_with_the_key_store_password_without_trust_store() throws Exception {
+        KeyStore source = load(KEYSTORE);
+        String alias = source.aliases().nextElement();
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        keyStore.load(null, null);
+        keyStore.setKeyEntry(alias, source.getKey(alias, PASSWORD.toCharArray()), "another password".toCharArray(), source.getCertificateChain(alias));
+        TrustAndKeystoreSpecImpl spec = spec(-1);
+        spec.setKeyStore(keyStore);
+        spec.setKeyStorePassword(PASSWORD);
+
+        Throwable thrown = catchThrowable(() -> spec.apply(builder, 443));
+
+        assertThat(thrown).isExactlyInstanceOf(UnrecoverableKeyException.class);
+    }
+
+    @Test
     void sends_no_client_certificate_without_key_store_and_trust_store() throws Exception {
         TrustAndKeystoreSpecImpl spec = spec(-1);
 
@@ -365,12 +409,23 @@ class TrustAndKeystoreSpecImplTest {
      * created and used.
      */
     private Certificate applyAndGetClientCertificateSentByFactory(TrustAndKeystoreSpecImpl spec) throws Exception {
+        return applyAndGetClientCertificateSentByFactory(spec, true);
+    }
+
+    /**
+     * Like {@link #applyAndGetClientCertificateSentByFactory(TrustAndKeystoreSpecImpl)}, but when
+     * <code>trustServerCertificateByDefault</code> is <code>false</code> the JVM's default trust is left as is, so
+     * it doesn't trust the server's self-signed certificate.
+     */
+    private Certificate applyAndGetClientCertificateSentByFactory(TrustAndKeystoreSpecImpl spec, boolean trustServerCertificateByDefault) throws Exception {
         KeyStore keyStore = load(KEYSTORE);
         SSLContext serverContext = SSLContexts.custom().loadKeyMaterial(keyStore, PASSWORD.toCharArray()).loadTrustMaterial(keyStore).build();
         Map<String, String> trustStoreProperties = new HashMap<>();
-        trustStoreProperties.put("javax.net.ssl.trustStore", new File(TrustAndKeystoreSpecImplTest.class.getClassLoader().getResource(KEYSTORE).toURI()).getAbsolutePath());
-        trustStoreProperties.put("javax.net.ssl.trustStorePassword", PASSWORD);
-        trustStoreProperties.put("javax.net.ssl.trustStoreType", "PKCS12");
+        if (trustServerCertificateByDefault) {
+            trustStoreProperties.put("javax.net.ssl.trustStore", new File(TrustAndKeystoreSpecImplTest.class.getClassLoader().getResource(KEYSTORE).toURI()).getAbsolutePath());
+            trustStoreProperties.put("javax.net.ssl.trustStorePassword", PASSWORD);
+            trustStoreProperties.put("javax.net.ssl.trustStoreType", "PKCS12");
+        }
         Map<String, String> previousProperties = new HashMap<>();
         trustStoreProperties.forEach((name, value) -> previousProperties.put(name, System.setProperty(name, value)));
         ExecutorService executor = Executors.newSingleThreadExecutor();

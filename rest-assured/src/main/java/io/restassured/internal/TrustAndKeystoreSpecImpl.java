@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.security.UnrecoverableKeyException;
 
 import static org.apache.http.conn.ssl.SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER;
 import static org.apache.http.conn.ssl.SSLSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER;
@@ -92,8 +93,20 @@ public class TrustAndKeystoreSpecImpl implements TrustAndKeystoreSpec {
             return SSLSocketFactory.getSocketFactory();
         }
         try {
-            SSLContextBuilder sslContextBuilder = SSLContexts.custom()
-                    .loadKeyMaterial(keyStore, keyPassword != null ? keyPassword.toCharArray() : null);
+            SSLContextBuilder sslContextBuilder = SSLContexts.custom();
+            try {
+                sslContextBuilder.loadKeyMaterial(keyStore, keyPassword != null ? keyPassword.toCharArray() : null);
+            } catch (UnrecoverableKeyException e) {
+                // A key store without password is fine when its keys don't need one (for example a PKCS#11 key store),
+                // so this is only reported once reading a key has failed
+                if (keyPassword == null) {
+                    throw new IllegalArgumentException("The private key in the key store can't be read without a password. " +
+                            "Set the key store password with SSLConfig.keyStore(String), for example " +
+                            "config(sslConfig().keyStore(keyStore).keyStore(\"password\")), or, for certificate authentication, " +
+                            "with the key store password given to RestAssured.certificate(..).", e);
+                }
+                throw e;
+            }
             // Without a trust store the JVM's default trust is used
             if (truststore != null) {
                 sslContextBuilder.loadTrustMaterial(truststore);
