@@ -126,6 +126,18 @@ class FormAuthFilterTest {
     }
 
     @Test
+    void sends_additional_input_field_without_value_attribute_as_parameter_without_value() {
+        // Before the Java port this failed with "IllegalArgumentException: parameterValues cannot be null"
+        // because Groovy passed the null value as a null varargs array to formParam.
+        server.route("GET /secured", securedOr(r -> Reply.html(loginPage("login", "<input type=\"hidden\" name=\"novalue\"/>"))));
+
+        given().auth().form("John", "Doe", new FormAuthConfig("/login", "user", "pass").withAdditionalField("novalue")).
+                when().get("/secured").then().statusCode(200);
+
+        assertThat(server.lastRequestTo("POST /login").body()).isEqualTo("user=John&pass=Doe&novalue");
+    }
+
+    @Test
     void wraps_login_page_parse_failure_in_illegal_argument_exception() {
         server.route("GET /secured", securedOr(r -> Reply.text("no form here")));
 
