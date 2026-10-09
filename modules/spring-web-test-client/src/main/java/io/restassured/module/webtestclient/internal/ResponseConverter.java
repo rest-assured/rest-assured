@@ -32,6 +32,7 @@ class ResponseConverter {
 		WebTestClientRestAssuredResponseImpl webTestClientRestAssuredResponse = (WebTestClientRestAssuredResponseImpl) response;
 
         RestAssuredResponseImpl standardResponse = new RestAssuredResponseImpl();
+        standardResponse.setConfig(webTestClientRestAssuredResponse.getConfig());
         standardResponse.setConnectionManager(webTestClientRestAssuredResponse.getConnectionManager());
         standardResponse.setContent(webTestClientRestAssuredResponse.getContent());
         standardResponse.setContentType(webTestClientRestAssuredResponse.getContentType());

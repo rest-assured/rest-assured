@@ -137,6 +137,15 @@ class RequestSpecificationImplSendTest {
     }
 
     @Test
+    void default_charset_for_one_content_type_does_not_change_the_charset_of_other_content_types() {
+        given().config(config().encoderConfig(encoderConfig().defaultCharsetForContentType("UTF-16", ContentType.JSON)))
+                .body("ä").put("/x");
+
+        assertThat(last().header("Content-Type")).isEqualTo("text/plain; charset=ISO-8859-1");
+        assertThat(last().body()).isEqualTo(new String("ä".getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8));
+    }
+
+    @Test
     void bodies_with_their_content_types() {
         given().body("text").put("/x");
         assertThat(last().body()).isEqualTo("text");
@@ -267,6 +276,23 @@ class RequestSpecificationImplSendTest {
 
         // The Content-Type header of a multipart request is the one of the multipart entity
         assertThat(last().header("Content-Type")).matches("multipart/form-data; boundary=[a-zA-Z0-9_-]{30,40}");
+    }
+
+    @Test
+    void multipart_request_keeps_a_quoted_boundary_containing_an_equals_sign() {
+        given().contentType("multipart/form-data; boundary=\"a=b\"").multiPart("f", "hello").put("/x").then().statusCode(200);
+
+        assertThat(last().header("Content-Type")).isEqualTo("multipart/form-data; boundary=\"a=b\"");
+        assertThat(last().body().replace("\r\n", "\n")).isEqualTo(
+                "--a=b\nContent-Disposition: form-data; name=\"f\"\nContent-Type: text/plain\n\nhello\n--a=b--\n");
+    }
+
+    @Test
+    void multipart_request_keeps_an_unquoted_java_mail_style_boundary() {
+        given().contentType("multipart/mixed; boundary=----=_Part_0_123").multiPart("f", "hello").put("/x").then().statusCode(200);
+
+        assertThat(last().header("Content-Type")).isEqualTo("multipart/mixed; boundary=\"----=_Part_0_123\"");
+        assertThat(last().body()).startsWith("------=_Part_0_123\r\n");
     }
 
     @Test

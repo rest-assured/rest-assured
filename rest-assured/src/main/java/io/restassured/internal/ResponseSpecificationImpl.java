@@ -74,6 +74,8 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
     private static final String SAFE_REF = "?.";
     private static final String SAFE_INDEX = "?[";
     private static final String SPREAD_REF = "*.";
+    // A format specifier as java.util.Formatter parses it: %[index$][flags][width][.precision][t]conversion
+    private static final Pattern FORMAT_SPECIFIER = Pattern.compile("%(\\d+\\$)?([-#+ 0,(<]*)(\\d+)?(\\.\\d+)?([tT])?([a-zA-Z%])");
     private static final Pattern CONTENT_TYPE_WITHOUT_PARAMETERS = Pattern.compile("(^[\\w\\d_\\-]+/[\\w\\d_\\-]+)\\s*(?:;)");
 
     private Matcher<Integer> expectedStatusCode;
@@ -829,31 +831,38 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
     }
 
     private String applyArguments(String path, List<Argument> arguments) {
-        if (arguments != null && arguments.size() > 0) {
-            int numberArgsOfAfterMerge = StringUtils.countMatches(path, "%s");
-            if (numberArgsOfAfterMerge > arguments.size()) {
-                arguments = new ArrayList<>(arguments);
-                // The condition is evaluated against the growing list, so at most half of the missing arguments are added (kept from the Groovy version)
-                for (int i = 0; i < (numberArgsOfAfterMerge - arguments.size()); i++) {
-                    arguments.add(new Argument("%s"));
-                }
-            }
-            Object[] args = new Object[arguments.size()];
-            for (int i = 0; i < args.length; i++) {
-                Object argument = ((List<?>) arguments).get(i);
-                if (!(argument instanceof Argument)) {
-                    throw new IllegalArgumentException("Path arguments must be instances of " + Argument.class.getName() + ", use withArgs(..) to create them. Was '" + format(arguments) + "'.");
-                }
-                args[i] = ((Argument) argument).getArgument();
-            }
-            path = String.format(path, args);
+        if (arguments == null || arguments.isEmpty()) {
+            return path;
         }
-        return path;
+        List<Object> args = new ArrayList<>(arguments.size());
+        for (Object argument : arguments) {
+            if (!(argument instanceof Argument)) {
+                throw new IllegalArgumentException("Path arguments must be instances of " + Argument.class.getName() + ", use withArgs(..) to create them. Was '" + format(arguments) + "'.");
+            }
+            args.add(((Argument) argument).getArgument());
+        }
+        // Placeholders that have no argument are kept as they are, so that a later withArgs(..) can fill them in
+        java.util.regex.Matcher specifiers = FORMAT_SPECIFIER.matcher(path);
+        StringBuilder pathToFormat = new StringBuilder();
+        int placeholders = 0;
+        while (specifiers.find()) {
+            String conversion = specifiers.group(6);
+            boolean takesNoArgument = specifiers.group(5) == null && (conversion.equals("%") || conversion.equals("n"));
+            boolean hasExplicitIndex = specifiers.group(1) != null || specifiers.group(2).contains("<");
+            if (!takesNoArgument && !hasExplicitIndex && ++placeholders > arguments.size()) {
+                args.add(specifiers.group());
+                specifiers.appendReplacement(pathToFormat, "%s");
+            }
+        }
+        specifiers.appendTail(pathToFormat);
+        return String.format(pathToFormat.toString(), args.toArray());
     }
 
     private String mergeKeyWithRootPath(String key) {
         if (bodyRootPath != null && !EMPTY.equals(bodyRootPath)) {
-            if (bodyRootPath.endsWith(DOT) && key.startsWith(DOT)) {
+            if (key.isEmpty()) {
+                return bodyRootPath;
+            } else if (bodyRootPath.endsWith(DOT) && key.startsWith(DOT)) {
                 return bodyRootPath + substringAfter(key, DOT);
             } else if (!bodyRootPath.endsWith(DOT) && !key.startsWith(DOT)
                     && !key.startsWith(SAFE_REF) && !key.startsWith("[")

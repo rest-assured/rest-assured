@@ -58,8 +58,9 @@ class BoundaryExtractorTest {
     }
 
     @Test
-    void returnsNullWhenBoundaryContainsEqualsSign() {
-        // Quirk: boundaries containing "=" are valid per RFC 2046 but are not extracted
-        assertThat(BoundaryExtractor.getBoundaryFromContentType("multipart/form-data; boundary=\"a=b\"")).isNull();
+    void extractsBoundaryContainingEqualsSign() {
+        // Boundaries containing "=" are valid per RFC 2046 (issue #1948)
+        assertThat(BoundaryExtractor.getBoundaryFromContentType("multipart/form-data; boundary=\"a=b\"")).isEqualTo("a=b");
+        assertThat(BoundaryExtractor.getBoundaryFromContentType("multipart/mixed; boundary=----=_Part_0_123")).isEqualTo("----=_Part_0_123");
     }
 }
