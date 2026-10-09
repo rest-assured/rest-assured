@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package io.restassured.internal.common.assertion
+package io.restassured.internal.common.assertion;
 
 /**
  * Escapes a path fragment if required
  */
-interface PathFragmentEscaper {
+public interface PathFragmentEscaper {
 
-  boolean shouldEscape(String pathFragment)
+    boolean shouldEscape(String pathFragment);
 
-  String escape(String pathFragment)
+    String escape(String pathFragment);
 
 }

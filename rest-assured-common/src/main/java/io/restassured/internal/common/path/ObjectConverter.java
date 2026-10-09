@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+package io.restassured.internal.common.path;
 
+import java.math.BigDecimal;
+import java.util.UUID;
 
-package io.restassured.internal.common.path
+public class ObjectConverter {
 
-class ObjectConverter {
-    def static <T> T convertObjectTo(Object object, Class<T> explicitType) {
+    @SuppressWarnings("unchecked")
+    public static <T> T convertObjectTo(Object object, Class<T> explicitType) {
         Object returnObject;
         if (object == null) {
             returnObject = null;
@@ -51,7 +54,7 @@ class ObjectConverter {
                 try {
                     returnObject = explicitType.cast(object);
                 } catch (ClassCastException e) {
-                    throw new ClassCastException("Cannot convert " + object.getClass() + " to $explicitType.")
+                    throw new ClassCastException("Cannot convert " + object.getClass() + " to " + explicitType + ".");
                 }
             }
         } else {
@@ -60,12 +63,12 @@ class ObjectConverter {
         return (T) returnObject;
     }
 
-    def static boolean canConvert(object, Class type) {
+    public static boolean canConvert(Object object, Class<?> type) {
         try {
-            convertObjectTo(object, type)
-            true
+            convertObjectTo(object, type);
+            return true;
         } catch (Exception e) {
-            false
+            return false;
         }
     }
 }
