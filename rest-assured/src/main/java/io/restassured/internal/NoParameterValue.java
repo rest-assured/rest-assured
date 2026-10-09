@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-
-
-package io.restassured.internal
+package io.restassured.internal;
 
 /**
  * Marker class for indicating that a parameter has no value
  */
-class NoParameterValue {
+public class NoParameterValue {
 }
