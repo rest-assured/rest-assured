@@ -23,13 +23,14 @@ import java.lang.reflect.Type;
 public class DefaultYassonObjectMapperFactory implements JsonbObjectMapperFactory {
 
     // Double-checked locking on a volatile so that threads racing the first call share one instance
+    private static final Object LOCK = new Object();
     private static volatile Jsonb cachedJsonb = null;
 
     @Override
     public Jsonb create(Type cls, String charset) {
         Jsonb jsonb = cachedJsonb;
         if (jsonb == null) {
-            synchronized (DefaultYassonObjectMapperFactory.class) {
+            synchronized (LOCK) {
                 jsonb = cachedJsonb;
                 if (jsonb == null) {
                     jsonb = new JsonBindingProvider().create().build();
