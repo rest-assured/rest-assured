@@ -2810,7 +2810,10 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         explicitlySetValues.add(MergeableValue.BASE_PATH);
     }
 
-    String getPath() {
+    /**
+     * @return The path given to the request method (for example "/users/{id}" for get("/users/{id}", 1)), before the path parameters are applied
+     */
+    public String getPath() {
         return path;
     }
 

@@ -26,6 +26,8 @@ import io.restassured.filter.log.LogDetail;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.filter.session.SessionFilter;
+import io.restassured.internal.RequestSpecificationImpl;
+import io.restassured.internal.RestAssuredResponseImpl;
 import io.restassured.internal.csrf.CsrfData;
 import io.restassured.internal.csrf.CsrfTokenFinder;
 import io.restassured.internal.util.SafeExceptionRethrower;
@@ -36,25 +38,36 @@ import io.restassured.specification.FilterableResponseSpecification;
 import io.restassured.specification.QueryableRequestSpecification;
 import io.restassured.specification.RequestSpecification;
 import io.restassured.spi.AuthFilter;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.client.utils.URIUtils;
+import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.protocol.HttpContext;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.config.CsrfConfig.CsrfPrioritization.FORM;
 import static io.restassured.path.xml.XmlPath.CompatibilityMode.HTML;
 import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FormAuthFilter implements AuthFilter {
 
     private static final String FIND_INPUT_TAG_WITH_TYPE = "html.depthFirst().grep { it.name() == 'input' && it.@type == '%s' }.collect { it.@name }";
     private static final String FIND_INPUT_VALUE_OF_INPUT_TAG_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.collect { it.@value }";
+    private static final String COUNT_INPUT_TAGS_WITH_NAME = "html.depthFirst().grep { it.name() == 'input' && it.@name == '%s' }.size()";
     private static final String FIND_FORM_ACTION = "html.depthFirst().grep { it.name() == 'form' }.get(0).@action";
+    private static final String FIND_BASE_HREFS = "html.depthFirst().grep { it.name() == 'base' }.collect { it.@href }";
 
     private Object userName;
     private Object password;
@@ -64,7 +77,10 @@ public class FormAuthFilter implements AuthFilter {
 
     @Override
     public Response filter(FilterableRequestSpecification requestSpec, FilterableResponseSpecification responseSpec, FilterContext ctx) {
-        String formAction;
+        // A form action from FormAuthConfig (or one that isn't a valid URI), which is used as it is
+        String formAction = null;
+        // A form action read from the login page, resolved against the URL of the login page
+        URI formActionUri = null;
         String userNameInputField;
         String passwordInputField;
         CsrfData csrfData = null;
@@ -77,17 +93,30 @@ public class FormAuthFilter implements AuthFilter {
 
         if (formAuthConfig.requiresParsingOfLoginPage() || csrfConfig.isCsrfEnabled()) {
             Response loginPageResponse;
+            URI loginPageUri;
             if (csrfConfig.isCsrfEnabled()) {
-                loginPageResponse = given().auth().none().disableCsrf().cookies(requestSpec.getCookies()).get(csrfConfig.getCsrfTokenPath());
+                RequestSpecification csrfPageRequestSpec = given().auth().none().disableCsrf().cookies(requestSpec.getCookies());
+                loginPageResponse = csrfPageRequestSpec.get(csrfConfig.getCsrfTokenPath());
+                loginPageUri = urlOf(loginPageResponse, ((FilterableRequestSpecification) csrfPageRequestSpec).getURI());
                 cookiesFromLoginPage = loginPageResponse.cookies();
             } else {
-                loginPageResponse = ctx.send(given().spec(requestSpec).auth().none());
+                // Send to the path of the request, with its path parameters, and not to the request URI (as ctx.send(..) does),
+                // which already has the path parameters applied and is URL encoded
+                loginPageResponse = given().spec(requestSpec).auth().none().request(requestSpec.getMethod(), ((RequestSpecificationImpl) requestSpec).getPath());
+                loginPageUri = urlOf(loginPageResponse, requestSpec.getURI());
                 cookiesFromLoginPage = loginPageResponse.cookies();
                 if (loginPageResponse.statusCode() == 302) {
                     // This means that Rest Assured has not done a redirect automatically.
                     // This may happen if status code is 302 and method is not GET (see https://blog.jayway.com/2012/10/17/what-you-may-not-know-about-http-redirects/).
                     // Thus we follow the Location header explicitly.
-                    loginPageResponse = given().auth().none().cookies(cookiesFromLoginPage).get(loginPageResponse.getHeader("Location"));
+                    String location = loginPageResponse.getHeader("Location");
+                    if (location == null) {
+                        throw new IllegalArgumentException("The request for the login page was redirected (302) without a Location header, " +
+                                "so REST Assured couldn't follow the redirect to the login page.");
+                    }
+                    RequestSpecification redirectedLoginPageRequestSpec = given().auth().none().cookies(cookiesFromLoginPage);
+                    loginPageResponse = redirectedLoginPageRequestSpec.get(location);
+                    loginPageUri = urlOf(loginPageResponse, ((FilterableRequestSpecification) redirectedLoginPageRequestSpec).getURI());
                 }
             }
 
@@ -96,8 +125,11 @@ public class FormAuthFilter implements AuthFilter {
             if (formAuthConfig.hasFormAction()) {
                 formAction = formAuthConfig.getFormAction();
             } else {
-                String tempFormAction = throwIfException(() -> html.getString(FIND_FORM_ACTION));
-                formAction = tempFormAction.startsWith("/") ? tempFormAction : "/" + tempFormAction;
+                String htmlFormAction = throwIfException(() -> html.getString(FIND_FORM_ACTION));
+                formActionUri = resolveFormAction(loginPageUri, findBaseHref(html), htmlFormAction);
+                if (formActionUri == null) {
+                    formAction = htmlFormAction;
+                }
             }
             userNameInputField = formAuthConfig.hasUserInputTagName() ? formAuthConfig.getUserInputTagName() : throwIfException(() ->
                     html.getString(format(FIND_INPUT_TAG_WITH_TYPE, "text")));
@@ -110,6 +142,11 @@ public class FormAuthFilter implements AuthFilter {
 
             if (formAuthConfig.hasAdditionalInputFieldNames()) {
                 for (String name : formAuthConfig.getAdditionalInputFieldNames()) {
+                    int numberOfInputFields = throwIfException(() -> html.getInt(format(COUNT_INPUT_TAGS_WITH_NAME, name)));
+                    if (numberOfInputFields == 0) {
+                        throw new IllegalArgumentException(format("Couldn't find the additional input field \"%s\" on the login page. " +
+                                "Check the additional fields specified in FormAuthConfig.", name));
+                    }
                     String value = throwIfException(() ->
                             html.getString(format(FIND_INPUT_VALUE_OF_INPUT_TAG_WITH_NAME, name)));
                     additionalInputFields.add(new SimpleEntry<>(name, value));
@@ -124,12 +161,18 @@ public class FormAuthFilter implements AuthFilter {
             cookiesFromLoginPage = null;
         }
 
-        formAction = formAction != null && formAction.startsWith("/") ? formAction : "/" + formAction;
-
         RequestSpecification loginRequestSpec = given().auth().none().and().disableCsrf().and().formParams(userNameInputField, userName, passwordInputField, password);
 
         URI uri = toURI(requestSpec.getURI());
-        String loginUri = uri.getScheme() + "://" + uri.getHost() + (uri.getPort() == -1 ? "" : ":" + uri.getPort()) + formAction;
+        String origin = uri.getScheme() + "://" + uri.getHost() + (uri.getPort() == -1 ? "" : ":" + uri.getPort());
+        String loginUri;
+        if (formActionUri != null) {
+            // The login form is always posted to the origin of the request, also when the form action is on another origin
+            loginUri = origin + toPathAndQueryParams(formActionUri, loginRequestSpec);
+        } else {
+            formAction = formAction != null && formAction.startsWith("/") ? formAction : "/" + formAction;
+            loginUri = origin + formAction;
+        }
 
         if (cookiesFromLoginPage != null) {
             loginRequestSpec.cookies(cookiesFromLoginPage);
@@ -171,7 +214,7 @@ public class FormAuthFilter implements AuthFilter {
     public static void applySessionFilterFromOriginalRequestIfDefined(FilterableRequestSpecification requestSpec, RequestSpecification loginRequestSpec) {
         Filter sessionFilterInOriginalRequest = null;
         for (Filter filter : requestSpec.getDefinedFilters()) {
-            if (filter != null && filter.getClass().isAssignableFrom(SessionFilter.class)) {
+            if (filter instanceof SessionFilter) {
                 sessionFilterInOriginalRequest = filter;
                 break;
             }
@@ -231,6 +274,106 @@ public class FormAuthFilter implements AuthFilter {
             return new URI(uri);
         } catch (URISyntaxException e) {
             return SafeExceptionRethrower.safeRethrow(e);
+        }
+    }
+
+    /**
+     * @return The URL of the response, after the redirects that the HTTP client followed, as recorded in the Apache HttpContext
+     * of the response, or <code>requestUri</code> if the response doesn't have one
+     */
+    private static URI urlOf(Response response, String requestUri) {
+        if (response instanceof RestAssuredResponseImpl) {
+            HttpContext context = ((RestAssuredResponseImpl) response).getApacheHttpContext();
+            if (context != null && context.getAttribute(ExecutionContext.HTTP_TARGET_HOST) instanceof HttpHost targetHost
+                    && context.getAttribute(ExecutionContext.HTTP_REQUEST) instanceof HttpRequest request) {
+                try {
+                    // The request line has the path and query of the URL, or the whole URL when sent through a proxy
+                    return URIUtils.resolve(toURI(targetHost.toURI()), request.getRequestLine().getUri());
+                } catch (Exception e) {
+                    // Fall back to the request URI
+                }
+            }
+        }
+        return toURI(requestUri);
+    }
+
+    private static String findBaseHref(XmlPath html) {
+        try {
+            return html.getList(FIND_BASE_HREFS, String.class).stream().filter(StringUtils::isNotBlank).findFirst().orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * @return The form action resolved against the URL of the login page (or the URL of its base element), like a browser does,
+     * so a form without action is posted to the URL of the login page, or {@code null} if the form action isn't a valid URI
+     */
+    private static URI resolveFormAction(URI loginPageUri, String baseHref, String formAction) {
+        if (StringUtils.isBlank(formAction)) {
+            return loginPageUri;
+        }
+        URI baseUri = loginPageUri;
+        if (baseHref != null) {
+            try {
+                baseUri = URIUtils.resolve(loginPageUri, baseHref.trim());
+            } catch (IllegalArgumentException e) {
+                // An invalid base URL is ignored
+            }
+        }
+        try {
+            return URIUtils.resolve(baseUri, formAction.trim());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    /**
+     * @return The path to post the login form to. The form action is URL encoded, so its path is decoded and its query is added to
+     * the request specification as query parameters, so that REST Assured URL encodes them once. A fragment is left out.
+     */
+    private static String toPathAndQueryParams(URI formActionUri, RequestSpecification loginRequestSpec) {
+        if (formActionUri.getRawQuery() != null) {
+            addQueryParams(loginRequestSpec, formActionUri.getRawQuery());
+        }
+        return decodePathIfStructureIsKept(Objects.toString(formActionUri.getRawPath(), ""));
+    }
+
+    private static String decodePathIfStructureIsKept(String encodedPath) {
+        // A decoded "/", "?" or "#" would change the structure of the URI
+        for (String encodedReservedCharacter : new String[]{"%2F", "%3F", "%23"}) {
+            if (StringUtils.containsIgnoreCase(encodedPath, encodedReservedCharacter)) {
+                return encodedPath;
+            }
+        }
+        String decodedPath;
+        try {
+            // A "+" in a path is not a space
+            decodedPath = URLDecoder.decode(encodedPath.replace("+", "%2B"), UTF_8);
+        } catch (IllegalArgumentException e) {
+            return encodedPath;
+        }
+        // A decoded "{" or "}" would be taken as a path parameter placeholder
+        return StringUtils.containsAny(decodedPath, '{', '}') ? encodedPath : decodedPath;
+    }
+
+    private static void addQueryParams(RequestSpecification requestSpec, String encodedQuery) {
+        for (String nameAndValue : StringUtils.split(encodedQuery, '&')) {
+            String name = urlDecode(StringUtils.substringBefore(nameAndValue, "="));
+            if (nameAndValue.contains("=")) {
+                requestSpec.queryParam(name, urlDecode(StringUtils.substringAfter(nameAndValue, "=")));
+            } else {
+                requestSpec.queryParam(name);
+            }
+        }
+    }
+
+    private static String urlDecode(String value) {
+        try {
+            // "+" is decoded as a space, as servlet containers do
+            return URLDecoder.decode(value, UTF_8);
+        } catch (IllegalArgumentException e) {
+            return value;
         }
     }
 
