@@ -25,7 +25,6 @@ import io.restassured.internal.NoParameterValue;
 import io.restassured.internal.http.CharsetExtractor;
 import io.restassured.internal.http.ContentTypeExtractor;
 import io.restassured.internal.support.Prettifier;
-import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.parsing.Parser;
 import io.restassured.specification.FilterableRequestSpecification;
 import io.restassured.specification.MultiPartSpecification;
@@ -266,12 +265,27 @@ public class RequestPrinter {
                 || (Parser.fromContentType(mimeTypeWithoutParameters) != null && !mimeTypeWithoutParameters.equals("*/*"));
     }
 
+    /**
+     * @return The content of the file, or its path if it can't be read (sending the request then reports why).
+     */
     private static String readFile(File file, MultiPartSpecification multiPart) {
-        String charset = StringUtils.defaultIfBlank(multiPart.getCharset(), CharsetExtractor.getCharsetFromContentType(multiPart.getMimeType()));
         try {
-            return new String(Files.readAllBytes(file.toPath()), StringUtils.isBlank(charset) ? StandardCharsets.UTF_8 : Charset.forName(charset.trim()));
+            return new String(Files.readAllBytes(file.toPath()), charsetOf(multiPart));
         } catch (IOException e) {
-            return SafeExceptionRethrower.safeRethrow(e);
+            return file.toString();
+        }
+    }
+
+    private static Charset charsetOf(MultiPartSpecification multiPart) {
+        String charset = StringUtils.defaultIfBlank(multiPart.getCharset(), CharsetExtractor.getCharsetFromContentType(multiPart.getMimeType()));
+        if (StringUtils.isBlank(charset)) {
+            return StandardCharsets.UTF_8;
+        }
+        try {
+            return Charset.forName(charset.trim());
+        } catch (IllegalArgumentException e) {
+            // Unsupported or illegal charset name
+            return StandardCharsets.UTF_8;
         }
     }
 

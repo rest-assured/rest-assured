@@ -134,6 +134,24 @@ class RequestPrinterMultiPartFileTest {
     }
 
     @Test
+    void text_file_part_with_unknown_charset_is_read_as_utf8() throws IOException {
+        File file = file("data.txt", "Grüße".getBytes(StandardCharsets.UTF_8));
+
+        logParams().multiPart("file", file, "text/plain; charset=no-such-charset").post("/upload");
+
+        assertThat(log()).isEqualTo(multiPartLog("name = file; filename = data.txt", "text/plain; charset=no-such-charset", "Grüße"));
+    }
+
+    @Test
+    void text_file_part_that_cannot_be_read_is_logged_as_its_path() {
+        File file = tempDir.resolve("missing.txt").toFile();
+
+        logParams().multiPart("file", file, "text/plain").post("/upload");
+
+        assertThat(log()).isEqualTo(multiPartLog("name = file; filename = missing.txt", "text/plain", file.toString()));
+    }
+
+    @Test
     void text_file_part_without_charset_is_read_as_utf8() throws IOException {
         File file = file("data.txt", "Grüße".getBytes(StandardCharsets.UTF_8));
 
