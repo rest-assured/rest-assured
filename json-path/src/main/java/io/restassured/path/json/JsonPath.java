@@ -109,7 +109,7 @@ import java.util.Map.Entry;
  */
 public class JsonPath {
 
-    public static JsonPathConfig config = null;
+    public static volatile JsonPathConfig config = null;
 
     private final JsonParser jsonParser;
     private JsonPathConfig jsonPathConfig = null;
@@ -1040,15 +1040,11 @@ public class JsonPath {
     }
 
     private JsonPathConfig getJsonPathConfig() {
-        JsonPathConfig cfg;
-        if (config == null && jsonPathConfig == null) {
-            cfg = new JsonPathConfig();
-        } else if (jsonPathConfig != null) {
-            cfg = jsonPathConfig;
-        } else {
-            cfg = config;
+        if (jsonPathConfig != null) {
+            return jsonPathConfig;
         }
-        return cfg;
+        JsonPathConfig staticConfig = config;
+        return staticConfig == null ? new JsonPathConfig() : staticConfig;
     }
 
     private abstract class JsonParser {

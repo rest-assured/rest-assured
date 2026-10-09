@@ -86,7 +86,7 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     /**
      * Default json schema factory instance
      */
-    public static JsonSchemaValidatorSettings settings;
+    public static volatile JsonSchemaValidatorSettings settings;
 
     private final Object schema;
     /**
@@ -396,7 +396,8 @@ public class JsonSchemaValidator extends TypeSafeMatcher<String> {
     private static abstract class JsonSchemaValidatorFactory<T> {
 
         private JsonSchemaValidatorSettings createSettings() {
-            return settings == null ? new JsonSchemaValidatorSettings() : settings;
+            JsonSchemaValidatorSettings currentSettings = settings;
+            return currentSettings == null ? new JsonSchemaValidatorSettings() : currentSettings;
         }
 
         public JsonSchemaValidator create(T schema) {
