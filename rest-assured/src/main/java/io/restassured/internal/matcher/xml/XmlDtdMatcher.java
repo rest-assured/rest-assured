@@ -123,23 +123,18 @@ public class XmlDtdMatcher extends BaseMatcher<String> {
     }
 
     private File writeToTempFile() throws IOException {
-        InputStream inputStream = getInputStream();
-
-        //write the inputStream to a FileOutputStream
         File file = File.createTempFile("restassured", "temp");
         file.deleteOnExit();
-        OutputStream out = new FileOutputStream(file);
-
-        int read;
-        byte[] bytes = new byte[1024];
-
-        while ((read = inputStream.read(bytes)) != -1) {
-            out.write(bytes, 0, read);
+        try (InputStream inputStream = getInputStream(); OutputStream out = new FileOutputStream(file)) {
+            int read;
+            byte[] bytes = new byte[1024];
+            while ((read = inputStream.read(bytes)) != -1) {
+                out.write(bytes, 0, read);
+            }
+        } catch (IOException | RuntimeException e) {
+            file.delete();
+            throw e;
         }
-
-        inputStream.close();
-        out.flush();
-        out.close();
         return file;
     }
 
