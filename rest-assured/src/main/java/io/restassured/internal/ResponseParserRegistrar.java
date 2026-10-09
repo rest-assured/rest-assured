@@ -67,6 +67,10 @@ public class ResponseParserRegistrar {
         additional.put(contentTypeWithoutCharset, parser.getContentType());
     }
 
+    public Parser getDefaultParser() {
+        return defaultParser;
+    }
+
     public void registerDefaultParser(Parser parser) {
         notNull(parser, "Parser");
         this.defaultParser = parser;
