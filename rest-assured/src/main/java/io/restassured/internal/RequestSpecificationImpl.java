@@ -2282,8 +2282,12 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             int indexOfEndBracket = 0;
             while ((indexOfStartBracket = subresource.indexOf(TEMPLATE_START, indexOfEndBracket)) >= 0) {
                 indexOfEndBracket = subresource.indexOf(TEMPLATE_END, indexOfStartBracket);
+                if (indexOfEndBracket < 0) {
+                    // An unclosed "{" is not a template, so the rest of the subresource is kept as literal text
+                    break;
+                }
                 // 3 means "{" and "}" and at least one character
-                if (indexOfStartBracket >= 0 && indexOfEndBracket >= 0 && subresource.length() >= 3) {
+                if (subresource.length() >= 3) {
                     String pathParamValue;
                     String pathParamName = subresource.substring(indexOfStartBracket + 1, indexOfEndBracket);
                     // Get path parameter name, what's between the "{" and "}"

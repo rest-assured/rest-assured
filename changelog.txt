@@ -27,6 +27,7 @@ Changelog next version
 * Non-backward compatible change: using a RequestSpecification that wasn't created by REST Assured with spec(..) or specification(..) on a request specification now fails with an IllegalArgumentException instead of a groovy.lang.MissingMethodException.
 * A header or cookie name given to headers(..) or cookies(..) (as a map key or in the name/value varargs) that isn't a String (for example an Integer) is now used in its string form instead of failing with a groovy.lang.GroovyRuntimeException.
 * Fix merging a request specification that has unnamed path parameters, for example the request specification that a filter receives for get("/users/{id}", 1), with spec(..) or RequestSpecBuilder.addRequestSpecification(..). The resulting specification failed with a groovy.lang.MissingPropertyException when it was sent with unnamed path parameters, merged again, or asked for its URI or unnamed path parameters (for example getURI() or getUnnamedPathParamValues()). It now gets the unnamed path parameters of the specification it was merged with.
+* Fix a request hanging forever when its path or query contains a "{" that is never closed, for example get("/x{b"). The text from the unclosed "{" onwards is now kept as literal text, so the request goes to /x%7Bb (issue #1935).
 
 Changelog 6.1.0 (2026-10-09)
 ----------------------------

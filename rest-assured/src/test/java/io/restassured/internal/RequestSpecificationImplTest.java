@@ -63,6 +63,7 @@ import java.io.PrintStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,6 +80,7 @@ import static io.restassured.config.RestAssuredConfig.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
 /**
  * Characterizes {@link RequestSpecificationImpl} without sending requests: a capturing filter (first in the chain unless a
@@ -205,6 +207,25 @@ class RequestSpecificationImplTest {
 
         assertThat(capture.request.getURI()).isEqualTo("http://localhost:8080/A/%7Bb%7D");
         assertThat(capture.request.getUndefinedPathParamPlaceholders()).containsExactly("b");
+    }
+
+    @Test
+    void an_unclosed_brace_in_the_path_is_kept_as_literal_text() {
+        // Used to loop forever (issue #1935)
+        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
+            Capture capture = capture();
+            given().filter(capture).get("/x{b");
+            assertThat(capture.request.getURI()).isEqualTo("http://localhost:8080/x%7Bb");
+
+            given().filter(capture).get("/x/{b");
+            assertThat(capture.request.getURI()).isEqualTo("http://localhost:8080/x/%7Bb");
+
+            given().filter(capture).get("/{a}/x{b}{c", "A", "B");
+            assertThat(capture.request.getURI()).isEqualTo("http://localhost:8080/A/xB%7Bc");
+
+            given().filter(capture).get("/x?q={a}&r={b", "A");
+            assertThat(capture.request.getURI()).isEqualTo("http://localhost:8080/x?q=A&r=%7Bb");
+        });
     }
 
     @Test
