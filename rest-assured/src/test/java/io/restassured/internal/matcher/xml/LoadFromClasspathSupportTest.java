@@ -51,16 +51,24 @@ public class LoadFromClasspathSupportTest {
     }
 
     @Test public void
-    only_looks_in_the_context_class_loader() {
-        // The Groovy implementation falls back to getClass().getResourceAsStream(path) in a static method, where
-        // getClass() is java.lang.Class (in java.base) and not LoadFromClasspathSupport, so that fallback never finds
-        // application resources. Resources are thus only found through the thread context class loader.
+    falls_back_to_rest_assureds_class_loader_when_context_class_loader_cannot_find_the_resource() throws Exception {
         ClassLoader emptyClassLoader = new URLClassLoader(new URL[0], null);
 
-        assertThat(withContextClassLoader(emptyClassLoader, () -> LoadFromClasspathSupport.loadFromClasspath("xml-matchers/greeting.dtd"))).isNull();
-        assertThat(withContextClassLoader(emptyClassLoader, () -> LoadFromClasspathSupport.loadFromClasspath("/xml-matchers/greeting.dtd"))).isNull();
-        assertThat(withContextClassLoader(emptyClassLoader, () -> LoadFromClasspathSupport.loadFromClasspath("/io/restassured/internal/matcher/xml/LoadFromClasspathSupport.class"))).isNull();
-        assertThat(withContextClassLoader(emptyClassLoader, () -> LoadFromClasspathSupport.loadFromClasspath("LoadFromClasspathSupport.class"))).isNull();
+        assertThat(read(withContextClassLoader(emptyClassLoader, () -> LoadFromClasspathSupport.loadFromClasspath("xml-matchers/greeting.dtd")))).contains("<!ELEMENT greeting (name)>");
+        assertThat(read(withContextClassLoader(emptyClassLoader, () -> LoadFromClasspathSupport.loadFromClasspath("/xml-matchers/greeting.dtd")))).contains("<!ELEMENT greeting (name)>");
+        assertThat(withContextClassLoader(emptyClassLoader, () -> LoadFromClasspathSupport.loadFromClasspath("xml-matchers/missing.dtd"))).isNull();
+    }
+
+    @Test public void
+    loads_resource_when_context_class_loader_is_null() throws Exception {
+        assertThat(read(withContextClassLoader(null, () -> LoadFromClasspathSupport.loadFromClasspath("xml-matchers/greeting.dtd")))).contains("<!ELEMENT greeting (name)>");
+        assertThat(read(withContextClassLoader(null, () -> LoadFromClasspathSupport.loadFromClasspath("/xml-matchers/greeting.dtd")))).contains("<!ELEMENT greeting (name)>");
+        assertThat(withContextClassLoader(null, () -> LoadFromClasspathSupport.loadFromClasspath("xml-matchers/missing.dtd"))).isNull();
+    }
+
+    @Test public void
+    resolves_paths_from_the_classpath_root_and_not_relative_to_a_package() {
+        assertThat(LoadFromClasspathSupport.loadFromClasspath("LoadFromClasspathSupport.class")).isNull();
     }
 
     private static <T> T withContextClassLoader(ClassLoader classLoader, Supplier<T> supplier) {
