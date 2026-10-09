@@ -225,6 +225,48 @@ class RequestSpecificationImplTest {
 
             given().filter(capture).get("/x?q={a}&r={b", "A");
             assertThat(capture.request.getURI()).isEqualTo("http://localhost:8080/x?q=A&r=%7Bb");
+
+            given().filter(capture).get("/{a}", "{");
+            assertThat(capture.request.getURI()).isEqualTo("http://localhost:8080/%7B");
+        });
+    }
+
+    @Test
+    void a_placeholder_never_spans_a_slash_in_the_path_or_an_ampersand_in_the_query() {
+        assertTimeoutPreemptively(Duration.ofSeconds(5), () -> {
+            assertThat(RequestSpecificationImpl.getPlaceholders("/x{b/{a}?r={c&q={d}")).containsExactly("a", "d");
+            // A "{" inside a placeholder is part of its name, as before
+            assertThat(RequestSpecificationImpl.getPlaceholders("/{{a}}/x{b{c}")).containsExactly("{a", "b{c");
+
+            Capture capture = capture();
+            given().filter(capture).pathParam("a", "A").get("/x{b/{a}");
+            RequestSpecificationImpl r = (RequestSpecificationImpl) capture.request;
+            assertThat(r.getURI()).isEqualTo("http://localhost:8080/x%7Bb/A");
+            assertThat(r.getPathParamPlaceholders()).containsExactly("a");
+            assertThat(r.getUndefinedPathParamPlaceholders()).isEmpty();
+            r.assertCorrectNumberOfPathParams();
+
+            given().filter(capture).get("/x{b/{a}", "A");
+            r = (RequestSpecificationImpl) capture.request;
+            assertThat(r.getURI()).isEqualTo("http://localhost:8080/x%7Bb/A");
+            assertThat(r.getPathParams()).containsExactly(Map.entry("a", "A"));
+            r.assertCorrectNumberOfPathParams();
+
+            given().filter(capture).pathParam("a", "A").get("/x?r={b&q={a}");
+            r = (RequestSpecificationImpl) capture.request;
+            assertThat(r.getURI()).isEqualTo("http://localhost:8080/x?r=%7Bb&q=A");
+            assertThat(r.getPathParamPlaceholders()).containsExactly("a");
+            r.assertCorrectNumberOfPathParams();
+
+            given().filter(capture).pathParam("a", "A").get("/x{b?q={a}");
+            r = (RequestSpecificationImpl) capture.request;
+            assertThat(r.getURI()).isEqualTo("http://localhost:8080/x%7Bb?q=A");
+            assertThat(r.getPathParamPlaceholders()).containsExactly("a");
+            r.assertCorrectNumberOfPathParams();
+
+            assertThatThrownBy(() -> given().get("/x{b/{a}"))
+                    .isExactlyInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Invalid number of path parameters. Expected 1, was 0. Undefined path parameters are: a.");
         });
     }
 
