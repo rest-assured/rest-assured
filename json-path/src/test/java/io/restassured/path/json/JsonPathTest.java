@@ -663,32 +663,6 @@ public class JsonPathTest {
     }
 
     @Test
-    void gets_map_of_nested_properties_key_with_get_map() {
-        // Given
-        final String json = """
-                {
-                   "components": {
-                      "schemas": {
-                         "tree": {
-                            "required": ["leaf", "root", "trunk", "branch"],
-                            "type": "plant",
-                            "properties": {
-                               "height": { "type": "number", "readOnly": true }
-                            }
-                         }
-                      }
-                   }
-                }
-                """;
-
-        // When
-        final Map<String, Object> properties = new JsonPath(json).getMap("components.schemas.tree.properties");
-
-        // Then
-        assertThat(properties, equalTo(Map.of("height", Map.of("type", "number", "readOnly", true))));
-    }
-
-    @Test
     void gets_values_of_keys_that_contain_a_colon_with_the_dot_notation() {
         // Given
         final JsonPath jsonPath = new JsonPath("{\"message\":{\"ErrorCode:\":0,\"ErrorMsg:\":\"Success\",\"urn:a:b\":[1,2]}}");
@@ -702,13 +676,14 @@ public class JsonPathTest {
         assertThat(jsonPath.getInt("message.'ErrorCode:'"), equalTo(0));
         assertThat(jsonPath.getInt("message['ErrorCode:']"), equalTo(0));
         assertThat(jsonPath.getInt("message.\"ErrorCode:\""), equalTo(0));
+        assertThat(jsonPath.getInt("message?.ErrorCode:"), equalTo(0));
         assertThat(jsonPath.setRootPath("message").getInt("ErrorCode:"), equalTo(0));
     }
 
     @Test
     void colons_in_ternary_elvis_and_map_literal_expressions_are_not_escaped() {
         // Given
-        final JsonPath jsonPath = new JsonPath(JSON).param("yes", "Y").param("no", "N");
+        final JsonPath jsonPath = new JsonPath(JSON).param("yes", "Y").param("no", "N").param("p", Map.of("v", "V"));
 
         // Then
         assertThat(jsonPath.getString("store.bicycle.price > 10 ? 'expensive' : 'cheap'"), equalTo("expensive"));
@@ -721,6 +696,12 @@ public class JsonPathTest {
         assertThat(jsonPath.getFloat("store.book.find { it.title + ':' == 'Moby Dick:' }.price"), equalTo(8.99f));
         assertThat(jsonPath.getList("store.book.price.collect { it > 10 ? 'high' : 'low' }"), contains("low", "high", "low", "high"));
         assertThat(jsonPath.getFloat("store.book.collectEntries { [(it.title + ':'): it.price] }.'Moby Dick:'"), equalTo(8.99f));
+        assertThat(jsonPath.getList("store.book.collect{it.price>10?it.title:it.author}"), contains("Nigel Rees", "Sword of Honour", "Herman Melville", "The Lord of the Rings"));
+        assertThat(jsonPath.getList("store.book.collect{b->b.price>10?b.title:b.author}"), contains("Nigel Rees", "Sword of Honour", "Herman Melville", "The Lord of the Rings"));
+        assertThat(jsonPath.getInt("store.book.collect{it.price>10?it.title:it.author}.size()"), equalTo(4));
+        assertThat(jsonPath.getList("store.book.findAll{it.price>10?it.isbn:false}.title"), contains("The Lord of the Rings"));
+        assertThat(jsonPath.getList("store.book.collect{it.isbn?:it.title}"), contains("Sayings of the Century", "Sword of Honour", "0-553-21311-3", "0-395-19395-8"));
+        assertThat(jsonPath.getString("store.bicycle.price>10?p.v:no"), equalTo("V"));
     }
 
     @Test

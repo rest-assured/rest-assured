@@ -71,7 +71,7 @@ public class JSONAssertion implements Assertion {
     key = (String) escapePath(
         key,
         (PathFragmentEscaper) hyphen(),
-        colon(),
+        colon(key),
         (PathFragmentEscaper) attributeGetter(),
         (PathFragmentEscaper) integer(),
         (PathFragmentEscaper) classKeyword()
@@ -116,21 +116,50 @@ public class JSONAssertion implements Assertion {
   /**
    * Quotes a key that contains a colon, such as {@code ErrorCode:} or {@code urn:a:b}, so that it can be read with the
    * dot notation (#1766). A colon is also part of Groovy's ternary ({@code a ? b : c}) and Elvis ({@code a ?: b})
-   * operators and of map literals, so unlike the colon escaper used for XML namespaces, this one leaves a fragment
-   * alone when it contains whitespace, a question mark, a double quote or a closure, or when the colon only occurs
-   * in a list index.
+   * operators and of map literals, so unlike the colon escaper used for XML namespaces, this one escapes nothing when
+   * the path contains a ternary operator, and leaves a fragment alone when it contains whitespace, a question mark, a
+   * double quote or a closure, or when the colon only occurs in a list index.
    */
-  private static PathFragmentEscaper colon() {
+  private static PathFragmentEscaper colon(String path) {
+    boolean pathContainsTernaryOperator = containsTernaryOperator(path);
     return new HyphenQuoteFragmentEscaper() {
       @Override
       public boolean shouldEscape(String pathFragment) {
         String fragment = pathFragment.trim();
-        return !fragment.startsWith("'") && !fragment.endsWith("'")
+        return !pathContainsTernaryOperator && !fragment.startsWith("'") && !fragment.endsWith("'")
             && StringUtils.substringBefore(fragment, "[").contains(":")
             && !StringUtils.containsAny(fragment, '?', '"', '{', '}', '(')
             && !StringUtils.containsWhitespace(fragment);
       }
     };
+  }
+
+  /**
+   * Whether the path contains a question mark outside a quoted string that isn't part of the safe navigation
+   * ({@code ?.} and {@code ?[}) or Elvis ({@code ?:}) operators. A compact ternary, such as
+   * {@code collect{it.price>10?it.title:it.price}}, is split at its dots into fragments such as {@code title:it} that
+   * contain a colon but no question mark.
+   */
+  private static boolean containsTernaryOperator(String path) {
+    char quote = 0;
+    for (int i = 0; i < path.length(); i++) {
+      char c = path.charAt(i);
+      if (quote != 0) {
+        if (c == '\\') {
+          i++;
+        } else if (c == quote) {
+          quote = 0;
+        }
+      } else if (c == '\'' || c == '"') {
+        quote = c;
+      } else if (c == '?') {
+        char next = i + 1 < path.length() ? path.charAt(i + 1) : 0;
+        if (next != '.' && next != ':' && next != '[') {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private Object eval(String root, Object object, String expr) {
