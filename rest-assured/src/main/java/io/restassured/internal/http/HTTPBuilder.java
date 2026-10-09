@@ -16,12 +16,10 @@
 
 package io.restassured.internal.http;
 
-import groovy.lang.Closure;
 import io.restassured.config.DecoderConfig;
 import io.restassured.config.EncoderConfig;
 import io.restassured.config.OAuthConfig;
 import io.restassured.http.ContentType;
-import io.restassured.http.Method;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,7 +28,6 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -39,8 +36,6 @@ import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.protocol.HttpContext;
-import org.codehaus.groovy.runtime.IOGroovyMethods;
-import org.codehaus.groovy.runtime.MethodClosure;
 
 import java.io.*;
 import java.net.URI;
@@ -50,102 +45,26 @@ import java.util.Map;
 
 /**
  * <p>
- * Groovy DSL for easily making HTTP requests, and handling request and response
+ * A fork of Groovy HTTPBuilder for making HTTP requests, and handling request and response
  * data.  This class adds a number of convenience mechanisms built on top of
- * Apache HTTPClient for things like URL-encoded POSTs and REST requests that
- * require building and parsing JSON or XML.  Convenient access to a few common
- * authentication methods is also available.</p>
- * <p>
+ * Apache HTTPClient for things like URL-encoded POSTs and REST requests.</p>
  * <p>
  * <h3>Conventions</h3>
  * <p>HTTPBuilder has properties for default headers, URI, contentType, etc.
  * All of these values are also assignable (and in many cases, in much finer
  * detail) from the {@link RequestConfigDelegate} as well.  In any cases where the value
- * is not set on the delegate (from within a request closure,) the builder's
+ * is not set on the delegate (from within a {@link RequestConfigurer},) the builder's
  * default value is used.  </p>
  * <p>
- * <p>For instance, any methods that do not take a <code>uri</code> parameter
- * assume you will set the <code>uri</code> property in the request closure or
- * use HTTPBuilder's assigned {@link #getUri() default URI}.</p>
+ * <h3>Response Handling</h3>
+ * <p>The response is handled by the {@link HttpResponseHandler} registered for its status code in
+ * {@link RequestConfigDelegate#getResponse()}: either for the exact status code (i.e. <code>"404"</code>)
+ * or for its {@link Status} (<code>"success"</code> or <code>"failure"</code>).</p>
  * <p>
- * <p>
- * <h3>Response Parsing</h3>
  * <p>By default, HTTPBuilder uses {@link ContentType#ANY} as the default
  * content-type.  This means the value of the request's <code>Accept</code>
  * header is <code>&#42;/*</code>, and the response parser is determined
  * based on the response <code>content-type</code> header. </p>
- * <p>
- * <p><strong>If</strong> any contentType is given (either in
- * {@link #setContentType(Object)} or as a request method parameter), the
- * builder will attempt to parse the response using that content-type,
- * regardless of what the server actually responds with.  </p>
- * <p>
- * <p>
- * <h3>Examples:</h3>
- * Perform an HTTP GET and print the response:
- * <pre>
- *   def http = new HTTPBuilder('http://www.google.com')
- *
- *   http.get( path : '/search',
- *             contentType : TEXT,
- *             query : [q:'Groovy'] ) { resp, reader ->
- *     println "response status: ${resp.statusLine}"
- *     println 'Response data: -----'
- *     System.out << reader
- *     println '\n--------------------'
- *   }
- * </pre>
- * <p>
- * Long form for other HTTP methods, and response-code-specific handlers.
- * This is roughly equivalent to the above example.
- * <p>
- * <pre>
- *   def http = new HTTPBuilder('http://www.google.com/search?q=groovy')
- *
- *   http.request( GET, TEXT ) { req ->
- *
- *     // executed for all successful responses:
- *     response.success = { resp, reader ->
- *       println 'my response handler!'
- *       assert resp.statusLine.statusCode == 200
- *       println resp.statusLine
- *       System.out << reader // print response stream
- *     }
- *
- *     // executed only if the response status code is 401:
- *     response.'404' = { resp ->
- *       println 'not found!'
- *     }
- *   }
- * </pre>
- * <p>
- * You can also set a default response handler called for any status
- * code > 399 that is not matched to a specific handler. Setting the value
- * outside a request closure means it will apply to all future requests with
- * this HTTPBuilder instance:
- * <pre>
- *   http.handler.failure = { resp ->
- *     println "Unexpected failure: ${resp.statusLine}"
- *   }
- * </pre>
- * <p>
- * <p>
- * And...  Automatic response parsing for registered content types!
- * <p>
- * <pre>
- *   http.request( 'http://ajax.googleapis.com', GET, JSON ) {
- *     uri.path = '/ajax/services/search/web'
- *     uri.query = [ v:'1.0', q: 'Calvin and Hobbes' ]
- *
- *     response.success = { resp, json ->
- *       assert json.size() == 3
- *       println "Query response: "
- *       json.responseData.results.each {
- *         println "  ${it.titleNoFormatting} : ${it.visibleUrl}"
- *       }
- *     }
- *   }
- * </pre>
  *
  * @author <a href='mailto:tomstrummer+httpbuilder@gmail.com'>Tom Nichols</a>
  */
@@ -159,7 +78,7 @@ public abstract class HTTPBuilder {
 
     protected Object defaultContentType = ContentType.ANY;
     protected Object defaultRequestContentType = null;
-    protected final Map<Object, Closure> defaultResponseHandlers = new StringHashMap<Closure>(buildDefaultResponseHandlers());
+    protected final Map<Object, HttpResponseHandler> defaultResponseHandlers = new StringHashMap<>(buildDefaultResponseHandlers());
     protected ContentEncodingRegistry contentEncodingHandler;
 
     protected final Map<Object, Object> defaultRequestHeaders = new StringHashMap<>();
@@ -227,90 +146,8 @@ public abstract class HTTPBuilder {
     }
 
     /**
-     * <p>Convenience method to perform an HTTP GET.  It will use the HTTPBuilder's
-     * {@link #getHandler() registered response handlers} to handle success or
-     * failure status codes.  By default, the <code>success</code> response
-     * handler will attempt to parse the data and simply return the parsed
-     * object.</p>
      * <p>
-     * <p><strong>Note:</strong> If using the {@link #defaultSuccessHandler(HttpResponseDecorator, Object)
-     * default <code>success</code> response handler}, be sure to read the
-     * caveat regarding streaming response data.</p>
-     *
-     * @param args see {@link RequestConfigDelegate#setPropertiesFromMap(Map)}
-     * @return whatever was returned from the response closure.
-     * @throws URISyntaxException      if a uri argument is given which does not
-     *                                 represent a valid URI
-     * @throws IOException
-     * @throws ClientProtocolException
-     * @see #getHandler()
-     * @see #defaultSuccessHandler(HttpResponseDecorator, Object)
-     * @see #defaultFailureHandler(HttpResponseDecorator)
-     */
-    public Object get(Map<String, ?> args)
-            throws ClientProtocolException, IOException, URISyntaxException {
-        return this.get(args, null);
-    }
-
-    /**
-     * <p>Convenience method to perform an HTTP GET.  The response closure will
-     * be called only on a successful response.  </p>
-     * <p>
-     * <p>A 'failed' response (i.e. any HTTP status code > 399) will be handled
-     * by the registered 'failure' handler.  The
-     * {@link #defaultFailureHandler(HttpResponseDecorator) default failure handler}
-     * throws an {@link HttpResponseException}.</p>
-     *
-     * @param args            see {@link RequestConfigDelegate#setPropertiesFromMap(Map)}
-     * @param responseClosure code to handle a successful HTTP response
-     * @return any value returned by the response closure.
-     * @throws ClientProtocolException
-     * @throws IOException
-     * @throws URISyntaxException      if a uri argument is given which does not
-     *                                 represent a valid URI
-     */
-    public Object get(Map<String, ?> args, Closure responseClosure)
-            throws ClientProtocolException, IOException, URISyntaxException {
-        RequestConfigDelegate delegate = new RequestConfigDelegate(new HttpGet(),
-                this.defaultContentType,
-                this.defaultRequestHeaders,
-                this.defaultResponseHandlers);
-
-        delegate.setPropertiesFromMap(args);
-        if (responseClosure != null) delegate.getResponse().put(
-                Status.SUCCESS, responseClosure);
-        return this.doRequest(delegate);
-    }
-
-    /**
-     * <p>Convenience method to perform an HTTP POST.  It will use the HTTPBuilder's
-     * {@link #getHandler() registered response handlers} to handle success or
-     * failure status codes.  By default, the <code>success</code> response
-     * handler will attempt to parse the data and simply return the parsed
-     * object. </p>
-     * <p>
-     * <p><strong>Note:</strong> If using the {@link #defaultSuccessHandler(HttpResponseDecorator, Object)
-     * default <code>success</code> response handler}, be sure to read the
-     * caveat regarding streaming response data.</p>
-     *
-     * @param args see {@link RequestConfigDelegate#setPropertiesFromMap(Map)}
-     * @return whatever was returned from the response closure.
-     * @throws IOException
-     * @throws URISyntaxException      if a uri argument is given which does not
-     *                                 represent a valid URI
-     * @throws ClientProtocolException
-     * @see #getHandler()
-     * @see #defaultSuccessHandler(HttpResponseDecorator, Object)
-     * @see #defaultFailureHandler(HttpResponseDecorator)
-     */
-    public Object post(Map<String, ?> args)
-            throws ClientProtocolException, URISyntaxException, IOException {
-        return this.post(args, null);
-    }
-
-    /**
-     * <p>
-     * Convenience method to perform an HTTP form POST.  The response closure will be
+     * Convenience method to perform an HTTP form POST.  The response handler will be
      * called only on a successful response.</p>
      * <p>
      * <p>A 'failed' response (i.e. any
@@ -324,14 +161,14 @@ public abstract class HTTPBuilder {
      * (See {@link EncoderRegistry#encodeForm(Map)}.) </p>
      *
      * @param args            see {@link RequestConfigDelegate#setPropertiesFromMap(Map)}
-     * @param responseClosure code to handle a successful HTTP response
-     * @return any value returned by the response closure.
+     * @param responseHandler code to handle a successful HTTP response
+     * @return any value returned by the response handler.
      * @throws ClientProtocolException
      * @throws IOException
      * @throws URISyntaxException      if a uri argument is given which does not
      *                                 represent a valid URI
      */
-    public Object post(Map<String, ?> args, Closure responseClosure)
+    public Object post(Map<String, ?> args, HttpResponseHandler responseHandler)
             throws URISyntaxException, ClientProtocolException, IOException {
         RequestConfigDelegate delegate = new RequestConfigDelegate(new HttpPost(),
                 this.defaultContentType,
@@ -344,47 +181,16 @@ public abstract class HTTPBuilder {
         delegate.setRequestContentType(ContentType.URLENC.toString());
         delegate.setPropertiesFromMap(args);
 
-        if (responseClosure != null) delegate.getResponse().put(
-                Status.SUCCESS.toString(), responseClosure);
+        if (responseHandler != null) delegate.getResponse().put(
+                Status.SUCCESS.toString(), responseHandler);
 
         return this.doRequest(delegate);
     }
 
     /**
-     * <p>Convenience method to perform an HTTP PATCH.  It will use the HTTPBuilder's
-     * {@link #getHandler() registered response handlers} to handle success or
-     * failure status codes.  By default, the <code>success</code> response
-     * handler will attempt to parse the data and simply return the parsed
-     * object. </p>
      * <p>
-     * <p><strong>Note:</strong> If using the {@link #defaultSuccessHandler(HttpResponseDecorator, Object)
-     * default <code>success</code> response handler}, be sure to read the
-     * caveat regarding streaming response data.</p>
-     *
-     * @param args see {@link RequestConfigDelegate#setPropertiesFromMap(Map)}
-     * @return whatever was returned from the response closure.
-     * @throws IOException
-     * @throws URISyntaxException      if a uri argument is given which does not
-     *                                 represent a valid URI
-     * @throws ClientProtocolException
-     * @see #getHandler()
-     * @see #defaultSuccessHandler(HttpResponseDecorator, Object)
-     * @see #defaultFailureHandler(HttpResponseDecorator)
-     */
-    public Object patch(Map<String, ?> args)
-            throws ClientProtocolException, URISyntaxException, IOException {
-        return this.patch(args, null);
-    }
-
-    /**
-     * <p>
-     * Convenience method to perform an HTTP form PATCH.  The response closure will be
-     * called only on a successful response.</p>
-     * <p>
-     * <p>A 'failed' response (i.e. any
-     * HTTP status code > 399) will be handled by the registered 'failure'
-     * handler.  The {@link #defaultFailureHandler(HttpResponseDecorator) default
-     * failure handler} throws an {@link HttpResponseException}.</p>
+     * Convenience method to perform an HTTP form PATCH.  The response handler will be
+     * called for both successful and failed responses.</p>
      * <p>
      * <p>The request body (specified by a <code>body</code> named parameter)
      * will be converted to a url-encoded form string unless a different
@@ -392,14 +198,14 @@ public abstract class HTTPBuilder {
      * (See {@link EncoderRegistry#encodeForm(Map)}.) </p>
      *
      * @param args            see {@link RequestConfigDelegate#setPropertiesFromMap(Map)}
-     * @param responseClosure code to handle a successful HTTP response
-     * @return any value returned by the response closure.
+     * @param responseHandler code to handle the HTTP response
+     * @return any value returned by the response handler.
      * @throws ClientProtocolException
      * @throws IOException
      * @throws URISyntaxException      if a uri argument is given which does not
      *                                 represent a valid URI
      */
-    public Object patch(Map<String, ?> args, Closure responseClosure)
+    public Object patch(Map<String, ?> args, HttpResponseHandler responseHandler)
             throws URISyntaxException, ClientProtocolException, IOException {
         RequestConfigDelegate delegate = new RequestConfigDelegate(new HttpPatch(),
                 this.defaultContentType,
@@ -414,85 +220,45 @@ public abstract class HTTPBuilder {
             delegate.setPropertiesFromMap(args);
         }
 
-        if (responseClosure != null) {
-            delegate.getResponse().put(Status.SUCCESS.toString(), responseClosure);
-            delegate.getResponse().put(Status.FAILURE.toString(), responseClosure);
+        if (responseHandler != null) {
+            delegate.getResponse().put(Status.SUCCESS.toString(), responseHandler);
+            delegate.getResponse().put(Status.FAILURE.toString(), responseHandler);
         }
 
         return this.doRequest(delegate);
     }
 
     /**
-     * Make an HTTP request to the default URI, and parse using the default
-     * content-type.
+     * Make an HTTP request using the given method and content-type. The request is configured by the given
+     * {@link RequestConfigurer}, see {@link RequestConfigDelegate} for the options.
      *
-     * @param method        {@link HttpRequestFactory HTTP method}
-     * @param configClosure request configuration options
+     * @param method      the HTTP method
+     * @param contentType the response content-type, also used for the request unless the configurer sets
+     *                    {@link RequestConfigDelegate#setRequestContentType(String) another request content-type}
+     * @param hasBody     whether the request has a body
+     * @param configurer  configures options like {@link RequestConfigDelegate#getUri() uri.path},
+     *                    {@link RequestConfigDelegate#setHeaders(Map) headers},
+     *                    {@link RequestConfigDelegate#setBody(Object, Object) request body} and
+     *                    {@link RequestConfigDelegate#getResponse() response handlers}.
      * @return whatever value was returned by the executed response handler.
-     * @throws ClientProtocolException
-     * @throws IOException
-     * @see #request(Object, HttpRequestFactory, Object, Closure)
      */
-    public Object request(String method, boolean hasBody, Closure configClosure) throws ClientProtocolException, IOException {
-        return this.doRequest(this.defaultURI.toURI(), method, this.defaultContentType, hasBody, configClosure);
+    public Object request(String method, Object contentType, boolean hasBody, RequestConfigurer configurer)
+            throws IOException, URISyntaxException {
+        return this.doRequest(this.defaultURI.toURI(), method, contentType, hasBody, configurer);
     }
 
     /**
-     * Make an HTTP request using the default URI, with the given method,
-     * content-type, and configuration.
-     *
-     * @param method        {@link HttpRequestFactory HTTP method}
-     * @param contentType   either a {@link ContentType} or valid content-type string.
-     * @param configClosure request configuration options
-     * @return whatever value was returned by the executed response handler.
-     * @throws ClientProtocolException
-     * @throws IOException
-     * @see #request(Object, HttpRequestFactory, Object, Closure)
-     */
-    public Object request(String method, Object contentType, boolean hasBody, Closure configClosure)
-            throws ClientProtocolException, IOException {
-        return this.doRequest(this.defaultURI.toURI(), method, contentType, hasBody, configClosure);
-    }
-
-    /**
-     * Make a request for the given HTTP method and content-type, with
-     * additional options configured in the <code>configClosure</code>.  See
-     * {@link RequestConfigDelegate} for options.
-     *
-     * @param uri           either a {@link URL}, {@link URI} or object whose
-     *                      <code>toString()</code> produces a valid URI string.  See
-     *                      {@link URIBuilder#convertToURI(Object)}.
-     * @param method        {@link HttpRequestFactory HTTP method}
-     * @param contentType   either a {@link ContentType} or valid content-type string.
-     * @param configClosure closure from which to configure options like
-     *                      {@link RequestConfigDelegate#getUri() uri.path},
-     *                      {@link URIBuilder#setQuery(Map) request parameters},
-     *                      {@link RequestConfigDelegate#setHeaders(Map) headers},
-     *                      {@link RequestConfigDelegate#setBody(Object, Object) request body} and
-     *                      {@link RequestConfigDelegate#getResponse() response handlers}.
-     * @return whatever value was returned by the executed response handler.
-     * @throws ClientProtocolException
-     * @throws IOException
-     * @throws URISyntaxException      if the uri argument does not represent a valid URI
-     */
-    public Object request(Object uri, String method, Object contentType, boolean hasBody, Closure configClosure)
-            throws ClientProtocolException, IOException, URISyntaxException {
-        return this.doRequest(URIBuilder.convertToURI(uri), method, contentType, hasBody, configClosure);
-    }
-
-    /**
-     * Create a {@link RequestConfigDelegate} from the given arguments, execute the
-     * config closure, then pass the delegate to {@link #doRequest(RequestConfigDelegate)},
+     * Create a {@link RequestConfigDelegate} from the given arguments, configure it
+     * with the configurer, then pass the delegate to {@link #doRequest(RequestConfigDelegate)},
      * which actually executes the request.
      */
-    protected Object doRequest(URI uri, String method, Object contentType, boolean hasBody, Closure configClosure) throws IOException {
+    protected Object doRequest(URI uri, String method, Object contentType, boolean hasBody, RequestConfigurer configurer)
+            throws IOException, URISyntaxException {
         HttpRequestBase reqMethod = HttpRequestFactory.createHttpRequest(uri, method, hasBody);
         RequestConfigDelegate delegate = new RequestConfigDelegate(reqMethod, contentType,
                 this.defaultRequestHeaders,
                 this.defaultResponseHandlers);
-        configClosure.setDelegate(delegate);
-        configClosure.setResolveStrategy(Closure.DELEGATE_FIRST);
-        configClosure.call(reqMethod);
+        configurer.configure(delegate);
 
         return this.doRequest(delegate);
     }
@@ -567,31 +333,22 @@ public abstract class HTTPBuilder {
      * @see #defaultSuccessHandler(HttpResponseDecorator, Object)
      * @see #defaultFailureHandler(HttpResponseDecorator)
      */
-    protected Map<Object, Closure> buildDefaultResponseHandlers() {
-        Map<Object, Closure> map = new StringHashMap<Closure>();
-        map.put(Status.SUCCESS,
-                new MethodClosure(this, "defaultSuccessHandler"));
-        map.put(Status.FAILURE,
-                new MethodClosure(this, "defaultFailureHandler"));
+    protected Map<Object, HttpResponseHandler> buildDefaultResponseHandlers() {
+        Map<Object, HttpResponseHandler> map = new StringHashMap<>();
+        map.put(Status.SUCCESS, this::defaultSuccessHandler);
+        map.put(Status.FAILURE, (resp, content) -> {
+            defaultFailureHandler(resp);
+            return null;
+        });
 
         return map;
     }
 
     /**
-     * <p>This is the default <code>response.success</code> handler.  It will be
+     * <p>This is the default <code>success</code> response handler.  It will be
      * executed if the response is not handled by a status-code-specific handler
-     * (i.e. <code>response.'200'= {..}</code>) and no generic 'success' handler
-     * is given (i.e. <code>response.success = {..}</code>.)  This handler simply
-     * returns the parsed data from the response body.  In most cases you will
-     * probably want to define a <code>response.success = {...}</code> handler
-     * from the request closure, which will replace the response handler defined
-     * by this method.  </p>
-     * <p>
-     * <p>In practice, a user-supplied response handler closure is
-     * <i>designed</i> to handle streaming content so it can be read directly from
-     * the response stream without buffering, which will be much more efficient.
-     * Therefore, it is recommended that request method variants be used which
-     * explicitly accept a response handler closure in these cases.</p>
+     * and no generic <code>success</code> handler is given.  This handler simply
+     * returns the parsed data from the response body, buffered in memory.</p>
      *
      * @param resp       HTTP response
      * @param parsedData parsed data as resolved from this instance's {@link HttpResponseContentTypeFinder}
@@ -605,11 +362,11 @@ public abstract class HTTPBuilder {
             //If response is streaming, buffer it in a byte array:
             if (parsedData instanceof InputStream) {
                 ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                IOGroovyMethods.leftShift(buffer, (InputStream) parsedData);
+                ((InputStream) parsedData).transferTo(buffer);
                 parsedData = new ByteArrayInputStream(buffer.toByteArray());
             } else if (parsedData instanceof Reader) {
                 StringWriter buffer = new StringWriter();
-                IOGroovyMethods.leftShift(buffer, (Reader) parsedData);
+                ((Reader) parsedData).transferTo(buffer);
                 parsedData = new StringReader(buffer.toString());
             } else if (parsedData instanceof Closeable)
                 log.debug("Parsed data is streaming, but will be accessible after " +
@@ -621,13 +378,10 @@ public abstract class HTTPBuilder {
     }
 
     /**
-     * This is the default <code>response.failure</code> handler.  It will be
-     * executed if no status-code-specific handler is set (i.e.
-     * <code>response.'404'= {..}</code>).  This default handler will throw a
-     * {@link HttpResponseException} when executed.  In most cases you
-     * will want to define your own <code>response.failure = {...}</code>
-     * handler from the request closure, if you don't want an exception to be
-     * thrown for 4xx and 5xx status responses.
+     * This is the default <code>failure</code> response handler.  It will be
+     * executed if no status-code-specific handler and no generic <code>failure</code>
+     * handler is given.  This default handler will throw a
+     * {@link HttpResponseException} when executed.
      *
      * @param resp
      * @throws HttpResponseException
@@ -637,27 +391,9 @@ public abstract class HTTPBuilder {
     }
 
     /**
-     * Retrieve the map of response code handlers.  Each map key is a response
-     * code as a string (i.e. '401') or either 'success' or 'failure'.  Use this
-     * to set default response handlers, e.g.
-     * <pre>builder.handler.'401' = { resp -> println "${resp.statusLine}" }</pre>
+     * Retrieve the finder used to determine the content-type of a response.
      *
-     * @return
-     * @see Status
-     */
-    public Map<?, Closure> getHandler() {
-        return this.defaultResponseHandlers;
-    }
-
-    /**
-     * Retrieve the map of registered response content-type parsers.  Use
-     * this to set default response parsers, e.g.
-     * <pre>
-     * builder.parser.'text/javascript' = { resp ->
-     * 	  return resp.entity.content // just returns an InputStream
-     * }</pre>
-     *
-     * @return
+     * @return the response content-type finder
      */
     public HttpResponseContentTypeFinder getParser() {
         return this.parsers;
@@ -701,9 +437,8 @@ public abstract class HTTPBuilder {
      * forcibly use a certain response parser if so desired.</p>
      * <p>
      * <p>This value is a default and may always be overridden on a per-request
-     * basis by using the {@link #request(Method, Closure)}
-     * builder.request( Method, ContentType, Closure )} method or passing a
-     * <code>contentType</code> named parameter.
+     * basis by using the {@link #request(String, Object, boolean, RequestConfigurer)}
+     * method or passing a <code>contentType</code> named parameter.
      *
      * @param ct either a {@link ContentType} or string value (i.e. <code>"text/xml"</code>.)
      * @see EncoderRegistry
@@ -828,33 +563,31 @@ public abstract class HTTPBuilder {
 
 
     /**
-     * <p>Encloses all properties and method calls used within the
-     * {@link HTTPBuilder#request(Object, HttpRequestFactory, Object, Closure)} 'config'
-     * closure argument.  That is, an instance of this class is set as the
-     * closure's delegate.  This allows the user to configure various parameters
+     * <p>Encloses all properties and method calls used by the
+     * {@link RequestConfigurer} passed to {@link HTTPBuilder#request(String, Object, boolean, RequestConfigurer)}.
+     * This allows the user to configure various parameters
      * within the scope of a single request.  </p>
      * <p>
-     * <p>All properties of this class are available from within the closure.
-     * For example, you can manipulate various aspects of the
+     * <p>For example, you can manipulate various aspects of the
      * {@link HTTPBuilder#setUri(Object) default request URI} for this request
-     * by calling <code>uri.path = '/api/location'</code>.  This allows for the
+     * by calling <code>getUri().setPath("/api/location")</code>.  This allows for the
      * ability to modify parameters per-request while leaving any values set
      * directly on the HTTPBuilder instance unchanged for subsequent requests.
      * </p>
      */
-    protected class RequestConfigDelegate {
+    public class RequestConfigDelegate {
         private HttpRequestBase request;
         private Object contentType;
         private String requestContentType;
         private boolean allowContentType;
-        private Map<Object, Closure> responseHandlers = new StringHashMap<Closure>();
+        private Map<Object, HttpResponseHandler> responseHandlers = new StringHashMap<>();
         public URIBuilder uri;
         private Map<Object, Object> headers = new StringHashMap<Object>();
         private HttpContextDecorator context = new HttpContextDecorator();
 
         public RequestConfigDelegate(HttpRequestBase request, Object contentType,
                                      Map<?, ?> defaultRequestHeaders,
-                                     Map<?, Closure> defaultResponseHandlers) {
+                                     Map<?, HttpResponseHandler> defaultResponseHandlers) {
             if (request == null) throw new IllegalArgumentException(
                     "Internal error - HttpRequest instance cannot be null");
             this.request = request;
@@ -867,23 +600,14 @@ public abstract class HTTPBuilder {
             if (uri != null) this.uri = new URIBuilder(uri, urlEncodingEnabled, encoderConfig);
         }
 
-        public RequestConfigDelegate(Map<String, ?> args, HttpRequestBase request, Closure successHandler)
-                throws URISyntaxException {
-            this(request, defaultContentType, defaultRequestHeaders, defaultResponseHandlers);
-            if (successHandler != null)
-                this.responseHandlers.put(Status.SUCCESS.toString(), successHandler);
-            setPropertiesFromMap(args);
-        }
-
         /**
          * Use this object to manipulate parts of the request URI, like
          * query params and request path.  Example:
          * <pre>
-         * builder.request(GET,XML) {
-         *   uri.path = '../other/request.jsp'
-         *   uri.query = [p1:1, p2:2]
+         * builder.request("GET", XML, false, delegate -> {
+         *   delegate.getUri().setPath("../other/request.jsp");
          *   ...
-         * }</pre>
+         * });</pre>
          * <p>
          * <p>This method signature returns <code>Object</code> so that the
          * complementary {@link #setUri(Object)} method can accept various
@@ -953,7 +677,7 @@ public abstract class HTTPBuilder {
          * or a String, i.e. <code>"text/plain"</code>.  This will default to
          * {@link HTTPBuilder#getContentType()} for requests that do not
          * explicitly pass a <code>contentType</code> parameter (such as
-         * {@link HTTPBuilder#request(HttpRequestFactory, Object, Closure)}).
+         * {@link HTTPBuilder#request(String, Object, boolean, RequestConfigurer)}).
          *
          * @param ct the value that will be used for the <code>Content-Type</code>
          *           and <code>Accept</code> request headers.
@@ -980,14 +704,13 @@ public abstract class HTTPBuilder {
          * {@link #getContentType()} will always control the <code>Accept</code>
          * header, and will be used for the request content <i>unless</i> this
          * value is also explicitly set.</p>
-         * <p>Note that this method is used internally; calls within a request
-         * configuration closure should call {@link #send(Object, Object)}
-         * to set the request body and content-type at the same time.</p>
+         * <p>To set the request body and content-type at the same time, call
+         * {@link #send(Object, Object)}.</p>
          *
          * @param ct either a {@link ContentType} value or a valid content-type
          *           String.
          */
-        protected void setRequestContentType(String ct) {
+        public void setRequestContentType(String ct) {
             this.requestContentType = ct;
         }
 
@@ -1090,28 +813,6 @@ public abstract class HTTPBuilder {
          * the request body is set.  This is a variation of
          * {@link #setBody(Object, Object)} that allows for a different content-type
          * than what is expected for the response.
-         * <p>
-         * <p>Example:
-         * <pre>
-         * http.request(POST,HTML) {
-         *
-         *   /* request data is interpreted as a JsonBuilder closure by
-         *      HTTPBuilder's default EncoderRegistry implementation * /
-         *   send( 'text/javascript' ) {
-         *     a : ['one','two','three']
-         *   }
-         *
-         *   // response content-type is what was specified in the outer request() argument:
-         *   response.success = { resp, html ->
-         *
-         *   }
-         * }
-         * </pre>
-         * The <code>send</code> call is equivalent to the following:
-         * <pre>
-         *   requestContentType = 'text/javascript'
-         *   body = { a : ['one','two','three'] }
-         * </pre>
          *
          * @param contentType either a {@link ContentType} or equivalent
          *                    content-type string like <code>"text/xml"</code>
@@ -1133,7 +834,7 @@ public abstract class HTTPBuilder {
          * associated with the current {@link #getRequestContentType() request
          * content-type}.
          *
-         * @param body data or closure interpreted as the request body
+         * @param body data interpreted as the request body
          * @see #send(Object, Object)
          */
         public void setBody(Object requestContentType, Object body) {
@@ -1159,27 +860,21 @@ public abstract class HTTPBuilder {
          * @param statusCode HTTP response status code
          * @return the response handler
          */
-        public Closure findResponseHandler(int statusCode) {
-            Closure handler = this.getResponse().get(Integer.toString(statusCode));
+        public HttpResponseHandler findResponseHandler(int statusCode) {
+            HttpResponseHandler handler = this.getResponse().get(Integer.toString(statusCode));
             if (handler == null) handler =
                     this.getResponse().get(Status.find(statusCode).toString());
             return handler;
         }
 
         /**
-         * Access the response handler map to set response parsing logic.
+         * Access the response handler map to set response parsing logic, keyed by status code or {@link Status},
          * i.e.<pre>
-         * builder.request( GET, XML ) {
-         *   response.success = { xml ->
-         *      /* for XML content type, the default parser
-         *         will return an XmlSlurper * /
-         *   	xml.root.children().each { println it }
-         *   }
-         * }</pre>
+         * delegate.getResponse().put(Status.SUCCESS.toString(), (response, content) -> content);</pre>
          *
-         * @return
+         * @return the response handlers
          */
-        public Map<Object, Closure> getResponse() {
+        public Map<Object, HttpResponseHandler> getResponse() {
             return this.responseHandlers;
         }
 

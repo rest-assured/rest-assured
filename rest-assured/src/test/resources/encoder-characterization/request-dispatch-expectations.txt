@@ -1,0 +1,480 @@
+== GET plain
+matching 200: GET /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: GET /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: GET /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: GET /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== GET form params
+matching 200: GET /s/200?f=1
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: 
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: GET /s/404?f=1
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: 
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: GET /s/200?f=1
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: GET /s/404?f=1
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== POST plain
+matching 200: POST /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: 
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: POST /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: 
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: POST /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: POST /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== POST form params
+matching 200: POST /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: POST /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: POST /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: POST /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== PUT plain
+matching 200: PUT /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > body: 
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: PUT /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > body: 
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: PUT /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: PUT /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== PUT form params
+matching 200: PUT /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: PUT /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: PUT /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: PUT /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== PATCH plain
+matching 200: PATCH /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > body: 
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: PATCH /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > body: 
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: PATCH /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: PATCH /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== PATCH form params
+matching 200: PATCH /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: PATCH /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: PATCH /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: PATCH /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== DELETE plain
+matching 200: DELETE /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: DELETE /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: DELETE /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: DELETE /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== DELETE form params
+matching 200: DELETE /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: DELETE /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: DELETE /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: DELETE /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== OPTIONS plain
+matching 200: OPTIONS /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: OPTIONS /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: OPTIONS /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: OPTIONS /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== OPTIONS form params
+matching 200: OPTIONS /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: OPTIONS /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: OPTIONS /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: OPTIONS /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== HEAD plain
+matching 200: HEAD /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body 
+matching 404: HEAD /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body 
+not matching 200: HEAD /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: \n
+not matching 404: HEAD /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== HEAD form params
+matching 200: HEAD /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body 
+matching 404: HEAD /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body 
+not matching 200: HEAD /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: \n
+not matching 404: HEAD /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== PURGE plain
+matching 200: PURGE /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > body: 
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: PURGE /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > body: 
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: PURGE /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: PURGE /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [0]
+    > body: 
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n
+== PURGE form params
+matching 200: PURGE /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 200 OK | status 200 | content-type text/plain | X-Reply [r1, r2] | body body 200
+matching 404: PURGE /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < HTTP/1.1 404 Not Found | status 404 | content-type text/plain | X-Reply [r1, r2] | body body 404
+not matching 200: PURGE /s/200
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 2 expectations failed.\nExpected status code <201> but was <200>.\n\nResponse body doesn't match expectation.\nExpected: "other"\n  Actual: body 200\n
+not matching 404: PURGE /s/404
+    > Accept: [*/*]
+    > Accept-encoding: [gzip,deflate]
+    > Connection: [Keep-Alive]
+    > Content-length: [3]
+    > Content-type: [application/x-www-form-urlencoded; charset=ISO-8859-1]
+    > body: f=1
+    < EXCEPTION java.lang.AssertionError: 1 expectation failed.\nExpected status code <200> but was <404>.\n

@@ -16,11 +16,11 @@
 
 package io.restassured.internal;
 
-import groovy.lang.Closure;
 import io.restassured.config.ConnectionConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.http.Headers;
+import io.restassured.internal.common.util.GroovyStyleToString;
 import io.restassured.internal.http.*;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.parsing.Parser;
@@ -36,15 +36,13 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 import static io.restassured.http.ContentType.ANY;
-import static io.restassured.internal.RestAssuredHttpBuilderGroovyHelper.createClosureThatCalls;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.trim;
 
@@ -59,10 +57,10 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
     private boolean allowContentType;
     private Parser parser;
     FilterableResponseSpecification responseSpecification;
-    Object assertionClosure;
+    ResponseSpecificationImpl.HamcrestAssertionClosure assertionClosure;
 
     RestAssuredHttpBuilder(FilterableResponseSpecification responseSpecification, Headers requestHeaders, LinkedHashMap<String, String> queryParameters, Object defaultURI,
-                           Object assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config, AbstractHttpClient client, boolean allowContentType,
+                           ResponseSpecificationImpl.HamcrestAssertionClosure assertionClosure, boolean urlEncodingEnabled, RestAssuredConfig config, AbstractHttpClient client, boolean allowContentType,
                            Parser parser) {
         super(defaultURI, urlEncodingEnabled, orNull(config, RestAssuredConfig::getEncoderConfig), orNull(config, RestAssuredConfig::getDecoderConfig), orNull(config, RestAssuredConfig::getOAuthConfig), client);
         this.responseSpecification = responseSpecification;
@@ -85,15 +83,13 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
      *  <li>If headers contain a list of elements the headers are added and not overridden</li>
      *  </ol>
      */
-    @SuppressWarnings("rawtypes")
     @Override
     protected Object doRequest(HTTPBuilder.RequestConfigDelegate delegate) throws IOException {
         if (delegate.getRequest() instanceof HttpPost) {
             if (assertionClosure != null) {
-                Closure closureThatCallsAssertionClosure = createClosureThatCalls(assertionClosure);
                 delegate.getResponse().put(
                         Status.FAILURE.toString(),
-                        closureThatCallsAssertionClosure);
+                        (response, content) -> assertionClosure.call(response, content));
             }
             try {
                 delegate.uri.setQuery(queryParameters);
@@ -128,7 +124,7 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
                 // Don't overwrite multipart header because HTTP Client have added boundary
                 String keyAsString = key.toString();
                 if (val instanceof Collection) {
-                    Collection<String> flattened = RestAssuredHttpBuilderGroovyHelper.flattenToString((Collection) val);
+                    Collection<String> flattened = flattenToString((Collection<?>) val);
                     flattened.forEach(it ->
                             reqMethod.addHeader(keyAsString, it)
                     );
@@ -142,30 +138,19 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
                 delegate.getContext(), null);
         try {
             int status = resp.getStatusLine().getStatusCode();
-            Closure responseClosure = delegate.findResponseHandler(status);
+            HttpResponseHandler responseHandler = delegate.findResponseHandler(status);
 
-            Object returnVal;
-            switch (responseClosure.getMaximumNumberOfParameters()) {
-                case 1:
-                    returnVal = responseClosure.call(resp);
-                    break;
-                case 2: // parse the response entity if the response handler expects it:
-                    HttpEntity entity = resp.getEntity();
-                    try {
-                        if (entity == null || entity.getContentLength() == 0) {
-                            returnVal = responseClosure.call(resp, EMPTY);
-                        } else {
-                            returnVal = responseClosure.call(resp, this.parseResponse(resp, acceptContentType));
-                        }
-                    } catch (Exception ex) {
-                        throw new ResponseParseException(resp, ex);
-                    }
-                    break;
-                default:
-                    throw new IllegalArgumentException(
-                            "Response closure must accept one or two parameters");
+            HttpEntity entity = resp.getEntity();
+            try {
+                if (entity == null || entity.getContentLength() == 0) {
+                    return responseHandler.handle(resp, EMPTY);
+                } else {
+                    return responseHandler.handle(resp, this.parseResponse(resp, acceptContentType));
+                }
+            } catch (Exception ex) {
+                // A Groovy closure coerced to HttpResponseHandler has its checked exceptions wrapped by the proxy
+                throw new ResponseParseException(resp, ex instanceof UndeclaredThrowableException ? ex.getCause() : ex);
             }
-            return returnVal;
         } finally {
             if (responseSpecification instanceof ResponseSpecificationImpl && ((ResponseSpecificationImpl) responseSpecification).hasBodyAssertionsDefined()) {
                 HttpEntity entity = resp.getEntity();
@@ -227,6 +212,52 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
         }
         return super.parseResponse(resp, contentType);
     }
+
+    /**
+     * Flattens a collection header value to the strings that are sent as separate headers, like Groovy's
+     * <code>collection.flatten().collect { it?.toString() }</code> did: nested collections, iterators and arrays are
+     * flattened recursively, a present {@link Optional} is replaced by its value and an empty one is dropped,
+     * <code>null</code> is kept, and a {@link Set} drops duplicates (a {@link SortedSet} also sorts with its comparator).
+     */
+    @SuppressWarnings("unchecked")
+    static Collection<String> flattenToString(Collection<?> collection) {
+        Collection<Object> flattened;
+        if (collection instanceof SortedSet) {
+            flattened = new TreeSet<>((Comparator<Object>) ((SortedSet<?>) collection).comparator());
+        } else if (collection instanceof Set) {
+            flattened = new LinkedHashSet<>();
+        } else {
+            flattened = new ArrayList<>();
+        }
+        flattenInto(collection.iterator(), flattened);
+        List<String> strings = new ArrayList<>(flattened.size());
+        for (Object element : flattened) {
+            strings.add(element == null ? null : GroovyStyleToString.toString(element));
+        }
+        return strings;
+    }
+
+    private static void flattenInto(Iterator<?> elements, Collection<Object> flattened) {
+        while (elements.hasNext()) {
+            Object element = elements.next();
+            if (element instanceof Iterator) {
+                flattenInto((Iterator<?>) element, flattened);
+            } else if (element instanceof Collection) {
+                flattenInto(((Collection<?>) element).iterator(), flattened);
+            } else if (element != null && element.getClass().isArray()) {
+                List<Object> items = new ArrayList<>();
+                for (int i = 0; i < Array.getLength(element); i++) {
+                    items.add(Array.get(element, i));
+                }
+                flattenInto(items.iterator(), flattened);
+            } else if (element instanceof Optional) {
+                ((Optional<?>) element).ifPresent(flattened::add);
+            } else {
+                flattened.add(element);
+            }
+        }
+    }
+
 
     private ConnectionConfig connectionConfig() {
         return config == null ? ConnectionConfig.connectionConfig() : config.getConnectionConfig();
