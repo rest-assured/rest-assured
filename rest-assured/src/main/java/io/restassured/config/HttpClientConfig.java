@@ -72,6 +72,7 @@ import static java.util.Arrays.asList;
     private final HttpMultipartMode httpMultipartMode;
     private final HttpClientFactory httpClientFactory;
     private final boolean isUserConfigured;
+    private final Object httpClientLock = new Object();
     private volatile HttpClient httpClient;
 
     /**
@@ -135,6 +136,11 @@ import static java.util.Arrays.asList;
      * <pre>
      * RestAssured.config = newConfig().httpClient(httpClientConfig().reuseHttpClientInstance());
      * </pre>
+     * <p>
+     * The reused instance is reconfigured by every request that uses it (parameters, interceptors, credentials, SSL and
+     * proxy settings), so it must not be used by requests that run at the same time, even if the
+     * {@link HttpClientFactory} returns a client with a thread-safe (pooling) connection manager.
+     * </p>
      *
      * @return An updated HttpClientConfig
      * @see #httpClientFactory(HttpClientConfig.HttpClientFactory)
@@ -233,10 +239,18 @@ import static java.util.Arrays.asList;
      */
     public HttpClient httpClientInstance() {
         if (isConfiguredToReuseTheSameHttpClientInstance()) {
-            if (httpClient == NO_HTTP_CLIENT) {
-                httpClient = httpClientFactory.createHttpClient();
+            // Double-checked locking (httpClient is volatile) so that threads racing the first request share one instance
+            HttpClient client = httpClient;
+            if (client == NO_HTTP_CLIENT) {
+                synchronized (httpClientLock) {
+                    client = httpClient;
+                    if (client == NO_HTTP_CLIENT) {
+                        client = httpClientFactory.createHttpClient();
+                        httpClient = client;
+                    }
+                }
             }
-            return httpClient;
+            return client;
         }
         return httpClientFactory.createHttpClient();
     }
