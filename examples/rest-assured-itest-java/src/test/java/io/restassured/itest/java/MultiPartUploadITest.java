@@ -62,6 +62,34 @@ public class MultiPartUploadITest extends WithJetty {
     }
 
     @Test
+    void byteArrayMultiPartInAReusedSpecificationIsSentWithItsContentEveryTime() {
+        // Given
+        RequestSpecification spec = new RequestSpecBuilder().addMultiPart("file", "myFile", "hello".getBytes(StandardCharsets.UTF_8)).build();
+
+        // When
+        String first = given().spec(spec).post("/multipart/file").then().statusCode(200).extract().asString();
+        String second = given().spec(spec).post("/multipart/file").then().statusCode(200).extract().asString();
+
+        // Then
+        assertThat(first).isEqualTo("hello");
+        assertThat(second).isEqualTo("hello");
+    }
+
+    @Test
+    void byteArrayMultiPartInAReusedRequestSpecificationIsSentWithItsContentEveryTime() {
+        // Given
+        RequestSpecification request = given().multiPart("file", "myFile", "hello".getBytes(StandardCharsets.UTF_8));
+
+        // When
+        String first = request.post("/multipart/file").then().statusCode(200).extract().asString();
+        String second = request.post("/multipart/file").then().statusCode(200).extract().asString();
+
+        // Then
+        assertThat(first).isEqualTo("hello");
+        assertThat(second).isEqualTo("hello");
+    }
+
+    @Test
     void multiPartUploadingWorksForStrings() {
         // When
         given().
