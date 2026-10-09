@@ -24,6 +24,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -34,7 +35,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyStore;
+import java.security.UnrecoverableKeyException;
+import java.util.Locale;
 
 import static io.restassured.RestAssured.config;
 import static io.restassured.RestAssured.given;
@@ -58,6 +64,7 @@ import static org.hamcrest.Matchers.equalTo;
  * keytool -importcert -noprompt -alias server -file server.cer -storetype PKCS12 \
  *   -keystore client_certificate_auth.p12 -storepass changeit
  * </pre>
+ * The JCEKS and JKS files of the tests are made from these in {@link #createStore(String, String, boolean)}.
  */
 class CertificateAuthMutualTlsTest {
 
@@ -66,9 +73,13 @@ class CertificateAuthMutualTlsTest {
     private static final String PASSWORD = "changeit";
 
     private static HttpsServer httpsServer;
+    private static HttpsServer oneWayHttpsServer;
+
+    @TempDir
+    static Path tempDir;
 
     @BeforeAll
-    static void startServerThatRequiresAClientCertificate() throws Exception {
+    static void startServers() throws Exception {
         KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         keyManagerFactory.init(loadKeyStore(SERVER_KEYSTORE), PASSWORD.toCharArray());
         // The server only trusts the certificate of the client
@@ -80,28 +91,36 @@ class CertificateAuthMutualTlsTest {
         SSLContext sslContext = SSLContext.getInstance("TLS");
         sslContext.init(keyManagerFactory.getKeyManagers(), trustManagerFactory.getTrustManagers(), null);
 
-        httpsServer = HttpsServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-        httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext) {
+        httpsServer = startServer(sslContext, true);
+        // A server that doesn't ask for a client certificate
+        oneWayHttpsServer = startServer(sslContext, false);
+    }
+
+    private static HttpsServer startServer(SSLContext sslContext, boolean needClientAuth) throws IOException {
+        HttpsServer server = HttpsServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.setHttpsConfigurator(new HttpsConfigurator(sslContext) {
             @Override
             public void configure(HttpsParameters params) {
                 SSLParameters sslParameters = getSSLContext().getDefaultSSLParameters();
-                sslParameters.setNeedClientAuth(true);
+                sslParameters.setNeedClientAuth(needClientAuth);
                 params.setSSLParameters(sslParameters);
             }
         });
-        httpsServer.createContext("/hello", exchange -> {
+        server.createContext("/hello", exchange -> {
             byte[] body = "hello".getBytes(StandardCharsets.UTF_8);
             exchange.sendResponseHeaders(200, body.length);
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(body);
             }
         });
-        httpsServer.start();
+        server.start();
+        return server;
     }
 
     @AfterAll
-    static void stopServer() {
+    static void stopServers() {
         httpsServer.stop(0);
+        oneWayHttpsServer.stop(0);
     }
 
     @AfterEach
@@ -214,8 +233,105 @@ class CertificateAuthMutualTlsTest {
                 .hasStackTraceContaining("PKIX path building failed");
     }
 
+    @Test
+    void certificate_reads_a_trust_store_only_file_with_the_trust_store_type() throws Exception {
+        String trustStoreOnly = createStore("JCEKS", PASSWORD, false);
+
+        given().
+                auth().certificate(trustStoreOnly, PASSWORD, certAuthSettings().trustStoreType("JCEKS")).
+        when().
+                get(oneWayUrl()).
+        then().
+                statusCode(200).
+                body(equalTo("hello"));
+    }
+
+    @Test
+    void statically_configured_certificate_reads_a_trust_store_only_file_with_the_trust_store_type_of_the_ssl_config() throws Exception {
+        String trustStoreOnly = createStore("JCEKS", PASSWORD, false);
+        RestAssured.config = config().sslConfig(sslConfig().trustStoreType("JCEKS"));
+        RestAssured.authentication = RestAssured.certificate(trustStoreOnly, PASSWORD);
+
+        given().
+        when().
+                get(oneWayUrl()).
+        then().
+                statusCode(200).
+                body(equalTo("hello"));
+    }
+
+    @Test
+    void certificate_sends_the_client_certificate_of_a_key_store_read_with_the_trust_store_type() throws Exception {
+        String keyStore = createStore("JCEKS", PASSWORD, true);
+
+        given().
+                auth().certificate(keyStore, PASSWORD, certAuthSettings().trustStoreType("JCEKS")).
+        when().
+                get(url()).
+        then().
+                statusCode(200).
+                body(equalTo("hello"));
+    }
+
+    @Test
+    void certificate_explains_that_the_private_key_must_have_the_password_of_the_file() throws Exception {
+        String keyStore = createStore("JKS", "another password", true);
+
+        assertThatThrownBy(() ->
+                given().
+                        auth().certificate(keyStore, PASSWORD, certAuthSettings().trustStoreType("JKS")).
+                when().
+                        get(url()))
+                .isInstanceOf(UnrecoverableKeyException.class)
+                .hasMessage("The private key in " + keyStore + " can't be read with the given password. The file given to " +
+                        "certificate(..) is used as key store as well as trust store, so its private key must have the password " +
+                        "of the file. Use RestAssured.certificate(trustStorePath, trustStorePassword, keyStorePath, keyStorePassword, " +
+                        "CertificateAuthSettings) to use separate files, or an empty key store path to use the file only as trust store.");
+    }
+
+    @Test
+    void statically_configured_certificate_reads_the_key_store_of_the_ssl_config_with_its_password() throws Exception {
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        try (InputStream is = Files.newInputStream(Paths.get(createStore("JKS", "key password", true)))) {
+            keyStore.load(is, PASSWORD.toCharArray());
+        }
+        RestAssured.config = config().sslConfig(sslConfig().keyStore(keyStore).keyStore("key password"));
+        RestAssured.authentication = RestAssured.certificate(CLIENT_KEYSTORE, PASSWORD);
+
+        given().
+        when().
+                get(url()).
+        then().
+                statusCode(200).
+                body(equalTo("hello"));
+    }
+
     private static String url() {
         return "https://localhost:" + httpsServer.getAddress().getPort() + "/hello";
+    }
+
+    private static String oneWayUrl() {
+        return "https://localhost:" + oneWayHttpsServer.getAddress().getPort() + "/hello";
+    }
+
+    /**
+     * Create a key store file of the given type, with store password {@value #PASSWORD}, that trusts the server's
+     * certificate and, if <code>withClientKey</code>, holds the client's private key with the given key password.
+     */
+    private static String createStore(String type, String keyPassword, boolean withClientKey) throws Exception {
+        KeyStore clientKeyStore = loadKeyStore(CLIENT_KEYSTORE);
+        KeyStore store = KeyStore.getInstance(type);
+        store.load(null, null);
+        store.setCertificateEntry("server", clientKeyStore.getCertificate("server"));
+        if (withClientKey) {
+            store.setKeyEntry("client", clientKeyStore.getKey("client", PASSWORD.toCharArray()), keyPassword.toCharArray(),
+                    clientKeyStore.getCertificateChain("client"));
+        }
+        Path file = Files.createTempFile(tempDir, "store", "." + type.toLowerCase(Locale.ROOT));
+        try (OutputStream os = Files.newOutputStream(file)) {
+            store.store(os, PASSWORD.toCharArray());
+        }
+        return file.toAbsolutePath().toString();
     }
 
     private static KeyStore loadKeyStore(String resource) throws Exception {

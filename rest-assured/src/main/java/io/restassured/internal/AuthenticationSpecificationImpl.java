@@ -15,9 +15,9 @@
  */
 package io.restassured.internal;
 
+import io.restassured.RestAssured;
 import io.restassured.authentication.AuthenticationScheme;
 import io.restassured.authentication.BasicAuthScheme;
-import io.restassured.authentication.CertAuthScheme;
 import io.restassured.authentication.CertificateAuthSettings;
 import io.restassured.authentication.ExplicitNoAuthScheme;
 import io.restassured.authentication.FormAuthConfig;
@@ -116,19 +116,8 @@ public class AuthenticationSpecificationImpl implements AuthenticationSpecificat
         notNull(password, "password");
         notNull(settings, CertificateAuthSettings.class);
 
-        CertAuthScheme scheme = new CertAuthScheme();
-        scheme.setPathToKeyStore(certURL);
-        scheme.setKeyStorePassword(password);
-        scheme.setKeystoreType(settings.getKeyStoreType());
-        scheme.setKeyStore(settings.getKeyStore());
-        scheme.setPathToTrustStore(certURL);
-        scheme.setTrustStorePassword(password);
-        scheme.setTrustStoreType(settings.getTrustStoreType());
-        scheme.setTrustStore(settings.getTrustStore());
-        scheme.setPort(settings.getPort());
-        scheme.setX509HostnameVerifier(settings.getX509HostnameVerifier());
-        scheme.setSslSocketFactory(settings.getSSLSocketFactory());
-        return use(scheme);
+        // RestAssured.certificate(..) reads the file as key store and trust store
+        return use(RestAssured.certificate(certURL, password, settings));
     }
 
     /**

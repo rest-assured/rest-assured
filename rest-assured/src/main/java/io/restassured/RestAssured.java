@@ -1304,7 +1304,9 @@ public class RestAssured {
      * <p>
      * Uses SSL settings defined in {@link SSLConfig}. A key store or trust store set there with
      * {@link SSLConfig#keyStore(java.security.KeyStore)} or {@link SSLConfig#trustStore(java.security.KeyStore)} is used
-     * instead of the file for that purpose.
+     * instead of the file for that purpose. The keys of such a key store are read with the key store password of the
+     * {@link SSLConfig} ({@link SSLConfig#keyStore(String)}) if there is one, and otherwise with <code>password</code>.
+     * The file is read as key store with the trust store type, unless the key store type is set.
      * </p>
      *
      * @param certURL  URL to a key store (for example a JKS or PKCS12 file) with the client certificate, also used as trust store.
@@ -1313,9 +1315,12 @@ public class RestAssured {
      */
     public static AuthenticationScheme certificate(String certURL, String password) {
         SSLConfig sslConfig = config().getSSLConfig();
-        return certificate(certURL, password, CertificateAuthSettings.certAuthSettings().keyStoreType(sslConfig.getKeyStoreType()).trustStore(sslConfig.getTrustStore()).
+        CertificateAuthSettings settings = CertificateAuthSettings.certAuthSettings().keyStoreType(sslConfig.getKeyStoreType()).trustStore(sslConfig.getTrustStore()).
                 keyStore(sslConfig.getKeyStore()).trustStoreType(sslConfig.getTrustStoreType()).x509HostnameVerifier(sslConfig.getX509HostnameVerifier()).
-                port(sslConfig.getPort()).sslSocketFactory(sslConfig.getSSLSocketFactory()));
+                port(sslConfig.getPort()).sslSocketFactory(sslConfig.getSSLSocketFactory());
+        // A key store set in SSLConfig is used instead of the file, so its keys are read with its own password when SSLConfig has one
+        String keyStorePassword = sslConfig.getKeyStore() != null && sslConfig.getKeyStorePassword() != null ? sslConfig.getKeyStorePassword() : password;
+        return certificateFromKeyStoreFile(certURL, password, keyStorePassword, settings);
     }
 
     /**
@@ -1328,6 +1333,7 @@ public class RestAssured {
      * {@link CertificateAuthSettings#keyStore(java.security.KeyStore)} or {@link CertificateAuthSettings#trustStore(java.security.KeyStore)}
      * is used instead of the file for that purpose. Use {@link #certificate(String, String, String, String, CertificateAuthSettings)}
      * to use different files as trust store and key store, or an empty trust store path to use the JVM's default trust store.
+     * The file is read as key store with the trust store type, unless the key store type is set.
      * </p>
      *
      * @param certURL                 URL to a key store (for example a JKS or PKCS12 file) with the client certificate, also used as trust store.
@@ -1335,7 +1341,16 @@ public class RestAssured {
      * @param certificateAuthSettings More advanced settings for the certificate authentication
      */
     public static AuthenticationScheme certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings) {
-        return certificate(certURL, password, certURL, password, certificateAuthSettings);
+        return certificateFromKeyStoreFile(certURL, password, password, certificateAuthSettings);
+    }
+
+    private static AuthenticationScheme certificateFromKeyStoreFile(String certURL, String password, String keyStorePassword,
+                                                                    CertificateAuthSettings settings) {
+        AssertParameter.notNull(settings, CertificateAuthSettings.class);
+        // The file was only read as trust store before, so it's read as key store with the trust store type, unless the key
+        // store type was changed from its default (the same in CertificateAuthSettings and SSLConfig)
+        String keyStoreType = KeyStore.getDefaultType().equals(settings.getKeyStoreType()) ? settings.getTrustStoreType() : settings.getKeyStoreType();
+        return certificate(certURL, password, certURL, keyStorePassword, settings.keyStoreType(keyStoreType));
     }
 
     /**
