@@ -33,7 +33,7 @@
 		<junit-bom.version>6.0.1</junit-bom.version>
 		<logback.version>1.4.14</logback.version>
 		<spring.version>7.0.9</spring.version>
-		<spring.security.version>6.5.7</spring.security.version>
+		<spring.security.version>6.5.11</spring.security.version>
 		<jetty.version>11.0.26</jetty.version>
 
 		<duplicate-finder-maven-plugin.phase>none</duplicate-finder-maven-plugin.phase>
