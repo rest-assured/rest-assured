@@ -106,11 +106,19 @@ class CsrfTokenFinderTest {
                 "<form><input type=\"hidden\" name=\"my-field\" value=\"field-value\"/>" +
                 "<input type=\"hidden\" name=\"_csrf\" value=\"ignored\"/></form></body></html>";
         CsrfConfig formConfig = csrfConfig().csrfInputFieldName("my-field").csrfPrioritization(FORM);
-        // csrfMetaTagName(..) also overwrites the input field name, so set the input field name afterwards
-        CsrfConfig headerConfig = csrfConfig().csrfMetaTagName("my-meta").csrfInputFieldName("my-field").csrfHeaderName("X-My-Header").csrfPrioritization(HEADER);
+        CsrfConfig headerConfig = csrfConfig().csrfInputFieldName("my-field").csrfMetaTagName("my-meta").csrfHeaderName("X-My-Header").csrfPrioritization(HEADER);
 
         assertCsrfData(CsrfTokenFinder.findInHtml(formConfig, html(page)), "my-field", "field-value", FORM);
         assertCsrfData(CsrfTokenFinder.findInHtml(headerConfig, html(page)), "X-My-Header", "meta-value", HEADER);
+    }
+
+    @Test
+    void finds_the_configured_input_field_when_a_meta_tag_name_is_configured_afterwards() {
+        String page = "<html><head><meta name=\"my-meta\" content=\"meta-value\"/></head><body>" +
+                "<form><input type=\"hidden\" name=\"my-field\" value=\"field-value\"/></form></body></html>";
+        CsrfConfig config = csrfConfig().csrfInputFieldName("my-field").csrfMetaTagName("my-meta").csrfPrioritization(FORM);
+
+        assertCsrfData(CsrfTokenFinder.findInHtml(config, html(page)), "my-field", "field-value", FORM);
     }
 
     @Test
