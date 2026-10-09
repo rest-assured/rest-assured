@@ -145,6 +145,7 @@ class ContentTypeSubTypeExtractorTest {
         assertThat(getSubTypeValueFromContentType("multipart/form-data; boundary=abc=def", "boundary")).isEqualTo("abc=def");
         assertThat(getSubTypeValueFromContentType("multipart/form-data; boundary=\"abc=def\"", "boundary")).isEqualTo("abc=def");
         assertThat(getSubTypeValueFromContentType("multipart/form-data; boundary==abc=", "boundary")).isEqualTo("=abc=");
+        assertThat(getSubTypeValueFromContentType("multipart/form-data; boundary=abc==", "boundary")).isEqualTo("abc==");
         assertThat(getSubTypeValueFromContentType("multipart/form-data; boundary=\"=\"", "boundary")).isEqualTo("=");
     }
 
