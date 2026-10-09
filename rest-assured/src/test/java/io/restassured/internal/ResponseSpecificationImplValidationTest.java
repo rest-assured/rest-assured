@@ -400,6 +400,18 @@ class ResponseSpecificationImplValidationTest {
     }
 
     @Test
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    void path_arguments_that_are_not_arguments_fail_with_illegal_argument_exception() {
+        // The Groovy version failed with groovy.lang.MissingMethodException
+        List notArguments = Collections.singletonList("b");
+        String message = "Path arguments must be instances of io.restassured.specification.Argument, use withArgs(..) to create them. Was '[b]'.";
+        assertThatThrownBy(() -> spec().rootPath("a.%s", notArguments).body("c", equalTo(1)))
+                .isExactlyInstanceOf(IllegalArgumentException.class).hasMessage(message);
+        assertThatThrownBy(() -> spec().body("a.%s", notArguments, equalTo(1)))
+                .isExactlyInstanceOf(IllegalArgumentException.class).hasMessage(message);
+    }
+
+    @Test
     void a_value_that_is_not_a_matcher_fails_with_a_class_cast_exception() {
         String message = "Cannot cast object 'x' with class 'java.lang.String' to class 'org.hamcrest.Matcher'";
         assertThatThrownBy(() -> spec().body("a", equalTo(1), "b", "x")).isInstanceOf(ClassCastException.class).hasMessage(message);

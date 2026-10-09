@@ -758,7 +758,7 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         if (value == null || value instanceof Matcher) {
             return (Matcher<?>) value;
         }
-        throw new ClassCastException("Cannot cast object '" + format(value) + "' with class '" + value.getClass().getName() + "' to class '" + Matcher.class.getName() + "'");
+        throw new ClassCastException("Cannot cast object '" + value + "' with class '" + value.getClass().getName() + "' to class '" + Matcher.class.getName() + "'");
     }
 
     @SuppressWarnings("unchecked")
@@ -783,7 +783,11 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
             }
             Object[] args = new Object[arguments.size()];
             for (int i = 0; i < args.length; i++) {
-                args[i] = arguments.get(i).getArgument();
+                Object argument = ((List<?>) arguments).get(i);
+                if (!(argument instanceof Argument)) {
+                    throw new IllegalArgumentException("Path arguments must be instances of " + Argument.class.getName() + ", use withArgs(..) to create them. Was '" + format(arguments) + "'.");
+                }
+                args[i] = ((Argument) argument).getArgument();
             }
             path = String.format(path, args);
         }
