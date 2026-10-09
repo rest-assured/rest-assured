@@ -21,7 +21,6 @@ import com.sun.net.httpserver.HttpServer;
 import io.restassured.builder.ResponseBuilder;
 import io.restassured.filter.time.TimingFilter;
 import io.restassured.internal.RestAssuredResponseImpl;
-import io.restassured.path.xml.XmlPath;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,11 +99,13 @@ class ResponseAccessorsTest {
     }
 
     @Test
-    void html_path_returns_xml_path() {
+    void path_evaluates_the_path_for_an_html_response() {
         Response response = given().get("/html");
 
-        assertThat((Object) response.path("html.body.p")).isInstanceOf(XmlPath.class);
+        assertThat(response.<String>path("html.body.p")).isEqualTo("x");
         assertThat(response.htmlPath().getString("html.body.p")).isEqualTo("x");
+        String extracted = given().get("/html").then().extract().path("html.body.p");
+        assertThat(extracted).isEqualTo("x");
     }
 
     @Test

@@ -377,9 +377,7 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         } else if (containsIgnoreCase(contentType, "json")) {
             return jsonPath().get(path);
         } else if (containsIgnoreCase(contentType, "html")) {
-            // Returns the XmlPath itself instead of evaluating the path. Kept as is, see the characterization tests.
-            //noinspection unchecked
-            return (T) newXmlPath(CompatibilityMode.HTML);
+            return htmlPath().get(path);
         }
         throw new IllegalStateException("Cannot determine which path implementation to use because the content-type " + contentType + " doesn't map to a path implementation.");
     }

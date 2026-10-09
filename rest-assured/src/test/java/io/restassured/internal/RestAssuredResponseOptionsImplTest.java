@@ -39,7 +39,6 @@ import io.restassured.mapper.ObjectMapperType;
 import io.restassured.parsing.Parser;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.path.json.config.JsonPathConfig.NumberReturnType;
-import io.restassured.path.xml.XmlPath;
 import io.restassured.path.xml.XmlPath.CompatibilityMode;
 import io.restassured.path.xml.config.XmlPathConfig;
 import io.restassured.response.Response;
@@ -684,13 +683,11 @@ class RestAssuredResponseOptionsImplTest {
     }
 
     @Test
-    void path_returns_the_xml_path_itself_for_html_content_type() {
-        RestAssuredResponseImpl response = response("<html><body><p>x</p></body></html>", "text/html");
+    void path_uses_html_path_for_html_content_type() {
+        RestAssuredResponseImpl response = response("<html><body><p>x</p><br></body></html>", "text/html");
 
-        Object result = response.path("html.body.p");
-
-        assertThat(result).isInstanceOf(XmlPath.class);
-        assertThat(((XmlPath) result).getString("html.body.p")).isEqualTo("x");
+        assertThat(response.<String>path("html.body.p")).isEqualTo("x");
+        assertThat(response.<String>path("html.%s.p", "body")).isEqualTo("x");
     }
 
     @Test
