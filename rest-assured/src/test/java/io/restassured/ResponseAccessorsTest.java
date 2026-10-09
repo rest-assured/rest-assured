@@ -27,6 +27,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -116,6 +117,17 @@ class ResponseAccessorsTest {
         assertThat(clone.asString()).isEqualTo("{\"s\":\"åäö\"}");
         assertThat(clone.time()).isEqualTo(response.time());
         assertThat(clone.sessionId()).isEqualTo("abc");
+    }
+
+    @Test
+    void cloned_response_with_body_expectations_and_a_stream_body_can_be_read_as_byte_array() {
+        Response response = given().expect().body("s", equalTo("\u00e5\u00e4\u00f6")).when().get("/json");
+        byte[] newBody = "{\"s\":\"x\"}".getBytes(StandardCharsets.UTF_8);
+
+        Response clone = new ResponseBuilder().clone(response).setBody(new ByteArrayInputStream(newBody)).build();
+
+        assertThat(clone.asByteArray()).isEqualTo(newBody);
+        assertThat(clone.asString()).isEqualTo("{\"s\":\"x\"}");
     }
 
     private static void send(HttpExchange exchange, String contentType, String body) throws IOException {

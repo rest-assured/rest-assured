@@ -400,9 +400,7 @@ public class RestAssuredResponseOptionsImpl<R extends ResponseOptions<R>> implem
         if (content == null) {
             return new byte[0];
         }
-        if (hasExpectations) {
-            return content instanceof byte[] ? (byte[]) content : convertStringToByteArray((String) content);
-        } else if (content instanceof byte[]) {
+        if (content instanceof byte[]) {
             return (byte[]) content;
         } else if (content instanceof String) {
             return convertStringToByteArray((String) content);
