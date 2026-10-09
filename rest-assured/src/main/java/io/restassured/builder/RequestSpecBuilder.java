@@ -55,7 +55,7 @@ import static io.restassured.internal.common.assertion.AssertParameter.notNull;
  * ResponseSpecification responseSpec = new ResponseSpecBuilder().expectStatusCode(200).build();
  * RequestSpecification requestSpec = new RequestSpecBuilder().addParam("parameter1", "value1").build();
  *
- * given(responseSpec, requestSpec).post("/something");
+ * given(requestSpec, responseSpec).post("/something");
  * </pre>
  * <p/>
  * or
@@ -1091,7 +1091,15 @@ public class RequestSpecBuilder {
     }
 
     /**
-     * Build RequestSpecBuilder.
+     * Build the request specification. The specification is meant to be added to a request, it can't send a request
+     * itself. Use it with {@link RestAssured#given(RequestSpecification)} or {@link RequestSpecification#spec(RequestSpecification)}, e.g.
+     * <pre>
+     * RequestSpecification requestSpec = new RequestSpecBuilder().addHeader("name", "value").build();
+     *
+     * given().spec(requestSpec).when().get("/something");
+     * </pre>
+     * Sending a request (e.g. <code>requestSpec.when().get("/something")</code>) or defining response expectations
+     * (e.g. <code>requestSpec.then()</code>) directly from the built specification throws an {@link IllegalStateException}.
      *
      * @return The assembled request specification
      */

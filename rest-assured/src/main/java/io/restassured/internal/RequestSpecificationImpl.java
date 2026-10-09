@@ -274,6 +274,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public ResponseSpecification response() {
+        assertNotBuiltByRequestSpecBuilder();
         return responseSpecification;
     }
 
@@ -482,6 +483,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public Response get(String path, Map<String, ?> pathParamsMap) {
         return ExceptionUnwrapper.runWithUnwrap(() -> {
+            assertNotBuiltByRequestSpecBuilder();
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(GET, path);
         });
@@ -490,6 +492,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public Response post(String path, Map<String, ?> pathParamsMap) {
         return ExceptionUnwrapper.runWithUnwrap(() -> {
+            assertNotBuiltByRequestSpecBuilder();
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(POST, path);
         });
@@ -498,6 +501,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public Response put(String path, Map<String, ?> pathParamsMap) {
         return ExceptionUnwrapper.runWithUnwrap(() -> {
+            assertNotBuiltByRequestSpecBuilder();
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(PUT, path);
         });
@@ -506,6 +510,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public Response delete(String path, Map<String, ?> pathParamsMap) {
         return ExceptionUnwrapper.runWithUnwrap(() -> {
+            assertNotBuiltByRequestSpecBuilder();
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(DELETE, path);
         });
@@ -514,6 +519,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public Response head(String path, Map<String, ?> pathParamsMap) {
         return ExceptionUnwrapper.runWithUnwrap(() -> {
+            assertNotBuiltByRequestSpecBuilder();
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(HEAD, path);
         });
@@ -522,6 +528,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public Response patch(String path, Map<String, ?> pathParamsMap) {
         return ExceptionUnwrapper.runWithUnwrap(() -> {
+            assertNotBuiltByRequestSpecBuilder();
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(PATCH, path);
         });
@@ -530,6 +537,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public Response options(String path, Map<String, ?> pathParamsMap) {
         return ExceptionUnwrapper.runWithUnwrap(() -> {
+            assertNotBuiltByRequestSpecBuilder();
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(OPTIONS, path);
         });
@@ -538,6 +546,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public Response query(String path, Map<String, ?> pathParamsMap) {
         return ExceptionUnwrapper.runWithUnwrap(() -> {
+            assertNotBuiltByRequestSpecBuilder();
             pathParams(pathParamsMap);
             return applyPathParamsAndSendRequest(QUERY, path);
         });
@@ -911,11 +920,13 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public ResponseSpecification then() {
+        assertNotBuiltByRequestSpecBuilder();
         return responseSpecification;
     }
 
     @Override
     public ResponseSpecification expect() {
+        assertNotBuiltByRequestSpecBuilder();
         return responseSpecification;
     }
 
@@ -2125,7 +2136,17 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         return isSerializableCandidate(object) ? ObjectMapping.serialize(object, contentType, findEncoderCharsetOrReturnDefault(contentType), null, objectMappingConfig(), restAssuredConfig().getEncoderConfig()) : String.valueOf(object);
     }
 
+    // A specification built by RequestSpecBuilder has no response specification. It's merged into the specification
+    // that given() creates, so it never sends a request (which would change it) or holds expectations itself.
+    private void assertNotBuiltByRequestSpecBuilder() {
+        if (responseSpecification == null) {
+            throw new IllegalStateException("A request specification built by RequestSpecBuilder can't send a request or hold response expectations itself. " +
+                    "Use it with given().spec(specification) or given(specification), e.g. given().spec(specification).when().get(\"/path\").");
+        }
+    }
+
     private Response applyPathParamsAndSendRequest(String method, String path, Object... unnamedPathParams) {
+        assertNotBuiltByRequestSpecBuilder();
         notNull(path, "path");
         notNull(trimToNull(method), "Method");
         notNull(unnamedPathParams, "Path params");
