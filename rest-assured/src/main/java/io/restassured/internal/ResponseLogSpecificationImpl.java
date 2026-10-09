@@ -35,6 +35,14 @@ public class ResponseLogSpecificationImpl extends LogSpecificationImpl implement
     private ResponseSpecification responseSpecification;
     private LogRepository logRepository;
 
+    public ResponseLogSpecificationImpl() {
+    }
+
+    public ResponseLogSpecificationImpl(ResponseSpecification responseSpecification, LogRepository logRepository) {
+        this.responseSpecification = responseSpecification;
+        this.logRepository = logRepository;
+    }
+
     @Override
     public ResponseSpecification body() {
         return body(shouldPrettyPrint());

@@ -47,6 +47,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -194,6 +195,25 @@ class ResponseSpecificationImplValidationTest {
         Matcher<String> matcher = startsWith("text");
         spec.contentType(matcher);
         assertThat(responseContentTypeOfAssertionClosure(spec)).isSameAs(matcher);
+    }
+
+    @Test
+    void response_content_type_is_the_expected_content_type_as_string_or_any() {
+        // The Groovy version failed with a StackOverflowError
+        ResponseSpecificationImpl spec = spec();
+        assertThat(spec.getResponseContentType()).isEqualTo("*/*");
+
+        spec.contentType("");
+        assertThat(spec.getResponseContentType()).isEqualTo("*/*");
+
+        spec.contentType("text/plain");
+        assertThat(spec.getResponseContentType()).isEqualTo("text/plain");
+
+        spec.contentType(ContentType.XML);
+        assertThat(spec.getResponseContentType()).isEqualTo("application/xml");
+
+        spec.contentType(startsWith("text"));
+        assertThat(spec.getResponseContentType()).isEqualTo("a string starting with \"text\"");
     }
 
     private static Object responseContentTypeOfAssertionClosure(ResponseSpecificationImpl spec) throws Exception {
@@ -365,6 +385,18 @@ class ResponseSpecificationImplValidationTest {
 
         assertThatThrownBy(() -> then().rootPath("a").body("b", equalTo(1), new GStringImpl(new Object[]{"b"}, new String[]{"", ""}), equalTo(2)))
                 .hasMessage("1 expectation failed.\nJSON path a.b doesn't match.\nExpected: <2>\n  Actual: <1>\n");
+    }
+
+    @Test
+    void a_key_that_is_not_a_string_is_used_in_its_string_form_and_a_list_key_must_hold_arguments() {
+        // The Groovy version failed with groovy.lang.MissingMethodException in both cases
+        get(new ResponseBuilder().setStatusCode(200).setContentType(ContentType.JSON).setBody("{\"5\":\"five\"}")).then()
+                .body("5", equalTo("five"), 5, equalTo("five"));
+        assertThatThrownBy(() -> then().rootPath("a").body("b", equalTo(1), 5, equalTo(2)))
+                .hasMessage("1 expectation failed.\nJSON path a.5 doesn't match.\nExpected: <2>\n  Actual: null\n");
+        assertThatThrownBy(() -> spec().rootPath("a.%s").body("a", equalTo(1), Collections.singletonList("b"), equalTo(2)))
+                .isExactlyInstanceOf(IllegalArgumentException.class)
+                .hasMessage("The path of a body expectation must be a String or a list of io.restassured.specification.Argument, was '[b]'.");
     }
 
     @Test
@@ -756,6 +788,21 @@ class ResponseSpecificationImplValidationTest {
         ResponseSpecificationImpl spec = spec();
         assertThat(spec.specification(other)).isSameAs(spec);
         assertThat(spec.getStatusCode().matches(201)).isTrue();
+    }
+
+    @Test
+    void spec_only_merges_specifications_created_by_rest_assured() {
+        // The Groovy version failed with groovy.lang.MissingMethodException
+        ResponseSpecification other = (ResponseSpecification) Proxy.newProxyInstance(getClass().getClassLoader(),
+                new Class<?>[]{ResponseSpecification.class}, (proxy, method, args) -> null);
+
+        assertThatThrownBy(() -> spec().spec(other))
+                .isExactlyInstanceOf(IllegalArgumentException.class)
+                .hasMessageStartingWith("Cannot merge a response specification of type " + other.getClass().getName())
+                .hasMessageEndingWith(", it must be of type io.restassured.internal.ResponseSpecificationImpl.");
+        assertThatThrownBy(() -> spec().spec(null))
+                .isExactlyInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Specification to merge with cannot be null");
     }
 
     @Test
