@@ -1593,7 +1593,8 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
     def multipartMode = httpClientConfig().httpMultipartMode()
     // For "defaultCharset" to be taken into account we need to 
 
-    http.encoders.putAt ct, { contentType, content ->
+    // The closure is coerced explicitly, otherwise Groovy dispatches to DefaultGroovyMethods.putAt(Object, String, Object)
+    RequestBodyEncoder multiPartEncoder = { contentType, content ->
       RestAssuredMultiPartEntity entity = new RestAssuredMultiPartEntity(subType, charsetToUse, multipartMode, boundaryToUse)
 
       multiParts.each {
@@ -1613,6 +1614,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
       entity
     }
+    http.encoders.putAt(ct, multiPartEncoder)
   }
 
   private static String generateBoundary() {

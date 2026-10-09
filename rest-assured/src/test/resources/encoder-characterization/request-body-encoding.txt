@@ -15,7 +15,7 @@ mapper -> StringBuilder -> EXCEPTION java.lang.UnsupportedOperationException: In
 mapper -> byte[] -> POST | application/json | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> POST | application/json | greeting=hello%20%C3%A5%C3%A4%C3%B6&list=1&list=null&list=true
 mapper -> List -> POST | application/json | ["hello \x5cu00e5\x5cu00e4\x5cu00f6",2]
-mapper -> Closure -> POST | application/json | closure-result
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == PUT application/json
 String -> PUT | application/json | hello \xc3\xa5\xc3\xa4\xc3\xb6
 GString -> PUT | application/json | hello \xc3\xa5\xc3\xa4\xc3\xb6
@@ -33,7 +33,7 @@ mapper -> StringBuilder -> EXCEPTION java.lang.UnsupportedOperationException: In
 mapper -> byte[] -> PUT | application/json | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> PUT | application/json | {"greeting":"hello \x5cu00e5\x5cu00e4\x5cu00f6","list":[1,null,true]}
 mapper -> List -> PUT | application/json | ["hello \x5cu00e5\x5cu00e4\x5cu00f6",2]
-mapper -> Closure -> PUT | application/json | closure-result
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == POST application/xml
 String -> POST | application/xml; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 GString -> POST | application/xml; charset=ISO-8859-1 | hello \xe5\xe4\xf6
@@ -51,7 +51,7 @@ mapper -> StringBuilder -> POST | application/xml; charset=ISO-8859-1 | hello \x
 mapper -> byte[] -> POST | application/xml; charset=ISO-8859-1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> POST | application/xml; charset=ISO-8859-1 | greeting=hello%20%E5%E4%F6&list=1&list=null&list=true
 mapper -> List -> POST | application/xml; charset=ISO-8859-1 | [hello \xe5\xe4\xf6, 2]
-mapper -> Closure -> POST | application/xml; charset=ISO-8859-1 | 
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == PUT application/xml
 String -> PUT | application/xml; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 GString -> PUT | application/xml; charset=ISO-8859-1 | hello \xe5\xe4\xf6
@@ -69,7 +69,7 @@ mapper -> StringBuilder -> PUT | application/xml; charset=ISO-8859-1 | hello \xe
 mapper -> byte[] -> PUT | application/xml; charset=ISO-8859-1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> PUT | application/xml; charset=ISO-8859-1 | {greeting=hello \xe5\xe4\xf6, list=[1, null, true]}
 mapper -> List -> PUT | application/xml; charset=ISO-8859-1 | [hello \xe5\xe4\xf6, 2]
-mapper -> Closure -> PUT | application/xml; charset=ISO-8859-1 | 
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == POST text/plain
 String -> POST | text/plain; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 GString -> POST | text/plain; charset=ISO-8859-1 | hello \xe5\xe4\xf6
@@ -87,7 +87,7 @@ mapper -> StringBuilder -> POST | text/plain; charset=ISO-8859-1 | hello \xe5\xe
 mapper -> byte[] -> POST | text/plain; charset=ISO-8859-1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> POST | text/plain; charset=ISO-8859-1 | greeting=hello%20%E5%E4%F6&list=1&list=null&list=true
 mapper -> List -> POST | text/plain; charset=ISO-8859-1 | [hello \xe5\xe4\xf6, 2]
-mapper -> Closure -> POST | text/plain; charset=ISO-8859-1 | closure-body
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == PUT text/plain
 String -> PUT | text/plain; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 GString -> PUT | text/plain; charset=ISO-8859-1 | hello \xe5\xe4\xf6
@@ -105,43 +105,43 @@ mapper -> StringBuilder -> PUT | text/plain; charset=ISO-8859-1 | hello \xe5\xe4
 mapper -> byte[] -> PUT | text/plain; charset=ISO-8859-1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> PUT | text/plain; charset=ISO-8859-1 | {greeting=hello \xe5\xe4\xf6, list=[1, null, true]}
 mapper -> List -> PUT | text/plain; charset=ISO-8859-1 | [hello \xe5\xe4\xf6, 2]
-mapper -> Closure -> PUT | text/plain; charset=ISO-8859-1 | closure-body
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == POST application/x-www-form-urlencoded
 String -> POST | application/x-www-form-urlencoded; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 GString -> POST | application/x-www-form-urlencoded; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Cannot serialize because cannot determine how to serialize content-type application/x-www-form-urlencoded
-byte[] -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, [B) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, [104, 101, 108, 108, 111, ...]]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
-InputStream -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, ByteArrayInputStream) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, java.io.ByteArrayInputStream@<hash>]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
-File -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, File) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, <tmp>/body.txt]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
+byte[] -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type byte[] as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
+InputStream -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.io.ByteArrayInputStream as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
+File -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.io.File as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
 Map -> EXCEPTION java.lang.IllegalArgumentException: Cannot serialize because cannot determine how to serialize content-type application/x-www-form-urlencoded
 Pojo -> EXCEPTION java.lang.IllegalArgumentException: Cannot serialize because cannot determine how to serialize content-type application/x-www-form-urlencoded
 formParams -> POST | application/x-www-form-urlencoded; charset=ISO-8859-1 | a=1&b=hello%20%E5%E4%F6
 multiPart -> EXCEPTION java.lang.IllegalArgumentException: Content-Type application/x-www-form-urlencoded is not valid when using multiparts, it must start with "multipart/" or contain "multipart+".
 mapper -> String -> POST | application/x-www-form-urlencoded; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 mapper -> GString -> POST | application/x-www-form-urlencoded; charset=ISO-8859-1 | hello \xe5\xe4\xf6
-mapper -> StringBuilder -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, StringBuilder) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, hello åäö]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
-mapper -> byte[] -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, [B) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, [104, 101, 108, 108, 111, ...]]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
+mapper -> StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.lang.StringBuilder as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
+mapper -> byte[] -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type byte[] as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
 mapper -> Map -> POST | application/x-www-form-urlencoded; charset=ISO-8859-1 | greeting=hello%20%E5%E4%F6&list=1&list=null&list=true
-mapper -> List -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, ArrayList) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, [hello åäö, 2]]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
-mapper -> Closure -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, Script$_run_closure) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, Script$_run_closure@<hash>]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
+mapper -> List -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.util.Arrays$ArrayList as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == PUT application/x-www-form-urlencoded
 String -> PUT | application/x-www-form-urlencoded; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 GString -> PUT | application/x-www-form-urlencoded; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Cannot serialize because cannot determine how to serialize content-type application/x-www-form-urlencoded
-byte[] -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, [B) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, [104, 101, 108, 108, 111, ...]]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
-InputStream -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, ByteArrayInputStream) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, java.io.ByteArrayInputStream@<hash>]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
-File -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, File) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, <tmp>/body.txt]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
+byte[] -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type byte[] as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
+InputStream -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.io.ByteArrayInputStream as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
+File -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.io.File as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
 Map -> EXCEPTION java.lang.IllegalArgumentException: Cannot serialize because cannot determine how to serialize content-type application/x-www-form-urlencoded
 Pojo -> EXCEPTION java.lang.IllegalArgumentException: Cannot serialize because cannot determine how to serialize content-type application/x-www-form-urlencoded
 formParams -> PUT | application/x-www-form-urlencoded; charset=ISO-8859-1 | a=1&b=hello%20%E5%E4%F6
 multiPart -> EXCEPTION java.lang.IllegalArgumentException: Content-Type application/x-www-form-urlencoded is not valid when using multiparts, it must start with "multipart/" or contain "multipart+".
 mapper -> String -> PUT | application/x-www-form-urlencoded; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 mapper -> GString -> PUT | application/x-www-form-urlencoded; charset=ISO-8859-1 | hello \xe5\xe4\xf6
-mapper -> StringBuilder -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, StringBuilder) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, hello åäö]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
-mapper -> byte[] -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, [B) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, [104, 101, 108, 108, 111, ...]]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
-mapper -> Map -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, LinkedHashMap) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, [greeting:hello åäö, list:[...]]]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
-mapper -> List -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, ArrayList) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, [hello åäö, 2]]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
-mapper -> Closure -> EXCEPTION groovy.lang.MissingMethodException: No signature of method: encodeForm for class: io.restassured.internal.http.EncoderRegistry is applicable for argument types: (String, Script$_run_closure) values: [application/x-www-form-urlencoded; charset=ISO-8859-1, Script$_run_closure@<hash>]\nPossible solutions: encodeForm(java.lang.Object, java.lang.String), encodeForm(java.util.Map)
+mapper -> StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.lang.StringBuilder as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
+mapper -> byte[] -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type byte[] as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
+mapper -> Map -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.util.LinkedHashMap as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
+mapper -> List -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode a request body of type java.util.Arrays$ArrayList as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == POST application/octet-stream
 String -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
 GString -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
@@ -159,7 +159,7 @@ mapper -> StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't k
 mapper -> byte[] -> POST | application/octet-stream; charset=ISO-8859-1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode greeting=hello%20%E5%E4%F6&list=1&list=null&list=true as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
 mapper -> List -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode [hello åäö, 2] as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
-mapper -> Closure -> POST | application/octet-stream; charset=ISO-8859-1 | closure-body
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == PUT application/octet-stream
 String -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
 GString -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
@@ -177,7 +177,7 @@ mapper -> StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't k
 mapper -> byte[] -> PUT | application/octet-stream; charset=ISO-8859-1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode {greeting=hello åäö, list=[1, null, true]} as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
 mapper -> List -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode [hello åäö, 2] as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("application/octet-stream", ContentType.TEXT))). .."
-mapper -> Closure -> PUT | application/octet-stream; charset=ISO-8859-1 | closure-body
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == POST text/html
 String -> POST | text/html; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 GString -> POST | text/html; charset=ISO-8859-1 | hello \xe5\xe4\xf6
@@ -195,7 +195,7 @@ mapper -> StringBuilder -> POST | text/html; charset=ISO-8859-1 | hello \xe5\xe4
 mapper -> byte[] -> POST | text/html; charset=ISO-8859-1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> POST | text/html; charset=ISO-8859-1 | greeting=hello%20%E5%E4%F6&list=1&list=null&list=true
 mapper -> List -> POST | text/html; charset=ISO-8859-1 | [hello \xe5\xe4\xf6, 2]
-mapper -> Closure -> POST | text/html; charset=ISO-8859-1 | 
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == PUT text/html
 String -> PUT | text/html; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 GString -> PUT | text/html; charset=ISO-8859-1 | hello \xe5\xe4\xf6
@@ -213,7 +213,7 @@ mapper -> StringBuilder -> PUT | text/html; charset=ISO-8859-1 | hello \xe5\xe4\
 mapper -> byte[] -> PUT | text/html; charset=ISO-8859-1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> PUT | text/html; charset=ISO-8859-1 | {greeting=hello \xe5\xe4\xf6, list=[1, null, true]}
 mapper -> List -> PUT | text/html; charset=ISO-8859-1 | [hello \xe5\xe4\xf6, 2]
-mapper -> Closure -> PUT | text/html; charset=ISO-8859-1 | 
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == POST */*
 String -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
 GString -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
@@ -231,7 +231,7 @@ mapper -> StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't k
 mapper -> byte[] -> POST | */*; charset=ISO-8859-1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode greeting=hello%20%E5%E4%F6&list=1&list=null&list=true as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
 mapper -> List -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode [hello åäö, 2] as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
-mapper -> Closure -> POST | */*; charset=ISO-8859-1 | closure-body
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == PUT */*
 String -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
 GString -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
@@ -249,7 +249,7 @@ mapper -> StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't k
 mapper -> byte[] -> PUT | */*; charset=ISO-8859-1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode {greeting=hello åäö, list=[1, null, true]} as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
 mapper -> List -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode [hello åäö, 2] as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("*/*", ContentType.TEXT))). .."
-mapper -> Closure -> PUT | */*; charset=ISO-8859-1 | closure-body
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == POST multipart/form-data
 String -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.TEXT))). .."
 GString -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.TEXT))). .."
@@ -267,7 +267,7 @@ mapper -> StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't k
 mapper -> byte[] -> POST | multipart/form-data | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode greeting=hello%20%E5%E4%F6&list=1&list=null&list=true as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.TEXT))). .."
 mapper -> List -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode [hello åäö, 2] as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.TEXT))). .."
-mapper -> Closure -> POST | multipart/form-data | closure-body
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == PUT multipart/form-data
 String -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.TEXT))). .."
 GString -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode hello åäö as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.TEXT))). .."
@@ -285,7 +285,7 @@ mapper -> StringBuilder -> EXCEPTION java.lang.IllegalArgumentException: Don't k
 mapper -> byte[] -> PUT | multipart/form-data | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode {greeting=hello åäö, list=[1, null, true]} as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.TEXT))). .."
 mapper -> List -> EXCEPTION java.lang.IllegalArgumentException: Don't know how to encode [hello åäö, 2] as a byte stream.\n\nPlease use EncoderConfig (EncoderConfig#encodeContentTypeAs) to specify how to serialize data for this content-type.\nFor example: "given().config(RestAssured.config().encoderConfig(encoderConfig().encodeContentTypeAs("multipart/form-data", ContentType.TEXT))). .."
-mapper -> Closure -> PUT | multipart/form-data | closure-body
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == POST <none>
 String -> POST | text/plain; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 GString -> POST | text/plain; charset=ISO-8859-1 | hello \xe5\xe4\xf6
@@ -303,7 +303,7 @@ mapper -> StringBuilder -> POST | text/plain; charset=ISO-8859-1 | hello \xe5\xe
 mapper -> byte[] -> POST | application/octet-stream; charset=ISO-8859-1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> POST | text/plain; charset=ISO-8859-1 | greeting=hello%20%E5%E4%F6&list=1&list=null&list=true
 mapper -> List -> POST | text/plain; charset=ISO-8859-1 | [hello \xe5\xe4\xf6, 2]
-mapper -> Closure -> POST | text/plain; charset=ISO-8859-1 | closure-body
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.
 == PUT <none>
 String -> PUT | text/plain; charset=ISO-8859-1 | hello \xe5\xe4\xf6
 GString -> PUT | text/plain; charset=ISO-8859-1 | hello \xe5\xe4\xf6
@@ -321,4 +321,4 @@ mapper -> StringBuilder -> PUT | text/plain; charset=ISO-8859-1 | hello \xe5\xe4
 mapper -> byte[] -> PUT | application/octet-stream; charset=ISO-8859-1 | hello \xc3\xa5\xc3\xa4\xc3\xb6
 mapper -> Map -> PUT | text/plain; charset=ISO-8859-1 | {greeting=hello \xe5\xe4\xf6, list=[1, null, true]}
 mapper -> List -> PUT | text/plain; charset=ISO-8859-1 | [hello \xe5\xe4\xf6, 2]
-mapper -> Closure -> PUT | text/plain; charset=ISO-8859-1 | closure-body
+mapper -> Closure -> EXCEPTION java.lang.IllegalArgumentException: A Groovy closure (Script$_run_closure) is not supported as request body. Serialize the body to a String, byte[] or InputStream instead, for example in your ObjectMapper.

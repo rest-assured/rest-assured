@@ -155,6 +155,22 @@ class RequestBodyEncodingTest {
         assertThat(received).isEqualTo("PUT | application/custom; charset=ISO-8859-1 | {\"a\":\"hello \\x5cu00e5\\x5cu00e4\\x5cu00f6\"}");
     }
 
+    @Test
+    void url_encoded_body_that_is_not_a_string_throws_illegal_argument_exception() {
+        Throwable t = catchThrowable(() -> given().contentType(ContentType.URLENC).body(new byte[]{1}).post("/"));
+
+        assertThat(t).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Don't know how to encode a request body of type byte[] as content-type application/x-www-form-urlencoded; charset=ISO-8859-1. " +
+                        "A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.");
+    }
+
+    @Test
+    void closure_returned_by_custom_object_mapper_throws_illegal_argument_exception() {
+        Throwable t = catchThrowable(() -> given().contentType(ContentType.JSON).body(new Greeting(TEXT), mapperReturning(EncoderCharacterization::closure)).post("/"));
+
+        assertThat(t).isInstanceOf(IllegalArgumentException.class).hasMessageStartingWith("A Groovy closure").hasMessageContaining("is not supported as request body");
+    }
+
     private String send(String method, String contentType, Function<RequestSpecification, RequestSpecification> body) {
         received = "<nothing sent>";
         try {

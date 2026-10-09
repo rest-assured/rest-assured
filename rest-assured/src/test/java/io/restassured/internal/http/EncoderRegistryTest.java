@@ -59,8 +59,8 @@ class EncoderRegistryTest {
 
     private final EncoderRegistry registry = new EncoderRegistry();
 
-    private static HttpEntity encode(EncoderRegistry registry, Object contentType, Object body) {
-        return (HttpEntity) registry.getAt(contentType).call(contentType, body);
+    private static HttpEntity encode(EncoderRegistry registry, Object contentType, Object body) throws IOException {
+        return registry.getAt(contentType).encode(contentType, body);
     }
 
     private Map<String, Supplier<Object>> bodies() throws IOException {
@@ -136,6 +136,15 @@ class EncoderRegistryTest {
     }
 
     @Test
+    void url_encoded_body_of_another_type_throws_illegal_argument_exception() {
+        Throwable t = catchThrowable(() -> encode(registry, "application/x-www-form-urlencoded", new byte[]{1}));
+
+        assertThat(t).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Don't know how to encode a request body of type byte[] as content-type application/x-www-form-urlencoded. " +
+                        "A form url-encoded request body must be a String, use formParam(..) or formParams(..) to send form parameters.");
+    }
+
+    @Test
     void writable_body_is_sent_as_its_string_representation() {
         JsonBuilder writable = new JsonBuilder(Collections.singletonMap("a", Arrays.asList(1, 2)));
 
@@ -154,6 +163,17 @@ class EncoderRegistryTest {
                 .isEqualTo("StringEntity | application/json | 65 | " + escape(new JsonBuilder(map).toString().getBytes(StandardCharsets.UTF_8)))
                 .endsWith("\"date\":\"1970-01-01T00:00:00+0000\"}");
         assertThat(encodeAndRender("application/json", Arrays.asList(1, "two", null))).isEqualTo("StringEntity | application/json | 14 | [1,\"two\",null]");
+    }
+
+    @Test
+    void closure_body_throws_illegal_argument_exception_for_every_content_type() {
+        for (String contentType : CONTENT_TYPES) {
+            Throwable t = catchThrowable(() -> encode(registry, contentType, closure()));
+
+            assertThat(t).as(contentType).isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageMatching("A Groovy closure \\(Script\\d+\\$_run_closure\\d+\\) is not supported as request body\\. " +
+                            "Serialize the body to a String, byte\\[] or InputStream instead, for example in your ObjectMapper\\.");
+        }
     }
 
     private String encodeAndRender(String contentType, Object body) {
