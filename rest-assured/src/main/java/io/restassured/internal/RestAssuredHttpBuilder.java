@@ -20,8 +20,8 @@ import io.restassured.config.ConnectionConfig;
 import io.restassured.config.RestAssuredConfig;
 import io.restassured.http.ContentType;
 import io.restassured.http.Headers;
+import io.restassured.internal.common.util.GroovyStyleToString;
 import io.restassured.internal.http.*;
-import io.restassured.internal.util.GroovyStringConversion;
 import io.restassured.internal.util.SafeExceptionRethrower;
 import io.restassured.parsing.Parser;
 import io.restassured.specification.FilterableResponseSpecification;
@@ -37,6 +37,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.function.Function;
@@ -147,7 +148,8 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
                     return responseHandler.handle(resp, this.parseResponse(resp, acceptContentType));
                 }
             } catch (Exception ex) {
-                throw new ResponseParseException(resp, ex);
+                // A Groovy closure coerced to HttpResponseHandler has its checked exceptions wrapped by the proxy
+                throw new ResponseParseException(resp, ex instanceof UndeclaredThrowableException ? ex.getCause() : ex);
             }
         } finally {
             if (responseSpecification instanceof ResponseSpecificationImpl && ((ResponseSpecificationImpl) responseSpecification).hasBodyAssertionsDefined()) {
@@ -230,7 +232,7 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
         flattenInto(collection.iterator(), flattened);
         List<String> strings = new ArrayList<>(flattened.size());
         for (Object element : flattened) {
-            strings.add(element == null ? null : toGroovyString(element));
+            strings.add(element == null ? null : GroovyStyleToString.toString(element));
         }
         return strings;
     }
@@ -256,15 +258,6 @@ class RestAssuredHttpBuilder extends HTTPBuilder {
         }
     }
 
-    /**
-     * Groovy's <code>toString()</code> renders maps, collections and arrays in its own format.
-     */
-    private static String toGroovyString(Object object) {
-        if (object instanceof AbstractMap || object instanceof AbstractCollection || object.getClass().isArray()) {
-            return GroovyStringConversion.castToString(object);
-        }
-        return object.toString();
-    }
 
     private ConnectionConfig connectionConfig() {
         return config == null ? ConnectionConfig.connectionConfig() : config.getConnectionConfig();

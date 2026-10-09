@@ -391,14 +391,9 @@ public abstract class HTTPBuilder {
     }
 
     /**
-     * Retrieve the map of registered response content-type parsers.  Use
-     * this to set default response parsers, e.g.
-     * <pre>
-     * builder.parser.'text/javascript' = { resp ->
-     * 	  return resp.entity.content // just returns an InputStream
-     * }</pre>
+     * Retrieve the finder used to determine the content-type of a response.
      *
-     * @return
+     * @return the response content-type finder
      */
     public HttpResponseContentTypeFinder getParser() {
         return this.parsers;
@@ -609,11 +604,10 @@ public abstract class HTTPBuilder {
          * Use this object to manipulate parts of the request URI, like
          * query params and request path.  Example:
          * <pre>
-         * builder.request(GET,XML) {
-         *   uri.path = '../other/request.jsp'
-         *   uri.query = [p1:1, p2:2]
+         * builder.request("GET", XML, false, delegate -> {
+         *   delegate.getUri().setPath("../other/request.jsp");
          *   ...
-         * }</pre>
+         * });</pre>
          * <p>
          * <p>This method signature returns <code>Object</code> so that the
          * complementary {@link #setUri(Object)} method can accept various
@@ -874,17 +868,11 @@ public abstract class HTTPBuilder {
         }
 
         /**
-         * Access the response handler map to set response parsing logic.
+         * Access the response handler map to set response parsing logic, keyed by status code or {@link Status},
          * i.e.<pre>
-         * builder.request( GET, XML ) {
-         *   response.success = { xml ->
-         *      /* for XML content type, the default parser
-         *         will return an XmlSlurper * /
-         *   	xml.root.children().each { println it }
-         *   }
-         * }</pre>
+         * delegate.getResponse().put(Status.SUCCESS.toString(), (response, content) -> content);</pre>
          *
-         * @return
+         * @return the response handlers
          */
         public Map<Object, HttpResponseHandler> getResponse() {
             return this.responseHandlers;

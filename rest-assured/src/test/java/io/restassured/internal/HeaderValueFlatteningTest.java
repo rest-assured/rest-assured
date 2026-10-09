@@ -86,6 +86,16 @@ class HeaderValueFlatteningTest {
         assertThat(flatten(value)).containsExactly("a", "b", "c", "[d, e]", "[f]", "[k:1]");
     }
 
+    @Test
+    void renders_a_map_like_groovy_to_string_does_which_uses_a_public_map_class_own_to_string() {
+        Map<String, Object> concurrentMap = new java.util.concurrent.ConcurrentHashMap<>();
+        concurrentMap.put("q", 1);
+        List<Object> value = Arrays.asList(concurrentMap, Collections.unmodifiableMap(Collections.singletonMap("k", "v")));
+
+        // Expected values come from Groovy's c.flatten().collect { it?.toString() }
+        assertThat(flatten(value)).containsExactly("{q=1}", "[k:v]");
+    }
+
     private static Collection<String> flatten(Collection<?> value) {
         return RestAssuredHttpBuilder.flattenToString(value);
     }
