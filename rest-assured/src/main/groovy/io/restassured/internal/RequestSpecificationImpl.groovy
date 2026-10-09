@@ -1662,7 +1662,7 @@ class RequestSpecificationImpl implements FilterableRequestSpecification, Groovy
 
         uri.query = allQueryParams
 
-        HttpResponseHandler responseHandler = assertionClosure.getClosure() as HttpResponseHandler
+        HttpResponseHandler responseHandler = assertionClosure.getResponseHandler()
         // response handler for a success response code:
         response.success = responseHandler
 
