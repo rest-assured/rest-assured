@@ -956,7 +956,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public RequestSpecification body(String body) {
         notNull(body, "body");
-        this.requestBody = body;
+        setRequestBody(body);
         return this;
     }
 
@@ -1018,21 +1018,21 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public RequestSpecification body(byte[] body) {
         notNull(body, "body");
-        this.requestBody = body;
+        setRequestBody(body);
         return this;
     }
 
     @Override
     public RequestSpecification body(File body) {
         notNull(body, "body");
-        this.requestBody = body;
+        setRequestBody(body);
         return this;
     }
 
     @Override
     public RequestSpecification body(InputStream body) {
         notNull(body, "body");
-        this.requestBody = body;
+        setRequestBody(body);
         return this;
     }
 
@@ -1043,7 +1043,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
             return body(object.toString());
         }
 
-        this.requestBody = ObjectMapping.serialize(object, getRequestContentType(), findEncoderCharsetOrReturnDefault(getRequestContentType()), null, objectMappingConfig(), restAssuredConfig().getEncoderConfig());
+        setRequestBody(ObjectMapping.serialize(object, getRequestContentType(), findEncoderCharsetOrReturnDefault(getRequestContentType()), null, objectMappingConfig(), restAssuredConfig().getEncoderConfig()));
         return this;
     }
 
@@ -1055,7 +1055,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
         ctx.setObject(object);
         ctx.setCharset(findEncoderCharsetOrReturnDefault(getRequestContentType()));
         ctx.setContentType(getRequestContentType());
-        this.requestBody = mapper.serialize(ctx);
+        setRequestBody(mapper.serialize(ctx));
         return this;
     }
 
@@ -1063,7 +1063,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     public RequestSpecification body(Object object, ObjectMapperType mapperType) {
         notNull(object, "object");
         notNull(mapperType, "Object mapper type");
-        this.requestBody = ObjectMapping.serialize(object, getRequestContentType(), findEncoderCharsetOrReturnDefault(getRequestContentType()), mapperType, objectMappingConfig(), restAssuredConfig().getEncoderConfig());
+        setRequestBody(ObjectMapping.serialize(object, getRequestContentType(), findEncoderCharsetOrReturnDefault(getRequestContentType()), mapperType, objectMappingConfig(), restAssuredConfig().getEncoderConfig()));
         return this;
     }
 
@@ -2831,6 +2831,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     void setRequestBody(Object requestBody) {
         this.requestBody = requestBody;
+        explicitlySetValues.add(MergeableValue.BODY);
     }
 
     List<Filter> getFilters() {
@@ -2873,7 +2874,7 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
      * a specification, {@link SpecificationMerger} only copies the ones that it set.
      */
     enum MergeableValue {
-        BASE_URI, BASE_PATH, PORT, AUTHENTICATION_SCHEME, PROXY, URL_ENCODING_ENABLED, ALLOW_CONTENT_TYPE, ADD_CSRF_FILTER
+        BASE_URI, BASE_PATH, PORT, AUTHENTICATION_SCHEME, BODY, PROXY, URL_ENCODING_ENABLED, ALLOW_CONTENT_TYPE, ADD_CSRF_FILTER
     }
 
     // Unlike config(..), this doesn't change the config of the response specification

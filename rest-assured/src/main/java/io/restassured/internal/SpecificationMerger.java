@@ -34,6 +34,7 @@ import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.AD
 import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.ALLOW_CONTENT_TYPE;
 import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.AUTHENTICATION_SCHEME;
 import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.BASE_PATH;
+import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.BODY;
 import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.BASE_URI;
 import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.PORT;
 import static io.restassured.internal.RequestSpecificationImpl.MergeableValue.PROXY;
@@ -79,32 +80,8 @@ public class SpecificationMerger {
     }
 
     /**
-     * Merge this builder with settings from another specification. Note that the supplied specification
-     * can overwrite data in the current specification. The following settings are overwritten when the supplied
-     * specification sets them (values it only got from the defaults, such as {@link io.restassured.RestAssured#baseURI}, are not copied):
-     * <ul>
-     *     <li>Base URI, base path and port</li>
-     *     <li>Authentication scheme</li>
-     *     <li>Content type</li>
-     *     <li>Request body</li>
-     *     <li>Method and path</li>
-     *     <li>URL Encoding enabled/disabled</li>
-     *     <li>Config (each part that the supplied specification configured)</li>
-     *     <li>Proxy Specification</li>
-     *     <li>Content-Type allowed/disallowed</li>
-     *     <li>CSRF disabled</li>
-     * </ul>
-     * The following settings are merged:
-     * <ul>
-     *     <li>Parameters</li>
-     *     <li>Query Parameters</li>
-     *     <li>Form Parameters</li>
-     *     <li>Path parameters</li>
-     *     <li>Multi-part form data parameters</li>
-     *     <li>Cookies</li>
-     *     <li>Headers</li>
-     *     <li>Filters</li>
-     * </ul>
+     * Merges <code>with</code> into <code>thisOne</code>, see {@link io.restassured.specification.RequestSpecification#spec(io.restassured.specification.RequestSpecification)}
+     * for what is overwritten and what is merged.
      */
     public static void merge(RequestSpecificationImpl thisOne, RequestSpecificationImpl with) {
         notNull(thisOne, "Specification to merge");
@@ -130,9 +107,8 @@ public class SpecificationMerger {
         }
         mergeSessionId(thisOne, with);
         thisOne.cookies(with.getCookies());
-        Object body = with.getBody();
-        if (body != null) {
-            thisOne.setRequestBody(body);
+        if (with.isExplicitlySet(BODY)) {
+            thisOne.setRequestBody(with.getBody());
         }
         mergeFilters(thisOne, with);
         if (with.isExplicitlySet(URL_ENCODING_ENABLED)) {

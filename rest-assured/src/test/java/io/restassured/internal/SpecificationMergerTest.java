@@ -598,6 +598,52 @@ class SpecificationMergerTest {
     }
 
     @Test
+    void a_body_that_a_merged_specification_got_from_the_default_specification_does_not_overwrite_this_specification() {
+        RestAssured.requestSpecification = new RequestSpecBuilder().setBody("default").build();
+        RequestSpecification headerOnly = new RequestSpecBuilder().addHeader("X", "1").build();
+
+        RequestSpecificationImpl spec = (RequestSpecificationImpl) given().body("mine").spec(headerOnly);
+
+        assertThat((Object) spec.getBody()).isEqualTo("mine");
+    }
+
+    @Test
+    void a_body_that_the_merged_specification_sets_overwrites_this_specification() {
+        RequestSpecificationImpl spec = (RequestSpecificationImpl) given().body("mine").spec(new RequestSpecBuilder().setBody("other").build());
+
+        assertThat((Object) spec.getBody()).isEqualTo("other");
+    }
+
+    @Test
+    void given_uses_the_current_defaults_instead_of_the_ones_the_default_specification_was_built_with() {
+        RestAssured.requestSpecification = new RequestSpecBuilder().addHeader("D", "1").build();
+        RestAssured.baseURI = "http://later";
+        RestAssured.port = 1234;
+        RestAssured.basePath = "/later";
+        RestAssured.urlEncodingEnabled = false;
+
+        RequestSpecificationImpl spec = (RequestSpecificationImpl) given();
+
+        assertThat(spec.getBaseUri()).isEqualTo("http://later");
+        assertThat(spec.getRequestPort()).isEqualTo(1234);
+        assertThat(spec.getBasePath()).isEqualTo("/later");
+        assertThat(spec.isUrlEncodingEnabled()).isFalse();
+        assertThat(spec.getHeaders().getValue("D")).isEqualTo("1");
+    }
+
+    @Test
+    void given_uses_the_values_that_the_default_specification_sets() {
+        RestAssured.requestSpecification = new RequestSpecBuilder().setBaseUri("http://default").setPort(5678).build();
+        RestAssured.baseURI = "http://later";
+        RestAssured.port = 1234;
+
+        RequestSpecificationImpl spec = (RequestSpecificationImpl) given();
+
+        assertThat(spec.getBaseUri()).isEqualTo("http://default");
+        assertThat(spec.getRequestPort()).isEqualTo(5678);
+    }
+
+    @Test
     void explicit_no_auth_of_the_merged_specification_overwrites_the_authentication_scheme() {
         RequestSpecification noAuth = new RequestSpecBuilder().setAuth(new ExplicitNoAuthScheme()).build();
 
