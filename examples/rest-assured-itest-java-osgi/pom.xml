@@ -30,6 +30,7 @@
     <properties>
         <animal.sniffer.skip>true</animal.sniffer.skip>
         <pax-exam.version>4.13.4</pax-exam.version>
+        <spifly.version>1.3.8</spifly.version>
         <surefire.version>2.18</surefire.version>
     </properties>
 
@@ -80,6 +81,14 @@
                     <artifactId>jcl-over-slf4j</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <!-- Provisioned into the Pax Exam container together with the ASM bundles it depends on (versionAsInProject).
+                 SPI Fly's ASM must read Java 17 class files: 1.2.1 embeds ASM 7 and fails with "Unsupported class file major version 61" -->
+            <groupId>org.apache.aries.spifly</groupId>
+            <artifactId>org.apache.aries.spifly.dynamic.bundle</artifactId>
+            <version>${spifly.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
