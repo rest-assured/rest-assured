@@ -1297,11 +1297,18 @@ public class RestAssured {
      * Sets a certificate to be used for SSL authentication. See {@link java.lang.Class#getResource(String)}
      * for how to get a URL from a resource on the classpath.
      * <p>
-     * Uses SSL settings defined in {@link SSLConfig}.
+     * The file at <code>certURL</code> is used both as key store and as trust store: the client certificate (and its
+     * private key) in it is sent to servers that ask for one, and the server's certificate must be trusted by one of
+     * the certificates in it.
+     * </p>
+     * <p>
+     * Uses SSL settings defined in {@link SSLConfig}. A key store or trust store set there with
+     * {@link SSLConfig#keyStore(java.security.KeyStore)} or {@link SSLConfig#trustStore(java.security.KeyStore)} is used
+     * instead of the file for that purpose.
      * </p>
      *
-     * @param certURL  URL to a JKS keystore where the certificate is stored.
-     * @param password The password for the keystore
+     * @param certURL  URL to a key store (for example a JKS or PKCS12 file) with the client certificate, also used as trust store.
+     * @param password The password for the key store and its private key
      * @return The request io.restassured.specification
      */
     public static AuthenticationScheme certificate(String certURL, String password) {
@@ -1314,14 +1321,21 @@ public class RestAssured {
     /**
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
      * on the classpath.
-     * <p/>
+     * <p>
+     * The file at <code>certURL</code> is used both as key store and as trust store: the client certificate (and its
+     * private key) in it is sent to servers that ask for one, and the server's certificate must be trusted by one of
+     * the certificates in it. A key store or trust store given with
+     * {@link CertificateAuthSettings#keyStore(java.security.KeyStore)} or {@link CertificateAuthSettings#trustStore(java.security.KeyStore)}
+     * is used instead of the file for that purpose. Use {@link #certificate(String, String, String, String, CertificateAuthSettings)}
+     * to use different files as trust store and key store, or an empty trust store path to use the JVM's default trust store.
+     * </p>
      *
-     * @param certURL                 URL to a JKS keystore where the certificate is stored.
-     * @param password                The password for the keystore
+     * @param certURL                 URL to a key store (for example a JKS or PKCS12 file) with the client certificate, also used as trust store.
+     * @param password                The password for the key store and its private key
      * @param certificateAuthSettings More advanced settings for the certificate authentication
      */
     public static AuthenticationScheme certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings) {
-        return certificate(certURL, password, "", "", certificateAuthSettings);
+        return certificate(certURL, password, certURL, password, certificateAuthSettings);
     }
 
     /**

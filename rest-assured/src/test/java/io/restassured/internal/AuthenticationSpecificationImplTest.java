@@ -67,33 +67,35 @@ class AuthenticationSpecificationImplTest {
     }
 
     @Test
-    void certificate_with_default_settings_creates_a_cert_auth_scheme() {
-        CertAuthScheme scheme = schemeOf(given().auth().certificate("truststore.jks", "secret"), CertAuthScheme.class);
+    void certificate_with_default_settings_creates_a_cert_auth_scheme_that_uses_the_file_as_key_store_and_trust_store() {
+        CertAuthScheme scheme = schemeOf(given().auth().certificate("keystore.jks", "secret"), CertAuthScheme.class);
 
-        assertThat(scheme.getPathToTrustStore()).isEqualTo("truststore.jks");
+        assertThat(scheme.getPathToKeyStore()).isEqualTo("keystore.jks");
+        assertThat(scheme.getKeyStorePassword()).isEqualTo("secret");
+        assertThat(scheme.getPathToTrustStore()).isEqualTo("keystore.jks");
         assertThat(scheme.getTrustStorePassword()).isEqualTo("secret");
         assertThat(scheme.getTrustStoreType()).isEqualTo(KeyStore.getDefaultType());
         assertThat(scheme.getKeystoreType()).isEqualTo(KeyStore.getDefaultType());
         assertThat(scheme.getPort()).isEqualTo(-1);
         assertThat(scheme.getX509HostnameVerifier()).isSameAs(STRICT_HOSTNAME_VERIFIER);
-        assertThat(scheme.getPathToKeyStore()).isNull();
-        assertThat(scheme.getKeyStorePassword()).isNull();
         assertThat(scheme.getKeyStore()).isNull();
         assertThat(scheme.getTrustStore()).isNull();
         assertThat(scheme.getSslSocketFactory()).isNull();
     }
 
     @Test
-    void certificate_with_settings_creates_a_cert_auth_scheme_with_these_settings() throws Exception {
+    void certificate_with_settings_creates_a_cert_auth_scheme_that_uses_the_file_as_key_store_and_trust_store_with_these_settings() throws Exception {
         KeyStore keyStore = KeyStore.getInstance("PKCS12");
         KeyStore trustStore = KeyStore.getInstance("JKS");
         SSLSocketFactory sslSocketFactory = SSLSocketFactory.getSocketFactory();
 
-        CertAuthScheme scheme = schemeOf(given().auth().certificate("truststore.p12", "secret", certAuthSettings().
+        CertAuthScheme scheme = schemeOf(given().auth().certificate("keystore.p12", "secret", certAuthSettings().
                 keyStoreType("PKCS12").trustStoreType("JKS").port(8443).keyStore(keyStore).trustStore(trustStore).
                 allowAllHostnames().sslSocketFactory(sslSocketFactory)), CertAuthScheme.class);
 
-        assertThat(scheme.getPathToTrustStore()).isEqualTo("truststore.p12");
+        assertThat(scheme.getPathToKeyStore()).isEqualTo("keystore.p12");
+        assertThat(scheme.getKeyStorePassword()).isEqualTo("secret");
+        assertThat(scheme.getPathToTrustStore()).isEqualTo("keystore.p12");
         assertThat(scheme.getTrustStorePassword()).isEqualTo("secret");
         assertThat(scheme.getKeystoreType()).isEqualTo("PKCS12");
         assertThat(scheme.getTrustStoreType()).isEqualTo("JKS");
@@ -102,8 +104,6 @@ class AuthenticationSpecificationImplTest {
         assertThat(scheme.getTrustStore()).isSameAs(trustStore);
         assertThat(scheme.getX509HostnameVerifier()).isSameAs(ALLOW_ALL_HOSTNAME_VERIFIER);
         assertThat(scheme.getSslSocketFactory()).isSameAs(sslSocketFactory);
-        assertThat(scheme.getPathToKeyStore()).isNull();
-        assertThat(scheme.getKeyStorePassword()).isNull();
     }
 
     @Test

@@ -76,13 +76,18 @@ public interface AuthenticationSpecification {
      * Sets a certificate to be used for SSL authentication. See {@link java.lang.Class#getResource(String)}
      * for how to get a URL from a resource on the classpath.
      * <p>
+     * The file at <code>certURL</code> is used both as key store and as trust store: the client certificate (and its
+     * private key) in it is sent to servers that ask for one, and the server's certificate must be trusted by one of
+     * the certificates in it.
+     * </p>
+     * <p>
      * Uses keystore: <code>KeyStore.getDefaultType()</code>.<br/>
      * Uses port: 443<br/>
      * Uses keystore provider: <code>none</code><br/>
      * </p>
      *
-     * @param certURL  URL to a JKS keystore where the certificate is stored.
-     * @param password password to decrypt the keystore
+     * @param certURL  URL to a key store (for example a JKS or PKCS12 file) with the client certificate, also used as trust store.
+     * @param password password to decrypt the key store and its private key
      * @return The request io.restassured.specification
      */
     RequestSpecification certificate(String certURL, String password);
@@ -90,10 +95,16 @@ public interface AuthenticationSpecification {
     /**
      * Sets a certificate to be used for SSL authentication. See {@link Class#getResource(String)} for how to get a URL from a resource
      * on the classpath.
-     * <p/>
+     * <p>
+     * The file at <code>certURL</code> is used both as key store and as trust store: the client certificate (and its
+     * private key) in it is sent to servers that ask for one, and the server's certificate must be trusted by one of
+     * the certificates in it. A key store or trust store given with
+     * {@link CertificateAuthSettings#keyStore(java.security.KeyStore)} or {@link CertificateAuthSettings#trustStore(java.security.KeyStore)}
+     * is used instead of the file for that purpose.
+     * </p>
      *
-     * @param certURL                 URL to a JKS keystore where the certificate is stored.
-     * @param password                The password for the keystore
+     * @param certURL                 URL to a key store (for example a JKS or PKCS12 file) with the client certificate, also used as trust store.
+     * @param password                The password for the key store and its private key
      * @param certificateAuthSettings More advanced settings for the certificate authentication
      */
     RequestSpecification certificate(String certURL, String password, CertificateAuthSettings certificateAuthSettings);

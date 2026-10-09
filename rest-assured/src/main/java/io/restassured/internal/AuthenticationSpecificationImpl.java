@@ -117,6 +117,8 @@ public class AuthenticationSpecificationImpl implements AuthenticationSpecificat
         notNull(settings, CertificateAuthSettings.class);
 
         CertAuthScheme scheme = new CertAuthScheme();
+        scheme.setPathToKeyStore(certURL);
+        scheme.setKeyStorePassword(password);
         scheme.setKeystoreType(settings.getKeyStoreType());
         scheme.setKeyStore(settings.getKeyStore());
         scheme.setPathToTrustStore(certURL);
