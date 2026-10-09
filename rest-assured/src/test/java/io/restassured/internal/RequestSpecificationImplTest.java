@@ -837,6 +837,24 @@ class RequestSpecificationImplTest {
     }
 
     @Test
+    void multipart_with_an_object_that_is_a_file_or_a_string_uses_the_file_or_string_overload() {
+        File file = new File("f.txt");
+        Capture noContentType = capture();
+        Capture json = capture();
+
+        given().filter(noContentType).multiPart("a", (Object) file).multiPart("b", (Object) "text").put("/x");
+        given().filter(json).contentType("application/json").multiPart("c", (Object) file).multiPart("d", (Object) "text").put("/x");
+
+        // Groovy chose the overload by the runtime type, the String overload was ambiguous without a content type
+        List<MultiPartSpecification> parts = new ArrayList<>(noContentType.request.getMultiPartParams());
+        parts.addAll(json.request.getMultiPartParams());
+        assertThat(parts).extracting(MultiPartSpecification::getFileName).containsExactly("f.txt", "file", "f.txt", "file");
+        assertThat(parts).extracting(MultiPartSpecification::getMimeType)
+                .containsExactly("application/octet-stream", "text/plain", "application/json", "application/json");
+        assertThat(parts).extracting(MultiPartSpecification::getContent).containsExactly(file, "text", file, "text");
+    }
+
+    @Test
     void multipart_object_content_uses_the_request_content_type_unless_it_is_missing() {
         Capture capture = capture();
 
@@ -1192,6 +1210,18 @@ class RequestSpecificationImplTest {
 
         assertThat(capture.request.getURI()).isEqualTo("http://localhost:8080/base/x?q=1");
         assertThat(capture.request.getHeaders().getValues("h")).containsExactly("1", "2");
+    }
+
+    @Test
+    void a_request_specification_that_was_not_created_by_rest_assured_cannot_be_merged() {
+        // The Groovy version failed with groovy.lang.MissingMethodException
+        RequestSpecification foreign = (RequestSpecification) java.lang.reflect.Proxy.newProxyInstance(getClass().getClassLoader(),
+                new Class<?>[]{RequestSpecification.class}, (proxy, method, args) -> null);
+
+        assertThatThrownBy(() -> given().spec(foreign))
+                .isExactlyInstanceOf(IllegalArgumentException.class)
+                .hasMessageStartingWith("Cannot merge a request specification of type jdk.proxy")
+                .hasMessageEndingWith(", it must be of type io.restassured.internal.RequestSpecificationImpl.");
     }
 
     @Test

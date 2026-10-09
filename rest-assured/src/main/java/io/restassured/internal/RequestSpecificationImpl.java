@@ -1253,6 +1253,10 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
 
     @Override
     public RequestSpecification spec(RequestSpecification requestSpecificationToMerge) {
+        if (requestSpecificationToMerge != null && !(requestSpecificationToMerge instanceof RequestSpecificationImpl)) {
+            throw new IllegalArgumentException("Cannot merge a request specification of type " + requestSpecificationToMerge.getClass().getName()
+                    + ", it must be of type " + RequestSpecificationImpl.class.getName() + ".");
+        }
         SpecificationMerger.merge(this, (RequestSpecificationImpl) requestSpecificationToMerge);
         return this;
     }
@@ -1356,6 +1360,12 @@ public class RequestSpecificationImpl implements FilterableRequestSpecification 
     @Override
     public RequestSpecification multiPart(String controlName, Object object) {
         String mimeType = ANY.matches(getRequestContentType()) ? JSON.toString() : getRequestContentType();
+        // Groovy chose the overload by the runtime type of the object
+        if (object instanceof File) {
+            return multiPart(controlName, (File) object, mimeType);
+        } else if (object instanceof String) {
+            return multiPart(controlName, (String) object, mimeType);
+        }
         return multiPart(controlName, object, mimeType);
     }
 
