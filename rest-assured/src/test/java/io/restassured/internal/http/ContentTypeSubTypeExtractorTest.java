@@ -140,10 +140,13 @@ class ContentTypeSubTypeExtractorTest {
     }
 
     @Test
-    void returnsNullWhenValueContainsEqualsSign() {
-        // Quirk: a value that contains "=" (even quoted) is ignored since the parameter must split into exactly two parts
-        assertThat(getSubTypeValueFromContentType("multipart/form-data; boundary=abc=def", "boundary")).isNull();
-        assertThat(getSubTypeValueFromContentType("multipart/form-data; boundary=\"abc=def\"", "boundary")).isNull();
+    void extractsValueContainingEqualsSign() {
+        // The parameter is split on the first "=" only (issue #1948)
+        assertThat(getSubTypeValueFromContentType("multipart/form-data; boundary=abc=def", "boundary")).isEqualTo("abc=def");
+        assertThat(getSubTypeValueFromContentType("multipart/form-data; boundary=\"abc=def\"", "boundary")).isEqualTo("abc=def");
+        assertThat(getSubTypeValueFromContentType("multipart/form-data; boundary==abc=", "boundary")).isEqualTo("=abc=");
+        assertThat(getSubTypeValueFromContentType("multipart/form-data; boundary=abc==", "boundary")).isEqualTo("abc==");
+        assertThat(getSubTypeValueFromContentType("multipart/form-data; boundary=\"=\"", "boundary")).isEqualTo("=");
     }
 
     @Test
