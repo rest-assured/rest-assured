@@ -40,6 +40,20 @@ import static io.restassured.config.LogConfig.logConfig;
 
 /**
  * The Spring Web Test Client module's equivalent of {@link io.restassured.RestAssured}. This is the starting point of the DSL.
+ * <h2>Thread safety</h2>
+ * <p>
+ * The static fields and methods of this class (such as {@link #webTestClient(WebTestClient)}, {@link #config} and
+ * {@link #basePath}) are global defaults shared by all threads. When tests run in parallel:
+ * <ul>
+ * <li>Set the static defaults once, before the tests start running in parallel, and don't change them while requests
+ * are being made. Calling {@link #given()} from many threads at once is safe, and each call takes a copy of the
+ * defaults.</li>
+ * <li>Put values that differ between tests in the request specification instead, for example
+ * <code>given().webTestClient(webTestClient)</code> or <code>given().spec(spec)</code> with a specification made by a
+ * {@link io.restassured.module.webtestclient.specification.WebTestClientRequestSpecBuilder}.</li>
+ * <li>Don't execute the same request specification from several threads at once; start a new one with
+ * {@link #given()} in each thread.</li>
+ * </ul>
  */
 public class RestAssuredWebTestClient {
 
@@ -51,7 +65,7 @@ public class RestAssuredWebTestClient {
      * <p/>
      * <code>newConfig()</code> can be statically imported from {@link RestAssuredWebTestClientConfig}.
      */
-    public static RestAssuredWebTestClientConfig config;
+    public static volatile RestAssuredWebTestClientConfig config;
 
     /**
      * Specify a default request specification that will be sent with each request. E,g.
@@ -61,7 +75,7 @@ public class RestAssuredWebTestClient {
      * <p/>
      * means that for each request by Rest Assured "parameter1" will be equal to "value1".
      */
-    public static WebTestClientRequestSpecification requestSpecification;
+    public static volatile WebTestClientRequestSpecification requestSpecification;
 
     /**
      * Specify a default response specification that will be sent with each request. E,g.
@@ -71,15 +85,16 @@ public class RestAssuredWebTestClient {
      * <p/>
      * means that for each response Rest Assured will assert that the status code is equal to 200.
      */
-    public static ResponseSpecification responseSpecification = null;
+    public static volatile ResponseSpecification responseSpecification = null;
 
     /**
      * The base path that's used by REST assured when making requests. The base path is prepended to the request path.
      * Default value is <code>/</code>.
      */
-    public static String basePath = "/";
+    public static volatile String basePath = "/";
 
-    private static WebTestClientFactory webTestClientFactory = null;
+    // WebTestClientRequestSpecBuilder reads this field reflectively
+    private static volatile WebTestClientFactory webTestClientFactory = null;
 
     /**
      * Set a {@link WebTestClient} instance that REST Assured will use when making requests unless overwritten
@@ -882,6 +897,7 @@ public class RestAssuredWebTestClient {
      * @return The assigned config or a new config is no config is assigned
      */
     public static RestAssuredWebTestClientConfig config() {
-        return config == null ? new RestAssuredWebTestClientConfig() : config;
+        RestAssuredWebTestClientConfig currentConfig = config;
+        return currentConfig == null ? new RestAssuredWebTestClientConfig() : currentConfig;
     }
 }

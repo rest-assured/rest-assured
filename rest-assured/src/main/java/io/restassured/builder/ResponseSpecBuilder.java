@@ -701,10 +701,15 @@ public class ResponseSpecBuilder {
         } finally {
             registrarField.setAccessible(false);
         }
-        return new ResponseParserRegistrar(rpr);
+        ResponseParserRegistrar responseParserRegistrar = new ResponseParserRegistrar(rpr);
+        Parser defaultParser = RestAssured.defaultParser;
+        if (defaultParser != null) {
+            responseParserRegistrar.registerDefaultParser(defaultParser);
+        }
+        return responseParserRegistrar;
     }
 
     private RestAssuredConfig restAssuredConfig() {
-        return RestAssured.config == null ? new RestAssuredConfig() : RestAssured.config;
+        return RestAssured.config();
     }
 }

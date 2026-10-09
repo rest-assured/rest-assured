@@ -124,7 +124,7 @@ import static io.restassured.path.xml.XmlPath.CompatibilityMode.XML;
  * </pre>
  */
 public class XmlPath {
-    public static XmlPathConfig config = null;
+    public static volatile XmlPathConfig config = null;
 
     private final CompatibilityMode mode;
     private LazyXmlParser lazyXmlParser;
@@ -968,15 +968,11 @@ public class XmlPath {
     }
 
     private XmlPathConfig getXmlPathConfig() {
-        XmlPathConfig cfg;
-        if (config == null && xmlPathConfig == null) {
-            cfg = new XmlPathConfig();
-        } else if (xmlPathConfig != null) {
-            cfg = xmlPathConfig;
-        } else {
-            cfg = config;
+        if (xmlPathConfig != null) {
+            return xmlPathConfig;
         }
-        return cfg;
+        XmlPathConfig staticConfig = config;
+        return staticConfig == null ? new XmlPathConfig() : staticConfig;
     }
 
     private static abstract class LazyXmlParser {
