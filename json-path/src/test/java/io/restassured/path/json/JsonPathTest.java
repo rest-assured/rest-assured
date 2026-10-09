@@ -663,6 +663,67 @@ public class JsonPathTest {
     }
 
     @Test
+    void gets_map_of_nested_properties_key_with_get_map() {
+        // Given
+        final String json = """
+                {
+                   "components": {
+                      "schemas": {
+                         "tree": {
+                            "required": ["leaf", "root", "trunk", "branch"],
+                            "type": "plant",
+                            "properties": {
+                               "height": { "type": "number", "readOnly": true }
+                            }
+                         }
+                      }
+                   }
+                }
+                """;
+
+        // When
+        final Map<String, Object> properties = new JsonPath(json).getMap("components.schemas.tree.properties");
+
+        // Then
+        assertThat(properties, equalTo(Map.of("height", Map.of("type", "number", "readOnly", true))));
+    }
+
+    @Test
+    void gets_values_of_keys_that_contain_a_colon_with_the_dot_notation() {
+        // Given
+        final JsonPath jsonPath = new JsonPath("{\"message\":{\"ErrorCode:\":0,\"ErrorMsg:\":\"Success\",\"urn:a:b\":[1,2]}}");
+
+        // Then
+        assertThat(jsonPath.getInt("message.ErrorCode:"), equalTo(0));
+        assertThat(jsonPath.getString("message.ErrorMsg:"), equalTo("Success"));
+        assertThat(jsonPath.getList("message.urn:a:b", Integer.class), contains(1, 2));
+        assertThat(jsonPath.getInt("message.urn:a:b[1]"), equalTo(2));
+        assertThat(jsonPath.getInt("message.urn:a:b.size()"), equalTo(2));
+        assertThat(jsonPath.getInt("message.'ErrorCode:'"), equalTo(0));
+        assertThat(jsonPath.getInt("message['ErrorCode:']"), equalTo(0));
+        assertThat(jsonPath.getInt("message.\"ErrorCode:\""), equalTo(0));
+        assertThat(jsonPath.setRootPath("message").getInt("ErrorCode:"), equalTo(0));
+    }
+
+    @Test
+    void colons_in_ternary_elvis_and_map_literal_expressions_are_not_escaped() {
+        // Given
+        final JsonPath jsonPath = new JsonPath(JSON).param("yes", "Y").param("no", "N");
+
+        // Then
+        assertThat(jsonPath.getString("store.bicycle.price > 10 ? 'expensive' : 'cheap'"), equalTo("expensive"));
+        assertThat(jsonPath.getInt("store.bicycle.price > 10 ? 1 : 0"), equalTo(1));
+        assertThat(jsonPath.getInt("store.bicycle.price>10?1:0"), equalTo(1));
+        assertThat(jsonPath.getString("store.bicycle.price > 10 ? yes : no"), equalTo("Y"));
+        assertThat(jsonPath.getInt("store.bicycle.missing ?: 0"), equalTo(0));
+        assertThat(jsonPath.getInt("store.bicycle.missing?:0"), equalTo(0));
+        assertThat(jsonPath.getList("store.book.collect { [t: it.title, a: it.author] }.a"), hasItem("Herman Melville"));
+        assertThat(jsonPath.getFloat("store.book.find { it.title + ':' == 'Moby Dick:' }.price"), equalTo(8.99f));
+        assertThat(jsonPath.getList("store.book.price.collect { it > 10 ? 'high' : 'low' }"), contains("low", "high", "low", "high"));
+        assertThat(jsonPath.getFloat("store.book.collectEntries { [(it.title + ':'): it.price] }.'Moby Dick:'"), equalTo(8.99f));
+    }
+
+    @Test
     public void
     parses_json_document_with_attribute_name_equal_to_size() {
         // When

@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.groovy.runtime.InvokerHelper;
 
 import groovy.lang.Binding;
@@ -36,6 +37,7 @@ import groovy.lang.GroovyClassLoader;
 import groovy.lang.MissingPropertyException;
 import groovy.lang.Script;
 import io.restassured.internal.common.assertion.Assertion;
+import io.restassured.internal.common.assertion.HyphenQuoteFragmentEscaper;
 import io.restassured.internal.common.assertion.PathFragmentEscaper;
 
 public class JSONAssertion implements Assertion {
@@ -69,6 +71,7 @@ public class JSONAssertion implements Assertion {
     key = (String) escapePath(
         key,
         (PathFragmentEscaper) hyphen(),
+        colon(),
         (PathFragmentEscaper) attributeGetter(),
         (PathFragmentEscaper) integer(),
         (PathFragmentEscaper) classKeyword()
@@ -108,6 +111,26 @@ public class JSONAssertion implements Assertion {
       }
     }
     return result;
+  }
+
+  /**
+   * Quotes a key that contains a colon, such as {@code ErrorCode:} or {@code urn:a:b}, so that it can be read with the
+   * dot notation (#1766). A colon is also part of Groovy's ternary ({@code a ? b : c}) and Elvis ({@code a ?: b})
+   * operators and of map literals, so unlike the colon escaper used for XML namespaces, this one leaves a fragment
+   * alone when it contains whitespace, a question mark, a double quote or a closure, or when the colon only occurs
+   * in a list index.
+   */
+  private static PathFragmentEscaper colon() {
+    return new HyphenQuoteFragmentEscaper() {
+      @Override
+      public boolean shouldEscape(String pathFragment) {
+        String fragment = pathFragment.trim();
+        return !fragment.startsWith("'") && !fragment.endsWith("'")
+            && StringUtils.substringBefore(fragment, "[").contains(":")
+            && !StringUtils.containsAny(fragment, '?', '"', '{', '}', '(')
+            && !StringUtils.containsWhitespace(fragment);
+      }
+    };
   }
 
   private Object eval(String root, Object object, String expr) {
