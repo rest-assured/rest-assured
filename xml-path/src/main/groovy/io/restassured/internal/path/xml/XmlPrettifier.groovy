@@ -24,6 +24,20 @@ import org.apache.commons.lang3.StringUtils
 
 class XmlPrettifier {
 
+    /**
+     * Prettify an XML document using a parser that is neither validating nor namespace aware.
+     */
+    static String prettifyXml(String xml) {
+        prettify(new XmlParser(false, false), xml)
+    }
+
+    /**
+     * Prettify an HTML document, parsed leniently using TagSoup.
+     */
+    static String prettifyHtml(String html) {
+        prettify(new XmlParser(new org.ccil.cowan.tagsoup.Parser()), html)
+    }
+
     static String prettify(XmlParser xmlParser, xml) {
         doPrettify { StringWriter stringWriter ->
           if (StringUtils.isBlank(xml)) {
