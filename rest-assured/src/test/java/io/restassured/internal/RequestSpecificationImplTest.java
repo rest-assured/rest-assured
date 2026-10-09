@@ -62,6 +62,7 @@ import java.io.File;
 import java.io.PrintStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.security.KeyStore;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -590,10 +591,18 @@ class RequestSpecificationImplTest {
 
     @Test
     void cookie_maps_with_values_that_are_not_strings() {
-        Throwable thrown = catchThrowable(() -> given().filter(capture()).cookies("a", 1).get("/x"));
+        // The Groovy implementation failed with "GroovyRuntimeException: Could not find matching constructor for:
+        // io.restassured.http.Cookie$Builder(String, Integer)" here
+        Capture capture = capture();
+        Map<String, Object> cookies = new LinkedHashMap<>();
+        cookies.put("b", 2L);
+        cookies.put("c", new GStringImpl(new Object[]{"x"}, new String[]{"v-", ""}));
 
-        assertThat(thrown.getClass().getName()).isEqualTo("groovy.lang.GroovyRuntimeException");
-        assertThat(thrown).hasMessage("Could not find matching constructor for: io.restassured.http.Cookie$Builder(String, Integer)");
+        given().filter(capture).cookies("a", 1).cookies(cookies).get("/x");
+
+        List<Cookie> captured = capture.request.getCookies().asList();
+        assertThat(captured).extracting(Cookie::getName).containsExactly("a", "b", "c");
+        assertThat(captured).extracting(Cookie::getValue).containsExactly("1", "2", "v-x");
     }
 
     @Test
@@ -957,6 +966,19 @@ class RequestSpecificationImplTest {
         File file = new File("ts.jks");
         FilterableRequestSpecification trustStore = (FilterableRequestSpecification) given().trustStore(file, "pw");
         assertThat(trustStore.getConfig().getSSLConfig().getPathToTrustStore()).isEqualTo(file);
+    }
+
+    @Test
+    void key_store_and_trust_store_instances_are_set_on_the_ssl_config() throws Exception {
+        // The Groovy implementation failed with "MissingMethodException: No signature of method: keyStore for class:
+        // io.restassured.config.SSLConfig is applicable for argument types: (java.security.KeyStore)" for the key store
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        KeyStore trustStore = KeyStore.getInstance("JKS");
+
+        FilterableRequestSpecification spec = (FilterableRequestSpecification) given().keyStore(keyStore).trustStore(trustStore);
+
+        assertThat(spec.getConfig().getSSLConfig().getKeyStore()).isSameAs(keyStore);
+        assertThat(spec.getConfig().getSSLConfig().getTrustStore()).isSameAs(trustStore);
     }
 
     @Test

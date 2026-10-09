@@ -704,6 +704,14 @@ public class ResponseSpecificationImpl implements FilterableResponseSpecificatio
         return rpr;
     }
 
+    HamcrestAssertionClosure getAssertionClosure() {
+        return assertionClosure;
+    }
+
+    void setRestAssuredResponse(RestAssuredResponseImpl restAssuredResponse) {
+        this.restAssuredResponse = restAssuredResponse;
+    }
+
     public void setRpr(ResponseParserRegistrar rpr) {
         this.rpr = rpr;
     }
